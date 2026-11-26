@@ -47,13 +47,13 @@ public class CahierRecettePdfService {
      * milieu de la feuille de style de la page.
      */
     private static final String CONTACT_EMAIL = "xxx@gmail.com";
+
     private static final String CONTACT_TELEPHONE = "+33 xx xx xx xx xx";
 
     private final SpringTemplateEngine templateEngine;
     private final CahierRecetteDataService dataService;
 
-    public CahierRecettePdfService(SpringTemplateEngine templateEngine,
-        CahierRecetteDataService dataService) {
+    public CahierRecettePdfService(SpringTemplateEngine templateEngine, CahierRecetteDataService dataService) {
         this.templateEngine = templateEngine;
         this.dataService = dataService;
     }
@@ -76,8 +76,7 @@ public class CahierRecettePdfService {
             String htmlPass2 = renderHtml(modules, pageNumbers);
             return renderPdf(htmlPass2);
         } catch (Exception e) {
-            throw new RuntimeException("Error generating cahier de recette PDF: " + e.getMessage(),
-                e);
+            throw new RuntimeException("Error generating cahier de recette PDF: " + e.getMessage(), e);
         }
     }
 
@@ -116,10 +115,8 @@ public class CahierRecettePdfService {
      * backend, ils se retrouvent dans le classpath sous {@code static/}, d'où le préfixe.
      */
     private ITextRenderer newRenderer() {
-        ITextOutputDevice outputDevice = new ITextOutputDevice(
-            ITextRenderer.DEFAULT_DOTS_PER_POINT);
-        ITextUserAgent userAgent = new ITextUserAgent(outputDevice,
-            ITextRenderer.DEFAULT_DOTS_PER_PIXEL) {
+        ITextOutputDevice outputDevice = new ITextOutputDevice(ITextRenderer.DEFAULT_DOTS_PER_POINT);
+        ITextUserAgent userAgent = new ITextUserAgent(outputDevice, ITextRenderer.DEFAULT_DOTS_PER_PIXEL) {
             @Override
             public String resolveURI(String uri) {
                 // Laisse les chemins relatifs intacts : c'est openStream qui les résout.
@@ -149,10 +146,8 @@ public class CahierRecettePdfService {
         try (ByteArrayOutputStream discard = new ByteArrayOutputStream()) {
             renderer.createPDF(discard);
         }
-        return renderer
-            .findPagePositionsByID(TOC_ID_PATTERN)
-            .stream()
-            .collect(Collectors.toMap(PagePosition::getId, PagePosition::getPageNo, (a, _) -> a));
+        return renderer.findPagePositionsByID(TOC_ID_PATTERN).stream()
+                .collect(Collectors.toMap(PagePosition::getId, PagePosition::getPageNo, (a, _) -> a));
     }
 
     // Nouvelle instance (pas celle de findPageNumbers) : elle charge le HTML final, avec

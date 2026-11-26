@@ -1,5 +1,4 @@
-<nav aria-label="Navigation principale"
-     class="shadow-sm navbar navbar-dark navbar-expand-xl navbar-chrome" data-cy="navbar">
+<nav aria-label="Navigation principale" class="shadow-sm navbar navbar-dark navbar-expand-xl navbar-chrome" data-cy="navbar">
   <div class="container-fluid">
     <a (click)="collapseNavbar()" class="navbar-brand logo" routerLink="/">
       <span class="logo-img"></span>
@@ -41,13 +40,12 @@
                   @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
-                  <span>{{
-                      isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label
-                    }}</span>
+                  <span>{{ isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label }}</span>
                   @if (item.badge > 0) {
                     <span
                       [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'"
-                      class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+                      class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge"
+                    >
                       {{ item.badge > 99 ? '99+' : item.badge }}
                     </span>
                   }
@@ -76,16 +74,12 @@
               </ng-template>
             </li>
           } @else if (item.routerLink) {
-            <li [routerLinkActiveOptions]="{ exact: true }" [style.--nav-hue]="item.accent" class="nav-item"
-                routerLinkActive="active">
-              <a (click)="onLeafClick(item)"
-                 [routerLink]="item.routerLink"
-                 class="nav-link">
+            <li [routerLinkActiveOptions]="{ exact: true }" [style.--nav-hue]="item.accent" class="nav-item" routerLinkActive="active">
+              <a (click)="onLeafClick(item)" [routerLink]="item.routerLink" class="nav-link">
                 <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />
               </a>
             </li>
           } @else {
-
             <li [style.--nav-hue]="item.accent" class="nav-item">
               <button type="button" (click)="onLeafClick(item)" class="nav-link btn btn-link">
                 <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />
@@ -105,7 +99,8 @@
           @if (item.badge > 0) {
             <span
               [class.pulse-badge]="(item.badgeSeverity ?? 'danger') === 'danger'"
-              class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge">
+              class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} navbar-badge"
+            >
               {{ item.badge > 99 ? '99+' : item.badge }}
             </span>
           }
@@ -113,8 +108,12 @@
       </ng-template>
 
       @if (isTauriAdmin) {
-        <button (click)="openConfigEditor()" class="btn btn-link nav-config-btn ms-2"
-                title="Configuration avancée PharmaSmart" type="button">
+        <button
+          (click)="openConfigEditor()"
+          class="btn btn-link nav-config-btn ms-2"
+          title="Configuration avancée PharmaSmart"
+          type="button"
+        >
           <fa-icon [icon]="faSlidersH"></fa-icon>
         </button>
       }

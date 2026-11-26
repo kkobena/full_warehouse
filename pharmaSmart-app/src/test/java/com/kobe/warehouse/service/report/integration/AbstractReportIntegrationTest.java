@@ -15,36 +15,36 @@ import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.AjustType;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.CashFundStatut;
 import com.kobe.warehouse.domain.enumeration.CashFundType;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
-import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -56,11 +56,11 @@ import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
-import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.math.BigDecimal;
@@ -116,12 +116,14 @@ abstract class AbstractReportIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new ReportServicesUnderTest(em);
         transactionIdGeneratorService = new TransactionIdGeneratorService(em);
 
@@ -157,11 +159,15 @@ abstract class AbstractReportIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
-        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult();
+        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     // --- produits ---
@@ -347,7 +353,8 @@ abstract class AbstractReportIntegrationTest {
         return venteFermee(date, annulee, categorie, null);
     }
 
-    protected CashSale venteFermee(LocalDate date, boolean annulee, CategorieChiffreAffaire categorie, Customer client) {
+    protected CashSale venteFermee(
+            LocalDate date, boolean annulee, CategorieChiffreAffaire categorie, Customer client) {
         CashSale vente = new CashSale();
         vente.setCustomer(client);
         vente.setSaleDate(date);
@@ -418,7 +425,8 @@ abstract class AbstractReportIntegrationTest {
         return vendu(produit, quantite, date, false, CategorieChiffreAffaire.CA);
     }
 
-    protected SalesLine vendu(Produit produit, int quantite, LocalDate date, boolean annulee, CategorieChiffreAffaire categorie) {
+    protected SalesLine vendu(
+            Produit produit, int quantite, LocalDate date, boolean annulee, CategorieChiffreAffaire categorie) {
         Sales vente = venteFermee(date, annulee, categorie);
         SalesLine ligne = ligneDeVente(vente, produit, quantite);
         vente.setSalesAmount(ligne.getSalesAmount());
@@ -481,7 +489,8 @@ abstract class AbstractReportIntegrationTest {
      * colonne mais la <b>somme de ses dossiers</b> : c'est ce que les rapports de créances
      * recalculent, et une facture sans dossier vaut donc zéro.
      */
-    protected FactureTiersPayant facture(TiersPayant tiersPayant, LocalDate dateEmission, int montant, int montantRegle, InvoiceStatut statut) {
+    protected FactureTiersPayant facture(
+            TiersPayant tiersPayant, LocalDate dateEmission, int montant, int montantRegle, InvoiceStatut statut) {
         AssuredCustomer assure = new AssuredCustomer();
         assure.setFirstName("Assuré");
         assure.setLastName(unique("ASSURE"));
@@ -605,10 +614,7 @@ abstract class AbstractReportIntegrationTest {
      * que tous les écrans d'encours appliquent.
      */
     protected FactureTiersPayant factureDeGroupe(
-        GroupeTiersPayant groupe,
-        LocalDate dateEmission,
-        FactureTiersPayant... filles
-    ) {
+            GroupeTiersPayant groupe, LocalDate dateEmission, FactureTiersPayant... filles) {
         int total = 0;
         for (FactureTiersPayant fille : filles) {
             total += fille.getMontantTtc().intValue();
@@ -659,13 +665,12 @@ abstract class AbstractReportIntegrationTest {
     }
 
     protected Ajust ajustement(
-        LocalDateTime date,
-        Produit produit,
-        int quantite,
-        MotifAjustement motif,
-        AjustType type,
-        AjustementStatut statut
-    ) {
+            LocalDateTime date,
+            Produit produit,
+            int quantite,
+            MotifAjustement motif,
+            AjustType type,
+            AjustementStatut statut) {
         Ajust ajust = new Ajust();
         ajust.setCommentaire(unique("AJUST"));
         ajust.setUser(utilisateur);
@@ -674,11 +679,8 @@ abstract class AbstractReportIntegrationTest {
         em.persist(ajust);
         em.flush();
 
-        StockProduit stockProduit = produit
-            .getStockProduits()
-            .stream()
-            .findFirst()
-            .orElseGet(() -> stock(produit, quantite));
+        StockProduit stockProduit =
+                produit.getStockProduits().stream().findFirst().orElseGet(() -> stock(produit, quantite));
 
         Ajustement ligne = new Ajustement();
         ligne.setAjust(ajust);
@@ -709,13 +711,12 @@ abstract class AbstractReportIntegrationTest {
      * nul et le fournisseur n'a plus aucun indicateur de livraison.
      */
     protected Commande reception(
-        Fournisseur fournisseur,
-        LocalDate dateCommande,
-        LocalDate dateReception,
-        int montant,
-        int quantiteDemandee,
-        int quantiteRecue
-    ) {
+            Fournisseur fournisseur,
+            LocalDate dateCommande,
+            LocalDate dateReception,
+            int montant,
+            int quantiteDemandee,
+            int quantiteRecue) {
         Commande commande = new Commande();
         commande.setId(services.commandeIdGeneratorService.getNextIdAsInt());
         commande.setOrderDate(dateCommande);

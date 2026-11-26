@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseRfaApiService } from '../../data-access/services/remise-rfa-api.service';
@@ -10,7 +10,18 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-remises-rfa',
-  imports: [CardComponent, DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule, NavTabsComponent],
+  imports: [
+    CardComponent,
+    DeviseDirective,
+    DevisePipe,
+    CommonModule,
+    ButtonComponent,
+    DataTableComponent,
+    ToolbarComponent,
+    BadgeComponent,
+    NgbNavModule,
+    NavTabsComponent,
+  ],
   templateUrl: './remises-rfa.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remises-rfa.component.scss',

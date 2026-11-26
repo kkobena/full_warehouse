@@ -1,11 +1,11 @@
-import {Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import {Router} from '@angular/router';
-import {ActivatedRoute} from '@angular/router';
-import {ICommande} from 'app/shared/model/commande.model';
-import {OrderStatut} from '../../../../shared/model/enumerations/order-statut.model';
-import {CommandCommonService} from '../../../../entities/commande/command-common.service';
-import {CommandeRequestedComponent} from '../commande-requested/commande-requested.component';
-import {CommandeReceivedComponent} from '../commande-received/commande-received.component';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { ICommande } from 'app/shared/model/commande.model';
+import { OrderStatut } from '../../../../shared/model/enumerations/order-statut.model';
+import { CommandCommonService } from '../../../../entities/commande/command-common.service';
+import { CommandeRequestedComponent } from '../commande-requested/commande-requested.component';
+import { CommandeReceivedComponent } from '../commande-received/commande-received.component';
 
 /**
  * Composant conteneur pour la gestion d'une commande.
@@ -28,7 +28,7 @@ export class CommandeDetailComponent implements OnInit {
   private readonly router = inject(Router);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({commande}) => {
+    this.activatedRoute.data.subscribe(({ commande }) => {
       if (commande?.id) {
         this.commande.set(commande);
       } else if (this.commandCommonService.currentCommand()?.id) {

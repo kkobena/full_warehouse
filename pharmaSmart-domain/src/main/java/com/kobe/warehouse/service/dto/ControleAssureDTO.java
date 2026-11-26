@@ -12,9 +12,8 @@ import java.util.List;
  * @param homonymes          dossiers de même nom et prénom : un AVERTISSEMENT, jamais un blocage — deux personnes peuvent porter le même nom
  */
 public record ControleAssureDTO(
-    boolean numeroDejaUtilise,
-    String titulaireDuNumero,
-    boolean dossierExistant,
-    String titulaireDuDossier,
-    List<String> homonymes
-) {}
+        boolean numeroDejaUtilise,
+        String titulaireDuNumero,
+        boolean dossierExistant,
+        String titulaireDuDossier,
+        List<String> homonymes) {}

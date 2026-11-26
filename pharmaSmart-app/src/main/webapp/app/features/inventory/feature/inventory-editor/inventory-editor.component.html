@@ -1,5 +1,4 @@
 <div class="pharma-smart-content p-1">
-
   <!-- ── Modern Pharma Toolbar ─────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-list-check" title="Inventaire">
     <ng-container ngProjectAs="[toolbarActions]">
@@ -63,25 +62,20 @@
             label="Retour"
             ngbTooltip="Retour à la liste"
           />
-
         </div>
       </div>
     </ng-container>
   </app-toolbar>
 
   <!-- ── Contenu en deux colonnes ──────────────────────────────────────────── -->
-  <div class="row  g-3">
-
+  <div class="row g-3">
     <!-- ── Colonne gauche : infos inventaire ──────────────────────────────── -->
     <div class="col-xl-3 col-lg-4">
       <div class="inventory-info-card">
-        <h6 class="info-card-title">
-          <i class="pi pi-info-circle"></i> Détails de l'inventaire
-        </h6>
+        <h6 class="info-card-title"><i class="pi pi-info-circle"></i> Détails de l'inventaire</h6>
         @let inv = store.currentInventory();
         @if (inv) {
           <div class="info-items">
-
             <div class="info-item">
               <span class="info-label">Type</span>
               <span class="info-value">{{ getCategoryLabel(inv.inventoryCategory) }}</span>
@@ -107,7 +101,6 @@
                 <span class="info-value">{{ inv.description }}</span>
               </div>
             }
-
           </div>
         } @else {
           <div class="text-muted small p-2">Chargement...</div>
@@ -121,13 +114,7 @@
             <div class="remote-counts-alert" role="status">
               <i class="pi pi-sync"></i>
               <span>Des comptages ont été enregistrés depuis un autre poste.</span>
-              <app-button
-                (clicked)="refreshAfterRemoteCounts()"
-                [size]="'small'"
-                [text]="true"
-                label="Rafraîchir"
-                severity="info"
-              />
+              <app-button (clicked)="refreshAfterRemoteCounts()" [size]="'small'" [text]="true" label="Rafraîchir" severity="info" />
             </div>
           }
         </div>
@@ -135,9 +122,7 @@
         <!-- Analyse des écarts (clôturé uniquement) -->
         @if (isInventoryClosed && inventoryId() > 0) {
           <div class="gap-section">
-            <h6 class="info-card-title mt-3">
-              <i class="pi pi-chart-bar"></i> Démarque
-            </h6>
+            <h6 class="info-card-title mt-3"><i class="pi pi-chart-bar"></i> Démarque</h6>
             <app-gap-summary [inventoryId]="inventoryId()" />
           </div>
         }
@@ -146,13 +131,10 @@
 
     <!-- ── Colonne droite : grille + pagination ──────────────────────────── -->
     <div class="col-xl-9 col-lg-8">
-
       <!-- Synthèse valorisation (clôturé uniquement) -->
       @if (isInventoryClosed && inventoryId() > 0) {
         <div class="valuation-section mb-3">
-          <h6 class="info-card-title">
-            <i class="pi pi-calculator"></i> Valorisation ventilée
-          </h6>
+          <h6 class="info-card-title"><i class="pi pi-calculator"></i> Valorisation ventilée</h6>
           <app-inventory-valuation [inventoryId]="inventoryId()" />
         </div>
       }
@@ -190,7 +172,6 @@
               [showSeuilMini]="showSeuilMini()"
               [storages]="storages()"
             />
-
           }
         }
       </div>
@@ -199,12 +180,7 @@
       <div class="pagination-bar">
         <div class="page-size-selector">
           <span class="page-size-label">Lignes/page</span>
-          <app-select
-            (ngModelChange)="onPageSizeChange($event)"
-            [items]="pageSizeOptions"
-            [ngModel]="size()"
-            [small]="true"
-          />
+          <app-select (ngModelChange)="onPageSizeChange($event)" [items]="pageSizeOptions" [ngModel]="size()" [small]="true" />
         </div>
         <div class="page-nav">
           <app-button
@@ -215,9 +191,7 @@
             ngbTooltip="Page précédente"
             severity="secondary"
           />
-          <span class="page-info">
-            Page {{ page() + 1 }} / {{ totalPages() }}
-          </span>
+          <span class="page-info"> Page {{ page() + 1 }} / {{ totalPages() }} </span>
           <app-button
             (clicked)="onPageChange(1)"
             [disabled]="isLastPage()"
@@ -236,9 +210,6 @@
           ligne(s)
         </span>
       </div>
-
     </div>
-
   </div>
-
 </div>

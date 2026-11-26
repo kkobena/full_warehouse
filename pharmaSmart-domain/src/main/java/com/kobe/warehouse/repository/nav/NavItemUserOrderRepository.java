@@ -11,4 +11,3 @@ public interface NavItemUserOrderRepository extends JpaRepository<NavItemUserOrd
 
     Optional<NavItemUserOrder> findByUserLoginAndNavItemId(String userLogin, Integer navItemId);
 }
-

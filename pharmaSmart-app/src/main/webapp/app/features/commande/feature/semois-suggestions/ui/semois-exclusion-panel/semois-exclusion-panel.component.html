@@ -21,16 +21,12 @@
     <div class="alert alert-info d-flex gap-2 m-3 py-2" role="alert">
       <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
       <small>
-        Ces produits sont exclus du batch SEMOIS et n'apparaissent pas dans le panier de réapprovisionnement.
-        Ils seront réintégrés automatiquement à l'expiration.
+        Ces produits sont exclus du batch SEMOIS et n'apparaissent pas dans le panier de réapprovisionnement. Ils seront réintégrés
+        automatiquement à l'expiration.
       </small>
     </div>
 
-    <app-data-table
-      [value]="exclusions()"
-      [loading]="isLoading()"
-      style="min-width: 45rem"
-    >
+    <app-data-table [value]="exclusions()" [loading]="isLoading()" style="min-width: 45rem">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Produit</th>
@@ -83,11 +79,5 @@
 </div>
 
 <div class="modal-footer">
-  <app-button
-    label="Fermer"
-    severity="secondary"
-    size="small"
-    (clicked)="close()"
-  />
+  <app-button label="Fermer" severity="secondary" size="small" (clicked)="close()" />
 </div>
-

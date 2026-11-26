@@ -73,9 +73,7 @@
 
         <!-- Stock Reassort (only for PRINCIPAL/Rayon in edit mode) -->
         @if (isEditMode() && isStockRayon) {
-
           <div class="form-row">
-
             <div class="form-field">
               <label for="field_stockReassort">Stock de réassort</label>
               <input
@@ -89,7 +87,9 @@
                 type="number"
                 min="0"
               />
-              @if (editForm.get('stockReassort')!.invalid && (editForm.get('stockReassort')!.dirty || editForm.get('stockReassort')!.touched)) {
+              @if (
+                editForm.get('stockReassort')!.invalid && (editForm.get('stockReassort')!.dirty || editForm.get('stockReassort')!.touched)
+              ) {
                 <div>
                   @if (editForm.get('stockReassort')?.errors?.min) {
                     <small class="form-text text-danger">Le stock de réassort ne peut pas être négatif.</small>
@@ -119,17 +119,14 @@
                 </div>
               }
             </div>
-
           </div>
-
-
         }
 
         <!-- Transfer Option (only in create mode and if stock rayon exists) -->
         @if (!isEditMode() && stockRayonProduit() && maxTransferableQty() > 0) {
           <div class="form-field form-field-full">
             <div class="p-field-checkbox">
-              <app-checkbox formControlName="withTransfer" label="Transférer du stock depuis le rayon"/>
+              <app-checkbox formControlName="withTransfer" label="Transférer du stock depuis le rayon" />
             </div>
           </div>
 
@@ -147,7 +144,10 @@
                 [max]="maxTransferableQty()"
                 min="1"
               />
-              @if (editForm.get('transferQuantity')!.invalid && (editForm.get('transferQuantity')!.dirty || editForm.get('transferQuantity')!.touched)) {
+              @if (
+                editForm.get('transferQuantity')!.invalid &&
+                (editForm.get('transferQuantity')!.dirty || editForm.get('transferQuantity')!.touched)
+              ) {
                 <div>
                   @if (editForm.get('transferQuantity')?.errors?.required) {
                     <small class="form-text text-danger">Ce champ est obligatoire.</small>
@@ -156,8 +156,7 @@
                     <small class="form-text text-danger">La quantité doit être au moins 1.</small>
                   }
                   @if (editForm.get('transferQuantity')?.errors?.max) {
-                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty() }}
-                      .</small>
+                    <small class="form-text text-danger">La quantité ne peut pas dépasser {{ maxTransferableQty() }} .</small>
                   }
                 </div>
               }
@@ -179,8 +178,7 @@
   </div>
 
   <div class="modal-footer">
-    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
-              type="button"/>
+    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary" type="button" />
     <app-button
       [loading]="isSaving()"
       [disabled]="!isFormValid()"

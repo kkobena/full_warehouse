@@ -1,14 +1,7 @@
 /** Contrats de l'API des exports (`/api/exports`), miroir des DTO de `service/dto/exports`. */
 
 export type ExportDonnees =
-  | 'VENTES'
-  | 'LIGNES_VENTE'
-  | 'ENCAISSEMENTS'
-  | 'ACHATS'
-  | 'MOUVEMENTS_STOCK'
-  | 'PRODUITS'
-  | 'CLIENTS'
-  | 'VENTES_JOUR_PRODUIT';
+  'VENTES' | 'LIGNES_VENTE' | 'ENCAISSEMENTS' | 'ACHATS' | 'MOUVEMENTS_STOCK' | 'PRODUITS' | 'CLIENTS' | 'VENTES_JOUR_PRODUIT';
 /** Éditions que le menu Exports bâtit sur place, en appelant le service de leur écran. */
 export type RapportExport =
   | 'EXPORT_COMPTABLE'
@@ -44,13 +37,7 @@ export type CodeExport = ExportDonnees | RapportExport;
 export type FormatExport = 'CSV' | 'XLSX' | 'PDF';
 export type StatutExport = 'EN_ATTENTE' | 'EN_COURS' | 'TERMINE' | 'ECHEC' | 'EXPIRE';
 export type PeriodeRelative =
-  | 'HIER'
-  | 'SEMAINE_PRECEDENTE'
-  | 'MOIS_EN_COURS'
-  | 'MOIS_PRECEDENT'
-  | 'TRIMESTRE_PRECEDENT'
-  | 'ANNEE_EN_COURS'
-  | 'ANNEE_PRECEDENTE';
+  'HIER' | 'SEMAINE_PRECEDENTE' | 'MOIS_EN_COURS' | 'MOIS_PRECEDENT' | 'TRIMESTRE_PRECEDENT' | 'ANNEE_EN_COURS' | 'ANNEE_PRECEDENTE';
 export type Frequence = 'DAILY' | 'WEEKLY' | 'MONTHLY';
 
 /** Filtres partagés avec les écrans des données exportées ; chaque export n'annonce que les siens. */

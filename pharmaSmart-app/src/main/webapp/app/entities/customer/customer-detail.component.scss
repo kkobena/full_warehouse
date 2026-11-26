@@ -2,7 +2,6 @@
 @import 'app/shared/scss/pharma-nav-tabs';
 @import 'app/shared/scss/split-panel';
 
-
 .master {
   height: 100%;
   padding: 8px 12px;
@@ -82,12 +81,10 @@
   margin-top: 0.35rem;
 }
 
-
 // Fiche affichée dans le panneau de détail de la liste des clients.
 .fiche-panel {
   padding: 0.5rem;
 }
-
 
 .clickable {
   cursor: pointer;

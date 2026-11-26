@@ -37,22 +37,22 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
     }
 
     @Override
-    public Page<CustomerReglementDiffereDTO> getDifferePayments(Specification<DifferePayment> specification, Pageable pageable) {
+    public Page<CustomerReglementDiffereDTO> getDifferePayments(
+            Specification<DifferePayment> specification, Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<CustomerReglementDiffereDTO> query = cb.createQuery(CustomerReglementDiffereDTO.class);
         Root<DifferePayment> root = query.from(DifferePayment.class);
         Join<DifferePayment, Customer> customerJoin = root.join(DifferePayment_.differeCustomer);
-        query
-            .select(
-                cb.construct(
-                    CustomerReglementDiffereDTO.class,
-                    customerJoin.get(Customer_.id),
-                    customerJoin.get(Customer_.firstName),
-                    customerJoin.get(Customer_.lastName),
-                    cb.sumAsLong(root.get(DifferePayment_.paidAmount))
-                )
-            )
-            .groupBy(customerJoin.get(Customer_.id), customerJoin.get(Customer_.firstName), customerJoin.get(Customer_.lastName));
+        query.select(cb.construct(
+                        CustomerReglementDiffereDTO.class,
+                        customerJoin.get(Customer_.id),
+                        customerJoin.get(Customer_.firstName),
+                        customerJoin.get(Customer_.lastName),
+                        cb.sumAsLong(root.get(DifferePayment_.paidAmount))))
+                .groupBy(
+                        customerJoin.get(Customer_.id),
+                        customerJoin.get(Customer_.firstName),
+                        customerJoin.get(Customer_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -96,22 +96,18 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
         Join<CashRegister, AppUser> userJoin = cashRegisterJoin.join(CashRegister_.user);
         Join<DifferePayment, PaymentMode> paymentModeJoin = root.join(DifferePayment_.paymentMode);
 
-        query
-            .select(
-                cb.construct(
-                    ReglementDiffereDTO.class,
-                    root.get(DifferePayment_.id),
-                    userJoin.get(AppUser_.firstName),
-                    userJoin.get(AppUser_.lastName),
-                    root.get(DifferePayment_.createdAt),
-                    root.get(DifferePayment_.expectedAmount),
-                    root.get(DifferePayment_.montantVerse),
-                    root.get(DifferePayment_.paidAmount),
-                    paymentModeJoin.get(PaymentMode_.code),
-                    paymentModeJoin.get(PaymentMode_.libelle)
-                )
-            )
-            .orderBy(cb.asc(root.get(DifferePayment_.createdAt)));
+        query.select(cb.construct(
+                        ReglementDiffereDTO.class,
+                        root.get(DifferePayment_.id),
+                        userJoin.get(AppUser_.firstName),
+                        userJoin.get(AppUser_.lastName),
+                        root.get(DifferePayment_.createdAt),
+                        root.get(DifferePayment_.expectedAmount),
+                        root.get(DifferePayment_.montantVerse),
+                        root.get(DifferePayment_.paidAmount),
+                        paymentModeJoin.get(PaymentMode_.code),
+                        paymentModeJoin.get(PaymentMode_.libelle)))
+                .orderBy(cb.asc(root.get(DifferePayment_.createdAt)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

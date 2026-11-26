@@ -1,20 +1,14 @@
-import {Component, inject, input, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, inject, input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   IInventoryGlobalSummary,
   IValuationGroup,
   VALUATION_GROUP_OPTIONS,
-  ValuationGroupBy
+  ValuationGroupBy,
 } from '../../models/inventory-valuation.model';
-import {InventoryValuationApiService} from '../../data-access/services/inventory-valuation-api.service';
-import {
-  AppKpiAccent,
-  DataTableComponent,
-  KpiItemComponent,
-  KpiStripComponent,
-  SelectComponent,
-} from '../../../../shared/ui';
+import { InventoryValuationApiService } from '../../data-access/services/inventory-valuation-api.service';
+import { AppKpiAccent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-inventory-valuation',

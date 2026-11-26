@@ -40,7 +40,9 @@ export class DciAssignationModalComponent {
     { label: 'Remplacer les molécules', value: 'REMPLACER', icon: 'pi pi-sync' },
   ];
   /** Produits qui portent déjà au moins une molécule : c'est pour eux que le mode compte. */
-  protected readonly dejaPourvus = computed(() => this.produits.filter(produit => (produit.dcis?.length ?? 0) > 0 || !!produit.dciId).length);
+  protected readonly dejaPourvus = computed(
+    () => this.produits.filter(produit => (produit.dcis?.length ?? 0) > 0 || !!produit.dciId).length,
+  );
 
   /** Les premiers libellés seulement : la modal doit tenir à l'écran. */
   protected readonly apercu = computed(() => this.produits.slice(0, 8));
@@ -68,18 +70,24 @@ export class DciAssignationModalComponent {
       return;
     }
     this.enCours.set(true);
-    this.api.rattacherProduits(cible.id, this.produits.map(produit => produit.id!), this.mode()).subscribe({
-      next: res => {
-        this.enCours.set(false);
-        this.activeModal.close({ dci: cible, nombre: res.body ?? 0, mode: this.mode() });
-      },
-      error: err => {
-        this.enCours.set(false);
-        this.notificationService.error(
-          this.errorService.getErrorMessage(err, "L'affectation de la DCI a échoué."),
-          'Affectation impossible',
-        );
-      },
-    });
+    this.api
+      .rattacherProduits(
+        cible.id,
+        this.produits.map(produit => produit.id!),
+        this.mode(),
+      )
+      .subscribe({
+        next: res => {
+          this.enCours.set(false);
+          this.activeModal.close({ dci: cible, nombre: res.body ?? 0, mode: this.mode() });
+        },
+        error: err => {
+          this.enCours.set(false);
+          this.notificationService.error(
+            this.errorService.getErrorMessage(err, "L'affectation de la DCI a échoué."),
+            'Affectation impossible',
+          );
+        },
+      });
   }
 }

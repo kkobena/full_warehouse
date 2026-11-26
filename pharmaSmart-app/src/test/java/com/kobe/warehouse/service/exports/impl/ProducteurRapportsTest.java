@@ -10,26 +10,26 @@ import com.kobe.warehouse.domain.enumeration.FormatExport;
 import com.kobe.warehouse.domain.enumeration.Granularite;
 import com.kobe.warehouse.domain.enumeration.IndicateurPilotage;
 import com.kobe.warehouse.domain.enumeration.ModeAnnees;
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.RapportExport;
 import com.kobe.warehouse.domain.enumeration.TriAnalyse;
-import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.domain.enumeration.TypeComparaison;
-import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.activity_summary.ActivitySummaryService;
 import com.kobe.warehouse.service.ap.ExportComptableService;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
-import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
-import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereService;
-import com.kobe.warehouse.service.report.pdf.CashRegisterPdfReportService;
+import com.kobe.warehouse.service.dto.pilotage.RequeteAnalyseDTO;
+import com.kobe.warehouse.service.dto.pilotage.RequeteAnneesDTO;
+import com.kobe.warehouse.service.dto.pilotage.RequetePilotageDTO;
 import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseService;
+import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.service.financiel_transaction.TableauPharmacienService;
 import com.kobe.warehouse.service.financiel_transaction.TaxeService;
 import com.kobe.warehouse.service.financiel_transaction.dto.ModeChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
-import com.kobe.warehouse.service.dto.pilotage.RequeteAnalyseDTO;
-import com.kobe.warehouse.service.dto.pilotage.RequeteAnneesDTO;
-import com.kobe.warehouse.service.dto.pilotage.RequetePilotageDTO;
 import com.kobe.warehouse.service.pilotage.ExportPilotageService;
+import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereService;
+import com.kobe.warehouse.service.report.pdf.CashRegisterPdfReportService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -111,12 +111,11 @@ class ProducteurRapportsTest {
     @DisplayName("export comptable : seules les feuilles retenues, et le PDF reste le PDF")
     void comptableFeuillesRetenues() throws Exception {
         comptables.produire(
-            RapportExport.EXPORT_COMPTABLE,
-            FormatExport.PDF,
-            DU,
-            AU,
-            Map.of(FiltreExport.SECTIONS_COMPTABLES, List.of("VENTES", "TVA"))
-        );
+                RapportExport.EXPORT_COMPTABLE,
+                FormatExport.PDF,
+                DU,
+                AU,
+                Map.of(FiltreExport.SECTIONS_COMPTABLES, List.of("VENTES", "TVA")));
 
         verify(exportComptableService).export(DU, AU, "pdf", true, false, false, false, false, true);
     }
@@ -125,18 +124,16 @@ class ProducteurRapportsTest {
     @DisplayName("tableau de bord : découpage, comparaison et indicateurs retenus passent dans la requête")
     void tableauDeBordRegle() {
         pilotage.produire(
-            RapportExport.PILOTAGE_TABLEAU_DE_BORD,
-            DU,
-            AU,
-            Map.of(
-                FiltreExport.GRANULARITE,
-                List.of("JOUR"),
-                FiltreExport.COMPARAISON,
-                List.of("AUCUNE"),
-                FiltreExport.INDICATEURS,
-                List.of("CA_TTC", "MARGE_BRUTE")
-            )
-        );
+                RapportExport.PILOTAGE_TABLEAU_DE_BORD,
+                DU,
+                AU,
+                Map.of(
+                        FiltreExport.GRANULARITE,
+                        List.of("JOUR"),
+                        FiltreExport.COMPARAISON,
+                        List.of("AUCUNE"),
+                        FiltreExport.INDICATEURS,
+                        List.of("CA_TTC", "MARGE_BRUTE")));
 
         verify(exportPilotageService).exporterSeries(requetePilotage.capture());
         RequetePilotageDTO requete = requetePilotage.getValue();
@@ -148,7 +145,8 @@ class ProducteurRapportsTest {
     }
 
     @Test
-    @DisplayName("tableau de bord : sans réglage, les défauts de l'écran — mois, même période l'an passé, tous les indicateurs")
+    @DisplayName(
+            "tableau de bord : sans réglage, les défauts de l'écran — mois, même période l'an passé, tous les indicateurs")
     void tableauDeBordParDefaut() {
         pilotage.produire(RapportExport.PILOTAGE_TABLEAU_DE_BORD, DU, AU, Map.of());
 
@@ -175,18 +173,16 @@ class ProducteurRapportsTest {
     @DisplayName("ventilation : axe, nombre d'éléments et tri retenus passent dans la requête ; « Tout » vaut zéro")
     void ventilationReglee() {
         pilotage.produire(
-            RapportExport.PILOTAGE_ANALYSER,
-            DU,
-            AU,
-            Map.of(
-                FiltreExport.AXE_ANALYSE,
-                List.of("LABORATOIRE"),
-                FiltreExport.NOMBRE_ELEMENTS,
-                List.of("0"),
-                FiltreExport.TRI_ANALYSE,
-                List.of("ECART_BAISSE")
-            )
-        );
+                RapportExport.PILOTAGE_ANALYSER,
+                DU,
+                AU,
+                Map.of(
+                        FiltreExport.AXE_ANALYSE,
+                        List.of("LABORATOIRE"),
+                        FiltreExport.NOMBRE_ELEMENTS,
+                        List.of("0"),
+                        FiltreExport.TRI_ANALYSE,
+                        List.of("ECART_BAISSE")));
 
         verify(exportPilotageService).exporterAnalyse(any(), requeteAnalyse.capture());
         RequeteAnalyseDTO requete = requeteAnalyse.getValue();
@@ -199,18 +195,16 @@ class ProducteurRapportsTest {
     @DisplayName("comparaison des années : indicateur, nombre d'années et lecture du mois")
     void annees() {
         pilotage.produire(
-            RapportExport.PILOTAGE_ANNEES,
-            null,
-            null,
-            Map.of(
-                FiltreExport.INDICATEUR_COMPARE,
-                List.of("MARGE_BRUTE"),
-                FiltreExport.NOMBRE_ANNEES,
-                List.of("5"),
-                FiltreExport.MODE_ANNEES,
-                List.of("CUMULE")
-            )
-        );
+                RapportExport.PILOTAGE_ANNEES,
+                null,
+                null,
+                Map.of(
+                        FiltreExport.INDICATEUR_COMPARE,
+                        List.of("MARGE_BRUTE"),
+                        FiltreExport.NOMBRE_ANNEES,
+                        List.of("5"),
+                        FiltreExport.MODE_ANNEES,
+                        List.of("CUMULE")));
 
         verify(exportPilotageService).exporterAnnees(requeteAnnees.capture());
         RequeteAnneesDTO requete = requeteAnnees.getValue();
@@ -218,6 +212,7 @@ class ProducteurRapportsTest {
         assertThat(requete.annees()).isEqualTo(5);
         assertThat(requete.mode()).isEqualTo(ModeAnnees.CUMULE);
     }
+
     @Test
     @DisplayName("balance : sans réglage, le CA encaissé et la période demandée")
     void balanceParDefaut() {
@@ -235,28 +230,27 @@ class ProducteurRapportsTest {
     @DisplayName("balance : le CA déclaré se demande, comme sur l'écran du retraitement")
     void balanceCaDeclare() {
         comptables.produire(
-            RapportExport.BALANCE_CAISSE,
-            FormatExport.PDF,
-            DU,
-            AU,
-            Map.of(FiltreExport.MODE_CA, List.of("DECLARE"))
-        );
+                RapportExport.BALANCE_CAISSE,
+                FormatExport.PDF,
+                DU,
+                AU,
+                Map.of(FiltreExport.MODE_CA, List.of("DECLARE")));
 
         verify(balanceCaisseService).exportToPdf(mvtParam.capture());
         assertThat(mvtParam.getValue().getMode()).isEqualTo(ModeChiffreAffaire.DECLARE);
     }
 
     @Test
-    @DisplayName("tableau du pharmacien : le PDF et l'Excel sortent du même service, le découpage par défaut est journalier")
+    @DisplayName(
+            "tableau du pharmacien : le PDF et l'Excel sortent du même service, le découpage par défaut est journalier")
     void tableauPharmacien() {
         comptables.produire(RapportExport.TABLEAU_PHARMACIEN, FormatExport.PDF, DU, AU, Map.of());
         comptables.produire(
-            RapportExport.TABLEAU_PHARMACIEN,
-            FormatExport.XLSX,
-            DU,
-            AU,
-            Map.of(FiltreExport.DECOUPAGE_TABLEAU, List.of("month"))
-        );
+                RapportExport.TABLEAU_PHARMACIEN,
+                FormatExport.XLSX,
+                DU,
+                AU,
+                Map.of(FiltreExport.DECOUPAGE_TABLEAU, List.of("month")));
 
         verify(tableauPharmacienService).exportToPdf(mvtParam.capture());
         assertThat(mvtParam.getValue().getGroupeBy()).isEqualTo("daily");
@@ -276,7 +270,12 @@ class ProducteurRapportsTest {
     @Test
     @DisplayName("déclaration de TVA : sa période seule, aucun réglage ne la décrit")
     void declarationTva() {
-        comptables.produire(RapportExport.DECLARATION_TVA, FormatExport.PDF, DU, AU, Map.of(FiltreExport.MODE_CA, List.of("DECLARE")));
+        comptables.produire(
+                RapportExport.DECLARATION_TVA,
+                FormatExport.PDF,
+                DU,
+                AU,
+                Map.of(FiltreExport.MODE_CA, List.of("DECLARE")));
 
         verify(taxeService).exportDeclarationToPdf(mvtParam.capture());
         MvtParam param = mvtParam.getValue();
@@ -284,6 +283,7 @@ class ProducteurRapportsTest {
         assertThat(param.getToDate()).isEqualTo(AU);
         assertThat(param.getGroupeBy()).isNull();
     }
+
     @Test
     @DisplayName("récapitulatif de caisse : la journée est le début de la période")
     void recapitulatifCaisse() {
@@ -299,16 +299,20 @@ class ProducteurRapportsTest {
 
         verify(activitySummaryService).printToPdf(DU, AU, null, null);
     }
+
     @Test
     @DisplayName("mouvements de caisse : la période, et seuls les réglages retenus filtrent")
     void mouvementsDeCaisse() {
         comptables.produire(
-            RapportExport.MOUVEMENTS_CAISSE_ETAT,
-            FormatExport.PDF,
-            DU,
-            AU,
-            Map.of(FiltreExport.TYPE_TRANSACTION, List.of("CASH_SALE"), FiltreExport.MODE_PAIEMENT, List.of("CASH"))
-        );
+                RapportExport.MOUVEMENTS_CAISSE_ETAT,
+                FormatExport.PDF,
+                DU,
+                AU,
+                Map.of(
+                        FiltreExport.TYPE_TRANSACTION,
+                        List.of("CASH_SALE"),
+                        FiltreExport.MODE_PAIEMENT,
+                        List.of("CASH")));
 
         verify(financialTransactionService).exportToPdf(filtreTransactions.capture());
         TransactionFilterDTO filtre = filtreTransactions.getValue();

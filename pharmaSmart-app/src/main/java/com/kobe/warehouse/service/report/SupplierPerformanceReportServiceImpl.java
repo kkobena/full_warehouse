@@ -26,7 +26,8 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     private final EntityManager entityManager;
     private final SupplierEvolutionRepository supplierEvolutionRepository;
 
-    public SupplierPerformanceReportServiceImpl(EntityManager entityManager, SupplierEvolutionRepository supplierEvolutionRepository) {
+    public SupplierPerformanceReportServiceImpl(
+            EntityManager entityManager, SupplierEvolutionRepository supplierEvolutionRepository) {
         this.entityManager = entityManager;
         this.supplierEvolutionRepository = supplierEvolutionRepository;
     }
@@ -34,24 +35,22 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     @Cacheable(value = "supplierPerformance", key = "'all'")
     public List<SupplierPerformanceDTO> getAllSupplierPerformance() {
-        String sql =
-            "SELECT " +
-                "fournisseur_id, " +
-                "fournisseur_name, " +
-                "fournisseur_code, " +
-                "phone, " +
-                "mobile, " +
-                "nb_orders_last_30_days, " +
-                "purchase_amount_last_30_days, " +
-                "nb_orders_last_12_months, " +
-                "purchase_amount_last_12_months, " +
-                "avg_delivery_days, " +
-                "min_delivery_days, " +
-                "max_delivery_days, " +
-                "conformity_rate_pct, " +
-                "performance_score " +
-                "FROM mv_supplier_performance " +
-                "ORDER BY performance_score DESC";
+        String sql = "SELECT " + "fournisseur_id, "
+                + "fournisseur_name, "
+                + "fournisseur_code, "
+                + "phone, "
+                + "mobile, "
+                + "nb_orders_last_30_days, "
+                + "purchase_amount_last_30_days, "
+                + "nb_orders_last_12_months, "
+                + "purchase_amount_last_12_months, "
+                + "avg_delivery_days, "
+                + "min_delivery_days, "
+                + "max_delivery_days, "
+                + "conformity_rate_pct, "
+                + "performance_score "
+                + "FROM mv_supplier_performance "
+                + "ORDER BY performance_score DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -64,24 +63,22 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     @Cacheable(value = "supplierPerformance", key = "'supplier:' + #fournisseurId")
     public SupplierPerformanceDTO getSupplierPerformance(Integer fournisseurId) {
-        String sql =
-            "SELECT " +
-                "fournisseur_id, " +
-                "fournisseur_name, " +
-                "fournisseur_code, " +
-                "phone, " +
-                "mobile, " +
-                "nb_orders_last_30_days, " +
-                "purchase_amount_last_30_days, " +
-                "nb_orders_last_12_months, " +
-                "purchase_amount_last_12_months, " +
-                "avg_delivery_days, " +
-                "min_delivery_days, " +
-                "max_delivery_days, " +
-                "conformity_rate_pct, " +
-                "performance_score " +
-                "FROM mv_supplier_performance " +
-                "WHERE fournisseur_id = :fournisseurId";
+        String sql = "SELECT " + "fournisseur_id, "
+                + "fournisseur_name, "
+                + "fournisseur_code, "
+                + "phone, "
+                + "mobile, "
+                + "nb_orders_last_30_days, "
+                + "purchase_amount_last_30_days, "
+                + "nb_orders_last_12_months, "
+                + "purchase_amount_last_12_months, "
+                + "avg_delivery_days, "
+                + "min_delivery_days, "
+                + "max_delivery_days, "
+                + "conformity_rate_pct, "
+                + "performance_score "
+                + "FROM mv_supplier_performance "
+                + "WHERE fournisseur_id = :fournisseurId";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("fournisseurId", fournisseurId);
@@ -97,25 +94,23 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     @Cacheable(value = "supplierPerformance", key = "'top:' + #limit")
     public List<SupplierPerformanceDTO> getTopSuppliersByVolume(Integer limit) {
-        String sql =
-            "SELECT " +
-                "fournisseur_id, " +
-                "fournisseur_name, " +
-                "fournisseur_code, " +
-                "phone, " +
-                "mobile, " +
-                "nb_orders_last_30_days, " +
-                "purchase_amount_last_30_days, " +
-                "nb_orders_last_12_months, " +
-                "purchase_amount_last_12_months, " +
-                "avg_delivery_days, " +
-                "min_delivery_days, " +
-                "max_delivery_days, " +
-                "conformity_rate_pct, " +
-                "performance_score " +
-                "FROM mv_supplier_performance " +
-                "ORDER BY purchase_amount_last_12_months DESC " +
-                "LIMIT :limit";
+        String sql = "SELECT " + "fournisseur_id, "
+                + "fournisseur_name, "
+                + "fournisseur_code, "
+                + "phone, "
+                + "mobile, "
+                + "nb_orders_last_30_days, "
+                + "purchase_amount_last_30_days, "
+                + "nb_orders_last_12_months, "
+                + "purchase_amount_last_12_months, "
+                + "avg_delivery_days, "
+                + "min_delivery_days, "
+                + "max_delivery_days, "
+                + "conformity_rate_pct, "
+                + "performance_score "
+                + "FROM mv_supplier_performance "
+                + "ORDER BY purchase_amount_last_12_months DESC "
+                + "LIMIT :limit";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("limit", limit);
@@ -134,21 +129,19 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     public List<SupplierPurchaseDTO> getTopSuppliersByPeriode(LocalDate fromDate, LocalDate toDate, Integer limit) {
         // Les memes statuts que mv_supplier_performance, pour que les deux chiffres restent comparables.
-        String sql =
-            "SELECT c.fournisseur_id, " +
-                "       f.libelle, " +
-                "       COUNT(DISTINCT c.id)              AS nb_commandes, " +
-                "       COALESCE(SUM(c.final_amount), 0)  AS montant_achat, " +
-                "       COALESCE(mv.avg_delivery_days, 0) AS avg_delivery_days, " +
-                "       COALESCE(mv.performance_score, 0) AS performance_score " +
-                "FROM commande c " +
-                "  JOIN fournisseur f ON f.id = c.fournisseur_id " +
-                "  LEFT JOIN mv_supplier_performance mv ON mv.fournisseur_id = c.fournisseur_id " +
-                "WHERE c.order_status IN ('RECEIVED', 'CLOSED') " +
-                "  AND c.order_date BETWEEN :fromDate AND :toDate " +
-                "GROUP BY c.fournisseur_id, f.libelle, mv.avg_delivery_days, mv.performance_score " +
-                "ORDER BY montant_achat DESC " +
-                "LIMIT :limit";
+        String sql = "SELECT c.fournisseur_id, " + "       f.libelle, "
+                + "       COUNT(DISTINCT c.id)              AS nb_commandes, "
+                + "       COALESCE(SUM(c.final_amount), 0)  AS montant_achat, "
+                + "       COALESCE(mv.avg_delivery_days, 0) AS avg_delivery_days, "
+                + "       COALESCE(mv.performance_score, 0) AS performance_score "
+                + "FROM commande c "
+                + "  JOIN fournisseur f ON f.id = c.fournisseur_id "
+                + "  LEFT JOIN mv_supplier_performance mv ON mv.fournisseur_id = c.fournisseur_id "
+                + "WHERE c.order_status IN ('RECEIVED', 'CLOSED') "
+                + "  AND c.order_date BETWEEN :fromDate AND :toDate "
+                + "GROUP BY c.fournisseur_id, f.libelle, mv.avg_delivery_days, mv.performance_score "
+                + "ORDER BY montant_achat DESC "
+                + "LIMIT :limit";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("fromDate", fromDate);
@@ -158,43 +151,37 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        return results
-            .stream()
-            .map(row ->
-                new SupplierPurchaseDTO(
-                    row[0] != null ? ((Number) row[0]).intValue() : null,
-                    (String) row[1],
-                    row[2] != null ? ((Number) row[2]).intValue() : 0,
-                    row[3] != null ? ((Number) row[3]).longValue() : 0L,
-                    row[4] != null ? ((Number) row[4]).intValue() : 0,
-                    row[5] != null ? new BigDecimal(row[5].toString()) : BigDecimal.ZERO
-                )
-            )
-            .toList();
+        return results.stream()
+                .map(row -> new SupplierPurchaseDTO(
+                        row[0] != null ? ((Number) row[0]).intValue() : null,
+                        (String) row[1],
+                        row[2] != null ? ((Number) row[2]).intValue() : 0,
+                        row[3] != null ? ((Number) row[3]).longValue() : 0L,
+                        row[4] != null ? ((Number) row[4]).intValue() : 0,
+                        row[5] != null ? new BigDecimal(row[5].toString()) : BigDecimal.ZERO))
+                .toList();
     }
 
     @Override
     @Cacheable(value = "supplierPerformance", key = "'score:' + #minScore")
     public List<SupplierPerformanceDTO> getSuppliersByPerformanceScore(Double minScore) {
-        String sql =
-            "SELECT " +
-                "fournisseur_id, " +
-                "fournisseur_name, " +
-                "fournisseur_code, " +
-                "phone, " +
-                "mobile, " +
-                "nb_orders_last_30_days, " +
-                "purchase_amount_last_30_days, " +
-                "nb_orders_last_12_months, " +
-                "purchase_amount_last_12_months, " +
-                "avg_delivery_days, " +
-                "min_delivery_days, " +
-                "max_delivery_days, " +
-                "conformity_rate_pct, " +
-                "performance_score " +
-                "FROM mv_supplier_performance " +
-                "WHERE performance_score >= :minScore " +
-                "ORDER BY performance_score DESC";
+        String sql = "SELECT " + "fournisseur_id, "
+                + "fournisseur_name, "
+                + "fournisseur_code, "
+                + "phone, "
+                + "mobile, "
+                + "nb_orders_last_30_days, "
+                + "purchase_amount_last_30_days, "
+                + "nb_orders_last_12_months, "
+                + "purchase_amount_last_12_months, "
+                + "avg_delivery_days, "
+                + "min_delivery_days, "
+                + "max_delivery_days, "
+                + "conformity_rate_pct, "
+                + "performance_score "
+                + "FROM mv_supplier_performance "
+                + "WHERE performance_score >= :minScore "
+                + "ORDER BY performance_score DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("minScore", minScore);
@@ -208,25 +195,23 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     @Cacheable(value = "supplierPerformance", key = "'delivery-issues'")
     public List<SupplierPerformanceDTO> getSuppliersWithDeliveryIssues() {
-        String sql =
-            "SELECT " +
-                "fournisseur_id, " +
-                "fournisseur_name, " +
-                "fournisseur_code, " +
-                "phone, " +
-                "mobile, " +
-                "nb_orders_last_30_days, " +
-                "purchase_amount_last_30_days, " +
-                "nb_orders_last_12_months, " +
-                "purchase_amount_last_12_months, " +
-                "avg_delivery_days, " +
-                "min_delivery_days, " +
-                "max_delivery_days, " +
-                "conformity_rate_pct, " +
-                "performance_score " +
-                "FROM mv_supplier_performance " +
-                "WHERE conformity_rate_pct < 95 OR avg_delivery_days > 7 " +
-                "ORDER BY conformity_rate_pct ASC, avg_delivery_days DESC";
+        String sql = "SELECT " + "fournisseur_id, "
+                + "fournisseur_name, "
+                + "fournisseur_code, "
+                + "phone, "
+                + "mobile, "
+                + "nb_orders_last_30_days, "
+                + "purchase_amount_last_30_days, "
+                + "nb_orders_last_12_months, "
+                + "purchase_amount_last_12_months, "
+                + "avg_delivery_days, "
+                + "min_delivery_days, "
+                + "max_delivery_days, "
+                + "conformity_rate_pct, "
+                + "performance_score "
+                + "FROM mv_supplier_performance "
+                + "WHERE conformity_rate_pct < 95 OR avg_delivery_days > 7 "
+                + "ORDER BY conformity_rate_pct ASC, avg_delivery_days DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -239,19 +224,17 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
     @Override
     @Cacheable(value = "supplierPerformance", key = "'summary'")
     public SupplierPerformanceSummaryDTO getSupplierPerformanceSummary() {
-        String sql =
-            "SELECT " +
-                "COUNT(*) as total_suppliers, " +
-                "SUM(purchase_amount_last_12_months) as total_purchase_12m, " +
-                "SUM(purchase_amount_last_30_days) as total_purchase_30d, " +
-                "SUM(nb_orders_last_12_months) as total_orders_12m, " +
-                "SUM(nb_orders_last_30_days) as total_orders_30d, " +
-                "AVG(avg_delivery_days) as avg_delivery, " +
-                "AVG(conformity_rate_pct) as avg_conformity, " +
-                "COUNT(*) FILTER (WHERE performance_score >= 70) as good_performers, " +
-                "COUNT(*) FILTER (WHERE performance_score >= 50 AND performance_score < 70) as avg_performers, " +
-                "COUNT(*) FILTER (WHERE performance_score < 50) as poor_performers " +
-                "FROM mv_supplier_performance";
+        String sql = "SELECT " + "COUNT(*) as total_suppliers, "
+                + "SUM(purchase_amount_last_12_months) as total_purchase_12m, "
+                + "SUM(purchase_amount_last_30_days) as total_purchase_30d, "
+                + "SUM(nb_orders_last_12_months) as total_orders_12m, "
+                + "SUM(nb_orders_last_30_days) as total_orders_30d, "
+                + "AVG(avg_delivery_days) as avg_delivery, "
+                + "AVG(conformity_rate_pct) as avg_conformity, "
+                + "COUNT(*) FILTER (WHERE performance_score >= 70) as good_performers, "
+                + "COUNT(*) FILTER (WHERE performance_score >= 50 AND performance_score < 70) as avg_performers, "
+                + "COUNT(*) FILTER (WHERE performance_score < 50) as poor_performers "
+                + "FROM mv_supplier_performance";
 
         Query query = entityManager.createNativeQuery(sql);
         Object[] result = (Object[]) query.getSingleResult();
@@ -268,19 +251,17 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
         Integer poorPerformers = result[9] != null ? ((Number) result[9]).intValue() : 0;
 
         return new SupplierPerformanceSummaryDTO(
-            totalSuppliers,
-            totalPurchase12m,
-            totalPurchase30d,
-            totalOrders12m,
-            totalOrders30d,
-            avgDelivery,
-            avgConformity,
-            goodPerformers,
-            avgPerformers,
-            poorPerformers
-        );
+                totalSuppliers,
+                totalPurchase12m,
+                totalPurchase30d,
+                totalOrders12m,
+                totalOrders30d,
+                avgDelivery,
+                avgConformity,
+                goodPerformers,
+                avgPerformers,
+                poorPerformers);
     }
-
 
     @Override
     @Cacheable(value = "supplierPerformance", key = "'evolution'")
@@ -332,20 +313,19 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
         BigDecimal performanceScore = row[13] != null ? new BigDecimal(row[13].toString()) : BigDecimal.ZERO;
 
         return new SupplierPerformanceDTO(
-            fournisseurId,
-            fournisseurName,
-            fournisseurCode,
-            phone,
-            mobile,
-            nbOrders30d,
-            purchaseAmount30d,
-            nbOrders12m,
-            purchaseAmount12m,
-            avgDeliveryDays,
-            minDeliveryDays,
-            maxDeliveryDays,
-            conformityRate,
-            performanceScore
-        );
+                fournisseurId,
+                fournisseurName,
+                fournisseurCode,
+                phone,
+                mobile,
+                nbOrders30d,
+                purchaseAmount30d,
+                nbOrders12m,
+                purchaseAmount12m,
+                avgDeliveryDays,
+                minDeliveryDays,
+                maxDeliveryDays,
+                conformityRate,
+                performanceScore);
     }
 }

@@ -38,8 +38,11 @@ class CloisonnementListesTest {
     @Test
     @DisplayName("une portée absente ne restreint rien")
     void porteeAbsenteNeRestreintRien() {
-        assertThat(CollectionUtils.isEmpty(new CommandeFilterDTO().getMagasinIds())).isTrue();
-        assertThat(CollectionUtils.isEmpty(new CommandeFilterDTO().setMagasinIds(Set.of()).getMagasinIds())).isTrue();
+        assertThat(CollectionUtils.isEmpty(new CommandeFilterDTO().getMagasinIds()))
+                .isTrue();
+        assertThat(CollectionUtils.isEmpty(
+                        new CommandeFilterDTO().setMagasinIds(Set.of()).getMagasinIds()))
+                .isTrue();
     }
 
     /**

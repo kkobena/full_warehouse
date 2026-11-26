@@ -15,7 +15,8 @@ class SaleLineDTOForcageJsonTest {
 
     @Test
     void motifIsAcceptedFromTheFrontAndImpliesForcing() throws Exception {
-        SaleLineDTO dto = mapper.readValue("{\"produitId\":1,\"quantityRequested\":3,\"motifForcage\":\"ECART_INVENTAIRE\"}", SaleLineDTO.class);
+        SaleLineDTO dto = mapper.readValue(
+                "{\"produitId\":1,\"quantityRequested\":3,\"motifForcage\":\"ECART_INVENTAIRE\"}", SaleLineDTO.class);
 
         assertEquals(MotifForcageStock.ECART_INVENTAIRE, dto.getMotifForcage());
         assertTrue(dto.isForcage(), "un motif explicite vaut forçage");

@@ -4,7 +4,6 @@ import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.ClassificationCriticiteLog;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ClassificationType;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -27,21 +26,20 @@ import java.time.LocalDateTime;
  * @param createdAt Date du changement
  */
 public record ClassificationLogDTO(
-    Integer id,
-    Integer produitId,
-    String libelleProduit,
-    ClasseCriticite ancienneClasse,
-    ClasseCriticite nouvelleClasse,
-    Integer vmm12Mois,
-    Long ca12Mois,
-    BigDecimal rotationAnnuelle,
-    Integer frequenceVenteMois,
-    BigDecimal scoreTotal,
-    String raisonChangement,
-    ClassificationType classificationType,
-    String userName,
-    LocalDateTime createdAt
-) {
+        Integer id,
+        Integer produitId,
+        String libelleProduit,
+        ClasseCriticite ancienneClasse,
+        ClasseCriticite nouvelleClasse,
+        Integer vmm12Mois,
+        Long ca12Mois,
+        BigDecimal rotationAnnuelle,
+        Integer frequenceVenteMois,
+        BigDecimal scoreTotal,
+        String raisonChangement,
+        ClassificationType classificationType,
+        String userName,
+        LocalDateTime createdAt) {
 
     /**
      * Crée un DTO depuis une entité ClassificationCriticiteLog
@@ -51,22 +49,20 @@ public record ClassificationLogDTO(
      */
     public static ClassificationLogDTO fromEntity(ClassificationCriticiteLog entity) {
         return new ClassificationLogDTO(
-            entity.getId(),
-            entity.getProduit() != null ? entity.getProduit().getId() : null,
-            entity.getProduit() != null ? entity.getProduit().getLibelle() : null,
-            entity.getAncienneClasse(),
-            entity.getNouvelleClasse(),
-            entity.getVmm12Mois(),
-            entity.getCa12Mois(),
-            entity.getRotationAnnuelle(),
-            entity.getFrequenceVenteMois(),
-            entity.getScoreTotal(),
-            entity.getRaisonChangement(),
-            entity.getClassificationType(),
-            entity.getUser() != null ?
-                (AppUserNames.fullName(entity.getUser())).trim() : null,
-            entity.getCreatedAt()
-        );
+                entity.getId(),
+                entity.getProduit() != null ? entity.getProduit().getId() : null,
+                entity.getProduit() != null ? entity.getProduit().getLibelle() : null,
+                entity.getAncienneClasse(),
+                entity.getNouvelleClasse(),
+                entity.getVmm12Mois(),
+                entity.getCa12Mois(),
+                entity.getRotationAnnuelle(),
+                entity.getFrequenceVenteMois(),
+                entity.getScoreTotal(),
+                entity.getRaisonChangement(),
+                entity.getClassificationType(),
+                entity.getUser() != null ? (AppUserNames.fullName(entity.getUser())).trim() : null,
+                entity.getCreatedAt());
     }
 
     /**
@@ -116,11 +112,7 @@ public record ClassificationLogDTO(
             return "Classification initiale: " + nouvelleClasse.getCode();
         }
         String direction = isPromotion() ? "Promotion" : (isRetrogradation() ? "Rétrogradation" : "Maintien");
-        return String.format("%s: %s -> %s",
-            direction,
-            ancienneClasse.getCode(),
-            nouvelleClasse.getCode()
-        );
+        return String.format("%s: %s -> %s", direction, ancienneClasse.getCode(), nouvelleClasse.getCode());
     }
 
     /**

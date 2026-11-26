@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.AppUser;
@@ -37,19 +36,16 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 class AjustementReportReportServiceTest {
 
     /** Gabarit minimal : Flying Saucer rend réellement, il lui faut du XHTML valide. */
-    private static final String HTML = "<html><head><title>Ajustement</title></head><body><p>ajustement</p></body></html>";
+    private static final String HTML =
+            "<html><head><title>Ajustement</title></head><body><p>ajustement</p></body></html>";
 
     // Doublures créées à l'initialisation des champs, et non dans un @BeforeEach : le délai de
     // quinze secondes qui borne les méthodes de cycle de vie coupait l'amorçage de Mockito.
     private final SpringTemplateEngine templateEngine = mock(SpringTemplateEngine.class);
     private final StorageService storageService = mock(StorageService.class);
 
-
-    private final AjustementReportReportService service = new AjustementReportReportService(
-        templateEngine,
-        storageService
-
-    );
+    private final AjustementReportReportService service =
+            new AjustementReportReportService(templateEngine, storageService);
 
     private Magasin magasin;
 
@@ -91,8 +87,8 @@ class AjustementReportReportServiceTest {
             assertThat(pdf).isNotEmpty();
             assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
             assertThat(service.getParameters())
-                .containsEntry(Constant.IS_LAST_PAGE, true)
-                .containsEntry(Constant.PAGE_COUNT, "1/1");
+                    .containsEntry(Constant.IS_LAST_PAGE, true)
+                    .containsEntry(Constant.PAGE_COUNT, "1/1");
         }
 
         @Test
@@ -103,9 +99,9 @@ class AjustementReportReportServiceTest {
             service.export(ajust);
 
             assertThat(service.getParameters())
-                .containsEntry(Constant.MAGASIN, magasin)
-                .containsEntry(Constant.ENTITY, ajust)
-                .containsEntry(Constant.ITEM_SIZE, 7);
+                    .containsEntry(Constant.MAGASIN, magasin)
+                    .containsEntry(Constant.ENTITY, ajust)
+                    .containsEntry(Constant.ITEM_SIZE, 7);
         }
 
         @Test
@@ -113,7 +109,9 @@ class AjustementReportReportServiceTest {
         void piedDePage() {
             service.export(ajust(lignes(3)));
 
-            assertThat((String) service.getParameters().get(Constant.FOOTER)).contains("RC-001").contains("0102030405");
+            assertThat((String) service.getParameters().get(Constant.FOOTER))
+                    .contains("RC-001")
+                    .contains("0102030405");
         }
 
         /** Les lignes se lisent dans l'ordre du code CIP, celui des rayons et des inventaires. */
@@ -156,7 +154,8 @@ class AjustementReportReportServiceTest {
         void toutesLesLignesUneSeuleFois() {
             service.export(ajust(lignesDesordonnees(120)));
 
-            List<String> consignees = tranches.stream().flatMap(List::stream).map(a -> codeCip(a)).toList();
+            List<String> consignees =
+                    tranches.stream().flatMap(List::stream).map(a -> codeCip(a)).toList();
 
             assertThat(consignees).hasSize(120).doesNotHaveDuplicates();
         }
@@ -166,7 +165,8 @@ class AjustementReportReportServiceTest {
         void ordreConserveEntreLesPages() {
             service.export(ajust(lignesDesordonnees(120)));
 
-            List<String> consignees = tranches.stream().flatMap(List::stream).map(a -> codeCip(a)).toList();
+            List<String> consignees =
+                    tranches.stream().flatMap(List::stream).map(a -> codeCip(a)).toList();
 
             assertThat(consignees).isSorted();
         }
@@ -192,7 +192,11 @@ class AjustementReportReportServiceTest {
     // ===== fabriques =====
 
     private static String codeCip(Ajustement ajustement) {
-        return ajustement.getStockProduit().getProduit().getFournisseurProduitPrincipal().getCodeCip();
+        return ajustement
+                .getStockProduit()
+                .getProduit()
+                .getFournisseurProduitPrincipal()
+                .getCodeCip();
     }
 
     private static Ajust ajust(List<Ajustement> ajustements) {

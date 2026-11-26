@@ -38,7 +38,8 @@ public class EtiquetteBarcodeReplacedElement implements ReplacedElementFactory {
     }
 
     @Override
-    public ReplacedElement createReplacedElement(LayoutContext c, BlockBox box, UserAgentCallback uac, int cssWidth, int cssHeight) {
+    public ReplacedElement createReplacedElement(
+            LayoutContext c, BlockBox box, UserAgentCallback uac, int cssWidth, int cssHeight) {
         Element e = box.getElement();
         if (e == null) {
             return null;
@@ -64,8 +65,8 @@ public class EtiquetteBarcodeReplacedElement implements ReplacedElementFactory {
 
     private FSImage getBarcodeImage(String barcodeData, int cssWidth, int cssHeight) throws IOException {
         java.awt.Image image = barcodeData.startsWith(Gs1DataMatrixEncoder.PREFIXE_DATA_MATRIX)
-            ? Gs1DataMatrixEncoder.encoder(barcodeData)
-            : createCode39Image(barcodeData);
+                ? Gs1DataMatrixEncoder.encoder(barcodeData)
+                : createCode39Image(barcodeData);
         FSImage fsImage = new ITextFSImage(Image.getInstance(image, Color.WHITE));
         return fsImage.scale(cssWidth, cssHeight);
     }
@@ -76,7 +77,7 @@ public class EtiquetteBarcodeReplacedElement implements ReplacedElementFactory {
         return code.createAwtImage(Color.BLACK, Color.WHITE);
     }
 
-    //e EAN-13 barcode 6*19 mm
+    // e EAN-13 barcode 6*19 mm
     @Override
     public void reset() {
         superFactory.reset();

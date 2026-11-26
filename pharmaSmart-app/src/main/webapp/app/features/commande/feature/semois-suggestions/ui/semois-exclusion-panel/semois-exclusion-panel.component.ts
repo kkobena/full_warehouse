@@ -28,7 +28,10 @@ export class SemoisExclusionPanelComponent implements OnInit {
   loadExclusions(): void {
     this.isLoading.set(true);
     this.semoisService.getExclusionsActives().subscribe({
-      next: res => { this.exclusions.set(res.body ?? []); this.isLoading.set(false); },
+      next: res => {
+        this.exclusions.set(res.body ?? []);
+        this.isLoading.set(false);
+      },
       error: () => this.isLoading.set(false),
     });
   }
@@ -55,4 +58,3 @@ export class SemoisExclusionPanelComponent implements OnInit {
     this.activeModal.close(this.reintegratedCount);
   }
 }
-

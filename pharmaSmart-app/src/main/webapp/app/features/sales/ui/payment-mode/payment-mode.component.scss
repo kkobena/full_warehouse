@@ -29,7 +29,11 @@
 }
 
 .payment-modes-header {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff),
+    var(--pharma-chrome-tab, #5b89a6)
+  );
   color: #ffffff;
   padding: 6px 12px;
   font-weight: 600;
@@ -186,14 +190,33 @@
 }
 
 /* Couleurs de marque par code de mode (suffixe = code en minuscules) */
-.mode-chip--cash { background: #2e7d32; }
-.mode-chip--om { background: #ff7900; color: #212529; } /* blanc sur orange : 2,6:1 ; texte foncé : 5,9:1 */
-.mode-chip--wave { background: #00a8e0; color: #212529; } /* blanc sur cyan : 2,7:1 ; texte foncé : 5,6:1 */
-.mode-chip--mtn { background: #ffcc00; color: #212529; }
-.mode-chip--moov { background: #005baa; }
-.mode-chip--cb { background: #1a3c6e; }
-.mode-chip--ch { background: #6c757d; }
-.mode-chip--virement { background: #0f766e; }
+.mode-chip--cash {
+  background: #2e7d32;
+}
+.mode-chip--om {
+  background: #ff7900;
+  color: #212529;
+} /* blanc sur orange : 2,6:1 ; texte foncé : 5,9:1 */
+.mode-chip--wave {
+  background: #00a8e0;
+  color: #212529;
+} /* blanc sur cyan : 2,7:1 ; texte foncé : 5,6:1 */
+.mode-chip--mtn {
+  background: #ffcc00;
+  color: #212529;
+}
+.mode-chip--moov {
+  background: #005baa;
+}
+.mode-chip--cb {
+  background: #1a3c6e;
+}
+.mode-chip--ch {
+  background: #6c757d;
+}
+.mode-chip--virement {
+  background: #0f766e;
+}
 
 /* Le champ montant est un composant enfant (app-input-number) : l'hôte prend la place
    de l'ancien <input> dans l'input-group, et l'<input> interne — hors encapsulation de
@@ -259,7 +282,11 @@
 }
 
 .additional-info-header {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff),
+    var(--pharma-chrome-tab, #5b89a6)
+  );
   color: #ffffff;
   padding: 8px 12px;
   font-weight: 600;
@@ -391,14 +418,30 @@
 }
 
 /* Icônes colorées aux couleurs de marque (mêmes teintes que les pastilles) */
-::ng-deep .payment-mode-menu .mode-item-icon--cash { color: #2e7d32; }
-::ng-deep .payment-mode-menu .mode-item-icon--om { color: #ff7900; }
-::ng-deep .payment-mode-menu .mode-item-icon--wave { color: #00a8e0; }
-::ng-deep .payment-mode-menu .mode-item-icon--mtn { color: #d4a800; }
-::ng-deep .payment-mode-menu .mode-item-icon--moov { color: #005baa; }
-::ng-deep .payment-mode-menu .mode-item-icon--cb { color: #1a3c6e; }
-::ng-deep .payment-mode-menu .mode-item-icon--ch { color: #6c757d; }
-::ng-deep .payment-mode-menu .mode-item-icon--virement { color: #0f766e; }
+::ng-deep .payment-mode-menu .mode-item-icon--cash {
+  color: #2e7d32;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--om {
+  color: #ff7900;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--wave {
+  color: #00a8e0;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--mtn {
+  color: #d4a800;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--moov {
+  color: #005baa;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--cb {
+  color: #1a3c6e;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--ch {
+  color: #6c757d;
+}
+::ng-deep .payment-mode-menu .mode-item-icon--virement {
+  color: #0f766e;
+}
 
 // ============================================
 // STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)

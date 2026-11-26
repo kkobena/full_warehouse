@@ -117,8 +117,8 @@ class EnvoiCommandeServiceImplTest {
         commande(OrderStatut.RECEIVED);
 
         assertThatThrownBy(() -> service.marquerEnvoyee(COMMANDE_ID, CanalEnvoi.MAIL))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("RECEIVED");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("RECEIVED");
     }
 
     @Test
@@ -127,6 +127,6 @@ class EnvoiCommandeServiceImplTest {
         when(commandeRepository.findById(COMMANDE_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.marquerEnvoyee(COMMANDE_ID, CanalEnvoi.MAIL))
-            .isInstanceOf(GenericError.class);
+                .isInstanceOf(GenericError.class);
     }
 }

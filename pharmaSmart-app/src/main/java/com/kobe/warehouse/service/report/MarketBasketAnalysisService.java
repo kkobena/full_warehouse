@@ -21,12 +21,7 @@ public interface MarketBasketAnalysisService {
      * @return list of product associations
      */
     List<ProductAssociationDTO> getProductAssociations(
-        LocalDate startDate,
-        LocalDate endDate,
-        BigDecimal minSupport,
-        BigDecimal minConfidence,
-        Integer limit
-    );
+            LocalDate startDate, LocalDate endDate, BigDecimal minSupport, BigDecimal minConfidence, Integer limit);
 
     /**
      * Get products frequently bought with a specific product
@@ -37,7 +32,8 @@ public interface MarketBasketAnalysisService {
      * @param limit maximum results
      * @return list of associated products
      */
-    List<ProductAssociationDTO> getAssociationsForProduct(Long productId, LocalDate startDate, LocalDate endDate, Integer limit);
+    List<ProductAssociationDTO> getAssociationsForProduct(
+            Long productId, LocalDate startDate, LocalDate endDate, Integer limit);
 
     /**
      * Get summary statistics for market basket analysis

@@ -5,8 +5,7 @@
 <div class="modal-body">
   <app-card [variant]="'form'">
     <div class="ui-g form-group">
-      <label class="form-control-label" for="fournisseurId">Fournisseurs<span
-        style="font-weight: 900; color: red">*</span></label>
+      <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
       <app-select
         [(ngModel)]="selectedFournisseurId"
         [items]="fournisseurs()"
@@ -17,23 +16,13 @@
       />
     </div>
     <div class="text-center ui-g form-group">
-      <app-file-upload
-        [accept]="accept"
-        (filesSelected)="onFilesSelected($event)"
-      />
+      <app-file-upload [accept]="accept" (filesSelected)="onFilesSelected($event)" />
     </div>
   </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    class="mr-2"
-    icon="pi pi-times"
-    label="Fermer"
-    severity="secondary"
-    type="button"
-  />
+  <app-button (clicked)="cancel()" class="mr-2" icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
 
   <app-button
     (clicked)="onUpload()"

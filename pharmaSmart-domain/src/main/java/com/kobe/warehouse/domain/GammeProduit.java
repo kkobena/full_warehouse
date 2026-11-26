@@ -5,13 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -97,14 +94,14 @@ public class GammeProduit implements Serializable {
     @Override
     public String toString() {
         return "GammeProduit{"
-            + "id="
-            + getId()
-            + ", code='"
-            + getCode()
-            + "'"
-            + ", libelle='"
-            + getLibelle()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", code='"
+                + getCode()
+                + "'"
+                + ", libelle='"
+                + getLibelle()
+                + "'"
+                + "}";
     }
 }

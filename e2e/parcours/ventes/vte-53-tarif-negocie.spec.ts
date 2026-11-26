@@ -25,7 +25,7 @@ scenario('VTE-53', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await assurerPanierVide(page);
-  await page.goto('/sales-home');
+    await page.goto('/sales-home');
     await expect(page.locator('#produitbox')).toBeVisible();
     await page.getByRole('tab', { name: /Assurance/ }).click();
     const recherche = page.getByPlaceholder('Rechercher un client assuré');

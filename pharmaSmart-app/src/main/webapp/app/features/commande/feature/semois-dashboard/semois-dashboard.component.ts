@@ -142,4 +142,3 @@ export class SemoisDashboardComponent implements OnInit {
     return item.produitId;
   }
 }
-

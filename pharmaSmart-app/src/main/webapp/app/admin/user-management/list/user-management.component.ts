@@ -1,33 +1,32 @@
-import {Component, computed, inject, OnInit, signal, ChangeDetectionStrategy} from "@angular/core";
-import {ActivatedRoute, Router, RouterModule} from "@angular/router";
-import {HttpHeaders, HttpResponse} from "@angular/common/http";
-import {combineLatest} from "rxjs";
-import {SortService, SortState, sortStateSignal} from "app/shared/sort";
-import {SORT} from "app/config/navigation.constants";
-import {AccountService} from "app/core/auth/account.service";
-import {UserManagementService} from "../service/user-management.service";
-import {User} from "../user-management.model";
-import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent, CardComponent } from "app/shared/ui";
-import {CommonModule} from "@angular/common";
-import {
-  NgbConfirmDialogService
-} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {NotificationService} from "../../../shared/services/notification.service";
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { combineLatest } from 'rxjs';
+import { SortService, SortState, sortStateSignal } from 'app/shared/sort';
+import { SORT } from 'app/config/navigation.constants';
+import { AccountService } from 'app/core/auth/account.service';
+import { UserManagementService } from '../service/user-management.service';
+import { User } from '../user-management.model';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent, CardComponent } from 'app/shared/ui';
+import { CommonModule } from '@angular/common';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
 @Component({
-  selector: "jhi-user-mgmt",
-  templateUrl: "./user-management.component.html",
-  styleUrls: ["./user-management.component.scss"],
+  selector: 'jhi-user-mgmt',
+  templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     CommonModule,
     RouterModule,
     ButtonComponent,
     ToolbarComponent,
     NgbTooltip,
     DataTableComponent,
-    IconFieldComponent
-  ]
+    IconFieldComponent,
+  ],
 })
 export default class UserManagementComponent implements OnInit {
   currentAccount = inject(AccountService).trackCurrentAccount();
@@ -37,7 +36,7 @@ export default class UserManagementComponent implements OnInit {
   itemsPerPage = 50;
   protected readonly page = signal<number | undefined>(undefined);
   sortState = sortStateSignal({});
-  filterQuery = signal("");
+  filterQuery = signal('');
 
   filteredUsers = computed(() => {
     const q = this.filterQuery().toLowerCase().trim();
@@ -45,10 +44,8 @@ export default class UserManagementComponent implements OnInit {
     if (!q) {
       return all;
     }
-    return all.filter(u =>
-      u.login?.toLowerCase().includes(q) ||
-      u.firstName?.toLowerCase().includes(q) ||
-      u.lastName?.toLowerCase().includes(q)
+    return all.filter(
+      u => u.login?.toLowerCase().includes(q) || u.firstName?.toLowerCase().includes(q) || u.lastName?.toLowerCase().includes(q),
     );
   });
 
@@ -64,24 +61,27 @@ export default class UserManagementComponent implements OnInit {
   }
 
   setActive(user: User, isActivated: boolean): void {
-    this.userService.update({...user, activated: isActivated}).subscribe(() => this.loadAll());
+    this.userService.update({ ...user, activated: isActivated }).subscribe(() => this.loadAll());
   }
 
   deleteUser(user: User): void {
     this.confirmDialog.onConfirm(
-      () => this.userService.delete(user.login).subscribe({
-        next: () => {
-          this.loadAll();
-          this.notificationService.success(`Utilisateur "${user.firstName} ${user.lastName}" supprimé.`, "Suppression réussie");
-        },
-        error: err => this.notificationService.error(`Impossible de supprimer l'utilisateur "${user.firstName} ${user.lastName}".`, "Erreur lors de la suppression")
-      }),
-      "Suppression",
-      `Voulez-vous supprimer l'utilisateur "${user.firstName} ${user.lastName}" ?`
+      () =>
+        this.userService.delete(user.login).subscribe({
+          next: () => {
+            this.loadAll();
+            this.notificationService.success(`Utilisateur "${user.firstName} ${user.lastName}" supprimé.`, 'Suppression réussie');
+          },
+          error: err =>
+            this.notificationService.error(
+              `Impossible de supprimer l'utilisateur "${user.firstName} ${user.lastName}".`,
+              'Erreur lors de la suppression',
+            ),
+        }),
+      'Suppression',
+      `Voulez-vous supprimer l'utilisateur "${user.firstName} ${user.lastName}" ?`,
     );
-
   }
-
 
   loadAll(): void {
     this.isLoading.set(true);
@@ -89,14 +89,14 @@ export default class UserManagementComponent implements OnInit {
       .query({
         page: this.page() - 1,
         size: this.itemsPerPage,
-        sort: this.sortService.buildSortParam(this.sortState(), "id")
+        sort: this.sortService.buildSortParam(this.sortState(), 'id'),
       })
       .subscribe({
         next: (res: HttpResponse<User[]>) => {
           this.isLoading.set(false);
           this.onSuccess(res.body, res.headers);
         },
-        error: () => this.isLoading.set(false)
+        error: () => this.isLoading.set(false),
       });
   }
 
@@ -110,18 +110,18 @@ export default class UserManagementComponent implements OnInit {
   }
 
   transition(sortState?: SortState): void {
-    this.router.navigate(["./"], {
+    this.router.navigate(['./'], {
       relativeTo: this.activatedRoute.parent,
       queryParams: {
         page: this.page(),
-        sort: this.sortService.buildSortParam(sortState ?? this.sortState())
-      }
+        sort: this.sortService.buildSortParam(sortState ?? this.sortState()),
+      },
     });
   }
 
   private handleNavigation(): void {
     combineLatest([this.activatedRoute.data, this.activatedRoute.queryParamMap]).subscribe(([data, params]) => {
-      const page = params.get("page");
+      const page = params.get('page');
       this.page.set(+(page ?? 1));
       this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data.defaultSort));
       this.loadAll();
@@ -129,7 +129,7 @@ export default class UserManagementComponent implements OnInit {
   }
 
   private onSuccess(users: User[] | null, headers: HttpHeaders): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.users.set(users);
   }
 }

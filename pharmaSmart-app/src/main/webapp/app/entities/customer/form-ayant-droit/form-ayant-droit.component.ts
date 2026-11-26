@@ -1,42 +1,39 @@
-import { afterNextRender, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
-import { Customer, ICustomer } from "app/shared/model/customer.model";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { ErrorService } from "app/shared/error.service";
-import { CustomerService } from "app/entities/customer/customer.service";
-import { Observable, Subject } from "rxjs";
-import { finalize, takeUntil } from "rxjs/operators";
-import { HttpResponse } from "@angular/common/http";
-import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from "../../../shared/util/warehouse-util";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { DateNaissDirective } from "../../../shared/date-naiss.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
 import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  RadioComponent
-} from '../../../shared/ui';
+  afterNextRender,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+  ChangeDetectionStrategy,
+  signal,
+} from '@angular/core';
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ErrorService } from 'app/shared/error.service';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
+import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, RadioComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-form-ayant-droit",
-  templateUrl: "./form-ayant-droit.component.html",
-  styleUrls: ["./form-ayant-droit-component.scss"],
+  selector: 'app-form-ayant-droit',
+  templateUrl: './form-ayant-droit.component.html',
+  styleUrls: ['./form-ayant-droit-component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    DateNaissDirective,
-    ButtonComponent,
-    CardComponent,
-    KeyFilterDirective,
-    RadioComponent
-  ]
+  imports: [FormsModule, ReactiveFormsModule, DateNaissDirective, ButtonComponent, CardComponent, KeyFilterDirective, RadioComponent],
 })
 export class FormAyantDroitComponent implements OnInit, OnDestroy {
   title: string;
   entity?: ICustomer;
   assure?: ICustomer;
-  protected firstName = viewChild.required<ElementRef>("firstName");
+  protected firstName = viewChild.required<ElementRef>('firstName');
   protected fb = inject(UntypedFormBuilder);
   protected readonly isSaving = signal(false);
   protected isValid = true;
@@ -46,7 +43,7 @@ export class FormAyantDroitComponent implements OnInit, OnDestroy {
     lastName: [null, [Validators.required, Validators.min(1)]],
     numAyantDroit: [null, [Validators.required]],
     datNaiss: [],
-    sexe: []
+    sexe: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
@@ -88,7 +85,7 @@ export class FormAyantDroitComponent implements OnInit, OnDestroy {
       lastName: customer.lastName,
       datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
-      numAyantDroit: customer.numAyantDroit
+      numAyantDroit: customer.numAyantDroit,
     });
   }
 
@@ -106,20 +103,20 @@ export class FormAyantDroitComponent implements OnInit, OnDestroy {
       numAyantDroit: formValue.numAyantDroit,
       datNaiss: DATE_FORMAT_FROM_STRING_FR(formValue.datNaiss),
       sexe: formValue.sexe,
-      type: "ASSURE",
-      assureId: this.assure.id
+      type: 'ASSURE',
+      assureId: this.assure.id,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving.set(false))),
-        takeUntil(this.destroy$)
+        finalize(() => this.isSaving.set(false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: res => this.onSaveSuccess(res.body),
-        error: error => this.onSaveError(error)
+        error: error => this.onSaveError(error),
       });
   }
 
@@ -136,7 +133,7 @@ export class FormAyantDroitComponent implements OnInit, OnDestroy {
           this.notificationService.error(translatedErrorMessage);
         });
     } else {
-      this.notificationService.error("Erreur interne du serveur.");
+      this.notificationService.error('Erreur interne du serveur.');
     }
   }
 }

@@ -8,12 +8,9 @@ import com.kobe.warehouse.domain.enumeration.StorageType;
  * asynchrone pour générer des suggestions post-inventaire.
  */
 public record InventoryClosedEvent(
-    Long storeInventoryId,
-    InventoryCategory inventoryCategory,
-    StorageType storageType,
-    Integer storageId,
-    Integer magasinId,
-    Integer userId
-) {
-
-}
+        Long storeInventoryId,
+        InventoryCategory inventoryCategory,
+        StorageType storageType,
+        Integer storageId,
+        Integer magasinId,
+        Integer userId) {}

@@ -38,8 +38,7 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
      * magasin, et c'est celui du magasin principal qui a décidé de l'exclusion. Retenir « un rayon
      * exclu quelconque » afficherait un libellé sans rapport avec la décision prise.
      */
-    @Query(
-        """
+    @Query("""
         select new com.kobe.warehouse.service.declaration_ca.dto.JournalLigneDTO(
             s.id, sl.saleDate, s.numberTransaction,
             coalesce(fp.codeCip, p.codeEanLaboratoire), p.libelle,
@@ -65,21 +64,18 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
                or upper(fp.codeCip) like :terme
                or upper(p.codeEanLaboratoire) like :terme)
         order by sl.saleDate desc, s.id desc, p.libelle
-        """
-    )
+        """)
     List<JournalLigneDTO> lignes(
-        @Param("motif") ExclusionMotif motif,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("terme") String terme,
-        @Param("magasinId") Integer magasinId,
-        @Param("storageId") Integer storageId,
-        Pageable pageable
-    );
+            @Param("motif") ExclusionMotif motif,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("terme") String terme,
+            @Param("magasinId") Integer magasinId,
+            @Param("storageId") Integer storageId,
+            Pageable pageable);
 
     /** Les lignes d'une vente donnée, pour le panneau de détail du journal tiers-payant. */
-    @Query(
-        """
+    @Query("""
         select new com.kobe.warehouse.service.declaration_ca.dto.JournalLigneDTO(
             s.id, sl.saleDate, s.numberTransaction,
             coalesce(fp.codeCip, p.codeEanLaboratoire), p.libelle,
@@ -98,14 +94,12 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
           and sl.exclusionMotif = :motif
           and sl.toIgnore = false
         order by p.libelle
-        """
-    )
+        """)
     List<JournalLigneDTO> lignesDeLaVente(
-        @Param("saleId") Long saleId,
-        @Param("saleDate") LocalDate saleDate,
-        @Param("motif") ExclusionMotif motif,
-        @Param("magasinId") Integer magasinId
-    );
+            @Param("saleId") Long saleId,
+            @Param("saleDate") LocalDate saleDate,
+            @Param("motif") ExclusionMotif motif,
+            @Param("magasinId") Integer magasinId);
 
     /**
      * Les ventes écartées au titre d'un tiers-payant exclu, une ligne par vente.
@@ -114,8 +108,7 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
      * les joindre ici la dupliquerait — donc doublerait ses montants. Ils sont rapportés par
      * {@link #nomsTiersPayant}.
      */
-    @Query(
-        """
+    @Query("""
         select new com.kobe.warehouse.service.declaration_ca.dto.JournalVenteDTO(
             s.id, s.saleDate, s.numberTransaction,
             null,
@@ -145,21 +138,18 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
                              and tpsl.clientTiersPayant.tiersPayant.id = :tiersPayantId))
         group by s.id, s.saleDate, s.numberTransaction, c.firstName, c.lastName
         order by s.saleDate desc, s.id desc
-        """
-    )
+        """)
     List<JournalVenteDTO> ventesTiersPayant(
-        @Param("motif") ExclusionMotif motif,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("terme") String terme,
-        @Param("magasinId") Integer magasinId,
-        @Param("tiersPayantId") Integer tiersPayantId,
-        Pageable pageable
-    );
+            @Param("motif") ExclusionMotif motif,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("terme") String terme,
+            @Param("magasinId") Integer magasinId,
+            @Param("tiersPayantId") Integer tiersPayantId,
+            Pageable pageable);
 
     /** Les intitulés de tiers-payant, vente par vente : un couple par rattachement. */
-    @Query(
-        """
+    @Query("""
         select new com.kobe.warehouse.service.declaration_ca.dto.IntituleTiersPayantDTO(
             tpsl.sale.id, tp.fullName)
         from ThirdPartySaleLine tpsl
@@ -167,8 +157,7 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
         join ctp.tiersPayant tp
         where tpsl.sale.id in :saleIds
         order by tp.fullName
-        """
-    )
+        """)
     List<IntituleTiersPayantDTO> nomsTiersPayant(@Param("saleIds") Collection<Long> saleIds);
 
     /**
@@ -180,8 +169,7 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
      * <p>{@code count(distinct s.id)} et non le couple {@code (id, saleDate)} : l'identifiant vient
      * d'une séquence, il ne se répète pas d'une partition à l'autre.
      */
-    @Query(
-        """
+    @Query("""
         select new com.kobe.warehouse.service.declaration_ca.dto.JournalKpiDTO(
             count(distinct s.id),
             count(sl),
@@ -209,14 +197,12 @@ public interface JournalExclusionRepository extends JpaRepository<SalesLine, Sal
                or exists (select 1 from ThirdPartySaleLine tpsl
                            where tpsl.sale = s
                              and tpsl.clientTiersPayant.tiersPayant.id = :tiersPayantId))
-        """
-    )
+        """)
     JournalKpiDTO indicateurs(
-        @Param("motif") ExclusionMotif motif,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("terme") String terme,
-        @Param("magasinId") Integer magasinId,
-        @Param("tiersPayantId") Integer tiersPayantId
-    );
+            @Param("motif") ExclusionMotif motif,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("terme") String terme,
+            @Param("magasinId") Integer magasinId,
+            @Param("tiersPayantId") Integer tiersPayantId);
 }

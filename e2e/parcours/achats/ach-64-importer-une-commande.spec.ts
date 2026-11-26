@@ -40,18 +40,24 @@ scenario('ACH-64', async ({ etape, page }) => {
 
   await etape(3, async () => {
     // Deux lignes, séparateur point-virgule, une ligne d'en-tête reconnue et ignorée.
-    await modale.locator('input[type="file"]').first().setInputFiles({
-      name: 'commande-laborex.csv',
-      mimeType: 'text/csv',
-      buffer: Buffer.from('CIP;QUANTITE\n1000023;5\n1000024;3\n', 'utf-8'),
-    });
+    await modale
+      .locator('input[type="file"]')
+      .first()
+      .setInputFiles({
+        name: 'commande-laborex.csv',
+        mimeType: 'text/csv',
+        buffer: Buffer.from('CIP;QUANTITE\n1000023;5\n1000024;3\n', 'utf-8'),
+      });
     await expect(modale).toContainText(/commande-laborex\.csv/);
   });
 
   await etape(4, async () => {
     // Le résultat d'import distingue ce qui est entré dans la commande de ce qui a été
     // rejeté : un code inconnu du fournisseur ne devient pas une ligne muette.
-    await modale.getByRole('button', { name: /Importer|Valider|Enregistrer/ }).first().click();
+    await modale
+      .getByRole('button', { name: /Importer|Valider|Enregistrer/ })
+      .first()
+      .click();
     // Le compte rendu d'import s'ouvre à la place : lignes retenues d'un côté, lignes
     // rejetées de l'autre, avec le code qui n'a pas été reconnu.
     await expect(page.locator('.modal-content').last()).toBeVisible();

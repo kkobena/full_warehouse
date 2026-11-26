@@ -1,4 +1,4 @@
-import {PanierFocusService} from './panier-focus.service';
+import { PanierFocusService } from './panier-focus.service';
 
 /** Où va le focus après une mise à jour de ligne : la correction au clavier le garde dans la grille. */
 describe('PanierFocusService', () => {
@@ -15,14 +15,14 @@ describe('PanierFocusService', () => {
     expect(service.consommer()).toBe(false);
   });
 
-  it("maintient le focus dans la grille pour UNE mise à jour, puis revient au comportement par défaut", () => {
+  it('maintient le focus dans la grille pour UNE mise à jour, puis revient au comportement par défaut', () => {
     service.demanderMaintien();
 
     expect(service.consommer()).toBe(true);
     expect(service.consommer()).toBe(false);
   });
 
-  it("expire seule : une mise à jour refusée ne prive pas de focus une validation ultérieure", () => {
+  it('expire seule : une mise à jour refusée ne prive pas de focus une validation ultérieure', () => {
     service.demanderMaintien(1000);
 
     jest.advanceTimersByTime(1001);

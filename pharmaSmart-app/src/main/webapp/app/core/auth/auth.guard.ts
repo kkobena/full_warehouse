@@ -52,18 +52,14 @@ export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
         return of(false);
       }
 
-
       // ROLE_ADMIN a toujours accès — les contraintes NavItemRole ne s'appliquent pas.
       if (accountService.hasAnyAuthority(Authority.ADMIN)) {
         return of(true);
       }
 
-
       // navStore.load() est async (HTTP distinct de identity()). On attend que le
       // signal `loaded` passe à true avant d'évaluer les permissions.
-      const loaded$ = navStore.loaded()
-        ? of(true)
-        : toObservable(navStore.loaded, { injector }).pipe(filter(Boolean), take(1));
+      const loaded$ = navStore.loaded() ? of(true) : toObservable(navStore.loaded, { injector }).pipe(filter(Boolean), take(1));
 
       return loaded$.pipe(
         map(() => {

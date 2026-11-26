@@ -7,5 +7,4 @@ public enum AuthorityEnum {
     ROLE_VENDEUR,
     ROLE_CAISSIER,
     ROLE_SUPER_USER
-
 }

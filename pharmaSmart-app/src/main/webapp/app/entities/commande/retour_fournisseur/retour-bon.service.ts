@@ -89,7 +89,12 @@ export class RetourBonService {
     return this.http.patch<IRetourBon>(`${this.resourceUrl}/${id}/close-manually`, null, { observe: 'response' });
   }
 
-  retourCompletCommande(request: { commandeId: number; commandeOrderDate: string; motifRetourId: number; commentaire?: string }): Observable<EntityResponseType> {
+  retourCompletCommande(request: {
+    commandeId: number;
+    commandeOrderDate: string;
+    motifRetourId: number;
+    commentaire?: string;
+  }): Observable<EntityResponseType> {
     return this.http.post<IRetourBon>(`${this.resourceUrl}/retour-complet`, request, { observe: 'response' });
   }
 
@@ -117,5 +122,3 @@ export class RetourBonService {
     return this.http.get<number>(`${this.resourceUrl}/count-en-attente`);
   }
 }
-
-

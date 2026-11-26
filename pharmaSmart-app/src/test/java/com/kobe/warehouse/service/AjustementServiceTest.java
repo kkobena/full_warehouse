@@ -50,7 +50,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -107,18 +106,17 @@ class AjustementServiceTest {
     @BeforeEach
     void setUp() {
         service = new AjustementService(
-            ajustementRepository,
-            produitRepository,
-            ajustRepository,
-            storageService,
-            stockProduitRepository,
-            logsService,
-            inventoryTransactionService,
-            suggestionReassortService,
-            lotStockLocationService,
-            lotService,
-            motifAjustementRepository
-        );
+                ajustementRepository,
+                produitRepository,
+                ajustRepository,
+                storageService,
+                stockProduitRepository,
+                logsService,
+                inventoryTransactionService,
+                suggestionReassortService,
+                lotStockLocationService,
+                lotService,
+                motifAjustementRepository);
         currentUser = new AppUser();
         currentUser.setId(9);
         currentUser.setFirstName("Awa");
@@ -263,7 +261,8 @@ class AjustementServiceTest {
         private Ajustement creerViaCreateOrUpdate(AjustementDTO dto, Produit produit) {
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
             when(ajustRepository.getReferenceById(AJUST_ID)).thenReturn(ajust(AjustementStatut.PENDING));
-            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID)).thenReturn(Optional.empty());
+            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID))
+                    .thenReturn(Optional.empty());
 
             service.createOrUpdate(dto);
 
@@ -304,12 +303,13 @@ class AjustementServiceTest {
             stock(produit, storage(9, StorageType.SAFETY_STOCK), 5, 0);
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
             when(ajustRepository.getReferenceById(AJUST_ID)).thenReturn(ajust(AjustementStatut.PENDING));
-            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID)).thenReturn(Optional.empty());
+            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID))
+                    .thenReturn(Optional.empty());
             AjustementDTO dto = dto(-2);
 
             assertThatThrownBy(() -> service.createOrUpdate(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("n'a pas de stock dans le magasin selectionné");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("n'a pas de stock dans le magasin selectionné");
         }
 
         @Test
@@ -326,7 +326,7 @@ class AjustementServiceTest {
         }
 
         @ParameterizedTest(name = "un mouvement de {0} est de type {1}")
-        @CsvSource({ "5, AJUSTEMENT_IN", "0, AJUSTEMENT_IN", "-1, AJUSTEMENT_OUT", "-5, AJUSTEMENT_OUT" })
+        @CsvSource({"5, AJUSTEMENT_IN", "0, AJUSTEMENT_IN", "-1, AJUSTEMENT_OUT", "-5, AJUSTEMENT_OUT"})
         void typeSelonLeSens(int qtyMvt, AjustType attendu) {
             Produit produit = produit("DOLIPRANE 1000MG", "1234567");
             stock(produit, principal, 20, 0);
@@ -354,7 +354,8 @@ class AjustementServiceTest {
             Produit produit = produit("DOLIPRANE 1000MG", "1234567");
             stock(produit, principal, 20, 0);
 
-            assertThat(creerViaCreateOrUpdate(dto(-2), produit).getMotifAjustement()).isNull();
+            assertThat(creerViaCreateOrUpdate(dto(-2), produit).getMotifAjustement())
+                    .isNull();
         }
 
         @Test
@@ -391,7 +392,8 @@ class AjustementServiceTest {
             Produit produit = produit("DOLIPRANE 1000MG", "1234567");
             StockProduit stockProduit = stock(produit, principal, 20, 3);
             Ajustement existante = ajustement(ajust(AjustementStatut.PENDING), stockProduit, -4);
-            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID)).thenReturn(Optional.of(existante));
+            when(ajustementRepository.findFirstByAjustIdAndStockProduitProduitId(AJUST_ID, PRODUIT_ID))
+                    .thenReturn(Optional.of(existante));
             when(ajustRepository.getReferenceById(AJUST_ID)).thenReturn(ajust(AjustementStatut.PENDING));
 
             service.createOrUpdate(dto(-2));
@@ -509,7 +511,7 @@ class AjustementServiceTest {
         }
 
         @ParameterizedTest(name = "un mouvement de {0} journalise une transaction {1}")
-        @CsvSource({ "5, AJUSTEMENT_IN", "0, AJUSTEMENT_IN", "-5, AJUSTEMENT_OUT" })
+        @CsvSource({"5, AJUSTEMENT_IN", "0, AJUSTEMENT_IN", "-5, AJUSTEMENT_OUT"})
         void typeDeTransaction(int qtyMvt, TransactionType attendu) {
             Produit produit = produit("DOLIPRANE 1000MG", "1234567");
             StockProduit stockProduit = stock(produit, principal, 20, 0);
@@ -518,8 +520,13 @@ class AjustementServiceTest {
 
             service.saveAjust(commande());
 
-            assertThat(ajustement.getType()).isEqualTo(qtyMvt >= 0 ? AjustType.AJUSTEMENT_IN : AjustType.AJUSTEMENT_OUT);
-            verify(logsService).create(org.mockito.ArgumentMatchers.eq(attendu), anyString(), org.mockito.ArgumentMatchers.eq("70"));
+            assertThat(ajustement.getType())
+                    .isEqualTo(qtyMvt >= 0 ? AjustType.AJUSTEMENT_IN : AjustType.AJUSTEMENT_OUT);
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(attendu),
+                            anyString(),
+                            org.mockito.ArgumentMatchers.eq("70"));
         }
 
         @Test
@@ -536,7 +543,12 @@ class AjustementServiceTest {
             assertThat(ajustement.getStockAfter()).isEqualTo(15);
             ArgumentCaptor<String> desc = ArgumentCaptor.forClass(String.class);
             verify(logsService).create(any(), desc.capture(), anyString());
-            assertThat(desc.getValue()).contains("1234567").contains("DOLIPRANE 1000MG").contains("23").contains("-5").contains("15");
+            assertThat(desc.getValue())
+                    .contains("1234567")
+                    .contains("DOLIPRANE 1000MG")
+                    .contains("23")
+                    .contains("-5")
+                    .contains("15");
             verify(inventoryTransactionService).save(ajustement);
             verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
             verify(suggestionReassortService).createReserveSuggestionReassort(stockProduit);
@@ -549,8 +561,8 @@ class AjustementServiceTest {
             AjustDTO commande = commande();
 
             assertThatThrownBy(() -> service.saveAjust(commande))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("déjà été validé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("déjà été validé");
 
             verify(ajustementRepository, never()).findAllByAjustId(anyInt());
             verifyNoInteractions(lotService, lotStockLocationService, inventoryTransactionService);
@@ -589,9 +601,8 @@ class AjustementServiceTest {
             Produit p1 = produit("DOLIPRANE 1000MG", "1234567");
             Produit p2 = produit("EFFERALGAN", "7654321");
             ajustAvec(
-                ajustement(ajust(AjustementStatut.PENDING), stock(p1, principal, 20, 0), -5),
-                ajustement(ajust(AjustementStatut.PENDING), stock(p2, principal, 10, 0), 3)
-            );
+                    ajustement(ajust(AjustementStatut.PENDING), stock(p1, principal, 20, 0), -5),
+                    ajustement(ajust(AjustementStatut.PENDING), stock(p2, principal, 10, 0), 3));
 
             service.saveAjust(commande());
 
@@ -663,11 +674,14 @@ class AjustementServiceTest {
         void sansRecherche(String search) {
             Ajustement ancienne = ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.of(2026, 4, 1, 10, 0));
             Ajustement recente = ligne("EFFERALGAN", "7654321", LocalDateTime.of(2026, 4, 18, 10, 0));
-            when(ajustementRepository.findAllByAjustId(AJUST_ID)).thenReturn(new ArrayList<>(List.of(ancienne, recente)));
+            when(ajustementRepository.findAllByAjustId(AJUST_ID))
+                    .thenReturn(new ArrayList<>(List.of(ancienne, recente)));
 
             List<AjustementDTO> resultat = service.findAll(AJUST_ID, search);
 
-            assertThat(resultat).extracting(AjustementDTO::getProduitLibelle).containsExactly("EFFERALGAN", "DOLIPRANE 1000MG");
+            assertThat(resultat)
+                    .extracting(AjustementDTO::getProduitLibelle)
+                    .containsExactly("EFFERALGAN", "DOLIPRANE 1000MG");
         }
 
         @Test
@@ -678,8 +692,8 @@ class AjustementServiceTest {
             when(ajustementRepository.findAllByAjustId(AJUST_ID)).thenReturn(new ArrayList<>(List.of(l1, l2)));
 
             assertThat(service.findAll(AJUST_ID, "dolipra"))
-                .extracting(AjustementDTO::getProduitLibelle)
-                .containsExactly("DOLIPRANE 1000MG");
+                    .extracting(AjustementDTO::getProduitLibelle)
+                    .containsExactly("DOLIPRANE 1000MG");
         }
 
         @Test
@@ -689,14 +703,16 @@ class AjustementServiceTest {
             Ajustement l2 = ligne("EFFERALGAN", "7654321", LocalDateTime.now().minusDays(1));
             when(ajustementRepository.findAllByAjustId(AJUST_ID)).thenReturn(new ArrayList<>(List.of(l1, l2)));
 
-            assertThat(service.findAll(AJUST_ID, "76543")).extracting(AjustementDTO::getProduitLibelle).containsExactly("EFFERALGAN");
+            assertThat(service.findAll(AJUST_ID, "76543"))
+                    .extracting(AjustementDTO::getProduitLibelle)
+                    .containsExactly("EFFERALGAN");
         }
 
         @Test
         @DisplayName("une recherche sans correspondance renvoie une liste vide")
         void sansCorrespondance() {
             when(ajustementRepository.findAllByAjustId(AJUST_ID))
-                .thenReturn(new ArrayList<>(List.of(ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.now()))));
+                    .thenReturn(new ArrayList<>(List.of(ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.now()))));
 
             assertThat(service.findAll(AJUST_ID, "ASPIRINE")).isEmpty();
         }
@@ -706,18 +722,19 @@ class AjustementServiceTest {
         void rechercheTriee() {
             Ajustement ancienne = ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.of(2026, 4, 1, 10, 0));
             Ajustement recente = ligne("DOLIPRANE 500MG", "1234568", LocalDateTime.of(2026, 4, 18, 10, 0));
-            when(ajustementRepository.findAllByAjustId(AJUST_ID)).thenReturn(new ArrayList<>(List.of(ancienne, recente)));
+            when(ajustementRepository.findAllByAjustId(AJUST_ID))
+                    .thenReturn(new ArrayList<>(List.of(ancienne, recente)));
 
             assertThat(service.findAll(AJUST_ID, "DOLIPRANE"))
-                .extracting(AjustementDTO::getProduitLibelle)
-                .containsExactly("DOLIPRANE 500MG", "DOLIPRANE 1000MG");
+                    .extracting(AjustementDTO::getProduitLibelle)
+                    .containsExactly("DOLIPRANE 500MG", "DOLIPRANE 1000MG");
         }
 
         @Test
         @DisplayName("findAll sans argument remonte tous les ajustements")
         void findAllSansArgument() {
             when(ajustementRepository.findAll())
-                .thenReturn(List.of(ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.now())));
+                    .thenReturn(List.of(ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.now())));
 
             assertThat(service.findAll()).hasSize(1);
         }
@@ -763,7 +780,10 @@ class AjustementServiceTest {
         }
 
         @ParameterizedTest(name = "delete refuse un ajustement {0}")
-        @EnumSource(value = AjustementStatut.class, names = { "PENDING" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = AjustementStatut.class,
+                names = {"PENDING"},
+                mode = EnumSource.Mode.EXCLUDE)
         void deleteHorsBrouillon(AjustementStatut statut) {
             when(ajustRepository.getReferenceById(AJUST_ID)).thenReturn(ajust(statut));
 
@@ -780,11 +800,25 @@ class AjustementServiceTest {
 
         private StockProduitRepository.EcartStockProjection ligne(int stock, int due) {
             return new StockProduitRepository.EcartStockProjection() {
-                public Integer getProduitId() { return PRODUIT_ID; }
-                public String getLibelle() { return "DOLIPRANE"; }
-                public String getCodeCip() { return "3400"; }
-                public Integer getStock() { return stock; }
-                public Integer getQuantiteDue() { return due; }
+                public Integer getProduitId() {
+                    return PRODUIT_ID;
+                }
+
+                public String getLibelle() {
+                    return "DOLIPRANE";
+                }
+
+                public String getCodeCip() {
+                    return "3400";
+                }
+
+                public Integer getStock() {
+                    return stock;
+                }
+
+                public Integer getQuantiteDue() {
+                    return due;
+                }
             };
         }
 
@@ -818,7 +852,7 @@ class AjustementServiceTest {
         void motifEtIdentifiant() {
             motif.setId(40);
             when(motifAjustementRepository.findFirstByLibelle(AjustementService.MOTIF_REGULARISATION_VENTE))
-                .thenReturn(Optional.of(motif));
+                    .thenReturn(Optional.of(motif));
             when(ajustementRepository.save(any(Ajustement.class))).thenAnswer(inv -> {
                 Ajustement a = inv.getArgument(0);
                 a.setId(900);
@@ -856,7 +890,9 @@ class AjustementServiceTest {
 
             assertThat(stock.getQtyUG()).as("la vente qui suit consomme ces UG").isEqualTo(2);
             assertThat(stock.getQtyStock()).isEqualTo(3);
-            assertThat(stock.getTotalStockQuantity()).as("la @Formula n'est pas relue en cours de transaction").isEqualTo(5);
+            assertThat(stock.getTotalStockQuantity())
+                    .as("la @Formula n'est pas relue en cours de transaction")
+                    .isEqualTo(5);
             assertThat(ajustement.getStockBefore()).isEqualTo(2);
             assertThat(ajustement.getStockAfter()).isEqualTo(5);
         }
@@ -885,9 +921,13 @@ class AjustementServiceTest {
             verify(lotStockLocationService).creditLastLot(produit, principal, 4);
             verify(inventoryTransactionService).save(ajustement);
             ArgumentCaptor<String> trace = ArgumentCaptor.forClass(String.class);
-            verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AJUSTEMENT_IN), trace.capture(),
-                org.mockito.ArgumentMatchers.eq("900"));
-            assertThat(trace.getValue()).contains(AjustementService.MOTIF_REGULARISATION_VENTE, "VOGALENE", "+4", "0 -> 4");
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.AJUSTEMENT_IN),
+                            trace.capture(),
+                            org.mockito.ArgumentMatchers.eq("900"));
+            assertThat(trace.getValue())
+                    .contains(AjustementService.MOTIF_REGULARISATION_VENTE, "VOGALENE", "+4", "0 -> 4");
             verify(suggestionReassortService, never()).createRayonSuggestionReassort(any());
         }
 
@@ -895,7 +935,7 @@ class AjustementServiceTest {
         @DisplayName("sans le motif en base, l'ajustement est écrit quand même")
         void motifAbsent() {
             when(motifAjustementRepository.findFirstByLibelle(AjustementService.MOTIF_REGULARISATION_VENTE))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
             StockProduit stock = stock(produit("GAVISCON", "3404"), principal, 0, 0);
 
             Ajustement ajustement = service.regulariserALaVente(stock, 1, "Vente IT46");

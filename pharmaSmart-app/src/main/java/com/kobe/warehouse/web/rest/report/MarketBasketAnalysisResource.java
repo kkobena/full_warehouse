@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.MarketBasketSummaryDTO;
 import com.kobe.warehouse.service.dto.report.ProductAssociationDTO;
 import com.kobe.warehouse.service.report.MarketBasketAnalysisService;
@@ -9,7 +10,6 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for Market Basket Analysis (Cross-selling)
@@ -37,19 +37,13 @@ public class MarketBasketAnalysisResource {
      */
     @GetMapping("/associations")
     public ResponseEntity<List<ProductAssociationDTO>> getProductAssociations(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(defaultValue = "1.0") BigDecimal minSupport,
-        @RequestParam(defaultValue = "10.0") BigDecimal minConfidence,
-        @RequestParam(defaultValue = "50") Integer limit
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "1.0") BigDecimal minSupport,
+            @RequestParam(defaultValue = "10.0") BigDecimal minConfidence,
+            @RequestParam(defaultValue = "50") Integer limit) {
         List<ProductAssociationDTO> associations = marketBasketAnalysisService.getProductAssociations(
-            startDate,
-            endDate,
-            minSupport,
-            minConfidence,
-            limit
-        );
+                startDate, endDate, minSupport, minConfidence, limit);
         return ResponseEntity.ok(associations);
     }
 
@@ -64,17 +58,12 @@ public class MarketBasketAnalysisResource {
      */
     @GetMapping("/associations/{productId}")
     public ResponseEntity<List<ProductAssociationDTO>> getAssociationsForProduct(
-        @PathVariable Long productId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(defaultValue = "20") Integer limit
-    ) {
-        List<ProductAssociationDTO> associations = marketBasketAnalysisService.getAssociationsForProduct(
-            productId,
-            startDate,
-            endDate,
-            limit
-        );
+            @PathVariable Long productId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "20") Integer limit) {
+        List<ProductAssociationDTO> associations =
+                marketBasketAnalysisService.getAssociationsForProduct(productId, startDate, endDate, limit);
         return ResponseEntity.ok(associations);
     }
 
@@ -87,9 +76,8 @@ public class MarketBasketAnalysisResource {
      */
     @GetMapping("/summary")
     public ResponseEntity<MarketBasketSummaryDTO> getMarketBasketSummary(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         MarketBasketSummaryDTO summary = marketBasketAnalysisService.getMarketBasketSummary(startDate, endDate);
         return ResponseEntity.ok(summary);
     }
@@ -102,7 +90,8 @@ public class MarketBasketAnalysisResource {
      */
     @GetMapping("/recommendations/{productId}")
     public ResponseEntity<List<ProductAssociationDTO>> getCrossSellRecommendations(@PathVariable Long productId) {
-        List<ProductAssociationDTO> recommendations = marketBasketAnalysisService.getCrossSellRecommendations(productId);
+        List<ProductAssociationDTO> recommendations =
+                marketBasketAnalysisService.getCrossSellRecommendations(productId);
         return ResponseEntity.ok(recommendations);
     }
 }

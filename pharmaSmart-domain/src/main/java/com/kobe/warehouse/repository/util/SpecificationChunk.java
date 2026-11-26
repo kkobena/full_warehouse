@@ -57,7 +57,9 @@ public class SpecificationChunk<T> implements Specification<T> {
             case LESS_THAN:
                 return cb.lessThan(build(root, condition.getLeftHand()), condition.getRightHand());
             case LIKE:
-                return cb.like(cb.upper(build(root, condition.getLeftHand())), condition.getRightHand().toUpperCase());
+                return cb.like(
+                        cb.upper(build(root, condition.getLeftHand())),
+                        condition.getRightHand().toUpperCase());
             case LESS_OR_EQUAL_THAN:
                 return cb.lessThanOrEqualTo(build(root, condition.getLeftHand()), condition.getRightHand());
             case GREATER_OR_EQUAL_THAN:

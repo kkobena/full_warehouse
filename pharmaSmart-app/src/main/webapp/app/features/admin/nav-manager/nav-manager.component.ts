@@ -1,29 +1,34 @@
-import { Component, computed, effect, inject, input, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { IAuthority, INavRole, NavApiService } from "app/core/data-access/nav-api.service";
-import { NotificationService } from "app/shared/services/notification.service";
-import { INavNode, NavItemAssignment } from "app/shared/model/nav-item.model";
-import { NavReorderComponent } from "./nav-reorder.component";
-import { CheckboxComponent, DataTableComponent, SelectSearchComponent, NavTabsComponent, CardComponent } from "app/shared/ui";
+import { Component, computed, effect, inject, input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { IAuthority, INavRole, NavApiService } from 'app/core/data-access/nav-api.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { INavNode, NavItemAssignment } from 'app/shared/model/nav-item.model';
+import { NavReorderComponent } from './nav-reorder.component';
+import { CheckboxComponent, DataTableComponent, SelectSearchComponent, NavTabsComponent, CardComponent } from 'app/shared/ui';
 
 interface FlatNavNode extends INavNode {
   depth: number;
   assignment: NavItemAssignment;
 }
 
-
 @Component({
-  selector: "app-nav-manager",
-  templateUrl: "./nav-manager.component.html",
-  styleUrl: "./nav-manager.component.scss",
+  selector: 'app-nav-manager',
+  templateUrl: './nav-manager.component.html',
+  styleUrl: './nav-manager.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
-    CommonModule, FormsModule,
-    DataTableComponent, CheckboxComponent, SelectSearchComponent,
-    NgbNavModule, NavTabsComponent, NavReorderComponent
-  ]
+  imports: [
+    CardComponent,
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    CheckboxComponent,
+    SelectSearchComponent,
+    NgbNavModule,
+    NavTabsComponent,
+    NavReorderComponent,
+  ],
 })
 export class NavManagerComponent implements OnInit {
   private readonly navApi = inject(NavApiService);
@@ -32,7 +37,7 @@ export class NavManagerComponent implements OnInit {
   /** Rôle pré-sélectionné par le composant parent (ex: depuis la liste des rôles). */
   readonly triggerRole = input<string | null>(null);
 
-  protected activeTab = signal<string>("permissions");
+  protected activeTab = signal<string>('permissions');
   protected readonly loadingRoles = signal(false);
   protected readonly loading = signal(false);
   protected readonly flatItems = signal<FlatNavNode[]>([]);
@@ -44,7 +49,7 @@ export class NavManagerComponent implements OnInit {
   protected readonly savingRows = signal<Set<number>>(new Set());
   /** ID de l'item dont on édite le libellé */
   protected readonly editingItemId = signal<number | null>(null);
-  protected readonly editingLibelle = signal("");
+  protected readonly editingLibelle = signal('');
   /**
    * Quel champ est en cours d'édition sur la ligne ouverte.
    *
@@ -52,25 +57,23 @@ export class NavManagerComponent implements OnInit {
    * l'écran, qui a toute la largeur. Les deux se saisissent au même endroit, mais jamais en même
    * temps — une ligne, un champ.
    */
-  protected readonly editingField = signal<"libelle" | "titreLong">("libelle");
-  protected readonly editingTitreLong = signal("");
+  protected readonly editingField = signal<'libelle' | 'titreLong'>('libelle');
+  protected readonly editingTitreLong = signal('');
   /** Terme de recherche — filtre par libellé, bypasse le collapse */
-  protected readonly searchTerm = signal("");
+  protected readonly searchTerm = signal('');
   /** Arbre brut conservé pour la prévisualisation */
   private readonly rawTree = signal<INavNode[]>([]);
   protected readonly availableRoles = signal<IAuthority[]>([]);
   protected readonly selectedRole = signal<IAuthority | null>(null);
   // La fonctionnalité pas totalement OK
-  protected showTabReorder=false;
+  protected showTabReorder = false;
 
   /**
    * Arbre de prévisualisation : reflète en temps réel les cases cochées
    * dans la matrice des permissions. Exclut les items de type ACTION.
    */
   protected readonly previewTree = computed<INavNode[]>(() => {
-    const assignments = new Map(
-      this.flatItems().map(item => [item.id, item.assignment])
-    );
+    const assignments = new Map(this.flatItems().map(item => [item.id, item.assignment]));
     return this.filterTreeForPreview(this.rawTree(), assignments);
   });
 
@@ -100,13 +103,13 @@ export class NavManagerComponent implements OnInit {
     this.loadingRoles.set(true);
     this.navApi.getAllRoles().subscribe({
       next: roles => {
-        this.availableRoles.set(roles.filter(r => r.name !== "ROLE_SUPER_USER"));
+        this.availableRoles.set(roles.filter(r => r.name !== 'ROLE_SUPER_USER'));
         this.loadingRoles.set(false);
       },
       error: () => {
-        this.notificationService.error("Impossible de charger la liste des rôles.");
+        this.notificationService.error('Impossible de charger la liste des rôles.');
         this.loadingRoles.set(false);
-      }
+      },
     });
   }
 
@@ -122,7 +125,7 @@ export class NavManagerComponent implements OnInit {
   }
 
   clearSearch(): void {
-    this.searchTerm.set("");
+    this.searchTerm.set('');
     this.refreshVisible();
   }
 
@@ -130,9 +133,7 @@ export class NavManagerComponent implements OnInit {
     const term = this.searchTerm().trim().toLowerCase();
     if (term) {
       // Recherche active : on bypasse le collapse et on montre tous les matches
-      this.visibleItems.set(
-        this.flatItems().filter(item => item.libelle.toLowerCase().includes(term))
-      );
+      this.visibleItems.set(this.flatItems().filter(item => item.libelle.toLowerCase().includes(term)));
     } else {
       this.visibleItems.set(this.applyCollapse(this.flatItems(), this.collapsedGroups()));
     }
@@ -157,8 +158,26 @@ export class NavManagerComponent implements OnInit {
     const subtree = this.getSubtree(item);
     subtree.forEach(n => {
       n.assignment = grant
-        ? { ...n.assignment, canDisplay: true,  canAccess: true,  canCreate: true,  canEdit: true,  canDelete: true,  canExport: true,  canExecute: true  }
-        : { ...n.assignment, canDisplay: false, canAccess: false, canCreate: false, canEdit: false, canDelete: false, canExport: false, canExecute: false };
+        ? {
+            ...n.assignment,
+            canDisplay: true,
+            canAccess: true,
+            canCreate: true,
+            canEdit: true,
+            canDelete: true,
+            canExport: true,
+            canExecute: true,
+          }
+        : {
+            ...n.assignment,
+            canDisplay: false,
+            canAccess: false,
+            canCreate: false,
+            canEdit: false,
+            canDelete: false,
+            canExport: false,
+            canExecute: false,
+          };
     });
     // Force la détection du changement sur les signaux
     this.flatItems.update(f => [...f]);
@@ -186,15 +205,15 @@ export class NavManagerComponent implements OnInit {
           n.delete(rowId);
           return n;
         });
-        this.notificationService.error("Échec de la mise à jour de la permission.");
-      }
+        this.notificationService.error('Échec de la mise à jour de la permission.');
+      },
     });
   }
 
   // ── Édition inline du libellé ────────────────────────────────────────────
   startEdit(item: FlatNavNode): void {
     this.editingItemId.set(item.id);
-    this.editingField.set("libelle");
+    this.editingField.set('libelle');
     this.editingLibelle.set(item.libelle);
   }
 
@@ -206,7 +225,7 @@ export class NavManagerComponent implements OnInit {
    */
   startEditTitreLong(item: FlatNavNode): void {
     this.editingItemId.set(item.id);
-    this.editingField.set("titreLong");
+    this.editingField.set('titreLong');
     this.editingTitreLong.set(item.titreLong ?? item.libelle);
   }
 
@@ -221,15 +240,14 @@ export class NavManagerComponent implements OnInit {
     }
     const saisi = this.editingTitreLong().trim();
     // Égal au libellé, le titre long n'apporte rien : on l'efface pour que la barre suive le menu.
-    const titreLong = saisi === item.libelle ? "" : saisi;
-    if (titreLong === (item.titreLong ?? "")) {
+    const titreLong = saisi === item.libelle ? '' : saisi;
+    if (titreLong === (item.titreLong ?? '')) {
       this.cancelEdit();
       return;
     }
     this.navApi.updateNavItemTitreLong(item.id, titreLong).subscribe({
       next: () => {
-        const patch = (list: FlatNavNode[]) =>
-          list.map(i => (i.id === item.id ? { ...i, titreLong: titreLong || undefined } : i));
+        const patch = (list: FlatNavNode[]) => list.map(i => (i.id === item.id ? { ...i, titreLong: titreLong || undefined } : i));
         this.flatItems.update(patch);
         this.visibleItems.update(patch);
         this.cancelEdit();
@@ -237,7 +255,7 @@ export class NavManagerComponent implements OnInit {
           titreLong ? "Titre de la barre d'outils mis à jour." : "Titre de la barre d'outils effacé : le libellé du menu s'applique.",
         );
       },
-      error: () => this.notificationService.error("Échec de la mise à jour du titre."),
+      error: () => this.notificationService.error('Échec de la mise à jour du titre.'),
     });
   }
 
@@ -254,22 +272,21 @@ export class NavManagerComponent implements OnInit {
     }
     this.navApi.updateNavItemLibelle(item.id, libelle).subscribe({
       next: () => {
-        const patch = (list: FlatNavNode[]) =>
-          list.map(i => i.id === item.id ? { ...i, libelle } : i);
+        const patch = (list: FlatNavNode[]) => list.map(i => (i.id === item.id ? { ...i, libelle } : i));
         this.flatItems.update(patch);
         this.visibleItems.update(patch);
         this.cancelEdit();
-        this.notificationService.success("Libellé mis à jour.");
+        this.notificationService.success('Libellé mis à jour.');
       },
-      error: () => this.notificationService.error("Échec de la mise à jour du libellé.")
+      error: () => this.notificationService.error('Échec de la mise à jour du libellé.'),
     });
   }
 
   cancelEdit(): void {
     this.editingItemId.set(null);
-    this.editingField.set("libelle");
-    this.editingLibelle.set("");
-    this.editingTitreLong.set("");
+    this.editingField.set('libelle');
+    this.editingLibelle.set('');
+    this.editingTitreLong.set('');
   }
 
   /** Indentation progressive : grand écart entre GROUP (depth=0) et ses enfants. */
@@ -288,7 +305,7 @@ export class NavManagerComponent implements OnInit {
       }
       result.push(item);
       // GROUP et ROUTE peuvent être repliés (ROUTE pour cacher ses enfants SECTION/ACTION)
-      if ((item.targetType === "GROUP" || item.targetType === "ROUTE") && collapsed.has(item.id)) {
+      if ((item.targetType === 'GROUP' || item.targetType === 'ROUTE') && collapsed.has(item.id)) {
         skipBelowDepth = item.depth;
       }
     }
@@ -311,14 +328,14 @@ export class NavManagerComponent implements OnInit {
         this.rawTree.set(items);
         const flat = this.flattenWithDepth(items, 0);
         this.flatItems.set(flat);
-        this.searchTerm.set(""); // réinitialise la recherche au changement de rôle
+        this.searchTerm.set(''); // réinitialise la recherche au changement de rôle
         this.refreshVisible();
         this.loading.set(false);
       },
       error: () => {
-        this.notificationService.error("Impossible de charger les items de navigation.");
+        this.notificationService.error('Impossible de charger les items de navigation.');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -335,26 +352,23 @@ export class NavManagerComponent implements OnInit {
           canEdit: node.permissions?.canEdit ?? false,
           canDelete: node.permissions?.canDelete ?? false,
           canExport: node.permissions?.canExport ?? false,
-          canExecute: node.permissions?.canExecute ?? false
-        }
+          canExecute: node.permissions?.canExecute ?? false,
+        },
       },
-      ...this.flattenWithDepth(node.children ?? [], depth + 1)
+      ...this.flattenWithDepth(node.children ?? [], depth + 1),
     ]);
   }
 
   /** Filtre récursivement l'arbre selon les assignments courants (pour la prévisualisation).
    *  ACTION, SECTION et WIDGET sont exclus : ils n'apparaissent pas dans la top navbar. */
-  private filterTreeForPreview(
-    nodes: INavNode[],
-    assignments: Map<number, NavItemAssignment>
-  ): INavNode[] {
+  private filterTreeForPreview(nodes: INavNode[], assignments: Map<number, NavItemAssignment>): INavNode[] {
     const result: INavNode[] = [];
     for (const node of nodes) {
-      if (node.targetType === "ACTION" || node.targetType === "SECTION" || node.targetType === "WIDGET") continue;
+      if (node.targetType === 'ACTION' || node.targetType === 'SECTION' || node.targetType === 'WIDGET') continue;
       const a = assignments.get(node.id);
       if (a && !a.canDisplay) continue;
       const children = this.filterTreeForPreview(node.children ?? [], assignments);
-      if (node.targetType === "GROUP" && children.length === 0) continue;
+      if (node.targetType === 'GROUP' && children.length === 0) continue;
       result.push({ ...node, children });
     }
     return result;

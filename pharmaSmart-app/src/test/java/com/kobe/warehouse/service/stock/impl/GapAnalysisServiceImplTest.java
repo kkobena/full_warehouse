@@ -81,8 +81,7 @@ class GapAnalysisServiceImplTest {
         @DisplayName("delegue au repository et renvoie sa page")
         void delegue() {
             Page<GapLineRecord> expected = new PageImpl<>(
-                List.of(new GapLineRecord(1L, "DOLIPRANE", 10, 8, -2, -200, CauseEcart.CASSE, "carton ecrase"))
-            );
+                    List.of(new GapLineRecord(1L, "DOLIPRANE", 10, 8, -2, -200, CauseEcart.CASSE, "carton ecrase")));
             when(lineRepo.findLinesWithGap(any(), any(Pageable.class))).thenReturn(expected);
 
             Page<GapLineRecord> result = service.getLinesWithGap(INVENTORY_ID, PageRequest.of(1, 25));
@@ -120,7 +119,8 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("sort quand aucune ligne soumise n appartient a l inventaire")
         void aucuneLigneRechargee() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of());
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "CASSE", null)));
 
@@ -130,13 +130,13 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("filtre les identifiants de ligne nuls avant le rechargement")
         void filtreLesIdentifiantsNuls() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, -3)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, -3)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(
-                INVENTORY_ID,
-                List.of(new GapEntryRecord(null, "CASSE", null), new GapEntryRecord(1L, "CASSE", null))
-            );
+                    INVENTORY_ID,
+                    List.of(new GapEntryRecord(null, "CASSE", null), new GapEntryRecord(1L, "CASSE", null)));
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<Collection<Long>> captor = ArgumentCaptor.forClass(Collection.class);
@@ -148,7 +148,8 @@ class GapAnalysisServiceImplTest {
         @DisplayName("cree une qualification et normalise la quantite en valeur absolue")
         void creeUneQualification() {
             StoreInventoryLine l1 = line(1L, -7);
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(l1));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(l1));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "VOL", "coup de chaleur")));
@@ -170,7 +171,8 @@ class GapAnalysisServiceImplTest {
         void reutiliseLaQualificationExistante() {
             StoreInventoryLine l1 = line(1L, 4);
             InventoryGapAnalysis existing = analysis(l1);
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(l1));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(l1));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of(existing));
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "PEREMPTION", "perimes")));
@@ -190,7 +192,8 @@ class GapAnalysisServiceImplTest {
             InventoryGapAnalysis first = analysis(l1);
             InventoryGapAnalysis second = analysis(l1);
             second.setId(901L);
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(l1));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(l1));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of(first, second));
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "CASSE", null)));
@@ -204,7 +207,8 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("un gap nul sur la ligne se qualifie a zero")
         void gapNul() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, null)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, null)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "INCONNU", null)));
@@ -216,9 +220,10 @@ class GapAnalysisServiceImplTest {
         }
 
         @ParameterizedTest(name = "cause=[{0}] efface la qualification")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void causeBlancheEfface(String cause) {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, -2)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, -2)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, cause, null)));
@@ -230,7 +235,8 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("cause nulle efface la qualification")
         void causeNulleEfface() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, -2)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, -2)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, null, null)));
@@ -242,13 +248,13 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("ignore une entree dont la ligne n a pas ete rechargee")
         void ignoreLigneHorsInventaire() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, -2)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, -2)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(
-                INVENTORY_ID,
-                List.of(new GapEntryRecord(1L, "CASSE", null), new GapEntryRecord(999L, "VOL", null))
-            );
+                    INVENTORY_ID,
+                    List.of(new GapEntryRecord(1L, "CASSE", null), new GapEntryRecord(999L, "VOL", null)));
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<InventoryGapAnalysis>> captor = ArgumentCaptor.forClass(List.class);
@@ -260,13 +266,12 @@ class GapAnalysisServiceImplTest {
         @DisplayName("melange suppression et enregistrement dans le meme lot")
         void melangeEffacementEtEnregistrement() {
             when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
-                .thenReturn(List.of(line(1L, -2), line(2L, 5)));
+                    .thenReturn(List.of(line(1L, -2), line(2L, 5)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             service.saveAnalysis(
-                INVENTORY_ID,
-                List.of(new GapEntryRecord(1L, null, null), new GapEntryRecord(2L, "ERREUR_SAISIE", null))
-            );
+                    INVENTORY_ID,
+                    List.of(new GapEntryRecord(1L, null, null), new GapEntryRecord(2L, "ERREUR_SAISIE", null)));
 
             verify(gapRepo).deleteAllByStoreInventoryLineIdIn(List.of(1L));
             @SuppressWarnings("unchecked")
@@ -279,19 +284,21 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("une cause inconnue de l enumeration remonte en erreur")
         void causeInvalide() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of(line(1L, -2)));
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of(line(1L, -2)));
             when(gapRepo.findAllByStoreInventoryLineIdIn(anyCollection())).thenReturn(List.of());
 
             List<GapEntryRecord> entries = List.of(new GapEntryRecord(1L, "PAS_UNE_CAUSE", null));
 
             assertThatThrownBy(() -> service.saveAnalysis(INVENTORY_ID, entries))
-                .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
         @DisplayName("restreint le rechargement a l inventaire cible")
         void restreintAlInventaire() {
-            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong())).thenReturn(List.of());
+            when(lineRepo.findAllByIdInAndInventoryId(anyCollection(), anyLong()))
+                    .thenReturn(List.of());
 
             service.saveAnalysis(INVENTORY_ID, List.of(new GapEntryRecord(1L, "CASSE", null)));
 
@@ -304,19 +311,17 @@ class GapAnalysisServiceImplTest {
     class GetSummary {
 
         @ParameterizedTest(name = "{0} est libelle {1}")
-        @CsvSource(
-            {
-                "CASSE, Casse / dommage",
-                "VOL, Vol",
-                "ERREUR_RECEPTION, Erreur de réception",
-                "ERREUR_SAISIE, Erreur de saisie",
-                "PEREMPTION, Péremption",
-                "INCONNU, Cause inconnue",
-            }
-        )
+        @CsvSource({
+            "CASSE, Casse / dommage",
+            "VOL, Vol",
+            "ERREUR_RECEPTION, Erreur de réception",
+            "ERREUR_SAISIE, Erreur de saisie",
+            "PEREMPTION, Péremption",
+            "INCONNU, Cause inconnue",
+        })
         void libelleChaqueCause(String cause, String libelle) {
             List<Object[]> rows = new ArrayList<>();
-            rows.add(new Object[] { CauseEcart.valueOf(cause), 3L, 12L });
+            rows.add(new Object[] {CauseEcart.valueOf(cause), 3L, 12L});
             when(gapRepo.aggregateByInventoryId(INVENTORY_ID)).thenReturn(rows);
 
             List<GapSummaryRecord> summary = service.getSummary(INVENTORY_ID);
@@ -340,13 +345,13 @@ class GapAnalysisServiceImplTest {
         @DisplayName("agrege plusieurs causes")
         void plusieursCauses() {
             List<Object[]> rows = new ArrayList<>();
-            rows.add(new Object[] { CauseEcart.CASSE, 1L, 2L });
-            rows.add(new Object[] { CauseEcart.VOL, 4L, 9L });
+            rows.add(new Object[] {CauseEcart.CASSE, 1L, 2L});
+            rows.add(new Object[] {CauseEcart.VOL, 4L, 9L});
             when(gapRepo.aggregateByInventoryId(INVENTORY_ID)).thenReturn(rows);
 
             assertThat(service.getSummary(INVENTORY_ID))
-                .extracting(GapSummaryRecord::cause)
-                .containsExactly("CASSE", "VOL");
+                    .extracting(GapSummaryRecord::cause)
+                    .containsExactly("CASSE", "VOL");
         }
     }
 
@@ -357,7 +362,8 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("vrai quand au moins une ligne est qualifiee")
         void vrai() {
-            when(gapRepo.existsByStoreInventoryLineStoreInventoryId(INVENTORY_ID)).thenReturn(true);
+            when(gapRepo.existsByStoreInventoryLineStoreInventoryId(INVENTORY_ID))
+                    .thenReturn(true);
 
             assertThat(service.hasAnalysis(INVENTORY_ID)).isTrue();
         }
@@ -365,7 +371,8 @@ class GapAnalysisServiceImplTest {
         @Test
         @DisplayName("faux quand rien n est qualifie")
         void faux() {
-            when(gapRepo.existsByStoreInventoryLineStoreInventoryId(INVENTORY_ID)).thenReturn(false);
+            when(gapRepo.existsByStoreInventoryLineStoreInventoryId(INVENTORY_ID))
+                    .thenReturn(false);
 
             assertThat(service.hasAnalysis(INVENTORY_ID)).isFalse();
         }

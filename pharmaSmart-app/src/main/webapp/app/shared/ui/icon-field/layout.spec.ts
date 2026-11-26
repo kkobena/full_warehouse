@@ -82,7 +82,7 @@ describe('SkeletonComponent', () => {
     expect([...fixture.nativeElement.classList]).toContain('placeholder-glow');
   });
 
-  it('est masqué aux lecteurs d\'écran', () => {
+  it("est masqué aux lecteurs d'écran", () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.getAttribute('aria-hidden')).toBe('true');
   });

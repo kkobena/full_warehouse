@@ -1,4 +1,4 @@
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurProduit, IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';

@@ -14,7 +14,15 @@ describe('CloturerAvoirModalComponent — remise du produit', () => {
   const modal = { close: jest.fn(), dismiss: jest.fn() };
 
   /** 4 unités à 500 F, dont 1 déjà remise. */
-  const document_: IAvoirClientDocument = { id: 7, quantite: 4, quantiteRemise: 1, quantiteRestante: 3, montant: 2000, montantUtilise: 500, montantRestant: 1500 };
+  const document_: IAvoirClientDocument = {
+    id: 7,
+    quantite: 4,
+    quantiteRemise: 1,
+    quantiteRestante: 3,
+    montant: 2000,
+    montantUtilise: 500,
+    montantRestant: 1500,
+  };
   const el = () => fixture.nativeElement as HTMLElement;
 
   function ouvrir(): void {
@@ -38,7 +46,7 @@ describe('CloturerAvoirModalComponent — remise du produit', () => {
     ouvrir();
   });
 
-  it("propose le montant partiel pour les modes en argent, pas pour la remise du produit", () => {
+  it('propose le montant partiel pour les modes en argent, pas pour la remise du produit', () => {
     composant.choisirMode('REMBOURSEMENT_ESPECES');
     fixture.detectChanges();
     expect(el().querySelector('#partialUsageCheck')).not.toBeNull();
@@ -53,10 +61,15 @@ describe('CloturerAvoirModalComponent — remise du produit', () => {
     composant.choisirMode('RETOUR_PRODUIT');
     composant.confirm();
 
-    expect(api.cloturerAvoir).toHaveBeenCalledWith(7, { modeCloture: 'RETOUR_PRODUIT', commentaire: undefined, montantUtilise: undefined, quantiteRemise: undefined });
+    expect(api.cloturerAvoir).toHaveBeenCalledWith(7, {
+      modeCloture: 'RETOUR_PRODUIT',
+      commentaire: undefined,
+      montantUtilise: undefined,
+      quantiteRemise: undefined,
+    });
   });
 
-  it('envoie la quantité d\'une remise partielle, jamais un montant', () => {
+  it("envoie la quantité d'une remise partielle, jamais un montant", () => {
     composant.choisirMode('RETOUR_PRODUIT');
     composant.remise.set('partie');
     composant.quantiteRemise.set(2);

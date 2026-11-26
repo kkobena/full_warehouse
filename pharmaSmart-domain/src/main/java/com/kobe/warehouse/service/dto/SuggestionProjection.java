@@ -6,18 +6,17 @@ import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import java.time.LocalDateTime;
 
 public record SuggestionProjection(
-    Integer id,
-    String suggessionReference,
-    LocalDateTime createdAt,
-    LocalDateTime updatedAt,
-    TypeSuggession typeSuggession,
-    StatutSuggession statut,
-    Integer fournisseurId,
-    String fournisseurLibelle,
-    Long nombreLignes,
-    Long montantEstimeAchat,
-    Long montantEstimeVente
-) {
+        Integer id,
+        String suggessionReference,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        TypeSuggession typeSuggession,
+        StatutSuggession statut,
+        Integer fournisseurId,
+        String fournisseurLibelle,
+        Long nombreLignes,
+        Long montantEstimeAchat,
+        Long montantEstimeVente) {
     @JsonProperty("statutLibelle")
     public String statutLibelle() {
         return statut.getLibelle();

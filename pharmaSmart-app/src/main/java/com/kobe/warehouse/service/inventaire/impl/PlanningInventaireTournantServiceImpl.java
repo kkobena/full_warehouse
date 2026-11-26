@@ -1,11 +1,10 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.PlanningInventaireTournant;
 import com.kobe.warehouse.domain.Rayon;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.CritereTournant;
 import com.kobe.warehouse.domain.enumeration.FrequenceTournant;
@@ -17,6 +16,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.dto.records.PlanningInventaireTournantRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.TournantDashboardRecord;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.inventaire.InventaireCreationService;
 import com.kobe.warehouse.service.inventaire.PlanningInventaireTournantService;
 import java.time.LocalDate;
@@ -35,8 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PlanningInventaireTournantServiceImpl implements PlanningInventaireTournantService {
 
-    private static final Logger log = LoggerFactory.getLogger(
-        PlanningInventaireTournantServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PlanningInventaireTournantServiceImpl.class);
 
     /**
      * Cycle de rotation ABC — aligné sur les valeurs émises par
@@ -57,13 +56,12 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
     private final InventaireCreationService inventaireCreationService;
 
     public PlanningInventaireTournantServiceImpl(
-        PlanningInventaireTournantRepository planningRepository,
-        RayonRepository rayonRepository,
-        FamilleProduitRepository familleProduitRepository,
-        StorageRepository storageRepository,
-        UserRepository userRepository,
-        InventaireCreationService inventaireCreationService
-    ) {
+            PlanningInventaireTournantRepository planningRepository,
+            RayonRepository rayonRepository,
+            FamilleProduitRepository familleProduitRepository,
+            StorageRepository storageRepository,
+            UserRepository userRepository,
+            InventaireCreationService inventaireCreationService) {
         this.planningRepository = planningRepository;
         this.rayonRepository = rayonRepository;
         this.familleProduitRepository = familleProduitRepository;
@@ -119,10 +117,9 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
     @Override
     @Transactional(readOnly = true)
     public List<PlanningInventaireTournantRecord> findAll() {
-        return planningRepository.findAllByOrderByProchaineExecutionAsc()
-            .stream()
-            .map(this::toRecord)
-            .toList();
+        return planningRepository.findAllByOrderByProchaineExecutionAsc().stream()
+                .map(this::toRecord)
+                .toList();
     }
 
     @Override
@@ -153,34 +150,34 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         LocalDate in7Days = today.plusDays(7);
 
         List<PlanningInventaireTournant> all = storageId != null
-            ? planningRepository.findAllByStorageIdOrderByLibelle(storageId)
-            : planningRepository.findAllByOrderByProchaineExecutionAsc();
+                ? planningRepository.findAllByStorageIdOrderByLibelle(storageId)
+                : planningRepository.findAllByOrderByProchaineExecutionAsc();
 
-        int actifs = (int) all.stream().filter(p -> Boolean.TRUE.equals(p.getActif())).count();
+        int actifs = (int)
+                all.stream().filter(p -> Boolean.TRUE.equals(p.getActif())).count();
 
         // Inventaires créés ce mois (basé sur derniere_execution)
         int ceMois = (int) all.stream()
-            .filter(p -> p.getDerniereExecution() != null && !p.getDerniereExecution()
-                .isBefore(firstOfMonth))
-            .count();
+                .filter(p -> p.getDerniereExecution() != null
+                        && !p.getDerniereExecution().isBefore(firstOfMonth))
+                .count();
 
         // Taux de couverture : plannings exécutés ce mois / plannings actifs
         int tauxCouverture = actifs == 0 ? 0 : Math.min(100, ceMois * 100 / actifs);
 
         List<PlanningInventaireTournantRecord> prochaines = all.stream()
-            .filter(p -> Boolean.TRUE.equals(p.getActif()))
-            .filter(p -> !p.getProchaineExecution().isAfter(in7Days))
-            .map(this::toRecord)
-            .toList();
+                .filter(p -> Boolean.TRUE.equals(p.getActif()))
+                .filter(p -> !p.getProchaineExecution().isAfter(in7Days))
+                .map(this::toRecord)
+                .toList();
 
         LocalDate prochaineTournant = all.stream()
-            .filter(p -> Boolean.TRUE.equals(p.getActif()))
-            .map(PlanningInventaireTournant::getProchaineExecution)
-            .min(LocalDate::compareTo)
-            .orElse(null);
+                .filter(p -> Boolean.TRUE.equals(p.getActif()))
+                .map(PlanningInventaireTournant::getProchaineExecution)
+                .min(LocalDate::compareTo)
+                .orElse(null);
 
-        return new TournantDashboardRecord(actifs, ceMois, tauxCouverture, prochaines,
-            prochaineTournant);
+        return new TournantDashboardRecord(actifs, ceMois, tauxCouverture, prochaines, prochaineTournant);
     }
 
     /**
@@ -191,19 +188,18 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         List<PlanningInventaireTournant> echus = planningRepository.findEchus(today);
 
         return echus.stream()
-            .map(planning -> {
-                try {
-                    Long id = doExecuter(planning);
-                    planningRepository.saveAndFlush(planning);
-                    return id;
-                } catch (Exception e) {
-                    log.error("Erreur lors de l'exécution du planning tournant id={}",
-                        planning.getId(), e);
-                    return null;
-                }
-            })
-            .filter(Objects::nonNull)
-            .toList();
+                .map(planning -> {
+                    try {
+                        Long id = doExecuter(planning);
+                        planningRepository.saveAndFlush(planning);
+                        return id;
+                    } catch (Exception e) {
+                        log.error("Erreur lors de l'exécution du planning tournant id={}", planning.getId(), e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     /**
@@ -227,13 +223,16 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         planning.setDerniereExecution(LocalDate.now());
         planning.setProchaineExecution(nextExecutionDate(planning.getFrequence()));
 
-        log.info("Planning tournant id={} exécuté → inventaire id={}, prochaine={}",
-            planning.getId(), inventoryId, planning.getProchaineExecution());
+        log.info(
+                "Planning tournant id={} exécuté → inventaire id={}, prochaine={}",
+                planning.getId(),
+                inventoryId,
+                planning.getProchaineExecution());
         return inventoryId;
     }
 
-    private StoreInventoryRecord buildInventoryRecord(PlanningInventaireTournant planning,
-        Integer storageId, Integer userId) {
+    private StoreInventoryRecord buildInventoryRecord(
+            PlanningInventaireTournant planning, Integer storageId, Integer userId) {
         return switch (planning.getCritere()) {
             case RAYON -> buildRayonRecord(planning, storageId, userId);
             case FAMILLE -> buildFamilleRecord(planning, storageId, userId);
@@ -241,51 +240,60 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         };
     }
 
-    private StoreInventoryRecord buildRayonRecord(PlanningInventaireTournant planning,
-        Integer storageId, Integer userId) {
+    private StoreInventoryRecord buildRayonRecord(
+            PlanningInventaireTournant planning, Integer storageId, Integer userId) {
         // Le stockage de référence est FACULTATIF sur le planning — l'écran annonce d'ailleurs
         // « Tous les storages ». Sans lui, la rotation porte donc sur tous les rayons de
         // l'officine, et non sur une liste vide : celle-ci faisait échouer l'exécution en
         // HTTP 500, sur un planning que rien ne signalait comme incomplet.
         List<Rayon> rayons = storageId != null
-            ? rayonRepository.findAllByStorageIdOrderByLibelle(storageId)
-            : rayonRepository.findAll(Sort.by(Sort.Direction.ASC, "libelle"));
+                ? rayonRepository.findAllByStorageIdOrderByLibelle(storageId)
+                : rayonRepository.findAll(Sort.by(Sort.Direction.ASC, "libelle"));
         if (rayons.isEmpty()) {
             throw new GenericError(
-                "Aucun rayon n'est défini : le planning par rayon n'a rien à inventorier.",
-                "rayonIntrouvable");
+                    "Aucun rayon n'est défini : le planning par rayon n'a rien à inventorier.", "rayonIntrouvable");
         }
         int idx = planning.getCritereIndexCourant() % rayons.size();
         Rayon rayon = rayons.get(idx);
         String description = "Inventaire tournant — Rayon : " + rayon.getLibelle();
-        return new StoreInventoryRecord(null, storageId, rayon.getId(), "RAYON", null, description,
-            null, null, null, null, userId, List.of());
+        return new StoreInventoryRecord(
+                null, storageId, rayon.getId(), "RAYON", null, description, null, null, null, null, userId, List.of());
     }
 
-    private StoreInventoryRecord buildFamilleRecord(PlanningInventaireTournant planning,
-        Integer storageId, Integer userId) {
+    private StoreInventoryRecord buildFamilleRecord(
+            PlanningInventaireTournant planning, Integer storageId, Integer userId) {
         List<FamilleProduit> familles = familleProduitRepository.findAllByOrderByLibelleAsc();
         if (familles.isEmpty()) {
             throw new GenericError(
-                "Aucune famille de produits n'est définie : le planning par famille n'a rien à inventorier.",
-                "familleIntrouvable");
+                    "Aucune famille de produits n'est définie : le planning par famille n'a rien à inventorier.",
+                    "familleIntrouvable");
         }
         int idx = planning.getCritereIndexCourant() % familles.size();
         FamilleProduit famille = familles.get(idx);
         String description = "Inventaire tournant — Famille : " + famille.getLibelle();
-        return new StoreInventoryRecord(null, storageId, null, "FAMILLY", famille.getId(),
-            description,
-            null, null, null, null, userId, List.of());
+        return new StoreInventoryRecord(
+                null,
+                storageId,
+                null,
+                "FAMILLY",
+                famille.getId(),
+                description,
+                null,
+                null,
+                null,
+                null,
+                userId,
+                List.of());
     }
 
-    private StoreInventoryRecord buildAbcRecord(PlanningInventaireTournant planning,
-        Integer storageId, Integer userId) {
+    private StoreInventoryRecord buildAbcRecord(
+            PlanningInventaireTournant planning, Integer storageId, Integer userId) {
         String classePareto = planning.getClasseParetoCourante() != null
-            ? planning.getClasseParetoCourante()
-            : abcClasseAt(planning.getCritereIndexCourant());
+                ? planning.getClasseParetoCourante()
+                : abcClasseAt(planning.getCritereIndexCourant());
         String description = "Inventaire tournant — Classe Pareto : " + paretoLabel(classePareto);
-        return new StoreInventoryRecord(null, storageId, null, "ABC", null, description,
-            null, null, null, classePareto, userId, List.of());
+        return new StoreInventoryRecord(
+                null, storageId, null, "ABC", null, description, null, null, null, classePareto, userId, List.of());
     }
 
     private void advanceRotation(PlanningInventaireTournant planning) {
@@ -315,26 +323,20 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         if (planning.getUser() != null) {
             return planning.getUser().getId();
         }
-        return userRepository.findAll(PageRequest.of(0, 1))
-            .stream()
-            .findFirst()
-            .map(AppUser::getId)
-            .orElseThrow(() -> new IllegalStateException("Aucun utilisateur système trouvé"));
+        return userRepository.findAll(PageRequest.of(0, 1)).stream()
+                .findFirst()
+                .map(AppUser::getId)
+                .orElseThrow(() -> new IllegalStateException("Aucun utilisateur système trouvé"));
     }
 
-    private void fillFromRecord(PlanningInventaireTournant entity,
-        PlanningInventaireTournantRecord record) {
+    private void fillFromRecord(PlanningInventaireTournant entity, PlanningInventaireTournantRecord record) {
         entity.setLibelle(record.libelle());
         entity.setFrequence(FrequenceTournant.valueOf(record.frequence()));
         entity.setCritere(CritereTournant.valueOf(record.critere()));
         entity.setProchaineExecution(record.prochaineExecution());
         entity.setActif(record.actif());
-        entity.setStorage(record.storageId() != null
-            ? storageRepository.getReferenceById(record.storageId())
-            : null);
-        entity.setUser(record.userId() != null
-            ? userRepository.getReferenceById(record.userId())
-            : null);
+        entity.setStorage(record.storageId() != null ? storageRepository.getReferenceById(record.storageId()) : null);
+        entity.setUser(record.userId() != null ? userRepository.getReferenceById(record.userId()) : null);
         if (record.critereIndexCourant() != null) {
             entity.setCritereIndexCourant(record.critereIndexCourant());
         }
@@ -347,20 +349,19 @@ public class PlanningInventaireTournantServiceImpl implements PlanningInventaire
         Storage storage = e.getStorage();
         AppUser user = e.getUser();
         return new PlanningInventaireTournantRecord(
-            e.getId(),
-            e.getLibelle(),
-            e.getFrequence().name(),
-            e.getCritere().name(),
-            storage != null ? storage.getId() : null,
-            storage != null ? storage.getName() : null,
-            user != null ? user.getId() : null,
-            user != null ? (AppUserNames.fullName(user)).trim() : null,
-            e.getProchaineExecution(),
-            Boolean.TRUE.equals(e.getActif()),
-            e.getCritereIndexCourant(),
-            e.getClasseParetoCourante(),
-            e.getNbExecutions(),
-            e.getDerniereExecution()
-        );
+                e.getId(),
+                e.getLibelle(),
+                e.getFrequence().name(),
+                e.getCritere().name(),
+                storage != null ? storage.getId() : null,
+                storage != null ? storage.getName() : null,
+                user != null ? user.getId() : null,
+                user != null ? (AppUserNames.fullName(user)).trim() : null,
+                e.getProchaineExecution(),
+                Boolean.TRUE.equals(e.getActif()),
+                e.getCritereIndexCourant(),
+                e.getClasseParetoCourante(),
+                e.getNbExecutions(),
+                e.getDerniereExecution());
     }
 }

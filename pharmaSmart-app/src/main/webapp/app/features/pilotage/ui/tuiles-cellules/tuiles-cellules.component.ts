@@ -24,7 +24,12 @@ export interface TuileCellule {
         <app-kpi-item [label]="tuile.libelle" [info]="tuile.definition" [value]="tuile.cellule.valeur | valeurIndicateur: tuile.unite">
           <ng-container ngProjectAs="[kpiSub]">
             @if (tuile.cellule.valeurReference !== null) {
-              <app-variation [ecartPct]="tuile.cellule.ecartPct" [ecart]="tuile.cellule.ecart" [sensFavorable]="tuile.sens" [unite]="tuile.unite" />
+              <app-variation
+                [ecartPct]="tuile.cellule.ecartPct"
+                [ecart]="tuile.cellule.ecart"
+                [sensFavorable]="tuile.sens"
+                [unite]="tuile.unite"
+              />
             }
           </ng-container>
         </app-kpi-item>

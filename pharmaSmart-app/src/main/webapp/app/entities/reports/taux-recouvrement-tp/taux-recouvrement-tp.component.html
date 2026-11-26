@@ -2,18 +2,8 @@
 <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Taux de Recouvrement Tiers-Payants">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        (ngModelChange)="fromDate.set(structToDate($event))"
-        [ngModel]="fromStruct()"
-        id="trt-from"
-        label="Du"
-      />
-      <pharma-date-picker
-        (ngModelChange)="toDate.set(structToDate($event))"
-        [ngModel]="toStruct()"
-        id="trt-to"
-        label="Au"
-      />
+      <pharma-date-picker (ngModelChange)="fromDate.set(structToDate($event))" [ngModel]="fromStruct()" id="trt-from" label="Du" />
+      <pharma-date-picker (ngModelChange)="toDate.set(structToDate($event))" [ngModel]="toStruct()" id="trt-to" label="Au" />
     </div>
   </ng-container>
 
@@ -41,17 +31,19 @@
 }
 
 @if (!isLoading() && kpi()) {
-
   <!-- KPI Strip principal -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" [icon]="tauxIcon()" label="Taux de recouvrement"
-                  info="Montant réglé rapporté au montant facturé sur la période, les factures étant retenues à leur date de facture. L'appréciation suit deux paliers fixes : excellent à partir de 80 %, à surveiller à partir de 50 %.">
+    <app-kpi-item
+      [accent]="'primary'"
+      [icon]="tauxIcon()"
+      label="Taux de recouvrement"
+      info="Montant réglé rapporté au montant facturé sur la période, les factures étant retenues à leur date de facture. L'appréciation suit deux paliers fixes : excellent à partir de 80 %, à surveiller à partir de 50 %."
+    >
       <!--
         La valeur est projetée plutôt que passée par [value] : elle porte une taille
         propre, et un style d'appelant ne franchirait pas l'encapsulation de app-kpi-item.
       -->
-      <span [class]="tauxColor()" ngProjectAs="[kpiValue]"
-            style="font-size: 2rem; font-weight: 700;">
+      <span [class]="tauxColor()" ngProjectAs="[kpiValue]" style="font-size: 2rem; font-weight: 700">
         {{ formatDecimal(kpi()?.tauxRecouvrement, 1) }} %
       </span>
       <ng-container ngProjectAs="[kpiSub]">
@@ -64,35 +56,44 @@
         }
       </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" [value]="formatCurrency(kpi()?.totalRegle)"
-                  icon="pi pi-check-circle"
-                  iconClass="text-success" label="Montant réglé"
-                  info="Encaissé sur les factures de la période. Le compteur dessous est le nombre total de factures, pas celui des factures réglées."
-                  valueClass="text-success">
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="formatCurrency(kpi()?.totalRegle)"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Montant réglé"
+      info="Encaissé sur les factures de la période. Le compteur dessous est le nombre total de factures, pas celui des factures réglées."
+      valueClass="text-success"
+    >
       <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countFactures) }}factures
-      </ng-container>
+      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countFactures) }}factures </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRestant)"
-                  icon="pi pi-times-circle"
-                  iconClass="text-danger" label="Montant restant"
-                  info="Facturé moins réglé. Le compteur dessous est celui des factures non soldées, partiellement réglées comprises."
-                  valueClass="text-danger">
-      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countImpayees) }}impayées
-      </ng-container>
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="formatCurrency(kpi()?.totalRestant)"
+      icon="pi pi-times-circle"
+      iconClass="text-danger"
+      label="Montant restant"
+      info="Facturé moins réglé. Le compteur dessous est celui des factures non soldées, partiellement réglées comprises."
+      valueClass="text-danger"
+    >
+      <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countImpayees) }}impayées </ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.countEnRetard)"
-                  icon="pi pi-clock"
-                  iconClass="text-warning" label="En retard"
-                  info="Factures non soldées dont la date de facture a dépassé le délai de règlement du tiers payant ou de son groupe — à défaut, celui du paramétrage général."
-                  valueClass="text-warning">
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="formatNumber(kpi()?.countEnRetard)"
+      icon="pi pi-clock"
+      iconClass="text-warning"
+      label="En retard"
+      info="Factures non soldées dont la date de facture a dépassé le délai de règlement du tiers payant ou de son groupe — à défaut, celui du paramétrage général."
+      valueClass="text-warning"
+    >
       <ng-container ngProjectAs="[kpiSub]">factures en retard de paiement</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
 
   <!-- Tableau de bord récapitulatif -->
   <div class="row g-3 mt-1">
-
     <!-- Montants -->
     <div class="col-md-6">
       <div class="card data-card h-100">
@@ -106,20 +107,15 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between px-0">
               <span>Total facturé</span>
-              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} &ngsp; <span
-                appDevise></span></span>
+              <span class="fw-bold">{{ formatCurrency(kpi()?.totalFacture) }} &ngsp; <span appDevise></span></span>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span class="text-success">Montant réglé</span>
-              <span class="fw-bold text-success">{{ formatCurrency(kpi()?.totalRegle) }}
-                &ngsp; <span
-                  appDevise></span></span>
+              <span class="fw-bold text-success">{{ formatCurrency(kpi()?.totalRegle) }} &ngsp; <span appDevise></span></span>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span class="text-danger">Montant restant</span>
-              <span class="fw-bold text-danger">{{ formatCurrency(kpi()?.totalRestant) }}
-                &ngsp; <span
-                  appDevise></span></span>
+              <span class="fw-bold text-danger">{{ formatCurrency(kpi()?.totalRestant) }} &ngsp; <span appDevise></span></span>
             </li>
           </ul>
         </div>
@@ -153,9 +149,7 @@
         </div>
       </div>
     </div>
-
   </div>
-
 }
 
 @if (!isLoading() && !kpi()) {

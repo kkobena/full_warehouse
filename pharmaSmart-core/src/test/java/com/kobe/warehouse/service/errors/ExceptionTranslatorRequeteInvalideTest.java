@@ -30,23 +30,23 @@ class ExceptionTranslatorRequeteInvalideTest {
         }
     }
 
-    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new Controleur()).setControllerAdvice(new ExceptionTranslator()).build();
+    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new Controleur())
+            .setControllerAdvice(new ExceptionTranslator())
+            .build();
 
     @Test
     void parametreObligatoireManquant() throws Exception {
-        mvc
-            .perform(get("/rapport"))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.message").value("Paramètre obligatoire manquant : startDate"));
+        mvc.perform(get("/rapport"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Paramètre obligatoire manquant : startDate"));
     }
 
     @Test
     void verbeNonSupporte() throws Exception {
-        mvc
-            .perform(post("/rapport"))
-            .andExpect(status().isMethodNotAllowed())
-            .andExpect(jsonPath("$.status").value(405))
-            .andExpect(jsonPath("$.message", containsString("POST")));
+        mvc.perform(post("/rapport"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.status").value(405))
+                .andExpect(jsonPath("$.message", containsString("POST")));
     }
 }

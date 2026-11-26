@@ -43,14 +43,14 @@ class ImportationEchoueServiceTest {
 
     private static OrderItem orderItem() {
         return new OrderItem()
-            .setProduitCip("1234567")
-            .setProduitEan("3400931234567")
-            .setQuantityReceived(12)
-            .setPrixAchat(850)
-            .setPrixUn(1200d)
-            .setUg(2)
-            .setTva(18d)
-            .setDatePeremption("2027-06-30");
+                .setProduitCip("1234567")
+                .setProduitEan("3400931234567")
+                .setQuantityReceived(12)
+                .setPrixAchat(850)
+                .setPrixUn(1200d)
+                .setUg(2)
+                .setTva(18d)
+                .setDatePeremption("2027-06-30");
     }
 
     private ImportationEchoue capturerEnregistrement() {
@@ -91,7 +91,8 @@ class ImportationEchoueServiceTest {
     void mappeLesColonnes() {
         service.save(77, true, List.of(orderItem()));
 
-        ImportationEchoueLigne ligne = capturerEnregistrement().getImportationEchoueLignes().getFirst();
+        ImportationEchoueLigne ligne =
+                capturerEnregistrement().getImportationEchoueLignes().getFirst();
         assertThat(ligne.getProduitCip()).isEqualTo("1234567");
         assertThat(ligne.getProduitEan()).isEqualTo("3400931234567");
         assertThat(ligne.getQuantityReceived()).isEqualTo(12);
@@ -109,7 +110,8 @@ class ImportationEchoueServiceTest {
 
         ImportationEchoue saved = capturerEnregistrement();
         assertThat(saved.getImportationEchoueLignes()).hasSize(2);
-        assertThat(saved.getImportationEchoueLignes()).allSatisfy(l -> assertThat(l.getImportationEchoue()).isSameAs(saved));
+        assertThat(saved.getImportationEchoueLignes())
+                .allSatisfy(l -> assertThat(l.getImportationEchoue()).isSameAs(saved));
     }
 
     @Test
@@ -117,7 +119,11 @@ class ImportationEchoueServiceTest {
     void prixUnitaireTronque() {
         service.save(77, true, List.of(orderItem().setPrixUn(1299.99d)));
 
-        assertThat(capturerEnregistrement().getImportationEchoueLignes().getFirst().getPrixUn()).isEqualTo(1299);
+        assertThat(capturerEnregistrement()
+                        .getImportationEchoueLignes()
+                        .getFirst()
+                        .getPrixUn())
+                .isEqualTo(1299);
     }
 
     @Test
@@ -125,7 +131,11 @@ class ImportationEchoueServiceTest {
     void tvaTronquee() {
         service.save(77, true, List.of(orderItem().setTva(5.5d)));
 
-        assertThat(capturerEnregistrement().getImportationEchoueLignes().getFirst().getCodeTva()).isEqualTo(5);
+        assertThat(capturerEnregistrement()
+                        .getImportationEchoueLignes()
+                        .getFirst()
+                        .getCodeTva())
+                .isEqualTo(5);
     }
 
     @ParameterizedTest(name = "une TVA nulle laisse le code TVA vide")
@@ -133,15 +143,23 @@ class ImportationEchoueServiceTest {
     void tvaNulle(Double tva) {
         service.save(77, true, List.of(orderItem().setTva(tva)));
 
-        assertThat(capturerEnregistrement().getImportationEchoueLignes().getFirst().getCodeTva()).isNull();
+        assertThat(capturerEnregistrement()
+                        .getImportationEchoueLignes()
+                        .getFirst()
+                        .getCodeTva())
+                .isNull();
     }
 
     @ParameterizedTest(name = "une date de peremption [{0}] laisse la colonne vide")
-    @ValueSource(strings = { "", "   " })
+    @ValueSource(strings = {"", "   "})
     void datePeremptionBlanche(String date) {
         service.save(77, true, List.of(orderItem().setDatePeremption(date)));
 
-        assertThat(capturerEnregistrement().getImportationEchoueLignes().getFirst().getDatePeremption()).isNull();
+        assertThat(capturerEnregistrement()
+                        .getImportationEchoueLignes()
+                        .getFirst()
+                        .getDatePeremption())
+                .isNull();
     }
 
     @Test
@@ -149,7 +167,11 @@ class ImportationEchoueServiceTest {
     void datePeremptionNulle() {
         service.save(77, true, List.of(orderItem().setDatePeremption(null)));
 
-        assertThat(capturerEnregistrement().getImportationEchoueLignes().getFirst().getDatePeremption()).isNull();
+        assertThat(capturerEnregistrement()
+                        .getImportationEchoueLignes()
+                        .getFirst()
+                        .getDatePeremption())
+                .isNull();
     }
 
     @Test

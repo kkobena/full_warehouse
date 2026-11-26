@@ -16,8 +16,7 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="d-flex flex-wrap gap-2">
         @if (store.editMode()) {
-          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter une tuile"
-                      size="small" />
+          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter une tuile" size="small" />
         }
         <app-button
           (clicked)="facade.toggleEditMode()"
@@ -36,10 +35,8 @@
           severity="success"
           size="small"
         />
-        <app-button (clicked)="facade.openDialog()" [outlined]="true" icon="pi pi-folder-open" label="Ouvrir"
-                    size="small" />
-        <app-button (clicked)="facade.newDashboard()" [outlined]="true" icon="pi pi-file" label="Nouveau"
-                    size="small" />
+        <app-button (clicked)="facade.openDialog()" [outlined]="true" icon="pi pi-folder-open" label="Ouvrir" size="small" />
+        <app-button (clicked)="facade.newDashboard()" [outlined]="true" icon="pi pi-file" label="Nouveau" size="small" />
       </div>
     </ng-container>
 
@@ -68,8 +65,7 @@
                   <i [class]="template.icon" aria-hidden="true"></i>
                   <span class="fw-semibold">{{ template.label }}</span>
                   <span class="small text-body-secondary">{{ template.description }}</span>
-                  <app-button (clicked)="useTemplate(template)" [outlined]="true" label="Utiliser"
-                              size="small" />
+                  <app-button (clicked)="useTemplate(template)" [outlined]="true" label="Utiliser" size="small" />
                 </div>
               }
             </div>

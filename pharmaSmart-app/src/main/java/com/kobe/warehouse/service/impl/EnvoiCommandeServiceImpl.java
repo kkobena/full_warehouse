@@ -9,7 +9,6 @@ import com.kobe.warehouse.service.EnvoiCommandeService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.errors.GenericError;
-
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,14 +60,13 @@ public class EnvoiCommandeServiceImpl implements EnvoiCommandeService {
      * attesté par la livraison, et le modifier fausserait le délai mesuré pour le grossiste.
      */
     private Commande lireCommandeEnAttente(CommandeId commandeId) {
-        Commande commande = commandeRepository.findById(commandeId).orElseThrow(() ->
-            new GenericError("Commande introuvable", "commandeNotFound")
-        );
+        Commande commande = commandeRepository
+                .findById(commandeId)
+                .orElseThrow(() -> new GenericError("Commande introuvable", "commandeNotFound"));
         if (commande.getOrderStatus() != OrderStatut.REQUESTED) {
             throw new GenericError(
-                "Une commande au statut " + commande.getOrderStatus() + " ne peut plus changer d'état d'envoi",
-                "commande"
-            );
+                    "Une commande au statut " + commande.getOrderStatus() + " ne peut plus changer d'état d'envoi",
+                    "commande");
         }
         return commande;
     }

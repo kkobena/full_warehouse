@@ -29,47 +29,60 @@ class SuiviOrdonnanceTest {
 
     @Test
     void ordonnanceSoldeeEstTerminee() {
-        assertThat(SuiviOrdonnance.statut(false, null, 0, List.of(new LigneSuivieDTO(3, 3), new LigneSuivieDTO(1, 1)), AUJOURDHUI))
-            .isEqualTo(StatutOrdonnance.TERMINEE);
+        assertThat(SuiviOrdonnance.statut(
+                        false, null, 0, List.of(new LigneSuivieDTO(3, 3), new LigneSuivieDTO(1, 1)), AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.TERMINEE);
     }
 
     @Test
     void uneLigneNonSoldeeSuffitAGarderLOrdonnanceEnCours() {
-        assertThat(SuiviOrdonnance.statut(false, null, 0, List.of(new LigneSuivieDTO(3, 3), new LigneSuivieDTO(1, 0)), AUJOURDHUI))
-            .isEqualTo(StatutOrdonnance.EN_COURS);
+        assertThat(SuiviOrdonnance.statut(
+                        false, null, 0, List.of(new LigneSuivieDTO(3, 3), new LigneSuivieDTO(1, 0)), AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.EN_COURS);
     }
 
     @Test
     void expireeApresSaDateDeFinMaisSoldeePrimeSurExpiree() {
         var enCours = List.of(new LigneSuivieDTO(1, 0));
-        assertThat(SuiviOrdonnance.statut(false, AUJOURDHUI.minusDays(1), 0, enCours, AUJOURDHUI)).isEqualTo(StatutOrdonnance.EXPIREE);
-        assertThat(SuiviOrdonnance.statut(false, AUJOURDHUI, 0, enCours, AUJOURDHUI)).isEqualTo(StatutOrdonnance.EN_COURS);
-        assertThat(SuiviOrdonnance.statut(false, AUJOURDHUI.minusDays(1), 0, List.of(new LigneSuivieDTO(1, 1)), AUJOURDHUI))
-            .isEqualTo(StatutOrdonnance.TERMINEE);
+        assertThat(SuiviOrdonnance.statut(false, AUJOURDHUI.minusDays(1), 0, enCours, AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.EXPIREE);
+        assertThat(SuiviOrdonnance.statut(false, AUJOURDHUI, 0, enCours, AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.EN_COURS);
+        assertThat(SuiviOrdonnance.statut(
+                        false, AUJOURDHUI.minusDays(1), 0, List.of(new LigneSuivieDTO(1, 1)), AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.TERMINEE);
     }
 
     @Test
     void clotureManuelleTermineMemeAvecUnResteADelivrer() {
-        assertThat(SuiviOrdonnance.statut(true, null, 0, List.of(new LigneSuivieDTO(1, 0)), AUJOURDHUI)).isEqualTo(StatutOrdonnance.TERMINEE);
+        assertThat(SuiviOrdonnance.statut(true, null, 0, List.of(new LigneSuivieDTO(1, 0)), AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.TERMINEE);
     }
 
     @Test
     void ordonnanceSansLigneNEstJamaisSoldee() {
-        assertThat(SuiviOrdonnance.statut(false, null, 0, List.of(), AUJOURDHUI)).isEqualTo(StatutOrdonnance.EN_COURS);
+        assertThat(SuiviOrdonnance.statut(false, null, 0, List.of(), AUJOURDHUI))
+                .isEqualTo(StatutOrdonnance.EN_COURS);
     }
 
     @Test
     void renouvellementsRestantsDecroissentPassageApresPassage() {
         // 2 renouvellements = 3 passages possibles. Le premier passage n'est pas un renouvellement.
-        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 0)))).isEqualTo(2);
-        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 1)))).isEqualTo(2);
-        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 2)))).isEqualTo(2);
-        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 4)))).isEqualTo(1);
-        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 6)))).isZero();
+        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 0))))
+                .isEqualTo(2);
+        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 1))))
+                .isEqualTo(2);
+        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 2))))
+                .isEqualTo(2);
+        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 4))))
+                .isEqualTo(1);
+        assertThat(SuiviOrdonnance.renouvellementsRestants(2, List.of(new LigneSuivieDTO(2, 6))))
+                .isZero();
     }
 
     @Test
     void lePassageCompletSeMesureSurLaLigneLaMoinsDelivree() {
-        assertThat(SuiviOrdonnance.passagesComplets(List.of(new LigneSuivieDTO(2, 4), new LigneSuivieDTO(1, 1)))).isEqualTo(1);
+        assertThat(SuiviOrdonnance.passagesComplets(List.of(new LigneSuivieDTO(2, 4), new LigneSuivieDTO(1, 1))))
+                .isEqualTo(1);
     }
 }

@@ -69,7 +69,8 @@ export class TraitementsChroniquesComponent {
           })
           .subscribe({
             next: () => this.charger(this.customerId()),
-            error: (err: HttpErrorResponse) => this.notificationService.error(this.errorService.getErrorMessage(err, "L'opération a échoué")),
+            error: (err: HttpErrorResponse) =>
+              this.notificationService.error(this.errorService.getErrorMessage(err, "L'opération a échoué")),
           }),
       arreter ? 'ARRÊT DU TRAITEMENT' : 'REPRISE DU TRAITEMENT',
       arreter

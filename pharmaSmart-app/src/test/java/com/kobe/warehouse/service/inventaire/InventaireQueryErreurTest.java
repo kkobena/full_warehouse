@@ -32,11 +32,7 @@ class InventaireQueryErreurTest {
     private final StoreInventoryRepository storeInventoryRepository = mock(StoreInventoryRepository.class);
 
     private final InventaireQueryService service = new InventaireQueryServiceImpl(
-        storeInventoryRepository,
-        mock(InventoryStockService.class),
-        mock(AppConfigurationService.class),
-        em
-    );
+            storeInventoryRepository, mock(InventoryStockService.class), mock(AppConfigurationService.class), em);
 
     @Test
     @DisplayName("l'échec de la requête remonte à l'appelant")
@@ -46,10 +42,8 @@ class InventaireQueryErreurTest {
         when(storeInventoryRepository.getReferenceById(1L)).thenReturn(inventaire);
         when(em.createNativeQuery(anyString())).thenThrow(new PersistenceException("colonne inconnue"));
 
-        StoreInventoryLineFilterRecord filtre =
-            new StoreInventoryLineFilterRecord(1L, null, null, null, null);
+        StoreInventoryLineFilterRecord filtre = new StoreInventoryLineFilterRecord(1L, null, null, null, null);
 
-        assertThrows(PersistenceException.class,
-            () -> service.getInventoryPage(filtre, PageRequest.of(0, 20), false));
+        assertThrows(PersistenceException.class, () -> service.getInventoryPage(filtre, PageRequest.of(0, 20), false));
     }
 }

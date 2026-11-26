@@ -48,23 +48,51 @@ public class InventoryGapAnalysis implements Serializable {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public StoreInventoryLine getStoreInventoryLine() { return storeInventoryLine; }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public StoreInventoryLine getStoreInventoryLine() {
+        return storeInventoryLine;
+    }
+
     public void setStoreInventoryLine(StoreInventoryLine storeInventoryLine) {
         this.storeInventoryLine = storeInventoryLine;
     }
 
-    public CauseEcart getCause() { return cause; }
-    public void setCause(CauseEcart cause) { this.cause = cause; }
+    public CauseEcart getCause() {
+        return cause;
+    }
 
-    public Integer getQuantity() { return quantity; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public void setCause(CauseEcart cause) {
+        this.cause = cause;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public void setCommentaire(String commentaire) { this.commentaire = commentaire; }
+    public Integer getQuantity() {
+        return quantity;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public void setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

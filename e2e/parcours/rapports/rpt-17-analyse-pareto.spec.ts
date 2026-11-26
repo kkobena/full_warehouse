@@ -41,9 +41,7 @@ scenario('RPT-17', async ({ etape, page }) => {
 
     // Le classement s'emporte en réunion d'achat. L'export est déclenché pour de bon : son
     // gabarit Thymeleaf manquait, et l'onglet n'avait pas de bouton pour l'appeler.
-    const reponse = page.waitForResponse(
-      r => r.url().includes('/api/abc-pareto/export') && r.request().method() === 'GET',
-    );
+    const reponse = page.waitForResponse(r => r.url().includes('/api/abc-pareto/export') && r.request().method() === 'GET');
     await page.getByRole('button', { name: 'Exporter PDF' }).click();
     const pdf = await reponse;
     expect(pdf.status(), "L'export PDF du classement ABC a échoué.").toBe(200);

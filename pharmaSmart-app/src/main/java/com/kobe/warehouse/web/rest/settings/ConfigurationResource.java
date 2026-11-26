@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.settings;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.settings.dto.AppConfigurationDto;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -7,7 +9,6 @@ import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -49,11 +48,10 @@ public class ConfigurationResource {
     @GetMapping("/app")
     @NavAccessExempt("paramètres de l'application, lus par la vente, le stock et l'inventaire mobile")
     public ResponseEntity<List<AppConfigurationDto>> fetchAll(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false, defaultValue = "") String search, Pageable pageable) {
         Page<AppConfigurationDto> page = appConfigurationService.fetchAll(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 

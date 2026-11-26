@@ -1,28 +1,17 @@
-import { AfterViewInit, Component, computed, DestroyRef, inject, Input, signal, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
-import { HttpResponse } from "@angular/common/http";
-import { NgbActiveModal, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { AfterViewInit, Component, computed, DestroyRef, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import { IPaymentMode } from "../../../../shared/model/payment-mode.model";
-import { ModePaymentService } from "../../../../entities/mode-payments/mode-payment.service";
-import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import {
-  ButtonComponent,
-  CardComponent,
-  InputNumberComponent,
-  KeyFilterDirective,
-  SelectComponent
-} from 'app/shared/ui';
-import {
-  IDossierFactureProjection,
-  ILigneRapprochement,
-  IReglementParams,
-  ModeEditionReglement
-} from "../../data-access/models";
+import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
+import { ModePaymentService } from '../../../../entities/mode-payments/mode-payment.service';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { ButtonComponent, CardComponent, InputNumberComponent, KeyFilterDirective, SelectComponent } from 'app/shared/ui';
+import { IDossierFactureProjection, ILigneRapprochement, IReglementParams, ModeEditionReglement } from '../../data-access/models';
 
 @Component({
-  selector: "app-reglement-rapprochement-modal",
+  selector: 'app-reglement-rapprochement-modal',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -31,17 +20,17 @@ import {
     CardComponent,
     InputNumberComponent,
     KeyFilterDirective,
-    SelectComponent
+    SelectComponent,
   ],
-  templateUrl: "./reglement-rapprochement-modal.component.html",
+  templateUrl: './reglement-rapprochement-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./reglement-rapprochement-modal.component.scss"
+  styleUrl: './reglement-rapprochement-modal.component.scss',
 })
 export class ReglementRapprochementModalComponent implements AfterViewInit {
   @Input({ required: true }) ligne!: ILigneRapprochement;
 
-  readonly CH = "CH";
-  readonly VIR = "VIREMENT";
+  readonly CH = 'CH';
+  readonly VIR = 'VIREMENT';
 
   readonly activeModal = inject(NgbActiveModal);
 
@@ -56,7 +45,7 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
   readonly maxDateStruct: NgbDateStruct = {
     year: this.today.getFullYear(),
     month: this.today.getMonth() + 1,
-    day: this.today.getDate()
+    day: this.today.getDate(),
   };
 
   private readonly fb = inject(FormBuilder);
@@ -70,8 +59,8 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
       code: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: true }),
-      beneficiaire: new FormControl<string | null>(null)
-    })
+      beneficiaire: new FormControl<string | null>(null),
+    }),
   });
 
   /** Adapts ILigneRapprochement → IDossierFactureProjection */
@@ -82,15 +71,14 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
       montantDetailRegle: this.ligne.montantRegle ?? 0,
       factureItemId: {
         id: this.ligne.factureId!,
-        invoiceDate: this.ligne.invoiceDate ?? ""
-      }
+        invoiceDate: this.ligne.invoiceDate ?? '',
+      },
     };
   }
 
   get banqueInfo(): FormGroup {
-    return this.reglementForm.get("banqueInfo") as FormGroup;
+    return this.reglementForm.get('banqueInfo') as FormGroup;
   }
-
 
   get showBanqueInfo(): boolean {
     return this.modePaimentCode === this.CH || this.modePaimentCode === this.VIR;
@@ -101,7 +89,7 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
   }
 
   private get modePaimentCode(): string {
-    return this.reglementForm.get("modePaimentCode").value;
+    return this.reglementForm.get('modePaimentCode').value;
   }
 
   get initTotalAmount(): number {
@@ -116,35 +104,35 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
         if (res.body) {
           this.paymentModes.set(res.body);
           this.setDefaultModeReglement();
-          this.reglementForm.get("amount").setValue(this.initTotalAmount);
+          this.reglementForm.get('amount').setValue(this.initTotalAmount);
         }
       });
 
     this.reglementForm
-      .get("amount")
+      .get('amount')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.montantSaisi.set(value ?? 0));
 
     this.reglementForm
-      .get("modePaimentCode")
+      .get('modePaimentCode')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        this.reglementForm.get("amount").setValue(this.initTotalAmount);
+        this.reglementForm.get('amount').setValue(this.initTotalAmount);
         if (this.showBanqueInfo) {
-          this.banqueInfo.get("nom").setValidators([Validators.required]);
-          this.banqueInfo.get("nom").updateValueAndValidity();
+          this.banqueInfo.get('nom').setValidators([Validators.required]);
+          this.banqueInfo.get('nom').updateValueAndValidity();
           if (value === this.CH) {
-            this.banqueInfo.get("code").setValidators([Validators.required]);
+            this.banqueInfo.get('code').setValidators([Validators.required]);
           } else {
-            this.banqueInfo.get("code").clearValidators();
+            this.banqueInfo.get('code').clearValidators();
           }
-          this.banqueInfo.get("code").updateValueAndValidity();
+          this.banqueInfo.get('code').updateValueAndValidity();
         } else {
           this.banqueInfo.reset();
-          this.banqueInfo.get("nom").clearValidators();
-          this.banqueInfo.get("nom").updateValueAndValidity();
-          this.banqueInfo.get("code").clearValidators();
-          this.banqueInfo.get("code").updateValueAndValidity();
+          this.banqueInfo.get('nom').clearValidators();
+          this.banqueInfo.get('nom').updateValueAndValidity();
+          this.banqueInfo.get('code').clearValidators();
+          this.banqueInfo.get('code').updateValueAndValidity();
         }
       });
   }
@@ -157,21 +145,21 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
   private setDefaultModeReglement(): void {
     const defaultMode = this.paymentModes().find(m => m.code === this.CH);
     if (defaultMode) {
-      this.reglementForm.get("modePaimentCode").setValue(defaultMode.code);
+      this.reglementForm.get('modePaimentCode').setValue(defaultMode.code);
     }
   }
 
   private ngbDateToIso(d: NgbDateStruct | null): string | null {
     if (!d) return null;
-    return `${d.year}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
+    return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
   }
 
   private buildParams(): IReglementParams {
-    const paymentDate = this.reglementForm.get("paymentDate").value as NgbDateStruct | null;
+    const paymentDate = this.reglementForm.get('paymentDate').value as NgbDateStruct | null;
     const f = this.facture;
     return {
-      amount: this.reglementForm.get("amount").value,
-      modePaimentCode: this.reglementForm.get("modePaimentCode").value,
+      amount: this.reglementForm.get('amount').value,
+      modePaimentCode: this.reglementForm.get('modePaimentCode').value,
       partialPayment: false,
       banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
       amountToPaid: this.initTotalAmount,
@@ -179,7 +167,7 @@ export class ReglementRapprochementModalComponent implements AfterViewInit {
       totalAmount: this.initTotalAmount,
       id: f.factureItemId,
       montantFacture: f.montantTotal,
-      mode: ModeEditionReglement.FACTURE_TOTAL
+      mode: ModeEditionReglement.FACTURE_TOTAL,
     };
   }
 }

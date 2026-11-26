@@ -18,26 +18,28 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record RequetePilotageDTO(
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au,
-    TypeComparaison comparaison,
-    Integer anneesEnArriere,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate referenceDu,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate referenceAu,
-    Boolean aDate,
-    Granularite granularite,
-    List<IndicateurPilotage> indicateurs
-) {
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au,
+        TypeComparaison comparaison,
+        Integer anneesEnArriere,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate referenceDu,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate referenceAu,
+        Boolean aDate,
+        Granularite granularite,
+        List<IndicateurPilotage> indicateurs) {
     public RequetePilotageDTO {
         comparaison = comparaison == null ? TypeComparaison.MEME_PERIODE_N_1 : comparaison;
         anneesEnArriere = anneesEnArriere == null ? 1 : anneesEnArriere;
         aDate = aDate == null || aDate;
         granularite = granularite == null ? Granularite.MOIS : granularite;
-        indicateurs = indicateurs == null || indicateurs.isEmpty() ? Arrays.asList(IndicateurPilotage.values()) : List.copyOf(indicateurs);
+        indicateurs = indicateurs == null || indicateurs.isEmpty()
+                ? Arrays.asList(IndicateurPilotage.values())
+                : List.copyOf(indicateurs);
     }
 
     /** La même requête, sur d'autres indicateurs. */
     public RequetePilotageDTO lireAvecIndicateurs(List<IndicateurPilotage> autres) {
-        return new RequetePilotageDTO(du, au, comparaison, anneesEnArriere, referenceDu, referenceAu, aDate, granularite, autres);
+        return new RequetePilotageDTO(
+                du, au, comparaison, anneesEnArriere, referenceDu, referenceAu, aDate, granularite, autres);
     }
 }

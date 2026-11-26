@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,7 +53,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<FactureTiersPayant> subRoot = subquery.from(FactureTiersPayant.class);
-        subquery.select(cb.literal(1L)).where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
+        subquery.select(cb.literal(1L))
+                .where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
         Predicate noGroupExists = cb.not(cb.exists(subquery));
         if (predicate != null) {
             query.where(cb.and(predicate, noGroupExists));
@@ -64,11 +64,11 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         Join<FactureTiersPayant, ThirdPartySaleLine> details = root.join(FactureTiersPayant_.facturesDetails);
         Join<ThirdPartySaleLine, ThirdPartySales> sales = details.join(ThirdPartySaleLine_.sale);
-        Join<FactureTiersPayant, FactureTiersPayant> groupe = root.join(FactureTiersPayant_.groupeFactureTiersPayant, JoinType.LEFT);
+        Join<FactureTiersPayant, FactureTiersPayant> groupe =
+                root.join(FactureTiersPayant_.groupeFactureTiersPayant, JoinType.LEFT);
         Join<FactureTiersPayant, TiersPayant> tiersPayantJoin = root.join(FactureTiersPayant_.tiersPayant);
 
-        query.select(
-            cb.construct(
+        query.select(cb.construct(
                 FactureDto.class,
                 root.get(FactureTiersPayant_.invoiceDate),
                 root.get(FactureTiersPayant_.created),
@@ -89,48 +89,39 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 cb.count(details),
                 cb.sum(details.get(ThirdPartySaleLine_.montant)),
                 root.get(FactureTiersPayant_.fneResponse),
-                tiersPayantJoin.get(TiersPayant_.delaiReglement)
-            )
-        );
+                tiersPayantJoin.get(TiersPayant_.delaiReglement)));
 
         query.groupBy(
-            root.get(FactureTiersPayant_.fneResponse),
-            root.get(FactureTiersPayant_.invoiceDate),
-            root.get(FactureTiersPayant_.created),
-            root.get(FactureTiersPayant_.id),
-            groupe.get(FactureTiersPayant_.id),
-            root.get(FactureTiersPayant_.montantRegle),
-            root.get(FactureTiersPayant_.remiseForfetaire),
-            root.get(FactureTiersPayant_.debutPeriode),
-            root.get(FactureTiersPayant_.statut),
-            root.get(FactureTiersPayant_.finPeriode),
-            root.get(FactureTiersPayant_.factureProvisoire),
-            root.get(FactureTiersPayant_.numFacture),
-            groupe.get(FactureTiersPayant_.numFacture),
-            tiersPayantJoin.get(TiersPayant_.fullName),
-            tiersPayantJoin.get(TiersPayant_.delaiReglement)
-        );
+                root.get(FactureTiersPayant_.fneResponse),
+                root.get(FactureTiersPayant_.invoiceDate),
+                root.get(FactureTiersPayant_.created),
+                root.get(FactureTiersPayant_.id),
+                groupe.get(FactureTiersPayant_.id),
+                root.get(FactureTiersPayant_.montantRegle),
+                root.get(FactureTiersPayant_.remiseForfetaire),
+                root.get(FactureTiersPayant_.debutPeriode),
+                root.get(FactureTiersPayant_.statut),
+                root.get(FactureTiersPayant_.finPeriode),
+                root.get(FactureTiersPayant_.factureProvisoire),
+                root.get(FactureTiersPayant_.numFacture),
+                groupe.get(FactureTiersPayant_.numFacture),
+                tiersPayantJoin.get(TiersPayant_.fullName),
+                tiersPayantJoin.get(TiersPayant_.delaiReglement));
 
         query.orderBy(cb.desc(root.get(FactureTiersPayant_.created)));
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
 
-
         List<FactureDto> result;
-        if (Objects.nonNull(pageable) && pageable.isPaged()){
+        if (Objects.nonNull(pageable) && pageable.isPaged()) {
             typedQuery.setFirstResult((int) pageable.getOffset());
             typedQuery.setMaxResults(pageable.getPageSize());
             result = typedQuery.getResultList();
             return new PageImpl<>(result, pageable, countInvoices(specification));
-        }else{
+        } else {
             result = typedQuery.getResultList();
-
         }
         return new PageImpl<>(result, Pageable.unpaged(), result.size());
-
-
-
-
     }
 
     @Override
@@ -139,7 +130,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaQuery<FactureDto> query = cb.createQuery(FactureDto.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
         Join<FactureTiersPayant, FactureTiersPayant> details = root.join(FactureTiersPayant_.factureTiersPayants);
-        Join<FactureTiersPayant, GroupeTiersPayant> groupeTp = root.join(FactureTiersPayant_.groupeTiersPayant, JoinType.LEFT);
+        Join<FactureTiersPayant, GroupeTiersPayant> groupeTp =
+                root.join(FactureTiersPayant_.groupeTiersPayant, JoinType.LEFT);
         Join<FactureTiersPayant, ThirdPartySaleLine> detailsVenete = details.join(FactureTiersPayant_.facturesDetails);
         Join<ThirdPartySaleLine, ThirdPartySales> sale = detailsVenete.join(ThirdPartySaleLine_.sale);
         Predicate predicate = specification.toPredicate(root, query, cb);
@@ -147,8 +139,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             query.where(predicate);
         }
 
-        query.select(
-            cb.construct(
+        query.select(cb.construct(
                 FactureDto.class,
                 root.get(FactureTiersPayant_.invoiceDate),
                 // Le réglé de la facture parente, PAS la somme de celui des filles : la jointure
@@ -168,39 +159,33 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 cb.count(details),
                 cb.sum(detailsVenete.get(ThirdPartySaleLine_.montant)),
                 cb.sum(sale.get(Sales_.discountAmount)),
-                groupeTp.get(GroupeTiersPayant_.delaiReglement)
-            )
-        );
+                groupeTp.get(GroupeTiersPayant_.delaiReglement)));
         query.groupBy(
-            root.get(FactureTiersPayant_.invoiceDate),
-            root.get(FactureTiersPayant_.montantRegle),
-            root.get(FactureTiersPayant_.created),
-            root.get(FactureTiersPayant_.id),
-            root.get(FactureTiersPayant_.debutPeriode),
-            root.get(FactureTiersPayant_.statut),
-            root.get(FactureTiersPayant_.finPeriode),
-            root.get(FactureTiersPayant_.factureProvisoire),
-            root.get(FactureTiersPayant_.numFacture),
-            groupeTp.get(GroupeTiersPayant_.name),
-            groupeTp.get(GroupeTiersPayant_.delaiReglement)
-        );
+                root.get(FactureTiersPayant_.invoiceDate),
+                root.get(FactureTiersPayant_.montantRegle),
+                root.get(FactureTiersPayant_.created),
+                root.get(FactureTiersPayant_.id),
+                root.get(FactureTiersPayant_.debutPeriode),
+                root.get(FactureTiersPayant_.statut),
+                root.get(FactureTiersPayant_.finPeriode),
+                root.get(FactureTiersPayant_.factureProvisoire),
+                root.get(FactureTiersPayant_.numFacture),
+                groupeTp.get(GroupeTiersPayant_.name),
+                groupeTp.get(GroupeTiersPayant_.delaiReglement));
 
         query.orderBy(cb.desc(root.get(FactureTiersPayant_.created)));
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
         List<FactureDto> result;
-        if (Objects.nonNull(pageable) && pageable.isPaged()){
+        if (Objects.nonNull(pageable) && pageable.isPaged()) {
             typedQuery.setFirstResult((int) pageable.getOffset());
             typedQuery.setMaxResults(pageable.getPageSize());
-           result = typedQuery.getResultList();
-            return new PageImpl<>(result, pageable, countGroupedInvoices(specification));
-        }else{
             result = typedQuery.getResultList();
-
+            return new PageImpl<>(result, pageable, countGroupedInvoices(specification));
+        } else {
+            result = typedQuery.getResultList();
         }
         return new PageImpl<>(result, Pageable.unpaged(), result.size());
-
-
     }
 
     private long countInvoices(Specification<FactureTiersPayant> specification) {
@@ -211,7 +196,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<FactureTiersPayant> subRoot = subquery.from(FactureTiersPayant.class);
-        subquery.select(cb.literal(1L)).where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
+        subquery.select(cb.literal(1L))
+                .where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
         Predicate noGroupExists = cb.not(cb.exists(subquery));
         if (predicate != null) {
             query.where(cb.and(predicate, noGroupExists));
@@ -238,14 +224,13 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
     @Override
     public Optional<FacturationKpiRow> getKpiData(
-        LocalDate fromDate,
-        LocalDate toDate,
-        Integer organismeId,
-        Integer groupeId,
-        TypeFacture typeFacture,
-        Boolean factureProvisoire,
-        int delaiReglementDefaut
-    ) {
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer organismeId,
+            Integer groupeId,
+            TypeFacture typeFacture,
+            Boolean factureProvisoire,
+            int delaiReglementDefaut) {
         StringBuilder sql = buildSqlQuery(organismeId, groupeId, typeFacture, factureProvisoire);
 
         var query = em.createNativeQuery(sql.toString());
@@ -265,7 +250,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             }
             case ALL -> {
                 if (organismeId != null) query.setParameter("organismeId", organismeId);
-                if (groupeId != null)    query.setParameter("groupeId", groupeId);
+                if (groupeId != null) query.setParameter("groupeId", groupeId);
             }
         }
 
@@ -278,14 +263,9 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
     }
 
     private static @NonNull StringBuilder buildSqlQuery(
-        Integer organismeId,
-        Integer groupeId,
-        TypeFacture typeFacture,
-        Boolean factureProvisoire
-    ) {
+            Integer organismeId, Integer groupeId, TypeFacture typeFacture, Boolean factureProvisoire) {
 
-        String selectHead =
-            """
+        String selectHead = """
             SELECT
                 COALESCE(SUM(CAST(f.montant_net AS bigint)), 0),
                 COALESCE(SUM(f.montant_regle), 0),
@@ -297,8 +277,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         switch (typeFacture) {
             case INDIVIDUAL -> {
-                sql.append(
-                    """
+                sql.append("""
                         SUM(CASE WHEN f.statut <> 'PAID'
                                   AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
                              THEN 1 ELSE 0 END)
@@ -314,8 +293,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 }
             }
             case GROUPED -> {
-                sql.append(
-                    """
+                sql.append("""
                         SUM(CASE WHEN f.statut <> 'PAID'
                                   AND f.invoice_date + make_interval(days => COALESCE(gtp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
                              THEN 1 ELSE 0 END)
@@ -330,8 +308,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 }
             }
             case ALL -> {
-                sql.append(
-                    """
+                sql.append("""
                         SUM(CASE WHEN f.statut <> 'PAID'
                                   AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, gtp.delai_reglement, :delaiDefaut)) < CURRENT_DATE
                              THEN 1 ELSE 0 END)

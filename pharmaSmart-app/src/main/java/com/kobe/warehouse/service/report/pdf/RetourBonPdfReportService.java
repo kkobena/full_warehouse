@@ -4,17 +4,16 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonItemDTO;
 import com.kobe.warehouse.service.license.DemoWatermark;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
-
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 public class RetourBonPdfReportService extends AbstractStatistiqueReportService {
@@ -26,20 +25,17 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RetourBonPdfReportService(
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
+    public RetourBonPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
         super(storageService);
         this.templateEngine = templateEngine;
     }
 
     public byte[] export(RetourBonDTO retourBon) {
         this.variablesMap.clear();
-        List<RetourBonItemDTO> items = retourBon.getRetourBonItems()
-            .stream()
-            .sorted(Comparator.comparing(RetourBonItemDTO::getProduitLibelle, Comparator.nullsLast(Comparator.naturalOrder())))
-            .toList();
+        List<RetourBonItemDTO> items = retourBon.getRetourBonItems().stream()
+                .sorted(Comparator.comparing(
+                        RetourBonItemDTO::getProduitLibelle, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
 
         getParameters().put(RETOUR_BON, retourBon);
         getParameters().put(RETOUR_BON_ITEMS, items);
@@ -47,8 +43,8 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
         getParameters().put("isLastPage", true);
         getParameters().put("page_count", "1/1");
         String title = retourBon.getReference() != null
-            ? "BON DE RETOUR FOURNISSEUR " + retourBon.getReference()
-            : "BON DE RETOUR FOURNISSEUR N° " + retourBon.getId();
+                ? "BON DE RETOUR FOURNISSEUR " + retourBon.getReference()
+                : "BON DE RETOUR FOURNISSEUR N° " + retourBon.getId();
         getParameters().put("reportTitle", title);
         super.getCommonParameters();
         return super.exportReportToPdf();
@@ -72,8 +68,10 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
 
     public byte[] exportGroupe(List<RetourBonDTO> retourBons) {
         this.variablesMap.clear();
-        String fournisseurLibelle = retourBons.isEmpty() ? "" : retourBons.getFirst().getFournisseurLibelle();
-        long montantTotal = retourBons.stream().mapToLong(RetourBonDTO::getMontantTotal).sum();
+        String fournisseurLibelle =
+                retourBons.isEmpty() ? "" : retourBons.getFirst().getFournisseurLibelle();
+        long montantTotal =
+                retourBons.stream().mapToLong(RetourBonDTO::getMontantTotal).sum();
 
         getParameters().put("retourBons", retourBons);
         getParameters().put("fournisseurLibelle", fournisseurLibelle);

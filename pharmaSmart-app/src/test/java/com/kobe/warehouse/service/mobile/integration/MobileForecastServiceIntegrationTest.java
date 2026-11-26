@@ -65,7 +65,9 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
 
             List<DailySalesDTO> serie = service.getDailySalesHistory(debut, debut.plusDays(2));
 
-            assertThat(serie).extracting(DailySalesDTO::date).containsExactly(debut, debut.plusDays(1), debut.plusDays(2));
+            assertThat(serie)
+                    .extracting(DailySalesDTO::date)
+                    .containsExactly(debut, debut.plusDays(1), debut.plusDays(2));
             assertThat(serie.get(1).salesAmount()).isZero();
             assertThat(serie.get(1).transactionsCount()).isZero();
         }
@@ -187,7 +189,8 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
             venteFermee(jour.minusDays(10), 500_000);
             em.flush();
 
-            assertThat(service.getDailySalesHistory(jour, jour).getFirst().salesAmount()).isZero();
+            assertThat(service.getDailySalesHistory(jour, jour).getFirst().salesAmount())
+                    .isZero();
         }
     }
 
@@ -200,14 +203,16 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("la profondeur demandée fixe la longueur de la série")
         void profondeurDemandee() {
-            assertThat(service.getDailySalesHistory(new ForecastRequestDTO(14, 7))).hasSize(15);
+            assertThat(service.getDailySalesHistory(new ForecastRequestDTO(14, 7)))
+                    .hasSize(15);
         }
 
         /** Une demande sans profondeur retombe sur trente jours, la valeur usuelle du modèle. */
         @Test
         @DisplayName("sans profondeur précisée, l'historique porte sur trente jours")
         void profondeurParDefaut() {
-            assertThat(service.getDailySalesHistory(new ForecastRequestDTO(null, 7))).hasSize(31);
+            assertThat(service.getDailySalesHistory(new ForecastRequestDTO(null, 7)))
+                    .hasSize(31);
         }
 
         @Test
@@ -258,7 +263,8 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("une série trop courte est jugée impropre à la prévision")
         void serieTropCourte() {
-            MobileForecastService.SalesStatistics statistiques = new MobileForecastService.SalesStatistics(13, 100_000, 50_000, 150_000, 10_000);
+            MobileForecastService.SalesStatistics statistiques =
+                    new MobileForecastService.SalesStatistics(13, 100_000, 50_000, 150_000, 10_000);
 
             assertThat(statistiques.isSuitableForForecasting()).isFalse();
         }
@@ -267,7 +273,8 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("une série trop erratique est jugée impropre à la prévision")
         void serieErratique() {
-            MobileForecastService.SalesStatistics statistiques = new MobileForecastService.SalesStatistics(30, 100_000, 0, 900_000, 250_000);
+            MobileForecastService.SalesStatistics statistiques =
+                    new MobileForecastService.SalesStatistics(30, 100_000, 0, 900_000, 250_000);
 
             assertThat(statistiques.coefficientOfVariation()).isEqualTo(2.5);
             assertThat(statistiques.isSuitableForForecasting()).isFalse();
@@ -276,7 +283,8 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("une série longue et régulière est jugée exploitable")
         void serieExploitable() {
-            MobileForecastService.SalesStatistics statistiques = new MobileForecastService.SalesStatistics(30, 100_000, 80_000, 120_000, 10_000);
+            MobileForecastService.SalesStatistics statistiques =
+                    new MobileForecastService.SalesStatistics(30, 100_000, 80_000, 120_000, 10_000);
 
             assertThat(statistiques.isSuitableForForecasting()).isTrue();
         }
@@ -284,7 +292,8 @@ class MobileForecastServiceIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("une officine sans vente n'a pas de variation plutôt qu'une division par zéro")
         void aucuneVente() {
-            MobileForecastService.SalesStatistics statistiques = new MobileForecastService.SalesStatistics(0, 0, 0, 0, 0);
+            MobileForecastService.SalesStatistics statistiques =
+                    new MobileForecastService.SalesStatistics(0, 0, 0, 0, 0);
 
             assertThat(statistiques.coefficientOfVariation()).isZero();
             assertThat(statistiques.isSuitableForForecasting()).isFalse();

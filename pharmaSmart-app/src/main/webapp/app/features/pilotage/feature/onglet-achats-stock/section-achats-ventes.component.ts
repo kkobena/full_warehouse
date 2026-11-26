@@ -25,7 +25,10 @@ export class SectionAchatsVentesComponent {
   private readonly api = inject(PilotageApiService);
 
   protected readonly achatsVentes = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.lireAchatsVentes(params) });
-  protected readonly ratio = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.lireSeries(params, ['RATIO_VENTES_ACHATS']) });
+  protected readonly ratio = rxResource({
+    params: () => this.requete(),
+    stream: ({ params }) => this.api.lireSeries(params, ['RATIO_VENTES_ACHATS']),
+  });
   /** Les 12 mois qui se terminent à la fin de la période, sans comparaison. */
   protected readonly ratioDouzeMois = rxResource({
     params: () => ({ ...this.requete(), du: douzeMoisAvant(this.requete().au), comparaison: 'AUCUNE' as const, aDate: false }),
@@ -46,7 +49,13 @@ export class SectionAchatsVentesComponent {
       });
     }
     if (glissant) {
-      tuiles.push({ libelle: 'Ventes / achats sur 12 mois', definition: 'Le même ratio sur les 12 mois glissants.', unite: 'RATIO', sens: 'NEUTRE', cellule: celluleSeule(glissant.valeur) });
+      tuiles.push({
+        libelle: 'Ventes / achats sur 12 mois',
+        definition: 'Le même ratio sur les 12 mois glissants.',
+        unite: 'RATIO',
+        sens: 'NEUTRE',
+        cellule: celluleSeule(glissant.valeur),
+      });
     }
     return tuiles;
   });

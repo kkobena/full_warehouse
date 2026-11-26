@@ -65,19 +65,22 @@ describe('Couleurs de l’application (chrome)', () => {
   });
 
   // « Un bouton info sur un thème bleu ne doit pas être pareil sur un autre thème » : chaque sévérité a sa couleur propre par thème.
-  it.each(['success', 'info', 'warning', 'danger', 'help', 'contrast'])('bouton %s : couleur distincte d’un thème à l’autre (ΔE ≥ 12)', sev => {
-    const noms = Object.keys(boutons);
-    const trop_proches: string[] = [];
-    for (let i = 0; i < noms.length; i++) {
-      for (let j = i + 1; j < noms.length; j++) {
-        const ecart = ecartCouleur(boutons[noms[i]][sev], boutons[noms[j]][sev]);
-        if (ecart < 12) {
-          trop_proches.push(`${noms[i]} / ${noms[j]} : ΔE ${ecart.toFixed(1)}`);
+  it.each(['success', 'info', 'warning', 'danger', 'help', 'contrast'])(
+    'bouton %s : couleur distincte d’un thème à l’autre (ΔE ≥ 12)',
+    sev => {
+      const noms = Object.keys(boutons);
+      const trop_proches: string[] = [];
+      for (let i = 0; i < noms.length; i++) {
+        for (let j = i + 1; j < noms.length; j++) {
+          const ecart = ecartCouleur(boutons[noms[i]][sev], boutons[noms[j]][sev]);
+          if (ecart < 12) {
+            trop_proches.push(`${noms[i]} / ${noms[j]} : ΔE ${ecart.toFixed(1)}`);
+          }
         }
       }
-    }
-    expect(trop_proches).toEqual([]);
-  });
+      expect(trop_proches).toEqual([]);
+    },
+  );
 
   it('la pastille du sélecteur est l’accent du thème', () => {
     for (const [nom, accent] of Object.entries(accents)) {

@@ -12,12 +12,24 @@
       }
       @if (canEdit()) {
         @if (c.accorde !== true) {
-          <app-button (clicked)="enregistrer(c.canal, true)" [ariaLabel]="'Accord pour ' + libelles[c.canal]" [text]="true" icon="pi pi-check"
-                      severity="success" size="small" />
+          <app-button
+            (clicked)="enregistrer(c.canal, true)"
+            [ariaLabel]="'Accord pour ' + libelles[c.canal]"
+            [text]="true"
+            icon="pi pi-check"
+            severity="success"
+            size="small"
+          />
         }
         @if (c.accorde !== false) {
-          <app-button (clicked)="enregistrer(c.canal, false)" [ariaLabel]="'Refus pour ' + libelles[c.canal]" [text]="true" icon="pi pi-times"
-                      severity="danger" size="small" />
+          <app-button
+            (clicked)="enregistrer(c.canal, false)"
+            [ariaLabel]="'Refus pour ' + libelles[c.canal]"
+            [text]="true"
+            icon="pi pi-times"
+            severity="danger"
+            size="small"
+          />
         }
       }
     </span>

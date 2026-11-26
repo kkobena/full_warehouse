@@ -20,8 +20,14 @@ public final class ObjectifsAnnee {
     public static ObjectifsAnnee ranger(List<ObjectifPilotage> objectifs) {
         ObjectifsAnnee annee = new ObjectifsAnnee();
         for (ObjectifPilotage objectif : objectifs) {
-            annee.valeurs.computeIfAbsent(objectif.getIndicateur(), cle -> new Double[MOIS_PAR_AN])[objectif.getMois() - 1] = objectif.getValeur();
-            annee.derniers.merge(objectif.getIndicateur(), objectif, (a, b) -> a.getModifieLe().isAfter(b.getModifieLe()) ? a : b);
+            annee.valeurs
+                            .computeIfAbsent(objectif.getIndicateur(), cle -> new Double[MOIS_PAR_AN])[
+                            objectif.getMois() - 1] =
+                    objectif.getValeur();
+            annee.derniers.merge(
+                    objectif.getIndicateur(),
+                    objectif,
+                    (a, b) -> a.getModifieLe().isAfter(b.getModifieLe()) ? a : b);
         }
         return annee;
     }

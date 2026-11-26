@@ -8,43 +8,41 @@ import java.util.Map;
  * Todo list for mobile priority actions screen.
  */
 public record MobileTodoDTO(
-    List<TodoItemDTO> urgent,
-    List<TodoItemDTO> important,
-    List<TodoItemDTO> normal,
-    int totalCount,
-    LocalDateTime generatedAt
-) {
+        List<TodoItemDTO> urgent,
+        List<TodoItemDTO> important,
+        List<TodoItemDTO> normal,
+        int totalCount,
+        LocalDateTime generatedAt) {
     /**
      * Single todo item.
      */
     public record TodoItemDTO(
-        Long id,
-        String type,              // REORDER, CALL_CLIENT, CREATE_DISCOUNT, INVENTORY
-        String title,
-        String description,
-        TodoPriority priority,
-        String icon,
-        String color,
+            Long id,
+            String type, // REORDER, CALL_CLIENT, CREATE_DISCOUNT, INVENTORY
+            String title,
+            String description,
+            TodoPriority priority,
+            String icon,
+            String color,
 
-        // Action button
-        String actionLabel,       // "Commander", "Appeler", "Creer promotion", etc.
-        String actionType,        // NAVIGATE, CALL, CREATE_ORDER, CREATE_DISCOUNT
+            // Action button
+            String actionLabel, // "Commander", "Appeler", "Creer promotion", etc.
+            String actionType, // NAVIGATE, CALL, CREATE_ORDER, CREATE_DISCOUNT
 
-        // Action metadata for navigation/action
-        Map<String, Object> actionData,
+            // Action metadata for navigation/action
+            Map<String, Object> actionData,
 
-        // Related entity
-        Long relatedEntityId,
-        String relatedEntityType,
-        String relatedEntityName,
+            // Related entity
+            Long relatedEntityId,
+            String relatedEntityType,
+            String relatedEntityName,
 
-        // Timestamps
-        LocalDateTime createdAt,
-        LocalDateTime dueDate,
+            // Timestamps
+            LocalDateTime createdAt,
+            LocalDateTime dueDate,
 
-        // Status
-        boolean isDismissed
-    ) {}
+            // Status
+            boolean isDismissed) {}
 
     /**
      * Todo priority level.
@@ -207,11 +205,22 @@ public record MobileTodoDTO(
 
         public TodoItemDTO build() {
             return new TodoItemDTO(
-                id, type, title, description, priority, icon, color,
-                actionLabel, actionType, actionData,
-                relatedEntityId, relatedEntityType, relatedEntityName,
-                createdAt, dueDate, isDismissed
-            );
+                    id,
+                    type,
+                    title,
+                    description,
+                    priority,
+                    icon,
+                    color,
+                    actionLabel,
+                    actionType,
+                    actionData,
+                    relatedEntityId,
+                    relatedEntityType,
+                    relatedEntityName,
+                    createdAt,
+                    dueDate,
+                    isDismissed);
         }
     }
 }

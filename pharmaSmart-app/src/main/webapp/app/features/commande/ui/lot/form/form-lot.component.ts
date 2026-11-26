@@ -19,15 +19,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
   templateUrl: './form-lot.component.html',
   styleUrls: ['form-lot.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ButtonComponent,
-    FormsModule,
-    ReactiveFormsModule,
-    KeyFilterDirective,
-    PharmaDatePickerComponent,
-    CardComponent,
-  ],
+  imports: [CommonModule, ButtonComponent, FormsModule, ReactiveFormsModule, KeyFilterDirective, PharmaDatePickerComponent, CardComponent],
 })
 export class FormLotComponent implements OnInit {
   header = 'Ajout de lot';

@@ -2,22 +2,16 @@
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-warehouse" title="Ventes dépôt">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-icon-field [overlay]="true" icon="pi pi-search">
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
-               placeholder="Référence..." type="text" />
+        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Référence..." type="text" />
       </app-icon-field>
 
-      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                          [style]="{ 'max-width': '180px' }" id="depot-fromDate"
-                          label="Du" />
+      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="depot-fromDate" label="Du" />
 
-      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                          [style]="{ 'max-width': '180px' }" id="depot-toDate"
-                          label="Au" />
+      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="depot-toDate" label="Au" />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
-      <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher"
-                  severity="info" />
+      <app-button (clicked)="loadPage(0)" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
       <app-button
         [raised]="true"
         [routerLink]="['/sales-home/vente-depot']"
@@ -28,19 +22,18 @@
     </ng-container>
   </app-toolbar>
   <app-card>
-  <div class="journal-summary-bar">
-    <div class="summary-item">
-      <i class="pi pi-list"></i>
-      <span class="summary-label">Total :</span>
-      <span class="summary-value">{{ totalItems() | number }}</span>
+    <div class="journal-summary-bar">
+      <div class="summary-item">
+        <i class="pi pi-list"></i>
+        <span class="summary-label">Total :</span>
+        <span class="summary-value">{{ totalItems() | number }}</span>
+      </div>
+      <div class="summary-item">
+        <i class="pi pi-wallet"></i>
+        <span class="summary-label">CA page() courante :</span>
+        <span class="summary-value">{{ totalAmount | number: '1.0-0' }} <span appDevise></span></span>
+      </div>
     </div>
-    <div class="summary-item">
-      <i class="pi pi-wallet"></i>
-      <span class="summary-label">CA page() courante :</span>
-      <span class="summary-value">{{ totalAmount | number: '1.0-0' }} <span appDevise></span></span>
-    </div>
-  </div>
-
 
     @if (sales() && sales().length > 0) {
       <app-data-table
@@ -83,15 +76,16 @@
               />
             </td>
             <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
+            <td>
+              <span class="pharma-code">{{ sale.numberTransaction }}</span>
+            </td>
             <td>{{ sale.magasin?.fullName || '—' }}</td>
             <td class="text-right">{{ sale.itemCount | number }}</td>
             <td class="text-right pharma-price">{{ sale.salesAmount | number: '1.0-0' }}</td>
             <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
             <td>{{ sale.seller?.abbrName || '—' }}</td>
             <td class="text-right">
-              <div container="body" ngbDropdown
-                   placement="bottom-end top-end bottom-start top-start">
+              <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
                 <button
                   (click)="$event.stopPropagation()"
                   aria-label="Actions"
@@ -165,23 +159,22 @@
                         <ng-template #body let-rowIndex="rowIndex" let-saleLine>
                           <tr
                             [ngClass]="{
-                                'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
-                                'pharma-row-hover': true
-                              }"
+                              'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+                              'pharma-row-hover': true,
+                            }"
                           >
-                            <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-                            <td><span class="pharma-code">{{ saleLine.code }}</span></td>
-                            <td><span
-                              class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                            <td>
+                              <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                            <td>
+                              <span class="pharma-code">{{ saleLine.code }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                            <td>
+                              <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                             </td>
+                            <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                            <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                            <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
                             <td class="text-right pharma-total px-1" style="font-weight: bold">
                               {{ saleLine.salesAmount | number }}
                             </td>
@@ -203,5 +196,3 @@
     }
   </app-card>
 </div>
-
-

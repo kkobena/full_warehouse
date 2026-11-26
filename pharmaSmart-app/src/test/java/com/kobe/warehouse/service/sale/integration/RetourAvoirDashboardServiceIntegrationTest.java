@@ -33,7 +33,8 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
     @Test
     @DisplayName("Un mois sans mouvement rend des compteurs à zéro plutôt qu'une erreur")
     void moisVide() {
-        RetourAvoirStatsDTO stats = services.retourAvoirDashboardService.getStats(YearMonth.now().minusYears(2));
+        RetourAvoirStatsDTO stats =
+                services.retourAvoirDashboardService.getStats(YearMonth.now().minusYears(2));
 
         assertEquals(0, stats.nbRetoursMois());
         assertEquals(0, stats.montantTotalRetoursMois());
@@ -65,7 +66,10 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
         RetourAvoirStatsDTO stats = services.retourAvoirDashboardService.getStats(YearMonth.now());
 
         assertEquals(2, stats.statsParMotif().size());
-        assertEquals(MotifRetourClient.ERREUR_DISPENSATION, stats.statsParMotif().getFirst().motif(), "le motif le plus fréquent d'abord");
+        assertEquals(
+                MotifRetourClient.ERREUR_DISPENSATION,
+                stats.statsParMotif().getFirst().motif(),
+                "le motif le plus fréquent d'abord");
         assertEquals(2, stats.statsParMotif().getFirst().count());
     }
 
@@ -83,7 +87,10 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
 
         RetourAvoirStatsDTO stats = services.retourAvoirDashboardService.getStats(YearMonth.now());
 
-        assertEquals(1, stats.produitsEnAlerte().size(), "l'alerte demande strictement plus de 5 retours : 5 ne suffisent pas");
+        assertEquals(
+                1,
+                stats.produitsEnAlerte().size(),
+                "l'alerte demande strictement plus de 5 retours : 5 ne suffisent pas");
         assertEquals("PRODUIT SUSPECT", stats.produitsEnAlerte().getFirst().libelle());
         assertEquals(6, stats.produitsEnAlerte().getFirst().nbRetours());
     }
@@ -108,8 +115,10 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
     @DisplayName("Les avoirs ouverts sont comptés avec leur reste à servir, hors avoirs soldés")
     void avoirsOuverts() {
         Produit produit = produitEnStock("STAT AVOIR", 5_000, 3_000, 0, 50);
-        SalesLine premiere = venteFermee(produit, 5, 2).getSalesLines().iterator().next();
-        SalesLine seconde = venteFermee(produit, 3, 1).getSalesLines().iterator().next();
+        SalesLine premiere =
+                venteFermee(produit, 5, 2).getSalesLines().iterator().next();
+        SalesLine seconde =
+                venteFermee(produit, 3, 1).getSalesLines().iterator().next();
         services.avoirClientDocumentService.createAvoirsFromSale(premiere, client("KABA", "Sita", "CLI-STAT-2"));
         services.avoirClientDocumentService.createAvoirsFromSale(seconde, client("BARRY", "Oumar", "CLI-STAT-3"));
         viderLeCache();
@@ -118,7 +127,8 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
 
         assertEquals(2, stats.nbAvoirsOuverts());
         assertEquals(25_000, stats.montantTotalAvoirsOuverts(), "3 × 5 000 puis 2 × 5 000, rien encore utilisé");
-        assertEquals(0, stats.nbAvoirsProchesExpiration(), "créés aujourd'hui pour 90 jours : aucun n'arrive à échéance");
+        assertEquals(
+                0, stats.nbAvoirsProchesExpiration(), "créés aujourd'hui pour 90 jours : aucun n'arrive à échéance");
     }
 
     @Test
@@ -128,10 +138,10 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
         SalesLine ligne = venteFermee(produit, 4, 1).getSalesLines().iterator().next();
         services.avoirClientDocumentService.createAvoirsFromSale(ligne, client("SANOGO", "Ali", "CLI-STAT-4"));
         viderLeCache();
-        em.createNativeQuery(
-            "UPDATE avoir_client SET date_expiration = DATE '" + LocalDate.now().plusDays(3) + "' WHERE sales_line_id = " +
-            ligne.getId().getId()
-        ).executeUpdate();
+        em.createNativeQuery("UPDATE avoir_client SET date_expiration = DATE '"
+                        + LocalDate.now().plusDays(3) + "' WHERE sales_line_id = "
+                        + ligne.getId().getId())
+                .executeUpdate();
         viderLeCache();
 
         RetourAvoirStatsDTO stats = services.retourAvoirDashboardService.getStats(YearMonth.now());
@@ -156,17 +166,14 @@ class RetourAvoirDashboardServiceIntegrationTest extends AbstractSaleIntegration
         }
         SalesLine ligne = vente.getSalesLines().iterator().next();
         viderLeCache();
-        services.retourClientService.validerRetour(
-            new RetourClientRequest(
+        services.retourClientService.validerRetour(new RetourClientRequest(
                 vente.getId().getId(),
                 vente.getSaleDate(),
                 motif,
                 ModeReglementRetour.REMBOURSEMENT_ESPECES,
                 null,
                 List.of(new RetourLineRequest(ligne.getId().getId(), ligne.getSaleDate(), quantite, true, true, true)),
-                false
-            )
-        );
+                false));
         viderLeCache();
     }
 }

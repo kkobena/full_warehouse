@@ -16,12 +16,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
             {{ header() }}
           </h4>
           @if (closable()) {
-            <button
-              type="button"
-              class="btn-close"
-              [attr.aria-label]="closeAriaLabel()"
-              (click)="modal.dismiss()"
-            ></button>
+            <button type="button" class="btn-close" [attr.aria-label]="closeAriaLabel()" (click)="modal.dismiss()"></button>
           }
         </div>
       }
@@ -80,8 +75,14 @@ export class ModalComponent {
     this.onShow.emit();
 
     return this.modalRef.result.then(
-      result => { this.onHide.emit(result); return result; },
-      reason => { this.onHide.emit(reason); return Promise.reject(reason); },
+      result => {
+        this.onHide.emit(result);
+        return result;
+      },
+      reason => {
+        this.onHide.emit(reason);
+        return Promise.reject(reason);
+      },
     );
   }
 

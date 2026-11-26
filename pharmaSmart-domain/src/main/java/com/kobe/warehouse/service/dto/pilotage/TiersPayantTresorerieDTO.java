@@ -13,15 +13,14 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record TiersPayantTresorerieDTO(
-    ComparaisonPeriodesDTO comparaison,
-    CelluleAnalyseDTO facture,
-    CelluleAnalyseDTO regle,
-    long encours,
-    Integer dso,
-    List<OrganismeTresorerieDTO> organismes,
-    List<TrancheMontantDTO> vieillissement,
-    List<TrancheMontantDTO> encaissementsAttendus,
-    Double concentrationTrois,
-    Double concentrationCinq,
-    int seuilHistorique
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        CelluleAnalyseDTO facture,
+        CelluleAnalyseDTO regle,
+        long encours,
+        Integer dso,
+        List<OrganismeTresorerieDTO> organismes,
+        List<TrancheMontantDTO> vieillissement,
+        List<TrancheMontantDTO> encaissementsAttendus,
+        Double concentrationTrois,
+        Double concentrationCinq,
+        int seuilHistorique) {}

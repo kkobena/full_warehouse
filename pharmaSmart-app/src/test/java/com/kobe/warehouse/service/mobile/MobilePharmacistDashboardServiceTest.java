@@ -45,7 +45,8 @@ class MobilePharmacistDashboardServiceTest {
     // secondes qui borne les méthodes de cycle de vie coupait l'amorçage de Mockito.
     private final TableauPharmacienService tableauPharmacienService = mock(TableauPharmacienService.class);
 
-    private final MobilePharmacistDashboardService service = new MobilePharmacistDashboardService(tableauPharmacienService);
+    private final MobilePharmacistDashboardService service =
+            new MobilePharmacistDashboardService(tableauPharmacienService);
 
     // ===== périmètre =====
 
@@ -63,7 +64,7 @@ class MobilePharmacistDashboardServiceTest {
             MvtParam param = premierParametre();
             assertThat(param.getStatuts()).containsExactly(SalesStatut.CLOSED);
             assertThat(param.getCategorieChiffreAffaires())
-                .containsExactlyInAnyOrder(CategorieChiffreAffaire.CA, CategorieChiffreAffaire.CA_DEPOT);
+                    .containsExactlyInAnyOrder(CategorieChiffreAffaire.CA, CategorieChiffreAffaire.CA_DEPOT);
             assertThat(param.getGroupeBy()).isEqualTo("daily");
         }
 
@@ -96,8 +97,7 @@ class MobilePharmacistDashboardServiceTest {
         @Test
         @DisplayName("les totaux du tableau sont repris tels quels")
         void totauxRepris() {
-            donneTableau(
-                new TableauPharmacienWrapper()
+            donneTableau(new TableauPharmacienWrapper()
                     .setMontantVenteComptant(700_000L)
                     .setMontantVenteCredit(300_000L)
                     .setMontantVenteRemise(50_000L)
@@ -113,8 +113,7 @@ class MobilePharmacistDashboardServiceTest {
                     .setMontantAchatRemise(20_000L)
                     .setMontantAvoirFournisseur(15_000L)
                     .setRatioVenteAchat(1.67f)
-                    .setRatioAchatVente(0.6f)
-            );
+                    .setRatioAchatVente(0.6f));
 
             MobilePharmacistDashboardDTO resultat = service.getPharmacistDashboard(DEBUT, FIN);
 
@@ -169,7 +168,8 @@ class MobilePharmacistDashboardServiceTest {
         void aucuneVente() {
             donneTableau(ventesEtAchats(0L, 100_000L));
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).margePercent()).isZero();
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).margePercent())
+                    .isZero();
         }
 
         @Test
@@ -177,7 +177,8 @@ class MobilePharmacistDashboardServiceTest {
         void tauxArrondi() {
             donneTableau(ventesEtAchats(3_000_000L, 2_000_000L));
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).margePercent()).isEqualTo(33.33);
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).margePercent())
+                    .isEqualTo(33.33);
         }
     }
 
@@ -203,7 +204,8 @@ class MobilePharmacistDashboardServiceTest {
         void recul() {
             donneTableaux(ventesEtAchats(750_000L, 0L), ventesEtAchats(1_000_000L, 0L));
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).ventesVariation()).isEqualTo(-25.0);
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).ventesVariation())
+                    .isEqualTo(-25.0);
         }
 
         /**
@@ -226,8 +228,8 @@ class MobilePharmacistDashboardServiceTest {
         @DisplayName("une période précédente inaccessible laisse la variation inconnue")
         void periodePrecedenteInaccessible() {
             when(tableauPharmacienService.getTableauPharmacien(any()))
-                .thenReturn(ventesEtAchats(1_000_000L, 600_000L))
-                .thenThrow(new IllegalStateException("base indisponible"));
+                    .thenReturn(ventesEtAchats(1_000_000L, 600_000L))
+                    .thenThrow(new IllegalStateException("base indisponible"));
 
             MobilePharmacistDashboardDTO resultat = service.getPharmacistDashboard(DEBUT, FIN);
 
@@ -241,7 +243,8 @@ class MobilePharmacistDashboardServiceTest {
         void variationArrondie() {
             donneTableaux(ventesEtAchats(1_000_000L, 0L), ventesEtAchats(300_000L, 0L));
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).ventesVariation()).isEqualTo(233.33);
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).ventesVariation())
+                    .isEqualTo(233.33);
         }
     }
 
@@ -255,14 +258,13 @@ class MobilePharmacistDashboardServiceTest {
         @DisplayName("les fournisseurs sont classés du plus gros achat au plus petit")
         void classementDecroissant() {
             TableauPharmacienWrapper wrapper = ventesEtAchats(0L, 1_000_000L);
-            wrapper.setGroupAchats(
-                new ArrayList<>(List.of(fournisseur(1, "COPHARMED", 200_000L), fournisseur(2, "LABOREX", 800_000L)))
-            );
+            wrapper.setGroupAchats(new ArrayList<>(
+                    List.of(fournisseur(1, "COPHARMED", 200_000L), fournisseur(2, "LABOREX", 800_000L))));
             donneTableau(wrapper);
 
             assertThat(service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs())
-                .extracting(FournisseurAchatMobileDTO::libelle)
-                .containsExactly("LABOREX", "COPHARMED");
+                    .extracting(FournisseurAchatMobileDTO::libelle)
+                    .containsExactly("LABOREX", "COPHARMED");
         }
 
         @Test
@@ -272,7 +274,8 @@ class MobilePharmacistDashboardServiceTest {
             wrapper.setGroupAchats(new ArrayList<>(List.of(fournisseur(1, "LABOREX", 800_000L))));
             donneTableau(wrapper);
 
-            FournisseurAchatMobileDTO fournisseur = service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs().getFirst();
+            FournisseurAchatMobileDTO fournisseur =
+                    service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs().getFirst();
 
             assertThat(fournisseur.id()).isEqualTo(1);
             assertThat(fournisseur.montantNet()).isEqualTo(800_000L);
@@ -284,18 +287,16 @@ class MobilePharmacistDashboardServiceTest {
         @DisplayName("le palmarès s'arrête à dix fournisseurs")
         void dixAuPlus() {
             TableauPharmacienWrapper wrapper = ventesEtAchats(0L, 1_000_000L);
-            wrapper.setGroupAchats(
-                IntStream.rangeClosed(1, 15)
+            wrapper.setGroupAchats(IntStream.rangeClosed(1, 15)
                     .mapToObj(i -> fournisseur(i, "F" + i, i * 1_000L))
-                    .collect(java.util.stream.Collectors.toCollection(ArrayList::new))
-            );
+                    .collect(java.util.stream.Collectors.toCollection(ArrayList::new)));
             donneTableau(wrapper);
 
             assertThat(service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs())
-                .hasSize(10)
-                .first()
-                .extracting(FournisseurAchatMobileDTO::libelle)
-                .isEqualTo("F15");
+                    .hasSize(10)
+                    .first()
+                    .extracting(FournisseurAchatMobileDTO::libelle)
+                    .isEqualTo("F15");
         }
 
         @Test
@@ -303,7 +304,8 @@ class MobilePharmacistDashboardServiceTest {
         void aucunAchat() {
             donneTableau(new TableauPharmacienWrapper());
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs()).isEmpty();
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).topFournisseurs())
+                    .isEmpty();
         }
     }
 
@@ -320,7 +322,8 @@ class MobilePharmacistDashboardServiceTest {
             wrapper.setTableauPharmaciens(List.of(jour(LocalDate.of(2026, 3, 10), 500_000L, 300_000L)));
             donneTableau(wrapper);
 
-            List<ChartDataPointDTO> points = service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats();
+            List<ChartDataPointDTO> points =
+                    service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats();
 
             assertThat(points).hasSize(2);
             assertThat(points.getFirst().type()).isEqualTo(ChartDataPointDTO.TYPE_SALES);
@@ -333,19 +336,16 @@ class MobilePharmacistDashboardServiceTest {
         @DisplayName("les jours sont remis en ordre chronologique")
         void ordreChronologique() {
             TableauPharmacienWrapper wrapper = new TableauPharmacienWrapper();
-            wrapper.setTableauPharmaciens(
-                List.of(
+            wrapper.setTableauPharmaciens(List.of(
                     jour(LocalDate.of(2026, 3, 12), 3L, 0L),
                     jour(LocalDate.of(2026, 3, 10), 1L, 0L),
-                    jour(LocalDate.of(2026, 3, 11), 2L, 0L)
-                )
-            );
+                    jour(LocalDate.of(2026, 3, 11), 2L, 0L)));
             donneTableau(wrapper);
 
             assertThat(service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats())
-                .filteredOn(p -> ChartDataPointDTO.TYPE_SALES.equals(p.type()))
-                .extracting(ChartDataPointDTO::value)
-                .containsExactly(1.0, 2.0, 3.0);
+                    .filteredOn(p -> ChartDataPointDTO.TYPE_SALES.equals(p.type()))
+                    .extracting(ChartDataPointDTO::value)
+                    .containsExactly(1.0, 2.0, 3.0);
         }
 
         @Test
@@ -356,8 +356,11 @@ class MobilePharmacistDashboardServiceTest {
             wrapper.setTableauPharmaciens(List.of(jour(LocalDate.of(2026, 3, 10), 1L, 0L)));
             donneTableau(wrapper);
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats().getFirst().label())
-                .startsWith("mar");
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN)
+                            .chartVentesAchats()
+                            .getFirst()
+                            .label())
+                    .startsWith("mar");
         }
 
         @Test
@@ -365,7 +368,8 @@ class MobilePharmacistDashboardServiceTest {
         void aucunJour() {
             donneTableau(new TableauPharmacienWrapper());
 
-            assertThat(service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats()).isEmpty();
+            assertThat(service.getPharmacistDashboard(DEBUT, FIN).chartVentesAchats())
+                    .isEmpty();
         }
     }
 
@@ -384,20 +388,23 @@ class MobilePharmacistDashboardServiceTest {
         @Test
         @DisplayName("une période dans le même mois se dit d'une traite")
         void memeMois() {
-            assertThat(libellePour(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31))).isEqualTo("Du 1 au 31 mars 2026");
+            assertThat(libellePour(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31)))
+                    .isEqualTo("Du 1 au 31 mars 2026");
         }
 
         @Test
         @DisplayName("une période à cheval sur deux mois affiche ses deux bornes")
         void deuxMois() {
-            assertThat(libellePour(LocalDate.of(2026, 2, 25), LocalDate.of(2026, 3, 5))).isEqualTo("25/02/2026 - 05/03/2026");
+            assertThat(libellePour(LocalDate.of(2026, 2, 25), LocalDate.of(2026, 3, 5)))
+                    .isEqualTo("25/02/2026 - 05/03/2026");
         }
 
         /** Même mois, année différente : les bornes complètes lèvent l'ambiguïté. */
         @Test
         @DisplayName("un même mois d'une année sur l'autre affiche ses deux bornes")
         void memeMoisAnneeDifferente() {
-            assertThat(libellePour(LocalDate.of(2025, 3, 1), LocalDate.of(2026, 3, 1))).isEqualTo("01/03/2025 - 01/03/2026");
+            assertThat(libellePour(LocalDate.of(2025, 3, 1), LocalDate.of(2026, 3, 1)))
+                    .isEqualTo("01/03/2025 - 01/03/2026");
         }
 
         private String libellePour(LocalDate debut, LocalDate fin) {
@@ -435,11 +442,17 @@ class MobilePharmacistDashboardServiceTest {
         FournisseurAchat fournisseur = new FournisseurAchat();
         fournisseur.setId(id);
         fournisseur.setLibelle(libelle);
-        fournisseur.setAchat(new AchatDTO().setMontantNet(montantNet).setMontantTtc(montantNet).setMontantHt(montantNet));
+        fournisseur.setAchat(new AchatDTO()
+                .setMontantNet(montantNet)
+                .setMontantTtc(montantNet)
+                .setMontantHt(montantNet));
         return fournisseur;
     }
 
     private static TableauPharmacienDTO jour(LocalDate date, long venteNet, long bonAchat) {
-        return new TableauPharmacienDTO().setMvtDate(date).setMontantNet(venteNet).setMontantBonAchat(bonAchat);
+        return new TableauPharmacienDTO()
+                .setMvtDate(date)
+                .setMontantNet(venteNet)
+                .setMontantBonAchat(bonAchat);
     }
 }

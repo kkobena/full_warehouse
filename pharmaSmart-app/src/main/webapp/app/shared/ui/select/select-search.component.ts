@@ -1,13 +1,9 @@
-import {ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef, viewChild} from '@angular/core';
-import {NgStyle, NgTemplateOutlet} from '@angular/common';
-import {
-  NgOptgroupTemplateDirective,
-  NgOptionTemplateDirective,
-  NgSelectComponent
-} from '@ng-select/ng-select';
-import {FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef, viewChild } from '@angular/core';
+import { NgStyle, NgTemplateOutlet } from '@angular/common';
+import { NgOptgroupTemplateDirective, NgOptionTemplateDirective, NgSelectComponent } from '@ng-select/ng-select';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import {SelectBase} from './select.base';
+import { SelectBase } from './select.base';
 
 /**
  * Liste déroulante à sélection unique avec recherche — remplace `p-select` (cas riches)
@@ -28,11 +24,13 @@ import {SelectBase} from './select.base';
 @Component({
   selector: 'app-select-search',
   imports: [NgSelectComponent, FormsModule, NgStyle, NgTemplateOutlet, NgOptionTemplateDirective, NgOptgroupTemplateDirective],
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => SelectSearchComponent),
-    multi: true
-  }],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => SelectSearchComponent),
+      multi: true,
+    },
+  ],
   template: `
     <ng-select
       #ngSelect
@@ -73,18 +71,12 @@ import {SelectBase} from './select.base';
           l'appelant. On relaie donc un TemplateRef reçu en entrée.
         -->
         <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-          <ng-container
-            [ngTemplateOutlet]="optionTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: item, item, index, search }"
-          />
+          <ng-container [ngTemplateOutlet]="optionTemplate()!" [ngTemplateOutletContext]="{ $implicit: item, item, index, search }" />
         </ng-template>
       }
       @if (groupTemplate()) {
         <ng-template ng-optgroup-tmp let-item="item">
-          <ng-container
-            [ngTemplateOutlet]="groupTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: item, item }"
-          />
+          <ng-container [ngTemplateOutlet]="groupTemplate()!" [ngTemplateOutletContext]="{ $implicit: item, item }" />
         </ng-template>
       }
     </ng-select>
@@ -134,7 +126,7 @@ export class SelectSearchComponent extends SelectBase<unknown> {
    */
   readonly openWhenEmpty = input<boolean>(false);
 
-  private readonly ngSelectRef = viewChild.required('ngSelect', {read: NgSelectComponent});
+  private readonly ngSelectRef = viewChild.required('ngSelect', { read: NgSelectComponent });
 
   /** Ferme le panneau d'options — équivalent de `AutoComplete.hide()` de PrimeNG. */
   close(): void {

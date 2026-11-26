@@ -35,21 +35,16 @@ export class FournisseurApApiService {
   ): Observable<HttpResponse<ILigneFournisseurAP[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (statut) params = params.set('statut', statut);
-    return this.http.get<ILigneFournisseurAP[]>(
-      `${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/lignes`,
-      { observe: 'response', params },
-    );
+    return this.http.get<ILigneFournisseurAP[]>(`${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/lignes`, {
+      observe: 'response',
+      params,
+    });
   }
 
-  enregistrerReglement(
-    fournisseurId: number,
-    command: IReglementFournisseurCommand,
-  ): Observable<HttpResponse<void>> {
-    return this.http.post<void>(
-      `${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/reglement`,
-      command,
-      { observe: 'response' },
-    );
+  enregistrerReglement(fournisseurId: number, command: IReglementFournisseurCommand): Observable<HttpResponse<void>> {
+    return this.http.post<void>(`${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/reglement`, command, {
+      observe: 'response',
+    });
   }
 
   getReglementsBl(fournisseurId: number, commandeId: number): Observable<HttpResponse<IReglementBL[]>> {
@@ -67,9 +62,6 @@ export class FournisseurApApiService {
   }
 
   exportFournisseurAsPdf(fournisseurId: number): Observable<Blob> {
-    return this.http.get(
-      `${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/export/pdf`,
-      { responseType: 'blob' },
-    );
+    return this.http.get(`${SERVER_API_URL}api/supplier-performance/${fournisseurId}/ap/export/pdf`, { responseType: 'blob' });
   }
 }

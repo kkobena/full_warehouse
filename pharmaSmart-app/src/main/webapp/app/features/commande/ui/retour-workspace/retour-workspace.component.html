@@ -1,6 +1,5 @@
 <div class="rw-header">
-  <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste"
-              size="small" />
+  <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste" size="small" />
   <span class="rw-title">
     <i class="pi pi-replay me-2"></i>
     {{ bon().receiptReference ?? bon().orderReference }}
@@ -9,8 +8,7 @@
   <span class="ms-auto pharma-price me-3">
     Sélectionné : <strong>{{ getTotalMontant() | devise }}</strong>
   </span>
-  <app-button (clicked)="cancel()" [outlined]="true" icon="pi pi-times" label="Annuler"
-              severity="secondary" size="small" />
+  <app-button (clicked)="cancel()" [outlined]="true" icon="pi pi-times" label="Annuler" severity="secondary" size="small" />
   <app-button
     (clicked)="onSaveClick()"
     [disabled]="!canSave || loading()"
@@ -25,25 +23,20 @@
 <div class="rw-body">
   @if (loading()) {
     <div class="d-flex align-items-center justify-content-center h-100">
-      <i class="pi pi-spin pi-spinner" style="font-size:2rem"></i>
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
     </div>
   }
-  <app-data-table
-    [showGridlines]="true"
-    [value]="lines()"
-    class="p-datatable-sm rw-table"
-    scrollHeight="flex"
-  >
+  <app-data-table [showGridlines]="true" [value]="lines()" class="p-datatable-sm rw-table" scrollHeight="flex">
     <ng-template #header>
       <tr class="pharma-table-head">
-        <th style="width:44px"></th>
-        <th style="width:110px">Code</th>
+        <th style="width: 44px"></th>
+        <th style="width: 110px">Code</th>
         <th>Libellé</th>
-        <th class="text-end" style="width:100px">Qté reçue</th>
-        <th class="text-end" style="width:130px">Qté à retourner</th>
-        <th style="width:200px">Motif *</th>
-        <th class="text-end" style="width:120px">Prix achat</th>
-        <th class="text-end" style="width:120px">Montant</th>
+        <th class="text-end" style="width: 100px">Qté reçue</th>
+        <th class="text-end" style="width: 130px">Qté à retourner</th>
+        <th style="width: 200px">Motif *</th>
+        <th class="text-end" style="width: 120px">Prix achat</th>
+        <th class="text-end" style="width: 120px">Montant</th>
       </tr>
     </ng-template>
     <ng-template #body let-line>
@@ -51,10 +44,13 @@
         <td class="text-center">
           <input [(ngModel)]="line.selected" class="form-check-input" type="checkbox" />
         </td>
-        <td><span class="pharma-code">{{ line.orderLine.produitCip }}</span></td>
+        <td>
+          <span class="pharma-code">{{ line.orderLine.produitCip }}</span>
+        </td>
         <td>{{ line.orderLine.produitLibelle }}</td>
-        <td class="text-end"><span
-          class="pharma-qty-value">{{ line.orderLine.quantityReceived | number }}</span></td>
+        <td class="text-end">
+          <span class="pharma-qty-value">{{ line.orderLine.quantityReceived | number }}</span>
+        </td>
         <td class="text-end">
           <app-input-number
             (keydown.enter)="$event.preventDefault()"
@@ -72,23 +68,18 @@
             [(ngModel)]="line.motifRetourId"
             [disabled]="!line.selected"
             [items]="motifs()"
-            [style]="{width: '100%'}"
+            [style]="{ width: '100%' }"
             bindLabel="libelle"
             bindValue="id"
             placeholder="Motif"
           />
         </td>
         <td class="text-end">
-          <app-input-number
-            [(ngModel)]="line.prixAchat"
-            [disabled]="!line.selected"
-            [min]="0"
-            style="width: 100px"
-          />
+          <app-input-number [(ngModel)]="line.prixAchat" [disabled]="!line.selected" [min]="0" style="width: 100px" />
         </td>
         <td class="text-end pharma-price">
           @if (line.selected) {
-            {{ line.qtyRetour * line.prixAchat | number:'1.0-0' }}
+            {{ line.qtyRetour * line.prixAchat | number: '1.0-0' }}
           } @else {
             —
           }

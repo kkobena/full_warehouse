@@ -8,14 +8,25 @@
         <app-courbe-series [libelles]="libelles()" [series]="series()" description="Achats HT et coût des ventes HT par période" />
       </app-card>
       <app-card header="Par famille" icon="pi pi-sitemap">
-        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="av.familles" emptyMessage="Ni achat ni vente sur la période" size="small">
+        <app-data-table
+          [scrollable]="true"
+          scrollHeight="22rem"
+          [stripedRows]="true"
+          [value]="av.familles"
+          emptyMessage="Ni achat ni vente sur la période"
+          size="small"
+        >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th scope="col">Famille</th>
               <th class="text-end" scope="col">Achats HT</th>
               <th class="text-end" scope="col">Coût des ventes HT</th>
-              <th class="text-end" scope="col">Écart <app-aide texte="Achats HT moins coût des ventes HT : positif, le stock de la famille gonfle ; négatif, il fond." /></th>
-              <th class="text-end" scope="col">Ratio <app-aide texte="Coût des ventes HT / achats HT : sous 1, on achète plus qu'on ne vend." /></th>
+              <th class="text-end" scope="col">
+                Écart <app-aide texte="Achats HT moins coût des ventes HT : positif, le stock de la famille gonfle ; négatif, il fond." />
+              </th>
+              <th class="text-end" scope="col">
+                Ratio <app-aide texte="Coût des ventes HT / achats HT : sous 1, on achète plus qu'on ne vend." />
+              </th>
             </tr>
           </ng-template>
           <ng-template #body let-ligne>

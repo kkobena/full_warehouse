@@ -78,7 +78,10 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         GenericError erreur = assertThrows(GenericError.class, () -> services.lotService.addLot(detrop));
         assertTrue(erreur.getMessage().contains("13"), "l'erreur chiffre le dépassement : " + erreur.getMessage());
-        assertEquals(1, compter("SELECT count(*) FROM lot WHERE order_line_id = " + ligne.getId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM lot WHERE order_line_id = "
+                        + ligne.getId().getId()));
     }
 
     @Test
@@ -88,14 +91,12 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
         fournisseurProduit(produit);
         viderLeCache();
 
-        LotDTO cree = services.lotService.addLotSurProduit(
-            new LotDTO()
+        LotDTO cree = services.lotService.addLotSurProduit(new LotDTO()
                 .setProduitId(produit.getId())
                 .setNumLot("LOT-E")
                 .setExpiryDate(LocalDate.now().plusMonths(8))
                 .setQuantityReceived(25)
-                .setStorageId(STORAGE_RAYON_ID)
-        );
+                .setStorageId(STORAGE_RAYON_ID));
         viderLeCache();
 
         Lot relu = em.find(Lot.class, cree.getId());
@@ -111,11 +112,11 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         LotDTO detrop = new LotDTO()
-            .setProduitId(produit.getId())
-            .setNumLot("LOT-F")
-            .setExpiryDate(LocalDate.now().plusMonths(8))
-            .setQuantityReceived(40)
-            .setStorageId(STORAGE_RAYON_ID);
+                .setProduitId(produit.getId())
+                .setNumLot("LOT-F")
+                .setExpiryDate(LocalDate.now().plusMonths(8))
+                .setQuantityReceived(40)
+                .setStorageId(STORAGE_RAYON_ID);
 
         assertThrows(GenericError.class, () -> services.lotService.addLotSurProduit(detrop));
         assertEquals(0, compter("SELECT count(*) FROM lot WHERE num_lot = 'LOT-F'"));
@@ -127,8 +128,12 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit produit = produitEnStock("CRESTOR", 50);
         viderLeCache();
 
-        LotDTO sansNumero = new LotDTO().setProduitId(produit.getId()).setExpiryDate(LocalDate.now().plusMonths(3)).setQuantityReceived(5);
-        LotDTO sansDate = new LotDTO().setProduitId(produit.getId()).setNumLot("LOT-G").setQuantityReceived(5);
+        LotDTO sansNumero = new LotDTO()
+                .setProduitId(produit.getId())
+                .setExpiryDate(LocalDate.now().plusMonths(3))
+                .setQuantityReceived(5);
+        LotDTO sansDate =
+                new LotDTO().setProduitId(produit.getId()).setNumLot("LOT-G").setQuantityReceived(5);
 
         assertThrows(GenericError.class, () -> services.lotService.addLotSurProduit(sansNumero));
         assertThrows(GenericError.class, () -> services.lotService.addLotSurProduit(sansDate));
@@ -142,14 +147,12 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
         Lot lot = lot(produit, "LOT-H", LocalDate.now().plusMonths(6), 20);
         viderLeCache();
 
-        services.lotService.editLot(
-            new LotDTO()
+        services.lotService.editLot(new LotDTO()
                 .setId(lot.getId())
                 .setNumLot("LOT-H-BIS")
                 .setQuantityReceived(30)
                 .setFreeQty(5)
-                .setExpiryDate(LocalDate.now().plusMonths(9))
-        );
+                .setExpiryDate(LocalDate.now().plusMonths(9)));
         viderLeCache();
 
         Lot relu = em.find(Lot.class, lot.getId());
@@ -180,12 +183,9 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
         Lot epuise = lot(produit, unique("L"), LocalDate.now().plusMonths(7), 5);
         viderLeCache();
 
-        services.lotService.updateLots(
-            List.of(
+        services.lotService.updateLots(List.of(
                 new LotSold(entame.getId(), entame.getNumLot(), 8, entame.getExpiryDate()),
-                new LotSold(epuise.getId(), epuise.getNumLot(), 5, epuise.getExpiryDate())
-            )
-        );
+                new LotSold(epuise.getId(), epuise.getNumLot(), 5, epuise.getExpiryDate())));
         viderLeCache();
 
         assertEquals(12, em.find(Lot.class, entame.getId()).getCurrentQuantity());
@@ -315,10 +315,10 @@ class LotServiceIntegrationTest extends AbstractStockIntegrationTest {
 
     private LotDTO lotDe(OrderLine ligne, String numLot, int quantite) {
         return new LotDTO()
-            .setReceiptItemId(ligne.getId())
-            .setNumLot(numLot)
-            .setExpiryDate(LocalDate.now().plusMonths(10))
-            .setQuantityReceived(quantite)
-            .setFreeQty(0);
+                .setReceiptItemId(ligne.getId())
+                .setNumLot(numLot)
+                .setExpiryDate(LocalDate.now().plusMonths(10))
+                .setQuantityReceived(quantite)
+                .setFreeQty(0);
     }
 }

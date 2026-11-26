@@ -57,13 +57,12 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
         when(passwordEncoder.encode(anyString())).thenReturn("x".repeat(60));
 
         userService = new UserService(
-            userRepository,
-            passwordEncoder,
-            IntegrationPostgresDatabase.bean(PersistentTokenRepository.class),
-            IntegrationPostgresDatabase.bean(AuthorityRepository.class),
-            IntegrationPostgresDatabase.bean(MagasinRepository.class),
-            IntegrationPostgresDatabase.bean(CashRegisterRepository.class)
-        );
+                userRepository,
+                passwordEncoder,
+                IntegrationPostgresDatabase.bean(PersistentTokenRepository.class),
+                IntegrationPostgresDatabase.bean(AuthorityRepository.class),
+                IntegrationPostgresDatabase.bean(MagasinRepository.class),
+                IntegrationPostgresDatabase.bean(CashRegisterRepository.class));
     }
 
     // ===== création =====
@@ -108,8 +107,8 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
         Magasin etrangere = magasin(TypeMagasin.OFFICINE, null);
 
         assertThatThrownBy(() -> userService.createUser(dto(unique("etranger"), etrangere.getId())))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("n'est pas rattaché");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("n'est pas rattaché");
     }
 
     @Test
@@ -118,16 +117,16 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
         Magasin depot = magasin(TypeMagasin.DEPOT, magasin);
 
         assertThatThrownBy(() -> userService.createUser(dto(unique("depot"), depot.getId())))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("ni caisse ni saisie");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("ni caisse ni saisie");
     }
 
     @Test
     @DisplayName("un magasin absent de la base est refusé")
     void magasinInconnu() {
         assertThatThrownBy(() -> userService.createUser(dto(unique("inconnu"), 987_654)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("inconnu");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("inconnu");
     }
 
     // ===== réaffectation =====
@@ -163,8 +162,8 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
         caisseDe(caissier, CashRegisterStatut.OPEN);
 
         assertThatThrownBy(() -> userService.updateUser(dtoDeModification(caissier, parapharmacie.getId())))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("billetage");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("billetage");
         assertThat(magasinEnBase(caissier)).isEqualTo(MAGASIN_ID);
     }
 
@@ -237,7 +236,8 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
         caisse.setMagasin(titulaire.getMagasin());
         caisse.setInitAmount(0L);
         caisse.setBeginTime(aujourdHui().atTime(8, 0));
-        caisse.setEndTime(statut == CashRegisterStatut.OPEN ? null : aujourdHui().atTime(18, 0));
+        caisse.setEndTime(
+                statut == CashRegisterStatut.OPEN ? null : aujourdHui().atTime(18, 0));
         caisse.setCreated(LocalDateTime.now());
         caisse.setUpdated(LocalDateTime.now());
         caisse.setStatut(statut);
@@ -264,9 +264,9 @@ class AffectationUtilisateurIntegrationTest extends AbstractDashboardIntegration
     /** Le magasin tel que la base l'a reçu, et non tel que l'entité en mémoire le croit. */
     private Integer magasinEnBase(AppUser user) {
         viderLeCache();
-        return ((Number) em
-                .createNativeQuery("SELECT magasin_id FROM app_user WHERE id = :id")
-                .setParameter("id", user.getId())
-                .getSingleResult()).intValue();
+        return ((Number) em.createNativeQuery("SELECT magasin_id FROM app_user WHERE id = :id")
+                        .setParameter("id", user.getId())
+                        .getSingleResult())
+                .intValue();
     }
 }

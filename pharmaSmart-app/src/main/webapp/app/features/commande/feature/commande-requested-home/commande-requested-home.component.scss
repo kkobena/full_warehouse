@@ -30,7 +30,9 @@
     min-height: 0;
   }
 
-  ::ng-deep tr { cursor: pointer; }
+  ::ng-deep tr {
+    cursor: pointer;
+  }
 
   ::ng-deep tr.row-reliquat {
     background: #fffbeb !important;

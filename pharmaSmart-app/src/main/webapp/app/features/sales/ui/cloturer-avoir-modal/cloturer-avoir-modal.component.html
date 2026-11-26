@@ -7,154 +7,176 @@
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 <div class="modal-body">
-<app-card [variant]="'form'">
+  <app-card [variant]="'form'">
+    <!-- Récap de l'avoir -->
+    <div class="avoir-summary mb-1">
+      <div class="avoir-summary-header">
+        <i class="pi pi-receipt"></i>
+        <span>Détail de l'avoir</span>
+      </div>
 
-  <!-- Récap de l'avoir -->
-  <div class="avoir-summary mb-1">
-    <div class="avoir-summary-header">
-      <i class="pi pi-receipt"></i>
-      <span>Détail de l'avoir</span>
-    </div>
+      <div class="avoir-product-row">
+        <span class="product-name">{{ document?.produitLibelle }}</span>
+        <span class="product-cip">{{ document?.codeCip }}</span>
+      </div>
 
-    <div class="avoir-product-row">
-      <span class="product-name">{{ document?.produitLibelle }}</span>
-      <span class="product-cip">{{ document?.codeCip }}</span>
-    </div>
-
-    <div class="avoir-meta-grid">
-      <div class="meta-item">
-        <span class="meta-label">Réf. vente</span>
-        <span class="meta-value meta-code">{{ document?.numberTransaction || '—' }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Créé le</span>
-        <span class="meta-value">{{ document?.createdAt | date: 'dd/MM/yyyy' }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Quantité</span>
-        <span class="meta-value meta-qty">{{ document?.quantite }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Montant initial</span>
-        <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} <span appDevise></span></span>
-      </div>
-      @if ((document?.montantUtilise ?? 0) > 0) {
+      <div class="avoir-meta-grid">
         <div class="meta-item">
-          <span class="meta-label">Déjà utilisé</span>
-          <span class="meta-value text-warning fw-semibold">{{ document?.montantUtilise | number: '1.0-0' }} <span appDevise></span></span>
+          <span class="meta-label">Réf. vente</span>
+          <span class="meta-value meta-code">{{ document?.numberTransaction || '—' }}</span>
         </div>
-      }
-      <div class="meta-item">
-        <span class="meta-label">Solde disponible</span>
-        <span class="meta-value meta-amount fw-bold text-success">{{ montantDisponible() | number: '1.0-0' }} <span appDevise></span></span>
-      </div>
-      @if (document?.dateExpiration) {
         <div class="meta-item">
-          <span class="meta-label">Expire le</span>
-          <span class="meta-value" [class.text-danger]="document?.procheExpiration">
-            {{ document?.dateExpiration | date: 'dd/MM/yyyy' }}
-            @if (document?.procheExpiration) {
-              <span class="badge bg-danger ms-1" style="font-size:.7rem">Bientôt expiré</span>
-            }
-          </span>
+          <span class="meta-label">Créé le</span>
+          <span class="meta-value">{{ document?.createdAt | date: 'dd/MM/yyyy' }}</span>
         </div>
-      }
-      @if (document?.customerName) {
-        <div class="meta-item meta-full">
-          <span class="meta-label">Client</span>
-          <span class="meta-value">{{ document?.customerName }}</span>
+        <div class="meta-item">
+          <span class="meta-label">Quantité</span>
+          <span class="meta-value meta-qty">{{ document?.quantite }}</span>
         </div>
-      }
-      @if (document?.commandeReference) {
-        <div class="meta-item meta-full">
-          <span class="meta-label">Commande de réappro.</span>
-          <span class="meta-value meta-code">{{ document?.commandeReference }}</span>
+        <div class="meta-item">
+          <span class="meta-label">Montant initial</span>
+          <span class="meta-value meta-amount">{{ document?.montant | number: '1.0-0' }} <span appDevise></span></span>
         </div>
-      }
+        @if ((document?.montantUtilise ?? 0) > 0) {
+          <div class="meta-item">
+            <span class="meta-label">Déjà utilisé</span>
+            <span class="meta-value text-warning fw-semibold"
+              >{{ document?.montantUtilise | number: '1.0-0' }} <span appDevise></span
+            ></span>
+          </div>
+        }
+        <div class="meta-item">
+          <span class="meta-label">Solde disponible</span>
+          <span class="meta-value meta-amount fw-bold text-success"
+            >{{ montantDisponible() | number: '1.0-0' }} <span appDevise></span
+          ></span>
+        </div>
+        @if (document?.dateExpiration) {
+          <div class="meta-item">
+            <span class="meta-label">Expire le</span>
+            <span class="meta-value" [class.text-danger]="document?.procheExpiration">
+              {{ document?.dateExpiration | date: 'dd/MM/yyyy' }}
+              @if (document?.procheExpiration) {
+                <span class="badge bg-danger ms-1" style="font-size: 0.7rem">Bientôt expiré</span>
+              }
+            </span>
+          </div>
+        }
+        @if (document?.customerName) {
+          <div class="meta-item meta-full">
+            <span class="meta-label">Client</span>
+            <span class="meta-value">{{ document?.customerName }}</span>
+          </div>
+        }
+        @if (document?.commandeReference) {
+          <div class="meta-item meta-full">
+            <span class="meta-label">Commande de réappro.</span>
+            <span class="meta-value meta-code">{{ document?.commandeReference }}</span>
+          </div>
+        }
+      </div>
     </div>
-  </div>
 
-  <!-- Option utilisation partielle -->
-  @if (!estRemiseProduit()) {
-  <div class="form-check form-switch mb-3">
-    <input class="form-check-input" type="checkbox" id="partialUsageCheck"
-           [ngModel]="isPartialUsage()"
-           (ngModelChange)="isPartialUsage.set($event); montantPartiel.set(null)">
-    <label class="form-check-label" for="partialUsageCheck">
-      Utilisation partielle de l'avoir
-    </label>
-  </div>
-  }
-
-  @if (isPartialUsage() && !estRemiseProduit()) {
-    <div class="mb-3">
-      <label class="form-label fw-semibold">
-        Montant à utiliser <span class="text-danger">*</span>
-        <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number:'1.0-0' }} <span appDevise></span>)</span>
-      </label>
-      <app-input-number
-        [ngModel]="montantPartiel()"
-        (ngModelChange)="montantPartiel.set($event)"
-        [min]="1"
-        [max]="montantDisponible()"
-        [suffix]="' ' + ('' | devise)"
-        placeholder="Montant partiel…" />
-    </div>
-  }
-
-  <!-- Sélection du mode de clôture -->
-  <div class="mb-3">
-    <label class="form-label fw-semibold">
-      Mode de règlement <span class="text-danger">*</span>
-    </label>
-    <app-select
-      [ngModel]="modeCloture()"
-      (ngModelChange)="choisirMode($event)"
-      [items]="modeClotureOptions"
-      bindLabel="label"
-      bindValue="value"
-      placeholder="Choisir le mode de règlement…"
-      appendTo="body"
-    />
-    @if (selectedModeInfo(); as info) {
-      <div class="mode-description mt-1">
-        <i [class]="info.icon + ' me-1 text-muted'"></i>
-        <span class="text-muted small">{{ info.description }}</span>
+    <!-- Option utilisation partielle -->
+    @if (!estRemiseProduit()) {
+      <div class="form-check form-switch mb-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="partialUsageCheck"
+          [ngModel]="isPartialUsage()"
+          (ngModelChange)="isPartialUsage.set($event); montantPartiel.set(null)"
+        />
+        <label class="form-check-label" for="partialUsageCheck"> Utilisation partielle de l'avoir </label>
       </div>
     }
-  </div>
 
-  @if (estRemiseProduit()) {
+    @if (isPartialUsage() && !estRemiseProduit()) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold">
+          Montant à utiliser <span class="text-danger">*</span>
+          <span class="text-muted fw-normal small ms-1">(max. {{ montantDisponible() | number: '1.0-0' }} <span appDevise></span>)</span>
+        </label>
+        <app-input-number
+          [ngModel]="montantPartiel()"
+          (ngModelChange)="montantPartiel.set($event)"
+          [min]="1"
+          [max]="montantDisponible()"
+          [suffix]="' ' + ('' | devise)"
+          placeholder="Montant partiel…"
+        />
+      </div>
+    }
+
+    <!-- Sélection du mode de clôture -->
     <div class="mb-3">
-      <app-radio name="remise" [value]="'tout'" [label]="'Tout remettre (' + quantiteRestante() + ' unité(s))'" [ngModel]="remise()" (ngModelChange)="remise.set($event)" />
-      @if (quantiteRestante() > 1) {
-        <app-radio name="remise" [value]="'partie'" label="Remettre une partie" [ngModel]="remise()" (ngModelChange)="remise.set($event)" />
-      }
-      @if (remise() === 'partie') {
-        <app-input-number [ngModel]="quantiteRemise()" (ngModelChange)="quantiteRemise.set($event)" [min]="1" [max]="quantiteRestante()" suffix=" unité(s)" placeholder="Unités remises…" />
-        <div class="text-muted small mt-1">Montant imputé : {{ montantEffectif() | number:'1.0-0' }} <span appDevise></span></div>
+      <label class="form-label fw-semibold"> Mode de règlement <span class="text-danger">*</span> </label>
+      <app-select
+        [ngModel]="modeCloture()"
+        (ngModelChange)="choisirMode($event)"
+        [items]="modeClotureOptions"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Choisir le mode de règlement…"
+        appendTo="body"
+      />
+      @if (selectedModeInfo(); as info) {
+        <div class="mode-description mt-1">
+          <i [class]="info.icon + ' me-1 text-muted'"></i>
+          <span class="text-muted small">{{ info.description }}</span>
+        </div>
       }
     </div>
-  }
 
-  <!-- Commentaire -->
-  <div class="mb-2">
-    <label class="form-label">Commentaire <span class="text-muted small">(optionnel)</span></label>
-    <textarea class="form-control"
-              [ngModel]="commentaire()"
-              (ngModelChange)="commentaire.set($event)"
-              rows="2"
-              maxlength="500"
-              placeholder="Note de clôture, numéro de ticket remboursement…"
-    ></textarea>
-  </div>
+    @if (estRemiseProduit()) {
+      <div class="mb-3">
+        <app-radio
+          name="remise"
+          [value]="'tout'"
+          [label]="'Tout remettre (' + quantiteRestante() + ' unité(s))'"
+          [ngModel]="remise()"
+          (ngModelChange)="remise.set($event)"
+        />
+        @if (quantiteRestante() > 1) {
+          <app-radio
+            name="remise"
+            [value]="'partie'"
+            label="Remettre une partie"
+            [ngModel]="remise()"
+            (ngModelChange)="remise.set($event)"
+          />
+        }
+        @if (remise() === 'partie') {
+          <app-input-number
+            [ngModel]="quantiteRemise()"
+            (ngModelChange)="quantiteRemise.set($event)"
+            [min]="1"
+            [max]="quantiteRestante()"
+            suffix=" unité(s)"
+            placeholder="Unités remises…"
+          />
+          <div class="text-muted small mt-1">Montant imputé : {{ montantEffectif() | number: '1.0-0' }} <span appDevise></span></div>
+        }
+      </div>
+    }
 
-  @if (error()) {
-    <div class="alert alert-danger py-2 mt-2">
-      <i class="pi pi-times-circle me-2"></i>{{ error() }}
+    <!-- Commentaire -->
+    <div class="mb-2">
+      <label class="form-label">Commentaire <span class="text-muted small">(optionnel)</span></label>
+      <textarea
+        class="form-control"
+        [ngModel]="commentaire()"
+        (ngModelChange)="commentaire.set($event)"
+        rows="2"
+        maxlength="500"
+        placeholder="Note de clôture, numéro de ticket remboursement…"
+      ></textarea>
     </div>
-  }
-</app-card>
+
+    @if (error()) {
+      <div class="alert alert-danger py-2 mt-2"><i class="pi pi-times-circle me-2"></i>{{ error() }}</div>
+    }
+  </app-card>
 </div>
 
 <div class="modal-footer cloture-modal-footer">

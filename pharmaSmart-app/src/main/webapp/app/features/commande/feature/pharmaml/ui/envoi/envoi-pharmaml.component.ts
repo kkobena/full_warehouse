@@ -1,15 +1,15 @@
-import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, CardComponent, SelectComponent} from '../../../../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../../../../shared/date-picker/pharma-date-picker.component';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {IEnvoiPharmaParams, TypeCommande} from '../../../../../../shared/model/pharmaml.model';
-import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../../../../shared/util/warehouse-util';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent, SelectComponent } from '../../../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../../../shared/date-picker/pharma-date-picker.component';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { IEnvoiPharmaParams, TypeCommande } from '../../../../../../shared/model/pharmaml.model';
+import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'app-envoi-pharmaml',
@@ -30,13 +30,13 @@ export class EnvoiPharmamlComponent {
   readonly commentaire = signal('');
   readonly dateLivraison = signal<NgbDateStruct>(TODAY_NGB_DATE());
   readonly typeCommandeOptions = [
-    {label: 'Normale', value: 'NORMALE' as TypeCommande},
-    {label: 'Exceptionnelle', value: 'EXCEPTIONNELLE' as TypeCommande},
+    { label: 'Normale', value: 'NORMALE' as TypeCommande },
+    { label: 'Exceptionnelle', value: 'EXCEPTIONNELLE' as TypeCommande },
   ];
 
   envoi(): void {
     const params: IEnvoiPharmaParams = {
-      commandeId: {id: this.commandeId.id, orderDate: this.commandeId.orderDate},
+      commandeId: { id: this.commandeId.id, orderDate: this.commandeId.orderDate },
       typeCommande: this.typeCommande(),
       commentaire: this.commentaire() || undefined,
       dateLivraisonSouhaitee: NGB_DATE_TO_ISO(this.dateLivraison()) ?? undefined,
@@ -48,7 +48,7 @@ export class EnvoiPharmamlComponent {
         this.loading.set(false);
         this.activeModal.close(res.body!);
       },
-      error: (err) => {
+      error: err => {
         this.loading.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },

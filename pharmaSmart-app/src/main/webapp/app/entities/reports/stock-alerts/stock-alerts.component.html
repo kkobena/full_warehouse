@@ -1,5 +1,4 @@
 <app-toolbar [code]="navCode()" icon="pi pi-exclamation-triangle" title="Alertes Stock">
-
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <app-multi-select
@@ -19,34 +18,44 @@
 
   <ng-container ngProjectAs="[toolbarActions]">
     <div>
-      <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF"
-                  severity="warn"
-                  size="small" />
+      <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
     </div>
   </ng-container>
 </app-toolbar>
 
 <!-- KPI Strip -->
 <app-kpi-strip stripClass="mt-2 mb-2">
-  <app-kpi-item [accent]="'danger'" [value]="alertCounts()[StockAlertType.RUPTURE] || 0"
-                info="Produits actifs dont le stock disponible est nul ou négatif. Ces trois compteurs portent sur toute l'officine et ne suivent pas les filtres du tableau." icon="pi pi-times-circle"
-                iconClass="text-danger" valueClass="text-danger">
-    <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-rupture">Rupture</span>
-    </ng-container>
+  <app-kpi-item
+    [accent]="'danger'"
+    [value]="alertCounts()[StockAlertType.RUPTURE] || 0"
+    info="Produits actifs dont le stock disponible est nul ou négatif. Ces trois compteurs portent sur toute l'officine et ne suivent pas les filtres du tableau."
+    icon="pi pi-times-circle"
+    iconClass="text-danger"
+    valueClass="text-danger"
+  >
+    <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-rupture">Rupture</span> </ng-container>
     <ng-container ngProjectAs="[kpiSub]">produits</ng-container>
   </app-kpi-item>
-  <app-kpi-item [accent]="'warning'" [value]="alertCounts()[StockAlertType.ALERTE] || 0"
-                info="Produits dont le stock est positif mais inférieur au seuil mini renseigné sur la fiche. Un produit en rupture est compté dans la tuile précédente, pas ici." icon="pi pi-exclamation-circle"
-                iconClass="text-warning" valueClass="text-warning">
-    <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-alerte">Stock bas</span>
-    </ng-container>
+  <app-kpi-item
+    [accent]="'warning'"
+    [value]="alertCounts()[StockAlertType.ALERTE] || 0"
+    info="Produits dont le stock est positif mais inférieur au seuil mini renseigné sur la fiche. Un produit en rupture est compté dans la tuile précédente, pas ici."
+    icon="pi pi-exclamation-circle"
+    iconClass="text-warning"
+    valueClass="text-warning"
+  >
+    <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-alerte">Stock bas</span> </ng-container>
     <ng-container ngProjectAs="[kpiSub]">produits</ng-container>
   </app-kpi-item>
-  <app-kpi-item [accent]="'primary'" [value]="alertCounts()[StockAlertType.PEREMPTION] || 0"
-                info="Produits dont le premier lot disponible expire dans moins de trois mois. Un produit déjà en rupture ou sous son seuil est classé dans ces alertes-là : chaque produit ne compte qu'une fois, dans la plus grave." icon="pi pi-clock"
-                iconClass="text-primary" valueClass="text-primary">
-    <ng-container ngProjectAs="[kpiLabel]"><span
-      class="alert-badge alert-peremption">Péremption</span></ng-container>
+  <app-kpi-item
+    [accent]="'primary'"
+    [value]="alertCounts()[StockAlertType.PEREMPTION] || 0"
+    info="Produits dont le premier lot disponible expire dans moins de trois mois. Un produit déjà en rupture ou sous son seuil est classé dans ces alertes-là : chaque produit ne compte qu'une fois, dans la plus grave."
+    icon="pi pi-clock"
+    iconClass="text-primary"
+    valueClass="text-primary"
+  >
+    <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-peremption">Péremption</span></ng-container>
     <ng-container ngProjectAs="[kpiSub]">produits</ng-container>
   </app-kpi-item>
 </app-kpi-strip>
@@ -90,9 +99,7 @@
           <ng-template #body let-alert>
             <tr>
               <td>
-                <span [class]="getAlertClass(alert.alertType)">{{
-                    getAlertLabel(alert.alertType)
-                  }}</span>
+                <span [class]="getAlertClass(alert.alertType)">{{ getAlertLabel(alert.alertType) }}</span>
               </td>
               <td>
                 <span class="fw-semibold">{{ alert.libelle }}</span>
@@ -101,10 +108,9 @@
                 <span class="text-muted">{{ alert.codeCip }}</span>
               </td>
               <td class="text-end">
-                    <span [class.fw-bold]="(alert.stockQuantity ?? 0) <= 0"
-                          [class.text-danger]="(alert.stockQuantity ?? 0) <= 0">
-                      {{ alert.stockQuantity || 0 }}
-                    </span>
+                <span [class.fw-bold]="(alert.stockQuantity ?? 0) <= 0" [class.text-danger]="(alert.stockQuantity ?? 0) <= 0">
+                  {{ alert.stockQuantity || 0 }}
+                </span>
               </td>
               <td class="text-end text-muted">
                 {{ alert.seuilMin || 0 }}
@@ -112,8 +118,8 @@
               <td>
                 @if (alert.expiryDate) {
                   <span [class.text-danger]="alert.alertType === StockAlertType.PEREMPTION">
-                        {{ alert.expiryDate | date: 'dd/MM/yyyy' }}
-                      </span>
+                    {{ alert.expiryDate | date: 'dd/MM/yyyy' }}
+                  </span>
                 }
               </td>
             </tr>
@@ -131,4 +137,3 @@
     </div>
   </div>
 </div>
-

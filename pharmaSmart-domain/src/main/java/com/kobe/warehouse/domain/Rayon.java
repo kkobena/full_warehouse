@@ -22,11 +22,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(
-    name = "rayon",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "libelle", "storage_id" }), @UniqueConstraint(columnNames = { "code", "storage_id" }),
-    }
-)
+        name = "rayon",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"libelle", "storage_id"}),
+            @UniqueConstraint(columnNames = {"code", "storage_id"}),
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Rayon implements Serializable {
 
@@ -148,20 +148,17 @@ public class Rayon implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "Rayon{" +
-            "id=" +
-            id +
-            ", createdAt=" +
-            ", code='" +
-            code +
-            '\'' +
-            ", libelle='" +
-            libelle +
-            '\'' +
-            ", exclude=" +
-            exclude +
-            '}'
-        );
+        return ("Rayon{" + "id="
+                + id
+                + ", createdAt="
+                + ", code='"
+                + code
+                + '\''
+                + ", libelle='"
+                + libelle
+                + '\''
+                + ", exclude="
+                + exclude
+                + '}');
     }
 }

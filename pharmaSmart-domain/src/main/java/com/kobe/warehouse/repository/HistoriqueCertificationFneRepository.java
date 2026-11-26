@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HistoriqueCertificationFneRepository extends JpaRepository<HistoriqueCertificationFne, Long> {
     Page<HistoriqueCertificationFne> findByPlanificationIdOrderByExecutionDebutDesc(
-        Integer planificationId, Pageable pageable);
+            Integer planificationId, Pageable pageable);
 }

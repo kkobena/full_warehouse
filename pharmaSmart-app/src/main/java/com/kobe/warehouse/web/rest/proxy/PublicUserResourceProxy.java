@@ -16,15 +16,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 public class PublicUserResourceProxy {
 
-    private static final List<String> ALLOWED_ORDERED_PROPERTIES = List.of(
-        "id",
-        "login",
-        "firstName",
-        "lastName",
-        "email",
-        "activated",
-        "langKey"
-    );
+    private static final List<String> ALLOWED_ORDERED_PROPERTIES =
+            List.of("id", "login", "firstName", "lastName", "email", "activated", "langKey");
 
     private final Logger log = LoggerFactory.getLogger(PublicUserResourceProxy.class);
 
@@ -48,7 +41,8 @@ public class PublicUserResourceProxy {
         }
 
         final Page<UserDTO> page = userService.getAllPublicUsers(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

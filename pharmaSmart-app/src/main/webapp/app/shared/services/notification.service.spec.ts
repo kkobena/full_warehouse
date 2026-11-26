@@ -22,9 +22,7 @@ describe('NotificationService', () => {
       ['error', 'error', 'Erreur', 5000],
     ] as const)('%s() empile une notification "%s"', (method, severity, defaultTitle, life) => {
       service[method]('Message métier');
-      expect(service.messages()).toEqual([
-        expect.objectContaining({ severity, summary: defaultTitle, detail: 'Message métier', life }),
-      ]);
+      expect(service.messages()).toEqual([expect.objectContaining({ severity, summary: defaultTitle, detail: 'Message métier', life })]);
     });
 
     it('accepte un titre explicite', () => {
@@ -48,7 +46,7 @@ describe('NotificationService', () => {
   });
 
   describe('empilement', () => {
-    it('conserve l\'ordre d\'arrivée', () => {
+    it("conserve l'ordre d'arrivée", () => {
       service.success('Premier');
       service.error('Second');
       expect(service.messages().map(m => m.detail)).toEqual(['Premier', 'Second']);

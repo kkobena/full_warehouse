@@ -55,52 +55,48 @@ class InventoryStockServiceImplTest {
     @DisplayName("Un inventaire de rayon ne lit que le stock du rayon, pas celui de la réserve")
     void porteeRayon() {
         when(stockProduitRepository.findAllByStorageIdAndProduitIdIn(STORAGE_RAYON, Set.of(10)))
-            .thenReturn(List.of(stock(10, 4, 1)));
+                .thenReturn(List.of(stock(10, 4, 1)));
 
-        Map<Integer, Integer> stock = service.buildStockMapForInventory(
-            inventaire(InventoryCategory.RAYON), Set.of(10));
+        Map<Integer, Integer> stock =
+                service.buildStockMapForInventory(inventaire(InventoryCategory.RAYON), Set.of(10));
 
         assertEquals(Map.of(10, 5), stock, "4 en stock + 1 en unité gratuite");
-        verify(stockProduitRepository, never())
-            .findAggregatedStockByMagasinIdAndProduitIdIn(anyInt(), any());
+        verify(stockProduitRepository, never()).findAggregatedStockByMagasinIdAndProduitIdIn(anyInt(), any());
     }
 
     @Test
     @DisplayName("Un inventaire de magasin agrège rayon et réserve")
     void porteeMagasin() {
         when(stockProduitRepository.findAggregatedStockByMagasinIdAndProduitIdIn(MAGASIN, Set.of(10)))
-            .thenReturn(List.<Object[]>of(new Object[] { 10, 42L }));
+                .thenReturn(List.<Object[]>of(new Object[] {10, 42L}));
 
-        Map<Integer, Integer> stock = service.buildStockMapForInventory(
-            inventaire(InventoryCategory.MAGASIN), Set.of(10));
+        Map<Integer, Integer> stock =
+                service.buildStockMapForInventory(inventaire(InventoryCategory.MAGASIN), Set.of(10));
 
         assertEquals(Map.of(10, 42), stock);
-        verify(stockProduitRepository, never())
-            .findAllByStorageIdAndProduitIdIn(anyInt(), any());
+        verify(stockProduitRepository, never()).findAllByStorageIdAndProduitIdIn(anyInt(), any());
     }
 
     @Test
     @DisplayName("Les types thématiques suivent la portée magasin, comme MAGASIN")
     void porteeThematique() {
         when(stockProduitRepository.findAggregatedStockByMagasinIdAndProduitIdIn(eq(MAGASIN), any()))
-            .thenReturn(List.<Object[]>of(new Object[] { 10, 3L }));
+                .thenReturn(List.<Object[]>of(new Object[] {10, 3L}));
 
         for (InventoryCategory categorie : List.of(
-            InventoryCategory.FAMILLY,
-            InventoryCategory.PERIME,
-            InventoryCategory.ALERTE_PEREMPTION,
-            InventoryCategory.VENDU,
-            InventoryCategory.INVENDU,
-            InventoryCategory.SOUS_SEUIL,
-            InventoryCategory.EN_RUPTURE,
-            InventoryCategory.ABC,
-            InventoryCategory.SELECTION_PRODUIT
-        )) {
+                InventoryCategory.FAMILLY,
+                InventoryCategory.PERIME,
+                InventoryCategory.ALERTE_PEREMPTION,
+                InventoryCategory.VENDU,
+                InventoryCategory.INVENDU,
+                InventoryCategory.SOUS_SEUIL,
+                InventoryCategory.EN_RUPTURE,
+                InventoryCategory.ABC,
+                InventoryCategory.SELECTION_PRODUIT)) {
             assertEquals(
-                Map.of(10, 3),
-                service.buildStockMapForInventory(inventaire(categorie), Set.of(10)),
-                categorie + " compte le stock du magasin entier"
-            );
+                    Map.of(10, 3),
+                    service.buildStockMapForInventory(inventaire(categorie), Set.of(10)),
+                    categorie + " compte le stock du magasin entier");
         }
     }
 
@@ -129,7 +125,7 @@ class InventoryStockServiceImplTest {
     @DisplayName("Une unité gratuite absente vaut zéro, elle n'interrompt pas le chargement")
     void quantiteUgNulle() {
         when(stockProduitRepository.findAllByStorageIdAndProduitIdIn(STORAGE_RAYON, Set.of(10)))
-            .thenReturn(List.of(stock(10, 6, null)));
+                .thenReturn(List.of(stock(10, 6, null)));
 
         assertEquals(Map.of(10, 6), service.buildStockMapByStorage(STORAGE_RAYON, Set.of(10)));
     }
@@ -138,7 +134,7 @@ class InventoryStockServiceImplTest {
     @DisplayName("Deux lignes de stock pour le même produit s'additionnent au lieu de s'écraser")
     void deuxLignesPourLeMemeProduit() {
         when(stockProduitRepository.findAllByStorageIdAndProduitIdIn(STORAGE_RAYON, Set.of(10)))
-            .thenReturn(List.of(stock(10, 4, 0), stock(10, 6, 0)));
+                .thenReturn(List.of(stock(10, 4, 0), stock(10, 6, 0)));
 
         assertEquals(Map.of(10, 10), service.buildStockMapByStorage(STORAGE_RAYON, Set.of(10)));
     }
@@ -147,7 +143,7 @@ class InventoryStockServiceImplTest {
     @DisplayName("Une somme agrégée nulle est ramenée à zéro")
     void agregatNul() {
         when(stockProduitRepository.findAggregatedStockByMagasinIdAndProduitIdIn(MAGASIN, Set.of(10)))
-            .thenReturn(List.<Object[]>of(new Object[] { 10, null }));
+                .thenReturn(List.<Object[]>of(new Object[] {10, null}));
 
         assertEquals(Map.of(10, 0), service.buildStockMapByMagasin(MAGASIN, Set.of(10)));
     }
@@ -155,8 +151,10 @@ class InventoryStockServiceImplTest {
     @Test
     @DisplayName("Un produit sans ligne de stock vaut zéro plutôt que de lever une NPE")
     void produitSansStock() {
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(10, STORAGE_RAYON)).thenReturn(null);
-        when(stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(MAGASIN, 10)).thenReturn(null);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(10, STORAGE_RAYON))
+                .thenReturn(null);
+        when(stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(MAGASIN, 10))
+                .thenReturn(null);
 
         assertEquals(0, service.getStockByStorage(STORAGE_RAYON, 10));
         assertEquals(0, service.getStockByMagasin(MAGASIN, 10));
@@ -166,9 +164,9 @@ class InventoryStockServiceImplTest {
     @DisplayName("Le stock unitaire additionne les unités gratuites")
     void stockUnitaire() {
         when(stockProduitRepository.findOneByProduitIdAndStockageId(10, STORAGE_RAYON))
-            .thenReturn(stock(10, 8, 2));
+                .thenReturn(stock(10, 8, 2));
         when(stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(MAGASIN, 10))
-            .thenReturn(30);
+                .thenReturn(30);
 
         assertEquals(10, service.getStockByStorage(STORAGE_RAYON, 10));
         assertEquals(30, service.getStockByMagasin(MAGASIN, 10));

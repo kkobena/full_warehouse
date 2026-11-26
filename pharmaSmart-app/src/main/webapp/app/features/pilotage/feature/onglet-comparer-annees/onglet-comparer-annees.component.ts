@@ -7,7 +7,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { AbilityService } from 'app/core/auth/ability.service';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
-import { ButtonComponent, CardComponent, CheckboxComponent, DataTableComponent, FormFieldComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  CheckboxComponent,
+  DataTableComponent,
+  FormFieldComponent,
+  PillSelectorComponent,
+  SelectComponent,
+} from 'app/shared/ui';
 import { ISO_TO_NGB_DATE } from 'app/shared/util/warehouse-util';
 import { formatDecimal } from 'app/shared/utils/format-utils';
 import { PilotageApiService } from '../../data-access/pilotage-api.service';
@@ -19,7 +27,20 @@ import { ValeurIndicateurPipe } from '../../ui/valeur-indicateur/valeur-indicate
 import { lireReglageAnnees, versParametresAnnees } from './reglage-annees';
 import { AideComponent } from '../../ui/aide/aide.component';
 
-const MOIS_LONGS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+const MOIS_LONGS = [
+  'janvier',
+  'février',
+  'mars',
+  'avril',
+  'mai',
+  'juin',
+  'juillet',
+  'août',
+  'septembre',
+  'octobre',
+  'novembre',
+  'décembre',
+];
 
 /**
  * Onglet « Comparer les années » : l'année en cours face à une à cinq années civiles, mois par mois, en cumul ou sur douze mois
@@ -72,7 +93,10 @@ export class OngletComparerAnneesComponent {
     if (!erreur) {
       return null;
     }
-    return (erreur instanceof HttpErrorResponse ? (erreur.error?.detail ?? erreur.error?.message) : null) ?? "La comparaison n'a pas pu être calculée.";
+    return (
+      (erreur instanceof HttpErrorResponse ? (erreur.error?.detail ?? erreur.error?.message) : null) ??
+      "La comparaison n'a pas pu être calculée."
+    );
   });
 
   protected readonly nombres = [2, 3, 4, 5, 6].map(nombre => ({ libelle: `${nombre} ans`, valeur: nombre }));
@@ -163,7 +187,10 @@ export class OngletComparerAnneesComponent {
   }
 
   private colonnesAnnees(comparaison: ComparaisonAnnees): CroiseAnalyse['colonnes'] {
-    return comparaison.annees.map(annee => ({ cle: String(annee.annee), libelle: annee.complete ? String(annee.annee) : `${annee.annee} (en cours)` }));
+    return comparaison.annees.map(annee => ({
+      cle: String(annee.annee),
+      libelle: annee.complete ? String(annee.annee) : `${annee.annee} (en cours)`,
+    }));
   }
 
   private modifier(changement: Partial<ReglageAnnees>): void {

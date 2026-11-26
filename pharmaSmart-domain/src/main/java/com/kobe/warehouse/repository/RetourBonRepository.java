@@ -24,10 +24,7 @@ public interface RetourBonRepository extends JpaRepository<RetourBon, Integer>, 
 
     @Query("SELECT r FROM RetourBon r WHERE r.dateMtv BETWEEN :startDate AND :endDate ORDER BY r.dateMtv DESC")
     Page<RetourBon> findAllByDateMtvBetween(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable
-    );
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
     long countByStatutNot(RetourStatut statut);
 }

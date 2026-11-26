@@ -42,12 +42,10 @@ public class LicenseEnforcementAspect {
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     void restControllers() {}
 
-    @Pointcut(
-        "@annotation(org.springframework.web.bind.annotation.PostMapping)" +
-        " || @annotation(org.springframework.web.bind.annotation.PutMapping)" +
-        " || @annotation(org.springframework.web.bind.annotation.PatchMapping)" +
-        " || @annotation(org.springframework.web.bind.annotation.DeleteMapping)"
-    )
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping)"
+            + " || @annotation(org.springframework.web.bind.annotation.PutMapping)"
+            + " || @annotation(org.springframework.web.bind.annotation.PatchMapping)"
+            + " || @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
     void writeMappings() {}
 
     @Before("restControllers() && writeMappings()")
@@ -66,7 +64,8 @@ public class LicenseEnforcementAspect {
         LOG.warn("Écriture refusée pour cause de licence ({}) : {}", info.status(), operation);
         licenseService.audit(LicenseAuditEventType.BLOCKED_WRITE, operation, null);
 
-        throw new LicenseViolationException(info.message(), LicenseViolationException.ERROR_KEY_EXPIRED, payloadOf(info));
+        throw new LicenseViolationException(
+                info.message(), LicenseViolationException.ERROR_KEY_EXPIRED, payloadOf(info));
     }
 
     /**
@@ -76,10 +75,12 @@ public class LicenseEnforcementAspect {
      * mutations : un module absent de l'abonnement ne doit rien renvoyer du tout, y compris en
      * lecture. C'est ce qui distingue cette règle du blocage d'expiration.
      */
-    @Before("@within(com.kobe.warehouse.aop.license.RequiresFeature) || @annotation(com.kobe.warehouse.aop.license.RequiresFeature)")
+    @Before(
+            "@within(com.kobe.warehouse.aop.license.RequiresFeature) || @annotation(com.kobe.warehouse.aop.license.RequiresFeature)")
     public void checkFeature(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        RequiresFeature required = AnnotatedElementUtils.findMergedAnnotation(signature.getMethod(), RequiresFeature.class);
+        RequiresFeature required =
+                AnnotatedElementUtils.findMergedAnnotation(signature.getMethod(), RequiresFeature.class);
         if (required == null) {
             required = AnnotatedElementUtils.findMergedAnnotation(signature.getDeclaringType(), RequiresFeature.class);
         }
@@ -89,28 +90,23 @@ public class LicenseEnforcementAspect {
 
         LicenseInfo info = licenseService.currentStatus();
         LOG.warn(
-            "Accès refusé au module {} non souscrit : {}#{}",
-            required.value(),
-            signature.getDeclaringType().getSimpleName(),
-            signature.getName()
-        );
+                "Accès refusé au module {} non souscrit : {}#{}",
+                required.value(),
+                signature.getDeclaringType().getSimpleName(),
+                signature.getName());
 
         Map<String, Object> payload = payloadOf(info);
         payload.put("missingFeature", required.value().name());
         throw new LicenseViolationException(
-            "Le module « %s » n'est pas inclus dans votre abonnement. Contactez votre revendeur pour le souscrire.".formatted(
-                required.value().name()
-            ),
-            LicenseViolationException.ERROR_KEY_FEATURE_NOT_INCLUDED,
-            payload
-        );
+                "Le module « %s » n'est pas inclus dans votre abonnement. Contactez votre revendeur pour le souscrire."
+                        .formatted(required.value().name()),
+                LicenseViolationException.ERROR_KEY_FEATURE_NOT_INCLUDED,
+                payload);
     }
 
     private boolean isExempt(MethodSignature signature) {
-        return (
-            AnnotatedElementUtils.hasAnnotation(signature.getMethod(), LicenseExempt.class) ||
-            AnnotatedElementUtils.hasAnnotation(signature.getDeclaringType(), LicenseExempt.class)
-        );
+        return (AnnotatedElementUtils.hasAnnotation(signature.getMethod(), LicenseExempt.class)
+                || AnnotatedElementUtils.hasAnnotation(signature.getDeclaringType(), LicenseExempt.class));
     }
 
     /**

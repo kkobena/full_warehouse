@@ -43,10 +43,9 @@ public class PilotageObjectifsResource {
     @GetMapping("/proposition")
     @RequiresNavAccess(value = "pilotage.objectifs", action = NavAction.EDIT)
     public ResponseEntity<List<Double>> proposer(
-        @RequestParam int annee,
-        @RequestParam IndicateurPilotage indicateur,
-        @RequestParam(defaultValue = "0") double hausse
-    ) {
+            @RequestParam int annee,
+            @RequestParam IndicateurPilotage indicateur,
+            @RequestParam(defaultValue = "0") double hausse) {
         return ResponseEntity.ok(objectifsPilotageService.proposer(annee, indicateur, hausse));
     }
 

@@ -5,8 +5,17 @@
   @if (showSearch()) {
     <div class="search-section">
       <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
-        <input #searchInput (keydown.enter)="load()" (keydown.escape)="fermerRecherche()" [ngModel]="search()" (ngModelChange)="search.set($event)" autocomplete="off" class="form-control search-input"
-               placeholder="Rechercher un client assuré..." type="text"/>
+        <input
+          #searchInput
+          (keydown.enter)="load()"
+          (keydown.escape)="fermerRecherche()"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          autocomplete="off"
+          class="form-control search-input"
+          placeholder="Rechercher un client assuré..."
+          type="text"
+        />
       </app-icon-field>
     </div>
   }
@@ -24,28 +33,62 @@
             </div>
             <div class="d-flex align-items-center gap-1" role="group">
               @if (!showSearch()) {
-                <app-button [outlined]="true" (clicked)="ouvrirRecherche()" ariaLabel="Changer d'assuré" ngbTooltip="Changer d'assuré"
-                            icon="pi pi-search" severity="secondary" size="small" [rounded]="true" />
+                <app-button
+                  [outlined]="true"
+                  (clicked)="ouvrirRecherche()"
+                  ariaLabel="Changer d'assuré"
+                  ngbTooltip="Changer d'assuré"
+                  icon="pi pi-search"
+                  severity="secondary"
+                  size="small"
+                  [rounded]="true"
+                />
               }
-              <app-button [outlined]="true" (clicked)="voirFiche()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
-                          icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" placement="top" />
+              <app-button
+                [outlined]="true"
+                (clicked)="voirFiche()"
+                ariaLabel="Voir la fiche client"
+                ngbTooltip="Voir la fiche client (Alt+V)"
+                icon="pi pi-id-card"
+                severity="primary"
+                size="small"
+                [rounded]="true"
+                placement="top"
+              />
               <app-ordonnance-bouton [customerId]="customer()?.id" />
               @if (saleType() === 'ASSURANCE' && !aUnAyantDroit()) {
-                <app-button [outlined]="true" (clicked)="loadAyantDoitsClick()" ariaLabel="Ajouter un ayant droit" ngbTooltip="Ajouter un ayant droit (Alt+A)"
-                            icon="pi pi-user-plus" severity="success" size="small" [rounded]="true" placement="top" />
+                <app-button
+                  [outlined]="true"
+                  (clicked)="loadAyantDoitsClick()"
+                  ariaLabel="Ajouter un ayant droit"
+                  ngbTooltip="Ajouter un ayant droit (Alt+A)"
+                  icon="pi pi-user-plus"
+                  severity="success"
+                  size="small"
+                  [rounded]="true"
+                  placement="top"
+                />
               }
-            <app-button [outlined]="true" (clicked)="editAssuredCustomer()" ariaLabel="Modifier les infos du client"  placement="top"
-                      ngbTooltip="Modifier les infos du client" icon="pi pi-user-edit"
-                      severity="info" size="small" [rounded]="true"/>
+              <app-button
+                [outlined]="true"
+                (clicked)="editAssuredCustomer()"
+                ariaLabel="Modifier les infos du client"
+                placement="top"
+                ngbTooltip="Modifier les infos du client"
+                icon="pi pi-user-edit"
+                severity="info"
+                size="small"
+                [rounded]="true"
+              />
             </div>
           </div>
           <div class="card-body">
             <div class="info-row">
               <span class="info-label">Nom/Prénom(s)</span>
               <span class="info-value">
-              {{ customer().firstName }}
+                {{ customer().firstName }}
                 {{ customer().lastName }}
-            </span>
+              </span>
             </div>
             <div class="info-row">
               <span class="info-label">Matricule</span>
@@ -65,15 +108,36 @@
                 <span>Ayant droit</span>
               </div>
               <div class="d-flex align-items-center gap-1" role="group">
-                <app-button [outlined]="true" (clicked)="editAyantDroitClick()" ariaLabel="Modifier les infos de l'ayant droit"
-                            icon="pi pi-user-edit" [rounded]="true" size="small"
-                            severity="info" ngbTooltip="Modifier les infos de l'ayant droit"/>
-                <app-button [outlined]="true" (clicked)="loadAyantDoitsClick()" ariaLabel="Choisir un autre ayant droit"
-                            icon="pi pi-users" [rounded]="true" size="small"
-                            severity="primary" ngbTooltip="Choisir un autre ayant droit"/>
-                <app-button [outlined]="true" (clicked)="assureBeneficiaireClick()" ariaLabel="L'assuré est le bénéficiaire"
-                            icon="pi pi-undo" [rounded]="true" size="small"
-                            severity="warn" ngbTooltip="L'assuré est le bénéficiaire"/>
+                <app-button
+                  [outlined]="true"
+                  (clicked)="editAyantDroitClick()"
+                  ariaLabel="Modifier les infos de l'ayant droit"
+                  icon="pi pi-user-edit"
+                  [rounded]="true"
+                  size="small"
+                  severity="info"
+                  ngbTooltip="Modifier les infos de l'ayant droit"
+                />
+                <app-button
+                  [outlined]="true"
+                  (clicked)="loadAyantDoitsClick()"
+                  ariaLabel="Choisir un autre ayant droit"
+                  icon="pi pi-users"
+                  [rounded]="true"
+                  size="small"
+                  severity="primary"
+                  ngbTooltip="Choisir un autre ayant droit"
+                />
+                <app-button
+                  [outlined]="true"
+                  (clicked)="assureBeneficiaireClick()"
+                  ariaLabel="L'assuré est le bénéficiaire"
+                  icon="pi pi-undo"
+                  [rounded]="true"
+                  size="small"
+                  severity="warn"
+                  ngbTooltip="L'assuré est le bénéficiaire"
+                />
               </div>
             </div>
             <div class="card-body">
@@ -122,21 +186,42 @@
                   <i class="pi pi-ticket"></i>
                   <span>Bon</span>
                 </span>
-                <input #tpInput (keydown.enter)="onBonEnter(tp)" [(ngModel)]="tp.numBon"
-                       autocomplete="off" class="form-control bon-input" id="bon-{{ tp.id }}" name="bon-{{ i }}"
-                       [appKeyFilter]="'alphanum'" type="text" placeholder="Numéro de bon..."/>
+                <input
+                  #tpInput
+                  (keydown.enter)="onBonEnter(tp)"
+                  [(ngModel)]="tp.numBon"
+                  autocomplete="off"
+                  class="form-control bon-input"
+                  id="bon-{{ tp.id }}"
+                  name="bon-{{ i }}"
+                  [appKeyFilter]="'alphanum'"
+                  type="text"
+                  placeholder="Numéro de bon..."
+                />
                 @if (tiersPayants.length > 1) {
-                  <app-button [outlined]="true" (clicked)="onRemoveTiersPayant(tp)" ariaLabel="Supprimer ce tiers payant"
-                            icon="pi pi-trash" ngbTooltip="Supprimer ce tiers payant"
-                            placement="top" severity="danger" type="button">
+                  <app-button
+                    [outlined]="true"
+                    (clicked)="onRemoveTiersPayant(tp)"
+                    ariaLabel="Supprimer ce tiers payant"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer ce tiers payant"
+                    placement="top"
+                    severity="danger"
+                    type="button"
+                  >
                   </app-button>
                 }
                 @if (customer() && $last && tiersPayants.length < customer().tiersPayants.length && saleType() === 'ASSURANCE') {
-                  <app-button [outlined]="true" (clicked)="onAddComplementaire()" ariaLabel="Ajouter un tiers payant complémentaire"
-                            icon="pi pi-plus"
-                            ngbTooltip="Ajouter un tiers payant complémentaire" placement="top" severity="success"
-                           
-                            type="button">
+                  <app-button
+                    [outlined]="true"
+                    (clicked)="onAddComplementaire()"
+                    ariaLabel="Ajouter un tiers payant complémentaire"
+                    icon="pi pi-plus"
+                    ngbTooltip="Ajouter un tiers payant complémentaire"
+                    placement="top"
+                    severity="success"
+                    type="button"
+                  >
                   </app-button>
                 }
               </div>

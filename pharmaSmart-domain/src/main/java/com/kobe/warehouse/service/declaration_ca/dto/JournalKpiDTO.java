@@ -14,15 +14,14 @@ import java.util.Objects;
  * @param tauxMarge marge rapportée à la valeur TTC, en pourcentage ; {@code 0} si rien n'est vendu
  */
 public record JournalKpiDTO(
-    long nombreVentes,
-    long nombreLignes,
-    long quantite,
-    long quantiteUg,
-    long valeurTtc,
-    long montantExclu,
-    long marge,
-    BigDecimal tauxMarge
-) {
+        long nombreVentes,
+        long nombreLignes,
+        long quantite,
+        long quantiteUg,
+        long valeurTtc,
+        long montantExclu,
+        long marge,
+        BigDecimal tauxMarge) {
     /**
      * Constructeur des requêtes, qui ne fournissent que les agrégats.
      *
@@ -30,24 +29,22 @@ public record JournalKpiDTO(
      * qu'un second appelant l'obtienne un jour par une division légèrement différente.
      */
     public JournalKpiDTO(
-        Long nombreVentes,
-        Long nombreLignes,
-        Long quantite,
-        Long quantiteUg,
-        Long valeurTtc,
-        Long montantExclu,
-        Long marge
-    ) {
+            Long nombreVentes,
+            Long nombreLignes,
+            Long quantite,
+            Long quantiteUg,
+            Long valeurTtc,
+            Long montantExclu,
+            Long marge) {
         this(
-            zeroSiNul(nombreVentes),
-            zeroSiNul(nombreLignes),
-            zeroSiNul(quantite),
-            zeroSiNul(quantiteUg),
-            zeroSiNul(valeurTtc),
-            zeroSiNul(montantExclu),
-            zeroSiNul(marge),
-            tauxMarge(zeroSiNul(marge), zeroSiNul(valeurTtc))
-        );
+                zeroSiNul(nombreVentes),
+                zeroSiNul(nombreLignes),
+                zeroSiNul(quantite),
+                zeroSiNul(quantiteUg),
+                zeroSiNul(valeurTtc),
+                zeroSiNul(montantExclu),
+                zeroSiNul(marge),
+                tauxMarge(zeroSiNul(marge), zeroSiNul(valeurTtc)));
     }
 
     /** Les indicateurs d'un ensemble vide : des zéros, jamais des trous à l'écran. */
@@ -63,6 +60,8 @@ public record JournalKpiDTO(
         if (valeurTtc == 0) {
             return BigDecimal.ZERO;
         }
-        return BigDecimal.valueOf(marge).multiply(BigDecimal.valueOf(100)).divide(BigDecimal.valueOf(valeurTtc), 2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(marge)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(valeurTtc), 2, RoundingMode.HALF_UP);
     }
 }

@@ -4,7 +4,6 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
-import com.kobe.warehouse.repository.FactureTiersPayantRepository;
 import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.facturation.dto.RecapitulatifMensuelDto;
 import com.kobe.warehouse.service.facturation.dto.RecapitulatifMensuelParams;
@@ -54,24 +53,26 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
         List<FactureTiersPayant> factures = queryFactures(params, startDate, endDate);
 
         // Group by tiersPayant (use tiersPayant.id as key; fallback to groupeTiersPayant)
-        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream()
-            .collect(Collectors.groupingBy(f -> {
-                if (f.getTiersPayant() != null) {
-                    return f.getTiersPayant().getId();
-                }
-                return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
-            }));
+        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream().collect(Collectors.groupingBy(f -> {
+            if (f.getTiersPayant() != null) {
+                return f.getTiersPayant().getId();
+            }
+            return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
+        }));
 
         List<RecapitulatifMensuelDto> result = new ArrayList<>();
         for (Map.Entry<Integer, List<FactureTiersPayant>> entry : grouped.entrySet()) {
             List<FactureTiersPayant> tpFactures = entry.getValue();
             FactureTiersPayant first = tpFactures.getFirst();
             TiersPayant tp = first.getTiersPayant();
-            GroupeTiersPayant groupeTiersPayant=tp==null?first.getGroupeTiersPayant():null;
-            String tpName = tp != null ? tp.getFullName() : (groupeTiersPayant != null ? groupeTiersPayant.getName() : "");
+            GroupeTiersPayant groupeTiersPayant = tp == null ? first.getGroupeTiersPayant() : null;
+            String tpName =
+                    tp != null ? tp.getFullName() : (groupeTiersPayant != null ? groupeTiersPayant.getName() : "");
             String tpCode = tp != null ? (tp.getCodeOrganisme() != null ? tp.getCodeOrganisme() : "") : "";
-            int idTp =tp != null ?tp.getId() :groupeTiersPayant.getId();
-            int delai = tp != null && tp.getDelaiReglement() != null ? tp.getDelaiReglement() : appConfigurationService.getDelaiReglement();
+            int idTp = tp != null ? tp.getId() : groupeTiersPayant.getId();
+            int delai = tp != null && tp.getDelaiReglement() != null
+                    ? tp.getDelaiReglement()
+                    : appConfigurationService.getDelaiReglement();
 
             BigDecimal totalFacture = BigDecimal.ZERO;
             BigDecimal totalRegle = BigDecimal.ZERO;
@@ -93,33 +94,32 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
                 }
 
                 lignes.add(new RecapitulatifMensuelRow(
-                    f.getNumFacture(),
-                    f.getInvoiceDate(),
-                    echeance,
-                    montantNet,
-                    montantRegle,
-                    restantDu,
-                    f.getStatut()
-                ));
+                        f.getNumFacture(),
+                        f.getInvoiceDate(),
+                        echeance,
+                        montantNet,
+                        montantRegle,
+                        restantDu,
+                        f.getStatut()));
             }
 
             BigDecimal soldePrecedent = computeSoldePrecedent(entry.getKey(), precedentEndDate, tp);
             BigDecimal soldeActuel = totalFacture.subtract(totalRegle);
             BigDecimal soldeCumule = soldePrecedent.add(soldeActuel);
 
-            result.add(new RecapitulatifMensuelDto(idTp,
-                tpName,
-                tpCode,
-                yearMonth,
-                soldePrecedent,
-                totalFacture,
-                totalRegle,
-                soldeActuel,
-                soldeCumule,
-                nombreFactures,
-                nombreImpayees,
-                lignes
-            ));
+            result.add(new RecapitulatifMensuelDto(
+                    idTp,
+                    tpName,
+                    tpCode,
+                    yearMonth,
+                    soldePrecedent,
+                    totalFacture,
+                    totalRegle,
+                    soldeActuel,
+                    soldeCumule,
+                    nombreFactures,
+                    nombreImpayees,
+                    lignes));
         }
 
         // Apply pagination in-memory
@@ -140,7 +140,8 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
         return new byte[0];
     }
 
-    private List<FactureTiersPayant> queryFactures(RecapitulatifMensuelParams params, LocalDate startDate, LocalDate endDate) {
+    private List<FactureTiersPayant> queryFactures(
+            RecapitulatifMensuelParams params, LocalDate startDate, LocalDate endDate) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<FactureTiersPayant> cq = cb.createQuery(FactureTiersPayant.class);
         Root<FactureTiersPayant> root = cq.from(FactureTiersPayant.class);
@@ -190,13 +191,14 @@ public class RecapitulatifMensuelServiceImpl implements RecapitulatifMensuelServ
         cq.where(predicates.toArray(new Predicate[0]));
 
         try {
-            List<FactureTiersPayant> previousFactures = entityManager.createQuery(cq).getResultList();
+            List<FactureTiersPayant> previousFactures =
+                    entityManager.createQuery(cq).getResultList();
             BigDecimal totalNet = previousFactures.stream()
-                .map(f -> f.getMontantNet() != null ? f.getMontantNet() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    .map(f -> f.getMontantNet() != null ? f.getMontantNet() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal totalRegle = previousFactures.stream()
-                .map(f -> BigDecimal.valueOf(f.getMontantRegle()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    .map(f -> BigDecimal.valueOf(f.getMontantRegle()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
             return totalNet.subtract(totalRegle);
         } catch (Exception e) {
             return BigDecimal.ZERO;

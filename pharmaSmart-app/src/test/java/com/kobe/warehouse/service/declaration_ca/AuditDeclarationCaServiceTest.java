@@ -46,27 +46,24 @@ class AuditDeclarationCaServiceTest {
 
     @Container
     @SuppressWarnings("resource")
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
-        "postgres:18-alpine")
-        .withDatabaseName("audit_test");
+    private static final PostgreSQLContainer<?> POSTGRES =
+            new PostgreSQLContainer<>("postgres:18-alpine").withDatabaseName("audit_test");
 
     private static Connection connection;
     private static AuditDeclarationCaService service;
 
     @BeforeAll
     static void preparer() throws SQLException {
-        Flyway
-            .configure()
-            .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-            .schemas(SCHEMA)
-            .defaultSchema(SCHEMA)
-            .table("pharma_smart_history")
-            .locations("classpath:db/migration")
-            .load()
-            .migrate();
+        Flyway.configure()
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+                .schemas(SCHEMA)
+                .defaultSchema(SCHEMA)
+                .table("pharma_smart_history")
+                .locations("classpath:db/migration")
+                .load()
+                .migrate();
 
-        connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
-            POSTGRES.getPassword());
+        connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
         try (Statement st = connection.createStatement()) {
             st.execute("SET search_path TO " + SCHEMA);
             jeuDEssai(st);
@@ -93,32 +90,23 @@ class AuditDeclarationCaServiceTest {
      */
     private static void jeuDEssai(Statement st) throws SQLException {
         st.execute(
-            "CREATE TABLE IF NOT EXISTS sales_2026 PARTITION OF sales FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
+                "CREATE TABLE IF NOT EXISTS sales_2026 PARTITION OF sales FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
         st.execute(
-            "CREATE TABLE IF NOT EXISTS sales_line_2026 PARTITION OF sales_line FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')"
-        );
-        st.execute(
-            "CREATE TABLE IF NOT EXISTS payment_transaction_2026 PARTITION OF payment_transaction "
-                +
-                "FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')"
-        );
-        st.executeUpdate(
-            """
+                "CREATE TABLE IF NOT EXISTS sales_line_2026 PARTITION OF sales_line FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
+        st.execute("CREATE TABLE IF NOT EXISTS payment_transaction_2026 PARTITION OF payment_transaction "
+                + "FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
+        st.executeUpdate("""
                 INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id, magasin_id)
                 VALUES (960001, now(), now(), now(), 0, 'OPEN', 1, (SELECT magasin_id FROM app_user WHERE id = 1))
-                """
-        );
-        st.executeUpdate(
-            """
+                """);
+        st.executeUpdate("""
                 INSERT INTO produit (id, libelle, status, type_produit, deconditionnable, cost_amount,
                                      regular_unit_price, net_unit_price, item_cost_amount, item_qty,
                                      item_regular_unit_price, created_at, updated_at, famille_id, tva_id)
                 SELECT 960001, 'EXONERE', 'ENABLE', 'DETAIL', false, 0, 1, 1, 0, 1, 1, now(), now(),
                        (SELECT min(id) FROM famille_produit), (SELECT id FROM tva WHERE taux = 0)
-                """
-        );
-        st.executeUpdate(
-            """
+                """);
+        st.executeUpdate("""
                 INSERT INTO sales (dtype, id, sale_date, number_transaction, statut, ca, sales_amount,
                                    amount_to_be_paid, amount_to_be_taken_into_account, discount_amount,
                                    payroll_amount, rest_to_pay, monnaie, canceled, copy, imported, differe,
@@ -129,10 +117,8 @@ class AuditDeclarationCaServiceTest {
                         10000, 10000, 0, 10000, 0, 0, false, false, false, false,
                         false, 'COMPTANT', 'DIRECT', 'PAYE', 'PRESCRIPTION',
                         now(), now(), now(), 1, 1, 1, 1)
-                """
-        );
-        st.executeUpdate(
-            """
+                """);
+        st.executeUpdate("""
                 INSERT INTO sales_line (id, sale_date, sales_id, sales_sale_date, produit_id,
                                         quantity_requested, quantity_sold, quantity_ug, regular_unit_price,
                                         net_unit_price, discount_unit_price, sales_amount, discount_amount,
@@ -140,18 +126,15 @@ class AuditDeclarationCaServiceTest {
                                         created_at, updated_at, effective_update_date)
                 VALUES (9600011, DATE '2026-05-12', 960001, DATE '2026-05-12', 960001,
                         10000, 10000, 0, 1, 1, 0, 10000, 0, 0, 0, 10000, false, now(), now(), now())
-                """
-        );
-        st.executeUpdate(
-            """
+                """);
+        st.executeUpdate("""
                 INSERT INTO payment_transaction (dtype, id, transaction_date, sale_id, sale_date,
                                                  categorie_ca, created_at, credit, expected_amount,
                                                  montant_verse, paid_amount, reel_amount, type_transaction,
                                                  payment_mode_code, cash_register_id, part_assure, part_tiers_payant)
                 VALUES ('SalePayment', 960001, DATE '2026-05-12', 960001, DATE '2026-05-12',
                         'CA', now(), false, 10000, 10000, 10000, 10000, 'CASH_SALE', 'CASH', 960001, 0, 0)
-                """
-        );
+                """);
     }
 
     /**
@@ -194,11 +177,9 @@ class AuditDeclarationCaServiceTest {
     @DisplayName("V1 — la base refuse un montant déclarable supérieur au réel")
     void contrainteV1RefuseLeMontantHorsBornes() {
         assertThrows(
-            SQLException.class,
-            () -> executer(
-                "UPDATE sales_line SET amount_to_be_taken_into_account = 99999 WHERE id = 9600011"),
-            "sales_line_declarable_ck doit rejeter l'écriture"
-        );
+                SQLException.class,
+                () -> executer("UPDATE sales_line SET amount_to_be_taken_into_account = 99999 WHERE id = 9600011"),
+                "sales_line_declarable_ck doit rejeter l'écriture");
     }
 
     @Test
@@ -209,24 +190,19 @@ class AuditDeclarationCaServiceTest {
         // comme on écrivait avant elle.
         executer("ALTER TABLE sales_line DROP CONSTRAINT sales_line_declarable_ck");
         try {
-            executer(
-                "UPDATE sales_line SET amount_to_be_taken_into_account = 99999 WHERE id = 9600011");
+            executer("UPDATE sales_line SET amount_to_be_taken_into_account = 99999 WHERE id = 9600011");
             assertEquals(1, controle("V1").nombreAnomalies());
         } finally {
-            executer(
-                "UPDATE sales_line SET amount_to_be_taken_into_account = 10000 WHERE id = 9600011");
-            executer(
-                """
+            executer("UPDATE sales_line SET amount_to_be_taken_into_account = 10000 WHERE id = 9600011");
+            executer("""
                     ALTER TABLE sales_line ADD CONSTRAINT sales_line_declarable_ck
                     CHECK (amount_to_be_taken_into_account IS NULL
                            OR (amount_to_be_taken_into_account >= 0
                                AND amount_to_be_taken_into_account <= quantity_requested * regular_unit_price))
                     NOT VALID
-                    """
-            );
+                    """);
         }
-        assertTrue(controle("V1").estSain(),
-            "l'anomalie doit disparaître une fois la donnée réparée");
+        assertTrue(controle("V1").estSain(), "l'anomalie doit disparaître une fois la donnée réparée");
     }
 
     @Test
@@ -237,15 +213,16 @@ class AuditDeclarationCaServiceTest {
         AnomalieDTO anomalie = controle("V9");
 
         assertEquals(1, anomalie.nombreAnomalies());
-        assertTrue(anomalie.exemples().getFirst().contains("2000 inexpliqué"),
-            anomalie.exemples().getFirst());
+        assertTrue(
+                anomalie.exemples().getFirst().contains("2000 inexpliqué"),
+                anomalie.exemples().getFirst());
 
         // Le même écart, cette fois porté par une ligne exclue : il se rapproche exactement.
         executer("UPDATE sales_line SET exclusion_motif = 'UG' WHERE id = 9600011");
         assertTrue(controle("V9").estSain(), "un écart motivé se rattache à sa ligne");
 
         executer(
-            "UPDATE sales_line SET amount_to_be_taken_into_account = 10000, exclusion_motif = NULL WHERE id = 9600011");
+                "UPDATE sales_line SET amount_to_be_taken_into_account = 10000, exclusion_motif = NULL WHERE id = 9600011");
     }
 
     @Test
@@ -258,8 +235,9 @@ class AuditDeclarationCaServiceTest {
         String exemple = anomalie.exemples().getFirst();
         // Les montants sont formatés avec un espace comme séparateur de milliers (FM999,999,999,999
         // dont la virgule est remplacée par une espace) : « 7 000 » et non « 7000 ».
-        assertTrue(exemple.contains("7 000") && exemple.contains("10 000"),
-            "l'exemple doit citer les deux montants : " + exemple);
+        assertTrue(
+                exemple.contains("7 000") && exemple.contains("10 000"),
+                "l'exemple doit citer les deux montants : " + exemple);
 
         executer("UPDATE sales SET amount_to_be_taken_into_account = 10000 WHERE id = 960001");
         assertTrue(controle("V2").estSain());
@@ -273,22 +251,18 @@ class AuditDeclarationCaServiceTest {
         // Le règlement reste à 10 000 : c'est exactement le cas « CA 800, encaissement 1 000 ».
         assertEquals(1, controle("V2b").nombreAnomalies());
 
-        executer(
-            "UPDATE payment_transaction SET amount_to_be_taken_into_account = 8000 WHERE id = 960001");
+        executer("UPDATE payment_transaction SET amount_to_be_taken_into_account = 8000 WHERE id = 960001");
         assertTrue(controle("V2b").estSain(), "le règlement suit le chiffre déclaré");
 
         executer("UPDATE sales SET amount_to_be_taken_into_account = 10000 WHERE id = 960001");
-        executer(
-            "UPDATE sales_line SET amount_to_be_taken_into_account = 10000 WHERE id = 9600011");
-        executer(
-            "UPDATE payment_transaction SET amount_to_be_taken_into_account = NULL WHERE id = 960001");
+        executer("UPDATE sales_line SET amount_to_be_taken_into_account = 10000 WHERE id = 9600011");
+        executer("UPDATE payment_transaction SET amount_to_be_taken_into_account = NULL WHERE id = 960001");
     }
 
     @Test
     @DisplayName("V8 — une ponction posée sur une ligne taxée est détectée")
     void ponctionSurLigneTaxee() throws SQLException {
-        executer(
-            "UPDATE sales_line SET exclusion_motif = 'PONCTION', tax_value = 18 WHERE id = 9600011");
+        executer("UPDATE sales_line SET exclusion_motif = 'PONCTION', tax_value = 18 WHERE id = 9600011");
         assertEquals(1, controle("V8").nombreAnomalies());
 
         executer("UPDATE sales_line SET exclusion_motif = NULL, tax_value = 0 WHERE id = 9600011");

@@ -42,17 +42,16 @@ public class RetourBonExcelCsvReportService {
     private final RetourBonService retourBonService;
 
     public RetourBonExcelCsvReportService(
-        ReportExcelExportService excelExportService,
-        CsvExportService csvExportService,
-        RetourBonService retourBonService
-    ) {
+            ReportExcelExportService excelExportService,
+            CsvExportService csvExportService,
+            RetourBonService retourBonService) {
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
         this.retourBonService = retourBonService;
     }
 
     public byte[] exportToExcel(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search)
-        throws IOException {
+            throws IOException {
         List<RetourBonItemLine> lines = buildLines(statut, dtStart, dtEnd, search);
         String title = buildReportTitle(dtStart, dtEnd);
 
@@ -74,7 +73,7 @@ public class RetourBonExcelCsvReportService {
     }
 
     public byte[] exportToCsv(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search)
-        throws IOException {
+            throws IOException {
         List<RetourBonItemLine> lines = buildLines(statut, dtStart, dtEnd, search);
         String title = buildReportTitle(dtStart, dtEnd);
 
@@ -99,8 +98,8 @@ public class RetourBonExcelCsvReportService {
 
     private List<RetourBonItemLine> buildLines(RetourStatut statut, LocalDate dtStart, LocalDate dtEnd, String search) {
         List<RetourBonDTO> bons = retourBonService
-            .findAll(statut, null, dtStart, dtEnd, search, Pageable.unpaged())
-            .getContent();
+                .findAll(statut, null, dtStart, dtEnd, search, Pageable.unpaged())
+                .getContent();
 
         List<RetourBonItemLine> lines = new ArrayList<>();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -109,20 +108,19 @@ public class RetourBonExcelCsvReportService {
             for (RetourBonItemDTO item : bon.getRetourBonItems()) {
                 int montant = item.getPrixAchat() != null ? item.getPrixAchat() * item.getQtyMvt() : 0;
                 lines.add(new RetourBonItemLine(
-                    bon.getId(),
-                    bon.getDateMtv() != null ? bon.getDateMtv().format(fmt) : "",
-                    bon.getFournisseurLibelle(),
-                    bon.getStatut() != null ? bon.getStatut().name() : "",
-                    bon.getReceiptReference(),
-                    item.getProduitLibelle(),
-                    item.getProduitCip(),
-                    item.getLotNumero(),
-                    item.getQtyMvt() != null ? item.getQtyMvt() : 0,
-                    item.getAcceptedQty(),
-                    item.getPrixAchat(),
-                    montant,
-                    item.getMotifRetourLibelle()
-                ));
+                        bon.getId(),
+                        bon.getDateMtv() != null ? bon.getDateMtv().format(fmt) : "",
+                        bon.getFournisseurLibelle(),
+                        bon.getStatut() != null ? bon.getStatut().name() : "",
+                        bon.getReceiptReference(),
+                        item.getProduitLibelle(),
+                        item.getProduitCip(),
+                        item.getLotNumero(),
+                        item.getQtyMvt() != null ? item.getQtyMvt() : 0,
+                        item.getAcceptedQty(),
+                        item.getPrixAchat(),
+                        montant,
+                        item.getMotifRetourLibelle()));
             }
         }
         return lines;
@@ -132,7 +130,10 @@ public class RetourBonExcelCsvReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         StringBuilder title = new StringBuilder("Liste des retours fournisseur");
         if (dtStart != null && dtEnd != null) {
-            title.append(" du ").append(dtStart.format(formatter)).append(" au ").append(dtEnd.format(formatter));
+            title.append(" du ")
+                    .append(dtStart.format(formatter))
+                    .append(" au ")
+                    .append(dtEnd.format(formatter));
         } else if (dtStart != null) {
             title.append(" à partir du ").append(dtStart.format(formatter));
         } else if (dtEnd != null) {
@@ -145,19 +146,17 @@ public class RetourBonExcelCsvReportService {
      * Record représentant une ligne du rapport (une ligne de RetourBonItem aplatie).
      */
     record RetourBonItemLine(
-        Integer retourBonId,
-        String dateMtv,
-        String fournisseurLibelle,
-        String statut,
-        String receiptReference,
-        String produitLibelle,
-        String produitCip,
-        String lotNumero,
-        int qtyMvt,
-        Integer acceptedQty,
-        Integer prixAchat,
-        Integer montantRetour,
-        String motifLibelle
-    ) {}
+            Integer retourBonId,
+            String dateMtv,
+            String fournisseurLibelle,
+            String statut,
+            String receiptReference,
+            String produitLibelle,
+            String produitCip,
+            String lotNumero,
+            int qtyMvt,
+            Integer acceptedQty,
+            Integer prixAchat,
+            Integer montantRetour,
+            String motifLibelle) {}
 }
-

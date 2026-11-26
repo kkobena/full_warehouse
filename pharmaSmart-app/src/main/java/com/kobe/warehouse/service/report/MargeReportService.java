@@ -58,4 +58,3 @@ public interface MargeReportService {
 
     byte[] export(Integer familleProduitId, String search);
 }
-

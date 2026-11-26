@@ -6,21 +6,24 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public record ProductStatRecord(
-    Integer id,
-    Long produitCount,
-    String codeCip,
-    String codeEan,
-    String libelle,
-    Integer quantitySold,
-    Integer costAmount,
-    Integer salesAmount,
-    Integer discountAmount,
-    Integer amountToBeTakenIntoAaccount,
-    Double montantHt,
-    Integer netAmount
-) {
+        Integer id,
+        Long produitCount,
+        String codeCip,
+        String codeEan,
+        String libelle,
+        Integer quantitySold,
+        Integer costAmount,
+        Integer salesAmount,
+        Integer discountAmount,
+        Integer amountToBeTakenIntoAaccount,
+        Double montantHt,
+        Integer netAmount) {
     public Integer htAmount() {
-        return nonNull(montantHt) ? BigDecimal.valueOf(montantHt).setScale(0, RoundingMode.HALF_UP).intValue() : null;
+        return nonNull(montantHt)
+                ? BigDecimal.valueOf(montantHt)
+                        .setScale(0, RoundingMode.HALF_UP)
+                        .intValue()
+                : null;
     }
 
     public Integer taxAmount() {

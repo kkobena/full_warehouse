@@ -126,7 +126,8 @@ class ClientUpdateServiceTest {
 
         assertThat(service.findByFileName("../config.json")).isEmpty();
         assertThat(service.findByFileName("..\\config.json")).isEmpty();
-        assertThat(service.findByFileName(tmp.getParent().resolve("config.json").toString())).isEmpty();
+        assertThat(service.findByFileName(tmp.getParent().resolve("config.json").toString()))
+                .isEmpty();
         assertThat(service.findByFileName("")).isEmpty();
         assertThat(service.findByFileName(null)).isEmpty();
     }

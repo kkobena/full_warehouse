@@ -1,6 +1,9 @@
 package com.kobe.warehouse.web.rest.report;
 
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
 import com.kobe.warehouse.service.report.excel.StockAlertExcelCsvReportService;
@@ -18,19 +21,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rapport-stock.stock-alerts", "ventes.kpi" })
+@RequiresNavAccess({"rapport-stock.stock-alerts", "ventes.kpi"})
 public class StockAlertReportResource {
 
     private final StockAlertReportService stockAlertReportService;
     private final StockAlertPdfReportService stockAlertPdfReportService;
     private final StockAlertExcelCsvReportService stockAlertExcelCsvReportService;
-    public StockAlertReportResource(StockAlertReportService stockAlertReportService, StockAlertPdfReportService stockAlertPdfReportService, StockAlertExcelCsvReportService stockAlertExcelCsvReportService) {
+
+    public StockAlertReportResource(
+            StockAlertReportService stockAlertReportService,
+            StockAlertPdfReportService stockAlertPdfReportService,
+            StockAlertExcelCsvReportService stockAlertExcelCsvReportService) {
         this.stockAlertReportService = stockAlertReportService;
         this.stockAlertPdfReportService = stockAlertPdfReportService;
         this.stockAlertExcelCsvReportService = stockAlertExcelCsvReportService;
@@ -45,11 +49,10 @@ public class StockAlertReportResource {
      */
     @GetMapping("/stock/alerts")
     public ResponseEntity<List<StockAlertDTO>> getStockAlerts(
-        @RequestParam(required = false) List<StockAlertType> types,
-        Pageable pageable
-    ) {
+            @RequestParam(required = false) List<StockAlertType> types, Pageable pageable) {
         Page<StockAlertDTO> page = stockAlertReportService.getStockAlerts(types, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -72,7 +75,9 @@ public class StockAlertReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/stock/alerts/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"rapport-stock.stock-alerts", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToPdf(@RequestParam(required = false) List<StockAlertType> types) {
 
         HttpHeaders headers = new HttpHeaders();
@@ -86,18 +91,22 @@ public class StockAlertReportResource {
      * @param types Optional list of alert types to filter by
      * @return Excel file (.xlsx)
      */
-    @GetMapping(value = "/stock/alerts/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
+    @GetMapping(
+            value = "/stock/alerts/export/excel",
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(
+            value = {"rapport-stock.stock-alerts", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] excelData = stockAlertExcelCsvReportService.exportToExcel(types);
             String filename = "stock_alerts.xlsx";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -110,17 +119,18 @@ public class StockAlertReportResource {
      * @return CSV file
      */
     @GetMapping(value = "/stock/alerts/export/csv", produces = "text/csv")
-    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"rapport-stock.stock-alerts", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] csvData = stockAlertExcelCsvReportService.exportToCsv(types);
             String filename = "stock_alerts.csv";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

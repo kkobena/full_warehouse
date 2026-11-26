@@ -9,7 +9,4 @@ import java.util.List;
  * contre-indication ; sans le droit {@code pr-forcer-alerte-sante}, la clé d'un collègue qui le détient.
  */
 public record PriseEnCompteControleDTO(
-    @NotEmpty List<Integer> produitIds,
-    @Size(max = 255) String motif,
-    String actionAuthorityKey
-) {}
+        @NotEmpty List<Integer> produitIds, @Size(max = 255) String motif, String actionAuthorityKey) {}

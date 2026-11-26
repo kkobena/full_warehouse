@@ -14,16 +14,21 @@ import java.util.List;
  * @param bloquant   vrai si le niveau est paramétré pour bloquer ; faux = simple avertissement
  */
 public record AlerteControleDTO(
-    NiveauInteraction niveau,
-    String type,
-    String message,
-    String conduite,
-    String source,
-    List<Integer> produitIds,
-    boolean bloquant
-) {
+        NiveauInteraction niveau,
+        String type,
+        String message,
+        String conduite,
+        String source,
+        List<Integer> produitIds,
+        boolean bloquant) {
     /** Alerte telle que produite par le moteur : le caractère bloquant est posé ensuite, d'après les paramètres. */
-    public AlerteControleDTO(NiveauInteraction niveau, String type, String message, String conduite, String source, List<Integer> produitIds) {
+    public AlerteControleDTO(
+            NiveauInteraction niveau,
+            String type,
+            String message,
+            String conduite,
+            String source,
+            List<Integer> produitIds) {
         this(niveau, type, message, conduite, source, produitIds, false);
     }
 

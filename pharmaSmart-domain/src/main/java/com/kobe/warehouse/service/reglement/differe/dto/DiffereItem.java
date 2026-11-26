@@ -5,16 +5,15 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDateTime;
 
 public record DiffereItem(
-    String firstName,
-    String lastName,
-    String reference,
-    int amount,
-    int paidAmount,
-    int restAmount,
-    LocalDateTime mvtDate,
-    Long saleId,
-    Integer customerId
-) {
+        String firstName,
+        String lastName,
+        String reference,
+        int amount,
+        int paidAmount,
+        int restAmount,
+        LocalDateTime mvtDate,
+        Long saleId,
+        Integer customerId) {
     public String user() {
         return String.format("%s.%s", firstName.charAt(0), lastName);
     }

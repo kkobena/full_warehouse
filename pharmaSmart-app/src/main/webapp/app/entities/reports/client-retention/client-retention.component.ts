@@ -1,35 +1,19 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {forkJoin} from 'rxjs';
-import {Chart, registerables} from 'chart.js';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { Chart, registerables } from 'chart.js';
 
-import {ClientRetentionReportService} from '../services/client-retention-report.service';
-import {IClientRetentionKpi, IClientRetentionRow} from '../../../shared/model/report';
-import {ChartColorsUtilsService} from '../../../shared/util/chart-colors-utils.service';
-import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
+import { ClientRetentionReportService } from '../services/client-retention-report.service';
+import { IClientRetentionKpi, IClientRetentionRow } from '../../../shared/model/report';
+import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
+import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
 import { DataTableComponent, KpiItemComponent, KpiStripComponent, SortableHeaderDirective } from '../../../shared/ui';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-client-retention',
-  imports: [
-    CommonModule,
-    DataTableComponent,
-    SortableHeaderDirective,
-    KpiStripComponent,
-    KpiItemComponent
-  ],
+  imports: [CommonModule, DataTableComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent],
   templateUrl: './client-retention.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./client-retention.component.scss'],
@@ -58,7 +42,7 @@ export default class ClientRetentionComponent implements OnInit, OnDestroy {
       kpi: this.svc.getKpi(),
       list: this.svc.getClientList(200),
     }).subscribe({
-      next: ({kpi, list}) => {
+      next: ({ kpi, list }) => {
         this.kpi.set(kpi.body);
         this.clients.set(list.body ?? []);
         this.isLoading.set(false);
@@ -114,11 +98,13 @@ export default class ClientRetentionComponent implements OnInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels: ['Actifs (≤ 30j)', 'À risque (31–90j)', 'Perdus (> 90j)'],
-        datasets: [{
-          data: [kpi.clientsActifs ?? 0, kpi.clientsARisque ?? 0, kpi.clientsPerdus ?? 0],
-          backgroundColor: palette,
-          hoverBackgroundColor: hoverPalette,
-        }],
+        datasets: [
+          {
+            data: [kpi.clientsActifs ?? 0, kpi.clientsARisque ?? 0, kpi.clientsPerdus ?? 0],
+            backgroundColor: palette,
+            hoverBackgroundColor: hoverPalette,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -126,7 +112,7 @@ export default class ClientRetentionComponent implements OnInit, OnDestroy {
         plugins: {
           legend: {
             position: 'bottom',
-            labels: {color: this.colors.textColor(), usePointStyle: true},
+            labels: { color: this.colors.textColor(), usePointStyle: true },
           },
         },
       },

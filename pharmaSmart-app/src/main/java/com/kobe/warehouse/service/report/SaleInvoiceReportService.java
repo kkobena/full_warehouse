@@ -2,15 +2,14 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,11 +22,8 @@ public class SaleInvoiceReportService extends CommonReportService {
     private final Map<String, Object> variablesMap = new HashMap<>();
     private String templateFile;
 
-    public SaleInvoiceReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public SaleInvoiceReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
@@ -37,7 +33,6 @@ public class SaleInvoiceReportService extends CommonReportService {
         getParameters().put(Constant.MAGASIN, storageService.getUser().getMagasin());
         getParameters().put(SALE, dto);
     }
-
 
     @Override
     protected List<?> getItems() {
@@ -75,6 +70,5 @@ public class SaleInvoiceReportService extends CommonReportService {
         super.getCommonParameters();
 
         return super.exportReportToPdf();
-
     }
 }

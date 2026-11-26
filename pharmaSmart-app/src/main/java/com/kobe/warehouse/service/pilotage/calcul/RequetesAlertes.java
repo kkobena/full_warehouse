@@ -14,12 +14,31 @@ public final class RequetesAlertes {
     private RequetesAlertes() {}
 
     public static RequetePilotageDTO lireMoisADate(LocalDate aujourdhui, List<IndicateurPilotage> indicateurs) {
-        return new RequetePilotageDTO(aujourdhui.withDayOfMonth(1), aujourdhui, TypeComparaison.MEME_PERIODE_N_1, 1, null, null, true, Granularite.MOIS, indicateurs);
+        return new RequetePilotageDTO(
+                aujourdhui.withDayOfMonth(1),
+                aujourdhui,
+                TypeComparaison.MEME_PERIODE_N_1,
+                1,
+                null,
+                null,
+                true,
+                Granularite.MOIS,
+                indicateurs);
     }
 
     /** Les {@code jours} derniers jours, aujourd'hui compris, face aux mêmes jours N-1 (sept jours couvrent chaque jour de la semaine une fois). */
-    public static RequetePilotageDTO lireDerniersJours(LocalDate aujourdhui, int jours, TypeComparaison comparaison, List<IndicateurPilotage> indicateurs) {
-        return new RequetePilotageDTO(aujourdhui.minusDays(jours - 1L), aujourdhui, comparaison, 1, null, null, false, Granularite.JOUR, indicateurs);
+    public static RequetePilotageDTO lireDerniersJours(
+            LocalDate aujourdhui, int jours, TypeComparaison comparaison, List<IndicateurPilotage> indicateurs) {
+        return new RequetePilotageDTO(
+                aujourdhui.minusDays(jours - 1L),
+                aujourdhui,
+                comparaison,
+                1,
+                null,
+                null,
+                false,
+                Granularite.JOUR,
+                indicateurs);
     }
 
     /** « 12,3 » : une décimale, virgule française. */

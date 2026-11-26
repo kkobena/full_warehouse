@@ -1,17 +1,16 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.*;
 import com.kobe.warehouse.service.report.ComparativeReportService;
+import com.kobe.warehouse.service.report.pdf.ComparativePdfReportService;
 import java.time.LocalDate;
 import java.util.List;
-
-import com.kobe.warehouse.service.report.pdf.ComparativePdfReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for Comparative Reports (Tableaux Comparatifs)
@@ -24,7 +23,9 @@ public class ComparativeReportResource {
     private final ComparativeReportService comparativeReportService;
     private final ComparativePdfReportService comparativePdfReportService;
 
-    public ComparativeReportResource(ComparativeReportService comparativeReportService, ComparativePdfReportService comparativePdfReportService) {
+    public ComparativeReportResource(
+            ComparativeReportService comparativeReportService,
+            ComparativePdfReportService comparativePdfReportService) {
         this.comparativeReportService = comparativeReportService;
         this.comparativePdfReportService = comparativePdfReportService;
     }
@@ -64,9 +65,8 @@ public class ComparativeReportResource {
      */
     @GetMapping("/yearly")
     public ResponseEntity<List<ComparativeCADTO>> getYearlyComparison(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<ComparativeCADTO> result = comparativeReportService.getYearlyComparison(startDate, endDate);
         return ResponseEntity.ok(result);
     }
@@ -80,9 +80,7 @@ public class ComparativeReportResource {
      */
     @GetMapping("/by-sales-type")
     public ResponseEntity<List<ComparativeByTypeDTO>> getComparisonBySalesType(
-        @RequestParam(required = false) Integer currentYear,
-        @RequestParam(required = false) Integer previousYear
-    ) {
+            @RequestParam(required = false) Integer currentYear, @RequestParam(required = false) Integer previousYear) {
         int year = currentYear != null ? currentYear : LocalDate.now().getYear();
         int prevYear = previousYear != null ? previousYear : year - 1;
         List<ComparativeByTypeDTO> result = comparativeReportService.getComparisonBySalesType(year, prevYear);
@@ -109,10 +107,8 @@ public class ComparativeReportResource {
      */
     @GetMapping("/by-family")
     public ResponseEntity<List<ComparativeByFamilyDTO>> getComparisonByFamily(
-        @RequestParam(required = false) Integer currentYear,
-        @RequestParam(required = false) Integer previousYear
-    ) {
-        int year     = currentYear  != null ? currentYear  : LocalDate.now().getYear();
+            @RequestParam(required = false) Integer currentYear, @RequestParam(required = false) Integer previousYear) {
+        int year = currentYear != null ? currentYear : LocalDate.now().getYear();
         int prevYear = previousYear != null ? previousYear : year - 1;
         return ResponseEntity.ok(comparativeReportService.getComparisonByFamily(year, prevYear));
     }
@@ -122,10 +118,8 @@ public class ComparativeReportResource {
      */
     @GetMapping("/by-fournisseur")
     public ResponseEntity<List<ComparativeByFournisseurDTO>> getComparisonByFournisseur(
-        @RequestParam(required = false) Integer currentYear,
-        @RequestParam(required = false) Integer previousYear
-    ) {
-        int year     = currentYear  != null ? currentYear  : LocalDate.now().getYear();
+            @RequestParam(required = false) Integer currentYear, @RequestParam(required = false) Integer previousYear) {
+        int year = currentYear != null ? currentYear : LocalDate.now().getYear();
         int prevYear = previousYear != null ? previousYear : year - 1;
         return ResponseEntity.ok(comparativeReportService.getComparisonByFournisseur(year, prevYear));
     }
@@ -140,10 +134,11 @@ public class ComparativeReportResource {
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_PDF_VALUE)
     @RequiresNavAccess(value = "rapport-ventes.comparative", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportComparativeReportToPdf(
-        @RequestParam(defaultValue = "MONTHLY") String comparisonType,
-        @RequestParam(required = false) Integer year
-    ) {
+            @RequestParam(defaultValue = "MONTHLY") String comparisonType,
+            @RequestParam(required = false) Integer year) {
         int targetYear = year != null ? year : LocalDate.now().getYear();
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).body( comparativePdfReportService.export(comparisonType, targetYear));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(comparativePdfReportService.export(comparisonType, targetYear));
     }
 }

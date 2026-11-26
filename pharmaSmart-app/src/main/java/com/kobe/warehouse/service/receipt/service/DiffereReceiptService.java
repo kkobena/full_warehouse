@@ -58,13 +58,16 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
 
             // Summary section
             escPosSetBold(out, true);
-            escPosPrintLine(out, String.format("%-37s %10s", MONTANT_ATTENDU, differeReceipt.formattedExpectedAmount()));
+            escPosPrintLine(
+                    out, String.format("%-37s %10s", MONTANT_ATTENDU, differeReceipt.formattedExpectedAmount()));
             escPosSetBold(out, false);
             escPosFeedLines(out, 1);
 
             // Payment section
             escPosSetBold(out, true);
-            escPosPrintLine(out, String.format("%-37s %10s", differeReceipt.libelleMode(), differeReceipt.formattedPaidAmount()));
+            escPosPrintLine(
+                    out,
+                    String.format("%-37s %10s", differeReceipt.libelleMode(), differeReceipt.formattedPaidAmount()));
 
             // Solde (balance)
             escPosPrintLine(out, String.format("%-37s %10s", SOLDE, differeReceipt.formattedSolde()));

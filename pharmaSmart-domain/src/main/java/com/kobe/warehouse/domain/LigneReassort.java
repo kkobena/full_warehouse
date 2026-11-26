@@ -10,13 +10,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ligne_reassort", uniqueConstraints = {@UniqueConstraint(columnNames = {"reassort_id", "stock_produit_id"})})
+@Table(
+        name = "ligne_reassort",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"reassort_id", "stock_produit_id"})})
 public class LigneReassort implements Serializable {
 
     @Serial

@@ -43,12 +43,11 @@ class GenerateurExports {
     private final TransactionTemplate lecture;
 
     GenerateurExports(
-        ExportFichierRepository exportFichierRepository,
-        EcritureExport ecritureExport,
-        RepertoireExports repertoireExports,
-        AppConfigurationService appConfigurationService,
-        PlatformTransactionManager transactionManager
-    ) {
+            ExportFichierRepository exportFichierRepository,
+            EcritureExport ecritureExport,
+            RepertoireExports repertoireExports,
+            AppConfigurationService appConfigurationService,
+            PlatformTransactionManager transactionManager) {
         this.exportFichierRepository = exportFichierRepository;
         this.ecritureExport = ecritureExport;
         this.repertoireExports = repertoireExports;
@@ -98,19 +97,19 @@ class GenerateurExports {
         }
         fichier.setStatut(StatutExport.EN_COURS);
         return new TravailExport(
-            fichier.getExport(),
-            fichier.getFormat(),
-            fichier.getDu(),
-            fichier.getAu(),
-            fichier.getFiltres(),
-            fichier.getFichier()
-        );
+                fichier.getExport(),
+                fichier.getFormat(),
+                fichier.getDu(),
+                fichier.getAu(),
+                fichier.getFiltres(),
+                fichier.getFichier());
     }
 
     /** @return le nombre de lignes écrites, inconnu (et donc vide) pour une édition bâtie d'un bloc */
     private Long ecrire(TravailExport travail, Path chemin) {
         try (OutputStream sortie = new BufferedOutputStream(Files.newOutputStream(chemin))) {
-            return ecritureExport.ecrire(travail.export(), travail.format(), travail.du(), travail.au(), travail.filtres(), sortie);
+            return ecritureExport.ecrire(
+                    travail.export(), travail.format(), travail.du(), travail.au(), travail.filtres(), sortie);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -119,23 +118,19 @@ class GenerateurExports {
     private void terminer(Long id, Long lignes, long taille) {
         ExportFichier fichier = exportFichierRepository.findById(id).orElseThrow();
         LocalDateTime maintenant = LocalDateTime.now();
-        fichier
-            .setStatut(StatutExport.TERMINE)
-            .setNombreLignes(lignes)
-            .setTaille(taille)
-            .setTermineLe(maintenant)
-            .setExpireLe(maintenant.plusDays(appConfigurationService.getRetentionExportsJours()));
+        fichier.setStatut(StatutExport.TERMINE)
+                .setNombreLignes(lignes)
+                .setTaille(taille)
+                .setTermineLe(maintenant)
+                .setExpireLe(maintenant.plusDays(appConfigurationService.getRetentionExportsJours()));
     }
 
     private void echouer(Long id, Exception cause) {
         String message = cause.getMessage() == null ? cause.getClass().getSimpleName() : cause.getMessage();
         exportFichierRepository
-            .findById(id)
-            .ifPresent(fichier ->
-                fichier
-                    .setStatut(StatutExport.ECHEC)
-                    .setTermineLe(LocalDateTime.now())
-                    .setErreur(message.length() > ERREUR_MAX ? message.substring(0, ERREUR_MAX) : message)
-            );
+                .findById(id)
+                .ifPresent(fichier -> fichier.setStatut(StatutExport.ECHEC)
+                        .setTermineLe(LocalDateTime.now())
+                        .setErreur(message.length() > ERREUR_MAX ? message.substring(0, ERREUR_MAX) : message));
     }
 }

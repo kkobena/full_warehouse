@@ -60,14 +60,8 @@ class MobileCashSummaryServiceTest {
         void dateDeFinAbsente() {
             donneTicketZ(new TicketZ(List.of(), List.of()));
 
-            MobileCashSummaryDTO resultat = service.getCashSummary(
-                LocalDate.of(2026, 3, 10),
-                null,
-                null,
-                null,
-                null,
-                false
-            );
+            MobileCashSummaryDTO resultat =
+                    service.getCashSummary(LocalDate.of(2026, 3, 10), null, null, null, null, false);
 
             assertThat(parametreTransmis().toDate()).isEqualTo(LocalDate.of(2026, 3, 10));
             assertThat(resultat.toDate()).isEqualTo(LocalDate.of(2026, 3, 10));
@@ -88,7 +82,8 @@ class MobileCashSummaryServiceTest {
         void filtresTransmis() {
             donneTicketZ(new TicketZ(List.of(), List.of()));
 
-            service.getCashSummary(LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 12), null, null, Set.of(4, 7), true);
+            service.getCashSummary(
+                    LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 12), null, null, Set.of(4, 7), true);
 
             TicketZParam param = parametreTransmis();
             assertThat(param.usersId()).containsExactlyInAnyOrder(4, 7);
@@ -103,13 +98,7 @@ class MobileCashSummaryServiceTest {
             donneTicketZ(new TicketZ(List.of(), List.of()));
 
             service.getCashSummary(
-                LocalDate.of(2026, 3, 10),
-                null,
-                LocalTime.of(8, 0),
-                LocalTime.of(12, 30),
-                null,
-                false
-            );
+                    LocalDate.of(2026, 3, 10), null, LocalTime.of(8, 0), LocalTime.of(12, 30), null, false);
 
             TicketZParam param = parametreTransmis();
             assertThat(param.fromTime()).isEqualTo(LocalTime.of(8, 0));
@@ -126,17 +115,13 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("chaque mode alimente le total de son groupe de règlement")
         void modesVersLeurGroupe() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(
-                        ligne("Espèces", 300_000L, ModePaimentCode.CASH),
-                        ligne("Carte bancaire", 120_000L, ModePaimentCode.CB),
-                        ligne("Chèque", 45_000L, ModePaimentCode.CH),
-                        ligne("Virement", 80_000L, ModePaimentCode.VIREMENT)
-                    ),
-                    List.of()
-                )
-            );
+                            ligne("Espèces", 300_000L, ModePaimentCode.CASH),
+                            ligne("Carte bancaire", 120_000L, ModePaimentCode.CB),
+                            ligne("Chèque", 45_000L, ModePaimentCode.CH),
+                            ligne("Virement", 80_000L, ModePaimentCode.VIREMENT)),
+                    List.of()));
 
             MobileCashSummaryDTO resultat = recapitulatif();
 
@@ -149,17 +134,13 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("les quatre opérateurs mobiles se cumulent sur une seule ligne")
         void operateursMobilesCumules() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(
-                        ligne("Orange Money", 10_000L, ModePaimentCode.OM),
-                        ligne("MTN Money", 20_000L, ModePaimentCode.MTN),
-                        ligne("Moov Money", 30_000L, ModePaimentCode.MOOV),
-                        ligne("Wave", 40_000L, ModePaimentCode.WAVE)
-                    ),
-                    List.of()
-                )
-            );
+                            ligne("Orange Money", 10_000L, ModePaimentCode.OM),
+                            ligne("MTN Money", 20_000L, ModePaimentCode.MTN),
+                            ligne("Moov Money", 30_000L, ModePaimentCode.MOOV),
+                            ligne("Wave", 40_000L, ModePaimentCode.WAVE)),
+                    List.of()));
 
             assertThat(recapitulatif().totalMobileMoney()).isEqualTo(100_000L);
         }
@@ -184,16 +165,12 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("la ligne « Total Mobile » est reportée à part, sans doubler le mobile money")
         void totalMobileNeDoublePas() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(
-                        ligne("Orange Money", 10_000L, ModePaimentCode.OM),
-                        ligne("Wave", 40_000L, ModePaimentCode.WAVE),
-                        ligneSansCode(LIBELLE_TOTAL_MOBILE, 50_000L)
-                    ),
-                    List.of()
-                )
-            );
+                            ligne("Orange Money", 10_000L, ModePaimentCode.OM),
+                            ligne("Wave", 40_000L, ModePaimentCode.WAVE),
+                            ligneSansCode(LIBELLE_TOTAL_MOBILE, 50_000L)),
+                    List.of()));
 
             MobileCashSummaryDTO resultat = recapitulatif();
 
@@ -205,19 +182,15 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("le total TTC additionne les six natures d'encaissement")
         void totalTtc() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(
-                        ligne("Espèces", 1L, ModePaimentCode.CASH),
-                        ligne("Carte bancaire", 10L, ModePaimentCode.CB),
-                        ligne("Chèque", 100L, ModePaimentCode.CH),
-                        ligne("Virement", 1_000L, ModePaimentCode.VIREMENT),
-                        ligne("Wave", 10_000L, ModePaimentCode.WAVE),
-                        ligneSansCode(LIBELLE_CREDIT, 100_000L)
-                    ),
-                    List.of()
-                )
-            );
+                            ligne("Espèces", 1L, ModePaimentCode.CASH),
+                            ligne("Carte bancaire", 10L, ModePaimentCode.CB),
+                            ligne("Chèque", 100L, ModePaimentCode.CH),
+                            ligne("Virement", 1_000L, ModePaimentCode.VIREMENT),
+                            ligne("Wave", 10_000L, ModePaimentCode.WAVE),
+                            ligneSansCode(LIBELLE_CREDIT, 100_000L)),
+                    List.of()));
 
             assertThat(recapitulatif().totalTtc()).isEqualTo(111_111L);
         }
@@ -225,12 +198,11 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("un montant négatif — remboursement, annulation — se soustrait du total")
         void montantNegatif() {
-            donneTicketZ(
-                new TicketZ(
-                    List.of(ligne("Espèces", 300_000L, ModePaimentCode.CASH), ligne("Espèces", -50_000L, ModePaimentCode.CASH)),
-                    List.of()
-                )
-            );
+            donneTicketZ(new TicketZ(
+                    List.of(
+                            ligne("Espèces", 300_000L, ModePaimentCode.CASH),
+                            ligne("Espèces", -50_000L, ModePaimentCode.CASH)),
+                    List.of()));
 
             assertThat(recapitulatif().totalEspeces()).isEqualTo(250_000L);
         }
@@ -264,19 +236,16 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("sans récapitulatif global, les totaux se reconstituent caissier par caissier")
         void repliSurLeDetail() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(),
                     List.of(
-                        caissier(1L, "Jean Dupont", List.of(ligne("Espèces", 200_000L, ModePaimentCode.CASH))),
-                        caissier(
-                            2L,
-                            "Awa Koné",
-                            List.of(ligne("Carte bancaire", 60_000L, ModePaimentCode.CB), ligneSansCode(LIBELLE_CREDIT, 15_000L))
-                        )
-                    )
-                )
-            );
+                            caissier(1L, "Jean Dupont", List.of(ligne("Espèces", 200_000L, ModePaimentCode.CASH))),
+                            caissier(
+                                    2L,
+                                    "Awa Koné",
+                                    List.of(
+                                            ligne("Carte bancaire", 60_000L, ModePaimentCode.CB),
+                                            ligneSansCode(LIBELLE_CREDIT, 15_000L))))));
 
             MobileCashSummaryDTO resultat = recapitulatif();
 
@@ -294,12 +263,9 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("le détail par caissier ne s'ajoute pas au récapitulatif global")
         void pasDeDoubleComptage() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(ligne("Espèces", 200_000L, ModePaimentCode.CASH)),
-                    List.of(caissier(1L, "Jean Dupont", List.of(ligne("Espèces", 200_000L, ModePaimentCode.CASH))))
-                )
-            );
+                    List.of(caissier(1L, "Jean Dupont", List.of(ligne("Espèces", 200_000L, ModePaimentCode.CASH))))));
 
             assertThat(recapitulatif().totalEspeces()).isEqualTo(200_000L);
         }
@@ -335,7 +301,8 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("le montant réel est conservé à côté du montant arrondi")
         void montantReelConserve() {
-            donneTicketZ(new TicketZ(List.of(new TicketZData("Espèces", 300_000L, 299_995L, 0, ModePaimentCode.CASH)), List.of()));
+            donneTicketZ(new TicketZ(
+                    List.of(new TicketZData("Espèces", 300_000L, 299_995L, 0, ModePaimentCode.CASH)), List.of()));
 
             SummaryItemDTO item = recapitulatif().globalSummary().getFirst();
 
@@ -346,19 +313,15 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("chaque caissier est restitué avec son détail et son sous-total")
         void detailEtSousTotalParCaissier() {
-            donneTicketZ(
-                new TicketZ(
+            donneTicketZ(new TicketZ(
                     List.of(),
-                    List.of(
-                        new TicketZRecap(
+                    List.of(new TicketZRecap(
                             1L,
                             "Jean Dupont",
-                            List.of(ligne("Orange Money", 10_000L, ModePaimentCode.OM), ligne("Wave", 40_000L, ModePaimentCode.WAVE)),
-                            List.of(ligneSansCode(LIBELLE_TOTAL_MOBILE, 50_000L))
-                        )
-                    )
-                )
-            );
+                            List.of(
+                                    ligne("Orange Money", 10_000L, ModePaimentCode.OM),
+                                    ligne("Wave", 40_000L, ModePaimentCode.WAVE)),
+                            List.of(ligneSansCode(LIBELLE_TOTAL_MOBILE, 50_000L))))));
 
             CashierRecapDTO recap = recapitulatif().cashierRecaps().getFirst();
 
@@ -369,27 +332,19 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("les initiales du caissier sont dérivées de son nom")
         void initialesDuCaissier() {
-            donneTicketZ(
-                new TicketZ(
-                    List.of(),
-                    List.of(caissier(1L, "Jean Dupont", List.of()), caissier(2L, "Awa", List.of()))
-                )
-            );
+            donneTicketZ(new TicketZ(
+                    List.of(), List.of(caissier(1L, "Jean Dupont", List.of()), caissier(2L, "Awa", List.of()))));
 
             assertThat(recapitulatif().cashierRecaps())
-                .extracting(CashierRecapDTO::userInitials)
-                .containsExactly("J.D", "AW");
+                    .extracting(CashierRecapDTO::userInitials)
+                    .containsExactly("J.D", "AW");
         }
 
         @Test
         @DisplayName("le nombre de caissiers suit le nombre de récapitulatifs")
         void nombreDeCaissiers() {
-            donneTicketZ(
-                new TicketZ(
-                    List.of(),
-                    List.of(caissier(1L, "Jean Dupont", List.of()), caissier(2L, "Awa Koné", List.of()))
-                )
-            );
+            donneTicketZ(new TicketZ(
+                    List.of(), List.of(caissier(1L, "Jean Dupont", List.of()), caissier(2L, "Awa Koné", List.of()))));
 
             assertThat(recapitulatif().cashierCount()).isEqualTo(2);
         }
@@ -410,7 +365,8 @@ class MobileCashSummaryServiceTest {
         @Test
         @DisplayName("la veille se nomme « Hier »")
         void hier() {
-            assertThat(libellePour(LocalDate.now().minusDays(1), null, null, null)).isEqualTo("Hier");
+            assertThat(libellePour(LocalDate.now().minusDays(1), null, null, null))
+                    .isEqualTo("Hier");
         }
 
         @Test
@@ -423,39 +379,42 @@ class MobileCashSummaryServiceTest {
         @DisplayName("une période encadrée affiche ses deux bornes")
         void periodeEncadree() {
             assertThat(libellePour(LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 12), null, null))
-                .isEqualTo("10/03/2026 - 12/03/2026");
+                    .isEqualTo("10/03/2026 - 12/03/2026");
         }
 
         @Test
         @DisplayName("des bornes horaires partielles s'ajoutent entre parenthèses")
         void bornesPartielles() {
             assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.of(8, 0), LocalTime.of(12, 30)))
-                .isEqualTo("10/03/2026 (08:00 - 12:30)");
+                    .isEqualTo("10/03/2026 (08:00 - 12:30)");
         }
 
         /** Une journée entière n'a pas à porter d'horaire : la mention n'apprendrait rien. */
         @Test
         @DisplayName("une journée entière n'affiche pas d'horaire")
         void journeeEntiere() {
-            assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.MIN, LocalTime.MAX)).isEqualTo("10/03/2026");
+            assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.MIN, LocalTime.MAX))
+                    .isEqualTo("10/03/2026");
         }
 
         @Test
         @DisplayName("la borne de fin à 23:59:59 vaut aussi journée entière")
         void finDeJournee() {
             assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.MIN, LocalTime.of(23, 59, 59)))
-                .isEqualTo("10/03/2026");
+                    .isEqualTo("10/03/2026");
         }
 
         @Test
         @DisplayName("une seule borne horaire ne suffit pas à afficher une plage")
         void borneIsolee() {
-            assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.of(8, 0), null)).isEqualTo("10/03/2026");
+            assertThat(libellePour(LocalDate.of(2026, 3, 10), null, LocalTime.of(8, 0), null))
+                    .isEqualTo("10/03/2026");
         }
 
         private String libellePour(LocalDate debut, LocalDate fin, LocalTime heureDebut, LocalTime heureFin) {
             donneTicketZ(new TicketZ(List.of(), List.of()));
-            return service.getCashSummary(debut, fin, heureDebut, heureFin, null, false).periodLabel();
+            return service.getCashSummary(debut, fin, heureDebut, heureFin, null, false)
+                    .periodLabel();
         }
     }
 

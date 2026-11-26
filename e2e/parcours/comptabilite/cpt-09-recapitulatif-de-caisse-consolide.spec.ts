@@ -88,24 +88,16 @@ scenario('CPT-09', async ({ etape, page }) => {
         if (libelle === AGREGAT_REDONDANT) {
           continue;
         }
-        expect(
-          parLibelle.has(libelle),
-          `« ${libelle} » figure au général sans venir d'aucun caissier`,
-        ).toBe(true);
+        expect(parLibelle.has(libelle), `« ${libelle} » figure au général sans venir d'aucun caissier`).toBe(true);
         expect(montant, `consolidation de « ${libelle} »`).toBe(parLibelle.get(libelle));
         comparees++;
       }
       expect(comparees, 'aucune ligne comparée : la vérification serait vide').toBeGreaterThan(0);
 
       // Dans l'autre sens : rien d'encaissé ne doit manquer au général.
-      const librellesGeneraux = new Set(
-        await Promise.all(lignesGenerales.map(async ligne => (await lire(ligne)).libelle)),
-      );
+      const librellesGeneraux = new Set(await Promise.all(lignesGenerales.map(async ligne => (await lire(ligne)).libelle)));
       for (const libelle of parLibelle.keys()) {
-        expect(
-          librellesGeneraux.has(libelle),
-          `« ${libelle} » a été encaissé mais n'apparaît pas au récapitulatif général`,
-        ).toBe(true);
+        expect(librellesGeneraux.has(libelle), `« ${libelle} » a été encaissé mais n'apparaît pas au récapitulatif général`).toBe(true);
       }
     }).toPass({ timeout: 20_000, intervals: [100, 250, 500, 1000] });
   });

@@ -51,11 +51,10 @@ public class AnalysePilotageServiceImpl implements AnalysePilotageService {
     private final ExplicateurEcart explicateurEcart;
 
     public AnalysePilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        VentilateurPilotage ventilateurPilotage,
-        ExplicateurEcart explicateurEcart
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            VentilateurPilotage ventilateurPilotage,
+            ExplicateurEcart explicateurEcart) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.ventilateurPilotage = ventilateurPilotage;
@@ -72,41 +71,58 @@ public class AnalysePilotageServiceImpl implements AnalysePilotageService {
             throw new GenericError("Les deux ventilations doivent être différentes");
         }
         List<FiltreAnalyseDTO> filtres = analyse.lireFiltres();
-        List<AxeAnalyse> axes = Stream.concat(Stream.of(analyse.axe(), analyse.axe2()), filtres.stream().map(FiltreAnalyseDTO::axe))
-            .filter(Objects::nonNull)
-            .toList();
+        List<AxeAnalyse> axes = Stream.concat(
+                        Stream.of(analyse.axe(), analyse.axe2()),
+                        filtres.stream().map(FiltreAnalyseDTO::axe))
+                .filter(Objects::nonNull)
+                .toList();
         dictionnaireIndicateursService.verifierAxesAutorises(axes);
-        SourceAnalyse source = SourceAnalyse.choisir(axes, demandes).orElseThrow(() ->
-            new GenericError("Ces ventilations ne se croisent pas : " + axes.stream().map(AxeAnalyse::getLibelle).collect(Collectors.joining(", ")))
-        );
-        Map<Boolean, List<IndicateurPilotage>> parCalculabilite = demandes.stream().collect(Collectors.partitioningBy(source.getIndicateurs()::contains));
+        SourceAnalyse source = SourceAnalyse.choisir(axes, demandes)
+                .orElseThrow(() -> new GenericError("Ces ventilations ne se croisent pas : "
+                        + axes.stream().map(AxeAnalyse::getLibelle).collect(Collectors.joining(", "))));
+        Map<Boolean, List<IndicateurPilotage>> parCalculabilite =
+                demandes.stream().collect(Collectors.partitioningBy(source.getIndicateurs()::contains));
         List<IndicateurPilotage> indicateurs = parCalculabilite.get(true);
         if (indicateurs.isEmpty()) {
-            throw new GenericError("Aucun des indicateurs choisis ne se ventile par " + analyse.axe().getLibelle());
+            throw new GenericError("Aucun des indicateurs choisis ne se ventile par "
+                    + analyse.axe().getLibelle());
         }
 
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, LocalDate.now());
-        Ventilation ventilation = ventilateurPilotage.comparer(source, comparaison, analyse.axe(), null, filtres, requete.granularite());
-        MiseEnFormeAnalyse mise = MiseEnFormeAnalyse.preparer(indicateurs, ventilation.total(), comparaison.reference() != null);
+        Ventilation ventilation =
+                ventilateurPilotage.comparer(source, comparaison, analyse.axe(), null, filtres, requete.granularite());
+        MiseEnFormeAnalyse mise =
+                MiseEnFormeAnalyse.preparer(indicateurs, ventilation.total(), comparaison.reference() != null);
 
-        List<MesuresComparees> classes = ventilation.elements().stream().sorted(ordonner(analyse, indicateurs.getFirst())).toList();
-        int top = analyse.axe().estOrdonne() || analyse.top() <= 0 ? classes.size() : Math.min(analyse.top(), classes.size());
+        List<MesuresComparees> classes = ventilation.elements().stream()
+                .sorted(ordonner(analyse, indicateurs.getFirst()))
+                .toList();
+        int top = analyse.axe().estOrdonne() || analyse.top() <= 0
+                ? classes.size()
+                : Math.min(analyse.top(), classes.size());
         List<MesuresComparees> retenus = classes.subList(0, top);
         List<MesuresComparees> reste = classes.subList(top, classes.size());
 
         return new AnalysePilotageDTO(
-            comparaison,
-            source,
-            indicateurs.stream().map(IndicateurPilotageDTO::fromIndicateur).toList(),
-            parCalculabilite.get(false).stream().map(IndicateurPilotageDTO::fromIndicateur).toList(),
-            AxeAnalyseDTO.fromAxe(analyse.axe()),
-            analyse.axe2() == null ? null : AxeAnalyseDTO.fromAxe(analyse.axe2()),
-            mise.total(),
-            retenus.stream().map(element -> mise.element(element.membre(), element)).toList(),
-            reste.isEmpty() ? null : mise.element(new MembreAnalyseDTO(null, "Autres (" + reste.size() + ")"), sommer(reste)),
-            classes.size(),
-            analyse.axe2() == null ? null : croiser(source, comparaison, analyse, filtres, requete, retenus, !reste.isEmpty(), mise)
-        );
+                comparaison,
+                source,
+                indicateurs.stream().map(IndicateurPilotageDTO::fromIndicateur).toList(),
+                parCalculabilite.get(false).stream()
+                        .map(IndicateurPilotageDTO::fromIndicateur)
+                        .toList(),
+                AxeAnalyseDTO.fromAxe(analyse.axe()),
+                analyse.axe2() == null ? null : AxeAnalyseDTO.fromAxe(analyse.axe2()),
+                mise.total(),
+                retenus.stream()
+                        .map(element -> mise.element(element.membre(), element))
+                        .toList(),
+                reste.isEmpty()
+                        ? null
+                        : mise.element(new MembreAnalyseDTO(null, "Autres (" + reste.size() + ")"), sommer(reste)),
+                classes.size(),
+                analyse.axe2() == null
+                        ? null
+                        : croiser(source, comparaison, analyse, filtres, requete, retenus, !reste.isEmpty(), mise));
     }
 
     @Override
@@ -119,59 +135,61 @@ public class AnalysePilotageServiceImpl implements AnalysePilotageService {
      * écarté des éléments, la lecture se restreint aux retenus.
      */
     private CroiseAnalyseDTO croiser(
-        SourceAnalyse source,
-        ComparaisonPeriodesDTO comparaison,
-        RequeteAnalyseDTO analyse,
-        List<FiltreAnalyseDTO> filtres,
-        RequetePilotageDTO requete,
-        List<MesuresComparees> retenus,
-        boolean topApplique,
-        MiseEnFormeAnalyse mise
-    ) {
+            SourceAnalyse source,
+            ComparaisonPeriodesDTO comparaison,
+            RequeteAnalyseDTO analyse,
+            List<FiltreAnalyseDTO> filtres,
+            RequetePilotageDTO requete,
+            List<MesuresComparees> retenus,
+            boolean topApplique,
+            MiseEnFormeAnalyse mise) {
         List<FiltreAnalyseDTO> filtresCroises = new ArrayList<>(filtres);
         if (topApplique && analyse.axe().estLuEnBase()) {
-            filtresCroises.add(new FiltreAnalyseDTO(analyse.axe(), retenus.stream().map(element -> element.membre().cle()).toList()));
+            filtresCroises.add(new FiltreAnalyseDTO(
+                    analyse.axe(),
+                    retenus.stream().map(element -> element.membre().cle()).toList()));
         }
         Map<List<String>, MesuresComparees> parCellule = new LinkedHashMap<>();
         Map<String, MesuresComparees> parColonne = new LinkedHashMap<>();
-        var cellules = ventilateurPilotage.comparer(source, comparaison, analyse.axe(), analyse.axe2(), filtresCroises, requete.granularite());
+        var cellules = ventilateurPilotage.comparer(
+                source, comparaison, analyse.axe(), analyse.axe2(), filtresCroises, requete.granularite());
         for (MesuresComparees cellule : cellules.elements()) {
             parCellule.put(List.of(cellule.membre().cle(), cellule.membre2().cle()), cellule);
-            parColonne.merge(cellule.membre2().cle(), new MesuresComparees(cellule.membre2(), null, cellule.periode(), cellule.reference()), MesuresComparees::plus);
+            parColonne.merge(
+                    cellule.membre2().cle(),
+                    new MesuresComparees(cellule.membre2(), null, cellule.periode(), cellule.reference()),
+                    MesuresComparees::plus);
         }
-        RequeteAnalyseDTO parColonnes = new RequeteAnalyseDTO(analyse.axe2(), null, COLONNES_MAX, TriAnalyse.VALEUR, List.of());
-        List<MembreAnalyseDTO> colonnes = parColonne
-            .values()
-            .stream()
-            .sorted(ordonner(parColonnes, mise.principal()))
-            .limit(analyse.axe2().estOrdonne() ? Long.MAX_VALUE : COLONNES_MAX)
-            .map(MesuresComparees::membre)
-            .toList();
-        List<LigneCroiseeDTO> lignes = retenus
-            .stream()
-            .map(ligne ->
-                new LigneCroiseeDTO(
-                    ligne.membre().cle(),
-                    ligne.membre().libelle(),
-                    colonnes
-                        .stream()
-                        .map(colonne -> parCellule.getOrDefault(List.of(ligne.membre().cle(), colonne.cle()), MesuresComparees.AUCUNES))
-                        .map(cellule -> Variations.cellule(mise.principal(), cellule, mise.avecReference()))
-                        .toList()
-                )
-            )
-            .toList();
+        RequeteAnalyseDTO parColonnes =
+                new RequeteAnalyseDTO(analyse.axe2(), null, COLONNES_MAX, TriAnalyse.VALEUR, List.of());
+        List<MembreAnalyseDTO> colonnes = parColonne.values().stream()
+                .sorted(ordonner(parColonnes, mise.principal()))
+                .limit(analyse.axe2().estOrdonne() ? Long.MAX_VALUE : COLONNES_MAX)
+                .map(MesuresComparees::membre)
+                .toList();
+        List<LigneCroiseeDTO> lignes = retenus.stream()
+                .map(ligne -> new LigneCroiseeDTO(
+                        ligne.membre().cle(),
+                        ligne.membre().libelle(),
+                        colonnes.stream()
+                                .map(colonne -> parCellule.getOrDefault(
+                                        List.of(ligne.membre().cle(), colonne.cle()), MesuresComparees.AUCUNES))
+                                .map(cellule -> Variations.cellule(mise.principal(), cellule, mise.avecReference()))
+                                .toList()))
+                .toList();
         return new CroiseAnalyseDTO(colonnes, lignes);
     }
 
     /** Un axe ordonné (heures, jours, tranches) garde son ordre ; sinon, tri demandé sur le premier indicateur, les vides à la fin. */
     private static Comparator<MesuresComparees> ordonner(RequeteAnalyseDTO analyse, IndicateurPilotage principal) {
         if (analyse.axe().estOrdonne()) {
-            return Comparator.comparingInt(element -> RangNaturel.lire(element.membre().cle()));
+            return Comparator.comparingInt(
+                    element -> RangNaturel.lire(element.membre().cle()));
         }
-        Function<MesuresComparees, Double> valeur = element -> CalculateurIndicateurs.calculer(principal, element.periode());
-        Function<MesuresComparees, Double> ecart = element ->
-            Variations.ecart(valeur.apply(element), CalculateurIndicateurs.calculer(principal, element.reference()));
+        Function<MesuresComparees, Double> valeur =
+                element -> CalculateurIndicateurs.calculer(principal, element.periode());
+        Function<MesuresComparees, Double> ecart = element -> Variations.ecart(
+                valeur.apply(element), CalculateurIndicateurs.calculer(principal, element.reference()));
         return switch (analyse.tri()) {
             case VALEUR -> Comparator.comparing(valeur, Comparator.nullsLast(Comparator.reverseOrder()));
             case ECART_HAUSSE -> Comparator.comparing(ecart, Comparator.nullsLast(Comparator.reverseOrder()));
@@ -182,5 +200,4 @@ public class AnalysePilotageServiceImpl implements AnalysePilotageService {
     private static MesuresComparees sommer(List<MesuresComparees> elements) {
         return elements.stream().reduce(MesuresComparees.AUCUNES, MesuresComparees::plus);
     }
-
 }

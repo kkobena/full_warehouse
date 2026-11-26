@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.stock.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.atLeastOnce;
@@ -147,20 +146,19 @@ class RetourBonServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new RetourBonServiceImpl(
-            retourBonRepository,
-            retourBonItemRepository,
-            commandeRepository,
-            orderLineRepository,
-            userService,
-            stockProduitRepository,
-            inventoryTransactionService,
-            lotRepository,
-            retourBonPdfReportService,
-            fournisseurProduitRepository,
-            fournisseurRepository,
-            appConfigurationService,
-            avoirFournisseurService
-        );
+                retourBonRepository,
+                retourBonItemRepository,
+                commandeRepository,
+                orderLineRepository,
+                userService,
+                stockProduitRepository,
+                inventoryTransactionService,
+                lotRepository,
+                retourBonPdfReportService,
+                fournisseurProduitRepository,
+                fournisseurRepository,
+                appConfigurationService,
+                avoirFournisseurService);
 
         magasin = new Magasin();
         magasin.setId(MAGASIN_ID);
@@ -254,7 +252,7 @@ class RetourBonServiceImplTest {
 
     private void stubStock(int qty) {
         when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
-            .thenReturn(List.of(stock(StorageType.PRINCIPAL, qty)));
+                .thenReturn(List.of(stock(StorageType.PRINCIPAL, qty)));
     }
 
     private static RetourBonItemDTO itemDTO(int qty) {
@@ -276,7 +274,9 @@ class RetourBonServiceImplTest {
             when(commandeRepository.findById(any(CommandeId.class))).thenReturn(Optional.empty());
             RetourBonDTO dto = new RetourBonDTO().setCommandeId(99).setCommandeOrderDate(ORDER_DATE);
 
-            assertThatThrownBy(() -> service.create(dto)).isInstanceOf(RuntimeException.class).hasMessageContaining("Commande not found");
+            assertThatThrownBy(() -> service.create(dto))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Commande not found");
         }
 
         @Test
@@ -284,9 +284,10 @@ class RetourBonServiceImplTest {
         void creeUnRetour() {
             LocalDateTime before = LocalDateTime.now();
 
-            RetourBonDTO dto = service.create(
-                new RetourBonDTO().setCommandeId(12).setCommandeOrderDate(ORDER_DATE).setCommentaire("perimes")
-            );
+            RetourBonDTO dto = service.create(new RetourBonDTO()
+                    .setCommandeId(12)
+                    .setCommandeOrderDate(ORDER_DATE)
+                    .setCommentaire("perimes"));
 
             ArgumentCaptor<RetourBon> captor = ArgumentCaptor.forClass(RetourBon.class);
             verify(retourBonRepository, times(2)).save(captor.capture());
@@ -306,7 +307,8 @@ class RetourBonServiceImplTest {
 
             ArgumentCaptor<RetourBon> captor = ArgumentCaptor.forClass(RetourBon.class);
             verify(retourBonRepository, times(2)).save(captor.capture());
-            assertThat(captor.getValue().getReference()).isEqualTo("RET-" + Year.now().getValue() + "-0031");
+            assertThat(captor.getValue().getReference())
+                    .isEqualTo("RET-" + Year.now().getValue() + "-0031");
         }
 
         @Test
@@ -320,9 +322,10 @@ class RetourBonServiceImplTest {
         @Test
         @DisplayName("une liste de lignes vide ne cree aucun mouvement")
         void lignesVides() {
-            service.create(
-                new RetourBonDTO().setCommandeId(12).setCommandeOrderDate(ORDER_DATE).setRetourBonItems(List.of())
-            );
+            service.create(new RetourBonDTO()
+                    .setCommandeId(12)
+                    .setCommandeOrderDate(ORDER_DATE)
+                    .setRetourBonItems(List.of()));
 
             verify(retourBonItemRepository, never()).save(any());
         }
@@ -333,7 +336,10 @@ class RetourBonServiceImplTest {
     class CreateRetourBonItem {
 
         private RetourBonDTO avecLigne(RetourBonItemDTO item) {
-            return new RetourBonDTO().setCommandeId(12).setCommandeOrderDate(ORDER_DATE).setRetourBonItems(List.of(item));
+            return new RetourBonDTO()
+                    .setCommandeId(12)
+                    .setCommandeOrderDate(ORDER_DATE)
+                    .setRetourBonItems(List.of(item));
         }
 
         @Test
@@ -343,15 +349,16 @@ class RetourBonServiceImplTest {
             RetourBonDTO dto = avecLigne(itemDTO(5));
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Stock insuffisant pour le produit: 1234567");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Stock insuffisant pour le produit: 1234567");
         }
 
         @Test
         @DisplayName("decremente le stock principal du magasin")
         void decrementeLeStock() {
             StockProduit sp = stock(StorageType.PRINCIPAL, 20);
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID)).thenReturn(List.of(sp));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
+                    .thenReturn(List.of(sp));
 
             service.create(avecLigne(itemDTO(5)));
 
@@ -370,7 +377,7 @@ class RetourBonServiceImplTest {
             StockProduit secondaire = stock(StorageType.SAFETY_STOCK, 4);
             StockProduit principal = stock(StorageType.PRINCIPAL, 20);
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
-                .thenReturn(List.of(secondaire, principal));
+                    .thenReturn(List.of(secondaire, principal));
 
             service.create(avecLigne(itemDTO(5)));
 
@@ -384,7 +391,7 @@ class RetourBonServiceImplTest {
         void premierEmplacement() {
             StockProduit premier = stock(StorageType.SAFETY_STOCK, 20);
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
-                .thenReturn(List.of(premier));
+                    .thenReturn(List.of(premier));
 
             service.create(avecLigne(itemDTO(5)));
 
@@ -397,7 +404,8 @@ class RetourBonServiceImplTest {
             stubStock(20);
             OrderLine line = orderLine(900, 10, 0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             RetourBonItemDTO item = itemDTO(5);
             item.setOrderLineId(900);
             item.setOrderLineOrderDate(ORDER_DATE);
@@ -421,56 +429,64 @@ class RetourBonServiceImplTest {
             RetourBonDTO dto = avecLigne(item);
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("ligne de commande introuvable");
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("ligne de commande introuvable");
         }
 
         @Test
         @DisplayName("refuse un retour depassant la quantite retournable de la ligne")
         void quantiteNonRetournable() {
             stubStock(50);
-            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(orderLine(900, 10, 0)));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(8);
+            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(Optional.of(orderLine(900, 10, 0)));
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(8);
             RetourBonItemDTO item = itemDTO(5);
             item.setOrderLineId(900);
             item.setOrderLineOrderDate(ORDER_DATE);
             RetourBonDTO dto = avecLigne(item);
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("dépasse la quantité retournable (2)")
-                .hasMessageContaining("déjà retourné : 8");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("dépasse la quantité retournable (2)")
+                    .hasMessageContaining("déjà retourné : 8");
         }
 
         @Test
         @DisplayName("le message de depassement retombe sur le numero de ligne sans code CIP")
         void messageSansCodeCip() {
             stubStock(50);
-            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(orderLine(900, 10, null)));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(Optional.of(orderLine(900, 10, null)));
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             RetourBonItemDTO item = itemDTO(50);
             item.setProduitCip(null);
             item.setOrderLineId(900);
             item.setOrderLineOrderDate(ORDER_DATE);
             RetourBonDTO dto = avecLigne(item);
 
-            assertThatThrownBy(() -> service.create(dto)).isInstanceOf(GenericError.class).hasMessageContaining("ligne 900");
+            assertThatThrownBy(() -> service.create(dto))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("ligne 900");
         }
 
         @Test
         @DisplayName("une ligne sans quantite recue ni retournee est traitee comme zero")
         void quantitesNulles() {
             stubStock(50);
-            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(orderLine(900, null, null)));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(Optional.of(orderLine(900, null, null)));
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             RetourBonItemDTO item = itemDTO(1);
             item.setOrderLineId(900);
             item.setOrderLineOrderDate(ORDER_DATE);
             RetourBonDTO dto = avecLigne(item);
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("quantité retournable (0)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("quantité retournable (0)");
         }
 
         @Test
@@ -493,7 +509,8 @@ class RetourBonServiceImplTest {
             stubStock(20);
             Lot lot = lot(70, 10);
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             RetourBonItemDTO item = itemDTO(4);
             item.setLotId(70);
 
@@ -512,7 +529,9 @@ class RetourBonServiceImplTest {
             item.setLotId(70);
             RetourBonDTO dto = avecLigne(item);
 
-            assertThatThrownBy(() -> service.create(dto)).isInstanceOf(GenericError.class).hasMessageContaining("Le lot n'existe pas");
+            assertThatThrownBy(() -> service.create(dto))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Le lot n'existe pas");
         }
 
         @Test
@@ -525,8 +544,8 @@ class RetourBonServiceImplTest {
             RetourBonDTO dto = avecLigne(item);
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Quantité insuffisante dans le lot: L70");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Quantité insuffisante dans le lot: L70");
         }
 
         @Test
@@ -534,15 +553,16 @@ class RetourBonServiceImplTest {
         void lotDejaRetourne() {
             stubStock(50);
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot(70, 10)));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(8);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(8);
             RetourBonItemDTO item = itemDTO(4);
             item.setLotId(70);
             RetourBonDTO dto = avecLigne(item);
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("quantité retournable = 2")
-                .hasMessageContaining("déjà retourné : 8");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("quantité retournable = 2")
+                    .hasMessageContaining("déjà retourné : 8");
         }
     }
 
@@ -555,7 +575,7 @@ class RetourBonServiceImplTest {
         @SuppressWarnings("unchecked")
         void mappeLaPage() {
             when(retourBonRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(retourBon(RetourStatut.VALIDATED))));
+                    .thenReturn(new PageImpl<>(List.of(retourBon(RetourStatut.VALIDATED))));
 
             Page<RetourBonDTO> page = service.findAll(null, null, null, null, null, PageRequest.of(0, 20));
 
@@ -566,14 +586,14 @@ class RetourBonServiceImplTest {
         /** Rejoue la specification capturee sur des mocks Criteria pour couvrir son corps. */
         @SuppressWarnings("unchecked")
         private void appliquerSpecification(
-            RetourStatut statut,
-            RetourStatut excludeStatut,
-            LocalDate dtStart,
-            LocalDate dtEnd,
-            String search,
-            CriteriaBuilder cb
-        ) {
-            when(retourBonRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+                RetourStatut statut,
+                RetourStatut excludeStatut,
+                LocalDate dtStart,
+                LocalDate dtEnd,
+                String search,
+                CriteriaBuilder cb) {
+            when(retourBonRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
             service.findAll(statut, excludeStatut, dtStart, dtEnd, search, PageRequest.of(0, 20));
 
             ArgumentCaptor<Specification<RetourBon>> captor = ArgumentCaptor.forClass(Specification.class);
@@ -591,15 +611,18 @@ class RetourBonServiceImplTest {
             when(join.get(anyString())).thenReturn(path);
             when(cb.equal(nullable(Expression.class), any(Object.class))).thenReturn(predicate);
             when(cb.notEqual(nullable(Expression.class), any(Object.class))).thenReturn(predicate);
-            when(cb.greaterThanOrEqualTo(nullable(Expression.class), any(LocalDateTime.class))).thenReturn(predicate);
-            when(cb.lessThanOrEqualTo(nullable(Expression.class), any(LocalDateTime.class))).thenReturn(predicate);
+            when(cb.greaterThanOrEqualTo(nullable(Expression.class), any(LocalDateTime.class)))
+                    .thenReturn(predicate);
+            when(cb.lessThanOrEqualTo(nullable(Expression.class), any(LocalDateTime.class)))
+                    .thenReturn(predicate);
             when(cb.lower(nullable(Expression.class))).thenReturn(lower);
             when(cb.like(nullable(Expression.class), anyString())).thenReturn(predicate);
             when(cb.or(any(Predicate[].class))).thenReturn(predicate);
             when(cb.and(any(Predicate[].class))).thenReturn(predicate);
             when(cb.desc(nullable(Expression.class))).thenReturn(mock(jakarta.persistence.criteria.Order.class));
 
-            assertThat(captor.getValue().toPredicate((Root<RetourBon>) root, (CriteriaQuery<?>) query, cb)).isSameAs(predicate);
+            assertThat(captor.getValue().toPredicate((Root<RetourBon>) root, (CriteriaQuery<?>) query, cb))
+                    .isSameAs(predicate);
         }
 
         @Test
@@ -643,8 +666,12 @@ class RetourBonServiceImplTest {
 
             appliquerSpecification(null, null, from, to, null, cb);
 
-            verify(cb).greaterThanOrEqualTo(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(from.atStartOfDay()));
-            verify(cb).lessThanOrEqualTo(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(to.atTime(23, 59, 59)));
+            verify(cb)
+                    .greaterThanOrEqualTo(
+                            nullable(Expression.class), org.mockito.ArgumentMatchers.eq(from.atStartOfDay()));
+            verify(cb)
+                    .lessThanOrEqualTo(
+                            nullable(Expression.class), org.mockito.ArgumentMatchers.eq(to.atTime(23, 59, 59)));
         }
 
         @Test
@@ -658,7 +685,7 @@ class RetourBonServiceImplTest {
         }
 
         @ParameterizedTest(name = "une recherche [{0}] n ajoute aucun predicat de texte")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void rechercheBlanche(String search) {
             CriteriaBuilder cb = mock(CriteriaBuilder.class);
 
@@ -693,7 +720,10 @@ class RetourBonServiceImplTest {
         void findOneTrouve() {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
 
-            assertThat(service.findOne(31)).get().extracting(RetourBonDTO::getId).isEqualTo(31);
+            assertThat(service.findOne(31))
+                    .get()
+                    .extracting(RetourBonDTO::getId)
+                    .isEqualTo(31);
         }
 
         @Test
@@ -718,7 +748,7 @@ class RetourBonServiceImplTest {
         @DisplayName("export produit le PDF du retour")
         void export() {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
-            when(retourBonPdfReportService.export(any(RetourBonDTO.class))).thenReturn(new byte[] { 7 });
+            when(retourBonPdfReportService.export(any(RetourBonDTO.class))).thenReturn(new byte[] {7});
 
             assertThat(service.export(31)).containsExactly(7);
         }
@@ -728,14 +758,16 @@ class RetourBonServiceImplTest {
         void exportIntrouvable() {
             when(retourBonRepository.findById(31)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.export(31)).isInstanceOf(RuntimeException.class).hasMessageContaining("RetourBon not found");
+            assertThatThrownBy(() -> service.export(31))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("RetourBon not found");
         }
 
         @Test
         @DisplayName("exportGroupe produit le bordereau regroupe")
         void exportGroupe() {
             when(retourBonRepository.findAllById(List.of(31))).thenReturn(List.of(retourBon(RetourStatut.VALIDATED)));
-            when(retourBonPdfReportService.exportGroupe(any())).thenReturn(new byte[] { 8 });
+            when(retourBonPdfReportService.exportGroupe(any())).thenReturn(new byte[] {8});
 
             assertThat(service.exportGroupe(List.of(31))).containsExactly(8);
         }
@@ -751,18 +783,23 @@ class RetourBonServiceImplTest {
             when(retourBonRepository.findById(31)).thenReturn(Optional.empty());
             RetourBonDTO dto = new RetourBonDTO().setId(31);
 
-            assertThatThrownBy(() -> service.update(dto)).isInstanceOf(GenericError.class).hasMessageContaining("RetourBon not found");
+            assertThatThrownBy(() -> service.update(dto))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("RetourBon not found");
         }
 
         @ParameterizedTest(name = "refuse la modification d un retour {0}")
-        @EnumSource(value = RetourStatut.class, names = { "VALIDATED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"VALIDATED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void statutNonModifiable(RetourStatut statut) {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(statut)));
             RetourBonDTO dto = new RetourBonDTO().setId(31);
 
             assertThatThrownBy(() -> service.update(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Seuls les retours en attente peuvent être modifiés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Seuls les retours en attente peuvent être modifiés");
         }
 
         @Test
@@ -776,7 +813,8 @@ class RetourBonServiceImplTest {
             existant.setOrderLine(orderLine(900, 10, 0));
             when(retourBonItemRepository.findAllByRetourBonId(31)).thenReturn(List.of(existant));
             StockProduit sp = stock(StorageType.PRINCIPAL, 20);
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID)).thenReturn(List.of(sp));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
+                    .thenReturn(List.of(sp));
 
             service.update(new RetourBonDTO().setId(31).setCommentaire("corrige"));
 
@@ -829,7 +867,8 @@ class RetourBonServiceImplTest {
             item.setLot(lot);
             stubUpdateAvec(item);
             StockProduit sp = stock(StorageType.PRINCIPAL, 20);
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID)).thenReturn(List.of(sp));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
+                    .thenReturn(List.of(sp));
 
             service.update(new RetourBonDTO().setId(31));
 
@@ -848,8 +887,8 @@ class RetourBonServiceImplTest {
             RetourBonDTO dto = new RetourBonDTO().setId(31);
 
             assertThatThrownBy(() -> service.update(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Impossible de retrouver le produit");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Impossible de retrouver le produit");
         }
 
         @Test
@@ -861,7 +900,8 @@ class RetourBonServiceImplTest {
             item.setOrderLine(orderLine(900, 10, 0));
             stubUpdateAvec(item);
             StockProduit sp = stock(StorageType.SAFETY_STOCK, 20);
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID)).thenReturn(List.of(sp));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
+                    .thenReturn(List.of(sp));
 
             service.update(new RetourBonDTO().setId(31));
 
@@ -878,17 +918,22 @@ class RetourBonServiceImplTest {
         void introuvable() {
             when(retourBonRepository.findById(31)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.delete(31)).isInstanceOf(GenericError.class).hasMessageContaining("RetourBon not found");
+            assertThatThrownBy(() -> service.delete(31))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("RetourBon not found");
         }
 
         @ParameterizedTest(name = "refuse la suppression d un retour {0}")
-        @EnumSource(value = RetourStatut.class, names = { "VALIDATED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"VALIDATED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void statutNonSupprimable(RetourStatut statut) {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(statut)));
 
             assertThatThrownBy(() -> service.delete(31))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Seuls les retours en attente peuvent être supprimés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Seuls les retours en attente peuvent être supprimés");
         }
 
         @Test
@@ -901,7 +946,8 @@ class RetourBonServiceImplTest {
             item.setOrderLine(orderLine(900, 10, 0));
             when(retourBonItemRepository.findAllByRetourBonId(31)).thenReturn(List.of(item));
             StockProduit sp = stock(StorageType.PRINCIPAL, 20);
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID)).thenReturn(List.of(sp));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, PRODUIT_ID))
+                    .thenReturn(List.of(sp));
 
             service.delete(31);
 
@@ -934,13 +980,16 @@ class RetourBonServiceImplTest {
         }
 
         @ParameterizedTest(name = "markAsProcessing refuse un retour {0}")
-        @EnumSource(value = RetourStatut.class, names = { "VALIDATED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"VALIDATED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void markAsProcessingStatutInvalide(RetourStatut statut) {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(statut)));
 
             assertThatThrownBy(() -> service.markAsProcessing(31))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("marqués en cours");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("marqués en cours");
         }
 
         @Test
@@ -961,13 +1010,16 @@ class RetourBonServiceImplTest {
         }
 
         @ParameterizedTest(name = "closeManually refuse un retour {0}")
-        @EnumSource(value = RetourStatut.class, names = { "PARTIALLY_ACCEPTED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"PARTIALLY_ACCEPTED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void closeManuallyStatutInvalide(RetourStatut statut) {
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(statut)));
 
             assertThatThrownBy(() -> service.closeManually(31))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("partiellement acceptés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("partiellement acceptés");
         }
     }
 
@@ -976,7 +1028,11 @@ class RetourBonServiceImplTest {
     class CreateFromExpiredLot {
 
         private RetourBonFromLotRequest requete(int lotId, int quantity) {
-            return new RetourBonFromLotRequest().setLotId(lotId).setQuantity(quantity).setMotifRetourId(4).setCommentaire("perime");
+            return new RetourBonFromLotRequest()
+                    .setLotId(lotId)
+                    .setQuantity(quantity)
+                    .setMotifRetourId(4)
+                    .setCommentaire("perime");
         }
 
         @Test
@@ -986,8 +1042,8 @@ class RetourBonServiceImplTest {
             RetourBonFromLotRequest request = requete(70, 4);
 
             assertThatThrownBy(() -> service.createFromExpiredLot(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Lot non trouvé: 70");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Lot non trouvé: 70");
         }
 
         @Test
@@ -997,8 +1053,8 @@ class RetourBonServiceImplTest {
             RetourBonFromLotRequest request = requete(70, 4);
 
             assertThatThrownBy(() -> service.createFromExpiredLot(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("dépasse le stock disponible dans le lot (3)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("dépasse le stock disponible dans le lot (3)");
         }
 
         @Test
@@ -1009,8 +1065,10 @@ class RetourBonServiceImplTest {
             Lot lot = lot(70, 10).setOrderLine(line);
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot));
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
 
             RetourBonDTO dto = service.createFromExpiredLot(requete(70, 4));
@@ -1026,7 +1084,8 @@ class RetourBonServiceImplTest {
         @DisplayName("fallback manuel : utilise la commande choisie par l utilisateur")
         void fallbackCommandeManuelle() {
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot(70, 10)));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
             RetourBonFromLotRequest request = requete(70, 4).setCommandeId(12).setCommandeOrderDate(ORDER_DATE);
 
@@ -1046,8 +1105,8 @@ class RetourBonServiceImplTest {
             RetourBonFromLotRequest request = requete(70, 4).setCommandeId(99).setCommandeOrderDate(ORDER_DATE);
 
             assertThatThrownBy(() -> service.createFromExpiredLot(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Commande override non trouvée: 99");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Commande override non trouvée: 99");
         }
 
         @Test
@@ -1056,7 +1115,8 @@ class RetourBonServiceImplTest {
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot(70, 10)));
             when(fournisseurRepository.findById(3)).thenReturn(Optional.of(fournisseur(3, "LABOREX")));
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
 
             service.createFromExpiredLot(requete(70, 4).setFournisseurId(3));
@@ -1075,8 +1135,8 @@ class RetourBonServiceImplTest {
             RetourBonFromLotRequest request = requete(70, 4).setFournisseurId(3);
 
             assertThatThrownBy(() -> service.createFromExpiredLot(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Fournisseur non trouvé: 3");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Fournisseur non trouvé: 3");
         }
 
         @Test
@@ -1088,7 +1148,8 @@ class RetourBonServiceImplTest {
             lot.getProduit().setFournisseurProduitPrincipal(fp);
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot));
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
 
             service.createFromExpiredLot(requete(70, 4));
@@ -1107,7 +1168,8 @@ class RetourBonServiceImplTest {
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot));
             when(fournisseurProduitRepository.findAllByProduitId(PRODUIT_ID)).thenReturn(List.of(fp));
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
 
             service.createFromExpiredLot(requete(70, 4));
@@ -1126,7 +1188,8 @@ class RetourBonServiceImplTest {
             when(fournisseurProduitRepository.findAllByProduitId(PRODUIT_ID)).thenReturn(List.of(fp1, fp2));
             RetourBonFromLotRequest request = requete(70, 4);
 
-            assertThatThrownBy(() -> service.createFromExpiredLot(request)).isInstanceOf(MultipleFournisseursException.class);
+            assertThatThrownBy(() -> service.createFromExpiredLot(request))
+                    .isInstanceOf(MultipleFournisseursException.class);
         }
 
         @Test
@@ -1136,7 +1199,8 @@ class RetourBonServiceImplTest {
             when(fournisseurProduitRepository.findAllByProduitId(PRODUIT_ID)).thenReturn(List.of());
             RetourBonFromLotRequest request = requete(70, 4);
 
-            assertThatThrownBy(() -> service.createFromExpiredLot(request)).isInstanceOf(FournisseurIntrouvableException.class);
+            assertThatThrownBy(() -> service.createFromExpiredLot(request))
+                    .isInstanceOf(FournisseurIntrouvableException.class);
         }
     }
 
@@ -1147,8 +1211,10 @@ class RetourBonServiceImplTest {
         @Test
         @DisplayName("agrege les retours crees et les erreurs")
         void agregeCreesEtErreurs() {
-            RetourBonFromLotRequest ok = new RetourBonFromLotRequest().setLotId(70).setQuantity(4).setMotifRetourId(4);
-            RetourBonFromLotRequest ko = new RetourBonFromLotRequest().setLotId(71).setQuantity(4).setMotifRetourId(4);
+            RetourBonFromLotRequest ok =
+                    new RetourBonFromLotRequest().setLotId(70).setQuantity(4).setMotifRetourId(4);
+            RetourBonFromLotRequest ko =
+                    new RetourBonFromLotRequest().setLotId(71).setQuantity(4).setMotifRetourId(4);
             Lot lot = lot(70, 10);
             OrderLine line = orderLine(900, 10, 0);
             line.setCommande(commande);
@@ -1156,11 +1222,14 @@ class RetourBonServiceImplTest {
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot));
             when(lotRepository.findById(71)).thenReturn(Optional.empty());
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
-            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
+            when(retourBonItemRepository.sumQtyMvtByLotId(70, 31, RetourStatut.CLOSED))
+                    .thenReturn(0);
             stubStock(20);
 
-            RetourBonBatchResultDTO result = service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of(ok, ko)));
+            RetourBonBatchResultDTO result =
+                    service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of(ok, ko)));
 
             assertThat(result.getTotalCreated()).isEqualTo(1);
             assertThat(result.getTotalErrors()).isEqualTo(1);
@@ -1170,10 +1239,12 @@ class RetourBonServiceImplTest {
         @Test
         @DisplayName("reprend le numero de lot dans le message d erreur quand il est lisible")
         void numeroDeLotDansLErreur() {
-            RetourBonFromLotRequest ko = new RetourBonFromLotRequest().setLotId(70).setQuantity(99).setMotifRetourId(4);
+            RetourBonFromLotRequest ko =
+                    new RetourBonFromLotRequest().setLotId(70).setQuantity(99).setMotifRetourId(4);
             when(lotRepository.findById(70)).thenReturn(Optional.of(lot(70, 3)));
 
-            RetourBonBatchResultDTO result = service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of(ko)));
+            RetourBonBatchResultDTO result =
+                    service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of(ko)));
 
             assertThat(result.getErrors().getFirst().getLotNumero()).isEqualTo("L70");
         }
@@ -1181,7 +1252,8 @@ class RetourBonServiceImplTest {
         @Test
         @DisplayName("un lot vide ne produit aucun retour")
         void batchVide() {
-            RetourBonBatchResultDTO result = service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of()));
+            RetourBonBatchResultDTO result =
+                    service.createFromExpiredLots(new RetourBonFromLotsRequest().setLots(List.of()));
 
             assertThat(result.getTotalCreated()).isZero();
             assertThat(result.getTotalErrors()).isZero();
@@ -1197,7 +1269,9 @@ class RetourBonServiceImplTest {
         void lotInconnu() {
             when(lotRepository.findById(70)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.resolveLot(70)).isInstanceOf(GenericError.class).hasMessageContaining("Lot non trouvé: 70");
+            assertThatThrownBy(() -> service.resolveLot(70))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Lot non trouvé: 70");
         }
 
         @Test
@@ -1270,11 +1344,10 @@ class RetourBonServiceImplTest {
 
         private AvoirFromBonLignesCommand commande(Integer prixAchat) {
             return new AvoirFromBonLignesCommand(
-                12,
-                ORDER_DATE,
-                "retour BL",
-                List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 4, 4, prixAchat))
-            );
+                    12,
+                    ORDER_DATE,
+                    "retour BL",
+                    List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 4, 4, prixAchat)));
         }
 
         @Test
@@ -1284,8 +1357,8 @@ class RetourBonServiceImplTest {
             AvoirFromBonLignesCommand cmd = commande(null);
 
             assertThatThrownBy(() -> service.createFromBonLignes(cmd))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Commande introuvable: 12");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Commande introuvable: 12");
         }
 
         @Test
@@ -1293,7 +1366,8 @@ class RetourBonServiceImplTest {
         void creeRetourEtAvoir() {
             OrderLine line = orderLine(900, 10, 0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             stubStock(20);
             RetourBon saved = retourBon(RetourStatut.VALIDATED);
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(saved));
@@ -1303,13 +1377,16 @@ class RetourBonServiceImplTest {
             item.setPrixAchat(400);
             when(retourBonItemRepository.findAllByRetourBonId(31)).thenReturn(List.of(item));
             AvoirFournisseurDTO expected = new AvoirFournisseurDTO();
-            when(avoirFournisseurService.createFromRetourBon(any(), any(), anyString())).thenReturn(expected);
+            when(avoirFournisseurService.createFromRetourBon(any(), any(), anyString()))
+                    .thenReturn(expected);
 
             assertThat(service.createFromBonLignes(commande(null))).isSameAs(expected);
 
             @SuppressWarnings("unchecked")
-            ArgumentCaptor<List<AvoirFournisseurCommand.AvoirLigneCommand>> captor = ArgumentCaptor.forClass(List.class);
-            verify(avoirFournisseurService).createFromRetourBon(org.mockito.ArgumentMatchers.eq(saved), captor.capture(), anyString());
+            ArgumentCaptor<List<AvoirFournisseurCommand.AvoirLigneCommand>> captor =
+                    ArgumentCaptor.forClass(List.class);
+            verify(avoirFournisseurService)
+                    .createFromRetourBon(org.mockito.ArgumentMatchers.eq(saved), captor.capture(), anyString());
             assertThat(captor.getValue()).hasSize(1);
             assertThat(captor.getValue().getFirst().qtyAcceptee()).isEqualTo(4);
             assertThat(captor.getValue().getFirst().prixAchat()).isEqualTo(400);
@@ -1322,11 +1399,10 @@ class RetourBonServiceImplTest {
 
         private AvoirFromBonLignesCommand commande(Integer prixAchat) {
             return new AvoirFromBonLignesCommand(
-                12,
-                ORDER_DATE,
-                "retour reception",
-                List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 4, 4, prixAchat))
-            );
+                    12,
+                    ORDER_DATE,
+                    "retour reception",
+                    List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 4, 4, prixAchat)));
         }
 
         private void stubAvoir() {
@@ -1337,7 +1413,8 @@ class RetourBonServiceImplTest {
             item.setQtyMvt(4);
             item.setPrixAchat(400);
             when(retourBonItemRepository.findAllByRetourBonId(31)).thenReturn(List.of(item));
-            when(avoirFournisseurService.createFromRetourBon(any(), any(), anyString())).thenReturn(new AvoirFournisseurDTO());
+            when(avoirFournisseurService.createFromRetourBon(any(), any(), anyString()))
+                    .thenReturn(new AvoirFournisseurDTO());
         }
 
         @Test
@@ -1345,13 +1422,15 @@ class RetourBonServiceImplTest {
         void valoriseLAvoir() {
             OrderLine line = orderLine(900, 10, 0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             stubAvoir();
 
             service.createFromReception(commande(null));
 
             @SuppressWarnings("unchecked")
-            ArgumentCaptor<List<AvoirFournisseurCommand.AvoirLigneCommand>> captor = ArgumentCaptor.forClass(List.class);
+            ArgumentCaptor<List<AvoirFournisseurCommand.AvoirLigneCommand>> captor =
+                    ArgumentCaptor.forClass(List.class);
             verify(avoirFournisseurService).createFromRetourBon(any(), captor.capture(), anyString());
             assertThat(captor.getValue()).hasSize(1);
             assertThat(captor.getValue().getFirst().retourBonItemId()).isEqualTo(60);
@@ -1366,8 +1445,8 @@ class RetourBonServiceImplTest {
             AvoirFromBonLignesCommand cmd = commande(null);
 
             assertThatThrownBy(() -> service.createFromReception(cmd))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Commande introuvable: 12");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Commande introuvable: 12");
         }
 
         @Test
@@ -1377,8 +1456,8 @@ class RetourBonServiceImplTest {
             AvoirFromBonLignesCommand cmd = commande(null);
 
             assertThatThrownBy(() -> service.createFromReception(cmd))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ligne de commande introuvable: 900");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ligne de commande introuvable: 900");
         }
 
         @Test
@@ -1386,7 +1465,8 @@ class RetourBonServiceImplTest {
         void horsStock() {
             OrderLine line = orderLine(900, 10, 0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             stubAvoir();
 
             service.createFromReception(commande(null));
@@ -1403,7 +1483,8 @@ class RetourBonServiceImplTest {
         void ajusteLaLigneDeCommande() {
             OrderLine line = orderLine(900, 10, 2);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             stubAvoir();
 
             service.createFromReception(commande(null));
@@ -1418,13 +1499,13 @@ class RetourBonServiceImplTest {
         void quantitesNulles() {
             OrderLine line = orderLine(900, null, null);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             AvoirFromBonLignesCommand cmd = new AvoirFromBonLignesCommand(
-                12,
-                ORDER_DATE,
-                "retour",
-                List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 0, 4, null))
-            );
+                    12,
+                    ORDER_DATE,
+                    "retour",
+                    List.of(new BonLigneItem(900, ORDER_DATE, PRODUIT_ID, "1234567", 0, 4, null)));
             stubAvoir();
 
             service.createFromReception(cmd);
@@ -1438,7 +1519,8 @@ class RetourBonServiceImplTest {
         void prixTransmis() {
             OrderLine line = orderLine(900, 10, 0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(line));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             stubAvoir();
 
             service.createFromReception(commande(650));
@@ -1453,13 +1535,15 @@ class RetourBonServiceImplTest {
         @Test
         @DisplayName("refuse une quantite superieure au retournable")
         void quantiteNonRetournable() {
-            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(orderLine(900, 10, 0)));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(8);
+            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(Optional.of(orderLine(900, 10, 0)));
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(8);
             AvoirFromBonLignesCommand cmd = commande(null);
 
             assertThatThrownBy(() -> service.createFromReception(cmd))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("dépasse la quantité retournable (2)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("dépasse la quantité retournable (2)");
         }
     }
 
@@ -1468,7 +1552,10 @@ class RetourBonServiceImplTest {
     class CreateRetourCompletFromCommande {
 
         private RetourCompletCommandeRequest requete() {
-            return new RetourCompletCommandeRequest().setCommandeId(12).setCommandeOrderDate(ORDER_DATE).setMotifRetourId(4);
+            return new RetourCompletCommandeRequest()
+                    .setCommandeId(12)
+                    .setCommandeOrderDate(ORDER_DATE)
+                    .setMotifRetourId(4);
         }
 
         @Test
@@ -1478,30 +1565,33 @@ class RetourBonServiceImplTest {
             RetourCompletCommandeRequest request = requete();
 
             assertThatThrownBy(() -> service.createRetourCompletFromCommande(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Commande introuvable: 12");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Commande introuvable: 12");
         }
 
         @Test
         @DisplayName("refuse une commande sans ligne recue")
         void aucuneLigneRecue() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(orderLine(900, 0, 0), orderLine(901, null, 0)));
+                    .thenReturn(List.of(orderLine(900, 0, 0), orderLine(901, null, 0)));
             RetourCompletCommandeRequest request = requete();
 
             assertThatThrownBy(() -> service.createRetourCompletFromCommande(request))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Aucune ligne reçue trouvée");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Aucune ligne reçue trouvée");
         }
 
         @Test
         @DisplayName("retourne le solde retournable de chaque ligne")
         void retourneLeSolde() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(orderLine(900, 10, 0)));
-            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED)).thenReturn(4);
-            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(orderLine(900, 10, 0)));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+                    .thenReturn(List.of(orderLine(900, 10, 0)));
+            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED))
+                    .thenReturn(4);
+            when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(Optional.of(orderLine(900, 10, 0)));
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
             stubStock(20);
 
@@ -1516,8 +1606,9 @@ class RetourBonServiceImplTest {
         @DisplayName("saute les lignes deja entierement retournees")
         void sauteLesLignesEpuisees() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(orderLine(900, 10, 0)));
-            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED)).thenReturn(10);
+                    .thenReturn(List.of(orderLine(900, 10, 0)));
+            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED))
+                    .thenReturn(10);
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
 
             service.createRetourCompletFromCommande(requete());
@@ -1530,13 +1621,16 @@ class RetourBonServiceImplTest {
         void ligneSansProduitFournisseur() {
             OrderLine sansFp = orderLine(900, 10, 0);
             sansFp.setFournisseurProduit(null);
-            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(List.of(sansFp));
-            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED)).thenReturn(0);
+            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
+                    .thenReturn(List.of(sansFp));
+            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED))
+                    .thenReturn(0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(sansFp));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, null))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.createRetourCompletFromCommande(requete());
 
@@ -1548,13 +1642,16 @@ class RetourBonServiceImplTest {
         void produitFournisseurSansProduit() {
             OrderLine ligne = orderLine(900, 10, 0);
             ligne.getFournisseurProduit().setProduit(null);
-            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(List.of(ligne));
-            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED)).thenReturn(0);
+            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
+                    .thenReturn(List.of(ligne));
+            when(retourBonItemRepository.sumQtyMvtByOrderLineId(900, ORDER_DATE, null, RetourStatut.CLOSED))
+                    .thenReturn(0);
             when(orderLineRepository.findById(new OrderLineId(900, ORDER_DATE))).thenReturn(Optional.of(ligne));
-            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31)).thenReturn(0);
+            when(retourBonItemRepository.sumAllReturnedQtyByOrderLineId(900, ORDER_DATE, 31))
+                    .thenReturn(0);
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(retourBon(RetourStatut.VALIDATED)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(MAGASIN_ID, null))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.createRetourCompletFromCommande(requete());
 
@@ -1579,7 +1676,9 @@ class RetourBonServiceImplTest {
 
             List<RetourBonGroupeDTO> groupes = service.findAllGroupedByFournisseur();
 
-            assertThat(groupes).extracting(RetourBonGroupeDTO::getFournisseurLibelle).containsExactly("COPHARMED", "LABOREX");
+            assertThat(groupes)
+                    .extracting(RetourBonGroupeDTO::getFournisseurLibelle)
+                    .containsExactly("COPHARMED", "LABOREX");
         }
 
         @Test

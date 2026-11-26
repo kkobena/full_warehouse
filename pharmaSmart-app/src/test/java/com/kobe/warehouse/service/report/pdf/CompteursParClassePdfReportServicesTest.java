@@ -47,18 +47,15 @@ class CompteursParClassePdfReportServicesTest {
 
         private final StockAlertReportService reportService = mock(StockAlertReportService.class);
         private final StockAlertPdfReportService service = new StockAlertPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         @Test
         @DisplayName("chaque type d'alerte a son compteur")
         void compteursParType() {
             when(reportService.getStockAlerts(any(), any(Pageable.class))).thenReturn(alertes());
-            when(reportService.getStockAlertsCount()).thenReturn(
-                Map.of(StockAlertType.RUPTURE, 12L, StockAlertType.ALERTE, 34L, StockAlertType.PEREMPTION, 5L)
-            );
+            when(reportService.getStockAlertsCount())
+                    .thenReturn(Map.of(
+                            StockAlertType.RUPTURE, 12L, StockAlertType.ALERTE, 34L, StockAlertType.PEREMPTION, 5L));
 
             Map<String, Object> modele = modele();
 
@@ -100,12 +97,9 @@ class CompteursParClassePdfReportServicesTest {
         }
 
         private Page<StockAlertDTO> alertes() {
-            return new PageImpl<>(
-                List.of(
+            return new PageImpl<>(List.of(
                     new StockAlertDTO(1, "DOLIPRANE", "CIP1", 0, 5, LocalDate.now(), StockAlertType.RUPTURE),
-                    new StockAlertDTO(2, "EFFERALGAN", "CIP2", 3, 10, LocalDate.now(), StockAlertType.ALERTE)
-                )
-            );
+                    new StockAlertDTO(2, "EFFERALGAN", "CIP2", 3, 10, LocalDate.now(), StockAlertType.ALERTE)));
         }
     }
 
@@ -117,27 +111,22 @@ class CompteursParClassePdfReportServicesTest {
 
         private final CustomerSegmentationReportService reportService = mock(CustomerSegmentationReportService.class);
         private final CustomerSegmentationPdfReportService service = new CustomerSegmentationPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         /** Les sept classes RFM ont chacune leur compteur : en oublier une laisserait un trou au bandeau. */
         @Test
         @DisplayName("les sept classes RFM ont chacune leur compteur")
         void septCompteurs() {
             when(reportService.getAllCustomerSegmentation()).thenReturn(List.of(client()));
-            when(reportService.getCustomerCountByClassification()).thenReturn(
-                Map.of(
-                    CustomerClassification.CHAMPION, 1L,
-                    CustomerClassification.LOYAL, 2L,
-                    CustomerClassification.BIG_SPENDER, 3L,
-                    CustomerClassification.ACTIVE, 4L,
-                    CustomerClassification.AT_RISK, 5L,
-                    CustomerClassification.NEED_ATTENTION, 6L,
-                    CustomerClassification.INACTIVE, 7L
-                )
-            );
+            when(reportService.getCustomerCountByClassification())
+                    .thenReturn(Map.of(
+                            CustomerClassification.CHAMPION, 1L,
+                            CustomerClassification.LOYAL, 2L,
+                            CustomerClassification.BIG_SPENDER, 3L,
+                            CustomerClassification.ACTIVE, 4L,
+                            CustomerClassification.AT_RISK, 5L,
+                            CustomerClassification.NEED_ATTENTION, 6L,
+                            CustomerClassification.INACTIVE, 7L));
 
             Map<String, Object> modele = modele();
 
@@ -154,7 +143,8 @@ class CompteursParClassePdfReportServicesTest {
         @DisplayName("une classe sans client se lit zéro")
         void classeAbsente() {
             when(reportService.getAllCustomerSegmentation()).thenReturn(List.of());
-            when(reportService.getCustomerCountByClassification()).thenReturn(Map.of(CustomerClassification.CHAMPION, 3L));
+            when(reportService.getCustomerCountByClassification())
+                    .thenReturn(Map.of(CustomerClassification.CHAMPION, 3L));
 
             Map<String, Object> modele = modele();
 
@@ -183,9 +173,19 @@ class CompteursParClassePdfReportServicesTest {
 
         private CustomerSegmentationDTO client() {
             return new CustomerSegmentationDTO(
-                1, "Jean KOUASSI", "0102030405", LocalDate.now(), 5, 10, 500_000, BigDecimal.TEN, 5, 4, 5, 545,
-                CustomerClassification.CHAMPION
-            );
+                    1,
+                    "Jean KOUASSI",
+                    "0102030405",
+                    LocalDate.now(),
+                    5,
+                    10,
+                    500_000,
+                    BigDecimal.TEN,
+                    5,
+                    4,
+                    5,
+                    545,
+                    CustomerClassification.CHAMPION);
         }
     }
 
@@ -197,18 +197,14 @@ class CompteursParClassePdfReportServicesTest {
 
         private final StockRotationReportService reportService = mock(StockRotationReportService.class);
         private final StockRotationPdfReportService service = new StockRotationPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         @Test
         @DisplayName("chaque catégorie de rotation a son compteur")
         void compteursParCategorie() {
             when(reportService.getAllStockRotation()).thenReturn(List.of(rotation()));
-            when(reportService.getStockRotationCountByABCClassification()).thenReturn(
-                Map.of(CategorieABC.A, 15L, CategorieABC.B, 40L, CategorieABC.C, 200L)
-            );
+            when(reportService.getStockRotationCountByABCClassification())
+                    .thenReturn(Map.of(CategorieABC.A, 15L, CategorieABC.B, 40L, CategorieABC.C, 200L));
 
             Map<String, Object> modele = modele();
 
@@ -250,9 +246,21 @@ class CompteursParClassePdfReportServicesTest {
 
         private StockRotationDTO rotation() {
             return new StockRotationDTO(
-                1, "DOLIPRANE", "CIP1", "MEDICAMENT", 25, 6_000, 150_000L, 30_000, 3, 1, 100_000, 10,
-                BigDecimal.TEN, 90, CategorieABC.A
-            );
+                    1,
+                    "DOLIPRANE",
+                    "CIP1",
+                    "MEDICAMENT",
+                    25,
+                    6_000,
+                    150_000L,
+                    30_000,
+                    3,
+                    1,
+                    100_000,
+                    10,
+                    BigDecimal.TEN,
+                    90,
+                    CategorieABC.A);
         }
     }
 }

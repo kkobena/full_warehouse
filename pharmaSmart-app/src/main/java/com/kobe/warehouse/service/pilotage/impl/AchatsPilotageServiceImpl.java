@@ -47,10 +47,9 @@ public class AchatsPilotageServiceImpl implements AchatsPilotageService {
     private final PilotageMesuresRepository pilotageMesuresRepository;
 
     public AchatsPilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        PilotageAchatsStockRepository pilotageAchatsStockRepository,
-        PilotageMesuresRepository pilotageMesuresRepository
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            PilotageAchatsStockRepository pilotageAchatsStockRepository,
+            PilotageMesuresRepository pilotageMesuresRepository) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.pilotageAchatsStockRepository = pilotageAchatsStockRepository;
         this.pilotageMesuresRepository = pilotageMesuresRepository;
@@ -62,15 +61,27 @@ public class AchatsPilotageServiceImpl implements AchatsPilotageService {
         AchatsPeriode periode = lireAchats(comparaison.periode());
         AchatsPeriode reference = comparaison.reference() == null ? null : lireAchats(comparaison.reference());
         return new AchatsPilotageDTO(
-            comparaison,
-            Variations.cellule(UniteIndicateur.MONTANT, (double) periode.totalTtc(), reference == null ? null : (double) reference.totalTtc()),
-            Variations.cellule(UniteIndicateur.MONTANT, (double) periode.totalHt(), reference == null ? null : (double) reference.totalHt()),
-            Variations.cellule(UniteIndicateur.NOMBRE, (double) periode.nbBons(), reference == null ? null : (double) reference.nbBons()),
-            Variations.cellule(UniteIndicateur.JOURS, periode.delaiMoyen(), reference == null ? null : reference.delaiMoyen()),
-            Variations.cellule(UniteIndicateur.POURCENTAGE, periode.conformite(), reference == null ? null : reference.conformite()),
-            periode.lignesFournisseurs(reference),
-            periode.lignesFamilles(reference)
-        );
+                comparaison,
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) periode.totalTtc(),
+                        reference == null ? null : (double) reference.totalTtc()),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) periode.totalHt(),
+                        reference == null ? null : (double) reference.totalHt()),
+                Variations.cellule(
+                        UniteIndicateur.NOMBRE,
+                        (double) periode.nbBons(),
+                        reference == null ? null : (double) reference.nbBons()),
+                Variations.cellule(
+                        UniteIndicateur.JOURS, periode.delaiMoyen(), reference == null ? null : reference.delaiMoyen()),
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        periode.conformite(),
+                        reference == null ? null : reference.conformite()),
+                periode.lignesFournisseurs(reference),
+                periode.lignesFamilles(reference));
     }
 
     @Override
@@ -87,13 +98,19 @@ public class AchatsPilotageServiceImpl implements AchatsPilotageService {
         for (MontantJourDTO jour : pilotageAchatsStockRepository.sommerAchatsHtParJour(periode.du(), periode.au())) {
             achats[rangs.floorEntry(jour.jour()).getValue()] += jour.montant();
         }
-        for (LignesJourDTO jour : pilotageMesuresRepository.listerLignesParJour(periode.du(), periode.au(), CategorieChiffreAffaire.officine())) {
+        for (LignesJourDTO jour : pilotageMesuresRepository.listerLignesParJour(
+                periode.du(), periode.au(), CategorieChiffreAffaire.officine())) {
             couts[rangs.floorEntry(jour.jour()).getValue()] += jour.coutHt();
         }
         List<PointAchatsVentesDTO> points = new ArrayList<>(tranches.size());
         for (int rang = 0; rang < tranches.size(); rang++) {
             PeriodeDTO tranche = tranches.get(rang);
-            points.add(new PointAchatsVentesDTO(tranche.du(), tranche.au(), LibellesPilotage.libellerTranche(tranche, requete.granularite()), achats[rang], couts[rang]));
+            points.add(new PointAchatsVentesDTO(
+                    tranche.du(),
+                    tranche.au(),
+                    LibellesPilotage.libellerTranche(tranche, requete.granularite()),
+                    achats[rang],
+                    couts[rang]));
         }
         return new AchatsVentesPilotageDTO(comparaison, points, comparerParFamille(periode));
     }
@@ -101,25 +118,35 @@ public class AchatsPilotageServiceImpl implements AchatsPilotageService {
     /** AchatsPeriode HT face au coût HT des ventes, famille par famille ; les plus gros écarts d'abord. */
     private List<LigneAchatsVentesDTO> comparerParFamille(PeriodeDTO periode) {
         Map<String, LigneAchatsVentesDTO> parFamille = new LinkedHashMap<>();
-        for (MontantsFamilleDTO famille : pilotageAchatsStockRepository.sommerAchatsParFamille(periode.du(), periode.au())) {
+        for (MontantsFamilleDTO famille :
+                pilotageAchatsStockRepository.sommerAchatsParFamille(periode.du(), periode.au())) {
             parFamille.put(famille.cle(), ligneAchatsVentes(famille.cle(), famille.libelle(), famille.montantHt(), 0));
         }
-        for (MontantsFamilleDTO famille : pilotageAchatsStockRepository.sommerCoutVentesParFamille(periode.du(), periode.au(), CategorieChiffreAffaire.officine())) {
-            parFamille.compute(famille.cle(), (k, achats) -> ligneAchatsVentes(famille.cle(), famille.libelle(), achats == null ? 0 : achats.achatsHt(), famille.montantHt()));
+        for (MontantsFamilleDTO famille : pilotageAchatsStockRepository.sommerCoutVentesParFamille(
+                periode.du(), periode.au(), CategorieChiffreAffaire.officine())) {
+            parFamille.compute(
+                    famille.cle(),
+                    (k, achats) -> ligneAchatsVentes(
+                            famille.cle(),
+                            famille.libelle(),
+                            achats == null ? 0 : achats.achatsHt(),
+                            famille.montantHt()));
         }
-        return parFamille.values().stream().sorted(Comparator.comparingLong((LigneAchatsVentesDTO ligne) -> Math.abs(ligne.ecart())).reversed()).toList();
+        return parFamille.values().stream()
+                .sorted(Comparator.comparingLong((LigneAchatsVentesDTO ligne) -> Math.abs(ligne.ecart()))
+                        .reversed())
+                .toList();
     }
 
     private static LigneAchatsVentesDTO ligneAchatsVentes(String cle, String libelle, long achats, long couts) {
-        return new LigneAchatsVentesDTO(cle, libelle, achats, couts, achats - couts, achats == 0 ? null : (double) couts / achats);
+        return new LigneAchatsVentesDTO(
+                cle, libelle, achats, couts, achats - couts, achats == 0 ? null : (double) couts / achats);
     }
 
     private AchatsPeriode lireAchats(PeriodeDTO periode) {
         return AchatsPeriode.lire(
-            pilotageAchatsStockRepository.sommerAchatsParFournisseur(periode.du(), periode.au(), RECUES),
-            pilotageAchatsStockRepository.listerDelaisParFournisseur(periode.du(), periode.au(), RECUES),
-            pilotageAchatsStockRepository.sommerAchatsParFamille(periode.du(), periode.au())
-        );
+                pilotageAchatsStockRepository.sommerAchatsParFournisseur(periode.du(), periode.au(), RECUES),
+                pilotageAchatsStockRepository.listerDelaisParFournisseur(periode.du(), periode.au(), RECUES),
+                pilotageAchatsStockRepository.sommerAchatsParFamille(periode.du(), periode.au()));
     }
-
 }

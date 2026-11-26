@@ -11,18 +11,16 @@ import {
   OnInit,
   output,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AssuredCustomerListModalComponent,
   AyantDroitListModalComponent,
@@ -34,35 +32,18 @@ import {
   SaleType,
   ThirdPartyAmount,
 } from '../../ui';
-import {
-  AssureFormStepComponent
-} from '../../../../entities/customer/assure-form-step/assure-form-step.component';
-import {
-  FormAyantDroitComponent
-} from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
-import {
-  AddComplementaireComponent
-} from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {
-  PaymentCompleteEvent,
-  PaymentModeComponent
-} from '../../ui/payment-mode/payment-mode.component';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {CustomerSearchService} from '../../data-access/services/customer-search.service';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {
-  IClientTiersPayant,
-  ICustomer,
-  IRemise,
-  ISalesLine,
-  ProduitSearch
-} from '../../../../shared/model';
-import {
-  CashRegisterFormComponent
-} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import { AssureFormStepComponent } from '../../../../entities/customer/assure-form-step/assure-form-step.component';
+import { FormAyantDroitComponent } from '../../../../entities/customer/form-ayant-droit/form-ayant-droit.component';
+import { AddComplementaireComponent } from '../../../../entities/sales/selling-home/assurance/add-complementaire/add-complementaire.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { CustomerSearchService } from '../../data-access/services/customer-search.service';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -73,8 +54,8 @@ import {
   createSaleLifecycle,
   ProductSearchHost,
 } from '../../shared/mixins';
-import {SaleForEditInfo} from '../../../../shared/model/sales.model';
-import {IThirdPartySaleLine} from "../../../../shared/model/third-party-sale-line";
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
+import { IThirdPartySaleLine } from '../../../../shared/model/third-party-sale-line';
 
 /**
  * Composant Container : Création de vente ASSURANCE
@@ -106,7 +87,6 @@ import {IThirdPartySaleLine} from "../../../../shared/model/third-party-sale-lin
     PaymentModeComponent,
     InsuranceDataBarComponent,
     NgxSpinnerModule,
-
   ],
 })
 export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSearchHost {
@@ -163,11 +143,13 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   thirdPartyDetails = computed(() => {
     const sale = this.currentSale();
     const items = sale?.thirdPartySaleLines || [];
-    return items?.length > 1 ? items.map((item: IThirdPartySaleLine): ThirdPartyAmount => ({
-      name: item.name || '',
-      id: item.id,
-      amount: item.montant || 0,
-    })) : null;
+    return items?.length > 1
+      ? items.map((item: IThirdPartySaleLine): ThirdPartyAmount => ({
+          name: item.name || '',
+          id: item.id,
+          amount: item.montant || 0,
+        }))
+      : null;
   });
   selectedCustomer = this.facade.selectedCustomer;
   selectedAyantDroit = this.facade.selectedAyantDroit;
@@ -215,7 +197,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    config: {saleType: 'ASSURANCE'},
+    config: { saleType: 'ASSURANCE' },
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -281,8 +263,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
 
-    onPaymentSuccess() {
-    },
+    onPaymentSuccess() {},
     // Fonction de sauvegarde personnalisée pour ASSURANCE
     customSaveSale: payments => this.facade.saveAssuranceSale(payments),
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
@@ -328,7 +309,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    {saleType: 'ASSURANCE', isPresale: () => this.isPresale()},
+    { saleType: 'ASSURANCE', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -478,10 +459,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
             this.finalizeSaleWithoutPayment();
           },
           'Finaliser la vente',
-          'Voulez-vous vraiment finaliser la vente ?', null,
-          () => this.productSearchComponent()?.getFocus()
+          'Voulez-vous vraiment finaliser la vente ?',
+          null,
+          () => this.productSearchComponent()?.getFocus(),
         );
-
       } else {
         const total = currentSale.salesAmount || 0;
         this.customerDisplay.updateDisplayForTotal(total);
@@ -571,10 +552,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
-    const newCustomer = {...customer, tiersPayants: [...(customer.tiersPayants || [])]};
+    const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
     // Utiliser le mixin qui gère la logique commune + callback ASSURANCE
     this.customerHandling.selectCustomer(newCustomer);
   }
@@ -653,12 +633,11 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
           }
           this.productHandling.focusProductSearch();
         },
-        'xl', null,
-        () => this.productHandling.focusProductSearch()
+        'xl',
+        null,
+        () => this.productHandling.focusProductSearch(),
       );
     }
-
-
   }
 
   /**
@@ -913,8 +892,9 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
           this.productHandling.focusProductSearch();
         }
       },
-      'xl', null,
-      () => this.productHandling.focusProductSearch()
+      'xl',
+      null,
+      () => this.productHandling.focusProductSearch(),
     );
   }
 
@@ -969,14 +949,12 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
           this.facade.updateSaleTiersPayants(updatedCustomer.tiersPayants || []);
           this.insuranceDataBar()?.initializeFromCustomer(updatedCustomer);
           this.insuranceDataBar()?.focusFirstBon();
-
         }
       },
       'xl',
       'modal-dialog-80',
     );
   }
-
 
   // ============================================
   // Raccourcis clavier

@@ -37,7 +37,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 25);
         viderLeCache();
 
-        ProduitIndicateursDTO indicateurs = services.produitIndicateursService.getIndicateurs(produit.getId()).orElseThrow();
+        ProduitIndicateursDTO indicateurs = services.produitIndicateursService
+                .getIndicateurs(produit.getId())
+                .orElseThrow();
 
         assertEquals(produit.getId(), indicateurs.produitId());
         assertEquals(0, BigDecimal.ZERO.compareTo(indicateurs.cmm()), "aucune vente, consommation moyenne nulle");
@@ -56,7 +58,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 10);
         viderLeCache();
 
-        ProduitIndicateursDTO indicateurs = services.produitIndicateursService.getIndicateurs(produit.getId()).orElseThrow();
+        ProduitIndicateursDTO indicateurs = services.produitIndicateursService
+                .getIndicateurs(produit.getId())
+                .orElseThrow();
 
         assertEquals(new BigDecimal("40.00"), indicateurs.tauxMarge(), "(10 000 - 6 000) / 10 000");
     }
@@ -69,7 +73,10 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 10);
         viderLeCache();
 
-        assertNull(services.produitIndicateursService.getIndicateurs(produit.getId()).orElseThrow().tauxMarge());
+        assertNull(services.produitIndicateursService
+                .getIndicateurs(produit.getId())
+                .orElseThrow()
+                .tauxMarge());
     }
 
     @Test
@@ -83,7 +90,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 10);
         viderLeCache();
 
-        ProduitIndicateursDTO indicateurs = services.produitIndicateursService.getIndicateurs(produit.getId()).orElseThrow();
+        ProduitIndicateursDTO indicateurs = services.produitIndicateursService
+                .getIndicateurs(produit.getId())
+                .orElseThrow();
 
         assertEquals(ClasseCriticite.A, indicateurs.classeCriticite());
         assertTrue(indicateurs.estMedicamentEssentiel());
@@ -99,7 +108,12 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 10);
         viderLeCache();
 
-        assertEquals(ClasseCriticite.B, services.produitIndicateursService.getIndicateurs(produit.getId()).orElseThrow().classeCriticite());
+        assertEquals(
+                ClasseCriticite.B,
+                services.produitIndicateursService
+                        .getIndicateurs(produit.getId())
+                        .orElseThrow()
+                        .classeCriticite());
     }
 
     @Test
@@ -123,7 +137,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
 
         List<VenteMoisDTO> historique = services.produitIndicateursService.getVentesMensuelles(produit.getId(), 12);
 
-        assertEquals(List.of("2026-01", "2026-02", "2026-03"), historique.stream().map(VenteMoisDTO::anneeMois).toList());
+        assertEquals(
+                List.of("2026-01", "2026-02", "2026-03"),
+                historique.stream().map(VenteMoisDTO::anneeMois).toList());
         VenteMoisDTO janvier = historique.getFirst();
         assertEquals(10, janvier.quantiteVendue());
         assertEquals(100_000, janvier.montantCa());
@@ -143,7 +159,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
 
         List<VenteMoisDTO> deuxDerniers = services.produitIndicateursService.getVentesMensuelles(produit.getId(), 2);
 
-        assertEquals(List.of("2026-02", "2026-03"), deuxDerniers.stream().map(VenteMoisDTO::anneeMois).toList());
+        assertEquals(
+                List.of("2026-02", "2026-03"),
+                deuxDerniers.stream().map(VenteMoisDTO::anneeMois).toList());
     }
 
     @Test
@@ -154,7 +172,9 @@ class ProduitIndicateursServiceIntegrationTest extends AbstractStockIntegrationT
         stock(produit, rayon, 10);
         viderLeCache();
 
-        assertTrue(services.produitIndicateursService.getVentesMensuelles(produit.getId(), 12).isEmpty());
+        assertTrue(services.produitIndicateursService
+                .getVentesMensuelles(produit.getId(), 12)
+                .isEmpty());
     }
 
     // ===== fabriques =====

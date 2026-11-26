@@ -42,27 +42,26 @@ public class AvoirClientServiceImpl implements AvoirClientService {
         var sale = sl.getSales();
         Customer customer = sale.getCustomer();
         String customerName = customer != null
-            ? (customer.getFirstName() + " " + Objects.requireNonNullElse(customer.getLastName(), "")).strip()
-            : null;
+                ? (customer.getFirstName() + " " + Objects.requireNonNullElse(customer.getLastName(), "")).strip()
+                : null;
         String sellerName = AppUserNames.fullName(sale.getSeller());
         FournisseurProduit fp = sl.getProduit().getFournisseurProduitPrincipal();
         String codeCip = fp != null ? fp.getCodeCip() : sl.getProduit().getCodeEanLaboratoire();
         int montant = sl.getQuantityAvoir() * sl.getNetUnitPrice();
 
         return new AvoirClientDTO(
-            sale.getId().getId(),
-            sale.getSaleDate(),
-            sale.getNumberTransaction(),
-            customerName,
-            sellerName,
-            sl.getId() != null ? sl.getId().getId() : null,
-            sl.getProduit().getLibelle(),
-            codeCip,
-            sl.getQuantityAvoir(),
-            sl.getRegularUnitPrice(),
-            sl.getNetUnitPrice(),
-            montant,
-            sl.getUpdatedAt()
-        );
+                sale.getId().getId(),
+                sale.getSaleDate(),
+                sale.getNumberTransaction(),
+                customerName,
+                sellerName,
+                sl.getId() != null ? sl.getId().getId() : null,
+                sl.getProduit().getLibelle(),
+                codeCip,
+                sl.getQuantityAvoir(),
+                sl.getRegularUnitPrice(),
+                sl.getNetUnitPrice(),
+                montant,
+                sl.getUpdatedAt());
     }
 }

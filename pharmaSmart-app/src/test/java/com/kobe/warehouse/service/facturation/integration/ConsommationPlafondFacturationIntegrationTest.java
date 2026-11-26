@@ -100,17 +100,16 @@ class ConsommationPlafondFacturationIntegrationTest extends AbstractFacturationI
 
     private static EditionSearchParams parametres(boolean provisoire) {
         return new EditionSearchParams(
-            null,
-            ModeEditionEnum.ALL,
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            Set.of(),
-            Set.of(),
-            Set.of(),
-            true,
-            Set.of(),
-            provisoire,
-            OrigineGeneration.MANUELLE
-        );
+                null,
+                ModeEditionEnum.ALL,
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                Set.of(),
+                Set.of(),
+                Set.of(),
+                true,
+                Set.of(),
+                provisoire,
+                OrigineGeneration.MANUELLE);
     }
 }

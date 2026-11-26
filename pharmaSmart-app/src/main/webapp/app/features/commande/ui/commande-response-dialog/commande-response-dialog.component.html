@@ -1,13 +1,10 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-file-check me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-file-check me-2"></i>{{ header }}</h5>
   <button type="button" class="btn-close" (clicked)="close()"></button>
 </div>
 
 <div class="modal-body">
   <div class="row g-3">
-
     <!-- Bandeau rupture totale -->
     @if (responseCommande?.allLinesInRupture) {
       <div class="col-12">
@@ -18,13 +15,7 @@
           </div>
           <div class="response-card-body d-flex align-items-center gap-3">
             <span class="text-muted small">La commande n'a pas été modifiée. Vous pouvez la supprimer ou la conserver pour révision.</span>
-            <app-button
-              label="Supprimer la commande"
-              icon="pi pi-trash"
-              severity="danger"
-              size="small"
-              (clicked)="onDeleteCommande()"
-            />
+            <app-button label="Supprimer la commande" icon="pi pi-trash" severity="danger" size="small" (clicked)="onDeleteCommande()" />
           </div>
         </div>
       </div>
@@ -40,7 +31,7 @@
         <div class="response-card-body">
           <span class="response-counter">
             {{ responseCommandeItem().length | number }}
-            <span class="response-counter-total">/ {{ (commande?.orderLines?.length ?? 0) | number }}</span>
+            <span class="response-counter-total">/ {{ commande?.orderLines?.length ?? 0 | number }}</span>
           </span>
         </div>
       </div>
@@ -55,7 +46,7 @@
             <span>Produits en rupture ou partiels</span>
             <span class="response-counter-badge ms-auto">
               {{ responseCommandeItemNonPrisEnCompte().length | number }}
-              / {{ (commande?.orderLines?.length ?? 0) | number }}
+              / {{ commande?.orderLines?.length ?? 0 | number }}
             </span>
           </div>
           <div class="response-card-body">
@@ -79,9 +70,9 @@
                       <td class="text-right">{{ item.quantite | number }}</td>
                       <td class="text-center">
                         @if ((item.quantitePriseEnCompte ?? 0) === 0) {
-                          <app-badge severity="danger" label="Rupture" icon="pi pi-times"/>
+                          <app-badge severity="danger" label="Rupture" icon="pi pi-times" />
                         } @else {
-                          <app-badge severity="warn" label="Partiel" icon="pi pi-minus"/>
+                          <app-badge severity="warn" label="Partiel" icon="pi pi-minus" />
                         }
                       </td>
                     </tr>
@@ -128,5 +119,5 @@
 </div>
 
 <div class="modal-footer">
-  <app-button (clicked)="close()" label="Fermer" severity="secondary" size="small" icon="pi pi-times"/>
+  <app-button (clicked)="close()" label="Fermer" severity="secondary" size="small" icon="pi pi-times" />
 </div>

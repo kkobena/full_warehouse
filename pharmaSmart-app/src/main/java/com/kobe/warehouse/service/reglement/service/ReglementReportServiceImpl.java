@@ -7,13 +7,12 @@ import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class ReglementReportServiceImpl extends CommonReportService implements ReglementReportService {
@@ -24,10 +23,7 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
 
     private String templateFile;
 
-    public ReglementReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
+    public ReglementReportServiceImpl(SpringTemplateEngine templateEngine, StorageService storageService) {
         super(storageService);
         this.templateEngine = templateEngine;
     }
@@ -103,13 +99,16 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
         int itemSize = 0;
         int totalAmount = 0;
         for (InvoicePaymentWrapper invoicePaymentWrapper : invoicePaymentWrappers) {
-            itemSize += Integer.parseInt(invoicePaymentWrapper.getInvoicePaymentItemsCount().replaceAll(" ", ""));
-            totalAmount += Integer.parseInt(invoicePaymentWrapper.getTotalAmount().replaceAll(" ", ""));
+            itemSize += Integer.parseInt(
+                    invoicePaymentWrapper.getInvoicePaymentItemsCount().replaceAll(" ", ""));
+            totalAmount +=
+                    Integer.parseInt(invoicePaymentWrapper.getTotalAmount().replaceAll(" ", ""));
         }
         this.getParameters().put(Constant.REGLEMENT_COUNT, NumberUtil.formatToString(itemSize));
         this.getParameters().put(Constant.ITEMS, invoicePaymentWrappers);
         this.getParameters().put(Constant.REGLEMENT_PAID_AMOUNT, NumberUtil.formatToString(totalAmount));
-        this.getParameters().put(Constant.PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
+        this.getParameters()
+                .put(Constant.PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
 
         super.getCommonParameters();
         return super.printOneReceiptPage();

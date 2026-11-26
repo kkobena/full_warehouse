@@ -1,44 +1,38 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, input, signal } from "@angular/core";
-import {FormsModule} from "@angular/forms";
-import {
-  MvtCaisse,
-  MvtCaisseWrapper,
-  TypeFinancialTransaction
-} from "../cash-register/model/cash-register.model";
-import {MvtCaisseServiceService} from "./mvt-caisse-service.service";
-import {HttpHeaders, HttpResponse} from "@angular/common/http";
-import {IPaymentMode} from "../../shared/model/payment-mode.model";
-import {IUser} from "../../core/user/user.model";
-import {ModePaymentService} from "../mode-payments/mode-payment.service";
-import {FormTransactionComponent} from "./form-transaction/form-transaction.component";
-import {NgbDateStruct, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {NGB_DATE_TO_ISO} from "../../shared/util/warehouse-util";
-import {getTypeName, MvtCaisseParams} from "./mvt-caisse-util";
-import {UserService} from "../../core/user/user.service";
-import {MvtParamServiceService} from "./mvt-param-service.service";
-import {showCommonModal} from "../sales/selling-home/sale-helper";
-import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
-import {PaymentId} from "../reglement/model/reglement.model";
-import {takeUntil} from "rxjs/operators";
-import {Subject} from "rxjs";
-import {BlobDownloadService} from "../../shared/services/blob-download.service";
-import {CommonModule} from "@angular/common";
-import {NotificationService} from "../../shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MvtCaisse, MvtCaisseWrapper, TypeFinancialTransaction } from '../cash-register/model/cash-register.model';
+import { MvtCaisseServiceService } from './mvt-caisse-service.service';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { IPaymentMode } from '../../shared/model/payment-mode.model';
+import { IUser } from '../../core/user/user.model';
+import { ModePaymentService } from '../mode-payments/mode-payment.service';
+import { FormTransactionComponent } from './form-transaction/form-transaction.component';
+import { NgbDateStruct, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { NGB_DATE_TO_ISO } from '../../shared/util/warehouse-util';
+import { getTypeName, MvtCaisseParams } from './mvt-caisse-util';
+import { UserService } from '../../core/user/user.service';
+import { MvtParamServiceService } from './mvt-param-service.service';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { PaymentId } from '../reglement/model/reglement.model';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { BlobDownloadService } from '../../shared/services/blob-download.service';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
   DataTableComponent,
   MultiSelectComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../shared/ui";
-import {PharmaDatePickerComponent} from "../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+} from '../../shared/ui';
+import { PharmaDatePickerComponent } from '../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: "app-visualisation-mvt-caisse",
+  selector: 'app-visualisation-mvt-caisse',
   imports: [
     CommonModule,
     FormsModule,
@@ -48,11 +42,11 @@ import {PharmaDatePickerComponent} from "../../shared/date-picker/pharma-date-pi
     MultiSelectComponent,
     SelectComponent,
     PharmaDatePickerComponent,
-    NgbTooltip
+    NgbTooltip,
   ],
-  templateUrl: "./visualisation-mvt-caisse.component.html",
+  templateUrl: './visualisation-mvt-caisse.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./visualisation-mvt-caisse.scss"]
+  styleUrls: ['./visualisation-mvt-caisse.scss'],
 })
 export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   /**
@@ -76,7 +70,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   protected readonly toDate = signal<NgbDateStruct | null>(null);
   protected fromTime: Date | undefined;
   protected toTime: Date | undefined;
-  protected order = "ASC";
+  protected order = 'ASC';
   protected readonly selectedUser = signal<IUser | null>(null);
   protected readonly selectedModes = signal<IPaymentMode[]>([]);
   protected readonly users = signal<IUser[] | undefined>(undefined);
@@ -86,9 +80,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.CASH_SALE,
-    TypeFinancialTransaction.CREDIT_SALE
+    TypeFinancialTransaction.CREDIT_SALE,
   ];
-  protected typeOptions = this.types.map(type => ({label: type, value: type}));
+  protected typeOptions = this.types.map(type => ({ label: type, value: type }));
   protected readonly selectedTypes = signal<TypeFinancialTransaction[]>([]);
   protected readonly paymentModes = signal<IPaymentMode[]>([]);
 
@@ -116,7 +110,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     this.onSearch();
   }
 
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -136,14 +129,14 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
       .findAllMvts({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading.set(false);
-        }
+        },
       });
   }
 
@@ -152,11 +145,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-        } catch (error) {
-        }
+        } catch (error) {}
       },
-      error() {
-      }
+      error() {},
     });
   }
 
@@ -168,11 +159,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
         .findAllMvts({
           page: this.page(),
           size: event.rows,
-          ...this.buildParams()
+          ...this.buildParams(),
         })
         .subscribe({
           next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page()),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -188,16 +179,15 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     this.mvtCaisseService.exportToPdf(this.buildParams()).subscribe({
       next: blob => {
         this.btnLoading.set(false);
-        this.blobDownloadService.downloadPdf(blob, "visualisation-mouvements-caisse");
-
+        this.blobDownloadService.downloadPdf(blob, 'visualisation-mouvements-caisse');
       },
       error: () => {
         this.btnLoading.set(false);
-        this.notificationService.error("Erreur", "Une erreur est survenue lors de l'exportation");
+        this.notificationService.error('Erreur', "Une erreur est survenue lors de l'exportation");
       },
       complete: () => {
         this.btnLoading.set(false);
-      }
+      },
     });
   }
 
@@ -205,19 +195,19 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     showCommonModal(
       this.modalService,
       FormTransactionComponent,
-      {header: "Mouvement de Caisse"},
+      { header: 'Mouvement de Caisse' },
       (paymentId: PaymentId) => {
         if (paymentId) {
           this.onPrintReceipt(paymentId);
           this.onSearch();
         }
       },
-      "lg"
+      'lg',
     );
   }
 
   private onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.page.set(page);
 
     this.mvtCaisses.set(data || []);
@@ -233,7 +223,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
       typeFinancialTransactions: this.selectedTypes()?.map(type => getTypeName(type)),
       paymentModes: this.selectedModes()?.map(mode => mode.code),
       userId: this.selectedUser()?.id,
-      order: this.order
+      order: this.order,
     };
   }
 
@@ -262,7 +252,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
       toDate: this.toDate(),
       selectedTypes: this.selectedTypes(),
       paymentModes: this.selectedModes(),
-      selectedUser: this.selectedUser()
+      selectedUser: this.selectedUser(),
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -282,7 +272,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
   }
 
   private onPrintReceipt(paymentId: PaymentId): void {
-
     this.confirmDialog.onConfirm(
       () => {
         if (this.tauriPrinterService.isRunningInTauri()) {
@@ -291,9 +280,8 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
           this.mvtCaisseService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
         }
       },
-      "TICKET REGLEMENT",
-      "Voulez-vous imprimer le ticket ?"
+      'TICKET REGLEMENT',
+      'Voulez-vous imprimer le ticket ?',
     );
-
   }
 }

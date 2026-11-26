@@ -71,7 +71,8 @@ public final class FormatRapport {
     }
 
     /** Un taux varie en points, le reste en % de la référence ; « n.s. » sans référence comparable. */
-    public static VariationRapportDTO formaterVariation(Double ecart, Double ecartPct, UniteIndicateur unite, SensFavorable sens) {
+    public static VariationRapportDTO formaterVariation(
+            Double ecart, Double ecartPct, UniteIndicateur unite, SensFavorable sens) {
         boolean enPoints = unite == UniteIndicateur.POURCENTAGE;
         Double valeur = enPoints ? ecart : ecartPct;
         if (valeur == null || valeur.isNaN() || valeur.isInfinite()) {
@@ -88,7 +89,10 @@ public final class FormatRapport {
 
     /** Écart de CA signé et abrégé : une hausse est favorable. */
     public static MontantRapportDTO formaterEcart(String libelle, double ecart) {
-        return new MontantRapportDTO(libelle, lireSigne(ecart) + formaterMontantAbrege(Math.abs(ecart)), apprecier(ecart, SensFavorable.HAUSSE));
+        return new MontantRapportDTO(
+                libelle,
+                lireSigne(ecart) + formaterMontantAbrege(Math.abs(ecart)),
+                apprecier(ecart, SensFavorable.HAUSSE));
     }
 
     private static String apprecier(double valeur, SensFavorable sens) {

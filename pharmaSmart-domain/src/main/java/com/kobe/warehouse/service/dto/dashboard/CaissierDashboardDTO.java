@@ -7,9 +7,8 @@ import java.util.List;
  * Synthèse croisée Caisse + Ventes + Différés + Commandes.
  */
 public record CaissierDashboardDTO(
-    CaisseStatusDTO caisseStatus,
-    SessionEncaissementsDTO sessionEncaissements,
-    ResumeDifferesDTO resumeDifferes,
-    List<LivraisonAttendueDTO> livraisonsAttendues,
-    List<VenteRecenteDTO> ventesRecentes
-) {}
+        CaisseStatusDTO caisseStatus,
+        SessionEncaissementsDTO sessionEncaissements,
+        ResumeDifferesDTO resumeDifferes,
+        List<LivraisonAttendueDTO> livraisonsAttendues,
+        List<VenteRecenteDTO> ventesRecentes) {}

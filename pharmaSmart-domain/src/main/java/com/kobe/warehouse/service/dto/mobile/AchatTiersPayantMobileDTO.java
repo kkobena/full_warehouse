@@ -10,9 +10,4 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param clientCount Number of clients
  */
 public record AchatTiersPayantMobileDTO(
-    String libelle,
-    String categorie,
-    int bonsCount,
-    long montant,
-    int clientCount
-) {}
+        String libelle, String categorie, int bonsCount, long montant, int clientCount) {}

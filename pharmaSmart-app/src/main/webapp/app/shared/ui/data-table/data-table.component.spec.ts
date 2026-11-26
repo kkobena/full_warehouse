@@ -145,7 +145,7 @@ describe('DataTableComponent', () => {
       expect([...render().querySelector('table')!.classList]).toContain('table-striped');
     });
 
-    it('fige l\'en-tête et borne la hauteur en mode scrollable', () => {
+    it("fige l'en-tête et borne la hauteur en mode scrollable", () => {
       host.scrollable = true;
       host.scrollHeight = '400px';
       const scroller = render().querySelector('.app-table__scroller') as HTMLElement;
@@ -180,7 +180,7 @@ describe('DataTableComponent', () => {
   });
 
   describe('tri client-side', () => {
-    it('trie à l\'ascendant au premier clic', () => {
+    it("trie à l'ascendant au premier clic", () => {
       headers()[0].click();
       expect(labels()).toEqual(['Amoxicilline', 'Élastoplaste', 'Zinc']);
     });
@@ -191,7 +191,7 @@ describe('DataTableComponent', () => {
       expect(labels()).toEqual(['Zinc', 'Élastoplaste', 'Amoxicilline']);
     });
 
-    it('repart à l\'ascendant en changeant de colonne', () => {
+    it("repart à l'ascendant en changeant de colonne", () => {
       headers()[0].click();
       headers()[0].click();
       headers()[1].click();
@@ -293,7 +293,7 @@ describe('DataTableComponent', () => {
       expect(render().textContent).toContain('15');
     });
 
-    it('n\'émet pas onLazyLoad hors mode lazy', () => {
+    it("n'émet pas onLazyLoad hors mode lazy", () => {
       host.lazy = false;
       headers()[0].click();
       expect(host.lazyEvents).toHaveLength(0);
@@ -303,10 +303,9 @@ describe('DataTableComponent', () => {
   describe('sélection', () => {
     // On cible les lignes du corps par leur cellule libellé : en dépliage, des <tr>
     // supplémentaires s'intercalent et fausseraient un simple index sur `tbody tr`.
-    const rowAt = (index: number): HTMLElement =>
-      ([...render().querySelectorAll('td.libelle')][index] as HTMLElement).closest('tr')!;
+    const rowAt = (index: number): HTMLElement => ([...render().querySelectorAll('td.libelle')][index] as HTMLElement).closest('tr')!;
 
-    it('ne rend qu\'une ligne par élément', () => {
+    it("ne rend qu'une ligne par élément", () => {
       // Garde-fou : envelopper le <tr> projeté dans un <tr> de la table dupliquerait tout.
       expect(render().querySelectorAll('tbody tr')).toHaveLength(PRODUITS.length);
     });
@@ -361,7 +360,7 @@ describe('DataTableComponent', () => {
       expect(render().querySelector('.detail')).toBeNull();
     });
 
-    it('expose l\'état déplié au template #body', () => {
+    it("expose l'état déplié au template #body", () => {
       expect(toggler(0).textContent!.trim()).toBe('plus');
       toggler(0).click();
       expect(toggler(0).textContent!.trim()).toBe('moins');

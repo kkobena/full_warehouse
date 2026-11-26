@@ -25,10 +25,7 @@ public interface InventaireQueryService {
      * @param excludeIfClosed si true, retourne une page vide pour un inventaire CLOSED
      */
     Page<StoreInventoryLineRecord> getInventoryPage(
-        StoreInventoryLineFilterRecord filter,
-        Pageable pageable,
-        boolean excludeIfClosed
-    );
+            StoreInventoryLineFilterRecord filter, Pageable pageable, boolean excludeIfClosed);
 
     /**
      * Construit le wrapper d'export (groupes + totaux) pour un inventaire.

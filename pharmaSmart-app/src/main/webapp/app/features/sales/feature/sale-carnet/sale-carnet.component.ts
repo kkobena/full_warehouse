@@ -11,16 +11,16 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   AssuredCustomerListModalComponent,
   InsuranceDataBarComponent,
@@ -30,18 +30,16 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {PaymentCompleteEvent, PaymentModeComponent} from '../../ui/payment-mode/payment-mode.component';
-import {
-  CashRegisterFormComponent
-} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import {CustomerCarnetComponent} from '../../../../entities/customer/carnet/customer-carnet.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {CustomerSearchService} from '../../data-access/services/customer-search.service';
-import {IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
+import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import { CustomerCarnetComponent } from '../../../../entities/customer/carnet/customer-carnet.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { CustomerSearchService } from '../../data-access/services/customer-search.service';
+import { IClientTiersPayant, ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -52,7 +50,7 @@ import {
   createSaleLifecycle,
   ProductSearchHost,
 } from '../../shared/mixins';
-import {SaleForEditInfo} from '../../../../shared/model/sales.model';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * SaleCarnetComponent
@@ -178,7 +176,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    config: {saleType: 'CARNET'},
+    config: { saleType: 'CARNET' },
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -269,13 +267,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
-    onPaymentSuccess() {
-    },
+    onPaymentSuccess() {},
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    {saleType: 'CARNET', isPresale: () => this.isPresale()},
+    { saleType: 'CARNET', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -388,14 +385,14 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
       //  Si montant à payer <= 0, finaliser directement sans paiement
       if (amountToBePaid <= 0) {
-
         this.confirmDialog.onConfirm(
           () => {
             this.finalizeSaleWithoutPayment();
           },
           'Finaliser la vente',
-          'Voulez-vous vraiment finaliser la vente ?', null,
-          () => this.productSearchComponent()?.getFocus()
+          'Voulez-vous vraiment finaliser la vente ?',
+          null,
+          () => this.productSearchComponent()?.getFocus(),
         );
       } else {
         // Montant à payer > 0, le payment-mode est déjà affiché en inline
@@ -428,7 +425,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
     // TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
-    const newCustomer = {...customer, tiersPayants: [...(customer.tiersPayants || [])]};
+    const newCustomer = { ...customer, tiersPayants: [...(customer.tiersPayants || [])] };
     this.customerHandling.selectCustomer(newCustomer);
   }
 

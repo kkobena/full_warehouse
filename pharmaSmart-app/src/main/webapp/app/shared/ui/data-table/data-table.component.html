@@ -29,10 +29,7 @@
         />
 
         @if (isExpanded(row) && expandedRowTemplate()) {
-          <ng-container
-            [ngTemplateOutlet]="expandedRowTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: row, rowIndex: $index }"
-          />
+          <ng-container [ngTemplateOutlet]="expandedRowTemplate()!" [ngTemplateOutletContext]="{ $implicit: row, rowIndex: $index }" />
         }
       } @empty {
         @if (!loading()) {

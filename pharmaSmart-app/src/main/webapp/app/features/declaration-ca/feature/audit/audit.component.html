@@ -1,40 +1,31 @@
 <app-toolbar [code]="navCode()" icon="pi pi-shield" title="Contrôle de cohérence">
   <ng-container ngProjectAs="[toolbarFilters]">
-    <pharma-date-picker (ngModelChange)="dateDebut.set($event)" [ngModel]="dateDebut()"
-                        id="audit-du" label="Du"
-                        labelPosition="inline" />
-    <pharma-date-picker (ngModelChange)="dateFin.set($event)" [ngModel]="dateFin()" id="audit-au"
-                        label="Au"
-                        labelPosition="inline" />
+    <pharma-date-picker (ngModelChange)="dateDebut.set($event)" [ngModel]="dateDebut()" id="audit-du" label="Du" labelPosition="inline" />
+    <pharma-date-picker (ngModelChange)="dateFin.set($event)" [ngModel]="dateFin()" id="audit-au" label="Au" labelPosition="inline" />
   </ng-container>
 
   <ng-container ngProjectAs="[toolbarActions]">
-    <app-button (clicked)="controler()" [disabled]="chargement()" icon="pi pi-shield"
-                label="Contrôler" severity="primary" />
+    <app-button (clicked)="controler()" [disabled]="chargement()" icon="pi pi-shield" label="Contrôler" severity="primary" />
   </ng-container>
 </app-toolbar>
 
 <div class="alert alert-info py-2 small d-flex align-items-start gap-2">
   <i class="pi pi-info-circle mt-1"></i>
   <span>
-    Vérifie que le chiffre d'affaires déclaré reste cohérent entre les lignes de vente, les ventes
-    et les règlements. Ces trois valeurs sont écrites séparément : rien dans la base ne les empêche
-    de diverger.
+    Vérifie que le chiffre d'affaires déclaré reste cohérent entre les lignes de vente, les ventes et les règlements. Ces trois valeurs sont
+    écrites séparément : rien dans la base ne les empêche de diverger.
   </span>
 </div>
 
 <app-hint storageKey="declaration-ca-audit">
-  À lancer avant de transmettre une déclaration : le contrôle ne lit que des données, il peut être
-  rejoué autant de fois que nécessaire.
+  À lancer avant de transmettre une déclaration : le contrôle ne lit que des données, il peut être rejoué autant de fois que nécessaire.
 </app-hint>
 @if (toutEstSain()) {
   <div class="alert alert-success py-2 small d-flex align-items-center gap-2">
     <i class="pi pi-check-circle"></i>
     <span>
-      Tous les invariants sont tenus{{
-        dateDebut() && dateFin() ? ' sur la période' : ' sur l\'ensemble de l\'historique'
-      }}.
-      Les états peuvent être déclarés en confiance.
+      Tous les invariants sont tenus{{ dateDebut() && dateFin() ? ' sur la période' : " sur l'ensemble de l'historique" }}. Les états
+      peuvent être déclarés en confiance.
     </span>
   </div>
 }
@@ -59,7 +50,9 @@
               </p>
               <ul class="small mb-0">
                 @for (exemple of anomalie.exemples; track exemple) {
-                  <li><code>{{ exemple }}</code></li>
+                  <li>
+                    <code>{{ exemple }}</code>
+                  </li>
                 }
               </ul>
             } @else {

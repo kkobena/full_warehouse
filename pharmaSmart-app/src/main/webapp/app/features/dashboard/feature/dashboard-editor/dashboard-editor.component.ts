@@ -1,5 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
-import { AppSplitButtonItem, BadgeComponent, ButtonComponent, SkeletonComponent, SplitButtonComponent, ToolbarComponent } from 'app/shared/ui';
+import {
+  AppSplitButtonItem,
+  BadgeComponent,
+  ButtonComponent,
+  SkeletonComponent,
+  SplitButtonComponent,
+  ToolbarComponent,
+} from 'app/shared/ui';
 import { WidgetDefinition } from '../../models/dashboard.model';
 import { DASHBOARD_TEMPLATES, DashboardTemplate, instantiateTemplate } from '../../models/dashboard-templates';
 import { DashboardStore } from '../../data-access/store/dashboard.store';
@@ -52,9 +59,7 @@ export class DashboardEditorComponent {
   ]);
 
   /** Modèles dont au moins un widget est autorisé à l'utilisateur. */
-  protected readonly templates = computed(() =>
-    DASHBOARD_TEMPLATES.filter(t => instantiateTemplate(t, this.store.allowed()).length > 0),
-  );
+  protected readonly templates = computed(() => DASHBOARD_TEMPLATES.filter(t => instantiateTemplate(t, this.store.allowed()).length > 0));
 
   protected useTemplate(template: DashboardTemplate): void {
     this.facade.newFromTemplate(template);

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.dto.DoughnutChart;
 import com.kobe.warehouse.service.dto.ReportPeriode;
-import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
@@ -34,13 +34,13 @@ public class TaxeServiceImpl implements TaxeService {
     private final ObjectMapper objectMapper;
     private final AppConfigurationService appConfigurationService;
 
-    public TaxeServiceImpl(TvaReportReportService tvaReportService,
-        DeclarationTvaPdfReportService declarationTvaPdfReportService,
-        SalesRepository salesRepository,
-        AppConfigurationService appConfigurationService,
-        ObjectMapper objectMapper,
-        ModeChiffreAffaireResolver modeResolver
-    ) {
+    public TaxeServiceImpl(
+            TvaReportReportService tvaReportService,
+            DeclarationTvaPdfReportService declarationTvaPdfReportService,
+            SalesRepository salesRepository,
+            AppConfigurationService appConfigurationService,
+            ObjectMapper objectMapper,
+            ModeChiffreAffaireResolver modeResolver) {
         this.modeResolver = modeResolver;
         this.tvaReportService = tvaReportService;
         this.declarationTvaPdfReportService = declarationTvaPdfReportService;
@@ -69,8 +69,7 @@ public class TaxeServiceImpl implements TaxeService {
         return this.tvaReportService.exportToPdfBytes(
                 this.fetchTaxe(mvtParam, true),
                 new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
-                StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
-            );
+                StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy()));
     }
 
     @Override
@@ -87,12 +86,12 @@ public class TaxeServiceImpl implements TaxeService {
         }
         // Calcul TVA déductible : Σ (montantAchat HT × codeTva / 100) par ligne de taux
         long tvaDeductible = result.getTaxes().stream()
-            .mapToLong(taxe -> {
-                long achatHt = taxe.getMontantAchat() != null ? taxe.getMontantAchat() : 0L;
-                int taux = taxe.getCodeTva() != null ? taxe.getCodeTva() : 0;
-                return Math.round(achatHt * taux / 100.0);
-            })
-            .sum();
+                .mapToLong(taxe -> {
+                    long achatHt = taxe.getMontantAchat() != null ? taxe.getMontantAchat() : 0L;
+                    int taux = taxe.getCodeTva() != null ? taxe.getCodeTva() : 0;
+                    return Math.round(achatHt * taux / 100.0);
+                })
+                .sum();
         result.setTvaDeductible(tvaDeductible);
         result.setTvaNette(result.getMontantTaxe() - tvaDeductible);
         return result;
@@ -100,30 +99,30 @@ public class TaxeServiceImpl implements TaxeService {
 
     private List<TaxeDTO> fetchTaxe(MvtParam mvtParam) {
         try {
-            mvtParam.setStatuts(
-                Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
-            );
+            mvtParam.setStatuts(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED));
 
             mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
             String jsonResult;
             if ("daily".equals(mvtParam.getGroupeBy())) {
                 jsonResult = salesRepository.fetchSalesTvaReportJournalier(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
-                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
-                    mvtParam.getModeName()
-                );
+                        mvtParam.getFromDate(),
+                        mvtParam.getToDate(),
+                        mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                        mvtParam.getCategorieChiffreAffaires().stream()
+                                .map(CategorieChiffreAffaire::name)
+                                .toArray(String[]::new),
+                        BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                        mvtParam.getModeName());
             } else {
                 jsonResult = salesRepository.fetchSalesTvaReport(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
-                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
-                    mvtParam.getModeName()
-                );
+                        mvtParam.getFromDate(),
+                        mvtParam.getToDate(),
+                        mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                        mvtParam.getCategorieChiffreAffaires().stream()
+                                .map(CategorieChiffreAffaire::name)
+                                .toArray(String[]::new),
+                        BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                        mvtParam.getModeName());
             }
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
@@ -144,7 +143,8 @@ public class TaxeServiceImpl implements TaxeService {
         taxeWrapper.setMontantNet(taxeWrapper.getMontantNet() + taxe.getMontantNet());
         taxeWrapper.setMontantRemise(taxeWrapper.getMontantRemise() + taxe.getMontantRemise());
         taxeWrapper.setMontantAchat(taxeWrapper.getMontantAchat() + taxe.getMontantAchat());
-        taxeWrapper.setAmountToBeTakenIntoAccount(taxeWrapper.getAmountToBeTakenIntoAccount() + taxe.getAmountToBeTakenIntoAccount());
+        taxeWrapper.setAmountToBeTakenIntoAccount(
+                taxeWrapper.getAmountToBeTakenIntoAccount() + taxe.getAmountToBeTakenIntoAccount());
         taxeWrapper.getTaxes().add(taxe);
     }
 
@@ -153,13 +153,12 @@ public class TaxeServiceImpl implements TaxeService {
         taxes.sort(Comparator.comparing(TaxeDTO::getCodeTva));
         List<String> labeles = new ArrayList<>();
         List<Long> data = new ArrayList<>();
-        taxes
-            .stream()
-            .collect(Collectors.groupingBy(TaxeDTO::getCodeTva, Collectors.summingLong(TaxeDTO::getMontantTtc)))
-            .forEach((k, v) -> {
-                labeles.add(k.toString());
-                data.add(v);
-            });
+        taxes.stream()
+                .collect(Collectors.groupingBy(TaxeDTO::getCodeTva, Collectors.summingLong(TaxeDTO::getMontantTtc)))
+                .forEach((k, v) -> {
+                    labeles.add(k.toString());
+                    data.add(v);
+                });
         return new DoughnutChart(labeles, data);
     }
 }

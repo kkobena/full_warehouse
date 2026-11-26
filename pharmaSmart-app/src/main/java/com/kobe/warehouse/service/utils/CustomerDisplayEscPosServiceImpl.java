@@ -60,7 +60,8 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private SerialPort serialPort;
     private OutputStream outputStream;
 
-    public CustomerDisplayEscPosServiceImpl(RequestOrigineService requestOrigineService, AppConfigurationService appConfigurationService) {
+    public CustomerDisplayEscPosServiceImpl(
+            RequestOrigineService requestOrigineService, AppConfigurationService appConfigurationService) {
         this.requestOrigineService = requestOrigineService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -91,7 +92,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * Resets the display to default state
      */
     private void escPosInitialize(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
+        out.write(new byte[] {0x1B, 0x40}); // ESC @
     }
 
     /**
@@ -113,7 +114,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC H or CR (Carriage Return)
      */
     private void escPosMoveCursorHome(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[] { 0x1B, 0x48 }); // ESC H
+        out.write(new byte[] {0x1B, 0x48}); // ESC H
         // Alternative: out.write(0x0D); // CR
     }
 
@@ -130,7 +131,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         // Move cursor to beginning of specified line
         // Different displays use different commands:
         // ESC l (0x1B, 0x6C) for some displays
-        out.write(new byte[] { 0x1B, 0x6C, (byte) line }); // ESC l n
+        out.write(new byte[] {0x1B, 0x6C, (byte) line}); // ESC l n
     }
 
     /**
@@ -143,7 +144,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private void escPosSetCursorPosition(ByteArrayOutputStream out, int row, int col) throws IOException {
         // ESC Y command (used by some VFD displays)
         // Format: ESC Y row col
-        out.write(new byte[] { 0x1B, 0x59, (byte) row, (byte) col });
+        out.write(new byte[] {0x1B, 0x59, (byte) row, (byte) col});
         // Alternative for displays that use different positioning:
         // Some displays use: ESC $ nL nH (horizontal position)
         // out.write(new byte[]{0x1B, 0x24, (byte)(col & 0xFF), (byte)((col >> 8) & 0xFF)});
@@ -158,7 +159,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private void escPosSetBrightness(ByteArrayOutputStream out, int level) throws IOException {
         if (level < 1) level = 1;
         if (level > 4) level = 4;
-        out.write(new byte[] { 0x1B, 0x2A, (byte) level }); // ESC * n
+        out.write(new byte[] {0x1B, 0x2A, (byte) level}); // ESC * n
     }
 
     /**
@@ -166,7 +167,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC C n (n=0: hide, n=1: show)
      */
     private void escPosSetCursorVisibility(ByteArrayOutputStream out, boolean visible) throws IOException {
-        out.write(new byte[] { 0x1B, 0x43, (byte) (visible ? 1 : 0) }); // ESC C n
+        out.write(new byte[] {0x1B, 0x43, (byte) (visible ? 1 : 0)}); // ESC C n
     }
 
     /**
@@ -174,21 +175,21 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC B n (n=0: no blink, n=1: blink)
      */
     private void escPosSetCursorBlink(ByteArrayOutputStream out, boolean blink) throws IOException {
-        out.write(new byte[] { 0x1B, 0x42, (byte) (blink ? 1 : 0) }); // ESC B n
+        out.write(new byte[] {0x1B, 0x42, (byte) (blink ? 1 : 0)}); // ESC B n
     }
 
     /**
      * Scroll display left
      */
     private void escPosScrollLeft(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[] { 0x1B, 0x73 }); // ESC s
+        out.write(new byte[] {0x1B, 0x73}); // ESC s
     }
 
     /**
      * Scroll display right
      */
     private void escPosScrollRight(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[] { 0x1B, 0x74 }); // ESC t
+        out.write(new byte[] {0x1B, 0x74}); // ESC t
     }
 
     /**
@@ -198,7 +199,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         // Speed typically 0-7 (0=fastest)
         if (speed < 0) speed = 0;
         if (speed > 7) speed = 7;
-        out.write(new byte[] { 0x1B, 0x55, (byte) speed }); // ESC U n
+        out.write(new byte[] {0x1B, 0x55, (byte) speed}); // ESC U n
     }
 
     /**
@@ -511,7 +512,8 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
 
             // Line 2: Quantity * Price = Total (right-aligned)
             escPosSetCursorPosition(out, 1, 0);
-            String priceLine = qty + "*" + NumberUtil.formatToString(price) + "=" + NumberUtil.formatToString(qty * price);
+            String priceLine =
+                    qty + "*" + NumberUtil.formatToString(price) + "=" + NumberUtil.formatToString(qty * price);
             escPosWriteText(out, padToDisplayWidth(priceLine, "begin"));
 
             sendEscPosCommands(out);
@@ -717,7 +719,8 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * @throws IOException if network communication fails
      */
     public void sendToNetworkDisplay(byte[] data, String ipAddress, int port) throws IOException {
-        try (Socket socket = new Socket(ipAddress, port); OutputStream out = socket.getOutputStream()) {
+        try (Socket socket = new Socket(ipAddress, port);
+                OutputStream out = socket.getOutputStream()) {
             out.write(data);
             out.flush();
             LOG.info("Data sent to network display: {}:{}", ipAddress, port);
@@ -772,7 +775,8 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         try {
             int bytesWritten = tempPort.writeBytes(data, data.length);
             if (bytesWritten != data.length) {
-                throw new IOException(String.format("Failed to write all bytes. Written: %d, Expected: %d", bytesWritten, data.length));
+                throw new IOException(String.format(
+                        "Failed to write all bytes. Written: %d, Expected: %d", bytesWritten, data.length));
             }
             LOG.info("Data sent to serial port: {} at {} baud", portName, baudRate);
         } finally {
@@ -782,7 +786,8 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
 
     public List<String> listAvailableSerialPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
-        List<String> portNames = Arrays.stream(ports).map(SerialPort::getSystemPortName).toList();
+        List<String> portNames =
+                Arrays.stream(ports).map(SerialPort::getSystemPortName).toList();
 
         LOG.info("Found {} serial ports: {}", portNames.size(), portNames);
         return portNames;

@@ -30,14 +30,13 @@ public class GestionStockDepotImpl implements GestionStockDepotService {
 
     @Override
     public Page<DepotExtensionSaleDTO> getVenteDepot(
-        PaymentStatus paymentStatus,
-        Integer depotId,
-        String search,
-        LocalDate fromDate,
-        LocalDate toDate,
-        Integer userId,
-        Pageable pageable
-    ) {
+            PaymentStatus paymentStatus,
+            Integer depotId,
+            String search,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer userId,
+            Pageable pageable) {
         return saleDataService.fetchVenteDepot(search, fromDate, toDate, userId, paymentStatus, depotId, pageable);
     }
 }

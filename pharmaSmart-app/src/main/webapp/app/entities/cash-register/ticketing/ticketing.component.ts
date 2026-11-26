@@ -1,32 +1,26 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { CashRegister } from "../model/cash-register.model";
-import { Ticketing } from "../model/ticketing.model";
-import { ActivatedRoute } from "@angular/router";
-import { formatNumber } from "../../../shared/util/warehouse-util";
-import { CashRegisterService } from "../cash-register.service";
-import { CommonModule } from "@angular/common";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { ButtonComponent, InputNumberComponent } from "../../../shared/ui";
+import { Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CashRegister } from '../model/cash-register.model';
+import { Ticketing } from '../model/ticketing.model';
+import { ActivatedRoute } from '@angular/router';
+import { formatNumber } from '../../../shared/util/warehouse-util';
+import { CashRegisterService } from '../cash-register.service';
+import { CommonModule } from '@angular/common';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, InputNumberComponent } from '../../../shared/ui';
 
 import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
-  selector: "app-ticketing",
-  imports: [DeviseDirective, DevisePipe, 
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    InputNumberComponent
-  ],
+  selector: 'app-ticketing',
+  imports: [DeviseDirective, DevisePipe, CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, InputNumberComponent],
 
-  templateUrl: "./ticketing-improved.html",
+  templateUrl: './ticketing-improved.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./ticketing-improved.scss"]
+  styleUrls: ['./ticketing-improved.scss'],
 })
 export class TicketingComponent implements OnInit {
-  readonly numberOf10ThousandInput = viewChild("numberOf10Thousand", { read: ElementRef<HTMLElement> });
+  readonly numberOf10ThousandInput = viewChild('numberOf10Thousand', { read: ElementRef<HTMLElement> });
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly entityService = inject(CashRegisterService);
   protected fb = inject(FormBuilder);
@@ -40,14 +34,14 @@ export class TicketingComponent implements OnInit {
     numberOf2Thousand: new FormControl<number | null>(null, {}),
     numberOf1Thousand: new FormControl<number | null>(null, {}),
     numberOf500Hundred: new FormControl<number | null>(null, {}),
-    otherAmount: new FormControl<number | null>(null, {})
+    otherAmount: new FormControl<number | null>(null, {}),
   });
   protected readonly selectedCashRegister = signal<CashRegister | null>(null);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister.set(cashRegister)));
+    this.activatedRoute.data.subscribe(({ cashRegister }) => this.selectedCashRegister.set(cashRegister));
     this.editForm.valueChanges.subscribe(() => this.computeTotalAmount());
   }
 
@@ -67,7 +61,7 @@ export class TicketingComponent implements OnInit {
       numberOf2Thousand: ticketing.numberOf2Thousand,
       numberOf1Thousand: ticketing.numberOf1Thousand,
       numberOf500Hundred: ticketing.numberOf500Hundred,
-      otherAmount: ticketing.otherAmount
+      otherAmount: ticketing.otherAmount,
     });
   }
 
@@ -75,23 +69,23 @@ export class TicketingComponent implements OnInit {
     return {
       ...new Ticketing(),
       cashRegisterId: this.selectedCashRegister().id,
-      id: this.editForm.get(["id"]).value,
-      numberOf10Thousand: this.editForm.get(["numberOf10Thousand"]).value ? this.editForm.get(["numberOf10Thousand"]).value : 0,
-      numberOf5Thousand: this.editForm.get(["numberOf5Thousand"]).value ? this.editForm.get(["numberOf5Thousand"]).value : 0,
-      numberOf2Thousand: this.editForm.get(["numberOf2Thousand"]).value ? this.editForm.get(["numberOf2Thousand"]).value : 0,
-      numberOf1Thousand: this.editForm.get(["numberOf1Thousand"]).value ? this.editForm.get(["numberOf1Thousand"]).value : 0,
-      numberOf500Hundred: this.editForm.get(["numberOf500Hundred"]).value ? this.editForm.get(["numberOf500Hundred"]).value : 0,
-      otherAmount: this.editForm.get(["otherAmount"]).value ? this.editForm.get(["otherAmount"]).value : 0
+      id: this.editForm.get(['id']).value,
+      numberOf10Thousand: this.editForm.get(['numberOf10Thousand']).value ? this.editForm.get(['numberOf10Thousand']).value : 0,
+      numberOf5Thousand: this.editForm.get(['numberOf5Thousand']).value ? this.editForm.get(['numberOf5Thousand']).value : 0,
+      numberOf2Thousand: this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0,
+      numberOf1Thousand: this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0,
+      numberOf500Hundred: this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0,
+      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0,
     };
   }
 
   protected save(): void {
     const message =
       this.totalAmount() === 0
-        ? "Le montant total doit être supérieur à <b>0</b>. Êtes-vous sûr de vouloir continuer ?"
+        ? 'Le montant total doit être supérieur à <b>0</b>. Êtes-vous sûr de vouloir continuer ?'
         : `Le montant compté est de <span class="fs-4 badge rounded-pill bg-secondary"><b>${formatNumber(
-          this.totalAmount()
-        )}</b></span>. Êtes-vous sûr de vouloir continuer ?`;
+            this.totalAmount(),
+          )}</b></span>. Êtes-vous sûr de vouloir continuer ?`;
 
     this.confirmTicketing(message);
   }
@@ -99,10 +93,10 @@ export class TicketingComponent implements OnInit {
   private confirmTicketing(message: string): void {
     this.confirmDialog.onConfirm(
       () => this.doTicketing(),
-      "BILLETAGE",
+      'BILLETAGE',
       message,
-      "pi pi-exclamation-triangle",
-      () => this.numberOf10ThousandInput()?.nativeElement.querySelector('input')?.focus()
+      'pi pi-exclamation-triangle',
+      () => this.numberOf10ThousandInput()?.nativeElement.querySelector('input')?.focus(),
     );
   }
 
@@ -113,7 +107,7 @@ export class TicketingComponent implements OnInit {
       next: () => {
         this.isSaving.set(false);
 
-        this.notificationService.success("Billetage effectué avec succès");
+        this.notificationService.success('Billetage effectué avec succès');
         setTimeout(() => {
           this.previousState();
         }, 2000);
@@ -121,16 +115,18 @@ export class TicketingComponent implements OnInit {
       error: () => {
         this.isSaving.set(false);
         this.showError();
-      }
+      },
     });
   }
 
   private computeTotalAmount(): void {
-    this.totalAmount.set(parseInt(this.editForm.get(["numberOf10Thousand"]).value ? this.editForm.get(["numberOf10Thousand"]).value : 0) * 10000 +
-      parseInt(this.editForm.get(["numberOf5Thousand"]).value ? this.editForm.get(["numberOf5Thousand"]).value : 0) * 5000 +
-      parseInt(this.editForm.get(["numberOf2Thousand"]).value ? this.editForm.get(["numberOf2Thousand"]).value : 0) * 2000 +
-      parseInt(this.editForm.get(["numberOf1Thousand"]).value ? this.editForm.get(["numberOf1Thousand"]).value : 0) * 1000 +
-      parseInt(this.editForm.get(["numberOf500Hundred"]).value ? this.editForm.get(["numberOf500Hundred"]).value : 0) * 500 +
-      parseInt(this.editForm.get(["otherAmount"]).value ? this.editForm.get(["otherAmount"]).value : 0));
+    this.totalAmount.set(
+      parseInt(this.editForm.get(['numberOf10Thousand']).value ? this.editForm.get(['numberOf10Thousand']).value : 0) * 10000 +
+        parseInt(this.editForm.get(['numberOf5Thousand']).value ? this.editForm.get(['numberOf5Thousand']).value : 0) * 5000 +
+        parseInt(this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0) * 2000 +
+        parseInt(this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0) * 1000 +
+        parseInt(this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0) * 500 +
+        parseInt(this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0),
+    );
   }
 }

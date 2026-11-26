@@ -10,9 +10,8 @@
   >
     <div class="pca">
       <p class="pca__intro">
-        Codes supplémentaires sous lesquels cet article est reconnu au scan : GTIN du fabricant, EAN
-        d'une autre boîte, code interne d'un grossiste. Les codes de la fiche fournisseur et l'EAN
-        laboratoire restent reconnus sans figurer ici.
+        Codes supplémentaires sous lesquels cet article est reconnu au scan : GTIN du fabricant, EAN d'une autre boîte, code interne d'un
+        grossiste. Les codes de la fiche fournisseur et l'EAN laboratoire restent reconnus sans figurer ici.
       </p>
 
       @if (!estDesactive()) {
@@ -30,16 +29,9 @@
               (ngModelChange)="nouveauCode.set($event)"
               (keyup.enter)="ajouter()"
             />
-            <app-button
-              label="Ajouter"
-              icon="pi pi-plus"
-              [disabled]="!peutAjouter()"
-              (clicked)="ajouter()"
-            />
+            <app-button label="Ajouter" icon="pi pi-plus" [disabled]="!peutAjouter()" (clicked)="ajouter()" />
           </div>
-          <p class="pca__ajout-hint">
-            Le type du code est déduit de sa forme : rien d'autre à renseigner.
-          </p>
+          <p class="pca__ajout-hint">Le type du code est déduit de sa forme : rien d'autre à renseigner.</p>
         </div>
       }
 
@@ -47,8 +39,7 @@
         <p class="pca__empty">Chargement…</p>
       } @else if (alias().length === 0) {
         <p class="pca__empty">
-          Aucun code alternatif. Un code inconnu scanné à la réception peut être mémorisé depuis
-          l'écran de réception.
+          Aucun code alternatif. Un code inconnu scanné à la réception peut être mémorisé depuis l'écran de réception.
         </p>
       } @else {
         <ul class="pca__list">

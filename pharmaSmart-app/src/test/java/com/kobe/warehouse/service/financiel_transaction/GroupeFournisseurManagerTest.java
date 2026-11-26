@@ -11,7 +11,6 @@ import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -70,7 +69,8 @@ class GroupeFournisseurManagerTest {
         assertTrue(result.stream().anyMatch(g -> g.getId() == GROUP_OTHER_ID));
 
         // Check that only top MAX_DISPLAYED_GROUPS are included (plus "Autres")
-        long actualGroupCount = result.stream().filter(g -> g.getId() != GROUP_OTHER_ID).count();
+        long actualGroupCount =
+                result.stream().filter(g -> g.getId() != GROUP_OTHER_ID).count();
         assertEquals(MAX_DISPLAYED_GROUPS, actualGroupCount);
 
         // Verify top groups are included
@@ -117,7 +117,10 @@ class GroupeFournisseurManagerTest {
 
         List<GroupeFournisseurDTO> result = groupeFournisseurManager.getDisplayedSupplierGroups();
 
-        GroupeFournisseurDTO othersGroup = result.stream().filter(g -> g.getId() == GROUP_OTHER_ID).findFirst().orElseThrow();
+        GroupeFournisseurDTO othersGroup = result.stream()
+                .filter(g -> g.getId() == GROUP_OTHER_ID)
+                .findFirst()
+                .orElseThrow();
 
         assertNotNull(othersGroup);
         assertEquals("Autres", othersGroup.getLibelle());

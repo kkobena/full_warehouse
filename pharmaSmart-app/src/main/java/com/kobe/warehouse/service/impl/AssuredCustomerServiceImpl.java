@@ -12,6 +12,7 @@ import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
+import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ControleAssureDTO;
@@ -23,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,12 +42,11 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     private final HistoriqueClientService historiqueClientService;
 
     public AssuredCustomerServiceImpl(
-        AssuredCustomerRepository assuredCustomerRepository,
-        ClientTiersPayantRepository clientTiersPayantRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        CustomerDataService customerDataService,
-        HistoriqueClientService historiqueClientService
-    ) {
+            AssuredCustomerRepository assuredCustomerRepository,
+            ClientTiersPayantRepository clientTiersPayantRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            CustomerDataService customerDataService,
+            HistoriqueClientService historiqueClientService) {
         this.historiqueClientService = historiqueClientService;
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
@@ -76,40 +75,38 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         verifierNumerosDeCarte(dto, dto.getId());
         verifierAbsenceDeDossierIdentique(dto, dto.getId());
         AssuredCustomer assuredCustomer = fromDto(dto, assuredCustomerRepository.getReferenceById(dto.getId()));
-        List<ClientTiersPayant> clientTiersPayants = clientTiersPayantRepository.findAllByAssuredCustomerId(assuredCustomer.getId());
-        clientTiersPayants
-            .stream()
-            .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
-            .findFirst()
-            .ifPresent(t0 -> this.clientTiersPayantRepository.save(getClientTiersPayantFromDto(dto, t0)));
-        List<ClientTiersPayant> complementaires = clientTiersPayants
-            .stream()
-            .filter(e -> e.getPriorite() != PrioriteTiersPayant.R0)
-            .toList();
+        List<ClientTiersPayant> clientTiersPayants =
+                clientTiersPayantRepository.findAllByAssuredCustomerId(assuredCustomer.getId());
+        clientTiersPayants.stream()
+                .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
+                .findFirst()
+                .ifPresent(t0 -> this.clientTiersPayantRepository.save(getClientTiersPayantFromDto(dto, t0)));
+        List<ClientTiersPayant> complementaires = clientTiersPayants.stream()
+                .filter(e -> e.getPriorite() != PrioriteTiersPayant.R0)
+                .toList();
         if (dto.getTiersPayants() != null) {
-            dto
-                .getTiersPayants()
-                .forEach(clientTiersPayantDto -> {
-                    Optional<ClientTiersPayant> tiersPayantOptional = complementaires
-                        .stream()
-                        .filter(c -> clientTiersPayantDto.getId() != null && Objects.equals(c.getId(), clientTiersPayantDto.getId()))
+            dto.getTiersPayants().forEach(clientTiersPayantDto -> {
+                Optional<ClientTiersPayant> tiersPayantOptional = complementaires.stream()
+                        .filter(c -> clientTiersPayantDto.getId() != null
+                                && Objects.equals(c.getId(), clientTiersPayantDto.getId()))
                         .findFirst();
-                    if (tiersPayantOptional.isPresent()) {
-                        upadateClientTiersPayant(clientTiersPayantDto, tiersPayantOptional.get(), assuredCustomer);
-                    } else {
-                        ClientTiersPayant clientTiersPayant = getClientTiersPayantFromDto(clientTiersPayantDto);
-                        clientTiersPayant.setAssuredCustomer(assuredCustomer);
-                        assuredCustomer.getClientTiersPayants().add(clientTiersPayant);
-                        this.clientTiersPayantRepository.save(clientTiersPayant);
-                    }
-                });
+                if (tiersPayantOptional.isPresent()) {
+                    upadateClientTiersPayant(clientTiersPayantDto, tiersPayantOptional.get(), assuredCustomer);
+                } else {
+                    ClientTiersPayant clientTiersPayant = getClientTiersPayantFromDto(clientTiersPayantDto);
+                    clientTiersPayant.setAssuredCustomer(assuredCustomer);
+                    assuredCustomer.getClientTiersPayants().add(clientTiersPayant);
+                    this.clientTiersPayantRepository.save(clientTiersPayant);
+                }
+            });
         }
         if (CollectionUtils.isEmpty(dto.getTiersPayants()) && !complementaires.isEmpty()) {
             clientTiersPayantRepository.deleteAll(complementaires);
         }
         if (!CollectionUtils.isEmpty(dto.getTiersPayants()) && !complementaires.isEmpty()) {
             complementaires.forEach(clientTiersPayant -> {
-                if (dto.getTiersPayants().stream().noneMatch(e -> clientTiersPayant.getId().equals(e.getId()))) {
+                if (dto.getTiersPayants().stream()
+                        .noneMatch(e -> clientTiersPayant.getId().equals(e.getId()))) {
                     canModifyTiersPayant(clientTiersPayant.getId());
                     clientTiersPayantRepository.delete(clientTiersPayant);
                 }
@@ -144,7 +141,8 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public ClientTiersPayant upadateClientTiersPayant(ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
+    public ClientTiersPayant upadateClientTiersPayant(
+            ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
         if (!c.getTiersPayantId().equals(o.getTiersPayant().getId())) {
             canModifyTiersPayant(o.getId());
         }
@@ -153,16 +151,15 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
     @Override
     public AssuredCustomerDTO mappEntityToDto(AssuredCustomer assuredCustomer) {
-        List<ClientTiersPayantDTO> clientTiersPayantDTOS = clientTiersPayantRepository
-            .findAllByAssuredCustomerId(assuredCustomer.getId())
-            .stream()
-            .map(ClientTiersPayantDTO::new)
-            .toList();
-        List<AssuredCustomerDTO> ayantDroits = assuredCustomerRepository
-            .findAllByAssurePrincipalId(assuredCustomer.getId())
-            .stream()
-            .map(ayantDroit -> new AssuredCustomerDTO(ayantDroit, Collections.emptyList(), Collections.emptyList()))
-            .toList();
+        List<ClientTiersPayantDTO> clientTiersPayantDTOS =
+                clientTiersPayantRepository.findAllByAssuredCustomerId(assuredCustomer.getId()).stream()
+                        .map(ClientTiersPayantDTO::new)
+                        .toList();
+        List<AssuredCustomerDTO> ayantDroits =
+                assuredCustomerRepository.findAllByAssurePrincipalId(assuredCustomer.getId()).stream()
+                        .map(ayantDroit ->
+                                new AssuredCustomerDTO(ayantDroit, Collections.emptyList(), Collections.emptyList()))
+                        .toList();
         return new AssuredCustomerDTO(assuredCustomer, clientTiersPayantDTOS, ayantDroits);
     }
 
@@ -183,7 +180,9 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
             // Écrit maintenant, pour que la violation de clé étrangère tombe dans ce catch et non au commit.
             assuredCustomerRepository.flush();
         } catch (Exception e) {
-            throw new GenericError("Impossible de supprimer ce client : des données lui sont encore rattachées. Désactivez-le.", "deleteCustomer");
+            throw new GenericError(
+                    "Impossible de supprimer ce client : des données lui sont encore rattachées. Désactivez-le.",
+                    "deleteCustomer");
         }
     }
 
@@ -201,22 +200,22 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     public AssuredCustomer updateTiersPayant(ClientTiersPayantDTO dto) throws GenericError {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
         verifierNumeroDeCarte(
-            clientTiersPayant.getTiersPayant().getId(),
-            dto.getNum(),
-            clientTiersPayant.getAssuredCustomer().getId()
-        );
+                clientTiersPayant.getTiersPayant().getId(),
+                dto.getNum(),
+                clientTiersPayant.getAssuredCustomer().getId());
 
         clientTiersPayant.setTaux(dto.getTaux());
         clientTiersPayant.setNum(dto.getNum());
         clientTiersPayant.setDateFinValidite(dto.getDateFinValidite());
         if (dto.getPriorite() != clientTiersPayant.getPriorite()) {
             AssuredCustomer customer = clientTiersPayant.getAssuredCustomer();
-            Set<ClientTiersPayant> clientTiersPayants = customer
-                .getClientTiersPayants()
-                .stream()
-                .filter(c -> !Objects.equals(dto.getId(), c.getId()))
-                .collect(Collectors.toSet());
-            ClientTiersPayant old = clientTiersPayants.stream().filter(c -> c.getPriorite() == dto.getPriorite()).findFirst().orElse(null);
+            Set<ClientTiersPayant> clientTiersPayants = customer.getClientTiersPayants().stream()
+                    .filter(c -> !Objects.equals(dto.getId(), c.getId()))
+                    .collect(Collectors.toSet());
+            ClientTiersPayant old = clientTiersPayants.stream()
+                    .filter(c -> c.getPriorite() == dto.getPriorite())
+                    .findFirst()
+                    .orElse(null);
             if (old != null) {
                 old.setPriorite(clientTiersPayant.getPriorite());
                 clientTiersPayantRepository.save(old);
@@ -239,27 +238,30 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public ControleAssureDTO controlerAssure(Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu) {
+    public ControleAssureDTO controlerAssure(
+            Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu) {
         String titulaire = null;
         if (tiersPayantId != null && StringUtils.hasText(num)) {
             titulaire = clientTiersPayantRepository
-                .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
-                .filter(c -> !Objects.equals(idClientExclu, c.getAssuredCustomer().getId()))
-                .map(c -> nomComplet(c.getAssuredCustomer()))
-                .orElse(null);
+                    .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
+                    .filter(c -> !Objects.equals(
+                            idClientExclu, c.getAssuredCustomer().getId()))
+                    .map(c -> nomComplet(c.getAssuredCustomer()))
+                    .orElse(null);
         }
         List<String> homonymes = StringUtils.hasText(firstName) && StringUtils.hasText(lastName)
-            ? assuredCustomerRepository
-                .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName.trim(), lastName.trim())
-                .stream()
-                .filter(a -> a.getTypeAssure() != TypeAssure.AYANT_DROIT)
-                .filter(a -> !Objects.equals(idClientExclu, a.getId()))
-                .limit(5)
-                .map(this::nomComplet)
-                .toList()
-            : List.of();
+                ? assuredCustomerRepository
+                        .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName.trim(), lastName.trim())
+                        .stream()
+                        .filter(a -> a.getTypeAssure() != TypeAssure.AYANT_DROIT)
+                        .filter(a -> !Objects.equals(idClientExclu, a.getId()))
+                        .limit(5)
+                        .map(this::nomComplet)
+                        .toList()
+                : List.of();
         String dossierIdentique = trouverDossierIdentique(firstName, lastName, num, idClientExclu);
-        return new ControleAssureDTO(titulaire != null, titulaire, dossierIdentique != null, dossierIdentique, homonymes);
+        return new ControleAssureDTO(
+                titulaire != null, titulaire, dossierIdentique != null, dossierIdentique, homonymes);
     }
 
     /**
@@ -283,29 +285,32 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         String existant = trouverDossierIdentique(dto.getFirstName(), dto.getLastName(), dto.getNum(), idClientExclu);
         if (existant != null) {
             throw new GenericError(
-                "Un client avec ces nom, prénom et numéro de matricule existe déjà (%s)".formatted(existant),
-                "clientExistant"
-            );
+                    "Un client avec ces nom, prénom et numéro de matricule existe déjà (%s)".formatted(existant),
+                    "clientExistant");
         }
         if (dto.getAyantDroits() != null) {
-            dto
-                .getAyantDroits()
-                .stream()
-                .filter(a -> StringUtils.hasText(a.getFirstName()) && StringUtils.hasText(a.getLastName()) && StringUtils.hasText(a.getNumAyantDroit()))
-                .forEach(a ->
-                    assuredCustomerRepository
-                        .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(a.getFirstName().trim(), a.getLastName().trim(), a.getNumAyantDroit().trim())
-                        .stream()
-                        .filter(e -> e.getTypeAssure() == TypeAssure.AYANT_DROIT)
-                        .filter(e -> e.getAssurePrincipal() == null || !Objects.equals(idClientExclu, e.getAssurePrincipal().getId()))
-                        .findFirst()
-                        .ifPresent(e -> {
-                            throw new GenericError(
-                                "Un ayant droit avec ces nom, prénom et numéro assuré existe déjà (%s)".formatted(nomComplet(e)),
-                                "ayantDroitExistant"
-                            );
-                        })
-                );
+            dto.getAyantDroits().stream()
+                    .filter(a -> StringUtils.hasText(a.getFirstName())
+                            && StringUtils.hasText(a.getLastName())
+                            && StringUtils.hasText(a.getNumAyantDroit()))
+                    .forEach(a -> assuredCustomerRepository
+                            .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(
+                                    a.getFirstName().trim(),
+                                    a.getLastName().trim(),
+                                    a.getNumAyantDroit().trim())
+                            .stream()
+                            .filter(e -> e.getTypeAssure() == TypeAssure.AYANT_DROIT)
+                            .filter(e -> e.getAssurePrincipal() == null
+                                    || !Objects.equals(
+                                            idClientExclu,
+                                            e.getAssurePrincipal().getId()))
+                            .findFirst()
+                            .ifPresent(e -> {
+                                throw new GenericError(
+                                        "Un ayant droit avec ces nom, prénom et numéro assuré existe déjà (%s)"
+                                                .formatted(nomComplet(e)),
+                                        "ayantDroitExistant");
+                            }));
         }
     }
 
@@ -314,11 +319,12 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
             return null;
         }
         return clientTiersPayantRepository
-            .findDossiersIdentiques(firstName.trim(), lastName.trim(), num.trim(), idClientExclu == null ? -1 : idClientExclu)
-            .stream()
-            .findFirst()
-            .map(c -> nomComplet(c.getAssuredCustomer()))
-            .orElse(null);
+                .findDossiersIdentiques(
+                        firstName.trim(), lastName.trim(), num.trim(), idClientExclu == null ? -1 : idClientExclu)
+                .stream()
+                .findFirst()
+                .map(c -> nomComplet(c.getAssuredCustomer()))
+                .orElse(null);
     }
 
     private void verifierNumeroDeCarte(Integer tiersPayantId, String num, Integer idClientExclu) {
@@ -326,14 +332,15 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
             return;
         }
         clientTiersPayantRepository
-            .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
-            .filter(c -> !Objects.equals(idClientExclu, c.getAssuredCustomer().getId()))
-            .ifPresent(c -> {
-                throw new GenericError(
-                    "Le numéro de carte « %s » est déjà utilisé par %s pour cet organisme".formatted(num.trim(), nomComplet(c.getAssuredCustomer())),
-                    "numeroCarteExistant"
-                );
-            });
+                .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
+                .filter(c ->
+                        !Objects.equals(idClientExclu, c.getAssuredCustomer().getId()))
+                .ifPresent(c -> {
+                    throw new GenericError(
+                            "Le numéro de carte « %s » est déjà utilisé par %s pour cet organisme"
+                                    .formatted(num.trim(), nomComplet(c.getAssuredCustomer())),
+                            "numeroCarteExistant");
+                });
     }
 
     private String nomComplet(AssuredCustomer client) {

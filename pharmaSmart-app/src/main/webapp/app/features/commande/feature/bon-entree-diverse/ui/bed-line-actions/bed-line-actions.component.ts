@@ -1,4 +1,4 @@
-import {signal, Component, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent } from '../../../../../../shared/ui';

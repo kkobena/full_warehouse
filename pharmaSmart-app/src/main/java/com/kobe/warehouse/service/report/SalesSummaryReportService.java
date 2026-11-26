@@ -34,5 +34,6 @@ public interface SalesSummaryReportService {
      * @param typeVente sale type (e.g., "VO", "VNO")
      * @return list of daily summaries for that type
      */
-    List<DailySalesSummaryDTO> getDailySalesSummaryByType(LocalDate startDate, LocalDate endDate, TypeVenteDTO typeVente);
+    List<DailySalesSummaryDTO> getDailySalesSummaryByType(
+            LocalDate startDate, LocalDate endDate, TypeVenteDTO typeVente);
 }

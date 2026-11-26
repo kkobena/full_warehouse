@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface LaboratoireRepository extends JpaRepository<Laboratoire, Integer>, JpaSpecificationExecutor<Laboratoire> {
+public interface LaboratoireRepository
+        extends JpaRepository<Laboratoire, Integer>, JpaSpecificationExecutor<Laboratoire> {
     Optional<Laboratoire> findFirstByLibelleEquals(String libelle);
 }

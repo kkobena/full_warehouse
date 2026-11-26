@@ -23,9 +23,8 @@ public interface PharmaMlPayloadBuilderService {
      * @param refMessage  la référence unique du message
      * @return l'enveloppe CSRP prête à être sérialisée
      */
-    CsrpEnveloppe buildCommandePayload(Commande commande, EnvoiParamsDTO params,
-        Fournisseur fournisseur, String refMessage);
-
+    CsrpEnveloppe buildCommandePayload(
+            Commande commande, EnvoiParamsDTO params, Fournisseur fournisseur, String refMessage);
 
     /**
      * Construit le payload pour une demande d'information (disponibilité).
@@ -46,8 +45,8 @@ public interface PharmaMlPayloadBuilderService {
      * @param refMessage  la référence unique du message
      * @return l'enveloppe CSRP prête à être sérialisée
      */
-    CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes,
-        Fournisseur fournisseur, String refMessage);
+    CsrpEnveloppe buildInfoPayloadFromSuggestionLines(
+            List<SuggestionLine> lignes, Fournisseur fournisseur, String refMessage);
 
     /**
      * Construit le payload pour l'envoi d'un bon de retour fournisseur.
@@ -58,8 +57,8 @@ public interface PharmaMlPayloadBuilderService {
      * @param refMessage  la référence unique du message
      * @return l'enveloppe CSRP prête à être sérialisée
      */
-    CsrpEnveloppe buildRetourPayload(Commande commande, Fournisseur fournisseur,
-        List<LigneRetourDTO> lignes, String refMessage);
+    CsrpEnveloppe buildRetourPayload(
+            Commande commande, Fournisseur fournisseur, List<LigneRetourDTO> lignes, String refMessage);
 
     /**
      * Génère une référence de message unique.
@@ -68,4 +67,3 @@ public interface PharmaMlPayloadBuilderService {
      */
     String generateRefMessage();
 }
-

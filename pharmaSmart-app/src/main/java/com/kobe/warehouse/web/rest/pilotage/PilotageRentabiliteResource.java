@@ -26,17 +26,17 @@ public class PilotageRentabiliteResource {
     private final DemarquePilotageService demarquePilotageService;
 
     public PilotageRentabiliteResource(
-        MargePilotageService margePilotageService,
-        RemisesPilotageService remisesPilotageService,
-        DemarquePilotageService demarquePilotageService
-    ) {
+            MargePilotageService margePilotageService,
+            RemisesPilotageService remisesPilotageService,
+            DemarquePilotageService demarquePilotageService) {
         this.margePilotageService = margePilotageService;
         this.remisesPilotageService = remisesPilotageService;
         this.demarquePilotageService = demarquePilotageService;
     }
 
     @GetMapping("/marge")
-    public ResponseEntity<MargeRentabiliteDTO> analyserMarge(RequetePilotageDTO requete, @RequestParam(defaultValue = "FAMILLE") AxeAnalyse axe) {
+    public ResponseEntity<MargeRentabiliteDTO> analyserMarge(
+            RequetePilotageDTO requete, @RequestParam(defaultValue = "FAMILLE") AxeAnalyse axe) {
         return ResponseEntity.ok(margePilotageService.analyserMarge(requete, axe));
     }
 

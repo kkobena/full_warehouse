@@ -31,13 +31,13 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
     @BeforeEach
     void creerLeService() {
         service = new UninsuredCustomerService(
-            IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class),
-            mock(HistoriqueClientService.class)
-        );
+                IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class),
+                mock(HistoriqueClientService.class));
     }
 
     @Test
-    @DisplayName("Le client identique (nom, prénom, téléphone) est signalé avant l'enregistrement, avec de quoi le sélectionner")
+    @DisplayName(
+            "Le client identique (nom, prénom, téléphone) est signalé avant l'enregistrement, avec de quoi le sélectionner")
     void clientExistant() {
         UninsuredCustomerDTO cree = service.create(client("KOUASSI", "Jean", "0701020304"));
         viderLeCache();
@@ -46,7 +46,9 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
 
         assertNotNull(controle.clientExistant());
         assertEquals(cree.getId(), controle.clientExistant().getId());
-        assertNull(service.controler("0701020304", "kouassi", "JEAN", cree.getId()).clientExistant(), "un dossier ne se bloque pas lui-même");
+        assertNull(
+                service.controler("0701020304", "kouassi", "JEAN", cree.getId()).clientExistant(),
+                "un dossier ne se bloque pas lui-même");
     }
 
     @Test
@@ -56,21 +58,22 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
         viderLeCache();
 
         CustomerAlreadyExistException erreur = assertThrows(
-            CustomerAlreadyExistException.class,
-            () -> service.create(client("KOUASSI", "Jean", "0701020305"))
-        );
+                CustomerAlreadyExistException.class, () -> service.create(client("KOUASSI", "Jean", "0701020305")));
 
         assertTrue(erreur.getMessage().contains("KOUASSI Jean"));
     }
 
     @Test
-    @DisplayName("Un même téléphone avec un autre nom, ou un même nom avec un autre téléphone, est un voisin à signaler")
+    @DisplayName(
+            "Un même téléphone avec un autre nom, ou un même nom avec un autre téléphone, est un voisin à signaler")
     void voisins() {
         service.create(client("KOUASSI", "Jean", "0701020306"));
         viderLeCache();
 
-        List<ControleClientDTO.ClientProcheDTO> memeTelephone = service.controler("0701020306", "TRAORE", "Awa", null).proches();
-        List<ControleClientDTO.ClientProcheDTO> memeNom = service.controler("0799999999", "Kouassi", "Jean", null).proches();
+        List<ControleClientDTO.ClientProcheDTO> memeTelephone =
+                service.controler("0701020306", "TRAORE", "Awa", null).proches();
+        List<ControleClientDTO.ClientProcheDTO> memeNom =
+                service.controler("0799999999", "Kouassi", "Jean", null).proches();
 
         assertEquals("même téléphone", memeTelephone.getFirst().motif());
         assertEquals("même nom", memeNom.getFirst().motif());
@@ -82,7 +85,8 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
         service.create(client("KOUASSI", "Konan", "0701020307"));
         viderLeCache();
 
-        List<ControleClientDTO.ClientProcheDTO> proches = service.controler(null, "KOUASI", "Konan", null).proches();
+        List<ControleClientDTO.ClientProcheDTO> proches =
+                service.controler(null, "KOUASI", "Konan", null).proches();
 
         assertFalse(proches.isEmpty(), "« KOUASI Konan » ressemble à « KOUASSI Konan »");
         assertEquals("nom proche", proches.getFirst().motif());
@@ -96,11 +100,13 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
     }
 
     @Test
-    @DisplayName("Un numéro étranger saisi avec son indicatif est accepté ; un numéro invalide est refusé avec un message qui l'explique")
+    @DisplayName(
+            "Un numéro étranger saisi avec son indicatif est accepté ; un numéro invalide est refusé avec un message qui l'explique")
     void telephoneEtranger() {
         service.create(client("TRAORE", "Awa", "+22370123456"));
 
-        InvalidPhoneNumberException erreur = assertThrows(InvalidPhoneNumberException.class, () -> service.create(client("TRAORE", "Bintou", "1234")));
+        InvalidPhoneNumberException erreur = assertThrows(
+                InvalidPhoneNumberException.class, () -> service.create(client("TRAORE", "Bintou", "1234")));
 
         assertTrue(erreur.getMessage().contains("indicatif"));
     }
@@ -110,10 +116,18 @@ class ClientComptantControleIntegrationTest extends AbstractStockIntegrationTest
     void email() {
         try (var fabrique = Validation.buildDefaultValidatorFactory()) {
             var validateur = fabrique.getValidator();
-            assertFalse(validateur.validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne("azer")).isEmpty());
-            assertTrue(validateur.validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne("jean@exemple.ci")).isEmpty());
-            assertTrue(validateur.validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne("")).isEmpty());
-            assertTrue(validateur.validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne(null)).isEmpty());
+            assertFalse(validateur
+                    .validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne("azer"))
+                    .isEmpty());
+            assertTrue(validateur
+                    .validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne("jean@exemple.ci"))
+                    .isEmpty());
+            assertTrue(validateur
+                    .validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne(""))
+                    .isEmpty());
+            assertTrue(validateur
+                    .validate(client("KOUASSI", "Jean", "0701020308").setEmailEtRetourne(null))
+                    .isEmpty());
         }
     }
 

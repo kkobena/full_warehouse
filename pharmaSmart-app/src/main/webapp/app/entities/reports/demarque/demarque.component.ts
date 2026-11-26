@@ -8,35 +8,36 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {forkJoin} from 'rxjs';
-import {Chart, registerables} from 'chart.js';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { forkJoin } from 'rxjs';
+import { Chart, registerables } from 'chart.js';
 
-import {DemarqueReportService} from '../services/demarque-report.service';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {IDemarqueByMotif, IDemarqueKpi} from '../../../shared/model/report';
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {ChartColorsUtilsService} from '../../../shared/util/chart-colors-utils.service';
-import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
-import {DeviseDirective} from 'app/shared/utils/devise';
+import { DemarqueReportService } from '../services/demarque-report.service';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { IDemarqueByMotif, IDemarqueKpi } from '../../../shared/model/report';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
+import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
   KpiItemComponent,
   KpiStripComponent,
   SortableHeaderDirective,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-demarque',
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,
@@ -44,7 +45,8 @@ Chart.register(...registerables);
     DataTableComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent, SortableHeaderDirective
+    KpiItemComponent,
+    SortableHeaderDirective,
   ],
   templateUrl: './demarque.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -73,9 +75,7 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
   protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
   protected readonly toStruct = computed(() => this.dateToStruct(this.toDate()));
 
-  protected readonly totalValeur = computed(() =>
-    this.byMotif().reduce((s, m) => s + (m.valeur ?? 0), 0)
-  );
+  protected readonly totalValeur = computed(() => this.byMotif().reduce((s, m) => s + (m.valeur ?? 0), 0));
 
   protected readonly formatCurrency = formatCurrency;
   protected readonly formatNumber = formatNumber;
@@ -104,7 +104,7 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
       kpi: this.svc.getKpi(startDate, endDate),
       byMotif: this.svc.getByMotif(startDate, endDate),
     }).subscribe({
-      next: ({kpi, byMotif}) => {
+      next: ({ kpi, byMotif }) => {
         this.kpi.set(kpi.body);
         const data = byMotif.body ?? [];
         this.byMotif.set(data);
@@ -129,7 +129,7 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
     if (!d) {
       return null;
     }
-    return {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
   protected structToDate(s: NgbDateStruct | null): Date | null {
@@ -159,11 +159,13 @@ export default class DemarqueComponent implements OnInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels: data.map(m => m.motif ?? ''),
-        datasets: [{
-          data: data.map(m => m.valeur ?? 0),
-          backgroundColor: palette,
-          hoverBackgroundColor: hoverPalette,
-        }],
+        datasets: [
+          {
+            data: data.map(m => m.valeur ?? 0),
+            backgroundColor: palette,
+            hoverBackgroundColor: hoverPalette,
+          },
+        ],
       },
       options: {
         responsive: true,

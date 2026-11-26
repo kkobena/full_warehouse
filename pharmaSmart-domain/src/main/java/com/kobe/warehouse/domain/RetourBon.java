@@ -1,7 +1,6 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -54,12 +54,10 @@ public class RetourBon implements Serializable {
     private List<RetourBonItem> retourBonItems = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "commande_id", referencedColumnName = "id"),
-            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+    })
     private Commande commande;
 
     /** Fournisseur direct — renseigné quand horsCommande = true (déduit via FournisseurProduit.principal) */

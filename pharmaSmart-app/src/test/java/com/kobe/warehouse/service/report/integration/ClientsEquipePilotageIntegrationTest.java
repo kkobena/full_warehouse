@@ -31,12 +31,22 @@ class ClientsEquipePilotageIntegrationTest extends AbstractReportIntegrationTest
         var officine = CategorieChiffreAffaire.officine();
         LocalDate avant = JOUR.minusDays(10);
 
-        assertThat(repository.lireClientele(JOUR, JOUR, SalesStatut.CLOSED, officine).caTotal()).isGreaterThanOrEqualTo(3_000L);
-        assertThat(repository.compterNouveaux(JOUR, JOUR, SalesStatut.CLOSED, officine)).isNotNegative();
-        assertThat(repository.compterPerdus(avant, avant, JOUR, JOUR, SalesStatut.CLOSED, officine)).isNotNegative();
-        assertThat(repository.compterRevenus(avant, avant, JOUR, JOUR, SalesStatut.CLOSED, officine)).isNotNegative();
-        assertThat(repository.sommerCaParClient(JOUR, JOUR, SalesStatut.CLOSED, officine)).isNotNull();
-        assertThat(repository.compterAnnulationsParVendeur(JOUR, JOUR, officine)).isNotEmpty();
-        assertThat(repository.compterAvoirsParVendeur(JOUR.atStartOfDay(), JOUR.plusDays(1).atStartOfDay())).isNotNull();
+        assertThat(repository
+                        .lireClientele(JOUR, JOUR, SalesStatut.CLOSED, officine)
+                        .caTotal())
+                .isGreaterThanOrEqualTo(3_000L);
+        assertThat(repository.compterNouveaux(JOUR, JOUR, SalesStatut.CLOSED, officine))
+                .isNotNegative();
+        assertThat(repository.compterPerdus(avant, avant, JOUR, JOUR, SalesStatut.CLOSED, officine))
+                .isNotNegative();
+        assertThat(repository.compterRevenus(avant, avant, JOUR, JOUR, SalesStatut.CLOSED, officine))
+                .isNotNegative();
+        assertThat(repository.sommerCaParClient(JOUR, JOUR, SalesStatut.CLOSED, officine))
+                .isNotNull();
+        assertThat(repository.compterAnnulationsParVendeur(JOUR, JOUR, officine))
+                .isNotEmpty();
+        assertThat(repository.compterAvoirsParVendeur(
+                        JOUR.atStartOfDay(), JOUR.plusDays(1).atStartOfDay()))
+                .isNotNull();
     }
 }

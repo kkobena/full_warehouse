@@ -85,11 +85,7 @@ export class PharmamlApiService {
     });
   }
 
-  disponibiliteMulti(
-    commandeId: number,
-    orderDate: string,
-    grossisteIds: number[],
-  ): Observable<HttpResponse<IDispoGrossisteResult[]>> {
+  disponibiliteMulti(commandeId: number, orderDate: string, grossisteIds: number[]): Observable<HttpResponse<IDispoGrossisteResult[]>> {
     return this.http.post<IDispoGrossisteResult[]>(
       `${this.resourceUrl}/disponibilite-multi`,
       { commandeId, orderDate, grossisteIds },
@@ -97,10 +93,7 @@ export class PharmamlApiService {
     );
   }
 
-  disponibiliteMultiSuggestion(
-    suggestionId: number,
-    grossisteIds: number[],
-  ): Observable<HttpResponse<IDispoGrossisteResult[]>> {
+  disponibiliteMultiSuggestion(suggestionId: number, grossisteIds: number[]): Observable<HttpResponse<IDispoGrossisteResult[]>> {
     return this.http.post<IDispoGrossisteResult[]>(
       `${this.resourceUrl}/disponibilite-multi`,
       { suggestionId, grossisteIds },

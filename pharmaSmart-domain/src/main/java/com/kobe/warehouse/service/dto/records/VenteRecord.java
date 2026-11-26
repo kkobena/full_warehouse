@@ -8,25 +8,24 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public record VenteRecord(
-    Integer salesAmount,
-    Integer amountToBePaid,
-    Integer discountAmount,
-    Integer costAmount,
-    Integer amountToBeTakenIntoAccount,
-    Integer netAmount,
-    Double montantHt,
-    Integer partAssure,
-    Integer partTiersPayant,
-    Integer restToPay,
-    Integer payrollAmount,
-    Integer paidAmount,
-    Integer realNetAmount,
-    Integer montantttcUg,
-    Long saleCount,
-    String type,
-    SalesStatut statut,
-    String group
-) {
+        Integer salesAmount,
+        Integer amountToBePaid,
+        Integer discountAmount,
+        Integer costAmount,
+        Integer amountToBeTakenIntoAccount,
+        Integer netAmount,
+        Double montantHt,
+        Integer partAssure,
+        Integer partTiersPayant,
+        Integer restToPay,
+        Integer payrollAmount,
+        Integer paidAmount,
+        Integer realNetAmount,
+        Integer montantttcUg,
+        Long saleCount,
+        String type,
+        SalesStatut statut,
+        String group) {
     /**
      * Marge brute de la periode : le net vendu moins le cout d'achat des lignes.
      *
@@ -47,7 +46,10 @@ public record VenteRecord(
     @JsonProperty("taxAmount")
     public Integer taxAmount() {
         if (nonNull(montantHt) && nonNull(salesAmount)) {
-            return BigDecimal.valueOf(salesAmount).subtract(BigDecimal.valueOf(montantHt)).setScale(0, RoundingMode.HALF_UP).intValue();
+            return BigDecimal.valueOf(salesAmount)
+                    .subtract(BigDecimal.valueOf(montantHt))
+                    .setScale(0, RoundingMode.HALF_UP)
+                    .intValue();
         }
         return 0;
     }

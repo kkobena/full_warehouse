@@ -49,11 +49,10 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
         Object[] row = (Object[]) query.getSingleResult();
 
         return new PeriodSummaryProjection(
-            ((Number) row[0]).longValue(),
-            ((Number) row[1]).intValue(),
-            ((Number) row[2]).intValue(),
-            ((Number) row[3]).longValue()
-        );
+                ((Number) row[0]).longValue(),
+                ((Number) row[1]).intValue(),
+                ((Number) row[2]).intValue(),
+                ((Number) row[3]).longValue());
     }
 
     @Override
@@ -90,11 +89,7 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
         List<PaymentMethodProjection> paymentMethods = new ArrayList<>();
         for (Object[] row : results) {
             paymentMethods.add(new PaymentMethodProjection(
-                (String) row[0],
-                (String) row[1],
-                ((Number) row[2]).longValue(),
-                ((Number) row[3]).intValue()
-            ));
+                    (String) row[0], (String) row[1], ((Number) row[2]).longValue(), ((Number) row[3]).intValue()));
         }
 
         return paymentMethods;
@@ -102,12 +97,7 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
 
     @Override
     public List<TopProductProjection> getTopProducts(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate,
-        int limit
-    ) {
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate, int limit) {
         String sql = """
             WITH current_period AS (
                 SELECT
@@ -175,14 +165,13 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
         List<TopProductProjection> topProducts = new ArrayList<>();
         for (Object[] row : results) {
             topProducts.add(new TopProductProjection(
-                ((Number) row[0]).longValue(),
-                (String) row[1],
-                (String) row[2],
-                ((Number) row[3]).longValue(),
-                ((Number) row[4]).intValue(),
-                ((Number) row[5]).doubleValue(),
-                ((Number) row[6]).doubleValue()
-            ));
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    (String) row[2],
+                    ((Number) row[3]).longValue(),
+                    ((Number) row[4]).intValue(),
+                    ((Number) row[5]).doubleValue(),
+                    ((Number) row[6]).doubleValue()));
         }
 
         return topProducts;
@@ -222,11 +211,7 @@ public class MobilePerformanceRepositoryImpl implements MobilePerformanceReposit
         for (Object[] row : results) {
             LocalDate date = LocalDate.parse(row[0].toString());
             dataPoints.add(new DataPointProjection(
-                date,
-                ((Number) row[1]).longValue(),
-                ((Number) row[2]).intValue(),
-                ((Number) row[3]).longValue()
-            ));
+                    date, ((Number) row[1]).longValue(), ((Number) row[2]).intValue(), ((Number) row[3]).longValue()));
         }
 
         return dataPoints;

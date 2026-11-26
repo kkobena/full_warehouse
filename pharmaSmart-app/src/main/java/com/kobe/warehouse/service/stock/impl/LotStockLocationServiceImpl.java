@@ -27,13 +27,14 @@ public class LotStockLocationServiceImpl implements LotStockLocationService {
     @Override
     public void credit(Lot lot, Storage storage, int qtyDelta) {
         if (qtyDelta <= 0) return;
-        lotStockLocationRepository.findByLotAndStorage(lot, storage).ifPresentOrElse(
-            lsl -> {
-                lsl.setQty(lsl.getQty() + qtyDelta);
-                lotStockLocationRepository.save(lsl);
-            },
-            () -> lotStockLocationRepository.save(new LotStockLocation(lot, storage, qtyDelta))
-        );
+        lotStockLocationRepository
+                .findByLotAndStorage(lot, storage)
+                .ifPresentOrElse(
+                        lsl -> {
+                            lsl.setQty(lsl.getQty() + qtyDelta);
+                            lotStockLocationRepository.save(lsl);
+                        },
+                        () -> lotStockLocationRepository.save(new LotStockLocation(lot, storage, qtyDelta)));
     }
 
     @Override
@@ -55,19 +56,20 @@ public class LotStockLocationServiceImpl implements LotStockLocationService {
         if (lots == null || lots.isEmpty()) return;
         for (LotSold lotSold : lots) {
             if (lotSold.quantity() <= 0) continue;
-            lotStockLocationRepository.findByLotIdAndStorageId(lotSold.id(), storage.getId())
-                .ifPresentOrElse(
-                    lsl -> {
-                        lsl.setQty(lsl.getQty() + lotSold.quantity());
-                        lotStockLocationRepository.save(lsl);
-                    },
-                    () -> {
-                        // Le lot peut ne plus avoir d'entrée si épuisé — on recrée via proxy
-                        Lot lotRef = new Lot();
-                        lotRef.setId(lotSold.id());
-                        lotStockLocationRepository.save(new LotStockLocation(lotRef, storage, lotSold.quantity()));
-                    }
-                );
+            lotStockLocationRepository
+                    .findByLotIdAndStorageId(lotSold.id(), storage.getId())
+                    .ifPresentOrElse(
+                            lsl -> {
+                                lsl.setQty(lsl.getQty() + lotSold.quantity());
+                                lotStockLocationRepository.save(lsl);
+                            },
+                            () -> {
+                                // Le lot peut ne plus avoir d'entrée si épuisé — on recrée via proxy
+                                Lot lotRef = new Lot();
+                                lotRef.setId(lotSold.id());
+                                lotStockLocationRepository.save(
+                                        new LotStockLocation(lotRef, storage, lotSold.quantity()));
+                            });
         }
     }
 
@@ -75,19 +77,18 @@ public class LotStockLocationServiceImpl implements LotStockLocationService {
     public void creditLastLot(Produit produit, Storage storage, int qty) {
         if (qty <= 0) return;
         lotStockLocationRepository
-            .findLastReceivedByStorageAndProduit(storage.getId(), produit.getId())
-            .ifPresent(lsl -> {
-                lsl.setQty(lsl.getQty() + qty);
-                lotStockLocationRepository.save(lsl);
-            });
+                .findLastReceivedByStorageAndProduit(storage.getId(), produit.getId())
+                .ifPresent(lsl -> {
+                    lsl.setQty(lsl.getQty() + qty);
+                    lotStockLocationRepository.save(lsl);
+                });
     }
 
     @Override
     public void debitFefo(Produit produit, Storage storage, int qty) {
         if (qty <= 0) return;
-        List<LotStockLocation> srcLots = lotStockLocationRepository.findFefoByStorageAndProduit(
-            storage.getId(), produit.getId()
-        );
+        List<LotStockLocation> srcLots =
+                lotStockLocationRepository.findFefoByStorageAndProduit(storage.getId(), produit.getId());
         int remaining = qty;
         for (LotStockLocation lsl : srcLots) {
             if (remaining <= 0) break;
@@ -97,19 +98,18 @@ public class LotStockLocationServiceImpl implements LotStockLocationService {
             remaining -= toRemove;
         }
         srcLots.stream()
-            .filter(lsl -> lsl.getQty() == 0)
-            .map(lsl -> lsl.getLot().getId())
-            .distinct()
-            .forEach(lotStockLocationRepository::deleteZeroQtyByLot);
+                .filter(lsl -> lsl.getQty() == 0)
+                .map(lsl -> lsl.getLot().getId())
+                .distinct()
+                .forEach(lotStockLocationRepository::deleteZeroQtyByLot);
     }
 
     @Override
     public void transferFefo(Produit produit, Storage src, Storage dest, int qty) {
         if (qty <= 0) return;
 
-        List<LotStockLocation> srcLots = lotStockLocationRepository.findFefoByStorageAndProduit(
-            src.getId(), produit.getId()
-        );
+        List<LotStockLocation> srcLots =
+                lotStockLocationRepository.findFefoByStorageAndProduit(src.getId(), produit.getId());
 
         int remaining = qty;
         for (LotStockLocation srcLsl : srcLots) {
@@ -129,9 +129,9 @@ public class LotStockLocationServiceImpl implements LotStockLocationService {
 
         // Nettoyage des entrées épuisées
         srcLots.stream()
-            .filter(lsl -> lsl.getQty() == 0)
-            .map(lsl -> lsl.getLot().getId())
-            .distinct()
-            .forEach(lotStockLocationRepository::deleteZeroQtyByLot);
+                .filter(lsl -> lsl.getQty() == 0)
+                .map(lsl -> lsl.getLot().getId())
+                .distinct()
+                .forEach(lotStockLocationRepository::deleteZeroQtyByLot);
     }
 }

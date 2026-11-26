@@ -32,7 +32,6 @@ scenario('ACH-72', async ({ etape, page }) => {
   etape.horsPortee(4, 'la création de l’emplacement de destination ne concerne qu’un produit qui n’en a pas.');
   etape.horsPortee(
     5,
-    'enregistrer déplacerait réellement du stock entre rayon et réserve ; la saisie est ' +
-      'illustrée, l’enregistrement ne l’est pas.',
+    'enregistrer déplacerait réellement du stock entre rayon et réserve ; la saisie est ' + 'illustrée, l’enregistrement ne l’est pas.',
   );
 });

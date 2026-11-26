@@ -15,7 +15,6 @@ public interface PharmaMlService {
 
     PharmamlCommandeResponse envoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO);
 
-
     VerificationResponseCommandeDTO lignesCommandeRetour(String commandeRef, String orderId);
 
     void renvoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO);
@@ -26,15 +25,13 @@ public interface PharmaMlService {
 
     PharmaMlEnvoiDTO getStatutEnvoi(Integer envoiId);
 
-    List<SubstitutionProposeeDTO> getSubstitutionsEnAttente(Integer commandeId,
-        LocalDate orderDate);
+    List<SubstitutionProposeeDTO> getSubstitutionsEnAttente(Integer commandeId, LocalDate orderDate);
 
     void accepterSubstitution(Integer substitutionId);
 
     void refuserSubstitution(Integer substitutionId);
 
-    List<InfoProduitDTO> demanderDisponibilite(Integer commandeId, LocalDate orderDate,
-        Integer grossisteId);
+    List<InfoProduitDTO> demanderDisponibilite(Integer commandeId, LocalDate orderDate, Integer grossisteId);
 
     List<DispoGrossisteResultDTO> demanderDisponibiliteMulti(DispoMultiRequestDTO request);
 

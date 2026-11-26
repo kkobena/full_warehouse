@@ -1,30 +1,22 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
-import {ErrorService} from "../../../shared/error.service";
-import {
-  ClientTiersPayant,
-  IClientTiersPayant
-} from "../../../shared/model/client-tiers-payant.model";
-import {ICustomer, ITiersPayant} from "../../../shared/model";
-import {Observable, Subject} from "rxjs";
-import {finalize, takeUntil} from "rxjs/operators";
-import {TiersPayantService} from "../../tiers-payant/tierspayant.service";
-import {CustomerService} from "../customer.service";
-import {HttpResponse} from "@angular/common/http";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  SelectSearchComponent
-} from '../../../shared/ui';
-import TranslateDirective from "../../../shared/language/translate.directive";
-import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";
-import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-util";
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ErrorService } from '../../../shared/error.service';
+import { ClientTiersPayant, IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { ICustomer, ITiersPayant } from '../../../shared/model';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { CustomerService } from '../customer.service';
+import { HttpResponse } from '@angular/common/http';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectSearchComponent } from '../../../shared/ui';
+import TranslateDirective from '../../../shared/language/translate.directive';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { ISO_TO_NGB_DATE, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
 @Component({
-  selector: "app-customer-tiers-payant",
+  selector: 'app-customer-tiers-payant',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -33,14 +25,14 @@ import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-u
     KeyFilterDirective,
     SelectSearchComponent,
     TranslateDirective,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
   ],
-  templateUrl: "./customer-tiers-payant.component.html",
+  templateUrl: './customer-tiers-payant.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./customer-tiers-payant.component.scss"]
+  styleUrls: ['./customer-tiers-payant.component.scss'],
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
-  title = "";
+  title = '';
   entity: IClientTiersPayant | null = null;
   customer: ICustomer | null = null;
 
@@ -51,7 +43,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     tiersPayant: [null, [Validators.required]],
     taux: [null, [Validators.required, Validators.min(5), Validators.max(100)]],
     num: [null, [Validators.required]],
-    dateFinValidite: [null]
+    dateFinValidite: [null],
   });
   protected readonly isSaving = signal(false);
   protected isValid = true;
@@ -101,19 +93,19 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   }
 
   loadTiersPayants(search?: string): void {
-    const query: string = search || "";
+    const query: string = search || '';
     this.tiersPayantService
       .query({
         page: 0,
         size: 10,
-        type: "ASSURANCE",
-        search: query
+        type: 'ASSURANCE',
+        search: query,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants.set(res.body!);
         if (this.tiersPayants().length === 0) {
-          this.tiersPayants().push({id: null, fullName: "Ajouter un nouveau tiers-payant"});
+          this.tiersPayants().push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
       });
   }
@@ -124,7 +116,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       num: clientTiersPayant.num,
       tiersPayant: clientTiersPayant.tiersPayant,
       dateFinValidite: ISO_TO_NGB_DATE(clientTiersPayant.dateFinValidite),
-      taux: clientTiersPayant.taux
+      taux: clientTiersPayant.taux,
     });
   }
 
@@ -132,19 +124,19 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     return {
       ...new ClientTiersPayant(),
       customerId: this.customer.id,
-      id: this.editForm.get("id")?.value,
-      num: this.editForm.get("num")?.value,
-      tiersPayantId: this.editForm.get("tiersPayant")?.value?.id,
-      dateFinValidite: NGB_DATE_TO_ISO(this.editForm.get("dateFinValidite")?.value),
-      taux: this.editForm.get("taux")?.value,
-      priorite: this.computePriorite()
+      id: this.editForm.get('id')?.value,
+      num: this.editForm.get('num')?.value,
+      tiersPayantId: this.editForm.get('tiersPayant')?.value?.id,
+      dateFinValidite: NGB_DATE_TO_ISO(this.editForm.get('dateFinValidite')?.value),
+      taux: this.editForm.get('taux')?.value,
+      priorite: this.computePriorite(),
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-      error: (error: any) => this.onSaveError(error)
+      error: (error: any) => this.onSaveError(error),
     });
   }
 
@@ -162,7 +154,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
           this.notificationService.error(translatedErrorMessage);
         });
     } else {
-      this.notificationService.error("Erreur interne du serveur.");
+      this.notificationService.error('Erreur interne du serveur.');
     }
   }
 

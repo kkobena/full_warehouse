@@ -15,9 +15,9 @@ public enum TaxeEnum {
 
     public static TaxeEnum getByValue(int p) {
         return Stream.of(values())
-            .filter(r -> r.value == p)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("La valeure de la tva n'est pas connue " + p));
+                .filter(r -> r.value == p)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("La valeure de la tva n'est pas connue " + p));
     }
 
     public int getValue() {

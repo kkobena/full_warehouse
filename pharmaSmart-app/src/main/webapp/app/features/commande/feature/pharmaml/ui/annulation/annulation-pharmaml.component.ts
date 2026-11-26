@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../../../../shared/ui';
-import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../../../shared/ui';
+import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
 
 @Component({
   selector: 'app-annulation-pharmaml',
@@ -19,9 +19,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
     </div>
     <div class="modal-body">
       <p class="text-muted mb-3">
-        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande
-        sera archivée côté
-        officine.
+        Cette action envoie un message <strong>REQ_ANNULATION</strong> au grossiste. La commande sera archivée côté officine.
       </p>
       <div class="mb-3">
         <label class="form-label" for="motif">Motif (optionnel)</label>
@@ -39,13 +37,7 @@ import {ErrorService} from "../../../../../../shared/error.service";
     </div>
     <div class="modal-footer gap-2">
       <app-button label="Fermer" severity="secondary" [outlined]="true" (clicked)="cancel()" />
-      <app-button
-        label="Confirmer l'annulation"
-        severity="danger"
-        icon="pi pi-ban"
-        [loading]="loading()"
-        (clicked)="confirmer()"
-      />
+      <app-button label="Confirmer l'annulation" severity="danger" icon="pi pi-ban" [loading]="loading()" (clicked)="confirmer()" />
     </div>
   `,
 })
@@ -71,7 +63,7 @@ export class AnnulationPharmamlComponent {
         this.loading.set(false);
         this.activeModal.close('annulee');
       },
-      error: (err) => {
+      error: err => {
         this.loading.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },

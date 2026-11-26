@@ -11,12 +11,7 @@ package com.kobe.warehouse.service.facturation.dto;
  * @param countEnRetard  Nombre de factures en retard de paiement.
  */
 public record FacturationKpiRow(
-    long totalFacture,
-    long totalRegle,
-    long countFactures,
-    long countImpayees,
-    long countEnRetard
-) {
+        long totalFacture, long totalRegle, long countFactures, long countImpayees, long countEnRetard) {
 
     /** Instance vide (aucune donnée). */
     public static FacturationKpiRow empty() {
@@ -29,13 +24,7 @@ public record FacturationKpiRow(
      * Ordre attendu : [totalFacture, totalRegle, countFactures, countImpayees, countEnRetard].
      */
     public static FacturationKpiRow from(Object[] row) {
-        return new FacturationKpiRow(
-            toLong(row[0]),
-            toLong(row[1]),
-            toLong(row[2]),
-            toLong(row[3]),
-            toLong(row[4])
-        );
+        return new FacturationKpiRow(toLong(row[0]), toLong(row[1]), toLong(row[2]), toLong(row[3]), toLong(row[4]));
     }
 
     // ------------------------------------------------------------------ //
@@ -58,4 +47,3 @@ public record FacturationKpiRow(
         }
     }
 }
-

@@ -72,7 +72,9 @@ public class DeliveryReceiptItemDTO {
         regularUnitPrice = fournisseurProduit.getPrixUni();
         costAmount = fournisseurProduit.getPrixAchat();
         Produit produit = fournisseurProduit.getProduit();
-        orderUnitPrice = Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0) + orderLine.getOrderUnitPrice();
+        orderUnitPrice =
+                Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0)
+                        + orderLine.getOrderUnitPrice();
         fournisseurProduitId = fournisseurProduit.getId();
         produitId = produit.getId();
         fournisseurProduitCip = fournisseurProduit.getCodeCip();

@@ -17,10 +17,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ThirdPartySaleRepository
-    extends JpaRepository<ThirdPartySales, SaleId>, JpaSpecificationExecutor<ThirdPartySales>, ThirdPartySaleCustomRepository {
+        extends JpaRepository<ThirdPartySales, SaleId>,
+                JpaSpecificationExecutor<ThirdPartySales>,
+                ThirdPartySaleCustomRepository {
     @Query("select sale from ThirdPartySales sale where sale.id =:id and sale.saleDate =:saleDate")
     Optional<ThirdPartySales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
-
 
     @Query("select sale from ThirdPartySales sale where sale.id = :id and sale.saleDate = :saleDate")
     Optional<ThirdPartySales> findByIdAndSaleDate(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
@@ -31,7 +32,8 @@ public interface ThirdPartySaleRepository
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(ThirdPartySales_.caissier).get(AppUser_.id).in(caissierIds);
+        return (root, query, cb) ->
+                root.get(ThirdPartySales_.caissier).get(AppUser_.id).in(caissierIds);
     }
 
     default Specification<ThirdPartySales> filterByPeriode(LocalDate fromDate, LocalDate toDate) {

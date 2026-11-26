@@ -1,38 +1,18 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import type {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {
-  BadgeComponent,
-  ButtonComponent,
-  DataTableComponent,
-  InputNumberComponent,
-  KeyFilterDirective
-} from 'app/shared/ui';
-import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
-import {NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
-import {forkJoin} from 'rxjs';
-import {IDelivery} from 'app/shared/model/delevery.model';
-import {IOrderLine} from 'app/shared/model/order-line.model';
-import {
-  IReconciliationCommand,
-  IReconciliationFactureFournisseur,
-} from 'app/shared/model/reconciliation-facture-fournisseur.model';
-import {DeliveryService} from 'app/entities/commande/delevery/delivery.service';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {ErrorService} from 'app/shared/error.service';
-import {
-  ReconciliationFournisseurService
-} from "../../data-access/reconciliation-fournisseur.service";
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DataTableComponent, InputNumberComponent, KeyFilterDirective } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { forkJoin } from 'rxjs';
+import { IDelivery } from 'app/shared/model/delevery.model';
+import { IOrderLine } from 'app/shared/model/order-line.model';
+import { IReconciliationCommand, IReconciliationFactureFournisseur } from 'app/shared/model/reconciliation-facture-fournisseur.model';
+import { DeliveryService } from 'app/entities/commande/delevery/delivery.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { ErrorService } from 'app/shared/error.service';
+import { ReconciliationFournisseurService } from '../../data-access/reconciliation-fournisseur.service';
 
 @Component({
   selector: 'app-reconciliation-workspace',
@@ -47,7 +27,8 @@ import {
     InputNumberComponent,
     PharmaDatePickerComponent,
     DataTableComponent,
-    KeyFilterDirective],
+    KeyFilterDirective,
+  ],
 })
 export class ReconciliationWorkspaceComponent implements OnInit {
   readonly delivery = input.required<IDelivery>();
@@ -107,17 +88,17 @@ export class ReconciliationWorkspaceComponent implements OnInit {
   }
 
   private static toNgbDate(date: Date): NgbDateStruct {
-    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   ngOnInit(): void {
     const d = this.delivery();
-    const cmdId = d.commandeId ?? {id: d.id!, orderDate: d.orderDate ?? d.receiptDate!};
+    const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
     forkJoin({
       commande: this.deliveryService.find(d.commandeId),
       recon: this.reconciliationService.find(cmdId.id!, cmdId.orderDate!),
     }).subscribe({
-      next: ({commande, recon}) => {
+      next: ({ commande, recon }) => {
         this.orderLines.set(((commande.body as any)?.orderLines ?? []) as IOrderLine[]);
         if (recon) {
           this.existing.set(recon);
@@ -146,7 +127,7 @@ export class ReconciliationWorkspaceComponent implements OnInit {
       return;
     }
     const d = this.delivery();
-    const cmdId = d.commandeId ?? {id: d.id!, orderDate: d.orderDate ?? d.receiptDate!};
+    const cmdId = d.commandeId ?? { id: d.id!, orderDate: d.orderDate ?? d.receiptDate! };
     const cmd: IReconciliationCommand = {
       factureReference: this.factureReference().trim(),
       factureDate: NGB_DATE_TO_ISO(this.factureDate()),
@@ -158,9 +139,7 @@ export class ReconciliationWorkspaceComponent implements OnInit {
       next: result => {
         this.saving.set(false);
         this.notificationService.success(
-          this.isReconcilie
-            ? 'Facture réconciliée — aucun écart'
-            : `Facture enregistrée avec écart HT : ${this.ecartHT} F`,
+          this.isReconcilie ? 'Facture réconciliée — aucun écart' : `Facture enregistrée avec écart HT : ${this.ecartHT} F`,
           'Réconciliation',
         );
         this.done.emit(result);

@@ -4,15 +4,14 @@ import com.kobe.warehouse.service.dto.report.CashMovementDTO;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,35 +23,33 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         this.entityManager = entityManager;
     }
 
-
     @Override
     @Cacheable(value = "cashRegisterReport", key = "#date.toString()")
     public List<DailyCashRegisterReportDTO> getDailyReport(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-        String sql =
-            "SELECT " +
-                "cr.id as cash_register_id, " +
-                "CONCAT('Caisse ', cr.id) as caisse_libelle, " +
-                "cr.begin_time as opening_date, " +
-                "cr.end_time as closing_date, " +
-                "cr.init_amount as opening_balance, " +
-                "cr.final_amount as closing_balance, " +
-                "cr.statut, " +
-                "u.first_name || ' ' || u.last_name as user_name, " +
-                "COALESCE(SUM(cri.amount), 0) as total_sales, " +
+        String sql = "SELECT " + "cr.id as cash_register_id, "
+                + "CONCAT('Caisse ', cr.id) as caisse_libelle, "
+                + "cr.begin_time as opening_date, "
+                + "cr.end_time as closing_date, "
+                + "cr.init_amount as opening_balance, "
+                + "cr.final_amount as closing_balance, "
+                + "cr.statut, "
+                + "u.first_name || ' ' || u.last_name as user_name, "
+                + "COALESCE(SUM(cri.amount), 0) as total_sales, "
+                +
                 // Le nombre de ventes passe par une sous-requête corrélée, et non par une jointure :
                 // jointe ici, la table des ventes démultipliait les lignes d'encaissement, et le
                 // total encaissé se trouvait multiplié par le nombre de ventes du jour — une caisse
                 // de trois ventes s'affichait avec le triple de son contenu, donc manquante d'autant.
-                "(SELECT COUNT(*) FROM sales s WHERE s.sale_date = :date AND s.user_id = cr.user_id) as number_of_transactions " +
-                "FROM cash_register cr " +
-                "INNER JOIN app_user u ON cr.user_id = u.id " +
-                "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id " +
-                "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay " +
-                "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name " +
-                "ORDER BY cr.begin_time";
+                "(SELECT COUNT(*) FROM sales s WHERE s.sale_date = :date AND s.user_id = cr.user_id) as number_of_transactions "
+                + "FROM cash_register cr "
+                + "INNER JOIN app_user u ON cr.user_id = u.id "
+                + "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id "
+                + "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay "
+                + "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name "
+                + "ORDER BY cr.begin_time";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("date", date);
@@ -81,17 +78,15 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             boolean isClosed = "CLOSED".equals(statutStr);
 
             // Get payment mode breakdowns
-            List<DailyCashRegisterReportDTO.PaymentModeBreakdown> paymentModeBreakdowns = getPaymentModeBreakdowns(
-                cashRegisterId
-            );
+            List<DailyCashRegisterReportDTO.PaymentModeBreakdown> paymentModeBreakdowns =
+                    getPaymentModeBreakdowns(cashRegisterId);
 
             // Calculate expected balance and discrepancy
             Integer expectedBalance = (int) openingBalance + (int) totalSales;
             Integer actualClosingBalance = closingBalance != null ? closingBalance.intValue() : 0;
             Integer discrepancy = isClosed ? (actualClosingBalance - expectedBalance) : 0;
 
-            reports.add(
-                new DailyCashRegisterReportDTO(
+            reports.add(new DailyCashRegisterReportDTO(
                     cashRegisterId,
                     caisseLibelle,
                     date,
@@ -105,25 +100,21 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                     (int) numberOfTransactions,
                     paymentModeBreakdowns,
                     userName,
-                    isClosed
-                )
-            );
+                    isClosed));
         }
 
         return reports;
     }
 
     private List<DailyCashRegisterReportDTO.PaymentModeBreakdown> getPaymentModeBreakdowns(Integer cashRegisterId) {
-        String sql =
-            "SELECT " +
-                "pm.libelle as mode_paiement, " +
-                "SUM(cri.amount) as amount, " +
-                "COUNT(*) as count " +
-                "FROM cash_register_item cri " +
-                "INNER JOIN payment_mode pm ON cri.payment_mode_code = pm.code " +
-                "WHERE cri.cash_register_id = :cashRegisterId " +
-                "GROUP BY pm.libelle " +
-                "ORDER BY amount DESC";
+        String sql = "SELECT " + "pm.libelle as mode_paiement, "
+                + "SUM(cri.amount) as amount, "
+                + "COUNT(*) as count "
+                + "FROM cash_register_item cri "
+                + "INNER JOIN payment_mode pm ON cri.payment_mode_code = pm.code "
+                + "WHERE cri.cash_register_id = :cashRegisterId "
+                + "GROUP BY pm.libelle "
+                + "ORDER BY amount DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("cashRegisterId", cashRegisterId);
@@ -131,19 +122,19 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        return results
-            .stream()
-            .map(row -> {
-                String modePaiement = (String) row[0];
-                Integer amount = row[1] != null ? ((Number) row[1]).intValue() : 0;
-                Integer count = row[2] != null ? ((Number) row[2]).intValue() : 0;
-                return new DailyCashRegisterReportDTO.PaymentModeBreakdown(modePaiement, amount, count);
-            })
-            .toList();
+        return results.stream()
+                .map(row -> {
+                    String modePaiement = (String) row[0];
+                    Integer amount = row[1] != null ? ((Number) row[1]).intValue() : 0;
+                    Integer count = row[2] != null ? ((Number) row[2]).intValue() : 0;
+                    return new DailyCashRegisterReportDTO.PaymentModeBreakdown(modePaiement, amount, count);
+                })
+                .toList();
     }
 
     @Override
-    public List<CashMovementDTO> getCashMovements(LocalDate startDate, LocalDate endDate, Long userId, Long cashRegisterId) {
+    public List<CashMovementDTO> getCashMovements(
+            LocalDate startDate, LocalDate endDate, Long userId, Long cashRegisterId) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
         sql.append("s.id, ");
@@ -192,34 +183,33 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        return results
-            .stream()
-            .map(row -> {
-                Long id = row[0] != null ? ((Number) row[0]).longValue() : null;
-                // created_at est un horodatage : on n'en garde que la date, la chaîne complète
-                // n'étant pas parsable en LocalDate.
-                LocalDate transactionDate = row[1] instanceof LocalDateTime dateHeure ? dateHeure.toLocalDate() : null;
-                String cashRegisterName = (String) row[2];
-                String userName = (String) row[3];
-                String movementType = (String) row[4];
-                Integer amount = row[5] != null ? ((Number) row[5]).intValue() : 0;
-                String paymentMode = (String) row[6];
-                String saleNumber = (String) row[7];
-                String customerName = (String) row[8];
+        return results.stream()
+                .map(row -> {
+                    Long id = row[0] != null ? ((Number) row[0]).longValue() : null;
+                    // created_at est un horodatage : on n'en garde que la date, la chaîne complète
+                    // n'étant pas parsable en LocalDate.
+                    LocalDate transactionDate =
+                            row[1] instanceof LocalDateTime dateHeure ? dateHeure.toLocalDate() : null;
+                    String cashRegisterName = (String) row[2];
+                    String userName = (String) row[3];
+                    String movementType = (String) row[4];
+                    Integer amount = row[5] != null ? ((Number) row[5]).intValue() : 0;
+                    String paymentMode = (String) row[6];
+                    String saleNumber = (String) row[7];
+                    String customerName = (String) row[8];
 
-                return new CashMovementDTO(
-                    id,
-                    transactionDate,
-                    cashRegisterName,
-                    userName,
-                    movementType,
-                    amount,
-                    paymentMode,
-                    saleNumber,
-                    customerName
-                );
-            })
-            .toList();
+                    return new CashMovementDTO(
+                            id,
+                            transactionDate,
+                            cashRegisterName,
+                            userName,
+                            movementType,
+                            amount,
+                            paymentMode,
+                            saleNumber,
+                            customerName);
+                })
+                .toList();
     }
 
     @Override

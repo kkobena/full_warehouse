@@ -72,7 +72,8 @@ class EcrivainPdf implements EcrivainExport {
         }
         for (int rang = 0; rang < colonnes.size(); rang++) {
             String texte = formater(rang < ligne.length ? ligne[rang] : null);
-            tableau.addCell(cellule(texte, policeCellule, alignement(colonnes.get(rang).type())));
+            tableau.addCell(
+                    cellule(texte, policeCellule, alignement(colonnes.get(rang).type())));
         }
         lignesDuBloc++;
     }

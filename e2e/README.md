@@ -12,13 +12,13 @@ prises dans le modèle — le manuel ne peut donc pas décrire autre chose que c
 
 ## Commandes
 
-| Commande | Ce qu'elle fait | Prérequis |
-| --- | --- | --- |
-| `npm run e2e:liage` | contrôles sur le modèle et la couverture | **aucun** |
-| `npm run e2e` | joue les parcours sans prendre d'images | application démarrée |
-| `npm run captures` | joue les parcours **et** produit les images | application + base de démo |
-| `npm run e2e:droits` | chaque compte non-admin ouvre les écrans et onglets de son menu ; échoue sur tout 403 | application démarrée, backend en `ENFORCE` |
-| `npm run e2e:rapport` | ouvre le rapport HTML de la dernière exécution | — |
+| Commande              | Ce qu'elle fait                                                                       | Prérequis                                  |
+| --------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `npm run e2e:liage`   | contrôles sur le modèle et la couverture                                              | **aucun**                                  |
+| `npm run e2e`         | joue les parcours sans prendre d'images                                               | application démarrée                       |
+| `npm run captures`    | joue les parcours **et** produit les images                                           | application + base de démo                 |
+| `npm run e2e:droits`  | chaque compte non-admin ouvre les écrans et onglets de son menu ; échoue sur tout 403 | application démarrée, backend en `ENFORCE` |
+| `npm run e2e:rapport` | ouvre le rapport HTML de la dernière exécution                                        | —                                          |
 
 `npm run e2e:liage` s'exécute sans navigateur, sans serveur et sans base : c'est le contrôle à
 lancer en premier quand quelque chose paraît cassé.
@@ -27,19 +27,19 @@ lancer en premier quand quelque chose paraît cassé.
 
 Tous par variable d'environnement, tous facultatifs :
 
-| Variable | Défaut | Rôle |
-| --- | --- | --- |
-| `E2E_BASE_URL` | `http://localhost:4200` | URL de l'application |
-| `E2E_USER` / `E2E_PASSWORD` | `admin` / `admin` | compte du jeu de démonstration |
-| `E2E_CAPTURES_DIR` | `e2e/captures` | destination des images |
-| `E2E_CAPTURES_RESET` | — | `1` : repart d'un index vide au lieu de le compléter |
-| `E2E_JPEG_QUALITY` | `80` | qualité des images |
-| `E2E_VIEWPORT_WIDTH` / `E2E_VIEWPORT_HEIGHT` | `1920` / `1080` | **taille de l'écran** que l'application croit avoir |
-| `E2E_SCALE` | `1` | densité de pixels — `2` pour une impression plus fine |
-| `E2E_FULL_PAGE` | — | `1` : capture le document entier au lieu de la zone visible |
-| `E2E_TIMEZONE` | `Europe/Paris` | **doit rester fixe** : sinon les colonnes de date changent d'une machine à l'autre |
-| `E2E_COMPTES_DROITS` | `kkone`, `ybrou`, `rkouassi` (mot de passe de l'admin) | comptes du contrôle des droits, `login:motDePasse,…` |
-| `E2E_WORKERS` | `1` | voir l'avertissement ci-dessous |
+| Variable                                     | Défaut                                                 | Rôle                                                                               |
+| -------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `E2E_BASE_URL`                               | `http://localhost:4200`                                | URL de l'application                                                               |
+| `E2E_USER` / `E2E_PASSWORD`                  | `admin` / `admin`                                      | compte du jeu de démonstration                                                     |
+| `E2E_CAPTURES_DIR`                           | `e2e/captures`                                         | destination des images                                                             |
+| `E2E_CAPTURES_RESET`                         | —                                                      | `1` : repart d'un index vide au lieu de le compléter                               |
+| `E2E_JPEG_QUALITY`                           | `80`                                                   | qualité des images                                                                 |
+| `E2E_VIEWPORT_WIDTH` / `E2E_VIEWPORT_HEIGHT` | `1920` / `1080`                                        | **taille de l'écran** que l'application croit avoir                                |
+| `E2E_SCALE`                                  | `1`                                                    | densité de pixels — `2` pour une impression plus fine                              |
+| `E2E_FULL_PAGE`                              | —                                                      | `1` : capture le document entier au lieu de la zone visible                        |
+| `E2E_TIMEZONE`                               | `Europe/Paris`                                         | **doit rester fixe** : sinon les colonnes de date changent d'une machine à l'autre |
+| `E2E_COMPTES_DROITS`                         | `kkone`, `ybrou`, `rkouassi` (mot de passe de l'admin) | comptes du contrôle des droits, `login:motDePasse,…`                               |
+| `E2E_WORKERS`                                | `1`                                                    | voir l'avertissement ci-dessous                                                    |
 
 ### Taille des captures
 
@@ -48,10 +48,10 @@ Deux réglages distincts, souvent confondus :
 - **`E2E_VIEWPORT_*` — la taille de l'écran.** C'est elle qui décide de ce que l'application
   affiche : nombre de colonnes, repliement des barres d'outils, passage en disposition
   compacte. Défaut **1920 × 1080**, soit la définition d'un poste 24 pouces. Élargir montre
-  *plus de choses*.
+  _plus de choses_.
 - **`E2E_SCALE` — la densité de pixels.** À `2`, la même mise en page est rendue deux fois
   plus finement : rien de plus n'est visible, c'est plus net à l'impression, et l'image pèse
-  environ trois fois plus. Augmenter l'échelle montre *la même chose en plus net*.
+  environ trois fois plus. Augmenter l'échelle montre _la même chose en plus net_.
 
 Repère de poids, en JPEG qualité 80 : ~140 Ko en 1440 × 900, ~190 Ko en 1920 × 1080.
 
@@ -85,13 +85,13 @@ e2e/
 Sans eux, une campagne de captures produit sans broncher un manuel faux — le défaut le plus
 coûteux, parce qu'un manuel est cru.
 
-| Garde-fou | Ce qu'il empêche |
-| --- | --- |
-| Identifiant résolu **au chargement** du fichier | une faute de frappe qui produirait une capture orpheline |
-| Collision d'identifiants dans le modèle | des images inattribuables |
-| Toutes les étapes du modèle parcourues | un manuel qui saute une étape sans le dire |
-| Aucune exception de page ni réponse 5xx | photographier une page d'erreur et l'appeler « écran de vente » |
-| Rien n'est indexé pour un parcours en échec | une capture qui survit à l'échec qui l'a produite |
+| Garde-fou                                       | Ce qu'il empêche                                                |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| Identifiant résolu **au chargement** du fichier | une faute de frappe qui produirait une capture orpheline        |
+| Collision d'identifiants dans le modèle         | des images inattribuables                                       |
+| Toutes les étapes du modèle parcourues          | un manuel qui saute une étape sans le dire                      |
+| Aucune exception de page ni réponse 5xx         | photographier une page d'erreur et l'appeler « écran de vente » |
+| Rien n'est indexé pour un parcours en échec     | une capture qui survit à l'échec qui l'a produite               |
 
 Deux échappatoires, explicites et tracées dans le rapport :
 
@@ -100,14 +100,14 @@ Deux échappatoires, explicites et tracées dans le rapport :
 
 ## Où en est le chantier
 
-| Lot | État |
-| --- | --- |
-| 0 — base de démonstration chargée | fait — `pharma_smart_demo`, 240/242 contrôles, instantané de référence figé |
-| 1 — socle Playwright | fait |
-| 2 — liage au cahier de recette | fait, vérifié par `npm run e2e:liage` |
-| 3 — captures et index | fait |
-| 4 — injection des images dans le guide | fait |
-| 5 — volume (50 à 70 scénarios) | **objectif dépassé — 426 parcours sur 11 modules ; 35 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
+| Lot                                    | État                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 — base de démonstration chargée      | fait — `pharma_smart_demo`, 240/242 contrôles, instantané de référence figé                                                                                                                                                                                                                                                   |
+| 1 — socle Playwright                   | fait                                                                                                                                                                                                                                                                                                                          |
+| 2 — liage au cahier de recette         | fait, vérifié par `npm run e2e:liage`                                                                                                                                                                                                                                                                                         |
+| 3 — captures et index                  | fait                                                                                                                                                                                                                                                                                                                          |
+| 4 — injection des images dans le guide | fait                                                                                                                                                                                                                                                                                                                          |
+| 5 — volume (50 à 70 scénarios)         | **objectif dépassé — 426 parcours sur 11 modules ; 35 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
 
 ## Avant chaque campagne
 
@@ -147,12 +147,12 @@ les autres. Pour que la vidéo se lise comme une démonstration et non comme un 
 - un **pointeur** orange suit la souris et s'épaissit au clic (Playwright ne dessine pas le curseur) ;
 - des **pauses** laissent le temps de lire avant l'étape et de voir son résultat après.
 
-| Variable | Défaut | Rôle |
-| --- | --- | --- |
-| `E2E_PAUSE_AVANT_MS` | 1500 | pause après affichage de la légende, avant le geste |
-| `E2E_PAUSE_APRES_MS` | 1200 | pause après le geste, pour voir le résultat |
-| `E2E_SLOWMO` | 200 | délai entre deux gestes (déplacement visible du pointeur) |
-| `E2E_VIDEO_WIDTH` / `E2E_VIDEO_HEIGHT` | 1280 / 720 | définition de la vidéo |
+| Variable                               | Défaut     | Rôle                                                      |
+| -------------------------------------- | ---------- | --------------------------------------------------------- |
+| `E2E_PAUSE_AVANT_MS`                   | 1500       | pause après affichage de la légende, avant le geste       |
+| `E2E_PAUSE_APRES_MS`                   | 1200       | pause après le geste, pour voir le résultat               |
+| `E2E_SLOWMO`                           | 200        | délai entre deux gestes (déplacement visible du pointeur) |
+| `E2E_VIDEO_WIDTH` / `E2E_VIDEO_HEIGHT` | 1280 / 720 | définition de la vidéo                                    |
 
 Une vidéo dure ainsi de une à trois minutes ; les 400 parcours représentent plusieurs heures de campagne
 et quelques centaines de Mo. Filmer un seul parcours : `npx playwright test -c e2e --project=videos -g VTE-58`.
@@ -178,7 +178,7 @@ target/videos-guide/
 **Vitesse.** Un test va bien plus vite qu'un utilisateur : l'assemblage ralentit donc les vidéos d'un facteur
 2 par défaut (`VIDEOS_RALENTI=3` pour aller plus lentement, `1` pour garder la vitesse filmée). Cela allonge
 d'autant les pauses — le temps de lire la légende — et les gestes, sans refilmer : seul `npm run videos:assembler`
-est à relancer. Pour un rythme plus lent *à la source*, augmenter `E2E_PAUSE_AVANT_MS`, `E2E_PAUSE_APRES_MS` et
+est à relancer. Pour un rythme plus lent _à la source_, augmenter `E2E_PAUSE_AVANT_MS`, `E2E_PAUSE_APRES_MS` et
 `E2E_SLOWMO` avant `npm run videos`.
 
 Ce dossier se copie tel quel sur un serveur de fichiers, une clé USB ou un partage : **il n'est pas dans le jar**,
@@ -191,11 +191,11 @@ renseigner `FFMPEG` avec le chemin d'un ffmpeg.
 
 Le contenu du guide embarqué dans le jar se règle par la propriété Maven `guide.media` :
 
-| Valeur | Contenu du jar | Comment |
-| --- | --- | --- |
-| `none` | parcours (textes) seuls | `-Dguide.media=none` |
-| `captures` | + images **(défaut)** | rien à ajouter |
-| `all` | + images et vidéos | profil `avec-guide` |
+| Valeur     | Contenu du jar          | Comment              |
+| ---------- | ----------------------- | -------------------- |
+| `none`     | parcours (textes) seuls | `-Dguide.media=none` |
+| `captures` | + images **(défaut)**   | rien à ajouter       |
+| `all`      | + images et vidéos      | profil `avec-guide`  |
 
 ```powershell
 mvnw.cmd clean package -Pfull-dist,avec-guide -DskipTests              # avec JRE

@@ -45,12 +45,11 @@ public class RapprochementProduitService {
     private final RefSpecialiteRcpRepository rcpRepository;
 
     public RapprochementProduitService(
-        EntityManager entityManager,
-        ProduitRefSpecialiteRepository repository,
-        DciRepository dciRepository,
-        RefSpecialiteCompositionRepository compositionRepository,
-        RefSpecialiteRcpRepository rcpRepository
-    ) {
+            EntityManager entityManager,
+            ProduitRefSpecialiteRepository repository,
+            DciRepository dciRepository,
+            RefSpecialiteCompositionRepository compositionRepository,
+            RefSpecialiteRcpRepository rcpRepository) {
         this.entityManager = entityManager;
         this.repository = repository;
         this.dciRepository = dciRepository;
@@ -79,7 +78,8 @@ public class RapprochementProduitService {
         if (produitIds == null || produitIds.isEmpty()) {
             return 0;
         }
-        return appelerFonction("SELECT ref_automatiser_rapprochement(CAST(:ids AS integer[]), TRUE)", formaterTableau(produitIds));
+        return appelerFonction(
+                "SELECT ref_automatiser_rapprochement(CAST(:ids AS integer[]), TRUE)", formaterTableau(produitIds));
     }
 
     /** Relie les DCI ajoutées au référentiel, puis rapproche les produits dont le libellé commence par l'une d'elles. */
@@ -88,8 +88,12 @@ public class RapprochementProduitService {
         if (dciIds == null || dciIds.isEmpty()) {
             return 0;
         }
-        int ecrites = appelerFonction("SELECT ref_rapprocher_apres_nouvelles_dci(CAST(:ids AS integer[]))", formaterTableau(dciIds));
-        LOG.info("[REFERENTIEL] {} DCI ajoutée(s) : {} proposition(s) de rapprochement recalculée(s)", dciIds.size(), ecrites);
+        int ecrites = appelerFonction(
+                "SELECT ref_rapprocher_apres_nouvelles_dci(CAST(:ids AS integer[]))", formaterTableau(dciIds));
+        LOG.info(
+                "[REFERENTIEL] {} DCI ajoutée(s) : {} proposition(s) de rapprochement recalculée(s)",
+                dciIds.size(),
+                ecrites);
         return ecrites;
     }
 
@@ -106,7 +110,8 @@ public class RapprochementProduitService {
         proposition.valider();
         Produit produit = proposition.getProduit();
         if (produit.getDcis().isEmpty()) {
-            List<Dci> dcis = chargerDcisDeLaSpecialite(proposition.getSpecialite().getCis());
+            List<Dci> dcis =
+                    chargerDcisDeLaSpecialite(proposition.getSpecialite().getCis());
             if (!dcis.isEmpty()) {
                 produit.remplacerDcis(dcis);
             }
@@ -133,12 +138,11 @@ public class RapprochementProduitService {
     @Transactional(readOnly = true)
     public Page<RapprochementDTO> listerRapprochementsARelire(Pageable pageable) {
         return repository
-            .findByDecisionAndStatutInOrderByScoreDescIdAsc(
-                DecisionRapprochement.EN_ATTENTE,
-                List.of(StatutRapprochement.A_VERIFIER, StatutRapprochement.PAR_DCI),
-                pageable
-            )
-            .map(RapprochementDTO::creerDepuis);
+                .findByDecisionAndStatutInOrderByScoreDescIdAsc(
+                        DecisionRapprochement.EN_ATTENTE,
+                        List.of(StatutRapprochement.A_VERIFIER, StatutRapprochement.PAR_DCI),
+                        pageable)
+                .map(RapprochementDTO::creerDepuis);
     }
 
     /**
@@ -152,51 +156,64 @@ public class RapprochementProduitService {
         if (r == null) {
             return ProduitReferentielDTO.creerSansReferentiel(produitId);
         }
-        boolean confiance =
-            r.getSpecialite() != null &&
-            (r.getDecision() == DecisionRapprochement.AUTO || r.getDecision() == DecisionRapprochement.VALIDE);
+        boolean confiance = r.getSpecialite() != null
+                && (r.getDecision() == DecisionRapprochement.AUTO || r.getDecision() == DecisionRapprochement.VALIDE);
         if (!confiance) {
-            return new ProduitReferentielDTO(produitId, r.getStatut(), r.getDecision(), r.getScore(), r.getMotif(), false, null, List.of(), null, List.of());
+            return new ProduitReferentielDTO(
+                    produitId,
+                    r.getStatut(),
+                    r.getDecision(),
+                    r.getScore(),
+                    r.getMotif(),
+                    false,
+                    null,
+                    List.of(),
+                    null,
+                    List.of());
         }
         RefSpecialite s = r.getSpecialite();
         var specialite = new ProduitReferentielDTO.Specialite(
-            s.getCis(),
-            s.getLibelle(),
-            s.getForme(),
-            s.getVoies(),
-            s.getTitulaire(),
-            s.isCommercialisee(),
-            s.getTypeGenerique(),
-            s.getGroupeGenerique() == null ? null : s.getGroupeGenerique().getLibelle(),
-            s.getPrincepsDuGroupe()
-        );
-        var molecules = compositionRepository
-            .findByCis(s.getCis())
-            .stream()
-            .map(c ->
-                new ProduitReferentielDTO.Molecule(
-                    c.getSubstance().getLibelle(),
-                    c.getDci() == null ? null : c.getDci().getLibelle(),
-                    c.getNature().name(),
-                    c.getDosageTexte(),
-                    c.getReferenceDosage()
-                )
-            )
-            .toList();
+                s.getCis(),
+                s.getLibelle(),
+                s.getForme(),
+                s.getVoies(),
+                s.getTitulaire(),
+                s.isCommercialisee(),
+                s.getTypeGenerique(),
+                s.getGroupeGenerique() == null ? null : s.getGroupeGenerique().getLibelle(),
+                s.getPrincepsDuGroupe());
+        var molecules = compositionRepository.findByCis(s.getCis()).stream()
+                .map(c -> new ProduitReferentielDTO.Molecule(
+                        c.getSubstance().getLibelle(),
+                        c.getDci() == null ? null : c.getDci().getLibelle(),
+                        c.getNature().name(),
+                        c.getDosageTexte(),
+                        c.getReferenceDosage()))
+                .toList();
         var rcp = rcpRepository
-            .findById(s.getCis())
-            .map(x -> new ProduitReferentielDTO.Rcp(x.getIndications(), x.getPosologie(), x.getContreIndications()))
-            .orElse(null);
+                .findById(s.getCis())
+                .map(x -> new ProduitReferentielDTO.Rcp(x.getIndications(), x.getPosologie(), x.getContreIndications()))
+                .orElse(null);
         var substituts = s.getGroupeGenerique() == null
-            ? List.<ProduitReferentielDTO.Substitut>of()
-            : repository.findSubstituts(s.getGroupeGenerique().getId(), produitId);
-        return new ProduitReferentielDTO(produitId, r.getStatut(), r.getDecision(), r.getScore(), r.getMotif(), r.isDciPosee(), specialite, molecules, rcp, substituts);
+                ? List.<ProduitReferentielDTO.Substitut>of()
+                : repository.findSubstituts(s.getGroupeGenerique().getId(), produitId);
+        return new ProduitReferentielDTO(
+                produitId,
+                r.getStatut(),
+                r.getDecision(),
+                r.getScore(),
+                r.getMotif(),
+                r.isDciPosee(),
+                specialite,
+                molecules,
+                rcp,
+                substituts);
     }
 
     private ProduitRefSpecialite chargerProposition(Integer produitId) {
         return repository
-            .findByProduitId(produitId)
-            .orElseThrow(() -> new GenericError("Aucune proposition pour ce produit.", "rapprochementIntrouvable"));
+                .findByProduitId(produitId)
+                .orElseThrow(() -> new GenericError("Aucune proposition pour ce produit.", "rapprochementIntrouvable"));
     }
 
     private ProduitRefSpecialite chargerEnAttente(Integer produitId) {

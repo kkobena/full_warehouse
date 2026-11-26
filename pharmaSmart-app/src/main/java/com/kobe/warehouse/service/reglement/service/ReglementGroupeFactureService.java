@@ -27,33 +27,32 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
     private final ReglementFactureModeAllService reglementFactureModeAllService;
 
     public ReglementGroupeFactureService(
-        CashRegisterService cashRegisterService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        UserService userService,
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository,
-        ReglementFactureModeAllService reglementFactureModeAllService,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService,
-        ReferenceService referenceService
-    ) {
+            CashRegisterService cashRegisterService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            UserService userService,
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            BanqueRepository banqueRepository,
+            ReglementFactureModeAllService reglementFactureModeAllService,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            InvoicePaymentItemService invoicePaymentItemService,
+            ReferenceService referenceService) {
         super(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         this.reglementFactureModeAllService = reglementFactureModeAllService;
     }
 
     @Override
-    public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
+    public ResponseReglementDTO doReglement(ReglementParam reglementParam)
+            throws CashRegisterException, PaymentAmountException {
         FactureTiersPayant factureTiersPayant = verrouillerFactureGroupe(reglementParam.getId());
         refuserSiSoldee(resteDuGroupe(factureTiersPayant));
 

@@ -10,7 +10,7 @@ import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProdu
  *
  * Parcours ÉCRIVANT dans la base : il crée une vente et la remet à zéro à la fin.
  */
-test('comptant → assurance : la vente se relit, l\'assuré se choisit, un second produit s\'ajoute', async ({ page }) => {
+test("comptant → assurance : la vente se relit, l'assuré se choisit, un second produit s'ajoute", async ({ page }) => {
   test.setTimeout(150_000);
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
@@ -52,7 +52,7 @@ test('comptant → assurance : la vente se relit, l\'assuré se choisit, un seco
  * Même parcours, mais la relecture de la vente transformée échoue (500 simulé). La transformation a supprimé la vente
  * comptant : l'écran doit déjà tenir le NOUVEL identifiant, renvoyé par la transformation, et non l'ancien.
  */
-test('comptant → assurance : si la relecture échoue, l\'écran garde le nouvel identifiant', async ({ page }) => {
+test("comptant → assurance : si la relecture échoue, l'écran garde le nouvel identifiant", async ({ page }) => {
   test.setTimeout(150_000);
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);

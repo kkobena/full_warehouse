@@ -1,21 +1,21 @@
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { PrixReferenceService } from "../prix-reference.service";
-import { PrixReference } from "../model/prix-reference.model";
-import { CommonModule } from "@angular/common";
-import { AddPrixFormComponent } from "../add-prix-form/add-prix-form.component";
-import { ButtonComponent, CardComponent } from "app/shared/ui";
-import { IProduit, ITiersPayant } from "../../../../../shared/model";
-import { showCommonModal } from "../../../../../entities/sales/selling-home/sale-helper";
-import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { NgbActiveModal, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { PrixReferenceService } from '../prix-reference.service';
+import { PrixReference } from '../model/prix-reference.model';
+import { CommonModule } from '@angular/common';
+import { AddPrixFormComponent } from '../add-prix-form/add-prix-form.component';
+import { ButtonComponent, CardComponent } from 'app/shared/ui';
+import { IProduit, ITiersPayant } from '../../../../../shared/model';
+import { showCommonModal } from '../../../../../entities/sales/selling-home/sale-helper';
+import { NgbConfirmDialogService } from '../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
-  selector: "app-list-prix-reference",
+  selector: 'app-list-prix-reference',
   imports: [CommonModule, ButtonComponent, NgbTooltip, CardComponent],
 
-  templateUrl: "./list-prix-reference.component.html",
+  templateUrl: './list-prix-reference.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./list-prix-reference.component.scss"]
+  styleUrls: ['./list-prix-reference.component.scss'],
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;
@@ -26,7 +26,6 @@ export class ListPrixReferenceComponent implements OnInit {
   private readonly entityService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
-
 
   constructor() {
     this.load();
@@ -60,11 +59,11 @@ export class ListPrixReferenceComponent implements OnInit {
   }
 
   protected onConfirmDelete(prixReference: PrixReference): void {
-    this.confirmDialog.onConfirm(() => this.onDelete(prixReference), "Suppression", "Voulez-vous vraiment supprimer cette ligne ?");
+    this.confirmDialog.onConfirm(() => this.onDelete(prixReference), 'Suppression', 'Voulez-vous vraiment supprimer cette ligne ?');
   }
 
   protected onCancel(prixReference: PrixReference): void {
-    const message = prixReference.enabled ? "Voulez-vous vraiment désactver cette ligne ?" : "Voulez-vous vraiment activer cette ligne ?";
+    const message = prixReference.enabled ? 'Voulez-vous vraiment désactver cette ligne ?' : 'Voulez-vous vraiment activer cette ligne ?';
     this.confirmDialog.onConfirm(
       () => {
         prixReference.enabled = !prixReference.enabled;
@@ -72,8 +71,8 @@ export class ListPrixReferenceComponent implements OnInit {
           this.load();
         });
       },
-      "Activation/Désactivation",
-      message
+      'Activation/Désactivation',
+      message,
     );
   }
 
@@ -93,16 +92,16 @@ export class ListPrixReferenceComponent implements OnInit {
         isFromProduit: this.isFromProduit,
         produit: this.produit,
         tiersPayant: this.tiersPayant,
-        entity: entity ? entity : null
+        entity: entity ? entity : null,
       },
       () => {
         this.load();
       },
-      "lg",
+      'lg',
       null,
       () => {
         this.load();
-      }
+      },
     );
   }
 

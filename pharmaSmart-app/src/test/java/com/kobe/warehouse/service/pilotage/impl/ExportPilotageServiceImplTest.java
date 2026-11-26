@@ -38,32 +38,55 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Pilotage — exports CSV côté serveur")
 class ExportPilotageServiceImplTest {
 
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 10, 10), null, null, null, null, null, null, null);
-    private static final ComparaisonPeriodesDTO COMPARAISON = new ComparaisonPeriodesDTO(new PeriodeDTO(REQUETE.du(), REQUETE.au()), null, true);
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            LocalDate.of(2026, 9, 1), LocalDate.of(2026, 10, 10), null, null, null, null, null, null, null);
+    private static final ComparaisonPeriodesDTO COMPARAISON =
+            new ComparaisonPeriodesDTO(new PeriodeDTO(REQUETE.du(), REQUETE.au()), null, true);
     private static final IndicateurPilotageDTO CA = IndicateurPilotageDTO.fromIndicateur(IndicateurPilotage.CA_TTC);
 
     private final SeriesPilotageService seriesPilotageService = mock(SeriesPilotageService.class);
     private final AnalysePilotageService analysePilotageService = mock(AnalysePilotageService.class);
     private final ComparaisonAnneesService comparaisonAnneesService = mock(ComparaisonAnneesService.class);
-    private final ExportPilotageServiceImpl service = new ExportPilotageServiceImpl(seriesPilotageService, analysePilotageService, comparaisonAnneesService, new CsvExportService());
+    private final ExportPilotageServiceImpl service = new ExportPilotageServiceImpl(
+            seriesPilotageService, analysePilotageService, comparaisonAnneesService, new CsvExportService());
 
     @Test
     @DisplayName("détail par période : libellé de la tranche, la plus récente d'abord, valeurs complètes à la virgule")
     void exporterSeries() {
         List<PointSerieDTO> points = List.of(
-            new PointSerieDTO(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30), "Sept. 2026", 1_250_000.456, 1_000_000.0, null, null, null),
-            new PointSerieDTO(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 10), "Oct. 2026 (au 10)", 400_000.0, null, null, null, null)
-        );
-        when(seriesPilotageService.calculerSeries(REQUETE)).thenReturn(new SeriesPilotageDTO(COMPARAISON, 34, 0, List.of(new SerieIndicateurDTO(CA, null, null, null, null, points, null, null))));
+                new PointSerieDTO(
+                        LocalDate.of(2026, 9, 1),
+                        LocalDate.of(2026, 9, 30),
+                        "Sept. 2026",
+                        1_250_000.456,
+                        1_000_000.0,
+                        null,
+                        null,
+                        null),
+                new PointSerieDTO(
+                        LocalDate.of(2026, 10, 1),
+                        LocalDate.of(2026, 10, 10),
+                        "Oct. 2026 (au 10)",
+                        400_000.0,
+                        null,
+                        null,
+                        null,
+                        null));
+        when(seriesPilotageService.calculerSeries(REQUETE))
+                .thenReturn(new SeriesPilotageDTO(
+                        COMPARAISON,
+                        34,
+                        0,
+                        List.of(new SerieIndicateurDTO(CA, null, null, null, null, points, null, null))));
 
         List<String> lignes = lire(service.exporterSeries(REQUETE));
 
         assertThat(lignes.getFirst()).isEqualTo("Pilotage — détail par période du 01/09/2026 au 10/10/2026");
-        assertThat(lignes.subList(2, lignes.size())).containsExactly(
-            "Période;Chiffre d'affaires TTC;Chiffre d'affaires TTC (référence)",
-            "Oct. 2026 (au 10);400000;",
-            "Sept. 2026;1250000,46;1000000"
-        );
+        assertThat(lignes.subList(2, lignes.size()))
+                .containsExactly(
+                        "Période;Chiffre d'affaires TTC;Chiffre d'affaires TTC (référence)",
+                        "Oct. 2026 (au 10);400000;",
+                        "Sept. 2026;1250000,46;1000000");
     }
 
     @Test
@@ -71,29 +94,30 @@ class ExportPilotageServiceImplTest {
     void exporterAnalyse() {
         CelluleAnalyseDTO cellule = new CelluleAnalyseDTO(300.0, 200.0, 100.0, 50.0);
         AnalysePilotageDTO analyse = new AnalysePilotageDTO(
-            COMPARAISON,
-            SourceAnalyse.LIGNES,
-            List.of(CA),
-            List.of(),
-            AxeAnalyseDTO.fromAxe(AxeAnalyse.FAMILLE),
-            null,
-            List.of(new CelluleAnalyseDTO(400.0, 250.0, 150.0, 60.0)),
-            List.of(new ElementAnalyseDTO("1", "Médicaments", List.of(cellule), 75.0, 66.667)),
-            new ElementAnalyseDTO("autres", "Autres", List.of(new CelluleAnalyseDTO(100.0, 50.0, 50.0, 100.0)), 25.0, 33.333),
-            2,
-            null
-        );
+                COMPARAISON,
+                SourceAnalyse.LIGNES,
+                List.of(CA),
+                List.of(),
+                AxeAnalyseDTO.fromAxe(AxeAnalyse.FAMILLE),
+                null,
+                List.of(new CelluleAnalyseDTO(400.0, 250.0, 150.0, 60.0)),
+                List.of(new ElementAnalyseDTO("1", "Médicaments", List.of(cellule), 75.0, 66.667)),
+                new ElementAnalyseDTO(
+                        "autres", "Autres", List.of(new CelluleAnalyseDTO(100.0, 50.0, 50.0, 100.0)), 25.0, 33.333),
+                2,
+                null);
         RequeteAnalyseDTO reglage = new RequeteAnalyseDTO(null, null, null, null, null);
         when(analysePilotageService.analyser(any(), any())).thenReturn(analyse);
 
         List<String> lignes = lire(service.exporterAnalyse(REQUETE, reglage));
 
-        assertThat(lignes.subList(2, lignes.size())).containsExactly(
-            AxeAnalyse.FAMILLE.getLibelle() + ";Chiffre d'affaires TTC;Chiffre d'affaires TTC (référence);Part (%);Contribution à l'écart (%)",
-            "Médicaments;300;200;75;66,67",
-            "Autres;100;50;25;33,33",
-            "Total;400;250;100;"
-        );
+        assertThat(lignes.subList(2, lignes.size()))
+                .containsExactly(
+                        AxeAnalyse.FAMILLE.getLibelle()
+                                + ";Chiffre d'affaires TTC;Chiffre d'affaires TTC (référence);Part (%);Contribution à l'écart (%)",
+                        "Médicaments;300;200;75;66,67",
+                        "Autres;100;50;25;33,33",
+                        "Total;400;250;100;");
     }
 
     @Test
@@ -101,20 +125,23 @@ class ExportPilotageServiceImplTest {
     void exporterAnnees() {
         List<CelluleAnalyseDTO> mois = Collections.nCopies(12, new CelluleAnalyseDTO(10.0, null, null, null));
         ComparaisonAnneesDTO comparaison = new ComparaisonAnneesDTO(
-            CA,
-            ModeAnnees.MENSUEL,
-            false,
-            LocalDate.of(2026, 10, 10),
-            List.of(new AnneeCompareeDTO(2025, true, mois, List.of(), new CelluleAnalyseDTO(120.0, null, null, null)), new AnneeCompareeDTO(2026, false, mois, List.of(), new CelluleAnalyseDTO(100.0, null, null, null))),
-            List.of(),
-            null,
-            null,
-            null,
-            null,
-            List.of(),
-            null,
-            null
-        );
+                CA,
+                ModeAnnees.MENSUEL,
+                false,
+                LocalDate.of(2026, 10, 10),
+                List.of(
+                        new AnneeCompareeDTO(
+                                2025, true, mois, List.of(), new CelluleAnalyseDTO(120.0, null, null, null)),
+                        new AnneeCompareeDTO(
+                                2026, false, mois, List.of(), new CelluleAnalyseDTO(100.0, null, null, null))),
+                List.of(),
+                null,
+                null,
+                null,
+                null,
+                List.of(),
+                null,
+                null);
         when(comparaisonAnneesService.comparerAnnees(any(), any())).thenReturn(comparaison);
 
         List<String> lignes = lire(service.exporterAnnees(new RequeteAnneesDTO(null, null, null, null, null, null)));

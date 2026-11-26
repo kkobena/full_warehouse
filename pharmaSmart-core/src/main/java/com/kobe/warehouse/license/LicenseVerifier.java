@@ -68,7 +68,9 @@ public class LicenseVerifier {
 
     /** Décode une clé publique Ed25519 au format PEM (SubjectPublicKeyInfo / X.509). */
     public static PublicKey parsePublicKey(String pem) throws GeneralSecurityException {
-        String base64 = pem.replaceAll("-----BEGIN (.*)-----", "").replaceAll("-----END (.*)-----", "").replaceAll("\\s", "");
+        String base64 = pem.replaceAll("-----BEGIN (.*)-----", "")
+                .replaceAll("-----END (.*)-----", "")
+                .replaceAll("\\s", "");
         byte[] der = Base64.getDecoder().decode(base64);
         return KeyFactory.getInstance(ALGORITHM).generatePublic(new X509EncodedKeySpec(der));
     }
@@ -85,9 +87,8 @@ public class LicenseVerifier {
     public LicensePayload verify(String token) throws LicenseVerificationException {
         if (publicKeys.isEmpty()) {
             throw new LicenseVerificationException(
-                "Aucune clé publique de licence n'est embarquée dans cette installation : la licence ne peut pas être vérifiée.",
-                "license.invalid.noPublicKey"
-            );
+                    "Aucune clé publique de licence n'est embarquée dans cette installation : la licence ne peut pas être vérifiée.",
+                    "license.invalid.noPublicKey");
         }
         if (token == null || token.isBlank()) {
             throw new LicenseVerificationException("Fichier de licence vide", "license.invalid.empty");
@@ -95,7 +96,8 @@ public class LicenseVerifier {
         String compact = token.trim();
         String[] parts = compact.split("\\.");
         if (parts.length != 3) {
-            throw new LicenseVerificationException("Format de licence invalide (JWS compact attendu)", "license.invalid.format");
+            throw new LicenseVerificationException(
+                    "Format de licence invalide (JWS compact attendu)", "license.invalid.format");
         }
 
         assertHeader(parts[0]);
@@ -110,9 +112,8 @@ public class LicenseVerifier {
 
         if (!isSignatureValid(signingInput, signature)) {
             throw new LicenseVerificationException(
-                "La signature de la licence est invalide : le fichier a été modifié ou provient d'une autre source.",
-                "license.invalid.signature"
-            );
+                    "La signature de la licence est invalide : le fichier a été modifié ou provient d'une autre source.",
+                    "license.invalid.signature");
         }
 
         return readClaims(parts[1]);
@@ -124,9 +125,8 @@ public class LicenseVerifier {
             var alg = header.get("alg");
             if (alg == null || !EXPECTED_ALG_HEADER.equals(alg.asText())) {
                 throw new LicenseVerificationException(
-                    "Algorithme de signature non supporté : " + (alg == null ? "absent" : alg.asText()),
-                    "license.invalid.algorithm"
-                );
+                        "Algorithme de signature non supporté : " + (alg == null ? "absent" : alg.asText()),
+                        "license.invalid.algorithm");
             }
         } catch (IOException | IllegalArgumentException e) {
             throw new LicenseVerificationException("En-tête de licence illisible", "license.invalid.format", e);

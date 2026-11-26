@@ -48,16 +48,14 @@ public class MobileTodoService {
     public MobileTodoDTO getTodoList() {
         LOG.debug("Getting mobile todo list");
 
-        Map<TodoPriority, List<TodoItemDTO>> parPriorite = getAllTodoItems()
-            .stream()
-            .collect(Collectors.groupingBy(TodoItemDTO::priority));
+        Map<TodoPriority, List<TodoItemDTO>> parPriorite =
+                getAllTodoItems().stream().collect(Collectors.groupingBy(TodoItemDTO::priority));
 
-        return MobileTodoDTO
-            .builder()
-            .urgent(parPriorite.getOrDefault(TodoPriority.URGENT, List.of()))
-            .important(parPriorite.getOrDefault(TodoPriority.IMPORTANT, List.of()))
-            .normal(parPriorite.getOrDefault(TodoPriority.NORMAL, List.of()))
-            .build();
+        return MobileTodoDTO.builder()
+                .urgent(parPriorite.getOrDefault(TodoPriority.URGENT, List.of()))
+                .important(parPriorite.getOrDefault(TodoPriority.IMPORTANT, List.of()))
+                .normal(parPriorite.getOrDefault(TodoPriority.NORMAL, List.of()))
+                .build();
     }
 
     /**
@@ -127,15 +125,13 @@ public class MobileTodoService {
      * @return Map with counts for each priority
      */
     public TodoCountsDTO getTodoCounts() {
-        Map<TodoPriority, Long> parPriorite = getAllTodoItems()
-            .stream()
-            .collect(Collectors.groupingBy(TodoItemDTO::priority, Collectors.counting()));
+        Map<TodoPriority, Long> parPriorite =
+                getAllTodoItems().stream().collect(Collectors.groupingBy(TodoItemDTO::priority, Collectors.counting()));
 
         return new TodoCountsDTO(
-            parPriorite.getOrDefault(TodoPriority.URGENT, 0L).intValue(),
-            parPriorite.getOrDefault(TodoPriority.IMPORTANT, 0L).intValue(),
-            parPriorite.getOrDefault(TodoPriority.NORMAL, 0L).intValue()
-        );
+                parPriorite.getOrDefault(TodoPriority.URGENT, 0L).intValue(),
+                parPriorite.getOrDefault(TodoPriority.IMPORTANT, 0L).intValue(),
+                parPriorite.getOrDefault(TodoPriority.NORMAL, 0L).intValue());
     }
 
     /**
@@ -184,8 +180,7 @@ public class MobileTodoService {
             String productName = (String) row[1];
             Long supplierId = row[3] != null ? ((Number) row[3]).longValue() : null;
 
-            todos.add(
-                MobileTodoDTO.itemBuilder()
+            todos.add(MobileTodoDTO.itemBuilder()
                     .id(idCounter++)
                     .type(todoType.getCode())
                     .title("Commander " + truncate(productName, 25))
@@ -199,8 +194,7 @@ public class MobileTodoService {
                     .relatedEntityType("PRODUCT")
                     .relatedEntityName(productName)
                     .createdAt(LocalDateTime.now())
-                    .build()
-            );
+                    .build());
         }
 
         return todos;
@@ -252,23 +246,28 @@ public class MobileTodoService {
             long montantRestant = ((Number) row[3]).longValue();
             int daysOverdue = ((Number) row[4]).intValue();
 
-            todos.add(
-                MobileTodoDTO.itemBuilder()
+            todos.add(MobileTodoDTO.itemBuilder()
                     .id(idCounter++)
                     .type(todoType.getCode())
                     .title("Relancer " + truncate(tiersPayantName, 20))
-                    .description("Facture impayee depuis " + daysOverdue + " jours (" + formatAmount(montantRestant) + " F)")
+                    .description(
+                            "Facture impayee depuis " + daysOverdue + " jours (" + formatAmount(montantRestant) + " F)")
                     .priority(TodoPriority.URGENT)
                     .icon(todoType.getIcon())
                     .actionLabel("Appeler")
                     .actionType(todoType.getActionType())
-                    .actionData(Map.of("invoiceId", invoiceId, "phone", phone != null ? phone : "", "tiersPayantName", tiersPayantName))
+                    .actionData(Map.of(
+                            "invoiceId",
+                            invoiceId,
+                            "phone",
+                            phone != null ? phone : "",
+                            "tiersPayantName",
+                            tiersPayantName))
                     .relatedEntityId(invoiceId)
                     .relatedEntityType("INVOICE")
                     .relatedEntityName(tiersPayantName)
                     .createdAt(LocalDateTime.now())
-                    .build()
-            );
+                    .build());
         }
 
         return todos;
@@ -316,8 +315,7 @@ public class MobileTodoService {
 
             TodoPriority priority = daysUntilExpiry <= 30 ? TodoPriority.URGENT : TodoPriority.IMPORTANT;
 
-            todos.add(
-                MobileTodoDTO.itemBuilder()
+            todos.add(MobileTodoDTO.itemBuilder()
                     .id(idCounter++)
                     .type(todoType.getCode())
                     .title("Demarquer " + truncate(productName, 20))
@@ -331,8 +329,7 @@ public class MobileTodoService {
                     .relatedEntityType("PRODUCT")
                     .relatedEntityName(productName)
                     .createdAt(LocalDateTime.now())
-                    .build()
-            );
+                    .build());
         }
 
         return todos;
@@ -380,8 +377,7 @@ public class MobileTodoService {
             int minThreshold = ((Number) row[3]).intValue();
             Long supplierId = row[4] != null ? ((Number) row[4]).longValue() : null;
 
-            todos.add(
-                MobileTodoDTO.itemBuilder()
+            todos.add(MobileTodoDTO.itemBuilder()
                     .id(idCounter++)
                     .type(todoType.getCode())
                     .title("Reapprovisionner " + truncate(productName, 18))
@@ -390,22 +386,18 @@ public class MobileTodoService {
                     .icon("package-variant-closed")
                     .actionLabel("Commander")
                     .actionType(todoType.getActionType())
-                    .actionData(
-                        Map.of(
+                    .actionData(Map.of(
                             "productId",
                             productId,
                             "supplierId",
                             supplierId != null ? supplierId : 0,
                             "suggestedQuantity",
-                            Math.max(minThreshold * 2 - currentStock, minThreshold)
-                        )
-                    )
+                            Math.max(minThreshold * 2 - currentStock, minThreshold)))
                     .relatedEntityId(productId)
                     .relatedEntityType("PRODUCT")
                     .relatedEntityName(productName)
                     .createdAt(LocalDateTime.now())
-                    .build()
-            );
+                    .build());
         }
 
         return todos;

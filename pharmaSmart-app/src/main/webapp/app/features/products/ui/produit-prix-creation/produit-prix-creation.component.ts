@@ -15,7 +15,15 @@ const PRICE_TYPES = [
   templateUrl: './produit-prix-creation.component.html',
   styleUrl: './produit-prix-creation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectSearchComponent, SelectComponent, InputNumberComponent, SwitchComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    SelectSearchComponent,
+    SelectComponent,
+    InputNumberComponent,
+    SwitchComponent,
+  ],
 })
 export class ProduitPrixCreationComponent {
   readonly tiersPayants = input.required<ITiersPayant[]>();

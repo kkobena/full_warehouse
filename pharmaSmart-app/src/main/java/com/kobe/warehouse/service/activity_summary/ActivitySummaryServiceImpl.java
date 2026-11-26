@@ -56,15 +56,14 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     private final ObjectMapper objectMapper;
 
     public ActivitySummaryServiceImpl(
-        TiersPayantService payantService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        CommandeRepository commandeRepository,
-        PaymentTransactionRepository paymentTransactionRepository,
-        SalePaymentRepository paymentRepository,
-        SalesRepository salesRepository,
-        ActivitySummaryReportService activitySummaryReportService,
-        ObjectMapper objectMapper
-    ) {
+            TiersPayantService payantService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            CommandeRepository commandeRepository,
+            PaymentTransactionRepository paymentTransactionRepository,
+            SalePaymentRepository paymentRepository,
+            SalesRepository salesRepository,
+            ActivitySummaryReportService activitySummaryReportService,
+            ObjectMapper objectMapper) {
         this.payantService = payantService;
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.commandeRepository = commandeRepository;
@@ -93,19 +92,18 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
                 montantAutreModePaiement = montantAutreModePaiement.add(recette.getMontantReel());
             }
         }
-        //TODO si gestion de ug
+        // TODO si gestion de ug
         var caRecord = new ChiffreAffaireRecord(
-            nonNull(chiffreAffaire) ? chiffreAffaire.montantTtc() : BigDecimal.ZERO,
-            nonNull(chiffreAffaire) ? chiffreAffaire.getMontantTva() : BigDecimal.ZERO,
-            nonNull(chiffreAffaire) ? chiffreAffaire.montantHt() : BigDecimal.ZERO,
-            nonNull(chiffreAffaire) ? chiffreAffaire.montantRemise() : BigDecimal.ZERO,
-            nonNull(chiffreAffaire) ? chiffreAffaire.montantNet() : BigDecimal.ZERO,
-            montantEspece,
-            nonNull(chiffreAffaire) ? chiffreAffaire.getMontantCredit() : BigDecimal.ZERO,
-            montantRegle,
-            montantAutreModePaiement,
-            nonNull(chiffreAffaire) ? chiffreAffaire.getMarge() : BigDecimal.ZERO
-        );
+                nonNull(chiffreAffaire) ? chiffreAffaire.montantTtc() : BigDecimal.ZERO,
+                nonNull(chiffreAffaire) ? chiffreAffaire.getMontantTva() : BigDecimal.ZERO,
+                nonNull(chiffreAffaire) ? chiffreAffaire.montantHt() : BigDecimal.ZERO,
+                nonNull(chiffreAffaire) ? chiffreAffaire.montantRemise() : BigDecimal.ZERO,
+                nonNull(chiffreAffaire) ? chiffreAffaire.montantNet() : BigDecimal.ZERO,
+                montantEspece,
+                nonNull(chiffreAffaire) ? chiffreAffaire.getMontantCredit() : BigDecimal.ZERO,
+                montantRegle,
+                montantAutreModePaiement,
+                nonNull(chiffreAffaire) ? chiffreAffaire.getMarge() : BigDecimal.ZERO);
         return new ChiffreAffaireDTO(recettes, caRecord, achats, mvts);
     }
 
@@ -130,44 +128,50 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
 
     @Override
     public byte[] printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement) {
-        return this.activitySummaryReportService.printToPdfBytes(
-                new ActivitySummaryRecord(
-                    getChiffreAffaire(fromDate, toDate),
-                    fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
-                    findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
-                    fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
-                    " du " + DateUtil.formatFr(fromDate) + " au " + toDate
-                )
-            );
+        return this.activitySummaryReportService.printToPdfBytes(new ActivitySummaryRecord(
+                getChiffreAffaire(fromDate, toDate),
+                fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged())
+                        .getContent(),
+                findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged())
+                        .getContent(),
+                fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
+                " du " + DateUtil.formatFr(fromDate) + " au " + toDate));
     }
 
     @Override
-    public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+    public Page<AchatTiersPayant> fetchAchatTiersPayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         return this.payantService.fetchAchatTiersPayant(fromDate, toDate, search, pageable);
     }
 
     @Override
-    public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        ReglementTiersPayantResult reglementTiersPayantResult = loadReglementTierspayant(fromDate, toDate, search, pageable);
-        if (Objects.nonNull(reglementTiersPayantResult) && !CollectionUtils.isEmpty(reglementTiersPayantResult.content())) {
+    public Page<ReglementTiersPayants> findReglementTierspayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+        ReglementTiersPayantResult reglementTiersPayantResult =
+                loadReglementTierspayant(fromDate, toDate, search, pageable);
+        if (Objects.nonNull(reglementTiersPayantResult)
+                && !CollectionUtils.isEmpty(reglementTiersPayantResult.content())) {
             // La page etait construite puis abandonnee sans etre rendue : la section « Reglements
             // tiers payant » du rapport d'activite restait vide, a l'ecran comme au PDF.
-            return new PageImpl<>(reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
+            return new PageImpl<>(
+                    reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
         }
         return Page.empty();
     }
 
     private ChiffreAffaire getChiffreAffaireSummary(LocalDate fromDate, LocalDate toDate) {
         try {
-            String jsonResult =
-                this.salesRepository.getChiffreAffaire(
-                        fromDate,
-                        toDate,
-                        SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new),
-                        Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
-                        false,
-                        false
-                    );
+            String jsonResult = this.salesRepository.getChiffreAffaire(
+                    fromDate,
+                    toDate,
+                    SalesStatut.getStatutForFacturation().stream()
+                            .map(SalesStatut::name)
+                            .toArray(String[]::new),
+                    Set.of(CategorieChiffreAffaire.CA).stream()
+                            .map(CategorieChiffreAffaire::name)
+                            .toArray(String[]::new),
+                    false,
+                    false);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.info(null, e);
@@ -175,17 +179,13 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         }
     }
 
-    private ReglementTiersPayantResult loadReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+    private ReglementTiersPayantResult loadReglementTierspayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         int offset = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
         int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
         try {
             String jsonResult = invoicePaymentRepository.findReglementTierspayant(
-                fromDate,
-                toDate,
-                StringUtils.hasLength(search) ? search : null,
-                offset,
-                limit
-            );
+                    fromDate, toDate, StringUtils.hasLength(search) ? search : null, offset, limit);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.info(e.getLocalizedMessage());

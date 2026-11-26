@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AvoirFournisseur;
 import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
-
 import java.time.LocalDateTime;
 
 public class AvoirFournisseurDTO {
@@ -33,33 +32,93 @@ public class AvoirFournisseurDTO {
         this.retourBonReference = avoir.getRetourBon().getReference();
     }
 
-    public Integer getId() { return id; }
-    public AvoirFournisseurDTO setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getReference() { return reference; }
-    public AvoirFournisseurDTO setReference(String reference) { this.reference = reference; return this; }
+    public AvoirFournisseurDTO setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDateTime getDateMtv() { return dateMtv; }
-    public AvoirFournisseurDTO setDateMtv(LocalDateTime dateMtv) { this.dateMtv = dateMtv; return this; }
+    public String getReference() {
+        return reference;
+    }
 
-    public long getMontant() { return montant; }
-    public AvoirFournisseurDTO setMontant(long montant) { this.montant = montant; return this; }
+    public AvoirFournisseurDTO setReference(String reference) {
+        this.reference = reference;
+        return this;
+    }
 
-    public AvoirFournisseurStatut getStatut() { return statut; }
-    public AvoirFournisseurDTO setStatut(AvoirFournisseurStatut statut) { this.statut = statut; return this; }
+    public LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public AvoirFournisseurDTO setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public AvoirFournisseurDTO setDateMtv(LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+        return this;
+    }
 
-    public Integer getFournisseurId() { return fournisseurId; }
-    public AvoirFournisseurDTO setFournisseurId(Integer fournisseurId) { this.fournisseurId = fournisseurId; return this; }
+    public long getMontant() {
+        return montant;
+    }
 
-    public String getFournisseurLibelle() { return fournisseurLibelle; }
-    public AvoirFournisseurDTO setFournisseurLibelle(String fournisseurLibelle) { this.fournisseurLibelle = fournisseurLibelle; return this; }
+    public AvoirFournisseurDTO setMontant(long montant) {
+        this.montant = montant;
+        return this;
+    }
 
-    public Integer getRetourBonId() { return retourBonId; }
-    public AvoirFournisseurDTO setRetourBonId(Integer retourBonId) { this.retourBonId = retourBonId; return this; }
+    public AvoirFournisseurStatut getStatut() {
+        return statut;
+    }
 
-    public String getRetourBonReference() { return retourBonReference; }
-    public AvoirFournisseurDTO setRetourBonReference(String retourBonReference) { this.retourBonReference = retourBonReference; return this; }
+    public AvoirFournisseurDTO setStatut(AvoirFournisseurStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public AvoirFournisseurDTO setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
+
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public AvoirFournisseurDTO setFournisseurId(Integer fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
+
+    public String getFournisseurLibelle() {
+        return fournisseurLibelle;
+    }
+
+    public AvoirFournisseurDTO setFournisseurLibelle(String fournisseurLibelle) {
+        this.fournisseurLibelle = fournisseurLibelle;
+        return this;
+    }
+
+    public Integer getRetourBonId() {
+        return retourBonId;
+    }
+
+    public AvoirFournisseurDTO setRetourBonId(Integer retourBonId) {
+        this.retourBonId = retourBonId;
+        return this;
+    }
+
+    public String getRetourBonReference() {
+        return retourBonReference;
+    }
+
+    public AvoirFournisseurDTO setRetourBonReference(String retourBonReference) {
+        this.retourBonReference = retourBonReference;
+        return this;
+    }
 }

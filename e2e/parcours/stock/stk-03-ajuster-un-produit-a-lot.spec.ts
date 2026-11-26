@@ -46,7 +46,10 @@ scenario('STK-03', async ({ etape, page }) => {
   });
 
   await etape(4, async () => {
-    await ecran.getByRole('button', { name: /Ajouter|^$/ }).last().click();
+    await ecran
+      .getByRole('button', { name: /Ajouter|^$/ })
+      .last()
+      .click();
     await expect(ecran.locator('tbody tr').first()).toContainText(produit);
   });
 

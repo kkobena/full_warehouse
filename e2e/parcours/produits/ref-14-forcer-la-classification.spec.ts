@@ -25,8 +25,7 @@ scenario('REF-14', async ({ etape, page }) => {
   const ouvrirLaFiche = async (): Promise<void> => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, produit);
-    await page.locator('app-produit-list tbody tr').first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('app-produit-list tbody tr').first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Éditer' }).click();
     await expect(page.getByRole('heading', { name: /Modifier Produit/i })).toBeVisible();
     // Le formulaire est découpé en onglets, et la classe de criticité ne vit pas dans celui
@@ -45,10 +44,9 @@ scenario('REF-14', async ({ etape, page }) => {
    * montre ce qu'on espérait, non ce qui est écrit. C'est la réponse du serveur qui fait foi.
    */
   const enregistrer = async (): Promise<void> => {
-    const acquittement = page.waitForResponse(
-      r => r.request().method() === 'PUT' && /\/api\/produits$/.test(r.url()) && r.status() < 400,
-      { timeout: 20_000 },
-    );
+    const acquittement = page.waitForResponse(r => r.request().method() === 'PUT' && /\/api\/produits$/.test(r.url()) && r.status() < 400, {
+      timeout: 20_000,
+    });
     await page.getByRole('button', { name: 'Enregistrer' }).click();
     await acquittement;
     await expect(page.getByRole('heading', { name: 'Catalogue produits' })).toBeVisible();

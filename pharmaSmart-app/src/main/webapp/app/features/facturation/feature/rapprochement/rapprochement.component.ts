@@ -1,16 +1,16 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { DecimalPipe } from "@angular/common";
-import { finalize } from "rxjs/operators";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { DATE_FORMAT_ISO_DATE, NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
-import { ITiersPayant } from "../../../../shared/model";
+import { DATE_FORMAT_ISO_DATE, NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
+import { ITiersPayant } from '../../../../shared/model';
 import {
   IEtatRapprochement,
   ILigneRapprochement,
@@ -18,19 +18,17 @@ import {
   IRapprochementKpi,
   IReglementDto,
   IReglementParams,
-  IResponseReglement
-} from "../../data-access/models";
-import { RapprochementApiService } from "../../data-access/services/rapprochement-api.service";
-import { ReglementApiService } from "../../data-access/services/reglement-api.service";
-import {
-  ReglementRapprochementModalComponent
-} from "../../ui/reglement-rapprochement-modal/reglement-rapprochement-modal.component";
-import { RapprochementKpiBannerComponent } from "../../ui/rapprochement-kpi-banner/rapprochement-kpi-banner.component";
-import { ErrorService } from "../../../../shared/error.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { TauriPrinterService } from "../../../../shared/services/tauri-printer.service";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+  IResponseReglement,
+} from '../../data-access/models';
+import { RapprochementApiService } from '../../data-access/services/rapprochement-api.service';
+import { ReglementApiService } from '../../data-access/services/reglement-api.service';
+import { ReglementRapprochementModalComponent } from '../../ui/reglement-rapprochement-modal/reglement-rapprochement-modal.component';
+import { RapprochementKpiBannerComponent } from '../../ui/rapprochement-kpi-banner/rapprochement-kpi-banner.component';
+import { ErrorService } from '../../../../shared/error.service';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -38,8 +36,10 @@ import {
   DetailSectionComponent,
   FloatLabelComponent,
   MultiSelectComponent,
-  ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+  RowTogglerDirective,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 import { CardComponent } from 'app/shared/ui';
 
 interface IStatutOption {
@@ -48,8 +48,10 @@ interface IStatutOption {
 }
 
 @Component({
-  selector: "app-rapprochement",
-  imports: [CardComponent, RowTogglerDirective,
+  selector: 'app-rapprochement',
+  imports: [
+    CardComponent,
+    RowTogglerDirective,
     HintComponent,
     FormsModule,
     DecimalPipe,
@@ -61,11 +63,11 @@ interface IStatutOption {
     FloatLabelComponent,
     MultiSelectComponent,
     ToolbarComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
   ],
-  templateUrl: "./rapprochement.component.html",
+  templateUrl: './rapprochement.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./rapprochement.component.scss"
+  styleUrl: './rapprochement.component.scss',
 })
 export class RapprochementComponent implements OnInit {
   /**
@@ -78,9 +80,9 @@ export class RapprochementComponent implements OnInit {
   readonly navCode = input<string>('');
 
   protected readonly statutOptions: IStatutOption[] = [
-    { label: "Payé", value: "PAID" },
-    { label: "Partiel", value: "PARTIALLY_PAID" },
-    { label: "Impayé", value: "NOT_PAID" }
+    { label: 'Payé', value: 'PAID' },
+    { label: 'Partiel', value: 'PARTIALLY_PAID' },
+    { label: 'Impayé', value: 'NOT_PAID' },
   ];
 
   protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
@@ -96,22 +98,20 @@ export class RapprochementComponent implements OnInit {
   // Master/detail state
   protected readonly selectedRappr = signal<IEtatRapprochement | null>(null);
   protected readonly panelOpen = computed(() => this.selectedRappr() !== null);
-  protected readonly today = new Date().toISOString().split("T")[0];
+  protected readonly today = new Date().toISOString().split('T')[0];
   protected readonly kpi = computed<IRapprochementKpi | null>(() => {
     const data = this.rapprochements();
     if (data.length === 0) return null;
     const totalFacture = data.reduce((s, r) => s + (r.totalFacture ?? 0), 0);
     const totalRegle = data.reduce((s, r) => s + (r.totalRegle ?? 0), 0);
-    const countLignesEnRetard = data.reduce(
-      (s, r) => s + (r.lignes ?? []).filter(l => this.isLigneEnRetard(l)).length, 0
-    );
+    const countLignesEnRetard = data.reduce((s, r) => s + (r.lignes ?? []).filter(l => this.isLigneEnRetard(l)).length, 0);
     return {
       totalFacture,
       totalRegle,
       ecartTotal: totalFacture - totalRegle,
       tauxRecouvrement: totalFacture > 0 ? (totalRegle / totalFacture) * 100 : 0,
       countOrganismes: data.length,
-      countLignesEnRetard
+      countLignesEnRetard,
     };
   });
 
@@ -144,11 +144,11 @@ export class RapprochementComponent implements OnInit {
       .query(this.buildParams())
       .pipe(
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: res => this.rapprochements.set(res.body ?? []),
-        error: () => this.notificationService.error("Erreur lors du chargement du rapprochement")
+        error: () => this.notificationService.error('Erreur lors du chargement du rapprochement'),
       });
   }
 
@@ -170,13 +170,13 @@ export class RapprochementComponent implements OnInit {
       .exportExcel(this.buildParams())
       .pipe(
         finalize(() => this.loadingExport.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (blob) => {
-          this.downloadService.downloadExcel(blob, "rapprochement");
+        next: blob => {
+          this.downloadService.downloadExcel(blob, 'rapprochement');
         },
-        error: () => this.notificationService.error("Erreur export Excel")
+        error: () => this.notificationService.error('Erreur export Excel'),
       });
   }
 
@@ -184,27 +184,26 @@ export class RapprochementComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
+      .subscribe(res => this.tiersPayantSuggestions.set(res.body ?? []));
   }
 
   openReglementModal(ligne: ILigneRapprochement): void {
     const ref = this.modalService.open(ReglementRapprochementModalComponent, {
-      size: "lg",
+      size: 'lg',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     ref.componentInstance.ligne = ligne;
 
     ref.result.then(
       (params: IReglementParams) => {
-        this.reglementApi.doReglement(params)
+        this.reglementApi
+          .doReglement(params)
           .pipe(
-            finalize(() => {
-            }),
-            takeUntilDestroyed(this.destroyRef)
+            finalize(() => {}),
+            takeUntilDestroyed(this.destroyRef),
           )
           .subscribe({
-
             next: res => {
               if (res.body) {
                 this.onPrintReceipt(res.body);
@@ -216,14 +215,13 @@ export class RapprochementComponent implements OnInit {
               // on l'affiche, puis on recharge pour montrer l'état réel plutôt que la ligne périmée.
               this.notificationService.error(
                 this.errorService.getErrorMessage(err, "Erreur lors de l'enregistrement du règlement"),
-                "Règlement"
+                'Règlement',
               );
               this.onSearch();
-            }
+            },
           });
       },
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -233,58 +231,58 @@ export class RapprochementComponent implements OnInit {
         if (this.tauriPrinterService.isRunningInTauri()) {
           this.printReceiptForTauri(response.id);
         } else {
-          this.reglementApi.printReceipt(response.id)
+          this.reglementApi
+            .printReceipt(response.id)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              error: err =>
-                this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
+              error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
             });
         }
-
       },
-      "Ticket règlement",
-      "Voulez-vous imprimer le ticket ?"
+      'Ticket règlement',
+      'Voulez-vous imprimer le ticket ?',
     );
   }
 
   private printReceiptForTauri(paymentId: IPaymentId): void {
-    this.reglementApi.getEscPosReceiptForTauri(paymentId)
+    this.reglementApi
+      .getEscPosReceiptForTauri(paymentId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async (data: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(data);
-          } catch { /* silently ignore printer errors */
+          } catch {
+            /* silently ignore printer errors */
           }
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
       });
   }
 
   onAnnulerReglement(ligne: ILigneRapprochement, reglement: IReglementDto): void {
     if (!reglement.id || !reglement.transactionDate) return;
-    this.reglementApi.delete({ id: reglement.id, transactionDate: reglement.transactionDate })
+    this.reglementApi
+      .delete({ id: reglement.id, transactionDate: reglement.transactionDate })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           // Recharge l'état complet pour cohérence
           this.onSearch();
-          this.notificationService.success("Règlement annulé");
+          this.notificationService.success('Règlement annulé');
         },
         error: err => {
           // « Déjà annulé », « en cours sur un autre poste » : le serveur dit pourquoi, et l'état a
           // pu changer depuis l'affichage — on le relit.
-          this.notificationService.error(this.errorService.getErrorMessage(err, "Erreur lors de l'annulation"), "Règlement");
+          this.notificationService.error(this.errorService.getErrorMessage(err, "Erreur lors de l'annulation"), 'Règlement');
           this.onSearch();
-        }
+        },
       });
   }
 
   isLigneEnRetard(ligne: ILigneRapprochement): boolean {
-    return !!ligne.echeance && ligne.echeance < this.today && ligne.statut !== "PAID";
+    return !!ligne.echeance && ligne.echeance < this.today && ligne.statut !== 'PAID';
   }
-
 
   // KPI pour l'organisme sélectionné
   detailTaux(rappr: IEtatRapprochement): number {
@@ -298,27 +296,27 @@ export class RapprochementComponent implements OnInit {
 
   statutLabel(statut?: string): string {
     switch (statut) {
-      case "PAID":
-        return "Payé";
-      case "NOT_PAID":
-        return "Impayé";
-      case "PARTIALLY_PAID":
-        return "Partiel";
+      case 'PAID':
+        return 'Payé';
+      case 'NOT_PAID':
+        return 'Impayé';
+      case 'PARTIALLY_PAID':
+        return 'Partiel';
       default:
-        return statut ?? "—";
+        return statut ?? '—';
     }
   }
 
   statutClass(statut?: string): string {
     switch (statut) {
-      case "PAID":
-        return "bg-success";
-      case "NOT_PAID":
-        return "bg-danger";
-      case "PARTIALLY_PAID":
-        return "bg-warning text-dark";
+      case 'PAID':
+        return 'bg-success';
+      case 'NOT_PAID':
+        return 'bg-danger';
+      case 'PARTIALLY_PAID':
+        return 'bg-warning text-dark';
       default:
-        return "bg-secondary";
+        return 'bg-secondary';
     }
   }
 
@@ -327,9 +325,7 @@ export class RapprochementComponent implements OnInit {
       startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
-      statuts: this.selectedStatut ?? []
+      statuts: this.selectedStatut ?? [],
     };
   }
-
-
 }

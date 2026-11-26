@@ -80,11 +80,9 @@ class InventaireSyncServiceImplTest {
         StoreInventoryLine premiere = ligne(1L, 0L);
         StoreInventoryLine seconde = ligne(2L, 0L);
         when(userService.getUser()).thenReturn(operateur);
-        when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L, 2L)))
-            .thenReturn(List.of(premiere, seconde));
+        when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L, 2L))).thenReturn(List.of(premiere, seconde));
 
-        BatchSyncResultRecord resultat = service.synchronize(
-            List.of(dto(1L, 0L, 100, 97), dto(2L, 0L, 50, 50)));
+        BatchSyncResultRecord resultat = service.synchronize(List.of(dto(1L, 0L, 100, 97), dto(2L, 0L, 50, 50)));
 
         assertEquals(2, resultat.saved());
         assertEquals(0, resultat.failed());
@@ -104,11 +102,9 @@ class InventaireSyncServiceImplTest {
     void ligneIntrouvable() {
         StoreInventoryLine survivante = ligne(2L, 0L);
         when(userService.getUser()).thenReturn(operateur);
-        when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L, 2L)))
-            .thenReturn(List.of(survivante));
+        when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L, 2L))).thenReturn(List.of(survivante));
 
-        BatchSyncResultRecord resultat = service.synchronize(
-            List.of(dto(1L, 0L, 10, 9), dto(2L, 0L, 20, 20)));
+        BatchSyncResultRecord resultat = service.synchronize(List.of(dto(1L, 0L, 10, 9), dto(2L, 0L, 20, 20)));
 
         assertEquals(1, resultat.saved());
         assertEquals(1, resultat.failed());
@@ -124,10 +120,9 @@ class InventaireSyncServiceImplTest {
         StoreInventoryLine paisible = ligne(2L, 3L);
         when(userService.getUser()).thenReturn(operateur);
         when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L, 2L)))
-            .thenReturn(List.of(enConflit, paisible));
+                .thenReturn(List.of(enConflit, paisible));
 
-        BatchSyncResultRecord resultat = service.synchronize(
-            List.of(dto(1L, 5L, 10, 8), dto(2L, 3L, 20, 21)));
+        BatchSyncResultRecord resultat = service.synchronize(List.of(dto(1L, 5L, 10, 8), dto(2L, 3L, 20, 21)));
 
         assertEquals(1, resultat.saved());
         assertEquals(1, resultat.failed(), "le total des rejets comprend les conflits");
@@ -185,8 +180,7 @@ class InventaireSyncServiceImplTest {
         when(userService.getUser()).thenReturn(operateur);
         when(storeInventoryLineRepository.findAllById(java.util.Set.of(1L))).thenReturn(List.of(ligne));
 
-        BatchSyncResultRecord resultat = service.synchronize(
-            Arrays.asList(dto(1L, 0L, 10, 8), dto(1L, 0L, 10, 9)));
+        BatchSyncResultRecord resultat = service.synchronize(Arrays.asList(dto(1L, 0L, 10, 8), dto(1L, 0L, 10, 9)));
 
         assertEquals(2, resultat.saved(), "les deux saisies sont appliquées à la même ligne");
         assertEquals(9, ligne.getQuantityOnHand(), "la dernière saisie l'emporte");

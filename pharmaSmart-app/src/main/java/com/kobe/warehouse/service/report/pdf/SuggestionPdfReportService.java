@@ -2,15 +2,14 @@ package com.kobe.warehouse.service.report.pdf;
 
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class SuggestionPdfReportService extends AbstractStatistiqueReportService {
@@ -18,10 +17,7 @@ public class SuggestionPdfReportService extends AbstractStatistiqueReportService
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public SuggestionPdfReportService(
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
+    public SuggestionPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
         super(storageService);
         this.templateEngine = templateEngine;
     }
@@ -48,8 +44,11 @@ public class SuggestionPdfReportService extends AbstractStatistiqueReportService
     }
 
     public byte[] export(String suggestionReference, String fournisseurLibelle, List<SuggestionLineDTO> lignes) {
-        long totalQuantite = lignes.stream().mapToLong(SuggestionLineDTO::quantity).sum();
-        long totalMontant = lignes.stream().mapToLong(l -> (long) l.quantity() * l.prixAchat()).sum();
+        long totalQuantite =
+                lignes.stream().mapToLong(SuggestionLineDTO::quantity).sum();
+        long totalMontant = lignes.stream()
+                .mapToLong(l -> (long) l.quantity() * l.prixAchat())
+                .sum();
 
         variablesMap.put("items", lignes);
         variablesMap.put("suggestionReference", suggestionReference);

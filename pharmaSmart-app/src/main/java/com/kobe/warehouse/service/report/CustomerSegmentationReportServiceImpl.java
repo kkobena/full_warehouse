@@ -26,23 +26,21 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     @Override
     @Cacheable(value = "customerSegmentation", key = "'all'")
     public List<CustomerSegmentationDTO> getAllCustomerSegmentation() {
-        String sql =
-            "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "ORDER BY rfm_segment DESC";
+        String sql = "SELECT " + "customer_id, "
+                + "customer_name, "
+                + "phone, "
+                + "last_purchase_date, "
+                + "days_since_last_purchase, "
+                + "nb_purchases_last_year, "
+                + "total_spent_last_year, "
+                + "avg_basket_value, "
+                + "recency_score, "
+                + "frequency_score, "
+                + "monetary_score, "
+                + "rfm_segment, "
+                + "customer_classification "
+                + "FROM mv_customer_rfm "
+                + "ORDER BY rfm_segment DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -54,25 +52,24 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
 
     @Override
     @Cacheable(value = "customerSegmentation", key = "'classification:' + #classification")
-    public List<CustomerSegmentationDTO> getCustomersByClassification(CustomerSegmentationDTO.CustomerClassification classification) {
-        String sql =
-            "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_classification = :classification " +
-            "ORDER BY rfm_segment DESC";
+    public List<CustomerSegmentationDTO> getCustomersByClassification(
+            CustomerSegmentationDTO.CustomerClassification classification) {
+        String sql = "SELECT " + "customer_id, "
+                + "customer_name, "
+                + "phone, "
+                + "last_purchase_date, "
+                + "days_since_last_purchase, "
+                + "nb_purchases_last_year, "
+                + "total_spent_last_year, "
+                + "avg_basket_value, "
+                + "recency_score, "
+                + "frequency_score, "
+                + "monetary_score, "
+                + "rfm_segment, "
+                + "customer_classification "
+                + "FROM mv_customer_rfm "
+                + "WHERE customer_classification = :classification "
+                + "ORDER BY rfm_segment DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("classification", classification.name());
@@ -92,24 +89,22 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     @Override
     @Cacheable(value = "customerSegmentation", key = "'at-risk'")
     public List<CustomerSegmentationDTO> getAtRiskCustomers() {
-        String sql =
-            "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_classification IN ('AT_RISK', 'NEED_ATTENTION') " +
-            "ORDER BY total_spent_last_year DESC";
+        String sql = "SELECT " + "customer_id, "
+                + "customer_name, "
+                + "phone, "
+                + "last_purchase_date, "
+                + "days_since_last_purchase, "
+                + "nb_purchases_last_year, "
+                + "total_spent_last_year, "
+                + "avg_basket_value, "
+                + "recency_score, "
+                + "frequency_score, "
+                + "monetary_score, "
+                + "rfm_segment, "
+                + "customer_classification "
+                + "FROM mv_customer_rfm "
+                + "WHERE customer_classification IN ('AT_RISK', 'NEED_ATTENTION') "
+                + "ORDER BY total_spent_last_year DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -121,16 +116,16 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
 
     @Override
     public Map<CustomerSegmentationDTO.CustomerClassification, Long> getCustomerCountByClassification() {
-        String countQuery = "SELECT customer_classification, COUNT(*) as count FROM mv_customer_rfm  GROUP BY customer_classification";
+        String countQuery =
+                "SELECT customer_classification, COUNT(*) as count FROM mv_customer_rfm  GROUP BY customer_classification";
 
         Query query = entityManager.createNativeQuery(countQuery);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        Map<CustomerSegmentationDTO.CustomerClassification, Long> counts = new EnumMap<>(
-            CustomerSegmentationDTO.CustomerClassification.class
-        );
+        Map<CustomerSegmentationDTO.CustomerClassification, Long> counts =
+                new EnumMap<>(CustomerSegmentationDTO.CustomerClassification.class);
 
         // Initialize with zeros
         counts.put(CustomerSegmentationDTO.CustomerClassification.CHAMPION, 0L);
@@ -146,9 +141,8 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
             String classificationStr = (String) row[0];
             Long count = row[1] != null ? ((Number) row[1]).longValue() : 0L;
             try {
-                CustomerSegmentationDTO.CustomerClassification classification = CustomerSegmentationDTO.CustomerClassification.valueOf(
-                    classificationStr
-                );
+                CustomerSegmentationDTO.CustomerClassification classification =
+                        CustomerSegmentationDTO.CustomerClassification.valueOf(classificationStr);
                 counts.put(classification, count);
             } catch (IllegalArgumentException e) {
                 // Ignore invalid classifications
@@ -160,23 +154,21 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
 
     @Override
     public CustomerSegmentationDTO getCustomerSegmentation(Integer customerId) {
-        String sql =
-            "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_id = :customerId";
+        String sql = "SELECT " + "customer_id, "
+                + "customer_name, "
+                + "phone, "
+                + "last_purchase_date, "
+                + "days_since_last_purchase, "
+                + "nb_purchases_last_year, "
+                + "total_spent_last_year, "
+                + "avg_basket_value, "
+                + "recency_score, "
+                + "frequency_score, "
+                + "monetary_score, "
+                + "rfm_segment, "
+                + "customer_classification "
+                + "FROM mv_customer_rfm "
+                + "WHERE customer_id = :customerId";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("customerId", customerId);
@@ -209,23 +201,22 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
         String classificationStr = (String) row[12];
 
         CustomerSegmentationDTO.CustomerClassification classification = classificationStr != null
-            ? CustomerSegmentationDTO.CustomerClassification.valueOf(classificationStr)
-            : null;
+                ? CustomerSegmentationDTO.CustomerClassification.valueOf(classificationStr)
+                : null;
 
         return new CustomerSegmentationDTO(
-            customerId,
-            customerName,
-            phone,
-            lastPurchaseDate,
-            daysSinceLastPurchase,
-            nbPurchasesLastYear,
-            totalSpentLastYear,
-            avgBasketValue,
-            recencyScore,
-            frequencyScore,
-            monetaryScore,
-            rfmSegment,
-            classification
-        );
+                customerId,
+                customerName,
+                phone,
+                lastPurchaseDate,
+                daysSinceLastPurchase,
+                nbPurchasesLastYear,
+                totalSpentLastYear,
+                avgBasketValue,
+                recencyScore,
+                frequencyScore,
+                monetaryScore,
+                rfmSegment,
+                classification);
     }
 }

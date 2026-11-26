@@ -10,19 +10,17 @@ import {
   OnInit,
   output,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
-import {take} from 'rxjs/operators';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
+import { take } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -32,21 +30,16 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {
-  PaymentCompleteEvent,
-  PaymentModeComponent
-} from '../../ui/payment-mode/payment-mode.component';
+import { PaymentCompleteEvent, PaymentModeComponent } from '../../ui/payment-mode/payment-mode.component';
 
-import {
-  CashRegisterFormComponent
-} from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
-import {IUser} from '../../../../core/user/user.model';
+import { CashRegisterFormComponent } from '../../../../entities/cash-register/user-cash-register/cash-register-form/cash-register-form.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import { IUser } from '../../../../core/user/user.model';
 import {
   createDeconditionnementHandling,
   createForceStockHandling,
@@ -54,9 +47,9 @@ import {
   createPaymentHandling,
   createProductHandling,
   createSaleLifecycle,
-  ProductSearchHost
+  ProductSearchHost,
 } from '../../shared/mixins';
-import {SaleForEditInfo} from '../../../../shared/model/sales.model';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * Composant Container : Création de vente (Comptant)
@@ -170,7 +163,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    config: {saleType: 'COMPTANT'},
+    config: { saleType: 'COMPTANT' },
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -198,7 +191,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcuts = createKeyboardShortcuts(
-    {saleType: 'COMPTANT', isPresale: () => this.isPresale()},
+    { saleType: 'COMPTANT', isPresale: () => this.isPresale() },
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -957,6 +950,4 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       }
     });
   }
-
-
 }

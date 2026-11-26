@@ -1,6 +1,6 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { IDiffereSummary } from '../../data-access/models';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import { KpiItemComponent, KpiStripComponent } from '../../../../shared/ui';
 
 import { DevisePipe } from 'app/shared/utils/devise';

@@ -44,4 +44,3 @@ export interface IReapproDashboard {
   parClasse: IClasseBreakdown[];
   topUrgents: ITopUrgentDTO[];
 }
-

@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {CommonModule} from '@angular/common';
-import {ButtonComponent, CardComponent, FileUploadComponent} from '../../../shared/ui';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { ButtonComponent, CardComponent, FileUploadComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-file-upload-dialog',

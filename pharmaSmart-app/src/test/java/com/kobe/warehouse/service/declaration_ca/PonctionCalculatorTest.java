@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.flywaydb.core.Flyway;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -42,12 +42,12 @@ class PonctionCalculatorTest {
     private static final LocalDate FIN = LocalDate.of(2026, 4, 30);
     private static final int MAGASIN = 1;
     private static final BigDecimal PLAFOND = new BigDecimal("35.00");
-    private static final String[] CASH = { "CASH" };
+    private static final String[] CASH = {"CASH"};
 
     @Container
     @SuppressWarnings("resource")
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:18-alpine")
-        .withDatabaseName("ponction_test");
+    private static final PostgreSQLContainer<?> POSTGRES =
+            new PostgreSQLContainer<>("postgres:18-alpine").withDatabaseName("ponction_test");
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -56,15 +56,14 @@ class PonctionCalculatorTest {
 
     @BeforeAll
     static void preparer() throws SQLException {
-        Flyway
-            .configure()
-            .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-            .schemas(SCHEMA)
-            .defaultSchema(SCHEMA)
-            .table("pharma_smart_history")
-            .locations("classpath:db/migration")
-            .load()
-            .migrate();
+        Flyway.configure()
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+                .schemas(SCHEMA)
+                .defaultSchema(SCHEMA)
+                .table("pharma_smart_history")
+                .locations("classpath:db/migration")
+                .load()
+                .migrate();
 
         connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
         try (Statement st = connection.createStatement()) {
@@ -103,40 +102,32 @@ class PonctionCalculatorTest {
      * </pre>
      */
     private static void jeuDEssai(Statement st) throws SQLException {
-        st.execute("CREATE TABLE IF NOT EXISTS sales_2026 PARTITION OF sales FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
         st.execute(
-            "CREATE TABLE IF NOT EXISTS sales_line_2026 PARTITION OF sales_line FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')"
-        );
+                "CREATE TABLE IF NOT EXISTS sales_2026 PARTITION OF sales FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
         st.execute(
-            "CREATE TABLE IF NOT EXISTS payment_transaction_2026 PARTITION OF payment_transaction " +
-            "FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')"
-        );
-        st.executeUpdate(
-            """
+                "CREATE TABLE IF NOT EXISTS sales_line_2026 PARTITION OF sales_line FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
+        st.execute("CREATE TABLE IF NOT EXISTS payment_transaction_2026 PARTITION OF payment_transaction "
+                + "FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')");
+        st.executeUpdate("""
             INSERT INTO produit (id, libelle, status, type_produit, deconditionnable, cost_amount,
                                  regular_unit_price, net_unit_price, item_cost_amount, item_qty,
                                  item_regular_unit_price, created_at, updated_at, famille_id, tva_id)
             SELECT 950001, 'EXONERE', 'ENABLE', 'DETAIL', false, 0, 1, 1, 0, 1, 1, now(), now(),
                    (SELECT min(id) FROM famille_produit), (SELECT id FROM tva WHERE taux = 0)
-            """
-        );
-        st.executeUpdate(
-            """
+            """);
+        st.executeUpdate("""
             INSERT INTO produit (id, libelle, status, type_produit, deconditionnable, cost_amount,
                                  regular_unit_price, net_unit_price, item_cost_amount, item_qty,
                                  item_regular_unit_price, created_at, updated_at, famille_id, tva_id)
             SELECT 950002, 'TAXE 18', 'ENABLE', 'DETAIL', false, 0, 1, 1, 0, 1, 1, now(), now(),
                    (SELECT min(id) FROM famille_produit), (SELECT id FROM tva WHERE taux = 18)
-            """
-        );
+            """);
 
         // Les règlements exigent une caisse ouverte : la ponction vise la part espèces.
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id, magasin_id)
             VALUES (950001, now(), now(), now(), 0, 'OPEN', 1, (SELECT magasin_id FROM app_user WHERE id = 1))
-            """
-        );
+            """);
 
         vente(st, 1, 10_000, 0, false);
         vente(st, 2, 8_000, 0, false);
@@ -156,10 +147,9 @@ class PonctionCalculatorTest {
      * mobile money. Seule la part espèces est ponctionnable.
      */
     private static void venteMixteReglement(Statement st, int numero, int montantExonere, int montantEspece)
-        throws SQLException {
+            throws SQLException {
         long id = 950_000L + numero;
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO sales (dtype, id, sale_date, number_transaction, statut, ca, sales_amount,
                                amount_to_be_paid, amount_to_be_taken_into_account, discount_amount,
                                payroll_amount, rest_to_pay, monnaie, canceled, copy, imported, differe,
@@ -170,16 +160,14 @@ class PonctionCalculatorTest {
                     %d, %d, 0, %d, 0, 0, false, false, false, false,
                     false, 'COMPTANT', 'DIRECT', 'PAYE', 'PRESCRIPTION',
                     now(), now(), now(), 1, 1, 1, 1)
-            """.formatted(id, numero, montantExonere, montantExonere, montantExonere, montantExonere)
-        );
+            """.formatted(id, numero, montantExonere, montantExonere, montantExonere, montantExonere));
         ligneMai(st, id * 10, id, montantExonere);
         reglement(st, id * 10, id, "CASH", montantEspece);
         reglement(st, id * 10 + 1, id, "OM", montantExonere - montantEspece);
     }
 
     private static void ligneMai(Statement st, long ligneId, long venteId, int montant) throws SQLException {
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO sales_line (id, sale_date, sales_id, sales_sale_date, produit_id,
                                     quantity_requested, quantity_sold, quantity_ug, regular_unit_price,
                                     net_unit_price, discount_unit_price, sales_amount, discount_amount,
@@ -187,13 +175,11 @@ class PonctionCalculatorTest {
                                     created_at, updated_at, effective_update_date)
             VALUES (%d, DATE '2026-05-10', %d, DATE '2026-05-10', 950001,
                     %d, %d, 0, 1, 1, 0, %d, 0, 0, 0, %d, false, now(), now(), now())
-            """.formatted(ligneId, venteId, montant, montant, montant, montant)
-        );
+            """.formatted(ligneId, venteId, montant, montant, montant, montant));
     }
 
     private static void reglement(Statement st, long id, long venteId, String mode, int montant) throws SQLException {
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO payment_transaction (dtype, id, transaction_date, sale_id, sale_date,
                                              categorie_ca, created_at, credit, expected_amount,
                                              montant_verse, paid_amount, reel_amount, type_transaction,
@@ -201,16 +187,14 @@ class PonctionCalculatorTest {
             VALUES ('SalePayment', %d, DATE '2026-05-10', %d, DATE '2026-05-10',
                     'CA', now(), false, %d, %d, %d, %d, 'CASH_SALE', '%s',
                     (SELECT id FROM cash_register LIMIT 1), 0, 0)
-            """.formatted(id, venteId, montant, montant, montant, montant, mode)
-        );
+            """.formatted(id, venteId, montant, montant, montant, montant, mode));
     }
 
     private static void vente(Statement st, int numero, int montantExonere, int montantTaxe, boolean differe)
-        throws SQLException {
+            throws SQLException {
         long id = 950_000L + numero;
         int total = montantExonere + montantTaxe;
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO sales (dtype, id, sale_date, number_transaction, statut, ca, sales_amount,
                                amount_to_be_paid, amount_to_be_taken_into_account, discount_amount,
                                payroll_amount, rest_to_pay, monnaie, canceled, copy, imported, differe,
@@ -221,16 +205,14 @@ class PonctionCalculatorTest {
                     %d, %d, 0, %d, 0, 0, false, false, false, %b,
                     false, 'COMPTANT', 'DIRECT', 'PAYE', 'PRESCRIPTION',
                     now(), now(), now(), 1, 1, 1, 1)
-            """.formatted(id, numero, total, total, total, total, differe)
-        );
+            """.formatted(id, numero, total, total, total, total, differe));
         if (montantExonere > 0) {
             ligne(st, id * 10, id, 950_001, montantExonere, 0);
         }
         if (montantTaxe > 0) {
             ligne(st, id * 10 + 1, id, 950_002, montantTaxe, 18);
         }
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO payment_transaction (dtype, id, transaction_date, sale_id, sale_date,
                                              categorie_ca, created_at, credit, expected_amount,
                                              montant_verse, paid_amount, reel_amount, type_transaction,
@@ -238,14 +220,12 @@ class PonctionCalculatorTest {
             VALUES ('SalePayment', %d, DATE '2026-04-10', %d, DATE '2026-04-10',
                     'CA', now(), false, %d, %d, %d, %d, 'CASH_SALE', 'CASH',
                     (SELECT id FROM cash_register LIMIT 1), 0, 0)
-            """.formatted(id, id, total, total, total, total)
-        );
+            """.formatted(id, id, total, total, total, total));
     }
 
     private static void ligne(Statement st, long ligneId, long venteId, int produitId, int montant, int taux)
-        throws SQLException {
-        st.executeUpdate(
-            """
+            throws SQLException {
+        st.executeUpdate("""
             INSERT INTO sales_line (id, sale_date, sales_id, sales_sale_date, produit_id,
                                     quantity_requested, quantity_sold, quantity_ug, regular_unit_price,
                                     net_unit_price, discount_unit_price, sales_amount, discount_amount,
@@ -253,8 +233,7 @@ class PonctionCalculatorTest {
                                     created_at, updated_at, effective_update_date)
             VALUES (%d, DATE '2026-04-10', %d, DATE '2026-04-10', %d,
                     %d, %d, 0, 1, 1, 0, %d, 0, %d, 0, %d, false, now(), now(), now())
-            """.formatted(ligneId, venteId, produitId, montant, montant, montant, taux, montant)
-        );
+            """.formatted(ligneId, venteId, produitId, montant, montant, montant, taux, montant));
     }
 
     // ===== Assiette =====
@@ -276,9 +255,8 @@ class PonctionCalculatorTest {
         // 3 500 + 2 800 + 1 750 + min(3 500, 4 000) = 11 550
         assertEquals(11_550, assiette.montantPonctionnable());
         assertTrue(
-            assiette.montantPonctionnable() < assiette.assietteTva0() * 35 / 100 + assiette.assietteTva0(),
-            "le plafond borne bien en deçà de l'assiette"
-        );
+                assiette.montantPonctionnable() < assiette.assietteTva0() * 35 / 100 + assiette.assietteTva0(),
+                "le plafond borne bien en deçà de l'assiette");
     }
 
     // ===== Répartition =====
@@ -288,7 +266,9 @@ class PonctionCalculatorTest {
     void repartitionSarreteALobjectif() {
         List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT, FIN, MAGASIN, PLAFOND, CASH, 5_000);
 
-        assertEquals(5_000, lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum());
+        assertEquals(
+                5_000,
+                lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum());
         assertEquals(2, lignes.size(), "3 500 sur la première, 1 500 sur la deuxième");
         assertEquals(3_500, lignes.getFirst().montantPonctionne());
         assertEquals(1_500, lignes.get(1).montantPonctionne());
@@ -302,9 +282,8 @@ class PonctionCalculatorTest {
         for (PonctionLigneDTO ligne : lignes) {
             long plafondVente = ligne.montantVente() * 35 / 100;
             assertTrue(
-                ligne.montantPonctionne() <= plafondVente,
-                "vente " + ligne.saleId() + " : " + ligne.montantPonctionne() + " > " + plafondVente
-            );
+                    ligne.montantPonctionne() <= plafondVente,
+                    "vente " + ligne.saleId() + " : " + ligne.montantPonctionne() + " > " + plafondVente);
             assertTrue(ligne.montantPonctionne() <= ligne.montantBase(), "jamais plus que la part exonérée");
         }
     }
@@ -314,7 +293,8 @@ class PonctionCalculatorTest {
     void venteMixtePlafonneeParLaPartExoneree() {
         List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT, FIN, MAGASIN, PLAFOND, CASH, 11_550);
 
-        PonctionLigneDTO mixte = lignes.stream().filter(l -> l.saleId() == 950_004L).findFirst().orElseThrow();
+        PonctionLigneDTO mixte =
+                lignes.stream().filter(l -> l.saleId() == 950_004L).findFirst().orElseThrow();
         assertEquals(10_000, mixte.montantVente());
         assertEquals(4_000, mixte.montantBase(), "seuls 4 000 sont exonérés");
         assertEquals(3_500, mixte.montantPonctionne(), "ici c'est le plafond de 35 % qui borne");
@@ -335,14 +315,12 @@ class PonctionCalculatorTest {
     @DisplayName("Le détail écrit en base totalise exactement l'objectif")
     void detailEcritTotaliseLobjectif() throws SQLException {
         try (Statement st = connection.createStatement()) {
-            st.executeUpdate(
-                """
+            st.executeUpdate("""
                 INSERT INTO ca_ponction (id, magasin_id, date_debut, date_fin, mode_calcul, valeur_saisie,
                                          ca_apres_exclusions, statut, created_by, created_at)
                 VALUES (960101, 1, DATE '2026-04-01', DATE '2026-04-30', 'MONTANT_FIXE', 5000,
                         27000, 'SIMULATION', 1, now())
-                """
-            );
+                """);
         }
 
         int ventes = calculator.enregistrerDetail(960101, DEBUT, FIN, MAGASIN, PLAFOND, CASH, 5_000);
@@ -350,11 +328,11 @@ class PonctionCalculatorTest {
         assertEquals(2, ventes, "3 500 sur la première, 1 500 sur la deuxième");
         try (Statement st = connection.createStatement()) {
             var rs = st.executeQuery(
-                "SELECT sum(montant_ponctionne), count(*) FILTER (WHERE numero_transaction IS NULL) " +
-                "FROM ca_ponction_detail WHERE ponction_id = 960101"
-            );
+                    "SELECT sum(montant_ponctionne), count(*) FILTER (WHERE numero_transaction IS NULL) "
+                            + "FROM ca_ponction_detail WHERE ponction_id = 960101");
             assertTrue(rs.next());
-            assertEquals(5_000, rs.getLong(1), "le détail en base totalise l'objectif, pas seulement le calcul en mémoire");
+            assertEquals(
+                    5_000, rs.getLong(1), "le détail en base totalise l'objectif, pas seulement le calcul en mémoire");
             assertEquals(0, rs.getLong(2), "chaque ligne porte sa référence de vente : le justificatif est autonome");
         }
         try (Statement st = connection.createStatement()) {
@@ -396,14 +374,12 @@ class PonctionCalculatorTest {
         Map<Integer, long[]> avant = rapportTva();
 
         try (Statement st = connection.createStatement()) {
-            st.executeUpdate(
-                """
+            st.executeUpdate("""
                 INSERT INTO ca_ponction (id, magasin_id, date_debut, date_fin, mode_calcul, valeur_saisie,
                                          ca_apres_exclusions, statut, created_by, created_at)
                 VALUES (960201, 1, DATE '2026-04-01', DATE '2026-04-30', 'MONTANT_FIXE', 5000,
                         27000, 'VALIDEE', 1, now())
-                """
-            );
+                """);
         }
         calculator.enregistrerDetail(960201, DEBUT, FIN, MAGASIN, PLAFOND, CASH, 5_000);
         calculator.appliquer(960201);
@@ -438,7 +414,8 @@ class PonctionCalculatorTest {
     void priseBorneeParLeReglementEspeces() {
         List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT_MAI, FIN_MAI, MAGASIN, PLAFOND, CASH, 10_000);
 
-        PonctionLigneDTO partielle = lignes.stream().filter(l -> l.saleId() == 950_007L).findFirst().orElseThrow();
+        PonctionLigneDTO partielle =
+                lignes.stream().filter(l -> l.saleId() == 950_007L).findFirst().orElseThrow();
         // Plafond 3 500, part exonérée 10 000, espèces 2 000 : c'est l'encaissement qui borne.
         assertEquals(2_000, partielle.montantPonctionne());
     }
@@ -459,10 +436,13 @@ class PonctionCalculatorTest {
         List<PonctionLigneDTO> lignes = calculator.repartir(DEBUT_MAI, FIN_MAI, MAGASIN, PLAFOND, CASH, 3_003);
 
         for (PonctionLigneDTO ligne : lignes) {
-            assertEquals(0, ligne.montantPonctionne() % 5, "vente " + ligne.saleId() + " : " + ligne.montantPonctionne());
+            assertEquals(
+                    0, ligne.montantPonctionne() % 5, "vente " + ligne.saleId() + " : " + ligne.montantPonctionne());
         }
         // 2 000 puis 1 003 ramené à 1 000 : trois francs restent au CA, faute de coupure pour les rendre.
-        assertEquals(3_000, lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum());
+        assertEquals(
+                3_000,
+                lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum());
     }
 
     /** Le rapport TVA déclaré, indexé par taux : {@code [montantTtc, montantTva]}. */
@@ -470,15 +450,14 @@ class PonctionCalculatorTest {
         Map<Integer, long[]> parTaux = new HashMap<>();
         try (Statement st = connection.createStatement()) {
             var rs = st.executeQuery(
-                "SELECT sales_tva_report(DATE '2026-04-01', DATE '2026-04-30', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
-            );
+                    "SELECT sales_tva_report(DATE '2026-04-01', DATE '2026-04-30', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')");
             assertTrue(rs.next());
             try {
                 JsonNode lignes = MAPPER.readTree(rs.getString(1));
                 for (JsonNode ligne : lignes) {
                     long ttc = ligne.get("montantTtc").asLong();
                     long ht = ligne.get("montantHt").asLong();
-                    parTaux.put(ligne.get("codeTva").asInt(), new long[] { ttc, ttc - ht });
+                    parTaux.put(ligne.get("codeTva").asInt(), new long[] {ttc, ttc - ht});
                 }
             } catch (Exception e) {
                 throw new AssertionError("rapport TVA illisible", e);

@@ -75,9 +75,9 @@ class InventaireImportServiceImplTest {
         StoreInventoryLine doliprane = ligne("CIP-1", 600, 1_000);
         StoreInventoryLine efferalgan = ligne("CIP-2", 800, 1_400);
         when(storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(eq(INVENTAIRE), anySet()))
-            .thenReturn(List.of(doliprane, efferalgan));
+                .thenReturn(List.of(doliprane, efferalgan));
         when(inventoryStockService.buildStockMapForInventory(any(StoreInventory.class), anySet()))
-            .thenReturn(Map.of(1, 100, 2, 40));
+                .thenReturn(Map.of(1, 100, 2, 40));
         when(userService.getUser()).thenReturn(operateur);
 
         ImportResultRecord resultat = service.importDetail(INVENTAIRE, fichier("CIP-1;97\nCIP-2;40"));
@@ -102,9 +102,9 @@ class InventaireImportServiceImplTest {
     void quantiteNonNumerique() {
         StoreInventoryLine ligne = ligne("CIP-1", 600, 1_000);
         when(storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(eq(INVENTAIRE), anySet()))
-            .thenReturn(List.of(ligne));
+                .thenReturn(List.of(ligne));
         when(inventoryStockService.buildStockMapForInventory(any(StoreInventory.class), anySet()))
-            .thenReturn(Map.of(1, 10));
+                .thenReturn(Map.of(1, 10));
         when(userService.getUser()).thenReturn(operateur);
 
         ImportResultRecord resultat = service.importDetail(INVENTAIRE, fichier("CIP-1;5\nCIP-9;douze"));
@@ -141,7 +141,7 @@ class InventaireImportServiceImplTest {
     @DisplayName("Un fichier dont aucun code n'appartient à l'inventaire est tout entier ignoré")
     void aucunCodeReconnu() {
         when(storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(eq(INVENTAIRE), anySet()))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
 
         ImportResultRecord resultat = service.importDetail(INVENTAIRE, fichier("CIP-X;3\nCIP-Y;4"));
 
@@ -157,9 +157,9 @@ class InventaireImportServiceImplTest {
     void codeInconnuIgnore() {
         StoreInventoryLine ligne = ligne("CIP-1", 600, 1_000);
         when(storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(eq(INVENTAIRE), anySet()))
-            .thenReturn(List.of(ligne));
+                .thenReturn(List.of(ligne));
         when(inventoryStockService.buildStockMapForInventory(any(StoreInventory.class), anySet()))
-            .thenReturn(Map.of(1, 10));
+                .thenReturn(Map.of(1, 10));
         when(userService.getUser()).thenReturn(operateur);
 
         ImportResultRecord resultat = service.importDetail(INVENTAIRE, fichier("CIP-1;8\nCIP-AUTRE;3"));
@@ -174,9 +174,9 @@ class InventaireImportServiceImplTest {
     void produitSansStockTheorique() {
         StoreInventoryLine ligne = ligne("CIP-1", 600, 1_000);
         when(storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(eq(INVENTAIRE), anySet()))
-            .thenReturn(List.of(ligne));
+                .thenReturn(List.of(ligne));
         when(inventoryStockService.buildStockMapForInventory(any(StoreInventory.class), anySet()))
-            .thenReturn(Map.of());
+                .thenReturn(Map.of());
         when(userService.getUser()).thenReturn(operateur);
 
         service.importDetail(INVENTAIRE, fichier("CIP-1;6"));
@@ -216,8 +216,7 @@ class InventaireImportServiceImplTest {
     // ===== jeu d'essai =====
 
     private MultipartFile fichier(String contenu) {
-        return new MockMultipartFile("file", "inventaire.csv", "text/csv",
-            contenu.getBytes(StandardCharsets.UTF_8));
+        return new MockMultipartFile("file", "inventaire.csv", "text/csv", contenu.getBytes(StandardCharsets.UTF_8));
     }
 
     /** Une ligne d'inventaire dont le produit porte un seul code CIP, celui de son fournisseur principal. */

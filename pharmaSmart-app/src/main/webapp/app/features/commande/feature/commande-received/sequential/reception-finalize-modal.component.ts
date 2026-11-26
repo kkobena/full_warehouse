@@ -1,27 +1,29 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent } from "../../../../../shared/ui";
-import { IOrderLine } from "../../../../../shared/model/order-line.model";
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../../shared/ui';
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
 import { DevisePipe } from 'app/shared/utils/devise';
-import { DeviseDirective } from "app/shared/utils/devise";
+import { DeviseDirective } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-reception-finalize-modal",
-  templateUrl: "./reception-finalize-modal.component.html",
-  styleUrls: ["./reception-finalize-modal.component.scss"],
+  selector: 'app-reception-finalize-modal',
+  templateUrl: './reception-finalize-modal.component.html',
+  styleUrls: ['./reception-finalize-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonComponent, DevisePipe, DeviseDirective]
+  imports: [CommonModule, ButtonComponent, DevisePipe, DeviseDirective],
 })
 export class ReceptionFinalizeModalComponent {
   readonly activeModal = inject(NgbActiveModal);
   orderLines: IOrderLine[] = [];
-  commandeRef = "";
-  fournisseurLibelle = "";
+  commandeRef = '';
+  fournisseurLibelle = '';
   /** AX-23g — Lignes dont le CIP a été mis à jour pendant cette réception. */
   updatedCipLines: IOrderLine[] = [];
 
-  protected get totalLines(): number { return this.orderLines.length; }
+  protected get totalLines(): number {
+    return this.orderLines.length;
+  }
 
   protected get processedLines(): number {
     return this.orderLines.filter(l => {
@@ -30,7 +32,9 @@ export class ReceptionFinalizeModalComponent {
     }).length;
   }
 
-  protected get skippedLines(): number { return this.totalLines - this.processedLines; }
+  protected get skippedLines(): number {
+    return this.totalLines - this.processedLines;
+  }
 
   protected get totalAmount(): number {
     return this.orderLines.reduce((sum, l) => {
@@ -68,10 +72,12 @@ export class ReceptionFinalizeModalComponent {
     }).length;
   }
 
-  protected get hasSkipped(): boolean { return this.skippedLines > 0; }
+  protected get hasSkipped(): boolean {
+    return this.skippedLines > 0;
+  }
 
   protected onFinalize(): void {
-    this.activeModal.close("finalize");
+    this.activeModal.close('finalize');
   }
 
   protected onContinue(): void {

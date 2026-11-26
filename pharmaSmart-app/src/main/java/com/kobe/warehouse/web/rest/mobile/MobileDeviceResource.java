@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.UserDevice;
 import com.kobe.warehouse.repository.UserDeviceRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Optional;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for mobile device management.
@@ -29,10 +29,7 @@ public class MobileDeviceResource {
     private final UserDeviceRepository userDeviceRepository;
     private final UserRepository userRepository;
 
-    public MobileDeviceResource(
-        UserDeviceRepository userDeviceRepository,
-        UserRepository userRepository
-    ) {
+    public MobileDeviceResource(UserDeviceRepository userDeviceRepository, UserRepository userRepository) {
         this.userDeviceRepository = userDeviceRepository;
         this.userRepository = userRepository;
     }
@@ -46,8 +43,7 @@ public class MobileDeviceResource {
      */
     @PostMapping("/register")
     public ResponseEntity<DeviceRegistrationResponse> registerDevice(
-        @Valid @RequestBody DeviceRegistrationRequest request
-    ) {
+            @Valid @RequestBody DeviceRegistrationRequest request) {
         LOG.debug("REST request to register device: {}", request.deviceName());
 
         Optional<String> currentUserLogin = SecurityUtils.getCurrentUserLogin();
@@ -93,10 +89,7 @@ public class MobileDeviceResource {
         device = userDeviceRepository.save(device);
 
         return ResponseEntity.ok(new DeviceRegistrationResponse(
-            device.getId(),
-            "Device registered successfully",
-            device.getNotificationsEnabled()
-        ));
+                device.getId(), "Device registered successfully", device.getNotificationsEnabled()));
     }
 
     /**
@@ -108,10 +101,10 @@ public class MobileDeviceResource {
      */
     @PutMapping("/settings")
     public ResponseEntity<DeviceSettingsResponse> updateDeviceSettings(
-        @Valid @RequestBody DeviceSettingsRequest request
-    ) {
-        LOG.debug("REST request to update device settings for token: {}",
-            request.fcmToken().substring(0, Math.min(20, request.fcmToken().length())) + "...");
+            @Valid @RequestBody DeviceSettingsRequest request) {
+        LOG.debug(
+                "REST request to update device settings for token: {}",
+                request.fcmToken().substring(0, Math.min(20, request.fcmToken().length())) + "...");
 
         Optional<UserDevice> deviceOptional = userDeviceRepository.findByFcmToken(request.fcmToken());
 
@@ -125,10 +118,8 @@ public class MobileDeviceResource {
 
         device = userDeviceRepository.save(device);
 
-        return ResponseEntity.ok(new DeviceSettingsResponse(
-            "Settings updated successfully",
-            device.getNotificationsEnabled()
-        ));
+        return ResponseEntity.ok(
+                new DeviceSettingsResponse("Settings updated successfully", device.getNotificationsEnabled()));
     }
 
     /**
@@ -161,19 +152,11 @@ public class MobileDeviceResource {
         Optional<UserDevice> deviceOptional = userDeviceRepository.findByFcmToken(fcmToken);
 
         if (deviceOptional.isEmpty()) {
-            return ResponseEntity.ok(new DeviceStatusResponse(
-                false,
-                null,
-                false
-            ));
+            return ResponseEntity.ok(new DeviceStatusResponse(false, null, false));
         }
 
         UserDevice device = deviceOptional.get();
-        return ResponseEntity.ok(new DeviceStatusResponse(
-            true,
-            device.getId(),
-            device.getNotificationsEnabled()
-        ));
+        return ResponseEntity.ok(new DeviceStatusResponse(true, device.getId(), device.getNotificationsEnabled()));
     }
 
     /**
@@ -208,44 +191,25 @@ public class MobileDeviceResource {
      * Device registration request
      */
     public record DeviceRegistrationRequest(
-        String fcmToken,
-        String deviceName,
-        String deviceModel,
-        String osVersion,
-        String appVersion
-    ) {}
+            String fcmToken, String deviceName, String deviceModel, String osVersion, String appVersion) {}
 
     /**
      * Device registration response
      */
-    public record DeviceRegistrationResponse(
-        Integer deviceId,
-        String message,
-        Boolean notificationsEnabled
-    ) {}
+    public record DeviceRegistrationResponse(Integer deviceId, String message, Boolean notificationsEnabled) {}
 
     /**
      * Device settings request
      */
-    public record DeviceSettingsRequest(
-        String fcmToken,
-        Boolean notificationsEnabled
-    ) {}
+    public record DeviceSettingsRequest(String fcmToken, Boolean notificationsEnabled) {}
 
     /**
      * Device settings response
      */
-    public record DeviceSettingsResponse(
-        String message,
-        Boolean notificationsEnabled
-    ) {}
+    public record DeviceSettingsResponse(String message, Boolean notificationsEnabled) {}
 
     /**
      * Device status response
      */
-    public record DeviceStatusResponse(
-        Boolean isRegistered,
-        Integer deviceId,
-        Boolean notificationsEnabled
-    ) {}
+    public record DeviceStatusResponse(Boolean isRegistered, Integer deviceId, Boolean notificationsEnabled) {}
 }

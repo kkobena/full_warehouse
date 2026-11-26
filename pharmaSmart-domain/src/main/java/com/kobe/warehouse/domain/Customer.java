@@ -30,13 +30,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(
-    name = "customer",
-    indexes = {
-        @Index(columnList = "first_name", name = "client_first_name_index"),
-        @Index(columnList = "status", name = "client_status_index"),
-        @Index(columnList = "last_name", name = "client_last_name_index"),
-    }
-)
+        name = "customer",
+        indexes = {
+            @Index(columnList = "first_name", name = "client_first_name_index"),
+            @Index(columnList = "status", name = "client_status_index"),
+            @Index(columnList = "last_name", name = "client_last_name_index"),
+        })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Customer implements Serializable {
@@ -258,26 +257,26 @@ public class Customer implements Serializable {
     @Override
     public String toString() {
         return "Customer{"
-            + "id="
-            + getId()
-            + ", firstName='"
-            + getFirstName()
-            + "'"
-            + ", lastName='"
-            + getLastName()
-            + "'"
-            + ", phone='"
-            + getPhone()
-            + "'"
-            + ", email='"
-            + getEmail()
-            + "'"
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", firstName='"
+                + getFirstName()
+                + "'"
+                + ", lastName='"
+                + getLastName()
+                + "'"
+                + ", phone='"
+                + getPhone()
+                + "'"
+                + ", email='"
+                + getEmail()
+                + "'"
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "'"
+                + "}";
     }
 }

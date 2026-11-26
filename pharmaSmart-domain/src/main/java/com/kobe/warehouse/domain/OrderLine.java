@@ -29,9 +29,8 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(
-    name = "order_line",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "commande_id", "fournisseur_produit_id", "order_date" }) }
-)
+        name = "order_line",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"commande_id", "fournisseur_produit_id", "order_date"})})
 @IdClass(OrderLineId.class)
 public class OrderLine implements Persistable<OrderLineId>, Serializable, Cloneable {
 
@@ -60,7 +59,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private Integer quantityRequested;
 
     @Column(name = "quantity_returned")
-    private Integer quantityReturned=0;
+    private Integer quantityReturned = 0;
 
     @Column(name = "discount_amount", nullable = false)
     private int discountAmount = 0;
@@ -86,15 +85,13 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private LocalDateTime updatedAt;
 
     @Column(name = "receipt_date")
-    private LocalDateTime receiptDate;//TODO a supprimer
+    private LocalDateTime receiptDate; // TODO a supprimer
 
     @ManyToOne(optional = false)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "commande_id", referencedColumnName = "id"),
-            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+    })
     private Commande commande;
 
     @NotNull
@@ -115,7 +112,9 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     @Column(name = "provisional_code")
     private Boolean provisionalCode = Boolean.FALSE;
 
-    @OneToMany(mappedBy = "orderLine", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "orderLine",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Lot> lots = new ArrayList<>();
 
     @Column(name = "is_updated")
@@ -412,32 +411,31 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     @Override
     public String toString() {
         return "OrderLine{"
-            + "id="
-            + getId()
-            + ", receiptDate='"
-            + ", quantityReceived="
-            + getQuantityReceived()
-            + ", quantityRequested="
-            + getQuantityRequested()
-            + ", quantityReturned="
-            + getQuantityReturned()
-            + ", discountAmount="
-            + getDiscountAmount()
-            + ", orderAmount="
-            + getOrderAmount()
-            + ", grossAmount="
-            + getGrossAmount()
-            + ", netAmount="
-            + getNetAmount()
-            + ", taxAmount="
-            + getTaxAmount()
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-
-            + "}";
+                + "id="
+                + getId()
+                + ", receiptDate='"
+                + ", quantityReceived="
+                + getQuantityReceived()
+                + ", quantityRequested="
+                + getQuantityRequested()
+                + ", quantityReturned="
+                + getQuantityReturned()
+                + ", discountAmount="
+                + getDiscountAmount()
+                + ", orderAmount="
+                + getOrderAmount()
+                + ", grossAmount="
+                + getGrossAmount()
+                + ", netAmount="
+                + getNetAmount()
+                + ", taxAmount="
+                + getTaxAmount()
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "}";
     }
 
     @Override

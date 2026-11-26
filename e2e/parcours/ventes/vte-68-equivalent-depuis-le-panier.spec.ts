@@ -22,7 +22,10 @@ scenario('VTE-68', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await ligne.getByRole('button', { name: 'Autres actions sur la ligne' }).click();
-    await page.locator('.dropdown-menu.show').getByRole('button', { name: /Équivalents/ }).click();
+    await page
+      .locator('.dropdown-menu.show')
+      .getByRole('button', { name: /Équivalents/ })
+      .click();
     await expect(fenetre).toContainText('Équivalents disponibles');
     // Chaque proposition dit ce qu'elle coûte de moins et ce qu'il en reste.
     await expect(fenetre).toContainText('IBUPROFENE');

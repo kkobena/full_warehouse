@@ -34,7 +34,8 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit produit = produitEnStock("ADVIL", 40);
         viderLeCache();
 
-        StockProduitDTO demande = new StockProduitDTO().setProduitId(produit.getId()).setQtyStock(25);
+        StockProduitDTO demande =
+                new StockProduitDTO().setProduitId(produit.getId()).setQtyStock(25);
         demande.setSeuilMini(5);
         demande.setStockMaxi(100);
         demande.setStockReassort(30);
@@ -57,7 +58,8 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit produit = produitEnStock("NUROFEN", 40);
         viderLeCache();
 
-        StockProduitDTO demande = new StockProduitDTO().setProduitId(produit.getId()).setQtyStock(10);
+        StockProduitDTO demande =
+                new StockProduitDTO().setProduitId(produit.getId()).setQtyStock(10);
         demande.setWithTransfer(true);
 
         services.stockProduitService.createStockProduit(demande);
@@ -150,10 +152,8 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(autre, rayon, 20);
         viderLeCache();
 
-        List<StockProduitSearchDTO> resultats = services.stockProduitService.searchStockProduitsForRepartition(
-            STORAGE_RAYON_ID,
-            "cetirizine"
-        );
+        List<StockProduitSearchDTO> resultats =
+                services.stockProduitService.searchStockProduitsForRepartition(STORAGE_RAYON_ID, "cetirizine");
 
         assertEquals(1, resultats.size(), "la recherche est insensible à la casse");
         assertEquals(produit.getId(), resultats.getFirst().getProduitId());
@@ -168,10 +168,8 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(produit, rayon, 15);
         viderLeCache();
 
-        List<StockProduitSearchDTO> resultats = services.stockProduitService.searchStockProduitsForRepartition(
-            STORAGE_RAYON_ID,
-            codeCip
-        );
+        List<StockProduitSearchDTO> resultats =
+                services.stockProduitService.searchStockProduitsForRepartition(STORAGE_RAYON_ID, codeCip);
 
         assertEquals(1, resultats.size());
         assertEquals(codeCip, resultats.getFirst().getProduitCodeCip());
@@ -185,10 +183,8 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(produit, rayon, 0);
         viderLeCache();
 
-        List<StockProduitSearchDTO> resultats = services.stockProduitService.searchStockProduitsForRepartition(
-            STORAGE_RAYON_ID,
-            "EPUISE"
-        );
+        List<StockProduitSearchDTO> resultats =
+                services.stockProduitService.searchStockProduitsForRepartition(STORAGE_RAYON_ID, "EPUISE");
 
         assertTrue(resultats.isEmpty(), "la répartition ne propose que ce qui est réellement en rayon");
     }
@@ -202,16 +198,15 @@ class StockProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(produit, reserve, 60);
         viderLeCache();
 
-        List<StockProduitSearchDTO> resultats = services.stockProduitService.searchStockProduitsForRepartition(
-            STORAGE_RAYON_ID,
-            "SOLUPRED"
-        );
+        List<StockProduitSearchDTO> resultats =
+                services.stockProduitService.searchStockProduitsForRepartition(STORAGE_RAYON_ID, "SOLUPRED");
 
         assertEquals(1, resultats.size(), "le produit ne remonte qu'une fois, sur l'emplacement demandé");
         assertEquals(2, resultats.getFirst().getAllStocks().size(), "mais il porte la vue de tous ses emplacements");
         assertEquals(
-            78,
-            resultats.getFirst().getAllStocks().stream().mapToInt(StockProduitDTO::getQtyStock).sum()
-        );
+                78,
+                resultats.getFirst().getAllStocks().stream()
+                        .mapToInt(StockProduitDTO::getQtyStock)
+                        .sum());
     }
 }

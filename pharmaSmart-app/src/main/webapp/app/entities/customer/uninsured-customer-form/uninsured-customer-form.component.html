@@ -83,16 +83,28 @@
         @if (controle(); as ctrl) {
           @if (ctrl.clientExistant; as existant) {
             <div class="form-field form-field-full">
-              <div class="alert alert-danger d-flex align-items-center justify-content-between gap-2 py-2 mb-0" data-testid="client-existant" role="alert">
+              <div
+                class="alert alert-danger d-flex align-items-center justify-content-between gap-2 py-2 mb-0"
+                data-testid="client-existant"
+                role="alert"
+              >
                 <span>
                   <i class="pi pi-exclamation-circle me-1"></i>
-                  Un client existe déjà avec ces nom, prénom et téléphone : <strong>{{ existant.firstName }} {{ existant.lastName }}</strong>
+                  Un client existe déjà avec ces nom, prénom et téléphone :
+                  <strong>{{ existant.firstName }} {{ existant.lastName }}</strong>
                   @if (existant.phone) {
                     ({{ existant.phone }})
                   }
                 </span>
                 @if (modeCreation) {
-                  <app-button (clicked)="selectionner(existant)" icon="pi pi-check" label="Sélectionner ce client" severity="danger" size="small" type="button" />
+                  <app-button
+                    (clicked)="selectionner(existant)"
+                    icon="pi pi-check"
+                    label="Sélectionner ce client"
+                    severity="danger"
+                    size="small"
+                    type="button"
+                  />
                 }
               </div>
             </div>
@@ -111,7 +123,14 @@
                       <small class="text-muted">({{ proche.motif }})</small>
                     </span>
                     @if (modeCreation) {
-                      <app-button (clicked)="selectionner(proche.client)" [text]="true" label="Sélectionner" severity="primary" size="small" type="button" />
+                      <app-button
+                        (clicked)="selectionner(proche.client)"
+                        [text]="true"
+                        label="Sélectionner"
+                        severity="primary"
+                        size="small"
+                        type="button"
+                      />
                     }
                   </div>
                 }

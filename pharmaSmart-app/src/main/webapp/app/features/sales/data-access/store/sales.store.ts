@@ -556,7 +556,7 @@ export const SalesStore = signalStore(
      * Remove pending sale from list
      */
     removePendingSale(saleId: SaleId): void {
-      const pendingSales = store.pendingSales().filter(s => s.saleId?.id !== saleId.id );
+      const pendingSales = store.pendingSales().filter(s => s.saleId?.id !== saleId.id);
       patchState(store, { pendingSales });
     },
 

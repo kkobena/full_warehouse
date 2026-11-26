@@ -8,11 +8,11 @@ import com.kobe.warehouse.service.dto.report.DailyCADTO;
 import com.kobe.warehouse.service.dto.report.DashboardCAEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
 import com.kobe.warehouse.service.dto.report.GenericsSubstitutionDTO;
-import com.kobe.warehouse.service.dto.report.RemisesAnalysisKpiDTO;
-import com.kobe.warehouse.service.dto.report.TopRemiseProduitDTO;
 import com.kobe.warehouse.service.dto.report.PaymentMethodCADTO;
 import com.kobe.warehouse.service.dto.report.ProductFamilyCADTO;
+import com.kobe.warehouse.service.dto.report.RemisesAnalysisKpiDTO;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
+import com.kobe.warehouse.service.dto.report.TopRemiseProduitDTO;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -46,22 +46,20 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Override
     @Cacheable(value = "dashboardCA", key = "'daily_' + #startDate + '_' + #endDate")
     public List<DailyCADTO> getDailySummary(LocalDate startDate, LocalDate endDate) {
-        return dashboardCARepository.findDailySummary(startDate, endDate)
-            .stream()
-            .map(row -> new DailyCADTO(
-                LocalDate.parse(row[0].toString().substring(0, 10)),
-                ((Number) row[1]).intValue(),
-                ((Number) row[2]).longValue(),
-                ((Number) row[3]).longValue(),
-                (BigDecimal) row[4],
-                ((Number) row[5]).longValue(),
-                ((Number) row[6]).longValue(),
-                (BigDecimal) row[7],
-                ((Number) row[8]).intValue(),
-                ((Number) row[9]).longValue(),
-                ((Number) row[10]).longValue()
-            ))
-            .toList();
+        return dashboardCARepository.findDailySummary(startDate, endDate).stream()
+                .map(row -> new DailyCADTO(
+                        LocalDate.parse(row[0].toString().substring(0, 10)),
+                        ((Number) row[1]).intValue(),
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue(),
+                        (BigDecimal) row[4],
+                        ((Number) row[5]).longValue(),
+                        ((Number) row[6]).longValue(),
+                        (BigDecimal) row[7],
+                        ((Number) row[8]).intValue(),
+                        ((Number) row[9]).longValue(),
+                        ((Number) row[10]).longValue()))
+                .toList();
     }
 
     @Override
@@ -83,31 +81,46 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         // la même agrégation partirait deux fois en base.
         Map<List<LocalDate>, Object[]> agregats = new HashMap<>();
 
-        Object[] todayRow      = agregat(agregats, today, today);
-        Object[] yesterdayRow  = agregat(agregats, yesterday, yesterday);
-        Object[] weekRow       = agregat(agregats, weekStart, today);
-        Object[] lastWeekRow   = agregat(agregats, lastWeekStart, lastWeekEnd);
-        Object[] monthRow      = agregat(agregats, monthStart, today);
-        Object[] lastMonthRow  = agregat(agregats, lastMonthStart, lastMonthEnd);
-        Object[] yearRow       = agregat(agregats, yearStart, today);
-        Object[] lastYearRow   = agregat(agregats, lastYearStart, lastYearEnd);
+        Object[] todayRow = agregat(agregats, today, today);
+        Object[] yesterdayRow = agregat(agregats, yesterday, yesterday);
+        Object[] weekRow = agregat(agregats, weekStart, today);
+        Object[] lastWeekRow = agregat(agregats, lastWeekStart, lastWeekEnd);
+        Object[] monthRow = agregat(agregats, monthStart, today);
+        Object[] lastMonthRow = agregat(agregats, lastMonthStart, lastMonthEnd);
+        Object[] yearRow = agregat(agregats, yearStart, today);
+        Object[] lastYearRow = agregat(agregats, lastYearStart, lastYearEnd);
 
         return new DashboardCASummaryDTO(
-            toL(todayRow[0]),    toL(yesterdayRow[0]),  evo(toL(todayRow[0]),   toL(yesterdayRow[0])),
-            toL(weekRow[0]),     toL(lastWeekRow[0]),   evo(toL(weekRow[0]),    toL(lastWeekRow[0])),
-            toL(monthRow[0]),    toL(lastMonthRow[0]),  evo(toL(monthRow[0]),   toL(lastMonthRow[0])),
-            toL(yearRow[0]),     toL(lastYearRow[0]),   evo(toL(yearRow[0]),    toL(lastYearRow[0])),
-            toI(todayRow[1]),    toI(weekRow[1]),        toI(monthRow[1]),       toI(yearRow[1]),
-            toBD(todayRow[2]),   toBD(weekRow[2]),       toBD(monthRow[2]),      toBD(yearRow[2]),
-            toBD(todayRow[3]),   toBD(weekRow[3]),       toBD(monthRow[3]),      toBD(yearRow[3])
-        );
+                toL(todayRow[0]),
+                toL(yesterdayRow[0]),
+                evo(toL(todayRow[0]), toL(yesterdayRow[0])),
+                toL(weekRow[0]),
+                toL(lastWeekRow[0]),
+                evo(toL(weekRow[0]), toL(lastWeekRow[0])),
+                toL(monthRow[0]),
+                toL(lastMonthRow[0]),
+                evo(toL(monthRow[0]), toL(lastMonthRow[0])),
+                toL(yearRow[0]),
+                toL(lastYearRow[0]),
+                evo(toL(yearRow[0]), toL(lastYearRow[0])),
+                toI(todayRow[1]),
+                toI(weekRow[1]),
+                toI(monthRow[1]),
+                toI(yearRow[1]),
+                toBD(todayRow[2]),
+                toBD(weekRow[2]),
+                toBD(monthRow[2]),
+                toBD(yearRow[2]),
+                toBD(todayRow[3]),
+                toBD(weekRow[3]),
+                toBD(monthRow[3]),
+                toBD(yearRow[3]));
     }
 
     private Object[] agregat(Map<List<LocalDate>, Object[]> cache, LocalDate startDate, LocalDate endDate) {
         return cache.computeIfAbsent(
-            List.of(startDate, endDate),
-            bornes -> dashboardCARepository.getPeriodAggregation(bornes.getFirst(), bornes.getLast())
-        );
+                List.of(startDate, endDate),
+                bornes -> dashboardCARepository.getPeriodAggregation(bornes.getFirst(), bornes.getLast()));
     }
 
     @Override
@@ -119,21 +132,30 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         List<DailyCADTO> prevDailyData = getDailySummary(startDate.minusDays(totalDays), startDate.minusDays(1));
 
         if ("monthly".equals(period)) {
-            var byMonth = dailyData.stream().collect(Collectors.groupingBy(
-                d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
-            var prevByMonth = prevDailyData.stream().collect(Collectors.groupingBy(
-                d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
+            var byMonth = dailyData.stream()
+                    .collect(Collectors.groupingBy(d -> d.saleDate().getYear() + "-"
+                            + String.format("%02d", d.saleDate().getMonthValue())));
+            var prevByMonth = prevDailyData.stream()
+                    .collect(Collectors.groupingBy(d -> d.saleDate().getYear() + "-"
+                            + String.format("%02d", d.saleDate().getMonthValue())));
             List<String> labels = new ArrayList<>(byMonth.keySet());
             List<String> prevLabels = new ArrayList<>(prevByMonth.keySet());
             Collections.sort(labels);
             Collections.sort(prevLabels);
             return new DashboardCAEvolutionDTO(
-                labels,
-                labels.stream().map(m -> byMonth.get(m).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
-                positionalValues(labels.size(), prevLabels, prevByMonth),
-                labels.stream().map(m -> byMonth.get(m).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
-                "monthly"
-            );
+                    labels,
+                    labels.stream()
+                            .map(m -> byMonth.get(m).stream()
+                                    .mapToLong(DailyCADTO::caNet)
+                                    .sum())
+                            .toList(),
+                    positionalValues(labels.size(), prevLabels, prevByMonth),
+                    labels.stream()
+                            .map(m -> byMonth.get(m).stream()
+                                    .mapToInt(DailyCADTO::nbTransactions)
+                                    .sum())
+                            .toList(),
+                    "monthly");
         } else if ("weekly".equals(period)) {
             var byWeek = dailyData.stream().collect(Collectors.groupingBy(d -> weekLabel(d.saleDate())));
             var prevByWeek = prevDailyData.stream().collect(Collectors.groupingBy(d -> weekLabel(d.saleDate())));
@@ -142,32 +164,43 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             Collections.sort(labels);
             Collections.sort(prevLabels);
             return new DashboardCAEvolutionDTO(
-                labels,
-                labels.stream().map(w -> byWeek.get(w).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
-                positionalValues(labels.size(), prevLabels, prevByWeek),
-                labels.stream().map(w -> byWeek.get(w).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
-                "weekly"
-            );
+                    labels,
+                    labels.stream()
+                            .map(w -> byWeek.get(w).stream()
+                                    .mapToLong(DailyCADTO::caNet)
+                                    .sum())
+                            .toList(),
+                    positionalValues(labels.size(), prevLabels, prevByWeek),
+                    labels.stream()
+                            .map(w -> byWeek.get(w).stream()
+                                    .mapToInt(DailyCADTO::nbTransactions)
+                                    .sum())
+                            .toList(),
+                    "weekly");
         } else {
-            Map<LocalDate, Long> prevByDate = prevDailyData.stream()
-                .collect(Collectors.toMap(DailyCADTO::saleDate, DailyCADTO::caNet));
+            Map<LocalDate, Long> prevByDate =
+                    prevDailyData.stream().collect(Collectors.toMap(DailyCADTO::saleDate, DailyCADTO::caNet));
             return new DashboardCAEvolutionDTO(
-                dailyData.stream().map(d -> d.saleDate().toString()).toList(),
-                dailyData.stream().map(DailyCADTO::caNet).toList(),
-                dailyData.stream().map(d -> prevByDate.getOrDefault(d.saleDate().minusDays(totalDays), 0L)).toList(),
-                dailyData.stream().map(DailyCADTO::nbTransactions).toList(),
-                "daily"
-            );
+                    dailyData.stream().map(d -> d.saleDate().toString()).toList(),
+                    dailyData.stream().map(DailyCADTO::caNet).toList(),
+                    dailyData.stream()
+                            .map(d -> prevByDate.getOrDefault(d.saleDate().minusDays(totalDays), 0L))
+                            .toList(),
+                    dailyData.stream().map(DailyCADTO::nbTransactions).toList(),
+                    "daily");
         }
     }
 
     /** Valeurs de la période précédente alignées par position (padding 0 si moins de points). */
-    private static List<Long> positionalValues(int size, List<String> prevLabels,
-                                               Map<String, List<DailyCADTO>> prevMap) {
+    private static List<Long> positionalValues(
+            int size, List<String> prevLabels, Map<String, List<DailyCADTO>> prevMap) {
         List<Long> result = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             List<DailyCADTO> group = i < prevLabels.size() ? prevMap.get(prevLabels.get(i)) : null;
-            result.add(group == null ? 0L : group.stream().mapToLong(DailyCADTO::caNet).sum());
+            result.add(
+                    group == null
+                            ? 0L
+                            : group.stream().mapToLong(DailyCADTO::caNet).sum());
         }
         return result;
     }
@@ -175,53 +208,47 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Override
     @Cacheable(value = "dashboardCA", key = "'payment_' + #startDate + '_' + #endDate")
     public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate, LocalDate endDate) {
-        return dashboardCARepository.findPaymentMethodDistribution(startDate, endDate)
-            .stream()
-            .map(row -> new PaymentMethodCADTO(
-                LocalDate.parse(row[0].toString().substring(0, 10)),
-                (String) row[1],
-                (String) row[2],
-                ((Number) row[3]).intValue(),
-                ((Number) row[4]).longValue(),
-                (BigDecimal) row[5]
-            ))
-            .toList();
+        return dashboardCARepository.findPaymentMethodDistribution(startDate, endDate).stream()
+                .map(row -> new PaymentMethodCADTO(
+                        LocalDate.parse(row[0].toString().substring(0, 10)),
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).intValue(),
+                        ((Number) row[4]).longValue(),
+                        (BigDecimal) row[5]))
+                .toList();
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'families_' + #startDate + '_' + #endDate")
     public List<ProductFamilyCADTO> getProductFamilyDistribution(LocalDate startDate, LocalDate endDate) {
-        return dashboardCARepository.findProductFamilyDistribution(startDate, endDate)
-            .stream()
-            .map(row -> new ProductFamilyCADTO(
-                LocalDate.parse(row[0].toString().substring(0, 10)),
-                (String) row[1],
-                ((Number) row[2]).intValue(),
-                ((Number) row[3]).longValue(),
-                ((Number) row[4]).longValue(),
-                ((Number) row[5]).longValue(),
-                (BigDecimal) row[6],
-                ((Number) row[7]).intValue()
-            ))
-            .toList();
+        return dashboardCARepository.findProductFamilyDistribution(startDate, endDate).stream()
+                .map(row -> new ProductFamilyCADTO(
+                        LocalDate.parse(row[0].toString().substring(0, 10)),
+                        (String) row[1],
+                        ((Number) row[2]).intValue(),
+                        ((Number) row[3]).longValue(),
+                        ((Number) row[4]).longValue(),
+                        ((Number) row[5]).longValue(),
+                        (BigDecimal) row[6],
+                        ((Number) row[7]).intValue()))
+                .toList();
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'top_products_' + #startDate + '_' + #endDate + '_' + #limit")
     public List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate, Integer limit) {
-        return dashboardCARepository.findTopProducts(startDate, endDate, Objects.requireNonNullElse(limit, 10))
-            .stream()
-            .map(row -> new TopProductDTO(
-                LocalDate.parse(row[0].toString().substring(0, 10)),
-                ((Number) row[1]).intValue(),
-                (String) row[2],
-                (String) row[3],
-                ((Number) row[4]).longValue(),
-                ((Number) row[5]).intValue(),
-                ((Number) row[6]).intValue(),
-                (BigDecimal) row[7]
-            ))
-            .toList();
+        return dashboardCARepository.findTopProducts(startDate, endDate, Objects.requireNonNullElse(limit, 10)).stream()
+                .map(row -> new TopProductDTO(
+                        LocalDate.parse(row[0].toString().substring(0, 10)),
+                        ((Number) row[1]).intValue(),
+                        (String) row[2],
+                        (String) row[3],
+                        ((Number) row[4]).longValue(),
+                        ((Number) row[5]).intValue(),
+                        ((Number) row[6]).intValue(),
+                        (BigDecimal) row[7]))
+                .toList();
     }
 
     @Override
@@ -241,17 +268,16 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             values.add(basket);
         }
 
-        BigDecimal currentValue  = values.isEmpty() ? BigDecimal.ZERO : values.getLast();
+        BigDecimal currentValue = values.isEmpty() ? BigDecimal.ZERO : values.getLast();
         BigDecimal previousValue = values.size() > 1 ? values.get(values.size() - 2) : BigDecimal.ZERO;
         BigDecimal evolutionAmount = currentValue.subtract(previousValue);
         BigDecimal evolutionPct = BigDecimal.ZERO;
         if (previousValue.compareTo(BigDecimal.ZERO) != 0) {
-            evolutionPct = evolutionAmount
-                .multiply(BigDecimal.valueOf(100))
-                .divide(previousValue, 2, RoundingMode.HALF_UP);
+            evolutionPct =
+                    evolutionAmount.multiply(BigDecimal.valueOf(100)).divide(previousValue, 2, RoundingMode.HALF_UP);
         }
 
-        String bestLabel    = "";
+        String bestLabel = "";
         BigDecimal bestValue = BigDecimal.ZERO;
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i).compareTo(bestValue) > 0) {
@@ -264,35 +290,38 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         if (values.size() >= 6) {
             int n = values.size();
             BigDecimal recentAvg = values.subList(n - 3, n).stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
             BigDecimal olderAvg = values.subList(n - 6, n - 3).stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
             if (olderAvg.compareTo(BigDecimal.ZERO) != 0) {
-                trend6MPct = recentAvg.subtract(olderAvg)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(olderAvg, 2, RoundingMode.HALF_UP);
+                trend6MPct = recentAvg
+                        .subtract(olderAvg)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(olderAvg, 2, RoundingMode.HALF_UP);
             }
         }
 
         return new BasketEvolutionDTO(
-            labels, values,
-            currentValue, previousValue,
-            evolutionPct, evolutionAmount,
-            bestLabel, bestValue,
-            trend6MPct
-        );
+                labels,
+                values,
+                currentValue,
+                previousValue,
+                evolutionPct,
+                evolutionAmount,
+                bestLabel,
+                bestValue,
+                trend6MPct);
     }
 
     @Override
     public FinancesSummaryDTO getSummaryFinances() {
         return new FinancesSummaryDTO(
-            dashboardCARepository.getDetteFournisseur(),
-            dashboardCARepository.getCreanceTiersPayant(),
-            dashboardCARepository.getNbEcheancesEnRetard(),
-            dashboardCARepository.getNbFacturesImpayees()
-        );
+                dashboardCARepository.getDetteFournisseur(),
+                dashboardCARepository.getCreanceTiersPayant(),
+                dashboardCARepository.getNbEcheancesEnRetard(),
+                dashboardCARepository.getNbFacturesImpayees());
     }
 
     @Override
@@ -305,51 +334,39 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Override
     public List<PerformanceVendeurDTO> getSalesByStaff(LocalDate startDate, LocalDate endDate) {
         return dashboardCARepository.findSalesByStaff(startDate, endDate).stream()
-            .map(row -> new PerformanceVendeurDTO(
-                ((Number) row[0]).longValue(),
-                (String) row[1],
-                ((Number) row[2]).intValue(),
-                ((Number) row[3]).longValue(),
-                ((Number) row[4]).longValue(),
-                row[5] != null ? ((Number) row[5]).doubleValue() : 0.0
-            ))
-            .toList();
+                .map(row -> new PerformanceVendeurDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        ((Number) row[2]).intValue(),
+                        ((Number) row[3]).longValue(),
+                        ((Number) row[4]).longValue(),
+                        row[5] != null ? ((Number) row[5]).doubleValue() : 0.0))
+                .toList();
     }
 
     @Override
     public GenericsSubstitutionDTO getGenericsSubstitution(LocalDate startDate, LocalDate endDate) {
         Object[] row = dashboardCARepository.findGenericsSubstitutionStats(startDate, endDate);
         return new GenericsSubstitutionDTO(
-            toL(row[0]),
-            toL(row[1]),
-            toL(row[2]),
-            toL(row[3]),
-            toL(row[4]),
-            toL(row[5])
-        );
+                toL(row[0]), toL(row[1]), toL(row[2]), toL(row[3]), toL(row[4]), toL(row[5]));
     }
 
     @Override
     public RemisesAnalysisKpiDTO getRemisesKpi(LocalDate startDate, LocalDate endDate) {
         Object[] row = dashboardCARepository.findRemisesKpi(startDate, endDate);
         return new RemisesAnalysisKpiDTO(
-            toL(row[0]),
-            toL(row[1]),
-            row[2] != null ? ((Number) row[2]).doubleValue() : 0.0,
-            toI(row[3]),
-            toI(row[4])
-        );
+                toL(row[0]),
+                toL(row[1]),
+                row[2] != null ? ((Number) row[2]).doubleValue() : 0.0,
+                toI(row[3]),
+                toI(row[4]));
     }
 
     @Override
     public List<TopRemiseProduitDTO> getRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit) {
         return dashboardCARepository.findRemisesTopProducts(startDate, endDate, limit).stream()
-            .map(row -> new TopRemiseProduitDTO(
-                (String) row[0],
-                toL(row[1]),
-                toI(row[2])
-            ))
-            .toList();
+                .map(row -> new TopRemiseProduitDTO((String) row[0], toL(row[1]), toI(row[2])))
+                .toList();
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -360,9 +377,17 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         return BigDecimal.valueOf((current - previous) * 100.0 / previous).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private static Long     toL(Object o)  { return o != null ? ((Number) o).longValue()    : 0L; }
-    private static Integer  toI(Object o)  { return o != null ? ((Number) o).intValue()     : 0;  }
-    private static BigDecimal toBD(Object o) { return o instanceof BigDecimal bd ? bd : BigDecimal.ZERO; }
+    private static Long toL(Object o) {
+        return o != null ? ((Number) o).longValue() : 0L;
+    }
+
+    private static Integer toI(Object o) {
+        return o != null ? ((Number) o).intValue() : 0;
+    }
+
+    private static BigDecimal toBD(Object o) {
+        return o instanceof BigDecimal bd ? bd : BigDecimal.ZERO;
+    }
 
     /**
      * Libelle de semaine ISO, annee de la semaine comprise.
@@ -373,6 +398,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
      * dont les sept jours doivent etre comptes ensemble.
      */
     private String weekLabel(LocalDate date) {
-        return date.get(IsoFields.WEEK_BASED_YEAR) + "-W" + String.format("%02d", date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
+        return date.get(IsoFields.WEEK_BASED_YEAR) + "-W"
+                + String.format("%02d", date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
     }
 }

@@ -24,44 +24,46 @@ class ExceptionTranslatorOptimisticLockTest {
 
     @Test
     void reconnaitUneVenteParLeNomDeSaClasse() {
-        assertThat(detail(new ObjectOptimisticLockingFailureException(CashSale.class.getName(), 1L))).contains("vente");
-        assertThat(detail(new ObjectOptimisticLockingFailureException(ThirdPartySales.class.getName(), 1L))).contains("vente");
+        assertThat(detail(new ObjectOptimisticLockingFailureException(CashSale.class.getName(), 1L)))
+                .contains("vente");
+        assertThat(detail(new ObjectOptimisticLockingFailureException(ThirdPartySales.class.getName(), 1L)))
+                .contains("vente");
     }
 
     @Test
     void reconnaitUneVenteParLInstanceEnConflit() {
-        assertThat(detail(new OptimisticLockException("conflit", null, new CashSale()))).contains("vente");
+        assertThat(detail(new OptimisticLockException("conflit", null, new CashSale())))
+                .contains("vente");
     }
 
     @Test
     void reconnaitUneVenteDansUnLotJdbcParLOrdreSql() {
         var lot = new ObjectOptimisticLockingFailureException(
-            "Batch update failed",
-            new StaleStateException("Batch update returned unexpected row count [update sales set statut=? where id=? and sale_date=? and version=?]")
-        );
+                "Batch update failed",
+                new StaleStateException(
+                        "Batch update returned unexpected row count [update sales set statut=? where id=? and sale_date=? and version=?]"));
         assertThat(detail(lot)).contains("vente");
     }
 
     @Test
     void neConfondPasLesLignesDeVenteAvecLaVente() {
         var lot = new ObjectOptimisticLockingFailureException(
-            "Batch update failed",
-            new StaleStateException("Batch update returned unexpected row count [update sales_line set quantity_sold=? where id=?]")
-        );
+                "Batch update failed",
+                new StaleStateException(
+                        "Batch update returned unexpected row count [update sales_line set quantity_sold=? where id=?]"));
         assertThat(detail(lot)).contains("stock");
     }
 
     @Test
     void garderLeMessageDuStockPourLesAutresEntites() {
-        assertThat(detail(new ObjectOptimisticLockingFailureException(StoreInventoryLine.class.getName(), 1L))).contains("stock");
+        assertThat(detail(new ObjectOptimisticLockingFailureException(StoreInventoryLine.class.getName(), 1L)))
+                .contains("stock");
     }
 
     @Test
     void leMessageEstLisibleEtLaCleVaDansErrorKey() {
         ResponseEntity<Object> response = translator.handleOptimisticLock(
-            new ObjectOptimisticLockingFailureException(CashSale.class.getName(), 1L),
-            null
-        );
+                new ObjectOptimisticLockingFailureException(CashSale.class.getName(), 1L), null);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         ProblemDetail body = (ProblemDetail) response.getBody();
         assertThat(body).isNotNull();
@@ -72,9 +74,7 @@ class ExceptionTranslatorOptimisticLockTest {
     @Test
     void unVerrouNonObtenuDonneUn409Lisible() {
         ResponseEntity<Object> response = translator.handlePessimisticLock(
-            new org.springframework.dao.CannotAcquireLockException("lock timeout"),
-            null
-        );
+                new org.springframework.dao.CannotAcquireLockException("lock timeout"), null);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         ProblemDetail body = (ProblemDetail) response.getBody();
         assertThat(body).isNotNull();
@@ -83,7 +83,8 @@ class ExceptionTranslatorOptimisticLockTest {
     }
 
     private String detail(Exception ex) {
-        ProblemDetail body = (ProblemDetail) translator.handleOptimisticLock(ex, null).getBody();
+        ProblemDetail body =
+                (ProblemDetail) translator.handleOptimisticLock(ex, null).getBody();
         return body == null ? null : body.getDetail();
     }
 }

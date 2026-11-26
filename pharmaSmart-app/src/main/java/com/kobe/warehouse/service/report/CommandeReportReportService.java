@@ -4,7 +4,6 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,11 +22,8 @@ public class CommandeReportReportService extends CommonReportService {
     private CommandeDTO commande;
     private String templateFile;
 
-    public CommandeReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public CommandeReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

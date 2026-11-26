@@ -1,12 +1,12 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import { CheckboxComponent } from "../../../../shared/ui";
-import { TODAY_NGB_DATE, NGB_DATE_TO_ISO } from "../../../../shared/util/warehouse-util";
-import { BlobDownloadService, DownloadFormat } from "app/shared/services/blob-download.service";
-import { ExportComptableApiService } from "../../data-access/services/export-comptable-api.service";
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { CheckboxComponent } from '../../../../shared/ui';
+import { TODAY_NGB_DATE, NGB_DATE_TO_ISO } from '../../../../shared/util/warehouse-util';
+import { BlobDownloadService, DownloadFormat } from 'app/shared/services/blob-download.service';
+import { ExportComptableApiService } from '../../data-access/services/export-comptable-api.service';
 
 interface FormatOption {
   label: string;
@@ -15,11 +15,11 @@ interface FormatOption {
 }
 
 @Component({
-  selector: "app-export-comptable",
+  selector: 'app-export-comptable',
   imports: [CommonModule, FormsModule, PharmaDatePickerComponent, CheckboxComponent],
-  templateUrl: "./export-comptable.component.html",
+  templateUrl: './export-comptable.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./export-comptable.component.scss"
+  styleUrl: './export-comptable.component.scss',
 })
 export class ExportComptableComponent {
   startDate = signal<NgbDateStruct>(this.defaultStartDate());
@@ -34,9 +34,9 @@ export class ExportComptableComponent {
   includeTva = true;
 
   formatOptions: FormatOption[] = [
-    { label: "Excel", value: "excel", icon: "pi pi-file-excel" },
-    { label: "CSV SYSCOHADA", value: "csv", icon: "pi pi-file" },
-    { label: "PDF récapitulatif", value: "pdf", icon: "pi pi-file-pdf" }
+    { label: 'Excel', value: 'excel', icon: 'pi pi-file-excel' },
+    { label: 'CSV SYSCOHADA', value: 'csv', icon: 'pi pi-file' },
+    { label: 'PDF récapitulatif', value: 'pdf', icon: 'pi pi-file-pdf' },
   ];
 
   private readonly api = inject(ExportComptableApiService);
@@ -54,12 +54,12 @@ export class ExportComptableComponent {
         mvtCaisse: this.includeMvtCaisse,
         tiersPayant: this.includeTiersPayant,
         differes: this.includeDifferes,
-        tva: this.includeTva
+        tva: this.includeTva,
       }),
       `export-comptable-${Date.now()}`,
       fmt,
       () => this.isLoading.set(true),
-      () => this.isLoading.set(false)
+      () => this.isLoading.set(false),
     );
   }
 

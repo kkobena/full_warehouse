@@ -1,6 +1,6 @@
-import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   AllCommunityModule,
   CellEditingStartedEvent,
@@ -14,24 +14,18 @@ import {
   ModuleRegistry,
   themeAlpine,
 } from 'ag-grid-community';
-import {AgGridAngular} from 'ag-grid-angular';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {InventoryApiService} from '../../data-access/services/inventory-api.service';
-import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
-import {InventoryStore} from '../../data-access/store/inventory.store';
-import {
-  IInventoryLotLine,
-  InventoryLineFilter,
-  isGapLineFilter,
-  lineFiltersFor,
-  renderParetoBadge,
-} from '../../models';
-import {IStorage} from '../../../../shared/model/magasin.model';
-import {IRayon} from '../../../../shared/model/rayon.model';
-import {SelectComponent} from '../../../../shared/ui';
-import {AG_GRID_LOCALE_FR} from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { AgGridAngular } from 'ag-grid-angular';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { InventoryApiService } from '../../data-access/services/inventory-api.service';
+import { InventoryEditorFacade } from '../../data-access/facades/inventory-editor.facade';
+import { InventoryStore } from '../../data-access/store/inventory.store';
+import { IInventoryLotLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor, renderParetoBadge } from '../../models';
+import { IStorage } from '../../../../shared/model/magasin.model';
+import { IRayon } from '../../../../shared/model/rayon.model';
+import { SelectComponent } from '../../../../shared/ui';
+import { AG_GRID_LOCALE_FR } from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -153,11 +147,11 @@ export class InventoryLotGridComponent {
       type: ['rightAligned', 'numericColumn'],
       cellStyle(params) {
         if (params.data?.updated) {
-          return {backgroundColor: '#f0fff4', fontWeight: 'bold'};
+          return { backgroundColor: '#f0fff4', fontWeight: 'bold' };
         }
         return null;
       },
-      cellEditorParams: {preventStepping: true},
+      cellEditorParams: { preventStepping: true },
     },
     {
       field: 'gap',
@@ -170,8 +164,8 @@ export class InventoryLotGridComponent {
       cellStyle(params) {
         const val = params.value;
         if (val == null) return null;
-        if (val < 0) return {color: '#dc3545', backgroundColor: '#fde8ea', fontWeight: 'bold'};
-        if (val > 0) return {color: '#0d6efd', backgroundColor: '#e7f1ff', fontWeight: 'bold'};
+        if (val < 0) return { color: '#dc3545', backgroundColor: '#fde8ea', fontWeight: 'bold' };
+        if (val > 0) return { color: '#0d6efd', backgroundColor: '#e7f1ff', fontWeight: 'bold' };
         return null;
       },
     },
@@ -181,7 +175,7 @@ export class InventoryLotGridComponent {
       width: 70,
       editable: false,
       hide: true,
-      cellStyle: {textAlign: 'center'},
+      cellStyle: { textAlign: 'center' },
       headerClass: 'ag-header-cell-center',
       cellRenderer: (params: any) => renderParetoBadge(params.value),
     },
@@ -190,9 +184,9 @@ export class InventoryLotGridComponent {
       headerName: 'Saisi',
       width: 70,
       editable: false,
-      cellStyle: {textAlign: 'center'},
+      cellStyle: { textAlign: 'center' },
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => params.value ? '<i class="pi pi-check text-success"></i>' : '',
+      cellRenderer: (params: any) => (params.value ? '<i class="pi pi-check text-success"></i>' : ''),
     },
   ]);
 
@@ -230,7 +224,7 @@ export class InventoryLotGridComponent {
         this.pendingFocusRow0 = false;
         setTimeout(() => {
           this.gridApi?.ensureIndexVisible(0, 'top');
-          this.gridApi?.startEditingCell({rowIndex: 0, colKey: 'quantityOnHand'});
+          this.gridApi?.startEditingCell({ rowIndex: 0, colKey: 'quantityOnHand' });
         }, 100);
       }
     });
@@ -402,7 +396,7 @@ export class InventoryLotGridComponent {
     setTimeout(() => {
       // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
       const rowIndex = event.node.rowIndex ?? event.rowIndex!;
-      this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
+      this.gridApi?.startEditingCell({ rowIndex, colKey: 'quantityOnHand' });
     });
   }
 
@@ -411,10 +405,7 @@ export class InventoryLotGridComponent {
    * avec le verrou optimiste que cette API attend. Les autres passent par l'API lot, qui
    * recalcule ensuite la quantité de la ligne parente.
    */
-  private saveCount(
-    lotData: IInventoryLotLine,
-    quantityOnHand: number,
-  ): Observable<{gap?: number; version?: number}> {
+  private saveCount(lotData: IInventoryLotLine, quantityOnHand: number): Observable<{ gap?: number; version?: number }> {
     if (lotData.id) {
       return this.api.updateLot(lotData.id, {
         ...lotData,
@@ -457,7 +448,7 @@ export class InventoryLotGridComponent {
       // et une page appliquée dans l'intervalle décalerait la ligne visée.
       this.focusRowId = this.gridApi?.getDisplayedRowAtIndex(nextIndex)?.id ?? null;
       this.gridApi?.ensureIndexVisible(nextIndex, 'middle');
-      this.gridApi?.startEditingCell({rowIndex: nextIndex, colKey: 'quantityOnHand'});
+      this.gridApi?.startEditingCell({ rowIndex: nextIndex, colKey: 'quantityOnHand' });
 
       // Filet : si l'éditeur ne s'ouvre pas (ligne non éditable, grille clôturée…),
       // le verrou ne doit pas geler indéfiniment les rechargements.

@@ -66,7 +66,10 @@ import { AppKpiAccent } from './kpi-strip.component';
         concaténation TypeScript produit littéralement « null FCFA ».
       -->
       <span [class]="valueClasses()">
-        {{ value() }}@if (suffix()) {<span class="kpi-strip-suffix">{{ suffix() }}</span>}
+        {{ value() }}
+        @if (suffix()) {
+          <span class="kpi-strip-suffix">{{ suffix() }}</span>
+        }
         <ng-content select="[kpiValue]" />
       </span>
 

@@ -3,11 +3,11 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.repository.CategorieRepository;
-import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.FamilleProduitRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.referential.FamilleProduitService;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +38,10 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     private final ProduitRepository produitRepository;
     private final CategorieRepository categorieRepository;
 
-    public FamilleProduitServiceImpl(FamilleProduitRepository familleProduitRepository, CategorieRepository categorieRepository, ProduitRepository produitRepository) {
+    public FamilleProduitServiceImpl(
+            FamilleProduitRepository familleProduitRepository,
+            CategorieRepository categorieRepository,
+            ProduitRepository produitRepository) {
         this.produitRepository = produitRepository;
         this.familleProduitRepository = familleProduitRepository;
         this.categorieRepository = categorieRepository;
@@ -68,7 +71,9 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     @Override
     @Transactional(readOnly = true)
     public Page<FamilleProduitDTO> findAll(String search, Pageable pageable) {
-        return familleProduitRepository.findAllByCodeOrLibelleContainingAllIgnoreCaseOrderByLibelleAsc(search, search, pageable).map(FamilleProduitDTO::new);
+        return familleProduitRepository
+                .findAllByCodeOrLibelleContainingAllIgnoreCaseOrderByLibelleAsc(search, search, pageable)
+                .map(FamilleProduitDTO::new);
     }
 
     /**
@@ -97,9 +102,8 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
         long rattaches = this.produitRepository.countByFamilleId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "La famille est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "La famille est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                    "referentielUtilise");
         }
         log.debug("Request to delete FamilleProduit : {}", id);
 
@@ -110,7 +114,12 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').setSkipHeaderRecord(true).build().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .builder()
+                    .setDelimiter(';')
+                    .setSkipHeaderRecord(true)
+                    .build()
+                    .parse(br);
             records.forEach(record -> {
                 FamilleProduit familleProduit = new FamilleProduit();
                 familleProduit.setCode(record.get(1));

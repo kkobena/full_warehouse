@@ -17,7 +17,8 @@ import { elargirAuxTreizeTranches, libellerHorizon } from '../../data-access/hor
 /** Remises : tuiles, remises dans le temps, mode d'octroi, tranches, vendeurs, plus fortes remises. */
 @Component({
   selector: 'app-section-remises',
-  imports: [AideComponent, 
+  imports: [
+    AideComponent,
     DatePipe,
     BadgeComponent,
     CardComponent,
@@ -71,8 +72,20 @@ export class SectionRemisesComponent {
       return [];
     }
     return [
-      { libelle: 'Remises accordées', definition: 'Total des remises au comptoir.', unite: 'MONTANT', sens: 'BAISSE', cellule: remises.remises },
-      { libelle: 'Taux de remise', definition: 'Remises divisées par le CA TTC.', unite: 'POURCENTAGE', sens: 'BAISSE', cellule: remises.tauxRemise },
+      {
+        libelle: 'Remises accordées',
+        definition: 'Total des remises au comptoir.',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: remises.remises,
+      },
+      {
+        libelle: 'Taux de remise',
+        definition: 'Remises divisées par le CA TTC.',
+        unite: 'POURCENTAGE',
+        sens: 'BAISSE',
+        cellule: remises.tauxRemise,
+      },
       {
         libelle: 'Ventes remisées',
         definition: 'Part des ventes qui portent une remise.',
@@ -100,10 +113,18 @@ export class SectionRemisesComponent {
   protected readonly serie = computed(() => this.serieRemises.value()?.series[0]);
   protected readonly horizon = computed(() => libellerHorizon(this.requete().granularite));
 
-
   /** Les autres ventilations (famille, produit, code remise…) sont celles de l'onglet Analyser, réglé sur les remises. */
   protected analyserLesRemises(): void {
-    const reglage = { ...REGLAGE_PAR_DEFAUT, indicateurs: ['REMISES', 'TAUX_REMISE', 'CA_TTC'], axe: 'FAMILLE' as const, affichage: 'TABLEAU' as const };
-    void this.router.navigate([], { relativeTo: this.route, queryParams: { ...versParametresUrl(reglage), onglet: 'analyser', vue: null }, queryParamsHandling: 'merge' });
+    const reglage = {
+      ...REGLAGE_PAR_DEFAUT,
+      indicateurs: ['REMISES', 'TAUX_REMISE', 'CA_TTC'],
+      axe: 'FAMILLE' as const,
+      affichage: 'TABLEAU' as const,
+    };
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { ...versParametresUrl(reglage), onglet: 'analyser', vue: null },
+      queryParamsHandling: 'merge',
+    });
   }
 }

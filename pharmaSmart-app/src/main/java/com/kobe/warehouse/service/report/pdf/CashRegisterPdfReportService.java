@@ -3,14 +3,13 @@ package com.kobe.warehouse.service.report.pdf;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import com.kobe.warehouse.service.report.CashRegisterReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class CashRegisterPdfReportService extends AbstractStatistiqueReportService {
@@ -18,12 +17,14 @@ public class CashRegisterPdfReportService extends AbstractStatistiqueReportServi
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final CashRegisterReportService cashRegisterReportService;
 
-    public CashRegisterPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, CashRegisterReportService cashRegisterReportService) {
+    public CashRegisterPdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            CashRegisterReportService cashRegisterReportService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.cashRegisterReportService = cashRegisterReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -51,13 +52,13 @@ public class CashRegisterPdfReportService extends AbstractStatistiqueReportServi
         List<DailyCashRegisterReportDTO> dailyReports = cashRegisterReportService.getDailyReport(date);
 
         // Calculate totals
-        int totalSales = dailyReports.stream().mapToInt(r -> r.totalSales() != null ? r.totalSales() : 0).sum();
-        int totalDiscrepancy = dailyReports
-            .stream()
-            .filter(DailyCashRegisterReportDTO::isClosed)
-            .mapToInt(r -> Math.abs(r.discrepancy() != null ? r.discrepancy() : 0))
-            .sum();
-
+        int totalSales = dailyReports.stream()
+                .mapToInt(r -> r.totalSales() != null ? r.totalSales() : 0)
+                .sum();
+        int totalDiscrepancy = dailyReports.stream()
+                .filter(DailyCashRegisterReportDTO::isClosed)
+                .mapToInt(r -> Math.abs(r.discrepancy() != null ? r.discrepancy() : 0))
+                .sum();
 
         this.getParameters().put("dailyReports", dailyReports);
         this.getParameters().put("reportDate", date);

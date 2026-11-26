@@ -27,9 +27,7 @@ class SuggestionPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new SuggestionPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
     }
 
     @Test
@@ -90,26 +88,25 @@ class SuggestionPdfReportServiceTest {
 
     private static SuggestionLineDTO ligne(int quantite, int prixAchat) {
         return new SuggestionLineDTO(
-            1,
-            quantite,
-            null,
-            null,
-            "PRODUIT",
-            "CIP",
-            "EAN",
-            1,
-            1,
-            0,
-            null,
-            prixAchat,
-            prixAchat * 2,
-            Map.of(),
-            null,
-            null,
-            null,
-            false,
-            1,
-            0
-        );
+                1,
+                quantite,
+                null,
+                null,
+                "PRODUIT",
+                "CIP",
+                "EAN",
+                1,
+                1,
+                0,
+                null,
+                prixAchat,
+                prixAchat * 2,
+                Map.of(),
+                null,
+                null,
+                null,
+                false,
+                1,
+                0);
     }
 }

@@ -18,7 +18,8 @@ const INDICATEURS_MARGE = ['MARGE_BRUTE', 'TAUX_MARGE', 'COEFFICIENT_MOYEN', 'MA
 /** Marge : tuiles, taux dans le temps, effet mix, marge par famille (ou laboratoire, produit…), faibles marges, ventes à perte. */
 @Component({
   selector: 'app-section-marge',
-  imports: [AideComponent,
+  imports: [
+    AideComponent,
     FormsModule,
     DatePipe,
     KpiStripComponent,
@@ -66,7 +67,6 @@ export class SectionMargeComponent {
 
   protected readonly tauxDansLeTemps = computed(() => this.historique.value()?.series[0]);
   protected readonly horizon = computed(() => libellerHorizon(this.requete().granularite));
-
 
   /** « Le taux de marge recule de 0,6 pt : 0,4 pt dû au mix, 0,2 pt aux taux. » */
   protected readonly lectureMix = computed(() => {

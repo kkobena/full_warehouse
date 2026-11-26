@@ -41,7 +41,10 @@ scenario('ADM-13', async ({ etape, page }) => {
   });
 
   await etape(3, async () => {
-    await page.getByRole('button', { name: /Enregistrer|Sauvegarder/ }).first().click();
+    await page
+      .getByRole('button', { name: /Enregistrer|Sauvegarder/ })
+      .first()
+      .click();
     await expect(page).toHaveURL(/magasin$/);
     // La fiche porte la nouvelle note : les écrans et documents qui la lisent la reprendront
     // telle quelle.
@@ -51,7 +54,10 @@ scenario('ADM-13', async ({ etape, page }) => {
   // ── Remise en état : la note d'origine est rétablie. ────────────────────────────────────
   await page.getByRole('button', { name: 'Modifier' }).click();
   await champNote.fill(noteOrigine);
-  await page.getByRole('button', { name: /Enregistrer|Sauvegarder/ }).first().click();
+  await page
+    .getByRole('button', { name: /Enregistrer|Sauvegarder/ })
+    .first()
+    .click();
   await expect(page).toHaveURL(/magasin$/);
   // Une note vide s'affiche « — ».
   await expect(notesAffichees).toHaveText(noteOrigine || '—');

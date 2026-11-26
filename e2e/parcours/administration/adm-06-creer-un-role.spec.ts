@@ -42,6 +42,9 @@ scenario('ADM-06', async ({ etape, page }) => {
   await lignes.filter({ hasText: libelle }).first().getByRole('button', { name: 'Supprimer ce rôle' }).click();
   const confirmation = page.locator('.modal-content');
   if (await confirmation.count()) {
-    await confirmation.getByRole('button', { name: /Oui|Supprimer/ }).first().click();
+    await confirmation
+      .getByRole('button', { name: /Oui|Supprimer/ })
+      .first()
+      .click();
   }
 });

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Repository;
 public interface ClientTiersPayantRepository extends JpaRepository<ClientTiersPayant, Integer> {
     List<ClientTiersPayant> findAllByAssuredCustomerId(Integer customerId);
 
-    List<ClientTiersPayant> findAllByAssuredCustomerIdAndTiersPayantCategorie(Integer customerId, TiersPayantCategorie categorie);
+    List<ClientTiersPayant> findAllByAssuredCustomerIdAndTiersPayantCategorie(
+            Integer customerId, TiersPayantCategorie categorie);
 
     List<ClientTiersPayant> findAllByIdIn(Set<Integer> ids);
 
@@ -27,15 +28,12 @@ public interface ClientTiersPayantRepository extends JpaRepository<ClientTiersPa
      * Dossiers qui portent déjà ces nom, prénom ET numéro de matricule, tous organismes confondus.
      * {@code idClientExclu} vaut -1 en création : un identifiant réel n'est jamais négatif.
      */
-    @Query(
-        "select c from ClientTiersPayant c where upper(c.assuredCustomer.firstName) = upper(:firstName) " +
-        "and upper(c.assuredCustomer.lastName) = upper(:lastName) and c.num = :num " +
-        "and c.assuredCustomer.id <> :idClientExclu order by c.id"
-    )
+    @Query("select c from ClientTiersPayant c where upper(c.assuredCustomer.firstName) = upper(:firstName) "
+            + "and upper(c.assuredCustomer.lastName) = upper(:lastName) and c.num = :num "
+            + "and c.assuredCustomer.id <> :idClientExclu order by c.id")
     List<ClientTiersPayant> findDossiersIdentiques(
-        @Param("firstName") String firstName,
-        @Param("lastName") String lastName,
-        @Param("num") String num,
-        @Param("idClientExclu") Integer idClientExclu
-    );
+            @Param("firstName") String firstName,
+            @Param("lastName") String lastName,
+            @Param("num") String num,
+            @Param("idClientExclu") Integer idClientExclu);
 }

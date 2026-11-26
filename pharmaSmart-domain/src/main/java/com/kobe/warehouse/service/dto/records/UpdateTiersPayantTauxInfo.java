@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record UpdateTiersPayantTauxInfo(
-    @NotNull SaleId saleId,
-    @NotNull Integer clientTiersPayantId,
-    @Min(0) @Max(100) int taux
-) {}
+        @NotNull SaleId saleId,
+        @NotNull Integer clientTiersPayantId,
+        @Min(0) @Max(100) int taux) {}

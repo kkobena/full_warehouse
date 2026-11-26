@@ -12,10 +12,4 @@ package com.kobe.warehouse.service.dci.dto;
  * plusieurs grossistes avec des codes distincts.
  */
 public record DciProduitDTO(
-    Integer id,
-    String libelle,
-    String codeCip,
-    String famille,
-    Integer prixVente,
-    String statut
-) {}
+        Integer id, String libelle, String codeCip, String famille, Integer prixVente, String statut) {}

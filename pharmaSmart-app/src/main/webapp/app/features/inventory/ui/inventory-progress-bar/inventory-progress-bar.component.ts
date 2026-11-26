@@ -1,6 +1,6 @@
-import {Component, input, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {InventoryProgressRecord} from '../../models';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { InventoryProgressRecord } from '../../models';
 
 @Component({
   selector: 'app-inventory-progress-bar',
@@ -8,7 +8,13 @@ import {InventoryProgressRecord} from '../../models';
   template: `
     @if (progress()) {
       <div class="inventory-progress-container">
-        <div class="progress mb-1" role="progressbar" [attr.aria-valuenow]="progress()!.progressPercent" aria-valuemin="0" aria-valuemax="100">
+        <div
+          class="progress mb-1"
+          role="progressbar"
+          [attr.aria-valuenow]="progress()!.progressPercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
           <div class="progress-bar" [style.width.%]="progress()!.progressPercent">{{ progress()!.progressPercent }}%</div>
         </div>
         <div class="progress-text text-muted small">

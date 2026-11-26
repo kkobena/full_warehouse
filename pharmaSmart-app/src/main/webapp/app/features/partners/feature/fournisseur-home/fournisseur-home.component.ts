@@ -13,25 +13,27 @@ import { IFournisseur } from '../../../../shared/model/fournisseur.model';
 import { IResponseDto } from '../../../../shared/util/response-dto';
 import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
 import { FournisseurFormComponent } from '../../ui/fournisseur-form/fournisseur-form.component';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   FrozenColumnDirective,
   IconFieldComponent,
   RowTogglerDirective,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent,
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-fournisseur-home',
   templateUrl: './fournisseur-home.component.html',
   styleUrls: ['./fournisseur-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -42,8 +44,9 @@ import {
     IconFieldComponent,
     BadgeComponent,
     NgbTooltip,
-    SpinnerComponent, CardComponent
-  ]
+    SpinnerComponent,
+    CardComponent,
+  ],
 })
 export class FournisseurHomeComponent implements OnInit {
   protected readonly fournisseurs = signal<IFournisseur[]>([]);
@@ -70,11 +73,10 @@ export class FournisseurHomeComponent implements OnInit {
   protected loadPage(page = 0): void {
     this.page.set(page);
     this.loading.set(true);
-    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search })
-      .subscribe({
-        next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
-        error: err => this.onError(err),
-      });
+    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search }).subscribe({
+      next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
+      error: err => this.onError(err),
+    });
   }
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
@@ -82,11 +84,10 @@ export class FournisseurHomeComponent implements OnInit {
     this.page.set(page);
     this.itemsPerPage.set(event.rows ?? this.itemsPerPage());
     this.loading.set(true);
-    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search })
-      .subscribe({
-        next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
-        error: err => this.onError(err),
-      });
+    this.api.queryParents({ page, size: this.itemsPerPage(), search: this.search }).subscribe({
+      next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, page),
+      error: err => this.onError(err),
+    });
   }
 
   protected onRowExpand(f: IFournisseur): void {
@@ -96,45 +97,64 @@ export class FournisseurHomeComponent implements OnInit {
     this.api.findAgences(id).subscribe({
       next: agences => {
         this.agencesMap.update(m => new Map(m).set(id, agences));
-        this.agencesLoadingIds.update(s => { const n = new Set(s); n.delete(id); return n; });
+        this.agencesLoadingIds.update(s => {
+          const n = new Set(s);
+          n.delete(id);
+          return n;
+        });
       },
-      error: () => this.agencesLoadingIds.update(s => { const n = new Set(s); n.delete(id); return n; }),
+      error: () =>
+        this.agencesLoadingIds.update(s => {
+          const n = new Set(s);
+          n.delete(id);
+          return n;
+        }),
     });
   }
 
   protected openNewParent(): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static', centered: true });
     ref.componentInstance.fournisseur = null;
     ref.componentInstance.presetParentId = null;
     ref.componentInstance.title = 'Nouveau fournisseur';
-    ref.result.then(() => this.loadPage(0), () => {});
+    ref.result.then(
+      () => this.loadPage(0),
+      () => {},
+    );
   }
 
   protected editFournisseur(f: IFournisseur): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static', centered: true });
     ref.componentInstance.fournisseur = f;
     ref.componentInstance.presetParentId = null;
     ref.componentInstance.title = `Modifier ${f.libelle}`;
-    ref.result.then(() => {
-      this.loadPage(this.page());
-      if (f.parentId) this.refreshAgences(f.parentId);
-    }, () => {});
+    ref.result.then(
+      () => {
+        this.loadPage(this.page());
+        if (f.parentId) this.refreshAgences(f.parentId);
+      },
+      () => {},
+    );
   }
 
   protected addAgence(parent: IFournisseur): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static', centered: true });
     ref.componentInstance.fournisseur = null;
     ref.componentInstance.presetParentId = parent.id;
     ref.componentInstance.title = `Nouvelle agence — ${parent.libelle}`;
-    ref.result.then(() => this.refreshAgences(parent.id!), () => {});
+    ref.result.then(
+      () => this.refreshAgences(parent.id!),
+      () => {},
+    );
   }
 
   protected deleteParent(f: IFournisseur): void {
     this.confirmService.onConfirm(
-      () => this.api.delete(f.id!).subscribe({
-        next: () => this.loadPage(0),
-        error: err => this.onError(err),
-      }),
+      () =>
+        this.api.delete(f.id!).subscribe({
+          next: () => this.loadPage(0),
+          error: err => this.onError(err),
+        }),
       'Confirmation',
       `Supprimer "${f.libelle}" ? Les agences rattachées seront également supprimées.`,
     );
@@ -142,29 +162,34 @@ export class FournisseurHomeComponent implements OnInit {
 
   protected deleteAgence(agence: IFournisseur, parentId: number): void {
     this.confirmService.onConfirm(
-      () => this.api.delete(agence.id!).subscribe({
-        next: () => this.refreshAgences(parentId),
-        error: err => this.onError(err),
-      }),
+      () =>
+        this.api.delete(agence.id!).subscribe({
+          next: () => this.refreshAgences(parentId),
+          error: err => this.onError(err),
+        }),
       'Confirmation',
       `Supprimer l'agence "${agence.libelle}" ?`,
     );
   }
 
   protected showFileDialog(): void {
-    const ref = this.modalService.open(FileUploadDialogComponent, { size: 'xl',centered:true });
-    ref.result.then(file => {
-      this.spinner().show();
-      this.api.uploadFile(file)
-        .pipe(finalize(() => this.spinner().hide()))
-        .subscribe({
-          next: (res: HttpResponse<IResponseDto>) => {
-            this.notif.info('Fichier importé avec succès');
-            this.loadPage(0);
-          },
-          error: err => this.onError(err),
-        });
-    }, () => {});
+    const ref = this.modalService.open(FileUploadDialogComponent, { size: 'xl', centered: true });
+    ref.result.then(
+      file => {
+        this.spinner().show();
+        this.api
+          .uploadFile(file)
+          .pipe(finalize(() => this.spinner().hide()))
+          .subscribe({
+            next: (res: HttpResponse<IResponseDto>) => {
+              this.notif.info('Fichier importé avec succès');
+              this.loadPage(0);
+            },
+            error: err => this.onError(err),
+          });
+      },
+      () => {},
+    );
   }
 
   protected agencesOf(parentId: number): IFournisseur[] {
@@ -176,14 +201,27 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   private refreshAgences(parentId: number): void {
-    this.agencesMap.update(m => { const n = new Map(m); n.delete(parentId); return n; });
+    this.agencesMap.update(m => {
+      const n = new Map(m);
+      n.delete(parentId);
+      return n;
+    });
     this.agencesLoadingIds.update(s => new Set(s).add(parentId));
     this.api.findAgences(parentId).subscribe({
       next: agences => {
         this.agencesMap.update(m => new Map(m).set(parentId, agences));
-        this.agencesLoadingIds.update(s => { const n = new Set(s); n.delete(parentId); return n; });
+        this.agencesLoadingIds.update(s => {
+          const n = new Set(s);
+          n.delete(parentId);
+          return n;
+        });
       },
-      error: () => this.agencesLoadingIds.update(s => { const n = new Set(s); n.delete(parentId); return n; }),
+      error: () =>
+        this.agencesLoadingIds.update(s => {
+          const n = new Set(s);
+          n.delete(parentId);
+          return n;
+        }),
     });
   }
 

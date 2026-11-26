@@ -1,40 +1,38 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.AvoirFournisseurLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
-import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
 
 /**
  * Refactored TableauPharmacien Service with improved maintainability
@@ -63,18 +61,18 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final TableauPharmacienExportService exportService;
     private final TableauPharmacienReportReportService reportService;
 
-    public TableauPharmacienServiceImpl(SalesRepository salesRepository,
-        CommandeDataService commandeDataService,
-        AvoirFournisseurLineRepository avoirFournisseurLineRepository,
-        AppConfigurationService appConfigurationService,
-        ObjectMapper objectMapper,
-        GroupeFournisseurManager groupeFournisseurManager,
-        TableauPharmacienCalculator calculator,
-        TableauPharmacienAggregator aggregator,
-        TableauPharmacienExportService exportService,
-        TableauPharmacienReportReportService reportService,
-        ModeChiffreAffaireResolver modeResolver
-    ) {
+    public TableauPharmacienServiceImpl(
+            SalesRepository salesRepository,
+            CommandeDataService commandeDataService,
+            AvoirFournisseurLineRepository avoirFournisseurLineRepository,
+            AppConfigurationService appConfigurationService,
+            ObjectMapper objectMapper,
+            GroupeFournisseurManager groupeFournisseurManager,
+            TableauPharmacienCalculator calculator,
+            TableauPharmacienAggregator aggregator,
+            TableauPharmacienExportService exportService,
+            TableauPharmacienReportReportService reportService,
+            ModeChiffreAffaireResolver modeResolver) {
         this.modeResolver = modeResolver;
         this.salesRepository = salesRepository;
         this.commandeDataService = commandeDataService;
@@ -90,9 +88,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     @Override
     public TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam) {
-        mvtParam.setStatuts(
-            Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED)
-        );
+        mvtParam.setStatuts(Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED));
         // Le mode arrive du client : un module non souscrit ne doit pas pouvoir être obtenu
         // en forgeant la requête. Le masquage des menus ne protège que l'usage courant.
         mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
@@ -206,33 +202,33 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private List<TableauPharmacienDTO> fetchSalesFromDatabase(MvtParam mvtParam) {
         try {
             String jsonResult;
-            String[] statuts = mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new);
-            String[] categories = mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new);
+            String[] statuts =
+                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new);
+            String[] categories = mvtParam.getCategorieChiffreAffaires().stream()
+                    .map(CategorieChiffreAffaire::name)
+                    .toArray(String[]::new);
 
             if (GROUPING_MONTHLY.equals(mvtParam.getGroupeBy())) {
                 jsonResult = salesRepository.fetchTableauPharmacienReportMensuel(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    statuts,
-                    categories,
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
-                    mvtParam.getModeName()
-                );
+                        mvtParam.getFromDate(),
+                        mvtParam.getToDate(),
+                        statuts,
+                        categories,
+                        BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                        mvtParam.getModeName());
             } else {
                 jsonResult = salesRepository.fetchTableauPharmacienReport(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    statuts,
-                    categories,
-                    BooleanUtils.toBoolean(mvtParam.getToIgnore()),
-                    mvtParam.getModeName()
-                );
+                        mvtParam.getFromDate(),
+                        mvtParam.getToDate(),
+                        statuts,
+                        categories,
+                        BooleanUtils.toBoolean(mvtParam.getToIgnore()),
+                        mvtParam.getModeName());
             }
             if (!StringUtils.hasLength(jsonResult)) {
                 return new ArrayList<>();
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error("Error fetching sales data: {}", e.getMessage(), e);
             return new ArrayList<>();
@@ -256,36 +252,31 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private List<ReponseRetourBonItemProjection> fetchSupplierReturns(MvtParam mvtParam) {
         if (GROUPING_MONTHLY.equals(mvtParam.getGroupeBy())) {
             return avoirFournisseurLineRepository.findByDateRangeGroupByMonth(
-                mvtParam.getFromDate().atStartOfDay(),
-                mvtParam.getToDate().atTime(LocalTime.MAX)
-            );
+                    mvtParam.getFromDate().atStartOfDay(), mvtParam.getToDate().atTime(LocalTime.MAX));
         }
         return avoirFournisseurLineRepository.findByDateRange(
-            mvtParam.getFromDate().atStartOfDay(),
-            mvtParam.getToDate().atTime(LocalTime.MAX)
-        );
+                mvtParam.getFromDate().atStartOfDay(), mvtParam.getToDate().atTime(LocalTime.MAX));
     }
 
     /**
      * Merge purchases with sales by date
      */
     private List<TableauPharmacienDTO> mergePurchasesWithSales(
-        List<TableauPharmacienDTO> salesData,
-        List<AchatDTO> purchases,
-        Set<Integer> displayedGroupIds
-    ) {
+            List<TableauPharmacienDTO> salesData, List<AchatDTO> purchases, Set<Integer> displayedGroupIds) {
         if (purchases.isEmpty()) {
             return salesData;
         }
 
         // Group purchases by date
-        Map<LocalDate, List<AchatDTO>> purchasesByDate = purchases.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
+        Map<LocalDate, List<AchatDTO>> purchasesByDate =
+                purchases.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
 
         // Merge with existing sales data
         aggregator.mergeAchatsIntoTableau(salesData, purchasesByDate, displayedGroupIds);
 
         // Create entries for dates with purchases but no sales
-        List<TableauPharmacienDTO> purchaseOnlyEntries = aggregator.createEntriesForAchatsOnly(purchasesByDate, displayedGroupIds);
+        List<TableauPharmacienDTO> purchaseOnlyEntries =
+                aggregator.createEntriesForAchatsOnly(purchasesByDate, displayedGroupIds);
         salesData.addAll(purchaseOnlyEntries);
 
         return salesData;
@@ -296,19 +287,24 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
      */
     private void computeFinalAggregations(TableauPharmacienWrapper wrapper) {
         // Aggregate all supplier purchases
-        if (wrapper.getTableauPharmaciens() != null && !wrapper.getTableauPharmaciens().isEmpty()) {
-            List<FournisseurAchat> aggregatedGroups = aggregator.aggregateFournisseurAchatsAcrossDays(wrapper.getTableauPharmaciens());
+        if (wrapper.getTableauPharmaciens() != null
+                && !wrapper.getTableauPharmaciens().isEmpty()) {
+            List<FournisseurAchat> aggregatedGroups =
+                    aggregator.aggregateFournisseurAchatsAcrossDays(wrapper.getTableauPharmaciens());
             wrapper.setGroupAchats(aggregatedGroups);
 
             // Compute total net purchase amount
-            long totalNetPurchase = aggregatedGroups.stream().mapToLong(f -> f.getAchat().getMontantNet()).sum();
+            long totalNetPurchase = aggregatedGroups.stream()
+                    .mapToLong(f -> f.getAchat().getMontantNet())
+                    .sum();
             // Subtract montantAvoirFournisseur from montantAchatNet
             wrapper.setMontantAchatNet(totalNetPurchase - wrapper.getMontantAvoirFournisseur());
 
             // Map for frontend
-            Map<Integer, Long> achatFournisseurs = aggregator.aggregateFournisseurAchatsByGroup(
-                wrapper.getTableauPharmaciens().stream().flatMap(t -> t.getGroupAchats().stream()).toList()
-            );
+            Map<Integer, Long> achatFournisseurs =
+                    aggregator.aggregateFournisseurAchatsByGroup(wrapper.getTableauPharmaciens().stream()
+                            .flatMap(t -> t.getGroupAchats().stream())
+                            .toList());
             wrapper.setAchatFournisseurs(achatFournisseurs);
         }
 

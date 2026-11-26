@@ -38,7 +38,8 @@ import org.mockito.quality.Strictness;
 class LecteurFiltrePilotageTest {
 
     private static final PeriodeDTO DEUX_MOIS = new PeriodeDTO(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 28));
-    private static final List<FiltreAnalyseDTO> ANTALGIQUES = List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of("12")));
+    private static final List<FiltreAnalyseDTO> ANTALGIQUES =
+            List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of("12")));
 
     @Mock
     private LecteurMesuresPilotage lecteurMesuresPilotage;
@@ -51,35 +52,47 @@ class LecteurFiltrePilotageTest {
 
     @BeforeEach
     void officine() {
-        when(lecteurMesuresPilotage.lireParTranche(eq(DEUX_MOIS), anyList())).thenReturn(List.of(mesures(10_000, 25), mesures(9_000, 24)));
+        when(lecteurMesuresPilotage.lireParTranche(eq(DEUX_MOIS), anyList()))
+                .thenReturn(List.of(mesures(10_000, 25), mesures(9_000, 24)));
     }
 
     @Test
     @DisplayName("sans filtre, les mesures de l'officine")
     void sansFiltre() {
-        assertThat(lecteur.lire(DEUX_MOIS, Granularite.MOIS, List.of(), IndicateurPilotage.NB_VENTES)).extracting(MesuresPilotage::caTtc).containsExactly(10_000L, 9_000L);
+        assertThat(lecteur.lire(DEUX_MOIS, Granularite.MOIS, List.of(), IndicateurPilotage.NB_VENTES))
+                .extracting(MesuresPilotage::caTtc)
+                .containsExactly(10_000L, 9_000L);
         verifyNoInteractions(ventilateurPilotage);
     }
 
     @Test
     @DisplayName("filtrées, les mesures gardent les jours ouvrés de l'officine ; un mois sans vente vaut 0")
     void filtreGardeLesJoursOuvres() {
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.LIGNES), any(), eq(AxeAnalyse.PERIODE), any(), eq(ANTALGIQUES), eq(Granularite.MOIS))).thenReturn(
-            new Ventilation(List.of(new MesuresComparees(new MembreAnalyseDTO("1", "Févr."), null, mesures(2_000, 0), MesuresPilotage.AUCUNE)), MesuresComparees.AUCUNES)
-        );
+        when(ventilateurPilotage.comparer(
+                        eq(SourceAnalyse.LIGNES),
+                        any(),
+                        eq(AxeAnalyse.PERIODE),
+                        any(),
+                        eq(ANTALGIQUES),
+                        eq(Granularite.MOIS)))
+                .thenReturn(new Ventilation(
+                        List.of(new MesuresComparees(
+                                new MembreAnalyseDTO("1", "Févr."), null, mesures(2_000, 0), MesuresPilotage.AUCUNE)),
+                        MesuresComparees.AUCUNES));
 
-        List<MesuresPilotage> filtrees = lecteur.lire(DEUX_MOIS, Granularite.MOIS, ANTALGIQUES, IndicateurPilotage.CA_TTC);
+        List<MesuresPilotage> filtrees =
+                lecteur.lire(DEUX_MOIS, Granularite.MOIS, ANTALGIQUES, IndicateurPilotage.CA_TTC);
 
-        assertThat(filtrees).extracting(MesuresPilotage::caTtc, MesuresPilotage::joursOuvres).containsExactly(
-            tuple(0L, 25L),
-            tuple(2_000L, 24L)
-        );
+        assertThat(filtrees)
+                .extracting(MesuresPilotage::caTtc, MesuresPilotage::joursOuvres)
+                .containsExactly(tuple(0L, 25L), tuple(2_000L, 24L));
     }
 
     @Test
     @DisplayName("le nombre de ventes ne se lit pas par famille")
     void indicateurIllisible() {
-        assertThatThrownBy(() -> lecteur.lire(DEUX_MOIS, Granularite.MOIS, ANTALGIQUES, IndicateurPilotage.NB_VENTES)).isInstanceOf(GenericError.class);
+        assertThatThrownBy(() -> lecteur.lire(DEUX_MOIS, Granularite.MOIS, ANTALGIQUES, IndicateurPilotage.NB_VENTES))
+                .isInstanceOf(GenericError.class);
     }
 
     private static MesuresPilotage mesures(long ca, long joursOuvres) {

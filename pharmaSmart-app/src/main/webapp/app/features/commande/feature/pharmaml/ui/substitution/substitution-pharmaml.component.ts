@@ -1,12 +1,12 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbActiveModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {BadgeComponent, ButtonComponent, DataTableComponent} from '../../../../../../shared/ui';
-import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
-import {ISubstitutionProposee} from '../../../../../../shared/model/pharmaml.model';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../../../shared/ui';
+import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
+import { ISubstitutionProposee } from '../../../../../../shared/model/pharmaml.model';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
 
 @Component({
   selector: 'app-substitution-pharmaml',
@@ -38,7 +38,7 @@ export class SubstitutionPharmamlComponent implements OnInit {
         this.processing.set(null);
         this.load();
       },
-      error: (err) => {
+      error: err => {
         this.processing.set(null);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },
@@ -52,8 +52,7 @@ export class SubstitutionPharmamlComponent implements OnInit {
         this.processing.set(null);
         this.load();
       },
-      error: (err) => {
-
+      error: err => {
         this.processing.set(null);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },

@@ -86,7 +86,9 @@ public class CashRegister implements Serializable {
     @JoinColumn(name = "updated_user_id", referencedColumnName = "id")
     private AppUser updatedUser;
 
-    @OneToMany(mappedBy = "cashRegister", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "cashRegister",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<CashRegisterItem> cashRegisterItems = new ArrayList<>();
 
     public List<CashRegisterItem> getCashRegisterItems() {

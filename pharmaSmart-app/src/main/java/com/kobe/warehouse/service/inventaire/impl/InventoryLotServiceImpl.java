@@ -43,14 +43,13 @@ public class InventoryLotServiceImpl implements InventoryLotService {
     private final EntityManager em;
 
     public InventoryLotServiceImpl(
-        InventoryLotRepository inventoryLotRepository,
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        StoreInventoryRepository storeInventoryRepository,
-        LotRepository lotRepository,
-        UserService userService,
-        InventoryStockService inventoryStockService,
-        EntityManager em
-    ) {
+            InventoryLotRepository inventoryLotRepository,
+            StoreInventoryLineRepository storeInventoryLineRepository,
+            StoreInventoryRepository storeInventoryRepository,
+            LotRepository lotRepository,
+            UserService userService,
+            InventoryStockService inventoryStockService,
+            EntityManager em) {
         this.inventoryLotRepository = inventoryLotRepository;
         this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -63,10 +62,9 @@ public class InventoryLotServiceImpl implements InventoryLotService {
     @Override
     @Transactional(readOnly = true)
     public List<InventoryLotRecord> findByStoreInventoryLineId(Long storeInventoryLineId) {
-        return inventoryLotRepository.findAllByStoreInventoryLineId(storeInventoryLineId)
-            .stream()
-            .map(this::toRecord)
-            .toList();
+        return inventoryLotRepository.findAllByStoreInventoryLineId(storeInventoryLineId).stream()
+                .map(this::toRecord)
+                .toList();
     }
 
     @Override
@@ -79,8 +77,7 @@ public class InventoryLotServiceImpl implements InventoryLotService {
         entity.setLot(lot);
         entity.setQuantityOnHand(record.quantityOnHand());
         entity.setQuantityInit(lot.getCurrentQuantity());
-        entity.setGap(record.quantityOnHand() != null
-            ? record.quantityOnHand() - lot.getCurrentQuantity() : 0);
+        entity.setGap(record.quantityOnHand() != null ? record.quantityOnHand() - lot.getCurrentQuantity() : 0);
         entity.setUpdated(record.quantityOnHand() != null);
         entity.setLastUnitPrice(record.lastUnitPrice());
         entity.setUpdatedAt(LocalDateTime.now());
@@ -109,8 +106,9 @@ public class InventoryLotServiceImpl implements InventoryLotService {
             // ramenait le lot d'un AUTRE produit portant le même — ou faisait échouer la
             // requête, le type ne promettant qu'un résultat. La ligne d'inventaire donne le
             // produit, il n'y a aucune raison de s'en priver.
-            return lotRepository.findByNumLotAndProduitId(record.numLot(), line.getProduit().getId())
-                .orElseGet(() -> creerLotDecouvertAuComptage(record, line.getProduit()));
+            return lotRepository
+                    .findByNumLotAndProduitId(record.numLot(), line.getProduit().getId())
+                    .orElseGet(() -> creerLotDecouvertAuComptage(record, line.getProduit()));
         }
         throw new IllegalArgumentException("lotId ou numLot obligatoire pour créer un inventory_lot");
     }
@@ -161,9 +159,10 @@ public class InventoryLotServiceImpl implements InventoryLotService {
 
     @Override
     public void delete(Long inventoryLotId) {
-        Long parentLineId = inventoryLotRepository.findById(inventoryLotId)
-            .map(lot -> lot.getStoreInventoryLine().getId())
-            .orElse(null);
+        Long parentLineId = inventoryLotRepository
+                .findById(inventoryLotId)
+                .map(lot -> lot.getStoreInventoryLine().getId())
+                .orElse(null);
         inventoryLotRepository.deleteById(inventoryLotId);
         if (parentLineId != null) {
             inventoryLotRepository.flush();
@@ -180,9 +179,9 @@ public class InventoryLotServiceImpl implements InventoryLotService {
             return Page.empty(pageable);
         }
         List<Tuple> tuples = fetchLotFlatTuples(filter, pageable);
-        List<StoreInventoryLotLineRecord> records = tuples.stream().map(this::toLotLineRecord).toList();
-        return new PageImpl<>(
-            withTheoreticalStock(filter.storeInventoryId(), records), pageable, count);
+        List<StoreInventoryLotLineRecord> records =
+                tuples.stream().map(this::toLotLineRecord).toList();
+        return new PageImpl<>(withTheoreticalStock(filter.storeInventoryId(), records), pageable, count);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -198,32 +197,28 @@ public class InventoryLotServiceImpl implements InventoryLotService {
      * identique, sinon l'écart affiché dépendrait de la grille dans laquelle on compte.
      */
     private List<StoreInventoryLotLineRecord> withTheoreticalStock(
-        Long inventoryId,
-        List<StoreInventoryLotLineRecord> records
-    ) {
+            Long inventoryId, List<StoreInventoryLotLineRecord> records) {
         Set<Integer> produitIds = records.stream()
-            .filter(r -> r.id() == null)
-            .map(StoreInventoryLotLineRecord::produitId)
-            .collect(Collectors.toSet());
+                .filter(r -> r.id() == null)
+                .map(StoreInventoryLotLineRecord::produitId)
+                .collect(Collectors.toSet());
         if (produitIds.isEmpty()) {
             return records;
         }
         Map<Integer, Integer> stock = inventoryStockService.buildStockMapForInventory(
-            storeInventoryRepository.getReferenceById(inventoryId), produitIds);
+                storeInventoryRepository.getReferenceById(inventoryId), produitIds);
         return records.stream()
-            .map(r -> r.id() != null
-                ? r
-                : r.withQuantityInit(stock.getOrDefault(r.produitId(), 0)))
-            .toList();
+                .map(r -> r.id() != null ? r : r.withQuantityInit(stock.getOrDefault(r.produitId(), 0)))
+                .toList();
     }
 
     private void syncParentLineQuantity(Long storeInventoryLineId) {
         StoreInventoryLine line = storeInventoryLineRepository.getReferenceById(storeInventoryLineId);
         List<InventoryLot> lots = inventoryLotRepository.findAllByStoreInventoryLineId(storeInventoryLineId);
         int sumQty = lots.stream()
-            .filter(l -> l.getQuantityOnHand() != null)
-            .mapToInt(InventoryLot::getQuantityOnHand)
-            .sum();
+                .filter(l -> l.getQuantityOnHand() != null)
+                .mapToInt(InventoryLot::getQuantityOnHand)
+                .sum();
         line.setQuantityOnHand(sumQty);
         if (line.getQuantityInit() != null) {
             line.setGap(sumQty - line.getQuantityInit());
@@ -250,48 +245,45 @@ public class InventoryLotServiceImpl implements InventoryLotService {
     @SuppressWarnings("unchecked")
     private List<Tuple> fetchLotFlatTuples(StoreInventoryLineFilterRecord filter, Pageable pageable) {
         String sql = StoreInventoryLineFilterBuilder.lotQuery(filter)
-            .withAbcPareto(true)
-            .buildPage();
+                .withAbcPareto(true)
+                .buildPage();
         var query = em.createNativeQuery(sql, Tuple.class)
-            .setParameter(1, filter.storeInventoryId())
-            .setFirstResult((int) pageable.getOffset())
-            .setMaxResults(pageable.getPageSize());
+                .setParameter(1, filter.storeInventoryId())
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
         StoreInventoryLineFilterBuilder.bindSearch(query, filter);
         return query.getResultList();
     }
 
     private StoreInventoryLotLineRecord toLotLineRecord(Tuple t) {
         return new StoreInventoryLotLineRecord(
-            t.get("id", Long.class),
-            t.get("store_inventory_line_id", Long.class),
-            t.get("produit_id", Integer.class),
-            t.get("code_cip", String.class),
-            t.get("libelle", String.class),
-            t.get("num_lot", String.class),
-            t.get("expiry_date", LocalDate.class),
-            t.get("quantity_on_hand", Integer.class),
-            t.get("quantity_init", Integer.class),
-            t.get("gap", Integer.class),
-            Boolean.TRUE.equals(t.get("updated", Boolean.class)),
-            t.get("classe_pareto", String.class),
-            t.get("version", Long.class)
-        );
+                t.get("id", Long.class),
+                t.get("store_inventory_line_id", Long.class),
+                t.get("produit_id", Integer.class),
+                t.get("code_cip", String.class),
+                t.get("libelle", String.class),
+                t.get("num_lot", String.class),
+                t.get("expiry_date", LocalDate.class),
+                t.get("quantity_on_hand", Integer.class),
+                t.get("quantity_init", Integer.class),
+                t.get("gap", Integer.class),
+                Boolean.TRUE.equals(t.get("updated", Boolean.class)),
+                t.get("classe_pareto", String.class),
+                t.get("version", Long.class));
     }
-
 
     private InventoryLotRecord toRecord(InventoryLot entity) {
         Lot lot = entity.getLot();
         return new InventoryLotRecord(
-            entity.getId(),
-            entity.getStoreInventoryLine().getId(),
-            lot.getId(),
-            lot.getNumLot(),
-            lot.getExpiryDate(),
-            entity.getQuantityOnHand(),
-            entity.getQuantityInit(),
-            entity.getGap(),
-            Boolean.TRUE.equals(entity.getUpdated()),
-            entity.getLastUnitPrice()
-        );
+                entity.getId(),
+                entity.getStoreInventoryLine().getId(),
+                lot.getId(),
+                lot.getNumLot(),
+                lot.getExpiryDate(),
+                entity.getQuantityOnHand(),
+                entity.getQuantityInit(),
+                entity.getGap(),
+                Boolean.TRUE.equals(entity.getUpdated()),
+                entity.getLastUnitPrice());
     }
 }

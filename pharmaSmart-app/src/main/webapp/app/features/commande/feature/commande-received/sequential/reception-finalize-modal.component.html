@@ -7,14 +7,12 @@
 </div>
 
 <div class="modal-body">
-
   @if (hasSkipped) {
     <div class="rf-banner rf-banner--warning">
       <i class="pi pi-exclamation-triangle"></i>
       <span>
         <strong>{{ skippedLines }} ligne{{ skippedLines > 1 ? 's' : '' }} non traitée{{ skippedLines > 1 ? 's' : '' }}</strong>
-        — ces lignes seront clôturées avec la quantité reçue actuelle (0 si non saisie).
-        Vous pouvez continuer la saisie si nécessaire.
+        — ces lignes seront clôturées avec la quantité reçue actuelle (0 si non saisie). Vous pouvez continuer la saisie si nécessaire.
       </span>
     </div>
   } @else {
@@ -38,11 +36,13 @@
   <!-- Statistiques -->
   <div class="rf-stats">
     <div class="rf-stat">
-      <span class="rf-stat__value">{{ processedLines }}<span class="rf-stat__total"> / {{ totalLines }}</span></span>
+      <span class="rf-stat__value"
+        >{{ processedLines }}<span class="rf-stat__total"> / {{ totalLines }}</span></span
+      >
       <span class="rf-stat__label">Lignes traitées</span>
     </div>
     <div class="rf-stat">
-      <span class="rf-stat__value">{{ totalAmount | number:'1.0-0' }}</span>
+      <span class="rf-stat__value">{{ totalAmount | number: '1.0-0' }}</span>
       <span class="rf-stat__label">Montant HT (<span appDevise></span>)</span>
     </div>
     @if (totalUg > 0) {
@@ -107,22 +107,9 @@
     <i class="pi pi-lock me-1"></i>
     La clôture créditera le stock et est <strong>irréversible</strong>.
   </p>
-
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="onContinue()"
-    icon="pi pi-pencil"
-    label="Continuer la saisie"
-    severity="secondary"
-    size="small"
-  />
-  <app-button
-    (clicked)="onFinalize()"
-    icon="pi pi-check"
-    label="Clôturer la réception"
-    severity="success"
-    size="small"
-  />
+  <app-button (clicked)="onContinue()" icon="pi pi-pencil" label="Continuer la saisie" severity="secondary" size="small" />
+  <app-button (clicked)="onFinalize()" icon="pi pi-check" label="Clôturer la réception" severity="success" size="small" />
 </div>

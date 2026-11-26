@@ -20,19 +20,37 @@ const COLONNES: readonly Colonne[] = [
   { libelle: 'Remises', unite: 'MONTANT', sens: 'BAISSE', lire: ligne => ligne.remises },
   { libelle: 'Taux de remise', aide: 'Remises / CA TTC.', unite: 'POURCENTAGE', sens: 'BAISSE', lire: ligne => ligne.tauxRemise },
 ];
-const COLONNE_MARGE: Colonne = { libelle: 'Taux de marge', aide: 'Marge / CA HT des lignes remisées.', unite: 'POURCENTAGE', sens: 'HAUSSE', lire: ligne => ligne.tauxMarge };
+const COLONNE_MARGE: Colonne = {
+  libelle: 'Taux de marge',
+  aide: 'Marge / CA HT des lignes remisées.',
+  unite: 'POURCENTAGE',
+  sens: 'HAUSSE',
+  lire: ligne => ligne.tauxMarge,
+};
 
 /** Remises par mode d'octroi, par tranche ou par vendeur : chaque valeur et sa variation ; marge et alerte quand elles existent. */
 @Component({
   selector: 'app-tableau-remises',
   imports: [AideComponent, DataTableComponent, BadgeComponent, VariationComponent, ValeurIndicateurPipe],
   template: `
-    <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="lignes()" emptyMessage="Aucune remise sur la période" size="small">
+    <app-data-table
+      [scrollable]="true"
+      scrollHeight="22rem"
+      [stripedRows]="true"
+      [value]="lignes()"
+      emptyMessage="Aucune remise sur la période"
+      size="small"
+    >
       <ng-template #header>
         <tr class="pharma-table-head">
           <th scope="col">{{ entete() }}</th>
           @for (colonne of colonnes(); track colonne.libelle) {
-            <th class="text-end" scope="col">{{ colonne.libelle }}@if (colonne.aide) {<app-aide [texte]="colonne.aide" />}</th>
+            <th class="text-end" scope="col">
+              {{ colonne.libelle }}
+              @if (colonne.aide) {
+                <app-aide [texte]="colonne.aide" />
+              }
+            </th>
           }
           @if (avecAlerte()) {
             <th scope="col"><span class="visually-hidden">Alerte</span></th>
@@ -47,7 +65,12 @@ const COLONNE_MARGE: Colonne = { libelle: 'Taux de marge', aide: 'Marge / CA HT 
               @if (colonne.lire(ligne); as cellule) {
                 <div>{{ cellule.valeur | valeurIndicateur: colonne.unite : true }}</div>
                 @if (cellule.valeurReference !== null) {
-                  <app-variation [ecartPct]="cellule.ecartPct" [ecart]="cellule.ecart" [sensFavorable]="colonne.sens" [unite]="colonne.unite" />
+                  <app-variation
+                    [ecartPct]="cellule.ecartPct"
+                    [ecart]="cellule.ecart"
+                    [sensFavorable]="colonne.sens"
+                    [unite]="colonne.unite"
+                  />
                 }
               }
             </td>
@@ -55,7 +78,11 @@ const COLONNE_MARGE: Colonne = { libelle: 'Taux de marge', aide: 'Marge / CA HT 
           @if (avecAlerte()) {
             <td>
               @if (ligne.alerte) {
-                <app-badge [label]="'Plus de ' + multipleAlerte() + ' fois le taux de l’équipe'" icon="pi pi-exclamation-triangle" severity="warn" />
+                <app-badge
+                  [label]="'Plus de ' + multipleAlerte() + ' fois le taux de l’équipe'"
+                  icon="pi pi-exclamation-triangle"
+                  severity="warn"
+                />
               }
             </td>
           }
@@ -71,5 +98,7 @@ export class TableauRemisesComponent {
   readonly avecAlerte = input(false);
   readonly multipleAlerte = input(2);
 
-  protected readonly colonnes = computed(() => (this.lignes().some(ligne => ligne.tauxMarge !== null) ? [...COLONNES, COLONNE_MARGE] : COLONNES));
+  protected readonly colonnes = computed(() =>
+    this.lignes().some(ligne => ligne.tauxMarge !== null) ? [...COLONNES, COLONNE_MARGE] : COLONNES,
+  );
 }

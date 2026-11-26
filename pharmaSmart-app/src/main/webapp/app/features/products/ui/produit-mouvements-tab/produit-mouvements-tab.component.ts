@@ -23,7 +23,15 @@ import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '
 import { MouvementProduit } from 'app/shared/model/enumerations/mouvement-produit.model';
 import { IStorage } from 'app/shared/model/magasin.model';
 import { IProduit } from 'app/shared/model/produit.model';
-import { ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, MultiSelectComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  MultiSelectComponent,
+  PillSelectorComponent,
+  SelectComponent,
+} from 'app/shared/ui';
 import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { createPeriodDateFilter } from '../period-date-filter';

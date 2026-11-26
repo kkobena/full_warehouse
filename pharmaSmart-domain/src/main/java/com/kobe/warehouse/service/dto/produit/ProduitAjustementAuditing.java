@@ -5,10 +5,4 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record ProduitAjustementAuditing(
-    AjustType ajustType,
-    int qtyMvt,
-    int beforeStock,
-    int afterStock,
-    LocalDateTime updated,
-    LocalDate mvtDate
-) {}
+        AjustType ajustType, int qtyMvt, int beforeStock, int afterStock, LocalDateTime updated, LocalDate mvtDate) {}

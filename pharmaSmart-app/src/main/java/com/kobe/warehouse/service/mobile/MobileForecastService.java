@@ -100,31 +100,21 @@ public class MobileForecastService {
      * Important for ML models that expect continuous data.
      */
     private List<DailySalesDTO> fillMissingDates(
-        List<DailySalesDTO> existingSales,
-        LocalDate startDate,
-        LocalDate endDate
-    ) {
+            List<DailySalesDTO> existingSales, LocalDate startDate, LocalDate endDate) {
         List<DailySalesDTO> completeSales = new ArrayList<>();
         LocalDate currentDate = startDate;
 
         int existingIndex = 0;
 
         while (!currentDate.isAfter(endDate)) {
-            if (existingIndex < existingSales.size() &&
-                existingSales.get(existingIndex).date().equals(currentDate)) {
+            if (existingIndex < existingSales.size()
+                    && existingSales.get(existingIndex).date().equals(currentDate)) {
                 // Use existing data
                 completeSales.add(existingSales.get(existingIndex));
                 existingIndex++;
             } else {
                 // Fill with zero for missing date
-                completeSales.add(new DailySalesDTO(
-                    currentDate,
-                    currentDate.toString(),
-                    0L,
-                    0,
-                    0L,
-                    0
-                ));
+                completeSales.add(new DailySalesDTO(currentDate, currentDate.toString(), 0L, 0, 0L, 0));
             }
             currentDate = currentDate.plusDays(1);
         }
@@ -171,24 +161,18 @@ public class MobileForecastService {
         Object[] row = (Object[]) query.getSingleResult();
 
         return new SalesStatistics(
-            ((Number) row[0]).intValue(),
-            ((Number) row[1]).doubleValue(),
-            ((Number) row[2]).longValue(),
-            ((Number) row[3]).longValue(),
-            ((Number) row[4]).doubleValue()
-        );
+                ((Number) row[0]).intValue(),
+                ((Number) row[1]).doubleValue(),
+                ((Number) row[2]).longValue(),
+                ((Number) row[3]).longValue(),
+                ((Number) row[4]).doubleValue());
     }
 
     /**
      * Sales statistics record for data quality validation
      */
     public record SalesStatistics(
-        int daysWithSales,
-        double avgDailySales,
-        long minDailySales,
-        long maxDailySales,
-        double stdDevSales
-    ) {
+            int daysWithSales, double avgDailySales, long minDailySales, long maxDailySales, double stdDevSales) {
 
         /**
          * Calculate coefficient of variation

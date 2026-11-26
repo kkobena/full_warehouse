@@ -54,10 +54,10 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(28, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockDepot.getId()));
         assertEquals(17, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockOfficine.getId()));
 
-        RetourDepotItem ligne = em
-            .createQuery("SELECT i FROM RetourDepotItem i WHERE i.retourDepot.id = :id", RetourDepotItem.class)
-            .setParameter("id", retour.getId())
-            .getSingleResult();
+        RetourDepotItem ligne = em.createQuery(
+                        "SELECT i FROM RetourDepotItem i WHERE i.retourDepot.id = :id", RetourDepotItem.class)
+                .setParameter("id", retour.getId())
+                .getSingleResult();
         assertEquals(12, ligne.getQtyMvt());
         assertEquals(40, ligne.getInitStock(), "le stock du dépôt avant l'opération");
         assertEquals(28, ligne.getAfterStock());
@@ -87,7 +87,10 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(20, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayonDepot.getId()));
-        assertEquals(100, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockReserveDepot.getId()), "la réserve du dépôt est intacte");
+        assertEquals(
+                100,
+                compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockReserveDepot.getId()),
+                "la réserve du dépôt est intacte");
     }
 
     @Test
@@ -107,8 +110,14 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         RetourDepotItem journalisee = ligneJournalisee();
         assertEquals(13, journalisee.getOfficineInitStock(), "5 en rayon et 8 en réserve");
         assertEquals(23, journalisee.getOfficineFinalStock());
-        assertEquals(15, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayonOfficine.getId()), "seul le rayon est crédité");
-        assertEquals(8, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(produit.getId(), STORAGE_RESERVE_ID)));
+        assertEquals(
+                15,
+                compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayonOfficine.getId()),
+                "seul le rayon est crédité");
+        assertEquals(
+                8,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RESERVE_ID)));
     }
 
     @Test
@@ -133,8 +142,14 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(2, compter("SELECT COUNT(*) FROM retour_depot_item WHERE retour_depot_id = " + retour.getId()));
         assertEquals(15, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockDepotPremier.getId()));
         assertEquals(43, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockDepotSecond.getId()));
-        assertEquals(5, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(premier.getId(), STORAGE_RAYON_ID)));
-        assertEquals(10, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(second.getId(), STORAGE_RAYON_ID)));
+        assertEquals(
+                5,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(premier.getId(), STORAGE_RAYON_ID)));
+        assertEquals(
+                10,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(second.getId(), STORAGE_RAYON_ID)));
     }
 
     @Test
@@ -162,17 +177,16 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         RetourDepotDTO surDepotInconnu = new RetourDepotDTO().setDepotId(999_999);
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourDepotService.create(surDepotInconnu)).getMessage().contains("Dépôt non trouvé")
-        );
+        assertTrue(assertThrows(GenericError.class, () -> services.retourDepotService.create(surDepotInconnu))
+                .getMessage()
+                .contains("Dépôt non trouvé"));
 
         RetourDepotDTO surProduitInconnu = new RetourDepotDTO().setDepotId(depot.getId());
-        surProduitInconnu.setRetourDepotItems(List.of(new RetourDepotItemDTO().setProduitId(999_999).setQtyMvt(1)));
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourDepotService.create(surProduitInconnu))
+        surProduitInconnu.setRetourDepotItems(
+                List.of(new RetourDepotItemDTO().setProduitId(999_999).setQtyMvt(1)));
+        assertTrue(assertThrows(GenericError.class, () -> services.retourDepotService.create(surProduitInconnu))
                 .getMessage()
-                .contains("Produit non trouvé")
-        );
+                .contains("Produit non trouvé"));
     }
 
     @Test
@@ -186,9 +200,9 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         RetourDepotDTO demande = demandeDeRetour(depot, produit, 3);
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourDepotService.create(demande)).getMessage().contains("Stock non trouvé")
-        );
+        assertTrue(assertThrows(GenericError.class, () -> services.retourDepotService.create(demande))
+                .getMessage()
+                .contains("Stock non trouvé"));
     }
 
     // ===== lectures =====
@@ -237,20 +251,22 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
         LocalDate lendemain = LocalDate.now().plusDays(1);
 
         assertEquals(
-            1,
-            services.retourDepotService.findAllByDateRange(depot.getId(), veille, lendemain, PageRequest.of(0, 20)).getTotalElements()
-        );
+                1,
+                services.retourDepotService
+                        .findAllByDateRange(depot.getId(), veille, lendemain, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertEquals(
-            2,
-            services.retourDepotService.findAllByDateRange(null, veille, lendemain, PageRequest.of(0, 20)).getTotalElements(),
-            "sans dépôt, les retours des deux dépôts remontent"
-        );
+                2,
+                services.retourDepotService
+                        .findAllByDateRange(null, veille, lendemain, PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "sans dépôt, les retours des deux dépôts remontent");
         assertTrue(
-            services.retourDepotService
-                .findAllByDateRange(depot.getId(), veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
-                .isEmpty(),
-            "hors période, rien ne remonte"
-        );
+                services.retourDepotService
+                        .findAllByDateRange(
+                                depot.getId(), veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
+                        .isEmpty(),
+                "hors période, rien ne remonte");
     }
 
     /** La ligne telle qu'elle part au journal : seule à porter les quantités côté officine. */
@@ -307,8 +323,8 @@ class RetourDepotServiceIntegrationTest extends AbstractStockIntegrationTest {
 
     private RetourDepotItemDTO ligneDeRetour(Produit produit, int quantite) {
         return new RetourDepotItemDTO()
-            .setProduitId(produit.getId())
-            .setQtyMvt(quantite)
-            .setProduitCip(produit.getFournisseurProduitPrincipal().getCodeCip());
+                .setProduitId(produit.getId())
+                .setQtyMvt(quantite)
+                .setProduitCip(produit.getFournisseurProduitPrincipal().getCodeCip());
     }
 }

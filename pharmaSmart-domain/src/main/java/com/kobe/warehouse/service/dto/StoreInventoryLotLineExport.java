@@ -15,9 +15,15 @@ public class StoreInventoryLotLineExport {
     private final int prixAchat;
 
     public StoreInventoryLotLineExport(
-        String codeCip, String produitLibelle, String numLot, LocalDate expiryDate,
-        int quantityInit, int quantityOnHand, int gap, int lastUnitPrice, int prixAchat
-    ) {
+            String codeCip,
+            String produitLibelle,
+            String numLot,
+            LocalDate expiryDate,
+            int quantityInit,
+            int quantityOnHand,
+            int gap,
+            int lastUnitPrice,
+            int prixAchat) {
         this.codeCip = codeCip;
         this.produitLibelle = produitLibelle;
         this.numLot = numLot;
@@ -29,13 +35,39 @@ public class StoreInventoryLotLineExport {
         this.prixAchat = prixAchat;
     }
 
-    public String getCodeCip()           { return codeCip; }
-    public String getProduitLibelle()    { return produitLibelle; }
-    public String getNumLot()            { return numLot; }
-    public LocalDate getExpiryDate()     { return expiryDate; }
-    public int getQuantityInit()         { return quantityInit; }
-    public int getQuantityOnHand()       { return quantityOnHand; }
-    public int getGap()                  { return gap; }
-    public int getLastUnitPrice()        { return lastUnitPrice; }
-    public int getPrixAchat()            { return prixAchat; }
+    public String getCodeCip() {
+        return codeCip;
+    }
+
+    public String getProduitLibelle() {
+        return produitLibelle;
+    }
+
+    public String getNumLot() {
+        return numLot;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public int getQuantityInit() {
+        return quantityInit;
+    }
+
+    public int getQuantityOnHand() {
+        return quantityOnHand;
+    }
+
+    public int getGap() {
+        return gap;
+    }
+
+    public int getLastUnitPrice() {
+        return lastUnitPrice;
+    }
+
+    public int getPrixAchat() {
+        return prixAchat;
+    }
 }

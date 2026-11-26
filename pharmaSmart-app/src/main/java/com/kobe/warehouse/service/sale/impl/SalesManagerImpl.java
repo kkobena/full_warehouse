@@ -13,16 +13,14 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.StockException;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,15 +40,14 @@ public class SalesManagerImpl implements SalesManager {
     private final SaleAmountCalculator saleAmountCalculator;
 
     public SalesManagerImpl(
-        SaleLineServiceFactory saleLineServiceFactory,
-        StorageService storageService,
-        CustomerDisplayService customerDisplayService,
-        CashSaleRepository cashSaleRepository,
-        VenteDepotRepository venteDepotRepository,
-        @Lazy SaleService saleService,
-        @Lazy ThirdPartySaleService thirdPartySaleService,
-        SaleAmountCalculator saleAmountCalculator
-    ) {
+            SaleLineServiceFactory saleLineServiceFactory,
+            StorageService storageService,
+            CustomerDisplayService customerDisplayService,
+            CashSaleRepository cashSaleRepository,
+            VenteDepotRepository venteDepotRepository,
+            @Lazy SaleService saleService,
+            @Lazy ThirdPartySaleService thirdPartySaleService,
+            SaleAmountCalculator saleAmountCalculator) {
         this.salesLineService = saleLineServiceFactory.getService(null);
         this.storageService = storageService;
         this.customerDisplayService = customerDisplayService;
@@ -64,16 +61,15 @@ public class SalesManagerImpl implements SalesManager {
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment)
-        throws StockException, DeconditionnementStockOut, PlafondVenteException {
+            throws StockException, DeconditionnementStockOut, PlafondVenteException {
         if (increment) {
             return incrementItemQuantityRequested(saleLineDTO, sales);
         }
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.updateItemQuantityRequested(
-            saleLineDTO,
-            salesLine,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
+                saleLineDTO,
+                salesLine,
+                storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleUpdate(sales);
         return new SaleLineDTO(salesLine);
     }
@@ -81,13 +77,12 @@ public class SalesManagerImpl implements SalesManager {
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO incrementItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
-        throws StockException, DeconditionnementStockOut,PlafondVenteException {
+            throws StockException, DeconditionnementStockOut, PlafondVenteException {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
         salesLineService.incrementItemQuantityRequested(
-            saleLineDTO,
-            salesLine,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
+                saleLineDTO,
+                salesLine,
+                storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleUpdate(sales);
         return new SaleLineDTO(salesLine);
     }
@@ -96,7 +91,10 @@ public class SalesManagerImpl implements SalesManager {
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO, Sales sales) {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
-        salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserMainStorage().getId());
+        salesLineService.updateItemQuantitySold(
+                salesLine,
+                saleLineDTO,
+                storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleUpdate(sales);
         return new SaleLineDTO(salesLine);
     }
@@ -105,7 +103,10 @@ public class SalesManagerImpl implements SalesManager {
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO, Sales sales) {
         SalesLine salesLine = getOneSalesLine(saleLineDTO);
-        salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserMainStorage().getId());
+        salesLineService.updateItemRegularPrice(
+                saleLineDTO,
+                salesLine,
+                storageService.getDefaultConnectedUserMainStorage().getId());
         finalizeSaleUpdate(sales);
         return new SaleLineDTO(salesLine);
     }
@@ -122,7 +123,8 @@ public class SalesManagerImpl implements SalesManager {
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales) {
-        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
+        Optional<SalesLine> salesLineOp =
+                salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
         int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
         SalesLine salesLine;
         if (salesLineOp.isPresent()) {
@@ -170,7 +172,7 @@ public class SalesManagerImpl implements SalesManager {
         return salesLineService.getOneById(saleLineDTO.getSaleLineId());
     }
 
-    private void finalizeSaleUpdate(Sales sales) throws  PlafondVenteException {
+    private void finalizeSaleUpdate(Sales sales) throws PlafondVenteException {
         if (sales instanceof CashSale cashSale) {
             saleService.upddateCashSaleAmounts(cashSale);
             cashSaleRepository.saveAndFlush(cashSale);
@@ -179,7 +181,8 @@ public class SalesManagerImpl implements SalesManager {
             var message = thirdPartySaleService.computeThirdPartySaleAmounts(thirdPartySales);
             this.displayNet(thirdPartySales.getPartAssure());
             if (StringUtils.hasLength(message)) {
-                throw new PlafondVenteException( ThirdPartySaleDTO.lite(thirdPartySales).buildLite(), message);
+                throw new PlafondVenteException(
+                        ThirdPartySaleDTO.lite(thirdPartySales).buildLite(), message);
             }
         } else if (sales instanceof VenteDepot venteDepot) {
             upddateDepotSaleAmounts(venteDepot);

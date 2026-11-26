@@ -4,12 +4,7 @@ import { Customer, ICustomer } from '../../../shared/model/customer.model';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { AssureFormStepService } from './assure-form-step.service';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  RadioComponent
-} from '../../../shared/ui';
+import { ButtonComponent, CardComponent, KeyFilterDirective, RadioComponent } from '../../../shared/ui';
 
 /**
  * Bénéficiaires du contrat : une liste, pas une seule personne. Un contrat couvre en général le
@@ -28,7 +23,7 @@ import {
     ButtonComponent,
     CardComponent,
     KeyFilterDirective,
-    RadioComponent
+    RadioComponent,
   ],
   templateUrl: './ayant-droit-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

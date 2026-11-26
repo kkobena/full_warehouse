@@ -51,18 +51,11 @@
   <ng-container ngProjectAs="[toolbarActions]">
     <div class="pharma-toolbar-actions">
       <div class="pharma-button-group">
-        <app-button
-          (clicked)="charger()"
-          [disabled]="chargement()"
-          icon="pi pi-search"
-          label="Afficher"
-          severity="info"
-        />
+        <app-button (clicked)="charger()" [disabled]="chargement()" icon="pi pi-search" label="Afficher" severity="info" />
       </div>
     </div>
   </ng-container>
 </app-toolbar>
-
 
 <!-- ── Indicateurs ─────────────────────────────────────────────────────────── -->
 <app-kpi-strip [loading]="chargement()" [skeletonCount]="4" stripClass="mb-2">
@@ -109,9 +102,7 @@
     suffix="F"
     valueClass="text-success"
   >
-    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de
-      marge
-    </ng-container>
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de marge </ng-container>
   </app-kpi-item>
 </app-kpi-strip>
 
@@ -124,8 +115,8 @@
 }
 
 <app-hint storageKey="journal-tiers-payant-infos">
-  Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer.
-  Le détail des produits se consulte vente par vente.
+  Les ventes relevant d'un tiers-payant exclu sortent entièrement du chiffre d'affaires à déclarer. Le détail des produits se consulte vente
+  par vente.
 </app-hint>
 
 <app-hint [visible]="!panelOpen()" storageKey="journal-tiers-payant">
@@ -171,8 +162,7 @@
           <td class="small text-muted">{{ vente.client }}</td>
           <td class="text-end">{{ vente.nombreLignes | number }}</td>
           <td class="text-end fw-semibold">{{ vente.valeurTtc | number: '1.0-0' }}</td>
-          <td [class.text-danger]="vente.marge < 0" [class.text-success]="vente.marge > 0"
-              class="text-end">
+          <td [class.text-danger]="vente.marge < 0" [class.text-success]="vente.marge > 0" class="text-end">
             {{ vente.marge | number: '1.0-0' }}
           </td>
         </tr>
@@ -184,19 +174,11 @@
     <div class="detail-column">
       <app-card [withHeader]="true" class="d-block" header="Produits de la vente" icon="pi pi-list">
         <div cardActions>
-          <app-button
-            (clicked)="fermerDetail()"
-            [iconOnly]="true"
-            [text]="true"
-            icon="pi pi-times"
-            label="Fermer"
-            severity="secondary"
-          />
+          <app-button (clicked)="fermerDetail()" [iconOnly]="true" [text]="true" icon="pi pi-times" label="Fermer" severity="secondary" />
         </div>
 
         <p class="text-muted small">
-          {{ selection()!.numeroTransaction }} du {{ selection()!.saleDate | date: 'dd/MM/yyyy' }} ·
-          {{ selection()!.tiersPayants }} ·
+          {{ selection()!.numeroTransaction }} du {{ selection()!.saleDate | date: 'dd/MM/yyyy' }} · {{ selection()!.tiersPayants }} ·
           {{ selection()!.valeurTtc | number: '1.0-0' }} <span appDevise></span> retirés du CA déclaré
         </p>
 
@@ -223,8 +205,7 @@
               <td>{{ ligne.libelleProduit }}</td>
               <td class="text-end">{{ ligne.quantite | number }}</td>
               <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
-              <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0"
-                  class="text-end">
+              <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0" class="text-end">
                 {{ ligne.marge | number: '1.0-0' }}
               </td>
             </tr>

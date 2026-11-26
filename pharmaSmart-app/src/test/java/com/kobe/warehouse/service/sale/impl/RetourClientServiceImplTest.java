@@ -56,15 +56,32 @@ import org.springframework.data.domain.PageRequest;
 @ExtendWith(MockitoExtension.class)
 class RetourClientServiceImplTest {
 
-    @Mock private RetourClientRepository retourRepository;
-    @Mock private SalesRepository salesRepository;
-    @Mock private SalesLineRepository lineRepository;
-    @Mock private StockProduitRepository stockRepository;
-    @Mock private AvoirClientRepository avoirRepository;
-    @Mock private ReferenceService referenceService;
-    @Mock private StorageService storageService;
-    @Mock private InventoryTransactionService inventoryService;
-    @Mock private AppConfigurationService configurationService;
+    @Mock
+    private RetourClientRepository retourRepository;
+
+    @Mock
+    private SalesRepository salesRepository;
+
+    @Mock
+    private SalesLineRepository lineRepository;
+
+    @Mock
+    private StockProduitRepository stockRepository;
+
+    @Mock
+    private AvoirClientRepository avoirRepository;
+
+    @Mock
+    private ReferenceService referenceService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private InventoryTransactionService inventoryService;
+
+    @Mock
+    private AppConfigurationService configurationService;
 
     private RetourClientServiceImpl service;
     private LocalDate saleDate;
@@ -81,9 +98,15 @@ class RetourClientServiceImplTest {
         storage = new Storage();
         storage.setId(4);
         service = new RetourClientServiceImpl(
-            retourRepository, salesRepository, lineRepository, stockRepository, avoirRepository,
-            referenceService, storageService, inventoryService, configurationService
-        );
+                retourRepository,
+                salesRepository,
+                lineRepository,
+                stockRepository,
+                avoirRepository,
+                referenceService,
+                storageService,
+                inventoryService,
+                configurationService);
     }
 
     @Test
@@ -97,7 +120,7 @@ class RetourClientServiceImplTest {
         SalesLine ignored = line(11L, StatutLegal.SANS_LISTE, false, 0, 100);
         when(salesRepository.findByNumberTransaction("V-1")).thenReturn(List.of(sale));
         when(lineRepository.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, saleDate))
-            .thenReturn(List.of(eligible, ignored));
+                .thenReturn(List.of(eligible, ignored));
         when(configurationService.getDelaiRetourClient()).thenReturn(30);
 
         SaleForRetourDTO result = service.findSaleByRef("V-1");
@@ -119,7 +142,7 @@ class RetourClientServiceImplTest {
         line.getProduit().setCodeEanLaboratoire("EAN-1");
         when(salesRepository.findById(new SaleId(1L, saleDate))).thenReturn(Optional.of(sale));
         when(lineRepository.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, saleDate))
-            .thenReturn(List.of(line));
+                .thenReturn(List.of(line));
         when(configurationService.getDelaiRetourClient()).thenReturn(30);
 
         SaleForRetourDTO result = service.findSaleById(1L, saleDate);
@@ -147,8 +170,9 @@ class RetourClientServiceImplTest {
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(forbidden));
         useCurrentUserAndStorage();
 
-        GenericError error = assertThrows(GenericError.class,
-            () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
+        GenericError error = assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
 
         assertTrue(error.getMessage().contains("Aucune ligne retournable"));
         verify(stockRepository, never()).save(any());
@@ -160,10 +184,12 @@ class RetourClientServiceImplTest {
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         useCurrentUserAndStorage();
 
-        assertThrows(GenericError.class,
-            () -> service.validerRetour(request(List.of(requestLine(10L, 0, true, true, true)), false)));
-        assertThrows(GenericError.class,
-            () -> service.validerRetour(request(List.of(requestLine(10L, 3, true, true, true)), false)));
+        assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 0, true, true, true)), false)));
+        assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 3, true, true, true)), false)));
     }
 
     @Test
@@ -175,11 +201,11 @@ class RetourClientServiceImplTest {
         when(referenceService.buildNumRetourClient()).thenReturn("RET-1");
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation ->
-            ((RetourClient) invocation.getArgument(0)).setId(20));
+        when(retourRepository.saveAndFlush(any(RetourClient.class)))
+                .thenAnswer(invocation -> ((RetourClient) invocation.getArgument(0)).setId(20));
 
-        RetourClientResultDTO result = service.validerRetour(
-            request(List.of(requestLine(10L, 1, null, null, null)), false));
+        RetourClientResultDTO result =
+                service.validerRetour(request(List.of(requestLine(10L, 1, null, null, null)), false));
 
         assertFalse(result.partiel());
         assertNull(result.echangeContext());
@@ -202,12 +228,12 @@ class RetourClientServiceImplTest {
         when(configurationService.getDelaiValiditeAvoir()).thenReturn(60);
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation ->
-            ((RetourClient) invocation.getArgument(0)).setId(21));
+        when(retourRepository.saveAndFlush(any(RetourClient.class)))
+                .thenAnswer(invocation -> ((RetourClient) invocation.getArgument(0)).setId(21));
         when(avoirRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        RetourClientResultDTO result = service.validerRetour(
-            request(List.of(requestLine(10L, 1, true, true, true)), true));
+        RetourClientResultDTO result =
+                service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), true));
 
         assertTrue(result.partiel());
         assertEquals(1, result.lignesNonRestockees().size());
@@ -226,10 +252,11 @@ class RetourClientServiceImplTest {
         useCurrentUserAndStorage();
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(retourRepository.saveAndFlush(any(RetourClient.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        RetourClientResultDTO result = service.validerRetour(
-            request(List.of(requestLine(10L, 1, false, true, true)), false));
+        RetourClientResultDTO result =
+                service.validerRetour(request(List.of(requestLine(10L, 1, false, true, true)), false));
 
         assertTrue(result.partiel());
         assertTrue(result.lignesRejetees().isEmpty());
@@ -258,12 +285,15 @@ class RetourClientServiceImplTest {
         when(retourRepository.findById(1)).thenReturn(Optional.of(retour));
         when(retourRepository.findById(404)).thenReturn(Optional.empty());
         PageRequest pageable = PageRequest.of(0, 10);
-        when(retourRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class),
-            org.mockito.ArgumentMatchers.eq(pageable))).thenReturn(new PageImpl<>(List.of(retour)));
+        when(retourRepository.findAll(
+                        any(org.springframework.data.jpa.domain.Specification.class),
+                        org.mockito.ArgumentMatchers.eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(retour)));
 
         assertEquals("RET", service.findById(1).reference());
         assertThrows(GenericError.class, () -> service.findById(404));
-        assertEquals(1, service.findAll("RET", saleDate, LocalDate.now(), pageable).getTotalElements());
+        assertEquals(
+                1, service.findAll("RET", saleDate, LocalDate.now(), pageable).getTotalElements());
     }
 
     private void useCurrentUserAndStorage() {
@@ -273,9 +303,13 @@ class RetourClientServiceImplTest {
 
     private RetourClientRequest request(List<RetourLineRequest> lines, boolean exchange) {
         return new RetourClientRequest(
-            1L, saleDate, MotifRetourClient.ERREUR_DISPENSATION,
-            ModeReglementRetour.REMBOURSEMENT_ESPECES, "commentaire", lines, exchange
-        );
+                1L,
+                saleDate,
+                MotifRetourClient.ERREUR_DISPENSATION,
+                ModeReglementRetour.REMBOURSEMENT_ESPECES,
+                "commentaire",
+                lines,
+                exchange);
     }
 
     private RetourLineRequest requestLine(long id, int quantity, Boolean packaging, Boolean lot, Boolean expiry) {
@@ -317,13 +351,12 @@ class RetourClientServiceImplTest {
 
     private RetourClient retour(boolean exchange) {
         return new RetourClient()
-            .setId(1)
-            .setReference("RET")
-            .setCreatedBy(user)
-            .setModeReglement(ModeReglementRetour.REMBOURSEMENT_ESPECES)
-            .setMotif(MotifRetourClient.AUTRE)
-            .setAvecEchange(exchange)
-            .setLines(List.of());
+                .setId(1)
+                .setReference("RET")
+                .setCreatedBy(user)
+                .setModeReglement(ModeReglementRetour.REMBOURSEMENT_ESPECES)
+                .setMotif(MotifRetourClient.AUTRE)
+                .setAvecEchange(exchange)
+                .setLines(List.of());
     }
 }
-

@@ -63,9 +63,9 @@ public class NightlyPipelineScheduler {
     private void launch(String trigger) {
         try {
             JobParameters params = new JobParametersBuilder()
-                .addString("date", LocalDate.now().toString())
-                .addString("trigger", trigger)
-                .toJobParameters();
+                    .addString("date", LocalDate.now().toString())
+                    .addString("trigger", trigger)
+                    .toJobParameters();
             asyncJobOperator.start(nightlyPipelineJob, params);
             LOG.info("[PIPELINE-{}] Job lancé avec date={}", trigger, LocalDate.now());
         } catch (JobInstanceAlreadyCompleteException e) {

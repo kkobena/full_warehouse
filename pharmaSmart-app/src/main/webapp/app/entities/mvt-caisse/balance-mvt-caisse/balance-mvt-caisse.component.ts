@@ -1,35 +1,29 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  signal
-} from '@angular/core';
-import {MvtParamServiceService} from '../mvt-param-service.service';
-import {BalanceCaisseWrapper} from './balance-caisse.model';
-import {BalanceMvtCaisseService} from './balance-mvt-caisse.service';
-import {HttpResponse} from '@angular/common/http';
-import {MvtCaisseParams} from '../mvt-caisse-util';
-import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
-import {FormsModule} from '@angular/forms';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {finalize} from 'rxjs/operators';
-import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
-import {handleBlobForTauri} from '../../../shared/util/tauri-util';
-import {CommonModule} from "@angular/common";
-import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, ToolbarComponent} from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { MvtParamServiceService } from '../mvt-param-service.service';
+import { BalanceCaisseWrapper } from './balance-caisse.model';
+import { BalanceMvtCaisseService } from './balance-mvt-caisse.service';
+import { HttpResponse } from '@angular/common/http';
+import { MvtCaisseParams } from '../mvt-caisse-util';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { finalize } from 'rxjs/operators';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { CommonModule } from '@angular/common';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
-import {ModeCa, ModeCaService} from '../mode-ca';
+import { ModeCa, ModeCaService } from '../mode-ca';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-balance-mvt-caisse',
-  imports: [CardComponent, DeviseDirective, 
+  imports: [
+    CardComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,

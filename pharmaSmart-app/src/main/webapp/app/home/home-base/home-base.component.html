@@ -2,49 +2,48 @@
 <div class="pharma-smart-content">
   <app-card class="d-block mb-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-
       <!-- Zone gauche : alertes -->
       <div class="quick-actions d-flex gap-2 align-items-center flex-wrap">
         @if (peremptionCount > 0) {
-          <button (click)="voirPeremptions()" class="quick-alert-card quick-alert-danger"
-                  title="Voir les lots périmés dans Gestion Péremptions"
-                  type="button">
+          <button
+            (click)="voirPeremptions()"
+            class="quick-alert-card quick-alert-danger"
+            title="Voir les lots périmés dans Gestion Péremptions"
+            type="button"
+          >
             <i aria-hidden="true" class="pi pi-clock"></i>
             <span class="quick-alert-label">Péremptions</span>
             <span class="quick-alert-badge">{{ peremptionCount }}</span>
           </button>
         }
         @if (ruptureCount > 0) {
-          <button (click)="voirRuptures()" class="quick-alert-card quick-alert-danger"
-                  title="Voir les ruptures de stock"
-                  type="button">
+          <button (click)="voirRuptures()" class="quick-alert-card quick-alert-danger" title="Voir les ruptures de stock" type="button">
             <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
             <span class="quick-alert-label">Ruptures</span>
             <span class="quick-alert-badge">{{ ruptureCount }}</span>
           </button>
         }
         @if (urgentCount > 0) {
-          <button (click)="voirUrgents()" class="quick-alert-card quick-alert-warn"
-                  title="Produits à réapprovisionner en urgence"
-                  type="button">
+          <button
+            (click)="voirUrgents()"
+            class="quick-alert-card quick-alert-warn"
+            title="Produits à réapprovisionner en urgence"
+            type="button"
+          >
             <i aria-hidden="true" class="pi pi-shopping-bag"></i>
             <span class="quick-alert-label">À commander</span>
             <span class="quick-alert-badge">{{ urgentCount }}</span>
           </button>
         }
         @if (ajustementCount > 0) {
-          <button (click)="voirAjustements()" class="quick-alert-card quick-alert-info"
-                  title="Voir les ajustements de stock"
-                  type="button">
+          <button (click)="voirAjustements()" class="quick-alert-card quick-alert-info" title="Voir les ajustements de stock" type="button">
             <i aria-hidden="true" class="pi pi-sliders-h"></i>
             <span class="quick-alert-label">Ajustements</span>
             <span class="quick-alert-badge">{{ ajustementCount }}</span>
           </button>
         }
         @if (prixModifCount > 0) {
-          <button (click)="voirModifPrix()" class="quick-alert-card quick-alert-warn"
-                  title="Voir les modifications de prix"
-                  type="button">
+          <button (click)="voirModifPrix()" class="quick-alert-card quick-alert-warn" title="Voir les modifications de prix" type="button">
             <i aria-hidden="true" class="pi pi-dollar"></i>
             <span class="quick-alert-label">Modif. Prix</span>
             <span class="quick-alert-badge">{{ prixModifCount }}</span>
@@ -55,78 +54,90 @@
       <!-- Zone centre : sélecteur de période  -->
       <app-pill-selector [items]="periodeOptions" [ngModel]="activePeriode()" (selectionChange)="onPeriodeChange($any($event))" />
 
-
       <div class="d-flex align-items-center gap-2">
         @if (lastUpdate()) {
-          <span class="last-update-label">
-          <i aria-hidden="true" class="pi pi-clock"></i> {{ lastUpdate() | date:'HH:mm' }}
-        </span>
+          <span class="last-update-label"> <i aria-hidden="true" class="pi pi-clock"></i> {{ lastUpdate() | date: 'HH:mm' }} </span>
         }
         <div class="dashboard-periode-selector">
-          <a class="periode-pill" routerLink="/reports/sales"
-             title="Tableau de bord CA avancé avec exports">
+          <a class="periode-pill" routerLink="/reports/sales" title="Tableau de bord CA avancé avec exports">
             <i aria-hidden="true" class="pi pi-external-link"></i>
             <span class="pill-label">CA avancé</span>
           </a>
-          <a class="periode-pill" routerLink="/reports/finance"
-             title="Marges & Résultat par segment et famille">
+          <a class="periode-pill" routerLink="/reports/finance" title="Marges & Résultat par segment et famille">
             <i aria-hidden="true" class="pi pi-chart-line"></i>
             <span class="pill-label">Marges & Résultat</span>
           </a>
-          <a class="periode-pill" routerLink="/facturation"
-             title="Facturation tiers-payants">
+          <a class="periode-pill" routerLink="/facturation" title="Facturation tiers-payants">
             <i aria-hidden="true" class="pi pi-receipt"></i>
             <span class="pill-label">Facturation</span>
           </a>
-          <a class="periode-pill" routerLink="/differes"
-             title="Différés clients">
+          <a class="periode-pill" routerLink="/differes" title="Différés clients">
             <i aria-hidden="true" class="pi pi-calendar-times"></i>
             <span class="pill-label">Différés</span>
           </a>
         </div>
         <app-pill-selector [items]="graphOptions" [ngModel]="showGraphs()" (selectionChange)="showGraphs.set($any($event))" />
       </div>
-
     </div>
   </app-card>
 
   <!-- ─── KPI Strip ────────────────────────────────────────────────────────── -->
   <app-kpi-strip [loading]="isLoading()" [skeletonCount]="8" stripClass="mb-2">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary"
-                  label="CA Net" [value]="venteRecord()?.netAmount | number" valueClass="text-primary"
-                  info="Ventes clôturées de la période : total des lignes au prix de vente, moins les remises accordées. Les ventes annulées en sont exclues. L'évolution compare la même durée immédiatement antérieure.">
+    <app-kpi-item
+      [accent]="'primary'"
+      icon="pi pi-shopping-cart"
+      iconClass="text-primary"
+      label="CA Net"
+      [value]="venteRecord()?.netAmount | number"
+      valueClass="text-primary"
+      info="Ventes clôturées de la période : total des lignes au prix de vente, moins les remises accordées. Les ventes annulées en sont exclues. L'évolution compare la même durée immédiatement antérieure."
+    >
       <ng-container ngProjectAs="[kpiSub]">
         {{ venteRecord()?.saleCount | number }} ventes
         @if (caEvolutionPct() !== null) {
-          · <span [class]="caEvolutionPct()! >= 0 ? 'evolution-positive' : 'evolution-negative'">
-            <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
-               aria-hidden="true"></i>
-            {{ caEvolutionPct() | number:'1.1-1' }}%
+          ·
+          <span [class]="caEvolutionPct()! >= 0 ? 'evolution-positive' : 'evolution-negative'">
+            <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" aria-hidden="true"></i>
+            {{ caEvolutionPct() | number: '1.1-1' }}%
           </span>
         }
       </ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'success'" icon="pi pi-percentage" iconClass="text-success"
-                  label="Marge brute" [value]="margePeriode()?.marge | number" valueClass="text-success"
-                  info="Net vendu de la période moins le coût d'achat des quantités sorties. Le taux rapporte cette marge au CA net.">
+    <app-kpi-item
+      [accent]="'success'"
+      icon="pi pi-percentage"
+      iconClass="text-success"
+      label="Marge brute"
+      [value]="margePeriode()?.marge | number"
+      valueClass="text-success"
+      info="Net vendu de la période moins le coût d'achat des quantités sorties. Le taux rapporte cette marge au CA net."
+    >
       <ng-container ngProjectAs="[kpiSub]">
-        {{ margePeriode()?.taux | number:'1.1-1' }} % · coût {{ margePeriode()?.cout | number }}
+        {{ margePeriode()?.taux | number: '1.1-1' }} % · coût {{ margePeriode()?.cout | number }}
       </ng-container>
     </app-kpi-item>
 
-    <app-kpi-item icon="pi pi-wallet" iconClass="text-info"
-                  label="Ventes comptant" [value]="vno()?.netAmount | number"
-                  info="Part du CA net encaissée au comptoir, sans tiers payant. Le second montant est celui des ventes annulées de la période, déjà retirées du CA.">
+    <app-kpi-item
+      icon="pi pi-wallet"
+      iconClass="text-info"
+      label="Ventes comptant"
+      [value]="vno()?.netAmount | number"
+      info="Part du CA net encaissée au comptoir, sans tiers payant. Le second montant est celui des ventes annulées de la période, déjà retirées du CA."
+    >
       <ng-container ngProjectAs="[kpiSub]">
         {{ vno()?.saleCount | number }} vente(s) · annulée(s) {{ canceled()?.netAmount | number }}
       </ng-container>
     </app-kpi-item>
 
     @if (assurance() && assurance()?.saleCount !== 0) {
-      <app-kpi-item icon="pi pi-id-card" iconClass="text-primary"
-                    label="Ventes tiers payant" [value]="assurance()?.netAmount | number"
-                    info="Ventes couvertes par un organisme. Le montant est le net de la vente, part assuré comprise ; la part payeur est celle qui sera facturée à l'organisme.">
+      <app-kpi-item
+        icon="pi pi-id-card"
+        iconClass="text-primary"
+        label="Ventes tiers payant"
+        [value]="assurance()?.netAmount | number"
+        info="Ventes couvertes par un organisme. Le montant est le net de la vente, part assuré comprise ; la part payeur est celle qui sera facturée à l'organisme."
+      >
         <ng-container ngProjectAs="[kpiSub]">
           {{ assurance()?.saleCount | number }} vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}
         </ng-container>
@@ -134,42 +145,73 @@
     }
 
     @if (venteDepot() && venteDepot()?.saleCount !== 0) {
-      <app-kpi-item icon="pi pi-send" iconClass="text-secondary"
-                    label="Ventes dépôt" [value]="venteDepot()?.netAmount | number"
-                    info="Transferts vers un dépositaire. Suivis hors chiffre d'affaires déclaré : ce montant ne s'ajoute pas au CA net.">
+      <app-kpi-item
+        icon="pi pi-send"
+        iconClass="text-secondary"
+        label="Ventes dépôt"
+        [value]="venteDepot()?.netAmount | number"
+        info="Transferts vers un dépositaire. Suivis hors chiffre d'affaires déclaré : ce montant ne s'ajoute pas au CA net."
+      >
         <ng-container ngProjectAs="[kpiSub]">{{ venteDepot()?.saleCount | number }} vente(s) dépôt</ng-container>
       </app-kpi-item>
     }
 
-    <app-kpi-item [accent]="'danger'" icon="pi pi-credit-card" iconClass="text-danger"
-                  label="Créances TP" [value]="totalCreances() | number" valueClass="text-danger"
-                  info="Reste dû des factures tiers payant non soldées, toutes périodes confondues : TTC facturé moins ce qui a été réglé. Le détail au-delà de 90 jours est la part de cet encours la plus ancienne ; le taux de recouvrement, lui, rapporte le réglé au facturé sur la période affichée.">
+    <app-kpi-item
+      [accent]="'danger'"
+      icon="pi pi-credit-card"
+      iconClass="text-danger"
+      label="Créances TP"
+      [value]="totalCreances() | number"
+      valueClass="text-danger"
+      info="Reste dû des factures tiers payant non soldées, toutes périodes confondues : TTC facturé moins ce qui a été réglé. Le détail au-delà de 90 jours est la part de cet encours la plus ancienne ; le taux de recouvrement, lui, rapporte le réglé au facturé sur la période affichée."
+    >
       <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
       <ng-container ngProjectAs="[kpiSub]">
-        &gt;90j {{ creancesPlusDe90j() | number }} · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%
+        &gt;90j {{ creancesPlusDe90j() | number }} · recouv. {{ facturationKpi()?.tauxRecouvrement | number: '1.0-1' }}%
       </ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'warning'" icon="pi pi-truck" iconClass="text-warning"
-                  label="Achats fournisseurs" [value]="achatRecord()?.receiptAmount | number" valueClass="text-warning"
-                  info="Commandes réceptionnées et clôturées sur la période, en montant HT. Le second montant en retire les remises fournisseur.">
+    <app-kpi-item
+      [accent]="'warning'"
+      icon="pi pi-truck"
+      iconClass="text-warning"
+      label="Achats fournisseurs"
+      [value]="achatRecord()?.receiptAmount | number"
+      valueClass="text-warning"
+      info="Commandes réceptionnées et clôturées sur la période, en montant HT. Le second montant en retire les remises fournisseur."
+    >
       <ng-container ngProjectAs="[kpiSub]">
         {{ achatRecord()?.achatCount | number }} cdes · HT {{ achatRecord()?.netAmount | number }}
       </ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'success'" icon="pi pi-box" iconClass="text-success"
-                  label="Stock valorisé" [value]="stockValuationSummary()?.totalPurchaseValue | number" valueClass="text-success"
-                  info="Stock disponible des produits actifs, gratuités incluses, au prix d'achat du fournisseur principal. La marge potentielle est la moyenne des taux par référence : chaque produit compte pour un, sans pondération par la valeur en stock.">
-      <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">au {{ aujourdhui | date:'dd/MM' }}</em></ng-container>
+    <app-kpi-item
+      [accent]="'success'"
+      icon="pi pi-box"
+      iconClass="text-success"
+      label="Stock valorisé"
+      [value]="stockValuationSummary()?.totalPurchaseValue | number"
+      valueClass="text-success"
+      info="Stock disponible des produits actifs, gratuités incluses, au prix d'achat du fournisseur principal. La marge potentielle est la moyenne des taux par référence : chaque produit compte pour un, sans pondération par la valeur en stock."
+    >
+      <ng-container ngProjectAs="[kpiLabel]"
+        ><em class="kpi-strip-scope">au {{ aujourdhui | date: 'dd/MM' }}</em></ng-container
+      >
       <ng-container ngProjectAs="[kpiSub]">
-        {{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }} %
+        {{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot.
+        {{ stockValuationSummary()?.averageMarginPercentage | number: '1.1-1' }} %
       </ng-container>
     </app-kpi-item>
 
-    <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning"
-                  label="Différés clients" [value]="differeSummary()?.rest | number" valueClass="text-warning"
-                  info="Reste dû sur les ventes à crédit encore impayées, tous clients et toutes périodes. « Accordé » est le montant initial de ces ventes, « remb. » ce qui a déjà été réglé.">
+    <app-kpi-item
+      [accent]="'warning'"
+      icon="pi pi-users"
+      iconClass="text-warning"
+      label="Différés clients"
+      [value]="differeSummary()?.rest | number"
+      valueClass="text-warning"
+      info="Reste dû sur les ventes à crédit encore impayées, tous clients et toutes périodes. « Accordé » est le montant initial de ces ventes, « remb. » ce qui a déjà été réglé."
+    >
       <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
       <ng-container ngProjectAs="[kpiSub]">
         accordé {{ differeSummary()?.saleAmount | number }} · remb. {{ differeSummary()?.paidAmount | number }}
@@ -208,8 +250,7 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="modePaimentChartData()" [options]="modePaimentChartOptions()"
-                         height="300" type="pie"></app-chart>
+              <app-chart [data]="modePaimentChartData()" [options]="modePaimentChartOptions()" height="300" type="pie"></app-chart>
             </div>
           }
         </div>
@@ -224,9 +265,13 @@
             <i aria-hidden="true" class="pi pi-chart-pie text-success"></i>
             Ventes par tiers payant
           </h5>
-          <app-select (ngModelChange)="TOP_MAX_TP.set($any($event))"
-                      (selectionChange)="onTopTiersPayantChange($any($event))" [items]="tops"
-                      [ngModel]="TOP_MAX_TP()" bindLabel="label"></app-select>
+          <app-select
+            (ngModelChange)="TOP_MAX_TP.set($any($event))"
+            (selectionChange)="onTopTiersPayantChange($any($event))"
+            [items]="tops"
+            [ngModel]="TOP_MAX_TP()"
+            bindLabel="label"
+          ></app-select>
         </div>
         <div class="card-body py-2">
           @if (!showGraphs()) {
@@ -259,15 +304,13 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="tiersPayantChartData()" [options]="tiersPayantChartOptions()"
-                         height="300" type="doughnut"></app-chart>
+              <app-chart [data]="tiersPayantChartData()" [options]="tiersPayantChartOptions()" height="300" type="doughnut"></app-chart>
             </div>
           }
         </div>
       </div>
     </div>
   </div>
-
 
   <div class="row">
     <!-- Achats par fournisseur -->
@@ -278,10 +321,13 @@
             <i aria-hidden="true" class="pi pi-truck text-warning"></i>
             Achats par fournisseur
           </h5>
-          <app-select (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
-                      (selectionChange)="onTopFournisseurChange($any($event))"
-                      [items]="tops"
-                      [ngModel]="TOP_MAX_FOURNISSEUR()" bindLabel="label"></app-select>
+          <app-select
+            (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
+            (selectionChange)="onTopFournisseurChange($any($event))"
+            [items]="tops"
+            [ngModel]="TOP_MAX_FOURNISSEUR()"
+            bindLabel="label"
+          ></app-select>
         </div>
         <div class="card-body py-2">
           @if (!showGraphs()) {
@@ -302,11 +348,13 @@
                       <div class="fw-semibold">{{ f.fournisseurName }}</div>
                       <small class="text-muted">
                         Score :
-                        <span [class.text-danger]="(f.performanceScore ?? 0) < 50"
-                              [class.text-success]="(f.performanceScore ?? 0) >= 70"
-                              [class.text-warning]="(f.performanceScore ?? 0) >= 50 && (f.performanceScore ?? 0) < 70">
-                        {{ f.performanceScore | number:'1.0-0' }}
-                      </span>
+                        <span
+                          [class.text-danger]="(f.performanceScore ?? 0) < 50"
+                          [class.text-success]="(f.performanceScore ?? 0) >= 70"
+                          [class.text-warning]="(f.performanceScore ?? 0) >= 50 && (f.performanceScore ?? 0) < 70"
+                        >
+                          {{ f.performanceScore | number: '1.0-0' }}
+                        </span>
                         · {{ f.avgDeliveryDays }}j délai
                       </small>
                     </div>
@@ -325,24 +373,22 @@
             </ul>
           } @else {
             <div class="d-flex justify-content-center align-items-center h-100">
-              <app-chart [data]="fournisseurChartData()" [options]="fournisseurChartOptions()"
-                         height="300" type="doughnut"></app-chart>
+              <app-chart [data]="fournisseurChartData()" [options]="fournisseurChartOptions()" height="300" type="doughnut"></app-chart>
             </div>
           }
         </div>
         @if (supplierSummary()) {
           <div class="card-footer d-flex justify-content-between">
-            <span
-              class="footer-label">Qualité sur 12 mois : <strong>{{ supplierSummary().avgConformityRate | number:'1.0-1' }}
-              %</strong></span>
-            <span
-              class="badge bg-info-subtle text-info">{{ supplierSummary().avgDeliveryDays | number:'1.0-1' }}
-              j délai moy. sur 12 mois</span>
+            <span class="footer-label"
+              >Qualité sur 12 mois : <strong>{{ supplierSummary().avgConformityRate | number: '1.0-1' }} %</strong></span
+            >
+            <span class="badge bg-info-subtle text-info"
+              >{{ supplierSummary().avgDeliveryDays | number: '1.0-1' }} j délai moy. sur 12 mois</span
+            >
           </div>
         }
       </div>
     </div>
-
 
     <div class="col-xl-6 col-md-6 mb-2">
       <div class="card h-100 data-card">
@@ -351,15 +397,17 @@
             <i aria-hidden="true" class="pi pi-chart-bar text-warning"></i>
             Meilleures ventes en valeur
           </h5>
-          <app-select (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
-                      (selectionChange)="onTopAmountChange($any($event))"
-                      [items]="tops"
-                      [ngModel]="TOP_MAX_AMOUNT()" bindLabel="label"></app-select>
+          <app-select
+            (ngModelChange)="TOP_MAX_AMOUNT.set($any($event))"
+            (selectionChange)="onTopAmountChange($any($event))"
+            [items]="tops"
+            [ngModel]="TOP_MAX_AMOUNT()"
+            bindLabel="label"
+          ></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs()) {
-            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount()"
-                            scrollHeight="400px">
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowAmount()" scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 40px">#</th>
@@ -398,9 +446,7 @@
                 <tr>
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
-                      <i aria-hidden="true"
-                         class="pi pi-inbox"
-                         style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
+                      <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
                   </td>
@@ -409,15 +455,13 @@
             </app-data-table>
           } @else {
             <div class="p-3">
-              <app-chart [data]="amountChartData()" [options]="amountChartOptions()" height="400px"
-                         type="bar"></app-chart>
+              <app-chart [data]="amountChartData()" [options]="amountChartOptions()" height="400px" type="bar"></app-chart>
             </div>
           }
         </div>
       </div>
     </div>
   </div>
-
 
   <div class="row">
     <!-- Meilleures ventes en quantité — avec rang -->
@@ -428,15 +472,17 @@
             <i aria-hidden="true" class="pi pi-chart-bar text-primary"></i>
             Meilleures ventes en quantité
           </h5>
-          <app-select (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
-                      (selectionChange)="onTopQuantityChange($any($event))"
-                      [items]="tops"
-                      [ngModel]="TOP_MAX_QUANTITY()" bindLabel="label"></app-select>
+          <app-select
+            (ngModelChange)="TOP_MAX_QUANTITY.set($any($event))"
+            (selectionChange)="onTopQuantityChange($any($event))"
+            [items]="tops"
+            [ngModel]="TOP_MAX_QUANTITY()"
+            bindLabel="label"
+          ></app-select>
         </div>
         <div class="card-body p-0">
           @if (!showGraphs()) {
-            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity()"
-                            scrollHeight="400px">
+            <app-data-table [scrollable]="true" [stripedRows]="true" [value]="rowQuantity()" scrollHeight="400px">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 40px">#</th>
@@ -475,9 +521,7 @@
                 <tr>
                   <td class="pharma-empty-message" colspan="4">
                     <div class="pharma-empty-content">
-                      <i aria-hidden="true"
-                         class="pi pi-inbox"
-                         style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
+                      <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
                       <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                     </div>
                   </td>
@@ -486,9 +530,7 @@
             </app-data-table>
           } @else {
             <div class="p-3">
-              <app-chart [data]="quantityChartData()" [options]="quantityChartOptions()"
-                         height="400px"
-                         type="bar"></app-chart>
+              <app-chart [data]="quantityChartData()" [options]="quantityChartOptions()" height="400px" type="bar"></app-chart>
             </div>
           }
         </div>
@@ -506,11 +548,9 @@
           <app-pill-selector [items]="paretoOptions" [(ngModel)]="activePareto" />
         </div>
         <div class="card-body p-0">
-
           @if (activePareto === 'qty') {
             @if (!showGraphs()) {
-              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80()"
-                              scrollHeight="400px">
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80()" scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Libellé</th>
@@ -522,7 +562,9 @@
                 <ng-template #body let-produit>
                   <tr>
                     <td>{{ produit.libelle }}</td>
-                    <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+                    <td>
+                      <span class="pharma-code">{{ produit.codeCip }}</span>
+                    </td>
                     <td class="text-end">{{ produit.total | number }}</td>
                     <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
                   </tr>
@@ -538,11 +580,8 @@
                   <tr>
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
-                        <i aria-hidden="true"
-                           class="pi pi-inbox"
-                           style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
-                        <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
-                          sélectionnée</p>
+                        <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
+                        <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                       </div>
                     </td>
                   </tr>
@@ -550,14 +589,12 @@
               </app-data-table>
             } @else {
               <div class="p-3">
-                <app-chart [data]="twentyEightyChartData()" [options]="twentyEightyChartOptions()"
-                           height="400px" type="bar"></app-chart>
+                <app-chart [data]="twentyEightyChartData()" [options]="twentyEightyChartOptions()" height="400px" type="bar"></app-chart>
               </div>
             }
           } @else {
             @if (!showGraphs()) {
-              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant()"
-                              scrollHeight="400px">
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="row20x80Montant()" scrollHeight="400px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Libellé</th>
@@ -569,7 +606,9 @@
                 <ng-template #body let-produit>
                   <tr>
                     <td>{{ produit.libelle }}</td>
-                    <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+                    <td>
+                      <span class="pharma-code">{{ produit.codeCip }}</span>
+                    </td>
                     <td class="text-end">{{ produit.total | number }}</td>
                     <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
                   </tr>
@@ -585,11 +624,8 @@
                   <tr>
                     <td class="pharma-empty-message" colspan="4">
                       <div class="pharma-empty-content">
-                        <i aria-hidden="true"
-                           class="pi pi-inbox"
-                           style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
-                        <p class="mt-2 text-muted mb-0">Aucune donnée sur la période
-                          sélectionnée</p>
+                        <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem; color: var(--bs-secondary-color)"></i>
+                        <p class="mt-2 text-muted mb-0">Aucune donnée sur la période sélectionnée</p>
                       </div>
                     </td>
                   </tr>
@@ -597,17 +633,17 @@
               </app-data-table>
             } @else {
               <div class="p-3">
-
-                <app-chart [data]="twentyEightyMontantChartData()"
-                           [options]="twentyEightyChartOptions()"
-                           height="400px" type="bar"></app-chart>
+                <app-chart
+                  [data]="twentyEightyMontantChartData()"
+                  [options]="twentyEightyChartOptions()"
+                  height="400px"
+                  type="bar"
+                ></app-chart>
               </div>
             }
           }
-
         </div>
       </div>
     </div>
   </div>
-
 </div>

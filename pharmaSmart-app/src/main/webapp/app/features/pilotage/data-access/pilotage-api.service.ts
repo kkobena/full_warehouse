@@ -40,11 +40,15 @@ export class PilotageApiService {
   private readonly http = inject(HttpClient);
 
   lireSeries(requete: RequetePilotage, indicateurs: readonly string[]): Observable<SeriesPilotage> {
-    return this.http.get<SeriesPilotage>(`${this.resourceUrl}/series`, { params: versParametres(requete).set('indicateurs', indicateurs.join(',')) });
+    return this.http.get<SeriesPilotage>(`${this.resourceUrl}/series`, {
+      params: versParametres(requete).set('indicateurs', indicateurs.join(',')),
+    });
   }
 
   lireEcarts(requete: RequetePilotage, contributions: number): Observable<EcartsPilotage> {
-    return this.http.get<EcartsPilotage>(`${this.resourceUrl}/ecarts`, { params: versParametres(requete).set('contributions', contributions) });
+    return this.http.get<EcartsPilotage>(`${this.resourceUrl}/ecarts`, {
+      params: versParametres(requete).set('contributions', contributions),
+    });
   }
 
   listerIndicateurs(): Observable<Indicateur[]> {
@@ -106,7 +110,11 @@ export class PilotageApiService {
   }
 
   exporterAnalyse(requete: RequetePilotage, reglage: ReglageAnalyse): Observable<HttpResponse<Blob>> {
-    return this.http.get(`${this.resourceUrl}/analyse/export`, { params: versParametresAnalyse(requete, reglage), observe: 'response', responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/analyse/export`, {
+      params: versParametresAnalyse(requete, reglage),
+      observe: 'response',
+      responseType: 'blob',
+    });
   }
 
   exporterAnnees(aDate: boolean, reglage: ReglageAnnees): Observable<HttpResponse<Blob>> {

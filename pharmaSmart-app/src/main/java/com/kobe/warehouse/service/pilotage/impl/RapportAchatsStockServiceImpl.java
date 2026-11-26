@@ -53,17 +53,13 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
     private static final DateTimeFormatter MOIS_COURT = DateTimeFormatter.ofPattern("MMM yyyy", Locale.FRENCH);
     private static final DateTimeFormatter MOIS_LONG = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH);
     private static final List<String> COLONNES_ACHATS_FAMILLE = List.of("Achats TTC", "Part");
-    private static final List<String> COLONNES_ACHATS_FOURNISSEUR = List.of("Achats TTC", "Part", "Bons", "Délai", "Conformité");
-    private static final List<String> COLONNES_ACHATS_VENTES = List.of("Achats HT", "Coût des ventes HT", "Écart", "Ratio");
+    private static final List<String> COLONNES_ACHATS_FOURNISSEUR =
+            List.of("Achats TTC", "Part", "Bons", "Délai", "Conformité");
+    private static final List<String> COLONNES_ACHATS_VENTES =
+            List.of("Achats HT", "Coût des ventes HT", "Écart", "Ratio");
     private static final List<String> COLONNES_DORMANTS = List.of("Quantité", "Valeur", "Dernière vente");
-    private static final List<String> COLONNES_STOCK = List.of(
-        "Valeur",
-        "Part",
-        "Coût des ventes 12 mois",
-        "Rotation",
-        "Couverture (j)",
-        "Dormant"
-    );
+    private static final List<String> COLONNES_STOCK =
+            List.of("Valeur", "Part", "Coût des ventes 12 mois", "Rotation", "Couverture (j)", "Dormant");
     private static final List<String> COLONNES_RUPTURES = List.of("Ruptures", "Quantité");
     private static final List<String> COLONNES_VENTES_MANQUEES = List.of("Avoirs", "Quantité", "Valeur");
     private static final List<String> COLONNES_PEREMPTIONS = List.of("Quantité", "Valeur");
@@ -75,12 +71,11 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
     private final GraphiquePilotageService graphiquePilotageService;
 
     public RapportAchatsStockServiceImpl(
-        AchatsPilotageService achatsPilotageService,
-        StockPilotageService stockPilotageService,
-        SeriesPilotageService seriesPilotageService,
-        RapportCourbesService rapportCourbesService,
-        GraphiquePilotageService graphiquePilotageService
-    ) {
+            AchatsPilotageService achatsPilotageService,
+            StockPilotageService stockPilotageService,
+            SeriesPilotageService seriesPilotageService,
+            RapportCourbesService rapportCourbesService,
+            GraphiquePilotageService graphiquePilotageService) {
         this.achatsPilotageService = achatsPilotageService;
         this.stockPilotageService = stockPilotageService;
         this.seriesPilotageService = seriesPilotageService;
@@ -96,41 +91,45 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
         RupturesPilotageDTO ruptures = stockPilotageService.analyserRuptures(requete);
         String horizon = HorizonCourbe.libellerHorizon(requete.granularite());
         return new AchatsStockRapportDTO(
-            lireTuilesAchats(achats),
-            "Achats TTC — " + horizon,
-            rapportCourbesService.dessinerHistorique(requete, IndicateurPilotage.ACHATS_TTC, false, FormatGraphe.MOITIE),
-            TableauxRapport.limiter(construireAchats("Famille", achats.familles(), false), LIGNES_MAXIMUM),
-            TableauxRapport.limiter(construireAchats("Fournisseur", achats.fournisseurs(), true), LIGNES_MAXIMUM),
-            lireTuilesAchatsVentes(requete),
-            "Achats et coût des ventes — " + horizon,
-            dessinerAchatsVentes(requete),
-            TableauxRapport.limiter(construireAchatsVentes(achatsVentes.familles()), LIGNES_MAXIMUM),
-            lireTuilesStock(stock),
-            "Fin " + stock.mois().format(MOIS_LONG) + " ; valeur au prix d'achat du dernier mouvement, comme la valorisation du stock.",
-            dessinerStock(stock.courbe()),
-            "Produits dormants (sans vente depuis " + stock.seuilDormant() + " jours)",
-            TableauxRapport.limiter(construireDormants(stock.dormants()), LIGNES_MAXIMUM),
-            TableauxRapport.limiter(construireStock(stock.familles()), LIGNES_MAXIMUM),
-            lireTuilesRuptures(ruptures),
-            construireComptages("Fournisseur", ruptures.rupturesParFournisseur(), false),
-            construireComptages("Produit", ruptures.rupturesParProduit(), false),
-            construireComptages("Produit", ruptures.ventesManqueesParProduit(), true),
-            construirePeremptions(ruptures.peremptionsAVenir())
-        );
+                lireTuilesAchats(achats),
+                "Achats TTC — " + horizon,
+                rapportCourbesService.dessinerHistorique(
+                        requete, IndicateurPilotage.ACHATS_TTC, false, FormatGraphe.MOITIE),
+                TableauxRapport.limiter(construireAchats("Famille", achats.familles(), false), LIGNES_MAXIMUM),
+                TableauxRapport.limiter(construireAchats("Fournisseur", achats.fournisseurs(), true), LIGNES_MAXIMUM),
+                lireTuilesAchatsVentes(requete),
+                "Achats et coût des ventes — " + horizon,
+                dessinerAchatsVentes(requete),
+                TableauxRapport.limiter(construireAchatsVentes(achatsVentes.familles()), LIGNES_MAXIMUM),
+                lireTuilesStock(stock),
+                "Fin " + stock.mois().format(MOIS_LONG)
+                        + " ; valeur au prix d'achat du dernier mouvement, comme la valorisation du stock.",
+                dessinerStock(stock.courbe()),
+                "Produits dormants (sans vente depuis " + stock.seuilDormant() + " jours)",
+                TableauxRapport.limiter(construireDormants(stock.dormants()), LIGNES_MAXIMUM),
+                TableauxRapport.limiter(construireStock(stock.familles()), LIGNES_MAXIMUM),
+                lireTuilesRuptures(ruptures),
+                construireComptages("Fournisseur", ruptures.rupturesParFournisseur(), false),
+                construireComptages("Produit", ruptures.rupturesParProduit(), false),
+                construireComptages("Produit", ruptures.ventesManqueesParProduit(), true),
+                construirePeremptions(ruptures.peremptionsAVenir()));
     }
 
     private static List<TuileRapportDTO> lireTuilesAchats(AchatsPilotageDTO achats) {
         return List.of(
-            TuilesRapport.lireTuile("Achats TTC", achats.achatsTtc(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
-            TuilesRapport.lireTuile("Achats HT", achats.achatsHt(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
-            TuilesRapport.lireTuile("Bons reçus", achats.nbBons(), UniteIndicateur.NOMBRE, SensFavorable.NEUTRE),
-            TuilesRapport.lireTuile("Délai de livraison (j)", achats.delaiMoyen(), UniteIndicateur.JOURS, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile("Conformité", achats.conformite(), UniteIndicateur.POURCENTAGE, SensFavorable.HAUSSE)
-        );
+                TuilesRapport.lireTuile(
+                        "Achats TTC", achats.achatsTtc(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
+                TuilesRapport.lireTuile("Achats HT", achats.achatsHt(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
+                TuilesRapport.lireTuile("Bons reçus", achats.nbBons(), UniteIndicateur.NOMBRE, SensFavorable.NEUTRE),
+                TuilesRapport.lireTuile(
+                        "Délai de livraison (j)", achats.delaiMoyen(), UniteIndicateur.JOURS, SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "Conformité", achats.conformite(), UniteIndicateur.POURCENTAGE, SensFavorable.HAUSSE));
     }
 
     /** Délai et conformité ne valent que pour un fournisseur. */
-    private static TableauRapportDTO construireAchats(String entete, List<LigneAchatsDTO> achats, boolean parFournisseur) {
+    private static TableauRapportDTO construireAchats(
+            String entete, List<LigneAchatsDTO> achats, boolean parFournisseur) {
         List<LigneRapportDTO> lignes = new ArrayList<>(achats.size());
         for (LigneAchatsDTO ligne : achats) {
             List<CelluleRapportDTO> cellules = new ArrayList<>(5);
@@ -143,34 +142,41 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
             }
             lignes.add(new LigneRapportDTO(ligne.libelle(), cellules));
         }
-        return new TableauRapportDTO(entete, parFournisseur ? COLONNES_ACHATS_FOURNISSEUR : COLONNES_ACHATS_FAMILLE, lignes);
+        return new TableauRapportDTO(
+                entete, parFournisseur ? COLONNES_ACHATS_FOURNISSEUR : COLONNES_ACHATS_FAMILLE, lignes);
     }
 
     /** Le ratio de la période face à sa référence, puis sur les 12 mois qui se terminent à la fin de la période, sans comparaison. */
     private List<TuileRapportDTO> lireTuilesAchatsVentes(RequetePilotageDTO requete) {
         List<IndicateurPilotage> ratio = List.of(IndicateurPilotage.RATIO_VENTES_ACHATS);
         List<TuileRapportDTO> tuiles = new ArrayList<>(2);
-        List<SerieIndicateurDTO> periode = seriesPilotageService.calculerSeries(requete.lireAvecIndicateurs(ratio)).series();
+        List<SerieIndicateurDTO> periode = seriesPilotageService
+                .calculerSeries(requete.lireAvecIndicateurs(ratio))
+                .series();
         if (!periode.isEmpty()) {
             SerieIndicateurDTO serie = periode.getFirst();
-            CelluleAnalyseDTO cellule = new CelluleAnalyseDTO(serie.valeur(), serie.valeurReference(), serie.ecart(), serie.ecartPct());
-            tuiles.add(TuilesRapport.lireTuile("Ventes / achats", cellule, UniteIndicateur.RATIO, SensFavorable.NEUTRE));
+            CelluleAnalyseDTO cellule =
+                    new CelluleAnalyseDTO(serie.valeur(), serie.valeurReference(), serie.ecart(), serie.ecartPct());
+            tuiles.add(
+                    TuilesRapport.lireTuile("Ventes / achats", cellule, UniteIndicateur.RATIO, SensFavorable.NEUTRE));
         }
         RequetePilotageDTO douzeMois = new RequetePilotageDTO(
-            requete.au().minusYears(1).plusDays(1),
-            requete.au(),
-            TypeComparaison.AUCUNE,
-            null,
-            null,
-            null,
-            false,
-            requete.granularite(),
-            ratio
-        );
-        List<SerieIndicateurDTO> glissant = seriesPilotageService.calculerSeries(douzeMois).series();
+                requete.au().minusYears(1).plusDays(1),
+                requete.au(),
+                TypeComparaison.AUCUNE,
+                null,
+                null,
+                null,
+                false,
+                requete.granularite(),
+                ratio);
+        List<SerieIndicateurDTO> glissant =
+                seriesPilotageService.calculerSeries(douzeMois).series();
         if (!glissant.isEmpty()) {
-            CelluleAnalyseDTO cellule = new CelluleAnalyseDTO(glissant.getFirst().valeur(), null, null, null);
-            tuiles.add(TuilesRapport.lireTuile("Ventes / achats sur 12 mois", cellule, UniteIndicateur.RATIO, SensFavorable.NEUTRE));
+            CelluleAnalyseDTO cellule =
+                    new CelluleAnalyseDTO(glissant.getFirst().valeur(), null, null, null);
+            tuiles.add(TuilesRapport.lireTuile(
+                    "Ventes / achats sur 12 mois", cellule, UniteIndicateur.RATIO, SensFavorable.NEUTRE));
         }
         return tuiles;
     }
@@ -178,7 +184,8 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
     /** Un écart durable entre les deux courbes, c'est du stock qui gonfle (achats au-dessus) ou qui fond. */
     private String dessinerAchatsVentes(RequetePilotageDTO requete) {
         RequetePilotageDTO historique = HorizonCourbe.elargirAuxTreizeTranches(requete, IndicateurPilotage.ACHATS_TTC);
-        List<PointAchatsVentesDTO> points = achatsPilotageService.analyserAchatsVentes(historique).points();
+        List<PointAchatsVentesDTO> points =
+                achatsPilotageService.analyserAchatsVentes(historique).points();
         if (points.isEmpty()) {
             return null;
         }
@@ -191,9 +198,8 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
             coutVentes.add((double) point.coutVentesHt());
         }
         List<SerieGraphiqueDTO> series = List.of(
-            new SerieGraphiqueDTO("Achats HT", achats, StyleSerie.PALETTE),
-            new SerieGraphiqueDTO("Coût des ventes HT", coutVentes, StyleSerie.PALETTE)
-        );
+                new SerieGraphiqueDTO("Achats HT", achats, StyleSerie.PALETTE),
+                new SerieGraphiqueDTO("Coût des ventes HT", coutVentes, StyleSerie.PALETTE));
         return graphiquePilotageService.dessinerCourbes(libelles, series, UniteIndicateur.MONTANT, FormatGraphe.MOITIE);
     }
 
@@ -201,11 +207,10 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
         List<LigneRapportDTO> lignes = new ArrayList<>(familles.size());
         for (LigneAchatsVentesDTO ligne : familles) {
             List<CelluleRapportDTO> cellules = List.of(
-                TableauxRapport.lireValeur(ligne.achatsHt(), UniteIndicateur.MONTANT),
-                TableauxRapport.lireValeur(ligne.coutVentesHt(), UniteIndicateur.MONTANT),
-                TableauxRapport.lireValeur(ligne.ecart(), UniteIndicateur.MONTANT),
-                TableauxRapport.lireValeur(ligne.ratio(), UniteIndicateur.RATIO)
-            );
+                    TableauxRapport.lireValeur(ligne.achatsHt(), UniteIndicateur.MONTANT),
+                    TableauxRapport.lireValeur(ligne.coutVentesHt(), UniteIndicateur.MONTANT),
+                    TableauxRapport.lireValeur(ligne.ecart(), UniteIndicateur.MONTANT),
+                    TableauxRapport.lireValeur(ligne.ratio(), UniteIndicateur.RATIO));
             lignes.add(new LigneRapportDTO(ligne.libelle(), cellules));
         }
         return new TableauRapportDTO("Famille", COLONNES_ACHATS_VENTES, lignes);
@@ -213,16 +218,20 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
 
     private static List<TuileRapportDTO> lireTuilesStock(StockPilotageDTO stock) {
         return List.of(
-            TuilesRapport.lireTuile("Valeur du stock", stock.valeur(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
-            TuilesRapport.lireTuile("Rotation", lireSeule(stock.rotation()), UniteIndicateur.RATIO, SensFavorable.HAUSSE),
-            TuilesRapport.lireTuile("Couverture (j)", lireSeule(stock.couvertureJours()), UniteIndicateur.JOURS, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile(
-                "Stock dormant (" + stock.nbDormants() + " produits)",
-                lireSeule((double) stock.valeurDormante()),
-                UniteIndicateur.MONTANT,
-                SensFavorable.BAISSE
-            )
-        );
+                TuilesRapport.lireTuile(
+                        "Valeur du stock", stock.valeur(), UniteIndicateur.MONTANT, SensFavorable.NEUTRE),
+                TuilesRapport.lireTuile(
+                        "Rotation", lireSeule(stock.rotation()), UniteIndicateur.RATIO, SensFavorable.HAUSSE),
+                TuilesRapport.lireTuile(
+                        "Couverture (j)",
+                        lireSeule(stock.couvertureJours()),
+                        UniteIndicateur.JOURS,
+                        SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "Stock dormant (" + stock.nbDormants() + " produits)",
+                        lireSeule((double) stock.valeurDormante()),
+                        UniteIndicateur.MONTANT,
+                        SensFavorable.BAISSE));
     }
 
     private String dessinerStock(List<PointStockDTO> courbe) {
@@ -238,9 +247,8 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
             valeursN1.add(point.valeurN1() == null ? null : point.valeurN1().doubleValue());
         }
         List<SerieGraphiqueDTO> series = List.of(
-            new SerieGraphiqueDTO("Stock", valeurs, StyleSerie.REALISE),
-            new SerieGraphiqueDTO("Stock N-1", valeursN1, StyleSerie.REFERENCE)
-        );
+                new SerieGraphiqueDTO("Stock", valeurs, StyleSerie.REALISE),
+                new SerieGraphiqueDTO("Stock N-1", valeursN1, StyleSerie.REFERENCE));
         return graphiquePilotageService.dessinerCourbes(libelles, series, UniteIndicateur.MONTANT, FormatGraphe.MOITIE);
     }
 
@@ -248,10 +256,12 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
         List<LigneRapportDTO> lignes = new ArrayList<>(dormants.size());
         for (ProduitDormantDTO produit : dormants) {
             List<CelluleRapportDTO> cellules = List.of(
-                TableauxRapport.lireValeur(produit.quantite(), UniteIndicateur.NOMBRE),
-                TableauxRapport.lireValeur(produit.valeur(), UniteIndicateur.MONTANT),
-                CelluleRapportDTO.lireTexte(produit.derniereVente() == null ? "Jamais" : FormatRapport.formaterDate(produit.derniereVente()))
-            );
+                    TableauxRapport.lireValeur(produit.quantite(), UniteIndicateur.NOMBRE),
+                    TableauxRapport.lireValeur(produit.valeur(), UniteIndicateur.MONTANT),
+                    CelluleRapportDTO.lireTexte(
+                            produit.derniereVente() == null
+                                    ? "Jamais"
+                                    : FormatRapport.formaterDate(produit.derniereVente())));
             lignes.add(new LigneRapportDTO(produit.libelle(), cellules));
         }
         return new TableauRapportDTO("Produit", COLONNES_DORMANTS, lignes);
@@ -261,13 +271,12 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
         List<LigneRapportDTO> lignes = new ArrayList<>(familles.size());
         for (LigneStockDTO ligne : familles) {
             List<CelluleRapportDTO> cellules = List.of(
-                TableauxRapport.lireValeur(ligne.valeur(), UniteIndicateur.MONTANT),
-                TableauxRapport.lireValeur(ligne.part(), UniteIndicateur.POURCENTAGE),
-                TableauxRapport.lireValeur(ligne.coutVentes12Mois(), UniteIndicateur.MONTANT),
-                TableauxRapport.lireValeur(ligne.rotation(), UniteIndicateur.RATIO),
-                TableauxRapport.lireValeur(ligne.couvertureJours(), UniteIndicateur.JOURS),
-                TableauxRapport.lireValeur(ligne.valeurDormante(), UniteIndicateur.MONTANT)
-            );
+                    TableauxRapport.lireValeur(ligne.valeur(), UniteIndicateur.MONTANT),
+                    TableauxRapport.lireValeur(ligne.part(), UniteIndicateur.POURCENTAGE),
+                    TableauxRapport.lireValeur(ligne.coutVentes12Mois(), UniteIndicateur.MONTANT),
+                    TableauxRapport.lireValeur(ligne.rotation(), UniteIndicateur.RATIO),
+                    TableauxRapport.lireValeur(ligne.couvertureJours(), UniteIndicateur.JOURS),
+                    TableauxRapport.lireValeur(ligne.valeurDormante(), UniteIndicateur.MONTANT));
             lignes.add(new LigneRapportDTO(ligne.libelle(), cellules));
         }
         return new TableauRapportDTO("Famille", COLONNES_STOCK, lignes);
@@ -276,21 +285,33 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
     /** Deux ruptures distinctes, jamais additionnées : chez le fournisseur et au comptoir (ventes manquées). */
     private static List<TuileRapportDTO> lireTuilesRuptures(RupturesPilotageDTO ruptures) {
         return List.of(
-            TuilesRapport.lireTuile("Ruptures fournisseurs", ruptures.tauxRupture(), UniteIndicateur.POURCENTAGE, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile("Ventes manquées", ruptures.ventesManquees(), UniteIndicateur.MONTANT, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile("Taux de ventes manquées", ruptures.tauxVentesManquees(), UniteIndicateur.POURCENTAGE, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile("Périmé sur la période", ruptures.valeurPerimee(), UniteIndicateur.MONTANT, SensFavorable.BAISSE),
-            TuilesRapport.lireTuile(
-                "À périmer sous 3 mois",
-                lireSeule((double) ruptures.valeurAPerimerTroisMois()),
-                UniteIndicateur.MONTANT,
-                SensFavorable.BAISSE
-            )
-        );
+                TuilesRapport.lireTuile(
+                        "Ruptures fournisseurs",
+                        ruptures.tauxRupture(),
+                        UniteIndicateur.POURCENTAGE,
+                        SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "Ventes manquées", ruptures.ventesManquees(), UniteIndicateur.MONTANT, SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "Taux de ventes manquées",
+                        ruptures.tauxVentesManquees(),
+                        UniteIndicateur.POURCENTAGE,
+                        SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "Périmé sur la période",
+                        ruptures.valeurPerimee(),
+                        UniteIndicateur.MONTANT,
+                        SensFavorable.BAISSE),
+                TuilesRapport.lireTuile(
+                        "À périmer sous 3 mois",
+                        lireSeule((double) ruptures.valeurAPerimerTroisMois()),
+                        UniteIndicateur.MONTANT,
+                        SensFavorable.BAISSE));
     }
 
     /** Vide, le tableau n'est pas imprimé, comme l'écran le masque. */
-    private static TableauRapportDTO construireComptages(String entete, List<ComptageDTO> comptages, boolean avecValeur) {
+    private static TableauRapportDTO construireComptages(
+            String entete, List<ComptageDTO> comptages, boolean avecValeur) {
         if (comptages.isEmpty()) {
             return null;
         }
@@ -304,7 +325,8 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
             }
             lignes.add(new LigneRapportDTO(comptage.libelle(), cellules));
         }
-        TableauRapportDTO tableau = new TableauRapportDTO(entete, avecValeur ? COLONNES_VENTES_MANQUEES : COLONNES_RUPTURES, lignes);
+        TableauRapportDTO tableau =
+                new TableauRapportDTO(entete, avecValeur ? COLONNES_VENTES_MANQUEES : COLONNES_RUPTURES, lignes);
         return TableauxRapport.limiter(tableau, LIGNES_MAXIMUM);
     }
 
@@ -316,9 +338,8 @@ public class RapportAchatsStockServiceImpl implements RapportAchatsStockService 
         for (PeremptionMoisDTO peremption : peremptions) {
             String mois = LocalDate.of(peremption.annee(), peremption.mois(), 1).format(MOIS_LONG);
             List<CelluleRapportDTO> cellules = List.of(
-                TableauxRapport.lireValeur(peremption.quantite(), UniteIndicateur.NOMBRE),
-                TableauxRapport.lireValeur(peremption.valeur(), UniteIndicateur.MONTANT)
-            );
+                    TableauxRapport.lireValeur(peremption.quantite(), UniteIndicateur.NOMBRE),
+                    TableauxRapport.lireValeur(peremption.valeur(), UniteIndicateur.MONTANT));
             lignes.add(new LigneRapportDTO(mois, cellules));
         }
         return new TableauRapportDTO("Mois", COLONNES_PEREMPTIONS, lignes);

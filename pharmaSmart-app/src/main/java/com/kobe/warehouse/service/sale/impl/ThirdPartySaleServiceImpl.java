@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.AppUser;
@@ -55,22 +57,17 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,8 +80,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional(noRollbackFor = {PlafondVenteException.class})
@@ -105,32 +104,48 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final SalesManager salesManager;
     private final SalesLineService salesLineService;
 
-
     private final ThirdPartyClientManager thirdPartyClientManager;
     private final ThirdPartyCalculationManager thirdPartyCalculationManager;
     private final AssuredCustomerManager assuredCustomerManager;
     private final DeclarationCaService declarationCaService;
 
-    public ThirdPartySaleServiceImpl(ThirdPartySaleLineService thirdPartySaleLineService,
-                                     ClientTiersPayantRepository clientTiersPayantRepository,
-                                     SaleLineServiceFactory saleLineServiceFactory, SaleAmountCalculator saleAmountCalculator, StorageService storageService,
-                                     ThirdPartySaleRepository thirdPartySaleRepository,
-                                     AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
-                                     PaymentService paymentService, ReferenceService referenceService,
-                                     CashRegisterService cashRegisterService, PosteRepository posteRepository,
-                                     CashSaleRepository cashSaleRepository,
-                                     UtilisationCleSecuriteService utilisationCleSecuriteService,
-                                     RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
-                                     LogsService logService, SaleIdGeneratorService idGeneratorService,
-                                     ObjectMapper objectMapper, SalesManager salesManager,
-                                     ThirdPartyClientManager thirdPartyClientManager,
-                                     ThirdPartyCalculationManager thirdPartyCalculationManager,
-                                     AssuredCustomerManager assuredCustomerManager,
-                                      AppConfigurationService appConfigurationService,
-                                      DeclarationCaService declarationCaService) {
-        super(referenceService, storageService, userRepository, saleAmountCalculator,
-            cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
-            objectMapper, appConfigurationService);
+    public ThirdPartySaleServiceImpl(
+            ThirdPartySaleLineService thirdPartySaleLineService,
+            ClientTiersPayantRepository clientTiersPayantRepository,
+            SaleLineServiceFactory saleLineServiceFactory,
+            SaleAmountCalculator saleAmountCalculator,
+            StorageService storageService,
+            ThirdPartySaleRepository thirdPartySaleRepository,
+            AssuredCustomerRepository assuredCustomerRepository,
+            UserRepository userRepository,
+            PaymentService paymentService,
+            ReferenceService referenceService,
+            CashRegisterService cashRegisterService,
+            PosteRepository posteRepository,
+            CashSaleRepository cashSaleRepository,
+            UtilisationCleSecuriteService utilisationCleSecuriteService,
+            RemiseRepository remiseRepository,
+            CustomerDisplayService afficheurPosService,
+            LogsService logService,
+            SaleIdGeneratorService idGeneratorService,
+            ObjectMapper objectMapper,
+            SalesManager salesManager,
+            ThirdPartyClientManager thirdPartyClientManager,
+            ThirdPartyCalculationManager thirdPartyCalculationManager,
+            AssuredCustomerManager assuredCustomerManager,
+            AppConfigurationService appConfigurationService,
+            DeclarationCaService declarationCaService) {
+        super(
+                referenceService,
+                storageService,
+                userRepository,
+                saleAmountCalculator,
+                cashRegisterService,
+                posteRepository,
+                afficheurPosService,
+                idGeneratorService,
+                objectMapper,
+                appConfigurationService);
         this.thirdPartySaleLineService = thirdPartySaleLineService;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.ThirdPartySales);
@@ -145,7 +160,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.objectMapper = objectMapper;
         this.salesManager = salesManager;
 
-
         this.thirdPartyClientManager = thirdPartyClientManager;
         this.thirdPartyCalculationManager = thirdPartyCalculationManager;
         this.assuredCustomerManager = assuredCustomerManager;
@@ -154,9 +168,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto)
-        throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
-        SalesLine saleLine = salesLineService.createSaleLineFromDTO(dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserMainStorage().getId());
+            throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
+        SalesLine saleLine = salesLineService.createSaleLineFromDTO(
+                dto.getSalesLines().getFirst(),
+                storageService.getDefaultConnectedUserMainStorage().getId());
         ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
         thirdPartySales.getSalesLines().add(saleLine);
         computeSaleEagerAmount(thirdPartySales);
@@ -203,16 +218,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartyClientManager.updateTiersPayantAccount(thirdPartySaleLine);
     }
 
-
     @Override
     public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
         return thirdPartyClientManager.findAllBySaleId(saleId);
     }
 
-    private boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId,
-                                              Long currentSaleId) {
-        return thirdPartyClientManager.checkIfNumBonIsAlReadyUse(numBon, clientTiersPayantId,
-            currentSaleId);
+    private boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId, Long currentSaleId) {
+        return thirdPartyClientManager.checkIfNumBonIsAlReadyUse(numBon, clientTiersPayantId, currentSaleId);
     }
 
     @Override
@@ -221,24 +233,20 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-
     public void deleteSaleLineById(SaleLineId id) {
         salesManager.deleteSaleLineById(salesLineService.getOneById(id));
     }
 
-
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
-        throws StockException, DeconditionnementStockOut, PlafondVenteException {
-        return salesManager.updateItemQuantityRequested(saleLineDTO,
-            findById(saleLineDTO.getSaleCompositeId()), increment);
+            throws StockException, DeconditionnementStockOut, PlafondVenteException {
+        return salesManager.updateItemQuantityRequested(
+                saleLineDTO, findById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
-    public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO)
-        throws PlafondVenteException {
-        return salesManager.updateItemRegularPrice(saleLineDTO,
-            findById(saleLineDTO.getSaleCompositeId()));
+    public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
+        return salesManager.updateItemRegularPrice(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
@@ -249,31 +257,36 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     public void cancelSale(SaleId id, String cancelComment) throws CashRegisterException {
         AppUser user = storageService.getUser();
-        thirdPartySaleRepository.findByIdAndSaleDate(id.getId(), id.getSaleDate())
-            .ifPresent(sales -> {
-                if (sales.isCanceled()) {
-                    throw new GenericError("La vente est déjà annulée");
-                }
-                if (sales.getStatut() != SalesStatut.CLOSED) {
-                    throw new GenericError("La vente doit être clôturée pour être annulée");
-                }
-                boolean alreadyInvoiced = sales.getThirdPartySaleLines().stream()
-                    .anyMatch(l -> l.getFactureTiersPayant() != null);
-                if (alreadyInvoiced) {
-                    throw new GenericError(
-                        "La vente est déjà facturée au tiers payant et ne peut pas être annulée directement");
-                }
-                cancelSale(new ArrayList<>(new LinkedHashSet<>(sales.getThirdPartySaleLines())),
-                    new HashSet<>(sales.getSalesLines()), new HashSet<>(sales.getPayments()), sales,
-                    user, cancelComment);
-            });
+        thirdPartySaleRepository
+                .findByIdAndSaleDate(id.getId(), id.getSaleDate())
+                .ifPresent(sales -> {
+                    if (sales.isCanceled()) {
+                        throw new GenericError("La vente est déjà annulée");
+                    }
+                    if (sales.getStatut() != SalesStatut.CLOSED) {
+                        throw new GenericError("La vente doit être clôturée pour être annulée");
+                    }
+                    boolean alreadyInvoiced =
+                            sales.getThirdPartySaleLines().stream().anyMatch(l -> l.getFactureTiersPayant() != null);
+                    if (alreadyInvoiced) {
+                        throw new GenericError(
+                                "La vente est déjà facturée au tiers payant et ne peut pas être annulée directement");
+                    }
+                    cancelSale(
+                            new ArrayList<>(new LinkedHashSet<>(sales.getThirdPartySaleLines())),
+                            new HashSet<>(sales.getSalesLines()),
+                            new HashSet<>(sales.getPayments()),
+                            sales,
+                            user,
+                            cancelComment);
+                });
     }
 
-
-    private SaleId cloneSale(ThirdPartySales sales, boolean canceledOriginal,
-                             SalesStatut salesStatut) throws CashRegisterException {
+    private SaleId cloneSale(ThirdPartySales sales, boolean canceledOriginal, SalesStatut salesStatut)
+            throws CashRegisterException {
         List<ThirdPartySaleLine> originalThirdPartySaleLines = new ArrayList<>(new LinkedHashSet<>(
-            sales.getThirdPartySaleLines()));// Utiliser LinkedHashSet pour préserver l'ordre des lignes et éviter les doublons
+                sales.getThirdPartySaleLines())); // Utiliser LinkedHashSet pour préserver l'ordre des lignes
+        // et éviter les doublons
         Set<SalesLine> originalSalesLines = new HashSet<>(sales.getSalesLines());
         Set<SalePayment> originalPayments = new HashSet<>(sales.getPayments());
 
@@ -297,21 +310,24 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
         salesLineService.saveAll(salesLineService.cloneSalesLine(originalSalesLines, copy));
 
-        thirdPartyClientManager.saveAll(
-            thirdPartyClientManager.clone(originalThirdPartySaleLines, copy));
+        thirdPartyClientManager.saveAll(thirdPartyClientManager.clone(originalThirdPartySaleLines, copy));
 
         thirdPartySaleRepository.flush();
         if (canceledOriginal) {
-            cancelSale(originalThirdPartySaleLines, originalSalesLines, originalPayments, sales,
-                copy.getUser(), null);
+            cancelSale(originalThirdPartySaleLines, originalSalesLines, originalPayments, sales, copy.getUser(), null);
         }
 
         return copy.getId();
     }
 
-    private void cancelSale(List<ThirdPartySaleLine> originalThirdPartySaleLines,
-                            Set<SalesLine> originalSalesLines, Set<SalePayment> originalPayments, ThirdPartySales sales,
-                            AppUser user, String cancelComment) throws CashRegisterException {
+    private void cancelSale(
+            List<ThirdPartySaleLine> originalThirdPartySaleLines,
+            Set<SalesLine> originalSalesLines,
+            Set<SalePayment> originalPayments,
+            ThirdPartySales sales,
+            AppUser user,
+            String cancelComment)
+            throws CashRegisterException {
         checkOpenningCaisse();
         checkCancellationDelay(sales.getSaleDate());
         ThirdPartySales copy = (ThirdPartySales) sales.clone();
@@ -330,8 +346,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository.save(sales);
         thirdPartySaleRepository.save(copy);
         originalPayments.forEach(payment -> paymentService.clonePayment(payment, copy));
-        salesLineService.cloneSalesLine(originalSalesLines, copy, user,
-            storageService.getDefaultConnectedUserMainStorage().getId());
+        salesLineService.cloneSalesLine(
+                originalSalesLines,
+                copy,
+                user,
+                storageService.getDefaultConnectedUserMainStorage().getId());
         originalThirdPartySaleLines.forEach(thirdPartySaleLine -> {
             ThirdPartySaleLine thirdPartySaleLineClone = clone(thirdPartySaleLine, copy);
             updateClientTiersPayantAccount(thirdPartySaleLineClone);
@@ -341,9 +360,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
-        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
-        ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(
-            dto.getSaleId().getId(), dto.getSaleId().getSaleDate()).orElseThrow();
+            throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
+        ThirdPartySales p = thirdPartySaleRepository
+                .findOneWithEagerSalesLines(
+                        dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
+                .orElseThrow();
         verifierVersion(p, dto.getVersion());
         this.save(p, dto);
         FinalyseSaleDTO response = finalizeSaleProcess(p, dto);
@@ -352,25 +373,25 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private FinalyseSaleDTO finalizeSaleProcess(ThirdPartySales p, ThirdPartySaleDTO dto)
-        throws NumBonAlreadyUseException {
+            throws NumBonAlreadyUseException {
         p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
         paymentService.buildPaymentFromFromPaymentDTO(p, dto);
         List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
-        if (CollectionUtils.isEmpty(thirdPartySaleLines) || CollectionUtils.isEmpty(
-            dto.getTiersPayants())) {
+        if (CollectionUtils.isEmpty(thirdPartySaleLines) || CollectionUtils.isEmpty(dto.getTiersPayants())) {
             throw new ThirdPartySalesTiersPayantException();
         }
 
-        Map<Integer, List<String>> numBonMap = dto.getTiersPayants().stream().collect(
-            Collectors.groupingBy(ClientTiersPayantDTO::getId,
-                Collectors.mapping(ClientTiersPayantDTO::getNumBon, Collectors.toList())));
+        Map<Integer, List<String>> numBonMap = dto.getTiersPayants().stream()
+                .collect(Collectors.groupingBy(
+                        ClientTiersPayantDTO::getId,
+                        Collectors.mapping(ClientTiersPayantDTO::getNumBon, Collectors.toList())));
 
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
             ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
             String numBon = numBonMap.get(clientTiersPayant.getId()).getFirst();
             if (numBon != null) {
-                if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayant.getId(),
-                    p.getId().getId())) {
+                if (checkIfNumBonIsAlReadyUse(
+                        numBon, clientTiersPayant.getId(), p.getId().getId())) {
                     throw new NumBonAlreadyUseException(numBon);
                 }
                 thirdPartySaleLine.setNumBon(numBon);
@@ -378,9 +399,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             updateClientTiersPayantAccount(thirdPartySaleLine);
             updateTiersPayantAccount(thirdPartySaleLine);
         });
-        new ArrayList<>(p.getThirdPartySaleLines()).stream()
-            .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
-            .ifPresent(o -> p.setNumBon(o.getNumBon()));
+        new ArrayList<>(p.getThirdPartySaleLines())
+                .stream()
+                        .min(Comparator.comparing(
+                                e -> e.getClientTiersPayant().getPriorite().getValue()))
+                        .ifPresent(o -> p.setNumBon(o.getNumBon()));
         declarationCaService.appliquerExclusions(p);
         thirdPartySaleRepository.save(p);
         return new FinalyseSaleDTO(p.getId(), true);
@@ -405,9 +428,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     public void updateDate(ThirdPartySaleDTO dto) {
         ThirdPartySales sales = this.thirdPartySaleRepository.getReferenceById(dto.getSaleId());
-        this.logService.create(TransactionType.MODIFICATION_DATE_DE_VENTE,
-            TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(), sales.getId().getId().toString(),
-            sales.getUpdatedAt().toString(), dto.getUpdatedAt().toString());
+        this.logService.create(
+                TransactionType.MODIFICATION_DATE_DE_VENTE,
+                TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(),
+                sales.getId().getId().toString(),
+                sales.getUpdatedAt().toString(),
+                dto.getUpdatedAt().toString());
         sales.setCreatedAt(dto.getUpdatedAt());
         sales.setUpdatedAt(sales.getCreatedAt());
         sales.getThirdPartySaleLines().forEach(thirdPartySaleLine -> {
@@ -420,23 +446,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemQuantitySold(saleLineDTO,
-            findById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantitySold(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public void deleteSalePrevente(SaleId id) {
-        thirdPartySaleRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
-            .ifPresent(sales -> {
-                paymentService.findAllBySales(sales.getId()).forEach(paymentService::delete);
-                sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
-                thirdPartySaleRepository.delete(sales);
-            });
+        thirdPartySaleRepository
+                .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
+                .ifPresent(sales -> {
+                    paymentService.findAllBySales(sales.getId()).forEach(paymentService::delete);
+                    sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
+                    thirdPartySaleRepository.delete(sales);
+                });
     }
 
     @Override
     public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
-        throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
+            throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(saleId);
         applRemiseToSale(thirdPartySales);
 
@@ -451,15 +477,14 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId)
-        throws PlafondVenteException {
+            throws PlafondVenteException {
         thirdPartyClientManager.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(saleId);
         this.displayNet(thirdPartySales.getPartAssure());
     }
 
     @Override
-    public SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente)
-        throws PlafondVenteException {
+    public SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente) throws PlafondVenteException {
         CashSale cashSale = this.cashSaleRepository.getReferenceById(saleId);
         ThirdPartySales c = copyFromCashSale(cashSale);
         c.setNatureVente(natureVente);
@@ -480,15 +505,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     public void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(dto.getSaleId());
-        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(
-            dto.getCustomerId());
+        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
         thirdPartySales.setCustomer(assuredCustomer);
         thirdPartySales.setAyantDroit(assuredCustomer);
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
         getAyantDroitFromId(dto.getAyantDroitId()).ifPresent(thirdPartySales::setAyantDroit);
-        String message = thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales,
-            null, true);
+        String message = thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
         if (StringUtils.hasLength(message)) {
             ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
             throw new PlafondVenteException(thirdPartySaleDTO, message);
@@ -524,10 +547,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return c;
     }
 
-
     @Override
-    public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales)
-        throws PlafondVenteException {
+    public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) throws PlafondVenteException {
         applRemiseToSale(thirdPartySales);
         return thirdPartyCalculationManager.computeThirdPartySaleAmounts(thirdPartySales);
     }
@@ -540,45 +561,49 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public void savePrevente(ThirdPartySaleDTO dto, boolean transform)
-        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException {
-        thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),
-            dto.getSaleId().getSaleDate()).ifPresent(p -> {
-            verifierVersion(p, dto.getVersion());
-            preValidatePrevente(p, transform ? SalesStatut.ACTIVE : SalesStatut.PROCESSING);
-            List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
-            if (!CollectionUtils.isEmpty(thirdPartySaleLines)) {
-                thirdPartySaleLines.forEach(thirdPartySaleLine -> {
-                    for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
-                        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
-                        if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId())
-                            == 0) {
-                            if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(),
-                                clientTiersPayantDTO.getId(), p.getId().getId())) {
-                                throw new NumBonAlreadyUseException(
-                                    clientTiersPayantDTO.getNumBon());
+            throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException {
+        thirdPartySaleRepository
+                .findOneWithEagerSalesLines(
+                        dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
+                .ifPresent(p -> {
+                    verifierVersion(p, dto.getVersion());
+                    preValidatePrevente(p, transform ? SalesStatut.ACTIVE : SalesStatut.PROCESSING);
+                    List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
+                    if (!CollectionUtils.isEmpty(thirdPartySaleLines)) {
+                        thirdPartySaleLines.forEach(thirdPartySaleLine -> {
+                            for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
+                                ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+                                if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
+                                    if (checkIfNumBonIsAlReadyUse(
+                                            clientTiersPayantDTO.getNumBon(),
+                                            clientTiersPayantDTO.getId(),
+                                            p.getId().getId())) {
+                                        throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
+                                    }
+                                    thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
+                                    thirdPartySaleLineService.save(thirdPartySaleLine);
+                                }
                             }
-                            thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
-                            thirdPartySaleLineService.save(thirdPartySaleLine);
-                        }
+                            updateClientTiersPayantAccount(thirdPartySaleLine);
+                            updateTiersPayantAccount(thirdPartySaleLine);
+                        });
+                        new ArrayList<>(p.getThirdPartySaleLines())
+                                .stream()
+                                        .min(Comparator.comparing(e -> e.getClientTiersPayant()
+                                                .getPriorite()
+                                                .getValue()))
+                                        .ifPresent(o -> p.setNumBon(o.getNumBon()));
                     }
-                    updateClientTiersPayantAccount(thirdPartySaleLine);
-                    updateTiersPayantAccount(thirdPartySaleLine);
-                });
-                new ArrayList<>(p.getThirdPartySaleLines()).stream().min(
-                        Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
-                    .ifPresent(o -> p.setNumBon(o.getNumBon()));
-            }
 
-            thirdPartySaleRepository.save(p);
-        });
+                    thirdPartySaleRepository.save(p);
+                });
     }
 
     private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {
         if (dto.getCustomerId() == null) {
             throw new GenericError("Veuillez saisir le client", "customerNotFound");
         }
-        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(
-            dto.getCustomerId());
+        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
         ThirdPartySales c = new ThirdPartySales();
         this.intSale(dto, c);
         c.setCustomer(assuredCustomer);
@@ -592,11 +617,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public void changeCustomer(UpdateSaleInfo updateSaleInfo)
-        throws GenericError, PlafondVenteException {
+    public void changeCustomer(UpdateSaleInfo updateSaleInfo) throws GenericError, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
-        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(
-            updateSaleInfo.value());
+        AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
         thirdPartySales.setCustomer(assuredCustomer);
         List<ThirdPartySaleLine> thirdPartySaleLines = thirdPartySales.getThirdPartySaleLines();
         thirdPartySaleLineService.deleteAll(thirdPartySaleLines);
@@ -616,13 +639,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-
     public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
+            throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         SaleId saleId = dto.getSaleId();
 
-        ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(saleId.getId(),
-            saleId.getSaleDate()).orElseThrow();
+        ThirdPartySales p = thirdPartySaleRepository
+                .findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate())
+                .orElseThrow();
         this.editSale(p, dto);
         paymentService.buildPaymentFromFromPaymentDTO(p, dto);
         p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
@@ -634,8 +657,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
                 ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
                 if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
-                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(),
-                        clientTiersPayantDTO.getId(), p.getId().getId())) {
+                    if (checkIfNumBonIsAlReadyUse(
+                            clientTiersPayantDTO.getNumBon(),
+                            clientTiersPayantDTO.getId(),
+                            p.getId().getId())) {
                         throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
                     }
                     thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
@@ -645,22 +670,24 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             updateClientTiersPayantAccount(thirdPartySaleLine);
             updateTiersPayantAccount(thirdPartySaleLine);
         });
-        new ArrayList<>(p.getThirdPartySaleLines()).stream()
-            .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
-            .ifPresent(o -> p.setNumBon(o.getNumBon()));
+        new ArrayList<>(p.getThirdPartySaleLines())
+                .stream()
+                        .min(Comparator.comparing(
+                                e -> e.getClientTiersPayant().getPriorite().getValue()))
+                        .ifPresent(o -> p.setNumBon(o.getNumBon()));
         declarationCaService.appliquerExclusions(p);
         thirdPartySaleRepository.save(p);
         return new FinalyseSaleDTO(p.getId(), true);
     }
 
-
     @Override
     public SaleId copiePourEdition(SaleId saleId)
-        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, CashRegisterException {
+            throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException,
+                    CashRegisterException {
 
-        ThirdPartySales p = thirdPartySaleRepository.findByIdAndSaleDate(saleId.getId(),
-            saleId.getSaleDate()).orElseThrow(
-            () -> new GenericError("Une erreur est survenue lors de la récupération de la vente"));
+        ThirdPartySales p = thirdPartySaleRepository
+                .findByIdAndSaleDate(saleId.getId(), saleId.getSaleDate())
+                .orElseThrow(() -> new GenericError("Une erreur est survenue lors de la récupération de la vente"));
         if (p.getStatut() != SalesStatut.CLOSED) {
             throw new GenericError("La vente doit être clôturée pour être modifiée");
         }
@@ -671,17 +698,14 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
-        throws PrivilegeException {
-        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO,
-            ThirdPartySaleService.class);
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
+        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
     }
 
     @Override
     public void processDiscount(UpdateSaleInfo updateSaleInfo) {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
-        remiseRepository.findById(updateSaleInfo.value())
-            .ifPresent(remise -> processDiscount(thirdPartySales, remise));
+        remiseRepository.findById(updateSaleInfo.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
         this.displayNet(thirdPartySales.getPartAssure());
     }
 
@@ -695,7 +719,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public void updateCustomerInformation(UpdateSale updateSale)
-        throws InvalidPhoneNumberException, GenericError, JsonProcessingException {
+            throws InvalidPhoneNumberException, GenericError, JsonProcessingException {
         ThirdPartySales thirdPartySales = findById(updateSale.id());
         AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
 
@@ -705,59 +729,61 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (thirdPartySaleLines.stream().anyMatch(e -> nonNull(e.getFactureTiersPayant()))) {
             throw new GenericError("La vente est déjà facturée");
         }
-        int oldTaux = thirdPartySaleLines.stream().mapToInt(ThirdPartySaleLine::getTaux).sum();
-        int newTaux = thirdPartySaleLineNews.stream().mapToInt(ThirdPartySaleLineDTO::getTaux)
-            .sum();
+        int oldTaux = thirdPartySaleLines.stream()
+                .mapToInt(ThirdPartySaleLine::getTaux)
+                .sum();
+        int newTaux = thirdPartySaleLineNews.stream()
+                .mapToInt(ThirdPartySaleLineDTO::getTaux)
+                .sum();
         if (oldTaux != newTaux) {
             throw new GenericError(
-                String.format("Les taux sont différents:  Ancien taux : %d ,  Nouveau taux:%d",
-                    oldTaux, newTaux));
+                    String.format("Les taux sont différents:  Ancien taux : %d ,  Nouveau taux:%d", oldTaux, newTaux));
         }
 
         if (!isSameCustomer(assuredCustomer, updateSale.customer())) {
             assuredCustomer = this.assuredCustomerRepository.getReferenceById(
-                updateSale.customer().getId());
+                    updateSale.customer().getId());
             thirdPartySales.setCustomer(assuredCustomer);
         }
         updateAssuredCustomer(assuredCustomer, updateSale.customer());
         if (nonNull(ayantDroit) && nonNull(updateSale.ayantDroit())) {
             if (!isSameCustomer(ayantDroit, updateSale.ayantDroit())) {
                 ayantDroit = this.assuredCustomerRepository.getReferenceById(
-                    updateSale.ayantDroit().getId());
+                        updateSale.ayantDroit().getId());
                 thirdPartySales.setAyantDroit(ayantDroit);
             }
             updateAssuredCustomer(ayantDroit, updateSale.ayantDroit());
         }
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
             ThirdPartySaleLineDTO thirdPartySaleLineDTO = thirdPartySaleLineNews.stream()
-                .filter(e -> e.getAssuranceSaleId().equals(thirdPartySaleLine.getId())).findFirst()
-                .orElseThrow(() -> new GenericError("La ligne n'existe pas"));
-            updateThirdPartySaleLine(thirdPartySaleLine, updateSale.customer(),
-                thirdPartySaleLineDTO);
+                    .filter(e -> e.getAssuranceSaleId().equals(thirdPartySaleLine.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new GenericError("La ligne n'existe pas"));
+            updateThirdPartySaleLine(thirdPartySaleLine, updateSale.customer(), thirdPartySaleLineDTO);
         });
 
         thirdPartySaleRepository.save(thirdPartySales);
 
-        this.logService.create(TransactionType.MODIFICATION_INFO_CLIENT,
-            TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
-            thirdPartySales.getId().getId().toString(),
-            objectMapper.writeValueAsString(updateSale.initialValue()),
-            objectMapper.writeValueAsString(updateSale.finalValue()));
+        this.logService.create(
+                TransactionType.MODIFICATION_INFO_CLIENT,
+                TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
+                thirdPartySales.getId().getId().toString(),
+                objectMapper.writeValueAsString(updateSale.initialValue()),
+                objectMapper.writeValueAsString(updateSale.finalValue()));
     }
 
     @Override
     public SaleId transformToVenteEncour(SaleId saleId, Long version) {
 
-        ThirdPartySales thirdPartySales = thirdPartySaleRepository.findByIdAndSaleDate(
-                saleId.getId(), saleId.getSaleDate())
-            .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        ThirdPartySales thirdPartySales = thirdPartySaleRepository
+                .findByIdAndSaleDate(saleId.getId(), saleId.getSaleDate())
+                .orElseThrow(() -> new GenericError("Une erreur est survenue"));
         verifierVersion(thirdPartySales, version);
         preValidateTrasnform(thirdPartySales.getStatut(), thirdPartySales.getNatureVente());
         if (thirdPartySales.getStatut() == SalesStatut.DEVIS) {
             // Matérialiser les collections AVANT toute suppression (thirdPartySaleLines est désormais lazy)
             List<SalesLine> salesLinesToDelete = new ArrayList<>(thirdPartySales.getSalesLines());
-            List<ThirdPartySaleLine> tpsLinesToDelete = new ArrayList<>(
-                thirdPartySales.getThirdPartySaleLines());
+            List<ThirdPartySaleLine> tpsLinesToDelete = new ArrayList<>(thirdPartySales.getThirdPartySaleLines());
 
             SaleId cloneId = cloneSale(thirdPartySales, false, SalesStatut.ACTIVE);
             salesLinesToDelete.forEach(salesLineService::deleteSaleLine);
@@ -773,9 +799,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public void cloneDevis(SaleId saleId) {
-        ThirdPartySales p = thirdPartySaleRepository.findByIdAndSaleDate(saleId.getId(),
-            saleId.getSaleDate()).orElseThrow(
-            () -> new GenericError("Une erreur est survenue lors de la récupération de la vente"));
+        ThirdPartySales p = thirdPartySaleRepository
+                .findByIdAndSaleDate(saleId.getId(), saleId.getSaleDate())
+                .orElseThrow(() -> new GenericError("Une erreur est survenue lors de la récupération de la vente"));
         if (p.getStatut() != SalesStatut.DEVIS) {
             throw new GenericError("Une erreur est survenue ");
         }
@@ -789,46 +815,44 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             return;
         }
         ThirdPartySales p = thirdPartySaleRepository.getReferenceById(updateSaleInfo.id());
-        AssuredCustomer ayantDroit = assuredCustomerRepository.getReferenceById(
-            updateSaleInfo.value());
+        AssuredCustomer ayantDroit = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
         p.setAyantDroit(ayantDroit);
         thirdPartySaleRepository.save(p);
     }
 
     @Override
     public void updateTiersPayantTaux(Integer clientTiersPayantId, SaleId saleId, int newTaux)
-        throws PlafondVenteException {
-        var result = thirdPartyClientManager.updateTiersPayantTaux(clientTiersPayantId, saleId,
-            newTaux);
+            throws PlafondVenteException {
+        var result = thirdPartyClientManager.updateTiersPayantTaux(clientTiersPayantId, saleId, newTaux);
         if (result.sale() != null) {
             this.displayNet(result.sale().getPartAssure());
             if (StringUtils.hasLength(result.message())) {
-                throw new PlafondVenteException(new ThirdPartySaleDTO(result.sale()),
-                    result.message());
+                throw new PlafondVenteException(new ThirdPartySaleDTO(result.sale()), result.message());
             }
         }
     }
 
-    private void updateThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
-                                          AssuredCustomerDTO assuredCustomerDTO, ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
+    private void updateThirdPartySaleLine(
+            ThirdPartySaleLine thirdPartySaleLine,
+            AssuredCustomerDTO assuredCustomerDTO,
+            ThirdPartySaleLineDTO thirdPartySaleLineDTO) {
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
 
-        if (clientTiersPayant.getId().compareTo(thirdPartySaleLineDTO.getClientTiersPayantId())
-            != 0) {
-            clientTiersPayant = clientTiersPayantRepository.getReferenceById(
-                thirdPartySaleLineDTO.getClientTiersPayantId());
+        if (clientTiersPayant.getId().compareTo(thirdPartySaleLineDTO.getClientTiersPayantId()) != 0) {
+            clientTiersPayant =
+                    clientTiersPayantRepository.getReferenceById(thirdPartySaleLineDTO.getClientTiersPayantId());
             thirdPartySaleLine.setClientTiersPayant(clientTiersPayant);
         }
         thirdPartySaleLine.setNumBon(thirdPartySaleLineDTO.getNumBon());
-        if (clientTiersPayant.getPriorite() == PrioriteTiersPayant.R0 && !clientTiersPayant.getNum()
-            .equals(assuredCustomerDTO.getNum())) {
+        if (clientTiersPayant.getPriorite() == PrioriteTiersPayant.R0
+                && !clientTiersPayant.getNum().equals(assuredCustomerDTO.getNum())) {
             clientTiersPayant.setNum(assuredCustomerDTO.getNum());
             clientTiersPayantRepository.save(clientTiersPayant);
         }
     }
 
     private void updateAssuredCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer)
-        throws InvalidPhoneNumberException {
+            throws InvalidPhoneNumberException {
         assuredCustomerManager.updateAssuredCustomer(assuredCustomer, customer);
     }
 
@@ -845,8 +869,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         } else {
             // if (thirdPartySales.getNatureVente() == NatureVente.CARNET) {
             this.applyRemiseProduit(thirdPartySales, (RemiseProduit) remise);
-            thirdPartySales.setNetAmount(
-                thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
+            thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
             /*}
             else {
                 throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
@@ -860,13 +883,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (remise == null) {
             return;
         }
-        if (remise instanceof RemiseProduit
-            && thirdPartySales.getNatureVente() == NatureVente.ASSURANCE) {
-            throw new GenericError("La remise produit n'est pas applicable sur une vente assurance",
-                "notYetImplemented");
+        if (remise instanceof RemiseProduit && thirdPartySales.getNatureVente() == NatureVente.ASSURANCE) {
+            throw new GenericError(
+                    "La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
         }
         this.proccessDiscount(thirdPartySales);
     }
-
-
 }

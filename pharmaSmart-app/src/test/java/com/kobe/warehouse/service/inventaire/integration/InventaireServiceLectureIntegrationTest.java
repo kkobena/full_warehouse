@@ -29,8 +29,12 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN);
         viderLeCache();
 
-        assertEquals(inventaire.getId(),
-            services.inventaireService.getStoreInventory(inventaire.getId()).orElseThrow().getId());
+        assertEquals(
+                inventaire.getId(),
+                services.inventaireService
+                        .getStoreInventory(inventaire.getId())
+                        .orElseThrow()
+                        .getId());
     }
 
     /**
@@ -46,8 +50,12 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         em.flush();
         viderLeCache();
 
-        assertTrue(services.inventaireService.getProccessingStoreInventory(enCours.getId()).isPresent());
-        assertTrue(services.inventaireService.getProccessingStoreInventory(cloture.getId()).isEmpty());
+        assertTrue(services.inventaireService
+                .getProccessingStoreInventory(enCours.getId())
+                .isPresent());
+        assertTrue(services.inventaireService
+                .getProccessingStoreInventory(cloture.getId())
+                .isEmpty());
     }
 
     @Test
@@ -60,7 +68,8 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         viderLeCache();
 
         List<Long> actifs = services.inventaireService.fetchActifs().stream()
-            .map(dto -> dto.getId()).toList();
+                .map(dto -> dto.getId())
+                .toList();
 
         assertTrue(actifs.contains(enCours.getId()));
         assertFalse(actifs.contains(cloture.getId()), "un inventaire clôturé n'est plus actif");
@@ -74,7 +83,8 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         ligne(inventaire, produitEnStock(unique("EFFERALGAN LISTE"), 12));
         viderLeCache();
 
-        assertEquals(2, services.inventaireService.getAllItems(inventaire.getId()).size());
+        assertEquals(
+                2, services.inventaireService.getAllItems(inventaire.getId()).size());
     }
 
     @Test
@@ -90,9 +100,9 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         ligne(inventaire, second);
         viderLeCache();
 
-        List<Long> rayons = services.inventaireService
-            .fetchRayonsByStoreInventoryId(inventaire.getId()).stream()
-            .map(r -> (long) r.id()).toList();
+        List<Long> rayons = services.inventaireService.fetchRayonsByStoreInventoryId(inventaire.getId()).stream()
+                .map(r -> (long) r.id())
+                .toList();
 
         assertEquals(1, rayons.size(), "deux produits, un seul rayon");
         assertEquals(antibiotiques.getId().longValue(), rayons.getFirst());
@@ -126,7 +136,7 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         viderLeCache();
 
         services.inventaireService.synchronizeStoreInventoryLine(
-            List.of(comptage(premiere, 30, 29), comptage(seconde, 12, 10)));
+                List.of(comptage(premiere, 30, 29), comptage(seconde, 12, 10)));
         viderLeCache();
 
         assertEquals(-1, em.find(StoreInventoryLine.class, premiere.getId()).getGap());
@@ -142,12 +152,15 @@ class InventaireServiceLectureIntegrationTest extends AbstractInventaireIntegrat
         viderLeCache();
 
         // Le relais est branché : l'export remonte la ligne comptée, même sans lot saisi.
-        assertEquals(1, services.inventaireService.getLotGroupsForExport(inventaire.getId()).size());
+        assertEquals(
+                1,
+                services.inventaireService
+                        .getLotGroupsForExport(inventaire.getId())
+                        .size());
     }
 
     private StoreInventoryLineDTO comptage(StoreInventoryLine ligne, int theorique, int compte) {
-        StoreInventoryLineDTO dto =
-            new StoreInventoryLineDTO(em.find(StoreInventoryLine.class, ligne.getId()));
+        StoreInventoryLineDTO dto = new StoreInventoryLineDTO(em.find(StoreInventoryLine.class, ligne.getId()));
         dto.setQuantityInit(theorique);
         dto.setQuantityOnHand(compte);
         return dto;

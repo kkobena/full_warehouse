@@ -12,7 +12,8 @@
         icon="pi pi-times"
         label="Annuler"
         severity="secondary"
-        type="button" />
+        type="button"
+      />
       <app-button
         (clicked)="onSave()"
         [disabled]="form.invalid || saving() || restarting() || loading()"
@@ -20,13 +21,12 @@
         icon="pi pi-check"
         label="Enregistrer et Redémarrer"
         severity="primary"
-        type="button" />
+        type="button"
+      />
     </ng-container>
   </app-toolbar>
 
   <div class="px-3 py-2">
-
-
     <!-- Alertes -->
     @if (errorMessage()) {
       <div class="ace-alert">
@@ -41,8 +41,7 @@
           <i class="pi pi-spin pi-spinner me-2"></i>
           <strong>{{ restartMessage() }}</strong>
         </div>
-        <div [attr.aria-valuenow]="restartProgress()" aria-valuemax="100" aria-valuemin="0"
-             class="progress" role="progressbar">
+        <div [attr.aria-valuenow]="restartProgress()" aria-valuemax="100" aria-valuemin="0" class="progress" role="progressbar">
           <div [style.width.%]="restartProgress()" class="progress-bar"></div>
         </div>
         <small class="text-muted mt-1 d-block">Veuillez patienter…</small>
@@ -57,9 +56,7 @@
       </div>
     } @else {
       <form [formGroup]="form" autocomplete="off" class="ace-form" novalidate>
-
         <app-nav-tabs [nav]="nav">
-
           <div
             #nav="ngbNav"
             (activeIdChange)="activeTab.set($event)"
@@ -68,7 +65,6 @@
             ngbNav
             orientation="horizontal"
           >
-
             <!-- ── Base de données ─────────────────────── -->
             <ng-container ngbNavItem="db">
               <a class="pharma-nav-tab-link" ngbNavLink>
@@ -81,9 +77,13 @@
                     <div class="col-md-8">
                       <div class="ace-field">
                         <label for="ace-host">Hôte <span class="req">*</span></label>
-                        <input [class.ng-invalid]="isInvalid('dbHost')" class="form-control" formControlName="dbHost"
-                               id="ace-host"
-                               placeholder="localhost" />
+                        <input
+                          [class.ng-invalid]="isInvalid('dbHost')"
+                          class="form-control"
+                          formControlName="dbHost"
+                          id="ace-host"
+                          placeholder="localhost"
+                        />
                         @if (isInvalid('dbHost')) {
                           <small class="ace-error">Hôte obligatoire</small>
                         }
@@ -92,10 +92,16 @@
                     <div class="col-md-4">
                       <div class="ace-field">
                         <label for="ace-db-port">Port <span class="req">*</span></label>
-                        <input [class.ng-invalid]="isInvalid('dbPort')" class="form-control" formControlName="dbPort"
-                               id="ace-db-port"
-                               max="65535" min="1" placeholder="5432"
-                               type="number" />
+                        <input
+                          [class.ng-invalid]="isInvalid('dbPort')"
+                          class="form-control"
+                          formControlName="dbPort"
+                          id="ace-db-port"
+                          max="65535"
+                          min="1"
+                          placeholder="5432"
+                          type="number"
+                        />
                         @if (isInvalid('dbPort')) {
                           <small class="ace-error">Port invalide</small>
                         }
@@ -104,9 +110,13 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-dbname">Base de données <span class="req">*</span></label>
-                        <input [class.ng-invalid]="isInvalid('dbName')" class="form-control" formControlName="dbName"
-                               id="ace-dbname"
-                               placeholder="pharma_smart" />
+                        <input
+                          [class.ng-invalid]="isInvalid('dbName')"
+                          class="form-control"
+                          formControlName="dbName"
+                          id="ace-dbname"
+                          placeholder="pharma_smart"
+                        />
                         @if (isInvalid('dbName')) {
                           <small class="ace-error">Nom de base obligatoire</small>
                         }
@@ -115,9 +125,13 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-user">Utilisateur <span class="req">*</span></label>
-                        <input [class.ng-invalid]="isInvalid('dbUsername')" class="form-control" formControlName="dbUsername"
-                               id="ace-user"
-                               placeholder="pharma_smart" />
+                        <input
+                          [class.ng-invalid]="isInvalid('dbUsername')"
+                          class="form-control"
+                          formControlName="dbUsername"
+                          id="ace-user"
+                          placeholder="pharma_smart"
+                        />
                         @if (isInvalid('dbUsername')) {
                           <small class="ace-error">Utilisateur obligatoire</small>
                         }
@@ -126,17 +140,18 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-schema">Schéma <span class="opt">(optionnel)</span></label>
-                        <input class="form-control" formControlName="dbSchema" id="ace-schema"
-                               placeholder="pharma_smart" />
+                        <input class="form-control" formControlName="dbSchema" id="ace-schema" placeholder="pharma_smart" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
-                        <label for="ace-pass">Mot de passe <span
-                          class="opt">(optionnel)</span></label>
-                        <app-password [toggleMask]="true" formControlName="dbPassword"
-                                      inputId="ace-pass"
-                                      placeholder="Mot de passe PostgreSQL" />
+                        <label for="ace-pass">Mot de passe <span class="opt">(optionnel)</span></label>
+                        <app-password
+                          [toggleMask]="true"
+                          formControlName="dbPassword"
+                          inputId="ace-pass"
+                          placeholder="Mot de passe PostgreSQL"
+                        />
                       </div>
                     </div>
                   </div>
@@ -156,10 +171,16 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-srv-port">Port HTTP <span class="req">*</span></label>
-                        <input [class.ng-invalid]="isInvalid('serverPort')" class="form-control" formControlName="serverPort"
-                               id="ace-srv-port"
-                               max="65535" min="1" placeholder="9080"
-                               type="number" />
+                        <input
+                          [class.ng-invalid]="isInvalid('serverPort')"
+                          class="form-control"
+                          formControlName="serverPort"
+                          id="ace-srv-port"
+                          max="65535"
+                          min="1"
+                          placeholder="9080"
+                          type="number"
+                        />
                         @if (isInvalid('serverPort')) {
                           <small class="ace-error">Port invalide</small>
                         }
@@ -169,8 +190,7 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-portcom">Port COM imprimante</label>
-                        <input class="form-control" formControlName="portCom" id="ace-portcom"
-                               placeholder="COM3" />
+                        <input class="form-control" formControlName="portCom" id="ace-portcom" placeholder="COM3" />
                         <small class="ace-hint">Port série de l'imprimante thermique</small>
                       </div>
                     </div>
@@ -191,52 +211,49 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-heap-min">Heap min <span class="req">*</span></label>
-                        <input class="form-control" formControlName="jvmHeapMin" id="ace-heap-min"
-                               placeholder="512m" />
+                        <input class="form-control" formControlName="jvmHeapMin" id="ace-heap-min" placeholder="512m" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-heap-max">Heap max <span class="req">*</span></label>
-                        <input class="form-control" formControlName="jvmHeapMax" id="ace-heap-max"
-                               placeholder="2g" />
+                        <input class="form-control" formControlName="jvmHeapMax" id="ace-heap-max" placeholder="2g" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-meta-size">Metaspace initial</label>
-                        <input class="form-control" formControlName="jvmMetaspaceSize"
-                               id="ace-meta-size" placeholder="256m" />
+                        <input class="form-control" formControlName="jvmMetaspaceSize" id="ace-meta-size" placeholder="256m" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-meta-max">Metaspace max</label>
-                        <input class="form-control" formControlName="jvmMetaspaceMax"
-                               id="ace-meta-max" placeholder="512m" />
+                        <input class="form-control" formControlName="jvmMetaspaceMax" id="ace-meta-max" placeholder="512m" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-direct">Direct Memory</label>
-                        <input class="form-control" formControlName="jvmDirectMemory"
-                               id="ace-direct" placeholder="256m" />
+                        <input class="form-control" formControlName="jvmDirectMemory" id="ace-direct" placeholder="256m" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-gc">GC pause max (ms)</label>
-                        <input class="form-control" formControlName="jvmGcPause" id="ace-gc"
-                               placeholder="200" />
+                        <input class="form-control" formControlName="jvmGcPause" id="ace-gc" placeholder="200" />
                       </div>
                     </div>
                     <div class="col-12">
                       <div class="ace-field">
                         <label for="ace-jvm-extra">Options JVM supplémentaires</label>
-                        <textarea class="form-control ace-textarea" formControlName="jvmAdditionalOptions"
-                                  id="ace-jvm-extra"
-                                  placeholder="-XX:+UseZGC&#10;-Dfile.encoding=UTF-8"
-                                  rows="5"></textarea>
+                        <textarea
+                          class="form-control ace-textarea"
+                          formControlName="jvmAdditionalOptions"
+                          id="ace-jvm-extra"
+                          placeholder="-XX:+UseZGC&#10;-Dfile.encoding=UTF-8"
+                          rows="5"
+                        ></textarea>
                         <small class="ace-hint">Une option par ligne</small>
                       </div>
                     </div>
@@ -257,17 +274,19 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-mail-user">Compte Gmail (identifiant)</label>
-                        <input class="form-control" formControlName="mailUsername"
-                               id="ace-mail-user"
-                               placeholder="pharmacie@gmail.com" />
+                        <input class="form-control" formControlName="mailUsername" id="ace-mail-user" placeholder="pharmacie@gmail.com" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-mail-email">Adresse d'expédition</label>
-                        <input [class.ng-invalid]="isInvalid('mailEmail')" class="form-control" formControlName="mailEmail"
-                               id="ace-mail-email"
-                               placeholder="pharmacie@gmail.com" />
+                        <input
+                          [class.ng-invalid]="isInvalid('mailEmail')"
+                          class="form-control"
+                          formControlName="mailEmail"
+                          id="ace-mail-email"
+                          placeholder="pharmacie@gmail.com"
+                        />
                         @if (isInvalid('mailEmail')) {
                           <small class="ace-error">Adresse email invalide</small>
                         }
@@ -296,28 +315,22 @@
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-fne-key">Clé API</label>
-                        <app-password [toggleMask]="true" formControlName="fneApiKey"
-                                      inputId="ace-fne-key" />
+                        <app-password [toggleMask]="true" formControlName="fneApiKey" inputId="ace-fne-key" />
                       </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
                       <div class="ace-field">
                         <label for="ace-fne-pos">Point de vente</label>
-                        <input class="form-control" formControlName="fnePointOfSale"
-                               id="ace-fne-pos" />
+                        <input class="form-control" formControlName="fnePointOfSale" id="ace-fne-pos" />
                       </div>
                     </div>
                   </div>
                 </div>
               </ng-template>
             </ng-container>
-
           </div>
-
         </app-nav-tabs>
-
       </form>
     }
-
   </div>
 </div>

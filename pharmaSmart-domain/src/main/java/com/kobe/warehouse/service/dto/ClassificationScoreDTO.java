@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
-
 import java.math.BigDecimal;
 
 /**
@@ -26,23 +25,22 @@ import java.math.BigDecimal;
  * @param changementSignificatif Si le changement dépasse le seuil d'hysteresis
  */
 public record ClassificationScoreDTO(
-    Integer produitId,
-    String libelle,
-    Long ca12Mois,
-    Integer vmm12Mois,
-    Integer qteVendue12Mois,
-    Integer frequenceVenteMois,
-    BigDecimal caCumulePct,
-    Integer stockActuel,
-    int rang,
-    int scoreFrequence,
-    int scoreTotal,
-    ClasseCriticite classeSuggeree,
-    ClasseCriticite classeActuelle,
-    boolean estNouveauProduit,
-    int ancienneteMois,
-    boolean changementSignificatif
-) {
+        Integer produitId,
+        String libelle,
+        Long ca12Mois,
+        Integer vmm12Mois,
+        Integer qteVendue12Mois,
+        Integer frequenceVenteMois,
+        BigDecimal caCumulePct,
+        Integer stockActuel,
+        int rang,
+        int scoreFrequence,
+        int scoreTotal,
+        ClasseCriticite classeSuggeree,
+        ClasseCriticite classeActuelle,
+        boolean estNouveauProduit,
+        int ancienneteMois,
+        boolean changementSignificatif) {
 
     /**
      * Vérifie si un changement de classe est nécessaire.
@@ -100,11 +98,10 @@ public record ClassificationScoreDTO(
 
     public String getResume() {
         return String.format(
-            "Pareto: rang %d, caCumulé %.1f%% → Classe %s%s",
-            rang,
-            caCumulePct != null ? caCumulePct.doubleValue() : 100.0,
-            classeSuggeree != null ? classeSuggeree.getCode() : "?",
-            doitChangerClasse() ? " (changement)" : ""
-        );
+                "Pareto: rang %d, caCumulé %.1f%% → Classe %s%s",
+                rang,
+                caCumulePct != null ? caCumulePct.doubleValue() : 100.0,
+                classeSuggeree != null ? classeSuggeree.getCode() : "?",
+                doitChangerClasse() ? " (changement)" : "");
     }
 }

@@ -40,7 +40,8 @@ class ConsommationPlafondReglementIntegrationTest extends AbstractReglementInteg
         ClientTiersPayant compte = compteAvecConso(organisme);
         FactureTiersPayant facture = facture(organisme, List.of(dossier(compte, 45_000)));
         viderLeCache();
-        ResponseReglementDTO reglement = services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 45_000));
+        ResponseReglementDTO reglement =
+                services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 45_000));
         viderLeCache();
 
         services.reglementDataService.deleteReglement(reglement.id());
@@ -84,11 +85,11 @@ class ConsommationPlafondReglementIntegrationTest extends AbstractReglementInteg
 
     private static ReglementParam parametreTotal(FactureTiersPayant facture, int montant) {
         return new ReglementParam()
-            .setId(facture.getId())
-            .setMode(ModeEditionReglement.FACTURE_TOTAL)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setAmount(montant)
-            .setTotalAmount(montant)
-            .setMontantFacture(montant);
+                .setId(facture.getId())
+                .setMode(ModeEditionReglement.FACTURE_TOTAL)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setAmount(montant)
+                .setTotalAmount(montant)
+                .setMontantFacture(montant);
     }
 }

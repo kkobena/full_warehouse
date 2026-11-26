@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.time.LocalTime;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.support.JobOperatorFactoryBean;
 import org.springframework.batch.core.repository.JobRepository;
@@ -21,18 +23,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.io.IOException;
-import java.time.LocalTime;
-
 @Configuration
 public class BatchConfiguration {
 
     @Bean
     public JobOperator asyncJobOperator(
-        JobRepository jobRepository,
-        PlatformTransactionManager transactionManager,
-        ApplicationContext applicationContext
-    ) throws Exception {
+            JobRepository jobRepository,
+            PlatformTransactionManager transactionManager,
+            ApplicationContext applicationContext)
+            throws Exception {
 
         JobOperatorFactoryBean factory = new JobOperatorFactoryBean();
         factory.setJobRepository(jobRepository);
@@ -43,8 +42,6 @@ public class BatchConfiguration {
         return factory.getObject();
     }
 
-
-
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -53,15 +50,13 @@ public class BatchConfiguration {
     @Bean
     public JavaTimeModule javaTimeModule() {
         final JavaTimeModule javaTime = new JavaTimeModule();
-        javaTime.addSerializer(
-            LocalTime.class,
-            new JsonSerializer<>() {
-                @Override
-                public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                    gen.writeString(value.toString());
-                }
+        javaTime.addSerializer(LocalTime.class, new JsonSerializer<>() {
+            @Override
+            public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers)
+                    throws IOException {
+                gen.writeString(value.toString());
             }
-        );
+        });
         return javaTime;
     }
 
@@ -69,11 +64,11 @@ public class BatchConfiguration {
     @Primary
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
-            .addModule(javaTimeModule())
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .build();
+                .addModule(javaTimeModule())
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
     }
 }

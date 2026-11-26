@@ -32,12 +32,16 @@ class AvoirClientNotificationServiceTest {
 
     @Mock
     private MailService mailService;
+
     @Mock
     private SmsService smsService;
+
     @Mock
     private AppConfigurationService appConfigurationService;
+
     @Mock
     private SpringTemplateEngine templateEngine;
+
     @Mock
     private ConsentementService consentementService;
 
@@ -49,7 +53,7 @@ class AvoirClientNotificationServiceTest {
     @BeforeEach
     void setUp() {
         service = new AvoirClientNotificationService(
-            mailService, smsService, appConfigurationService, templateEngine, consentementService);
+                mailService, smsService, appConfigurationService, templateEngine, consentementService);
 
         customer = new Customer();
         customer.setFirstName("Alice");
@@ -57,10 +61,7 @@ class AvoirClientNotificationServiceTest {
         customer.setEmail("alice@example.test");
         customer.setPhone("0700000000");
 
-        avoir = new AvoirClient()
-            .setReference("AV-2026-001")
-            .setMontant(12_500)
-            .setCustomer(customer);
+        avoir = new AvoirClient().setReference("AV-2026-001").setMontant(12_500).setCustomer(customer);
 
         magasin = new Magasin();
         magasin.setName("Pharmacie Centrale");
@@ -85,7 +86,7 @@ class AvoirClientNotificationServiceTest {
         when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
         when(appConfigurationService.getDevise()).thenReturn("FCFA");
         when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class)))
-            .thenReturn("<html>notification</html>");
+                .thenReturn("<html>notification</html>");
 
         service.notifierProduitsDisponibles(avoir);
 
@@ -94,16 +95,15 @@ class AvoirClientNotificationServiceTest {
         assertEquals("Alice Kouassi", contextCaptor.getValue().getVariable("customerName"));
         assertEquals(avoir, contextCaptor.getValue().getVariable("avoir"));
         assertEquals("Pharmacie Centrale", contextCaptor.getValue().getVariable("magasinName"));
-        verify(mailService).sendEmail(
-            "alice@example.test",
-            "Vos produits sont disponibles — Pharmacie Centrale",
-            "<html>notification</html>", false, true);
-        verify(smsService).sendSms(
-            eq("0700000000"),
-            contains("avoir AV-2026-001"));
-        verify(smsService).sendSms(
-            eq("0700000000"),
-            contains("12500 FCFA"));
+        verify(mailService)
+                .sendEmail(
+                        "alice@example.test",
+                        "Vos produits sont disponibles — Pharmacie Centrale",
+                        "<html>notification</html>",
+                        false,
+                        true);
+        verify(smsService).sendSms(eq("0700000000"), contains("avoir AV-2026-001"));
+        verify(smsService).sendSms(eq("0700000000"), contains("12500 FCFA"));
     }
 
     @Test
@@ -126,9 +126,10 @@ class AvoirClientNotificationServiceTest {
         when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
         when(appConfigurationService.getDevise()).thenReturn("FCFA");
         when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class)))
-            .thenReturn("contenu");
+                .thenReturn("contenu");
         doThrow(new IllegalStateException("SMTP indisponible"))
-            .when(mailService).sendEmail(any(), any(), any(), eq(false), eq(true));
+                .when(mailService)
+                .sendEmail(any(), any(), any(), eq(false), eq(true));
 
         service.notifierProduitsDisponibles(avoir);
 
@@ -143,7 +144,8 @@ class AvoirClientNotificationServiceTest {
         when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
         when(consentementService.estRefuse(42, CanalConsentement.EMAIL)).thenReturn(false);
         when(consentementService.estRefuse(42, CanalConsentement.SMS)).thenReturn(true);
-        when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class))).thenReturn("contenu");
+        when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class)))
+                .thenReturn("contenu");
 
         service.notifierProduitsDisponibles(avoir);
 

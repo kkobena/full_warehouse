@@ -9,5 +9,4 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "mv_stock_valuation")
-public class MvStockValuationView extends StockValuationView {
-}
+public class MvStockValuationView extends StockValuationView {}

@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.dci.service;
 
-import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
-
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import java.io.InputStream;
 import java.util.List;

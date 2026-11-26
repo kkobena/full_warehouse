@@ -77,12 +77,14 @@ abstract class AbstractFacturationIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new FacturationServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -91,7 +93,9 @@ abstract class AbstractFacturationIntegrationTest {
 
         lenient().when(services.userService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getUser()).thenReturn(utilisateur);
-        lenient().when(services.appConfigurationService.findParamResetInvoiceNumberEveryYear()).thenReturn(Optional.empty());
+        lenient()
+                .when(services.appConfigurationService.findParamResetInvoiceNumberEveryYear())
+                .thenReturn(Optional.empty());
     }
 
     @AfterEach
@@ -233,11 +237,10 @@ abstract class AbstractFacturationIntegrationTest {
      * totaux de la facture, taux par taux.
      */
     protected ThirdPartySaleLine dossier(
-        ClientTiersPayant compte,
-        int montant,
-        LocalDate dateVente,
-        List<RepartitionTiersPayantParTva> repartitions
-    ) {
+            ClientTiersPayant compte,
+            int montant,
+            LocalDate dateVente,
+            List<RepartitionTiersPayantParTva> repartitions) {
         ThirdPartySaleLine dossier = new ThirdPartySaleLine();
         dossier.setId(services.assuranceItemIdGeneratorService.nextId());
         dossier.setSaleDate(dateVente);
@@ -265,17 +268,14 @@ abstract class AbstractFacturationIntegrationTest {
     }
 
     /** Une facture déjà émise, pour éprouver ce que l'édition suivante accepte de reprendre. */
-    protected FactureTiersPayant facture(TiersPayant tiersPayant, boolean provisoire, List<ThirdPartySaleLine> dossiers) {
+    protected FactureTiersPayant facture(
+            TiersPayant tiersPayant, boolean provisoire, List<ThirdPartySaleLine> dossiers) {
         return facture(tiersPayant, provisoire, dossiers, LocalDate.now());
     }
 
     /** La même, à une date d'émission choisie : le récapitulatif mensuel compare des mois. */
     protected FactureTiersPayant facture(
-        TiersPayant tiersPayant,
-        boolean provisoire,
-        List<ThirdPartySaleLine> dossiers,
-        LocalDate dateEmission
-    ) {
+            TiersPayant tiersPayant, boolean provisoire, List<ThirdPartySaleLine> dossiers, LocalDate dateEmission) {
         FactureTiersPayant facture = new FactureTiersPayant();
         facture.setId(services.factureIdGeneratorService.nextId());
         // Le numéro suit le format que relit la numérotation : « année_NNNN ». Un numéro d'une
@@ -315,12 +315,10 @@ abstract class AbstractFacturationIntegrationTest {
     }
 
     protected List<FactureTiersPayant> facturesDe(int generationCode) {
-        return em
-            .createQuery(
-                "SELECT f FROM FactureTiersPayant f WHERE f.generationCode = :code ORDER BY f.numFacture",
-                FactureTiersPayant.class
-            )
-            .setParameter("code", generationCode)
-            .getResultList();
+        return em.createQuery(
+                        "SELECT f FROM FactureTiersPayant f WHERE f.generationCode = :code ORDER BY f.numFacture",
+                        FactureTiersPayant.class)
+                .setParameter("code", generationCode)
+                .getResultList();
     }
 }

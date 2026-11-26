@@ -8,9 +8,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
@@ -40,7 +40,10 @@ public class ThirdPartySales extends Sales implements Serializable {
     @Column(name = "has_price_option")
     private boolean hasPriceOption;
 
-    @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "sale",
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE})
     private List<ThirdPartySaleLine> thirdPartySaleLines = new ArrayList<>();
 
     public String getNumBon() {

@@ -30,15 +30,30 @@ class TresoreriePilotageIntegrationTest extends AbstractReportIntegrationTest {
         var fin = JOUR.plusDays(1).atStartOfDay();
         var officine = CategorieChiffreAffaire.officine();
 
-        assertThat(repository.sommerEncaissementsParJourEtMode(JOUR, JOUR, ENCAISSEMENTS)).isNotNull();
-        assertThat(repository.sommerEncaissementsParCaissier(JOUR, JOUR, ENCAISSEMENTS)).isNotNull();
+        assertThat(repository.sommerEncaissementsParJourEtMode(JOUR, JOUR, ENCAISSEMENTS))
+                .isNotNull();
+        assertThat(repository.sommerEncaissementsParCaissier(JOUR, JOUR, ENCAISSEMENTS))
+                .isNotNull();
         assertThat(repository.compterSessionsParCaissier(debut, fin)).isNotNull();
         assertThat(repository.sommerFacturationParOrganisme(JOUR, JOUR)).isNotNull();
-        assertThat(repository.listerFacturesNonSoldees(List.of(InvoiceStatut.NOT_PAID, InvoiceStatut.PARTIALLY_PAID))).isNotNull();
+        assertThat(repository.listerFacturesNonSoldees(List.of(InvoiceStatut.NOT_PAID, InvoiceStatut.PARTIALLY_PAID)))
+                .isNotNull();
         assertThat(repository.listerDelaisObserves(InvoiceStatut.PAID)).isNotNull();
-        assertThat(repository.sommerDifferesParClient(SalesStatut.CLOSED, officine, PageRequest.of(0, 5))).isNotNull();
-        assertThat(repository.sommerDifferesParAge(JOUR.minusDays(30), JOUR.minusDays(60), JOUR.minusDays(90), SalesStatut.CLOSED, officine).moins30()).isNotNegative();
+        assertThat(repository.sommerDifferesParClient(SalesStatut.CLOSED, officine, PageRequest.of(0, 5)))
+                .isNotNull();
+        assertThat(repository
+                        .sommerDifferesParAge(
+                                JOUR.minusDays(30),
+                                JOUR.minusDays(60),
+                                JOUR.minusDays(90),
+                                SalesStatut.CLOSED,
+                                officine)
+                        .moins30())
+                .isNotNegative();
         assertThat(repository.sommerAvoirsEmis(debut, fin).nombre()).isNotNegative();
-        assertThat(repository.sommerAvoirsRembourses(debut, fin, List.of(ModeClotureAvoir.REMBOURSEMENT_ESPECES)).nombre()).isNotNegative();
+        assertThat(repository
+                        .sommerAvoirsRembourses(debut, fin, List.of(ModeClotureAvoir.REMBOURSEMENT_ESPECES))
+                        .nombre())
+                .isNotNegative();
     }
 }

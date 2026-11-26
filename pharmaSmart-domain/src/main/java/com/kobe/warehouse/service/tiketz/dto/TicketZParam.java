@@ -5,13 +5,12 @@ import java.time.LocalTime;
 import java.util.Set;
 
 public record TicketZParam(
-    Set<Integer> usersId,
-    boolean onlyVente,
-    LocalDate fromDate,
-    LocalDate toDate,
-    LocalTime fromTime,
-    LocalTime toTime
-) {
+        Set<Integer> usersId,
+        boolean onlyVente,
+        LocalDate fromDate,
+        LocalDate toDate,
+        LocalTime fromTime,
+        LocalTime toTime) {
     public TicketZParam {
         if (fromTime == null) {
             fromTime = LocalTime.MIN;

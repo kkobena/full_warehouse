@@ -3,11 +3,9 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.service.dto.records.GapLineRecord;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +25,8 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
 
     List<StoreInventoryLine> findAllByProduitId(Integer produitId);
 
-    boolean existsByProduitIdAndStoreInventoryIdAndStorageId(Integer produitId, Long storeInventoryId, Integer storageId);
+    boolean existsByProduitIdAndStoreInventoryIdAndStorageId(
+            Integer produitId, Long storeInventoryId, Integer storageId);
 
     long countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(Long id);
 
@@ -35,7 +34,8 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
      * Identifiants des inventaires ayant au moins une ligne comptée, parmi ceux passés en
      * paramètre. Une seule requête pour toute une page, plutôt qu'un comptage par ligne.
      */
-    @Query("SELECT DISTINCT l.storeInventory.id FROM StoreInventoryLine l WHERE l.storeInventory.id IN :ids AND l.updated = TRUE")
+    @Query(
+            "SELECT DISTINCT l.storeInventory.id FROM StoreInventoryLine l WHERE l.storeInventory.id IN :ids AND l.updated = TRUE")
     Set<Long> findStoreInventoryIdsWithCountedLines(@Param("ids") Collection<Long> ids);
 
     void deleteAllByStoreInventoryId(Long storeInventoryId);
@@ -44,7 +44,9 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
     @Procedure(name = "StoreInventoryLine.proc_close_inventory")
     int procCloseInventory(@Param("store_inventory_id") Integer inventoryId);
 
-    @Query(value = "SELECT o FROM StoreInventoryLine o JOIN o.produit p JOIN p.fournisseurProduits fp WHERE fp.codeCip IN :codeCips")
+    @Query(
+            value =
+                    "SELECT o FROM StoreInventoryLine o JOIN o.produit p JOIN p.fournisseurProduits fp WHERE fp.codeCip IN :codeCips")
     List<StoreInventoryLine> findAllByCodeCip(Set<String> codeCips);
 
     // ── Nouvelles méthodes (nouveaux services — sans impact sur l'existant) ────
@@ -67,15 +69,11 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
           AND fp.codeCip IN :codeCips
         """)
     List<StoreInventoryLine> findAllByStoreInventoryIdAndCodeCipIn(
-        @Param("storeInventoryId") Long storeInventoryId,
-        @Param("codeCips") Collection<String> codeCips
-    );
+            @Param("storeInventoryId") Long storeInventoryId, @Param("codeCips") Collection<String> codeCips);
 
     @Query(
-        "SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle"
-    )
+            "SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle")
     List<Rayon> findAllRayons(Long storeInventoryId);
-
 
     /**
      * Page des lignes en écart, projetée directement dans {@link GapLineRecord}.
@@ -90,8 +88,7 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
      * l'identifiant en départage les ex æquo — sans ce second critère, deux lignes de même
      * écart pourraient changer de page d'un appel à l'autre et l'une des deux disparaître.
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT new com.kobe.warehouse.service.dto.records.GapLineRecord(
                 sil.id,
                 p.libelle,
@@ -109,15 +106,13 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
               AND sil.updated = true
               AND sil.gap <> 0
             ORDER BY ABS(sil.gap) DESC, sil.id
-            """,
-        countQuery = """
+            """, countQuery = """
             SELECT COUNT(sil)
             FROM StoreInventoryLine sil
             WHERE sil.storeInventory.id = :inventoryId
               AND sil.updated = true
               AND sil.gap <> 0
-            """
-    )
+            """)
     Page<GapLineRecord> findLinesWithGap(@Param("inventoryId") Long inventoryId, Pageable pageable);
 
     /**
@@ -132,7 +127,5 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
           AND sil.id IN :ids
         """)
     List<StoreInventoryLine> findAllByIdInAndInventoryId(
-        @Param("ids") Collection<Long> ids,
-        @Param("inventoryId") Long inventoryId
-    );
+            @Param("ids") Collection<Long> ids, @Param("inventoryId") Long inventoryId);
 }

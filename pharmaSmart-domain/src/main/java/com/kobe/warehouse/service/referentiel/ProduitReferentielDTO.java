@@ -13,28 +13,26 @@ import java.util.List;
  * relire ne doit pas orienter un conseil.
  */
 public record ProduitReferentielDTO(
-    Integer produitId,
-    StatutRapprochement statut,
-    DecisionRapprochement decision,
-    int score,
-    String motif,
-    boolean dciPoseeAutomatiquement,
-    Specialite specialite,
-    List<Molecule> molecules,
-    Rcp rcp,
-    List<Substitut> substituts
-) {
+        Integer produitId,
+        StatutRapprochement statut,
+        DecisionRapprochement decision,
+        int score,
+        String motif,
+        boolean dciPoseeAutomatiquement,
+        Specialite specialite,
+        List<Molecule> molecules,
+        Rcp rcp,
+        List<Substitut> substituts) {
     public record Specialite(
-        String cis,
-        String libelle,
-        String forme,
-        String voies,
-        String titulaire,
-        boolean commercialisee,
-        TypeGenerique typeGenerique,
-        String groupeGenerique,
-        String princepsDuGroupe
-    ) {}
+            String cis,
+            String libelle,
+            String forme,
+            String voies,
+            String titulaire,
+            boolean commercialisee,
+            TypeGenerique typeGenerique,
+            String groupeGenerique,
+            String princepsDuGroupe) {}
 
     public record Molecule(String substance, String dci, String nature, String dosage, String referenceDosage) {}
 
@@ -46,16 +44,15 @@ public record ProduitReferentielDTO(
 
     public static ProduitReferentielDTO creerSansReferentiel(Integer produitId) {
         return new ProduitReferentielDTO(
-            produitId,
-            StatutRapprochement.NON_TROUVE,
-            DecisionRapprochement.EN_ATTENTE,
-            0,
-            null,
-            false,
-            null,
-            List.of(),
-            null,
-            List.of()
-        );
+                produitId,
+                StatutRapprochement.NON_TROUVE,
+                DecisionRapprochement.EN_ATTENTE,
+                0,
+                null,
+                false,
+                null,
+                List.of(),
+                null,
+                List.of());
     }
 }

@@ -29,7 +29,12 @@ const axe = (code: Axe['code'], suivant: Axe['suivant'], sources: Axe['sources']
   ordonne: false,
 });
 
-const AXES = [axe('FAMILLE', 'PRODUIT'), axe('PRODUIT', null), axe('HEURE', null, ['ENTETES']), axe('NATURE_VENTE', 'FAMILLE', ['LIGNES', 'ENTETES'])];
+const AXES = [
+  axe('FAMILLE', 'PRODUIT'),
+  axe('PRODUIT', null),
+  axe('HEURE', null, ['ENTETES']),
+  axe('NATURE_VENTE', 'FAMILLE', ['LIGNES', 'ENTETES']),
+];
 
 const ANTALGIQUES: ElementAnalyse = {
   cle: '12',

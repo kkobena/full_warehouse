@@ -8,8 +8,7 @@
     <app-card [variant]="'form'">
       <div class="form-grid-compact">
         <div [hidden]="true" class="form-group">
-          <input class="form-control" formControlName="id" id="id" name="id" readonly
-                 type="hidden" />
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
         </div>
         <div class="row">
           <div class="col-md-4">
@@ -22,13 +21,13 @@
                 formControlName="codeCip"
                 id="field_codeCip"
                 name="codeCip"
-                type="text" />
+                type="text"
+              />
               @let codeCip = editForm.get('codeCip');
               @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
                 <div>
                   @if (codeCip?.errors?.required) {
-                    <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                      This field is required. </small>
+                    <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                   }
                 </div>
               }
@@ -45,13 +44,13 @@
                 formControlName="prixAchat"
                 id="field_prixAchat"
                 name="prixAchat"
-                type="number" />
+                type="number"
+              />
               @let prixAchat = editForm.get('prixAchat');
               @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
                 <div>
                   @if (prixAchat?.errors?.required) {
-                    <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                      This field is required. </small>
+                    <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                   }
                 </div>
               }
@@ -69,13 +68,13 @@
                 formControlName="prixUni"
                 id="field_prixUni"
                 name="prixAchat"
-                type="number" />
+                type="number"
+              />
               @let prixUni = editForm.get('prixUni');
               @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
                 <div>
                   @if (prixUni?.errors?.required) {
-                    <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                      This field is required. </small>
+                    <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                   }
                 </div>
               }
@@ -115,23 +114,22 @@
 
         <div class="form-field form-field-full">
           <label for="field_codeEan">Code Ean </label>
-          <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="codeEan"
-                 id="field_codeEan" name="codeEan" type="text" />
+          <input
+            [appKeyFilter]="'int'"
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeEan"
+            id="field_codeEan"
+            name="codeEan"
+            type="text"
+          />
         </div>
       </div>
     </app-card>
   </div>
 
   <div class="modal-footer">
-    <app-button
-      (clicked)="cancel()"
-      [raised]="true"
-      class="mr-1"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    >
+    <app-button (clicked)="cancel()" [raised]="true" class="mr-1" icon="pi pi-times" label="Annuler" severity="secondary" type="button">
     </app-button>
 
     <app-button

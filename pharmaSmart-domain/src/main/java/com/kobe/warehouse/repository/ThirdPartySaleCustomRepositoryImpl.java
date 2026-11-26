@@ -30,21 +30,16 @@ public class ThirdPartySaleCustomRepositoryImpl implements ThirdPartySaleCustomR
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<TicketZCreditProjection> query = cb.createQuery(TicketZCreditProjection.class);
         Root<ThirdPartySales> root = query.from(ThirdPartySales.class);
-        query
-            .select(
-                cb.construct(
-                    TicketZCreditProjection.class,
-                    root.get(ThirdPartySales_.caissier).get(AppUser_.id),
-                    root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
-                    root.get(ThirdPartySales_.caissier).get(AppUser_.lastName),
-                    cb.sumAsLong(root.get(ThirdPartySales_.partTiersPayant))
-                )
-            )
-            .groupBy(
-                root.get(ThirdPartySales_.caissier).get(AppUser_.id),
-                root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
-                root.get(ThirdPartySales_.caissier).get(AppUser_.lastName)
-            );
+        query.select(cb.construct(
+                        TicketZCreditProjection.class,
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.id),
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.lastName),
+                        cb.sumAsLong(root.get(ThirdPartySales_.partTiersPayant))))
+                .groupBy(
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.id),
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
+                        root.get(ThirdPartySales_.caissier).get(AppUser_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

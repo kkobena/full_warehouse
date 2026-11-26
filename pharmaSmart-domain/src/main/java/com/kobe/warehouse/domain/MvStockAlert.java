@@ -7,11 +7,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.Immutable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
+import org.hibernate.annotations.Immutable;
 
 @Entity
 @Table(name = "mv_stock_alerts")
@@ -23,16 +22,22 @@ public class MvStockAlert implements Serializable {
     @Id
     @Column(name = "produit_id")
     private Integer produitId;
+
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
+
     @Column(name = "seuil_min")
     private Integer seuilMin;
+
     @Column(name = "libelle")
     private String libelle;
+
     @Column(name = "code_cip")
     private String codeCip;
+
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "alert_type")
     private StockAlertType alertType;

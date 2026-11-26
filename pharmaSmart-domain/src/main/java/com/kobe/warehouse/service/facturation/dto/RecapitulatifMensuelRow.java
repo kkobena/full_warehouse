@@ -5,11 +5,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record RecapitulatifMensuelRow(
-    String numFacture,
-    LocalDate invoiceDate,
-    LocalDate echeance,
-    BigDecimal montantNet,
-    BigDecimal montantRegle,
-    BigDecimal restantDu,
-    InvoiceStatut statut
-) {}
+        String numFacture,
+        LocalDate invoiceDate,
+        LocalDate echeance,
+        BigDecimal montantNet,
+        BigDecimal montantRegle,
+        BigDecimal restantDu,
+        InvoiceStatut statut) {}

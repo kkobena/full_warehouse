@@ -1,16 +1,14 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.RepartitionStockProduit;
-import com.kobe.warehouse.domain.enumeration.TypeRepartition;
 import com.kobe.warehouse.repository.projection.RepartitionStockProduitProjection;
+import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
 
 @SuppressWarnings("unused")
 @Repository
@@ -67,8 +65,7 @@ public interface RepartitionStockProduitRepository extends JpaRepository<Reparti
                  UPPER(p.libelle) LIKE UPPER(CONCAT('%', :searchTerm, '%')) OR
                  UPPER(p.code_ean_labo) LIKE UPPER(CONCAT('%', :searchTerm, '%')))
         ORDER BY r.created_at DESC
-        """,
-        countQuery = """
+        """, countQuery = """
         SELECT COUNT(r.id)
         FROM repartition_stock_produit r
         INNER JOIN app_user u ON r.user_id = u.id
@@ -87,16 +84,14 @@ public interface RepartitionStockProduitRepository extends JpaRepository<Reparti
             AND (:searchTerm IS NULL OR :searchTerm = '' OR
                  UPPER(p.libelle) LIKE UPPER(CONCAT('%', :searchTerm, '%')) OR
                  UPPER(p.code_ean_labo) LIKE UPPER(CONCAT('%', :searchTerm, '%')))
-        """,
-        nativeQuery = true)
+        """, nativeQuery = true)
     Page<RepartitionStockProduitProjection> findRepartitionStockProduits(
-        @Param("userId") Integer userId,
-        @Param("typeRepartition") Integer typeRepartition,
-        @Param("storageId") Integer storageId,
-        @Param("stockProduitId") Integer stockProduitId,
-        @Param("searchTerm") String searchTerm,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        Pageable pageable
-    );
+            @Param("userId") Integer userId,
+            @Param("typeRepartition") Integer typeRepartition,
+            @Param("storageId") Integer storageId,
+            @Param("stockProduitId") Integer stockProduitId,
+            @Param("searchTerm") String searchTerm,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            Pageable pageable);
 }

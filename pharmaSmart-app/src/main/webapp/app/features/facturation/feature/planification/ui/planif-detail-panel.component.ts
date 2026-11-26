@@ -30,17 +30,11 @@ export class PlanifDetailPanelComponent {
 
   protected readonly state = inject(PlanificationStateService);
 
-  protected readonly activeSubTab = computed(() =>
-    this.mode() === 'def' ? this.state.activeSubTabDef() : this.state.activeSubTabProv(),
-  );
+  protected readonly activeSubTab = computed(() => (this.mode() === 'def' ? this.state.activeSubTabDef() : this.state.activeSubTabProv()));
 
-  protected readonly badgeClass = computed(() =>
-    this.mode() === 'def' ? 'badge bg-info text-dark' : 'badge bg-warning text-dark',
-  );
+  protected readonly badgeClass = computed(() => (this.mode() === 'def' ? 'badge bg-info text-dark' : 'badge bg-warning text-dark'));
 
-  protected readonly iconClass = computed(() =>
-    this.mode() === 'def' ? 'pi pi-calendar text-primary' : 'pi pi-calendar text-warning',
-  );
+  protected readonly iconClass = computed(() => (this.mode() === 'def' ? 'pi pi-calendar text-primary' : 'pi pi-calendar text-warning'));
 
   protected onSubTabChange(tab: string): void {
     if (this.mode() === 'def') this.state.onSubTabChangeDef(tab);
@@ -52,4 +46,3 @@ export class PlanifDetailPanelComponent {
     else this.state.onSelectPlanProv(null);
   }
 }
-

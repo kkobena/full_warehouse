@@ -16,8 +16,8 @@ import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseServiceImpl;
 import com.kobe.warehouse.service.financiel_transaction.BalanceReportReportService;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.ModeChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
+import com.kobe.warehouse.service.financiel_transaction.dto.ModeChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import java.time.LocalDate;
@@ -49,7 +49,8 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
         // Les repositories viennent du contexte d'intégration : les construire à la main obligerait
         // à redériver toutes les requêtes déduites des noms de méthodes.
         SalesRepository salesRepository = IntegrationPostgresDatabase.bean(SalesRepository.class);
-        PaymentTransactionRepository paymentTransactionRepository = IntegrationPostgresDatabase.bean(PaymentTransactionRepository.class);
+        PaymentTransactionRepository paymentTransactionRepository =
+                IntegrationPostgresDatabase.bean(PaymentTransactionRepository.class);
 
         ModeChiffreAffaireResolver resolver = mock(ModeChiffreAffaireResolver.class);
         when(resolver.resoudre(any())).thenReturn(ModeChiffreAffaire.REEL);
@@ -60,12 +61,11 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
         ObjectMapper objectMapper = new JacksonConfiguration().objectMapper();
 
         service = new BalanceCaisseServiceImpl(
-            mock(BalanceReportReportService.class),
-            salesRepository,
-            paymentTransactionRepository,
-            objectMapper,
-            resolver
-        );
+                mock(BalanceReportReportService.class),
+                salesRepository,
+                paymentTransactionRepository,
+                objectMapper,
+                resolver);
     }
 
     // ===== lecture du document JSON =====
@@ -110,8 +110,8 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
             venteEncaissee(aujourdHui(), produit, 10, 0, "CASH");
 
             assertThat(service.getBalanceCaisse(parametre()).getBalanceCaisses())
-                .extracting(BalanceCaisseDTO::getTypeSale)
-                .contains(TypeVenteDTO.CashSale);
+                    .extracting(BalanceCaisseDTO::getTypeSale)
+                    .contains(TypeVenteDTO.CashSale);
         }
 
         @Test
@@ -176,7 +176,8 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
             Produit produit = produit(unique("DOLIPRANE"), 1_000, 0);
             venteEncaissee(aujourdHui(), produit, 10, 0, "CASH");
 
-            assertThat(service.getBalanceCaisse(parametre()).getMontantDiscount()).isZero();
+            assertThat(service.getBalanceCaisse(parametre()).getMontantDiscount())
+                    .isZero();
         }
     }
 
@@ -211,11 +212,10 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
             Produit produit = produit(unique("DOLIPRANE"), 1_000, 0);
             venteEncaissee(aujourdHui(), produit, 10, 0, "CASH");
 
-            assertThat(service.getBalanceCaisse(parametre()).getMvtCaisses())
-                .allSatisfy(mvt -> {
-                    assertThat(mvt.key()).isNotBlank();
-                    assertThat(mvt.libelle()).isNotBlank();
-                });
+            assertThat(service.getBalanceCaisse(parametre()).getMvtCaisses()).allSatisfy(mvt -> {
+                assertThat(mvt.key()).isNotBlank();
+                assertThat(mvt.libelle()).isNotBlank();
+            });
         }
     }
 
@@ -233,7 +233,9 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
 
             LocalDate demain = LocalDate.now().plusDays(1);
 
-            assertThat(service.getBalanceCaisse(parametre(demain, demain.plusDays(1))).getMontantTtc()).isZero();
+            assertThat(service.getBalanceCaisse(parametre(demain, demain.plusDays(1)))
+                            .getMontantTtc())
+                    .isZero();
         }
 
         /** La balance retient les ventes closes et les annulées : les annulations doivent se voir. */
@@ -252,7 +254,9 @@ class BalanceCaisseServiceIntegrationTest extends AbstractFinancialTransactionIn
         void periodeReportee() {
             LocalDate jour = aujourdHui();
 
-            assertThat(service.getBalanceCaisse(parametre(jour, jour)).getPeriode()).contains("Du ").contains(" au ");
+            assertThat(service.getBalanceCaisse(parametre(jour, jour)).getPeriode())
+                    .contains("Du ")
+                    .contains(" au ");
         }
     }
 

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.FournisseurService;
 import com.kobe.warehouse.service.dto.FournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -32,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Fournisseur}.
@@ -64,15 +64,17 @@ public class FournisseurResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/fournisseurs")
-    public ResponseEntity<FournisseurDTO> createFournisseur(@Valid @RequestBody FournisseurDTO fournisseurDTO) throws URISyntaxException {
+    public ResponseEntity<FournisseurDTO> createFournisseur(@Valid @RequestBody FournisseurDTO fournisseurDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Fournisseur : {}", fournisseurDTO);
         if (fournisseurDTO.getId() != null) {
             throw new BadRequestAlertException("A new fournisseur cannot already have an ID", ENTITY_NAME, "idexists");
         }
         FournisseurDTO result = fournisseurService.save(fournisseurDTO);
         return ResponseEntity.created(new URI("/api/fournisseurs/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -86,15 +88,20 @@ public class FournisseurResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/fournisseurs")
-    public ResponseEntity<FournisseurDTO> updateFournisseur(@Valid @RequestBody FournisseurDTO fournisseurDTO) throws URISyntaxException {
+    public ResponseEntity<FournisseurDTO> updateFournisseur(@Valid @RequestBody FournisseurDTO fournisseurDTO)
+            throws URISyntaxException {
         log.debug("REST request to update Fournisseur : {}", fournisseurDTO);
         if (fournisseurDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FournisseurDTO result = fournisseurService.save(fournisseurDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, fournisseurDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        fournisseurDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -107,12 +114,11 @@ public class FournisseurResource {
     @GetMapping(value = "/fournisseurs")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<List<FournisseurDTO>> getAllFournisseurs(
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false) String search, Pageable pageable) {
         log.debug("REST request to get a page of Fournisseurs");
         Page<FournisseurDTO> page = fournisseurService.findAll(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -143,8 +149,8 @@ public class FournisseurResource {
 
         fournisseurService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/fournisseurs/importcsv")
@@ -156,11 +162,10 @@ public class FournisseurResource {
     @GetMapping("/fournisseurs/parents")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<List<FournisseurDTO>> getParents(
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false) String search, Pageable pageable) {
         Page<FournisseurDTO> page = fournisseurService.findParents(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 

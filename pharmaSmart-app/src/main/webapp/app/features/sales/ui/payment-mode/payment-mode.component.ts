@@ -9,15 +9,15 @@ import {
   output,
   signal,
   viewChild,
-  viewChildren
+  viewChildren,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
-import {InputNumberComponent, SwitchComponent} from '../../../../shared/ui';
-import {IPaymentMode} from '../../../../shared/model/payment-mode.model';
-import {PaymentModeCode} from '../../../../shared/payment-mode';
-import {PaymentModeManagerService} from '../../services/payment-mode-manager.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { InputNumberComponent, SwitchComponent } from '../../../../shared/ui';
+import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
+import { PaymentModeCode } from '../../../../shared/payment-mode';
+import { PaymentModeManagerService } from '../../services/payment-mode-manager.service';
 
 /**
  * Seuil de tolérance pour considérer qu'il y a de la monnaie à rendre
@@ -48,14 +48,7 @@ const CHANGE_TOLERANCE_THRESHOLD = 5;
 @Component({
   selector: 'app-payment-mode',
 
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputNumberComponent,
-    SwitchComponent,
-    NgbDropdownModule,
-    NgbTooltipModule,
-  ],
+  imports: [CommonModule, FormsModule, InputNumberComponent, SwitchComponent, NgbDropdownModule, NgbTooltipModule],
   templateUrl: './payment-mode.component.html',
   styleUrls: ['./payment-mode.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -151,7 +144,7 @@ export class PaymentModeComponent {
   readonly availableModes = computed(() => {
     const usedCodes = this.selectedModes().map(e => e.mode.code);
     return this.paymentModeManager.modes().filter((m: IPaymentMode) => !usedCodes.includes(m.code));
-  })
+  });
   // ===== View Children =====
   private readonly paymentInputs = viewChildren(InputNumberComponent);
   private readonly commentInput = viewChild<ElementRef>('commentInput');
@@ -203,9 +196,7 @@ export class PaymentModeComponent {
 
     this.selectedModes.update(modes => [...modes, newEntry]);
     // Update add button visibility
-    this.isShowAddBtn.set(
-      this.selectedModes().length < this.maxPaymentModes()
-    );
+    this.isShowAddBtn.set(this.selectedModes().length < this.maxPaymentModes());
   }
 
   // ===== Payment Mode Management =====
@@ -234,12 +225,12 @@ export class PaymentModeComponent {
       modes.map(m =>
         m === oldEntry
           ? {
-            mode: newMode,
-            // Si CASH → ne pas pré-remplir ; si autre mode → pré-remplir avec le montant à payer
-            amount: newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid(),
-            amountEntered: undefined,
-            isReadonly: newMode.isReadonly || false,
-          }
+              mode: newMode,
+              // Si CASH → ne pas pré-remplir ; si autre mode → pré-remplir avec le montant à payer
+              amount: newMode.code === PaymentModeCode.CASH ? undefined : this.amountToBePaid(),
+              amountEntered: undefined,
+              isReadonly: newMode.isReadonly || false,
+            }
           : m,
       ),
     );
@@ -262,11 +253,11 @@ export class PaymentModeComponent {
       let updated = modes.map(m =>
         m === entry
           ? {
-            ...m,
-            amount,
-            // Pour espèces, le montant saisi est aussi le montant versé (calcul de la monnaie)
-            amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
-          }
+              ...m,
+              amount,
+              // Pour espèces, le montant saisi est aussi le montant versé (calcul de la monnaie)
+              amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+            }
           : m,
       );
 
@@ -292,8 +283,6 @@ export class PaymentModeComponent {
   // ===== Amount Handling =====
 
   validate(): boolean {
-
-
     if (this.needsBankFields() && !this.bankReference()) {
       this.validationError.emit('Référence bancaire requise');
       return false;
@@ -471,12 +460,14 @@ export class PaymentModeComponent {
     // Get CASH mode from the manager service
     const cashMode = this.paymentModeManager.getCashMode();
     if (cashMode) {
-      this.selectedModes.set([{
-        mode: cashMode,
-        amount: undefined, // Don't pre-fill the amount
-        amountEntered: undefined,
-        isReadonly: cashMode.isReadonly || false,
-      }]);
+      this.selectedModes.set([
+        {
+          mode: cashMode,
+          amount: undefined, // Don't pre-fill the amount
+          amountEntered: undefined,
+          isReadonly: cashMode.isReadonly || false,
+        },
+      ]);
       // Initialize add button state
       this.isShowAddBtn.set(false);
       // Focus immediately after initialization
@@ -491,18 +482,16 @@ export class PaymentModeComponent {
    * pas basé sur une saisie périmée.
    */
   private redistributeTo(modes: PaymentModeEntry[], target: PaymentModeEntry): PaymentModeEntry[] {
-    const othersSum = modes
-      .filter(m => m !== target)
-      .reduce((sum, m) => sum + (m.amount || 0), 0);
+    const othersSum = modes.filter(m => m !== target).reduce((sum, m) => sum + (m.amount || 0), 0);
     const amount = Math.max(0, this.amountToBePaid() - othersSum);
 
     return modes.map(m =>
       m === target
         ? {
-          ...m,
-          amount,
-          amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
-        }
+            ...m,
+            amount,
+            amountEntered: m.mode.code === PaymentModeCode.CASH ? amount : m.amountEntered,
+          }
         : m,
     );
   }
@@ -510,9 +499,7 @@ export class PaymentModeComponent {
   private manageShowAddButton(inputAmount: number): void {
     const numericAmount = this.parseAmount(inputAmount);
     this.isShowAddBtn.set(
-      this.selectedModes().length < this.maxPaymentModes() &&
-      numericAmount > 0 &&
-      numericAmount < this.amountToBePaid()
+      this.selectedModes().length < this.maxPaymentModes() && numericAmount > 0 && numericAmount < this.amountToBePaid(),
     );
   }
 

@@ -30,9 +30,8 @@ class InventoryStockServiceIntegrationTest extends AbstractInventaireIntegration
         StoreInventory inventaire = inventaire(InventoryCategory.RAYON, rayon);
 
         assertEquals(
-            Map.of(produit.getId(), 12),
-            services.inventoryStockService.buildStockMapForInventory(inventaire, Set.of(produit.getId()))
-        );
+                Map.of(produit.getId(), 12),
+                services.inventoryStockService.buildStockMapForInventory(inventaire, Set.of(produit.getId())));
     }
 
     @Test
@@ -46,9 +45,8 @@ class InventoryStockServiceIntegrationTest extends AbstractInventaireIntegration
         StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN, rayon);
 
         assertEquals(
-            Map.of(produit.getId(), 52),
-            services.inventoryStockService.buildStockMapForInventory(inventaire, Set.of(produit.getId()))
-        );
+                Map.of(produit.getId(), 52),
+                services.inventoryStockService.buildStockMapForInventory(inventaire, Set.of(produit.getId())));
     }
 
     @Test
@@ -59,7 +57,7 @@ class InventoryStockServiceIntegrationTest extends AbstractInventaireIntegration
         viderLeCache();
 
         Map<Integer, Integer> carte = services.inventoryStockService.buildStockMapByStorage(
-            STORAGE_RAYON_ID, Set.of(avecStock.getId(), sansStock.getId()));
+                STORAGE_RAYON_ID, Set.of(avecStock.getId(), sansStock.getId()));
 
         assertEquals(1, carte.size());
         assertEquals(7, carte.get(avecStock.getId()));
@@ -88,9 +86,8 @@ class InventoryStockServiceIntegrationTest extends AbstractInventaireIntegration
         viderLeCache();
 
         assertEquals(
-            Map.of(premier.getId(), 1, second.getId(), 2, troisieme.getId(), 3),
-            services.inventoryStockService.buildStockMapByStorage(
-                STORAGE_RAYON_ID, Set.of(premier.getId(), second.getId(), troisieme.getId()))
-        );
+                Map.of(premier.getId(), 1, second.getId(), 2, troisieme.getId(), 3),
+                services.inventoryStockService.buildStockMapByStorage(
+                        STORAGE_RAYON_ID, Set.of(premier.getId(), second.getId(), troisieme.getId())));
     }
 }

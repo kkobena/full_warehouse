@@ -37,20 +37,13 @@
   <ng-container ngProjectAs="[toolbarActions]">
     <div class="pharma-toolbar-actions">
       <div class="pharma-button-group">
-        <app-button
-          (clicked)="charger()"
-          [disabled]="chargement()"
-          icon="pi pi-search"
-          label="Afficher"
-          severity="info"
-        />
+        <app-button (clicked)="charger()" [disabled]="chargement()" icon="pi pi-search" label="Afficher" severity="info" />
       </div>
     </div>
   </ng-container>
 </app-toolbar>
 
 <app-hint [storageKey]="'journal-' + type() + '-explication'">{{ explication() }}</app-hint>
-
 
 <!-- ── Indicateurs ─────────────────────────────────────────────────────────── -->
 <app-kpi-strip [loading]="chargement()" [skeletonCount]="5" stripClass="mb-2">
@@ -76,8 +69,7 @@
       info="Unités cédées en gratuité sur ces lignes, et quantité totale sortie pour mémoire. Seule la part gratuite quitte le CA déclaré, le reste de la ligne y demeure."
       valueClass="text-info"
     >
-      <ng-container ngProjectAs="[kpiSub]">sur {{ kpi()?.quantite | number }} unités vendues
-      </ng-container>
+      <ng-container ngProjectAs="[kpiSub]">sur {{ kpi()?.quantite | number }} unités vendues </ng-container>
     </app-kpi-item>
   } @else {
     <app-kpi-item
@@ -126,9 +118,7 @@
     suffix="F"
     valueClass="text-success"
   >
-    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de
-      marge
-    </ng-container>
+    <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.tauxMarge | number: '1.1-1' }} % de taux de marge </ng-container>
   </app-kpi-item>
 </app-kpi-strip>
 
@@ -136,13 +126,11 @@
   <div class="alert alert-warning py-2 small">
     <i class="pi pi-exclamation-triangle me-1"></i>
     La période dépasse le nombre de lignes affichables. Le tableau montre les plus récentes ;
-    <strong>les indicateurs ci-dessus restent complets</strong>. Affinez la période ou la recherche
-    pour consulter le détail.
+    <strong>les indicateurs ci-dessus restent complets</strong>. Affinez la période ou la recherche pour consulter le détail.
   </div>
 }
 <app-hint [storageKey]="'journal-' + type()">
-  Les indicateurs portent sur la totalité de la période, même lorsque le tableau n'en affiche
-  qu'une partie.
+  Les indicateurs portent sur la totalité de la période, même lorsque le tableau n'en affiche qu'une partie.
 </app-hint>
 <!-- ── Détail ──────────────────────────────────────────────────────────────── -->
 <app-data-table
@@ -190,8 +178,7 @@
       }
       <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
       <td class="text-end text-danger">{{ ligne.montantExclu | number: '1.0-0' }}</td>
-      <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0"
-          class="text-end">
+      <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0" class="text-end">
         {{ ligne.marge | number: '1.0-0' }}
       </td>
     </tr>

@@ -2,18 +2,8 @@
 <app-toolbar [code]="navCode()" icon="pi pi-minus-circle" title="Démarque &amp; Ajustements de Stock">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        label="Du"
-        id="dem-from"
-        [ngModel]="fromStruct()"
-        (ngModelChange)="fromDate.set(structToDate($event))"
-      />
-      <pharma-date-picker
-        label="Au"
-        id="dem-to"
-        [ngModel]="toStruct()"
-        (ngModelChange)="toDate.set(structToDate($event))"
-      />
+      <pharma-date-picker label="Du" id="dem-from" [ngModel]="fromStruct()" (ngModelChange)="fromDate.set(structToDate($event))" />
+      <pharma-date-picker label="Au" id="dem-to" [ngModel]="toStruct()" (ngModelChange)="toDate.set(structToDate($event))" />
     </div>
   </ng-container>
 
@@ -41,27 +31,44 @@
 }
 
 @if (!isLoading() && kpi()) {
-
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'danger'" icon="pi pi-minus-circle" iconClass="text-danger" label="Valeur perdue"
-                  info="Quantités sorties par ajustement négatif, valorisées au coût d'achat courant du produit — non à celui du jour de la sortie." [value]="formatCurrency(kpi()?.valeurPerdue)" valueClass="text-danger">
+    <app-kpi-item
+      [accent]="'danger'"
+      icon="pi pi-minus-circle"
+      iconClass="text-danger"
+      label="Valeur perdue"
+      info="Quantités sorties par ajustement négatif, valorisées au coût d'achat courant du produit — non à celui du jour de la sortie."
+      [value]="formatCurrency(kpi()?.valeurPerdue)"
+      valueClass="text-danger"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">au coût d'achat</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-box" iconClass="text-warning" label="Quantité perdue"
-                  info="Unités retirées du stock par ces ajustements. Seules les sorties sont comptées : une entrée d'ajustement ne vient pas en déduction." [value]="formatNumber(kpi()?.totalQtyPerdue)" valueClass="text-warning">
+    <app-kpi-item
+      [accent]="'warning'"
+      icon="pi pi-box"
+      iconClass="text-warning"
+      label="Quantité perdue"
+      info="Unités retirées du stock par ces ajustements. Seules les sorties sont comptées : une entrée d'ajustement ne vient pas en déduction."
+      [value]="formatNumber(kpi()?.totalQtyPerdue)"
+      valueClass="text-warning"
+    >
       <ng-container ngProjectAs="[kpiSub]">unités sorties du stock</ng-container>
     </app-kpi-item>
-    <app-kpi-item icon="pi pi-file-edit" iconClass="text-secondary" label="Ajustements"
-                  info="Nombre de bons d'ajustement clôturés comportant au moins une sortie sur la période. Un bon en cours de saisie n'y figure pas." [value]="formatNumber(kpi()?.nbAjustements)">
+    <app-kpi-item
+      icon="pi pi-file-edit"
+      iconClass="text-secondary"
+      label="Ajustements"
+      info="Nombre de bons d'ajustement clôturés comportant au moins une sortie sur la période. Un bon en cours de saisie n'y figure pas."
+      [value]="formatNumber(kpi()?.nbAjustements)"
+    >
       <ng-container ngProjectAs="[kpiSub]">bons d'ajustement clôturés</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
 
   <!-- Chart + Table -->
   <div class="row g-3 mb-3">
-
     <!-- Doughnut by motif -->
     @if (byMotif().length) {
       <div class="col-md-4">
@@ -93,16 +100,18 @@
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th appSortableHeader="motif">Motif </th>
-              <th class="text-end" appSortableHeader="nbLignes">Lignes </th>
-              <th class="text-end" appSortableHeader="totalQty">Qté perdue </th>
-              <th class="text-end" appSortableHeader="valeur">Valeur </th>
+              <th appSortableHeader="motif">Motif</th>
+              <th class="text-end" appSortableHeader="nbLignes">Lignes</th>
+              <th class="text-end" appSortableHeader="totalQty">Qté perdue</th>
+              <th class="text-end" appSortableHeader="valeur">Valeur</th>
               <th class="text-end">Part</th>
             </tr>
           </ng-template>
           <ng-template #body let-m>
             <tr>
-              <td><span class="fw-semibold">{{ m.motif }}</span></td>
+              <td>
+                <span class="fw-semibold">{{ m.motif }}</span>
+              </td>
               <td class="text-end">{{ formatNumber(m.nbLignes) }}</td>
               <td class="text-end">{{ formatNumber(m.totalQty) }}</td>
               <td class="text-end fw-semibold text-danger">{{ formatCurrency(m.valeur) }}</td>
@@ -138,7 +147,6 @@
         </app-data-table>
       </div>
     </div>
-
   </div>
 }
 

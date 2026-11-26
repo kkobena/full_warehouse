@@ -58,19 +58,21 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
         ProduitService produitService = mock(ProduitService.class);
         when(produitService.findSearchByIds(any(), any())).thenAnswer(i -> {
             List<Integer> ids = i.getArgument(0);
-            String tableau = ids.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(",", "{", "}"));
+            String tableau =
+                    ids.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(",", "{", "}"));
             String resultat = produitRepository.searchProduitsByIdsJson(tableau, MAGASIN_ID);
-            return resultat == null ? List.<ProduitSearch>of() : json.readValue(resultat, new TypeReference<List<ProduitSearch>>() {});
+            return resultat == null
+                    ? List.<ProduitSearch>of()
+                    : json.readValue(resultat, new TypeReference<List<ProduitSearch>>() {});
         });
         StorageService storageService = mock(StorageService.class);
         when(storageService.getConnectedUserMagasin()).thenReturn(magasin);
 
         favoris = new ProduitFavoriServiceImpl(
-            IntegrationPostgresDatabase.bean(ProduitFavoriRepository.class),
-            produitRepository,
-            produitService,
-            storageService
-        );
+                IntegrationPostgresDatabase.bean(ProduitFavoriRepository.class),
+                produitRepository,
+                produitService,
+                storageService);
         substitutions = new SubstitutionComptoirServiceImpl(substitutRepository, produitService, storageService);
     }
 
@@ -113,7 +115,8 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
     }
 
     @Test
-    @DisplayName("réordonner place les produits cités d'abord, dans l'ordre cité, puis les oubliés ; un inconnu est ignoré")
+    @DisplayName(
+            "réordonner place les produits cités d'abord, dans l'ordre cité, puis les oubliés ; un inconnu est ignoré")
     void reordonner() {
         Produit a = produit(unique("FAV-E"), 0);
         Produit b = produit(unique("FAV-F"), 0);
@@ -131,7 +134,8 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
     }
 
     @Test
-    @DisplayName("les suggestions sont les produits sans ordonnance les plus vendus au comptoir, hors favoris, hors ordonnance et hors carnet")
+    @DisplayName(
+            "les suggestions sont les produits sans ordonnance les plus vendus au comptoir, hors favoris, hors ordonnance et hors carnet")
     void suggestions() {
         Produit frequent = produit(unique("SUG-FREQUENT"), 0);
         Produit occasionnel = produit(unique("SUG-OCCASIONNEL"), 0);
@@ -153,11 +157,14 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
         }
         favoris.ajouter(dejaEpingle.getId());
         em.flush();
-        em.createNativeQuery("REFRESH MATERIALIZED VIEW mv_produits_frequents_comptoir").executeUpdate();
+        em.createNativeQuery("REFRESH MATERIALIZED VIEW mv_produits_frequents_comptoir")
+                .executeUpdate();
 
         List<FavoriSuggere> suggestions = favoris.suggerer(10);
 
-        assertThat(suggestions).extracting(s -> s.produit().id()).containsExactly(frequent.getId(), occasionnel.getId());
+        assertThat(suggestions)
+                .extracting(s -> s.produit().id())
+                .containsExactly(frequent.getId(), occasionnel.getId());
         assertThat(suggestions.get(0).nbVentes()).isEqualTo(3);
         assertThat(suggestions.get(1).nbVentes()).isEqualTo(1);
         assertThat(suggestions.get(1).qteVendue()).isEqualTo(20);
@@ -175,7 +182,8 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
         }
         em.flush();
 
-        assertThatThrownBy(() -> favoris.ajouter(produits.get(12).getId())).isInstanceOf(BadRequestAlertException.class);
+        assertThatThrownBy(() -> favoris.ajouter(produits.get(12).getId()))
+                .isInstanceOf(BadRequestAlertException.class);
         assertThat(favoris.lister()).hasSize(12);
 
         favoris.retirer(produits.get(0).getId());
@@ -204,7 +212,8 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
     // ===== substituts =====
 
     @Test
-    @DisplayName("les substituts proposés sont ceux en stock, lus dans les deux sens, génériques avant thérapeutiques puis du moins cher au plus cher")
+    @DisplayName(
+            "les substituts proposés sont ceux en stock, lus dans les deux sens, génériques avant thérapeutiques puis du moins cher au plus cher")
     void substitutsDisponibles() {
         Produit manquant = produit(unique("SUB-ORIGINE"), 0);
         Produit genericCher = produit(unique("SUB-GENERIQUE-CHER"), 0);
@@ -228,8 +237,12 @@ class SubstitutionEtFavorisIntegrationTest extends AbstractDashboardIntegrationT
 
         List<SubstitutPropose> propositions = substitutions.lireSubstitutsDisponibles(manquant.getId());
 
-        assertThat(propositions).extracting(p -> p.produit().id()).containsExactly(genericPasCher.getId(), genericCher.getId(), therapeutique.getId());
-        assertThat(propositions).extracting(SubstitutPropose::typeSubstitut).containsExactly("GENERIQUE", "GENERIQUE", "THERAPEUTIQUE");
+        assertThat(propositions)
+                .extracting(p -> p.produit().id())
+                .containsExactly(genericPasCher.getId(), genericCher.getId(), therapeutique.getId());
+        assertThat(propositions)
+                .extracting(SubstitutPropose::typeSubstitut)
+                .containsExactly("GENERIQUE", "GENERIQUE", "THERAPEUTIQUE");
         assertThat(propositions.get(0).typeSubstitutLibelle()).isEqualTo("Générique");
         assertThat(propositions.get(0).produit().totalQuantity()).isEqualTo(2);
     }

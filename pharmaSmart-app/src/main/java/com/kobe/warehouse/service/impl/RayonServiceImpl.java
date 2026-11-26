@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class RayonServiceImpl implements RayonService {
 
-    private static final String[] CSV_HEADERS = { "Libellé", "Code", "Type de zone", "Position", "Exclure" };
+    private static final String[] CSV_HEADERS = {"Libellé", "Code", "Type de zone", "Position", "Exclure"};
 
     private final Logger log = LoggerFactory.getLogger(RayonServiceImpl.class);
     private final RayonRepository rayonRepository;
@@ -45,11 +45,10 @@ public class RayonServiceImpl implements RayonService {
     private final CsvExportService csvExportService;
 
     public RayonServiceImpl(
-        RayonRepository rayonRepository,
-        StorageService storageService,
-        CustomizedRayonService customizedRayonService,
-        CsvExportService csvExportService
-    ) {
+            RayonRepository rayonRepository,
+            StorageService storageService,
+            CustomizedRayonService customizedRayonService,
+            CsvExportService csvExportService) {
         this.rayonRepository = rayonRepository;
         this.storageService = storageService;
         this.customizedRayonService = customizedRayonService;
@@ -84,7 +83,8 @@ public class RayonServiceImpl implements RayonService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<RayonDTO> findAll(Integer magasinId, Integer storageId, String query, String typeZone, Pageable pageable) {
+    public Page<RayonDTO> findAll(
+            Integer magasinId, Integer storageId, String query, String typeZone, Pageable pageable) {
         return customizedRayonService.listRayonsByStorageId(magasinId, storageId, query, typeZone, pageable);
     }
 
@@ -115,11 +115,12 @@ public class RayonServiceImpl implements RayonService {
     @Override
     public ResponseDTO importation(InputStream inputStream, Integer storageId) {
         final Integer storageId2 = (storageId == null || storageId == 0)
-            ? storageService.getDefaultConnectedUserMainStorage().getId()
-            : storageId;
+                ? storageService.getDefaultConnectedUserMainStorage().getId()
+                : storageId;
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> {
                 var index = count.get();
                 if (index == 0) {
@@ -183,20 +184,15 @@ public class RayonServiceImpl implements RayonService {
     @Override
     public byte[] exportCsv(Integer storageId) throws IOException {
         List<RayonDTO> rayons = customizedRayonService
-            .listRayonsByStorageId(null, storageId, null, null, Pageable.unpaged())
-            .getContent();
-        byte[] csv = csvExportService.createCsvReport(
-            "Export des rayons",
-            CSV_HEADERS,
-            rayons,
-            r -> new String[] {
-                r.getLibelle() != null ? r.getLibelle() : "",
-                r.getCode() != null ? r.getCode() : "",
-                r.getTypeZone() != null ? r.getTypeZone().name() : "",
-                r.getPosition() != null ? r.getPosition() : "",
-                r.isExclude() ? "Oui" : "Non",
-            }
-        );
+                .listRayonsByStorageId(null, storageId, null, null, Pageable.unpaged())
+                .getContent();
+        byte[] csv = csvExportService.createCsvReport("Export des rayons", CSV_HEADERS, rayons, r -> new String[] {
+            r.getLibelle() != null ? r.getLibelle() : "",
+            r.getCode() != null ? r.getCode() : "",
+            r.getTypeZone() != null ? r.getTypeZone().name() : "",
+            r.getPosition() != null ? r.getPosition() : "",
+            r.isExclude() ? "Oui" : "Non",
+        });
         return csvExportService.addUtf8Bom(csv);
     }
 }

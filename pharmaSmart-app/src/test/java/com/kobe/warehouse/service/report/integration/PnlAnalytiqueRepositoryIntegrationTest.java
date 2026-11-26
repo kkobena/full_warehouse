@@ -95,10 +95,10 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             em.flush();
 
             List<String> segments = repository
-                .findSnapshotBySegment(LocalDate.now().getYear())
-                .stream()
-                .map(row -> (String) row[0])
-                .toList();
+                    .findSnapshotBySegment(LocalDate.now().getYear())
+                    .stream()
+                    .map(row -> (String) row[0])
+                    .toList();
 
             assertThat(segments).contains("COMPTANT", "ASSURANCE", "CARNET");
         }
@@ -111,9 +111,12 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             venteDeNature(NatureVente.ASSURANCE, produit, 100);
             em.flush();
 
-            List<Object[]> segments = repository.findSnapshotBySegment(LocalDate.now().getYear());
+            List<Object[]> segments =
+                    repository.findSnapshotBySegment(LocalDate.now().getYear());
 
-            assertThat(segments).extracting(row -> toLong(row[1])).isSortedAccordingTo(java.util.Comparator.reverseOrder());
+            assertThat(segments)
+                    .extracting(row -> toLong(row[1]))
+                    .isSortedAccordingTo(java.util.Comparator.reverseOrder());
         }
 
         @Test
@@ -148,26 +151,22 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             em.flush();
 
             assertThat(repository.findSnapshotBySegment(LocalDate.now().getYear() - 1))
-                .noneMatch(row -> "COMPTANT".equals(row[0]) && toLong(row[1]) >= 10_000L);
+                    .noneMatch(row -> "COMPTANT".equals(row[0]) && toLong(row[1]) >= 10_000L);
         }
 
         private long chiffreDuSegment(String nature) {
-            return repository
-                .findSnapshotBySegment(LocalDate.now().getYear())
-                .stream()
-                .filter(row -> nature.equals(row[0]))
-                .mapToLong(row -> toLong(row[1]))
-                .findFirst()
-                .orElse(0L);
+            return repository.findSnapshotBySegment(LocalDate.now().getYear()).stream()
+                    .filter(row -> nature.equals(row[0]))
+                    .mapToLong(row -> toLong(row[1]))
+                    .findFirst()
+                    .orElse(0L);
         }
 
         private Object[] segmentDe(String nature) {
-            return repository
-                .findSnapshotBySegment(LocalDate.now().getYear())
-                .stream()
-                .filter(row -> nature.equals(row[0]))
-                .findFirst()
-                .orElseThrow();
+            return repository.findSnapshotBySegment(LocalDate.now().getYear()).stream()
+                    .filter(row -> nature.equals(row[0]))
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 
@@ -197,8 +196,8 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             em.flush();
 
             assertThat(repository.findSnapshotByFamille(LocalDate.now().getYear()))
-                .extracting(row -> toLong(row[1]))
-                .isSortedAccordingTo(java.util.Comparator.reverseOrder());
+                    .extracting(row -> toLong(row[1]))
+                    .isSortedAccordingTo(java.util.Comparator.reverseOrder());
         }
 
         @Test
@@ -212,13 +211,11 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
         }
 
         private long chiffreDeLaFamille(String famille) {
-            return repository
-                .findSnapshotByFamille(LocalDate.now().getYear())
-                .stream()
-                .filter(row -> famille.equals(row[0]))
-                .mapToLong(row -> toLong(row[1]))
-                .findFirst()
-                .orElse(0L);
+            return repository.findSnapshotByFamille(LocalDate.now().getYear()).stream()
+                    .filter(row -> famille.equals(row[0]))
+                    .mapToLong(row -> toLong(row[1]))
+                    .findFirst()
+                    .orElse(0L);
         }
     }
 
@@ -235,12 +232,10 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             vendu(produit, 10, LocalDate.now().withDayOfMonth(1).plusDays(2));
             em.flush();
 
-            Object[] ligne = repository
-                .findEvolutionMonthlyByFamille()
-                .stream()
-                .filter(row -> toLong(row[1]) == LocalDate.now().getMonthValue())
-                .findFirst()
-                .orElseThrow();
+            Object[] ligne = repository.findEvolutionMonthlyByFamille().stream()
+                    .filter(row -> toLong(row[1]) == LocalDate.now().getMonthValue())
+                    .findFirst()
+                    .orElseThrow();
 
             assertThat(ligne[3].toString()).isEqualTo("40.00");
         }
@@ -254,8 +249,8 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             em.flush();
 
             assertThat(repository.findEvolutionMonthlyByFamille())
-                .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
-                .isSorted();
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
 
         /**
@@ -274,12 +269,10 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             em.flush();
 
             String famille = produit.getFamille().getLibelle();
-            List<Long> moisDeLaFamille = repository
-                .findEvolutionMonthlyByFamille()
-                .stream()
-                .filter(row -> famille.equals(row[2]))
-                .map(row -> toLong(row[1]))
-                .toList();
+            List<Long> moisDeLaFamille = repository.findEvolutionMonthlyByFamille().stream()
+                    .filter(row -> famille.equals(row[2]))
+                    .map(row -> toLong(row[1]))
+                    .toList();
 
             // Deux mois alimentés, mais pas forcément consécutifs : la série est trouée.
             assertThat(moisDeLaFamille).doesNotHaveDuplicates();
@@ -294,7 +287,10 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
             vendu(produit, 10, LocalDate.now().withDayOfMonth(1).plusDays(1));
             em.flush();
 
-            long familles = repository.findEvolutionMonthlyByFamille().stream().map(row -> (String) row[2]).distinct().count();
+            long familles = repository.findEvolutionMonthlyByFamille().stream()
+                    .map(row -> (String) row[2])
+                    .distinct()
+                    .count();
 
             assertThat(familles).isLessThanOrEqualTo(5L);
         }
@@ -303,7 +299,11 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
         @DisplayName("l'évolution par segment porte la nature de vente")
         void evolutionParSegment() {
             Produit produit = produitAnalysable("DOLIPRANE", 1_000);
-            venteDeNature(NatureVente.ASSURANCE, produit, 10, LocalDate.now().withDayOfMonth(1).plusDays(1));
+            venteDeNature(
+                    NatureVente.ASSURANCE,
+                    produit,
+                    10,
+                    LocalDate.now().withDayOfMonth(1).plusDays(1));
             em.flush();
 
             assertThat(repository.findEvolutionMonthlyBySegment()).anyMatch(row -> "ASSURANCE".equals(row[2]));
@@ -314,12 +314,16 @@ class PnlAnalytiqueRepositoryIntegrationTest extends AbstractReportIntegrationTe
         void ordreChronologiqueParSegment() {
             Produit produit = produitAnalysable("DOLIPRANE", 1_000);
             venteDeNature(NatureVente.COMPTANT, produit, 10, moisDansLAnnee(2));
-            venteDeNature(NatureVente.COMPTANT, produit, 10, LocalDate.now().withDayOfMonth(1).plusDays(1));
+            venteDeNature(
+                    NatureVente.COMPTANT,
+                    produit,
+                    10,
+                    LocalDate.now().withDayOfMonth(1).plusDays(1));
             em.flush();
 
             assertThat(repository.findEvolutionMonthlyBySegment())
-                .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
-                .isSorted();
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
     }
 

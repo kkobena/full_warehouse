@@ -12,6 +12,11 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.projection.Recette;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,36 +24,35 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Spring Data JPA repository for the Payment entity.
  */
 @SuppressWarnings("unused")
 @Repository
 public interface SalePaymentRepository
-    extends JpaRepository<SalePayment, PaymentId>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
+        extends JpaRepository<SalePayment, PaymentId>,
+                JpaSpecificationExecutor<SalePayment>,
+                SalePaymentCustomRepository {
     List<SalePayment> findAllBySale(Sales sale);
 
     @Query("SELECT o FROM SalePayment o WHERE o.sale.id=:saleId AND o.sale.saleDate=:saleDate")
     List<SalePayment> findAllBySaleIdAndSaleSaleDate(Long saleId, LocalDate saleDate);
 
     @Query(
-        value = "SELECT  SUM(p.reel_amount) AS realAmount,SUM(p.paid_amount) AS paidAmount,pm.libelle AS libelle,pm.code AS code FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +
-            "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED') AND s.sale_date BETWEEN :fromDate AND :toDate GROUP BY pm.code",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT  SUM(p.reel_amount) AS realAmount,SUM(p.paid_amount) AS paidAmount,pm.libelle AS libelle,pm.code AS code FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code "
+                            + "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED') AND s.sale_date BETWEEN :fromDate AND :toDate GROUP BY pm.code",
+            nativeQuery = true)
     List<Recette> findRecettes(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     default Specification<SalePayment> filterByCaissierId(Set<Integer> caissierIds) {
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id).in(caissierIds);
+        return (root, query, cb) -> root.get(SalePayment_.cashRegister)
+                .get(CashRegister_.user)
+                .get(AppUser_.id)
+                .in(caissierIds);
     }
 
     default Specification<SalePayment> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -64,7 +68,8 @@ public interface SalePaymentRepository
     }
 
     default Specification<SalePayment> hasStatut(EnumSet<SalesStatut> statut) {
-        return (root, query, cb) -> root.get(SalePayment_.sale).get(Sales_.statut).in(statut);
+        return (root, query, cb) ->
+                root.get(SalePayment_.sale).get(Sales_.statut).in(statut);
     }
 
     default Specification<SalePayment> notImported() {
@@ -88,6 +93,7 @@ public interface SalePaymentRepository
     }
 
     default Specification<SalePayment> hasCategorieCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
-        return (root, query, cb) -> root.get(SalePayment_.sale).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
+        return (root, query, cb) ->
+                root.get(SalePayment_.sale).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
 }

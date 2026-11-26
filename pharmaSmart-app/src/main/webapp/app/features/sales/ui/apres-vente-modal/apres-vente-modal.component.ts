@@ -31,7 +31,16 @@ type Onglet = 'retour' | 'avoir';
     '[attr.data-comptoir-doc]': "doc ? 'true' : null",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ModalDeplacableDirective, FormsModule, DecimalPipe, DeviseDirective, ButtonComponent, NgbNavModule, NavTabsComponent, AutoFocusDirective],
+  imports: [
+    ModalDeplacableDirective,
+    FormsModule,
+    DecimalPipe,
+    DeviseDirective,
+    ButtonComponent,
+    NgbNavModule,
+    NavTabsComponent,
+    AutoFocusDirective,
+  ],
 })
 export class ApresVenteModalComponent {
   /** Accent du type de vente en cours : la fenêtre, rendue hors de la page de vente, ne peut pas l'hériter. */

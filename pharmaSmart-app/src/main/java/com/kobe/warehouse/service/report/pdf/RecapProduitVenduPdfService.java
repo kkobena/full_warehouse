@@ -4,23 +4,20 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class RecapProduitVenduPdfService extends AbstractStatistiqueReportService {
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RecapProduitVenduPdfService(
-        StorageService storageService,
-        SpringTemplateEngine templateEngine) {
+    public RecapProduitVenduPdfService(StorageService storageService, SpringTemplateEngine templateEngine) {
         super(storageService);
         this.templateEngine = templateEngine;
     }
@@ -46,15 +43,16 @@ public class RecapProduitVenduPdfService extends AbstractStatistiqueReportServic
         return "recap_produit_vendu";
     }
 
-    public byte[] export(Page<RecapProduitVendu> data,
-                         RecapProduitVenduSummary summary,
-                         RecapProduitVenduRequestParam requestParam) {
+    public byte[] export(
+            Page<RecapProduitVendu> data,
+            RecapProduitVenduSummary summary,
+            RecapProduitVenduRequestParam requestParam) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         String title = "Récapitulatif des Produits Vendus";
         if (requestParam.startDate() != null && requestParam.endDate() != null) {
-            title += " du " + requestParam.startDate().format(formatter) +
-                " au " + requestParam.endDate().format(formatter);
+            title += " du " + requestParam.startDate().format(formatter) + " au "
+                    + requestParam.endDate().format(formatter);
         }
 
         this.getParameters().put("items", data.getContent());

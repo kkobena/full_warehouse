@@ -1,13 +1,6 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import {
-  IClientDiffere,
-  IDiffere,
-  IDiffereSummary,
-  IDiffereSearchParams,
-  IReglementDiffere,
-  IReglementDiffereSummary,
-} from '../models';
+import { IClientDiffere, IDiffere, IDiffereSummary, IDiffereSearchParams, IReglementDiffere, IReglementDiffereSummary } from '../models';
 
 interface DiffereState {
   // Liste principale (onglet Différés)
@@ -97,13 +90,8 @@ export const DiffereStore = signalStore(
     },
     refreshDiffereInList(updated: IDiffere): void {
       patchState(store, {
-        differes: store.differes().map(d =>
-          d.customerId === updated.customerId ? updated : d,
-        ),
-        selectedDiffere:
-          store.selectedDiffere()?.customerId === updated.customerId
-            ? updated
-            : store.selectedDiffere(),
+        differes: store.differes().map(d => (d.customerId === updated.customerId ? updated : d)),
+        selectedDiffere: store.selectedDiffere()?.customerId === updated.customerId ? updated : store.selectedDiffere(),
       });
     },
     removeDiffereIfSolde(customerId: number): void {
@@ -111,9 +99,7 @@ export const DiffereStore = signalStore(
       patchState(store, {
         differes: updated,
         selectedDiffere:
-          store.selectedDiffere()?.customerId === customerId && (store.selectedDiffere()?.rest ?? 0) <= 0
-            ? null
-            : store.selectedDiffere(),
+          store.selectedDiffere()?.customerId === customerId && (store.selectedDiffere()?.rest ?? 0) <= 0 ? null : store.selectedDiffere(),
       });
     },
   })),

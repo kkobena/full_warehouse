@@ -2,8 +2,6 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ExecutionStatut;
 import com.kobe.warehouse.domain.enumeration.Periodicite;
-import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
-import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,9 +18,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "planification_facturation")
@@ -43,7 +38,6 @@ public class PlanificationFacturation implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "periodicite", nullable = false, length = 20)
     private Periodicite periodicite;
-
 
     @Column(name = "derniere_periode_fin")
     private LocalDate dernierePeriodeFin;
@@ -118,7 +112,6 @@ public class PlanificationFacturation implements Serializable {
         return this;
     }
 
-
     public LocalTime getHeureDeclenchement() {
         return heureDeclenchement;
     }
@@ -127,10 +120,6 @@ public class PlanificationFacturation implements Serializable {
         this.heureDeclenchement = heureDeclenchement;
         return this;
     }
-
-
-
-
 
     public boolean isFactureProvisoire() {
         return factureProvisoire;

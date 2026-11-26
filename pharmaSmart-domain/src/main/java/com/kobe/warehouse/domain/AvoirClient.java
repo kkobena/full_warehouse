@@ -103,61 +103,173 @@ public class AvoirClient implements Serializable {
     @JoinColumn(name = "closed_by_id")
     private AppUser closedBy;
 
-    public Integer getId() { return id; }
-    public AvoirClient setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getReference() { return reference; }
-    public AvoirClient setReference(String reference) { this.reference = reference; return this; }
+    public AvoirClient setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public AvoirClient setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+    public String getReference() {
+        return reference;
+    }
 
-    public LocalDateTime getClotureLe() { return clotureLe; }
-    public AvoirClient setClotureLe(LocalDateTime clotureLe) { this.clotureLe = clotureLe; return this; }
+    public AvoirClient setReference(String reference) {
+        this.reference = reference;
+        return this;
+    }
 
-    public AvoirClientStatut getStatut() { return statut; }
-    public AvoirClient setStatut(AvoirClientStatut statut) { this.statut = statut; return this; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    public ModeClotureAvoir getModeCloture() { return modeCloture; }
-    public AvoirClient setModeCloture(ModeClotureAvoir modeCloture) { this.modeCloture = modeCloture; return this; }
+    public AvoirClient setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 
-    public int getQuantite() { return quantite; }
-    public AvoirClient setQuantite(int quantite) { this.quantite = quantite; return this; }
+    public LocalDateTime getClotureLe() {
+        return clotureLe;
+    }
 
-    public int getMontant() { return montant; }
-    public AvoirClient setMontant(int montant) { this.montant = montant; return this; }
+    public AvoirClient setClotureLe(LocalDateTime clotureLe) {
+        this.clotureLe = clotureLe;
+        return this;
+    }
 
-    public int getMontantUtilise() { return montantUtilise; }
-    public AvoirClient setMontantUtilise(int montantUtilise) { this.montantUtilise = montantUtilise; return this; }
+    public AvoirClientStatut getStatut() {
+        return statut;
+    }
 
-    public int getMontantRestant() { return montant - montantUtilise; }
+    public AvoirClient setStatut(AvoirClientStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-    public int getQuantiteRemise() { return quantiteRemise; }
-    public AvoirClient setQuantiteRemise(int quantiteRemise) { this.quantiteRemise = quantiteRemise; return this; }
+    public ModeClotureAvoir getModeCloture() {
+        return modeCloture;
+    }
 
-    public int getQuantiteRestante() { return quantite - quantiteRemise; }
+    public AvoirClient setModeCloture(ModeClotureAvoir modeCloture) {
+        this.modeCloture = modeCloture;
+        return this;
+    }
 
-    public LocalDate getDateExpiration() { return dateExpiration; }
-    public AvoirClient setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; return this; }
+    public int getQuantite() {
+        return quantite;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public AvoirClient setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public AvoirClient setQuantite(int quantite) {
+        this.quantite = quantite;
+        return this;
+    }
 
-    public Customer getCustomer() { return customer; }
-    public AvoirClient setCustomer(Customer customer) { this.customer = customer; return this; }
+    public int getMontant() {
+        return montant;
+    }
 
-    public Produit getProduit() { return produit; }
-    public AvoirClient setProduit(Produit produit) { this.produit = produit; return this; }
+    public AvoirClient setMontant(int montant) {
+        this.montant = montant;
+        return this;
+    }
 
-    public SalesLine getSalesLine() { return salesLine; }
-    public AvoirClient setSalesLine(SalesLine salesLine) { this.salesLine = salesLine; return this; }
+    public int getMontantUtilise() {
+        return montantUtilise;
+    }
 
-    public Commande getCommande() { return commande; }
-    public AvoirClient setCommande(Commande commande) { this.commande = commande; return this; }
+    public AvoirClient setMontantUtilise(int montantUtilise) {
+        this.montantUtilise = montantUtilise;
+        return this;
+    }
 
-    public AppUser getCreatedBy() { return createdBy; }
-    public AvoirClient setCreatedBy(AppUser createdBy) { this.createdBy = createdBy; return this; }
+    public int getMontantRestant() {
+        return montant - montantUtilise;
+    }
 
-    public AppUser getClosedBy() { return closedBy; }
-    public AvoirClient setClosedBy(AppUser closedBy) { this.closedBy = closedBy; return this; }
+    public int getQuantiteRemise() {
+        return quantiteRemise;
+    }
+
+    public AvoirClient setQuantiteRemise(int quantiteRemise) {
+        this.quantiteRemise = quantiteRemise;
+        return this;
+    }
+
+    public int getQuantiteRestante() {
+        return quantite - quantiteRemise;
+    }
+
+    public LocalDate getDateExpiration() {
+        return dateExpiration;
+    }
+
+    public AvoirClient setDateExpiration(LocalDate dateExpiration) {
+        this.dateExpiration = dateExpiration;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public AvoirClient setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public AvoirClient setCustomer(Customer customer) {
+        this.customer = customer;
+        return this;
+    }
+
+    public Produit getProduit() {
+        return produit;
+    }
+
+    public AvoirClient setProduit(Produit produit) {
+        this.produit = produit;
+        return this;
+    }
+
+    public SalesLine getSalesLine() {
+        return salesLine;
+    }
+
+    public AvoirClient setSalesLine(SalesLine salesLine) {
+        this.salesLine = salesLine;
+        return this;
+    }
+
+    public Commande getCommande() {
+        return commande;
+    }
+
+    public AvoirClient setCommande(Commande commande) {
+        this.commande = commande;
+        return this;
+    }
+
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public AvoirClient setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
+        return this;
+    }
+
+    public AppUser getClosedBy() {
+        return closedBy;
+    }
+
+    public AvoirClient setClosedBy(AppUser closedBy) {
+        this.closedBy = closedBy;
+        return this;
+    }
 }

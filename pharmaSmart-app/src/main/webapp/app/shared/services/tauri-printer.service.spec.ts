@@ -170,9 +170,7 @@ describe('TauriPrinterService — afficheur désactivé côté serveur', () => {
     const service = TestBed.inject(TauriPrinterService);
     httpMock.expectOne('api/postes/current').flush({ id: 7, address: '192.168.1.51' });
     await new Promise(resolve => setTimeout(resolve));
-    httpMock
-      .expectOne(r => r.url === 'api/postes/7/devices/active')
-      .flush(afficheur.body, { status: afficheur.status, statusText: 'x' });
+    httpMock.expectOne(r => r.url === 'api/postes/7/devices/active').flush(afficheur.body, { status: afficheur.status, statusText: 'x' });
     await new Promise(resolve => setTimeout(resolve));
     return service;
   };
@@ -193,7 +191,7 @@ describe('TauriPrinterService — afficheur désactivé côté serveur', () => {
     expect(memorise().enabled).toBe(false);
   });
 
-  it('serveur en panne au démarrage suivant : le repli ne ressuscite pas l\'afficheur retiré', async () => {
+  it("serveur en panne au démarrage suivant : le repli ne ressuscite pas l'afficheur retiré", async () => {
     await demarrer({ status: 404, body: null });
 
     // Démarrage suivant : nouveau service, serveur injoignable sur le poste.
@@ -209,7 +207,7 @@ describe('TauriPrinterService — afficheur désactivé côté serveur', () => {
     expect(service.isCustomerDisplayEnabled()).toBe(false);
   });
 
-  it('panne sur la lecture de l\'afficheur (500) : le repli local reste en place', async () => {
+  it("panne sur la lecture de l'afficheur (500) : le repli local reste en place", async () => {
     const service = await demarrer({ status: 500, body: null });
 
     // Le serveur ne s'est pas prononcé : l'afficheur mémorisé reste actif.
@@ -221,6 +219,10 @@ describe('TauriPrinterService — afficheur désactivé côté serveur', () => {
     const service = await demarrer({ status: 200, body: { id: 1, portName: 'COM5', baudRate: 19200 } });
 
     expect(service.isCustomerDisplayEnabled()).toBe(true);
-    expect(JSON.parse(localStorage.getItem('customerDisplayConfig')!)).toMatchObject({ enabled: true, serialPort: 'COM5', baudRate: 19200 });
+    expect(JSON.parse(localStorage.getItem('customerDisplayConfig')!)).toMatchObject({
+      enabled: true,
+      serialPort: 'COM5',
+      baudRate: 19200,
+    });
   });
 });

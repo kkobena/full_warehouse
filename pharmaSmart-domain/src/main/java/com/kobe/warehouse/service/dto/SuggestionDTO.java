@@ -110,11 +110,11 @@ public class SuggestionDTO {
         this.createdAt = suggestion.getCreatedAt();
         this.updatedAt = suggestion.getUpdatedAt();
         /* this.suggestionLines = suggestion.getSuggestionLines()
-            .stream().map(e -> {
-                FournisseurProduit fournisseurProduit = e.getFournisseurProduit();
-                Produit produit = fournisseurProduit.getProduit();
-                return new SuggestionLineDTO(e.getId(), e.getQuantity(), e.getCreatedAt(), e.getUpdatedAt(), produit.getLibelle(), fournisseurProduit.getCodeCip(), produit.getCodeEan());
-            }).toList();*/
+        .stream().map(e -> {
+            FournisseurProduit fournisseurProduit = e.getFournisseurProduit();
+            Produit produit = fournisseurProduit.getProduit();
+            return new SuggestionLineDTO(e.getId(), e.getQuantity(), e.getCreatedAt(), e.getUpdatedAt(), produit.getLibelle(), fournisseurProduit.getCodeCip(), produit.getCodeEan());
+        }).toList();*/
         this.typeSuggession = suggestion.getTypeSuggession();
         Fournisseur fournisseur = suggestion.getFournisseur();
         this.fournisseurLibelle = fournisseur.getLibelle();

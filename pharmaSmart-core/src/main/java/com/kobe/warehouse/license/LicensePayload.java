@@ -16,27 +16,27 @@ import java.util.Set;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record LicensePayload(
-    String licenseId,
-    LicenseType licenseType,
-    String customerRef,
-    String magasinName,
-    String magasinFullName,
-    String taxId,
-    String edition,
-    Instant issuedAt,
-    LocalDate validFrom,
-    LocalDate expiresAt,
-    int gracePeriodDays,
-    Integer maxUsers,
-    Integer maxSales,
-    Integer maxProduits,
-    Set<Feature> features,
-    String hardwareFingerprint,
-    BindingPolicy bindingPolicy,
-    SupportContacts support
-) {
+        String licenseId,
+        LicenseType licenseType,
+        String customerRef,
+        String magasinName,
+        String magasinFullName,
+        String taxId,
+        String edition,
+        Instant issuedAt,
+        LocalDate validFrom,
+        LocalDate expiresAt,
+        int gracePeriodDays,
+        Integer maxUsers,
+        Integer maxSales,
+        Integer maxProduits,
+        Set<Feature> features,
+        String hardwareFingerprint,
+        BindingPolicy bindingPolicy,
+        SupportContacts support) {
     /** Quotas par défaut de la version de démonstration (§3.5). */
     public static final int DEMO_DEFAULT_MAX_SALES = 500;
+
     public static final int DEMO_DEFAULT_MAX_PRODUITS = 1_000;
 
     public LicensePayload {
@@ -65,7 +65,9 @@ public record LicensePayload(
      * du 15 — c'est l'interprétation commerciale attendue par le client.
      */
     public Instant expiryInstant() {
-        return expiresAt == null ? Instant.MAX : expiresAt.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        return expiresAt == null
+                ? Instant.MAX
+                : expiresAt.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
     /** Instant de fin de la période de grâce (égal à {@link #expiryInstant()} si grâce nulle). */
@@ -75,7 +77,9 @@ public record LicensePayload(
 
     /** Début de validité, ou {@code Instant.MIN} si le champ n'est pas renseigné. */
     public Instant validFromInstant() {
-        return validFrom == null ? Instant.MIN : validFrom.atStartOfDay(ZoneOffset.UTC).toInstant();
+        return validFrom == null
+                ? Instant.MIN
+                : validFrom.atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
     /**

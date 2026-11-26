@@ -67,7 +67,9 @@
 
     <ng-template #body let-p>
       <tr [class.pharma-row-warning]="isOverdue(p)">
-        <td><span class="pharma-entity-name">{{ p.libelle }}</span></td>
+        <td>
+          <span class="pharma-entity-name">{{ p.libelle }}</span>
+        </td>
         <td>
           <span class="pharma-badge pharma-badge-primary">
             {{ getCritereLabel(p.critere) }}
@@ -80,9 +82,7 @@
         <td>{{ p.storageLibelle ?? '—' }}</td>
         <td>
           @if (p.userFullName) {
-            <span class="pharma-badge pharma-badge-info">
-              <i class="pi pi-user me-1"></i>{{ p.userFullName }}
-            </span>
+            <span class="pharma-badge pharma-badge-info"> <i class="pi pi-user me-1"></i>{{ p.userFullName }} </span>
           } @else {
             <span class="text-muted small">Système</span>
           }
@@ -90,39 +90,54 @@
         <td>
           @if (isOverdue(p)) {
             <span class="pharma-badge pharma-badge-danger">
-              <i
-                class="pi pi-exclamation-triangle me-1"></i>{{ p.prochaineExecution | date:'dd/MM/yyyy' }}
+              <i class="pi pi-exclamation-triangle me-1"></i>{{ p.prochaineExecution | date: 'dd/MM/yyyy' }}
             </span>
           } @else {
-            {{ p.prochaineExecution | date:'dd/MM/yyyy' }}
+            {{ p.prochaineExecution | date: 'dd/MM/yyyy' }}
           }
         </td>
-        <td>{{ p.derniereExecution ? (p.derniereExecution | date:'dd/MM/yyyy') : '—' }}</td>
+        <td>{{ p.derniereExecution ? (p.derniereExecution | date: 'dd/MM/yyyy') : '—' }}</td>
         <td class="text-center">{{ p.nbExecutions ?? 0 }}</td>
         <td class="text-center">
-          <app-badge [label]="p.actif ? 'Actif' : 'Inactif'"
-                     [severity]="p.actif ? 'success' : 'secondary'" />
+          <app-badge [label]="p.actif ? 'Actif' : 'Inactif'" [severity]="p.actif ? 'success' : 'secondary'" />
         </td>
         <td class="text-center">
           <div class="pharma-action-buttons">
-            <app-button (clicked)="executerManuellement(p)" [rounded]="true" [text]="true" icon="pi pi-play"
-                        ariaLabel="Exécuter maintenant"
-                        ngbTooltip="Exécuter maintenant"
-                        severity="success" />
-            <app-button (clicked)="toggleActif(p)" [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'"
-                        [ariaLabel]="p.actif ? 'Désactiver' : 'Activer'"
-                        [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
-                        [rounded]="true"
-                        [severity]="p.actif ? 'warn' : 'info'"
-                        [text]="true" />
-            <app-button (clicked)="openEditModal(p)" [rounded]="true" [text]="true"
-                        ariaLabel="Modifier le planning"
-                        icon="pi pi-pencil"
-                        ngbTooltip="Modifier" />
-            <app-button (clicked)="delete(p)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                        ariaLabel="Supprimer le planning"
-                        ngbTooltip="Supprimer"
-                        severity="danger" />
+            <app-button
+              (clicked)="executerManuellement(p)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-play"
+              ariaLabel="Exécuter maintenant"
+              ngbTooltip="Exécuter maintenant"
+              severity="success"
+            />
+            <app-button
+              (clicked)="toggleActif(p)"
+              [icon]="p.actif ? 'pi pi-pause' : 'pi pi-play'"
+              [ariaLabel]="p.actif ? 'Désactiver' : 'Activer'"
+              [ngbTooltip]="p.actif ? 'Désactiver' : 'Activer'"
+              [rounded]="true"
+              [severity]="p.actif ? 'warn' : 'info'"
+              [text]="true"
+            />
+            <app-button
+              (clicked)="openEditModal(p)"
+              [rounded]="true"
+              [text]="true"
+              ariaLabel="Modifier le planning"
+              icon="pi pi-pencil"
+              ngbTooltip="Modifier"
+            />
+            <app-button
+              (clicked)="delete(p)"
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-trash"
+              ariaLabel="Supprimer le planning"
+              ngbTooltip="Supprimer"
+              severity="danger"
+            />
           </div>
         </td>
       </tr>
@@ -135,10 +150,8 @@
             <div class="pharma-empty-content">
               <i class="pi pi-calendar-times"></i>
               <p>Aucun planning tournant configuré</p>
-              <small>Créez votre premier planning pour automatiser les inventaires
-                tournants.</small>
-              <app-button (clicked)="openCreateModal()" [outlined]="true"
-                          icon="pi pi-plus" label="Créer le premier planning" />
+              <small>Créez votre premier planning pour automatiser les inventaires tournants.</small>
+              <app-button (clicked)="openCreateModal()" [outlined]="true" icon="pi pi-plus" label="Créer le premier planning" />
             </div>
           </div>
         </td>

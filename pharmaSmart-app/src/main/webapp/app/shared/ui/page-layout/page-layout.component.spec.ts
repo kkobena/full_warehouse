@@ -7,11 +7,7 @@ import { PageLayoutComponent } from './page-layout.component';
   standalone: true,
   imports: [PageLayoutComponent],
   template: `
-    <app-page-layout
-      [ariaLabel]="ariaLabel()"
-      [density]="density()"
-      [labelledBy]="labelledBy()"
-    >
+    <app-page-layout [ariaLabel]="ariaLabel()" [density]="density()" [labelledBy]="labelledBy()">
       <div ngProjectAs="[pageHeader]" data-testid="header">En-tête</div>
       <ng-container ngProjectAs="[pageGuidance]">
         <p data-testid="guidance-one">Conseil 1</p>
@@ -44,12 +40,7 @@ describe('PageLayoutComponent', () => {
     const layout = (fixture.nativeElement as HTMLElement).querySelector('.app-page-layout')!;
     const zones = Array.from(layout.children).map(element => element.className);
 
-    expect(zones).toEqual([
-      'app-page-layout__header',
-      'app-page-layout__guidance',
-      'app-page-layout__context',
-      'app-page-layout__body',
-    ]);
+    expect(zones).toEqual(['app-page-layout__header', 'app-page-layout__guidance', 'app-page-layout__context', 'app-page-layout__body']);
     expect(layout.querySelectorAll('.app-page-layout__guidance p')).toHaveLength(2);
   });
 
@@ -79,8 +70,7 @@ describe('PageLayoutComponent', () => {
     fixture.componentInstance.density.set('compact');
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('.app-page-layout')!.classList)
-      .toContain('app-page-layout--compact');
+    expect((fixture.nativeElement as HTMLElement).querySelector('.app-page-layout')!.classList).toContain('app-page-layout--compact');
   });
 
   it('rend une région nommée par aria-label', () => {

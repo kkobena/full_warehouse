@@ -7,9 +7,8 @@ import com.kobe.warehouse.service.dto.dashboard.StockAlertsDTO;
 import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 /**
  * Mapper pour convertir les DTOs des services report vers les DTOs des dashboards
@@ -25,16 +24,16 @@ public class DashboardDTOMapper {
      */
     public StockAlertsDTO toStockAlertsDTO(List<StockAlertDTO> alertsByType) {
         long rupture = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertType.RUPTURE)
-            .count();
+                .filter(alert -> alert.alertType() == StockAlertType.RUPTURE)
+                .count();
 
         long alerte = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertType.ALERTE)
-            .count();
+                .filter(alert -> alert.alertType() == StockAlertType.ALERTE)
+                .count();
 
         long peremption = alertsByType.stream()
-            .filter(alert -> alert.alertType() == StockAlertType.PEREMPTION)
-            .count();
+                .filter(alert -> alert.alertType() == StockAlertType.PEREMPTION)
+                .count();
 
         // Pour bientôt en rupture, on compte les produits avec stock < seuil * 1.5
         // Cette info n'est pas dans StockAlertDTO, on la laisse à 0 pour l'instant
@@ -42,11 +41,9 @@ public class DashboardDTOMapper {
         Integer bientotEnRupture = 0;
 
         return new StockAlertsDTO(
-            (int) rupture,
-            (int) alerte,
-            bientotEnRupture,
-            (int) peremption  // réassort stock rayon (approximation avec péremption)
-        );
+                (int) rupture, (int) alerte, bientotEnRupture, (int)
+                        peremption // réassort stock rayon (approximation avec péremption)
+                );
     }
 
     /**
@@ -61,25 +58,21 @@ public class DashboardDTOMapper {
         }
 
         return new AnalyseABCDTO(
-            new AnalyseABCDTO.ClasseABCItem(
-                summary.nbProduitsA(),
-                summary.pctCaClasseA() != null ? summary.pctCaClasseA().doubleValue() : 0.0,
-                80.0, // Pourcentage CA classe A (fixe selon Pareto)
-                summary.caClasseA()
-            ),
-            new AnalyseABCDTO.ClasseABCItem(
-                summary.nbProduitsB(),
-                summary.pctCaClasseB() != null ? summary.pctCaClasseB().doubleValue() : 0.0,
-                15.0, // Pourcentage CA classe B
-                summary.caClasseB()
-            ),
-            new AnalyseABCDTO.ClasseABCItem(
-                summary.nbProduitsC(),
-                summary.pctCaClasseC() != null ? summary.pctCaClasseC().doubleValue() : 0.0,
-                5.0, // Pourcentage CA classe C
-                summary.caClasseC()
-            )
-        );
+                new AnalyseABCDTO.ClasseABCItem(
+                        summary.nbProduitsA(),
+                        summary.pctCaClasseA() != null ? summary.pctCaClasseA().doubleValue() : 0.0,
+                        80.0, // Pourcentage CA classe A (fixe selon Pareto)
+                        summary.caClasseA()),
+                new AnalyseABCDTO.ClasseABCItem(
+                        summary.nbProduitsB(),
+                        summary.pctCaClasseB() != null ? summary.pctCaClasseB().doubleValue() : 0.0,
+                        15.0, // Pourcentage CA classe B
+                        summary.caClasseB()),
+                new AnalyseABCDTO.ClasseABCItem(
+                        summary.nbProduitsC(),
+                        summary.pctCaClasseC() != null ? summary.pctCaClasseC().doubleValue() : 0.0,
+                        5.0, // Pourcentage CA classe C
+                        summary.caClasseC()));
     }
 
     /**
@@ -97,25 +90,25 @@ public class DashboardDTOMapper {
         int note = calculateRating(supplierPerf.performanceScore());
 
         return new PerformanceFournisseurDTO(
-            supplierPerf.fournisseurId().longValue(),
-            supplierPerf.fournisseurName(),
-            supplierPerf.nbOrdersLast12Months(),
-            supplierPerf.avgDeliveryDays() != null ? supplierPerf.avgDeliveryDays().doubleValue() : 0.0,
-            supplierPerf.conformityRatePct() != null ? supplierPerf.conformityRatePct().doubleValue() : 0.0,
-            supplierPerf.purchaseAmountLast12Months(),
-            note
-        );
+                supplierPerf.fournisseurId().longValue(),
+                supplierPerf.fournisseurName(),
+                supplierPerf.nbOrdersLast12Months(),
+                supplierPerf.avgDeliveryDays() != null
+                        ? supplierPerf.avgDeliveryDays().doubleValue()
+                        : 0.0,
+                supplierPerf.conformityRatePct() != null
+                        ? supplierPerf.conformityRatePct().doubleValue()
+                        : 0.0,
+                supplierPerf.purchaseAmountLast12Months(),
+                note);
     }
 
     /**
      * Convertit une liste de SupplierPerformanceDTO vers une liste de PerformanceFournisseurDTO
      */
     public List<PerformanceFournisseurDTO> toPerformanceFournisseurDTOList(List<SupplierPerformanceDTO> suppliers) {
-        return suppliers.stream()
-            .map(this::toPerformanceFournisseurDTO)
-            .toList();
+        return suppliers.stream().map(this::toPerformanceFournisseurDTO).toList();
     }
-
 
     /**
      * Calcule une note sur 5 basée sur un score de performance

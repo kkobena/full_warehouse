@@ -1,7 +1,7 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {SERVER_API_URL} from '../../../../app.constants';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { SERVER_API_URL } from '../../../../app.constants';
 
 /** Ce que le comptoir doit savoir d'un produit du panier (mêmes règles que la recherche produit). */
 export interface ProduitSignaux {
@@ -17,12 +17,12 @@ export interface ProduitSignaux {
   seuilMini: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class ProduitSignauxApiService {
   private readonly http = inject(HttpClient);
   private readonly resourceUrl = SERVER_API_URL + 'api/sales/produits-signaux';
 
   chargerSignaux(produitIds: number[]): Observable<ProduitSignaux[]> {
-    return this.http.get<ProduitSignaux[]>(this.resourceUrl, {params: new HttpParams().set('ids', produitIds.join(','))});
+    return this.http.get<ProduitSignaux[]>(this.resourceUrl, { params: new HttpParams().set('ids', produitIds.join(',')) });
   }
 }

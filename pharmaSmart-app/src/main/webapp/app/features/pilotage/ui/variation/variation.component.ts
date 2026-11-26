@@ -58,6 +58,6 @@ export class VariationComponent {
     if (valeur === 0 || this.sensFavorable() === 'NEUTRE') {
       return 'neutre';
     }
-    return (valeur > 0) === (this.sensFavorable() === 'HAUSSE') ? 'favorable' : 'defavorable';
+    return valeur > 0 === (this.sensFavorable() === 'HAUSSE') ? 'favorable' : 'defavorable';
   }
 }

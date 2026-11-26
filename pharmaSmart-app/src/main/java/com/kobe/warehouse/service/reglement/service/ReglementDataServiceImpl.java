@@ -21,6 +21,7 @@ import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,11 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
-import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -52,13 +52,12 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     private final InvoiceReceiptService invoiceReceiptService;
 
     public ReglementDataServiceImpl(
-        FacturationRepository facturationRepository,
-        InvoicePaymentRepository invoicePaymentRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        InvoicePaymentItemRepository invoicePaymentItemRepository,
-        ReglementReportService reglementReportService,
-        InvoiceReceiptService invoiceReceiptService
-    ) {
+            FacturationRepository facturationRepository,
+            InvoicePaymentRepository invoicePaymentRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            InvoicePaymentItemRepository invoicePaymentItemRepository,
+            ReglementReportService reglementReportService,
+            InvoiceReceiptService invoiceReceiptService) {
         this.facturationRepository = facturationRepository;
 
         this.invoicePaymentRepository = invoicePaymentRepository;
@@ -86,13 +85,14 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         // ou une annulation et un règlement de la même facture, s'exécutent l'une après l'autre. La
         // seconde annulation ne trouve alors plus le règlement, au lieu de le contrepasser deux fois.
         FactureItemId factureId = invoicePaymentRepository
-            .findFactureIdOf(idReglement.getId(), idReglement.getTransactionDate())
-            .orElseThrow(ReglementDataServiceImpl::reglementDejaAnnule);
+                .findFactureIdOf(idReglement.getId(), idReglement.getTransactionDate())
+                .orElseThrow(ReglementDataServiceImpl::reglementDejaAnnule);
         facturationRepository.verrouiller(factureId);
         // Sans effet sur une facture simple ; pour un règlement groupé, les filles sont contrepassées aussi.
         facturationRepository.verrouillerFilles(factureId);
-        InvoicePayment invoicePayment = invoicePaymentRepository.findById(idReglement)
-            .orElseThrow(ReglementDataServiceImpl::reglementDejaAnnule);
+        InvoicePayment invoicePayment = invoicePaymentRepository
+                .findById(idReglement)
+                .orElseThrow(ReglementDataServiceImpl::reglementDejaAnnule);
         List<InvoicePayment> invoicePayments = invoicePayment.getInvoicePayments();
         if (CollectionUtils.isEmpty(invoicePayments)) {
             deleteInvoicePayment(invoicePayment, null);
@@ -122,80 +122,72 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     @Override
     @Transactional(readOnly = true)
     public List<InvoicePaymentDTO> fetchInvoicesPayments(InvoicePaymentParam invoicePaymentParam) {
-        return fetchInvoicePayments(invoicePaymentParam).stream().map(InvoicePaymentDTO::new)
-            .toList();
+        return fetchInvoicePayments(invoicePaymentParam).stream()
+                .map(InvoicePaymentDTO::new)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<InvoicePaymentDTO> findByInvoice(FactureItemId factureId) {
-        return invoicePaymentRepository.findAll(invoicePaymentRepository.findByFactureId(factureId),
-            Sort.by(Direction.DESC, "createdAt")).stream().map(InvoicePaymentDTO::new).toList();
+        return invoicePaymentRepository
+                .findAll(invoicePaymentRepository.findByFactureId(factureId), Sort.by(Direction.DESC, "createdAt"))
+                .stream()
+                .map(InvoicePaymentDTO::new)
+                .toList();
     }
 
     private List<InvoicePayment> fetchInvoicePayments(InvoicePaymentParam invoicePaymentParam) {
-        var startDate = Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now()
-            : invoicePaymentParam.dateDebut();
-        var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate
-            : invoicePaymentParam.dateFin();
-        Sort sort = Sort.by(Direction.ASC, "createdAt")
-            .and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
+        var startDate =
+                Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now() : invoicePaymentParam.dateDebut();
+        var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate : invoicePaymentParam.dateFin();
+        Sort sort =
+                Sort.by(Direction.ASC, "createdAt").and(Sort.by(Direction.ASC, "factureTiersPayant.tiersPayant.name"));
         if (invoicePaymentParam.grouped()) {
             sort = Sort.by(Direction.ASC, "createdAt")
-                .and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
+                    .and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
         }
-        Specification<InvoicePayment> invoicePaymentSpecification = this.invoicePaymentRepository.periodeCriteria(
-            startDate, endDate);
+        Specification<InvoicePayment> invoicePaymentSpecification =
+                this.invoicePaymentRepository.periodeCriteria(startDate, endDate);
         invoicePaymentSpecification = invoicePaymentSpecification.and(
-            this.invoicePaymentRepository.invoicesTypePredicats(invoicePaymentParam.grouped())
-        );
+                this.invoicePaymentRepository.invoicesTypePredicats(invoicePaymentParam.grouped()));
         if (invoicePaymentParam.organismeId() != null) {
             if (invoicePaymentParam.grouped()) {
                 invoicePaymentSpecification = invoicePaymentSpecification.and(
-                    this.invoicePaymentRepository.filterByOrganismeId(
-                        invoicePaymentParam.organismeId())
-                );
+                        this.invoicePaymentRepository.filterByOrganismeId(invoicePaymentParam.organismeId()));
             } else {
                 invoicePaymentSpecification = invoicePaymentSpecification.and(
-                    this.invoicePaymentRepository.filterByTiersPayantId(
-                        invoicePaymentParam.organismeId())
-                );
+                        this.invoicePaymentRepository.filterByTiersPayantId(invoicePaymentParam.organismeId()));
             }
         }
         if (StringUtils.hasText(invoicePaymentParam.search())) {
             invoicePaymentSpecification = invoicePaymentSpecification.and(
-                this.invoicePaymentRepository.specialisationQueryString(
-                    invoicePaymentParam.search() + "%")
-            );
+                    this.invoicePaymentRepository.specialisationQueryString(invoicePaymentParam.search() + "%"));
         }
         return this.invoicePaymentRepository.findAll(invoicePaymentSpecification, sort);
     }
 
     @Override
     public List<InvoicePaymentItemDTO> getInvoicePaymentsItems(PaymentId paymentId) {
-        return this.invoicePaymentItemRepository.findByInvoicePaymentIdAndInvoicePaymentTransactionDate(
-                paymentId.getId(),
-                paymentId.getTransactionDate()
-            )
-            .stream()
-            .map(InvoicePaymentItemDTO::new)
-            .toList();
+        return this.invoicePaymentItemRepository
+                .findByInvoicePaymentIdAndInvoicePaymentTransactionDate(
+                        paymentId.getId(), paymentId.getTransactionDate())
+                .stream()
+                .map(InvoicePaymentItemDTO::new)
+                .toList();
     }
 
     @Override
     public List<InvoicePaymentDTO> getInvoicePaymentsGroupItems(PaymentId paymentId) {
-        return this.invoicePaymentRepository.findInvoicePaymentByParentIdAndParentTransactionDate(
-                paymentId.getId(),
-                paymentId.getTransactionDate()
-            )
-            .stream()
-            .map(InvoicePaymentDTO::new)
-            .toList();
+        return this.invoicePaymentRepository
+                .findInvoicePaymentByParentIdAndParentTransactionDate(paymentId.getId(), paymentId.getTransactionDate())
+                .stream()
+                .map(InvoicePaymentDTO::new)
+                .toList();
     }
 
     @Override
-    public byte[] printToPdf(InvoicePaymentParam invoicePaymentParam)
-        throws ReportFileExportException {
+    public byte[] printToPdf(InvoicePaymentParam invoicePaymentParam) throws ReportFileExportException {
         List<InvoicePaymentWrapper> invoicePaymentWrappers;
         if (invoicePaymentParam.grouped()) {
             invoicePaymentWrappers = buildGroupInvoicePaymentWrapper(invoicePaymentParam);
@@ -213,28 +205,23 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     @Override
     public byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException {
-        return this.invoiceReceiptService.generateEscPosReceiptForTauri(
-            getInvoicePaymentReceipt(idReglement));
+        return this.invoiceReceiptService.generateEscPosReceiptForTauri(getInvoicePaymentReceipt(idReglement));
     }
 
     private InvoicePaymentReceiptDTO getInvoicePaymentReceipt(PaymentId idReglement) {
-        return new InvoicePaymentReceiptDTO(
-            this.invoicePaymentRepository.getReferenceById(idReglement));
+        return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.getReferenceById(idReglement));
     }
 
-    private int deleteInvoicePayment(InvoicePayment invoicePayment,
-        FactureTiersPayant groupeFacture) {
+    private int deleteInvoicePayment(InvoicePayment invoicePayment, FactureTiersPayant groupeFacture) {
         FactureTiersPayant factureTiersPayant = invoicePayment.getFactureTiersPayant();
         int totalAmount = 0;
         int paidAmount = 0;
         for (InvoicePaymentItem invoicePaymentItem : invoicePayment.getInvoicePaymentItems()) {
             ThirdPartySaleLine thirdPartySaleLine = invoicePaymentItem.getThirdPartySaleLine();
             thirdPartySaleLine.setMontantRegle(
-                Math.max(thirdPartySaleLine.getMontantRegle() - invoicePaymentItem.getPaidAmount(),
-                    0));
+                    Math.max(thirdPartySaleLine.getMontantRegle() - invoicePaymentItem.getPaidAmount(), 0));
             factureTiersPayant.setMontantRegle(
-                Math.max(factureTiersPayant.getMontantRegle() - invoicePaymentItem.getPaidAmount(),
-                    0));
+                    Math.max(factureTiersPayant.getMontantRegle() - invoicePaymentItem.getPaidAmount(), 0));
             totalAmount += thirdPartySaleLine.getMontant();
             paidAmount += invoicePaymentItem.getPaidAmount();
             if (consommationPlafondService != null) {
@@ -257,14 +244,12 @@ public class ReglementDataServiceImpl implements ReglementDataService {
             // fille : la parente gardait donc son réglé d'avant l'annulation — d'où un statut
             // recalculé faux par l'appelant — et la fille, déjà décrémentée dans la boucle
             // ci-dessus, se retrouvait écrasée par une valeur qui n'était pas la sienne.
-            groupeFacture.setMontantRegle(
-                Math.max(groupeFacture.getMontantRegle() - paidAmount, 0));
+            groupeFacture.setMontantRegle(Math.max(groupeFacture.getMontantRegle() - paidAmount, 0));
         }
         return totalAmount;
     }
 
-    private void updateFactureTiersPayantStatus(FactureTiersPayant factureTiersPayant,
-        int totalAmount) {
+    private void updateFactureTiersPayantStatus(FactureTiersPayant factureTiersPayant, int totalAmount) {
         if (factureTiersPayant.getMontantRegle() == 0) {
             factureTiersPayant.setStatut(InvoiceStatut.NOT_PAID);
         } else if (factureTiersPayant.getMontantRegle() < totalAmount) {
@@ -275,55 +260,47 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         factureTiersPayant.setUpdated(LocalDateTime.now());
     }
 
-    private List<InvoicePaymentWrapper> buildInvoicePaymentWrapper(
-        InvoicePaymentParam invoicePaymentParam) {
+    private List<InvoicePaymentWrapper> buildInvoicePaymentWrapper(InvoicePaymentParam invoicePaymentParam) {
         var periode = buildPeriode(invoicePaymentParam);
         List<InvoicePaymentWrapper> invoicePaymentWrappers = new ArrayList<>();
-        fetchInvoicePayments(invoicePaymentParam)
-            .stream()
-            .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getTiersPayant()))
-            .forEach((k, v) -> {
-                InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
-                invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
-                invoicePaymentWrapper.setInvoicePayments(
-                    v.stream().map(InvoicePaymentDTO::new).toList());
-                invoicePaymentWrapper.setPeriode(periode);
-                invoicePaymentWrappers.add(invoicePaymentWrapper);
-            });
+        fetchInvoicePayments(invoicePaymentParam).stream()
+                .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getTiersPayant()))
+                .forEach((k, v) -> {
+                    InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
+                    invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
+                    invoicePaymentWrapper.setInvoicePayments(
+                            v.stream().map(InvoicePaymentDTO::new).toList());
+                    invoicePaymentWrapper.setPeriode(periode);
+                    invoicePaymentWrappers.add(invoicePaymentWrapper);
+                });
         return invoicePaymentWrappers;
     }
 
-    private List<InvoicePaymentWrapper> buildGroupInvoicePaymentWrapper(
-        InvoicePaymentParam invoicePaymentParam) {
+    private List<InvoicePaymentWrapper> buildGroupInvoicePaymentWrapper(InvoicePaymentParam invoicePaymentParam) {
         List<InvoicePaymentWrapper> invoicePaymentWrappers = new ArrayList<>();
         var periode = buildPeriode(invoicePaymentParam);
-        fetchInvoicePayments(invoicePaymentParam)
-            .stream()
-            .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getGroupeTiersPayant()))
-            .forEach((k, v) -> {
-                InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
-                invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
-                invoicePaymentWrapper.setInvoicePayments(
-                    v.stream().map(InvoicePaymentDTO::new).toList());
-                invoicePaymentWrapper.setPeriode(periode);
-                invoicePaymentWrappers.add(invoicePaymentWrapper);
-            });
+        fetchInvoicePayments(invoicePaymentParam).stream()
+                .collect(Collectors.groupingBy(i -> i.getFactureTiersPayant().getGroupeTiersPayant()))
+                .forEach((k, v) -> {
+                    InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
+                    invoicePaymentWrapper.setOrganisme(new OrganismeDTO(k));
+                    invoicePaymentWrapper.setInvoicePayments(
+                            v.stream().map(InvoicePaymentDTO::new).toList());
+                    invoicePaymentWrapper.setPeriode(periode);
+                    invoicePaymentWrappers.add(invoicePaymentWrapper);
+                });
         return invoicePaymentWrappers;
     }
 
     private String buildPeriode(InvoicePaymentParam invoicePaymentParam) {
-        var startDate = Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now()
-            : invoicePaymentParam.dateDebut();
-        var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate
-            : invoicePaymentParam.dateFin();
+        var startDate =
+                Objects.isNull(invoicePaymentParam.dateDebut()) ? LocalDate.now() : invoicePaymentParam.dateDebut();
+        var endDate = Objects.isNull(invoicePaymentParam.dateFin()) ? startDate : invoicePaymentParam.dateFin();
         if (startDate.equals(endDate)) {
             return startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
-        return (
-            " DU " +
-                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                " AU " +
-                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        );
+        return (" DU " + startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                + " AU "
+                + endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     }
 }

@@ -5,11 +5,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record EtatRapprochementDto(
-    String tiersPayantName,
-    LocalDate debutPeriode,
-    LocalDate finPeriode,
-    BigDecimal totalFacture,
-    BigDecimal totalRegle,
-    BigDecimal ecartTotal,
-    List<LigneRapprochementDto> lignes
-) {}
+        String tiersPayantName,
+        LocalDate debutPeriode,
+        LocalDate finPeriode,
+        BigDecimal totalFacture,
+        BigDecimal totalRegle,
+        BigDecimal ecartTotal,
+        List<LigneRapprochementDto> lignes) {}

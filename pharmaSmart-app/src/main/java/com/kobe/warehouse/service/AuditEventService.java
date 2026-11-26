@@ -33,10 +33,9 @@ public class AuditEventService {
     private final AuditEventConverter auditEventConverter;
 
     public AuditEventService(
-        PersistenceAuditEventRepository persistenceAuditEventRepository,
-        AuditEventConverter auditEventConverter,
-        LogProperties logProperties
-    ) {
+            PersistenceAuditEventRepository persistenceAuditEventRepository,
+            AuditEventConverter auditEventConverter,
+            LogProperties logProperties) {
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
         this.logProperties = logProperties;
@@ -50,11 +49,12 @@ public class AuditEventService {
     @Scheduled(cron = "0 0 12 * * ?")
     public void removeOldAuditEvents() {
         persistenceAuditEventRepository
-            .findByAuditEventDateBefore(Instant.now().minus(logProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
-            .forEach(auditEvent -> {
-                log.debug("Deleting audit data {}", auditEvent);
-                persistenceAuditEventRepository.delete(auditEvent);
-            });
+                .findByAuditEventDateBefore(
+                        Instant.now().minus(logProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
+                .forEach(auditEvent -> {
+                    log.debug("Deleting audit data {}", auditEvent);
+                    persistenceAuditEventRepository.delete(auditEvent);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -65,8 +65,8 @@ public class AuditEventService {
     @Transactional(readOnly = true)
     public Page<AuditEvent> findByDates(Instant fromDate, Instant toDate, Pageable pageable) {
         return persistenceAuditEventRepository
-            .findAllByAuditEventDateBetween(fromDate, toDate, pageable)
-            .map(auditEventConverter::convertToAuditEvent);
+                .findAllByAuditEventDateBetween(fromDate, toDate, pageable)
+                .map(auditEventConverter::convertToAuditEvent);
     }
 
     @Transactional(readOnly = true)

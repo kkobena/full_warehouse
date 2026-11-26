@@ -35,9 +35,8 @@ import org.springframework.util.CollectionUtils;
 public class DeclarationCaServiceImpl implements DeclarationCaService {
 
     /** Ordre de ponction des règlements : les espèces d'abord, puis le reste. */
-    private static final Comparator<SalePayment> ESPECES_DABORD = Comparator.comparingInt(payment ->
-        ModePaimentCode.CASH.name().equalsIgnoreCase(codeReglement(payment)) ? 0 : 1
-    );
+    private static final Comparator<SalePayment> ESPECES_DABORD = Comparator.comparingInt(
+            payment -> ModePaimentCode.CASH.name().equalsIgnoreCase(codeReglement(payment)) ? 0 : 1);
 
     private final LicenseService licenseService;
     private final AppConfigurationService appConfigurationService;
@@ -45,11 +44,10 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
     private final StorageService storageService;
 
     public DeclarationCaServiceImpl(
-        LicenseService licenseService,
-        AppConfigurationService appConfigurationService,
-        RayonProduitRepository rayonProduitRepository,
-        StorageService storageService
-    ) {
+            LicenseService licenseService,
+            AppConfigurationService appConfigurationService,
+            RayonProduitRepository rayonProduitRepository,
+            StorageService storageService) {
         this.licenseService = licenseService;
         this.appConfigurationService = appConfigurationService;
         this.rayonProduitRepository = rayonProduitRepository;
@@ -62,13 +60,12 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
         if (sales == null || CollectionUtils.isEmpty(sales.getSalesLines())) {
             return;
         }
-        boolean retraite =
-            switch (sales) {
-                case CashSale cashSale -> appliquerAuComptant(cashSale);
-                case ThirdPartySales thirdPartySales -> appliquerAuTiersPayant(thirdPartySales);
-                // Les ventes dépôt portent ca = CA_DEPOT : elles n'entrent pas dans le CA déclaré.
-                default -> false;
-            };
+        boolean retraite = switch (sales) {
+            case CashSale cashSale -> appliquerAuComptant(cashSale);
+            case ThirdPartySales thirdPartySales -> appliquerAuTiersPayant(thirdPartySales);
+            // Les ventes dépôt portent ca = CA_DEPOT : elles n'entrent pas dans le CA déclaré.
+            default -> false;
+        };
 
         if (retraite) {
             repartirSurLesReglements(sales);
@@ -78,7 +75,8 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
     // ===== Ventes comptant : unités gratuites et rayons =====
 
     private boolean appliquerAuComptant(CashSale cashSale) {
-        boolean exclureUg = licenseService.hasFeature(Feature.EXCLUSION_UG) && appConfigurationService.excludeFreeUnit();
+        boolean exclureUg =
+                licenseService.hasFeature(Feature.EXCLUSION_UG) && appConfigurationService.excludeFreeUnit();
         boolean exclureRayon = licenseService.hasFeature(Feature.EXCLUSION_RAYON);
         if (!exclureUg && !exclureRayon) {
             return false;
@@ -112,9 +110,9 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
      */
     private boolean appartientAUnRayonExclu(SalesLine ligne, Integer storageId) {
         return rayonProduitRepository
-            .findByProduitIdAndStorageId(ligne.getProduit().getId(), storageId)
-            .map(rayonProduit -> rayonProduit.getRayon().isExclude())
-            .orElse(false);
+                .findByProduitIdAndStorageId(ligne.getProduit().getId(), storageId)
+                .map(rayonProduit -> rayonProduit.getRayon().isExclude())
+                .orElse(false);
     }
 
     // ===== Ventes tiers-payant : exclusion de la vente entière =====
@@ -137,13 +135,12 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
         if (lignes == null) {
             return false;
         }
-        return lignes
-            .stream()
-            .map(ThirdPartySaleLine::getClientTiersPayant)
-            .filter(Objects::nonNull)
-            .map(clientTiersPayant -> clientTiersPayant.getTiersPayant())
-            .filter(Objects::nonNull)
-            .anyMatch(tiersPayant -> tiersPayant.isBeExclude());
+        return lignes.stream()
+                .map(ThirdPartySaleLine::getClientTiersPayant)
+                .filter(Objects::nonNull)
+                .map(clientTiersPayant -> clientTiersPayant.getTiersPayant())
+                .filter(Objects::nonNull)
+                .anyMatch(tiersPayant -> tiersPayant.isBeExclude());
     }
 
     // ===== Répartition de la réduction sur les règlements =====
@@ -157,12 +154,12 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
      * reste inférieur au chiffre d'affaires, ce qui est le propre d'une vente à crédit.
      */
     private void repartirSurLesReglements(Sales sales) {
-        int montantReel = sales.getSalesLines().stream().mapToInt(DeclarationCaServiceImpl::montantReel).sum();
-        int montantDeclare = sales
-            .getSalesLines()
-            .stream()
-            .mapToInt(ligne -> Objects.requireNonNullElse(ligne.getAmountToBeTakenIntoAccount(), 0))
-            .sum();
+        int montantReel = sales.getSalesLines().stream()
+                .mapToInt(DeclarationCaServiceImpl::montantReel)
+                .sum();
+        int montantDeclare = sales.getSalesLines().stream()
+                .mapToInt(ligne -> Objects.requireNonNullElse(ligne.getAmountToBeTakenIntoAccount(), 0))
+                .sum();
         sales.setAmountToBeTakenIntoAccount(montantDeclare);
 
         int reduction = montantReel - montantDeclare;
@@ -170,7 +167,8 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
             return;
         }
 
-        List<SalePayment> reglements = sales.getPayments().stream().sorted(ESPECES_DABORD).toList();
+        List<SalePayment> reglements =
+                sales.getPayments().stream().sorted(ESPECES_DABORD).toList();
         int reste = reduction;
         for (SalePayment reglement : reglements) {
             int encaisse = Objects.requireNonNullElse(reglement.getPaidAmount(), 0);
@@ -188,6 +186,8 @@ public class DeclarationCaServiceImpl implements DeclarationCaService {
     }
 
     private static String codeReglement(PaymentTransaction payment) {
-        return payment.getPaymentMode() == null ? null : payment.getPaymentMode().getCode();
+        return payment.getPaymentMode() == null
+                ? null
+                : payment.getPaymentMode().getCode();
     }
 }

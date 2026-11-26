@@ -54,13 +54,7 @@
           <i class="pi pi-money-bill"></i>
           Montant
         </label>
-        <app-input-number
-          [max]="90000000"
-          [min]="0"
-          formControlName="amount"
-          inputId="field_amount"
-          placeholder="Entrer le montant"
-        />
+        <app-input-number [max]="90000000" [min]="0" formControlName="amount" inputId="field_amount" placeholder="Entrer le montant" />
         @if (editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)) {
           @if (editForm.get('amount')?.errors?.required) {
             <small class="p-error">Ce champ est obligatoire.</small>
@@ -74,12 +68,7 @@
           <i class="pi pi-calendar"></i>
           Date de transaction
         </label>
-        <pharma-date-picker
-          [maxDate]="maxDate"
-          formControlName="transactionDate"
-          id="transactionDate"
-          label=""
-        />
+        <pharma-date-picker [maxDate]="maxDate" formControlName="transactionDate" id="transactionDate" label="" />
       </div>
 
       <!-- Commentaire -->

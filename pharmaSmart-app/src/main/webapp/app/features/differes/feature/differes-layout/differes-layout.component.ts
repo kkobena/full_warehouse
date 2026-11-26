@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal} from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { DifferesHomeComponent } from '../differes-home/differes-home.component';
 import { HistoriqueReglementsDifferesComponent } from '../historique-reglements-differes/historique-reglements-differes.component';

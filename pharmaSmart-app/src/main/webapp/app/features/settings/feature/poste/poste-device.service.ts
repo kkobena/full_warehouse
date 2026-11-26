@@ -63,7 +63,6 @@ export class PosteDeviceService {
     return this.http.put<void>(`${this.resourceUrl(posteId)}/${deviceId}/activate`, null, { observe: 'response' });
   }
 
-
   /**
    * Supprime un périphérique configuré.
    */
@@ -71,4 +70,3 @@ export class PosteDeviceService {
     return this.http.delete<void>(`${this.resourceUrl(posteId)}/${deviceId}`, { observe: 'response' });
   }
 }
-

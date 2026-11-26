@@ -6,9 +6,9 @@ import static org.mockito.Mockito.lenient;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashFund;
-import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -29,11 +29,11 @@ import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
+import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
@@ -79,12 +79,14 @@ abstract class AbstractSaleIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new SaleServicesUnderTest(em);
 
         caissier = em.find(AppUser.class, 1);
@@ -95,11 +97,19 @@ abstract class AbstractSaleIntegrationTest {
 
         lenient().when(services.storageService.getUser()).thenReturn(caissier);
         lenient().when(services.storageService.getUserFormImport()).thenReturn(caissier);
-        lenient().when(services.storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-        lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserMainStorage())
+                .thenReturn(rayon);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserReserveStorage())
+                .thenReturn(null);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
-        lenient().when(services.cashRegisterService.getLastOpiningUserCashRegisterByUser(any())).thenReturn(caisse);
-        lenient().when(services.cashRegisterService.getOpiningCashRegisterByUser(any())).thenReturn(java.util.Optional.of(caisse));
+        lenient()
+                .when(services.cashRegisterService.getLastOpiningUserCashRegisterByUser(any()))
+                .thenReturn(caisse);
+        lenient()
+                .when(services.cashRegisterService.getOpiningCashRegisterByUser(any()))
+                .thenReturn(java.util.Optional.of(caisse));
         lenient().when(services.userService.getUser()).thenReturn(caissier);
         lenient().when(services.appConfigurationService.getCancelSaleMaxDays()).thenReturn(30);
         lenient().when(services.appConfigurationService.getDelaiValiditeAvoir()).thenReturn(90);
@@ -157,14 +167,16 @@ abstract class AbstractSaleIntegrationTest {
         produit.setUpdatedAt(LocalDateTime.now());
         produit.setTva(tva(tauxTva));
         produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
-            .setMaxResults(1)
-            .getSingleResult());
+                .setMaxResults(1)
+                .getSingleResult());
         em.persist(produit);
         return produit;
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     /** Le stock rayon du produit ; sans lui, aucune ligne de vente ne peut être créée. */
@@ -315,11 +327,13 @@ abstract class AbstractSaleIntegrationTest {
         return compte(assure("ASSURE", organisme, "ASS-" + organisme), tiersPayant(organisme), taux, priorite);
     }
 
-    protected ClientTiersPayant compte(AssuredCustomer assure, String organisme, int taux, PrioriteTiersPayant priorite) {
+    protected ClientTiersPayant compte(
+            AssuredCustomer assure, String organisme, int taux, PrioriteTiersPayant priorite) {
         return compte(assure, tiersPayant(organisme), taux, priorite);
     }
 
-    protected ClientTiersPayant compte(AssuredCustomer assure, TiersPayant tiersPayant, int taux, PrioriteTiersPayant priorite) {
+    protected ClientTiersPayant compte(
+            AssuredCustomer assure, TiersPayant tiersPayant, int taux, PrioriteTiersPayant priorite) {
         ClientTiersPayant compte = new ClientTiersPayant();
         compte.setTiersPayant(tiersPayant);
         compte.setAssuredCustomer(assure);

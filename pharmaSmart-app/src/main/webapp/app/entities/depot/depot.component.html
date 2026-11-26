@@ -3,19 +3,20 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
         @if (canCreate()) {
-          <app-button (clicked)="onCreate()" [raised]="true" icon="pi pi-plus" label="Nouveau Dépôt"
-                      severity="primary" />
+          <app-button (clicked)="onCreate()" [raised]="true" icon="pi pi-plus" label="Nouveau Dépôt" severity="primary" />
         }
         @if (canNewVente()) {
-          <app-button (clicked)="onNewVente()" [raised]="true" icon="pi pi-shopping-cart"
-                      label="Nouvelle vente dépôt"
-                      severity="secondary"  />
+          <app-button
+            (clicked)="onNewVente()"
+            [raised]="true"
+            icon="pi pi-shopping-cart"
+            label="Nouvelle vente dépôt"
+            severity="secondary"
+          />
         }
 
         @if (canReturn()) {
-          <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
-                      label="Retour dépôt"
-                      severity="warn"  />
+          <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
         }
       </div>
     </ng-container>
@@ -33,7 +34,6 @@
       [size]="'small'"
       [stripedRows]="true"
       [value]="depots()"
-
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
     >
       <ng-template #caption>
@@ -79,22 +79,32 @@
             {{ depot.email }}
           </td>
           <td>
-              <span [ngbTooltip]="depot.address" class="text-truncate">
-                {{ depot.address }}
-              </span>
+            <span [ngbTooltip]="depot.address" class="text-truncate">
+              {{ depot.address }}
+            </span>
           </td>
 
           <td style="text-align: center">
             <div class="action-buttons">
               @if (canEdit()) {
-                <app-button (clicked)="onEdit(depot)" [rounded]="true" [text]="true"
-                            icon="pi pi-pencil"
-                            ngbTooltip="Modifier" severity="info" />
+                <app-button
+                  (clicked)="onEdit(depot)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Modifier"
+                  severity="info"
+                />
               }
               @if (canDelete()) {
-                <app-button (clicked)="onDelete(depot)" [rounded]="true" [text]="true"
-                            icon="pi pi-trash"
-                            ngbTooltip="Supprimer" severity="danger" />
+                <app-button
+                  (clicked)="onDelete(depot)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
+                />
               }
             </div>
           </td>
@@ -109,5 +119,3 @@
     </app-data-table>
   </app-card>
 </div>
-
-

@@ -50,10 +50,11 @@ class InvoicePaymentItemServiceTest {
     }
 
     @ParameterizedTest(name = "un bon de {0} deja regle a {1} laisse {2} a devoir")
-    @CsvSource({ "1000, 0, 1000", "1000, 400, 600", "1000, 1000, 0", "1000, 1200, -200" })
+    @CsvSource({"1000, 0, 1000", "1000, 400, 600", "1000, 1000, 0", "1000, 1200, -200"})
     @DisplayName("le montant du a la creation est le reste du bon, pas le montant verse")
     void montantDu(int montant, int montantRegle, int attendu) {
-        InvoicePaymentItem item = service.buildInvoicePaymentItem(ligne(montant, montantRegle), new InvoicePayment(), 1);
+        InvoicePaymentItem item =
+                service.buildInvoicePaymentItem(ligne(montant, montantRegle), new InvoicePayment(), 1);
 
         assertThat(item.getAmount()).isEqualTo(attendu);
         assertThat(item.getPaidAmount()).isEqualTo(1);

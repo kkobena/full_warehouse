@@ -1,28 +1,37 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal, untracked} from '@angular/core';
-import {DatePipe} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {Subject} from 'rxjs';
-import {BadgeComponent, ButtonComponent, DataTableComponent, FormFieldComponent, InputComponent, InputNumberComponent, OffcanvasComponent, SelectSearchComponent} from 'app/shared/ui';
-import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
-import {ProduitSearch} from 'app/shared/model';
-import {IOrdonnance, IOrdonnanceLigne, IOrdonnanceLigneCreation, StatutOrdonnance} from 'app/shared/model/ordonnance.model';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from 'app/shared/util/warehouse-util';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
-import {OrdonnanceApiService} from '../../data-access/services/ordonnance-api.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
-import {ProductSearchService} from '../../data-access/services/product-search.service';
-import {PrescripteursModalComponent} from '../prescripteurs-modal/prescripteurs-modal.component';
-import {PosologieEtiquetteModalComponent} from '../posologie-etiquette-modal/posologie-etiquette-modal.component';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  FormFieldComponent,
+  InputComponent,
+  InputNumberComponent,
+  OffcanvasComponent,
+  SelectSearchComponent,
+} from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { ProduitSearch } from 'app/shared/model';
+import { IOrdonnance, IOrdonnanceLigne, IOrdonnanceLigneCreation, StatutOrdonnance } from 'app/shared/model/ordonnance.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from 'app/shared/util/warehouse-util';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnanceApiService } from '../../data-access/services/ordonnance-api.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
+import { ProductSearchService } from '../../data-access/services/product-search.service';
+import { PrescripteursModalComponent } from '../prescripteurs-modal/prescripteurs-modal.component';
+import { PosologieEtiquetteModalComponent } from '../posologie-etiquette-modal/posologie-etiquette-modal.component';
 
 type Severite = 'success' | 'info' | 'danger';
 
-const STATUTS: Record<StatutOrdonnance, {libelle: string; severity: Severite}> = {
-  EN_COURS: {libelle: 'En cours', severity: 'success'},
-  TERMINEE: {libelle: 'Terminée', severity: 'info'},
-  EXPIREE: {libelle: 'Expirée', severity: 'danger'},
+const STATUTS: Record<StatutOrdonnance, { libelle: string; severity: Severite }> = {
+  EN_COURS: { libelle: 'En cours', severity: 'success' },
+  TERMINEE: { libelle: 'Terminée', severity: 'info' },
+  EXPIREE: { libelle: 'Expirée', severity: 'danger' },
 };
 
 interface LigneSaisie extends IOrdonnanceLigneCreation {
@@ -37,7 +46,7 @@ interface LigneSaisie extends IOrdonnanceLigneCreation {
   selector: 'app-ordonnance-panel',
   templateUrl: './ordonnance-panel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {'(window:keydown)': 'onKeydown($event)'},
+  host: { '(window:keydown)': 'onKeydown($event)' },
   imports: [
     DatePipe,
     FormsModule,
@@ -61,7 +70,9 @@ export class OrdonnancePanelComponent {
   protected readonly chargement = signal(false);
   protected readonly enregistrement = signal(false);
   protected readonly voirToutes = signal(false);
-  protected readonly affichees = computed(() => (this.voirToutes() ? this.ordonnances() : this.ordonnances().filter(o => o.statut === 'EN_COURS')));
+  protected readonly affichees = computed(() =>
+    this.voirToutes() ? this.ordonnances() : this.ordonnances().filter(o => o.statut === 'EN_COURS'),
+  );
   protected readonly masquees = computed(() => this.ordonnances().length - this.affichees().length);
   protected readonly venteEnCours = computed(() => this.facade.currentSale()?.saleId ?? null);
   protected readonly statuts = STATUTS;
@@ -73,7 +84,7 @@ export class OrdonnancePanelComponent {
   protected dateFin: NgbDateStruct | null = null;
   protected renouvellements: number | null = 0;
   protected note = '';
-  protected readonly prescripteurs = signal<{id: number; libelle: string}[]>([]);
+  protected readonly prescripteurs = signal<{ id: number; libelle: string }[]>([]);
   protected readonly lignes = signal<LigneSaisie[]>([]);
   protected readonly produits = signal<ProduitSearch[]>([]);
   protected readonly rechercheProduit$ = new Subject<string>();
@@ -110,12 +121,12 @@ export class OrdonnancePanelComponent {
   }
 
   protected gererPrescripteurs(): void {
-    this.modalService.open(PrescripteursModalComponent, {centered: true, size: 'lg'});
+    this.modalService.open(PrescripteursModalComponent, { centered: true, size: 'lg' });
   }
 
   /** Étiquettes de posologie : patient, prescripteur et instructions viennent de l'ordonnance. */
   protected imprimerPosologie(ordonnance: IOrdonnance): void {
-    const modale = this.modalService.open(PosologieEtiquetteModalComponent, {centered: true});
+    const modale = this.modalService.open(PosologieEtiquetteModalComponent, { centered: true });
     modale.componentInstance.ordonnance = ordonnance;
   }
 
@@ -160,7 +171,9 @@ export class OrdonnancePanelComponent {
 
   protected chercherPrescripteur(terme: string): void {
     if (terme.trim().length >= 2) {
-      this.api.rechercherPrescripteurs(terme.trim()).subscribe(trouves => this.prescripteurs.set(trouves.map(p => ({id: p.id!, libelle: this.nomPrescripteur(p)}))));
+      this.api
+        .rechercherPrescripteurs(terme.trim())
+        .subscribe(trouves => this.prescripteurs.set(trouves.map(p => ({ id: p.id!, libelle: this.nomPrescripteur(p) }))));
     }
   }
 
@@ -169,9 +182,9 @@ export class OrdonnancePanelComponent {
     if (!nom) {
       return;
     }
-    this.api.creerPrescripteur({nom, actif: true}).subscribe({
+    this.api.creerPrescripteur({ nom, actif: true }).subscribe({
       next: p => {
-        this.prescripteurs.set([{id: p.id!, libelle: this.nomPrescripteur(p)}]);
+        this.prescripteurs.set([{ id: p.id!, libelle: this.nomPrescripteur(p) }]);
         this.prescripteurId = p.id!;
         this.nouveauPrescripteur = '';
       },
@@ -229,7 +242,7 @@ export class OrdonnancePanelComponent {
         renouvellements: this.renouvellements ?? 0,
         dateFinValidite: NGB_DATE_TO_ISO(this.dateFin),
         note: this.note.trim() || null,
-        lignes: this.lignes().map(({libelle, ...ligne}) => ligne),
+        lignes: this.lignes().map(({ libelle, ...ligne }) => ligne),
       })
       .subscribe({
         next: () => {
@@ -312,7 +325,7 @@ export class OrdonnancePanelComponent {
     this.ligneDuree = null;
   }
 
-  private nomPrescripteur(p: {nom: string; prenom?: string | null; specialite?: string | null}): string {
+  private nomPrescripteur(p: { nom: string; prenom?: string | null; specialite?: string | null }): string {
     return [p.nom, p.prenom].filter(Boolean).join(' ') + (p.specialite ? ` (${p.specialite})` : '');
   }
 }

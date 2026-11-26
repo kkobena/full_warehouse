@@ -1,7 +1,6 @@
 <div class="pharma-smart-content p-1">
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Dashboard Chiffre d'Affaires">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-select
@@ -18,11 +17,8 @@
         />
 
         @if (selectedPeriod() === 'custom') {
-          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }"
-                              id="fromDate"
-                              label="Date début" />
-          <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '190px' }" id="toDate"
-                              label="Date fin" />
+          <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '190px' }" id="fromDate" label="Date début" />
+          <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '190px' }" id="toDate" label="Date fin" />
         }
       </div>
     </ng-container>
@@ -30,24 +26,16 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         @if (selectedPeriod() === 'custom') {
-          <app-button (clicked)="loadDashboard()" icon="pi pi-check" label="Appliquer"
-                      size="small" />
+          <app-button (clicked)="loadDashboard()" icon="pi pi-check" label="Appliquer" size="small" />
         }
 
-        <app-button (clicked)="onRefresh()" icon="pi pi-refresh" label="Actualiser"
-                    severity="info" size="small" />
-        <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="PDF"
-                    severity="warn"
-                    size="small" />
-        <app-button (clicked)="exportDailySummaryToExcel()" icon="pi pi-file-excel"
-                    label="Excel"
-                    severity="warn" size="small" />
-        <app-button (clicked)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV"
-                    severity="help" size="small" />
+        <app-button (clicked)="onRefresh()" icon="pi pi-refresh" label="Actualiser" severity="info" size="small" />
+        <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="PDF" severity="warn" size="small" />
+        <app-button (clicked)="exportDailySummaryToExcel()" icon="pi pi-file-excel" label="Excel" severity="warn" size="small" />
+        <app-button (clicked)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV" severity="help" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
-
 
   <!-- Loading spinner -->
   @if (isLoading()) {
@@ -58,86 +46,106 @@
     <!-- KPI Strip -->
     @if (summary(); as sum) {
       <app-kpi-strip stripClass="mt-2 mb-2">
-        <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.caToday)"
-                      icon="pi pi-calendar"
-                      iconClass="text-primary" label="CA Aujourd'hui"
-                      info="Ventes clôturées du jour, remises déduites, hors ventes annulées et hors dépôt. L'évolution compare la journée en cours à la veille entière. Chiffres issus de la synthèse quotidienne : « Actualiser » la recalcule."
-                      valueClass="text-primary">
+        <app-kpi-item
+          [accent]="'primary'"
+          [value]="formatCurrency(sum.caToday)"
+          icon="pi pi-calendar"
+          iconClass="text-primary"
+          label="CA Aujourd'hui"
+          info="Ventes clôturées du jour, remises déduites, hors ventes annulées et hors dépôt. L'évolution compare la journée en cours à la veille entière. Chiffres issus de la synthèse quotidienne : « Actualiser » la recalcule."
+          valueClass="text-primary"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]"><span
-            [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                        <i
-                          [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-            {{ formatPercent(sum.caTodayEvolutionPct) }}%
-                      </span>
+          <ng-container ngProjectAs="[kpiSub]"
+            ><span [class]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+              <i [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.caTodayEvolutionPct) }}%
+            </span>
             vs hier — {{ sum.nbTransactionsToday | number }} transact.
           </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.caWeek)"
-                      icon="pi pi-calendar-plus"
-                      iconClass="text-success" label="CA Semaine"
-                      info="Du lundi à aujourd'hui, remises déduites. L'évolution se mesure contre la semaine précédente complète : en début de semaine, quelques jours sont comparés à sept."
-                      valueClass="text-success">
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="formatCurrency(sum.caWeek)"
+          icon="pi pi-calendar-plus"
+          iconClass="text-success"
+          label="CA Semaine"
+          info="Du lundi à aujourd'hui, remises déduites. L'évolution se mesure contre la semaine précédente complète : en début de semaine, quelques jours sont comparés à sept."
+          valueClass="text-success"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]"><span
-            [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                        <i
-                          [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-            {{ formatPercent(sum.caWeekEvolutionPct) }}%
-                      </span>
+          <ng-container ngProjectAs="[kpiSub]"
+            ><span [class]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+              <i [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.caWeekEvolutionPct) }}%
+            </span>
             — {{ sum.nbTransactionsWeek | number }} transact.
           </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'warning'" [value]="formatCurrency(sum.caMonth)"
-                      icon="pi pi-chart-bar"
-                      iconClass="text-warning" label="CA Mois"
-                      info="Du 1er du mois à aujourd'hui, remises déduites, comparé au mois précédent complet. Le panier moyen est ce CA divisé par le nombre de transactions affiché à côté."
-                      valueClass="text-warning">
+        <app-kpi-item
+          [accent]="'warning'"
+          [value]="formatCurrency(sum.caMonth)"
+          icon="pi pi-chart-bar"
+          iconClass="text-warning"
+          label="CA Mois"
+          info="Du 1er du mois à aujourd'hui, remises déduites, comparé au mois précédent complet. Le panier moyen est ce CA divisé par le nombre de transactions affiché à côté."
+          valueClass="text-warning"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]"><span
-            [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                        <i
-                          [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-            {{ formatPercent(sum.caMonthEvolutionPct) }}%
-                      </span>
-            — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }}
-            <span appDevise></span></ng-container>
+          <ng-container ngProjectAs="[kpiSub]"
+            ><span [class]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+              <i [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.caMonthEvolutionPct) }}%
+            </span>
+            — {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }} <span appDevise></span
+          ></ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'danger'" [value]="formatCurrency(sum.caYear)"
-                      icon="pi pi-chart-line"
-                      iconClass="text-danger" label="CA Année"
-                      info="Du 1er janvier à aujourd'hui, comparé à l'année précédente complète. Le taux de marge rapporte au CA net la marge que ce CA net dégage : remises déduites, moins le coût d'achat des quantités vendues."
-                      valueClass="text-danger">
+        <app-kpi-item
+          [accent]="'danger'"
+          [value]="formatCurrency(sum.caYear)"
+          icon="pi pi-chart-line"
+          iconClass="text-danger"
+          label="CA Année"
+          info="Du 1er janvier à aujourd'hui, comparé à l'année précédente complète. Le taux de marge rapporte au CA net la marge que ce CA net dégage : remises déduites, moins le coût d'achat des quantités vendues."
+          valueClass="text-danger"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]"><span
-            [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                        <i
-                          [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-            {{ formatPercent(sum.caYearEvolutionPct) }}%
-                      </span>
+          <ng-container ngProjectAs="[kpiSub]"
+            ><span [class]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'evolution-positive' : 'evolution-negative'">
+              <i [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+              {{ formatPercent(sum.caYearEvolutionPct) }}%
+            </span>
             — {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}% marge
           </ng-container>
         </app-kpi-item>
         @if (summaryFinances(); as fin) {
-          <app-kpi-item [value]="formatCurrency(fin.totalDetteFournisseurs)" icon="pi pi-building"
-                        iconClass="kpi-violet"
-                        label="Dettes fournisseurs"
-                        info="Reste dû sur les commandes réceptionnées non soldées : montant des commandes moins les paiements déjà versés. Une échéance est en retard passé le délai de crédit du fournisseur — 30 jours à défaut — compté depuis la réception."
-                        style="border-left: 3px solid #6f42c1"
-                        valueClass="kpi-violet">
+          <app-kpi-item
+            [value]="formatCurrency(fin.totalDetteFournisseurs)"
+            icon="pi pi-building"
+            iconClass="kpi-violet"
+            label="Dettes fournisseurs"
+            info="Reste dû sur les commandes réceptionnées non soldées : montant des commandes moins les paiements déjà versés. Une échéance est en retard passé le délai de crédit du fournisseur — 30 jours à défaut — compté depuis la réception."
+            style="border-left: 3px solid #6f42c1"
+            valueClass="kpi-violet"
+          >
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-            <ng-container ngProjectAs="[kpiSub]">{{ fin.nbEcheancesEnRetard ?? 0 }}
+            <ng-container ngProjectAs="[kpiSub]"
+              >{{ fin.nbEcheancesEnRetard ?? 0 }}
               échéance(s) en retard
             </ng-container>
           </app-kpi-item>
-          <app-kpi-item [value]="formatCurrency(fin.totalCreancesTP)" icon="pi pi-users"
-                        iconClass="kpi-cyan"
-                        label="Créances tiers-payants"
-                        info="Reste dû des bons tiers payant non réglés, toutes périodes : montant du bon moins ce qui a été encaissé. Le compte affiché dessous est celui des factures non soldées dont l'échéance est passée — date de facture plus le délai de règlement de l'organisme, 30 jours à défaut."
-                        style="border-left: 3px solid #0dcaf0"
-                        valueClass="kpi-cyan">
+          <app-kpi-item
+            [value]="formatCurrency(fin.totalCreancesTP)"
+            icon="pi pi-users"
+            iconClass="kpi-cyan"
+            label="Créances tiers-payants"
+            info="Reste dû des bons tiers payant non réglés, toutes périodes : montant du bon moins ce qui a été encaissé. Le compte affiché dessous est celui des factures non soldées dont l'échéance est passée — date de facture plus le délai de règlement de l'organisme, 30 jours à défaut."
+            style="border-left: 3px solid #0dcaf0"
+            valueClass="kpi-cyan"
+          >
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-            <ng-container ngProjectAs="[kpiSub]">{{ fin.nbFacturesImpayees ?? 0 }}
+            <ng-container ngProjectAs="[kpiSub]"
+              >{{ fin.nbFacturesImpayees ?? 0 }}
               facture(s) impayée(s)
             </ng-container>
           </app-kpi-item>
@@ -158,29 +166,26 @@
               <div class="ms-auto d-flex align-items-center flex-wrap gap-4">
                 <div>
                   <div class="text-muted small">Ce mois</div>
-                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span
-                    appDevise></span></div>
+                  <div class="fw-bold">{{ formatCurrency(basket.currentValue) }} <span appDevise></span></div>
                 </div>
                 <span
-                  [class]="'badge px-2 py-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
-                  <i
-                    [class]="'pi me-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
-                  {{ formatCurrency(basket.evolutionAmount) }} <span appDevise></span>
-                  ({{ formatPercent(basket.evolutionPct) }}%) vs M-1
+                  [class]="
+                    'badge px-2 py-1 ' +
+                    ((basket.evolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')
+                  "
+                >
+                  <i [class]="'pi me-1 ' + ((basket.evolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                  {{ formatCurrency(basket.evolutionAmount) }} <span appDevise></span> ({{ formatPercent(basket.evolutionPct) }}%) vs M-1
                 </span>
                 <div>
                   <div class="text-muted small">Meilleur mois</div>
                   <div class="fw-semibold">{{ basket.bestMonthLabel }}</div>
-                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span
-                    appDevise></span>
-                  </div>
+                  <div class="small text-success">{{ formatCurrency(basket.bestMonthValue) }}<span appDevise></span></div>
                 </div>
                 <div>
                   <div class="text-muted small">Tendance 6M</div>
-                  <div
-                    [class]="'fw-semibold ' + ((basket.trend6MPct ?? 0) >= 0 ? 'text-success' : 'text-danger')">
-                    <i
-                      [class]="'pi me-1 ' + ((basket.trend6MPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                  <div [class]="'fw-semibold ' + ((basket.trend6MPct ?? 0) >= 0 ? 'text-success' : 'text-danger')">
+                    <i [class]="'pi me-1 ' + ((basket.trend6MPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
                     {{ formatPercent(basket.trend6MPct) }}%
                   </div>
                 </div>
@@ -249,7 +254,6 @@
       sept pour le second, dont le tableau porte cinq colonnes et des libellés produits.
     -->
     <div class="row">
-
       <div class="col-xl-5 col-lg-12 mb-2">
         <div class="card h-100 data-card">
           <div class="card-header">
@@ -264,12 +268,12 @@
             } @else {
               <table class="table table-sm mb-0">
                 <thead>
-                <tr class="pharma-table-head">
-                  <th>Type de vente</th>
-                  <th class="text-end">Ventes</th>
-                  <th class="text-end">CA net</th>
-                  <th class="text-end">Part</th>
-                </tr>
+                  <tr class="pharma-table-head">
+                    <th>Type de vente</th>
+                    <th class="text-end">Ventes</th>
+                    <th class="text-end">CA net</th>
+                    <th class="text-end">Part</th>
+                  </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (ligne of typeVenteData(); track ligne.typeVente) {
@@ -312,14 +316,14 @@
                    de la carte restait vide. `table` lui rend la largeur disponible. -->
               <table class="table table-sm mb-0">
                 <thead class="pharma-table-head">
-                <tr>
-                  <th>#</th>
-                  <th>Produit</th>
-                  <th>Code CIP</th>
-                  <th class="text-end">Quantité Vendue</th>
-                  <th class="text-end">CA (<span appDevise></span>)</th>
-                  <th class="text-end">Prix Moyen</th>
-                </tr>
+                  <tr>
+                    <th>#</th>
+                    <th>Produit</th>
+                    <th>Code CIP</th>
+                    <th class="text-end">Quantité Vendue</th>
+                    <th class="text-end">CA (<span appDevise></span>)</th>
+                    <th class="text-end">Prix Moyen</th>
+                  </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (product of topProducts(); track product.produitId; let i = $index) {
@@ -330,10 +334,7 @@
                         <span class="pharma-code">{{ product.codeCip }}</span>
                       </td>
                       <td class="text-end">{{ formatCurrency(product.qteVendue) }}</td>
-                      <td class="text-end fw-semibold text-primary">{{
-                          formatCurrency(product.caGenere)
-                        }}
-                      </td>
+                      <td class="text-end fw-semibold text-primary">{{ formatCurrency(product.caGenere) }}</td>
                       <td class="text-end">{{ formatCurrency(product.prixMoyen) }}</td>
                     </tr>
                   }

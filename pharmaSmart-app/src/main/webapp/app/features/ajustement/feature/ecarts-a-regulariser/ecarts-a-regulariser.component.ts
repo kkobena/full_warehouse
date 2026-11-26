@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {DecimalPipe} from '@angular/common';
-import {Router} from '@angular/router';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {AjustementApiService} from '../../data-access/services/ajustement-api.service';
-import {IEcartStock} from '../../models';
-import {ButtonComponent, DataTableComponent, HintComponent, ToolbarComponent} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AjustementApiService } from '../../data-access/services/ajustement-api.service';
+import { IEcartStock } from '../../models';
+import { ButtonComponent, DataTableComponent, HintComponent, ToolbarComponent } from '../../../../shared/ui';
 
 /** Lot 4 de PLAN-VENTE-SUR-STOCK-ERRONE : la liste de travail du pharmacien avant ajustement ou inventaire. */
 @Component({
@@ -16,7 +16,14 @@ import {ButtonComponent, DataTableComponent, HintComponent, ToolbarComponent} fr
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <app-button (clicked)="charger()" [loading]="loading()" icon="pi pi-refresh" label="Actualiser" severity="secondary" [outlined]="true" />
+              <app-button
+                (clicked)="charger()"
+                [loading]="loading()"
+                icon="pi pi-refresh"
+                label="Actualiser"
+                severity="secondary"
+                [outlined]="true"
+              />
               <app-button (clicked)="retour()" icon="pi pi-arrow-left" label="Ajustements" severity="secondary" [outlined]="true" />
               <app-button (clicked)="nouvelAjustement()" [raised]="true" icon="pi pi-plus" label="Nouvel ajustement" severity="success" />
             </div>
@@ -25,8 +32,8 @@ import {ButtonComponent, DataTableComponent, HintComponent, ToolbarComponent} fr
       </app-toolbar>
 
       <app-hint storageKey="ecarts-a-regulariser-hint">
-        Un stock négatif est normal tant qu'il correspond aux avoirs ouverts : c'est ce que l'officine doit à ses clients.
-        Au-delà, des boîtes sont sorties sans être connues de la machine — à corriger par un ajustement ou à l'inventaire.
+        Un stock négatif est normal tant qu'il correspond aux avoirs ouverts : c'est ce que l'officine doit à ses clients. Au-delà, des
+        boîtes sont sorties sans être connues de la machine — à corriger par un ajustement ou à l'inventaire.
       </app-hint>
 
       <app-data-table [loading]="loading()" [value]="ecarts()" dataKey="produitId">
@@ -42,7 +49,9 @@ import {ButtonComponent, DataTableComponent, HintComponent, ToolbarComponent} fr
         <ng-template #body let-ecart>
           <tr class="pharma-row-hover" [attr.data-produit]="ecart.produitId">
             <td class="text-muted">{{ ecart.codeCip ?? '–' }}</td>
-            <td><span class="pharma-entity-name">{{ ecart.libelle }}</span></td>
+            <td>
+              <span class="pharma-entity-name">{{ ecart.libelle }}</span>
+            </td>
             <td class="text-right">{{ ecart.stock | number }}</td>
             <td class="text-right">{{ ecart.quantiteDue | number }}</td>
             <td class="text-right fw-semibold text-danger">{{ ecart.ecart | number }}</td>

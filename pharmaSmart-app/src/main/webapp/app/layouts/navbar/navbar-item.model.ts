@@ -1,7 +1,6 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 export interface NavItem {
-
   id: string;
   label: string;
   routerLink?: string;

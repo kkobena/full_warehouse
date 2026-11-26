@@ -15,21 +15,14 @@ import java.time.LocalDate;
  *                     doivent alors être présentés comme proposés, et confirmés par un humain
  */
 public record DataMatrixHintDTO(
-    String scannedCode,
-    String numLot,
-    LocalDate expiryDate,
-    String serialNumber,
-    int qty,
-    boolean proposition
-) {
+        String scannedCode, String numLot, LocalDate expiryDate, String serialNumber, int qty, boolean proposition) {
     public static DataMatrixHintDTO fromParsed(DataMatrixInfo parsed) {
         return new DataMatrixHintDTO(
-            parsed.getProductCode(),
-            parsed.batchNumber(),
-            parsed.expiryDate(),
-            parsed.serialNumber(),
-            parsed.scannedQty(),
-            parsed.proposition()
-        );
+                parsed.getProductCode(),
+                parsed.batchNumber(),
+                parsed.expiryDate(),
+                parsed.serialNumber(),
+                parsed.scannedQty(),
+                parsed.proposition());
     }
 }

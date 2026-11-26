@@ -14,7 +14,7 @@ import {
 } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
-import { ILotPeremption, ILotProduit, ProductsApiService } from "../../data-access/services/products-api.service";
+import { ILotPeremption, ILotProduit, ProductsApiService } from '../../data-access/services/products-api.service';
 import { PrixReference } from '../prix-reference/model/prix-reference.model';
 import { PrixReferenceService } from '../prix-reference/prix-reference.service';
 import { AddPrixFormComponent } from '../prix-reference/add-prix-form/add-prix-form.component';
@@ -95,16 +95,24 @@ export class ProduitSyntheseTabComponent {
     return v;
   });
 
-  protected readonly statutLegalTag = computed((): { label: string; severity: 'success' | 'warn' | 'danger' | 'secondary'; icon: string } => {
-    switch (this.produit().statutLegal) {
-      case 'SANS_LISTE':  return { label: 'Sans liste',  severity: 'success', icon: 'pi pi-check-circle' };
-      case 'LISTE_I':     return { label: 'Liste I',     severity: 'warn',    icon: 'pi pi-exclamation-circle' };
-      case 'LISTE_II':    return { label: 'Liste II',    severity: 'warn',    icon: 'pi pi-exclamation-circle' };
-      case 'STUPEFIANTS': return { label: 'Stupéfiants', severity: 'danger',  icon: 'pi pi-ban' };
-      case 'PSO':         return { label: 'PSO',         severity: 'danger',  icon: 'pi pi-ban' };
-      default:            return { label: '—',           severity: 'secondary', icon: 'pi pi-minus' };
-    }
-  });
+  protected readonly statutLegalTag = computed(
+    (): { label: string; severity: 'success' | 'warn' | 'danger' | 'secondary'; icon: string } => {
+      switch (this.produit().statutLegal) {
+        case 'SANS_LISTE':
+          return { label: 'Sans liste', severity: 'success', icon: 'pi pi-check-circle' };
+        case 'LISTE_I':
+          return { label: 'Liste I', severity: 'warn', icon: 'pi pi-exclamation-circle' };
+        case 'LISTE_II':
+          return { label: 'Liste II', severity: 'warn', icon: 'pi pi-exclamation-circle' };
+        case 'STUPEFIANTS':
+          return { label: 'Stupéfiants', severity: 'danger', icon: 'pi pi-ban' };
+        case 'PSO':
+          return { label: 'PSO', severity: 'danger', icon: 'pi pi-ban' };
+        default:
+          return { label: '—', severity: 'secondary', icon: 'pi pi-minus' };
+      }
+    },
+  );
 
   /** rotationAnnuelleQte sanitisée : null si négative */
   protected readonly rotationAnnuelle = computed(() => {
@@ -159,7 +167,7 @@ export class ProduitSyntheseTabComponent {
         this.gestionLotPending.set(false);
         this.notificationService.success(
           active ? 'Contrôle des lots activé pour ce produit' : 'Contrôle des lots désactivé',
-          'Gestion des lots'
+          'Gestion des lots',
         );
         this.refreshRequested.emit();
       },
@@ -190,7 +198,7 @@ export class ProduitSyntheseTabComponent {
     flag: 'THERMOSENSIBLE' | 'MEDICAMENT_ESSENTIEL' | 'PRODUIT_GARDE' | 'CLASSIFICATION_OVERRIDDEN',
     value: boolean,
     pending: ReturnType<typeof signal<boolean>>,
-    label: string
+    label: string,
   ): void {
     const id = this.produit().id;
     if (!id || this.isDisabled()) return;
@@ -198,10 +206,7 @@ export class ProduitSyntheseTabComponent {
     this.api.patchFlag(id, flag, value).subscribe({
       next: () => {
         pending.set(false);
-        this.notificationService.success(
-          `${label} ${value ? 'activé' : 'désactivé'} pour ce produit`,
-          label
-        );
+        this.notificationService.success(`${label} ${value ? 'activé' : 'désactivé'} pour ce produit`, label);
         this.refreshRequested.emit();
       },
       error: () => {
@@ -226,7 +231,7 @@ export class ProduitSyntheseTabComponent {
     this.confirmDialog.onConfirm(
       () => this.prixReferenceService.delete(prix.id!).subscribe(() => this.loadPrixReferences(this.produit().id!)),
       'Suppression',
-      'Voulez-vous vraiment supprimer ce prix de référence ?'
+      'Voulez-vous vraiment supprimer ce prix de référence ?',
     );
   }
 
@@ -239,7 +244,7 @@ export class ProduitSyntheseTabComponent {
         this.prixReferenceService.update(prix).subscribe(() => this.loadPrixReferences(this.produit().id!));
       },
       'Activation/Désactivation',
-      msg
+      msg,
     );
   }
 
@@ -257,7 +262,7 @@ export class ProduitSyntheseTabComponent {
       () => this.loadPrixReferences(this.produit().id!),
       'lg',
       null,
-      () => this.loadPrixReferences(this.produit().id!)
+      () => this.loadPrixReferences(this.produit().id!),
     );
   }
 }

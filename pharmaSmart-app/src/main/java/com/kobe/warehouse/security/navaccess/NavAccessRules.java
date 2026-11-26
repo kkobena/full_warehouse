@@ -30,18 +30,18 @@ public final class NavAccessRules {
     /** La déclaration de la méthode l'emporte sur celle de la classe. */
     public static Rule resolve(Method method, Class<?> type) {
         Rule onMethod = declaredOn(
-            AnnotatedElementUtils.findMergedAnnotation(method, NavAccessExempt.class),
-            AnnotatedElementUtils.findMergedAnnotation(method, RequiresNavAccess.class),
-            AnnotatedElementUtils.hasAnnotation(method, PreAuthorize.class) || AnnotatedElementUtils.hasAnnotation(method, Secured.class)
-        );
+                AnnotatedElementUtils.findMergedAnnotation(method, NavAccessExempt.class),
+                AnnotatedElementUtils.findMergedAnnotation(method, RequiresNavAccess.class),
+                AnnotatedElementUtils.hasAnnotation(method, PreAuthorize.class)
+                        || AnnotatedElementUtils.hasAnnotation(method, Secured.class));
         if (!(onMethod instanceof Unclassified)) {
             return onMethod;
         }
         return declaredOn(
-            AnnotatedElementUtils.findMergedAnnotation(type, NavAccessExempt.class),
-            AnnotatedElementUtils.findMergedAnnotation(type, RequiresNavAccess.class),
-            AnnotatedElementUtils.hasAnnotation(type, PreAuthorize.class) || AnnotatedElementUtils.hasAnnotation(type, Secured.class)
-        );
+                AnnotatedElementUtils.findMergedAnnotation(type, NavAccessExempt.class),
+                AnnotatedElementUtils.findMergedAnnotation(type, RequiresNavAccess.class),
+                AnnotatedElementUtils.hasAnnotation(type, PreAuthorize.class)
+                        || AnnotatedElementUtils.hasAnnotation(type, Secured.class));
     }
 
     private static Rule declaredOn(NavAccessExempt exempt, RequiresNavAccess requires, boolean springSecured) {

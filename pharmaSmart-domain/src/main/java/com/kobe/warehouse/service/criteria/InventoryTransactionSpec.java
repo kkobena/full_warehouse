@@ -30,20 +30,19 @@ public class InventoryTransactionSpec implements Specification<InventoryTransact
     }
 
     @Override
-    public Predicate toPredicate(Root<InventoryTransaction> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+    public Predicate toPredicate(
+            Root<InventoryTransaction> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         List<Predicate> predicates = new ArrayList<>();
 
-        if (Objects.nonNull(this.inventoryTransactionFilter.getType()) && this.inventoryTransactionFilter.getType() != -1) {
+        if (Objects.nonNull(this.inventoryTransactionFilter.getType())
+                && this.inventoryTransactionFilter.getType() != -1) {
             TransactionType transactionType = TransactionType.values()[this.inventoryTransactionFilter.getType()];
             predicates.add(criteriaBuilder.equal(root.get(InventoryTransaction_.mouvementType), transactionType));
         }
         if (Objects.nonNull(this.inventoryTransactionFilter.getProduitId())) {
-            predicates.add(
-                criteriaBuilder.equal(
+            predicates.add(criteriaBuilder.equal(
                     root.get(InventoryTransaction_.produit).get(Produit_.id),
-                    this.inventoryTransactionFilter.getProduitId()
-                )
-            );
+                    this.inventoryTransactionFilter.getProduitId()));
         }
         LocalDateTime startAt = begin();
         LocalDateTime end = end();
@@ -54,9 +53,9 @@ public class InventoryTransactionSpec implements Specification<InventoryTransact
     private LocalDateTime begin() {
         if (StringUtils.hasLength(this.inventoryTransactionFilter.getStartDate())) {
             return LocalDateTime.of(
-                LocalDate.parse(this.inventoryTransactionFilter.getStartDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                LocalTime.MIN
-            );
+                    LocalDate.parse(
+                            this.inventoryTransactionFilter.getStartDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    LocalTime.MIN);
         }
 
         return LocalDate.now().atStartOfDay();
@@ -65,9 +64,9 @@ public class InventoryTransactionSpec implements Specification<InventoryTransact
     private LocalDateTime end() {
         if (StringUtils.hasLength(this.inventoryTransactionFilter.getEndDate())) {
             return LocalDateTime.of(
-                LocalDate.parse(this.inventoryTransactionFilter.getEndDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                LocalTime.MAX
-            );
+                    LocalDate.parse(
+                            this.inventoryTransactionFilter.getEndDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    LocalTime.MAX);
         }
         return LocalDate.now().atTime(LocalTime.MAX);
     }

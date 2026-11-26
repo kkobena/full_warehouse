@@ -40,18 +40,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class InventaireQueryServiceImpl implements InventaireQueryService {
 
-
     private final StoreInventoryRepository storeInventoryRepository;
     private final InventoryStockService inventoryStockService;
     private final AppConfigurationService appConfigurationService;
     private final EntityManager em;
 
     public InventaireQueryServiceImpl(
-        StoreInventoryRepository storeInventoryRepository,
-        InventoryStockService inventoryStockService,
-        AppConfigurationService appConfigurationService,
-        EntityManager em
-    ) {
+            StoreInventoryRepository storeInventoryRepository,
+            InventoryStockService inventoryStockService,
+            AppConfigurationService appConfigurationService,
+            EntityManager em) {
         this.storeInventoryRepository = storeInventoryRepository;
         this.inventoryStockService = inventoryStockService;
         this.appConfigurationService = appConfigurationService;
@@ -64,12 +62,8 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
     @Override
     public Page<StoreInventoryLineRecord> getInventoryPage(
-        StoreInventoryLineFilterRecord filter,
-        Pageable pageable,
-        boolean excludeIfClosed
-    ) {
-        StoreInventory inventory = storeInventoryRepository.getReferenceById(
-            filter.storeInventoryId());
+            StoreInventoryLineFilterRecord filter, Pageable pageable, boolean excludeIfClosed) {
+        StoreInventory inventory = storeInventoryRepository.getReferenceById(filter.storeInventoryId());
 
         if (excludeIfClosed && inventory.getStatut() == InventoryStatut.CLOSED) {
             return Page.empty(pageable);
@@ -88,23 +82,22 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
         // Pré-chargement du stock en masse : 1 requête pour toute la page (évite le N+1)
         Set<Integer> produitIds = tuples.stream()
-            .map(t -> t.get("produitId", Integer.class))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .map(t -> t.get("produitId", Integer.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
         Map<Integer, Integer> stockMap = buildStockMap(inventory, produitIds);
 
         List<StoreInventoryLineRecord> records = tuples.stream()
-            .filter(t -> t.get("produitId", Integer.class) != null)
-            .map(t -> toRecord(t, stockMap))
-            .toList();
+                .filter(t -> t.get("produitId", Integer.class) != null)
+                .map(t -> toRecord(t, stockMap))
+                .toList();
 
         return new PageImpl<>(records, pageable, count);
     }
 
     @Override
-    public InventoryExportWrapper exportInventory(
-        StoreInventoryExportRecord inventoryExportRecord) {
+    public InventoryExportWrapper exportInventory(StoreInventoryExportRecord inventoryExportRecord) {
         List<StoreInventoryGroupExport> items = getStoreInventoryToExport(inventoryExportRecord);
         if (items.isEmpty()) {
             return null;
@@ -112,19 +105,15 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
         InventoryExportWrapper wrapper = new InventoryExportWrapper();
         wrapper.setInventoryGroups(items);
         wrapper.setInventoryExportSummaries(buildSummaries(items));
-        wrapper.setStoreInventory(
-            new StoreInventoryDTO(storeInventoryRepository.getReferenceById(
-                inventoryExportRecord.filterRecord().storeInventoryId()))
-        );
+        wrapper.setStoreInventory(new StoreInventoryDTO(storeInventoryRepository.getReferenceById(
+                inventoryExportRecord.filterRecord().storeInventoryId())));
         wrapper.setExportGroupBy(inventoryExportRecord.exportGroupBy());
         return wrapper;
     }
 
     @Override
-    public List<StoreInventoryGroupExport> getStoreInventoryToExport(
-        StoreInventoryExportRecord filterRecord) {
-        return buildStoreInventoryGroupExportsFromTuple(fetchExportTuples(filterRecord),
-            filterRecord);
+    public List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord) {
+        return buildStoreInventoryGroupExportsFromTuple(fetchExportTuples(filterRecord), filterRecord);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -132,11 +121,9 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
     @Override
     @SuppressWarnings("unchecked")
     public List<StoreInventoryLotGroupExport> getLotGroupsForExport(Long inventoryId) {
-        List<Tuple> tuples = em.createNativeQuery(
-                StoreInventoryLineFilterBuilder.LOT_EXPORT_SQL,
-                Tuple.class)
-            .setParameter(1, inventoryId)
-            .getResultList();
+        List<Tuple> tuples = em.createNativeQuery(StoreInventoryLineFilterBuilder.LOT_EXPORT_SQL, Tuple.class)
+                .setParameter(1, inventoryId)
+                .getResultList();
 
         // Les lignes sans lot n'ont pas de stock initial propre : il vient de la même source
         // que la vue produit, sinon l'export contredirait l'écran de comptage
@@ -145,23 +132,21 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
         LinkedHashMap<String, StoreInventoryLotGroupExport> map = new LinkedHashMap<>();
         for (Tuple t : tuples) {
             String cip = t.get("code_cip", String.class);
-            StoreInventoryLotGroupExport group = map.computeIfAbsent(cip, k ->
-                new StoreInventoryLotGroupExport(cip, t.get("produit_libelle", String.class))
-            );
+            StoreInventoryLotGroupExport group = map.computeIfAbsent(
+                    cip, k -> new StoreInventoryLotGroupExport(cip, t.get("produit_libelle", String.class)));
             int quantityInit = t.get("inventory_lot_id", Long.class) != null
-                ? toInt(t.get("quantity_init"))
-                : stockMap.getOrDefault(t.get("produit_id", Integer.class), 0);
+                    ? toInt(t.get("quantity_init"))
+                    : stockMap.getOrDefault(t.get("produit_id", Integer.class), 0);
             group.addLot(new StoreInventoryLotLineExport(
-                cip,
-                t.get("produit_libelle", String.class),
-                t.get("num_lot", String.class),
-                t.get("expiry_date", java.time.LocalDate.class),
-                quantityInit,
-                toInt(t.get("quantity_on_hand")),
-                toInt(t.get("gap")),
-                toInt(t.get("last_unit_price")),
-                toInt(t.get("prix_achat"))
-            ));
+                    cip,
+                    t.get("produit_libelle", String.class),
+                    t.get("num_lot", String.class),
+                    t.get("expiry_date", java.time.LocalDate.class),
+                    quantityInit,
+                    toInt(t.get("quantity_on_hand")),
+                    toInt(t.get("gap")),
+                    toInt(t.get("last_unit_price")),
+                    toInt(t.get("prix_achat"))));
         }
         return new ArrayList<>(map.values());
     }
@@ -171,15 +156,15 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
      */
     private Map<Integer, Integer> lotExportStockMap(Long inventoryId, List<Tuple> tuples) {
         Set<Integer> produitIds = tuples.stream()
-            .filter(t -> t.get("inventory_lot_id", Long.class) == null)
-            .map(t -> t.get("produit_id", Integer.class))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .filter(t -> t.get("inventory_lot_id", Long.class) == null)
+                .map(t -> t.get("produit_id", Integer.class))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         if (produitIds.isEmpty()) {
             return Map.of();
         }
         return inventoryStockService.buildStockMapForInventory(
-            storeInventoryRepository.getReferenceById(inventoryId), produitIds);
+                storeInventoryRepository.getReferenceById(inventoryId), produitIds);
     }
 
     /**
@@ -199,19 +184,15 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
     @SuppressWarnings("unchecked")
     private List<Tuple> fetchTuples(
-        StoreInventoryLineFilterRecord filter,
-        Pageable pageable,
-        boolean gestionLot,
-        boolean isAbc
-    ) {
+            StoreInventoryLineFilterRecord filter, Pageable pageable, boolean gestionLot, boolean isAbc) {
         String sql = StoreInventoryLineFilterBuilder.lineQuery(filter)
-            .withLotCount(gestionLot)
-            .withAbcPareto(isAbc)
-            .buildPage();
+                .withLotCount(gestionLot)
+                .withAbcPareto(isAbc)
+                .buildPage();
         var query = em.createNativeQuery(sql, Tuple.class)
-            .setParameter(1, filter.storeInventoryId())
-            .setFirstResult((int) pageable.getOffset())
-            .setMaxResults(pageable.getPageSize());
+                .setParameter(1, filter.storeInventoryId())
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
         StoreInventoryLineFilterBuilder.bindSearch(query, filter);
         return query.getResultList();
     }
@@ -219,10 +200,9 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
     @SuppressWarnings("unchecked")
     private List<Tuple> fetchExportTuples(StoreInventoryExportRecord record) {
         // Un export vide a l'apparence d'un export réussi : l'erreur doit remonter.
-        return em.createNativeQuery(
-                StoreInventoryLineFilterBuilder.buildExportQuery(record), Tuple.class)
-            .setParameter(1, record.filterRecord().storeInventoryId())
-            .getResultList();
+        return em.createNativeQuery(StoreInventoryLineFilterBuilder.buildExportQuery(record), Tuple.class)
+                .setParameter(1, record.filterRecord().storeInventoryId())
+                .getResultList();
     }
 
     private StoreInventoryLineRecord toRecord(Tuple t, Map<Integer, Integer> stockMap) {
@@ -232,25 +212,24 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
         // dans le seul mode où la colonne sert à quelque chose.
         int lotCount = toInt(t.get("lot_count"));
         return new StoreInventoryLineRecord(
-            produitId,
-            t.get("code_cip", String.class),
-            t.get("code_ean_labo", String.class),
-            t.get("libelle", String.class),
-            t.get("id", Long.class),
-            t.get("gap", Integer.class),
-            t.get("quantity_on_hand", Integer.class),
-            stockMap.getOrDefault(produitId, 0),
-            t.get("updated", Boolean.class),
-            t.get("prix_achat", Integer.class),
-            t.get("prix_uni", Integer.class),
-            t.get("storage_id", Integer.class),
-            t.get("seuil_mini", Integer.class),
-            lotCount,
-            t.get("classe_pareto", String.class),
-            t.get("counted_by", String.class),
-            t.get("updated_at", java.time.LocalDateTime.class),
-            t.get("version", Long.class)
-        );
+                produitId,
+                t.get("code_cip", String.class),
+                t.get("code_ean_labo", String.class),
+                t.get("libelle", String.class),
+                t.get("id", Long.class),
+                t.get("gap", Integer.class),
+                t.get("quantity_on_hand", Integer.class),
+                stockMap.getOrDefault(produitId, 0),
+                t.get("updated", Boolean.class),
+                t.get("prix_achat", Integer.class),
+                t.get("prix_uni", Integer.class),
+                t.get("storage_id", Integer.class),
+                t.get("seuil_mini", Integer.class),
+                lotCount,
+                t.get("classe_pareto", String.class),
+                t.get("counted_by", String.class),
+                t.get("updated_at", java.time.LocalDateTime.class),
+                t.get("version", Long.class));
     }
 
     /**
@@ -262,42 +241,38 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
     }
 
     private List<StoreInventoryGroupExport> buildStoreInventoryGroupExportsFromTuple(
-        List<Tuple> tuples,
-        StoreInventoryExportRecord record
-    ) {
+            List<Tuple> tuples, StoreInventoryExportRecord record) {
         LinkedHashMap<Long, StoreInventoryGroupExport> map = new LinkedHashMap<>();
         switch (record.exportGroupBy()) {
             case FAMILLY -> {
                 for (Tuple t : tuples) {
                     Number raw = (Number) t.get("famillyId");
                     long id = raw != null ? raw.longValue() : -1L;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
-                        t);
-                    map.put(id, buildFromTuple(map.get(id), id, line.getFamillyCode(),
-                        line.getFamillyLibelle(), line));
+                    StoreInventoryLineExport line =
+                            StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+                    map.put(id, buildFromTuple(map.get(id), id, line.getFamillyCode(), line.getFamillyLibelle(), line));
                 }
             }
             case RAYON, NONE -> {
                 for (Tuple t : tuples) {
                     Number rawRayon = (Number) t.get("rayon_id");
                     Long idRayon = rawRayon != null ? rawRayon.longValue() : null;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
-                        t);
+                    StoreInventoryLineExport line =
+                            StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
                     Triple<Long, String, String> triple = getRayon(idRayon, line);
                     long id = triple.getLeft();
-                    map.put(id,
-                        buildFromTuple(map.get(id), id, triple.getMiddle(), triple.getRight(),
-                            line));
+                    map.put(id, buildFromTuple(map.get(id), id, triple.getMiddle(), triple.getRight(), line));
                 }
             }
             case STORAGE -> {
                 for (Tuple t : tuples) {
                     Number rawStorage = (Number) t.get("storage_id");
                     long id = rawStorage != null ? rawStorage.longValue() : -1L;
-                    StoreInventoryLineExport line = StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(
-                        t);
-                    map.put(id, buildFromTuple(map.get(id), id, line.getStorageLibelle(),
-                        line.getStorageLibelle(), line));
+                    StoreInventoryLineExport line =
+                            StoreInventoryLineFilterBuilder.buildStoreInventoryLineExportRecord(t);
+                    map.put(
+                            id,
+                            buildFromTuple(map.get(id), id, line.getStorageLibelle(), line.getStorageLibelle(), line));
                 }
             }
         }
@@ -305,12 +280,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
     }
 
     private StoreInventoryGroupExport buildFromTuple(
-        StoreInventoryGroupExport group,
-        long id,
-        String code,
-        String libelle,
-        StoreInventoryLineExport line
-    ) {
+            StoreInventoryGroupExport group, long id, String code, String libelle, StoreInventoryLineExport line) {
         if (Objects.isNull(group)) {
             group = new StoreInventoryGroupExport();
             group.setId(id);
@@ -328,12 +298,11 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
         }
         long i = idRayon;
         return Stream.of(1L, 2L, 3L).anyMatch(e -> e == i)
-            ? Triple.of(-1L, "SANS", "RAYON")
-            : Triple.of(i, line.getRayonCode(), line.getRayonLibelle());
+                ? Triple.of(-1L, "SANS", "RAYON")
+                : Triple.of(i, line.getRayonCode(), line.getRayonLibelle());
     }
 
-    private Map<String, InventoryExportSummary> buildSummaries(
-        List<StoreInventoryGroupExport> datas) {
+    private Map<String, InventoryExportSummary> buildSummaries(List<StoreInventoryGroupExport> datas) {
         InventoryExportSummary achatAvant = new InventoryExportSummary();
         achatAvant.setName(InventoryExportSummaryEnum.ACHAT_AVANT);
         InventoryExportSummary achatApres = new InventoryExportSummary();
@@ -349,9 +318,9 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
         for (StoreInventoryGroupExport export : datas) {
             List<InventoryExportSummary> totaux = Stream.of(
-                    export.getTotaux(), export.getTotauxEcart(), export.getTotauxVente())
-                .flatMap(List::stream)
-                .toList();
+                            export.getTotaux(), export.getTotauxEcart(), export.getTotauxVente())
+                    .flatMap(List::stream)
+                    .toList();
             for (InventoryExportSummary s : totaux) {
                 switch (s.getName()) {
                     case ACHAT_AVANT -> achatAvant.setValue(achatAvant.getValue() + s.getValue());
@@ -364,12 +333,11 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             }
         }
         return Map.of(
-            "achatAvant", achatAvant,
-            "achatApres", achatApres,
-            "venteAvant", venteAvant,
-            "venteApres", venteApres,
-            "achatEcart", achatEcart,
-            "venteEcart", venteEcart
-        );
+                "achatAvant", achatAvant,
+                "achatApres", achatApres,
+                "venteAvant", venteAvant,
+                "venteApres", venteApres,
+                "achatEcart", achatEcart,
+                "venteEcart", venteEcart);
     }
 }

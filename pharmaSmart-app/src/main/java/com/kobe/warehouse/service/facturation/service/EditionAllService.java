@@ -17,21 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class EditionAllService extends AbstractEditionFactureService {
 
     public EditionAllService(
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationRepository facturationRepository,
-        AppConfigurationService appConfigurationService,
-        UserService userService,
-        FactureIdGeneratorService factureIdGeneratorService,
-        InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
-    ) {
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            FacturationRepository facturationRepository,
+            AppConfigurationService appConfigurationService,
+            UserService userService,
+            FactureIdGeneratorService factureIdGeneratorService,
+            InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService) {
         super(
-            thirdPartySaleLineRepository,
-            facturationRepository,
-            appConfigurationService,
-            userService,
-            factureIdGeneratorService,
-            invoiceGenerationCodeGeneratorService
-        );
+                thirdPartySaleLineRepository,
+                facturationRepository,
+                appConfigurationService,
+                userService,
+                factureIdGeneratorService,
+                invoiceGenerationCodeGeneratorService);
     }
 
     @Override

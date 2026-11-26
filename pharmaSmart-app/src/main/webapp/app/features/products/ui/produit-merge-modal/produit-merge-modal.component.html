@@ -6,7 +6,6 @@
 <div class="modal-body">
   <app-card [variant]="'form'">
     <div class="form-grid-compact">
-
       <div class="form-field form-field-full">
         <span class="field-label">Choisir le produit à conserver (cible)</span>
 
@@ -14,53 +13,52 @@
           <div class="comparison-table-wrapper">
             <table class="comparison-table">
               <thead>
-              <tr>
-                <th class="comparison-row-label"></th>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <th>
-                    <app-radio
-                      (ngModelChange)="targetId.set($event); onTargetChange()"
-                      [label]="row.libelle + (row.codeCip ? ' (' + row.codeCip + ')' : '')"
-                      [ngModel]="targetId()"
-                      [value]="row.produitId"
-                      name="targetId"
-                    />
-                  </th>
-                }
-              </tr>
+                <tr>
+                  <th class="comparison-row-label"></th>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <th>
+                      <app-radio
+                        (ngModelChange)="targetId.set($event); onTargetChange()"
+                        [label]="row.libelle + (row.codeCip ? ' (' + row.codeCip + ')' : '')"
+                        [ngModel]="targetId()"
+                        [value]="row.produitId"
+                        name="targetId"
+                      />
+                    </th>
+                  }
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td class="comparison-row-label">Stock actuel</td>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <td>{{ row.stockActuel ?? '—' }}</td>
-                }
-              </tr>
-              <tr>
-                <td class="comparison-row-label">Prix</td>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <td>{{ row.prix ?? '—' }}</td>
-                }
-              </tr>
-              <tr>
-                <td class="comparison-row-label">Ventes (12 derniers mois)</td>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <td>{{ row.qteVendue12Mois ?? '—' }}</td>
-                }
-              </tr>
-              <tr>
-                <td class="comparison-row-label">Dernière vente</td>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <td>{{ (row.derniereVente | date: 'dd/MM/yyyy') ?? '—' }}</td>
-                }
-              </tr>
-              <tr>
-                <td class="comparison-row-label">Dernière entrée en stock</td>
-                @for (row of comparisonRows(); track row.produitId) {
-                  <td>{{ (row.derniereEntreeStock | date: 'dd/MM/yyyy') ?? '—' }}</td>
-                }
-              </tr>
-
+                <tr>
+                  <td class="comparison-row-label">Stock actuel</td>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <td>{{ row.stockActuel ?? '—' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="comparison-row-label">Prix</td>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <td>{{ row.prix ?? '—' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="comparison-row-label">Ventes (12 derniers mois)</td>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <td>{{ row.qteVendue12Mois ?? '—' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="comparison-row-label">Dernière vente</td>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <td>{{ (row.derniereVente | date: 'dd/MM/yyyy') ?? '—' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="comparison-row-label">Dernière entrée en stock</td>
+                  @for (row of comparisonRows(); track row.produitId) {
+                    <td>{{ (row.derniereEntreeStock | date: 'dd/MM/yyyy') ?? '—' }}</td>
+                  }
+                </tr>
               </tbody>
             </table>
           </div>
@@ -68,9 +66,7 @@
       </div>
 
       @if (loadingPreview()) {
-        <div class="form-field form-field-full">
-          <i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…
-        </div>
+        <div class="form-field form-field-full"><i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…</div>
       }
 
       @if (targetId() === null) {
@@ -80,17 +76,13 @@
       }
 
       @if (targetId() !== null && !loadingPreview() && !previewError()) {
-
         @if (rejectedSourceIds().length > 0) {
           <div class="form-field form-field-full">
             <div class="alert alert-warning">
               <strong>Produits exclus de la fusion :</strong>
               <ul class="mb-0">
                 @for (id of rejectedSourceIds(); track id) {
-                  <li>{{ produitLibelle(id) }} — {{
-                      rejectionReasons()[id.toString()] ?? 'Non fusionnable'
-                    }}
-                  </li>
+                  <li>{{ produitLibelle(id) }} — {{ rejectionReasons()[id.toString()] ?? 'Non fusionnable' }}</li>
                 }
               </ul>
             </div>
@@ -102,7 +94,9 @@
             <span class="field-label">Données qui seront fusionnées / réaffectées</span>
             <ul class="entity-counts-list">
               @for (entry of entityCountEntries(); track entry.label) {
-                <li><span class="count-badge">{{ entry.count }}</span> {{ entry.label }}</li>
+                <li>
+                  <span class="count-badge">{{ entry.count }}</span> {{ entry.label }}
+                </li>
               }
             </ul>
           </div>
@@ -156,9 +150,9 @@
             <div class="alert alert-warning">
               <strong>Ajustement de stock manuel nécessaire</strong>
               <p class="mb-2">
-                Les emplacements ci-dessous existent à la fois sur le produit source et sur la cible : par sécurité,
-                la quantité du doublon n'est jamais reportée automatiquement sur la cible. Faites un ajustement de
-                stock manuel après la fusion si vous souhaitez reporter cette quantité.
+                Les emplacements ci-dessous existent à la fois sur le produit source et sur la cible : par sécurité, la quantité du doublon
+                n'est jamais reportée automatiquement sur la cible. Faites un ajustement de stock manuel après la fusion si vous souhaitez
+                reporter cette quantité.
               </p>
               @for (conflict of stockConflicts(); track conflict.storageId) {
                 <div class="lot-conflict-card">
@@ -185,28 +179,18 @@
           </div>
         }
 
-        @if (entityCountEntries().length === 0 && lotConflicts().length === 0 && stockConflicts().length === 0 && sourceIds().length
-        > 0) {
+        @if (entityCountEntries().length === 0 && lotConflicts().length === 0 && stockConflicts().length === 0 && sourceIds().length > 0) {
           <div class="form-field form-field-full">
-            <span
-              class="text-muted">Aucune donnée liée trouvée pour les produits sélectionnés.</span>
+            <span class="text-muted">Aucune donnée liée trouvée pour les produits sélectionnés.</span>
           </div>
         }
       }
-
     </div>
   </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    [raised]="true"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-    type="button"
-  />
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
   <app-button
     (clicked)="confirm()"
     [disabled]="!canConfirm()"

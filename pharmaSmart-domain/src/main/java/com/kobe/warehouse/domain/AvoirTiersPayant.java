@@ -29,12 +29,11 @@ import java.util.List;
 
 @Entity
 @Table(
-    name = "avoir_tiers_payant",
-    indexes = {
-        @Index(columnList = "avoir_date", name = "avoir_date_idx"),
-        @Index(columnList = "statut", name = "avoir_statut_idx"),
-    }
-)
+        name = "avoir_tiers_payant",
+        indexes = {
+            @Index(columnList = "avoir_date", name = "avoir_date_idx"),
+            @Index(columnList = "statut", name = "avoir_statut_idx"),
+        })
 public class AvoirTiersPayant implements Serializable {
 
     @Serial
@@ -50,14 +49,11 @@ public class AvoirTiersPayant implements Serializable {
 
     @NotNull
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "facture_origine_id", referencedColumnName = "id"),
-            @JoinColumn(name = "facture_origine_date", referencedColumnName = "invoice_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "facture_origine_id", referencedColumnName = "id"),
+        @JoinColumn(name = "facture_origine_date", referencedColumnName = "invoice_date"),
+    })
     private FactureTiersPayant factureTiersPayant;
-
 
     /**
      * Facture sur laquelle l'avoir a été imputé — nulle tant qu'il ne l'est pas.
@@ -67,12 +63,10 @@ public class AvoirTiersPayant implements Serializable {
      * laquelle, et cette référence garde la réponse.
      */
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "facture_imputation_id", referencedColumnName = "id"),
-            @JoinColumn(name = "facture_imputation_date", referencedColumnName = "invoice_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "facture_imputation_id", referencedColumnName = "id"),
+        @JoinColumn(name = "facture_imputation_date", referencedColumnName = "invoice_date"),
+    })
     private FactureTiersPayant factureImputation;
 
     @NotNull
@@ -109,7 +103,6 @@ public class AvoirTiersPayant implements Serializable {
     @NotNull
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated;
-
 
     @OneToMany(mappedBy = "avoir", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvoirLine> lignes = new ArrayList<>();

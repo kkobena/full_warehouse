@@ -1,24 +1,24 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { HttpResponse } from "@angular/common/http";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, ToolbarComponent } from "../../shared/ui";
-import { IMotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
-import { ModifRetourProduitService } from "./motif-retour-produit.service";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { MotifRetourProduitFormModalComponent } from "./motif-retour-produit-form-modal.component";
-import { NotificationService } from "../../shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from '../../shared/ui';
+import { IMotifRetourProduit } from 'app/shared/model/motif-retour-produit.model';
+import { ModifRetourProduitService } from './motif-retour-produit.service';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { MotifRetourProduitFormModalComponent } from './motif-retour-produit-form-modal.component';
+import { NotificationService } from '../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
-  selector: "app-motif-retour-produit",
+  selector: 'app-motif-retour-produit',
 
   imports: [CardComponent, CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip, ToolbarComponent],
-  templateUrl: "./motif-retour-produit.component.html",
+  templateUrl: './motif-retour-produit.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./motif-retour-produit.component.scss"
+  styleUrl: './motif-retour-produit.component.scss',
 })
 export class MotifRetourProduitComponent implements OnInit {
   private readonly motifRetourService = inject(ModifRetourProduitService);
@@ -44,17 +44,17 @@ export class MotifRetourProduitComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.showError("Erreur lors du chargement des motifs de retour");
-      }
+        this.showError('Erreur lors du chargement des motifs de retour');
+      },
     });
   }
 
   protected openNew(): void {
     const modalRef = this.modalService.open(MotifRetourProduitFormModalComponent, {
-      size: "lg",
-      backdrop: "static",
+      size: 'lg',
+      backdrop: 'static',
       centered: true,
-      keyboard: false
+      keyboard: false,
     });
 
     modalRef.result.then(
@@ -63,15 +63,15 @@ export class MotifRetourProduitComponent implements OnInit {
       },
       () => {
         // Modal dismissed
-      }
+      },
     );
   }
 
   protected edit(motif: IMotifRetourProduit): void {
     const modalRef = this.modalService.open(MotifRetourProduitFormModalComponent, {
-      size: "lg",
-      backdrop: "static",
-      keyboard: false
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false,
     });
 
     modalRef.componentInstance.motifToEdit = motif;
@@ -82,24 +82,27 @@ export class MotifRetourProduitComponent implements OnInit {
       },
       () => {
         // Modal dismissed
-      }
+      },
     );
   }
 
   protected confirmDelete(motif: IMotifRetourProduit): void {
-    this.confirmDialog.onConfirm(() => this.delete(motif.id), "Confirmation de suppression", `Êtes-vous sûr de vouloir supprimer le motif "${motif.libelle}" ?`
+    this.confirmDialog.onConfirm(
+      () => this.delete(motif.id),
+      'Confirmation de suppression',
+      `Êtes-vous sûr de vouloir supprimer le motif "${motif.libelle}" ?`,
     );
   }
 
   protected delete(id: number): void {
     this.motifRetourService.delete(id).subscribe({
       next: () => {
-        this.showSuccess("Motif de retour supprimé avec succès");
+        this.showSuccess('Motif de retour supprimé avec succès');
         this.loadAll();
       },
       error: () => {
-        this.showError("Erreur lors de la suppression du motif de retour");
-      }
+        this.showError('Erreur lors de la suppression du motif de retour');
+      },
     });
   }
 

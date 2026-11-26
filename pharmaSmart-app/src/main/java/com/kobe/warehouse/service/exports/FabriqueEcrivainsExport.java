@@ -9,5 +9,6 @@ import java.util.List;
 /** Ouvre l'écrivain du format demandé. */
 public interface FabriqueEcrivainsExport {
     /** @param titre intitulé de l'édition, porté par les formats qui en ont un (PDF) */
-    EcrivainExport ouvrir(FormatExport format, List<ColonneExport> colonnes, String titre, OutputStream sortie) throws IOException;
+    EcrivainExport ouvrir(FormatExport format, List<ColonneExport> colonnes, String titre, OutputStream sortie)
+            throws IOException;
 }

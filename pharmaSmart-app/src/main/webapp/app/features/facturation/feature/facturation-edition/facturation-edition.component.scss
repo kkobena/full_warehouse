@@ -1,6 +1,6 @@
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/table-common' as *;
-@use  'app/shared/scss/dashboard-common' as  dashboard;
+@use 'app/shared/scss/dashboard-common' as dashboard;
 :host {
   display: block;
 }
@@ -51,7 +51,9 @@
   align-items: center;
   gap: 0.4rem;
 
-  i { color: var(--p-primary-color); }
+  i {
+    color: var(--p-primary-color);
+  }
 }
 
 .toggle-wrap {

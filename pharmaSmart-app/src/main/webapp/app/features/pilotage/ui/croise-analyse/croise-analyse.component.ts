@@ -13,7 +13,14 @@ import { VariationComponent } from '../variation/variation.component';
   selector: 'app-croise-analyse',
   imports: [DataTableComponent, ButtonComponent, VariationComponent, ValeurIndicateurPipe],
   template: `
-    <app-data-table [scrollable]="true" scrollHeight="22rem" [showGridlines]="true" [value]="croise().lignes" emptyMessage="Aucune vente sur ce périmètre" size="small">
+    <app-data-table
+      [scrollable]="true"
+      scrollHeight="22rem"
+      [showGridlines]="true"
+      [value]="croise().lignes"
+      emptyMessage="Aucune vente sur ce périmètre"
+      size="small"
+    >
       <ng-template #header>
         <tr class="pharma-table-head">
           <th scope="col">{{ entete() }}</th>
@@ -32,14 +39,26 @@ import { VariationComponent } from '../variation/variation.component';
             <td class="text-end">
               <div>{{ cellule.valeur | valeurIndicateur: indicateur().unite : true }}</div>
               @if (avecReference() && cellule.valeurReference !== null) {
-                <app-variation [ecartPct]="cellule.ecartPct" [ecart]="cellule.ecart" [sensFavorable]="indicateur().sensFavorable" [unite]="indicateur().unite" />
+                <app-variation
+                  [ecartPct]="cellule.ecartPct"
+                  [ecart]="cellule.ecart"
+                  [sensFavorable]="indicateur().sensFavorable"
+                  [unite]="indicateur().unite"
+                />
               }
             </td>
           }
           @if (actionLibelle()) {
             <td>
-              <app-button (clicked)="ligneChoisie.emit(ligne)" [ariaLabel]="actionLibelle() + ' : ' + ligne.libelle" [iconOnly]="true" [text]="true"
-                          [title]="actionLibelle()" icon="pi pi-filter" size="small" />
+              <app-button
+                (clicked)="ligneChoisie.emit(ligne)"
+                [ariaLabel]="actionLibelle() + ' : ' + ligne.libelle"
+                [iconOnly]="true"
+                [text]="true"
+                [title]="actionLibelle()"
+                icon="pi pi-filter"
+                size="small"
+              />
             </td>
           }
         </tr>

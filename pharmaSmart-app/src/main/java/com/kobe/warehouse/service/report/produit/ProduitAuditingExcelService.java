@@ -2,13 +2,12 @@ package com.kobe.warehouse.service.report.produit;
 
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ProduitAuditingExcelService {
@@ -16,10 +15,21 @@ public class ProduitAuditingExcelService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final String[] HEADERS = {
-        "Date", "Qté init",
-        "Vente", "Ret. fourn.", "Périmée", "Ajust.−", "Décon.−", "Transf.↓",
-        "Entrée", "Ajust.+", "Décon.+", "Annulée", "Transf.↑",
-        "Qté inv.", "Écart",
+        "Date",
+        "Qté init",
+        "Vente",
+        "Ret. fourn.",
+        "Périmée",
+        "Ajust.−",
+        "Décon.−",
+        "Transf.↓",
+        "Entrée",
+        "Ajust.+",
+        "Décon.+",
+        "Annulée",
+        "Transf.↑",
+        "Qté inv.",
+        "Écart",
         "Stock final"
     };
 
@@ -35,8 +45,6 @@ public class ProduitAuditingExcelService {
     public byte[] exportToExcel(List<ProduitAuditingState> items, String title) throws IOException {
 
         return excelExportService.createExcelReport(title, HEADERS, items, this::fillRow);
-
-
     }
 
     private void fillRow(Row row, ProduitAuditingState s) {
@@ -67,4 +75,3 @@ public class ProduitAuditingExcelService {
         }
     }
 }
-

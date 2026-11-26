@@ -1,14 +1,13 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Observable} from 'rxjs';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
 
-
-import {AccountService} from 'app/core/auth/account.service';
-import {Account} from 'app/core/auth/account.model';
-import {PasswordService} from './password.service';
-import {ButtonComponent, CardComponent, PasswordComponent as AppPasswordComponent} from '../../shared/ui';
-import TranslateDirective from "../../shared/language/translate.directive";
-import {CommonModule} from "@angular/common";
+import { AccountService } from 'app/core/auth/account.service';
+import { Account } from 'app/core/auth/account.model';
+import { PasswordService } from './password.service';
+import { ButtonComponent, CardComponent, PasswordComponent as AppPasswordComponent } from '../../shared/ui';
+import TranslateDirective from '../../shared/language/translate.directive';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'jhi-password',
@@ -22,7 +21,7 @@ export default class PasswordComponent implements OnInit {
   success = signal(false);
   account$?: Observable<Account | null>;
   passwordForm = new FormGroup({
-    currentPassword: new FormControl('', {nonNullable: true, validators: Validators.required}),
+    currentPassword: new FormControl('', { nonNullable: true, validators: Validators.required }),
     newPassword: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(4), Validators.maxLength(50)],
@@ -45,7 +44,7 @@ export default class PasswordComponent implements OnInit {
     this.success.set(false);
     this.doNotMatch.set(false);
 
-    const {newPassword, confirmPassword, currentPassword} = this.passwordForm.getRawValue();
+    const { newPassword, confirmPassword, currentPassword } = this.passwordForm.getRawValue();
     if (newPassword !== confirmPassword) {
       this.doNotMatch.set(true);
     } else {

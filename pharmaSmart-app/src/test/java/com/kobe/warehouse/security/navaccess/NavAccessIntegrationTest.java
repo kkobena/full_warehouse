@@ -57,28 +57,44 @@ class NavAccessIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void preparer() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         when(licenseService.hasFeature(any())).thenReturn(true);
         service = new NavAccessService(
-            IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
-            IntegrationPostgresDatabase.bean(NavItemRepository.class),
-            IntegrationPostgresDatabase.bean(UserRepository.class),
-            licenseService,
-            new NoOpCacheManager()
-        );
+                IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
+                IntegrationPostgresDatabase.bean(NavItemRepository.class),
+                IntegrationPostgresDatabase.bean(UserRepository.class),
+                licenseService,
+                new NoOpCacheManager());
 
-        ecran = new NavItem().setCode("test-endpoint-" + COMPTEUR.incrementAndGet()).setLibelle("Écran de test").setTargetType(NavTargetType.ROUTE);
+        ecran = new NavItem()
+                .setCode("test-endpoint-" + COMPTEUR.incrementAndGet())
+                .setLibelle("Écran de test")
+                .setTargetType(NavTargetType.ROUTE);
         em.persist(ecran);
-        droitPharmacien = new NavItemRole().setNavItem(ecran).setRoleName("ROLE_PHARMACIEN").setCanAccess(true).setCanExport(true);
+        droitPharmacien = new NavItemRole()
+                .setNavItem(ecran)
+                .setRoleName("ROLE_PHARMACIEN")
+                .setCanAccess(true)
+                .setCanExport(true);
         em.persist(droitPharmacien);
         // configuré mais refusé : le cas qu'un « absent = refusé » ne suffit pas à couvrir
-        em.persist(new NavItemRole().setNavItem(ecran).setRoleName("ROLE_CAISSIER").setCanDisplay(false).setCanAccess(false));
-        em.persist(new NavItemRole().setNavItem(ecran).setRoleName("ROLE_VENDEUR").setCanAccess(false).setCanCreate(true));
+        em.persist(new NavItemRole()
+                .setNavItem(ecran)
+                .setRoleName("ROLE_CAISSIER")
+                .setCanDisplay(false)
+                .setCanAccess(false));
+        em.persist(new NavItemRole()
+                .setNavItem(ecran)
+                .setRoleName("ROLE_VENDEUR")
+                .setCanAccess(false)
+                .setCanCreate(true));
         em.flush();
     }
 
@@ -125,15 +141,18 @@ class NavAccessIntegrationTest {
     @DisplayName("l'un des codes listés suffit ; un code inconnu ne donne rien")
     void unCodeSuffit() {
         connecter(utilisateur("ROLE_PHARMACIEN"));
-        assertThat(service.isAllowed(List.of("code-inexistant", ecran.getCode()), NavAction.ACCESS)).isTrue();
-        assertThat(service.isAllowed(List.of("code-inexistant"), NavAction.ACCESS)).isFalse();
+        assertThat(service.isAllowed(List.of("code-inexistant", ecran.getCode()), NavAction.ACCESS))
+                .isTrue();
+        assertThat(service.isAllowed(List.of("code-inexistant"), NavAction.ACCESS))
+                .isFalse();
     }
 
     @Test
     @DisplayName("l'administrateur passe sans ligne de droit, comme dans l'AuthGuard du front")
     void administrateur() {
         connecter(utilisateur("ROLE_ADMIN"));
-        assertThat(service.isAllowed(List.of("code-inexistant"), NavAction.DELETE)).isTrue();
+        assertThat(service.isAllowed(List.of("code-inexistant"), NavAction.DELETE))
+                .isTrue();
     }
 
     @Test
@@ -154,22 +173,21 @@ class NavAccessIntegrationTest {
     @Test
     @DisplayName("le message de refus nomme l'écran")
     void libelle() {
-        assertThat(service.libelleOf(List.of("code-inexistant", ecran.getCode()))).isEqualTo("Écran de test");
+        assertThat(service.libelleOf(List.of("code-inexistant", ecran.getCode())))
+                .isEqualTo("Écran de test");
     }
 
     @Test
     @DisplayName("chaque code déclaré dans un contrôleur existe dans nav_item")
     void codesDeclaresExistent() {
-        Set<String> declares = NavAccessHandlers.scan()
-            .stream()
-            .map(NavAccessHandlers.Handler::rule)
-            .filter(NavAccessRules.Requires.class::isInstance)
-            .flatMap(rule -> List.of(((NavAccessRules.Requires) rule).codes()).stream())
-            .collect(Collectors.toCollection(TreeSet::new));
-        Set<String> connus = em
-            .createQuery("SELECT n.code FROM NavItem n", String.class)
-            .getResultStream()
-            .collect(Collectors.toSet());
+        Set<String> declares = NavAccessHandlers.scan().stream()
+                .map(NavAccessHandlers.Handler::rule)
+                .filter(NavAccessRules.Requires.class::isInstance)
+                .flatMap(rule -> List.of(((NavAccessRules.Requires) rule).codes()).stream())
+                .collect(Collectors.toCollection(TreeSet::new));
+        Set<String> connus = em.createQuery("SELECT n.code FROM NavItem n", String.class)
+                .getResultStream()
+                .collect(Collectors.toSet());
         assertThat(declares).isNotEmpty();
         assertThat(declares).as("codes absents des migrations").isSubsetOf(connus);
     }
@@ -181,7 +199,8 @@ class NavAccessIntegrationTest {
     }
 
     private static void connecter(AppUser user) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
     }
 
     private static AppUser utilisateur(String... roles) {
@@ -191,7 +210,8 @@ class NavAccessIntegrationTest {
         user.setActivated(true);
         user.setLangKey("fr");
         user.setMagasin(em.find(Magasin.class, 1));
-        user.setAuthorities(Set.of(roles).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
+        user.setAuthorities(
+                Set.of(roles).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
         em.persist(user);
         em.flush();
         return user;

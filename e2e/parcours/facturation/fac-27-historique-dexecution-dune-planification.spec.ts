@@ -23,7 +23,10 @@ scenario('FAC-27', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await page.getByRole('tab', { name: /Exécutions/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Exécutions/ })
+      .first()
+      .click();
     // Le tableau reste lisible même sans exécution passée : c'est le cas d'une planification
     // qu'on vient d'activer, et l'écran doit le dire plutôt que rester blanc.
     await expect(contenu).toContainText(/Période|Aucune exécution|Statut/);

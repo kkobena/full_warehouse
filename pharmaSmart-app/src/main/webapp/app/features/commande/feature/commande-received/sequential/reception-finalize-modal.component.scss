@@ -12,20 +12,27 @@
   border-radius: 4px;
   font-size: 0.875rem;
 
-  i { flex-shrink: 0; margin-top: 2px; }
+  i {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
 
   &--success {
     background: #f0fdf4;
     border-left: 3px solid #22c55e;
     color: #166534;
-    i { color: #16a34a; }
+    i {
+      color: #16a34a;
+    }
   }
 
   &--warning {
     background: #fffbeb;
     border-left: 3px solid #f59e0b;
     color: #92400e;
-    i { color: #d97706; }
+    i {
+      color: #d97706;
+    }
   }
 }
 
@@ -95,15 +102,23 @@
   &--ug {
     background: #f0fdf4;
     border-color: #bbf7d0;
-    .rf-stat__value { color: #166534; }
-    .rf-stat__label { color: #16a34a; }
+    .rf-stat__value {
+      color: #166534;
+    }
+    .rf-stat__label {
+      color: #16a34a;
+    }
   }
 
   &--warn {
     background: #fffbeb;
     border-color: #fde68a;
-    .rf-stat__value { color: #92400e; }
-    .rf-stat__label { color: #b45309; }
+    .rf-stat__value {
+      color: #92400e;
+    }
+    .rf-stat__label {
+      color: #b45309;
+    }
   }
 }
 
@@ -137,9 +152,22 @@
   font-size: 0.78rem;
 }
 
-.rf-cip-ok  { color: #16a34a; font-size: 0.75rem; flex-shrink: 0; }
-.rf-cip-lib { flex: 1; color: var(--surface-700, #374151); font-weight: 600; }
-.rf-cip-code { font-family: monospace; font-size: 0.75rem; color: #1e40af; flex-shrink: 0; }
+.rf-cip-ok {
+  color: #16a34a;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.rf-cip-lib {
+  flex: 1;
+  color: var(--surface-700, #374151);
+  font-weight: 600;
+}
+.rf-cip-code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #1e40af;
+  flex-shrink: 0;
+}
 
 .rf-tva-section {
   margin-bottom: 1rem;
@@ -166,7 +194,9 @@
     color: var(--surface-600, #4b5563);
     border-bottom: 2px solid var(--surface-200, #e5e7eb);
     text-align: right;
-    &:first-child { text-align: left; }
+    &:first-child {
+      text-align: left;
+    }
   }
 
   td {
@@ -174,10 +204,16 @@
     border-bottom: 1px solid var(--surface-100, #f3f4f6);
     text-align: right;
     color: var(--surface-800, #1f2937);
-    &:first-child { text-align: left; font-weight: 700; font-family: monospace; }
+    &:first-child {
+      text-align: left;
+      font-weight: 700;
+      font-family: monospace;
+    }
   }
 
-  tr:last-child td { border-bottom: none; }
+  tr:last-child td {
+    border-bottom: none;
+  }
 }
 
 .rf-irrev-note {

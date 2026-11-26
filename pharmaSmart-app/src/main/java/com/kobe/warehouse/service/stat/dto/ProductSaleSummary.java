@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 
 public record ProductSaleSummary(
-    Integer groupType,
-    String groupBy,
-    Integer montantHt,
-    Integer quantite,
-    Integer montantAchat,
-    Integer montantTtc,
-    Integer montantRemise
-) {
+        Integer groupType,
+        String groupBy,
+        Integer montantHt,
+        Integer quantite,
+        Integer montantAchat,
+        Integer montantTtc,
+        Integer montantRemise) {
     @JsonProperty("mvtDate")
     public LocalDate mvtDate() {
         switch (groupType) {

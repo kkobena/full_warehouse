@@ -1,47 +1,38 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input, signal } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {finalize} from 'rxjs/operators';
-import {HttpHeaders} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { HttpHeaders } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
   DataTableComponent,
   RowTogglerDirective,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../../shared/ui';
-import {
-  PharmaDatePickerComponent
-} from '../../../../shared/date-picker/pharma-date-picker.component';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {ErrorService} from '../../../../shared/error.service';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
-import {
-  DATE_FORMAT_ISO_DATE,
-  NGB_DATE_TO_ISO,
-  TODAY_NGB_DATE
-} from '../../../../shared/util/warehouse-util';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { DATE_FORMAT_ISO_DATE, NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
 
-import {DiffereApiService} from '../../data-access/services/differe-api.service';
-import {DiffereStore} from '../../data-access/store/differe.store';
-import {
-  IDiffereSearchParams,
-  IPaymentIdDiffere,
-  IReglementDiffere,
-  IReglementDiffereItem,
-} from '../../data-access/models';
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import { DiffereApiService } from '../../data-access/services/differe-api.service';
+import { DiffereStore } from '../../data-access/store/differe.store';
+import { IDiffereSearchParams, IPaymentIdDiffere, IReglementDiffere, IReglementDiffereItem } from '../../data-access/models';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-historique-reglements-differes',
-  imports: [CardComponent, DeviseDirective, 
+  imports: [
+    CardComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -50,7 +41,7 @@ import { CardComponent } from 'app/shared/ui';
     SelectComponent,
     ToolbarComponent,
     RowTogglerDirective,
-    NgbTooltip
+    NgbTooltip,
   ],
   templateUrl: './historique-reglements-differes.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -86,7 +77,7 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
@@ -114,16 +105,14 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
     this.differeApiService
       .exportReglementsToPdf(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingPdf.set(false))),
+        finalize(() => this.loadingPdf.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: blob => {
-          this.blobDownload.downloadPdf(blob, "reglements-differes");
-
+          this.blobDownload.downloadPdf(blob, 'reglements-differes');
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF'),
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF'),
       });
   }
 
@@ -140,15 +129,11 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
           next: async (data: ArrayBuffer) => {
             try {
               await this.tauriPrinterService.printEscPosFromBuffer(data);
-            } catch {
-            }
+            } catch {}
           },
         });
     } else {
-      this.differeApiService
-        .printReceipt(paymentId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+      this.differeApiService.printReceipt(paymentId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 
@@ -157,7 +142,7 @@ export class HistoriqueReglementsDifferesComponent implements OnInit {
     this.loadingBtn.set(true);
     this.store.setLoadingReglements(true);
     this.differeApiService
-      .getReglementsDifferes({...this.buildParams(), page: this.page(), size: rows})
+      .getReglementsDifferes({ ...this.buildParams(), page: this.page(), size: rows })
       .pipe(
         finalize(() => {
           this.loading.set(false);

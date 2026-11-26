@@ -6,18 +6,18 @@ import com.kobe.warehouse.service.errors.GenericError;
 import java.time.LocalDate;
 
 public record ProductToDestroyPayload(
-    Integer lotId,
-    Integer produitId,
-    int quantity,
-    LocalDate datePeremption,
-    Integer fournisseurId,
-    String numLot,
-    boolean editing,
-    Integer magasinId,
-    Integer id,
-    Integer stockInitial,
-    Integer storageId   // emplacement LotStockLocation ciblé ; null = cascade automatique
-) {
+        Integer lotId,
+        Integer produitId,
+        int quantity,
+        LocalDate datePeremption,
+        Integer fournisseurId,
+        String numLot,
+        boolean editing,
+        Integer magasinId,
+        Integer id,
+        Integer stockInitial,
+        Integer storageId // emplacement LotStockLocation ciblé ; null = cascade automatique
+        ) {
     public ProductToDestroyPayload {
         if (quantity < 1) {
             throw new GenericError("La quantité doit être supérieure à 0");

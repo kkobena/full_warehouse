@@ -1,8 +1,6 @@
 package com.kobe.warehouse.service.product_to_destroy.dto;
 
-
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
-
 
 public class ProductToDestroyDTO {
 
@@ -12,41 +10,29 @@ public class ProductToDestroyDTO {
 
     private String produitName;
 
-
     private String produitCodeCip;
-
 
     private String numLot;
 
-
     private int quantity;
-
 
     private String datePeremption;
 
-
     private String dateDestruction;
-
 
     private String user;
 
-
     private String createdDate;
-
 
     private String updatedDate;
 
-
     private String fournisseur;
 
-
     private int prixAchat;
-
 
     private int prixUni;
 
     private PeremptionStatut peremptionStatut;
-
 
     private boolean destroyed;
 

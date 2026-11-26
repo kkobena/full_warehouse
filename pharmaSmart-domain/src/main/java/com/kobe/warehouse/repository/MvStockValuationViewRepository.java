@@ -2,22 +2,17 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.MvStockValuationView;
 import com.kobe.warehouse.domain.MvStockValuationView_;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-
 @Repository
-public interface MvStockValuationViewRepository extends JpaRepository<MvStockValuationView, Integer>, JpaSpecificationExecutor<MvStockValuationView> {
-    //total_sales_value DESC
+public interface MvStockValuationViewRepository
+        extends JpaRepository<MvStockValuationView, Integer>, JpaSpecificationExecutor<MvStockValuationView> {
+    // total_sales_value DESC
     List<MvStockValuationView> findAllByOrderByTotalSalesValueDesc();
-
-
 
     default Specification<MvStockValuationView> filterByMagasinId(Integer magasinId) {
         if (magasinId == null) return null;

@@ -4,13 +4,12 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import com.kobe.warehouse.service.report.TiersPayantReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class TiersPayantPdfReportService extends AbstractStatistiqueReportService {
@@ -19,12 +18,14 @@ public class TiersPayantPdfReportService extends AbstractStatistiqueReportServic
 
     private final TiersPayantReportService tiersPayantReportService;
 
-    public TiersPayantPdfReportService( StorageService storageService, SpringTemplateEngine templateEngine, TiersPayantReportService tiersPayantReportService) {
-        super( storageService);
+    public TiersPayantPdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            TiersPayantReportService tiersPayantReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.tiersPayantReportService = tiersPayantReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -47,13 +48,14 @@ public class TiersPayantPdfReportService extends AbstractStatistiqueReportServic
         return "rapport_creances_tiers_payants";
     }
 
-
     public byte[] export() {
         List<TiersPayantCreancesSummaryDTO> summary = tiersPayantReportService.getCreancesSummary();
         List<TiersPayantInvoiceDTO> invoices = tiersPayantReportService.getUnpaidInvoices(null, null);
 
         // Calculate total
-        int totalCreances = summary.stream().mapToInt(s -> s.montantEncours() != null ? s.montantEncours() : 0).sum();
+        int totalCreances = summary.stream()
+                .mapToInt(s -> s.montantEncours() != null ? s.montantEncours() : 0)
+                .sum();
 
         this.getParameters().put("summary", summary);
         this.getParameters().put("invoices", invoices);

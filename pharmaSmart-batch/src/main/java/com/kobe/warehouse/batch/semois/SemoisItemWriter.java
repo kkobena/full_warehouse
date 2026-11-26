@@ -1,21 +1,20 @@
 package com.kobe.warehouse.batch.semois;
 
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.SemoisClasseConfig;
+import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.repository.SemoisClasseConfigRepository;
 import com.kobe.warehouse.service.scheduler.SemoisCalculationService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.stereotype.Component;
@@ -41,10 +40,9 @@ public class SemoisItemWriter implements ItemWriter<Produit> {
     private boolean canUpdateProduitReapproInfo;
 
     public SemoisItemWriter(
-        SemoisCalculationService semoisCalculationService,
-        SemoisClasseConfigRepository semoisClasseConfigRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            SemoisCalculationService semoisCalculationService,
+            SemoisClasseConfigRepository semoisClasseConfigRepository,
+            AppConfigurationService appConfigurationService) {
         this.semoisCalculationService = semoisCalculationService;
         this.semoisClasseConfigRepository = semoisClasseConfigRepository;
         this.appConfigurationService = appConfigurationService;
@@ -52,21 +50,22 @@ public class SemoisItemWriter implements ItemWriter<Produit> {
 
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
-        this.classeConfigMap = semoisClasseConfigRepository.findAll()
-            .stream()
-            .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
+        this.classeConfigMap = semoisClasseConfigRepository.findAll().stream()
+                .collect(Collectors.toMap(SemoisClasseConfig::getClasseCriticite, Function.identity()));
 
         LocalDate lastReapproDate = appConfigurationService
-            .findOneById(APP_LAST_REAPPRO_DATE)
-            .map(cfg -> cfg.getValue() != null && !cfg.getValue().isBlank()
-                ? LocalDate.parse(cfg.getValue()) : null)
-            .orElse(null);
+                .findOneById(APP_LAST_REAPPRO_DATE)
+                .map(cfg ->
+                        cfg.getValue() != null && !cfg.getValue().isBlank() ? LocalDate.parse(cfg.getValue()) : null)
+                .orElse(null);
 
         this.canUpdateProduitReapproInfo = lastReapproDate == null
-            || !lastReapproDate.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1));
+                || !lastReapproDate.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1));
 
-        LOG.info("[SEMOIS-WRITER] classeConfigMap={} entrées, canUpdateReapproInfo={}",
-            classeConfigMap.size(), canUpdateProduitReapproInfo);
+        LOG.info(
+                "[SEMOIS-WRITER] classeConfigMap={} entrées, canUpdateReapproInfo={}",
+                classeConfigMap.size(),
+                canUpdateProduitReapproInfo);
     }
 
     @Override
@@ -76,11 +75,11 @@ public class SemoisItemWriter implements ItemWriter<Produit> {
             return;
         }
         var result = semoisCalculationService.processBatch(
-            new ArrayList<>(chunk.getItems()),
-            canUpdateProduitReapproInfo,
-            classeConfigMap
-        );
-        LOG.debug("[SEMOIS-WRITER] chunk={} items — succès={}, erreurs={}",
-            chunk.size(), result.successCount(), result.errorCount());
+                new ArrayList<>(chunk.getItems()), canUpdateProduitReapproInfo, classeConfigMap);
+        LOG.debug(
+                "[SEMOIS-WRITER] chunk={} items — succès={}, erreurs={}",
+                chunk.size(),
+                result.successCount(),
+                result.errorCount());
     }
 }

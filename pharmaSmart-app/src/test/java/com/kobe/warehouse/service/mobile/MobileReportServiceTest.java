@@ -61,9 +61,9 @@ class MobileReportServiceTest {
         @Test
         @DisplayName("le résumé reprend les chiffres de la journée")
         void chiffresDeLaJournee() {
-            when(salesRepository.getDailySalesSummary(JOUR)).thenReturn(
-                new DailySalesSummaryProjection(1_000_000L, 42, 38, 23_809L, 900_000L, 100_000L, 400_000L, 40.0)
-            );
+            when(salesRepository.getDailySalesSummary(JOUR))
+                    .thenReturn(new DailySalesSummaryProjection(
+                            1_000_000L, 42, 38, 23_809L, 900_000L, 100_000L, 400_000L, 40.0));
 
             DailyDigestDTO resume = service.generateDailyDigest(JOUR);
 
@@ -104,9 +104,8 @@ class MobileReportServiceTest {
         @Test
         @DisplayName("le nombre d'anomalies annoncé additionne toutes les alertes")
         void nombreDAnomalies() {
-            when(alertService.getAlertsSummary()).thenReturn(
-                List.of(alerte("STOCK_RUPTURE", 7), alerte("INVOICE_OVERDUE", 3))
-            );
+            when(alertService.getAlertsSummary())
+                    .thenReturn(List.of(alerte("STOCK_RUPTURE", 7), alerte("INVOICE_OVERDUE", 3)));
 
             assertThat(service.generateDailyDigest(JOUR).getAlertsCount()).isEqualTo(10);
         }
@@ -140,9 +139,8 @@ class MobileReportServiceTest {
         @Test
         @DisplayName("le bilan porte le nom du vendeur et ses chiffres")
         void nomEtChiffres() {
-            when(salesRepository.getUserSalesSummary(VENDEUR, JOUR)).thenReturn(
-                new UserSalesSummaryProjection(600_000L, 25, 24_000L, 180_000L, 30.0)
-            );
+            when(salesRepository.getUserSalesSummary(VENDEUR, JOUR))
+                    .thenReturn(new UserSalesSummaryProjection(600_000L, 25, 24_000L, 180_000L, 30.0));
             when(salesRepository.getUserName(VENDEUR)).thenReturn("Awa Koné");
 
             UserPerformanceDTO bilan = service.getUserPerformance(VENDEUR, JOUR);
@@ -162,7 +160,8 @@ class MobileReportServiceTest {
             when(salesRepository.getUserSalesSummary(VENDEUR, JOUR)).thenReturn(vendeur(600_000L, 25));
             when(salesRepository.getUserSalesSummary(VENDEUR, VEILLE)).thenReturn(vendeur(500_000L, 22));
 
-            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay()).isEqualTo(20.0);
+            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay())
+                    .isEqualTo(20.0);
         }
 
         /** Un vendeur qui n'était pas là la veille : cent pour cent, et non une division par zéro. */
@@ -171,13 +170,15 @@ class MobileReportServiceTest {
         void absentLaVeille() {
             when(salesRepository.getUserSalesSummary(VENDEUR, JOUR)).thenReturn(vendeur(600_000L, 25));
 
-            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay()).isEqualTo(100.0);
+            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay())
+                    .isEqualTo(100.0);
         }
 
         @Test
         @DisplayName("un vendeur absent les deux jours affiche un écart nul")
         void absentLesDeuxJours() {
-            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay()).isZero();
+            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay())
+                    .isZero();
         }
 
         @Test
@@ -186,7 +187,8 @@ class MobileReportServiceTest {
             when(salesRepository.getUserSalesSummary(VENDEUR, JOUR)).thenReturn(vendeur(4L, 1));
             when(salesRepository.getUserSalesSummary(VENDEUR, VEILLE)).thenReturn(vendeur(3L, 1));
 
-            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay()).isEqualTo(33.33);
+            assertThat(service.getUserPerformance(VENDEUR, JOUR).getVariationVsPreviousDay())
+                    .isEqualTo(33.33);
         }
     }
 

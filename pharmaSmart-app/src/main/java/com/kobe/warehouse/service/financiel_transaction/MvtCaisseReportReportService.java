@@ -26,11 +26,8 @@ public class MvtCaisseReportReportService extends CommonReportService {
     private String templateFile;
     private List<MvtCaisseDTO> items;
 
-    public MvtCaisseReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public MvtCaisseReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;
@@ -67,7 +64,8 @@ public class MvtCaisseReportReportService extends CommonReportService {
         return "mvt-caisse";
     }
 
-    public byte[] exportToPdfBytes(ArrayList<MvtCaisseDTO> items, MvtCaisseWrapper mvtCaisseWrapper, ReportPeriode reportPeriode) {
+    public byte[] exportToPdfBytes(
+            ArrayList<MvtCaisseDTO> items, MvtCaisseWrapper mvtCaisseWrapper, ReportPeriode reportPeriode) {
         this.items = items;
         Magasin magasin = storageService.getUser().getMagasin();
         int itemSize = items.size();

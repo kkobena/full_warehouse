@@ -1,43 +1,20 @@
 <div class="avoir-workspace">
-
   <!-- Toolbar -->
   <div class="aw-toolbar">
     @if (!showForm()) {
-      <span class="aw-title">
-        <i class="pi pi-wallet me-1"></i>Avoirs associés
-      </span>
+      <span class="aw-title"> <i class="pi pi-wallet me-1"></i>Avoirs associés </span>
       @if (facture()?.statut === 'PARTIALLY_PAID') {
-        <app-button
-          label="Nouvel avoir"
-          icon="pi pi-plus"
-          size="small"
-          severity="primary"
-          [outlined]="true"
-          (clicked)="onNouvelAvoir()"
-        />
+        <app-button label="Nouvel avoir" icon="pi pi-plus" size="small" severity="primary" [outlined]="true" (clicked)="onNouvelAvoir()" />
       }
     } @else {
-      <app-button
-        icon="pi pi-arrow-left"
-        label="Retour"
-        size="small"
-        severity="secondary"
-        [outlined]="true"
-        (clicked)="onAnnuler()"
-      />
+      <app-button icon="pi pi-arrow-left" label="Retour" size="small" severity="secondary" [outlined]="true" (clicked)="onAnnuler()" />
       <div class="aw-toolbar-right">
         @if (montantEffectif > 0) {
           <span class="aw-total-badge">
             Total&nbsp;: <span class="pharma-price">{{ montantEffectif | number: '1.0-0' }}</span>
           </span>
         }
-        <app-button
-          label="Annuler"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          (clicked)="onAnnuler()"
-        />
+        <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="onAnnuler()" />
         <app-button
           label="Enregistrer"
           icon="pi pi-check"
@@ -70,25 +47,22 @@
         </ng-template>
         <ng-template #body let-avoir>
           <tr>
-            <td><span class="pharma-code">{{ avoir.numAvoir }}</span></td>
+            <td>
+              <span class="pharma-code">{{ avoir.numAvoir }}</span>
+            </td>
             <td class="small text-muted">{{ avoir.avoirDate }}</td>
             <td class="text-end">
               <span class="pharma-price">{{ avoir.montantAvoir | number: '1.0-0' }}</span>
             </td>
             <td>
-              <app-badge
-                [label]="getStatutLabel(avoir.statut)"
-                [severity]="getStatutSeverity(avoir.statut)"
-              />
+              <app-badge [label]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
             </td>
             <td class="small text-muted">{{ avoir.motif }}</td>
           </tr>
         </ng-template>
         <ng-template #emptymessage>
           <tr>
-            <td colspan="5" class="text-center p-3 text-muted">
-              Aucun avoir pour cette facture
-            </td>
+            <td colspan="5" class="text-center p-3 text-muted">Aucun avoir pour cette facture</td>
           </tr>
         </ng-template>
       </app-data-table>
@@ -98,7 +72,6 @@
   <!-- Form mode (replaces list) -->
   @if (showForm()) {
     <div class="aw-form">
-
       <!-- Type d'avoir -->
       <div class="aw-mode-selector">
         <span class="aw-info-label">Type</span>
@@ -116,7 +89,8 @@
           <div class="aw-field">
             <app-float-label inputId="aw-montant" label="Montant avoir *">
               <app-input-number
-                [ngModel]="montantAvoir()" (ngModelChange)="montantAvoir.set($event)"
+                [ngModel]="montantAvoir()"
+                (ngModelChange)="montantAvoir.set($event)"
                 inputId="aw-montant"
                 [min]="1"
                 [max]="maxMontant"
@@ -124,20 +98,26 @@
                 [maxFractionDigits]="2"
                 style="width: 100%"
               />
-          </app-float-label>
+            </app-float-label>
             @if (montantAvoir() !== null && montantAvoir() > maxMontant) {
               <small class="text-danger">Max&nbsp;: {{ maxMontant | number: '1.0-0' }}</small>
             }
           </div>
           <div class="aw-field">
             <app-float-label inputId="aw-tva" label="dont TVA">
-              <app-input-number [ngModel]="montantTva()" (ngModelChange)="montantTva.set($event)" id="aw-tva" [min]="0" style="width: 100%" />
-          </app-float-label>
+              <app-input-number
+                [ngModel]="montantTva()"
+                (ngModelChange)="montantTva.set($event)"
+                id="aw-tva"
+                [min]="0"
+                style="width: 100%"
+              />
+            </app-float-label>
           </div>
           <div class="aw-field">
             <app-float-label inputId="aw-ht" label="dont HT">
               <app-input-number [ngModel]="montantHt()" (ngModelChange)="montantHt.set($event)" id="aw-ht" [min]="0" style="width: 100%" />
-          </app-float-label>
+            </app-float-label>
           </div>
         </div>
         @if (tvaHtDepasseMontant) {
@@ -152,7 +132,8 @@
         } @else {
           <app-data-table
             [value]="lignes()"
-            [selection]="selectedLignes()" (selectionChange)="selectedLignes.set($any($event))"
+            [selection]="selectedLignes()"
+            (selectionChange)="selectedLignes.set($any($event))"
             selectionMode="multiple"
             [stripedRows]="true"
             class="p-datatable-sm aw-lignes-table"
@@ -170,53 +151,41 @@
             <ng-template #body let-ligne let-i="rowIndex">
               <tr [appSelectableRow]="ligne">
                 <td><app-row-checkbox [row]="ligne" /></td>
-                <td><span class="pharma-code small">{{ ligne.numBon }}</span></td>
+                <td>
+                  <span class="pharma-code small">{{ ligne.numBon }}</span>
+                </td>
                 <td class="text-end pharma-price small">{{ ligne.montant | number: '1.0-0' }}</td>
                 <td>
-                  <input
-                    [(ngModel)]="lignes()[i].motifRejet"
-                    [disabled]="!isSelected(ligne)"
-                    placeholder="Motif…"
-                    class="aw-motif-input"
-                  />
+                  <input [(ngModel)]="lignes()[i].motifRejet" [disabled]="!isSelected(ligne)" placeholder="Motif…" class="aw-motif-input" />
                 </td>
               </tr>
             </ng-template>
           </app-data-table>
         }
       }
-
     </div>
   }
-
 </div>
 
 <!-- Modal motif (ouvert à la validation) -->
 <ng-template #motifModal let-modal>
   <div class="modal-header py-2">
-    <h6 class="modal-title mb-0">
-      <i class="pi pi-wallet me-2"></i>Motif de l'avoir
-    </h6>
+    <h6 class="modal-title mb-0"><i class="pi pi-wallet me-2"></i>Motif de l'avoir</h6>
     <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body py-2">
     <app-float-label inputId="aw-motif-draft" label="Motif *">
       <textarea
-        [ngModel]="motifDraft()" (ngModelChange)="motifDraft.set($event)"
+        [ngModel]="motifDraft()"
+        (ngModelChange)="motifDraft.set($event)"
         inputId="aw-motif-draft"
         rows="3"
         style="width: 100%; resize: vertical"
       ></textarea>
-          </app-float-label>
+    </app-float-label>
   </div>
   <div class="modal-footer py-2">
-    <app-button
-      label="Annuler"
-      severity="secondary"
-      [outlined]="true"
-      size="small"
-      (clicked)="modal.dismiss()"
-    />
+    <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="modal.dismiss()" />
     <app-button
       label="Confirmer"
       icon="pi pi-check"

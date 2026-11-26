@@ -1,10 +1,10 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { finalize, switchMap } from "rxjs/operators";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent, CardComponent } from "app/shared/ui";
+import { Component, computed, DestroyRef, inject, input, OnInit, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, switchMap } from 'rxjs/operators';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, CardComponent } from 'app/shared/ui';
 import {
   AllCommunityModule,
   CellValueChangedEvent,
@@ -13,29 +13,27 @@ import {
   GetRowIdFunc,
   GridReadyEvent,
   ModuleRegistry,
-  themeAlpine
-} from "ag-grid-community";
-import { AgGridAngular } from "ag-grid-angular";
-import { IBed, IBedLigne, MotifBed, MOTIFS_BED } from "../data-access/bed.model";
-import { BedService } from "../data-access/bed.service";
-import { BedLineActionsComponent } from "../ui/bed-line-actions/bed-line-actions.component";
-import { BedValidateModalComponent, BedValidateResult } from "../ui/bed-header-form/bed-validate-modal.component";
-import {
-  CommandeProductSearchComponent
-} from "app/features/commande/ui/commande-product-search/commande-product-search.component";
-import { ProduitSearch } from "app/shared/model/produit.model";
-import { NotificationService } from "app/shared/services/notification.service";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+  themeAlpine,
+} from 'ag-grid-community';
+import { AgGridAngular } from 'ag-grid-angular';
+import { IBed, IBedLigne, MotifBed, MOTIFS_BED } from '../data-access/bed.model';
+import { BedService } from '../data-access/bed.service';
+import { BedLineActionsComponent } from '../ui/bed-line-actions/bed-line-actions.component';
+import { BedValidateModalComponent, BedValidateResult } from '../ui/bed-header-form/bed-validate-modal.component';
+import { CommandeProductSearchComponent } from 'app/features/commande/ui/commande-product-search/commande-product-search.component';
+import { ProduitSearch } from 'app/shared/model/produit.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 import { formatNumber } from 'app/shared/utils/format-utils';
-import {AG_GRID_LOCALE_FR} from '../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { AG_GRID_LOCALE_FR } from '../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 import { DevisePipe } from 'app/shared/utils/devise';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
-  selector: "app-bed-detail",
-  templateUrl: "./bed-detail.component.html",
-  styleUrls: ["./bed-detail.component.scss"],
+  selector: 'app-bed-detail',
+  templateUrl: './bed-detail.component.html',
+  styleUrls: ['./bed-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -44,8 +42,10 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     NgbTooltip,
     BadgeComponent,
     AgGridAngular,
-    CommandeProductSearchComponent
-    , DevisePipe, CardComponent]
+    CommandeProductSearchComponent,
+    DevisePipe,
+    CardComponent,
+  ],
 })
 export class BedDetailComponent implements OnInit {
   /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
@@ -55,12 +55,10 @@ export class BedDetailComponent implements OnInit {
   readonly retour = output();
   readonly bedChange = output<IBed>();
 
-  readonly isBrouillon = computed(() => !this.bed()?.id || this.bed()?.orderStatus === "REQUESTED");
+  readonly isBrouillon = computed(() => !this.bed()?.id || this.bed()?.orderStatus === 'REQUESTED');
   readonly isNew = computed(() => !this.bed()?.id);
   readonly lignes = computed(() => this.bed()?.lignes ?? []);
-  readonly totalGross = computed(() =>
-    this.lignes().reduce((s, l) => s + (l.quantite ?? 0) * (l.prixAchat ?? 0), 0)
-  );
+  readonly totalGross = computed(() => this.lignes().reduce((s, l) => s + (l.quantite ?? 0) * (l.prixAchat ?? 0), 0));
 
   // ── AG Grid ────────────────────────────────────────────────────────────────
   readonly theme = themeAlpine;
@@ -69,7 +67,7 @@ export class BedDetailComponent implements OnInit {
   protected readonly defaultColDef: ColDef<IBedLigne> = {
     resizable: true,
     sortable: false,
-    suppressHeaderMenuButton: true
+    suppressHeaderMenuButton: true,
   };
 
   protected readonly getRowId: GetRowIdFunc<IBedLigne> = p => String(p.data.id);
@@ -78,49 +76,49 @@ export class BedDetailComponent implements OnInit {
     const brouillon = this.isBrouillon();
     return [
       {
-        field: "codeCip",
-        headerName: "Code",
+        field: 'codeCip',
+        headerName: 'Code',
         width: 120,
-        cellStyle: { fontFamily: "monospace", fontSize: "12px" }
+        cellStyle: { fontFamily: 'monospace', fontSize: '12px' },
       },
       {
-        field: "produitLibelle",
-        headerName: "Produit",
+        field: 'produitLibelle',
+        headerName: 'Produit',
         flex: 2,
-        minWidth: 150
+        minWidth: 150,
       },
       {
-        field: "quantite",
-        headerName: "Qté",
+        field: 'quantite',
+        headerName: 'Qté',
         width: 90,
-        type: "numericColumn",
+        type: 'numericColumn',
         editable: () => brouillon,
-        cellEditor: "agNumberCellEditor"
+        cellEditor: 'agNumberCellEditor',
       },
       {
-        field: "prixAchat",
-        headerName: "P.A (F)",
+        field: 'prixAchat',
+        headerName: 'P.A (F)',
         width: 120,
-        type: "numericColumn",
+        type: 'numericColumn',
         editable: () => brouillon,
-        cellEditor: "agNumberCellEditor",
-        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
+        cellEditor: 'agNumberCellEditor',
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : '—'),
       },
       {
-        colId: "total",
-        headerName: "Total (F)",
+        colId: 'total',
+        headerName: 'Total (F)',
         width: 130,
-        type: "numericColumn",
+        type: 'numericColumn',
         valueGetter: p => (p.data?.quantite ?? 0) * (p.data?.prixAchat ?? 0),
-        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : "—")
+        valueFormatter: p => (p.value != null ? formatNumber(Number(p.value)) : '—'),
       },
       {
-        colId: "actions",
-        headerName: "",
+        colId: 'actions',
+        headerName: '',
         width: 70,
         sortable: false,
-        cellRenderer: BedLineActionsComponent
-      }
+        cellRenderer: BedLineActionsComponent,
+      },
     ];
   }
 
@@ -129,7 +127,7 @@ export class BedDetailComponent implements OnInit {
   readonly addingLigne = signal(false);
   protected readonly ligneQuantite = signal(1);
 
-  readonly productSearch = viewChild<CommandeProductSearchComponent>("productSearch");
+  readonly productSearch = viewChild<CommandeProductSearchComponent>('productSearch');
 
   private readonly bedService = inject(BedService);
   private readonly notificationService = inject(NotificationService);
@@ -137,21 +135,20 @@ export class BedDetailComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   getMotifLabel(motif: MotifBed | undefined): string {
-    return MOTIFS_BED.find(m => m.value === motif)?.label ?? motif ?? "—";
+    return MOTIFS_BED.find(m => m.value === motif)?.label ?? motif ?? '—';
   }
 
   getStatutLabel(statut: string | undefined): string {
-    return statut === "CLOSED" ? "Validé" : statut === "REQUESTED" ? "En cours" : (statut ?? "");
+    return statut === 'CLOSED' ? 'Validé' : statut === 'REQUESTED' ? 'En cours' : (statut ?? '');
   }
 
-  getStatutSeverity(statut: string | undefined): "success" | "warn" | "secondary" {
-    return statut === "CLOSED" ? "success" : statut === "REQUESTED" ? "warn" : "secondary";
+  getStatutSeverity(statut: string | undefined): 'success' | 'warn' | 'secondary' {
+    return statut === 'CLOSED' ? 'success' : statut === 'REQUESTED' ? 'warn' : 'secondary';
   }
 
   // ── Produit sélectionné ────────────────────────────────────────────────────
@@ -169,25 +166,29 @@ export class BedDetailComponent implements OnInit {
   onValider(): void {
     const bed = this.bed();
     if (!bed?.id) return;
-    const modalRef = this.modalService.open(BedValidateModalComponent, { centered: true, size: "lg", backdrop: 'static' });
+    const modalRef = this.modalService.open(BedValidateModalComponent, { centered: true, size: 'lg', backdrop: 'static' });
     const instance = modalRef.componentInstance as BedValidateModalComponent;
     instance.bed = bed;
     instance.formMotif.set(bed.motifBed ?? null);
     modalRef.result.then(
       (result: BedValidateResult) => {
         this.bedService
-          .validate(bed.id!, { orderDate: bed.orderDate!, motif: result.motif, fournisseurId: result.fournisseurId, commentaire: result.commentaire })
+          .validate(bed.id!, {
+            orderDate: bed.orderDate!,
+            motif: result.motif,
+            fournisseurId: result.fournisseurId,
+            commentaire: result.commentaire,
+          })
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: validated => {
               this.bedChange.emit(validated);
-              this.notificationService.success(`${validated.receiptReference} validé — stock crédité`, "Succès");
+              this.notificationService.success(`${validated.receiptReference} validé — stock crédité`, 'Succès');
             },
-            error: () => this.notificationService.error("Erreur lors de la validation", "Erreur")
+            error: () => this.notificationService.error('Erreur lors de la validation', 'Erreur'),
           });
       },
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -196,12 +197,12 @@ export class BedDetailComponent implements OnInit {
   onAjouterLigne(): void {
     const produit = this.selectedProduit();
     if (!produit || this.ligneQuantite() <= 0) {
-      this.notificationService.error("Sélectionnez un produit et une quantité valide", "Validation");
+      this.notificationService.error('Sélectionnez un produit et une quantité valide', 'Validation');
       return;
     }
     const fp = produit.fournisseurProduit;
     if (!fp) {
-      this.notificationService.error("Ce produit n'a pas de fournisseur principal configuré", "Erreur");
+      this.notificationService.error("Ce produit n'a pas de fournisseur principal configuré", 'Erreur');
       return;
     }
 
@@ -209,7 +210,7 @@ export class BedDetailComponent implements OnInit {
       fournisseurProduitId: fp.id,
       quantite: this.ligneQuantite(),
       prixAchat: fp.prixAchat ?? 0,
-      prixVente: fp.prixUni
+      prixVente: fp.prixUni,
     };
 
     this.addingLigne.set(true);
@@ -223,14 +224,14 @@ export class BedDetailComponent implements OnInit {
             return this.bedService.addLigne(created.id!, created.orderDate!, ligne);
           }),
           finalize(() => this.addingLigne.set(false)),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
           next: updated => {
             this.bedChange.emit(updated);
             this.resetAddForm();
           },
-          error: () => this.notificationService.error("Erreur lors de l'ajout de la ligne", "Erreur")
+          error: () => this.notificationService.error("Erreur lors de l'ajout de la ligne", 'Erreur'),
         });
     } else {
       const bed = this.bed();
@@ -238,14 +239,14 @@ export class BedDetailComponent implements OnInit {
         .addLigne(bed.id!, bed.orderDate!, ligne)
         .pipe(
           finalize(() => this.addingLigne.set(false)),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe({
           next: updated => {
             this.bedChange.emit(updated);
             this.resetAddForm();
           },
-          error: () => this.notificationService.error("Erreur lors de l'ajout de la ligne", "Erreur")
+          error: () => this.notificationService.error("Erreur lors de l'ajout de la ligne", 'Erreur'),
         });
     }
   }
@@ -258,16 +259,15 @@ export class BedDetailComponent implements OnInit {
 
   // ── AG Grid ────────────────────────────────────────────────────────────────
 
-  onGridReady(_e: GridReadyEvent<IBedLigne>): void {
-  }
+  onGridReady(_e: GridReadyEvent<IBedLigne>): void {}
 
   onCellValueChanged(e: CellValueChangedEvent<IBedLigne>): void {
     const bed = this.bed();
     const ligne = e.data;
     if (!bed?.id || !ligne.id) return;
     const val = Number(e.newValue);
-    if (e.colDef.field === "quantite" && val <= 0) return;
-    if (e.colDef.field === "prixAchat" && val < 0) return;
+    if (e.colDef.field === 'quantite' && val <= 0) return;
+    if (e.colDef.field === 'prixAchat' && val < 0) return;
 
     const dto: IBedLigne = { ...ligne, [e.colDef.field!]: val };
     this.bedService
@@ -275,7 +275,7 @@ export class BedDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: updated => this.bedChange.emit(updated),
-        error: () => this.notificationService.error("Erreur lors de la mise à jour", "Erreur")
+        error: () => this.notificationService.error('Erreur lors de la mise à jour', 'Erreur'),
       });
   }
 
@@ -294,15 +294,15 @@ export class BedDetailComponent implements OnInit {
               const updated: IBed = {
                 ...bed,
                 lignes: (bed.lignes ?? []).filter(l => l.id !== ligne.id),
-                grossAmount: (bed.grossAmount ?? 0) - (ligne.quantite ?? 0) * (ligne.prixAchat ?? 0)
+                grossAmount: (bed.grossAmount ?? 0) - (ligne.quantite ?? 0) * (ligne.prixAchat ?? 0),
               };
               this.bedChange.emit(updated);
             },
-            error: () => this.notificationService.error("Erreur lors de la suppression", "Erreur")
+            error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
           });
       },
-      "Supprimer la ligne",
-      `Supprimer la ligne "${ligne.produitLibelle}" du BED ?`
+      'Supprimer la ligne',
+      `Supprimer la ligne "${ligne.produitLibelle}" du BED ?`,
     );
   }
 }

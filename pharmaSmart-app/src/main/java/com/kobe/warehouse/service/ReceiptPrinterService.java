@@ -22,11 +22,10 @@ public class ReceiptPrinterService {
     private final VenteDepotReceiptService venteDepotReceiptService;
 
     public ReceiptPrinterService(
-        StorageService storageService,
-        CashSaleReceiptService cashSaleReceiptService,
-        AssuranceSaleReceiptService assuranceSaleReceiptService,
-        VenteDepotReceiptService venteDepotReceiptService
-    ) {
+            StorageService storageService,
+            CashSaleReceiptService cashSaleReceiptService,
+            AssuranceSaleReceiptService assuranceSaleReceiptService,
+            VenteDepotReceiptService venteDepotReceiptService) {
         this.storageService = storageService;
         this.cashSaleReceiptService = cashSaleReceiptService;
         this.assuranceSaleReceiptService = assuranceSaleReceiptService;
@@ -39,9 +38,9 @@ public class ReceiptPrinterService {
 
     public void printVoSale(ThirdPartySaleDTO thirdPartySale, boolean isEdit) {
         this.assuranceSaleReceiptService.printReceipt(null, thirdPartySale, isEdit);
-        TicketNonRembourseBuilder
-            .construire(thirdPartySale)
-            .ifPresent(ticket -> this.cashSaleReceiptService.printReceipt(null, ticket, true, TicketNonRembourseBuilder.TITRE));
+        TicketNonRembourseBuilder.construire(thirdPartySale)
+                .ifPresent(ticket ->
+                        this.cashSaleReceiptService.printReceipt(null, ticket, true, TicketNonRembourseBuilder.TITRE));
     }
 
     private PrintService findPrintService() {
@@ -63,16 +62,14 @@ public class ReceiptPrinterService {
             return ticketAssurance;
         }
         byte[] second = this.cashSaleReceiptService.generateEscPosReceiptForTauri(
-            ticketNonRembourse.get(),
-            true,
-            TicketNonRembourseBuilder.TITRE
-        );
+                ticketNonRembourse.get(), true, TicketNonRembourseBuilder.TITRE);
         byte[] tout = java.util.Arrays.copyOf(ticketAssurance, ticketAssurance.length + second.length);
         System.arraycopy(second, 0, tout, ticketAssurance.length, second.length);
         return tout;
     }
 
-    public byte[] generateEscPosReceipt(DepotExtensionSaleDTO depotExtensionSaleDTO, boolean isEdit) throws IOException {
+    public byte[] generateEscPosReceipt(DepotExtensionSaleDTO depotExtensionSaleDTO, boolean isEdit)
+            throws IOException {
         return this.venteDepotReceiptService.generateEscPosReceiptForTauri(depotExtensionSaleDTO, isEdit);
     }
 

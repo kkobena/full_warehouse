@@ -41,10 +41,10 @@ function theme(): Theme {
   const get = (v: string, fallback: string) => css.getPropertyValue(v).trim() || fallback;
   return {
     series,
-    muted:   get('--bs-secondary-color',          dark ? '#8a8984' : '#9a9994'),
-    grid:    get('--bs-border-color-translucent',  dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
-    text:    get('--bs-body-color',                dark ? '#c3c2b7' : '#52514e'),
-    surface: get('--bs-body-bg',                   dark ? '#1a1a19' : '#ffffff'),
+    muted: get('--bs-secondary-color', dark ? '#8a8984' : '#9a9994'),
+    grid: get('--bs-border-color-translucent', dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
+    text: get('--bs-body-color', dark ? '#c3c2b7' : '#52514e'),
+    surface: get('--bs-body-bg', dark ? '#1a1a19' : '#ffffff'),
   };
 }
 
@@ -112,7 +112,11 @@ function buildCartesian(viz: VizType, data: SeriesData, t: Theme, previousLabel?
       layout: line || horizontal ? undefined : { padding: { top: 20 } },
       plugins: {
         legend: { display: data.series.length >= 2, position: 'bottom', labels: legendLabels },
-        tooltip: { callbacks: { label: (ctx: TooltipContext) => `${ctx.dataset.label} : ${formatNumber(Number(ctx.parsed[horizontal ? 'x' : 'y']))}` } },
+        tooltip: {
+          callbacks: {
+            label: (ctx: TooltipContext) => `${ctx.dataset.label} : ${formatNumber(Number(ctx.parsed[horizontal ? 'x' : 'y']))}`,
+          },
+        },
       },
       scales: horizontal ? { x: valueAxis, y: categoryAxis } : { x: categoryAxis, y: valueAxis },
     },

@@ -92,8 +92,7 @@ class MobileCashBalanceServiceTest {
         @Test
         @DisplayName("les totaux de la balance sont repris tels quels")
         void totauxRepris() {
-            donneBalance(
-                new BalanceCaisseWrapper()
+            donneBalance(new BalanceCaisseWrapper()
                     .setCount(42)
                     .setMontantTtc(1_000_000L)
                     .setMontantHt(900_000L)
@@ -104,8 +103,7 @@ class MobileCashBalanceServiceTest {
                     .setMontantAchat(600_000L)
                     .setMontantMarge(400_000L)
                     .setRatioVenteAchat(1.67f)
-                    .setRatioAchatVente(0.6f)
-            );
+                    .setRatioAchatVente(0.6f));
 
             MobileCashBalanceDTO resultat = service.getCashBalance(JOUR, JOUR);
 
@@ -132,22 +130,21 @@ class MobileCashBalanceServiceTest {
         @Test
         @DisplayName("chaque mode alimenté donne une part, avec son pourcentage et sa couleur")
         void partParMode() {
-            donneBalance(
-                new BalanceCaisseWrapper()
+            donneBalance(new BalanceCaisseWrapper()
                     .setMontantTtc(1_000_000L)
                     .setMontantCash(500_000L)
                     .setMontantCard(200_000L)
                     .setMontantMobileMoney(150_000L)
                     .setMontantCheck(100_000L)
-                    .setMontantVirement(50_000L)
-            );
+                    .setMontantVirement(50_000L));
 
-            List<PaymentModeBreakdownDTO> parts = service.getCashBalance(JOUR, JOUR).paymentBreakdown();
+            List<PaymentModeBreakdownDTO> parts =
+                    service.getCashBalance(JOUR, JOUR).paymentBreakdown();
 
-            assertThat(parts).extracting(PaymentModeBreakdownDTO::code)
-                .containsExactly("ESPECES", "CARTE", "MOBILE_MONEY", "CHEQUE", "VIREMENT");
-            assertThat(parts).extracting(PaymentModeBreakdownDTO::percent)
-                .containsExactly(50.0, 20.0, 15.0, 10.0, 5.0);
+            assertThat(parts)
+                    .extracting(PaymentModeBreakdownDTO::code)
+                    .containsExactly("ESPECES", "CARTE", "MOBILE_MONEY", "CHEQUE", "VIREMENT");
+            assertThat(parts).extracting(PaymentModeBreakdownDTO::percent).containsExactly(50.0, 20.0, 15.0, 10.0, 5.0);
             assertThat(parts.getFirst().color()).isEqualTo("#4CAF50");
         }
 
@@ -157,8 +154,8 @@ class MobileCashBalanceServiceTest {
             donneBalance(new BalanceCaisseWrapper().setMontantTtc(500_000L).setMontantCash(500_000L));
 
             assertThat(service.getCashBalance(JOUR, JOUR).paymentBreakdown())
-                .extracting(PaymentModeBreakdownDTO::code)
-                .containsExactly("ESPECES");
+                    .extracting(PaymentModeBreakdownDTO::code)
+                    .containsExactly("ESPECES");
         }
 
         /**
@@ -169,15 +166,14 @@ class MobileCashBalanceServiceTest {
         @Test
         @DisplayName("crédit, différé et tiers payant forment une seule part")
         void creditRegroupe() {
-            donneBalance(
-                new BalanceCaisseWrapper()
+            donneBalance(new BalanceCaisseWrapper()
                     .setMontantTtc(1_000_000L)
                     .setMontantCredit(30_000L)
                     .setMontantDiffere(20_000L)
-                    .setPartTiersPayant(50_000L)
-            );
+                    .setPartTiersPayant(50_000L));
 
-            List<PaymentModeBreakdownDTO> parts = service.getCashBalance(JOUR, JOUR).paymentBreakdown();
+            List<PaymentModeBreakdownDTO> parts =
+                    service.getCashBalance(JOUR, JOUR).paymentBreakdown();
 
             assertThat(parts).hasSize(1);
             assertThat(parts.getFirst().code()).isEqualTo("CREDIT");
@@ -190,7 +186,11 @@ class MobileCashBalanceServiceTest {
         void pourcentageArrondi() {
             donneBalance(new BalanceCaisseWrapper().setMontantTtc(1_000_000L).setMontantCash(333_333L));
 
-            assertThat(service.getCashBalance(JOUR, JOUR).paymentBreakdown().getFirst().percent()).isEqualTo(33.3);
+            assertThat(service.getCashBalance(JOUR, JOUR)
+                            .paymentBreakdown()
+                            .getFirst()
+                            .percent())
+                    .isEqualTo(33.3);
         }
 
         /** Un chiffre d'affaires nul ne doit pas faire diviser par zéro. */
@@ -199,7 +199,11 @@ class MobileCashBalanceServiceTest {
         void chiffreDAffairesNul() {
             donneBalance(new BalanceCaisseWrapper().setMontantTtc(0L).setMontantCash(1_000L));
 
-            assertThat(service.getCashBalance(JOUR, JOUR).paymentBreakdown().getFirst().percent()).isZero();
+            assertThat(service.getCashBalance(JOUR, JOUR)
+                            .paymentBreakdown()
+                            .getFirst()
+                            .percent())
+                    .isZero();
         }
 
         @Test
@@ -220,20 +224,15 @@ class MobileCashBalanceServiceTest {
         @Test
         @DisplayName("chaque catégorie porte son code et son libellé d'officine")
         void codeEtLibelle() {
-            donneBalance(
-                new BalanceCaisseWrapper()
-                    .setBalanceCaisses(
-                        List.of(
+            donneBalance(new BalanceCaisseWrapper()
+                    .setBalanceCaisses(List.of(
                             categorie(TypeVenteDTO.CashSale),
                             categorie(TypeVenteDTO.ThirdPartySales),
-                            categorie(TypeVenteDTO.VenteDepot)
-                        )
-                    )
-            );
+                            categorie(TypeVenteDTO.VenteDepot))));
 
             assertThat(service.getCashBalance(JOUR, JOUR).categoryBalances())
-                .extracting(CategoryBalanceDTO::categoryLabel)
-                .containsExactly("VNO", "VO", "Ventes Dépôts");
+                    .extracting(CategoryBalanceDTO::categoryLabel)
+                    .containsExactly("VNO", "VO", "Ventes Dépôts");
         }
 
         @Test
@@ -241,7 +240,8 @@ class MobileCashBalanceServiceTest {
         void categorieSansType() {
             donneBalance(new BalanceCaisseWrapper().setBalanceCaisses(List.of(new BalanceCaisseDTO())));
 
-            CategoryBalanceDTO categorie = service.getCashBalance(JOUR, JOUR).categoryBalances().getFirst();
+            CategoryBalanceDTO categorie =
+                    service.getCashBalance(JOUR, JOUR).categoryBalances().getFirst();
 
             assertThat(categorie.categoryCode()).isEqualTo("AUTRE");
             assertThat(categorie.categoryLabel()).isEqualTo("Autre");
@@ -261,7 +261,8 @@ class MobileCashBalanceServiceTest {
             vno.setPartTiersPayant(20_000L);
             donneBalance(new BalanceCaisseWrapper().setBalanceCaisses(List.of(vno)));
 
-            CategoryBalanceDTO categorie = service.getCashBalance(JOUR, JOUR).categoryBalances().getFirst();
+            CategoryBalanceDTO categorie =
+                    service.getCashBalance(JOUR, JOUR).categoryBalances().getFirst();
 
             assertThat(categorie.montantTtc()).isEqualTo(800_000L);
             assertThat(categorie.montantHt()).isEqualTo(700_000L);
@@ -307,7 +308,8 @@ class MobileCashBalanceServiceTest {
         void sortieDeCaisse() {
             donneBalance(mouvements(mouvement(TransactionTypeAffichage.SORTIE_CAISSE, 75_000L)));
 
-            CashMovementDTO mouvement = service.getCashBalance(JOUR, JOUR).cashMovements().getFirst();
+            CashMovementDTO mouvement =
+                    service.getCashBalance(JOUR, JOUR).cashMovements().getFirst();
 
             assertThat(mouvement.isSortie()).isTrue();
             assertThat(mouvement.montant()).isEqualTo(75_000L);
@@ -323,22 +325,22 @@ class MobileCashBalanceServiceTest {
         void reglementFournisseur() {
             donneBalance(mouvements(mouvement(TransactionTypeAffichage.REGLEMENT_FOURNISSEUR, 400_000L)));
 
-            assertThat(service.getCashBalance(JOUR, JOUR).cashMovements().getFirst().isSortie()).isTrue();
+            assertThat(service.getCashBalance(JOUR, JOUR)
+                            .cashMovements()
+                            .getFirst()
+                            .isSortie())
+                    .isTrue();
         }
 
         @Test
         @DisplayName("les autres mouvements sont des entrées")
         void autresMouvements() {
-            donneBalance(
-                mouvements(
+            donneBalance(mouvements(
                     mouvement(TransactionTypeAffichage.ENTREE_CAISSE, 30_000L),
                     mouvement(TransactionTypeAffichage.VNO, 500_000L),
-                    mouvement(TransactionTypeAffichage.REGLEMENT_DIFFERE, 20_000L)
-                )
-            );
+                    mouvement(TransactionTypeAffichage.REGLEMENT_DIFFERE, 20_000L)));
 
-            assertThat(service.getCashBalance(JOUR, JOUR).cashMovements())
-                .allMatch(CashMovementDTO::isEntree);
+            assertThat(service.getCashBalance(JOUR, JOUR).cashMovements()).allMatch(CashMovementDTO::isEntree);
         }
 
         @Test
@@ -346,7 +348,8 @@ class MobileCashBalanceServiceTest {
         void montantNegatif() {
             donneBalance(mouvements(mouvement(TransactionTypeAffichage.ENTREE_CAISSE, -12_000L)));
 
-            CashMovementDTO mouvement = service.getCashBalance(JOUR, JOUR).cashMovements().getFirst();
+            CashMovementDTO mouvement =
+                    service.getCashBalance(JOUR, JOUR).cashMovements().getFirst();
 
             assertThat(mouvement.isSortie()).isTrue();
             assertThat(mouvement.montant()).isEqualTo(12_000L);
@@ -355,18 +358,15 @@ class MobileCashBalanceServiceTest {
         @Test
         @DisplayName("le montant est lu quel que soit le type numérique porté")
         void typesNumeriques() {
-            donneBalance(
-                mouvements(
+            donneBalance(mouvements(
                     new Tuple("VNO", "VNO", 1_000),
                     new Tuple("VO", "VO", 2_000L),
                     new Tuple("DEPOT_CAUTION", "Caution", 3_000.75d),
-                    new Tuple("ENTREE_CAISSE", "Entrée", BigDecimal.valueOf(4_000))
-                )
-            );
+                    new Tuple("ENTREE_CAISSE", "Entrée", BigDecimal.valueOf(4_000))));
 
             assertThat(service.getCashBalance(JOUR, JOUR).cashMovements())
-                .extracting(CashMovementDTO::montant)
-                .containsExactly(1_000L, 2_000L, 3_000L, 4_000L);
+                    .extracting(CashMovementDTO::montant)
+                    .containsExactly(1_000L, 2_000L, 3_000L, 4_000L);
         }
 
         @Test
@@ -375,8 +375,8 @@ class MobileCashBalanceServiceTest {
             donneBalance(mouvements(new Tuple("VNO", "VNO", null), new Tuple("VO", "VO", "n/a")));
 
             assertThat(service.getCashBalance(JOUR, JOUR).cashMovements())
-                .extracting(CashMovementDTO::montant)
-                .containsExactly(0L, 0L);
+                    .extracting(CashMovementDTO::montant)
+                    .containsExactly(0L, 0L);
         }
 
         @Test

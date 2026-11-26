@@ -36,7 +36,11 @@ scenario('REF-45', async ({ etape, page }) => {
     // Le geste de déplacement est offert sur chaque ligne : c'est lui qui réassigne le rayon
     // sans passer par le formulaire complet du produit.
     await expect(
-      onglet.locator('app-button[ngbtooltip="Déplacer vers un autre emplacement"], app-button[ngbtooltip="Assigner un emplacement dans ce stockage"]').first(),
+      onglet
+        .locator(
+          'app-button[ngbtooltip="Déplacer vers un autre emplacement"], app-button[ngbtooltip="Assigner un emplacement dans ce stockage"]',
+        )
+        .first(),
     ).toBeVisible();
   });
 });

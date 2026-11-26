@@ -1,5 +1,11 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, renseignerPrescripteurSiDemande } from '../../src/actions';
+import {
+  ajouterAuPanier,
+  assurerCaisseOuverte,
+  assurerPanierVide,
+  chercherProduit,
+  renseignerPrescripteurSiDemande,
+} from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -14,7 +20,6 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente réelle.
  */
 scenario('VTE-03', async ({ etape, page }) => {
-
   const produit = 'ATORVASTATINE VIATRIS SANTE 80 mg';
   const ligne = page.locator('tbody tr').filter({ visible: true }).first();
 
@@ -22,7 +27,7 @@ scenario('VTE-03', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await assurerPanierVide(page);
-  await page.goto('/sales-home');
+    await page.goto('/sales-home');
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
     // Plein tarif à ce stade : 2 × 3 635. C'est cette valeur que l'étape suivante doit faire

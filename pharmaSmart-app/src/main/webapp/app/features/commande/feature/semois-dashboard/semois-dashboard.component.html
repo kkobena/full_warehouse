@@ -7,13 +7,7 @@
   </ng-container>
   <ng-container ngProjectAs="[toolbarActions]">
     <div class="pharma-button-group">
-      <app-button
-        label="Suggestions"
-        icon="pi pi-list"
-        severity="secondary"
-        size="small"
-        (clicked)="navigateToSuggestions()"
-      />
+      <app-button label="Suggestions" icon="pi pi-list" severity="secondary" size="small" (clicked)="navigateToSuggestions()" />
       <app-button
         label="Actualiser"
         icon="pi pi-refresh"
@@ -124,7 +118,6 @@
 
   <!-- Taux de performance + Répartition par classe -->
   <div class="row mt-2">
-
     <div class="col-12 col-md-6 mb-3">
       <div class="card h-100 data-card">
         <div class="card-header">
@@ -166,10 +159,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <app-data-table
-            [value]="d.parClasse"
-            scrollHeight="200px"
-          >
+          <app-data-table [value]="d.parClasse" scrollHeight="200px">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Classe</th>
@@ -196,7 +186,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Top 10 produits urgents -->
@@ -217,11 +206,7 @@
           />
         </div>
         <div class="card-body p-0">
-          <app-data-table
-            [value]="d.topUrgents"
-            style="min-width: 80rem"
-
-          >
+          <app-data-table [value]="d.topUrgents" style="min-width: 80rem">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Urgence</th>
@@ -240,12 +225,16 @@
               <tr [ngClass]="p.stockActuel < p.margeSecurite ? 'table-danger' : 'table-warning'">
                 <td><app-badge [severity]="getUrgenceSeverity(p)" [label]="getUrgenceLabel(p)" /></td>
                 <td class="fw-medium">{{ p.libelle }}</td>
-                <td><code>{{ p.codeCip || '-' }}</code></td>
+                <td>
+                  <code>{{ p.codeCip || '-' }}</code>
+                </td>
                 <td>{{ p.fournisseurLibelle || '-' }}</td>
                 <td><app-badge [severity]="getClasseSeverity(p.classeCriticite)" [label]="getClasseLabel(p.classeCriticite)" /></td>
                 <td class="text-end">{{ p.vmm }}</td>
                 <td class="text-end">{{ p.margeSecurite }}</td>
-                <td class="text-end fw-bold" [ngClass]="p.stockActuel < p.margeSecurite ? 'text-danger' : 'text-warning'">{{ p.stockActuel }}</td>
+                <td class="text-end fw-bold" [ngClass]="p.stockActuel < p.margeSecurite ? 'text-danger' : 'text-warning'">
+                  {{ p.stockActuel }}
+                </td>
                 <td class="text-end fw-bold pharma-price">{{ p.quantiteACommander }}</td>
                 <td class="text-end">
                   <div class="d-flex flex-column align-items-end gap-0">
@@ -273,4 +262,3 @@
     </div>
   </div>
 }
-

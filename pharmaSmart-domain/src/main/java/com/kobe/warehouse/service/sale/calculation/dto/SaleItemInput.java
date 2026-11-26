@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SaleItemInput {
 
-    //private Long produitId;
+    // private Long produitId;
     private Long salesLineId;
     private Integer quantity;
     private BigDecimal regularUnitPrice;

@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProduitSignauxService {
 
-    private static final String SQL =
-        """
+    private static final String SQL = """
         SELECT p.id,
                p.statut_legal,
                (SELECT s.type_generique
@@ -60,10 +59,18 @@ public class ProduitSignauxService {
         if (produitIds == null || produitIds.isEmpty()) {
             return List.of();
         }
-        List<Object[]> lignes = em.createNativeQuery(SQL).setParameter("ids", produitIds).getResultList();
-        return lignes
-            .stream()
-            .map(l -> new ProduitSignauxDTO((Integer) l[0], (String) l[1], (String) l[2], (String) l[3], (String) l[4], (String) l[5], ((Number) l[6]).intValue(), ((Number) l[7]).intValue()))
-            .toList();
+        List<Object[]> lignes =
+                em.createNativeQuery(SQL).setParameter("ids", produitIds).getResultList();
+        return lignes.stream()
+                .map(l -> new ProduitSignauxDTO(
+                        (Integer) l[0],
+                        (String) l[1],
+                        (String) l[2],
+                        (String) l[3],
+                        (String) l[4],
+                        (String) l[5],
+                        ((Number) l[6]).intValue(),
+                        ((Number) l[7]).intValue()))
+                .toList();
     }
 }

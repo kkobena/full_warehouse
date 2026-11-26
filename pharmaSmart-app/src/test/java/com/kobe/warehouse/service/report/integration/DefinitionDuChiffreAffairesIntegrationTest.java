@@ -50,7 +50,8 @@ class DefinitionDuChiffreAffairesIntegrationTest extends AbstractReportIntegrati
     @Test
     @DisplayName("la référence compte le comptoir et les ventes importées du dépôt, pas le dépôt ni l'annulé")
     void laReferenceCompteLeCaDeLOfficine() {
-        ChiffreAffairesReferenceDTO reference = pilotageVenteRepository.calculerChiffreAffairesOfficine(DEBUT_DU_MOIS, FIN_DU_MOIS);
+        ChiffreAffairesReferenceDTO reference =
+                pilotageVenteRepository.calculerChiffreAffairesOfficine(DEBUT_DU_MOIS, FIN_DU_MOIS);
 
         assertThat(reference.nbVentes()).isEqualTo(2);
         assertThat(reference.caTtc()).isEqualTo(VENTE_COMPTOIR + VENTE_IMPORTEE_DU_DEPOT);
@@ -63,7 +64,8 @@ class DefinitionDuChiffreAffairesIntegrationTest extends AbstractReportIntegrati
     void leTableauDeBordSuitLaReference() {
         rafraichir("mv_dashboard_ca_daily");
 
-        long caTotal = somme("SELECT COALESCE(sum(ca_total), 0) FROM mv_dashboard_ca_daily WHERE sale_date BETWEEN :du AND :au");
+        long caTotal = somme(
+                "SELECT COALESCE(sum(ca_total), 0) FROM mv_dashboard_ca_daily WHERE sale_date BETWEEN :du AND :au");
 
         assertThat(caTotal).isEqualTo(reference().caTtc());
     }
@@ -74,28 +76,32 @@ class DefinitionDuChiffreAffairesIntegrationTest extends AbstractReportIntegrati
         rafraichir("mv_daily_sales_summary");
 
         long caCategorieCa = somme(
-            "SELECT COALESCE(sum(ca_total), 0) FROM mv_daily_sales_summary WHERE sale_date BETWEEN :du AND :au AND categorie_ca = 'CA'"
-        );
+                "SELECT COALESCE(sum(ca_total), 0) FROM mv_daily_sales_summary WHERE sale_date BETWEEN :du AND :au AND categorie_ca = 'CA'");
         long caDepot = somme(
-            "SELECT COALESCE(sum(ca_total), 0) FROM mv_daily_sales_summary WHERE sale_date BETWEEN :du AND :au AND categorie_ca = 'CA_DEPOT'"
-        );
+                "SELECT COALESCE(sum(ca_total), 0) FROM mv_daily_sales_summary WHERE sale_date BETWEEN :du AND :au AND categorie_ca = 'CA_DEPOT'");
 
         assertThat(caCategorieCa)
-            .as("filtre imported = false de la vue : l'écart est exactement la vente importée du dépôt")
-            .isEqualTo(reference().caTtc() - VENTE_IMPORTEE_DU_DEPOT);
-        assertThat(caDepot).as("le dépôt reste sur sa propre ligne, l'écran le ventile à part").isEqualTo(VENTE_AU_DEPOT);
+                .as("filtre imported = false de la vue : l'écart est exactement la vente importée du dépôt")
+                .isEqualTo(reference().caTtc() - VENTE_IMPORTEE_DU_DEPOT);
+        assertThat(caDepot)
+                .as("le dépôt reste sur sa propre ligne, l'écran le ventile à part")
+                .isEqualTo(VENTE_AU_DEPOT);
     }
 
     @Test
     @DisplayName("le comparatif N / N-1 affiche le CA net de remises, pas le CA TTC")
     void leComparatifAfficheLeCaNet() {
-        List<Object[]> mois = new ComparativeReportRepository(em).findMonthlyComparison(JOUR.getYear(), JOUR.getYear() - 1);
+        List<Object[]> mois =
+                new ComparativeReportRepository(em).findMonthlyComparison(JOUR.getYear(), JOUR.getYear() - 1);
 
-        Object[] mai = mois.stream().filter(ligne -> ((Number) ligne[0]).intValue() == JOUR.getMonthValue()).findFirst().orElseThrow();
+        Object[] mai = mois.stream()
+                .filter(ligne -> ((Number) ligne[0]).intValue() == JOUR.getMonthValue())
+                .findFirst()
+                .orElseThrow();
 
         assertThat(((Number) mai[1]).longValue())
-            .as("même périmètre que la référence, mais remises déduites")
-            .isEqualTo(reference().caNet());
+                .as("même périmètre que la référence, mais remises déduites")
+                .isEqualTo(reference().caNet());
     }
 
     private ChiffreAffairesReferenceDTO reference() {
@@ -113,7 +119,10 @@ class DefinitionDuChiffreAffairesIntegrationTest extends AbstractReportIntegrati
     }
 
     private long somme(String sql) {
-        Object valeur = em.createNativeQuery(sql).setParameter("du", DEBUT_DU_MOIS).setParameter("au", FIN_DU_MOIS).getSingleResult();
+        Object valeur = em.createNativeQuery(sql)
+                .setParameter("du", DEBUT_DU_MOIS)
+                .setParameter("au", FIN_DU_MOIS)
+                .getSingleResult();
         return ((Number) valeur).longValue();
     }
 }

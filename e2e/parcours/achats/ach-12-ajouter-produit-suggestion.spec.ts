@@ -87,7 +87,12 @@ scenario('ACH-12', async ({ etape, page }) => {
 
   // ── Remise en état : la ligne ajoutée est retirée de la proposition. ────────────────────
   await filtre.fill(produit);
-  if (await ligne.first().isVisible().catch(() => false)) {
+  if (
+    await ligne
+      .first()
+      .isVisible()
+      .catch(() => false)
+  ) {
     await ligne.first().locator('.ag-selection-checkbox, input[type="checkbox"]').first().click();
     const supprimer = panneau.getByRole('button', { name: 'Supprimer' });
     if (await supprimer.isEnabled().catch(() => false)) {
@@ -100,7 +105,5 @@ scenario('ACH-12', async ({ etape, page }) => {
   }
   // La base est rendue telle qu'on l'a trouvée : sans ce contrôle, le résidu passe inaperçu
   // et c'est le parcours suivant qui trébuche.
-  await expect
-    .poll(() => enBase(suggestionId), { timeout: 20_000 })
-    .toBe('0');
+  await expect.poll(() => enBase(suggestionId), { timeout: 20_000 }).toBe('0');
 });

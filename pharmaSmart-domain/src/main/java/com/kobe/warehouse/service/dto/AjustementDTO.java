@@ -1,16 +1,14 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.service.dto.records.CodeLibelle;
-import com.kobe.warehouse.service.pharmaml.dto.response.enumeration.CodeReponse;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -18,8 +16,10 @@ public class AjustementDTO {
 
     private Integer id;
     private int qtyMvt;
+
     @NotNull
     private Integer produitId;
+
     private Integer storageId;
     private Integer ajustId;
     private LocalDateTime dateMtv;
@@ -41,7 +41,8 @@ public class AjustementDTO {
         StockProduit stockProduit = ajustement.getStockProduit();
         Storage storage = stockProduit.getStorage();
         Produit produit = stockProduit.getProduit();
-        storageType= new CodeLibelle(storage.getStorageType().name(), storage.getStorageType().getValue());
+        storageType = new CodeLibelle(
+                storage.getStorageType().name(), storage.getStorageType().getValue());
         produitId = produit.getId();
         ajustId = ajustement.getAjust().getId();
         dateMtv = ajustement.getDateMtv();

@@ -32,13 +32,15 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-    name = "client_tiers_payant",
-    indexes = { @Index(columnList = "num", name = "client_num_index"), @Index(columnList = "statut", name = "client_statut_index") },
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "tiers_payant_id", "assured_customer_id" }),
-        @UniqueConstraint(columnNames = { "tiers_payant_id", "num" }),
-    }
-)
+        name = "client_tiers_payant",
+        indexes = {
+            @Index(columnList = "num", name = "client_num_index"),
+            @Index(columnList = "statut", name = "client_statut_index")
+        },
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"tiers_payant_id", "assured_customer_id"}),
+            @UniqueConstraint(columnNames = {"tiers_payant_id", "num"}),
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ClientTiersPayant implements Serializable, HasConsommation {
 
@@ -124,11 +126,8 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
             this.clientTiersPayantTauxHistoriques = new HashSet<>();
         }
         // Enregistre l'état initial dans l'historique
-        this.clientTiersPayantTauxHistoriques.add(
-            new ClientTiersPayantTauxHistorique(this.updated, this.taux)
-        );
+        this.clientTiersPayantTauxHistoriques.add(new ClientTiersPayantTauxHistorique(this.updated, this.taux));
     }
-
 
     /**
      * Appelé avant un UPDATE : ajoute une entrée dans l'historique
@@ -139,13 +138,11 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
         this.updated = LocalDateTime.now();
 
         boolean tauxChanged = snapshotTaux != this.taux;
-        if ( tauxChanged) {
+        if (tauxChanged) {
             if (this.clientTiersPayantTauxHistoriques == null) {
                 this.clientTiersPayantTauxHistoriques = new HashSet<>();
             }
-            this.clientTiersPayantTauxHistoriques.add(
-                new ClientTiersPayantTauxHistorique(this.updated, this.taux)
-            );
+            this.clientTiersPayantTauxHistoriques.add(new ClientTiersPayantTauxHistorique(this.updated, this.taux));
         }
     }
 
@@ -260,7 +257,7 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
 
     public void setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
-        //return this;
+        // return this;
     }
 
     public double getTauxValue() {
@@ -271,6 +268,4 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
     public Set<ClientTiersPayantTauxHistorique> getClientTiersPayantTauxHistoriques() {
         return clientTiersPayantTauxHistoriques;
     }
-
-
 }

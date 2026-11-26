@@ -55,14 +55,13 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         assertEquals(100_000, relue.getMontantRegle());
         assertEquals(InvoiceStatut.PAID, relue.getStatut());
         assertTrue(
-            relue.getFacturesDetails().stream().allMatch(d -> d.getStatut() == ThirdPartySaleStatut.PAID),
-            "chaque dossier est marqué payé"
-        );
+                relue.getFacturesDetails().stream().allMatch(d -> d.getStatut() == ThirdPartySaleStatut.PAID),
+                "chaque dossier est marqué payé");
         assertEquals(
-            2,
-            compter("SELECT count(*) FROM invoice_payment_item WHERE invoice_payment_id = " + reponse.id().getId()),
-            "un détail par dossier réglé"
-        );
+                2,
+                compter("SELECT count(*) FROM invoice_payment_item WHERE invoice_payment_id = "
+                        + reponse.id().getId()),
+                "un détail par dossier réglé");
     }
 
     @Test
@@ -73,8 +72,7 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         viderLeCache();
 
         ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(
-            parametre(facture, 25_000).setComment("règlement du mois")
-        );
+                parametre(facture, 25_000).setComment("règlement du mois"));
         viderLeCache();
 
         InvoicePayment paiement = em.find(InvoicePayment.class, reponse.id());
@@ -123,11 +121,12 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         // L'écran annonce 15 000 — valeur périmée, ou limitée aux dossiers non soldés au moment de
         // l'affichage. Le seul dossier rattaché (10 000) est soldé : la facture l'est aussi.
         ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(
-            parametre(facture, 10_000).setMontantFacture(15_000)
-        );
+                parametre(facture, 10_000).setMontantFacture(15_000));
         viderLeCache();
 
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, facture.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, facture.getId()).getStatut());
         assertTrue(reponse.total());
     }
 
@@ -139,7 +138,9 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         facture.setFactureProvisoire(true);
         viderLeCache();
 
-        assertThrows(GenericError.class, () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 7_000)));
+        assertThrows(
+                GenericError.class,
+                () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 7_000)));
 
         assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"));
     }
@@ -153,13 +154,14 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000));
         viderLeCache();
 
-        assertThrows(GenericError.class, () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000)));
+        assertThrows(
+                GenericError.class,
+                () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000)));
 
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"),
-            "un seul règlement enregistré"
-        );
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"),
+                "un seul règlement enregistré");
     }
 
     @Test
@@ -169,11 +171,9 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         FactureTiersPayant facture = facture(organisme, List.of(dossier(compte(organisme), 12_000)));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(
-            parametre(facture, 12_000)
+        ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000)
                 .setModePaimentCode(ModePaimentCode.CH)
-                .setBanqueInfo(new BanqueInfoDTO().setNom("SGBCI").setCode("SG").setBeneficiaire("PHARMACIE"))
-        );
+                .setBanqueInfo(new BanqueInfoDTO().setNom("SGBCI").setCode("SG").setBeneficiaire("PHARMACIE")));
         viderLeCache();
 
         InvoicePayment paiement = em.find(InvoicePayment.class, reponse.id());
@@ -191,30 +191,26 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
         viderLeCache();
 
         ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(
-            parametre(facture, 8_000).setPaymentDate(veille)
-        );
+                parametre(facture, 8_000).setPaymentDate(veille));
         viderLeCache();
 
         assertEquals(veille, reponse.id().getTransactionDate());
         assertEquals(
-            1,
-            compter(
-                "SELECT count(*) FROM payment_transaction WHERE id = " +
-                reponse.id().getId() +
-                " AND transaction_date = '" +
-                veille +
-                "'"
-            )
-        );
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE id = "
+                        + reponse.id().getId()
+                        + " AND transaction_date = '"
+                        + veille
+                        + "'"));
     }
 
     private ReglementParam parametre(FactureTiersPayant facture, int montant) {
         return new ReglementParam()
-            .setId(facture.getId())
-            .setMode(ModeEditionReglement.FACTURE_TOTAL)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setAmount(montant)
-            .setTotalAmount(montant)
-            .setMontantFacture(montant);
+                .setId(facture.getId())
+                .setMode(ModeEditionReglement.FACTURE_TOTAL)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setAmount(montant)
+                .setTotalAmount(montant)
+                .setMontantFacture(montant);
     }
 }

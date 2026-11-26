@@ -15,13 +15,12 @@ public class MultipleFournisseursException extends BadRequestAlertException {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public MultipleFournisseursException(Integer lotId, List<RetourBonLotResolutionDTO.FournisseurSimple> fournisseurs) {
+    public MultipleFournisseursException(
+            Integer lotId, List<RetourBonLotResolutionDTO.FournisseurSimple> fournisseurs) {
         super(
-            "Plusieurs fournisseurs associés au produit du lot #" + lotId
-            + ". Veuillez sélectionner le fournisseur à utiliser pour ce retour.",
-            "multipleFournisseurs",
-            fournisseurs
-        );
+                "Plusieurs fournisseurs associés au produit du lot #" + lotId
+                        + ". Veuillez sélectionner le fournisseur à utiliser pour ce retour.",
+                "multipleFournisseurs",
+                fournisseurs);
     }
 }
-

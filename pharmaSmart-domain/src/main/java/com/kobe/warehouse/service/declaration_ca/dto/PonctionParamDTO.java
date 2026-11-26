@@ -16,13 +16,12 @@ import java.time.LocalDate;
  * @param commentaire justification libre, reprise dans l'historique
  */
 public record PonctionParamDTO(
-    @NotNull LocalDate dateDebut,
-    @NotNull LocalDate dateFin,
-    @NotNull ModeCalculPonction modeCalcul,
-    @NotNull @Positive BigDecimal valeur,
-    BigDecimal plafondParVente,
-    String commentaire
-) {
+        @NotNull LocalDate dateDebut,
+        @NotNull LocalDate dateFin,
+        @NotNull ModeCalculPonction modeCalcul,
+        @NotNull @Positive BigDecimal valeur,
+        BigDecimal plafondParVente,
+        String commentaire) {
     /**
      * Une période dont la fin précède le début ne rend rien : la requête ne remonterait aucune
      * vente, et le refus s'expliquerait par une assiette vide plutôt que par la saisie.

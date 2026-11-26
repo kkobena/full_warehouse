@@ -20,8 +20,7 @@ public interface InventaireService {
 
     byte[] printToPdf(StoreInventoryExportRecord filterRecord);
 
-    List<StoreInventoryGroupExport> getStoreInventoryToExport(
-        StoreInventoryExportRecord filterRecord);
+    List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord);
 
     void remove(Long id);
 
@@ -30,7 +29,7 @@ public interface InventaireService {
     Optional<StoreInventoryDTO> getStoreInventory(Long id);
 
     Page<StoreInventoryDTO> storeInventoryList(
-        StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
+            StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
 
     Optional<StoreInventoryDTO> getProccessingStoreInventory(Long id);
 
@@ -38,9 +37,7 @@ public interface InventaireService {
 
     List<RayonRecord> fetchRayonsByStoreInventoryId(Long storeInventoryId);
 
-
     List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId);
-
 
     void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
 
@@ -48,6 +45,5 @@ public interface InventaireService {
 
     List<StoreInventoryLotGroupExport> getLotGroupsForExport(Long inventoryId);
 
-    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds)
-        throws InventoryException;
+    int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds) throws InventoryException;
 }

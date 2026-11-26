@@ -27,9 +27,8 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(
-    name = "produit_ref_specialite",
-    indexes = { @Index(name = "produit_ref_specialite_cis_idx", columnList = "cis") }
-)
+        name = "produit_ref_specialite",
+        indexes = {@Index(name = "produit_ref_specialite_cis_idx", columnList = "cis")})
 public class ProduitRefSpecialite implements Serializable {
 
     @Serial

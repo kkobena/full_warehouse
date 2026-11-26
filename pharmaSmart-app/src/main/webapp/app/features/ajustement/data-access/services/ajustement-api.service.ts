@@ -14,7 +14,7 @@ export class AjustementApiService {
 
   private readonly ajustUrl = SERVER_API_URL + 'api/ajustements';
   private readonly motifUrl = SERVER_API_URL + 'api/motif-ajsutements';
-  private readonly lotUrl  = SERVER_API_URL + 'api/lot';
+  private readonly lotUrl = SERVER_API_URL + 'api/lot';
 
   // ── Ajust (en-tête) ──────────────────────────────────────────────────────
 
@@ -82,5 +82,4 @@ export class AjustementApiService {
   getLotsForProduit(produitId: number): Observable<ILotItem[]> {
     return this.http.get<ILotItem[]>(`${this.lotUrl}/produit/${produitId}`);
   }
-
 }

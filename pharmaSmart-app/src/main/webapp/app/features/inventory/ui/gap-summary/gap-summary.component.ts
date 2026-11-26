@@ -25,7 +25,10 @@ export class GapSummaryComponent implements OnInit {
   load(): void {
     this.loading.set(true);
     this.api.getSummary(this.inventoryId()).subscribe({
-      next: data => { this.summary.set(data); this.loading.set(false); },
+      next: data => {
+        this.summary.set(data);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false),
     });
   }
@@ -36,10 +39,14 @@ export class GapSummaryComponent implements OnInit {
 
   getCauseClass(cause: string): string {
     switch (cause) {
-      case 'VOL':   return 'cause-danger';
-      case 'CASSE': return 'cause-warning';
-      case 'PEREMPTION': return 'cause-info';
-      default: return 'cause-secondary';
+      case 'VOL':
+        return 'cause-danger';
+      case 'CASSE':
+        return 'cause-warning';
+      case 'PEREMPTION':
+        return 'cause-info';
+      default:
+        return 'cause-secondary';
     }
   }
 

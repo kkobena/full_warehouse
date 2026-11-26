@@ -18,15 +18,13 @@ class ObjectifsPilotageIntegrationTest extends AbstractReportIntegrationTest {
     @DisplayName("un objectif enregistré se relit par année, avec son auteur")
     void enregistrerEtRelire() {
         ObjectifPilotageRepository repository = IntegrationPostgresDatabase.bean(ObjectifPilotageRepository.class);
-        repository.save(
-            new ObjectifPilotage()
+        repository.save(new ObjectifPilotage()
                 .setIndicateur(IndicateurPilotage.CA_TTC)
                 .setAnnee(2091)
                 .setMois(3)
                 .setValeur(1_500_000)
                 .setModifiePar(utilisateur)
-                .setModifieLe(LocalDateTime.of(2091, 1, 5, 9, 0))
-        );
+                .setModifieLe(LocalDateTime.of(2091, 1, 5, 9, 0)));
         em.flush();
         em.clear();
 
@@ -35,6 +33,7 @@ class ObjectifsPilotageIntegrationTest extends AbstractReportIntegrationTest {
             assertThat(objectif.getValeur()).isEqualTo(1_500_000);
             assertThat(objectif.getModifiePar().getId()).isEqualTo(utilisateur.getId());
         });
-        assertThat(repository.findAllByAnneeAndIndicateur(2091, IndicateurPilotage.TAUX_REMISE)).isEmpty();
+        assertThat(repository.findAllByAnneeAndIndicateur(2091, IndicateurPilotage.TAUX_REMISE))
+                .isEmpty();
     }
 }

@@ -15,7 +15,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
-@Table(name = "poste", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
+@Table(
+        name = "poste",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Poste implements Serializable {
 
@@ -35,9 +37,8 @@ public class Poste implements Serializable {
     @NotNull
     @Column(name = "address", nullable = false, unique = true)
     @Pattern(
-        regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        message = "L'adresse doit être une adresse IP valide"
-    )
+            regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            message = "L'adresse doit être une adresse IP valide")
     private String address;
 
     public String getPosteNumber() {

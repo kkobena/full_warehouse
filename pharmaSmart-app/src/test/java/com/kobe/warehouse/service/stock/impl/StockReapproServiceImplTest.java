@@ -2,8 +2,6 @@ package com.kobe.warehouse.service.stock.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -27,7 +25,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.metamodel.SingularAttribute;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -88,19 +85,22 @@ class StockReapproServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         objectMapper = new ObjectMapper();
-        service = new StockReapproServiceImpl(entityManager, appConfigurationService, transactionTemplate, salesRepository, objectMapper);
+        service = new StockReapproServiceImpl(
+                entityManager, appConfigurationService, transactionTemplate, salesRepository, objectMapper);
 
         when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
         when(criteriaBuilder.createCriteriaUpdate(Produit.class)).thenReturn(criteriaUpdate);
         when(criteriaUpdate.from(Produit.class)).thenReturn(root);
         when(criteriaUpdate.set(nullable(SingularAttribute.class), any())).thenReturn(criteriaUpdate);
         when(root.get(nullable(SingularAttribute.class))).thenReturn(idPath);
-        when(criteriaBuilder.equal(nullable(jakarta.persistence.criteria.Expression.class), any(Object.class))).thenReturn(predicate);
+        when(criteriaBuilder.equal(nullable(jakarta.persistence.criteria.Expression.class), any(Object.class)))
+                .thenReturn(predicate);
         when(criteriaUpdate.where(nullable(Predicate.class))).thenReturn(criteriaUpdate);
         when(entityManager.createQuery(any(CriteriaUpdate.class))).thenReturn(query);
 
         // Le template execute reellement le callback pour que la mise a jour soit observable.
-        when(transactionTemplate.execute(any())).thenAnswer(inv -> ((TransactionCallback<?>) inv.getArgument(0)).doInTransaction(null));
+        when(transactionTemplate.execute(any()))
+                .thenAnswer(inv -> ((TransactionCallback<?>) inv.getArgument(0)).doInTransaction(null));
     }
 
     private static AppConfiguration configuration(String value) {
@@ -111,24 +111,26 @@ class StockReapproServiceImplTest {
 
     private void stubModel(String value) {
         when(appConfigurationService.findOneById(EntityConstant.APP_MODEL_REAPPRO))
-            .thenReturn(value == null ? Optional.empty() : Optional.of(configuration(value)));
+                .thenReturn(value == null ? Optional.empty() : Optional.of(configuration(value)));
     }
 
     private void stubLastReapproDate(String value) {
-        when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO)).thenReturn(Optional.of(configuration(value)));
+        when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO))
+                .thenReturn(Optional.of(configuration(value)));
     }
 
     private void stubReapproParameters(String dayStock, String nbLimit, String denominateur) {
         when(appConfigurationService.findOneById(EntityConstant.APP_DAY_STOCK))
-            .thenReturn(dayStock == null ? Optional.empty() : Optional.of(configuration(dayStock)));
+                .thenReturn(dayStock == null ? Optional.empty() : Optional.of(configuration(dayStock)));
         when(appConfigurationService.findOneById(EntityConstant.APP_LIMIT_NBR_DAY_REAPPRO))
-            .thenReturn(nbLimit == null ? Optional.empty() : Optional.of(configuration(nbLimit)));
+                .thenReturn(nbLimit == null ? Optional.empty() : Optional.of(configuration(nbLimit)));
         when(appConfigurationService.findOneById(EntityConstant.APP_DENOMINATEUR_REAPPRO))
-            .thenReturn(denominateur == null ? Optional.empty() : Optional.of(configuration(denominateur)));
+                .thenReturn(denominateur == null ? Optional.empty() : Optional.of(configuration(denominateur)));
     }
 
     private void stubVentes(String json) {
-        when(salesRepository.fetchProductQuantitySold(any(LocalDate.class), any(LocalDate.class))).thenReturn(json);
+        when(salesRepository.fetchProductQuantitySold(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(json);
     }
 
     /** Relit les valeurs poussees dans le CriteriaUpdate : [qtyAppro, qtySeuilMini]. */
@@ -136,7 +138,9 @@ class StockReapproServiceImplTest {
     private int[] capturerMiseAJour() {
         ArgumentCaptor<Object> valeurs = ArgumentCaptor.forClass(Object.class);
         verify(criteriaUpdate, times(3)).set(nullable(SingularAttribute.class), valeurs.capture());
-        return new int[] { (int) valeurs.getAllValues().get(0), (int) valeurs.getAllValues().get(1) };
+        return new int[] {
+            (int) valeurs.getAllValues().get(0), (int) valeurs.getAllValues().get(1)
+        };
     }
 
     @Nested
@@ -168,7 +172,7 @@ class StockReapproServiceImplTest {
         }
 
         @ParameterizedTest(name = "une valeur [{0}] retombe sur le modele CLASSIQUE")
-        @ValueSource(strings = { "", "PAS_UN_MODELE" })
+        @ValueSource(strings = {"", "PAS_UN_MODELE"})
         void valeurInvalideRetombeSurClassique(String value) {
             stubModel(value);
             stubLastReapproDate(null);
@@ -241,7 +245,8 @@ class StockReapproServiceImplTest {
         @Test
         @DisplayName("aucun calcul quand le parametre de derniere execution n existe pas")
         void parametreAbsent() {
-            when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO)).thenReturn(Optional.empty());
+            when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO))
+                    .thenReturn(Optional.empty());
 
             service.computeStockReapprovisionnement();
 
@@ -252,7 +257,8 @@ class StockReapproServiceImplTest {
         @DisplayName("horodate et enregistre la date de calcul apres coup")
         void horodateApresCalcul() {
             AppConfiguration lastRun = configuration(null);
-            when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO)).thenReturn(Optional.of(lastRun));
+            when(appConfigurationService.findOneById(EntityConstant.APP_LAST_DAY_REAPPRO))
+                    .thenReturn(Optional.of(lastRun));
             stubReapproParameters(null, null, null);
             stubVentes("[]");
 
@@ -343,8 +349,8 @@ class StockReapproServiceImplTest {
         @DisplayName("met a jour chaque produit vendu")
         void metAJourChaqueProduit() {
             stubReapproParameters("1", "1", "1");
-            stubVentes("[{\"id\":1,\"itemQty\":1,\"itemQtySold\":0,\"qtySold\":10}," +
-                "{\"id\":2,\"itemQty\":1,\"itemQtySold\":0,\"qtySold\":20}]");
+            stubVentes("[{\"id\":1,\"itemQty\":1,\"itemQtySold\":0,\"qtySold\":10},"
+                    + "{\"id\":2,\"itemQty\":1,\"itemQtySold\":0,\"qtySold\":20}]");
 
             service.computeStockReapprovisionnement();
 

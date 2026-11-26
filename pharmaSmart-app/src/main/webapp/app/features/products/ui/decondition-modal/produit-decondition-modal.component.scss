@@ -18,7 +18,9 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 
-  i { color: var(--bs-primary); }
+  i {
+    color: var(--bs-primary);
+  }
 }
 
 .dc-produit-libelle {
@@ -58,7 +60,9 @@
   font-weight: 700;
   color: var(--bs-primary);
 
-  &.dc-stock-zero { color: #dc3545; }
+  &.dc-stock-zero {
+    color: #dc3545;
+  }
 }
 
 .dc-label {

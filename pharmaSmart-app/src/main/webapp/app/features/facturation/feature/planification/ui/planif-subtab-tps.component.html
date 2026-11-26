@@ -8,7 +8,7 @@
     bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
     (selectionChange)="loadTps()"
-    [style]="{ 'width': '170px' }"
+    [style]="{ width: '170px' }"
   />
   <app-select
     appendTo="body"
@@ -19,7 +19,7 @@
     bindValue="value"
     placeholder="Catégorie"
     (selectionChange)="loadTps()"
-    [style]="{ 'width': '140px' }"
+    [style]="{ width: '140px' }"
   />
   <app-button (clicked)="loadTps()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" placement="left" />
 </div>
@@ -27,22 +27,8 @@
 @if (selectedTps.length > 0) {
   <div class="bulk-action-bar">
     <span class="bulk-count">{{ selectedTps.length }} TP(s)</span>
-    <app-button
-      (clicked)="onMassInclude()"
-      icon="pi pi-check"
-      label="Inclure"
-      severity="success"
-      size="small"
-      [outlined]="true"
-    />
-    <app-button
-      (clicked)="onMassExclude()"
-      icon="pi pi-ban"
-      label="Exclure"
-      severity="warn"
-      size="small"
-      [outlined]="true"
-    />
+    <app-button (clicked)="onMassInclude()" icon="pi pi-check" label="Inclure" severity="success" size="small" [outlined]="true" />
+    <app-button (clicked)="onMassExclude()" icon="pi pi-ban" label="Exclure" severity="warn" size="small" [outlined]="true" />
     <div class="d-flex align-items-center gap-1">
       <app-select
         appendTo="body"
@@ -52,7 +38,7 @@
         bindLabel="label"
         bindValue="value"
         placeholder="Période…"
-        [style]="{ 'width': '150px' }"
+        [style]="{ width: '150px' }"
       />
       <app-button
         (clicked)="onMassSetPeriodicite()"
@@ -95,16 +81,14 @@
     <tr>
       <td><app-row-checkbox [row]="tp" /></td>
       <td class="fw-medium small">{{ tp.name }}</td>
-      <td><span class="pharma-badge pharma-badge-secondary">{{ tp.categorie }}</span></td>
+      <td>
+        <span class="pharma-badge pharma-badge-secondary">{{ tp.categorie }}</span>
+      </td>
       <td>
         @if (mode() === 'def' && tp.periodiciteFactureDefinitive) {
-          <span class="pharma-badge pharma-badge-info">{{
-            state.getPeriodiciteLabel(tp.periodiciteFactureDefinitive)
-          }}</span>
+          <span class="pharma-badge pharma-badge-info">{{ state.getPeriodiciteLabel(tp.periodiciteFactureDefinitive) }}</span>
         } @else if (mode() === 'prov' && tp.periodiciteFactureProvisoire) {
-          <span class="pharma-badge pharma-badge-warning">{{
-            state.getPeriodiciteLabel(tp.periodiciteFactureProvisoire)
-          }}</span>
+          <span class="pharma-badge pharma-badge-warning">{{ state.getPeriodiciteLabel(tp.periodiciteFactureProvisoire) }}</span>
         }
       </td>
       <td class="text-center">
@@ -114,7 +98,7 @@
           <app-switch [ngModel]="tp.inclureFacturationAutoProvisoire" (ngModelChange)="onToggleInclure(tp)" />
         }
       </td>
-      <td class="small text-muted">{{ tp.groupeTiersPayantName  }}</td>
+      <td class="small text-muted">{{ tp.groupeTiersPayantName }}</td>
     </tr>
   </ng-template>
   <ng-template #emptymessage>
@@ -123,4 +107,3 @@
     </tr>
   </ng-template>
 </app-data-table>
-

@@ -21,7 +21,6 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
-import com.kobe.warehouse.service.financiel_transaction.SaleSpecification;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
@@ -73,22 +72,18 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Join<Sales, Customer> salesCustomerJoin = root.join(Sales_.customer);
         Join<Sales, CashRegister> salesCashRegisterJoinJoin = root.join(Sales_.cashRegister);
         Join<CashRegister, AppUser> userCashRegisterJoinJoin = salesCashRegisterJoinJoin.join(CashRegister_.user);
-        query
-            .select(
-                cb.construct(
-                    DiffereItem.class,
-                    userCashRegisterJoinJoin.get(AppUser_.firstName),
-                    userCashRegisterJoinJoin.get(AppUser_.lastName),
-                    root.get(Sales_.numberTransaction),
-                    root.get(Sales_.salesAmount),
-                    root.get(Sales_.payrollAmount),
-                    root.get(Sales_.restToPay),
-                    root.get(Sales_.updatedAt),
-                    root.get(Sales_.id),
-                    salesCustomerJoin.get(Customer_.id)
-                )
-            )
-            .orderBy(cb.asc(root.get(Sales_.updatedAt)));
+        query.select(cb.construct(
+                        DiffereItem.class,
+                        userCashRegisterJoinJoin.get(AppUser_.firstName),
+                        userCashRegisterJoinJoin.get(AppUser_.lastName),
+                        root.get(Sales_.numberTransaction),
+                        root.get(Sales_.salesAmount),
+                        root.get(Sales_.payrollAmount),
+                        root.get(Sales_.restToPay),
+                        root.get(Sales_.updatedAt),
+                        root.get(Sales_.id),
+                        salesCustomerJoin.get(Customer_.id)))
+                .orderBy(cb.asc(root.get(Sales_.updatedAt)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         if (nonNull(predicate)) {
@@ -115,24 +110,21 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaQuery<Differe> query = cb.createQuery(Differe.class);
         Root<Sales> root = query.from(Sales.class);
         Join<Sales, Customer> salesCustomerJoin = root.join(Sales_.customer);
-        query
-            .select(
-                cb.construct(
-                    Differe.class,
-                    salesCustomerJoin.get(Customer_.id),
-                    salesCustomerJoin.get(Customer_.firstName),
-                    salesCustomerJoin.get(Customer_.lastName),
-                    cb.sumAsLong(root.get(Sales_.salesAmount)),
-                    cb.sumAsLong(root.get(Sales_.payrollAmount)),
-                    cb.sumAsLong(root.get(Sales_.restToPay))
-                )
-            )
-            .groupBy(
-                salesCustomerJoin.get(Customer_.id),
-                salesCustomerJoin.get(Customer_.firstName),
-                salesCustomerJoin.get(Customer_.lastName)
-            )
-            .orderBy(cb.desc(salesCustomerJoin.get(Customer_.firstName)), cb.desc(salesCustomerJoin.get(Customer_.lastName)));
+        query.select(cb.construct(
+                        Differe.class,
+                        salesCustomerJoin.get(Customer_.id),
+                        salesCustomerJoin.get(Customer_.firstName),
+                        salesCustomerJoin.get(Customer_.lastName),
+                        cb.sumAsLong(root.get(Sales_.salesAmount)),
+                        cb.sumAsLong(root.get(Sales_.payrollAmount)),
+                        cb.sumAsLong(root.get(Sales_.restToPay))))
+                .groupBy(
+                        salesCustomerJoin.get(Customer_.id),
+                        salesCustomerJoin.get(Customer_.firstName),
+                        salesCustomerJoin.get(Customer_.lastName))
+                .orderBy(
+                        cb.desc(salesCustomerJoin.get(Customer_.firstName)),
+                        cb.desc(salesCustomerJoin.get(Customer_.lastName)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -182,14 +174,11 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<DiffereSummary> query = cb.createQuery(DiffereSummary.class);
         Root<Sales> root = query.from(Sales.class);
-        query.select(
-            cb.construct(
+        query.select(cb.construct(
                 DiffereSummary.class,
                 cb.sumAsLong(root.get(Sales_.salesAmount)),
                 cb.sumAsLong(root.get(Sales_.payrollAmount)),
-                cb.sumAsLong(root.get(Sales_.restToPay))
-            )
-        );
+                cb.sumAsLong(root.get(Sales_.restToPay))));
 
         if (nonNull(specification)) {
             Predicate predicate = specification.toPredicate(root, query, cb);
@@ -223,21 +212,16 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = query.from(Sales.class);
         Join<Sales, CashRegister> cashRegisterSalesJoin = root.join(Sales_.cashRegister);
         Join<CashRegister, AppUser> userCashRegisterJoin = cashRegisterSalesJoin.join(CashRegister_.user);
-        query
-            .select(
-                cb.construct(
-                    TicketZCreditProjection.class,
-                    userCashRegisterJoin.get(AppUser_.id),
-                    userCashRegisterJoin.get(AppUser_.firstName),
-                    userCashRegisterJoin.get(AppUser_.lastName),
-                    cb.sumAsLong(root.get(Sales_.restToPay))
-                )
-            )
-            .groupBy(
-                userCashRegisterJoin.get(AppUser_.id),
-                userCashRegisterJoin.get(AppUser_.firstName),
-                userCashRegisterJoin.get(AppUser_.lastName)
-            );
+        query.select(cb.construct(
+                        TicketZCreditProjection.class,
+                        userCashRegisterJoin.get(AppUser_.id),
+                        userCashRegisterJoin.get(AppUser_.firstName),
+                        userCashRegisterJoin.get(AppUser_.lastName),
+                        cb.sumAsLong(root.get(Sales_.restToPay))))
+                .groupBy(
+                        userCashRegisterJoin.get(AppUser_.id),
+                        userCashRegisterJoin.get(AppUser_.firstName),
+                        userCashRegisterJoin.get(AppUser_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -253,22 +237,23 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
         SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
         Expression<?> groupingExpression = getGroupingExpression(root, statGroupBy);
-        cq
-            .select(buildVenteRecord(root, salesLineSetJoin, payments, cb, groupingExpression))
-            .groupBy(groupingExpression, root.get(Sales_.statut))
-            .orderBy(cb.desc(groupingExpression));
+        cq.select(buildVenteRecord(root, salesLineSetJoin, payments, cb, groupingExpression))
+                .groupBy(groupingExpression, root.get(Sales_.statut))
+                .orderBy(cb.desc(groupingExpression));
         cq.where(specification.toPredicate(root, cq, cb));
         return entityManager.createQuery(cq).getResultList();
     }
 
     @Override
-    public List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy) {
+    public List<VentePeriodeRecord> fetchVentePeriodeRecords(
+            Specification<Sales> specification, StatGroupBy statGroupBy) {
         try {
-            return fetch(specification, statGroupBy)
-                .stream()
-                .map(venteRecord -> new VentePeriodeRecord(buildMvtDate(venteRecord, statGroupBy), venteRecord.statut().name(), venteRecord)
-                )
-                .toList();
+            return fetch(specification, statGroupBy).stream()
+                    .map(venteRecord -> new VentePeriodeRecord(
+                            buildMvtDate(venteRecord, statGroupBy),
+                            venteRecord.statut().name(),
+                            venteRecord))
+                    .toList();
         } catch (Exception e) {
             LOG.error(null, e);
             return List.of();
@@ -276,43 +261,41 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
     }
 
     private Selection<VenteRecord> buildVenteRecord(
-        Root<Sales> root,
-        SetJoin<Sales, SalesLine> salesLineSetJoin,
-        SetJoin<Sales, SalePayment> payments,
-        CriteriaBuilder cb,
-        Expression<?> groupingExpression
-    ) {
-        Path<ThirdPartySales> thirdPartySalesPath = cb.treat(root, ThirdPartySales.class); //cb.sum(1,cb.quot(salesLineSetJoin.get(SalesLine_.taxValue),100.0d))
+            Root<Sales> root,
+            SetJoin<Sales, SalesLine> salesLineSetJoin,
+            SetJoin<Sales, SalePayment> payments,
+            CriteriaBuilder cb,
+            Expression<?> groupingExpression) {
+        Path<ThirdPartySales> thirdPartySalesPath = cb.treat(
+                root, ThirdPartySales.class); // cb.sum(1,cb.quot(salesLineSetJoin.get(SalesLine_.taxValue),100.0d))
 
         return cb.construct(
-            VenteRecord.class,
-            cb.sum(root.get(Sales_.salesAmount)),
-            cb.sum(root.get(Sales_.amountToBePaid)),
-            cb.sum(root.get(Sales_.discountAmount)),
-            cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount))),
-            cb.sum(root.get(Sales_.amountToBeTakenIntoAccount)),
-            cb.diff(cb.sum(root.get(Sales_.salesAmount)), cb.sum(root.get(Sales_.discountAmount))),
-            cb.ceiling(
-                cb.sum(
-                    cb.quot(
+                VenteRecord.class,
+                cb.sum(root.get(Sales_.salesAmount)),
+                cb.sum(root.get(Sales_.amountToBePaid)),
+                cb.sum(root.get(Sales_.discountAmount)),
+                cb.sum(cb.prod(
+                        salesLineSetJoin.get(SalesLine_.quantityRequested),
+                        salesLineSetJoin.get(SalesLine_.costAmount))),
+                cb.sum(root.get(Sales_.amountToBeTakenIntoAccount)),
+                cb.diff(cb.sum(root.get(Sales_.salesAmount)), cb.sum(root.get(Sales_.discountAmount))),
+                cb.ceiling(cb.sum(cb.quot(
                         salesLineSetJoin.get(SalesLine_.salesAmount),
-                        cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
-                    )
-                )
-            ), //postgres
-            cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
-            cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
-            cb.sum(root.get(Sales_.restToPay)),
-            cb.sum(root.get(Sales_.payrollAmount)),
-            cb.sum(payments.get(SalePayment_.paidAmount)),
-            cb.sum(payments.get(SalePayment_.reelAmount)),
-            cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.regularUnitPrice), salesLineSetJoin.get(SalesLine_.quantityUg))),
-            cb.count(root),
-            //   cb.quot(cb.sum(root.get(Sales_.htAmount)), cb.count(root)),
-            nonNull(groupingExpression) ? root.get(Sales_.type) : cb.literal(""),
-            nonNull(groupingExpression) ? root.get(Sales_.statut) : cb.nullLiteral(SalesStatut.class),
-            nonNull(groupingExpression) ? groupingExpression.cast(String.class) : cb.literal("")
-        );
+                        cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))))), // postgres
+                cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
+                cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
+                cb.sum(root.get(Sales_.restToPay)),
+                cb.sum(root.get(Sales_.payrollAmount)),
+                cb.sum(payments.get(SalePayment_.paidAmount)),
+                cb.sum(payments.get(SalePayment_.reelAmount)),
+                cb.sum(cb.prod(
+                        salesLineSetJoin.get(SalesLine_.regularUnitPrice),
+                        salesLineSetJoin.get(SalesLine_.quantityUg))),
+                cb.count(root),
+                //   cb.quot(cb.sum(root.get(Sales_.htAmount)), cb.count(root)),
+                nonNull(groupingExpression) ? root.get(Sales_.type) : cb.literal(""),
+                nonNull(groupingExpression) ? root.get(Sales_.statut) : cb.nullLiteral(SalesStatut.class),
+                nonNull(groupingExpression) ? groupingExpression.cast(String.class) : cb.literal(""));
     }
 
     private String buildMvtDate(VenteRecord venteRecord, StatGroupBy statGroupBy) {
@@ -330,8 +313,10 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
     private Expression<?> getGroupingExpression(Root<Sales> root, StatGroupBy statGroupBy) {
         return switch (statGroupBy) {
-            case DAY -> entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
-            case MONTH -> entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
+            case DAY ->
+                entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
+            case MONTH ->
+                entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
             case YEAR -> entityManager.getCriteriaBuilder().function("year", Integer.class, root.get(Sales_.updatedAt));
             case HOUR -> entityManager.getCriteriaBuilder().function("hour", Integer.class, root.get(Sales_.updatedAt));
             case null -> null;

@@ -62,26 +62,29 @@ class ActivitySummaryServiceImplTest {
     private final SalesRepository salesRepository = mock(SalesRepository.class);
     private final ActivitySummaryReportService reportService = mock(ActivitySummaryReportService.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private final ObjectMapper objectMapper =
+            new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     private final ActivitySummaryService service = new ActivitySummaryServiceImpl(
-        payantService,
-        invoicePaymentRepository,
-        commandeRepository,
-        paymentTransactionRepository,
-        paymentRepository,
-        salesRepository,
-        reportService,
-        objectMapper
-    );
+            payantService,
+            invoicePaymentRepository,
+            commandeRepository,
+            paymentTransactionRepository,
+            paymentRepository,
+            salesRepository,
+            reportService,
+            objectMapper);
 
     @BeforeEach
     void journeeVide() {
-        when(salesRepository.getChiffreAffaire(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn("null");
-        when(commandeRepository.fetchAchats(any(), any(), any(OrderStatut.class))).thenReturn(null);
+        when(salesRepository.getChiffreAffaire(any(), any(), any(), any(), anyBoolean(), anyBoolean()))
+                .thenReturn("null");
+        when(commandeRepository.fetchAchats(any(), any(), any(OrderStatut.class)))
+                .thenReturn(null);
         when(paymentTransactionRepository.findMouvementsCaisse(any(), any())).thenReturn(List.of());
         when(paymentRepository.findRecettes(any(), any())).thenReturn(List.of());
-        when(invoicePaymentRepository.findReglementTierspayant(any(), any(), any(), anyInt(), anyInt())).thenReturn("null");
+        when(invoicePaymentRepository.findReglementTierspayant(any(), any(), any(), anyInt(), anyInt()))
+                .thenReturn("null");
         when(payantService.fetchAchatTiersPayant(any(), any(), any(), any())).thenReturn(Page.empty());
     }
 
@@ -94,12 +97,10 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("les montants de la fonction stockée sont repris et les dérivés calculés")
         void montantsEtDerives() {
-            donneChiffreAffaire(
-                """
+            donneChiffreAffaire("""
                 {"montantTtc":1000000,"montantHt":900000,"montantRemise":50000,"montantDiffere":20000,
                  "montantTp":80000,"montantAchat":600000,"montantRemiseUg":0,"payments":[]}
-                """
-            );
+                """);
 
             var ca = service.getChiffreAffaire(DEBUT, FIN).chiffreAffaire();
 
@@ -121,8 +122,7 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("les espèces se distinguent des autres modes de règlement")
         void especesDistinguees() {
-            donneChiffreAffaire(
-                """
+            donneChiffreAffaire("""
                 {"montantTtc":0,"montantHt":0,"montantRemise":0,"montantDiffere":0,"montantTp":0,
                  "montantAchat":0,"montantRemiseUg":0,
                  "payments":[
@@ -130,8 +130,7 @@ class ActivitySummaryServiceImplTest {
                    {"realAmount":250000,"paidAmount":250000,"code":"CB","libelle":"Carte"},
                    {"realAmount":150000,"paidAmount":150000,"code":"OM","libelle":"Orange Money"}
                  ]}
-                """
-            );
+                """);
 
             var ca = service.getChiffreAffaire(DEBUT, FIN).chiffreAffaire();
 
@@ -143,13 +142,11 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("le total réglé est la somme de toutes les recettes")
         void totalRegle() {
-            donneChiffreAffaire(
-                """
+            donneChiffreAffaire("""
                 {"montantTtc":0,"montantHt":0,"montantRemise":0,"montantDiffere":0,"montantTp":0,
                  "montantAchat":0,"montantRemiseUg":0,
                  "payments":[{"realAmount":300000,"paidAmount":300000,"code":"CASH","libelle":"Espèces"}]}
-                """
-            );
+                """);
 
             ChiffreAffaireDTO resultat = service.getChiffreAffaire(DEBUT, FIN);
 
@@ -165,7 +162,7 @@ class ActivitySummaryServiceImplTest {
         @DisplayName("une fonction stockée illisible rend un état à zéro, sans erreur")
         void fonctionIllisible() {
             when(salesRepository.getChiffreAffaire(any(), any(), any(), any(), anyBoolean(), anyBoolean()))
-                .thenReturn("ceci n'est pas du JSON");
+                    .thenReturn("ceci n'est pas du JSON");
 
             var ca = service.getChiffreAffaire(DEBUT, FIN).chiffreAffaire();
 
@@ -252,38 +249,34 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("les règlements lus sont effectivement rendus")
         void reglementsRendus() {
-            donneReglements(
-                """
+            donneReglements("""
                 {"totalElements":2,"content":[
                   {"libelle":"CNAM","type":"ASSURANCE","numFacture":"F-001","montantReglement":300000,"montantFacture":500000},
                   {"libelle":"MUGEF","type":"CARNET","numFacture":"F-002","montantReglement":100000,"montantFacture":100000}
                 ]}
-                """
-            );
+                """);
 
-            Page<ReglementTiersPayants> page = service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20));
+            Page<ReglementTiersPayants> page =
+                    service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20));
 
             assertThat(page.getContent()).hasSize(2);
             assertThat(page.getContent())
-                .extracting(ReglementTiersPayants::libelle)
-                .containsExactly("CNAM", "MUGEF");
+                    .extracting(ReglementTiersPayants::libelle)
+                    .containsExactly("CNAM", "MUGEF");
         }
 
         @Test
         @DisplayName("chaque règlement porte son payeur, sa facture et ses montants")
         void contenuDuReglement() {
-            donneReglements(
-                """
+            donneReglements("""
                 {"totalElements":1,"content":[
                   {"libelle":"CNAM","type":"ASSURANCE","numFacture":"F-001","montantReglement":300000,"montantFacture":500000}
                 ]}
-                """
-            );
+                """);
 
-            ReglementTiersPayants reglement = service
-                .findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20))
-                .getContent()
-                .getFirst();
+            ReglementTiersPayants reglement = service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20))
+                    .getContent()
+                    .getFirst();
 
             assertThat(reglement.libelle()).isEqualTo("CNAM");
             assertThat(reglement.type()).isEqualTo(TiersPayantCategorie.ASSURANCE);
@@ -296,15 +289,14 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("le nombre total de règlements accompagne la page")
         void totalAccompagneLaPage() {
-            donneReglements(
-                """
+            donneReglements("""
                 {"totalElements":37,"content":[
                   {"libelle":"CNAM","type":"ASSURANCE","numFacture":"F-001","montantReglement":1,"montantFacture":2}
                 ]}
-                """
-            );
+                """);
 
-            Page<ReglementTiersPayants> page = service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20));
+            Page<ReglementTiersPayants> page =
+                    service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20));
 
             assertThat(page.getTotalElements()).isEqualTo(37L);
         }
@@ -323,7 +315,8 @@ class ActivitySummaryServiceImplTest {
         void sansPagination() {
             service.findReglementTierspayant(DEBUT, FIN, null, Pageable.unpaged());
 
-            verify(invoicePaymentRepository).findReglementTierspayant(eq(DEBUT), eq(FIN), isNull(), eq(0), eq(Integer.MAX_VALUE));
+            verify(invoicePaymentRepository)
+                    .findReglementTierspayant(eq(DEBUT), eq(FIN), isNull(), eq(0), eq(Integer.MAX_VALUE));
         }
 
         /** Une recherche vide n'est pas une recherche : elle ne doit pas filtrer. */
@@ -340,7 +333,8 @@ class ActivitySummaryServiceImplTest {
         void rechercheRenseignee() {
             service.findReglementTierspayant(DEBUT, FIN, "CNAM", PageRequest.of(0, 20));
 
-            verify(invoicePaymentRepository).findReglementTierspayant(eq(DEBUT), eq(FIN), eq("CNAM"), anyInt(), anyInt());
+            verify(invoicePaymentRepository)
+                    .findReglementTierspayant(eq(DEBUT), eq(FIN), eq("CNAM"), anyInt(), anyInt());
         }
 
         @Test
@@ -350,16 +344,20 @@ class ActivitySummaryServiceImplTest {
                 {"totalElements":0,"content":[]}
                 """);
 
-            assertThat(service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20)).getContent()).isEmpty();
+            assertThat(service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20))
+                            .getContent())
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("une fonction stockée illisible rend une page vide, sans erreur")
         void fonctionIllisible() {
             when(invoicePaymentRepository.findReglementTierspayant(any(), any(), any(), anyInt(), anyInt()))
-                .thenReturn("ceci n'est pas du JSON");
+                    .thenReturn("ceci n'est pas du JSON");
 
-            assertThat(service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20)).getContent()).isEmpty();
+            assertThat(service.findReglementTierspayant(DEBUT, FIN, null, PageRequest.of(0, 20))
+                            .getContent())
+                    .isEmpty();
         }
     }
 
@@ -372,37 +370,35 @@ class ActivitySummaryServiceImplTest {
         @Test
         @DisplayName("le PDF rassemble les cinq sections du résumé et sa période")
         void assemblageDuPdf() {
-            donneReglements(
-                """
+            donneReglements("""
                 {"totalElements":1,"content":[
                   {"libelle":"CNAM","type":"ASSURANCE","numFacture":"F-001","montantReglement":1,"montantFacture":2}
                 ]}
-                """
-            );
+                """);
             when(commandeRepository.fetchAchats(any(), any(), any(OrderStatut.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of()));
+                    .thenReturn(new PageImpl<>(List.of()));
             when(reportService.printToPdfBytes(any())).thenReturn("%PDF-".getBytes());
 
             byte[] pdf = service.printToPdf(DEBUT, FIN, null, null);
 
             assertThat(pdf).isNotEmpty();
-            verify(reportService).printToPdfBytes(
-                org.mockito.ArgumentMatchers.argThat(record -> {
-                    assertThat(record.reglementTiersPayants()).hasSize(1);
-                    assertThat(record.periode()).contains("au");
-                    return true;
-                })
-            );
+            verify(reportService).printToPdfBytes(org.mockito.ArgumentMatchers.argThat(record -> {
+                assertThat(record.reglementTiersPayants()).hasSize(1);
+                assertThat(record.periode()).contains("au");
+                return true;
+            }));
         }
     }
 
     // ===== utilitaires =====
 
     private void donneChiffreAffaire(String json) {
-        when(salesRepository.getChiffreAffaire(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn(json);
+        when(salesRepository.getChiffreAffaire(any(), any(), any(), any(), anyBoolean(), anyBoolean()))
+                .thenReturn(json);
     }
 
     private void donneReglements(String json) {
-        when(invoicePaymentRepository.findReglementTierspayant(any(), any(), any(), anyInt(), anyInt())).thenReturn(json);
+        when(invoicePaymentRepository.findReglementTierspayant(any(), any(), any(), anyInt(), anyInt()))
+                .thenReturn(json);
     }
 }

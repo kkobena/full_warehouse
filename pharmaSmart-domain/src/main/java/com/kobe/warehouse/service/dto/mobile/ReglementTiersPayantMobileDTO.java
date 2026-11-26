@@ -11,10 +11,9 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param montantRestant   Remaining amount
  */
 public record ReglementTiersPayantMobileDTO(
-    String libelle,
-    String categorie,
-    String numFacture,
-    long montantFacture,
-    long montantReglement,
-    long montantRestant
-) {}
+        String libelle,
+        String categorie,
+        String numFacture,
+        long montantFacture,
+        long montantReglement,
+        long montantRestant) {}

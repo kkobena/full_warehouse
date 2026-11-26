@@ -71,7 +71,8 @@ export function createPeriodDateFilter(options: { shortcuts?: PeriodShortcut[]; 
       }
       const today = new Date();
       filter.toDate = toStruct(today);
-      filter.fromDate = shortcut.days !== undefined ? shortcutDate(shortcut.days) : toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
+      filter.fromDate =
+        shortcut.days !== undefined ? shortcutDate(shortcut.days) : toStruct(new Date(today.getFullYear(), today.getMonth(), 1));
       filter.fromDateStr = '';
       filter.toDateStr = '';
       filter.activePeriod.set(shortcut.key);

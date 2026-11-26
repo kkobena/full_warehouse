@@ -1,8 +1,6 @@
 @use 'app/shared/scss/pharma-nav' as navBar;
 @use 'app/shared/scss/pharma-toolbar' as toolbar;
 
-
-
 // ── En-tête ────────────────────────────────────────────────────────────────
 
 .ace-page-header {
@@ -25,7 +23,9 @@
   padding: 0.25rem 0.5rem;
   line-height: 1;
 
-  &:hover { color: #333; }
+  &:hover {
+    color: #333;
+  }
 }
 
 .ace-title-icon {
@@ -132,7 +132,20 @@
   resize: vertical;
 }
 
-.req  { color: #e53e3e; margin-left: 2px; }
-.opt  { color: #6c757d; font-weight: 400; font-size: 0.78rem; }
-.ace-error { color: #e53e3e; font-size: 0.78rem; }
-.ace-hint  { color: #6c757d; font-size: 0.78rem; }
+.req {
+  color: #e53e3e;
+  margin-left: 2px;
+}
+.opt {
+  color: #6c757d;
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+.ace-error {
+  color: #e53e3e;
+  font-size: 0.78rem;
+}
+.ace-hint {
+  color: #6c757d;
+  font-size: 0.78rem;
+}

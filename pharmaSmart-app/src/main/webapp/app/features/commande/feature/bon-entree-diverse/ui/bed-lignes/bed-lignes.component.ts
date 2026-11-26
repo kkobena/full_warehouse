@@ -18,14 +18,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './bed-lignes.component.html',
   styleUrls: ['./bed-lignes.component.scss'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonComponent,
-    DataTableComponent,
-    NgbTooltip,
-    SelectSearchComponent,
-   DevisePipe],
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip, SelectSearchComponent, DevisePipe],
 })
 export class BedLignesComponent {
   readonly bed = input.required<IBed>();
@@ -41,9 +34,7 @@ export class BedLignesComponent {
   readonly produitSuggestions = signal<ProduitSearch[]>([]);
   readonly addingLigne = signal(false);
 
-  readonly totalLignes = computed(() =>
-    (this.bed()?.lignes ?? []).reduce((s, l) => s + (l.quantite ?? 0) * (l.prixAchat ?? 0), 0),
-  );
+  readonly totalLignes = computed(() => (this.bed()?.lignes ?? []).reduce((s, l) => s + (l.quantite ?? 0) * (l.prixAchat ?? 0), 0));
   readonly ligneCount = computed(() => this.bed()?.lignes?.length ?? 0);
 
   private readonly bedService = inject(BedService);

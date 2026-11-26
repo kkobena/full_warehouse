@@ -34,9 +34,7 @@ public class ConcentrationPayersServiceImpl implements ConcentrationPayersServic
     @Cacheable(value = "concentrationPayers", key = "#periode + '_' + #topN")
     public ConcentrationSummaryDTO getSummary(String periode, int topN) {
         LocalDate toDate = LocalDate.now();
-        LocalDate fromDate = "year".equals(periode)
-            ? toDate.withDayOfYear(1)
-            : toDate.minusDays(89);
+        LocalDate fromDate = "year".equals(periode) ? toDate.withDayOfYear(1) : toDate.minusDays(89);
         long periodDays = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
 
         List<Object[]> rows = repository.findConcentration(fromDate, toDate, topN);
@@ -49,20 +47,21 @@ public class ConcentrationPayersServiceImpl implements ConcentrationPayersServic
         long totalImpaye = toLong(rows.getFirst()[7]);
 
         List<ConcentrationOrganismeDTO> organismes = rows.stream()
-            .map(row -> {
-                String organisme = (String) row[0];
-                long caTp = toLong(row[1]);
-                int nbFact = toInt(row[2]);
-                int delai = toInt(row[3]);
-                double partPct = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
-                long stress = (caTp > 0 && periodDays > 0) ? Math.round((double) caTp / periodDays * 30) : 0;
-                return new ConcentrationOrganismeDTO(organisme, caTp, nbFact, partPct, delai, stress);
-            })
-            .toList();
+                .map(row -> {
+                    String organisme = (String) row[0];
+                    long caTp = toLong(row[1]);
+                    int nbFact = toInt(row[2]);
+                    int delai = toInt(row[3]);
+                    double partPct = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
+                    long stress = (caTp > 0 && periodDays > 0) ? Math.round((double) caTp / periodDays * 30) : 0;
+                    return new ConcentrationOrganismeDTO(organisme, caTp, nbFact, partPct, delai, stress);
+                })
+                .toList();
 
         double hhi = organismes.stream()
-            .mapToDouble(o -> Math.pow(o.partPct() / 100.0, 2))
-            .sum() * 10000;
+                        .mapToDouble(o -> Math.pow(o.partPct() / 100.0, 2))
+                        .sum()
+                * 10000;
         int hhiIndex = (int) Math.round(hhi);
 
         String riskLevel = hhiIndex >= 2500 ? "ELEVE" : hhiIndex >= 1000 ? "MODERE" : "FAIBLE";
@@ -97,13 +96,14 @@ public class ConcentrationPayersServiceImpl implements ConcentrationPayersServic
         List<String> labels = new ArrayList<>(monthOrgMap.keySet());
 
         List<ConcentrationEvolutionSerieDTO> series = allOrganismes.stream()
-            .map(org -> {
-                List<Long> values = labels.stream()
-                    .map(label -> monthOrgMap.getOrDefault(label, Map.of()).getOrDefault(org, 0L))
-                    .toList();
-                return new ConcentrationEvolutionSerieDTO(org, values);
-            })
-            .toList();
+                .map(org -> {
+                    List<Long> values = labels.stream()
+                            .map(label ->
+                                    monthOrgMap.getOrDefault(label, Map.of()).getOrDefault(org, 0L))
+                            .toList();
+                    return new ConcentrationEvolutionSerieDTO(org, values);
+                })
+                .toList();
 
         return new ConcentrationEvolutionDTO(labels, series);
     }

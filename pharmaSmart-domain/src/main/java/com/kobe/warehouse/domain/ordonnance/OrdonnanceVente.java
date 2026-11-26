@@ -32,8 +32,8 @@ public class OrdonnanceVente implements Serializable {
 
     @Embeddable
     public record Id(
-        @Column(name = "ordonnance_id") Integer ordonnanceId,
-        @Column(name = "sales_id") Long salesId,
-        @Column(name = "sales_date") LocalDate salesDate
-    ) implements Serializable {}
+            @Column(name = "ordonnance_id") Integer ordonnanceId,
+            @Column(name = "sales_id") Long salesId,
+            @Column(name = "sales_date") LocalDate salesDate)
+            implements Serializable {}
 }

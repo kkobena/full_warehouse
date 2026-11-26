@@ -15,16 +15,15 @@ import java.time.LocalDate;
  *     temps, la requête d'agrégation ne pouvant pas concaténer plusieurs lignes filles
  */
 public record JournalVenteDTO(
-    Long saleId,
-    LocalDate saleDate,
-    String numeroTransaction,
-    String tiersPayants,
-    String client,
-    Long valeurTtc,
-    Long montantExclu,
-    Long marge,
-    Long nombreLignes
-) {
+        Long saleId,
+        LocalDate saleDate,
+        String numeroTransaction,
+        String tiersPayants,
+        String client,
+        Long valeurTtc,
+        Long montantExclu,
+        Long marge,
+        Long nombreLignes) {
     /**
      * La même vente, avec les intitulés de ses tiers-payants.
      *
@@ -33,15 +32,6 @@ public record JournalVenteDTO(
      */
     public JournalVenteDTO avecTiersPayants(String intitules) {
         return new JournalVenteDTO(
-            saleId,
-            saleDate,
-            numeroTransaction,
-            intitules,
-            client,
-            valeurTtc,
-            montantExclu,
-            marge,
-            nombreLignes
-        );
+                saleId, saleDate, numeroTransaction, intitules, client, valeurTtc, montantExclu, marge, nombreLignes);
     }
 }

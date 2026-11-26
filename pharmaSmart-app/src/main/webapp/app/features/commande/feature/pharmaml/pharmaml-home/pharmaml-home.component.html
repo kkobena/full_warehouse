@@ -28,7 +28,6 @@
            size="small"
          />-->
       } @else {
-
         <app-button
           (clicked)="openEnvoi()"
           [label]="'Envoyer via PharmaML'"
@@ -49,26 +48,22 @@
   </div>
 
   <div class="card-body p-2">
-
     @if (lastResult(); as res) {
       <div class="pharmaml-last-result mb-2">
-        <app-badge
-          [label]="res.successCount + ' / ' + res.totalProduit + ' acceptés'"
-          [severity]="res.success ? 'success' : 'warn'"
-        />
+        <app-badge [label]="res.successCount + ' / ' + res.totalProduit + ' acceptés'" [severity]="res.success ? 'success' : 'warn'" />
         @if (res.outOfStockCount > 0) {
           <app-badge [label]="res.outOfStockCount + ' rupture(s)'" severity="danger" />
         }
         @if (res.reliquatCommandeId != null) {
-          <app-badge icon="pi pi-copy"
-                     label="Reliquat créé"
-                     ngbTooltip="Une commande reliquat a été créée automatiquement"
-                     severity="info" />
+          <app-badge
+            icon="pi pi-copy"
+            label="Reliquat créé"
+            ngbTooltip="Une commande reliquat a été créée automatiquement"
+            severity="info"
+          />
         }
       </div>
     }
-
-
 
     <!-- Historique -->
     <div class="pharmaml-panel-section">
@@ -78,7 +73,7 @@
         [paginator]="historique().length > 5"
         [rows]="5"
         [value]="historique()"
-        class="w-100 p-datatable-sm "
+        class="w-100 p-datatable-sm"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -92,8 +87,7 @@
           <tr>
             <td>{{ envoi.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td>
-              <app-badge [label]="libelleStatut(envoi.statut)"
-                         [severity]="statutSeverity(envoi.statut)" />
+              <app-badge [label]="libelleStatut(envoi.statut)" [severity]="statutSeverity(envoi.statut)" />
             </td>
             <td class="text-center">
               @if (envoi.lignesAcceptees != null) {
@@ -118,6 +112,5 @@
         </ng-template>
       </app-data-table>
     </div>
-
   </div>
 </div>

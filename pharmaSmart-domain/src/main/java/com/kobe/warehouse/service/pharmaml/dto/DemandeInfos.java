@@ -13,6 +13,7 @@ public class DemandeInfos {
     @NotNull
     @XmlAttribute(name = "Ref_Req_Info_Produit")
     private String refReqInfoProduit;
+
     @XmlElement(name = "LIGNE", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private List<LigneInfoDemande> lignes;
 

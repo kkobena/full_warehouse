@@ -18,8 +18,7 @@ scenario('ADM-09', async ({ etape, page }) => {
   const privilege = 'Créer un retour client';
   const contenu = page.locator('#main-content');
 
-  const caseDuPrivilege = () =>
-    page.locator('tbody tr').filter({ hasText: privilege }).first().locator('app-checkbox input').first();
+  const caseDuPrivilege = () => page.locator('tbody tr').filter({ hasText: privilege }).first().locator('app-checkbox input').first();
 
   // ── Mise en scène : le droit doit être ACCORDÉ au départ, sans quoi il n'y aurait rien à
   //    retirer. Un parcours précédent a pu le laisser dans l'autre état. ──────────────────

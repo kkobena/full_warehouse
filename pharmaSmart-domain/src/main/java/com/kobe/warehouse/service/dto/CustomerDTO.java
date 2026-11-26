@@ -15,12 +15,10 @@ import java.util.Objects;
 import java.util.Set;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
-        @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD"),
-    }
-)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = AssuredCustomerDTO.class, name = "ASSURE"),
+    @JsonSubTypes.Type(value = UninsuredCustomerDTO.class, name = "STANDARD"),
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomerDTO {
 
@@ -37,7 +35,7 @@ public class CustomerDTO {
     private String code;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
-    private String uniqueId; //pour les clients importés du legacy
+    private String uniqueId; // pour les clients importés du legacy
 
     public CustomerDTO() {
         super();

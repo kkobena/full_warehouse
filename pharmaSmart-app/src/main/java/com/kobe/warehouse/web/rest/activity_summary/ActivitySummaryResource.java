@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.activity_summary;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.activity_summary.ActivitySummaryService;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
@@ -20,12 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/activity-summary")
-@RequiresNavAccess({ "comptabilite.raport-activite", "mvt-caisse.raport-activite" })
+@RequiresNavAccess({"comptabilite.raport-activite", "mvt-caisse.raport-activite"})
 public class ActivitySummaryResource {
 
     private final ActivitySummaryService activitySummaryService;
@@ -36,73 +36,71 @@ public class ActivitySummaryResource {
 
     @GetMapping("/ca")
     public ResponseEntity<ChiffreAffaireDTO> getCa(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate
-    ) {
+            @RequestParam(name = "fromDate") LocalDate fromDate, @RequestParam(name = "toDate") LocalDate toDate) {
         return ResponseEntity.ok().body(activitySummaryService.getChiffreAffaire(fromDate, toDate));
     }
 
     @GetMapping("/recettes")
     public ResponseEntity<List<Recette>> getRecettes(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate
-    ) {
+            @RequestParam(name = "fromDate") LocalDate fromDate, @RequestParam(name = "toDate") LocalDate toDate) {
         return ResponseEntity.ok().body(activitySummaryService.findRecettes(fromDate, toDate));
     }
 
     @GetMapping("/mouvements-caisse")
     public ResponseEntity<List<MouvementCaisse>> getMouvementsCaisse(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate
-    ) {
+            @RequestParam(name = "fromDate") LocalDate fromDate, @RequestParam(name = "toDate") LocalDate toDate) {
         return ResponseEntity.ok().body(activitySummaryService.findMouvementsCaisse(fromDate, toDate));
     }
 
     @GetMapping("/achats")
     public ResponseEntity<List<GroupeFournisseurAchat>> getAchats(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            Pageable pageable) {
         Page<GroupeFournisseurAchat> page = activitySummaryService.fetchAchats(fromDate, toDate, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/reglements-tiers-payants")
     public ResponseEntity<List<ReglementTiersPayants>> getReglementTiersPayants(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "search", required = false) String search,
-        Pageable pageable
-    ) {
-        Page<ReglementTiersPayants> page = activitySummaryService.findReglementTierspayant(fromDate, toDate, search, pageable);
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "search", required = false) String search,
+            Pageable pageable) {
+        Page<ReglementTiersPayants> page =
+                activitySummaryService.findReglementTierspayant(fromDate, toDate, search, pageable);
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/achats-tiers-payants")
     public ResponseEntity<List<AchatTiersPayant>> getAchatsTierspayant(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "search", required = false) String search,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "search", required = false) String search,
+            Pageable pageable) {
         Page<AchatTiersPayant> page = activitySummaryService.fetchAchatTiersPayant(fromDate, toDate, search, pageable);
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/ca/pdf")
-    @RequiresNavAccess(value = { "comptabilite.raport-activite", "mvt-caisse.raport-activite" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"comptabilite.raport-activite", "mvt-caisse.raport-activite"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(required = false, name = "searchAchat") String searchAchatTp,
-        @RequestParam(required = false, name = "searchReglement") String searchReglement
-    ) {
-        return Utils.printPDF(activitySummaryService.printToPdf(fromDate, toDate, searchAchatTp, searchReglement), "activity_summary.pdf");
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(required = false, name = "searchAchat") String searchAchatTp,
+            @RequestParam(required = false, name = "searchReglement") String searchReglement) {
+        return Utils.printPDF(
+                activitySummaryService.printToPdf(fromDate, toDate, searchAchatTp, searchReglement),
+                "activity_summary.pdf");
     }
 }

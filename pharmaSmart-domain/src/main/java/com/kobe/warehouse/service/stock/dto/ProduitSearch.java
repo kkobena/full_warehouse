@@ -7,35 +7,34 @@ import java.util.Objects;
 import org.springframework.util.CollectionUtils;
 
 public record ProduitSearch(
-    Integer id,
-    Integer codecipprincipalid,
-    String libelle,
-    String codeeanlabo,
-    Integer parentid,
-    boolean deconditionnable,
-    Integer itemqty,
-    Integer vatrate,
-    Integer regularunitprice,
-    Integer costamount,
-    List<ProduitFournisseurSearch> fournisseurs,
+        Integer id,
+        Integer codecipprincipalid,
+        String libelle,
+        String codeeanlabo,
+        Integer parentid,
+        boolean deconditionnable,
+        Integer itemqty,
+        Integer vatrate,
+        Integer regularunitprice,
+        Integer costamount,
+        List<ProduitFournisseurSearch> fournisseurs,
 
-    List<ProduitRayonSearch> rayons,
-    List<ProduitStockSearch> stocks,
-    /** Forme galénique (« Comprimés »…), pour reconnaître le bon produit dans la liste de résultats. */
-    String forme,
-    /** Molécules, jointes par « + » (association). */
-    String dci,
-    /** Dosages des molécules, dans le même ordre que {@code dci}. */
-    String dosage,
-    /** PRINCEPS ou GENERIQUE…, d'après le rapprochement avec le référentiel médicament ; nul sinon. */
-    String typegenerique,
-    /** Statut légal (SANS_LISTE, LISTE_I, LISTE_II, STUPEFIANTS, PSO). */
-    String statutlegal,
-    /** Lot en stock le plus proche de sa péremption, s'il est périmé ou proche de l'être (seuil APP_EXPIRY_ALERT_DAYS_BEFORE). */
-    String peremptionlot,
-    /** Date de péremption de ce lot (AAAA-MM-JJ) : seul un lot porte une date. */
-    String peremptiondate
-) {
+        List<ProduitRayonSearch> rayons,
+        List<ProduitStockSearch> stocks,
+        /** Forme galénique (« Comprimés »…), pour reconnaître le bon produit dans la liste de résultats. */
+        String forme,
+        /** Molécules, jointes par « + » (association). */
+        String dci,
+        /** Dosages des molécules, dans le même ordre que {@code dci}. */
+        String dosage,
+        /** PRINCEPS ou GENERIQUE…, d'après le rapprochement avec le référentiel médicament ; nul sinon. */
+        String typegenerique,
+        /** Statut légal (SANS_LISTE, LISTE_I, LISTE_II, STUPEFIANTS, PSO). */
+        String statutlegal,
+        /** Lot en stock le plus proche de sa péremption, s'il est périmé ou proche de l'être (seuil APP_EXPIRY_ALERT_DAYS_BEFORE). */
+        String peremptionlot,
+        /** Date de péremption de ce lot (AAAA-MM-JJ) : seul un lot porte une date. */
+        String peremptiondate) {
 
     @JsonProperty("statutLegal")
     public String statutLegal() {
@@ -68,15 +67,17 @@ public record ProduitSearch(
             return 0;
         }
         return stocks.stream()
-            .filter(s -> s.storageType() == StorageType.PRINCIPAL)
-            .mapToInt(s -> s.quantite() + s.qteUg())
-            .sum();
+                .filter(s -> s.storageType() == StorageType.PRINCIPAL)
+                .mapToInt(s -> s.quantite() + s.qteUg())
+                .sum();
     }
 
     @JsonProperty("fournisseurProduit")
     public ProduitFournisseurSearch fournisseurProduit() {
-        return fournisseurs.stream().filter(e -> Objects.equals(codecipprincipalid, e.id()))
-            .findFirst().orElse(fournisseurs.getFirst());
+        return fournisseurs.stream()
+                .filter(e -> Objects.equals(codecipprincipalid, e.id()))
+                .findFirst()
+                .orElse(fournisseurs.getFirst());
     }
 
     @JsonProperty("regularUnitPrice")
@@ -148,8 +149,8 @@ public record ProduitSearch(
             return 0;
         }
         return stocks.stream()
-            .filter(s -> s.storageType() == StorageType.SAFETY_STOCK)
-            .mapToInt(s -> s.quantite() + s.qteUg())
-            .sum();
+                .filter(s -> s.storageType() == StorageType.SAFETY_STOCK)
+                .mapToInt(s -> s.quantite() + s.qteUg())
+                .sum();
     }
 }

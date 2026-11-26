@@ -1,5 +1,7 @@
-  package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.cahier_recette.CahierRecettePdfService;
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
@@ -36,26 +36,26 @@ public class CahierRecetteResource {
      */
     @GetMapping("/cahier-recette/pdf")
     public ResponseEntity<byte[]> getPdf(
-        @RequestParam(name = "modules", required = false) String requestedModules,
-        @RequestParam(name = "scenarios", required = false) String requestedScenarios) {
+            @RequestParam(name = "modules", required = false) String requestedModules,
+            @RequestParam(name = "scenarios", required = false) String requestedScenarios) {
         log.debug("REST request to generate cahier de recette PDF");
 
         List<String> moduleIds = parseSelection(requestedModules);
         List<String> scenarioIds = parseSelection(requestedScenarios);
         byte[] pdf = cahierRecettePdfService.generatePdf(moduleIds, scenarioIds);
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"guide-fonctionnalites.pdf\"")
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdf);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"guide-fonctionnalites.pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     private List<String> parseSelection(String requestedIds) {
         return requestedIds == null
-            ? List.of()
-            : Arrays.stream(requestedIds.split(","))
-                .map(String::trim)
-                .filter(id -> id.matches("[A-Za-z0-9-]{1,16}"))
-                .distinct()
-                .toList();
+                ? List.of()
+                : Arrays.stream(requestedIds.split(","))
+                        .map(String::trim)
+                        .filter(id -> id.matches("[A-Za-z0-9-]{1,16}"))
+                        .distinct()
+                        .toList();
     }
 }

@@ -1,6 +1,6 @@
-import {Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
-import {CommonModule, formatDate} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, computed, effect, inject, input, output, ChangeDetectionStrategy, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   AllCommunityModule,
   CellEditingStartedEvent,
@@ -15,22 +15,16 @@ import {
   RowClickedEvent,
   themeAlpine,
 } from 'ag-grid-community';
-import {AgGridAngular} from 'ag-grid-angular';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {InventoryEditorFacade} from '../../data-access/facades/inventory-editor.facade';
-import {InventoryStore} from '../../data-access/store/inventory.store';
-import {
-  IInventoryLine,
-  InventoryLineFilter,
-  isGapLineFilter,
-  lineFiltersFor,
-  renderParetoBadge,
-} from '../../models';
-import {IStorage} from '../../../../shared/model/magasin.model';
-import {IRayon} from '../../../../shared/model/rayon.model';
-import {InventoryCategoryType} from "../../../../shared/model/store-inventory.model";
-import {SelectComponent} from '../../../../shared/ui';
-import {AG_GRID_LOCALE_FR} from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { AgGridAngular } from 'ag-grid-angular';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { InventoryEditorFacade } from '../../data-access/facades/inventory-editor.facade';
+import { InventoryStore } from '../../data-access/store/inventory.store';
+import { IInventoryLine, InventoryLineFilter, isGapLineFilter, lineFiltersFor, renderParetoBadge } from '../../models';
+import { IStorage } from '../../../../shared/model/magasin.model';
+import { IRayon } from '../../../../shared/model/rayon.model';
+import { InventoryCategoryType } from '../../../../shared/model/store-inventory.model';
+import { SelectComponent } from '../../../../shared/ui';
+import { AG_GRID_LOCALE_FR } from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -102,7 +96,7 @@ export class InventoryLinesGridComponent {
 
       type: ['rightAligned', 'numericColumn'],
       hide: this.blindMode(),
-      valueFormatter: params => (params.value ?? '—'),
+      valueFormatter: params => params.value ?? '—',
     },
     {
       field: 'seuilMini',
@@ -111,12 +105,12 @@ export class InventoryLinesGridComponent {
       editable: false,
       type: ['rightAligned', 'numericColumn'],
       hide: !this.showSeuilMini(),
-      valueFormatter: params => (params.value ?? '—'),
+      valueFormatter: params => params.value ?? '—',
       cellStyle(params) {
         const seuil = params.value;
         const stock = params.data?.quantityInit;
         if (seuil != null && stock != null && stock <= seuil) {
-          return {color: '#dc3545', fontWeight: 'bold'};
+          return { color: '#dc3545', fontWeight: 'bold' };
         }
         return null;
       },
@@ -133,16 +127,16 @@ export class InventoryLinesGridComponent {
         // n'étant plus rechargée à chaque ligne, c'est le seul signal qui distingue
         // une ligne comptée d'une ligne perdue.
         if (params.data?.saveFailed) {
-          return {backgroundColor: '#fde8ea', color: '#dc3545', fontWeight: 'bold'};
+          return { backgroundColor: '#fde8ea', color: '#dc3545', fontWeight: 'bold' };
         }
         if (params.data?.updated) {
-          return {backgroundColor: '#f0fff4', fontWeight: 'bold'};
+          return { backgroundColor: '#f0fff4', fontWeight: 'bold' };
         }
         return null;
       },
       cellEditorParams: {
-        preventStepping: true
-      }
+        preventStepping: true,
+      },
     },
     {
       field: 'gap',
@@ -158,10 +152,10 @@ export class InventoryLinesGridComponent {
           return null;
         }
         if (val < 0) {
-          return {color: '#dc3545', backgroundColor: '#fde8ea', fontWeight: 'bold'};
+          return { color: '#dc3545', backgroundColor: '#fde8ea', fontWeight: 'bold' };
         }
         if (val > 0) {
-          return {color: '#0d6efd', backgroundColor: '#e7f1ff', fontWeight: 'bold'};
+          return { color: '#0d6efd', backgroundColor: '#e7f1ff', fontWeight: 'bold' };
         }
         return null;
       },
@@ -175,18 +169,18 @@ export class InventoryLinesGridComponent {
       type: 'numericColumn',
       cellStyle(params) {
         if (params.value > 0) {
-          return {color: '#0d6efd', fontWeight: 'bold', cursor: 'pointer'};
+          return { color: '#0d6efd', fontWeight: 'bold', cursor: 'pointer' };
         }
         return null;
       },
-      valueFormatter: params => params.value > 0 ? `${params.value}` : '—',
+      valueFormatter: params => (params.value > 0 ? `${params.value}` : '—'),
     },
     {
       field: 'classePareto',
       headerName: 'ABC',
       width: 70,
       editable: false,
-      cellStyle: {textAlign: 'center'},
+      cellStyle: { textAlign: 'center' },
       headerClass: 'ag-header-cell-center',
       hide: this.inventoryCategoryType() !== 'ABC',
       cellRenderer: (params: any) => renderParetoBadge(params.value),
@@ -196,7 +190,7 @@ export class InventoryLinesGridComponent {
       headerName: 'Saisi',
       width: 80,
       editable: false,
-      cellStyle: {textAlign: 'center'},
+      cellStyle: { textAlign: 'center' },
       headerClass: 'ag-header-cell-center',
       cellRenderer(params: any) {
         if (params.data?.saveFailed) {
@@ -275,7 +269,7 @@ export class InventoryLinesGridComponent {
         this.pendingFocusRow0 = false;
         setTimeout(() => {
           this.gridApi?.ensureIndexVisible(0, 'top');
-          this.gridApi?.startEditingCell({rowIndex: 0, colKey: 'quantityOnHand'});
+          this.gridApi?.startEditingCell({ rowIndex: 0, colKey: 'quantityOnHand' });
         }, 100);
       }
     });
@@ -466,7 +460,7 @@ export class InventoryLinesGridComponent {
     setTimeout(() => {
       // Même cellule, mais son index a pu bouger si un rechargement a abouti entre-temps
       const rowIndex = event.node.rowIndex ?? event.rowIndex!;
-      this.gridApi?.startEditingCell({rowIndex, colKey: 'quantityOnHand'});
+      this.gridApi?.startEditingCell({ rowIndex, colKey: 'quantityOnHand' });
     });
   }
 
@@ -518,7 +512,7 @@ export class InventoryLinesGridComponent {
       // et une page appliquée dans l'intervalle décalerait la ligne visée.
       this.focusRowId = this.gridApi?.getDisplayedRowAtIndex(nextIndex)?.id ?? null;
       this.gridApi?.ensureIndexVisible(nextIndex, 'middle');
-      this.gridApi?.startEditingCell({rowIndex: nextIndex, colKey: 'quantityOnHand'});
+      this.gridApi?.startEditingCell({ rowIndex: nextIndex, colKey: 'quantityOnHand' });
 
       // Filet : si l'éditeur ne s'ouvre pas (ligne non éditable, grille clôturée…),
       // le verrou ne doit pas geler indéfiniment les rechargements.

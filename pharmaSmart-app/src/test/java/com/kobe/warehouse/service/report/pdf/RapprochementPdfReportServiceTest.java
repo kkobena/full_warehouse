@@ -31,9 +31,7 @@ class RapprochementPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new RapprochementPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
     }
 
     // ===== totaux =====
@@ -46,9 +44,8 @@ class RapprochementPdfReportServiceTest {
         @DisplayName("les trois totaux additionnent les états de chaque tiers payant")
         void troisTotaux() {
             Map<String, Object> modele = modele(
-                etat("MUGEFCI", "1000000.50", "900000.25", "100000.25"),
-                etat("CNPS", "500000.50", "400000.75", "99999.75")
-            );
+                    etat("MUGEFCI", "1000000.50", "900000.25", "100000.25"),
+                    etat("CNPS", "500000.50", "400000.75", "99999.75"));
 
             assertThat(modele.get("totalFacture")).isEqualTo(new BigDecimal("1500001.00"));
             assertThat(modele.get("totalRegle")).isEqualTo(new BigDecimal("1300001.00"));
@@ -59,10 +56,8 @@ class RapprochementPdfReportServiceTest {
         @Test
         @DisplayName("un écart négatif se compense avec les autres, sans être escamoté")
         void ecartNegatif() {
-            Map<String, Object> modele = modele(
-                etat("MUGEFCI", "100000", "90000", "10000"),
-                etat("CNPS", "100000", "115000", "-15000")
-            );
+            Map<String, Object> modele =
+                    modele(etat("MUGEFCI", "100000", "90000", "10000"), etat("CNPS", "100000", "115000", "-15000"));
 
             assertThat(modele.get("ecartTotal")).isEqualTo(new BigDecimal("-5000"));
         }
@@ -87,20 +82,23 @@ class RapprochementPdfReportServiceTest {
         @Test
         @DisplayName("une période bornée se lit « du … au … »")
         void periodeBornee() {
-            assertThat(modeleAvecPeriode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)).get("periode"))
-                .isEqualTo("du 05/01/2026 au 31/03/2026");
+            assertThat(modeleAvecPeriode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31))
+                            .get("periode"))
+                    .isEqualTo("du 05/01/2026 au 31/03/2026");
         }
 
         @Test
         @DisplayName("une période ouverte à droite se lit « à partir du … »")
         void periodeOuverteADroite() {
-            assertThat(modeleAvecPeriode(LocalDate.of(2026, 1, 5), null).get("periode")).isEqualTo("à partir du 05/01/2026");
+            assertThat(modeleAvecPeriode(LocalDate.of(2026, 1, 5), null).get("periode"))
+                    .isEqualTo("à partir du 05/01/2026");
         }
 
         @Test
         @DisplayName("une période ouverte à gauche se lit « jusqu'au … »")
         void periodeOuverteAGauche() {
-            assertThat(modeleAvecPeriode(null, LocalDate.of(2026, 3, 31)).get("periode")).isEqualTo("jusqu'au 31/03/2026");
+            assertThat(modeleAvecPeriode(null, LocalDate.of(2026, 3, 31)).get("periode"))
+                    .isEqualTo("jusqu'au 31/03/2026");
         }
 
         @Test
@@ -152,13 +150,12 @@ class RapprochementPdfReportServiceTest {
 
     private static EtatRapprochementDto etat(String tiersPayant, String facture, String regle, String ecart) {
         return new EtatRapprochementDto(
-            tiersPayant,
-            LocalDate.of(2026, 1, 1),
-            LocalDate.of(2026, 3, 31),
-            new BigDecimal(facture),
-            new BigDecimal(regle),
-            new BigDecimal(ecart),
-            List.of()
-        );
+                tiersPayant,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 3, 31),
+                new BigDecimal(facture),
+                new BigDecimal(regle),
+                new BigDecimal(ecart),
+                List.of());
     }
 }

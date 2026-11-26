@@ -1,38 +1,23 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal, input} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {CommonModule} from "@angular/common";
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from "@angular/forms";
-import {NgbDateStruct, NgbNavModule, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {FournisseurApApiService} from "../../data-access/services/fournisseur-ap-api.service";
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbDateStruct, NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FournisseurApApiService } from '../../data-access/services/fournisseur-ap-api.service';
 import {
   ICompteFournisseurAP,
   IFournisseurAPSummary,
   ILigneFournisseurAP,
   IReglementBL,
   StatutFournisseur,
-  StatutLigne
-} from "../../data-access/models";
-import {formatCurrency} from "app/shared/utils/format-utils";
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from "app/shared/util/warehouse-util";
-import {NotificationService} from "app/shared/services/notification.service";
-import {ErrorService} from "app/shared/error.service";
-import {
-  NgbConfirmDialogService
-} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+  StatutLigne,
+} from '../../data-access/models';
+import { formatCurrency } from 'app/shared/utils/format-utils';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from 'app/shared/util/warehouse-util';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { ErrorService } from 'app/shared/error.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -47,18 +32,20 @@ import {
   KpiStripComponent,
   NavTabsComponent,
   SelectComponent,
-  ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
-import {
-  PharmaDatePickerComponent
-} from "../../../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+  AppBadgeSeverity,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { currencySymbol } from 'app/shared/utils/format-utils';
 import { CardComponent } from 'app/shared/ui';
 @Component({
-  selector: "app-comptes-fournisseurs",
-  imports: [CardComponent, DeviseDirective,
+  selector: 'app-comptes-fournisseurs',
+  imports: [
+    CardComponent,
+    DeviseDirective,
     HintComponent,
     CommonModule,
     FormsModule,
@@ -78,11 +65,11 @@ import { CardComponent } from 'app/shared/ui';
     PharmaDatePickerComponent,
     NgbTooltip,
     KpiItemComponent,
-    KpiStripComponent
+    KpiStripComponent,
   ],
-  templateUrl: "./comptes-fournisseurs.component.html",
+  templateUrl: './comptes-fournisseurs.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./comptes-fournisseurs.component.scss"
+  styleUrl: './comptes-fournisseurs.component.scss',
 })
 export class ComptesFournisseursComponent implements OnInit {
   /**
@@ -106,8 +93,8 @@ export class ComptesFournisseursComponent implements OnInit {
   isExporting = signal(false);
 
   panelOpen = signal(false);
-  activeTab = signal<string>("commandes");
-  searchText = signal("");
+  activeTab = signal<string>('commandes');
+  searchText = signal('');
 
   selectedLigne = signal<ILigneFournisseurAP | null>(null);
   ligneReglements = signal<IReglementBL[]>([]);
@@ -119,7 +106,6 @@ export class ComptesFournisseursComponent implements OnInit {
   fromDate = signal<NgbDateStruct | null>(null);
   toDate = signal<NgbDateStruct | null>(null);
 
-
   // ── Signal Forms ───────────────────────────────────────────────────────────
   montantSaisi = signal(0);
 
@@ -127,28 +113,28 @@ export class ComptesFournisseursComponent implements OnInit {
   validMontant = computed(() => this.montantSaisi() > 0 && this.montantSaisi() <= this.solde());
 
   readonly modeReglementOptions = [
-    {label: "Espèces", value: "CASH"},
-    {label: "Chèque", value: "CH"},
-    {label: "Virement", value: "VIREMENT"},
-    {label: "Carte bancaire", value: "CB"}
+    { label: 'Espèces', value: 'CASH' },
+    { label: 'Chèque', value: 'CH' },
+    { label: 'Virement', value: 'VIREMENT' },
+    { label: 'Carte bancaire', value: 'CB' },
     // { label: "Traite/Effet", value: "TRAITE" }
   ];
 
   readonly reglementForm = inject(FormBuilder).group({
     montant: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(1)],
-      nonNullable: true
+      nonNullable: true,
     }),
     dateReglement: new FormControl<NgbDateStruct | null>(TODAY_NGB_DATE()),
-    modeReglement: new FormControl<string | null>("CH", {
+    modeReglement: new FormControl<string | null>('CH', {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     reference: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
-    commentaire: new FormControl<string | null>(null)
+    commentaire: new FormControl<string | null>(null),
   });
 
   formatCurrency = formatCurrency;
@@ -162,7 +148,7 @@ export class ComptesFournisseursComponent implements OnInit {
 
   constructor() {
     this.reglementForm
-      .get("montant")!
+      .get('montant')!
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(val => this.montantSaisi.set(val ?? 0));
 
@@ -171,15 +157,15 @@ export class ComptesFournisseursComponent implements OnInit {
     // était obligatoire quel que soit le mode, ce qui contraignait à inventer une référence
     // pour enregistrer un paiement en liquide.
     this.reglementForm
-      .get("modeReglement")!
+      .get('modeReglement')!
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(mode => this.appliquerObligationReference(mode));
   }
 
   /** Pose ou retire l'obligation de référence selon le mode de règlement choisi. */
   private appliquerObligationReference(mode: string | null): void {
-    const reference = this.reglementForm.get("reference")!;
-    if (mode === "CASH") {
+    const reference = this.reglementForm.get('reference')!;
+    if (mode === 'CASH') {
       reference.clearValidators();
     } else {
       reference.setValidators([Validators.required]);
@@ -195,7 +181,7 @@ export class ComptesFournisseursComponent implements OnInit {
   // ── Data loading ───────────────────────────────────────────────────────────
   loadSummary(): void {
     this.api.getSummary().subscribe({
-      next: res => this.summary.set(res.body)
+      next: res => this.summary.set(res.body),
     });
   }
 
@@ -209,13 +195,11 @@ export class ComptesFournisseursComponent implements OnInit {
         this.comptes.set(comptes);
         const selected = this.selectedFournisseur();
         if (selected) {
-          this.selectedFournisseur.set(
-            comptes.find(compte => compte.fournisseurId === selected.fournisseurId) ?? null
-          );
+          this.selectedFournisseur.set(comptes.find(compte => compte.fournisseurId === selected.fournisseurId) ?? null);
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
@@ -223,20 +207,20 @@ export class ComptesFournisseursComponent implements OnInit {
   onTabChange(tab: string | number): void {
     const id = String(tab);
     this.activeTab.set(id);
-    if (id === "regler") {
+    if (id === 'regler') {
       this.reglementForm.reset({
         montant: this.solde(),
         dateReglement: TODAY_NGB_DATE(),
-        modeReglement: "CH",
+        modeReglement: 'CH',
         reference: null,
-        commentaire: null
+        commentaire: null,
       });
     }
   }
 
   selectLigne(ligne: ILigneFournisseurAP): void {
     this.selectedLigne.set(ligne);
-    this.activeTab.set("reglements-bl");
+    this.activeTab.set('reglements-bl');
     this.ligneReglements.set([]);
     const fournisseur = this.selectedFournisseur();
     if (!fournisseur) {
@@ -248,7 +232,7 @@ export class ComptesFournisseursComponent implements OnInit {
         this.ligneReglements.set(res.body ?? []);
         this.isLoadingLigneReglements.set(false);
       },
-      error: () => this.isLoadingLigneReglements.set(false)
+      error: () => this.isLoadingLigneReglements.set(false),
     });
   }
 
@@ -257,17 +241,17 @@ export class ComptesFournisseursComponent implements OnInit {
     this.reglementForm.reset({
       montant: ligne.restantDu,
       dateReglement: TODAY_NGB_DATE(),
-      modeReglement: "CH",
+      modeReglement: 'CH',
       reference: null,
-      commentaire: null
+      commentaire: null,
     });
-    this.activeTab.set("regler");
+    this.activeTab.set('regler');
   }
 
   regleTout(): void {
     this.selectedLigne.set(null);
-    this.reglementForm.patchValue({montant: this.solde()});
-    this.activeTab.set("regler");
+    this.reglementForm.patchValue({ montant: this.solde() });
+    this.activeTab.set('regler');
   }
 
   selectFournisseur(compte: ICompteFournisseurAP): void {
@@ -276,7 +260,7 @@ export class ComptesFournisseursComponent implements OnInit {
     this.selectedLigne.set(null);
     this.filtreStatutLignes.set(null);
     this.totalLignes.set(0);
-    this.activeTab.set("commandes");
+    this.activeTab.set('commandes');
     this.panelOpen.set(true);
     this.loadLignes(0);
   }
@@ -291,10 +275,10 @@ export class ComptesFournisseursComponent implements OnInit {
       next: res => {
         const body = res.body;
         this.lignes.set(body);
-        this.totalLignes.set(Number(res.headers.get("X-Total-Count")) ?? 0);
+        this.totalLignes.set(Number(res.headers.get('X-Total-Count')) ?? 0);
         this.isLoadingLignes.set(false);
       },
-      error: () => this.isLoadingLignes.set(false)
+      error: () => this.isLoadingLignes.set(false),
     });
   }
 
@@ -310,7 +294,7 @@ export class ComptesFournisseursComponent implements OnInit {
 
   closeDetail(): void {
     this.panelOpen.set(false);
-    this.activeTab.set("commandes");
+    this.activeTab.set('commandes');
     this.selectedFournisseur.set(null);
     this.selectedLigne.set(null);
   }
@@ -328,14 +312,10 @@ export class ComptesFournisseursComponent implements OnInit {
     const val = this.reglementForm.getRawValue();
     const modeLabel = this.modeReglementOptions.find(o => o.value === val.modeReglement)?.label ?? val.modeReglement;
     const ligne = this.selectedLigne();
-    const blInfo = ligne ? ` — BL ${ligne.numBon}` : "";
+    const blInfo = ligne ? ` — BL ${ligne.numBon}` : '';
     const message = `Confirmer le règlement de ${this.formatCurrency(val.montant!)} ${currencySymbol()} par ${modeLabel}${blInfo} pour ${fournisseur.fournisseurName} ?`;
 
-    this.confirmDialog.onConfirm(
-      () => this.doSaveReglement(),
-      "Confirmer le règlement",
-      message
-    );
+    this.confirmDialog.onConfirm(() => this.doSaveReglement(), 'Confirmer le règlement', message);
   }
 
   // ── Export ──────────────────────────────────────────────────────────────────
@@ -350,8 +330,8 @@ export class ComptesFournisseursComponent implements OnInit {
       },
       error: () => {
         this.isExporting.set(false);
-        this.notification.error("Erreur lors de la génération du PDF.");
-      }
+        this.notification.error('Erreur lors de la génération du PDF.');
+      },
     });
   }
 
@@ -368,8 +348,8 @@ export class ComptesFournisseursComponent implements OnInit {
       },
       error: () => {
         this.isExporting.set(false);
-        this.notification.error("Erreur lors de la génération du PDF.");
-      }
+        this.notification.error('Erreur lors de la génération du PDF.');
+      },
     });
   }
 
@@ -390,75 +370,75 @@ export class ComptesFournisseursComponent implements OnInit {
         c.fournisseurName?.toLowerCase().includes(q) ||
         c.fournisseurCode?.toLowerCase().includes(q) ||
         c.phone?.includes(q) ||
-        c.mobile?.includes(q)
+        c.mobile?.includes(q),
     );
   }
 
-  statutSeverity(statut: StatutFournisseur): "success" | "warn" | "danger" {
-    if (statut === "A_JOUR") {
-      return "success";
+  statutSeverity(statut: StatutFournisseur): 'success' | 'warn' | 'danger' {
+    if (statut === 'A_JOUR') {
+      return 'success';
     }
-    if (statut === "EN_RETARD") {
-      return "warn";
+    if (statut === 'EN_RETARD') {
+      return 'warn';
     }
-    return "danger";
+    return 'danger';
   }
 
   statutLabel(statut: StatutFournisseur): string {
-    if (statut === "A_JOUR") {
-      return "À jour";
+    if (statut === 'A_JOUR') {
+      return 'À jour';
     }
-    if (statut === "EN_RETARD") {
-      return "En retard";
+    if (statut === 'EN_RETARD') {
+      return 'En retard';
     }
-    return "Critique";
+    return 'Critique';
   }
 
   statutTooltip(statut: StatutFournisseur): string {
-    if (statut === "A_JOUR") {
-      return "Toutes les commandes sont dans les délais";
+    if (statut === 'A_JOUR') {
+      return 'Toutes les commandes sont dans les délais';
     }
-    if (statut === "EN_RETARD") {
+    if (statut === 'EN_RETARD') {
       return "Au moins une commande dépasse la date d'échéance";
     }
-    return "Commandes très en retard (délai critique dépassé)";
+    return 'Commandes très en retard (délai critique dépassé)';
   }
 
   ligneSeverity(statut: StatutLigne): AppBadgeSeverity {
-    if (statut === "EN_RETARD") {
-      return "danger";
+    if (statut === 'EN_RETARD') {
+      return 'danger';
     }
-    if (statut === "PARTIEL") {
-      return "warn";
+    if (statut === 'PARTIEL') {
+      return 'warn';
     }
-    if (statut === "REGLE") {
-      return "success";
+    if (statut === 'REGLE') {
+      return 'success';
     }
-    return "secondary";
+    return 'secondary';
   }
 
   ligneStatutLabel(statut: StatutLigne): string {
     switch (statut) {
-      case "EN_ATTENTE":
-        return "En attente";
-      case "PARTIEL":
-        return "Partiel";
-      case "REGLE":
-        return "Réglé";
-      case "EN_RETARD":
-        return "En retard";
+      case 'EN_ATTENTE':
+        return 'En attente';
+      case 'PARTIEL':
+        return 'Partiel';
+      case 'REGLE':
+        return 'Réglé';
+      case 'EN_RETARD':
+        return 'En retard';
     }
   }
 
   ligneStatutTooltip(statut: StatutLigne): string {
     switch (statut) {
-      case "EN_ATTENTE":
-        return "Commande reçue, paiement non encore effectué";
-      case "PARTIEL":
-        return "Paiement partiel enregistré — solde restant";
-      case "REGLE":
-        return "Commande intégralement réglée";
-      case "EN_RETARD":
+      case 'EN_ATTENTE':
+        return 'Commande reçue, paiement non encore effectué';
+      case 'PARTIEL':
+        return 'Paiement partiel enregistré — solde restant';
+      case 'REGLE':
+        return 'Commande intégralement réglée';
+      case 'EN_RETARD':
         return "Date d'échéance dépassée, aucun paiement enregistré";
     }
   }
@@ -475,13 +455,13 @@ export class ComptesFournisseursComponent implements OnInit {
         modeReglement: val.modeReglement!,
         reference: val.reference!,
         commentaire: val.commentaire ?? undefined,
-        commandeId: this.selectedLigne()?.commandeId
+        commandeId: this.selectedLigne()?.commandeId,
       })
       .subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.notification.success("Règlement enregistré avec succès.");
-          this.activeTab.set("commandes");
+          this.notification.success('Règlement enregistré avec succès.');
+          this.activeTab.set('commandes');
           this.selectedLigne.set(null);
           this.loadSummary();
           this.loadComptes();
@@ -493,9 +473,9 @@ export class ComptesFournisseursComponent implements OnInit {
           // quoi faire, « Erreur lors de l'enregistrement » ne dit rien et laisse chercher.
           this.notification.error(
             this.errorService.getErrorMessage(err, "Erreur lors de l'enregistrement du règlement."),
-            "Règlement refusé"
+            'Règlement refusé',
           );
-        }
+        },
       });
   }
 }

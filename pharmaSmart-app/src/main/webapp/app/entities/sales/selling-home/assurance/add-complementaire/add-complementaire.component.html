@@ -91,11 +91,18 @@
                 <div class="d-flex align-items-center gap-2">
                   <app-switch
                     (ngModelChange)="onPrioriteToggle($event)"
-                    [ngModel]="isPrioriteEnabled()" (ngModelChange)="isPrioriteEnabled.set($event)"
+                    [ngModel]="isPrioriteEnabled()"
+                    (ngModelChange)="isPrioriteEnabled.set($event)"
                     [disabled]="selectedTiersPayant().categorie === 0"
                     [inputId]="'prioriteSwitch'"
                   />
-                  <input [ngModel]="prioriteValue()" (ngModelChange)="prioriteValue.set($event)" [ngModelOptions]="{ standalone: true }" id="priorite" type="hidden" />
+                  <input
+                    [ngModel]="prioriteValue()"
+                    (ngModelChange)="prioriteValue.set($event)"
+                    [ngModelOptions]="{ standalone: true }"
+                    id="priorite"
+                    type="hidden"
+                  />
                 </div>
               </div>
             }

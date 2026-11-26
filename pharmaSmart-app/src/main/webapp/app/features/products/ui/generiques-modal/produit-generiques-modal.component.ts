@@ -1,19 +1,19 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from "app/shared/ui";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { IProduit } from "app/shared/model/produit.model";
-import { ISubstitut } from "app/shared/model/substitut.model";
-import { ProductsApiService } from "../../data-access/services/products-api.service";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from 'app/shared/ui';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IProduit } from 'app/shared/model/produit.model';
+import { ISubstitut } from 'app/shared/model/substitut.model';
+import { ProductsApiService } from '../../data-access/services/products-api.service';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-produit-generiques-modal",
-  templateUrl: "./produit-generiques-modal.component.html",
-  styleUrls: ["./produit-generiques-modal.component.scss"],
+  selector: 'app-produit-generiques-modal',
+  templateUrl: './produit-generiques-modal.component.html',
+  styleUrls: ['./produit-generiques-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent, DevisePipe]
+  imports: [CommonModule, ButtonComponent, DataTableComponent, BadgeComponent, CardComponent, DevisePipe],
 })
 export class ProduitGeneriquesModalComponent implements OnInit {
   produit!: IProduit;
@@ -27,19 +27,23 @@ export class ProduitGeneriquesModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading.set(true);
-    this.api.getGeneriques(this.produit.id!)
+    this.api
+      .getGeneriques(this.produit.id!)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (list) => { this.substituts.set(list); this.loading.set(false); },
-        error: () => this.loading.set(false)
+        next: list => {
+          this.substituts.set(list);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
       });
   }
 
-  protected stockSeverity(p: IProduit): "success" | "warn" | "danger" {
+  protected stockSeverity(p: IProduit): 'success' | 'warn' | 'danger' {
     const qty = p.totalQuantity ?? 0;
-    if (qty <= 0) return "danger";
-    if ((p.qtySeuilMini ?? 0) > 0 && qty < (p.qtySeuilMini ?? 0)) return "warn";
-    return "success";
+    if (qty <= 0) return 'danger';
+    if ((p.qtySeuilMini ?? 0) > 0 && qty < (p.qtySeuilMini ?? 0)) return 'warn';
+    return 'success';
   }
 
   protected close(): void {

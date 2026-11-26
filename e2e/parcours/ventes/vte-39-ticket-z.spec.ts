@@ -17,7 +17,10 @@ scenario('VTE-39', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await page.goto('/comptabilite');
-    await page.getByRole('tab', { name: /Récapitulatif de caisse/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Récapitulatif de caisse/ })
+      .first()
+      .click();
     // L'onglet charge son écran après coup : attendre le titre du récapitulatif, et non le
     // libellé de l'onglet — qui est présent dès l'arrivée sur la page, onglet actif ou non.
     await expect(contenu).toContainText('Récapitulatif Général', { timeout: 20000 });

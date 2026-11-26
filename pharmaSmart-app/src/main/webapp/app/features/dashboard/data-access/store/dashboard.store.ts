@@ -102,7 +102,12 @@ export const DashboardStore = signalStore(
       if (!source) {
         return null;
       }
-      const copy: DashboardItem = { ...source, id: newItemId(), y: source.y + source.h, params: source.params ? { ...source.params } : undefined };
+      const copy: DashboardItem = {
+        ...source,
+        id: newItemId(),
+        y: source.y + source.h,
+        params: source.params ? { ...source.params } : undefined,
+      };
       patchState(store, { items: [...store.items(), copy], dirty: true });
       return copy;
     },

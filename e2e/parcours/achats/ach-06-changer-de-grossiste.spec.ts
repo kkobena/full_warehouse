@@ -29,13 +29,17 @@ scenario('ACH-06', async ({ etape, page }) => {
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Une commande NON transmise : une commande envoyée au grossiste est verrouillée, son
     // fournisseur avec (ACH-28).
-    const modifiable = liste.locator('tbody tr')
+    const modifiable = liste
+      .locator('tbody tr')
       .filter({ hasNot: page.locator('.pharma-badge-info', { hasText: /^PHARMAML$/ }) })
       .first();
     await modifiable.dblclick();
     await expect(grille).toBeVisible();
-    origine = (await page.locator('#fournisseur-select').inputValue().catch(() => ''))
-      || (await grille.locator('.fournisseur-select-input').innerText()).trim();
+    origine =
+      (await page
+        .locator('#fournisseur-select')
+        .inputValue()
+        .catch(() => '')) || (await grille.locator('.fournisseur-select-input').innerText()).trim();
     await expect(grille.locator('.fournisseur-select-input')).toBeVisible();
   });
 

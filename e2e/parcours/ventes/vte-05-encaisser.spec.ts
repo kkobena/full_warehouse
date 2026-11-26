@@ -45,11 +45,9 @@ scenario('VTE-05', async ({ etape, page }) => {
     // nombres de l'écran plutôt qu'à une valeur écrite en dur : une remise, un changement de
     // prix ou un arrondi de caisse déplacerait le « 915 » attendu sans rien casser d'autre,
     // et le parcours deviendrait faux sans qu'on sache pourquoi.
-    const nombre = async (selecteur: string) =>
-      Number((await page.locator(selecteur).innerText()).replace(/[^\d-]/g, ''));
+    const nombre = async (selecteur: string) => Number((await page.locator(selecteur).innerText()).replace(/[^\d-]/g, ''));
     const aEncaisser = await nombre('.amount-to-pay .amount-value');
-    await expect.poll(() => nombre('.amount-change .amount-value'), { timeout: 5000 })
-      .toBe(remis - aEncaisser);
+    await expect.poll(() => nombre('.amount-change .amount-value'), { timeout: 5000 }).toBe(remis - aEncaisser);
   });
 
   await etape(3, async () => {

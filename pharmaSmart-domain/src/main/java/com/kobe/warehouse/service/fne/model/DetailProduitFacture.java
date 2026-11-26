@@ -14,6 +14,8 @@ public interface DetailProduitFacture {
     int getPrixUnitaire();
 
     double getTauxRemise();
+
     double getTauxCouverture();
+
     Integer getTarifReferenceAssurance();
 }

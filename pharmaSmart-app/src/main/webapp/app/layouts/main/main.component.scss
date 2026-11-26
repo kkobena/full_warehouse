@@ -25,7 +25,6 @@
   top: 0;
   z-index: 1020; // Bootstrap's z-index for navbars
 
-
   :host.tauri-mode & {
     top: 32px;
   }
@@ -40,7 +39,6 @@
   &.with-license-banner {
     padding-bottom: 4.5rem;
   }
-
 
   :host.tauri-mode & {
     padding-top: 32px;
@@ -63,7 +61,6 @@
       }
     }
   }
-
 
   &.with-navbar {
     margin-left: 0;

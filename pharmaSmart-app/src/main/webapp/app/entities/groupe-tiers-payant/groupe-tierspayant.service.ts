@@ -63,10 +63,6 @@ export class GroupeTiersPayantService {
       periodiciteProvisoire?: string;
     },
   ): Observable<HttpResponse<{}>> {
-    return this.http.patch(
-      `${this.resourceUrl}/mass-update-facture-config`,
-      { ids, ...config },
-      { observe: 'response' },
-    );
+    return this.http.patch(`${this.resourceUrl}/mass-update-facture-config`, { ids, ...config }, { observe: 'response' });
   }
 }

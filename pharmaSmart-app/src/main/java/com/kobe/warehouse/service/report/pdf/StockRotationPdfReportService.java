@@ -4,13 +4,12 @@ import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import com.kobe.warehouse.service.report.StockRotationReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class StockRotationPdfReportService extends AbstractStatistiqueReportService {
@@ -19,12 +18,14 @@ public class StockRotationPdfReportService extends AbstractStatistiqueReportServ
 
     private final StockRotationReportService stockRotationReportService;
 
-    public StockRotationPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, StockRotationReportService stockRotationReportService) {
+    public StockRotationPdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            StockRotationReportService stockRotationReportService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.stockRotationReportService = stockRotationReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -46,7 +47,6 @@ public class StockRotationPdfReportService extends AbstractStatistiqueReportServ
     protected String getGenerateFileName() {
         return "rapport_rotation_stock";
     }
-
 
     public byte[] export() {
         List<StockRotationDTO> rotations = stockRotationReportService.getAllStockRotation();

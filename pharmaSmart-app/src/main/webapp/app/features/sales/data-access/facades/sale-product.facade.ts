@@ -237,9 +237,9 @@ export class SaleProductFacade {
     }
 
     this.executeAndReloadSale(
-      this.apiService.updateItemNonRembourse({...line, nonRembourse, saleCompositeId: currentSale.saleId}),
+      this.apiService.updateItemNonRembourse({ ...line, nonRembourse, saleCompositeId: currentSale.saleId }),
       currentSale.saleId,
-      {errorMessage: 'Erreur lors de la mise à jour du remboursement de la ligne'},
+      { errorMessage: 'Erreur lors de la mise à jour du remboursement de la ligne' },
     );
   }
 

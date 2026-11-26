@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.LaboratoireService;
 import com.kobe.warehouse.service.dto.LaboratoireDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -32,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Laboratoire}.
@@ -64,15 +64,17 @@ public class LaboratoireResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/laboratoires")
-    public ResponseEntity<LaboratoireDTO> createLaboratoire(@Valid @RequestBody LaboratoireDTO laboratoireDTO) throws URISyntaxException {
+    public ResponseEntity<LaboratoireDTO> createLaboratoire(@Valid @RequestBody LaboratoireDTO laboratoireDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Laboratoire : {}", laboratoireDTO);
         if (laboratoireDTO.getId() != null) {
             throw new BadRequestAlertException("A new laboratoire cannot already have an ID", ENTITY_NAME, "idexists");
         }
         LaboratoireDTO result = laboratoireService.save(laboratoireDTO);
         return ResponseEntity.created(new URI("/api/laboratoires/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -86,15 +88,20 @@ public class LaboratoireResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/laboratoires")
-    public ResponseEntity<LaboratoireDTO> updateLaboratoire(@Valid @RequestBody LaboratoireDTO laboratoireDTO) throws URISyntaxException {
+    public ResponseEntity<LaboratoireDTO> updateLaboratoire(@Valid @RequestBody LaboratoireDTO laboratoireDTO)
+            throws URISyntaxException {
         log.debug("REST request to update Laboratoire : {}", laboratoireDTO);
         if (laboratoireDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         LaboratoireDTO result = laboratoireService.save(laboratoireDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, laboratoireDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        laboratoireDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -107,12 +114,11 @@ public class LaboratoireResource {
     @GetMapping(value = "/laboratoires")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<List<LaboratoireDTO>> getAllLaboratoires(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false, defaultValue = "") String search, Pageable pageable) {
         log.debug("REST request to get a page of Laboratoires");
         Page<LaboratoireDTO> page = laboratoireService.findAll(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -143,12 +149,13 @@ public class LaboratoireResource {
 
         laboratoireService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/laboratoires/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file)
+            throws URISyntaxException, IOException {
         ResponseDTO responseDTO = laboratoireService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }

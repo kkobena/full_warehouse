@@ -1,46 +1,51 @@
-<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                 [collapsible]="true" [icon]="enteteIcone()" [nav]="nav"
-                 [title]="enteteTitre()"
-                 contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8 pharma-smart-content p-1"
-                 menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
-  <div #nav="ngbNav" (navChange)="onNavChange($event)" [(activeId)]="activeTab"
-       class="nav flex-column nav-pills" ngbNav orientation="vertical">
-          @if (showEnCours()) {
-            <ng-container ngbNavItem="en-cours">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <app-nav-section-link code="inventaire.en-cours"
-                                      fallbackIcon="pi pi-refresh"
-                                      fallbackLabel="En cours" />
-              </a>
-              <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="enCoursTable" />
-              </ng-template>
-            </ng-container>
-          }
-          @if (showTournant()) {
-            <ng-container ngbNavItem="tournant">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <app-nav-section-link code="inventaire.tournant"
-                                      fallbackIcon="pi pi-sync"
-                                      fallbackLabel="Tournant" />
-              </a>
-              <ng-template ngbNavContent>
-                <app-planning-tournant-list />
-              </ng-template>
-            </ng-container>
-          }
-          @if (showClotures()) {
-            <ng-container ngbNavItem="clotures">
-              <a class="pharma-nav-vertical-link" ngbNavLink>
-                <app-nav-section-link code="inventaire.clotures"
-                                      fallbackIcon="pi pi-lock"
-                                      fallbackLabel="Clôturés" />
-              </a>
-              <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="cloturesTable" />
-              </ng-template>
-            </ng-container>
-          }
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [icon]="enteteIcone()"
+  [nav]="nav"
+  [title]="enteteTitre()"
+  contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8 pharma-smart-content p-1"
+  menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
+>
+  <div
+    #nav="ngbNav"
+    (navChange)="onNavChange($event)"
+    [(activeId)]="activeTab"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
+    @if (showEnCours()) {
+      <ng-container ngbNavItem="en-cours">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="inventaire.en-cours" fallbackIcon="pi pi-refresh" fallbackLabel="En cours" />
+        </a>
+        <ng-template ngbNavContent>
+          <ng-container *ngTemplateOutlet="enCoursTable" />
+        </ng-template>
+      </ng-container>
+    }
+    @if (showTournant()) {
+      <ng-container ngbNavItem="tournant">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="inventaire.tournant" fallbackIcon="pi pi-sync" fallbackLabel="Tournant" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-planning-tournant-list />
+        </ng-template>
+      </ng-container>
+    }
+    @if (showClotures()) {
+      <ng-container ngbNavItem="clotures">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="inventaire.clotures" fallbackIcon="pi pi-lock" fallbackLabel="Clôturés" />
+        </a>
+        <ng-template ngbNavContent>
+          <ng-container *ngTemplateOutlet="cloturesTable" />
+        </ng-template>
+      </ng-container>
+    }
   </div>
 
   <ng-container ngProjectAs="[navContent]">
@@ -87,15 +92,9 @@
   </ng-container>
 </app-nav-sidebar>
 
-
 <!-- ── Template : inventaires EN COURS ───────────────────────────────────────── -->
 <ng-template #enCoursTable>
-  <app-data-table
-    [loading]="store.loadingList()"
-    [value]="store.inventories()"
-    class="p-datatable-sm"
-    dataKey="id"
-  >
+  <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 6%">#</th>
@@ -191,12 +190,7 @@
 
 <!-- ── Template : inventaires CLÔTURÉS (avec expansion) ──────────────────────── -->
 <ng-template #cloturesTable>
-  <app-data-table
-    [loading]="store.loadingList()"
-    [value]="store.inventories()"
-    class="p-datatable-sm"
-    dataKey="id"
-  >
+  <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 4%"></th>
@@ -279,7 +273,6 @@
         <td colspan="8">
           <div class="expanded-row-container">
             <div class="inv-synthese-grid">
-
               <!-- Colonne gauche : Démarque / écarts -->
               <div class="activity-card activity-card-primary">
                 <div class="activity-card-header">
@@ -329,7 +322,6 @@
                   <app-inventory-valuation [inventoryId]="inv.id" />
                 </div>
               </div>
-
             </div>
           </div>
         </td>

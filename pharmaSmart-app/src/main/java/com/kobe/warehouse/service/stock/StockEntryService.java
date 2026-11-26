@@ -21,11 +21,13 @@ public interface StockEntryService {
 
     DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
-    CommandeResponseDTO importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt, MultipartFile multipartFile) throws IOException;
+    CommandeResponseDTO importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt, MultipartFile multipartFile)
+            throws IOException;
 
     void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
 
     void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
+
     void batchUpdateQuantityReceived(List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems);
 
     void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem);
@@ -56,7 +58,7 @@ public interface StockEntryService {
      * @param commandeId identifiant de la commande (BL en cours de réception)
      * @return liste des produits concernés avec les quantités à déplacer
      */
-    List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId,LocalDate orderDate);
+    List<PutawayPreviewItemDTO> getPutawayPreview(Integer commandeId, LocalDate orderDate);
 
     /**
      * Traite un scan CIP ou DataMatrix reçu pendant la saisie d'une entrée en stock.

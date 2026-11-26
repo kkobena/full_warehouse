@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {AppPillOption, ButtonComponent, PillSelectorComponent} from 'app/shared/ui';
-import {CanalEnvoi} from 'app/shared/model/abstract-commande.model';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AppPillOption, ButtonComponent, PillSelectorComponent } from 'app/shared/ui';
+import { CanalEnvoi } from 'app/shared/model/abstract-commande.model';
 
 /**
  * Demande par quel moyen la commande est partie, avant d'horodater son envoi.
@@ -26,10 +26,10 @@ export class MarquerEnvoiModalComponent {
   // EDI n'est pas proposé : ce canal s'horodate tout seul lors de l'envoi PharmaML, et le
   // choisir à la main laisserait croire à une transmission dont l'application n'a aucune trace.
   protected readonly canaux: AppPillOption[] = [
-    {label: 'Téléphone', value: 'TELEPHONE', icon: 'pi pi-phone'},
-    {label: 'Mail', value: 'MAIL', icon: 'pi pi-envelope'},
-    {label: 'Bon imprimé', value: 'PDF', icon: 'pi pi-print'},
-    {label: 'Autre', value: 'AUTRE', icon: 'pi pi-ellipsis-h'},
+    { label: 'Téléphone', value: 'TELEPHONE', icon: 'pi pi-phone' },
+    { label: 'Mail', value: 'MAIL', icon: 'pi pi-envelope' },
+    { label: 'Bon imprimé', value: 'PDF', icon: 'pi pi-print' },
+    { label: 'Autre', value: 'AUTRE', icon: 'pi pi-ellipsis-h' },
   ];
 
   protected readonly canal = signal<CanalEnvoi>('TELEPHONE');

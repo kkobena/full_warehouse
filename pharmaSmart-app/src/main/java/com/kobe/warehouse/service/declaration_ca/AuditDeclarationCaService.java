@@ -59,7 +59,7 @@ public class AuditDeclarationCaService {
      * @param dateDebut début de période, bornes incluses ; {@code null} pour ne pas borner
      */
     @Transactional(readOnly = true)
-    public List<AnomalieDTO>  controler(LocalDate dateDebut, LocalDate dateFin) {
+    public List<AnomalieDTO> controler(LocalDate dateDebut, LocalDate dateFin) {
         List<AnomalieDTO> resultats = new ArrayList<>();
         resultats.add(montantDeclarableHorsBornes(dateDebut, dateFin));
         resultats.add(sommeDesLignesDifferenteDeLaVente(dateDebut, dateFin));
@@ -74,10 +74,10 @@ public class AuditDeclarationCaService {
     /** V1 — un montant déclarable négatif, ou supérieur au montant réel, n'a aucun sens. */
     private AnomalieDTO montantDeclarableHorsBornes(LocalDate dateDebut, LocalDate dateFin) {
         return controle(
-            "V1",
-            "Le montant déclarable d'une ligne reste entre 0 et son montant réel",
-            "Un montant hors de ces bornes fait apparaître un chiffre d'affaires déclaré supérieur à l'encaissé, ou négatif.",
-            """
+                "V1",
+                "Le montant déclarable d'une ligne reste entre 0 et son montant réel",
+                "Un montant hors de ces bornes fait apparaître un chiffre d'affaires déclaré supérieur à l'encaissé, ou négatif.",
+                """
             select sl.sales_id || ' du ' || to_char(sl.sale_date, 'DD/MM/YYYY') || ' : déclaré ' || replace(to_char(sl.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
                    || ' pour un réel de ' || replace(to_char(sl.quantity_requested * sl.regular_unit_price, 'FM999,999,999,999'), ',', ' ')
               from sales_line sl
@@ -88,9 +88,8 @@ public class AuditDeclarationCaService {
                and (sl.amount_to_be_taken_into_account < 0
                     or sl.amount_to_be_taken_into_account > sl.quantity_requested * sl.regular_unit_price)
             """.formatted(bornes("sl.sale_date", dateDebut, dateFin)),
-            dateDebut,
-            dateFin
-        );
+                dateDebut,
+                dateFin);
     }
 
     /**
@@ -102,10 +101,10 @@ public class AuditDeclarationCaService {
      */
     private AnomalieDTO sommeDesLignesDifferenteDeLaVente(LocalDate dateDebut, LocalDate dateFin) {
         return controle(
-            "V2",
-            "La somme des lignes égale le montant déclarable de la vente",
-            "Les rapports agrègent les lignes alors que les écrans de vente lisent la vente : les deux chiffres cesseraient de se recouper.",
-            """
+                "V2",
+                "La somme des lignes égale le montant déclarable de la vente",
+                "Les rapports agrègent les lignes alors que les écrans de vente lisent la vente : les deux chiffres cesseraient de se recouper.",
+                """
             select s.id || ' du ' || to_char(s.sale_date, 'DD/MM/YYYY') || ' : vente ' || replace(to_char(s.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
                    || ' contre ' || replace(to_char(coalesce(sum(sl.amount_to_be_taken_into_account), 0), 'FM999,999,999,999'), ',', ' ') || ' en lignes'
               from sales s
@@ -117,9 +116,8 @@ public class AuditDeclarationCaService {
              group by s.id, s.sale_date, s.amount_to_be_taken_into_account
             having s.amount_to_be_taken_into_account <> coalesce(sum(sl.amount_to_be_taken_into_account), 0)
             """.formatted(bornes("s.sale_date", dateDebut, dateFin)),
-            dateDebut,
-            dateFin
-        );
+                dateDebut,
+                dateFin);
     }
 
     /**
@@ -128,10 +126,10 @@ public class AuditDeclarationCaService {
      */
     private AnomalieDTO reglementsSuperieursAuChiffreDeclare(LocalDate dateDebut, LocalDate dateFin) {
         return controle(
-            "V2b",
-            "L'encaissement déclaré ne dépasse pas le chiffre d'affaires déclaré",
-            "Un encaissement supérieur au chiffre déclaré rend l'état indéfendable : l'écart ne se rattache à rien.",
-            """
+                "V2b",
+                "L'encaissement déclaré ne dépasse pas le chiffre d'affaires déclaré",
+                "Un encaissement supérieur au chiffre déclaré rend l'état indéfendable : l'écart ne se rattache à rien.",
+                """
             select s.id || ' du ' || to_char(s.sale_date, 'DD/MM/YYYY') || ' : encaissé déclaré '
                    || replace(to_char(sum(coalesce(p.amount_to_be_taken_into_account, p.paid_amount)), 'FM999,999,999,999'), ',', ' ')
                    || ' pour un CA déclaré de ' || replace(to_char(s.amount_to_be_taken_into_account, 'FM999,999,999,999'), ',', ' ')
@@ -147,18 +145,17 @@ public class AuditDeclarationCaService {
              group by s.id, s.sale_date, s.amount_to_be_taken_into_account
             having sum(coalesce(p.amount_to_be_taken_into_account, p.paid_amount)) > s.amount_to_be_taken_into_account
             """.formatted(bornes("s.sale_date", dateDebut, dateFin)),
-            dateDebut,
-            dateFin
-        );
+                dateDebut,
+                dateFin);
     }
 
     /** V8 — la ponction ne doit jamais toucher une ligne taxée : elle réduirait la TVA collectée. */
     private AnomalieDTO ponctionSurLigneTaxee(LocalDate dateDebut, LocalDate dateFin) {
         return controle(
-            "V8",
-            "Aucune ponction sur une ligne soumise à TVA",
-            "Ponctionner une ligne taxée réduit la TVA collectée déclarée, alors qu'elle a été facturée au client.",
-            """
+                "V8",
+                "Aucune ponction sur une ligne soumise à TVA",
+                "Ponctionner une ligne taxée réduit la TVA collectée déclarée, alors qu'elle a été facturée au client.",
+                """
             select sl.sales_id || ' du ' || to_char(sl.sale_date, 'DD/MM/YYYY') || ' : taux ' || sl.tax_value
               from sales_line sl
               join sales s on s.id = sl.sales_id and s.sale_date = sl.sales_sale_date
@@ -167,18 +164,17 @@ public class AuditDeclarationCaService {
                and s.magasin_id = :magasinId
                %s
             """.formatted(bornes("sl.sale_date", dateDebut, dateFin)),
-            dateDebut,
-            dateFin
-        );
+                dateDebut,
+                dateFin);
     }
 
     /** V5 — le plafond par vente est la promesse faite au pharmacien ; il doit tenir a posteriori. */
     private AnomalieDTO ponctionAuDelaDuPlafond() {
         return controle(
-            "V5",
-            "Aucune vente n'a cédé plus que le plafond annoncé",
-            "Le plafond par vente est ce qui rend la ponction discrète : le dépasser la rend visible.",
-            """
+                "V5",
+                "Aucune vente n'a cédé plus que le plafond annoncé",
+                "Le plafond par vente est ce qui rend la ponction discrète : le dépasser la rend visible.",
+                """
             select d.sale_id || ' du ' || to_char(d.sale_date, 'DD/MM/YYYY') || ' : ' || replace(to_char(d.montant_ponctionne, 'FM999,999,999,999'), ',', ' ')
                    || ' pris sur ' || replace(to_char(d.montant_vente, 'FM999,999,999,999'), ',', ' ') || ' (plafond ' || p.plafond_par_vente || ' %)'
               from ca_ponction_detail d
@@ -187,18 +183,17 @@ public class AuditDeclarationCaService {
                and p.magasin_id = :magasinId
                and d.montant_ponctionne > floor(d.montant_vente * p.plafond_par_vente / 100)
             """,
-            null,
-            null
-        );
+                null,
+                null);
     }
 
     /** le détail justifie le total : s'ils divergent, la ponction n'est plus explicable. */
     private AnomalieDTO detailIncoherentAvecLaPonction() {
         return controle(
-            "V4",
-            "Le détail d'une ponction totalise bien le montant ponctionné",
-            "Sans cette égalité, le justificatif ne reconstitue plus le montant retiré et l'annulation devient inexacte.",
-            """
+                "V4",
+                "Le détail d'une ponction totalise bien le montant ponctionné",
+                "Sans cette égalité, le justificatif ne reconstitue plus le montant retiré et l'annulation devient inexacte.",
+                """
             select p.id || ' (' || p.date_debut || ' au ' || p.date_fin || ') : total ' || p.montant_ponctionne
                    || ' contre ' || coalesce(sum(d.montant_ponctionne), 0) || ' en détail'
               from ca_ponction p
@@ -208,9 +203,8 @@ public class AuditDeclarationCaService {
              group by p.id, p.date_debut, p.date_fin, p.montant_ponctionne
             having p.montant_ponctionne <> coalesce(sum(d.montant_ponctionne), 0)
             """,
-            null,
-            null
-        );
+                null,
+                null);
     }
 
     /**
@@ -227,10 +221,10 @@ public class AuditDeclarationCaService {
      */
     private AnomalieDTO tvaNonRapprochee(LocalDate dateDebut, LocalDate dateFin) {
         return controle(
-            "V9",
-            "L'écart de TVA entre réel et déclaré s'explique par les seules lignes exclues",
-            "Un écart qui ne se rattache à aucune ligne exclue rend le rapport TVA déclaré impossible à justifier.",
-            """
+                "V9",
+                "L'écart de TVA entre réel et déclaré s'explique par les seules lignes exclues",
+                "Un écart qui ne se rattache à aucune ligne exclue rend le rapport TVA déclaré impossible à justifier.",
+                """
             select 'Taux ' || r.tax_value || ' %% : écart TTC de ' || (r.reel - r.declare)
                    || ', dont ' || r.explique || ' porté par des lignes exclues et '
                    || (r.reel - r.declare - r.explique) || ' inexpliqué (soit '
@@ -256,24 +250,17 @@ public class AuditDeclarationCaService {
              where r.reel - r.declare <> r.explique
                 or r.declare > r.reel
             """.formatted(bornes("sl.sale_date", dateDebut, dateFin)),
-            dateDebut,
-            dateFin
-        );
+                dateDebut,
+                dateFin);
     }
 
     // ===== Exécution =====
 
     private AnomalieDTO controle(
-        String code,
-        String libelle,
-        String consequence,
-        String sql,
-        LocalDate dateDebut,
-        LocalDate dateFin
-    ) {
+            String code, String libelle, String consequence, String sql, LocalDate dateDebut, LocalDate dateFin) {
         var requete = jdbcClient
-            .sql("select * from (" + sql + ") anomalies limit " + (MAX_EXEMPLES + 1))
-            .param("magasinId", magasinId());
+                .sql("select * from (" + sql + ") anomalies limit " + (MAX_EXEMPLES + 1))
+                .param("magasinId", magasinId());
         if (sql.contains(":dateDebut")) {
             requete = requete.param("dateDebut", dateDebut).param("dateFin", dateFin);
         }

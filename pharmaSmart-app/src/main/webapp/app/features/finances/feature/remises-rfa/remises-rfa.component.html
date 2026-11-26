@@ -2,7 +2,7 @@
   <app-toolbar [code]="navCode()" icon="pi pi-tag" title="Remises & RFA" [compact]="true">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
-        <app-button icon="pi pi-refresh" severity="secondary"  [text]="true" [rounded]="true" (clicked)="load()" [loading]="isLoading()" />
+        <app-button icon="pi pi-refresh" severity="secondary" [text]="true" [rounded]="true" (clicked)="load()" [loading]="isLoading()" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -26,13 +26,16 @@
           <ng-template ngbNavContent>
             <!-- Pagination : un palier RFA se suit fournisseur par fournisseur, et ils sont
                  nombreux ; la liste les rendait tous d'un bloc. -->
-            <app-data-table [value]="rfas()" [loading]="isLoading()"
-                            [paginator]="true"
-                            [rows]="15"
-                            [rowsPerPageOptions]="[10, 15, 25, 50]"
-                            [showCurrentPageReport]="true"
-                            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
-                            class="p-datatable-sm p-datatable-striped">
+            <app-data-table
+              [value]="rfas()"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rows]="15"
+              [rowsPerPageOptions]="[10, 15, 25, 50]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
+              class="p-datatable-sm p-datatable-striped"
+            >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Fournisseur</th>
@@ -52,9 +55,7 @@
                       destinée au pharmacien n'a pas sa place dans une couche métier.
                     -->
                     @if (conseil(r); as message) {
-                      <div class="alerte-rfa mt-1">
-                        <i class="pi pi-bell me-1"></i>{{ message }}
-                      </div>
+                      <div class="alerte-rfa mt-1"><i class="pi pi-bell me-1"></i>{{ message }}</div>
                     }
                   </td>
                   <td class="text-end">{{ r.palierRfa ? (r.palierRfa | devise) : '—' }}</td>
@@ -68,12 +69,13 @@
                     -->
                     <div class="progress-rfa">
                       <div class="progress-track">
-                        <div class="progress-bar-rfa"
-                             [style.width.%]="Math.min(r.pourcentageAtteint ?? 0, 100)"
-                             [class.progress-ok]="(r.pourcentageAtteint ?? 0) >= 100"
-                             [class.progress-close]="(r.pourcentageAtteint ?? 0) >= 80 && (r.pourcentageAtteint ?? 0) < 100"
-                             [class.progress-low]="(r.pourcentageAtteint ?? 0) < 80">
-                        </div>
+                        <div
+                          class="progress-bar-rfa"
+                          [style.width.%]="Math.min(r.pourcentageAtteint ?? 0, 100)"
+                          [class.progress-ok]="(r.pourcentageAtteint ?? 0) >= 100"
+                          [class.progress-close]="(r.pourcentageAtteint ?? 0) >= 80 && (r.pourcentageAtteint ?? 0) < 100"
+                          [class.progress-low]="(r.pourcentageAtteint ?? 0) < 80"
+                        ></div>
                       </div>
                       <span class="progress-label">{{ r.pourcentageAtteint | number: '1.0-1' }}%</span>
                     </div>
@@ -101,13 +103,15 @@
           </a>
           <ng-template ngbNavContent>
             <!-- Les avoirs reçus se paginent comme les paliers : même écran, même besoin. -->
-            <app-data-table [value]="avoirs()"
-                            [paginator]="true"
-                            [rows]="15"
-                            [rowsPerPageOptions]="[10, 15, 25, 50]"
-                            [showCurrentPageReport]="true"
-                            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
-                            class="p-datatable-sm p-datatable-striped">
+            <app-data-table
+              [value]="avoirs()"
+              [paginator]="true"
+              [rows]="15"
+              [rowsPerPageOptions]="[10, 15, 25, 50]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
+              class="p-datatable-sm p-datatable-striped"
+            >
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Fournisseur</th>
@@ -120,12 +124,16 @@
               <ng-template #body let-a>
                 <tr>
                   <td>{{ a.fournisseurName }}</td>
-                  <td><code>{{ a.numAvoir }}</code></td>
+                  <td>
+                    <code>{{ a.numAvoir }}</code>
+                  </td>
                   <td>{{ a.dateAvoir }}</td>
                   <td class="text-end fw-semibold">{{ formatCurrency(a.montant) }} <span appDevise></span></td>
                   <td>
-                    <app-badge [label]="a.statut"
-                           [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'" />
+                    <app-badge
+                      [label]="a.statut"
+                      [severity]="a.statut === 'RECU' ? 'success' : a.statut === 'EN_ATTENTE' ? 'warn' : 'secondary'"
+                    />
                   </td>
                 </tr>
               </ng-template>

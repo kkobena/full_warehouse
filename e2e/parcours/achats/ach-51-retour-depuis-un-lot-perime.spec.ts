@@ -27,13 +27,8 @@ scenario('ACH-51', async ({ etape, page }) => {
     //
     // On choisit un lot MONO-EMPLACEMENT : présent dans plusieurs stockages, il faudrait
     // d'abord dire lequel on renvoie, et l'écran le refuse tant que ce n'est pas fait.
-    const monoEmplacement = lignes
-      .filter({ has: page.locator('.pharma-badge-info .pi-map-marker') })
-      .first();
-    await monoEmplacement
-      .locator('app-button[ngbtooltip="Faire un retour fournisseur"] button')
-      .first()
-      .click();
+    const monoEmplacement = lignes.filter({ has: page.locator('.pharma-badge-info .pi-map-marker') }).first();
+    await monoEmplacement.locator('app-button[ngbtooltip="Faire un retour fournisseur"] button').first().click();
     await expect(modale).toBeVisible();
   });
 

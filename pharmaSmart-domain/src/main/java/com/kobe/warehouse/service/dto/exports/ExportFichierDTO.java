@@ -13,20 +13,19 @@ import java.util.List;
  * @param filtres les filtres retenus, déjà rédigés pour l'affichage (« Famille : 2 valeurs ») ; vide si l'export portait sur tout
  */
 public record ExportFichierDTO(
-    Long id,
-    String export,
-    String libelleExport,
-    FormatExport format,
-    LocalDate du,
-    LocalDate au,
-    StatutExport statut,
-    Long nombreLignes,
-    Long taille,
-    String erreur,
-    String demandePar,
-    LocalDateTime demandeLe,
-    LocalDateTime termineLe,
-    LocalDateTime expireLe,
-    String modele,
-    List<String> filtres
-) {}
+        Long id,
+        String export,
+        String libelleExport,
+        FormatExport format,
+        LocalDate du,
+        LocalDate au,
+        StatutExport statut,
+        Long nombreLignes,
+        Long taille,
+        String erreur,
+        String demandePar,
+        LocalDateTime demandeLe,
+        LocalDateTime termineLe,
+        LocalDateTime expireLe,
+        String modele,
+        List<String> filtres) {}

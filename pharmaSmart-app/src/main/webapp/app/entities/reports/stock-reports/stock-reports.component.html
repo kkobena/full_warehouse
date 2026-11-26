@@ -1,17 +1,29 @@
-<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                 [collapsible]="true" [nav]="nav"
-                 contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-1"
-                 icon="pi pi-box" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
-                 title="Stock &amp; Inventaire">
-  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-       class="nav flex-column nav-pills" ngbNav orientation="vertical">
-
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-1"
+  icon="pi pi-box"
+  menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
+  title="Stock &amp; Inventaire"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
     @if (showStockAlerts()) {
       <ng-container ngbNavItem="stock-alerts">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="rapport-stock.stock-alerts"
-                                fallbackIcon="pi pi-exclamation-triangle"
-                                fallbackLabel="Alertes de Stock" />
+          <app-nav-section-link
+            code="rapport-stock.stock-alerts"
+            fallbackIcon="pi pi-exclamation-triangle"
+            fallbackLabel="Alertes de Stock"
+          />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -26,9 +38,7 @@
     @if (showStockValuation()) {
       <ng-container ngbNavItem="stock-valuation">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="rapport-stock.stock-valuation"
-                                fallbackIcon="pi pi-dollar"
-                                fallbackLabel="Valorisation du Stock" />
+          <app-nav-section-link code="rapport-stock.stock-valuation" fallbackIcon="pi pi-dollar" fallbackLabel="Valorisation du Stock" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -43,14 +53,15 @@
     @if (showRecapProduit()) {
       <ng-container ngbNavItem="recap-produit-vendu">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="rapport-stock.recap-produit-vendu"
-                                fallbackIcon="pi pi-chart-bar"
-                                fallbackLabel="Récap Produits Vendus/Invendus" />
+          <app-nav-section-link
+            code="rapport-stock.recap-produit-vendu"
+            fallbackIcon="pi pi-chart-bar"
+            fallbackLabel="Récap Produits Vendus/Invendus"
+          />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
-            <app-recap-produit-vendu
-              navCode="rapport-stock.recap-produit-vendu"></app-recap-produit-vendu>
+            <app-recap-produit-vendu navCode="rapport-stock.recap-produit-vendu"></app-recap-produit-vendu>
           } @loading {
             <app-skeleton height="240px" width="100%" />
           }
@@ -61,9 +72,7 @@
     @if (showStockAbc()) {
       <ng-container ngbNavItem="stock-abc">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="rapport-stock.stock-abc"
-                                fallbackIcon="pi pi-chart-pie"
-                                fallbackLabel="Analyse ABC" />
+          <app-nav-section-link code="rapport-stock.stock-abc" fallbackIcon="pi pi-chart-pie" fallbackLabel="Analyse ABC" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -78,9 +87,11 @@
     @if (showDemarque()) {
       <ng-container ngbNavItem="demarque">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="rapport-stock.demarque"
-                                fallbackIcon="pi pi-minus-circle"
-                                fallbackLabel="Démarque &amp; Ajustements" />
+          <app-nav-section-link
+            code="rapport-stock.demarque"
+            fallbackIcon="pi pi-minus-circle"
+            fallbackLabel="Démarque &amp; Ajustements"
+          />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -93,4 +104,3 @@
     }
   </div>
 </app-nav-sidebar>
-

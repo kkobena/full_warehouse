@@ -1,16 +1,15 @@
 package com.kobe.warehouse.service.dto;
 
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
+
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
 
 public class LotDTO {
 
@@ -45,7 +44,9 @@ public class LotDTO {
     private Integer produitId;
     /** Storage cible (optionnel) — si absent, le storage principal de l'utilisateur connecté est utilisé. */
     private Integer storageId;
+
     private PeremptionStatut peremptionStatut;
+
     public LotDTO(Lot lot) {
         id = lot.getId();
         numLot = lot.getNumLot();
@@ -58,7 +59,7 @@ public class LotDTO {
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
         serialNumber = lot.getSerialNumber();
-        peremptionStatut=buildPeremptionStatut(lot.getExpiryDate());
+        peremptionStatut = buildPeremptionStatut(lot.getExpiryDate());
     }
 
     public PeremptionStatut getPeremptionStatut() {
@@ -217,14 +218,15 @@ public class LotDTO {
     }
 
     public Lot toEntity() {
-        var ug = Optional.ofNullable(ugQuantityReceived).orElse(Optional.ofNullable(freeQty).orElse(0));
+        var ug = Optional.ofNullable(ugQuantityReceived)
+                .orElse(Optional.ofNullable(freeQty).orElse(0));
         return new Lot()
-            .setNumLot(numLot)
-            .setExpiryDate(expiryDate)
-            .setManufacturingDate(manufacturingDate)
-            .setSerialNumber(serialNumber)
-            .setQuantity(quantityReceived + ug)
-            .setStatut(StatutLot.IN_PROGRESS)
-            .setFreeQty(ug);
+                .setNumLot(numLot)
+                .setExpiryDate(expiryDate)
+                .setManufacturingDate(manufacturingDate)
+                .setSerialNumber(serialNumber)
+                .setQuantity(quantityReceived + ug)
+                .setStatut(StatutLot.IN_PROGRESS)
+                .setFreeQty(ug);
     }
 }

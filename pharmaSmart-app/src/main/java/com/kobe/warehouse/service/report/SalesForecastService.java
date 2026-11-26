@@ -37,5 +37,4 @@ public interface SalesForecastService {
      * @return true if seasonality detected
      */
     Boolean detectSeasonality();
-
 }

@@ -1,18 +1,14 @@
-import {Component, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
-import {Router} from '@angular/router';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {IPlanningInventaireTournant, ITournantDashboard, paretoLabel} from '../../models';
-import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
-import {
-  PlanningTournantModalComponent
-} from '../planning-tournant-modal/planning-tournant-modal.component';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {BadgeComponent, ButtonComponent, DataTableComponent} from '../../../../shared/ui';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { IPlanningInventaireTournant, ITournantDashboard, paretoLabel } from '../../models';
+import { PlanningTournantApiService } from '../../data-access/services/planning-tournant-api.service';
+import { PlanningTournantModalComponent } from '../planning-tournant-modal/planning-tournant-modal.component';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../shared/ui';
 
 import { KpiStripComponent } from 'app/shared/ui/kpi-strip/kpi-strip.component';
 import { KpiItemComponent } from 'app/shared/ui/kpi-strip/kpi-item.component';
@@ -53,13 +49,12 @@ export class PlanningTournantListComponent implements OnInit {
   loadDashboard(): void {
     this.api.getDashboard().subscribe({
       next: d => this.dashboard.set(d),
-      error() {
-      },
+      error() {},
     });
   }
 
   openCreateModal(): void {
-    const ref = this.modal.open(PlanningTournantModalComponent, {size: 'lg', backdrop: 'static'});
+    const ref = this.modal.open(PlanningTournantModalComponent, { size: 'lg', backdrop: 'static' });
     ref.closed.subscribe(() => {
       this.loadAll();
       this.loadDashboard();
@@ -67,7 +62,7 @@ export class PlanningTournantListComponent implements OnInit {
   }
 
   openEditModal(planning: IPlanningInventaireTournant): void {
-    const ref = this.modal.open(PlanningTournantModalComponent, {size: 'lg', backdrop: 'static'});
+    const ref = this.modal.open(PlanningTournantModalComponent, { size: 'lg', backdrop: 'static' });
     ref.componentInstance.planning = planning;
     ref.closed.subscribe(() => {
       this.loadAll();
@@ -97,7 +92,7 @@ export class PlanningTournantListComponent implements OnInit {
   executerManuellement(planning: IPlanningInventaireTournant): void {
     this.confirmDialog.onConfirm(
       () => this.doExecuter(planning),
-      "Exécuter le planning",
+      'Exécuter le planning',
       `Créer maintenant l'inventaire tournant pour "${planning.libelle}" ?`,
       'pi pi-play',
     );
@@ -106,7 +101,7 @@ export class PlanningTournantListComponent implements OnInit {
   openInventory(inventoryId: number): void {
     // `tab` indique à l'éditeur d'où l'on vient, pour que son bouton « Retour » ramène
     // sur l'onglet Tournant et non sur « En cours ».
-    this.router.navigate(['/inventaire', inventoryId, 'edit'], {queryParams: {tab: 'tournant'}});
+    this.router.navigate(['/inventaire', inventoryId, 'edit'], { queryParams: { tab: 'tournant' } });
   }
 
   getFrequenceLabel(f?: string): string {
@@ -155,8 +150,7 @@ export class PlanningTournantListComponent implements OnInit {
         this.loadDashboard();
         this.notificationService.success(`Inventaire #${res.inventoryId} créé. Cliquez pour ouvrir.`, 'Inventaire créé');
       },
-      error: () =>
-        this.notificationService.error("Échec de l'exécution", 'Erreur'),
+      error: () => this.notificationService.error("Échec de l'exécution", 'Erreur'),
     });
   }
 }

@@ -14,17 +14,16 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record ComparaisonAnneesDTO(
-    IndicateurPilotageDTO indicateur,
-    ModeAnnees mode,
-    boolean parJourOuvre,
-    LocalDate jusquAu,
-    List<AnneeCompareeDTO> annees,
-    List<Double> saisonnalite,
-    Double croissanceAnnuelleMoyenne,
-    Integer croissanceDepuis,
-    Integer croissanceJusqua,
-    MoisRecordDTO moisMaximum,
-    List<SyntheseAnneeDTO> synthese,
-    CroiseAnalyseDTO parFamille,
-    CroiseAnalyseDTO parNatureVente
-) {}
+        IndicateurPilotageDTO indicateur,
+        ModeAnnees mode,
+        boolean parJourOuvre,
+        LocalDate jusquAu,
+        List<AnneeCompareeDTO> annees,
+        List<Double> saisonnalite,
+        Double croissanceAnnuelleMoyenne,
+        Integer croissanceDepuis,
+        Integer croissanceJusqua,
+        MoisRecordDTO moisMaximum,
+        List<SyntheseAnneeDTO> synthese,
+        CroiseAnalyseDTO parFamille,
+        CroiseAnalyseDTO parNatureVente) {}

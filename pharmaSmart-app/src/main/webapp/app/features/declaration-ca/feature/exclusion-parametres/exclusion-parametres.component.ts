@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, input} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, input } from '@angular/core';
 
 import { CardComponent } from 'app/shared/ui/card/card.component';
 import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';

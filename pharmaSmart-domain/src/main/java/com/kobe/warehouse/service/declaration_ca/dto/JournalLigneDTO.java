@@ -21,15 +21,14 @@ import java.time.LocalDate;
  * {@link JournalKpiDTO}.
  */
 public record JournalLigneDTO(
-    Long saleId,
-    LocalDate saleDate,
-    String numeroTransaction,
-    String codeProduit,
-    String libelleProduit,
-    String rayon,
-    Integer quantite,
-    Integer quantiteUg,
-    Integer valeurTtc,
-    Integer montantExclu,
-    Integer marge
-) {}
+        Long saleId,
+        LocalDate saleDate,
+        String numeroTransaction,
+        String codeProduit,
+        String libelleProduit,
+        String rayon,
+        Integer quantite,
+        Integer quantiteUg,
+        Integer valeurTtc,
+        Integer montantExclu,
+        Integer marge) {}

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.InventoryGapAnalysis;
-import com.kobe.warehouse.domain.enumeration.CauseEcart;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

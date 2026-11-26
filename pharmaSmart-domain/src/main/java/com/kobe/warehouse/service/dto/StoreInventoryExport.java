@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.time.LocalDateTime;
@@ -22,7 +22,6 @@ public class StoreInventoryExport {
     private InventoryType inventoryType;
     private CategoryInventory inventoryCategory;
 
-
     public StoreInventoryExport(StoreInventory storeInventory) {
         this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
         this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
@@ -38,15 +37,14 @@ public class StoreInventoryExport {
     }
 
     public StoreInventoryExport(
-        Long inventoryValueCostBegin,
-        Long inventoryValueCostAfter,
-        Long inventoryAmountBegin,
-        Long inventoryAmountAfter,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        String firstName,
-        String lastName
-    ) {
+            Long inventoryValueCostBegin,
+            Long inventoryValueCostAfter,
+            Long inventoryAmountBegin,
+            Long inventoryAmountAfter,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
+            String firstName,
+            String lastName) {
         this.inventoryValueCostBegin = inventoryValueCostBegin;
         this.inventoryAmountBegin = inventoryAmountBegin;
         this.createdAt = createdAt;
@@ -54,7 +52,6 @@ public class StoreInventoryExport {
         this.inventoryValueCostAfter = inventoryValueCostAfter;
         this.inventoryAmountAfter = inventoryAmountAfter;
         this.abbrName = String.format("%s. %s", firstName.charAt(0), lastName);
-
     }
 
     public List<StoreInventoryStorageExport> getInventoryStorages() {

@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "produit_perime", indexes = { @Index(columnList = "peremption_date", name = "produit_perime_index") })
+@Table(
+        name = "produit_perime",
+        indexes = {@Index(columnList = "peremption_date", name = "produit_perime_index")})
 public class ProduitPerime implements Serializable {
 
     @Serial

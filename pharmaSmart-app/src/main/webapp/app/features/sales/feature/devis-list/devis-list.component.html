@@ -15,32 +15,17 @@
 
         <div class="pharma-search-input">
           <app-icon-field icon="pi pi-search">
-            <input
-              (keyup.enter)="load()"
-              [(ngModel)]="search"
-              class="form-control"
-              placeholder="Rechercher..."
-              type="text"
-            />
+            <input (keyup.enter)="load()" [(ngModel)]="search" class="form-control" placeholder="Rechercher..." type="text" />
           </app-icon-field>
         </div>
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate"
-                            label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate" label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate"
-                            label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate" label="Au" />
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
-        <app-button
-          (clicked)="load()"
-          [raised]="true"
-          icon="pi pi-search"
-          label="Rechercher"
-          severity="info"
-          type="button"
-        />
+        <app-button (clicked)="load()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" type="button" />
         <app-button
           [raised]="true"
           [routerLink]="['/sales-home/devis']"
@@ -155,7 +140,7 @@
                       [text]="true"
                       icon="pi pi-file-pdf"
                       ariaLabel="Imprimer le devis en PDF"
-                    ngbTooltip="Imprimer en PDF"
+                      ngbTooltip="Imprimer en PDF"
                       placement="top"
                       severity="secondary"
                     />
@@ -169,7 +154,7 @@
                       [text]="true"
                       icon="pi pi-trash"
                       ariaLabel="Supprimer le devis"
-                    ngbTooltip="Supprimer"
+                      ngbTooltip="Supprimer"
                       placement="top"
                       severity="danger"
                     />
@@ -189,8 +174,7 @@
                       </div>
                       <div class="activity-card-header-content">
                         <h3 class="activity-card-title">Liste des produits</h3>
-                        <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
-                          article(s)</span>
+                        <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
                       </div>
                     </div>
                     <div class="activity-card-table-body">
@@ -201,7 +185,7 @@
                         [showCurrentPageReport]="true"
                         [stripedRows]="true"
                         [value]="elRow.salesLines"
-                        class=" rowexpansion-table"
+                        class="rowexpansion-table"
                         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                         dataKey="id"
                       >
@@ -226,12 +210,8 @@
                             <td>
                               <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number: '1.0-0' }}
-                            </td>
-                            <td
-                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number: '1.0-0' }}
-                            </td>
+                            <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number: '1.0-0' }}</td>
+                            <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number: '1.0-0' }}</td>
                             <td class="pharma-total" style="text-align: right; font-weight: bold">
                               {{ saleLine.salesAmount | number: '1.0-0' }}
                             </td>
@@ -265,12 +245,4 @@
   </div>
 </div>
 
-
-<ngx-spinner
-  [fullScreen]="true"
-  bdColor="rgba(255,255,255,0.5)"
-  color="#009688"
-  name="devis-spinner"
-  size="medium"
-  type="timer"
-/>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#009688" name="devis-spinner" size="medium" type="timer" />

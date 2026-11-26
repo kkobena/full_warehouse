@@ -27,9 +27,8 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
     private final VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository;
 
     public ProduitIndicateursServiceImpl(
-        ParetoAnalysisRepository paretoAnalysisRepository,
-        VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository
-    ) {
+            ParetoAnalysisRepository paretoAnalysisRepository,
+            VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository) {
         this.paretoAnalysisRepository = paretoAnalysisRepository;
         this.ventesMensuellesAgregeesRepository = ventesMensuellesAgregeesRepository;
     }
@@ -37,14 +36,15 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
     @Override
     public Optional<ProduitIndicateursDTO> getIndicateurs(Integer produitId) {
         // 1. Données de base produit (classeCriticite, prix, badges réglementaires)
-        List<Object[]> produitRows = entityManager.createNativeQuery("""
+        List<Object[]> produitRows = entityManager
+                .createNativeQuery("""
             SELECT p.classe_criticite, p.est_medicament_essentiel, p.est_produit_garde,
                    p.regular_unit_price, p.cost_amount
             FROM produit p
             WHERE p.id = :produitId
             """)
-            .setParameter("produitId", produitId)
-            .getResultList();
+                .setParameter("produitId", produitId)
+                .getResultList();
 
         if (produitRows.isEmpty()) {
             return Optional.empty();
@@ -56,7 +56,8 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
         BigDecimal tauxMarge = calculerTauxMarge(produitRow[3], produitRow[4]);
 
         // 2. Indicateurs de rotation depuis v_stock_rotation
-        List<Object[]> rotationRows = entityManager.createNativeQuery("""
+        List<Object[]> rotationRows = entityManager
+                .createNativeQuery("""
             SELECT vsr.cmm,
                    vsr.rotation_annuelle_qte,
                    vsr.couverture_stock_jours,
@@ -66,8 +67,8 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
             FROM v_stock_rotation vsr
             WHERE vsr.produit_id = :produitId
             """)
-            .setParameter("produitId", produitId)
-            .getResultList();
+                .setParameter("produitId", produitId)
+                .getResultList();
 
         BigDecimal cmm = BigDecimal.ZERO;
         BigDecimal rotationAnnuelleQte = null;
@@ -100,37 +101,30 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
         }
 
         return Optional.of(new ProduitIndicateursDTO(
-            produitId,
-            classeCriticite,
-            estMedicamentEssentiel,
-            estProduitGarde,
-            cmm,
-            rotationAnnuelleQte,
-            couvertureStockJours,
-            ca30Jours,
-            ca12Mois,
-            qteVendue12Mois,
-            tauxMarge,
-            rang,
-            caCumulePct,
-            frequenceMois
-        ));
+                produitId,
+                classeCriticite,
+                estMedicamentEssentiel,
+                estProduitGarde,
+                cmm,
+                rotationAnnuelleQte,
+                couvertureStockJours,
+                ca30Jours,
+                ca12Mois,
+                qteVendue12Mois,
+                tauxMarge,
+                rang,
+                caCumulePct,
+                frequenceMois));
     }
 
     @Override
     public List<VenteMoisDTO> getVentesMensuelles(Integer produitId, int nbMois) {
-        return ventesMensuellesAgregeesRepository
-            .findLastNMonthsByProduit(produitId, nbMois)
-            .stream()
-            .map(vma -> new VenteMoisDTO(
-                vma.getAnneeMois(),
-                vma.getQuantiteVendue(),
-                vma.getMontantCa(),
-                vma.getNombreVentes()
-            ))
-            // Retourner en ordre croissant (passé → présent) pour Chart.js
-            .sorted(Comparator.comparing(VenteMoisDTO::anneeMois))
-            .toList();
+        return ventesMensuellesAgregeesRepository.findLastNMonthsByProduit(produitId, nbMois).stream()
+                .map(vma -> new VenteMoisDTO(
+                        vma.getAnneeMois(), vma.getQuantiteVendue(), vma.getMontantCa(), vma.getNombreVentes()))
+                // Retourner en ordre croissant (passé → présent) pour Chart.js
+                .sorted(Comparator.comparing(VenteMoisDTO::anneeMois))
+                .toList();
     }
 
     // ── helpers ──
@@ -154,8 +148,6 @@ public class ProduitIndicateursServiceImpl implements ProduitIndicateursService 
         BigDecimal pv = new BigDecimal(prixVente.toString());
         BigDecimal pa = new BigDecimal(prixAchat.toString());
         if (pv.compareTo(BigDecimal.ZERO) == 0) return null;
-        return pv.subtract(pa)
-            .multiply(BigDecimal.valueOf(100))
-            .divide(pv, 2, RoundingMode.HALF_UP);
+        return pv.subtract(pa).multiply(BigDecimal.valueOf(100)).divide(pv, 2, RoundingMode.HALF_UP);
     }
 }

@@ -1,8 +1,7 @@
 <div class="modal-header">
   <h5 class="modal-title fw-bold">
     <i class="pi pi-file-check text-primary me-2"></i>
-    Code facture <span
-    class="badge bg-primary-subtle text-primary">{{ reglement.codeFacture }}</span>
+    Code facture <span class="badge bg-primary-subtle text-primary">{{ reglement.codeFacture }}</span>
   </h5>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
@@ -62,7 +61,8 @@
       <app-card bodyClass="p-0" customClass="h-100" header="Factures règlées" icon="pi pi-file-edit text-primary">
         <app-data-table
           #factLeft
-          [selection]="selectedItem()" (selectionChange)="selectedItem.set($any($event))"
+          [selection]="selectedItem()"
+          (selectionChange)="selectedItem.set($any($event))"
           [globalFilterFields]="['organisme', 'codeFacture']"
           [scrollHeight]="scrollHeight"
           [scrollable]="true"
@@ -161,14 +161,12 @@
                 <td>{{ factureDetail.heure }}</td>
                 <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
                 <td>
-                  <span
-                    class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
+                  <span class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
                 </td>
                 <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
                 <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
                 <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
-                <td [class.text-danger]="factureDetail.montantRestant > 0"
-                    class="text-end fw-bold">
+                <td [class.text-danger]="factureDetail.montantRestant > 0" class="text-end fw-bold">
                   {{ factureDetail.montantRestant }}
                 </td>
               </tr>
@@ -185,9 +183,7 @@
         </app-card>
       } @else {
         <app-card customClass="h-100">
-          <div
-            class="d-flex flex-column justify-content-center align-items-center text-muted"
-            style="min-height: 300px">
+          <div class="d-flex flex-column justify-content-center align-items-center text-muted" style="min-height: 300px">
             <i class="pi pi-arrow-left" style="font-size: 3rem"></i>
             <p class="mt-3 mb-0">Sélectionnez une facture pour voir les dossiers.</p>
           </div>
@@ -198,6 +194,5 @@
 </div>
 
 <div class="modal-footer">
-  <app-button (clicked)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary"
-              type="button"></app-button>
+  <app-button (clicked)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary" type="button"></app-button>
 </div>

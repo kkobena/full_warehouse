@@ -1,17 +1,22 @@
 <app-detail-grid>
-  <app-detail-section [accent]="avoirsOuverts().length > 0 ? 'success' : 'slate'" [count]="avoirs().length"
-                      [layout]="'block'"
-                      [width]="'full'" header="Avoirs" icon="pi pi-wallet"
-                      storageKey="customer.avoirs.liste">
+  <app-detail-section
+    [accent]="avoirsOuverts().length > 0 ? 'success' : 'slate'"
+    [count]="avoirs().length"
+    [layout]="'block'"
+    [width]="'full'"
+    header="Avoirs"
+    icon="pi pi-wallet"
+    storageKey="customer.avoirs.liste"
+  >
     @if (avoirsOuverts().length > 0) {
       <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
         <i class="pi pi-wallet"></i>
-        <strong>Solde disponible : {{ soldeTotalAvoirs() | number }} <span
-          appDevise></span></strong>
-        <span class="ms-2 text-muted">({{ avoirsOuverts().length }}
-          avoir{{ avoirsOuverts().length > 1 ? 's' : '' }} ouvert{{
+        <strong>Solde disponible : {{ soldeTotalAvoirs() | number }} <span appDevise></span></strong>
+        <span class="ms-2 text-muted"
+          >({{ avoirsOuverts().length }} avoir{{ avoirsOuverts().length > 1 ? 's' : '' }} ouvert{{
             avoirsOuverts().length > 1 ? 's' : ''
-          }})</span>
+          }})</span
+        >
       </div>
     }
 
@@ -32,13 +37,14 @@
         </ng-template>
         <ng-template #body let-avoir>
           <tr>
-            <td><code>{{ avoir.reference }}</code></td>
+            <td>
+              <code>{{ avoir.reference }}</code>
+            </td>
             <td>{{ avoir.produitLibelle }}</td>
             <td>{{ avoir.createdAt | date: 'dd/MM/yyyy' }}</td>
             <td>
               @if (avoir.dateExpiration) {
-                <span [class.fw-bold]="avoir.procheExpiration"
-                      [class.text-danger]="avoir.procheExpiration">
+                <span [class.fw-bold]="avoir.procheExpiration" [class.text-danger]="avoir.procheExpiration">
                   {{ avoir.dateExpiration | date: 'dd/MM/yyyy' }}
                   @if (avoir.procheExpiration) {
                     <i class="pi pi-exclamation-triangle ms-1"></i>
@@ -48,8 +54,7 @@
                 <span class="text-muted">—</span>
               }
             </td>
-            <td class="text-end pharma-total">{{ avoir.montant | number }} <span appDevise></span>
-            </td>
+            <td class="text-end pharma-total">{{ avoir.montant | number }} <span appDevise></span></td>
             <td>
               @switch (avoir.statut) {
                 @case ('OUVERT') {
@@ -68,10 +73,15 @@
             </td>
             <td>
               @if (avoir.id) {
-
-                <app-button (clicked)="openAvoirPdf(avoir.id)" [text]="true" ariaLabel="Bon d'avoir PDF"
-                            icon="pi pi-file-pdf"
-                            severity="secondary" size="small" title="Bon d'avoir PDF" />
+                <app-button
+                  (clicked)="openAvoirPdf(avoir.id)"
+                  [text]="true"
+                  ariaLabel="Bon d'avoir PDF"
+                  icon="pi pi-file-pdf"
+                  severity="secondary"
+                  size="small"
+                  title="Bon d'avoir PDF"
+                />
               }
             </td>
           </tr>
@@ -80,4 +90,3 @@
     }
   </app-detail-section>
 </app-detail-grid>
-

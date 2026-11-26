@@ -54,15 +54,14 @@ class MobileProductServiceTest {
 
     @BeforeEach
     void produitOrdinaire() {
-        when(productRepository.getBasicProductInfo(anyInt())).thenReturn(
-            new ProductBasicInfoProjection(42L, "DOLIPRANE 1000", "CIP123", "EAN456", "LABOREX", 3L, "ANTALGIQUES", 9L)
-        );
+        when(productRepository.getBasicProductInfo(anyInt()))
+                .thenReturn(new ProductBasicInfoProjection(
+                        42L, "DOLIPRANE 1000", "CIP123", "EAN456", "LABOREX", 3L, "ANTALGIQUES", 9L));
         when(productRepository.getStockInfo(anyInt())).thenReturn(stock(50, 0, 10));
         when(productRepository.getPriceInfo(anyInt())).thenReturn(new PriceInfoProjection(800, 1_000, 20.0, 18));
         when(productRepository.getLotInfo(anyInt())).thenReturn(List.of());
-        when(productRepository.getSalesStats(anyInt(), any(), any(), any())).thenReturn(
-            new ProductSalesStatsProjection(0, 0L, 0, 0L, 0, 0L, 0.0)
-        );
+        when(productRepository.getSalesStats(anyInt(), any(), any(), any()))
+                .thenReturn(new ProductSalesStatsProjection(0, 0L, 0, 0L, 0, 0L, 0.0));
         when(productRepository.getAverageDailyQuantitySold(anyInt(), anyInt())).thenReturn(0.0);
     }
 
@@ -163,17 +162,19 @@ class MobileProductServiceTest {
         @Test
         @DisplayName("le stock est détaillé emplacement par emplacement")
         void detailParEmplacement() {
-            when(productRepository.getStockInfo(anyInt())).thenReturn(
-                new StockInfoProjection(
-                    40, 10, 50, 5, 100,
-                    List.of(
-                        new StorageStockProjection(1L, "Comptoir", "PRINCIPAL", 30, 5, 35),
-                        new StorageStockProjection(2L, "Réserve", "RESERVE", 10, 5, 15)
-                    )
-                )
-            );
+            when(productRepository.getStockInfo(anyInt()))
+                    .thenReturn(new StockInfoProjection(
+                            40,
+                            10,
+                            50,
+                            5,
+                            100,
+                            List.of(
+                                    new StorageStockProjection(1L, "Comptoir", "PRINCIPAL", 30, 5, 35),
+                                    new StorageStockProjection(2L, "Réserve", "RESERVE", 10, 5, 15))));
 
-            List<StorageStock> emplacements = service.getProductQuickInfo(PRODUIT).stock().storageStocks();
+            List<StorageStock> emplacements =
+                    service.getProductQuickInfo(PRODUIT).stock().storageStocks();
 
             assertThat(emplacements).extracting(StorageStock::storageName).containsExactly("Comptoir", "Réserve");
             assertThat(emplacements.getFirst().storageId()).isEqualTo(1L);
@@ -196,7 +197,8 @@ class MobileProductServiceTest {
             when(productRepository.getStockInfo(anyInt())).thenReturn(stock(50, 0, 10));
             when(productRepository.getAverageDailyQuantitySold(PRODUIT, 30)).thenReturn(4.0);
 
-            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock()).isEqualTo(12);
+            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock())
+                    .isEqualTo(12);
         }
 
         /** On arrondit vers le bas : annoncer treize jours quand on en a douze et demi ferait manquer. */
@@ -206,7 +208,8 @@ class MobileProductServiceTest {
             when(productRepository.getStockInfo(anyInt())).thenReturn(stock(50, 0, 10));
             when(productRepository.getAverageDailyQuantitySold(PRODUIT, 30)).thenReturn(3.0);
 
-            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock()).isEqualTo(16);
+            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock())
+                    .isEqualTo(16);
         }
 
         @Test
@@ -214,7 +217,8 @@ class MobileProductServiceTest {
         void stockEpuise() {
             when(productRepository.getStockInfo(anyInt())).thenReturn(stock(0, 0, 10));
 
-            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock()).isZero();
+            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock())
+                    .isZero();
             verify(productRepository, never()).getAverageDailyQuantitySold(anyInt(), anyInt());
         }
 
@@ -225,7 +229,8 @@ class MobileProductServiceTest {
             when(productRepository.getStockInfo(anyInt())).thenReturn(stock(50, 0, 10));
             when(productRepository.getAverageDailyQuantitySold(PRODUIT, 30)).thenReturn(0.0);
 
-            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock()).isEqualTo(999);
+            assertThat(service.getProductQuickInfo(PRODUIT).stock().daysOfStock())
+                    .isEqualTo(999);
         }
     }
 
@@ -238,9 +243,8 @@ class MobileProductServiceTest {
         @Test
         @DisplayName("chaque lot porte son numéro, sa date et son échéance")
         void contenuDuLot() {
-            when(productRepository.getLotInfo(anyInt())).thenReturn(
-                List.of(new LotInfoProjection(7L, "LOT-A", LocalDate.of(2026, 12, 31), 120, 200))
-            );
+            when(productRepository.getLotInfo(anyInt()))
+                    .thenReturn(List.of(new LotInfoProjection(7L, "LOT-A", LocalDate.of(2026, 12, 31), 120, 200)));
 
             LotInfo lot = service.getProductQuickInfo(PRODUIT).lots().getFirst();
 
@@ -255,20 +259,12 @@ class MobileProductServiceTest {
         @Test
         @DisplayName("l'échéance qualifie le lot par paliers")
         void paliersDEcheance() {
-            when(productRepository.getLotInfo(anyInt())).thenReturn(
-                List.of(
-                    lot(1L, 0),
-                    lot(2L, 1),
-                    lot(3L, 30),
-                    lot(4L, 31),
-                    lot(5L, 90),
-                    lot(6L, 91)
-                )
-            );
+            when(productRepository.getLotInfo(anyInt()))
+                    .thenReturn(List.of(lot(1L, 0), lot(2L, 1), lot(3L, 30), lot(4L, 31), lot(5L, 90), lot(6L, 91)));
 
             assertThat(service.getProductQuickInfo(PRODUIT).lots())
-                .extracting(LotInfo::expiryStatus)
-                .containsExactly("EXPIRED", "CRITICAL", "CRITICAL", "WARNING", "WARNING", "OK");
+                    .extracting(LotInfo::expiryStatus)
+                    .containsExactly("EXPIRED", "CRITICAL", "CRITICAL", "WARNING", "WARNING", "OK");
         }
 
         @Test
@@ -276,7 +272,8 @@ class MobileProductServiceTest {
         void lotPerime() {
             when(productRepository.getLotInfo(anyInt())).thenReturn(List.of(lot(1L, -5)));
 
-            assertThat(service.getProductQuickInfo(PRODUIT).lots().getFirst().expiryStatus()).isEqualTo("EXPIRED");
+            assertThat(service.getProductQuickInfo(PRODUIT).lots().getFirst().expiryStatus())
+                    .isEqualTo("EXPIRED");
         }
 
         @Test
@@ -306,9 +303,8 @@ class MobileProductServiceTest {
         @Test
         @DisplayName("les ventes se lisent sur le jour, la semaine et le mois")
         void ventesRecentes() {
-            when(productRepository.getSalesStats(anyInt(), any(), any(), any())).thenReturn(
-                new ProductSalesStatsProjection(3, 3_000L, 20, 20_000L, 85, 85_000L, 2.8)
-            );
+            when(productRepository.getSalesStats(anyInt(), any(), any(), any()))
+                    .thenReturn(new ProductSalesStatsProjection(3, 3_000L, 20, 20_000L, 85, 85_000L, 2.8));
 
             var ventes = service.getProductQuickInfo(PRODUIT).salesStats();
 
@@ -328,7 +324,8 @@ class MobileProductServiceTest {
 
             service.getProductQuickInfo(PRODUIT);
 
-            verify(productRepository).getSalesStats(PRODUIT, aujourdHui, aujourdHui.minusDays(7), aujourdHui.minusDays(30));
+            verify(productRepository)
+                    .getSalesStats(PRODUIT, aujourdHui, aujourdHui.minusDays(7), aujourdHui.minusDays(30));
         }
     }
 
@@ -363,6 +360,7 @@ class MobileProductServiceTest {
     }
 
     private static LotInfoProjection lot(long id, int joursAvantPeremption) {
-        return new LotInfoProjection(id, "LOT-" + id, LocalDate.now().plusDays(joursAvantPeremption), 10, joursAvantPeremption);
+        return new LotInfoProjection(
+                id, "LOT-" + id, LocalDate.now().plusDays(joursAvantPeremption), 10, joursAvantPeremption);
     }
 }

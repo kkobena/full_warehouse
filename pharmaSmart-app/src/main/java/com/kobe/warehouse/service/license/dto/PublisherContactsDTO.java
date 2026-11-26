@@ -16,7 +16,6 @@ import java.util.List;
 public record PublisherContactsDTO(String name, List<String> emails, List<String> phones) {
 
     public static PublisherContactsDTO of(LicenseProperties.Publisher publisher) {
-        return new PublisherContactsDTO(publisher.getName(), publisher.getEmails(),
-            publisher.getPhones());
+        return new PublisherContactsDTO(publisher.getName(), publisher.getEmails(), publisher.getPhones());
     }
 }

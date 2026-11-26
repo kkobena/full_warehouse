@@ -16,7 +16,7 @@ import {
   HeaderCheckboxComponent,
   InputNumberComponent,
   RowCheckboxComponent,
-  SelectableRowDirective
+  SelectableRowDirective,
 } from 'app/shared/ui';
 
 type AvoirMode = 'global' | 'ligne';
@@ -37,7 +37,7 @@ interface LigneSaisie extends IFactureItem {
     HeaderCheckboxComponent,
     InputNumberComponent,
     RowCheckboxComponent,
-    SelectableRowDirective
+    SelectableRowDirective,
   ],
   templateUrl: './avoir-workspace.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -142,11 +142,14 @@ export class AvoirWorkspaceComponent {
       if (this.montantHt() != null) command.montantHt = this.montantHt();
     } else {
       command.montantAvoir = this.totalLignes;
-      command.lignes = this.selectedLignes().map(l => ({
-        saleLineId: l.saleId,
-        montantAvoir: l.montant,
-        motifRejet: l.motifRejet,
-      } as IAvoirLine));
+      command.lignes = this.selectedLignes().map(
+        l =>
+          ({
+            saleLineId: l.saleId,
+            montantAvoir: l.montant,
+            motifRejet: l.motifRejet,
+          }) as IAvoirLine,
+      );
     }
 
     this.saving.set(true);
@@ -166,21 +169,31 @@ export class AvoirWorkspaceComponent {
 
   getStatutLabel(statut?: string): string {
     switch (statut) {
-      case 'DRAFT':  return 'Brouillon';
-      case 'EMIS':   return 'Émis';
-      case 'IMPUTE': return 'Imputé';
-      case 'ANNULE': return 'Annulé';
-      default:       return statut ?? '—';
+      case 'DRAFT':
+        return 'Brouillon';
+      case 'EMIS':
+        return 'Émis';
+      case 'IMPUTE':
+        return 'Imputé';
+      case 'ANNULE':
+        return 'Annulé';
+      default:
+        return statut ?? '—';
     }
   }
 
   getStatutSeverity(statut?: string): 'secondary' | 'info' | 'success' | 'danger' {
     switch (statut) {
-      case 'DRAFT':  return 'secondary';
-      case 'EMIS':   return 'info';
-      case 'IMPUTE': return 'success';
-      case 'ANNULE': return 'danger';
-      default:       return 'secondary';
+      case 'DRAFT':
+        return 'secondary';
+      case 'EMIS':
+        return 'info';
+      case 'IMPUTE':
+        return 'success';
+      case 'ANNULE':
+        return 'danger';
+      default:
+        return 'secondary';
     }
   }
 
@@ -204,7 +217,10 @@ export class AvoirWorkspaceComponent {
     const invoiceDate = f.factureItemId?.invoiceDate ?? '2000-01-01';
     this.avoirApiService
       .query({ startDate: invoiceDate, endDate: new Date().toISOString().slice(0, 10) })
-      .pipe(finalize(() => this.loadingAvoirs.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingAvoirs.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => {
           const factureId = f.factureItemId?.id;

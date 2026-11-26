@@ -20,7 +20,18 @@ import {
   templateUrl: './cloturer-avoir-modal.component.html',
   styleUrl: './cloturer-avoir-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ModalDeplacableDirective, DeviseDirective, DevisePipe, CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent, RadioComponent],
+  imports: [
+    ModalDeplacableDirective,
+    DeviseDirective,
+    DevisePipe,
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    SelectComponent,
+    InputNumberComponent,
+    CardComponent,
+    RadioComponent,
+  ],
 })
 export class CloturerAvoirModalComponent {
   readonly activeModal = inject(NgbActiveModal);
@@ -80,10 +91,31 @@ export class CloturerAvoirModalComponent {
   });
 
   protected readonly modeClotureOptions: { label: string; value: ModeClotureAvoir; icon: string; description: string }[] = [
-    { label: 'Remboursement espèces', value: 'REMBOURSEMENT_ESPECES', icon: 'pi pi-money-bill', description: 'Le client est remboursé en espèces au guichet : une sortie de caisse est enregistrée (caisse ouverte exigée).' },
-    { label: 'Remboursement CB', value: 'REMBOURSEMENT_CB', icon: 'pi pi-credit-card', description: 'Le montant est recrédité sur la carte bancaire du client : une sortie de caisse est enregistrée (caisse ouverte exigée).' },
-    { label: 'Le produit est remis au client', value: 'RETOUR_PRODUIT', icon: 'pi pi-replay', description: 'Le produit est remis au client. Le stock est ajusté en conséquence.' },
-    { label: 'Compensation vente', value: 'COMPENSATION_VENTE', icon: 'pi pi-arrow-right-arrow-left', description: 'Le montant est imputé directement sur une vente du client.' },
+    {
+      label: 'Remboursement espèces',
+      value: 'REMBOURSEMENT_ESPECES',
+      icon: 'pi pi-money-bill',
+      description: 'Le client est remboursé en espèces au guichet : une sortie de caisse est enregistrée (caisse ouverte exigée).',
+    },
+    {
+      label: 'Remboursement CB',
+      value: 'REMBOURSEMENT_CB',
+      icon: 'pi pi-credit-card',
+      description:
+        'Le montant est recrédité sur la carte bancaire du client : une sortie de caisse est enregistrée (caisse ouverte exigée).',
+    },
+    {
+      label: 'Le produit est remis au client',
+      value: 'RETOUR_PRODUIT',
+      icon: 'pi pi-replay',
+      description: 'Le produit est remis au client. Le stock est ajusté en conséquence.',
+    },
+    {
+      label: 'Compensation vente',
+      value: 'COMPENSATION_VENTE',
+      icon: 'pi pi-arrow-right-arrow-left',
+      description: 'Le montant est imputé directement sur une vente du client.',
+    },
   ];
 
   /** Une remise se compte en unités, jamais en montant : changer de mode remet l'autre choix à zéro. */

@@ -33,6 +33,8 @@ public interface FournisseurService {
 
     /** Agences d'un fournisseur principal. */
     List<FournisseurDTO> findAgences(Integer parentId);
-   Optional<Fournisseur>  getParentByChildId(Integer childId);
-    Optional<Integer>  getParentIdByChildId(Integer childId);
+
+    Optional<Fournisseur> getParentByChildId(Integer childId);
+
+    Optional<Integer> getParentIdByChildId(Integer childId);
 }

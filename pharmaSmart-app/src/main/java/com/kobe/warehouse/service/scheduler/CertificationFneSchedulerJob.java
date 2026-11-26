@@ -20,10 +20,9 @@ public class CertificationFneSchedulerJob {
     private final CertificationFneStatutService statutService;
 
     public CertificationFneSchedulerJob(
-        PlanificationCertificationFneRepository planificationRepository,
-        FneService fneService,
-        CertificationFneStatutService statutService
-    ) {
+            PlanificationCertificationFneRepository planificationRepository,
+            FneService fneService,
+            CertificationFneStatutService statutService) {
         this.planificationRepository = planificationRepository;
         this.fneService = fneService;
         this.statutService = statutService;
@@ -37,8 +36,8 @@ public class CertificationFneSchedulerJob {
         LocalDateTime now = LocalDateTime.now();
 
         // Plans actifs dont la prochaineExecution est échue
-        List<PlanificationCertificationFne> planifications = planificationRepository
-            .findByActifTrueAndProchaineExecutionBefore(now);
+        List<PlanificationCertificationFne> planifications =
+                planificationRepository.findByActifTrueAndProchaineExecutionBefore(now);
 
         // Plans actifs dont prochaineExecution n'a jamais été calculée (première activation)
         planifications.addAll(planificationRepository.findByActifTrueAndProchaineExecutionIsNull());

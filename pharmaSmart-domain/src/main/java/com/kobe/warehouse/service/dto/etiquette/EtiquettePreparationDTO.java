@@ -17,12 +17,11 @@ import java.time.LocalDate;
  * @param mention « à usage externe », « tenir hors de portée des enfants »…
  */
 public record EtiquettePreparationDTO(
-    @NotBlank String libelle,
-    @NotBlank String composition,
-    String patient,
-    String prescripteur,
-    String posologie,
-    LocalDate datePreparation,
-    LocalDate peremption,
-    String mention
-) {}
+        @NotBlank String libelle,
+        @NotBlank String composition,
+        String patient,
+        String prescripteur,
+        String posologie,
+        LocalDate datePreparation,
+        LocalDate peremption,
+        String mention) {}

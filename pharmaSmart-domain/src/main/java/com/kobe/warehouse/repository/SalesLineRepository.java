@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -17,6 +16,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
+import com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.SetJoin;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface SalesLineRepository
-    extends JpaRepository<SalesLine, SaleLineId>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
+        extends JpaRepository<SalesLine, SaleLineId>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
     List<SalesLine> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
     Optional<SalesLine> findBySalesIdAndProduitIdAndSalesSaleDate(Long salesId, Integer produitId, LocalDate saleDate);
@@ -50,73 +50,70 @@ public interface SalesLineRepository
     long countByProduitId(Integer produitId);
 
     @Query(
-        value = "SELECT MAX(s.updated_at) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
-        nativeQuery = true
-    )
-    LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(@Param("produitId") Integer produitId, @Param("statut") String statut);
+            value =
+                    "SELECT MAX(s.updated_at) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
+            nativeQuery = true)
+    LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(
+            @Param("produitId") Integer produitId, @Param("statut") String statut);
 
     @Query(
-        value = "SELECT get_historique_vente(:produitId,:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:offset,:limit)",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT get_historique_vente(:produitId,:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:offset,:limit)",
+            nativeQuery = true)
     String getHistoriqueVente(
-        @Param("produitId") Integer produitId,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statuts") String[] statuts,
-        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("offset") int offset,
-        @Param("limit") int limit
-    );
+            @Param("produitId") Integer produitId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuts") String[] statuts,
+            @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+            @Param("offset") int offset,
+            @Param("limit") int limit);
 
     @Query(
-        value = "SELECT get_product_sales_summary_monthly(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId)",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT get_product_sales_summary_monthly(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId)",
+            nativeQuery = true)
     // List<HistoriqueProduitVenteMensuelle>
     String getHistoriqueVenteMensuelle(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statuts") String[] statuts,
-        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("produitId") Integer produitId
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuts") String[] statuts,
+            @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+            @Param("produitId") Integer produitId);
 
     @Query(
-        value = "SELECT get_product_sales_summary(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId,:groupBy)",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT get_product_sales_summary(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId,:groupBy)",
+            nativeQuery = true)
     String getHistoriqueVenteSummary(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statuts") String[] statuts,
-        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("produitId") Integer produitId,
-        @Param("groupBy") int groupBy
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuts") String[] statuts,
+            @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+            @Param("produitId") Integer produitId,
+            @Param("groupBy") int groupBy);
 
     @Query(
-        value = "SELECT SUM(o.quantity_requested) AS quantite  FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND s.sale_date BETWEEN :startDate AND :endDate AND o.sales_sale_date=s.sale_date",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT SUM(o.quantity_requested) AS quantite  FROM sales_line o JOIN sales s ON o.sales_id = s.id  WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND s.sale_date BETWEEN :startDate AND :endDate AND o.sales_sale_date=s.sale_date",
+            nativeQuery = true)
     HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(
-        @Param("produitId") Integer produitId,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statuts") Set<String> statuts
-    );
+            @Param("produitId") Integer produitId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuts") Set<String> statuts);
 
     default Specification<SalesLine> filterBySearchTerm(String search) {
         return (root, query, cb) -> {
             String searchTerm = search.toUpperCase() + "%";
             Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
-            SetJoin<Produit, FournisseurProduit> fournisseurProduitProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
+            SetJoin<Produit, FournisseurProduit> fournisseurProduitProduitJoin =
+                    produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
             return cb.or(
-                cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeCip)), searchTerm),
-                cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeEan)), searchTerm),
-                cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), searchTerm),
-                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), searchTerm)
-            );
+                    cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeCip)), searchTerm),
+                    cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeEan)), searchTerm),
+                    cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), searchTerm),
+                    cb.like(cb.upper(produitJoin.get(Produit_.libelle)), searchTerm));
         };
     }
 
@@ -125,7 +122,8 @@ public interface SalesLineRepository
     }
 
     default Specification<SalesLine> filterByStatut(EnumSet<SalesStatut> statuts) {
-        return (root, query, cb) -> root.get(SalesLine_.sales).get(Sales_.statut).in(statuts);
+        return (root, query, cb) ->
+                root.get(SalesLine_.sales).get(Sales_.statut).in(statuts);
     }
 
     default Specification<SalesLine> filterByCanceled(boolean canceled) {
@@ -137,11 +135,13 @@ public interface SalesLineRepository
     }
 
     default Specification<SalesLine> filterByStorageId(Integer magasinId) {
-        return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.magasin).get(Magasin_.id), magasinId);
+        return (root, query, cb) ->
+                cb.equal(root.get(SalesLine_.sales).get(Sales_.magasin).get(Magasin_.id), magasinId);
     }
 
     default Specification<SalesLine> filterByUserId(Integer userId) {
-        return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.caissier).get(AppUser_.id), userId);
+        return (root, query, cb) ->
+                cb.equal(root.get(SalesLine_.sales).get(Sales_.caissier).get(AppUser_.id), userId);
     }
 
     default Specification<SalesLine> filterByProduitId(Integer produitId) {
@@ -157,28 +157,29 @@ public interface SalesLineRepository
     }
 
     default Specification<SalesLine> filterByCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
-        return (root, query, cb) -> root.get(SalesLine_.sales).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
+        return (root, query, cb) ->
+                root.get(SalesLine_.sales).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
+
     default Specification<SalesLine> notCanceled() {
         return (root, query, cb) -> cb.isFalse(root.get(SalesLine_.sales).get(Sales_.canceled));
     }
+
     default Specification<SalesLine> notImported() {
         return (root, query, cb) -> cb.isFalse(root.get(SalesLine_.sales).get(Sales_.imported));
     }
+
     default Specification<SalesLine> hasAvoir() {
         return (root, query, cb) -> cb.greaterThan(root.<Integer>get("quantityAvoir"), 0);
     }
 
     /** Produits achetés par un client depuis une date : ventes dans le statut donné, non annulées, quantité vendue positive. */
-    @Query(
-        "select distinct new com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO(p.id, p.libelle) " +
-        "from SalesLine sl join sl.sales s join sl.produit p " +
-        "where s.customer.id = :customerId and s.statut = :statut and s.canceled = false " +
-        "and s.saleDate >= :depuis and sl.quantitySold > 0"
-    )
+    @Query("select distinct new com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO(p.id, p.libelle) "
+            + "from SalesLine sl join sl.sales s join sl.produit p "
+            + "where s.customer.id = :customerId and s.statut = :statut and s.canceled = false "
+            + "and s.saleDate >= :depuis and sl.quantitySold > 0")
     List<ProduitLibelleDTO> findProduitsAchetes(
-        @Param("customerId") Integer customerId,
-        @Param("statut") SalesStatut statut,
-        @Param("depuis") LocalDate depuis
-    );
+            @Param("customerId") Integer customerId,
+            @Param("statut") SalesStatut statut,
+            @Param("depuis") LocalDate depuis);
 }

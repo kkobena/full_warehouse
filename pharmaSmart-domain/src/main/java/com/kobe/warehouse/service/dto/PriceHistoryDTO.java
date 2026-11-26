@@ -7,12 +7,11 @@ import java.time.LocalDateTime;
  * d'un produit fournisseur (table fournisseur_produit_price_history).
  */
 public record PriceHistoryDTO(
-    Integer id,
-    Integer oldPrixAchat,
-    Integer newPrixAchat,
-    Integer oldPrixUni,
-    Integer newPrixUni,
-    LocalDateTime changedAt,
-    String receiptReference,
-    String changedBy
-) {}
+        Integer id,
+        Integer oldPrixAchat,
+        Integer newPrixAchat,
+        Integer oldPrixUni,
+        Integer newPrixUni,
+        LocalDateTime changedAt,
+        String receiptReference,
+        String changedBy) {}

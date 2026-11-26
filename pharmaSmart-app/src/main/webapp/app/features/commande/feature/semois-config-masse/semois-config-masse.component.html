@@ -123,12 +123,7 @@
                       </div>
                     </div>
 
-                    <app-data-table
-                      [value]="previewData()!"
-                      [paginator]="true"
-                      [rows]="10"
-                      style="min-width: 60rem"
-                    >
+                    <app-data-table [value]="previewData()!" [paginator]="true" [rows]="10" style="min-width: 60rem">
                       <ng-template #header>
                         <tr class="pharma-table-head">
                           <th>Produit</th>

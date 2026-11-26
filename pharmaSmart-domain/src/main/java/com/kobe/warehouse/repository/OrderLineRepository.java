@@ -9,14 +9,12 @@ import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Collection;
 import java.util.Set;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,10 +27,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineId> {
     Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(
-        Integer fournisseurProduitId,
-        Integer commandeId,
-        LocalDate orderDate
-    );
+            Integer fournisseurProduitId, Integer commandeId, LocalDate orderDate);
 
     Page<OrderLine> findByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate, Pageable pageable);
 
@@ -41,62 +36,56 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     boolean existsByFournisseurProduitProduitId(Integer produitId);
 
     boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
-        Integer produitId,
-        OrderStatut orderStatus,
-        LocalDate periodeBegin
-    );
+            Integer produitId, OrderStatut orderStatus, LocalDate periodeBegin);
 
     int countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
-        Integer produitId,
-        OrderStatut orderStatus,
-        LocalDate periodeBegin
-    );
+            Integer produitId, OrderStatut orderStatus, LocalDate periodeBegin);
 
     List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Integer deliveryReceiptId, LocalDate orderDate);
 
     @Query(
-        "SELECT o.fournisseurProduit.produit.libelle AS produitLibelle,o.fournisseurProduit.codeCip AS produitCip,o.id AS id,o.orderDate AS orderDate,o.quantityReceived AS quantityReceived,o.quantityRequested AS quantityRequested,o.freeQty AS freeQty,o.fournisseurProduit.produit.id AS produitId,l AS lots FROM OrderLine o LEFT JOIN o.lots l WHERE o.commande.id = ?1 AND o.commande.orderDate = ?2 ORDER BY  o.fournisseurProduit.produit.libelle ASC"
-    )
-    List<DeliveryReceiptItemProjection> findDetailAllByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate);
+            "SELECT o.fournisseurProduit.produit.libelle AS produitLibelle,o.fournisseurProduit.codeCip AS produitCip,o.id AS id,o.orderDate AS orderDate,o.quantityReceived AS quantityReceived,o.quantityRequested AS quantityRequested,o.freeQty AS freeQty,o.fournisseurProduit.produit.id AS produitId,l AS lots FROM OrderLine o LEFT JOIN o.lots l WHERE o.commande.id = ?1 AND o.commande.orderDate = ?2 ORDER BY  o.fournisseurProduit.produit.libelle ASC")
+    List<DeliveryReceiptItemProjection> findDetailAllByCommandeIdAndCommandeOrderDate(
+            Integer commandeId, LocalDate orderDate);
 
     @Query(
-        value = "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
+            nativeQuery = true)
     LastDateProjection findLastUpdatedAtByFournisseurProduitProduitId(Integer produitId, String receiptStatut);
 
     @Query(
-        value = "SELECT o.updated_at AS mvtDate,d.receipt_reference AS reference,o.quantity_received AS quantite,o.order_cost_amount AS prixAchat,u.first_name AS firstName,u.last_name AS lastName FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  ",
-        nativeQuery = true,
-        countQuery = "SELECT COUNT(o.id) as orderCount  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  "
-    )
+            value =
+                    "SELECT o.updated_at AS mvtDate,d.receipt_reference AS reference,o.quantity_received AS quantite,o.order_cost_amount AS prixAchat,u.first_name AS firstName,u.last_name AS lastName FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  ",
+            nativeQuery = true,
+            countQuery =
+                    "SELECT COUNT(o.id) as orderCount  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  ")
     Page<HistoriqueProduitAchats> getHistoriqueAchat(
-        @Param("produitId") Integer produitId,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statut") String statut,
-        Pageable pageable
-    );
+            @Param("produitId") Integer produitId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statut") String statut,
+            Pageable pageable);
 
     // List<HistoriqueProduitAchatMensuelle>
-    @Query(value = "SELECT get_product_order_summary_monthly(:startDate, :endDate, :statut,:produitId)", nativeQuery = true)
+    @Query(
+            value = "SELECT get_product_order_summary_monthly(:startDate, :endDate, :statut,:produitId)",
+            nativeQuery = true)
     String getHistoriqueAchatMensuelle(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statut") String statut,
-        @Param("produitId") Integer produitId
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statut") String statut,
+            @Param("produitId") Integer produitId);
 
     @Query(
-        value = "SELECT coalesce(SUM(o.quantity_received),0) AS quantite,coalesce(SUM(o.order_cost_amount*o.quantity_received),0) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND o.order_date BETWEEN :startDate AND :endDate AND o.commande_order_date = d.order_date",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT coalesce(SUM(o.quantity_received),0) AS quantite,coalesce(SUM(o.order_cost_amount*o.quantity_received),0) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND o.order_date BETWEEN :startDate AND :endDate AND o.commande_order_date = d.order_date",
+            nativeQuery = true)
     HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(
-        @Param("produitId") Integer produitId,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("statut") String statut
-    );
+            @Param("produitId") Integer produitId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statut") String statut);
 
     int countByCommande(Commande commande);
 
@@ -105,8 +94,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
      * fournisseur, EAN laboratoire ou code alternatif mémorisé dans {@code produit_code_alias} —
      * en Côte d'Ivoire le code encodé par le fabricant n'est pas celui que le grossiste a saisi.
      */
-    @Query(
-        """
+    @Query("""
         SELECT o FROM OrderLine o
         WHERE o.commande.id = :commandeId
           AND (o.fournisseurProduit.codeCip = :code
@@ -115,12 +103,9 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
                OR EXISTS (SELECT 1 FROM ProduitCodeAlias a
                           WHERE a.produit.id = o.fournisseurProduit.produit.id
                             AND a.code = :code))
-        """
-    )
+        """)
     Optional<OrderLine> findFirstByCommandeIdAndAnyCode(
-        @Param("commandeId") Integer commandeId,
-        @Param("code") String code
-    );
+            @Param("commandeId") Integer commandeId, @Param("code") String code);
 
     /**
      * Retourne les quantités en attente de livraison par produit (stock virtuel — Axe 1).
@@ -159,7 +144,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         """, nativeQuery = true)
     List<Object[]> findPendingQtyByProduitIds(@Param("produitIds") Collection<Integer> produitIds);
 
-    List<OrderLine> findAllByIdInAndOrderDate(Set<Integer> ids,LocalDate orderDate);
+    List<OrderLine> findAllByIdInAndOrderDate(Set<Integer> ids, LocalDate orderDate);
 
     /**
      * Commandes en attente de livraison et réellement transmises, pour un produit. Un brouillon
@@ -175,9 +160,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
           AND ol.commande.dateEnvoi IS NOT NULL
         """)
     int countCommandesEnvoyeesEnAttente(
-        @Param("produitId") Integer produitId,
-        @Param("dateRetention") LocalDate dateRetention
-    );
+            @Param("produitId") Integer produitId, @Param("dateRetention") LocalDate dateRetention);
 
     /**
      * Variante batch pour {@code EtatProduitService.canSuggere} : retourne, parmi les produits
@@ -199,8 +182,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
                OR ol.commande.orderStatus <> com.kobe.warehouse.domain.enumeration.OrderStatut.REQUESTED)
         """)
     Set<Integer> findProduitIdsWithCommandes(
-        @Param("produitIds") Collection<Integer> produitIds,
-        @Param("statuts") Collection<OrderStatut> statuts,
-        @Param("dateRetention") LocalDate dateRetention
-    );
+            @Param("produitIds") Collection<Integer> produitIds,
+            @Param("statuts") Collection<OrderStatut> statuts,
+            @Param("dateRetention") LocalDate dateRetention);
 }

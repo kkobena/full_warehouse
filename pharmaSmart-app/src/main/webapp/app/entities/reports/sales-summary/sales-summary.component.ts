@@ -1,21 +1,12 @@
-import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  signal
-} from "@angular/core";
-import {HttpResponse} from "@angular/common/http";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-
-import {IDailySalesSummary} from "app/shared/model/report/daily-sales-summary.model";
-import {SalesSummaryReportService} from "../services/sales-summary-report.service";
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { IDailySalesSummary } from 'app/shared/model/report/daily-sales-summary.model';
+import { SalesSummaryReportService } from '../services/sales-summary-report.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppBadgeSeverity,
   BadgeComponent,
@@ -24,21 +15,21 @@ import {
   KpiItemComponent,
   KpiStripComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {DeviseDirective} from "../../../shared/utils/devise";
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { DeviseDirective } from '../../../shared/utils/devise';
 import {
   libelleTypeVente,
   OPTIONS_FILTRE_TYPE_VENTE,
   severiteTypeVente,
-  TYPE_VENTE_DEPOT
-} from "../../../shared/constants/type-vente.constants";
+  TYPE_VENTE_DEPOT,
+} from '../../../shared/constants/type-vente.constants';
 
 @Component({
-  selector: "app-sales-summary",
-  templateUrl: "./sales-summary.component.html",
-  styleUrl: "./sales-summary.component.scss",
+  selector: 'app-sales-summary',
+  templateUrl: './sales-summary.component.html',
+  styleUrl: './sales-summary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -51,8 +42,8 @@ import {
     PharmaDatePickerComponent,
     KpiStripComponent,
     KpiItemComponent,
-    DeviseDirective
-  ]
+    DeviseDirective,
+  ],
 })
 export default class SalesSummaryComponent implements OnInit {
   /**
@@ -91,7 +82,7 @@ export default class SalesSummaryComponent implements OnInit {
   readonly totalDepot = computed(() =>
     this.summaries()
       .filter(ligne => ligne.typeVente === TYPE_VENTE_DEPOT)
-      .reduce((somme, ligne) => ({nbVentes: somme.nbVentes + (ligne.nbVentes ?? 0), caTotal: somme.caTotal + (ligne.caTotal ?? 0)}), {
+      .reduce((somme, ligne) => ({ nbVentes: somme.nbVentes + (ligne.nbVentes ?? 0), caTotal: somme.caTotal + (ligne.caTotal ?? 0) }), {
         nbVentes: 0,
         caTotal: 0,
       }),
@@ -101,7 +92,7 @@ export default class SalesSummaryComponent implements OnInit {
     const cumul = new Map<string, { nbVentes: number; caTotal: number; caNet: number }>();
     for (const ligne of this.summaries()) {
       const type = ligne.typeVente ?? 'N/A';
-      const courant = cumul.get(type) ?? {nbVentes: 0, caTotal: 0, caNet: 0};
+      const courant = cumul.get(type) ?? { nbVentes: 0, caTotal: 0, caNet: 0 };
       courant.nbVentes += ligne.nbVentes ?? 0;
       courant.caTotal += ligne.caTotal ?? 0;
       courant.caNet += ligne.caNet ?? 0;
@@ -127,19 +118,18 @@ export default class SalesSummaryComponent implements OnInit {
   private readonly salesSummaryService = inject(SalesSummaryReportService);
 
   ngOnInit(): void {
-
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     this.startDate.set({
       year: firstDay.getFullYear(),
       month: firstDay.getMonth() + 1,
-      day: firstDay.getDate()
+      day: firstDay.getDate(),
     });
     this.endDate.set({
       year: lastDay.getFullYear(),
       month: lastDay.getMonth() + 1,
-      day: lastDay.getDate()
+      day: lastDay.getDate(),
     });
 
     this.loadSummaries();
@@ -166,7 +156,7 @@ export default class SalesSummaryComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -191,7 +181,6 @@ export default class SalesSummaryComponent implements OnInit {
     const count = this.getTotalVentes();
     return count > 0 ? total / count : 0;
   }
-
 
   /** Libellé d'écran d'un type de vente — source unique, partagée avec le tableau de bord. */
   getLibelleType(type: string | undefined): string {

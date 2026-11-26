@@ -129,7 +129,7 @@ describe('ButtonComponent', () => {
   });
 
   describe('états', () => {
-    it('loading remplace l\'icône par un spinner et désactive', () => {
+    it("loading remplace l'icône par un spinner et désactive", () => {
       fixture.componentRef.setInput('icon', 'pi pi-save');
       fixture.componentRef.setInput('loading', true);
       expect(button().querySelector('.spinner-border')).not.toBeNull();

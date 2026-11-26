@@ -22,12 +22,7 @@ export interface IAvoirClient {
 }
 
 export type AvoirClientStatut = 'OUVERT' | 'CLOTURE' | 'ANNULE' | 'EXPIRE';
-export type ModeClotureAvoir =
-  | 'REMBOURSEMENT_ESPECES'
-  | 'REMBOURSEMENT_CB'
-  | 'BON_AVOIR'
-  | 'RETOUR_PRODUIT'
-  | 'COMPENSATION_VENTE';
+export type ModeClotureAvoir = 'REMBOURSEMENT_ESPECES' | 'REMBOURSEMENT_CB' | 'BON_AVOIR' | 'RETOUR_PRODUIT' | 'COMPENSATION_VENTE';
 
 export interface IAvoirClientDocument {
   id?: number;
@@ -82,10 +77,6 @@ export class AvoirClientApiService {
   }
 
   cloturerAvoir(id: number, request: CloturerAvoirRequest): Observable<HttpResponse<IAvoirClientDocument>> {
-    return this.http.post<IAvoirClientDocument>(
-      `${this.resourceUrl}/documents/${id}/cloturer`,
-      request,
-      { observe: 'response' }
-    );
+    return this.http.post<IAvoirClientDocument>(`${this.resourceUrl}/documents/${id}/cloturer`, request, { observe: 'response' });
   }
 }

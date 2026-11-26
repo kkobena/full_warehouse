@@ -58,7 +58,10 @@ function installerObservationActions(): void {
   };
 
   const memoriser = (event: Event, action: string): void => {
-    const cible = event.target instanceof Element ? event.target.closest('button, a, input, textarea, select, [role="button"], [role="option"], [contenteditable="true"]') : null;
+    const cible =
+      event.target instanceof Element
+        ? event.target.closest('button, a, input, textarea, select, [role="button"], [role="option"], [contenteditable="true"]')
+        : null;
     if (!(cible instanceof HTMLElement)) {
       return;
     }
@@ -70,7 +73,12 @@ function installerObservationActions(): void {
     const precedente = interactions.at(-1);
     const label = libelle(cible);
     // `fill()` peut émettre plusieurs événements input : une seule annotation suffit.
-    if (precedente?.action === action && precedente.label === label && Math.abs(precedente.x - boite.x) < 2 && Math.abs(precedente.y - boite.y) < 2) {
+    if (
+      precedente?.action === action &&
+      precedente.label === label &&
+      Math.abs(precedente.x - boite.x) < 2 &&
+      Math.abs(precedente.y - boite.y) < 2
+    ) {
       return;
     }
     interactions.push({ x: boite.x, y: boite.y, width: boite.width, height: boite.height, action, label });
@@ -79,11 +87,15 @@ function installerObservationActions(): void {
   document.addEventListener('pointerdown', event => memoriser(event, 'Cliquer'), true);
   document.addEventListener('input', event => memoriser(event, 'Saisir'), true);
   document.addEventListener('change', event => memoriser(event, 'Sélectionner'), true);
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      memoriser(event, event.key === 'Enter' ? 'Valider avec Entrée' : 'Activer');
-    }
-  }, true);
+  document.addEventListener(
+    'keydown',
+    event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        memoriser(event, event.key === 'Enter' ? 'Valider avec Entrée' : 'Activer');
+      }
+    },
+    true,
+  );
 }
 
 const CLE_LEGENDE = '__pharmaSmartLegende';
@@ -184,78 +196,84 @@ async function afficherLegende(page: Page, legende: { etape: number; total: numb
 }
 
 async function reinitialiserActions(page: Page): Promise<void> {
-  await page.evaluate((cle): void => {
-    (window as typeof window & Record<string, unknown>)[cle] = [];
-    document.getElementById('__pharmaSmartActionMarkers')?.remove();
-  }, CLE_INTERACTIONS).catch((): undefined => undefined);
+  await page
+    .evaluate((cle): void => {
+      (window as typeof window & Record<string, unknown>)[cle] = [];
+      document.getElementById('__pharmaSmartActionMarkers')?.remove();
+    }, CLE_INTERACTIONS)
+    .catch((): undefined => undefined);
 }
 
 /** Ajoute un calque temporaire, exclusivement présent pendant page.screenshot(). */
 async function afficherMarqueursActions(page: Page): Promise<void> {
-  await page.evaluate(({ cle, id }) => {
-    const interactions = (window as typeof window & Record<string, unknown>)[cle] as
-      | Array<{ x: number; y: number; width: number; height: number; action: string; label: string }>
-      | undefined;
-    if (!interactions?.length) {
-      return;
-    }
-    document.getElementById(id)?.remove();
-    const namespace = 'http://www.w3.org/2000/svg';
-    const calque = document.createElementNS(namespace, 'svg');
-    calque.id = id;
-    calque.setAttribute('width', '100%');
-    calque.setAttribute('height', '100%');
-    calque.setAttribute('aria-hidden', 'true');
-    calque.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
+  await page.evaluate(
+    ({ cle, id }) => {
+      const interactions = (window as typeof window & Record<string, unknown>)[cle] as
+        Array<{ x: number; y: number; width: number; height: number; action: string; label: string }> | undefined;
+      if (!interactions?.length) {
+        return;
+      }
+      document.getElementById(id)?.remove();
+      const namespace = 'http://www.w3.org/2000/svg';
+      const calque = document.createElementNS(namespace, 'svg');
+      calque.id = id;
+      calque.setAttribute('width', '100%');
+      calque.setAttribute('height', '100%');
+      calque.setAttribute('aria-hidden', 'true');
+      calque.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
 
-    const tracer = (x1: number, y1: number, x2: number, y2: number, couleur: string, largeur: number): void => {
-      const ligne = document.createElementNS(namespace, 'line');
-      ligne.setAttribute('x1', String(x1));
-      ligne.setAttribute('y1', String(y1));
-      ligne.setAttribute('x2', String(x2));
-      ligne.setAttribute('y2', String(y2));
-      ligne.setAttribute('stroke', couleur);
-      ligne.setAttribute('stroke-width', String(largeur));
-      ligne.setAttribute('stroke-linecap', 'round');
-      calque.appendChild(ligne);
-    };
+      const tracer = (x1: number, y1: number, x2: number, y2: number, couleur: string, largeur: number): void => {
+        const ligne = document.createElementNS(namespace, 'line');
+        ligne.setAttribute('x1', String(x1));
+        ligne.setAttribute('y1', String(y1));
+        ligne.setAttribute('x2', String(x2));
+        ligne.setAttribute('y2', String(y2));
+        ligne.setAttribute('stroke', couleur);
+        ligne.setAttribute('stroke-width', String(largeur));
+        ligne.setAttribute('stroke-linecap', 'round');
+        calque.appendChild(ligne);
+      };
 
-    interactions.forEach(interaction => {
-      // La pointe arrive juste à l'intérieur du coin du contrôle. Par défaut la flèche vient
-      // d'en haut à gauche ; près du bord supérieur elle vient d'en bas à gauche.
-      const finX = interaction.x + Math.min(18, interaction.width / 3);
-      const finY = interaction.y + Math.min(14, interaction.height / 3);
-      const depuisLeBas = finY < 55;
-      const debutX = Math.max(8, finX - 42);
-      const debutY = depuisLeBas ? finY + 42 : finY - 42;
-      const angle = Math.atan2(finY - debutY, finX - debutX);
-      const longueurPointe = 13;
-      const ouverture = Math.PI / 7;
-      const p1x = finX - longueurPointe * Math.cos(angle - ouverture);
-      const p1y = finY - longueurPointe * Math.sin(angle - ouverture);
-      const p2x = finX - longueurPointe * Math.cos(angle + ouverture);
-      const p2y = finY - longueurPointe * Math.sin(angle + ouverture);
+      interactions.forEach(interaction => {
+        // La pointe arrive juste à l'intérieur du coin du contrôle. Par défaut la flèche vient
+        // d'en haut à gauche ; près du bord supérieur elle vient d'en bas à gauche.
+        const finX = interaction.x + Math.min(18, interaction.width / 3);
+        const finY = interaction.y + Math.min(14, interaction.height / 3);
+        const depuisLeBas = finY < 55;
+        const debutX = Math.max(8, finX - 42);
+        const debutY = depuisLeBas ? finY + 42 : finY - 42;
+        const angle = Math.atan2(finY - debutY, finX - debutX);
+        const longueurPointe = 13;
+        const ouverture = Math.PI / 7;
+        const p1x = finX - longueurPointe * Math.cos(angle - ouverture);
+        const p1y = finY - longueurPointe * Math.sin(angle - ouverture);
+        const p2x = finX - longueurPointe * Math.cos(angle + ouverture);
+        const p2y = finY - longueurPointe * Math.sin(angle + ouverture);
 
-      // Liseré blanc sous la flèche : elle reste visible sur un bouton clair comme foncé.
-      tracer(debutX, debutY, finX, finY, 'white', 7);
-      tracer(debutX, debutY, finX, finY, '#e84b0f', 3.5);
+        // Liseré blanc sous la flèche : elle reste visible sur un bouton clair comme foncé.
+        tracer(debutX, debutY, finX, finY, 'white', 7);
+        tracer(debutX, debutY, finX, finY, '#e84b0f', 3.5);
 
-      const pointe = document.createElementNS(namespace, 'polygon');
-      pointe.setAttribute('points', `${finX},${finY} ${p1x},${p1y} ${p2x},${p2y}`);
-      pointe.setAttribute('fill', '#e84b0f');
-      pointe.setAttribute('stroke', 'white');
-      pointe.setAttribute('stroke-width', '2');
-      pointe.setAttribute('stroke-linejoin', 'round');
-      calque.appendChild(pointe);
-    });
-    document.body.appendChild(calque);
-  }, { cle: CLE_INTERACTIONS, id: ID_CALQUE_ACTIONS });
+        const pointe = document.createElementNS(namespace, 'polygon');
+        pointe.setAttribute('points', `${finX},${finY} ${p1x},${p1y} ${p2x},${p2y}`);
+        pointe.setAttribute('fill', '#e84b0f');
+        pointe.setAttribute('stroke', 'white');
+        pointe.setAttribute('stroke-width', '2');
+        pointe.setAttribute('stroke-linejoin', 'round');
+        calque.appendChild(pointe);
+      });
+      document.body.appendChild(calque);
+    },
+    { cle: CLE_INTERACTIONS, id: ID_CALQUE_ACTIONS },
+  );
 }
 
 async function masquerMarqueursActions(page: Page): Promise<void> {
-  await page.evaluate((id): void => {
-    document.getElementById(id)?.remove();
-  }, ID_CALQUE_ACTIONS).catch((): undefined => undefined);
+  await page
+    .evaluate((id): void => {
+      document.getElementById(id)?.remove();
+    }, ID_CALQUE_ACTIONS)
+    .catch((): undefined => undefined);
 }
 
 /**
@@ -284,52 +302,90 @@ async function cadrer(page: Page): Promise<{ x: number; y: number; width: number
     .boundingBox()
     .catch((): null => null);
 
-  const { basContenuSignificatif, elementMax } = await page.evaluate((hauteurFenetre): { basContenuSignificatif: number; elementMax: string } => {
-    const selecteurs = [
-      '#main-content h1', '#main-content h2', '#main-content h3', '#main-content h4', '#main-content h5', '#main-content h6',
-      '#main-content p', '#main-content li', '#main-content td', '#main-content th', '#main-content tr',
-      '#main-content button', '#main-content input', '#main-content textarea', '#main-content select', '#main-content label',
-      '#main-content a', '#main-content span', '#main-content strong', '#main-content b', '#main-content small',
-      '#main-content img', '#main-content svg', '#main-content canvas',
-      '#main-content [role="button"]', '#main-content [role="option"]', '#main-content [role="alert"]', '#main-content [role="gridcell"]',
-      '#main-content [role="tab"]',
-      '#main-content .ag-row', '#main-content .ag-header',
-      '#main-content .grid-caption', '#main-content .badge', '#main-content app-badge', '#main-content app-button',
-      '#main-content .alert', '#main-content .toast',
-      '.modal-content', '.popover', 'ngb-popover-window', '.dropdown-menu.show',
-      // Hors de `#main-content`, comme les modales : le conteneur de toasts est posé au
-      // niveau du document. Sans lui, un scénario dont le RÉSULTAT est un message de
-      // confirmation — « 2 produit(s) rattaché(s) » — se voit rogné juste au-dessus de ce
-      // qu'il fallait montrer, et la capture contredit sa propre légende.
-      '.toast-container', 'ngb-toast',
-    ].join(',');
-    let bas = 0;
-    let maxEl = '';
-    for (const element of document.querySelectorAll(selecteurs)) {
-      if (!(element instanceof HTMLElement || element instanceof SVGElement)) {
-        continue;
-      }
-      const style = getComputedStyle(element);
-      const rectangle = element.getBoundingClientRect();
-      const visible = style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0
-        && rectangle.width > 1 && rectangle.height > 1 && rectangle.bottom > 0 && rectangle.top < hauteurFenetre;
-      if (visible && rectangle.height < hauteurFenetre * 0.9) {
-        if (rectangle.bottom > bas) {
-          bas = Math.min(hauteurFenetre, rectangle.bottom);
-          maxEl = `${element.tagName}.${element.className} (top=${Math.round(rectangle.top)}, bottom=${Math.round(rectangle.bottom)}, h=${Math.round(rectangle.height)}, text=${(element.textContent || '').trim().slice(0, 30)})`;
+  const { basContenuSignificatif, elementMax } = await page.evaluate(
+    (hauteurFenetre): { basContenuSignificatif: number; elementMax: string } => {
+      const selecteurs = [
+        '#main-content h1',
+        '#main-content h2',
+        '#main-content h3',
+        '#main-content h4',
+        '#main-content h5',
+        '#main-content h6',
+        '#main-content p',
+        '#main-content li',
+        '#main-content td',
+        '#main-content th',
+        '#main-content tr',
+        '#main-content button',
+        '#main-content input',
+        '#main-content textarea',
+        '#main-content select',
+        '#main-content label',
+        '#main-content a',
+        '#main-content span',
+        '#main-content strong',
+        '#main-content b',
+        '#main-content small',
+        '#main-content img',
+        '#main-content svg',
+        '#main-content canvas',
+        '#main-content [role="button"]',
+        '#main-content [role="option"]',
+        '#main-content [role="alert"]',
+        '#main-content [role="gridcell"]',
+        '#main-content [role="tab"]',
+        '#main-content .ag-row',
+        '#main-content .ag-header',
+        '#main-content .grid-caption',
+        '#main-content .badge',
+        '#main-content app-badge',
+        '#main-content app-button',
+        '#main-content .alert',
+        '#main-content .toast',
+        '.modal-content',
+        '.popover',
+        'ngb-popover-window',
+        '.dropdown-menu.show',
+        // Hors de `#main-content`, comme les modales : le conteneur de toasts est posé au
+        // niveau du document. Sans lui, un scénario dont le RÉSULTAT est un message de
+        // confirmation — « 2 produit(s) rattaché(s) » — se voit rogné juste au-dessus de ce
+        // qu'il fallait montrer, et la capture contredit sa propre légende.
+        '.toast-container',
+        'ngb-toast',
+      ].join(',');
+      let bas = 0;
+      let maxEl = '';
+      for (const element of document.querySelectorAll(selecteurs)) {
+        if (!(element instanceof HTMLElement || element instanceof SVGElement)) {
+          continue;
+        }
+        const style = getComputedStyle(element);
+        const rectangle = element.getBoundingClientRect();
+        const visible =
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          Number(style.opacity) !== 0 &&
+          rectangle.width > 1 &&
+          rectangle.height > 1 &&
+          rectangle.bottom > 0 &&
+          rectangle.top < hauteurFenetre;
+        if (visible && rectangle.height < hauteurFenetre * 0.9) {
+          if (rectangle.bottom > bas) {
+            bas = Math.min(hauteurFenetre, rectangle.bottom);
+            maxEl = `${element.tagName}.${element.className} (top=${Math.round(rectangle.top)}, bottom=${Math.round(rectangle.bottom)}, h=${Math.round(rectangle.height)}, text=${(element.textContent || '').trim().slice(0, 30)})`;
+          }
         }
       }
-    }
-    return { basContenuSignificatif: Math.ceil(bas), elementMax: maxEl };
-  }, fenetre.height);
+      return { basContenuSignificatif: Math.ceil(bas), elementMax: maxEl };
+    },
+    fenetre.height,
+  );
   console.log(`[CADRAGE] max element: ${elementMax}`);
 
   const basStructurel = boite ? Math.ceil(boite.y + boite.height) : fenetre.height;
   // Les éléments sémantiques visibles donnent la borne la plus fidèle du contenu réel,
   // évitant de capturer le fond d'écran ou l'espace vide sous les grilles.
-  const basUtile = basContenuSignificatif > 0
-    ? basContenuSignificatif
-    : basStructurel;
+  const basUtile = basContenuSignificatif > 0 ? basContenuSignificatif : basStructurel;
   const hauteur = Math.min(fenetre.height, Math.max(1, basUtile + MARGE_CADRAGE));
   // Seule une image déjà ajustée au pixel près reste en pleine hauteur. Une économie même
   // modeste devient significative lorsqu'elle est répétée dans plusieurs centaines de vues.

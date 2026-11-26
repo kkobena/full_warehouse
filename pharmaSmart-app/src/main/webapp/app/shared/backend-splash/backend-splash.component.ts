@@ -1,12 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit, signal } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {BackendStatus, BackendStatusService} from 'app/core/tauri/backend-status.service';
-import {Subscription} from 'rxjs';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BackendStatus, BackendStatusService } from 'app/core/tauri/backend-status.service';
+import { Subscription } from 'rxjs';
 
 // États qui n'impliquent pas l'affichage du splash (états opérationnels normaux)
 const HIDDEN_STATES = new Set(['ready', 'stopped', 'stopping']);

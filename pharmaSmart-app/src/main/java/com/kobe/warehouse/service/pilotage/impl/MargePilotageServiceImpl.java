@@ -47,12 +47,11 @@ public class MargePilotageServiceImpl implements MargePilotageService {
     private final AppConfigurationService appConfigurationService;
 
     public MargePilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        VentilateurPilotage ventilateurPilotage,
-        PilotageVentesDetailRepository pilotageVentesDetailRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            VentilateurPilotage ventilateurPilotage,
+            PilotageVentesDetailRepository pilotageVentesDetailRepository,
+            AppConfigurationService appConfigurationService) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.ventilateurPilotage = ventilateurPilotage;
@@ -63,11 +62,13 @@ public class MargePilotageServiceImpl implements MargePilotageService {
     @Override
     public MargeRentabiliteDTO analyserMarge(RequetePilotageDTO requete, AxeAnalyse axe) {
         if (!axe.estLuEnBase() || !axe.getSources().contains(SourceAnalyse.LIGNES)) {
-            throw new GenericError("La marge ne se ventile pas par " + axe.getLibelle().toLowerCase());
+            throw new GenericError(
+                    "La marge ne se ventile pas par " + axe.getLibelle().toLowerCase());
         }
         dictionnaireIndicateursService.verifierAxesAutorises(List.of(axe));
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, LocalDate.now());
-        var ventilation = ventilateurPilotage.comparer(SourceAnalyse.LIGNES, comparaison, axe, null, List.of(), requete.granularite());
+        var ventilation = ventilateurPilotage.comparer(
+                SourceAnalyse.LIGNES, comparaison, axe, null, List.of(), requete.granularite());
         boolean avecReference = comparaison.reference() != null;
         MargeElement total = MargeElement.lire(ventilation.total());
 
@@ -77,57 +78,62 @@ public class MargePilotageServiceImpl implements MargePilotageService {
         for (MesuresComparees element : ventilation.elements()) {
             MargeElement marge = MargeElement.lire(element);
             lignes.add(marge.versLigne(element, avecReference));
-            effetMix += (marge.poids(total.caHt()) - marge.poidsReference(total.caHtReference())) * marge.tauxDeReference();
+            effetMix +=
+                    (marge.poids(total.caHt()) - marge.poidsReference(total.caHtReference())) * marge.tauxDeReference();
             effetTaux += marge.poids(total.caHt()) * (marge.tauxDeLaPeriode() - marge.tauxDeReference());
         }
         lignes.sort(Comparator.comparingLong(LigneMargeDTO::marge).reversed());
 
         int seuil = appConfigurationService.getSeuilFaibleMargePilotage();
         return new MargeRentabiliteDTO(
-            comparaison,
-            AxeAnalyseDTO.fromAxe(axe),
-            total.taux(),
-            avecReference ? total.tauxReference() : null,
-            avecReference ? effetMix * CENT : null,
-            avecReference ? effetTaux * CENT : null,
-            lignes,
-            seuil,
-            listerFaiblesMarges(comparaison, requete, axe == AxeAnalyse.PRODUIT ? lignes : null, seuil),
-            listerVentesAMargeNegative(comparaison)
-        );
+                comparaison,
+                AxeAnalyseDTO.fromAxe(axe),
+                total.taux(),
+                avecReference ? total.tauxReference() : null,
+                avecReference ? effetMix * CENT : null,
+                avecReference ? effetTaux * CENT : null,
+                lignes,
+                seuil,
+                listerFaiblesMarges(comparaison, requete, axe == AxeAnalyse.PRODUIT ? lignes : null, seuil),
+                listerVentesAMargeNegative(comparaison));
     }
 
     /** Produits vendus sous le seuil, les plus gros CA d'abord : c'est là que la marge se perd. */
-    private List<LigneMargeDTO> listerFaiblesMarges(ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, List<LigneMargeDTO> produits, int seuil) {
+    private List<LigneMargeDTO> listerFaiblesMarges(
+            ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, List<LigneMargeDTO> produits, int seuil) {
         List<LigneMargeDTO> parProduit = produits != null
-            ? produits
-            : ventilateurPilotage
-                .comparer(SourceAnalyse.LIGNES, new ComparaisonPeriodesDTO(comparaison.periode(), null, comparaison.aDate()), AxeAnalyse.PRODUIT, null, List.of(), requete.granularite())
-                .elements()
-                .stream()
-                .map(element -> MargeElement.lire(element).versLigne(element, false))
+                ? produits
+                : ventilateurPilotage
+                        .comparer(
+                                SourceAnalyse.LIGNES,
+                                new ComparaisonPeriodesDTO(comparaison.periode(), null, comparaison.aDate()),
+                                AxeAnalyse.PRODUIT,
+                                null,
+                                List.of(),
+                                requete.granularite())
+                        .elements()
+                        .stream()
+                        .map(element -> MargeElement.lire(element).versLigne(element, false))
+                        .toList();
+        return parProduit.stream()
+                .filter(ligne -> ligne.caHt() > 0 && ligne.taux() != null && ligne.taux() < seuil)
+                .sorted(Comparator.comparingLong(LigneMargeDTO::caHt).reversed())
+                .limit(FAIBLES_MARGES_MAX)
                 .toList();
-        return parProduit
-            .stream()
-            .filter(ligne -> ligne.caHt() > 0 && ligne.taux() != null && ligne.taux() < seuil)
-            .sorted(Comparator.comparingLong(LigneMargeDTO::caHt).reversed())
-            .limit(FAIBLES_MARGES_MAX)
-            .toList();
     }
 
     private List<VenteMargeDTO> listerVentesAMargeNegative(ComparaisonPeriodesDTO comparaison) {
-        boolean voitLEquipe = dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.CLIENTS_EQUIPE);
+        boolean voitLEquipe =
+                dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.CLIENTS_EQUIPE);
         return pilotageVentesDetailRepository
-            .listerVentesAMargeNegative(
-                comparaison.periode().du(),
-                comparaison.periode().au(),
-                SalesStatut.CLOSED,
-                CategorieChiffreAffaire.officine(),
-                PageRequest.of(0, VENTES_MAX)
-            )
-            .stream()
-            .map(vente -> voitLEquipe ? vente : vente.masquerVendeur())
-            .toList();
+                .listerVentesAMargeNegative(
+                        comparaison.periode().du(),
+                        comparaison.periode().au(),
+                        SalesStatut.CLOSED,
+                        CategorieChiffreAffaire.officine(),
+                        PageRequest.of(0, VENTES_MAX))
+                .stream()
+                .map(vente -> voitLEquipe ? vente : vente.masquerVendeur())
+                .toList();
     }
-
 }

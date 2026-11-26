@@ -10,13 +10,12 @@ import java.util.List;
  * @param montant      montant de la vente, remise déduite
  */
 public record DepenseDTO(
-    LocalDate date,
-    String reference,
-    String beneficiaire,
-    List<ProduitDepenseDTO> produits,
-    long montant,
-    long partTiersPayant,
-    long partClient
-) {
+        LocalDate date,
+        String reference,
+        String beneficiaire,
+        List<ProduitDepenseDTO> produits,
+        long montant,
+        long partTiersPayant,
+        long partClient) {
     public record ProduitDepenseDTO(String libelle, int quantite, long montant) {}
 }

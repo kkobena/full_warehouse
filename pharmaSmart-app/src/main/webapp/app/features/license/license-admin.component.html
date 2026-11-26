@@ -1,5 +1,4 @@
 <div class="pharma-smart-content">
-
   <app-toolbar icon="pi pi-key me-2" title="Gérer ma licence">
     <ng-container ngProjectAs="[toolbarHeaderExtra]">
       @if (license(); as info) {
@@ -8,12 +7,8 @@
     </ng-container>
   </app-toolbar>
 
-
-  <div class="license-admin px-3 py-2 ">
-
-
+  <div class="license-admin px-3 py-2">
     <div class="row row-cols-1 row-cols-lg-2 g-2">
-
       <!-- ─────────────────────────── Statut ─────────────────────────── -->
       <div class="col">
         <app-card class="h-100" header="Statut de l'abonnement" icon="pi pi-info-circle text-info">
@@ -72,9 +67,7 @@
       @if (canManage()) {
         <!-- ─────────────────── Demande d'activation (facultative) ─────────────────── -->
         <div class="col">
-          <app-card class="h-100" header="Identification du poste"
-                    icon="pi pi-desktop text-secondary">
-
+          <app-card class="h-100" header="Identification du poste" icon="pi pi-desktop text-secondary">
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <code class="license-admin__fingerprint">{{ fingerprint() ?? 'Indisponible' }}</code>
               <app-button
@@ -84,12 +77,7 @@
                 label="Copier l'empreinte"
                 severity="secondary"
               />
-              <app-button
-                (clicked)="copyActivationRequest()"
-                icon="pi pi-clipboard"
-                label="Copier la demande"
-                severity="secondary"
-              />
+              <app-button (clicked)="copyActivationRequest()" icon="pi pi-clipboard" label="Copier la demande" severity="secondary" />
               @if (publisher()?.emails?.length) {
                 <a [href]="activationMailto()" class="btn btn-outline-primary btn-sm">
                   <i aria-hidden="true" class="pi pi-envelope me-1"></i>Envoyer ma demande
@@ -100,7 +88,7 @@
             @if (publisher(); as editeur) {
               @if (editeur.emails.length || editeur.phones.length) {
                 <p class="text-muted small mb-0 mt-3">
-                  {{ editeur.name ?? "Éditeur" }} —
+                  {{ editeur.name ?? 'Éditeur' }} —
                   @for (email of editeur.emails; track email) {
                     <a [href]="'mailto:' + email" class="me-2">{{ email }}</a>
                   }
@@ -125,16 +113,13 @@
             >
               <i aria-hidden="true" class="pi pi-file-import fs-3 text-muted"></i>
               <p class="mb-2">Déposez ici votre fichier <code>.lic</code></p>
-              <app-file-upload (filesSelected)="onFilesSelected($event)" [maxSizeMb]="1"
-                               accept=".lic"
-                               label="Choisir un fichier" />
+              <app-file-upload (filesSelected)="onFilesSelected($event)" [maxSizeMb]="1" accept=".lic" label="Choisir un fichier" />
             </div>
 
             @if (pendingFile(); as file) {
               <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
                 <span><i aria-hidden="true" class="pi pi-file me-1"></i>{{ file.name }}</span>
-                <app-button severity="primary" (clicked)="activate()" [loading]="activating()" icon="pi pi-check"
-                            label="Activer" />
+                <app-button severity="primary" (clicked)="activate()" [loading]="activating()" icon="pi pi-check" label="Activer" />
               </div>
             }
 
@@ -149,37 +134,34 @@
         <div class="col-12">
           <div class="alert alert-info mb-0" role="alert">
             <i aria-hidden="true" class="pi pi-info-circle me-1"></i>
-            L'activation d'une licence requiert le privilège « Activer et renouveler la licence ».
-            Rapprochez-vous d'un administrateur.
+            L'activation d'une licence requiert le privilège « Activer et renouveler la licence ». Rapprochez-vous d'un administrateur.
           </div>
         </div>
       }
 
       <!-- ──────────────────────── Contacts support ──────────────────────── -->
       @if (licenseService.support(); as support) {
-        @if (support.phones.length || support.emails.length || support.website
-        || support.whatsapp) {
+        @if (support.phones.length || support.emails.length || support.website || support.whatsapp) {
           <div class="col">
-            <app-card [header]="support.resellerName ?? 'Votre revendeur'" class="h-100"
-                      icon="pi pi-headphones text-info">
+            <app-card [header]="support.resellerName ?? 'Votre revendeur'" class="h-100" icon="pi pi-headphones text-info">
               <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
                 @for (phone of support.phones; track phone) {
-                  <li><i aria-hidden="true" class="pi pi-phone me-2"></i><a
-                    [href]="'tel:' + phone">{{ phone }}</a></li>
+                  <li>
+                    <i aria-hidden="true" class="pi pi-phone me-2"></i><a [href]="'tel:' + phone">{{ phone }}</a>
+                  </li>
                 }
                 @for (email of support.emails; track email) {
-                  <li><i aria-hidden="true" class="pi pi-envelope me-2"></i><a
-                    [href]="'mailto:' + email">{{ email }}</a></li>
+                  <li>
+                    <i aria-hidden="true" class="pi pi-envelope me-2"></i><a [href]="'mailto:' + email">{{ email }}</a>
+                  </li>
                 }
                 @if (support.whatsapp) {
-                  <li><i aria-hidden="true" class="pi pi-whatsapp me-2"></i>{{ support.whatsapp }}
-                  </li>
+                  <li><i aria-hidden="true" class="pi pi-whatsapp me-2"></i>{{ support.whatsapp }}</li>
                 }
                 @if (support.website) {
                   <li>
                     <i aria-hidden="true" class="pi pi-globe me-2"></i>
-                    <a [href]="support.website" rel="noopener"
-                       target="_blank">{{ support.website }}</a>
+                    <a [href]="support.website" rel="noopener" target="_blank">{{ support.website }}</a>
                   </li>
                 }
               </ul>
@@ -196,21 +178,19 @@
               <div class="table-responsive">
                 <table class="table table-sm align-middle mb-0">
                   <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Événement</th>
-                    <th scope="col">Détail</th>
-                    <th scope="col">Utilisateur</th>
-                  </tr>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col">Événement</th>
+                      <th scope="col">Détail</th>
+                      <th scope="col">Utilisateur</th>
+                    </tr>
                   </thead>
                   <tbody>
                     @for (entry of auditEntries(); track entry.id) {
                       <tr>
-                        <td class="text-nowrap">{{ entry.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-                        </td>
+                        <td class="text-nowrap">{{ entry.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                         <td>
-                          <app-badge [label]="auditLabels[entry.eventType]"
-                                     [severity]="auditSeverity(entry.eventType)" />
+                          <app-badge [label]="auditLabels[entry.eventType]" [severity]="auditSeverity(entry.eventType)" />
                         </td>
                         <td>{{ entry.detail ?? '—' }}</td>
                         <td>{{ entry.userLogin ?? '—' }}</td>

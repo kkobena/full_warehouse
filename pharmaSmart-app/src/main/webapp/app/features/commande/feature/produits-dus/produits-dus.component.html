@@ -1,11 +1,8 @@
 <app-card class="mt-2">
   <div class="view-panel">
-
     <!-- HEADER -->
     <div class="view-panel__header">
-      <span class="view-panel__label">
-        <i class="pi pi-user-minus"></i>&nbsp;Produits promis aux clients, non commandés
-      </span>
+      <span class="view-panel__label"> <i class="pi pi-user-minus"></i>&nbsp;Produits promis aux clients, non commandés </span>
       <app-button
         (clicked)="charger()"
         [loading]="isLoading()"
@@ -57,10 +54,10 @@
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Produit</th>
-            <th class="text-center" style="width:110px">En attente</th>
-            <th class="text-end" style="width:120px">Unités dues</th>
-            <th class="text-end" style="width:100px">Stock</th>
-            <th class="text-center" style="width:100px">Depuis</th>
+            <th class="text-center" style="width: 110px">En attente</th>
+            <th class="text-end" style="width: 120px">Unités dues</th>
+            <th class="text-end" style="width: 100px">Stock</th>
+            <th class="text-center" style="width: 100px">Depuis</th>
           </tr>
         </ng-template>
 
@@ -69,16 +66,18 @@
             <td>
               <span class="fw-semibold">{{ p.produitLibelle }}</span>
               @if (p.codeEan) {
-                <div><span class="pharma-code">{{ p.codeEan }}</span></div>
+                <div>
+                  <span class="pharma-code">{{ p.codeEan }}</span>
+                </div>
               }
               @if (servableMaintenant(p)) {
-                <div class="pd-servable">
-                  <i class="pi pi-check-circle me-1"></i>En stock — à servir au comptoir, sans commander
-                </div>
+                <div class="pd-servable"><i class="pi pi-check-circle me-1"></i>En stock — à servir au comptoir, sans commander</div>
               }
             </td>
             <td class="text-center">{{ enAttente(p) }}</td>
-            <td class="text-end"><span class="pharma-qty-value">{{ p.quantiteDue }}</span></td>
+            <td class="text-end">
+              <span class="pharma-qty-value">{{ p.quantiteDue }}</span>
+            </td>
             <!-- Le stock peut être négatif : une vente forcée sort la quantité demandée même à zéro. -->
             <td [class.text-danger]="p.stockDisponible < 0" class="text-end">{{ p.stockDisponible }}</td>
             <td class="text-center">
@@ -104,6 +103,5 @@
         </ng-template>
       </app-data-table>
     </div>
-
   </div>
 </app-card>

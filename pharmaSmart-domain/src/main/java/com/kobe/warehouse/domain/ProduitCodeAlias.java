@@ -28,7 +28,9 @@ import java.time.LocalDateTime;
  * code seul : un même code peut viser plusieurs produits, auquel cas l'utilisateur tranche.
  */
 @Entity
-@Table(name = "produit_code_alias", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "code" }) })
+@Table(
+        name = "produit_code_alias",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "code"})})
 public class ProduitCodeAlias implements Serializable {
 
     @Serial

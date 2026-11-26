@@ -31,12 +31,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductsToDestroyRepository
-    extends
-        JpaRepository<ProductsToDestroy, Integer>,
-        JpaSpecificationExecutor<ProductsToDestroy>,
-        SpecificationBuilder,
-        ProductsToDestroyCustomRepository {
-    @Query("SELECT o FROM ProductsToDestroy o WHERE o.editing  AND FUNCTION('DATE',o.created) =:toDay AND o.user.id =:userId")
+        extends JpaRepository<ProductsToDestroy, Integer>,
+                JpaSpecificationExecutor<ProductsToDestroy>,
+                SpecificationBuilder,
+                ProductsToDestroyCustomRepository {
+    @Query(
+            "SELECT o FROM ProductsToDestroy o WHERE o.editing  AND FUNCTION('DATE',o.created) =:toDay AND o.user.id =:userId")
     List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals(LocalDate toDay, Integer userId);
 
     Optional<ProductsToDestroy> findByNumLotAndFournisseurProduitProduitId(String numLot, Integer produitId);
@@ -59,13 +59,13 @@ public interface ProductsToDestroyRepository
         if (hasText(searchTerm)) {
             String search = searchTerm.trim().toUpperCase() + "%";
             return (root, _, cb) -> {
-                Join<ProductsToDestroy, FournisseurProduit> produitJoin = root.join(ProductsToDestroy_.fournisseurProduit);
+                Join<ProductsToDestroy, FournisseurProduit> produitJoin =
+                        root.join(ProductsToDestroy_.fournisseurProduit);
                 Join<FournisseurProduit, Produit> produitFournJoin = produitJoin.join(FournisseurProduit_.produit);
                 return cb.or(
-                    cb.like(produitJoin.get(FournisseurProduit_.codeCip), search),
-                    cb.like(root.get(ProductsToDestroy_.numLot), search),
-                    cb.like(cb.upper(produitFournJoin.get(Produit_.libelle)), search)
-                );
+                        cb.like(produitJoin.get(FournisseurProduit_.codeCip), search),
+                        cb.like(root.get(ProductsToDestroy_.numLot), search),
+                        cb.like(cb.upper(produitFournJoin.get(Produit_.libelle)), search));
             };
         }
         return null;
@@ -76,11 +76,11 @@ public interface ProductsToDestroyRepository
             return null;
         }
 
-        return (root, _, cb) ->
-            cb.equal(
-                root.get(ProductsToDestroy_.fournisseurProduit).get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
-                fournisseurId
-            );
+        return (root, _, cb) -> cb.equal(
+                root.get(ProductsToDestroy_.fournisseurProduit)
+                        .get(FournisseurProduit_.fournisseur)
+                        .get(Fournisseur_.id),
+                fournisseurId);
     }
 
     default Specification<ProductsToDestroy> filterByUserId(Integer userId) {

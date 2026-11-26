@@ -1,25 +1,22 @@
-import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { NavApiService, INavRole, IAuthority } from "app/core/data-access/nav-api.service";
+import { NavApiService, INavRole, IAuthority } from 'app/core/data-access/nav-api.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { showCommonModal } from 'app/entities/sales/selling-home/sale-helper';
 import { RoleFormComponent } from './ui/role-form.component';
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ButtonComponent, DataTableComponent, ToolbarComponent } from "../../../shared/ui";
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../shared/ui';
 import { CardComponent } from 'app/shared/ui';
 
-const PREDEFINED = new Set([
-  'ROLE_ADMIN', 'ROLE_USER', 'ROLE_CAISSIER',
-  'ROLE_VENDEUR', 'ROLE_RESPONSABLE_COMMANDE', 'ROLE_PHARMACIEN',
-]);
+const PREDEFINED = new Set(['ROLE_ADMIN', 'ROLE_USER', 'ROLE_CAISSIER', 'ROLE_VENDEUR', 'ROLE_RESPONSABLE_COMMANDE', 'ROLE_PHARMACIEN']);
 
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
+  imports: [CardComponent, FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip],
 })
 export class RoleComponent implements OnInit {
   /**
@@ -31,14 +28,14 @@ export class RoleComponent implements OnInit {
    */
   readonly navCode = input<string>('');
 
-  private readonly navApi      = inject(NavApiService);
-  private readonly notif       = inject(NotificationService);
+  private readonly navApi = inject(NavApiService);
+  private readonly notif = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
 
   /** Émis quand l'utilisateur veut gérer les autorisations d'un rôle. */
   readonly managePermissions = output<string>();
 
-  protected readonly roles   = signal<IAuthority[]>([]);
+  protected readonly roles = signal<IAuthority[]>([]);
   protected readonly loading = signal(false);
 
   // ── Édition inline du libellé ────────────────────────────────────────────
@@ -53,8 +50,14 @@ export class RoleComponent implements OnInit {
   protected loadRoles(): void {
     this.loading.set(true);
     this.navApi.getAllRoles().subscribe({
-      next: roles => { this.roles.set(roles); this.loading.set(false); },
-      error: () => { this.notif.error('Impossible de charger les rôles.'); this.loading.set(false); },
+      next: roles => {
+        this.roles.set(roles);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.notif.error('Impossible de charger les rôles.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -84,10 +87,13 @@ export class RoleComponent implements OnInit {
 
   protected saveEdit(role: INavRole): void {
     const libelle = this.editingLibelle().trim();
-    if (!libelle || libelle === role.libelle) { this.cancelEdit(); return; }
+    if (!libelle || libelle === role.libelle) {
+      this.cancelEdit();
+      return;
+    }
     this.navApi.updateRoleLibelle(role.name!, libelle).subscribe({
       next: () => {
-        this.roles.update(list => list.map(r => r.name === role.name ? { ...r, libelle } : r));
+        this.roles.update(list => list.map(r => (r.name === role.name ? { ...r, libelle } : r)));
         this.cancelEdit();
         this.notif.success('Libellé mis à jour.');
       },

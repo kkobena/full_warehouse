@@ -26,13 +26,11 @@ export class InventoryListFacade {
         this.store.setLoadingList(false);
       },
       error: err => {
-        this.store.setError(
-          this.errorService.getErrorMessage(err, 'Erreur lors du chargement des inventaires'));
+        this.store.setError(this.errorService.getErrorMessage(err, 'Erreur lors du chargement des inventaires'));
         this.store.setLoadingList(false);
       },
     });
   }
-
 
   deleteInventory(id: number): void {
     this.store.setLoadingList(true);
@@ -42,8 +40,7 @@ export class InventoryListFacade {
         this.store.emitEvent('INVENTORY_DELETED', { id });
       },
       error: err => {
-        this.store.setError(
-          this.errorService.getErrorMessage(err, "Erreur lors de la suppression de l'inventaire"));
+        this.store.setError(this.errorService.getErrorMessage(err, "Erreur lors de la suppression de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });
@@ -57,8 +54,7 @@ export class InventoryListFacade {
         this.store.emitEvent('INVENTORY_CLOSED', { id, count: resp.body?.count });
       },
       error: err => {
-        this.store.setError(
-          this.errorService.getErrorMessage(err, "Erreur lors de la clôture de l'inventaire"));
+        this.store.setError(this.errorService.getErrorMessage(err, "Erreur lors de la clôture de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });
@@ -72,8 +68,7 @@ export class InventoryListFacade {
         this.store.setLoadingList(false);
       },
       error: err => {
-        this.store.setError(
-          this.errorService.getErrorMessage(err, "Erreur lors du chargement de l'inventaire"));
+        this.store.setError(this.errorService.getErrorMessage(err, "Erreur lors du chargement de l'inventaire"));
         this.store.setLoadingList(false);
       },
     });

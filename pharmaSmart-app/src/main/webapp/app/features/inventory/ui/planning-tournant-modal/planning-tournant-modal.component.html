@@ -7,119 +7,119 @@
 </div>
 
 <div class="modal-body">
-<app-card [variant]="'form'">
-  <form [formGroup]="form">
-    <!-- Libellé -->
-    <div class="mb-3">
-      <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
-      <input id="libelle" formControlName="libelle" class="form-control w-100"
-             placeholder="Ex: Inventaire hebdo rayon A..." />
-      @if (form.get('libelle')?.invalid && form.get('libelle')?.touched) {
-        <div class="text-danger small mt-1">Le libellé est obligatoire</div>
-      }
-    </div>
+  <app-card [variant]="'form'">
+    <form [formGroup]="form">
+      <!-- Libellé -->
+      <div class="mb-3">
+        <label class="form-label" for="libelle">Libellé <span class="text-danger">*</span></label>
+        <input id="libelle" formControlName="libelle" class="form-control w-100" placeholder="Ex: Inventaire hebdo rayon A..." />
+        @if (form.get('libelle')?.invalid && form.get('libelle')?.touched) {
+          <div class="text-danger small mt-1">Le libellé est obligatoire</div>
+        }
+      </div>
 
-    <!-- Fréquence -->
-    <div class="mb-3">
-      <label class="form-label" for="frequence">Fréquence <span class="text-danger">*</span></label>
-      <app-select
-        inputId="frequence"
-        [items]="frequences"
-        formControlName="frequence"
-        bindLabel="label"
-        bindValue="value"
-        appendTo="body"
-        placeholder="Sélectionner une fréquence"
-      />
-    </div>
+      <!-- Fréquence -->
+      <div class="mb-3">
+        <label class="form-label" for="frequence">Fréquence <span class="text-danger">*</span></label>
+        <app-select
+          inputId="frequence"
+          [items]="frequences"
+          formControlName="frequence"
+          bindLabel="label"
+          bindValue="value"
+          appendTo="body"
+          placeholder="Sélectionner une fréquence"
+        />
+      </div>
 
-    <!-- Critère de rotation -->
-    <div class="mb-3">
-      <label class="form-label" for="critere">Critère de rotation <span class="text-danger">*</span></label>
-      <app-select
-        inputId="critere"
-        [items]="criteres"
-        formControlName="critere"
-        bindLabel="label"
-        bindValue="value"
-        appendTo="body"
-        placeholder="Sélectionner un critère"
-      />
-      @if (form.get('critere')?.value) {
+      <!-- Critère de rotation -->
+      <div class="mb-3">
+        <label class="form-label" for="critere">Critère de rotation <span class="text-danger">*</span></label>
+        <app-select
+          inputId="critere"
+          [items]="criteres"
+          formControlName="critere"
+          bindLabel="label"
+          bindValue="value"
+          appendTo="body"
+          placeholder="Sélectionner un critère"
+        />
+        @if (form.get('critere')?.value) {
+          <div class="field-hint mt-1">
+            <i class="pi pi-info-circle"></i>
+            @switch (form.get('critere')?.value) {
+              @case ('RAYON') {
+                Chaque exécution inventorie le rayon suivant du storage.
+              }
+              @case ('FAMILLE') {
+                Chaque exécution inventorie la famille de produits suivante.
+              }
+              @case ('CLASSIFICATION_ABC') {
+                Rotation A+ → A → B → C → D → A+ sur la classification Pareto.
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Storage de référence -->
+      <div class="mb-3">
+        <label class="form-label" for="storageId">Storage de référence</label>
+        <app-select
+          inputId="storageId"
+          [items]="storages()"
+          formControlName="storageId"
+          bindLabel="name"
+          bindValue="id"
+          appendTo="body"
+          [clearable]="true"
+          placeholder="Tous les storages"
+        />
+      </div>
+
+      <!-- Employé affecté -->
+      <div class="mb-3">
+        <label class="form-label" for="userId">
+          Employé affecté
+          <i class="pi pi-info-circle ms-1 text-muted" ngbTooltip="L'inventaire créé automatiquement sera assigné à cet employé."></i>
+        </label>
+        <app-select-search
+          inputId="userId"
+          [items]="users()"
+          formControlName="userId"
+          bindLabel="displayLabel"
+          bindValue="id"
+          appendTo="body"
+          [clearable]="true"
+          placeholder="Non affecté"
+          [optionTemplate]="userOption"
+        />
+        <ng-template #userOption let-user>
+          <span>{{ user.displayLabel }}</span>
+          <small class="text-muted ms-2">{{ user.login }}</small>
+        </ng-template>
         <div class="field-hint mt-1">
           <i class="pi pi-info-circle"></i>
-          @switch (form.get('critere')?.value) {
-            @case ('RAYON') { Chaque exécution inventorie le rayon suivant du storage. }
-            @case ('FAMILLE') { Chaque exécution inventorie la famille de produits suivante. }
-            @case ('CLASSIFICATION_ABC') { Rotation A+ → A → B → C → D → A+ sur la classification Pareto. }
-          }
+          Si non renseigné, le premier utilisateur actif du système sera utilisé.
         </div>
-      }
-    </div>
-
-    <!-- Storage de référence -->
-    <div class="mb-3">
-      <label class="form-label" for="storageId">Storage de référence</label>
-      <app-select
-        inputId="storageId"
-        [items]="storages()"
-        formControlName="storageId"
-        bindLabel="name"
-        bindValue="id"
-        appendTo="body"
-        [clearable]="true"
-        placeholder="Tous les storages"
-      />
-    </div>
-
-    <!-- Employé affecté -->
-    <div class="mb-3">
-      <label class="form-label" for="userId">
-        Employé affecté
-        <i class="pi pi-info-circle ms-1 text-muted"
-           ngbTooltip="L'inventaire créé automatiquement sera assigné à cet employé."></i>
-      </label>
-      <app-select-search
-        inputId="userId"
-        [items]="users()"
-        formControlName="userId"
-        bindLabel="displayLabel"
-        bindValue="id"
-        appendTo="body"
-        [clearable]="true"
-        placeholder="Non affecté"
-        [optionTemplate]="userOption"
-      />
-      <ng-template #userOption let-user>
-        <span>{{ user.displayLabel }}</span>
-        <small class="text-muted ms-2">{{ user.login }}</small>
-      </ng-template>
-      <div class="field-hint mt-1">
-        <i class="pi pi-info-circle"></i>
-        Si non renseigné, le premier utilisateur actif du système sera utilisé.
       </div>
-    </div>
 
-    <!-- Prochaine exécution -->
-    <div class="mb-3">
-      <label class="form-label" for="prochaineExecution">
-        Prochaine exécution
-        @if (!planning) {
-          <span class="text-muted fw-normal small ms-1">(calculée selon la fréquence)</span>
-        }
-      </label>
-      <pharma-date-picker
-        inputId="prochaineExecution"
-        formControlName="prochaineExecution"
-        label=""
-      />
-      <div class="field-hint mt-1">
-        <i class="pi pi-info-circle"></i>
-        Vous pouvez ajuster cette date si nécessaire.
+      <!-- Prochaine exécution -->
+      <div class="mb-3">
+        <label class="form-label" for="prochaineExecution">
+          Prochaine exécution
+          @if (!planning) {
+            <span class="text-muted fw-normal small ms-1">(calculée selon la fréquence)</span>
+          }
+        </label>
+        <pharma-date-picker inputId="prochaineExecution" formControlName="prochaineExecution" label="" />
+        <div class="field-hint mt-1">
+          <i class="pi pi-info-circle"></i>
+          Vous pouvez ajuster cette date si nécessaire.
+        </div>
       </div>
-    </div>
-  </form>
-</app-card>
+    </form>
+  </app-card>
 </div>
 
 <div class="modal-footer flex-column align-items-stretch gap-2">
@@ -130,14 +130,7 @@
     </div>
   }
   <div class="d-flex justify-content-end gap-2 w-100">
-    <app-button
-      label="Annuler"
-      icon="pi pi-times"
-      severity="secondary"
-      [raised]="true"
-      [disabled]="loading()"
-      (clicked)="dismiss()"
-    />
+    <app-button label="Annuler" icon="pi pi-times" severity="secondary" [raised]="true" [disabled]="loading()" (clicked)="dismiss()" />
     <app-button
       [label]="planning ? 'Modifier' : 'Créer'"
       icon="pi pi-check"

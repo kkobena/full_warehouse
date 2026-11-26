@@ -66,14 +66,15 @@ class ExportsExcelCsvReportServicesTest {
     class AlertesDeStock {
 
         private final StockAlertReportService reportService = mock(StockAlertReportService.class);
-        private final StockAlertExcelCsvReportService service = new StockAlertExcelCsvReportService(excel, csv, reportService);
+        private final StockAlertExcelCsvReportService service =
+                new StockAlertExcelCsvReportService(excel, csv, reportService);
 
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, toutes renseignées")
         void parite() throws Exception {
-            when(reportService.getStockAlerts(any(), any(Pageable.class))).thenReturn(
-                new PageImpl<>(List.of(new StockAlertDTO(1, "DOLIPRANE", "CIP1", 3, 10, LocalDate.of(2026, 6, 30), StockAlertType.ALERTE)))
-            );
+            when(reportService.getStockAlerts(any(), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(new StockAlertDTO(
+                            1, "DOLIPRANE", "CIP1", 3, 10, LocalDate.of(2026, 6, 30), StockAlertType.ALERTE))));
             when(reportService.getStockAlertsCount()).thenReturn(java.util.Map.of());
 
             verifieLaParite(service.exportToExcel(null), service.exportToCsv(null));
@@ -87,7 +88,7 @@ class ExportsExcelCsvReportServicesTest {
             when(reportService.getStockAlertsCount()).thenReturn(java.util.Map.of());
 
             assertThat(titreDuCsv(service.exportToCsv(List.of(StockAlertType.RUPTURE, StockAlertType.ALERTE))))
-                .isEqualTo("Alertes Stock - RUPTURE, ALERTE");
+                    .isEqualTo("Alertes Stock - RUPTURE, ALERTE");
             assertThat(titreDuCsv(service.exportToCsv(null))).isEqualTo("Alertes Stock");
         }
     }
@@ -99,7 +100,8 @@ class ExportsExcelCsvReportServicesTest {
     class VenteDepot {
 
         private final SaleDataService saleDataService = mock(SaleDataService.class);
-        private final StockDepotExcelCsvReportService service = new StockDepotExcelCsvReportService(excel, csv, saleDataService);
+        private final StockDepotExcelCsvReportService service =
+                new StockDepotExcelCsvReportService(excel, csv, saleDataService);
 
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, toutes renseignées")
@@ -143,12 +145,14 @@ class ExportsExcelCsvReportServicesTest {
     class LotsPerimes {
 
         private final LotService lotService = mock(LotService.class);
-        private final LotPerimeExcelCsvReportService service = new LotPerimeExcelCsvReportService(excel, csv, lotService);
+        private final LotPerimeExcelCsvReportService service =
+                new LotPerimeExcelCsvReportService(excel, csv, lotService);
 
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, toutes renseignées")
         void parite() throws Exception {
-            when(lotService.findLotsPerimes(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(lotPerime())));
+            when(lotService.findLotsPerimes(any(), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(lotPerime())));
 
             verifieLaParite(service.exportToExcel(filtre(DEBUT, FIN)), service.exportToCsv(filtre(DEBUT, FIN)));
         }
@@ -159,11 +163,11 @@ class ExportsExcelCsvReportServicesTest {
             when(lotService.findLotsPerimes(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
 
             assertThat(titreDuCsv(service.exportToCsv(filtre(DEBUT, FIN))))
-                .isEqualTo("Liste des produits périmés du 05-01-2026 au 31-03-2026");
+                    .isEqualTo("Liste des produits périmés du 05-01-2026 au 31-03-2026");
             assertThat(titreDuCsv(service.exportToCsv(filtre(DEBUT, null))))
-                .isEqualTo("Liste des produits périmés à partir du 05-01-2026");
+                    .isEqualTo("Liste des produits périmés à partir du 05-01-2026");
             assertThat(titreDuCsv(service.exportToCsv(filtre(null, FIN))))
-                .isEqualTo("Liste des produits périmés jusqu'au 31-03-2026");
+                    .isEqualTo("Liste des produits périmés jusqu'au 31-03-2026");
             assertThat(titreDuCsv(service.exportToCsv(filtre(null, null)))).isEqualTo("Liste des produits périmés");
         }
 
@@ -200,16 +204,14 @@ class ExportsExcelCsvReportServicesTest {
     class ProduitsADetruire {
 
         private final ProductsToDestroyService productsToDestroyService = mock(ProductsToDestroyService.class);
-        private final ProductToDestroyExcelCsvReportService service = new ProductToDestroyExcelCsvReportService(
-            excel,
-            csv,
-            productsToDestroyService
-        );
+        private final ProductToDestroyExcelCsvReportService service =
+                new ProductToDestroyExcelCsvReportService(excel, csv, productsToDestroyService);
 
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, toutes renseignées")
         void parite() throws Exception {
-            when(productsToDestroyService.findAll(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(produitADetruire())));
+            when(productsToDestroyService.findAll(any(), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(produitADetruire())));
 
             verifieLaParite(service.exportToExcel(filtre(DEBUT, FIN)), service.exportToCsv(filtre(DEBUT, FIN)));
         }
@@ -218,7 +220,8 @@ class ExportsExcelCsvReportServicesTest {
         @Test
         @DisplayName("l'état de destruction se lit en toutes lettres")
         void etatDeDestruction() throws Exception {
-            when(productsToDestroyService.findAll(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(produitADetruire())));
+            when(productsToDestroyService.findAll(any(), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(produitADetruire())));
 
             List<String> entetes = entetesDuCsv(service.exportToCsv(filtre(DEBUT, FIN)));
             List<String> valeurs = premiereDonneeDuCsv(service.exportToCsv(filtre(DEBUT, FIN)));
@@ -256,17 +259,15 @@ class ExportsExcelCsvReportServicesTest {
     class RetoursFournisseur {
 
         private final RetourBonService retourBonService = mock(RetourBonService.class);
-        private final RetourBonExcelCsvReportService service = new RetourBonExcelCsvReportService(excel, csv, retourBonService);
+        private final RetourBonExcelCsvReportService service =
+                new RetourBonExcelCsvReportService(excel, csv, retourBonService);
 
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, toutes renseignées")
         void parite() throws Exception {
             bonsRetournes(bon("BR-1", ligneRetour("DOLIPRANE", 10, 6_000)));
 
-            verifieLaParite(
-                service.exportToExcel(null, DEBUT, FIN, null),
-                service.exportToCsv(null, DEBUT, FIN, null)
-            );
+            verifieLaParite(service.exportToExcel(null, DEBUT, FIN, null), service.exportToCsv(null, DEBUT, FIN, null));
         }
 
         /**
@@ -277,11 +278,11 @@ class ExportsExcelCsvReportServicesTest {
         @DisplayName("chaque ligne de produit devient une ligne du tableau")
         void aplatissementDesLignes() throws Exception {
             bonsRetournes(
-                bon("BR-1", ligneRetour("DOLIPRANE", 10, 6_000), ligneRetour("EFFERALGAN", 5, 4_000)),
-                bon("BR-2", ligneRetour("ZOVIRAX", 2, 12_000), ligneRetour("MOTILIUM", 3, 8_000))
-            );
+                    bon("BR-1", ligneRetour("DOLIPRANE", 10, 6_000), ligneRetour("EFFERALGAN", 5, 4_000)),
+                    bon("BR-2", ligneRetour("ZOVIRAX", 2, 12_000), ligneRetour("MOTILIUM", 3, 8_000)));
 
-            assertThat(donneesDuCsv(service.exportToCsv(null, DEBUT, FIN, null))).hasSize(4);
+            assertThat(donneesDuCsv(service.exportToCsv(null, DEBUT, FIN, null)))
+                    .hasSize(4);
         }
 
         /** Le montant du retour est le prix d'achat multiplié par la quantité renvoyée. */
@@ -302,17 +303,18 @@ class ExportsExcelCsvReportServicesTest {
             bonsRetournes();
 
             assertThat(titreDuCsv(service.exportToCsv(null, DEBUT, FIN, null)))
-                .isEqualTo("Liste des retours fournisseur du 05-01-2026 au 31-03-2026");
+                    .isEqualTo("Liste des retours fournisseur du 05-01-2026 au 31-03-2026");
             assertThat(titreDuCsv(service.exportToCsv(null, DEBUT, null, null)))
-                .isEqualTo("Liste des retours fournisseur à partir du 05-01-2026");
+                    .isEqualTo("Liste des retours fournisseur à partir du 05-01-2026");
             assertThat(titreDuCsv(service.exportToCsv(null, null, FIN, null)))
-                .isEqualTo("Liste des retours fournisseur jusqu'au 31-03-2026");
-            assertThat(titreDuCsv(service.exportToCsv(null, null, null, null))).isEqualTo("Liste des retours fournisseur");
+                    .isEqualTo("Liste des retours fournisseur jusqu'au 31-03-2026");
+            assertThat(titreDuCsv(service.exportToCsv(null, null, null, null)))
+                    .isEqualTo("Liste des retours fournisseur");
         }
 
         private void bonsRetournes(RetourBonDTO... bons) {
             when(retourBonService.findAll(any(), any(), any(), any(), any(), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(bons)));
+                    .thenReturn(new PageImpl<>(List.of(bons)));
         }
 
         private RetourBonDTO bon(String reference, RetourBonItemDTO... lignes) {
@@ -368,8 +370,8 @@ class ExportsExcelCsvReportServicesTest {
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(classeur))) {
             Sheet feuille = workbook.getSheetAt(0);
             return java.util.stream.StreamSupport.stream(feuille.getRow(ligne).spliterator(), false)
-                .map(cellule -> cellule.toString())
-                .toList();
+                    .map(cellule -> cellule.toString())
+                    .toList();
         }
     }
 

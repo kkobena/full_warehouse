@@ -12,7 +12,14 @@ type Periode = 'quarter' | 'year';
 
 @Component({
   selector: 'app-finance-creances',
-  imports: [FormsModule, PillSelectorComponent, NgbNavModule, NavTabsComponent, VieillissementCreancesComponent, ConcentrationPayersComponent],
+  imports: [
+    FormsModule,
+    PillSelectorComponent,
+    NgbNavModule,
+    NavTabsComponent,
+    VieillissementCreancesComponent,
+    ConcentrationPayersComponent,
+  ],
   templateUrl: './finance-creances.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./finance-creances.component.scss'],

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -110,18 +109,17 @@ class BedServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new BedServiceImpl(
-            commandeRepository,
-            orderLineRepository,
-            fournisseurProduitRepository,
-            fournisseurRepository,
-            storageService,
-            logsService,
-            produitService,
-            commandeIdGeneratorService,
-            orderLineIdGeneratorService,
-            referenceService,
-            inventoryTransactionService
-        );
+                commandeRepository,
+                orderLineRepository,
+                fournisseurProduitRepository,
+                fournisseurRepository,
+                storageService,
+                logsService,
+                produitService,
+                commandeIdGeneratorService,
+                orderLineIdGeneratorService,
+                referenceService,
+                inventoryTransactionService);
         currentUser = new AppUser();
         when(storageService.getUser()).thenReturn(currentUser);
         when(commandeIdGeneratorService.getNextIdAsInt()).thenReturn(BED_ID);
@@ -176,7 +174,11 @@ class BedServiceImplTest {
     }
 
     private static BedLigneDTO ligne(int quantite, int prixAchat, int prixVente) {
-        return new BedLigneDTO().setFournisseurProduitId(77).setQuantite(quantite).setPrixAchat(prixAchat).setPrixVente(prixVente);
+        return new BedLigneDTO()
+                .setFournisseurProduitId(77)
+                .setQuantite(quantite)
+                .setPrixAchat(prixAchat)
+                .setPrixVente(prixVente);
     }
 
     private Commande capturerCommande() {
@@ -194,7 +196,8 @@ class BedServiceImplTest {
         void creeUnBrouillon() {
             LocalDateTime before = LocalDateTime.now();
 
-            BedDTO dto = service.createBed(new BedDTO().setMotifBed(MotifBed.RETOUR_CLIENT).setCommentaireBed("retour Mme X"));
+            BedDTO dto = service.createBed(
+                    new BedDTO().setMotifBed(MotifBed.RETOUR_CLIENT).setCommentaireBed("retour Mme X"));
 
             Commande saved = capturerCommande();
             assertThat(saved.getId().getId()).isEqualTo(BED_ID);
@@ -217,7 +220,8 @@ class BedServiceImplTest {
         @Test
         @DisplayName("numerote la reference du jour a partir de 001")
         void referenceDuPremierBedDuJour() {
-            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now())).thenReturn(0L);
+            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now()))
+                    .thenReturn(0L);
 
             service.createBed(new BedDTO());
 
@@ -228,7 +232,8 @@ class BedServiceImplTest {
         @Test
         @DisplayName("incremente la reference sur les BED suivants du jour")
         void referenceIncrementee() {
-            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now())).thenReturn(41L);
+            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now()))
+                    .thenReturn(41L);
 
             service.createBed(new BedDTO());
 
@@ -267,8 +272,8 @@ class BedServiceImplTest {
             when(commandeRepository.findById(any(CommandeId.class))).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.findById(BED_ID, ORDER_DATE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("BED introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("BED introuvable");
         }
 
         @Test
@@ -279,8 +284,8 @@ class BedServiceImplTest {
             stubBed(commande);
 
             assertThatThrownBy(() -> service.findById(BED_ID, ORDER_DATE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("BED introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("BED introuvable");
         }
 
         @Test
@@ -324,9 +329,11 @@ class BedServiceImplTest {
             when(commandeRepository.byReceiptType(any())).thenReturn(spec);
             when(commandeRepository.byMotifBed(any())).thenReturn(spec);
             when(commandeRepository.hasOrderStatut(any())).thenReturn(spec);
-            when(commandeRepository.between(any(LocalDate.class), any(LocalDate.class))).thenReturn(spec);
+            when(commandeRepository.between(any(LocalDate.class), any(LocalDate.class)))
+                    .thenReturn(spec);
             when(commandeRepository.byBedSearchRef(any())).thenReturn(spec);
-            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
         }
 
         @Test
@@ -395,7 +402,7 @@ class BedServiceImplTest {
         }
 
         @ParameterizedTest(name = "une recherche [{0}] n est pas un filtre")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void rechercheBlancheIgnoree(String search) {
             service.findAll(search, null, null, null, null, PageRequest.of(0, 20));
 
@@ -411,7 +418,7 @@ class BedServiceImplTest {
             commande.setMotifBed(MotifBed.ECHANTILLON);
             commande.getOrderLines().add(orderLine(900, 5, 400));
             when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(commande)));
+                    .thenReturn(new PageImpl<>(List.of(commande)));
 
             Page<BedSummaryDTO> page = service.findAll(null, null, null, null, null, PageRequest.of(0, 20));
 
@@ -428,14 +435,17 @@ class BedServiceImplTest {
     class AddLigne {
 
         @ParameterizedTest(name = "un BED {0} refuse l ajout")
-        @EnumSource(value = OrderStatut.class, names = { "REQUESTED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = OrderStatut.class,
+                names = {"REQUESTED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void bedNonModifiable(OrderStatut statut) {
             stubBed(bed(statut));
             BedLigneDTO ligne = ligne(5, 400, 800);
 
             assertThatThrownBy(() -> service.addLigne(BED_ID, ORDER_DATE, ligne))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce BED ne peut plus être modifié");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce BED ne peut plus être modifié");
 
             verify(orderLineRepository, never()).save(any());
         }
@@ -529,8 +539,8 @@ class BedServiceImplTest {
             BedLigneDTO dto = ligne(3, 500, 900);
 
             assertThatThrownBy(() -> service.updateLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE, dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce BED ne peut plus être modifié");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce BED ne peut plus être modifié");
         }
 
         @Test
@@ -540,7 +550,8 @@ class BedServiceImplTest {
             commande.setGrossAmount(2000);
             stubBed(commande);
             OrderLine line = orderLine(900, 5, 400);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(line);
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(line);
 
             service.updateLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE, ligne(3, 500, 900));
 
@@ -556,7 +567,8 @@ class BedServiceImplTest {
             Commande commande = bed(OrderStatut.REQUESTED);
             commande.setGrossAmount(2000);
             stubBed(commande);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(orderLine(900, 5, 400));
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(orderLine(900, 5, 400));
 
             service.updateLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE, ligne(3, 500, 900));
 
@@ -569,7 +581,8 @@ class BedServiceImplTest {
             Commande commande = bed(OrderStatut.REQUESTED);
             commande.setGrossAmount(100);
             stubBed(commande);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(orderLine(900, 5, 400));
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(orderLine(900, 5, 400));
 
             service.updateLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE, ligne(0, 0, 0));
 
@@ -582,7 +595,8 @@ class BedServiceImplTest {
             Commande commande = bed(OrderStatut.REQUESTED);
             commande.setGrossAmount(null);
             stubBed(commande);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(orderLine(900, 1, 100));
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(orderLine(900, 1, 100));
 
             service.updateLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE, ligne(2, 300, 600));
 
@@ -600,8 +614,8 @@ class BedServiceImplTest {
             stubBed(bed(OrderStatut.CLOSED));
 
             assertThatThrownBy(() -> service.removeLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce BED ne peut plus être modifié");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce BED ne peut plus être modifié");
 
             verify(orderLineRepository, never()).delete(any());
         }
@@ -613,7 +627,8 @@ class BedServiceImplTest {
             commande.setGrossAmount(3000);
             stubBed(commande);
             OrderLine line = orderLine(900, 5, 400);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(line);
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(line);
 
             service.removeLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE);
 
@@ -628,7 +643,8 @@ class BedServiceImplTest {
             Commande commande = bed(OrderStatut.REQUESTED);
             commande.setGrossAmount(100);
             stubBed(commande);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(orderLine(900, 5, 400));
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(orderLine(900, 5, 400));
 
             service.removeLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE);
 
@@ -641,7 +657,8 @@ class BedServiceImplTest {
             Commande commande = bed(OrderStatut.REQUESTED);
             commande.setGrossAmount(null);
             stubBed(commande);
-            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE))).thenReturn(orderLine(900, 1, 100));
+            when(orderLineRepository.getReferenceById(new OrderLineId(900, ORDER_DATE)))
+                    .thenReturn(orderLine(900, 1, 100));
 
             service.removeLigne(BED_ID, ORDER_DATE, 900, ORDER_DATE);
 
@@ -668,8 +685,8 @@ class BedServiceImplTest {
             stubBed(bed(OrderStatut.CLOSED));
 
             assertThatThrownBy(() -> service.validateBed(BED_ID, ORDER_DATE, null, null, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce BED est déjà validé ou annulé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce BED est déjà validé ou annulé");
         }
 
         @Test
@@ -678,8 +695,8 @@ class BedServiceImplTest {
             stubBed(bed(OrderStatut.REQUESTED));
 
             assertThatThrownBy(() -> service.validateBed(BED_ID, ORDER_DATE, MotifBed.AUTRE, null, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Le BED doit avoir au moins une ligne");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Le BED doit avoir au moins une ligne");
         }
 
         @Test
@@ -690,8 +707,8 @@ class BedServiceImplTest {
             stubBed(commande);
 
             assertThatThrownBy(() -> service.validateBed(BED_ID, ORDER_DATE, null, null, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Le motif est obligatoire");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Le motif est obligatoire");
         }
 
         @Test
@@ -749,7 +766,7 @@ class BedServiceImplTest {
         }
 
         @ParameterizedTest(name = "un commentaire [{0}] laisse celui du BED intact")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void commentaireBlancIgnore(String commentaire) {
             Commande commande = bedPret();
             commande.setCommentaireBed("initial");
@@ -782,7 +799,9 @@ class BedServiceImplTest {
             assertThat(line.getInitStock()).isEqualTo(20);
             assertThat(line.getFinalStock()).isEqualTo(25);
             verify(orderLineRepository).save(line);
-            verify(produitService).updateTotalStock(any(Produit.class), org.mockito.ArgumentMatchers.eq(5), org.mockito.ArgumentMatchers.eq(0));
+            verify(produitService)
+                    .updateTotalStock(
+                            any(Produit.class), org.mockito.ArgumentMatchers.eq(5), org.mockito.ArgumentMatchers.eq(0));
         }
 
         @Test
@@ -794,12 +813,12 @@ class BedServiceImplTest {
 
             assertThat(commande.getOrderStatus()).isEqualTo(OrderStatut.CLOSED);
             assertThat(commande.getReceiptDate()).isEqualTo(LocalDate.now());
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
-                org.mockito.ArgumentMatchers.eq("bed.entry"),
-                any(Object[].class),
-                org.mockito.ArgumentMatchers.eq(String.valueOf(BED_ID))
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
+                            org.mockito.ArgumentMatchers.eq("bed.entry"),
+                            any(Object[].class),
+                            org.mockito.ArgumentMatchers.eq(String.valueOf(BED_ID)));
         }
     }
 
@@ -819,13 +838,16 @@ class BedServiceImplTest {
         }
 
         @ParameterizedTest(name = "refuse la suppression d un BED {0}")
-        @EnumSource(value = OrderStatut.class, names = { "REQUESTED" }, mode = EnumSource.Mode.EXCLUDE)
+        @EnumSource(
+                value = OrderStatut.class,
+                names = {"REQUESTED"},
+                mode = EnumSource.Mode.EXCLUDE)
         void refuseHorsBrouillon(OrderStatut statut) {
             stubBed(bed(statut));
 
             assertThatThrownBy(() -> service.deleteBed(BED_ID, ORDER_DATE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Seul un BED en brouillon peut être supprimé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Seul un BED en brouillon peut être supprimé");
 
             verify(commandeRepository, never()).delete(any(Commande.class));
         }
@@ -838,7 +860,8 @@ class BedServiceImplTest {
         @Test
         @DisplayName("ne cree rien quand l importation est vide")
         void importationVide() {
-            assertThat(service.createBedFromImport(MotifBed.BASCULEMENT, 3, List.of())).isNull();
+            assertThat(service.createBedFromImport(MotifBed.BASCULEMENT, 3, List.of()))
+                    .isNull();
 
             verify(commandeRepository, never()).save(any());
         }
@@ -847,10 +870,7 @@ class BedServiceImplTest {
         @DisplayName("cree un BED deja cloture et date du jour")
         void bedDejaCloture() {
             String reference = service.createBedFromImport(
-                MotifBed.BASCULEMENT,
-                null,
-                List.of(new BedImportLigneDTO(77, 5, 400, 800))
-            );
+                    MotifBed.BASCULEMENT, null, List.of(new BedImportLigneDTO(77, 5, 400, 800)));
 
             Commande saved = capturerCommande();
             assertThat(saved.getOrderStatus()).isEqualTo(OrderStatut.CLOSED);
@@ -865,10 +885,9 @@ class BedServiceImplTest {
         @DisplayName("valorise le montant brut a partir des lignes importees")
         void valoriseLeMontantBrut() {
             service.createBedFromImport(
-                MotifBed.BASCULEMENT,
-                null,
-                List.of(new BedImportLigneDTO(77, 5, 400, 800), new BedImportLigneDTO(77, 2, 150, 300))
-            );
+                    MotifBed.BASCULEMENT,
+                    null,
+                    List.of(new BedImportLigneDTO(77, 5, 400, 800), new BedImportLigneDTO(77, 2, 150, 300)));
 
             Commande saved = capturerCommande();
             assertThat(saved.getGrossAmount()).isEqualTo(5 * 400 + 2 * 150);
@@ -911,24 +930,22 @@ class BedServiceImplTest {
 
             verify(orderLineRepository).saveAll(any());
             verify(inventoryTransactionService).saveAll(any());
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
-                org.mockito.ArgumentMatchers.eq("bed.import"),
-                any(Object[].class),
-                org.mockito.ArgumentMatchers.eq(String.valueOf(BED_ID))
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
+                            org.mockito.ArgumentMatchers.eq("bed.import"),
+                            any(Object[].class),
+                            org.mockito.ArgumentMatchers.eq(String.valueOf(BED_ID)));
         }
 
         @Test
         @DisplayName("numerote la reference sur la sequence du jour")
         void referenceDuJour() {
-            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now())).thenReturn(2L);
+            when(commandeRepository.countByTypeAndOrderDate(TypeDeliveryReceipt.DIRECT, LocalDate.now()))
+                    .thenReturn(2L);
 
             String reference = service.createBedFromImport(
-                MotifBed.BASCULEMENT,
-                null,
-                List.of(new BedImportLigneDTO(77, 5, 400, 800))
-            );
+                    MotifBed.BASCULEMENT, null, List.of(new BedImportLigneDTO(77, 5, 400, 800)));
 
             assertThat(reference).endsWith("-003");
         }

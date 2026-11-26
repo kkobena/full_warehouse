@@ -24,12 +24,11 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(
-    name = "lot_reception",
-    indexes = {
-        @Index(columnList = "lot_id", name = "lot_reception_lot_id_idx"),
-        @Index(columnList = "order_line_id, commande_order_date", name = "lot_reception_order_line_idx"),
-    }
-)
+        name = "lot_reception",
+        indexes = {
+            @Index(columnList = "lot_id", name = "lot_reception_lot_id_idx"),
+            @Index(columnList = "order_line_id, commande_order_date", name = "lot_reception_order_line_idx"),
+        })
 public class LotReception implements Serializable {
 
     @Serial

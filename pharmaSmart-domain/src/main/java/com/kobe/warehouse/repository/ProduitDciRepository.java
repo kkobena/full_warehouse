@@ -16,9 +16,7 @@ public interface ProduitDciRepository extends JpaRepository<ProduitDci, Integer>
     List<ProduitDci> findAvecDci(@Param("produitIds") Collection<Integer> produitIds);
 
     /** Molécules du référentiel des produits donnés, par la DCI que porte le produit (seules les DCI reliées au référentiel). */
-    @Query(
-        "select new com.kobe.warehouse.service.dto.controle.MoleculeProduitDTO(pd.produit.id, rd.id, rd.libelle) " +
-        "from ProduitDci pd, RefDci rd where rd.dci = pd.dci and pd.produit.id in :produitIds"
-    )
+    @Query("select new com.kobe.warehouse.service.dto.controle.MoleculeProduitDTO(pd.produit.id, rd.id, rd.libelle) "
+            + "from ProduitDci pd, RefDci rd where rd.dci = pd.dci and pd.produit.id in :produitIds")
     List<MoleculeProduitDTO> findMolecules(@Param("produitIds") Collection<Integer> produitIds);
 }

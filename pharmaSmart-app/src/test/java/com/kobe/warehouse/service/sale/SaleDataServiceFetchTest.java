@@ -1,5 +1,12 @@
 package com.kobe.warehouse.service.sale;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
@@ -30,50 +37,53 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class SaleDataServiceFetchTest {
 
     @Mock
     private EntityManager entityManager;
+
     @Mock
     private SaleInvoiceReportService invoiceService;
+
     @Mock
     private SalesLineRepository lineRepository;
+
     @Mock
     private ThirdPartySaleLineRepository thirdPartyLineRepository;
+
     @Mock
     private ReceiptPrinterService printerService;
+
     @Mock
     private SalesRepository salesRepository;
+
     @Mock
     private StorageService storageService;
+
     @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     private CriteriaBuilder criteriaBuilder;
+
     @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     private CriteriaQuery<Sales> criteriaQuery;
+
     @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     private Root<Sales> root;
+
     @Mock
     private TypedQuery<Sales> typedQuery;
+
     @Mock
     private TypedQuery<String> prescripteurQuery;
 
@@ -83,8 +93,14 @@ class SaleDataServiceFetchTest {
     @BeforeEach
     void setUp() {
         id = new SaleId(7L, LocalDate.of(2026, 8, 21));
-        service = new SaleDataService(entityManager, invoiceService, lineRepository,
-            thirdPartyLineRepository, printerService, salesRepository, storageService);
+        service = new SaleDataService(
+                entityManager,
+                invoiceService,
+                lineRepository,
+                thirdPartyLineRepository,
+                printerService,
+                salesRepository,
+                storageService);
         when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
         when(criteriaBuilder.createQuery(Sales.class)).thenReturn(criteriaQuery);
         when(criteriaQuery.from(Sales.class)).thenReturn(root);
@@ -120,7 +136,8 @@ class SaleDataServiceFetchTest {
         byte[] receipt = {4, 5};
         byte[] invoice = {8, 9};
         when(typedQuery.getSingleResult()).thenReturn(sale);
-        when(printerService.generateEscPosReceipt(any(CashSaleDTO.class), eq(true))).thenReturn(receipt);
+        when(printerService.generateEscPosReceipt(any(CashSaleDTO.class), eq(true)))
+                .thenReturn(receipt);
         when(invoiceService.printInvoice(any())).thenReturn(invoice);
 
         service.printReceipt(id, false);
@@ -145,13 +162,11 @@ class SaleDataServiceFetchTest {
         ThirdPartySaleLine thirdPartyLine = sale.getThirdPartySaleLines().getFirst();
         when(typedQuery.getSingleResult()).thenReturn(sale);
         when(thirdPartyLineRepository.findAllBySaleIdAndSaleSaleDate(7L, id.getSaleDate()))
-            .thenReturn(List.of(thirdPartyLine));
+                .thenReturn(List.of(thirdPartyLine));
         prescripteurs(List.of("KONE Awa"));
 
-        ThirdPartySaleDTO result = assertInstanceOf(
-            ThirdPartySaleDTO.class,
-            service.fetchPurchaseBy(7L, id.getSaleDate())
-        );
+        ThirdPartySaleDTO result =
+                assertInstanceOf(ThirdPartySaleDTO.class, service.fetchPurchaseBy(7L, id.getSaleDate()));
 
         assertEquals("BON-7", result.getNumBon());
         assertEquals("KONE Awa", result.getPrescripteur());
@@ -162,7 +177,8 @@ class SaleDataServiceFetchTest {
         assertEquals(PrioriteTiersPayant.R0, customer.getPriorite());
         assertEquals(80, customer.getTaux());
         assertEquals(1, customer.getTiersPayants().size());
-        assertEquals("Mutuelle principale", customer.getTiersPayants().getFirst().getTiersPayantFullName());
+        assertEquals(
+                "Mutuelle principale", customer.getTiersPayants().getFirst().getTiersPayantFullName());
     }
 
     @Test
@@ -174,15 +190,16 @@ class SaleDataServiceFetchTest {
         when(storageService.getUser()).thenReturn(connectedUser);
         when(typedQuery.getResultList()).thenReturn(List.of(sale));
         when(thirdPartyLineRepository.findAllBySaleIdAndSaleSaleDate(7L, id.getSaleDate()))
-            .thenReturn(List.of(thirdPartyLine));
+                .thenReturn(List.of(thirdPartyLine));
 
-        List<com.kobe.warehouse.service.dto.SaleDTO> result = service.allPreventes(
-            null, null, Set.of(SalesStatut.ACTIVE), null, null, false
-        );
+        List<com.kobe.warehouse.service.dto.SaleDTO> result =
+                service.allPreventes(null, null, Set.of(SalesStatut.ACTIVE), null, null, false);
 
         ThirdPartySaleDTO dto = assertInstanceOf(ThirdPartySaleDTO.class, result.getFirst());
         assertEquals("BON-7", dto.getNumBon());
-        assertEquals("MAT-7", assertInstanceOf(AssuredCustomerDTO.class, dto.getCustomer()).getNum());
+        assertEquals(
+                "MAT-7",
+                assertInstanceOf(AssuredCustomerDTO.class, dto.getCustomer()).getNum());
         assertEquals(1, dto.getThirdPartySaleLines().size());
     }
 
@@ -294,4 +311,3 @@ class SaleDataServiceFetchTest {
         return sale;
     }
 }
-

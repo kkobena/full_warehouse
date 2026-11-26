@@ -1,19 +1,19 @@
 <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Ponction du chiffre d'affaires" />
 
-
 <!-- 1. Saisie à gauche, ce que la période autorise à droite : on lit le plafond en saisissant -->
 <div class="row g-3 mb-3">
   <div class="col-12 col-xl-5">
     <!-- Grille 2×2 : mode de calcul en tête, puis les dates et les deux montants -->
-    <app-card [variant]="'form'" [withFooter]="true" class="d-block h-100 ">
+    <app-card [variant]="'form'" [withFooter]="true" class="d-block h-100">
       <div class="mb-2">
         <label class="form-label small">Mode de calcul</label>
-        <app-pill-selector (selectionChange)="modeCalcul.set($any($event)); invaliderSimulation()"
-                           [items]="modeOptions"
-                           [ngModel]="modeCalcul()" />
+        <app-pill-selector
+          (selectionChange)="modeCalcul.set($any($event)); invaliderSimulation()"
+          [items]="modeOptions"
+          [ngModel]="modeCalcul()"
+        />
       </div>
       <div class="row g-2 align-items-start">
-
         <div class="col-6">
           <pharma-date-picker
             (ngModelChange)="dateDebut.set($event); invaliderAssiette()"
@@ -48,12 +48,11 @@
           />
           @if (tauxAuDessusDuPlafond()) {
             <small class="form-text text-danger">
-              Au-delà du plafond de {{ plafond() }} % par vente : aucune vente ne cédant davantage,
-              ce taux est inatteignable. Baissez-le, ou relevez le plafond.
+              Au-delà du plafond de {{ plafond() }} % par vente : aucune vente ne cédant davantage, ce taux est inatteignable. Baissez-le,
+              ou relevez le plafond.
             </small>
           } @else if (modeCalcul() === 'POURCENTAGE' && plafond() !== null) {
-            <small class="form-text text-muted">Au plus {{ plafond() }} %, le plafond par
-              vente.</small>
+            <small class="form-text text-muted">Au plus {{ plafond() }} %, le plafond par vente.</small>
           }
         </div>
         <div class="col-6">
@@ -68,9 +67,7 @@
             size="small"
           />
           @if (plafondHorsBornes()) {
-            <small class="form-text text-danger">
-              Le plafond s'exprime en part d'une vente : il doit rester entre 1 et 100 %.
-            </small>
+            <small class="form-text text-danger"> Le plafond s'exprime en part d'une vente : il doit rester entre 1 et 100 %. </small>
           } @else {
             <small class="form-text text-muted">
               @if (plafondDefaut() !== null && plafond() !== plafondDefaut()) {
@@ -105,8 +102,7 @@
 
   <div class="col-12 col-xl-7">
     @if (assiette(); as base) {
-      <app-card [withHeader]="true" class="d-block h-100" header="CA ponctionnable sur la période"
-                icon="pi pi-wallet">
+      <app-card [withHeader]="true" class="d-block h-100" header="CA ponctionnable sur la période" icon="pi pi-wallet">
         <app-kpi-strip [loading]="chargementAssiette()" [skeletonCount]="4">
           <app-kpi-item
             [accent]="'secondary'"
@@ -116,9 +112,7 @@
             label="CA réel (Sans ordonnance)"
             info="Ce que la période a vraiment produit en ventes comptant clôturées : quantités sorties au prix de vente, avant toute exclusion. Les ventes à crédit, les tiers payants et les ventes importées n'y sont pas."
           >
-            <ng-container ngProjectAs="[kpiSub]">{{ base.nombreVentesEligibles | number }} vente(s)
-              éligible(s)
-            </ng-container>
+            <ng-container ngProjectAs="[kpiSub]">{{ base.nombreVentesEligibles | number }} vente(s) éligible(s) </ng-container>
           </app-kpi-item>
           <app-kpi-item
             [accent]="'primary'"
@@ -150,11 +144,9 @@
             info="Ce que l'assiette permet de retirer au mieux. Chaque vente est plafonnée au plus petit des trois : le pourcentage autorisé de son montant, sa part exonérée, et ce qu'elle a encaissé en espèces."
             valueClass="text-success"
           >
-            <ng-container ngProjectAs="[kpiSub]">plafond {{ base.plafondApplique }} % par vente
-            </ng-container>
+            <ng-container ngProjectAs="[kpiSub]">plafond {{ base.plafondApplique }} % par vente </ng-container>
           </app-kpi-item>
         </app-kpi-strip>
-
       </app-card>
     }
   </div>
@@ -162,12 +154,8 @@
 
 <!-- 2. Résultat -->
 @if (simulation(); as sim) {
-  <app-card [withHeader]="true" class="d-block mb-3" header="Résultat de la simulation"
-            icon="pi pi-chart-bar">
-
-    <app-hint storageKey="ponction-tva-exoneree">
-      Seuls les produits exonérés de TVA sont ponctionnables.
-    </app-hint>
+  <app-card [withHeader]="true" class="d-block mb-3" header="Résultat de la simulation" icon="pi pi-chart-bar">
+    <app-hint storageKey="ponction-tva-exoneree"> Seuls les produits exonérés de TVA sont ponctionnables. </app-hint>
 
     @for (avertissement of sim.avertissements; track avertissement) {
       <div class="alert alert-warning py-2 small">{{ avertissement }}</div>
@@ -210,15 +198,12 @@
           info="Montant ponctionné rapporté au CA après exclusions. « Max » est le taux de la vente la plus sollicitée ; « plafond retenu » est la limite par vente que la simulation s'est donnée."
           suffix=" %"
         >
-          <ng-container ngProjectAs="[kpiSub]">max {{ sim.tauxMaxApplique }} % · plafond retenu
-            {{ sim.plafondApplique }} %
-          </ng-container>
+          <ng-container ngProjectAs="[kpiSub]">max {{ sim.tauxMaxApplique }} % · plafond retenu {{ sim.plafondApplique }} % </ng-container>
         </app-kpi-item>
       </app-kpi-strip>
 
       <p class="small text-muted">
-        {{ sim.nombreVentesImpactees | number }} vente(s) impactée(s) sur
-        {{ sim.nombreVentesEligibles | number }} éligible(s).
+        {{ sim.nombreVentesImpactees | number }} vente(s) impactée(s) sur {{ sim.nombreVentesEligibles | number }} éligible(s).
       </p>
 
       <app-data-table
@@ -240,9 +225,7 @@
 
             <div class="d-flex gap-2 align-items-center">
               @if (!peutValider()) {
-                <span class="text-muted small">
-                  La validation reste fermée tant que l'objectif dépasse le montant ponctionnable.
-                </span>
+                <span class="text-muted small"> La validation reste fermée tant que l'objectif dépasse le montant ponctionnable. </span>
               }
               <app-button
                 (clicked)="demanderConfirmation()"
@@ -280,7 +263,7 @@
   </app-card>
 } @else {
   <app-hint [dismissible]="false">
-    Aucune simulation en cours. Toute modification d'un paramètre efface le résultat précédent : on
-    ne valide jamais un calcul qu'on n'a pas sous les yeux.
+    Aucune simulation en cours. Toute modification d'un paramètre efface le résultat précédent : on ne valide jamais un calcul qu'on n'a pas
+    sous les yeux.
   </app-hint>
 }

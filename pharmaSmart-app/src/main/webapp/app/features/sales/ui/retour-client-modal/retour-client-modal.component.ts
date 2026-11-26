@@ -1,10 +1,10 @@
 import { ModalDeplacableDirective } from 'app/shared/utils/modal-deplacable.directive';
-import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ButtonComponent, CardComponent, CheckboxComponent, InputNumberComponent, SelectSearchComponent } from "../../../../shared/ui";
+import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ButtonComponent, CardComponent, CheckboxComponent, InputNumberComponent, SelectSearchComponent } from '../../../../shared/ui';
 import {
   IRetourClientResult,
   ISaleForRetour,
@@ -13,8 +13,8 @@ import {
   MotifRetourClient,
   RetourClientApiService,
   RetourClientRequest,
-} from "../../data-access/services/retour-client-api.service";
-import { ISales } from "../../../../shared/model";
+} from '../../data-access/services/retour-client-api.service';
+import { ISales } from '../../../../shared/model';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 type RetourLine = ISaleLineForRetour & {
@@ -24,11 +24,21 @@ type RetourLine = ISaleLineForRetour & {
 };
 
 @Component({
-  selector: "app-retour-client-modal",
-  templateUrl: "./retour-client-modal.component.html",
-  styleUrl: "./retour-client-modal.component.scss",
+  selector: 'app-retour-client-modal',
+  templateUrl: './retour-client-modal.component.html',
+  styleUrl: './retour-client-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ModalDeplacableDirective, CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent, DevisePipe],
+  imports: [
+    ModalDeplacableDirective,
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    SelectSearchComponent,
+    InputNumberComponent,
+    CheckboxComponent,
+    CardComponent,
+    DevisePipe,
+  ],
 })
 export class RetourClientModalComponent {
   readonly activeModal = inject(NgbActiveModal);
@@ -42,7 +52,7 @@ export class RetourClientModalComponent {
 
   protected readonly motif = signal<MotifRetourClient | null>(null);
   protected readonly modeReglement = signal<ModeReglementRetour | null>(null);
-  protected readonly commentaire = signal("");
+  protected readonly commentaire = signal('');
   protected readonly avecEchange = signal(false);
 
   protected readonly submitLoading = signal(false);
@@ -50,24 +60,24 @@ export class RetourClientModalComponent {
   protected readonly retourResult = signal<IRetourClientResult | null>(null);
 
   protected readonly motifOptions: { label: string; value: MotifRetourClient }[] = [
-    { label: "Erreur de dispensation", value: "ERREUR_DISPENSATION" },
-    { label: "Produit défectueux", value: "PRODUIT_DEFECTUEUX" },
-    { label: "Erreur de quantité", value: "ERREUR_QUANTITE" },
-    { label: "Insatisfaction client", value: "INSATISFACTION" },
-    { label: "Autre", value: "AUTRE" },
+    { label: 'Erreur de dispensation', value: 'ERREUR_DISPENSATION' },
+    { label: 'Produit défectueux', value: 'PRODUIT_DEFECTUEUX' },
+    { label: 'Erreur de quantité', value: 'ERREUR_QUANTITE' },
+    { label: 'Insatisfaction client', value: 'INSATISFACTION' },
+    { label: 'Autre', value: 'AUTRE' },
   ];
 
   protected readonly modeReglementOptions: { label: string; value: ModeReglementRetour; icon: string }[] = [
-    { label: "Remboursement espèces", value: "REMBOURSEMENT_ESPECES", icon: "pi pi-money-bill" },
-    { label: "Remboursement CB", value: "REMBOURSEMENT_CB", icon: "pi pi-credit-card" },
-    { label: "Avoir client", value: "AVOIR_CLIENT", icon: "pi pi-ticket" },
+    { label: 'Remboursement espèces', value: 'REMBOURSEMENT_ESPECES', icon: 'pi pi-money-bill' },
+    { label: 'Remboursement CB', value: 'REMBOURSEMENT_CB', icon: 'pi pi-credit-card' },
+    { label: 'Avoir client', value: 'AVOIR_CLIENT', icon: 'pi pi-ticket' },
   ];
 
   protected readonly montantTotal = computed(() =>
     this.selectedLines().reduce((s, l) => {
       const price = l.montantRemboursableClient ?? l.netUnitPrice ?? 0;
       return s + (l.quantiteRetour ?? 0) * price;
-    }, 0)
+    }, 0),
   );
 
   protected readonly canSubmit = computed(() => {
@@ -81,7 +91,7 @@ export class RetourClientModalComponent {
     const id = sale.saleId?.id;
     const saleDate = sale.saleId?.saleDate;
     if (!id || !saleDate) {
-      this.saleError.set("Vente invalide : identifiant ou date manquant.");
+      this.saleError.set('Vente invalide : identifiant ou date manquant.');
       return;
     }
     this.saleLoading.set(true);
@@ -102,7 +112,7 @@ export class RetourClientModalComponent {
               emballageIntact: true,
               numLotLisible: true,
               datePeremptionValide: true,
-            })) ?? []
+            })) ?? [],
           );
         },
         error: () => {
@@ -114,22 +124,16 @@ export class RetourClientModalComponent {
 
   protected updateQty(salesLineId: number | undefined, qty: number): void {
     this.selectedLines.update(lines =>
-      lines.map(l =>
-        l.salesLineId === salesLineId
-          ? { ...l, quantiteRetour: Math.min(Number(qty), l.quantitySold ?? 0) }
-          : l
-      )
+      lines.map(l => (l.salesLineId === salesLineId ? { ...l, quantiteRetour: Math.min(Number(qty), l.quantitySold ?? 0) } : l)),
     );
   }
 
   protected updateLineState(
     salesLineId: number | undefined,
-    field: "emballageIntact" | "numLotLisible" | "datePeremptionValide",
-    value: boolean
+    field: 'emballageIntact' | 'numLotLisible' | 'datePeremptionValide',
+    value: boolean,
   ): void {
-    this.selectedLines.update(lines =>
-      lines.map(l => (l.salesLineId === salesLineId ? { ...l, [field]: value } : l))
-    );
+    this.selectedLines.update(lines => lines.map(l => (l.salesLineId === salesLineId ? { ...l, [field]: value } : l)));
   }
 
   protected onAvecEchangeChange(val: boolean): void {
@@ -140,7 +144,7 @@ export class RetourClientModalComponent {
   protected confirmerRetour(): void {
     const sale = this.currentSale();
     const motif = this.motif();
-    const modeReglement: ModeReglementRetour = this.avecEchange() ? "AVOIR_CLIENT" : this.modeReglement()!;
+    const modeReglement: ModeReglementRetour = this.avecEchange() ? 'AVOIR_CLIENT' : this.modeReglement()!;
     if (!sale || !motif || !modeReglement) return;
 
     const lines = this.selectedLines()
@@ -187,7 +191,7 @@ export class RetourClientModalComponent {
         },
         error: () => {
           this.submitLoading.set(false);
-          this.submitError.set("Une erreur est survenue. Veuillez réessayer.");
+          this.submitError.set('Une erreur est survenue. Veuillez réessayer.');
         },
       });
   }

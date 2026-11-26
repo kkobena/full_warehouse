@@ -16,8 +16,10 @@ public class MessageCorps {
 
     @XmlElement(name = "ACQ_RECEPTION", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private AcqReception acqReception;
+
     @XmlElement(name = "REQ_INFO_PRODUIT", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private DemandeInfos reqInfos;
+
     @XmlElement(name = "REQ_RETOUR", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private Retour retour;
 
@@ -44,7 +46,6 @@ public class MessageCorps {
     public void setAcqReception(AcqReception acqReception) {
         this.acqReception = acqReception;
     }
-
 
     public Retour getRetour() {
         return retour;

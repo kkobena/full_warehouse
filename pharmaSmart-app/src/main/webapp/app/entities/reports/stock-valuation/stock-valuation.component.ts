@@ -1,19 +1,18 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { forkJoin } from "rxjs";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
-
-import { IStockValuation, IStockValuationSummary } from "app/shared/model/report/stock-valuation.model";
-import { StockValuationReportService } from "../services/stock-valuation-report.service";
-import { formatCurrency, formatDecimal } from "app/shared/utils/format-utils";
-import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
-import { RayonService } from "../../rayon/rayon.service";
-import { IFamilleProduit } from "../../../shared/model/famille-produit.model";
-import { IRayon } from "../../../shared/model/rayon.model";
-import { TauriPrinterService } from "../../../shared/services/tauri-printer.service";
-import { handleBlobForTauri } from "../../../shared/util/tauri-util";
+import { IStockValuation, IStockValuationSummary } from 'app/shared/model/report/stock-valuation.model';
+import { StockValuationReportService } from '../services/stock-valuation-report.service';
+import { formatCurrency, formatDecimal } from 'app/shared/utils/format-utils';
+import { FamilleProduitService } from '../../famille-produit/famille-produit.service';
+import { RayonService } from '../../rayon/rayon.service';
+import { IFamilleProduit } from '../../../shared/model/famille-produit.model';
+import { IRayon } from '../../../shared/model/rayon.model';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
@@ -21,15 +20,16 @@ import {
   KpiItemComponent,
   KpiStripComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 @Component({
-  selector: "app-stock-valuation",
-  templateUrl: "./stock-valuation.component.html",
-  styleUrl: "./stock-valuation.component.scss",
+  selector: 'app-stock-valuation',
+  templateUrl: './stock-valuation.component.html',
+  styleUrl: './stock-valuation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -37,8 +37,8 @@ import {
     SelectComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
-  ]
+    KpiItemComponent,
+  ],
 })
 export default class StockValuationComponent implements OnInit {
   /**
@@ -78,7 +78,7 @@ export default class StockValuationComponent implements OnInit {
 
     forkJoin({
       valuations: this.stockValuationService.getAllStockValuation(params),
-      summary: this.stockValuationService.getStockValuationSummary(params)
+      summary: this.stockValuationService.getStockValuationSummary(params),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -87,7 +87,7 @@ export default class StockValuationComponent implements OnInit {
           this.summary.set(summary.body ?? null);
           this.isLoading.set(false);
         },
-        error: () => this.isLoading.set(false)
+        error: () => this.isLoading.set(false),
       });
   }
 
@@ -102,7 +102,8 @@ export default class StockValuationComponent implements OnInit {
   }
 
   protected exportToPdf(): void {
-    this.stockValuationService.exportStockValuationToPdf(this.buildRequestParams())
+    this.stockValuationService
+      .exportStockValuationToPdf(this.buildRequestParams())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(resp => {
         if (this.tauriPrinter.isRunningInTauri()) {
@@ -117,24 +118,24 @@ export default class StockValuationComponent implements OnInit {
   private loadReferentielData(): void {
     forkJoin({
       familles: this.familleProduitService.query({ page: 0, size: 9999 }),
-      rayons: this.rayonService.query({ page: 0, size: 9999 })
+      rayons: this.rayonService.query({ page: 0, size: 9999 }),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ familles, rayons }) => {
           this.familleProduitOptions.set(familles.body ?? []);
           this.rayonOptions.set(rayons.body ?? []);
-        }
+        },
       });
   }
 
   private buildRequestParams(): any {
     const params: any = {};
     if (this.selectedFamilleProduit()) {
-      params["familleProduitId"] = this.selectedFamilleProduit()!.id;
+      params['familleProduitId'] = this.selectedFamilleProduit()!.id;
     }
     if (this.selectedRayon()) {
-      params["rayonId"] = this.selectedRayon()!.id;
+      params['rayonId'] = this.selectedRayon()!.id;
     }
 
     return params;

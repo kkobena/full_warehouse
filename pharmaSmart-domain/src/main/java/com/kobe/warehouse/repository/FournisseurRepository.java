@@ -1,6 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import org.springframework.data.repository.query.Param;
 import com.kobe.warehouse.domain.Fournisseur;
 import java.util.List;
 import java.util.Optional;
@@ -10,8 +9,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface FournisseurRepository extends JpaRepository<Fournisseur, Integer>, JpaSpecificationExecutor<Fournisseur> {
+public interface FournisseurRepository
+        extends JpaRepository<Fournisseur, Integer>, JpaSpecificationExecutor<Fournisseur> {
     Optional<Fournisseur> findFirstByLibelleEquals(String libelle);
 
     List<Fournisseur> findByParentIsNullOrderByOdreAsc();
@@ -23,6 +24,7 @@ public interface FournisseurRepository extends JpaRepository<Fournisseur, Intege
     List<Fournisseur> findByParentId(Integer parentId);
 
     Optional<Fournisseur> findFirstByLibelleEqualsAndParentIsNull(String libelle);
+
     @Query("SELECT o.parent FROM Fournisseur o WHERE o.id = ?1")
     Optional<Fournisseur> getParentByChildId(Integer childId);
 

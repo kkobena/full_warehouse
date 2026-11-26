@@ -34,11 +34,10 @@ public class ProduitFavoriServiceImpl implements ProduitFavoriService {
     private final StorageService storageService;
 
     public ProduitFavoriServiceImpl(
-        ProduitFavoriRepository produitFavoriRepository,
-        ProduitRepository produitRepository,
-        ProduitService produitService,
-        StorageService storageService
-    ) {
+            ProduitFavoriRepository produitFavoriRepository,
+            ProduitRepository produitRepository,
+            ProduitService produitService,
+            StorageService storageService) {
         this.produitFavoriRepository = produitFavoriRepository;
         this.produitRepository = produitRepository;
         this.produitService = produitService;
@@ -67,7 +66,8 @@ public class ProduitFavoriServiceImpl implements ProduitFavoriService {
         for (Object[] ligne : lignes) {
             ProduitSearch produit = parId.get(((Number) ligne[0]).intValue());
             if (produit != null) {
-                suggestions.add(new FavoriSuggere(produit, ((Number) ligne[1]).longValue(), ((Number) ligne[2]).longValue()));
+                suggestions.add(
+                        new FavoriSuggere(produit, ((Number) ligne[1]).longValue(), ((Number) ligne[2]).longValue()));
             }
         }
         return suggestions;
@@ -76,28 +76,32 @@ public class ProduitFavoriServiceImpl implements ProduitFavoriService {
     @Override
     public void ajouter(Integer produitId) {
         Magasin magasin = storageService.getConnectedUserMagasin();
-        if (produitFavoriRepository.findByMagasinIdAndProduitId(magasin.getId(), produitId).isPresent()) {
+        if (produitFavoriRepository
+                .findByMagasinIdAndProduitId(magasin.getId(), produitId)
+                .isPresent()) {
             return;
         }
         if (produitFavoriRepository.countByMagasinId(magasin.getId()) >= MAX_FAVORIS) {
             throw new BadRequestAlertException(
-                "La grille est pleine : " + MAX_FAVORIS + " favoris au maximum. Retirez-en un avant d'en ajouter.",
-                ENTITY_NAME,
-                "grillepleine"
-            );
+                    "La grille est pleine : " + MAX_FAVORIS + " favoris au maximum. Retirez-en un avant d'en ajouter.",
+                    ENTITY_NAME,
+                    "grillepleine");
         }
         Produit produit = produitRepository
-            .findById(produitId)
-            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
-        produitFavoriRepository.save(
-            new ProduitFavori().setMagasin(magasin).setProduit(produit).setOrdre(produitFavoriRepository.maxOrdre(magasin.getId()) + 1)
-        );
+                .findById(produitId)
+                .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+        produitFavoriRepository.save(new ProduitFavori()
+                .setMagasin(magasin)
+                .setProduit(produit)
+                .setOrdre(produitFavoriRepository.maxOrdre(magasin.getId()) + 1));
     }
 
     @Override
     public void retirer(Integer produitId) {
         Integer magasinId = storageService.getConnectedUserMagasin().getId();
-        produitFavoriRepository.findByMagasinIdAndProduitId(magasinId, produitId).ifPresent(produitFavoriRepository::delete);
+        produitFavoriRepository
+                .findByMagasinIdAndProduitId(magasinId, produitId)
+                .ifPresent(produitFavoriRepository::delete);
     }
 
     @Override

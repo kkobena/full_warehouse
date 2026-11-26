@@ -1,32 +1,16 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {HttpResponse} from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 
-import {FormsModule} from '@angular/forms';
-import {IPnlEvolution, IPnlFamille, IPnlSegment} from 'app/shared/model/report';
-import {PnlAnalytiqueService} from '../services/pnl-analytique.service';
-import {formatCurrency, formatNumber, formatPercent} from 'app/shared/utils/format-utils';
+import { FormsModule } from '@angular/forms';
+import { IPnlEvolution, IPnlFamille, IPnlSegment } from 'app/shared/model/report';
+import { PnlAnalytiqueService } from '../services/pnl-analytique.service';
+import { formatCurrency, formatNumber, formatPercent } from 'app/shared/utils/format-utils';
 
-import {Chart, ChartConfiguration, registerables} from 'chart.js';
-import {DeviseDirective} from 'app/shared/utils/devise';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
-import {
-  AppKpiAccent,
-  DataTableComponent,
-  KpiItemComponent,
-  KpiStripComponent,
-  SelectComponent
-} from '../../../shared/ui';
+import { AppKpiAccent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from '../../../shared/ui';
 
 Chart.register(...registerables);
 
@@ -34,26 +18,22 @@ type PnlView = 'snapshot' | 'evolution';
 type SnapshotTab = 'segment' | 'famille';
 type FamilleSortCol = 'ca' | 'margeBrute' | 'tauxMarge';
 
-const CHART_COLORS = [
-  'rgb(54, 162, 235)',
-  'rgb(255, 99, 132)',
-  'rgb(75, 192, 192)',
-  'rgb(255, 205, 86)',
-  'rgb(153, 102, 255)',
-];
+const CHART_COLORS = ['rgb(54, 162, 235)', 'rgb(255, 99, 132)', 'rgb(75, 192, 192)', 'rgb(255, 205, 86)', 'rgb(153, 102, 255)'];
 
 @Component({
   selector: 'app-pnl-analytique',
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PillSelectorComponent, DeviseDirective,
+  imports: [
+    PillSelectorComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     DataTableComponent,
     SelectComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
 })
 export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
@@ -108,9 +88,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
     };
   });
 
-  protected readonly totalFamilleCA = computed(() =>
-    this.familleData().reduce((s, f) => s + (f.ca ?? 0), 0)
-  );
+  protected readonly totalFamilleCA = computed(() => this.familleData().reduce((s, f) => s + (f.ca ?? 0), 0));
 
   protected readonly years: number[] = (() => {
     const current = new Date().getFullYear();
@@ -283,8 +261,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createFamilleEvolutionChart(data), 50);
         }
       },
-      error() {
-      },
+      error() {},
     });
   }
 
@@ -298,8 +275,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createSegmentEvolutionChart(data), 50);
         }
       },
-      error() {
-      },
+      error() {},
     });
   }
 
@@ -316,10 +292,10 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.familleEvolutionChart = new Chart(ctx, this.buildLineConfig(
-      evolution,
-      serie => serie.famille ?? '',
-    ));
+    this.familleEvolutionChart = new Chart(
+      ctx,
+      this.buildLineConfig(evolution, serie => serie.famille ?? ''),
+    );
   }
 
   private createSegmentEvolutionChart(evolution: IPnlEvolution): void {
@@ -335,10 +311,10 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.segmentEvolutionChart = new Chart(ctx, this.buildLineConfig(
-      evolution,
-      serie => serie.segment ?? serie.famille ?? '',
-    ));
+    this.segmentEvolutionChart = new Chart(
+      ctx,
+      this.buildLineConfig(evolution, serie => serie.segment ?? serie.famille ?? ''),
+    );
   }
 
   private buildLineConfig(evolution: IPnlEvolution, getLabel: (s: any) => string): ChartConfiguration<'line'> {
@@ -361,7 +337,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {position: 'bottom', labels: {padding: 16}},
+          legend: { position: 'bottom', labels: { padding: 16 } },
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} %`,
@@ -370,10 +346,10 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
         },
         scales: {
           y: {
-            title: {display: true, text: 'Taux de marge (%)'},
-            ticks: {callback: v => v + ' %'},
+            title: { display: true, text: 'Taux de marge (%)' },
+            ticks: { callback: v => v + ' %' },
           },
-          x: {ticks: {maxRotation: 45}},
+          x: { ticks: { maxRotation: 45 } },
         },
       },
     };

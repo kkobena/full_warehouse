@@ -31,7 +31,6 @@ import org.springframework.test.util.ReflectionTestUtils;
  * <p>Le second défaut est le même que celui des alertes : les impayés se listaient à travers une
  * jointure fermée sur le groupe de tiers payant, ce qui effaçait les tiers payants isolés.
  */
-
 @DisplayName("MobileTodoService — pense-bête des actions prioritaires")
 class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
@@ -46,39 +45,33 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
     // ===== natures d'action =====
 
     private TodoItemDTO tacheDuProduit(Produit produit) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            .filter(t -> "PRODUCT".equals(t.relatedEntityType())
-                && produit.getId().longValue() == t.relatedEntityId())
-            .findFirst()
-            .orElseThrow();
+        return service.getAllTodoItems().stream()
+                .filter(t -> "PRODUCT".equals(t.relatedEntityType())
+                        && produit.getId().longValue() == t.relatedEntityId())
+                .findFirst()
+                .orElseThrow();
     }
 
     // ===== regroupement par priorité =====
 
     private TodoItemDTO tacheDemarque(Produit produit) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            .filter(t -> "CREATE_DISCOUNT".equals(t.type())
-                && produit.getId().longValue() == t.relatedEntityId())
-            .findFirst()
-            .orElseThrow();
+        return service.getAllTodoItems().stream()
+                .filter(t ->
+                        "CREATE_DISCOUNT".equals(t.type()) && produit.getId().longValue() == t.relatedEntityId())
+                .findFirst()
+                .orElseThrow();
     }
 
     // ===== pagination =====
 
     private TodoItemDTO tacheDeLaFacture(FactureTiersPayant facture) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            // Les deux identifiants sont des Long : les comparer avec == compare des references,
-            // ce qui ne tient que tant que la valeur reste dans le cache des petits entiers.
-            .filter(t -> "INVOICE".equals(t.relatedEntityType()) && Objects.requireNonNull(
-                facture.getId()).getId().equals(t.relatedEntityId()))
-            .findFirst()
-            .orElseThrow();
+        return service.getAllTodoItems().stream()
+                // Les deux identifiants sont des Long : les comparer avec == compare des references,
+                // ce qui ne tient que tant que la valeur reste dans le cache des petits entiers.
+                .filter(t -> "INVOICE".equals(t.relatedEntityType())
+                        && Objects.requireNonNull(facture.getId()).getId().equals(t.relatedEntityId()))
+                .findFirst()
+                .orElseThrow();
     }
 
     // ===== compteurs par priorité =====
@@ -99,7 +92,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             assertThat(tache.title()).isEqualTo("Commander DOLIPRANE RUPTURE");
             assertThat(tache.description()).isEqualTo("Rupture de stock");
             assertThat(tache.priority()).isEqualTo(TodoPriority.URGENT);
-            assertThat(tache.actionData()).containsEntry("productId", produit.getId().longValue());
+            assertThat(tache.actionData())
+                    .containsEntry("productId", produit.getId().longValue());
         }
 
         @Test
@@ -132,8 +126,7 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             Produit produit = produitEnStock("STOCK CONFORTABLE", 50);
             em.flush();
 
-            assertThat(service.getAllTodoItems()).noneMatch(
-                t -> produit.getId().longValue() == t.relatedEntityId());
+            assertThat(service.getAllTodoItems()).noneMatch(t -> produit.getId().longValue() == t.relatedEntityId());
         }
 
         @Test
@@ -170,20 +163,18 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         @DisplayName("une facture impayée appelle une relance")
         void impaye() {
             FactureTiersPayant facture = factureAgee(
-                tiersPayant("Caisse", groupeTiersPayant("CNAM")),
-                120,
-                500_000,
-                200_000,
-                InvoiceStatut.PARTIALLY_PAID
-            );
+                    tiersPayant("Caisse", groupeTiersPayant("CNAM")),
+                    120,
+                    500_000,
+                    200_000,
+                    InvoiceStatut.PARTIALLY_PAID);
             em.flush();
 
             TodoItemDTO tache = tacheDeLaFacture(facture);
 
             assertThat(tache.type()).isEqualTo("CALL_CLIENT");
             assertThat(tache.actionLabel()).isEqualTo("Appeler");
-            assertThat(tache.description()).containsPattern(
-                "Facture impayee depuis 120 jours \\(300.000 F\\)");
+            assertThat(tache.description()).containsPattern("Facture impayee depuis 120 jours \\(300.000 F\\)");
             assertThat(tache.actionData()).containsEntry("phone", "0102030405");
         }
 
@@ -195,8 +186,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         @Test
         @DisplayName("la facture d'un tiers payant isolé appelle aussi une relance")
         void impayeSansGroupe() {
-            FactureTiersPayant facture = factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000,
-                0, InvoiceStatut.NOT_PAID);
+            FactureTiersPayant facture =
+                    factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             TodoItemDTO tache = tacheDeLaFacture(facture);
@@ -212,8 +203,7 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             em.flush();
 
             // Vingt-cinq caractères au plus, points de suspension compris.
-            assertThat(tacheDuProduit(produit).title()).isEqualTo(
-                "Commander PARACETAMOL BIOGARAN 1...");
+            assertThat(tacheDuProduit(produit).title()).isEqualTo("Commander PARACETAMOL BIOGARAN 1...");
         }
     }
 
@@ -230,18 +220,14 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             Produit sousSeuil = produitEnStock(unique("BAS"), 2);
             Produit aPerimer = produitEnStock(unique("PEREMPTION"), 40);
             lot(aPerimer, LocalDate.now().plusDays(60), 10);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
-                InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             MobileTodoDTO penseBete = service.getTodoList();
 
-            assertThat(penseBete.urgent()).anyMatch(
-                t -> enRupture.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.important()).anyMatch(
-                t -> aPerimer.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.normal()).anyMatch(
-                t -> sousSeuil.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.urgent()).anyMatch(t -> enRupture.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.important()).anyMatch(t -> aPerimer.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.normal()).anyMatch(t -> sousSeuil.getId().longValue() == t.relatedEntityId());
         }
 
         /**
@@ -259,10 +245,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             MobileTodoDTO penseBete = service.getTodoList();
 
-            assertThat(penseBete.urgent()).anyMatch(
-                t -> imminent.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.important()).noneMatch(
-                t -> imminent.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.urgent()).anyMatch(t -> imminent.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.important()).noneMatch(t -> imminent.getId().longValue() == t.relatedEntityId());
         }
 
         /**
@@ -304,9 +288,9 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
         private int indexPremiere(List<TodoItemDTO> taches, TodoPriority priorite) {
             return IntStream.range(0, taches.size())
-                .filter(i -> taches.get(i).priority() == priorite)
-                .findFirst()
-                .orElse(Integer.MAX_VALUE);
+                    .filter(i -> taches.get(i).priority() == priorite)
+                    .findFirst()
+                    .orElse(Integer.MAX_VALUE);
         }
     }
 
@@ -325,7 +309,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             IntStream.rangeClosed(1, 25).forEach(i -> produitEnStock(unique("RUPTURE"), 0));
             em.flush();
 
-            assertThat(service.getTodoItemsCount()).isEqualTo(service.getAllTodoItems().size());
+            assertThat(service.getTodoItemsCount())
+                    .isEqualTo(service.getAllTodoItems().size());
         }
 
         @Test
@@ -335,7 +320,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             produitEnStock(unique("BAS"), 2);
             em.flush();
 
-            assertThat(service.getTodoItemsCount()).isEqualTo(service.getAllTodoItems().size());
+            assertThat(service.getTodoItemsCount())
+                    .isEqualTo(service.getAllTodoItems().size());
         }
 
         @Test
@@ -349,8 +335,10 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             assertThat(premiere).hasSize(3);
             assertThat(seconde).hasSize(3);
-            assertThat(premiere).extracting(TodoItemDTO::id)
-                .doesNotContainAnyElementsOf(seconde.stream().map(TodoItemDTO::id).toList());
+            assertThat(premiere)
+                    .extracting(TodoItemDTO::id)
+                    .doesNotContainAnyElementsOf(
+                            seconde.stream().map(TodoItemDTO::id).toList());
         }
 
         @Test
@@ -370,8 +358,7 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             MobileTodoService.TodoCountsDTO avant = service.getTodoCounts();
             produitEnStock(unique("RUPTURE"), 0);
             produitEnStock(unique("RUPTURE"), 0);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
-                InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             assertThat(service.getTodoCounts().urgent() - avant.urgent()).isEqualTo(3);
@@ -400,8 +387,7 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             lot(lointain, LocalDate.now().plusDays(70), 10);
             produitEnStock(unique("RUPTURE"), 0);
             produitEnStock(unique("BAS"), 2);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
-                InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             MobileTodoDTO penseBete = service.getTodoList();
@@ -432,8 +418,7 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         void totalDesCompteurs() {
             MobileTodoService.TodoCountsDTO compteurs = service.getTodoCounts();
 
-            assertThat(compteurs.total()).isEqualTo(
-                compteurs.urgent() + compteurs.important() + compteurs.normal());
+            assertThat(compteurs.total()).isEqualTo(compteurs.urgent() + compteurs.important() + compteurs.normal());
         }
     }
 }

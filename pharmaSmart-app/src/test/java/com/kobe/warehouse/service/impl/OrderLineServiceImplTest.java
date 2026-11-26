@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -79,13 +78,12 @@ class OrderLineServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new OrderLineServiceImpl(
-            orderLineRepository,
-            fournisseurProduitService,
-            produitRepository,
-            produitService,
-            orderLineIdGeneratorService,
-            fournisseurService
-        );
+                orderLineRepository,
+                fournisseurProduitService,
+                produitRepository,
+                produitService,
+                orderLineIdGeneratorService,
+                fournisseurService);
         when(orderLineIdGeneratorService.getNextIdAsInt()).thenReturn(900);
         when(orderLineRepository.save(any(OrderLine.class))).thenAnswer(inv -> inv.getArgument(0));
         when(orderLineRepository.saveAndFlush(any(OrderLine.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -114,10 +112,10 @@ class OrderLineServiceImplTest {
 
     private static OrderLineDTO dto() {
         return new OrderLineDTO()
-            .setProduitId(PRODUIT_ID)
-            .setQuantityRequested(10)
-            .setTotalQuantity(20)
-            .setCommande(commandeDTO());
+                .setProduitId(PRODUIT_ID)
+                .setQuantityRequested(10)
+                .setTotalQuantity(20)
+                .setCommande(commandeDTO());
     }
 
     private static CommandeDTO commandeDTO() {
@@ -148,7 +146,8 @@ class OrderLineServiceImplTest {
             Produit produit = produit();
             FournisseurProduit fp = fournisseurProduit(77, 400, 800);
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
 
             OrderLine ligne = service.buildOrderLineFromOrderLineDTO(dto());
 
@@ -170,7 +169,8 @@ class OrderLineServiceImplTest {
             produit.setFournisseurProduitPrincipal(principal);
             FournisseurProduit cree = fournisseurProduit(78, 400, 800);
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(fournisseurService.getParentIdByChildId(FOURNISSEUR_ID)).thenReturn(Optional.empty());
             when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(cree);
             OrderLineDTO dto = dto();
@@ -206,9 +206,11 @@ class OrderLineServiceImplTest {
             principal.setQteMinimaleCommande(6);
             produit.setFournisseurProduitPrincipal(principal);
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(fournisseurService.getParentIdByChildId(FOURNISSEUR_ID)).thenReturn(Optional.empty());
-            when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(fournisseurProduit(78, 400, 800));
+            when(fournisseurProduitService.createNewFournisseurProduit(any()))
+                    .thenReturn(fournisseurProduit(78, 400, 800));
 
             service.buildOrderLineFromOrderLineDTO(dto());
 
@@ -224,9 +226,11 @@ class OrderLineServiceImplTest {
             Produit produit = produit();
             produit.setFournisseurProduitPrincipal(fournisseurProduit(77, 400, 800));
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(fournisseurService.getParentIdByChildId(FOURNISSEUR_ID)).thenReturn(Optional.of(9));
-            when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(fournisseurProduit(78, 400, 800));
+            when(fournisseurProduitService.createNewFournisseurProduit(any()))
+                    .thenReturn(fournisseurProduit(78, 400, 800));
 
             service.buildOrderLineFromOrderLineDTO(dto());
 
@@ -239,12 +243,13 @@ class OrderLineServiceImplTest {
         @DisplayName("refuse un produit sans fournisseur principal")
         void sansFournisseurPrincipal() {
             when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit());
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             OrderLineDTO dto = dto();
 
             assertThatThrownBy(() -> service.buildOrderLineFromOrderLineDTO(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce produit n'a pas de fournisseur principal");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce produit n'a pas de fournisseur principal");
         }
     }
 
@@ -272,7 +277,9 @@ class OrderLineServiceImplTest {
         @Test
         @DisplayName("depuis un DTO : ne marque pas la ligne comme provisoire sans indication")
         void sansCodeProvisoire() {
-            assertThat(service.buildOrderLine(dto(), fournisseurProduit(77, 400, 800)).getProvisionalCode()).isFalse();
+            assertThat(service.buildOrderLine(dto(), fournisseurProduit(77, 400, 800))
+                            .getProvisionalCode())
+                    .isFalse();
         }
 
         @Test
@@ -280,7 +287,9 @@ class OrderLineServiceImplTest {
         void avecCodeProvisoire() {
             OrderLineDTO dto = dto().setProvisionalCode(Boolean.TRUE);
 
-            assertThat(service.buildOrderLine(dto, fournisseurProduit(77, 400, 800)).getProvisionalCode()).isTrue();
+            assertThat(service.buildOrderLine(dto, fournisseurProduit(77, 400, 800))
+                            .getProvisionalCode())
+                    .isTrue();
         }
 
         @Test
@@ -305,8 +314,8 @@ class OrderLineServiceImplTest {
             CommandeRapideDTO commande = new CommandeRapideDTO(77, 10, 20);
 
             assertThatThrownBy(() -> service.buildOrderLine(commande))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("FournisseurProduit introuvable : 77");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("FournisseurProduit introuvable : 77");
         }
 
         @Test
@@ -316,7 +325,11 @@ class OrderLineServiceImplTest {
             commande.setId(12);
             commande.setOrderDate(LocalDate.of(2026, 4, 18));
             commande.setCreatedAt(LocalDateTime.of(2026, 4, 18, 10, 0));
-            OrderLineDTO dto = dto().setQuantityReceived(8).setInitStock(20).setOrderUnitPrice(900).setOrderCostAmount(450).setFreeQty(2);
+            OrderLineDTO dto = dto().setQuantityReceived(8)
+                    .setInitStock(20)
+                    .setOrderUnitPrice(900)
+                    .setOrderCostAmount(450)
+                    .setFreeQty(2);
             dto.setProvisionalCode(Boolean.TRUE);
 
             OrderLine ligne = service.createOrderLine(commande, dto);
@@ -360,7 +373,8 @@ class OrderLineServiceImplTest {
             Produit produit = produit();
             produit.getStockProduits().add(stock(20, 3));
             FournisseurProduit cible = fournisseurProduit(78, 450, 900);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.of(cible));
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(cible));
 
             OrderLine ligne = service.buildOrderLine(suggestionLine(produit, 12), FOURNISSEUR_ID);
 
@@ -380,7 +394,8 @@ class OrderLineServiceImplTest {
         void fournisseurCibleNonReference() {
             Produit produit = produit();
             FournisseurProduit cree = fournisseurProduit(78, 400, 800);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(cree);
 
             OrderLine ligne = service.buildOrderLine(suggestionLine(produit, 12), FOURNISSEUR_ID);
@@ -527,7 +542,8 @@ class OrderLineServiceImplTest {
         void referencementExistant() {
             OrderLine ligne = ligneAvecProduit(produit());
             FournisseurProduit cible = fournisseurProduit(78, 450, 900);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, 9)).thenReturn(Optional.of(cible));
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, 9))
+                    .thenReturn(Optional.of(cible));
 
             service.changeFournisseurProduit(ligne, 9);
 
@@ -545,7 +561,8 @@ class OrderLineServiceImplTest {
             produit.setFournisseurProduitPrincipal(fournisseurProduit(77, 400, 800));
             OrderLine ligne = ligneAvecProduit(produit);
             FournisseurProduit cree = fournisseurProduit(78, 450, 900);
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, 9)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, 9))
+                    .thenReturn(Optional.empty());
             when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(cree);
 
             service.changeFournisseurProduit(ligne, 9);
@@ -575,16 +592,7 @@ class OrderLineServiceImplTest {
         @DisplayName("reprend les prix du fichier quand ils sont renseignes")
         void prixDuFichier() {
             OrderLine ligne = service.buildDeliveryReceiptItemFromRecord(
-                fournisseurProduit(77, 400, 800),
-                10,
-                8,
-                450,
-                900,
-                2,
-                20,
-                18,
-                commande()
-            );
+                    fournisseurProduit(77, 400, 800), 10, 8, 450, 900, 2, 20, 18, commande());
 
             assertThat(ligne.getId().getId()).isEqualTo(900);
             assertThat(ligne.getCreatedAt()).isEqualTo(LocalDateTime.of(2026, 4, 18, 10, 0));
@@ -601,16 +609,7 @@ class OrderLineServiceImplTest {
         @DisplayName("retombe sur les prix du fournisseur quand le fichier ne les porte pas")
         void prixDuFournisseur() {
             OrderLine ligne = service.buildDeliveryReceiptItemFromRecord(
-                fournisseurProduit(77, 400, 800),
-                10,
-                8,
-                0,
-                0,
-                0,
-                20,
-                0,
-                commande()
-            );
+                    fournisseurProduit(77, 400, 800), 10, 8, 0, 0, 0, 20, 0, commande());
 
             assertThat(ligne.getOrderCostAmount()).isEqualTo(400);
             assertThat(ligne.getOrderUnitPrice()).isEqualTo(800);
@@ -672,9 +671,11 @@ class OrderLineServiceImplTest {
         @DisplayName("findAllByOrderLineIdIn delegue au depot")
         void findAllByOrderLineIdIn() {
             List<OrderLine> attendu = List.of(orderLine(10));
-            when(orderLineRepository.findAllByIdInAndOrderDate(Set.of(900), LocalDate.of(2026, 4, 18))).thenReturn(attendu);
+            when(orderLineRepository.findAllByIdInAndOrderDate(Set.of(900), LocalDate.of(2026, 4, 18)))
+                    .thenReturn(attendu);
 
-            assertThat(service.findAllByOrderLineIdIn(Set.of(900), LocalDate.of(2026, 4, 18))).isSameAs(attendu);
+            assertThat(service.findAllByOrderLineIdIn(Set.of(900), LocalDate.of(2026, 4, 18)))
+                    .isSameAs(attendu);
         }
 
         @Test
@@ -697,9 +698,12 @@ class OrderLineServiceImplTest {
         @Test
         @DisplayName("findOneFromCommande renvoie vide quand le produit n est pas reference")
         void findOneFromCommandeSansReferencement() {
-            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
 
-            assertThat(service.findOneFromCommande(PRODUIT_ID, new CommandeId(12, LocalDate.of(2026, 4, 18)), FOURNISSEUR_ID)).isEmpty();
+            assertThat(service.findOneFromCommande(
+                            PRODUIT_ID, new CommandeId(12, LocalDate.of(2026, 4, 18)), FOURNISSEUR_ID))
+                    .isEmpty();
 
             verifyNoInteractions(orderLineRepository);
         }
@@ -709,21 +713,24 @@ class OrderLineServiceImplTest {
         void findOneFromCommande() {
             OrderLine ligne = orderLine(10);
             when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID))
-                .thenReturn(Optional.of(fournisseurProduit(77, 400, 800)));
-            when(
-                orderLineRepository.findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(77, 12, LocalDate.of(2026, 4, 18))
-            ).thenReturn(Optional.of(ligne));
+                    .thenReturn(Optional.of(fournisseurProduit(77, 400, 800)));
+            when(orderLineRepository.findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(
+                            77, 12, LocalDate.of(2026, 4, 18)))
+                    .thenReturn(Optional.of(ligne));
 
-            assertThat(service.findOneFromCommande(PRODUIT_ID, new CommandeId(12, LocalDate.of(2026, 4, 18)), FOURNISSEUR_ID))
-                .contains(ligne);
+            assertThat(service.findOneFromCommande(
+                            PRODUIT_ID, new CommandeId(12, LocalDate.of(2026, 4, 18)), FOURNISSEUR_ID))
+                    .contains(ligne);
         }
 
         @Test
         @DisplayName("getFournisseurProduitByCriteria delegue au service produit")
         void getFournisseurProduitByCriteria() {
-            when(produitService.getFournisseurProduitByCriteria("1234567", FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(produitService.getFournisseurProduitByCriteria("1234567", FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
 
-            assertThat(service.getFournisseurProduitByCriteria("1234567", FOURNISSEUR_ID)).isEmpty();
+            assertThat(service.getFournisseurProduitByCriteria("1234567", FOURNISSEUR_ID))
+                    .isEmpty();
         }
 
         @Test

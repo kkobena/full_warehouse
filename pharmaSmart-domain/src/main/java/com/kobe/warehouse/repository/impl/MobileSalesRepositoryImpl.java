@@ -65,19 +65,20 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
 
         long averageBasket = transactionsCount > 0 ? caTotal / transactionsCount : 0;
         double marginPercent = caTotal > 0
-            ? BigDecimal.valueOf((marginAmount * 100.0) / caTotal).setScale(2, RoundingMode.HALF_UP).doubleValue()
-            : 0;
+                ? BigDecimal.valueOf((marginAmount * 100.0) / caTotal)
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue()
+                : 0;
 
         return new DailySalesSummaryProjection(
-            caTotal,
-            transactionsCount,
-            customersCount,
-            averageBasket,
-            amountCollected,
-            amountCredit,
-            marginAmount,
-            marginPercent
-        );
+                caTotal,
+                transactionsCount,
+                customersCount,
+                averageBasket,
+                amountCollected,
+                amountCredit,
+                marginAmount,
+                marginPercent);
     }
 
     @Override
@@ -105,11 +106,10 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
         Object[] row = (Object[]) query.getSingleResult();
 
         return new SalesSummaryProjection(
-            ((Number) row[0]).longValue(),
-            ((Number) row[1]).intValue(),
-            ((Number) row[2]).intValue(),
-            ((Number) row[3]).longValue()
-        );
+                ((Number) row[0]).longValue(),
+                ((Number) row[1]).intValue(),
+                ((Number) row[2]).intValue(),
+                ((Number) row[3]).longValue());
     }
 
     @Override
@@ -142,16 +142,12 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
 
         long averageBasket = salesCount > 0 ? totalCA / salesCount : 0;
         double marginPercent = totalCA > 0
-            ? BigDecimal.valueOf((marginAmount * 100.0) / totalCA).setScale(2, RoundingMode.HALF_UP).doubleValue()
-            : 0;
+                ? BigDecimal.valueOf((marginAmount * 100.0) / totalCA)
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue()
+                : 0;
 
-        return new UserSalesSummaryProjection(
-            totalCA,
-            salesCount,
-            averageBasket,
-            marginAmount,
-            marginPercent
-        );
+        return new UserSalesSummaryProjection(totalCA, salesCount, averageBasket, marginAmount, marginPercent);
     }
 
     @Override
@@ -194,13 +190,12 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
         int rank = 1;
         for (Object[] row : results) {
             topProducts.add(new TopProductProjection(
-                ((Number) row[0]).longValue(),
-                (String) row[1],
-                (String) row[2],
-                ((Number) row[3]).longValue(),
-                ((Number) row[4]).intValue(),
-                rank++
-            ));
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    (String) row[2],
+                    ((Number) row[3]).longValue(),
+                    ((Number) row[4]).intValue(),
+                    rank++));
         }
 
         return topProducts;
@@ -234,10 +229,7 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
         List<DailyCATrendProjection> trend = new ArrayList<>();
         for (Object[] row : results) {
             trend.add(new DailyCATrendProjection(
-                LocalDate.parse(row[0].toString()),
-                ((Number) row[1]).longValue(),
-                ((Number) row[2]).intValue()
-            ));
+                    LocalDate.parse(row[0].toString()), ((Number) row[1]).longValue(), ((Number) row[2]).intValue()));
         }
 
         return trend;
@@ -297,11 +289,8 @@ public class MobileSalesRepositoryImpl implements MobileSalesRepository {
 
         List<PaymentMethodProjection> paymentMethods = new ArrayList<>();
         for (Object[] row : results) {
-            paymentMethods.add(new PaymentMethodProjection(
-                (String) row[0],
-                (String) row[1],
-                ((Number) row[2]).longValue()
-            ));
+            paymentMethods.add(
+                    new PaymentMethodProjection((String) row[0], (String) row[1], ((Number) row[2]).longValue()));
         }
 
         return paymentMethods;

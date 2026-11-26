@@ -32,10 +32,9 @@ public class RemiseRfaServiceImpl implements RemiseRfaService {
     private final FournisseurRepository fournisseurRepository;
 
     public RemiseRfaServiceImpl(
-        CommandeRepository commandeRepository,
-        AvoirFournisseurRepository avoirRepository,
-        FournisseurRepository fournisseurRepository
-    ) {
+            CommandeRepository commandeRepository,
+            AvoirFournisseurRepository avoirRepository,
+            FournisseurRepository fournisseurRepository) {
         this.commandeRepository = commandeRepository;
         this.avoirRepository = avoirRepository;
         this.fournisseurRepository = fournisseurRepository;
@@ -60,8 +59,8 @@ public class RemiseRfaServiceImpl implements RemiseRfaService {
     @Override
     public List<AvoirFournisseurRfaDTO> getAvoirsFournisseurs() {
         return avoirRepository.findAllWithFournisseur().stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
@@ -78,26 +77,23 @@ public class RemiseRfaServiceImpl implements RemiseRfaService {
         List<Object[]> caRows = commandeRepository.sumCaByFournisseur(OrderStatut.CLOSED, start, end, groupeId);
         Map<Integer, Long> avoirsMap = buildAvoirsMap();
 
-        return caRows.stream()
-            .map(row -> buildDto(row, avoirsMap))
-            .collect(Collectors.toList());
+        return caRows.stream().map(row -> buildDto(row, avoirsMap)).collect(Collectors.toList());
     }
 
     private RemiseRfaFournisseurDTO buildDto(Object[] row, Map<Integer, Long> avoirsMap) {
-        Integer fId       = (Integer) row[0];
-        String  fName     = (String)  row[1];
-        long    ca        = row[2] != null ? ((Number) row[2]).longValue() : 0L;
-        Long    palier    = row[3] != null ? ((Number) row[3]).longValue() : null;
-        Integer tauxPct   = row[4] != null ? ((Number) row[4]).intValue()  : null;
-        long    rfaRecue  = avoirsMap.getOrDefault(fId, 0L);
+        Integer fId = (Integer) row[0];
+        String fName = (String) row[1];
+        long ca = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+        Long palier = row[3] != null ? ((Number) row[3]).longValue() : null;
+        Integer tauxPct = row[4] != null ? ((Number) row[4]).intValue() : null;
+        long rfaRecue = avoirsMap.getOrDefault(fId, 0L);
 
         double pct = (palier != null && palier > 0) ? ca * 100.0 / palier : 0.0;
         long rfaEstimee = (tauxPct != null) ? ca * tauxPct / 100 : 0L;
         long reste = (palier != null) ? Math.max(0L, palier - ca) : 0L;
 
         return new RemiseRfaFournisseurDTO(
-            fId, fName, palier, ca, pct, rfaEstimee, rfaRecue, reste, determinerEtat(palier, tauxPct, pct)
-        );
+                fId, fName, palier, ca, pct, rfaEstimee, rfaRecue, reste, determinerEtat(palier, tauxPct, pct));
     }
 
     /**
@@ -136,12 +132,11 @@ public class RemiseRfaServiceImpl implements RemiseRfaService {
 
     private AvoirFournisseurRfaDTO toDto(AvoirFournisseur a) {
         return new AvoirFournisseurRfaDTO(
-            a.getId(),
-            a.getFournisseur().getLibelle(),
-            a.getReference(),
-            a.getDateMtv().toLocalDate().toString(),
-            a.getMontant(),
-            a.getStatut().name()
-        );
+                a.getId(),
+                a.getFournisseur().getLibelle(),
+                a.getReference(),
+                a.getDateMtv().toLocalDate().toString(),
+                a.getMontant(),
+                a.getStatut().name());
     }
 }

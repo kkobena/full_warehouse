@@ -56,7 +56,6 @@ scenario('ACH-47', async ({ etape, page }) => {
     }
     const liste = page.locator('app-list-bons');
     await expect(liste.locator('tbody tr').first()).toBeVisible({ timeout: 20000 });
-    await expect(liste.locator('tbody tr').filter({ hasText: reference }).first())
-      .toContainText(/Clôturé/i);
+    await expect(liste.locator('tbody tr').filter({ hasText: reference }).first()).toContainText(/Clôturé/i);
   });
 });

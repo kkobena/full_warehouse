@@ -59,9 +59,7 @@
 
         @if (rp.codeRayon === 'SANS') {
           <app-detail-field label="Emplacement">
-            <span class="pharma-badge pharma-badge-warning">
-              <i class="pi pi-exclamation-triangle me-1"></i>Sans emplacement
-            </span>
+            <span class="pharma-badge pharma-badge-warning"> <i class="pi pi-exclamation-triangle me-1"></i>Sans emplacement </span>
           </app-detail-field>
         } @else {
           <app-detail-field label="Code rayon" [value]="rp.codeRayon" />

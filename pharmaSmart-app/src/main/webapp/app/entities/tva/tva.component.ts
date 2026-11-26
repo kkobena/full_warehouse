@@ -1,19 +1,17 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {TvaService} from './tva.service';
-import {HttpResponse} from '@angular/common/http';
-import {ITva} from '../../shared/model/tva.model';
-import {ButtonComponent, DataTableComponent, SelectableRowDirective} from '../../shared/ui';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {FormTvaComponent} from './form-tva/form-tva.component';
-import {CommonModule} from '@angular/common';
-import {NotificationService} from '../../shared/services/notification.service';
-import {ErrorService} from '../../shared/error.service';
-import {TranslatePipe} from '@ngx-translate/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { TvaService } from './tva.service';
+import { HttpResponse } from '@angular/common/http';
+import { ITva } from '../../shared/model/tva.model';
+import { ButtonComponent, DataTableComponent, SelectableRowDirective } from '../../shared/ui';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { FormTvaComponent } from './form-tva/form-tva.component';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ErrorService } from '../../shared/error.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CardComponent } from 'app/shared/ui';
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
   selector: 'app-tva',

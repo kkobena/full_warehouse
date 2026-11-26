@@ -43,21 +43,20 @@ public class WidgetAuthorizationService {
     }
 
     public List<AllowedWidgetDTO> findAllowedForCurrentUser() {
-        return allowedItems()
-            .stream()
-            .map(grant -> new AllowedWidgetDTO(keyOf(grant), navAccessService.isFeatureSubscribed(grant)))
-            .toList();
+        return allowedItems().stream()
+                .map(grant -> new AllowedWidgetDTO(keyOf(grant), navAccessService.isFeatureSubscribed(grant)))
+                .toList();
     }
 
     /** Refuse un widget non autorisé au rôle, ou autorisé mais hors licence. */
     public void checkCanLoad(String key) {
-        NavGrant grant = allowedItems()
-            .stream()
-            .filter(g -> keyOf(g).equals(key))
-            .findFirst()
-            .orElseThrow(() -> nonAutorise(key));
+        NavGrant grant = allowedItems().stream()
+                .filter(g -> keyOf(g).equals(key))
+                .findFirst()
+                .orElseThrow(() -> nonAutorise(key));
         if (!navAccessService.isFeatureSubscribed(grant)) {
-            throw new ForbiddenOperationException("Ce widget n'est pas inclus dans votre abonnement.", ERROR_NON_SOUSCRIT);
+            throw new ForbiddenOperationException(
+                    "Ce widget n'est pas inclus dans votre abonnement.", ERROR_NON_SOUSCRIT);
         }
     }
 
@@ -73,14 +72,11 @@ public class WidgetAuthorizationService {
         if (keys.isEmpty()) {
             return;
         }
-        Set<String> allowed = allowedItems().stream().map(WidgetAuthorizationService::keyOf).collect(Collectors.toSet());
-        keys
-            .stream()
-            .filter(key -> !allowed.contains(key))
-            .findFirst()
-            .ifPresent(key -> {
-                throw nonAutorise(key);
-            });
+        Set<String> allowed =
+                allowedItems().stream().map(WidgetAuthorizationService::keyOf).collect(Collectors.toSet());
+        keys.stream().filter(key -> !allowed.contains(key)).findFirst().ifPresent(key -> {
+            throw nonAutorise(key);
+        });
     }
 
     private List<NavGrant> allowedItems() {
@@ -112,6 +108,7 @@ public class WidgetAuthorizationService {
     }
 
     private static ForbiddenOperationException nonAutorise(String key) {
-        return new ForbiddenOperationException("Le widget « %s » n'est pas autorisé pour votre profil.".formatted(key), ERROR_NON_AUTORISE);
+        return new ForbiddenOperationException(
+                "Le widget « %s » n'est pas autorisé pour votre profil.".formatted(key), ERROR_NON_AUTORISE);
     }
 }

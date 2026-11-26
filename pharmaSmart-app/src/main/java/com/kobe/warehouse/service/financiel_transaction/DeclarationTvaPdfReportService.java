@@ -25,11 +25,8 @@ public class DeclarationTvaPdfReportService extends AbstractStatistiqueReportSer
     private final StorageService storageService;
     private final Map<String, Object> params = new HashMap<>();
 
-    public DeclarationTvaPdfReportService(
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
-        super( storageService);
+    public DeclarationTvaPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
@@ -64,14 +61,15 @@ public class DeclarationTvaPdfReportService extends AbstractStatistiqueReportSer
         params.put(Constant.REPORT_TITLE, "Déclaration TVA — " + from.format(FMT) + " au " + to.format(FMT));
         params.put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
         params.put("taxes", lines);
-        params.put("declaration", new DeclarationSummary(
-            declaration.getMontantHt(),
-            declaration.getMontantTaxe(),
-            declaration.getTvaDeductible(),
-            declaration.getTvaNette(),
-            declaration.getMontantTtc(),
-            declaration.getMontantRemise()
-        ));
+        params.put(
+                "declaration",
+                new DeclarationSummary(
+                        declaration.getMontantHt(),
+                        declaration.getMontantTaxe(),
+                        declaration.getTvaDeductible(),
+                        declaration.getTvaNette(),
+                        declaration.getMontantTtc(),
+                        declaration.getMontantRemise()));
 
         return super.exportReportToPdf();
     }
@@ -91,11 +89,5 @@ public class DeclarationTvaPdfReportService extends AbstractStatistiqueReportSer
     }
 
     public record DeclarationSummary(
-        long montantHt,
-        long tvaCollectee,
-        long tvaDeductible,
-        long tvaNette,
-        long montantTtc,
-        long remises
-    ) {}
+            long montantHt, long tvaCollectee, long tvaDeductible, long tvaNette, long montantTtc, long remises) {}
 }

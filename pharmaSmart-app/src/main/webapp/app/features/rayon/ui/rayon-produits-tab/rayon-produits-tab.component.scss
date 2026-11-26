@@ -40,7 +40,6 @@
       min-height: 0;
       overflow: auto;
     }
-
   }
 }
 
@@ -62,7 +61,13 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  p-iconfield { max-width: 320px; }
-  input { width: 100%; }
-  p-button { margin-left: auto; }
+  p-iconfield {
+    max-width: 320px;
+  }
+  input {
+    width: 100%;
+  }
+  p-button {
+    margin-left: auto;
+  }
 }

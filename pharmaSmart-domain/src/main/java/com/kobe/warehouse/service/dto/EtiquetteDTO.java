@@ -42,7 +42,8 @@ public class EtiquetteDTO {
 
     public EtiquetteDTO() {}
 
-    public EtiquetteDTO(String code, String libelle, String prix, boolean print, String magasin, String date, int order) {
+    public EtiquetteDTO(
+            String code, String libelle, String prix, boolean print, String magasin, String date, int order) {
         this.code = code;
         this.libelle = libelle;
         this.prix = prix;

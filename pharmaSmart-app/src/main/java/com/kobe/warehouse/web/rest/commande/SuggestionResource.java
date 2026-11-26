@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
@@ -14,6 +16,10 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import com.kobe.warehouse.web.util.PaginationUtil;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -29,16 +35,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "commande.suggestions", "commande" })
+@RequiresNavAccess({"commande.suggestions", "commande"})
 public class SuggestionResource {
 
     private final SuggestionProduitService suggestionProduitService;
@@ -49,17 +48,17 @@ public class SuggestionResource {
 
     @GetMapping("/suggestions")
     public ResponseEntity<List<SuggestionProjection>> getAllSuggestions(
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) Set<Integer> fournisseurIds,
-        @RequestParam(required = false) TypeSuggession typeSuggession,
-        @RequestParam(required = false) Set<StatutSuggession> statut,
-        Pageable pageable
-    ) {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Set<Integer> fournisseurIds,
+            @RequestParam(required = false) TypeSuggession typeSuggession,
+            @RequestParam(required = false) Set<StatutSuggession> statut,
+            Pageable pageable) {
 
-        Page<SuggestionProjection> page = suggestionProduitService.getAllSuggestion(search, fournisseurIds, typeSuggession, statut, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        Page<SuggestionProjection> page =
+                suggestionProduitService.getAllSuggestion(search, fournisseurIds, typeSuggession, statut, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-
     }
 
     /**
@@ -73,10 +72,9 @@ public class SuggestionResource {
 
     @GetMapping("/suggestions/par-fournisseur")
     public ResponseEntity<List<FournisseurSuggestionSummaryDTO>> getSuggestionsParFournisseur(
-        @RequestParam(required = false) Set<StatutSuggession> statut,
-        @RequestParam(required = false) Set<Integer> fournisseurIds,
-        @RequestParam(required = false) String search
-    ) {
+            @RequestParam(required = false) Set<StatutSuggession> statut,
+            @RequestParam(required = false) Set<Integer> fournisseurIds,
+            @RequestParam(required = false) String search) {
         return ResponseEntity.ok(suggestionProduitService.getSuggestionsParFournisseur(statut, fournisseurIds, search));
     }
 
@@ -88,15 +86,15 @@ public class SuggestionResource {
 
     @GetMapping("/suggestions/{id}/lines")
     public ResponseEntity<List<SuggestionLineDTO>> getSuggestionLines(
-        @PathVariable Integer id,
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) String niveauUrgence,
-        Pageable pageable
-    ) {
-        Page<SuggestionLineDTO> page = suggestionProduitService.getSuggestionLinesByIdWithConsommation(id, search, niveauUrgence, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @PathVariable Integer id,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String niveauUrgence,
+            Pageable pageable) {
+        Page<SuggestionLineDTO> page =
+                suggestionProduitService.getSuggestionLinesByIdWithConsommation(id, search, niveauUrgence, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-
     }
 
     /**
@@ -105,13 +103,10 @@ public class SuggestionResource {
      */
     @GetMapping("/suggestions/{id}/all-lines")
     public ResponseEntity<List<SuggestionLineDTO>> getAllSuggestionLines(
-        @PathVariable Integer id,
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) String niveauUrgence
-    ) {
-        return ResponseEntity.ok(
-            suggestionProduitService.getAllSuggestionLines(id, search, niveauUrgence)
-        );
+            @PathVariable Integer id,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String niveauUrgence) {
+        return ResponseEntity.ok(suggestionProduitService.getAllSuggestionLines(id, search, niveauUrgence));
     }
 
     /**
@@ -156,10 +151,7 @@ public class SuggestionResource {
      * Alias de POST /suggestions/{id}/lines pour la compatibilité frontend.
      */
     @PostMapping("/suggestions/add-item/{id}")
-    public ResponseEntity<Void> addOrUpdateItem(
-        @PathVariable Integer id,
-        @RequestBody SuggestionLineDTO line
-    ) {
+    public ResponseEntity<Void> addOrUpdateItem(@PathVariable Integer id, @RequestBody SuggestionLineDTO line) {
         suggestionProduitService.addSuggestionLine(id, line);
         return ResponseEntity.noContent().build();
     }
@@ -186,9 +178,7 @@ public class SuggestionResource {
 
     @PostMapping("/suggestions/{id}/commander")
     public ResponseEntity<CommandeId> commander(
-        @PathVariable Integer id,
-        @RequestParam(required = false) Integer fournisseurId
-    ) {
+            @PathVariable Integer id, @RequestParam(required = false) Integer fournisseurId) {
         return ResponseEntity.ok(suggestionProduitService.commander(id, fournisseurId));
     }
 
@@ -216,10 +206,7 @@ public class SuggestionResource {
     }
 
     @PostMapping("/suggestions/{suggestionId}/lines")
-    public ResponseEntity<Void> addLine(
-        @PathVariable Integer suggestionId,
-        @RequestBody SuggestionLineDTO line
-    ) {
+    public ResponseEntity<Void> addLine(@PathVariable Integer suggestionId, @RequestBody SuggestionLineDTO line) {
         suggestionProduitService.addSuggestionLine(suggestionId, line);
         return ResponseEntity.noContent().build();
     }
@@ -241,30 +228,34 @@ public class SuggestionResource {
     }
 
     @GetMapping("/suggestions/{id}/export-csv")
-    @RequiresNavAccess(value = { "commande.suggestions", "commande" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande.suggestions", "commande"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCsv(@PathVariable Integer id) throws Exception {
         byte[] data = suggestionProduitService.exportToCsv(id);
         return ResponseEntity.ok()
-            .header("Content-Type", "text/csv; charset=UTF-8")
-            .header("Content-Disposition", "attachment; filename=\"suggestion-" + id + ".csv\"")
-            .body(data);
+                .header("Content-Type", "text/csv; charset=UTF-8")
+                .header("Content-Disposition", "attachment; filename=\"suggestion-" + id + ".csv\"")
+                .body(data);
     }
 
     @GetMapping("/suggestions/{id}/export-pdf")
-    @RequiresNavAccess(value = { "commande.suggestions", "commande" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande.suggestions", "commande"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportPdf(@PathVariable Integer id) {
         byte[] data = suggestionProduitService.exportToPdf(id);
         return ResponseEntity.ok()
-            .header("Content-Type", "application/pdf")
-            .header("Content-Disposition", "attachment; filename=\"suggestion-" + id + ".pdf\"")
-            .body(data);
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", "attachment; filename=\"suggestion-" + id + ".pdf\"")
+                .body(data);
     }
 
     @PostMapping("/suggestions/suggestion-quantite-produit-vendus")
     public ResponseEntity<Integer> suggestionQuantiteProduitVendus(
-        @RequestBody List<QauntiteProduitVendus> produitVendus,
-        @RequestParam(required = false) Boolean suggerQuantitySold
-    ) {
-        return ResponseEntity.ok(suggestionProduitService.suggestionQuantiteProduitVendus(produitVendus, suggerQuantitySold));
+            @RequestBody List<QauntiteProduitVendus> produitVendus,
+            @RequestParam(required = false) Boolean suggerQuantitySold) {
+        return ResponseEntity.ok(
+                suggestionProduitService.suggestionQuantiteProduitVendus(produitVendus, suggerQuantitySold));
     }
 }

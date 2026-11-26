@@ -37,8 +37,6 @@ scenario('RPT-30', async ({ etape, page }) => {
   await etape(3, async () => {
     // Les flux mensuels : ce que les organismes doivent, face à ce que les fournisseurs
     // réclament, mois par mois. Deux courbes qui ne se croisent pas au même moment.
-    await expect(
-      page.getByRole('heading', { name: /Créances TP vs Achats fournisseurs/ }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Créances TP vs Achats fournisseurs/ })).toBeVisible();
   });
 });

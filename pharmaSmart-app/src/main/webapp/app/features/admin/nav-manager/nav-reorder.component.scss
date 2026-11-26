@@ -1,14 +1,14 @@
 // ====================================
 // PHARMA SMART - NAV REORDER COMPONENT
 // ====================================
-$pharma-primary:      #5b89a6;
+$pharma-primary: #5b89a6;
 $pharma-primary-dark: #4a7189;
-$pharma-primary-light:#e8f4f8;
-$pharma-border:       #dfe3e8;
-$pharma-bg:           #f5f7fa;
-$pharma-white:        #ffffff;
-$pharma-text:         #333333;
-$pharma-shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$pharma-primary-light: #e8f4f8;
+$pharma-border: #dfe3e8;
+$pharma-bg: #f5f7fa;
+$pharma-white: #ffffff;
+$pharma-text: #333333;
+$pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
 $gray-100: #f3f4f6;
 $gray-200: #e5e7eb;
@@ -71,7 +71,9 @@ $gray-500: #6b7280;
   border-bottom: 1px solid $pharma-border;
   font-size: 0.9rem;
 
-  &:active { cursor: grabbing; }
+  &:active {
+    cursor: grabbing;
+  }
 
   i:first-child {
     // grip icon
@@ -80,7 +82,9 @@ $gray-500: #6b7280;
     transition: opacity 0.15s;
   }
 
-  &:hover i:first-child { opacity: 0.9; }
+  &:hover i:first-child {
+    opacity: 0.9;
+  }
 
   .group-icon {
     color: var(--pharma-chrome-tab, #{$pharma-primary});
@@ -99,7 +103,9 @@ $gray-500: #6b7280;
   border-radius: 6px;
   padding: 4px;
   background: $gray-100;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 
   &.cdk-drop-list-dragging {
     border-color: var(--pharma-chrome-tab, #{$pharma-primary});
@@ -119,10 +125,14 @@ $gray-500: #6b7280;
   cursor: grab;
   font-size: 0.875rem;
   color: $pharma-text;
-  transition: box-shadow 0.1s, border-color 0.1s;
+  transition:
+    box-shadow 0.1s,
+    border-color 0.1s;
   user-select: none;
 
-  &:active { cursor: grabbing; }
+  &:active {
+    cursor: grabbing;
+  }
 
   &:hover {
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
@@ -192,8 +202,13 @@ $gray-500: #6b7280;
 }
 
 @keyframes pulse-warning {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 // ── Responsive ───────────────────────────────────────────────────────────
@@ -207,7 +222,8 @@ $gray-500: #6b7280;
     padding: 7px 10px;
     font-size: 0.825rem;
 
-    code { display: none; }
+    code {
+      display: none;
+    }
   }
 }
-

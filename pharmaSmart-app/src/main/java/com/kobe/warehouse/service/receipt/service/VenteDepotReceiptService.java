@@ -47,7 +47,8 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
     @Override
     protected int getAvoirCount() {
         return depotExtensionSale.getSalesLines().stream()
-            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
+                .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold())
+                .sum();
     }
 
     @Override
@@ -94,8 +95,7 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
         return List.of();
     }
 
-    public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit)
-        throws IOException {
+    public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit) throws IOException {
         this.depotExtensionSale = sale;
         return generateEscPosReceipt(isEdit);
     }

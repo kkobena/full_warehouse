@@ -1,4 +1,3 @@
-
 <app-product-search-section
   #produitbox
   (addQuantite)="onAddQuantity($event)"
@@ -9,7 +8,8 @@
   [saleType]="'COMPTANT'"
   [sansMargeHaute]="true"
   [selectedProduct]="selectedProduct()"
-  [showStock]="showStock()">
+  [showStock]="showStock()"
+>
 </app-product-search-section>
 
 <!-- Favoris du comptoir : un clic ajoute le produit au panier (quantité 1), comme un produit scanné -->
@@ -39,7 +39,8 @@
         [saleType]="'COMPTANT'"
         [salesLines]="salesLines()"
         [selectedLineId]="selectedLineId()"
-        [showRemiseSection]="true" />
+        [showRemiseSection]="true"
+      />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
@@ -55,7 +56,8 @@
             [netAmount]="currentSale()?.netAmount || 0"
             [saleType]="'COMPTANT'"
             [taxAmount]="currentSale()?.taxAmount || 0"
-            [totalAmount]="currentSale()?.salesAmount || 0" />
+            [totalAmount]="currentSale()?.salesAmount || 0"
+          />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
@@ -74,7 +76,8 @@
             [isSaving]="isSaving()"
             [isSmallScreen]="isSmallScreen()"
             [saleType]="'COMPTANT'"
-            [showPrintButton]="false" />
+            [showPrintButton]="false"
+          />
         </div>
       </div>
     </div>
@@ -88,7 +91,7 @@
           #paymentMode
           (paymentComplete)="onPaymentComplete($event)"
           (validationError)="onPaymentError($event)"
-          [amountToBePaid]="currentSale()!.amountToBePaid ||  0"
+          [amountToBePaid]="currentSale()!.amountToBePaid || 0"
           [isDiffere]="isDiffere()"
         />
       </div>
@@ -106,6 +109,11 @@
 
 <!-- Spinner global -->
 
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
-             color="#009688" name="sale-spinner"
-             size="medium" type="timer"></ngx-spinner>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="sale-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>

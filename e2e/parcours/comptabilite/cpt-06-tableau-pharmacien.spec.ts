@@ -30,7 +30,10 @@ scenario('CPT-06', async ({ etape, page }) => {
   const fin = new Date();
   const debut = new Date(fin.getFullYear(), fin.getMonth() - 2, 1);
 
-  const table = page.locator('table').filter({ has: page.getByText('Montant Net') }).first();
+  const table = page
+    .locator('table')
+    .filter({ has: page.getByText('Montant Net') })
+    .first();
   const lignes = table.locator('tbody tr').filter({ visible: true });
   const total = table.locator('tfoot tr').first();
 
@@ -57,8 +60,7 @@ scenario('CPT-06', async ({ etape, page }) => {
     return textes.reduce((cumul, texte) => cumul + Number(texte.replace(/[^\d-]/g, '')), 0);
   };
 
-  const totauxDuPied = async (): Promise<number[]> =>
-    Promise.all(COLONNES.map(([colonne]) => nombre(total, colonne)));
+  const totauxDuPied = async (): Promise<number[]> => Promise.all(COLONNES.map(([colonne]) => nombre(total, colonne)));
 
   await etape(1, async () => {
     await page.goto('/comptabilite');
@@ -83,10 +85,7 @@ scenario('CPT-06', async ({ etape, page }) => {
     }
 
     totauxJournaliers = await totauxDuPied();
-    expect(
-      totauxJournaliers[3],
-      'un tableau dont tout est à zéro ne prouverait rien',
-    ).toBeGreaterThan(0);
+    expect(totauxJournaliers[3], 'un tableau dont tout est à zéro ne prouverait rien').toBeGreaterThan(0);
   });
 
   await etape(3, async () => {

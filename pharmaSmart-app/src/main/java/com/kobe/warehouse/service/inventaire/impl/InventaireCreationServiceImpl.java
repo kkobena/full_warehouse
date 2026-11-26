@@ -12,8 +12,8 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.builder.StoreInventoryLineFilterBuilder;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.inventaire.InventaireCreationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,8 +39,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * Après clôture, proc_close_inventory_v2 STEP 1 met à jour le PRINCIPAL et STEP 2 remet
      * la réserve (SAFETY_STOCK) à 0 — cohérent avec l'approche de comptage consolidé.
      */
-    private static final String SQL_INSERT_MAGASIN =
-        """
+    private static final String SQL_INSERT_MAGASIN = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -50,8 +49,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
     /**
      * FAMILLY : tous les produits actifs d'une famille
      */
-    private static final String SQL_INSERT_FAMILLY =
-        """
+    private static final String SQL_INSERT_FAMILLY = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -64,8 +62,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * {@code rayon_produit} est unique par (produit, rayon), un produit n'y figure donc qu'une
      * fois pour le rayon visé.
      */
-    private static final String SQL_INSERT_RAYON =
-        """
+    private static final String SQL_INSERT_RAYON = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -81,8 +78,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * <p>{@code DISTINCT} : un emplacement porte plusieurs rayons, et un produit rangé dans deux
      * d'entre eux n'en reste pas moins un seul produit à compter.
      */
-    private static final String SQL_INSERT_STORAGE =
-        """
+    private static final String SQL_INSERT_STORAGE = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -99,8 +95,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * PERIME : produits ayant au moins un lot périmé avec du stock restant. Source : table `lot`
      * avec expiry_date < CURRENT_DATE et current_quantity > 0.
      */
-    private static final String SQL_INSERT_PERIME =
-        """
+    private static final String SQL_INSERT_PERIME = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -114,8 +109,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * PERIME — lots : un inventory_lot par lot périmé, rattaché à la store_inventory_line du
      * produit.
      */
-    private static final String SQL_INSERT_LOTS_PERIME =
-        """
+    private static final String SQL_INSERT_LOTS_PERIME = """
             INSERT INTO inventory_lot (lot_id, quantity_init, store_inventory_line_id, updated_at, updated, gap)
             SELECT l.id, l.current_quantity, sil.id, NOW(), false, 0
             FROM store_inventory_line sil
@@ -130,8 +124,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * ALERTE_PEREMPTION : produits dont un lot expire dans les :alerteJours prochains. Paramètre :
      * alerteJours (défaut = 90 jours).
      */
-    private static final String SQL_INSERT_ALERTE_PEREMPTION =
-        """
+    private static final String SQL_INSERT_ALERTE_PEREMPTION = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -144,8 +137,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
     /**
      * ALERTE_PEREMPTION — lots : un inventory_lot par lot proche de péremption.
      */
-    private static final String SQL_INSERT_LOTS_ALERTE_PEREMPTION =
-        """
+    private static final String SQL_INSERT_LOTS_ALERTE_PEREMPTION = """
             INSERT INTO inventory_lot (lot_id, quantity_init, store_inventory_line_id, updated_at, updated, gap)
             SELECT l.id, l.current_quantity, sil.id, NOW(), false, 0
             FROM store_inventory_line sil
@@ -161,8 +153,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * d'inventaire quand GESTION_LOT_INVENTAIRE = true. Exécuté après l'insertion des
      * store_inventory_line.
      */
-    private static final String SQL_INSERT_LOTS_GENERIC =
-        """
+    private static final String SQL_INSERT_LOTS_GENERIC = """
             INSERT INTO inventory_lot (lot_id, quantity_init, store_inventory_line_id, updated_at, updated, gap)
             SELECT l.id, l.current_quantity, sil.id, NOW(), false, 0
             FROM store_inventory_line sil
@@ -176,8 +167,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * VENDU : produits vendus au moins une fois sur la période [:dateFrom, :dateTo]. Source : table
      * `sales_line` (hors lignes ignorées et ventes annulées).
      */
-    private static final String SQL_INSERT_VENDU =
-        """
+    private static final String SQL_INSERT_VENDU = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -193,8 +183,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * INVENDU : produits actifs sans aucune vente sur la période [:dateFrom, :dateTo]. Utile pour
      * identifier le stock dormant et planifier le déstockage.
      */
-    private static final String SQL_INSERT_INVENDU =
-        """
+    private static final String SQL_INSERT_INVENDU = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -220,8 +209,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * même si le stock total dépasse le seuil. Le réassort rayon ← réserve sera suggéré
      * par l'InventoryClosedEventListener après clôture.
      */
-    private static final String SQL_INSERT_SOUS_SEUIL =
-        """
+    private static final String SQL_INSERT_SOUS_SEUIL = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -240,8 +228,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * SELECTION_PRODUIT : insertion directe à partir d'une liste explicite d'IDs de produits. Seuls
      * les produits actifs (status = 'ENABLE') de la liste sont retenus.
      */
-    private static final String SQL_INSERT_SELECTION_PRODUIT =
-        """
+    private static final String SQL_INSERT_SELECTION_PRODUIT = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -253,8 +240,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
      * EN_RUPTURE : produits dont le stock TOTAL du magasin (rayon + réserve) est 0. Agrégation par
      * magasin : un produit n'est en rupture que si rayon ET réserve sont vides.
      */
-    private static final String SQL_INSERT_EN_RUPTURE =
-        """
+    private static final String SQL_INSERT_EN_RUPTURE = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -281,14 +267,13 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
     private final AppConfigurationService appConfigurationService;
 
     public InventaireCreationServiceImpl(
-        StoreInventoryRepository storeInventoryRepository,
-        UserService userService,
-        UserRepository userRepository,
-        StorageService storageService,
-        RayonRepository rayonRepository,
-        EntityManager em,
-        AppConfigurationService appConfigurationService
-    ) {
+            StoreInventoryRepository storeInventoryRepository,
+            UserService userService,
+            UserRepository userRepository,
+            StorageService storageService,
+            RayonRepository rayonRepository,
+            EntityManager em,
+            AppConfigurationService appConfigurationService) {
         this.storeInventoryRepository = storeInventoryRepository;
         this.userService = userService;
         this.userRepository = userRepository;
@@ -303,8 +288,7 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
         StoreInventory inventory = buildInventory(record);
         inventory = storeInventoryRepository.saveAndFlush(inventory);
         insertLines(inventory, record);
-        log.info("Inventaire créé : id={}, catégorie={}", inventory.getId(),
-            inventory.getInventoryCategory());
+        log.info("Inventaire créé : id={}, catégorie={}", inventory.getId(), inventory.getInventoryCategory());
         return new StoreInventoryDTO(inventory);
     }
 
@@ -363,9 +347,9 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             // ── Types de périmètre ────────────────────────────────────────────
             case MAGASIN -> {
                 em.createNativeQuery(SQL_INSERT_MAGASIN)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -373,10 +357,10 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case FAMILLY -> {
                 em.createNativeQuery(SQL_INSERT_FAMILLY)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("famillyId", record.famillyId())
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("famillyId", record.famillyId())
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -384,10 +368,10 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case RAYON -> {
                 em.createNativeQuery(SQL_INSERT_RAYON)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("rayonId", inventory.getRayon().getId())
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("rayonId", inventory.getRayon().getId())
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -395,9 +379,9 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case STORAGE -> {
                 em.createNativeQuery(SQL_INSERT_STORAGE)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -407,38 +391,37 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             // PERIME et ALERTE_PEREMPTION créent toujours leurs lots (filtrés par date)
             case PERIME -> {
                 em.createNativeQuery(SQL_INSERT_PERIME)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .executeUpdate();
                 em.flush();
                 em.createNativeQuery(SQL_INSERT_LOTS_PERIME)
-                    .setParameter("inventoryId", inventoryId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .executeUpdate();
             }
 
             case ALERTE_PEREMPTION -> {
-                int alerteJours = Objects.requireNonNullElse(record.alerteJours(),
-                    DEFAULT_ALERTE_JOURS);
+                int alerteJours = Objects.requireNonNullElse(record.alerteJours(), DEFAULT_ALERTE_JOURS);
                 em.createNativeQuery(SQL_INSERT_ALERTE_PEREMPTION)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("alerteJours", alerteJours)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("alerteJours", alerteJours)
+                        .executeUpdate();
                 em.flush();
                 em.createNativeQuery(SQL_INSERT_LOTS_ALERTE_PEREMPTION)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("alerteJours", alerteJours)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("alerteJours", alerteJours)
+                        .executeUpdate();
             }
 
             case VENDU -> {
                 requireDateRange(record, InventoryCategory.VENDU);
                 em.createNativeQuery(SQL_INSERT_VENDU)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("dateFrom", record.dateFrom())
-                    .setParameter("dateTo", record.dateTo())
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("dateFrom", record.dateFrom())
+                        .setParameter("dateTo", record.dateTo())
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -447,11 +430,11 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             case INVENDU -> {
                 requireDateRange(record, InventoryCategory.INVENDU);
                 em.createNativeQuery(SQL_INSERT_INVENDU)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("dateFrom", record.dateFrom())
-                    .setParameter("dateTo", record.dateTo())
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("dateFrom", record.dateFrom())
+                        .setParameter("dateTo", record.dateTo())
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -459,9 +442,9 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case SOUS_SEUIL -> {
                 em.createNativeQuery(SQL_INSERT_SOUS_SEUIL)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -469,10 +452,10 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case EN_RUPTURE -> {
                 em.createNativeQuery(SQL_INSERT_EN_RUPTURE)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("magasinId", magasinId)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("magasinId", magasinId)
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -480,10 +463,10 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
 
             case ABC -> {
                 em.createNativeQuery(StoreInventoryLineFilterBuilder.SQL_INSERT_ABC)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("classePareto", record.classePareto())
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("classePareto", record.classePareto())
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -492,14 +475,13 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             case SELECTION_PRODUIT -> {
                 List<Integer> ids = record.produitIds();
                 if (ids == null || ids.isEmpty()) {
-                    throw new IllegalArgumentException(
-                        "produitIds est obligatoire pour le type SELECTION_PRODUIT");
+                    throw new IllegalArgumentException("produitIds est obligatoire pour le type SELECTION_PRODUIT");
                 }
                 em.createNativeQuery(SQL_INSERT_SELECTION_PRODUIT)
-                    .setParameter("inventoryId", inventoryId)
-                    .setParameter("storageId", storageId)
-                    .setParameter("produitIds", ids)
-                    .executeUpdate();
+                        .setParameter("inventoryId", inventoryId)
+                        .setParameter("storageId", storageId)
+                        .setParameter("produitIds", ids)
+                        .executeUpdate();
                 if (gestionLot) {
                     insertLotsGeneric(inventoryId);
                 }
@@ -512,21 +494,18 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
     private void insertLotsGeneric(Long inventoryId) {
         em.flush();
         em.createNativeQuery(SQL_INSERT_LOTS_GENERIC)
-            .setParameter("inventoryId", inventoryId)
-            .executeUpdate();
+                .setParameter("inventoryId", inventoryId)
+                .executeUpdate();
     }
 
     private void requireDateRange(StoreInventoryRecord record, InventoryCategory category) {
         if (record.dateFrom() == null || record.dateTo() == null) {
             throw new IllegalArgumentException(
-                "Les paramètres dateFrom et dateTo sont obligatoires pour le type "
-                    + category.name()
-            );
+                    "Les paramètres dateFrom et dateTo sont obligatoires pour le type " + category.name());
         }
         if (record.dateTo().isBefore(record.dateFrom())) {
             throw new IllegalArgumentException(
-                "dateTo (" + record.dateTo() + ") doit être >= dateFrom (" + record.dateFrom() + ")"
-            );
+                    "dateTo (" + record.dateTo() + ") doit être >= dateFrom (" + record.dateFrom() + ")");
         }
     }
 }

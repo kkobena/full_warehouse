@@ -46,33 +46,75 @@ public class HistoriqueCertificationFne implements Serializable {
     @Column(name = "message", length = 1000)
     private String message;
 
-    public Long getId() { return id; }
-    public HistoriqueCertificationFne setId(Long id) { this.id = id; return this; }
+    public Long getId() {
+        return id;
+    }
 
-    public Integer getPlanificationId() { return planificationId; }
+    public HistoriqueCertificationFne setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public Integer getPlanificationId() {
+        return planificationId;
+    }
+
     public HistoriqueCertificationFne setPlanificationId(Integer planificationId) {
-        this.planificationId = planificationId; return this;
+        this.planificationId = planificationId;
+        return this;
     }
 
-    public LocalDateTime getExecutionDebut() { return executionDebut; }
+    public LocalDateTime getExecutionDebut() {
+        return executionDebut;
+    }
+
     public HistoriqueCertificationFne setExecutionDebut(LocalDateTime executionDebut) {
-        this.executionDebut = executionDebut; return this;
+        this.executionDebut = executionDebut;
+        return this;
     }
 
-    public LocalDateTime getExecutionFin() { return executionFin; }
+    public LocalDateTime getExecutionFin() {
+        return executionFin;
+    }
+
     public HistoriqueCertificationFne setExecutionFin(LocalDateTime executionFin) {
-        this.executionFin = executionFin; return this;
+        this.executionFin = executionFin;
+        return this;
     }
 
-    public ExecutionStatut getStatut() { return statut; }
-    public HistoriqueCertificationFne setStatut(ExecutionStatut statut) { this.statut = statut; return this; }
+    public ExecutionStatut getStatut() {
+        return statut;
+    }
 
-    public int getNbCertifiees() { return nbCertifiees; }
-    public HistoriqueCertificationFne setNbCertifiees(int nbCertifiees) { this.nbCertifiees = nbCertifiees; return this; }
+    public HistoriqueCertificationFne setStatut(ExecutionStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-    public int getNbEchecs() { return nbEchecs; }
-    public HistoriqueCertificationFne setNbEchecs(int nbEchecs) { this.nbEchecs = nbEchecs; return this; }
+    public int getNbCertifiees() {
+        return nbCertifiees;
+    }
 
-    public String getMessage() { return message; }
-    public HistoriqueCertificationFne setMessage(String message) { this.message = message; return this; }
+    public HistoriqueCertificationFne setNbCertifiees(int nbCertifiees) {
+        this.nbCertifiees = nbCertifiees;
+        return this;
+    }
+
+    public int getNbEchecs() {
+        return nbEchecs;
+    }
+
+    public HistoriqueCertificationFne setNbEchecs(int nbEchecs) {
+        this.nbEchecs = nbEchecs;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public HistoriqueCertificationFne setMessage(String message) {
+        this.message = message;
+        return this;
+    }
 }

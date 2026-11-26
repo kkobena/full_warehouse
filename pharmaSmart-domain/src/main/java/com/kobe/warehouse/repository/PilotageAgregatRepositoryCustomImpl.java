@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PilotageAgregatRepositoryCustomImpl implements PilotageAgregatRepositoryCustom {
 
-    private static final String JOURS_MODIFIES =
-        """
+    private static final String JOURS_MODIFIES = """
         SELECT sale_date AS jour FROM sales WHERE updated_at >= :depuis
         UNION
         SELECT receipt_date FROM commande WHERE updated_at >= :depuis AND receipt_date IS NOT NULL
@@ -28,17 +27,24 @@ public class PilotageAgregatRepositoryCustomImpl implements PilotageAgregatRepos
 
     @Override
     public void recalculer(LocalDate du, LocalDate au) {
-        em.createNativeQuery("SELECT pilotage_recalculer(:du, :au)").setParameter("du", du).setParameter("au", au).getSingleResult();
+        em.createNativeQuery("SELECT pilotage_recalculer(:du, :au)")
+                .setParameter("du", du)
+                .setParameter("au", au)
+                .getSingleResult();
     }
 
     @Override
     public void photographierStock(LocalDate jour) {
-        em.createNativeQuery("SELECT pilotage_photographier_stock(:jour)").setParameter("jour", jour).getSingleResult();
+        em.createNativeQuery("SELECT pilotage_photographier_stock(:jour)")
+                .setParameter("jour", jour)
+                .getSingleResult();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<LocalDate> listerJoursModifiesDepuis(LocalDateTime depuis) {
-        return em.createNativeQuery(JOURS_MODIFIES, LocalDate.class).setParameter("depuis", depuis).getResultList();
+        return em.createNativeQuery(JOURS_MODIFIES, LocalDate.class)
+                .setParameter("depuis", depuis)
+                .getResultList();
     }
 }

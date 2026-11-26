@@ -45,21 +45,57 @@ public class AvoirClientUtilisation implements Serializable {
     @JoinColumn(name = "utilise_par_id", nullable = false)
     private AppUser utilisePar;
 
-    public Integer getId() { return id; }
-    public AvoirClientUtilisation setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public AvoirClient getAvoirClient() { return avoirClient; }
-    public AvoirClientUtilisation setAvoirClient(AvoirClient avoirClient) { this.avoirClient = avoirClient; return this; }
+    public AvoirClientUtilisation setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public int getMontantUtilise() { return montantUtilise; }
-    public AvoirClientUtilisation setMontantUtilise(int montantUtilise) { this.montantUtilise = montantUtilise; return this; }
+    public AvoirClient getAvoirClient() {
+        return avoirClient;
+    }
 
-    public LocalDateTime getUtiliseLe() { return utiliseLe; }
-    public AvoirClientUtilisation setUtiliseLe(LocalDateTime utiliseLe) { this.utiliseLe = utiliseLe; return this; }
+    public AvoirClientUtilisation setAvoirClient(AvoirClient avoirClient) {
+        this.avoirClient = avoirClient;
+        return this;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public AvoirClientUtilisation setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public int getMontantUtilise() {
+        return montantUtilise;
+    }
 
-    public AppUser getUtilisePar() { return utilisePar; }
-    public AvoirClientUtilisation setUtilisePar(AppUser utilisePar) { this.utilisePar = utilisePar; return this; }
+    public AvoirClientUtilisation setMontantUtilise(int montantUtilise) {
+        this.montantUtilise = montantUtilise;
+        return this;
+    }
+
+    public LocalDateTime getUtiliseLe() {
+        return utiliseLe;
+    }
+
+    public AvoirClientUtilisation setUtiliseLe(LocalDateTime utiliseLe) {
+        this.utiliseLe = utiliseLe;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public AvoirClientUtilisation setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
+
+    public AppUser getUtilisePar() {
+        return utilisePar;
+    }
+
+    public AvoirClientUtilisation setUtilisePar(AppUser utilisePar) {
+        this.utilisePar = utilisePar;
+        return this;
+    }
 }

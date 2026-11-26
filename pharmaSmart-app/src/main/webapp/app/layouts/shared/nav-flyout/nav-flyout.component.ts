@@ -25,9 +25,7 @@ import { FlyoutItemDirective } from './flyout-item.directive';
  * seconde colonne — un éventuel 3ᵉ niveau est rendu à plat sous un intertitre.
  */
 export type FlyoutRow =
-  | { kind: 'divider'; key: string }
-  | { kind: 'group'; key: string; label: string }
-  | { kind: 'link'; key: string; item: NavItem };
+  { kind: 'divider'; key: string } | { kind: 'group'; key: string; label: string } | { kind: 'link'; key: string; item: NavItem };
 
 @Component({
   selector: 'app-nav-flyout',

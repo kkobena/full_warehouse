@@ -11,4 +11,5 @@ import java.util.List;
  * @param modifiePar dernier à avoir modifié la ligne ; {@code null} si aucun objectif
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record LigneObjectifsDTO(IndicateurPilotageDTO indicateur, List<Double> mois, String modifiePar, LocalDateTime modifieLe) {}
+public record LigneObjectifsDTO(
+        IndicateurPilotageDTO indicateur, List<Double> mois, String modifiePar, LocalDateTime modifieLe) {}

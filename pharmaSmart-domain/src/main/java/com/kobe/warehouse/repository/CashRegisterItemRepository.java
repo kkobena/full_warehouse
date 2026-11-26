@@ -1,13 +1,12 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.CashRegisterItem;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Repository pour {@link CashRegisterItem}.
@@ -26,8 +25,7 @@ public interface CashRegisterItemRepository extends JpaRepository<CashRegisterIt
      * @param excludedDtypes   sous-classes à exclure (ex: PaymentFournisseur, AccountTransaction)
      * @return montant total des espèces encaissées
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT COALESCE(SUM(pt.paid_amount), 0)
             FROM payment_transaction pt
             INNER JOIN payment_mode pm ON pt.payment_mode_code = pm.code
@@ -35,14 +33,11 @@ public interface CashRegisterItemRepository extends JpaRepository<CashRegisterIt
               AND pm.payment_group = 'CASH'
               AND pt.type_transaction IN (:typeTransactions)
               AND pt.dtype NOT IN (:excludedDtypes)
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     Long sumEncaissementsEspeces(
-        @Param("crId") Integer cashRegisterId,
-        @Param("typeTransactions") Set<String> typeTransactions,
-        @Param("excludedDtypes") Set<String> excludedDtypes
-    );
+            @Param("crId") Integer cashRegisterId,
+            @Param("typeTransactions") Set<String> typeTransactions,
+            @Param("excludedDtypes") Set<String> excludedDtypes);
 
     /**
      * Retourne les encaissements agrégés par mode de paiement pour une caisse.
@@ -53,8 +48,7 @@ public interface CashRegisterItemRepository extends JpaRepository<CashRegisterIt
      * @param excludedDtypes sous-classes à exclure (ex: PaymentFournisseur, AccountTransaction)
      * @return liste de Object[] : [code, libelle, payment_group, montant], triée par ordre_tri
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT
                 pm.code          AS code,
                 pm.libelle       AS libelle,
@@ -67,12 +61,7 @@ public interface CashRegisterItemRepository extends JpaRepository<CashRegisterIt
             GROUP BY pm.code, pm.libelle, pm.payment_group, pm.ordre_tri
             HAVING SUM(pt.paid_amount) > 0
             ORDER BY pm.ordre_tri
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<Object[]> findEncaissementsParMode(
-        @Param("crId") Integer cashRegisterId,
-        @Param("excludedDtypes") Set<String> excludedDtypes
-    );
+            @Param("crId") Integer cashRegisterId, @Param("excludedDtypes") Set<String> excludedDtypes);
 }
-

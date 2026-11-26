@@ -9,8 +9,8 @@ import java.nio.file.attribute.AclEntry;
 import java.nio.file.attribute.AclEntryPermission;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -66,9 +66,8 @@ public class JwtSigningKeyProvider {
     private final char[] password;
 
     public JwtSigningKeyProvider(
-        @Value("${pharma-smart.security.jwt-key-path:}") String configuredPath,
-        @Value("${pharma-smart.security.jwt-key-password:changeit}") String password
-    ) {
+            @Value("${pharma-smart.security.jwt-key-path:}") String configuredPath,
+            @Value("${pharma-smart.security.jwt-key-password:changeit}") String password) {
         this.configuredPath = configuredPath;
         this.password = password.toCharArray();
     }
@@ -95,11 +94,10 @@ public class JwtSigningKeyProvider {
             return keyPair;
         } catch (Exception e) {
             LOG.warn(
-                "Impossible de lire ou d'écrire la clé de signature JWT ({}) — repli sur une clé "
-                    + "éphémère. Les sessions seront invalidées au prochain redémarrage.",
-                path,
-                e
-            );
+                    "Impossible de lire ou d'écrire la clé de signature JWT ({}) — repli sur une clé "
+                            + "éphémère. Les sessions seront invalidées au prochain redémarrage.",
+                    path,
+                    e);
             return generate();
         }
     }
@@ -118,8 +116,8 @@ public class JwtSigningKeyProvider {
         }
         String programData = System.getenv("PROGRAMDATA");
         Path baseDir = StringUtils.hasText(programData)
-            ? Paths.get(programData, "PharmaSmart")
-            : Paths.get(System.getProperty("user.home"), ".pharmasmart");
+                ? Paths.get(programData, "PharmaSmart")
+                : Paths.get(System.getProperty("user.home"), ".pharmasmart");
         return baseDir.resolve(DEFAULT_FILE_NAME);
     }
 
@@ -136,9 +134,8 @@ public class JwtSigningKeyProvider {
     private KeyPair load(Path path) throws Exception {
         EncryptedPrivateKeyInfo encryptedInfo = new EncryptedPrivateKeyInfo(Files.readAllBytes(path));
 
-        SecretKey pbeKey = SecretKeyFactory
-            .getInstance(encryptedInfo.getAlgName())
-            .generateSecret(new PBEKeySpec(password));
+        SecretKey pbeKey =
+                SecretKeyFactory.getInstance(encryptedInfo.getAlgName()).generateSecret(new PBEKeySpec(password));
 
         Cipher cipher = Cipher.getInstance(encryptedInfo.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, encryptedInfo.getAlgParameters());
@@ -156,9 +153,7 @@ public class JwtSigningKeyProvider {
         byte[] salt = new byte[SALT_LENGTH];
         SecureRandom.getInstanceStrong().nextBytes(salt);
 
-        SecretKey pbeKey = SecretKeyFactory
-            .getInstance(PBE_ALGORITHM)
-            .generateSecret(new PBEKeySpec(password));
+        SecretKey pbeKey = SecretKeyFactory.getInstance(PBE_ALGORITHM).generateSecret(new PBEKeySpec(password));
 
         Cipher cipher = Cipher.getInstance(PBE_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, pbeKey, new PBEParameterSpec(salt, PBE_ITERATIONS));
@@ -177,9 +172,7 @@ public class JwtSigningKeyProvider {
      */
     private PublicKey derivePublicKey(PrivateKey privateKey, KeyFactory keyFactory) throws Exception {
         if (!(privateKey instanceof RSAPrivateCrtKey crtKey)) {
-            throw new IllegalStateException(
-                "Clé privée RSA sans paramètres CRT : clé publique non dérivable"
-            );
+            throw new IllegalStateException("Clé privée RSA sans paramètres CRT : clé publique non dérivable");
         }
         BigInteger modulus = crtKey.getModulus();
         BigInteger publicExponent = crtKey.getPublicExponent();
@@ -199,29 +192,23 @@ public class JwtSigningKeyProvider {
             }
             AclFileAttributeView acl = Files.getFileAttributeView(path, AclFileAttributeView.class);
             if (acl != null) {
-                AclEntry ownerOnly = AclEntry
-                    .newBuilder()
-                    .setType(AclEntryType.ALLOW)
-                    .setPrincipal(Files.getOwner(path))
-                    .setPermissions(
-                        AclEntryPermission.READ_DATA,
-                        AclEntryPermission.WRITE_DATA,
-                        AclEntryPermission.APPEND_DATA,
-                        AclEntryPermission.READ_ATTRIBUTES,
-                        AclEntryPermission.WRITE_ATTRIBUTES,
-                        AclEntryPermission.READ_ACL,
-                        AclEntryPermission.WRITE_ACL,
-                        AclEntryPermission.DELETE
-                    )
-                    .build();
+                AclEntry ownerOnly = AclEntry.newBuilder()
+                        .setType(AclEntryType.ALLOW)
+                        .setPrincipal(Files.getOwner(path))
+                        .setPermissions(
+                                AclEntryPermission.READ_DATA,
+                                AclEntryPermission.WRITE_DATA,
+                                AclEntryPermission.APPEND_DATA,
+                                AclEntryPermission.READ_ATTRIBUTES,
+                                AclEntryPermission.WRITE_ATTRIBUTES,
+                                AclEntryPermission.READ_ACL,
+                                AclEntryPermission.WRITE_ACL,
+                                AclEntryPermission.DELETE)
+                        .build();
                 acl.setAcl(List.of(ownerOnly));
             }
         } catch (IOException | UnsupportedOperationException | SecurityException e) {
-            LOG.warn(
-                "Droits d'accès de la clé de signature JWT non restreints ({}) : {}",
-                path,
-                e.getMessage()
-            );
+            LOG.warn("Droits d'accès de la clé de signature JWT non restreints ({}) : {}", path, e.getMessage());
         }
     }
 }

@@ -40,15 +40,39 @@ public class SemoisClasseConfig implements Serializable {
     @Column(name = "limite_peremption", nullable = false)
     private Boolean limitePeremption = false;
 
-    public ClasseCriticite getClasseCriticite() { return classeCriticite; }
-    public SemoisClasseConfig setClasseCriticite(ClasseCriticite classeCriticite) { this.classeCriticite = classeCriticite; return this; }
+    public ClasseCriticite getClasseCriticite() {
+        return classeCriticite;
+    }
 
-    public BigDecimal getCoefficientSecurite() { return coefficientSecurite; }
-    public SemoisClasseConfig setCoefficientSecurite(BigDecimal coefficientSecurite) { this.coefficientSecurite = coefficientSecurite; return this; }
+    public SemoisClasseConfig setClasseCriticite(ClasseCriticite classeCriticite) {
+        this.classeCriticite = classeCriticite;
+        return this;
+    }
 
-    public Integer getNbMoisHistorique() { return nbMoisHistorique; }
-    public SemoisClasseConfig setNbMoisHistorique(Integer nbMoisHistorique) { this.nbMoisHistorique = nbMoisHistorique; return this; }
+    public BigDecimal getCoefficientSecurite() {
+        return coefficientSecurite;
+    }
 
-    public Boolean getLimitePeremption() { return limitePeremption; }
-    public SemoisClasseConfig setLimitePeremption(Boolean limitePeremption) { this.limitePeremption = limitePeremption; return this; }
+    public SemoisClasseConfig setCoefficientSecurite(BigDecimal coefficientSecurite) {
+        this.coefficientSecurite = coefficientSecurite;
+        return this;
+    }
+
+    public Integer getNbMoisHistorique() {
+        return nbMoisHistorique;
+    }
+
+    public SemoisClasseConfig setNbMoisHistorique(Integer nbMoisHistorique) {
+        this.nbMoisHistorique = nbMoisHistorique;
+        return this;
+    }
+
+    public Boolean getLimitePeremption() {
+        return limitePeremption;
+    }
+
+    public SemoisClasseConfig setLimitePeremption(Boolean limitePeremption) {
+        this.limitePeremption = limitePeremption;
+        return this;
+    }
 }

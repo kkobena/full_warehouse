@@ -64,10 +64,10 @@ import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
-import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -87,7 +87,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -186,30 +185,29 @@ class StockEntryServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new StockEntryServiceImpl(
-            commandeRepository,
-            produitService,
-            referenceService,
-            storageService,
-            fournisseurProduitService,
-            logsService,
-            fournisseurRepository,
-            orderLineService,
-            commandeIdGeneratorService,
-            orderLineIdGeneratorService,
-            importationEchoueService,
-            inventoryTransactionService,
-            lotRepository,
-            lotReceptionRepository,
-            appConfigurationService,
-            priceHistoryRepository,
-            orderLineRepository,
-            lotStockLocationService,
-            suggestionReassortService,
-            ruptureService,
-            dataMatrixParserService,
-            productCodeResolverService,
-            avoirClientDocumentService
-        );
+                commandeRepository,
+                produitService,
+                referenceService,
+                storageService,
+                fournisseurProduitService,
+                logsService,
+                fournisseurRepository,
+                orderLineService,
+                commandeIdGeneratorService,
+                orderLineIdGeneratorService,
+                importationEchoueService,
+                inventoryTransactionService,
+                lotRepository,
+                lotReceptionRepository,
+                appConfigurationService,
+                priceHistoryRepository,
+                orderLineRepository,
+                lotStockLocationService,
+                suggestionReassortService,
+                ruptureService,
+                dataMatrixParserService,
+                productCodeResolverService,
+                avoirClientDocumentService);
 
         magasin = new Magasin();
         magasin.setId(1);
@@ -228,7 +226,8 @@ class StockEntryServiceImplTest {
         when(appConfigurationService.getSeuilVariationPrix()).thenReturn(10);
         when(commandeRepository.save(any(Commande.class))).thenAnswer(inv -> inv.getArgument(0));
         when(commandeRepository.saveAndFlush(any(Commande.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(commandeRepository.getReferenceById(any(CommandeId.class))).thenAnswer(inv -> commande(OrderStatut.RECEIVED));
+        when(commandeRepository.getReferenceById(any(CommandeId.class)))
+                .thenAnswer(inv -> commande(OrderStatut.RECEIVED));
         when(orderLineService.save(any(OrderLine.class))).thenAnswer(inv -> inv.getArgument(0));
         when(lotRepository.save(any(Lot.class))).thenAnswer(inv -> inv.getArgument(0));
     }
@@ -306,18 +305,23 @@ class StockEntryServiceImplTest {
     }
 
     private static Lot lot(String numLot, LocalDate expiry, int quantity) {
-        Lot lot = new Lot().setNumLot(numLot).setExpiryDate(expiry).setQuantity(quantity).setCurrentQuantity(quantity).setFreeQty(0);
+        Lot lot = new Lot()
+                .setNumLot(numLot)
+                .setExpiryDate(expiry)
+                .setQuantity(quantity)
+                .setCurrentQuantity(quantity)
+                .setFreeQty(0);
         lot.setPrixAchat(400);
         return lot;
     }
 
     private static DeliveryReceiptLiteDTO liteDTO() {
         return new DeliveryReceiptLiteDTO()
-            .setCommandeId(COMMANDE_ID)
-            .setReceiptReference("BL-0012")
-            .setReceiptDate(ORDER_DATE)
-            .setReceiptAmount(1000)
-            .setTaxAmount(100);
+                .setCommandeId(COMMANDE_ID)
+                .setReceiptReference("BL-0012")
+                .setReceiptDate(ORDER_DATE)
+                .setReceiptAmount(1000)
+                .setTaxAmount(100);
     }
 
     private static DeliveryReceiptItemLiteDTO itemDTO() {
@@ -329,7 +333,8 @@ class StockEntryServiceImplTest {
         Produit produit = produit();
         OrderLine line = orderLine(commande, produit, 10, 10);
         when(commandeRepository.getReferenceById(COMMANDE_ID)).thenReturn(commande);
-        when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt())).thenReturn(stockProduit(20, 0));
+        when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt()))
+                .thenReturn(stockProduit(20, 0));
         when(produitService.getProductTotalStock(PRODUIT_ID)).thenReturn(10);
         return line;
     }
@@ -345,8 +350,8 @@ class StockEntryServiceImplTest {
             DeliveryReceiptLiteDTO dto = liteDTO();
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("est déjà finalisé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("est déjà finalisé");
         }
 
         @Test
@@ -360,12 +365,12 @@ class StockEntryServiceImplTest {
             assertThat(commande.getOrderStatus()).isEqualTo(OrderStatut.CLOSED);
             assertThat(result.getCommandeId()).isEqualTo(commande.getId());
             assertThat(result.getPendingRetourBons()).isEmpty();
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
-                org.mockito.ArgumentMatchers.eq("order.entry"),
-                any(Object[].class),
-                org.mockito.ArgumentMatchers.eq("12")
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.ENTREE_STOCK),
+                            org.mockito.ArgumentMatchers.eq("order.entry"),
+                            any(Object[].class),
+                            org.mockito.ArgumentMatchers.eq("12"));
             verify(inventoryTransactionService).saveAll(commande.getOrderLines());
             verify(avoirClientDocumentService).linkCommandeToAvoirs(commande);
         }
@@ -389,7 +394,8 @@ class StockEntryServiceImplTest {
             OrderLine line = orderLine(commande, produit, 10, null);
             line.setUpdated(Boolean.FALSE);
             when(commandeRepository.getReferenceById(COMMANDE_ID)).thenReturn(commande);
-            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt())).thenReturn(stockProduit(20, 0));
+            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt()))
+                    .thenReturn(stockProduit(20, 0));
 
             service.finalizeSaisieEntreeStock(liteDTO().setConformeSansLot(true));
 
@@ -417,8 +423,8 @@ class StockEntryServiceImplTest {
             line.getFournisseurProduit().setCodeCip(null);
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Code cip non renseigné");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Code cip non renseigné");
         }
 
         @Test
@@ -429,8 +435,8 @@ class StockEntryServiceImplTest {
             line.setQuantityReceived(null);
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("La reception de certains produits");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("La reception de certains produits");
         }
 
         @Test
@@ -441,8 +447,8 @@ class StockEntryServiceImplTest {
             line.setQuantityReceived(-1);
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("La reception de certains produits");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("La reception de certains produits");
         }
 
         @Test
@@ -504,8 +510,8 @@ class StockEntryServiceImplTest {
             when(appConfigurationService.useLot()).thenReturn(Optional.of(true));
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Tous les lots ne sont renseignés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Tous les lots ne sont renseignés");
         }
 
         @Test
@@ -518,8 +524,8 @@ class StockEntryServiceImplTest {
             when(appConfigurationService.useLot()).thenReturn(Optional.of(true));
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Tous les lots ne sont renseignés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Tous les lots ne sont renseignés");
         }
 
         @Test
@@ -532,8 +538,8 @@ class StockEntryServiceImplTest {
             when(appConfigurationService.useLot()).thenReturn(Optional.of(true));
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Tous les lots ne sont renseignés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Tous les lots ne sont renseignés");
         }
 
         @Test
@@ -597,8 +603,8 @@ class StockEntryServiceImplTest {
             line.getLots().add(lot("L1", LocalDate.now().plusDays(10), 10));
 
             assertThatThrownBy(() -> service.finalizeSaisieEntreeStock(liteDTO()))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("seuil minimum de 90 jours");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("seuil minimum de 90 jours");
         }
 
         @Test
@@ -658,7 +664,8 @@ class StockEntryServiceImplTest {
             Commande commande = commande(OrderStatut.RECEIVED);
             OrderLine line = prepareFinalisable(commande);
             Produit produit = line.getFournisseurProduit().getProduit();
-            when(produitService.calculPrixMoyenPondereReception(anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(450);
+            when(produitService.calculPrixMoyenPondereReception(anyInt(), anyInt(), anyInt(), anyInt()))
+                    .thenReturn(450);
 
             service.finalizeSaisieEntreeStock(liteDTO());
 
@@ -672,7 +679,8 @@ class StockEntryServiceImplTest {
         void stockFinalNul() {
             Commande commande = commande(OrderStatut.RECEIVED);
             OrderLine line = prepareFinalisable(commande);
-            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt())).thenReturn(stockProduit(0, 0));
+            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt()))
+                    .thenReturn(stockProduit(0, 0));
 
             service.finalizeSaisieEntreeStock(liteDTO());
 
@@ -686,12 +694,15 @@ class StockEntryServiceImplTest {
         void stockSansUg() {
             Commande commande = commande(OrderStatut.RECEIVED);
             prepareFinalisable(commande);
-            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt())).thenReturn(stockProduit(5, null));
-            when(produitService.calculPrixMoyenPondereReception(anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(450);
+            when(produitService.updateTotalStock(any(Produit.class), anyInt(), anyInt()))
+                    .thenReturn(stockProduit(5, null));
+            when(produitService.calculPrixMoyenPondereReception(anyInt(), anyInt(), anyInt(), anyInt()))
+                    .thenReturn(450);
 
             service.finalizeSaisieEntreeStock(liteDTO());
 
-            verify(produitService).calculPrixMoyenPondereReception(anyInt(), anyInt(), org.mockito.ArgumentMatchers.eq(5), anyInt());
+            verify(produitService)
+                    .calculPrixMoyenPondereReception(anyInt(), anyInt(), org.mockito.ArgumentMatchers.eq(5), anyInt());
         }
     }
 
@@ -725,7 +736,8 @@ class StockEntryServiceImplTest {
 
             service.finalizeSaisieEntreeStock(liteDTO());
 
-            ArgumentCaptor<FournisseurProduitPriceHistory> captor = ArgumentCaptor.forClass(FournisseurProduitPriceHistory.class);
+            ArgumentCaptor<FournisseurProduitPriceHistory> captor =
+                    ArgumentCaptor.forClass(FournisseurProduitPriceHistory.class);
             verify(priceHistoryRepository).save(captor.capture());
             assertThat(captor.getValue().getOldPrixAchat()).isEqualTo(400);
             assertThat(captor.getValue().getNewPrixAchat()).isEqualTo(450);
@@ -733,7 +745,11 @@ class StockEntryServiceImplTest {
             assertThat(captor.getValue().getNewPrixUni()).isEqualTo(800);
             assertThat(captor.getValue().getChangedBy()).isSameAs(currentUser);
             assertThat(captor.getValue().getReceiptReference()).isEqualTo("BL-0012");
-            assertThat(commande.getOrderLines().getFirst().getFournisseurProduit().getPrixAchat()).isEqualTo(450);
+            assertThat(commande.getOrderLines()
+                            .getFirst()
+                            .getFournisseurProduit()
+                            .getPrixAchat())
+                    .isEqualTo(450);
         }
 
         @Test
@@ -743,10 +759,15 @@ class StockEntryServiceImplTest {
 
             service.finalizeSaisieEntreeStock(liteDTO());
 
-            ArgumentCaptor<FournisseurProduitPriceHistory> captor = ArgumentCaptor.forClass(FournisseurProduitPriceHistory.class);
+            ArgumentCaptor<FournisseurProduitPriceHistory> captor =
+                    ArgumentCaptor.forClass(FournisseurProduitPriceHistory.class);
             verify(priceHistoryRepository).save(captor.capture());
             assertThat(captor.getValue().getNewPrixUni()).isEqualTo(900);
-            assertThat(commande.getOrderLines().getFirst().getFournisseurProduit().getPrixUni()).isEqualTo(900);
+            assertThat(commande.getOrderLines()
+                            .getFirst()
+                            .getFournisseurProduit()
+                            .getPrixUni())
+                    .isEqualTo(900);
         }
 
         @Test
@@ -832,7 +853,7 @@ class StockEntryServiceImplTest {
         @DisplayName("remonte les lignes dont l ecart depasse le seuil")
         void ecartAuDelaDuSeuil() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(ligneAvecPrix(400, 500)));
+                    .thenReturn(List.of(ligneAvecPrix(400, 500)));
 
             List<OrderLineDTO> lignes = service.findLignesAvecEcartPrix(12, ORDER_DATE);
 
@@ -845,7 +866,7 @@ class StockEntryServiceImplTest {
         @DisplayName("ecarte les lignes sous le seuil")
         void ecartSousLeSeuil() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(ligneAvecPrix(400, 420)));
+                    .thenReturn(List.of(ligneAvecPrix(400, 420)));
 
             assertThat(service.findLignesAvecEcartPrix(12, ORDER_DATE)).isEmpty();
         }
@@ -854,7 +875,7 @@ class StockEntryServiceImplTest {
         @DisplayName("ecarte les lignes au prix identique")
         void prixIdentique() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(ligneAvecPrix(400, 400)));
+                    .thenReturn(List.of(ligneAvecPrix(400, 400)));
 
             assertThat(service.findLignesAvecEcartPrix(12, ORDER_DATE)).isEmpty();
         }
@@ -863,7 +884,7 @@ class StockEntryServiceImplTest {
         @DisplayName("ecarte les lignes sans prix de commande")
         void prixDeCommandeNul() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(ligneAvecPrix(0, 400)));
+                    .thenReturn(List.of(ligneAvecPrix(0, 400)));
 
             assertThat(service.findLignesAvecEcartPrix(12, ORDER_DATE)).isEmpty();
         }
@@ -872,7 +893,7 @@ class StockEntryServiceImplTest {
         @DisplayName("un ecart a la baisse est detecte aussi")
         void ecartALaBaisse() {
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
-                .thenReturn(List.of(ligneAvecPrix(400, 300)));
+                    .thenReturn(List.of(ligneAvecPrix(400, 300)));
 
             assertThat(service.findLignesAvecEcartPrix(12, ORDER_DATE)).hasSize(1);
         }
@@ -884,20 +905,20 @@ class StockEntryServiceImplTest {
 
         private FournisseurProduitPriceHistory historique(int id, AppUser user) {
             return new FournisseurProduitPriceHistory()
-                .setOldPrixAchat(400)
-                .setNewPrixAchat(450)
-                .setOldPrixUni(800)
-                .setNewPrixUni(900)
-                .setChangedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .setReceiptReference("BL-0012")
-                .setChangedBy(user);
+                    .setOldPrixAchat(400)
+                    .setNewPrixAchat(450)
+                    .setOldPrixUni(800)
+                    .setNewPrixUni(900)
+                    .setChangedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
+                    .setReceiptReference("BL-0012")
+                    .setChangedBy(user);
         }
 
         @Test
         @DisplayName("mappe l historique et son auteur")
         void mappeLHistorique() {
             when(priceHistoryRepository.findByFournisseurProduitIdOrderByChangedAtDesc(77))
-                .thenReturn(List.of(historique(1, currentUser)));
+                    .thenReturn(List.of(historique(1, currentUser)));
 
             List<PriceHistoryDTO> historique = service.getPriceHistory(77);
 
@@ -912,7 +933,7 @@ class StockEntryServiceImplTest {
         @DisplayName("tolere un historique sans auteur")
         void sansAuteur() {
             when(priceHistoryRepository.findByFournisseurProduitIdOrderByChangedAtDesc(77))
-                .thenReturn(List.of(historique(1, null)));
+                    .thenReturn(List.of(historique(1, null)));
 
             assertThat(service.getPriceHistory(77).getFirst().changedBy()).isNull();
         }
@@ -924,7 +945,8 @@ class StockEntryServiceImplTest {
             for (int i = 0; i < 30; i++) {
                 lignes.add(historique(i, currentUser));
             }
-            when(priceHistoryRepository.findByFournisseurProduitIdOrderByChangedAtDesc(77)).thenReturn(lignes);
+            when(priceHistoryRepository.findByFournisseurProduitIdOrderByChangedAtDesc(77))
+                    .thenReturn(lignes);
 
             assertThat(service.getPriceHistory(77)).hasSize(24);
         }
@@ -1029,7 +1051,8 @@ class StockEntryServiceImplTest {
         void updateDatePeremption() {
             OrderLine line = ligneEnregistree();
 
-            service.updateDatePeremption(itemDTO().setDatePeremptionTmp(LocalDate.now().plusYears(1)));
+            service.updateDatePeremption(
+                    itemDTO().setDatePeremptionTmp(LocalDate.now().plusYears(1)));
 
             assertThat(line.getUpdated()).isTrue();
             verify(orderLineService).save(line);
@@ -1042,14 +1065,14 @@ class StockEntryServiceImplTest {
             OrderLine l1 = orderLine(commande, produit(), 10, 0);
             OrderLine l2 = orderLine(commande, produit(), 10, 0);
             l2.setId(901);
-            when(orderLineService.findAllByOrderLineIdIn(Set.of(900, 901), ORDER_DATE)).thenReturn(List.of(l1, l2));
+            when(orderLineService.findAllByOrderLineIdIn(Set.of(900, 901), ORDER_DATE))
+                    .thenReturn(List.of(l1, l2));
 
-            service.batchUpdateQuantityReceived(
-                List.of(
+            service.batchUpdateQuantityReceived(List.of(
                     itemDTO().setQuantityReceivedTmp(4),
-                    new DeliveryReceiptItemLiteDTO().setOrderLineId(new OrderLineId(901, ORDER_DATE)).setQuantityReceivedTmp(6)
-                )
-            );
+                    new DeliveryReceiptItemLiteDTO()
+                            .setOrderLineId(new OrderLineId(901, ORDER_DATE))
+                            .setQuantityReceivedTmp(6)));
 
             assertThat(l1.getQuantityReceived()).isEqualTo(4);
             assertThat(l2.getQuantityReceived()).isEqualTo(6);
@@ -1075,7 +1098,8 @@ class StockEntryServiceImplTest {
         private OrderLine ligneDeCommande() {
             Commande commande = commande(OrderStatut.RECEIVED);
             OrderLine line = orderLine(commande, produit(), 10, 2);
-            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.of(line));
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000"))
+                    .thenReturn(Optional.of(line));
             return line;
         }
 
@@ -1091,10 +1115,9 @@ class StockEntryServiceImplTest {
         private List<String> codesCandidats(DataMatrixInfo info) {
             List<String> candidats = new ArrayList<>();
             for (String code : List.of(
-                Optional.ofNullable(info.cip13()).orElse(""),
-                Optional.ofNullable(info.ean13()).orElse(""),
-                Optional.ofNullable(info.gtin()).orElse("")
-            )) {
+                    Optional.ofNullable(info.cip13()).orElse(""),
+                    Optional.ofNullable(info.ean13()).orElse(""),
+                    Optional.ofNullable(info.gtin()).orElse(""))) {
                 String normalise = code.trim();
                 if (!normalise.isEmpty() && !candidats.contains(normalise)) {
                     candidats.add(normalise);
@@ -1142,7 +1165,8 @@ class StockEntryServiceImplTest {
         @DisplayName("CIP absent de la commande")
         void cipAbsentDeLaCommande() {
             stubScan(DataMatrixInfo.builder().cip13("3400930000000").build(), BarcodeType.CIP_13);
-            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.empty());
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000"))
+                    .thenReturn(Optional.empty());
 
             ReceptionScanResultDTO result = service.processScanReception(12, "3400930000000");
 
@@ -1155,15 +1179,16 @@ class StockEntryServiceImplTest {
         @DisplayName("code absent de la commande : le lot et la peremption lus sur la boite sont conserves")
         void codeAbsentConserveLesDonneesDuDataMatrix() {
             DataMatrixInfo parsed = DataMatrixInfo.builder()
-                .gtin("07353163006031")
-                .ean13("7353163006031")
-                .batchNumber("ABC101")
-                .expiryDate(LocalDate.of(2025, 1, 31))
-                .serialNumber("SER42")
-                .scannedQty(3)
-                .build();
+                    .gtin("07353163006031")
+                    .ean13("7353163006031")
+                    .batchNumber("ABC101")
+                    .expiryDate(LocalDate.of(2025, 1, 31))
+                    .serialNumber("SER42")
+                    .scannedQty(3)
+                    .build();
             stubScan(parsed, BarcodeType.DATAMATRIX);
-            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(anyInt(), anyString())).thenReturn(Optional.empty());
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(anyInt(), anyString()))
+                    .thenReturn(Optional.empty());
 
             ReceptionScanResultDTO result = service.processScanReception(12, "0107353163006031");
 
@@ -1181,12 +1206,17 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("le code EAN est essaye quand le CIP ne donne rien")
         void replieSurLeCodeSuivant() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13("3400930000000").ean13("7353163006031").build();
+            DataMatrixInfo parsed = DataMatrixInfo.builder()
+                    .cip13("3400930000000")
+                    .ean13("7353163006031")
+                    .build();
             stubScan(parsed, BarcodeType.DATAMATRIX);
-            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.empty());
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000"))
+                    .thenReturn(Optional.empty());
             Commande commande = commande(OrderStatut.RECEIVED);
             OrderLine line = orderLine(commande, produit(), 10, 2);
-            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "7353163006031")).thenReturn(Optional.of(line));
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "7353163006031"))
+                    .thenReturn(Optional.of(line));
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
 
@@ -1197,7 +1227,12 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("incremente d une unite par defaut")
         void incrementParDefaut() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").scannedQty(0).build(), BarcodeType.CIP_13);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.CIP_13);
             OrderLine line = ligneDeCommande();
 
             ReceptionScanResultDTO result = service.processScanReception(12, "3400930000000");
@@ -1212,7 +1247,12 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("respecte la quantite portee par le DataMatrix")
         void quantiteDuDataMatrix() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").scannedQty(5).build(), BarcodeType.DATAMATRIX);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .scannedQty(5)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             OrderLine line = ligneDeCommande();
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
@@ -1224,7 +1264,12 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("une ligne sans quantite recue part de zero")
         void ligneSansQuantiteRecue() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").scannedQty(0).build(), BarcodeType.CIP_13);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.CIP_13);
             OrderLine line = ligneDeCommande();
             line.setQuantityReceived(null);
 
@@ -1236,7 +1281,12 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("sans numero de serie, la tracabilite FMD est absente")
         void fmdAbsent() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").scannedQty(0).build(), BarcodeType.CIP_13);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.CIP_13);
             ligneDeCommande();
 
             ReceptionScanResultDTO result = service.processScanReception(12, "3400930000000");
@@ -1248,18 +1298,32 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("un numero de serie blanc vaut absence de tracabilite")
         void fmdSerieBlanche() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").serialNumber("  ").scannedQty(0).build(), BarcodeType.DATAMATRIX);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .serialNumber("  ")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
 
-            assertThat(service.processScanReception(12, "…").fmdStatus()).isEqualTo(ReceptionScanResultDTO.FmdStatus.ABSENT);
+            assertThat(service.processScanReception(12, "…").fmdStatus())
+                    .isEqualTo(ReceptionScanResultDTO.FmdStatus.ABSENT);
         }
 
         @Test
         @DisplayName("un numero de serie inedit vaut tracabilite assuree")
         void fmdPresent() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").serialNumber("SN1").scannedQty(0).build(), BarcodeType.DATAMATRIX);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .serialNumber("SN1")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
-            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID)).thenReturn(false);
+            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID))
+                    .thenReturn(false);
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
 
@@ -1271,9 +1335,16 @@ class StockEntryServiceImplTest {
         @Test
         @DisplayName("un numero de serie deja vu declenche une alerte de contrefacon")
         void fmdDuplicate() {
-            stubScan(DataMatrixInfo.builder().cip13("3400930000000").serialNumber("SN1").scannedQty(0).build(), BarcodeType.DATAMATRIX);
+            stubScan(
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .serialNumber("SN1")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
-            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID)).thenReturn(true);
+            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID))
+                    .thenReturn(true);
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
 
@@ -1285,20 +1356,19 @@ class StockEntryServiceImplTest {
         @DisplayName("cree le lot quand le DataMatrix est complet et la gestion de lot active")
         void creeLeLot() {
             stubScan(
-                DataMatrixInfo
-                    .builder()
-                    .cip13("3400930000000")
-                    .batchNumber("LOT1")
-                    .expiryDate(LocalDate.of(2027, 6, 30))
-                    .manufacturingDate(LocalDate.of(2026, 1, 15))
-                    .serialNumber("SN1")
-                    .scannedQty(2)
-                    .build(),
-                BarcodeType.DATAMATRIX
-            );
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .batchNumber("LOT1")
+                            .expiryDate(LocalDate.of(2027, 6, 30))
+                            .manufacturingDate(LocalDate.of(2026, 1, 15))
+                            .serialNumber("SN1")
+                            .scannedQty(2)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
             when(appConfigurationService.useLot()).thenReturn(Optional.of(true));
-            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID)).thenReturn(false);
+            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID))
+                    .thenReturn(false);
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
 
@@ -1322,19 +1392,18 @@ class StockEntryServiceImplTest {
         @DisplayName("ne recopie pas un numero de serie deja enregistre sur le lot")
         void lotSansSerieDupliquee() {
             stubScan(
-                DataMatrixInfo
-                    .builder()
-                    .cip13("3400930000000")
-                    .batchNumber("LOT1")
-                    .expiryDate(LocalDate.of(2027, 6, 30))
-                    .serialNumber("SN1")
-                    .scannedQty(0)
-                    .build(),
-                BarcodeType.DATAMATRIX
-            );
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .batchNumber("LOT1")
+                            .expiryDate(LocalDate.of(2027, 6, 30))
+                            .serialNumber("SN1")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
             when(appConfigurationService.useLot()).thenReturn(Optional.of(true));
-            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID)).thenReturn(true);
+            when(lotRepository.existsBySerialNumberAndProduitId("SN1", PRODUIT_ID))
+                    .thenReturn(true);
 
             service.processScanReception(12, "…");
 
@@ -1347,15 +1416,13 @@ class StockEntryServiceImplTest {
         @DisplayName("gestion de lot inactive : le lot est seulement pre-rempli pour l ecran")
         void lotPreRempli() {
             stubScan(
-                DataMatrixInfo
-                    .builder()
-                    .cip13("3400930000000")
-                    .batchNumber("LOT1")
-                    .expiryDate(LocalDate.of(2027, 6, 30))
-                    .scannedQty(0)
-                    .build(),
-                BarcodeType.DATAMATRIX
-            );
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .batchNumber("LOT1")
+                            .expiryDate(LocalDate.of(2027, 6, 30))
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
@@ -1372,9 +1439,12 @@ class StockEntryServiceImplTest {
         @DisplayName("aucun lot quand la date de peremption manque")
         void sansDatePeremption() {
             stubScan(
-                DataMatrixInfo.builder().cip13("3400930000000").batchNumber("LOT1").scannedQty(0).build(),
-                BarcodeType.DATAMATRIX
-            );
+                    DataMatrixInfo.builder()
+                            .cip13("3400930000000")
+                            .batchNumber("LOT1")
+                            .scannedQty(0)
+                            .build(),
+                    BarcodeType.DATAMATRIX);
             ligneDeCommande();
 
             ReceptionScanResultDTO result = service.processScanReception(12, "…");
@@ -1388,7 +1458,8 @@ class StockEntryServiceImplTest {
     @DisplayName("getPutawayPreview")
     class GetPutawayPreview {
 
-        private Produit produitAvecStocks(int id, Integer maxiRayon, int qtyRayon, int qtyReserve, ClasseCriticite classe) {
+        private Produit produitAvecStocks(
+                int id, Integer maxiRayon, int qtyRayon, int qtyReserve, ClasseCriticite classe) {
             Produit p = produit();
             p.setId(id);
             p.setClasseCriticite(classe);
@@ -1479,7 +1550,8 @@ class StockEntryServiceImplTest {
         void classeParDefaut() {
             stubCommandeAvec(produitAvecStocks(PRODUIT_ID, 20, 30, 5, null));
 
-            assertThat(service.getPutawayPreview(12, ORDER_DATE).getFirst().classePareto()).isEqualTo("B");
+            assertThat(service.getPutawayPreview(12, ORDER_DATE).getFirst().classePareto())
+                    .isEqualTo("B");
         }
 
         @Test
@@ -1489,23 +1561,23 @@ class StockEntryServiceImplTest {
             p.setFournisseurProduitPrincipal(null);
             stubCommandeAvec(p);
 
-            assertThat(service.getPutawayPreview(12, ORDER_DATE).getFirst().codeCip()).isNull();
+            assertThat(service.getPutawayPreview(12, ORDER_DATE).getFirst().codeCip())
+                    .isNull();
         }
 
         @Test
         @DisplayName("trie les produits par classe Pareto")
         void triParClassePareto() {
             stubCommandeAvec(
-                produitAvecStocks(501, 20, 30, 5, ClasseCriticite.C),
-                produitAvecStocks(502, 20, 30, 5, ClasseCriticite.A_PLUS),
-                produitAvecStocks(503, 20, 30, 5, ClasseCriticite.B),
-                produitAvecStocks(504, 20, 30, 5, ClasseCriticite.D),
-                produitAvecStocks(505, 20, 30, 5, ClasseCriticite.A)
-            );
+                    produitAvecStocks(501, 20, 30, 5, ClasseCriticite.C),
+                    produitAvecStocks(502, 20, 30, 5, ClasseCriticite.A_PLUS),
+                    produitAvecStocks(503, 20, 30, 5, ClasseCriticite.B),
+                    produitAvecStocks(504, 20, 30, 5, ClasseCriticite.D),
+                    produitAvecStocks(505, 20, 30, 5, ClasseCriticite.A));
 
             assertThat(service.getPutawayPreview(12, ORDER_DATE))
-                .extracting(PutawayPreviewItemDTO::classePareto)
-                .containsExactly("A+", "A", "B", "C", "D");
+                    .extracting(PutawayPreviewItemDTO::classePareto)
+                    .containsExactly("A+", "A", "B", "C", "D");
         }
     }
 
@@ -1514,13 +1586,16 @@ class StockEntryServiceImplTest {
     class ImportNewBon {
 
         private UploadDeleiveryReceiptDTO upload(CommandeModel model) {
-            return new UploadDeleiveryReceiptDTO().setModel(model).setFournisseurId(3).setDeliveryReceipt(liteDTO());
+            return new UploadDeleiveryReceiptDTO()
+                    .setModel(model)
+                    .setFournisseurId(3)
+                    .setDeliveryReceipt(liteDTO());
         }
 
         private void stubFichier(String nom, String contenu) throws IOException {
             when(multipartFile.getOriginalFilename()).thenReturn(nom);
             when(multipartFile.getInputStream())
-                .thenAnswer(inv -> new ByteArrayInputStream(contenu.getBytes(StandardCharsets.UTF_8)));
+                    .thenAnswer(inv -> new ByteArrayInputStream(contenu.getBytes(StandardCharsets.UTF_8)));
         }
 
         @BeforeEach
@@ -1531,22 +1606,30 @@ class StockEntryServiceImplTest {
             f.setId(3);
             when(fournisseurRepository.getReferenceById(3)).thenReturn(f);
             when(orderLineService.buildDeliveryReceiptItemFromRecord(
-                any(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), any(Commande.class)
-            )).thenAnswer(inv -> {
-                OrderLine line = new OrderLine();
-                line.setId(900);
-                line.setOrderDate(ORDER_DATE);
-                line.setFournisseurProduit(inv.getArgument(0));
-                line.setQuantityRequested(inv.getArgument(1));
-                line.setQuantityReceived(inv.getArgument(2));
-                line.setOrderCostAmount(inv.getArgument(3));
-                line.setOrderUnitPrice(inv.getArgument(4));
-                line.setFreeQty(inv.getArgument(5));
-                line.setTaxAmount(inv.getArgument(7));
-                line.setCommande(inv.getArgument(8));
-                line.setLots(new ArrayList<>());
-                return line;
-            });
+                            any(),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            any(Commande.class)))
+                    .thenAnswer(inv -> {
+                        OrderLine line = new OrderLine();
+                        line.setId(900);
+                        line.setOrderDate(ORDER_DATE);
+                        line.setFournisseurProduit(inv.getArgument(0));
+                        line.setQuantityRequested(inv.getArgument(1));
+                        line.setQuantityReceived(inv.getArgument(2));
+                        line.setOrderCostAmount(inv.getArgument(3));
+                        line.setOrderUnitPrice(inv.getArgument(4));
+                        line.setFreeQty(inv.getArgument(5));
+                        line.setTaxAmount(inv.getArgument(7));
+                        line.setCommande(inv.getArgument(8));
+                        line.setLots(new ArrayList<>());
+                        return line;
+                    });
         }
 
         @Test
@@ -1576,8 +1659,8 @@ class StockEntryServiceImplTest {
             UploadDeleiveryReceiptDTO upload = upload(CommandeModel.CIP_QTE);
 
             assertThatThrownBy(() -> service.importNewBon(upload, multipartFile))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("n'est pas pris en charche");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("n'est pas pris en charche");
         }
 
         @ParameterizedTest(name = "le format CSV {0} est pris en charge")
@@ -1613,21 +1696,22 @@ class StockEntryServiceImplTest {
         void csvPrixDuFournisseur() throws IOException {
             stubFichier("bl.csv", "CIP;QUANTITE\n1234567;8\n");
             Produit produit = produit();
-            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.of(fournisseurProduit(produit)));
+            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.of(fournisseurProduit(produit)));
 
             service.importNewBon(upload(CommandeModel.CIP_QTE), multipartFile);
 
-            verify(orderLineService).buildDeliveryReceiptItemFromRecord(
-                any(),
-                anyInt(),
-                anyInt(),
-                org.mockito.ArgumentMatchers.eq(400),
-                org.mockito.ArgumentMatchers.eq(800),
-                anyInt(),
-                anyInt(),
-                anyInt(),
-                any(Commande.class)
-            );
+            verify(orderLineService)
+                    .buildDeliveryReceiptItemFromRecord(
+                            any(),
+                            anyInt(),
+                            anyInt(),
+                            org.mockito.ArgumentMatchers.eq(400),
+                            org.mockito.ArgumentMatchers.eq(800),
+                            anyInt(),
+                            anyInt(),
+                            anyInt(),
+                            any(Commande.class));
         }
 
         @Test
@@ -1635,7 +1719,8 @@ class StockEntryServiceImplTest {
         void csvCumuleLeMemeProduit() throws IOException {
             stubFichier("bl.csv", "CIP;QUANTITE\n1234567;8\n1234567;4\n");
             Produit produit = produit();
-            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.of(fournisseurProduit(produit)));
+            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.of(fournisseurProduit(produit)));
 
             CommandeResponseDTO response = service.importNewBon(upload(CommandeModel.CIP_QTE), multipartFile);
 
@@ -1649,7 +1734,8 @@ class StockEntryServiceImplTest {
         void csvAvecLot() throws IOException {
             stubFichier("bl.csv", "1;1234567;400;8;x;800;LOT-A;20270630\n");
             Produit produit = produit();
-            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.of(fournisseurProduit(produit)));
+            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.of(fournisseurProduit(produit)));
 
             service.importNewBon(upload(CommandeModel.TEDIS), multipartFile);
 
@@ -1668,7 +1754,8 @@ class StockEntryServiceImplTest {
         void csvCumuleLesLots() throws IOException {
             stubFichier("bl.csv", "1;1234567;400;8;x;800;LOT-A;20270630\n2;1234567;400;4;x;800;LOT-B;20280630\n");
             Produit produit = produit();
-            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.of(fournisseurProduit(produit)));
+            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.of(fournisseurProduit(produit)));
 
             service.importNewBon(upload(CommandeModel.TEDIS), multipartFile);
 
@@ -1689,7 +1776,8 @@ class StockEntryServiceImplTest {
             assertThat(response.getFailureCount()).isEqualTo(1);
             assertThat(response.getSuccesCount()).isZero();
             assertThat(response.getItems().getFirst().getProduitCip()).isEqualTo("9999999");
-            verify(importationEchoueService).save(org.mockito.ArgumentMatchers.eq(12), org.mockito.ArgumentMatchers.eq(false), any());
+            verify(importationEchoueService)
+                    .save(org.mockito.ArgumentMatchers.eq(12), org.mockito.ArgumentMatchers.eq(false), any());
         }
 
         @Test
@@ -1697,7 +1785,7 @@ class StockEntryServiceImplTest {
         void csvSansRejet() throws IOException {
             stubFichier("bl.csv", "CIP;QUANTITE\n1234567;8\n");
             when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
-                .thenReturn(Optional.of(fournisseurProduit(produit())));
+                    .thenReturn(Optional.of(fournisseurProduit(produit())));
 
             service.importNewBon(upload(CommandeModel.CIP_QTE), multipartFile);
 
@@ -1709,7 +1797,8 @@ class StockEntryServiceImplTest {
         void txtProduitReconnu() throws IOException {
             stubFichier("bl.txt", "1234567\tDOLIPRANE\t400\t8\tx\t800\n");
             Produit produit = produit();
-            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.of(fournisseurProduit(produit)));
+            when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.of(fournisseurProduit(produit)));
             when(orderLineService.produitTotalStockWithQantitUg(produit)).thenReturn(20);
 
             CommandeResponseDTO response = service.importNewBon(upload(CommandeModel.CIP_QTE), multipartFile);
@@ -1724,7 +1813,7 @@ class StockEntryServiceImplTest {
         void txtCumuleLeMemeProduit() throws IOException {
             stubFichier("bl.txt", "1234567\tD\t400\t8\tx\t800\n1234567\tD\t400\t4\tx\t800\n");
             when(orderLineService.getFournisseurProduitByCriteria("1234567", 3))
-                .thenReturn(Optional.of(fournisseurProduit(produit())));
+                    .thenReturn(Optional.of(fournisseurProduit(produit())));
 
             CommandeResponseDTO response = service.importNewBon(upload(CommandeModel.CIP_QTE), multipartFile);
 
@@ -1758,7 +1847,8 @@ class StockEntryServiceImplTest {
             when(multipartFile.getInputStream()).thenReturn(flux);
             UploadDeleiveryReceiptDTO upload = upload(CommandeModel.CIP_QTE);
 
-            assertThatThrownBy(() -> service.importNewBon(upload, multipartFile)).isInstanceOf(IOException.class);
+            assertThatThrownBy(() -> service.importNewBon(upload, multipartFile))
+                    .isInstanceOf(IOException.class);
         }
 
         @Test
@@ -1776,8 +1866,8 @@ class StockEntryServiceImplTest {
 
             // commons-csv enveloppe les erreurs de flux : le catch(IOException) du service ne les voit pas
             assertThatThrownBy(() -> service.importNewBon(upload, multipartFile))
-                .isInstanceOf(java.io.UncheckedIOException.class)
-                .hasRootCauseInstanceOf(IOException.class);
+                    .isInstanceOf(java.io.UncheckedIOException.class)
+                    .hasRootCauseInstanceOf(IOException.class);
         }
     }
 }

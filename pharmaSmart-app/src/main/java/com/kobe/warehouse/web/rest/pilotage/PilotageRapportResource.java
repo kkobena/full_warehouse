@@ -28,19 +28,20 @@ public class PilotageRapportResource {
 
     @PostMapping("/rapport/pdf")
     @RequiresNavAccess(
-        value = {
-            "pilotage.tableau-de-bord",
-            "pilotage.analyser",
-            "pilotage.comparer-annees",
-            "pilotage.rentabilite-remises",
-            "pilotage.achats-stock",
-            "pilotage.tresorerie-tiers-payant",
-            "pilotage.clients-equipe",
-        },
-        action = NavAction.EXPORT
-    )
+            value = {
+                "pilotage.tableau-de-bord",
+                "pilotage.analyser",
+                "pilotage.comparer-annees",
+                "pilotage.rentabilite-remises",
+                "pilotage.achats-stock",
+                "pilotage.tresorerie-tiers-payant",
+                "pilotage.clients-equipe",
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> imprimerRapport(@Valid @RequestBody RequeteRapportPilotageDTO demande) {
         var requete = demande.requete();
-        return Utils.printPDF(rapportPilotageService.imprimerRapport(demande), "pilotage-" + requete.du() + "-" + requete.au() + ".pdf");
+        return Utils.printPDF(
+                rapportPilotageService.imprimerRapport(demande),
+                "pilotage-" + requete.du() + "-" + requete.au() + ".pdf");
     }
 }

@@ -23,8 +23,13 @@ const SECTIONS = [
 ];
 
 const PERMISSIONS = {
-  canDisplay: true, canAccess: true, canCreate: false,
-  canEdit: false, canDelete: false, canExport: false, canExecute: false,
+  canDisplay: true,
+  canAccess: true,
+  canCreate: false,
+  canEdit: false,
+  canDelete: false,
+  canExport: false,
+  canExecute: false,
 };
 
 describe('DeclarationCaLayout — menu vertical', () => {
@@ -39,9 +44,17 @@ describe('DeclarationCaLayout — menu vertical', () => {
 
     const arbre: INavNode[] = [
       {
-        id: 1, code: 'declaration-ca', libelle: 'Retraitement du CA', targetType: 'ROUTE', ordre: 10,
+        id: 1,
+        code: 'declaration-ca',
+        libelle: 'Retraitement du CA',
+        targetType: 'ROUTE',
+        ordre: 10,
         children: SECTIONS.map((s, i) => ({
-          id: i + 2, ...s, targetType: 'SECTION' as const, ordre: (i + 1) * 10, permissions: PERMISSIONS,
+          id: i + 2,
+          ...s,
+          targetType: 'SECTION' as const,
+          ordre: (i + 1) * 10,
+          permissions: PERMISSIONS,
         })),
         permissions: PERMISSIONS,
       },
@@ -75,9 +88,7 @@ describe('DeclarationCaLayout — menu vertical', () => {
     store.navTree.set(
       store.navTree().map(racine => ({
         ...racine,
-        children: racine.children?.map(e =>
-          e.code === 'declaration-ca.ponction' ? { ...e, libelle: 'Prélèvement' } : e,
-        ),
+        children: racine.children?.map(e => (e.code === 'declaration-ca.ponction' ? { ...e, libelle: 'Prélèvement' } : e)),
       })),
     );
     fixture.detectChanges();

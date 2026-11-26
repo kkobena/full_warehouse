@@ -31,12 +31,13 @@ import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-re
     PharmaDatePickerComponent,
     SelectComponent,
     RouterModule,
-    NgbNavModule, NavTabsComponent,
+    NgbNavModule,
+    NavTabsComponent,
     NgbTooltip,
     AppRepartitionListComponent,
     AppSuggestionReassortComponent,
     AppManualRepartitionComponent,
-  ]
+  ],
 })
 export class AppRepartitionStockComponent {
   /**

@@ -20,7 +20,13 @@ const HAUTEUR_MIN = 240;
   imports: [ChartComponent],
   template: `
     @if (configuration(); as config) {
-      <app-chart [ariaLabel]="description()" [data]="config.data" [height]="config.hauteur" [options]="config.options" [type]="config.type" />
+      <app-chart
+        [ariaLabel]="description()"
+        [data]="config.data"
+        [height]="config.hauteur"
+        [options]="config.options"
+        [type]="config.type"
+      />
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

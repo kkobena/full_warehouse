@@ -1,16 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ICommandeResponse } from "../../shared/model/commande-response.model";
-import { ButtonComponent } from "../../shared/ui";
-import { CommonModule } from "@angular/common";
-import { BlobDownloadService } from "../../shared/services/blob-download.service";
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ICommandeResponse } from '../../shared/model/commande-response.model';
+import { ButtonComponent } from '../../shared/ui';
+import { CommonModule } from '@angular/common';
+import { BlobDownloadService } from '../../shared/services/blob-download.service';
 
 @Component({
-  selector: "app-commande-import-response-dialog",
-  templateUrl: "./commande-import-response-dialog.component.html",
-  styleUrls: ["./commande-import-response-dialog.component.scss"],
+  selector: 'app-commande-import-response-dialog',
+  templateUrl: './commande-import-response-dialog.component.html',
+  styleUrls: ['./commande-import-response-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, CommonModule]
+  imports: [ButtonComponent, CommonModule],
 })
 export class CommandeImportResponseDialogComponent {
   responseCommande?: ICommandeResponse;
@@ -28,6 +28,6 @@ export class CommandeImportResponseDialogComponent {
       return;
     }
     const octets = Uint8Array.from(atob(contenu), caractere => caractere.charCodeAt(0));
-    this.blobDownloadService.downloadCsv(new Blob([octets], { type: "text/csv;charset=utf-8" }), `${this.responseCommande?.reference}`);
+    this.blobDownloadService.downloadCsv(new Blob([octets], { type: 'text/csv;charset=utf-8' }), `${this.responseCommande?.reference}`);
   }
 }

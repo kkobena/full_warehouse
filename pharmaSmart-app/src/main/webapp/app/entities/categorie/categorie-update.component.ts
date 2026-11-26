@@ -8,16 +8,16 @@ import { Observable } from 'rxjs';
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
 import { finalize } from 'rxjs/operators';
-import { NotificationService } from "../../shared/services/notification.service";
-import { FaIconComponent } from "@fortawesome/angular-fontawesome";
-import TranslateDirective from "../../shared/language/translate.directive";
-import { AlertErrorComponent } from "../../shared/alert/alert-error.component";
+import { NotificationService } from '../../shared/services/notification.service';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import TranslateDirective from '../../shared/language/translate.directive';
+import { AlertErrorComponent } from '../../shared/alert/alert-error.component';
 
 @Component({
   selector: 'app-categorie-update',
   templateUrl: './categorie-update.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ReactiveFormsModule, FaIconComponent, TranslateDirective, AlertErrorComponent]
+  imports: [FormsModule, ReactiveFormsModule, FaIconComponent, TranslateDirective, AlertErrorComponent],
 })
 export class CategorieUpdateComponent implements OnInit {
   protected readonly isSaving = signal(false);
@@ -58,7 +58,7 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError(),
     });

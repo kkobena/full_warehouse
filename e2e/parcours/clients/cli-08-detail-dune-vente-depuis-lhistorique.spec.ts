@@ -21,7 +21,10 @@ scenario('CLI-08', async ({ etape, page }) => {
     await expect(lignes.first()).toBeVisible();
     // Un client qui a des achats : sans vente, il n'y a pas de détail à ouvrir.
     await lignes.first().locator('app-button[ngbtooltip="Voir la fiche"] button').first().click();
-    await page.getByRole('tab', { name: /Achats/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Achats/ })
+      .first()
+      .click();
     await expect(page.locator('app-customer-achats-tab')).toBeVisible();
   });
 

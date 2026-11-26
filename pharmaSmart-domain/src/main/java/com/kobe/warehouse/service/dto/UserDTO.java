@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Authority;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -214,8 +214,8 @@ public class UserDTO implements Serializable {
     }
 
     // prettier-ignore
-  @Override
-  public String toString() {
-    return "UserDTO{" + "id='" + id + '\'' + ", login='" + login + '\'' + "}";
-  }
+    @Override
+    public String toString() {
+        return "UserDTO{" + "id='" + id + '\'' + ", login='" + login + '\'' + "}";
+    }
 }

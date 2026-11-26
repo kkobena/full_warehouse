@@ -40,7 +40,6 @@ scenario('VTE-61', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-
     // Le formulaire s'initialise APRÈS son ouverture : une saisie trop rapide est effacée
     // sans bruit, et le champ redevient vide. On vérifie donc chaque valeur écrite plutôt que
     // d'attendre un focus que le formulaire ne donne pas toujours.

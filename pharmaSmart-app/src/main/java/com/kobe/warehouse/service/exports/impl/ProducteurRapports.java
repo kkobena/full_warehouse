@@ -26,12 +26,11 @@ class ProducteurRapports {
     private final ProducteurRapportsPartenaires partenaires;
 
     ProducteurRapports(
-        ProducteurRapportsComptables comptables,
-        ProducteurRapportsPilotage pilotage,
-        ProducteurRapportsVentes ventes,
-        ProducteurRapportsStock stock,
-        ProducteurRapportsPartenaires partenaires
-    ) {
+            ProducteurRapportsComptables comptables,
+            ProducteurRapportsPilotage pilotage,
+            ProducteurRapportsVentes ventes,
+            ProducteurRapportsStock stock,
+            ProducteurRapportsPartenaires partenaires) {
         this.comptables = comptables;
         this.pilotage = pilotage;
         this.ventes = ventes;
@@ -39,37 +38,33 @@ class ProducteurRapports {
         this.partenaires = partenaires;
     }
 
-    byte[] produire(RapportExport rapport, FormatExport format, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    byte[] produire(
+            RapportExport rapport,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres) {
         return switch (rapport) {
             case EXPORT_COMPTABLE,
-                BALANCE_CAISSE,
-                TABLEAU_PHARMACIEN,
-                RAPPORT_TVA,
-                DECLARATION_TVA,
-                RECAPITULATIF_CAISSE,
-                RAPPORT_ACTIVITE,
-                MOUVEMENTS_CAISSE_ETAT,
-                DIFFERES_IMPAYES -> comptables.produire(rapport, format, du, au, filtres);
-            case PILOTAGE_TABLEAU_DE_BORD, PILOTAGE_ANALYSER, PILOTAGE_ANNEES -> pilotage.produire(rapport, du, au, filtres);
-            case TABLEAU_DE_BORD_CA, MEILLEURES_VENTES, COMPARATIF_VENTES, RENTABILITE_PRODUITS, SEGMENTATION_CLIENTS -> ventes.produire(
-                rapport,
-                format,
-                du,
-                au,
-                filtres
-            );
-            case ALERTES_STOCK, ROTATION_STOCK, VALORISATION_STOCK, ABC_PARETO, PRODUITS_A_DETRUIRE -> stock.produire(
-                rapport,
-                format,
-                du,
-                au,
-                filtres
-            );
+                    BALANCE_CAISSE,
+                    TABLEAU_PHARMACIEN,
+                    RAPPORT_TVA,
+                    DECLARATION_TVA,
+                    RECAPITULATIF_CAISSE,
+                    RAPPORT_ACTIVITE,
+                    MOUVEMENTS_CAISSE_ETAT,
+                    DIFFERES_IMPAYES -> comptables.produire(rapport, format, du, au, filtres);
+            case PILOTAGE_TABLEAU_DE_BORD, PILOTAGE_ANALYSER, PILOTAGE_ANNEES ->
+                pilotage.produire(rapport, du, au, filtres);
+            case TABLEAU_DE_BORD_CA, MEILLEURES_VENTES, COMPARATIF_VENTES, RENTABILITE_PRODUITS, SEGMENTATION_CLIENTS ->
+                ventes.produire(rapport, format, du, au, filtres);
+            case ALERTES_STOCK, ROTATION_STOCK, VALORISATION_STOCK, ABC_PARETO, PRODUITS_A_DETRUIRE ->
+                stock.produire(rapport, format, du, au, filtres);
             case COMPTES_FOURNISSEURS,
-                PERFORMANCE_FOURNISSEURS,
-                CREANCES_TIERS_PAYANTS,
-                RECAPITULATIF_FACTURES,
-                RAPPROCHEMENT_TIERS_PAYANTS -> partenaires.produire(rapport, format, du, au, filtres);
+                    PERFORMANCE_FOURNISSEURS,
+                    CREANCES_TIERS_PAYANTS,
+                    RECAPITULATIF_FACTURES,
+                    RAPPROCHEMENT_TIERS_PAYANTS -> partenaires.produire(rapport, format, du, au, filtres);
         };
     }
 }

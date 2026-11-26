@@ -42,8 +42,8 @@ class LecteurMesuresPilotage {
         LocalDate debut = memeJour.withDayOfMonth(1);
         LocalDate fin = memeJour.withDayOfMonth(memeJour.lengthOfMonth());
         List<PeriodeDTO> tranches = memeJour.isBefore(fin)
-            ? List.of(new PeriodeDTO(debut, memeJour), new PeriodeDTO(memeJour.plusDays(1), fin))
-            : List.of(new PeriodeDTO(debut, fin));
+                ? List.of(new PeriodeDTO(debut, memeJour), new PeriodeDTO(memeJour.plusDays(1), fin))
+                : List.of(new PeriodeDTO(debut, fin));
         return lireParTranche(new PeriodeDTO(debut, fin), tranches);
     }
 
@@ -57,26 +57,39 @@ class LecteurMesuresPilotage {
         LocalDate du = periode.du();
         LocalDate au = periode.au();
 
-        ajouter(mesures, rangParDebut, pilotageMesuresRepository.listerVentesParJour(du, au, officine), VentesJourDTO::jour, MesuresPilotage::deVentes);
-        ajouter(mesures, rangParDebut, pilotageMesuresRepository.listerLignesParJour(du, au, officine), LignesJourDTO::jour, MesuresPilotage::deLignes);
-        ajouter(mesures, rangParDebut, pilotageMesuresRepository.listerAchatsParJour(du, au), MontantJourDTO::jour, a -> MesuresPilotage.dAchats(a.montant()));
         ajouter(
-            mesures,
-            rangParDebut,
-            pilotageMesuresRepository.listerEncaissementsParJour(du, au, TYPES_ENCAISSEMENT),
-            MontantJourDTO::jour,
-            e -> MesuresPilotage.dEncaissements(e.montant())
-        );
+                mesures,
+                rangParDebut,
+                pilotageMesuresRepository.listerVentesParJour(du, au, officine),
+                VentesJourDTO::jour,
+                MesuresPilotage::deVentes);
+        ajouter(
+                mesures,
+                rangParDebut,
+                pilotageMesuresRepository.listerLignesParJour(du, au, officine),
+                LignesJourDTO::jour,
+                MesuresPilotage::deLignes);
+        ajouter(
+                mesures,
+                rangParDebut,
+                pilotageMesuresRepository.listerAchatsParJour(du, au),
+                MontantJourDTO::jour,
+                a -> MesuresPilotage.dAchats(a.montant()));
+        ajouter(
+                mesures,
+                rangParDebut,
+                pilotageMesuresRepository.listerEncaissementsParJour(du, au, TYPES_ENCAISSEMENT),
+                MontantJourDTO::jour,
+                e -> MesuresPilotage.dEncaissements(e.montant()));
         return mesures;
     }
 
     private static <T> void ajouter(
-        List<MesuresPilotage> mesures,
-        NavigableMap<LocalDate, Integer> rangParDebut,
-        List<T> lignes,
-        Function<T, LocalDate> jour,
-        Function<T, MesuresPilotage> versMesures
-    ) {
+            List<MesuresPilotage> mesures,
+            NavigableMap<LocalDate, Integer> rangParDebut,
+            List<T> lignes,
+            Function<T, LocalDate> jour,
+            Function<T, MesuresPilotage> versMesures) {
         for (T ligne : lignes) {
             int rang = rangParDebut.floorEntry(jour.apply(ligne)).getValue();
             mesures.set(rang, mesures.get(rang).plus(versMesures.apply(ligne)));

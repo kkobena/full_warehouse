@@ -7,7 +7,7 @@ import {
   HeaderCheckboxComponent,
   RowCheckboxComponent,
   SelectComponent,
-  SwitchComponent
+  SwitchComponent,
 } from '../../../../../shared/ui';
 
 import { IGroupeTiersPayant } from '../../../../../shared/model/groupe-tierspayant.model';
@@ -23,7 +23,7 @@ import { PlanificationStateService } from '../planification-state.service';
     HeaderCheckboxComponent,
     RowCheckboxComponent,
     SelectComponent,
-    SwitchComponent
+    SwitchComponent,
   ],
   templateUrl: './planif-subtab-groupes.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,13 +33,9 @@ export class PlanifSubtabGroupesComponent {
   readonly mode = input.required<'def' | 'prov'>();
   protected readonly state = inject(PlanificationStateService);
 
-  protected readonly groupes = computed(() =>
-    this.mode() === 'def' ? this.state.groupesDef() : this.state.groupesProv(),
-  );
+  protected readonly groupes = computed(() => (this.mode() === 'def' ? this.state.groupesDef() : this.state.groupesProv()));
 
-  protected readonly loading = computed(() =>
-    this.mode() === 'def' ? this.state.loadingGroupesDef() : this.state.loadingGroupesProv(),
-  );
+  protected readonly loading = computed(() => (this.mode() === 'def' ? this.state.loadingGroupesDef() : this.state.loadingGroupesProv()));
 
   protected get filtrePeriodicite(): string | null {
     return this.mode() === 'def' ? this.state.filtrePeriodiciteGroupesDef : this.state.filtrePeriodiciteGroupesProv;
@@ -90,4 +86,3 @@ export class PlanifSubtabGroupesComponent {
     else this.state.onToggleInclureGroupeProv(groupe);
   }
 }
-

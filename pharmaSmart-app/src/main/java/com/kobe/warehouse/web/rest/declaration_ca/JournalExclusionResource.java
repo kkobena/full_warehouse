@@ -33,38 +33,32 @@ public class JournalExclusionResource {
     @GetMapping("/unites-gratuites")
     @RequiresFeature(Feature.EXCLUSION_UG)
     public ResponseEntity<JournalExclusionDTO> unitesGratuites(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
-        @RequestParam(required = false) String recherche
-    ) {
-        return ResponseEntity.ok(
-            journalExclusionService.unitesGratuites(new JournalExclusionParamDTO(dateDebut, dateFin, recherche, null))
-        );
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+            @RequestParam(required = false) String recherche) {
+        return ResponseEntity.ok(journalExclusionService.unitesGratuites(
+                new JournalExclusionParamDTO(dateDebut, dateFin, recherche, null)));
     }
 
     @GetMapping("/rayons")
     @RequiresFeature(Feature.EXCLUSION_RAYON)
     public ResponseEntity<JournalExclusionDTO> rayons(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
-        @RequestParam(required = false) String recherche
-    ) {
-        return ResponseEntity.ok(
-            journalExclusionService.rayonsExclus(new JournalExclusionParamDTO(dateDebut, dateFin, recherche, null))
-        );
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+            @RequestParam(required = false) String recherche) {
+        return ResponseEntity.ok(journalExclusionService.rayonsExclus(
+                new JournalExclusionParamDTO(dateDebut, dateFin, recherche, null)));
     }
 
     @GetMapping("/tiers-payants")
     @RequiresFeature(Feature.EXCLUSION_TP)
     public ResponseEntity<JournalExclusionDTO> tiersPayants(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
-        @RequestParam(required = false) String recherche,
-        @RequestParam(required = false) Integer tiersPayantId
-    ) {
-        return ResponseEntity.ok(
-            journalExclusionService.ventesTiersPayant(new JournalExclusionParamDTO(dateDebut, dateFin, recherche, tiersPayantId))
-        );
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+            @RequestParam(required = false) String recherche,
+            @RequestParam(required = false) Integer tiersPayantId) {
+        return ResponseEntity.ok(journalExclusionService.ventesTiersPayant(
+                new JournalExclusionParamDTO(dateDebut, dateFin, recherche, tiersPayantId)));
     }
 
     /**
@@ -76,9 +70,8 @@ public class JournalExclusionResource {
     @GetMapping("/tiers-payants/lignes")
     @RequiresFeature(Feature.EXCLUSION_TP)
     public ResponseEntity<List<JournalLigneDTO>> lignesDeLaVente(
-        @RequestParam Long saleId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate saleDate
-    ) {
+            @RequestParam Long saleId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate saleDate) {
         return ResponseEntity.ok(journalExclusionService.lignesDeLaVente(saleId, saleDate));
     }
 }

@@ -3,7 +3,6 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
 
-
 // RFM Score styling
 .rfm-score {
   display: inline-flex;
@@ -104,7 +103,6 @@ tr.inactive-row {
   .pharma-toolbar-filters {
     flex-direction: column;
     width: 100%;
-
   }
 
   .grid > .col-12 {
@@ -131,5 +129,4 @@ tr.inactive-row {
   .rfm-explanation {
     page-break-before: always;
   }
-
 }

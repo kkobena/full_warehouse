@@ -4,6 +4,9 @@ import com.kobe.warehouse.domain.Importation;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.ImportationTiersPayantService;
 import com.kobe.warehouse.service.TiersPayantDataService;
 import com.kobe.warehouse.service.TiersPayantService;
@@ -40,13 +43,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "tiers-payant.tiers-payant", "tiers-payant" })
+@RequiresNavAccess({"tiers-payant.tiers-payant", "tiers-payant"})
 public class TiersPayantResource {
 
     private static final String ENTITY_NAME = "tiers-payant";
@@ -54,22 +54,21 @@ public class TiersPayantResource {
     private final TiersPayantDataService tiersPayantDataService;
     private final TiersPayantService tiersPayantService;
 
-
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public TiersPayantResource(
-        ImportationTiersPayantService importationTiersPayantService,
-        TiersPayantDataService tiersPayantDataService,
-        TiersPayantService tiersPayantService
-    ) {
+            ImportationTiersPayantService importationTiersPayantService,
+            TiersPayantDataService tiersPayantDataService,
+            TiersPayantService tiersPayantService) {
         this.importationTiersPayantService = importationTiersPayantService;
         this.tiersPayantDataService = tiersPayantDataService;
         this.tiersPayantService = tiersPayantService;
     }
 
     @PostMapping("/tiers-payants/importjson")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file)
+            throws URISyntaxException, IOException {
         ResponseDTO responseDTO = importationTiersPayantService.updateStocFromJSON(file.getInputStream());
         return ResponseEntity.ok(responseDTO);
     }
@@ -94,30 +93,37 @@ public class TiersPayantResource {
     @GetMapping(value = "/tiers-payants")
     @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<List<TiersPayantDto>> getAll(
-        @RequestParam(name = "groupeTiersPayantId", required = false) Integer groupeTiersPayantId,
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        @RequestParam(value = "type", required = false, defaultValue = "") String categorie,
-        @RequestParam(value = "periodiciteDefinitive", required = false) String periodiciteDefinitive,
-        @RequestParam(value = "periodiciteProvisoire", required = false) String periodiciteProvisoire,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "groupeTiersPayantId", required = false) Integer groupeTiersPayantId,
+            @RequestParam(value = "search", required = false, defaultValue = "") String search,
+            @RequestParam(value = "type", required = false, defaultValue = "") String categorie,
+            @RequestParam(value = "periodiciteDefinitive", required = false) String periodiciteDefinitive,
+            @RequestParam(value = "periodiciteProvisoire", required = false) String periodiciteProvisoire,
+            Pageable pageable) {
         Page<TiersPayantDto> page = tiersPayantDataService.fetchList(
-            search, categorie, TiersPayantStatut.ACTIF, groupeTiersPayantId,
-            periodiciteDefinitive, periodiciteProvisoire, pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                search,
+                categorie,
+                TiersPayantStatut.ACTIF,
+                groupeTiersPayantId,
+                periodiciteDefinitive,
+                periodiciteProvisoire,
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @PatchMapping("/tiers-payants/mass-update-facture-config")
-    @RequiresNavAccess(value = { "tiers-payant.tiers-payant", "tiers-payant", "factures", "facturation.automatisation" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"tiers-payant.tiers-payant", "tiers-payant", "factures", "facturation.automatisation"},
+            action = NavAction.EDIT)
     public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
         tiersPayantService.massUpdateFactureConfig(request);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/tiers-payants")
-    public ResponseEntity<TiersPayantDto> create(@Valid @RequestBody TiersPayantDto tiersPayantDto) throws URISyntaxException {
+    public ResponseEntity<TiersPayantDto> create(@Valid @RequestBody TiersPayantDto tiersPayantDto)
+            throws URISyntaxException {
         if (tiersPayantDto.getId() != null) {
             throw new BadRequestAlertException("A new rayon cannot already have an ID", null, "idexists");
         }
@@ -126,7 +132,8 @@ public class TiersPayantResource {
     }
 
     @PutMapping("/tiers-payants")
-    public ResponseEntity<TiersPayantDto> update(@Valid @RequestBody TiersPayantDto tiersPayantDto) throws URISyntaxException {
+    public ResponseEntity<TiersPayantDto> update(@Valid @RequestBody TiersPayantDto tiersPayantDto)
+            throws URISyntaxException {
         TiersPayantDto result = tiersPayantService.updateFromDto(tiersPayantDto);
         return ResponseEntity.ok(result);
     }
@@ -135,16 +142,16 @@ public class TiersPayantResource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         tiersPayantService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @DeleteMapping("/tiers-payants/desable/{id}")
     public ResponseEntity<Void> desable(@PathVariable Integer id) {
         tiersPayantService.desable(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping("/tiers-payants/models-facture")

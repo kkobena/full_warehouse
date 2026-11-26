@@ -1,4 +1,4 @@
-import {signal, Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ILot } from 'app/shared/model/lot.model';
 import { LotService } from '../../../../../entities/commande/lot/lot.service';
 import { FormLotComponent } from '../form/form-lot.component';

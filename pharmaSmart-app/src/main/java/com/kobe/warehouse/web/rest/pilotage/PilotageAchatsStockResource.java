@@ -22,7 +22,8 @@ public class PilotageAchatsStockResource {
     private final AchatsPilotageService achatsPilotageService;
     private final StockPilotageService stockPilotageService;
 
-    public PilotageAchatsStockResource(AchatsPilotageService achatsPilotageService, StockPilotageService stockPilotageService) {
+    public PilotageAchatsStockResource(
+            AchatsPilotageService achatsPilotageService, StockPilotageService stockPilotageService) {
         this.achatsPilotageService = achatsPilotageService;
         this.stockPilotageService = stockPilotageService;
     }

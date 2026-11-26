@@ -9,12 +9,11 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record EcartsPilotageDTO(
-    ComparaisonPeriodesDTO comparaison,
-    long ca,
-    long caReference,
-    Long effetFrequentation,
-    Long effetArticles,
-    Long effetPrix,
-    List<ContributionDTO> hausses,
-    List<ContributionDTO> baisses
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        long ca,
+        long caReference,
+        Long effetFrequentation,
+        Long effetArticles,
+        Long effetPrix,
+        List<ContributionDTO> hausses,
+        List<ContributionDTO> baisses) {}

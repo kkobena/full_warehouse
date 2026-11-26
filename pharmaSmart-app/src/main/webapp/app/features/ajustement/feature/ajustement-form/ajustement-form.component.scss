@@ -66,8 +66,13 @@
 
   // Ajustement-specific select widths
   .search-controls {
-    .storage-select-input { flex: 0 0 160px; }
-    .motif-select-input   { flex: 1; min-width: 200px; }
+    .storage-select-input {
+      flex: 0 0 160px;
+    }
+    .motif-select-input {
+      flex: 1;
+      min-width: 200px;
+    }
   }
 }
 
@@ -79,9 +84,15 @@
   gap: 0.5rem;
   font-size: 0.8125rem;
 
-  .lot-num  { font-weight: 600; color: #1e293b; }
-  .lot-exp  { color: #64748b; font-size: 0.75rem; }
-  .lot-qty  {
+  .lot-num {
+    font-weight: 600;
+    color: #1e293b;
+  }
+  .lot-exp {
+    color: #64748b;
+    font-size: 0.75rem;
+  }
+  .lot-qty {
     color: var(--pharma-chrome-head-icon, #2e7d97);
     font-weight: 600;
     font-size: 0.75rem;
@@ -91,13 +102,13 @@
   }
 }
 
-
-
 // ── Responsive ────────────────────────────────────────────────────────────────
 
 @media (max-width: 768px) {
   .order-search-section .search-controls {
     .storage-select-input,
-    .motif-select-input { flex: 1 1 100%; }
+    .motif-select-input {
+      flex: 1 1 100%;
+    }
   }
 }

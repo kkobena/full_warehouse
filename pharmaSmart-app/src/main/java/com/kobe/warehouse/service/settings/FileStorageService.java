@@ -1,15 +1,14 @@
 package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.config.FileStorageProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FileStorageService {
@@ -20,9 +19,14 @@ public class FileStorageService {
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-        this.fileImageStorageLocation = Paths.get(fileStorageProperties.getImagesDir()).toAbsolutePath().normalize();
-        this.filePharmamlStorageLocation = Paths.get(fileStorageProperties.getPharmamlDir()).toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir())
+                .toAbsolutePath()
+                .normalize();
+        this.fileImageStorageLocation =
+                Paths.get(fileStorageProperties.getImagesDir()).toAbsolutePath().normalize();
+        this.filePharmamlStorageLocation = Paths.get(fileStorageProperties.getPharmamlDir())
+                .toAbsolutePath()
+                .normalize();
 
         Logger LOG = LoggerFactory.getLogger(FileStorageService.class);
         try {
@@ -41,7 +45,6 @@ public class FileStorageService {
             LOG.debug("Imposile de créer le repertoire ", ex);
         }
     }
-
 
     public Path getFileStorageLocation() {
         return fileStorageLocation;

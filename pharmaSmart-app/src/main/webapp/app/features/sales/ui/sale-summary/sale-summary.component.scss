@@ -108,7 +108,11 @@ $border-radius-sm: 6px;
 // ============================================
 
 .amount-total {
-  background: linear-gradient(135deg, var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 0%, var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)}) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 0%,
+    var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)}) 100%
+  );
   border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   border-width: 2px;
 
@@ -227,8 +231,13 @@ $border-radius-sm: 6px;
 }
 
 @keyframes pulseSuccess {
-  0%, 100% { box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25); }
-  50% { box-shadow: 0 4px 18px rgba(40, 167, 69, 0.45); }
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+  }
+  50% {
+    box-shadow: 0 4px 18px rgba(40, 167, 69, 0.45);
+  }
 }
 
 // ============================================

@@ -56,5 +56,4 @@ public enum InventoryCategory {
      * matérialisée mv_abc_pareto_analysis)
      */
     ABC,
-
 }

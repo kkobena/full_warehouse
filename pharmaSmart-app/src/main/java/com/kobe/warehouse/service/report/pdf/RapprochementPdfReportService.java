@@ -3,14 +3,13 @@ package com.kobe.warehouse.service.report.pdf;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.facturation.dto.EtatRapprochementDto;
 import com.kobe.warehouse.service.facturation.dto.RapprochementParams;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class RapprochementPdfReportService extends AbstractStatistiqueReportService {
@@ -20,10 +19,7 @@ public class RapprochementPdfReportService extends AbstractStatistiqueReportServ
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RapprochementPdfReportService(
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
+    public RapprochementPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
         super(storageService);
         this.templateEngine = templateEngine;
     }
@@ -59,24 +55,32 @@ public class RapprochementPdfReportService extends AbstractStatistiqueReportServ
         variablesMap.put("etats", etats);
 
         // KPI globaux
-        variablesMap.put("totalFacture", etats.stream()
-            .map(EtatRapprochementDto::totalFacture)
-            .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
-        variablesMap.put("totalRegle", etats.stream()
-            .map(EtatRapprochementDto::totalRegle)
-            .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
-        variablesMap.put("ecartTotal", etats.stream()
-            .map(EtatRapprochementDto::ecartTotal)
-            .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        variablesMap.put(
+                "totalFacture",
+                etats.stream()
+                        .map(EtatRapprochementDto::totalFacture)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        variablesMap.put(
+                "totalRegle",
+                etats.stream()
+                        .map(EtatRapprochementDto::totalRegle)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        variablesMap.put(
+                "ecartTotal",
+                etats.stream()
+                        .map(EtatRapprochementDto::ecartTotal)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
 
         return super.exportReportToPdf();
     }
 
     private String buildPeriodeLabel(RapprochementParams params) {
         if (params.startDate() != null && params.endDate() != null) {
-            return "du " + params.startDate().format(DATE_FMT) + " au " + params.endDate().format(DATE_FMT);
+            return "du " + params.startDate().format(DATE_FMT) + " au "
+                    + params.endDate().format(DATE_FMT);
         }
-        if (params.startDate() != null) return "à partir du " + params.startDate().format(DATE_FMT);
+        if (params.startDate() != null)
+            return "à partir du " + params.startDate().format(DATE_FMT);
         if (params.endDate() != null) return "jusqu'au " + params.endDate().format(DATE_FMT);
         return "";
     }

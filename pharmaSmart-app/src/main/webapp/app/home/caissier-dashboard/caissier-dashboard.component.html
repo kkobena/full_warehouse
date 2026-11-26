@@ -1,6 +1,5 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
-
     <!-- ═══════════════════════════════════════════════════════════════════════
          BARRE D'ACTIONS
          ═══════════════════════════════════════════════════════════════════════ -->
@@ -13,13 +12,7 @@
             <span></span>
           }
           <div class="quick-actions d-flex gap-2 flex-wrap align-items-center">
-            <app-button
-              (clicked)="nouvelleVente()"
-              icon="pi pi-shopping-cart"
-              label="Nouvelle Vente"
-              severity="primary"
-              size="small"
-            />
+            <app-button (clicked)="nouvelleVente()" icon="pi pi-shopping-cart" label="Nouvelle Vente" severity="primary" size="small" />
 
             <app-button
               (clicked)="ouvrirMouvementCaisse()"
@@ -42,21 +35,9 @@
               placement="left"
             />
             @if (!isCaisseOuverte()) {
-              <app-button
-                (clicked)="gereCaisse()"
-                icon="pi pi-unlock"
-                label="Ouvrir Caisse"
-                severity="warn"
-                size="small"
-              />
+              <app-button (clicked)="gereCaisse()" icon="pi pi-unlock" label="Ouvrir Caisse" severity="warn" size="small" />
             } @else {
-              <app-button
-                (clicked)="gereCaisse()"
-                icon="pi pi-lock"
-                label="Fermer Caisse"
-                severity="danger"
-                size="small"
-              />
+              <app-button (clicked)="gereCaisse()" icon="pi pi-lock" label="Fermer Caisse" severity="danger" size="small" />
             }
             <app-button
               (clicked)="refreshDashboard()"
@@ -80,8 +61,7 @@
     @if (caisseStatus()) {
       <div class="row mb-3">
         <div class="col-12">
-          <div [class.caisse-fermee]="!isCaisseOuverte()" [class.caisse-ouverte]="isCaisseOuverte()"
-               class="caisse-banner">
+          <div [class.caisse-fermee]="!isCaisseOuverte()" [class.caisse-ouverte]="isCaisseOuverte()" class="caisse-banner">
             <div class="caisse-banner-left">
               <span class="caisse-etat-icon">
                 <i [class]="isCaisseOuverte() ? 'pi pi-unlock' : 'pi pi-lock'"></i>
@@ -92,8 +72,7 @@
                   <span class="caisse-depuis">depuis {{ caisseStatus()!.heureOuverture }}</span>
                 }
                 @if (!isCaisseOuverte() && caisseStatus()!.derniereFermeture) {
-                  <span
-                    class="caisse-depuis">Fermée le {{ caisseStatus()!.derniereFermeture | date: 'dd/MM à HH:mm' }}</span>
+                  <span class="caisse-depuis">Fermée le {{ caisseStatus()!.derniereFermeture | date: 'dd/MM à HH:mm' }}</span>
                 }
               </div>
             </div>
@@ -101,23 +80,17 @@
               <div class="caisse-banner-stats">
                 <div class="caisse-stat">
                   <span class="caisse-stat-label">Fond d'ouverture</span>
-                  <span class="caisse-stat-value">{{
-                      formatCurrency(caisseStatus()!.fondOuverture)
-                    }}</span>
+                  <span class="caisse-stat-value">{{ formatCurrency(caisseStatus()!.fondOuverture) }}</span>
                 </div>
                 <div class="caisse-stat-separator"></div>
                 <div class="caisse-stat">
                   <span class="caisse-stat-label">Encaissements espèces</span>
-                  <span class="caisse-stat-value text-success">{{
-                      formatCurrency(caisseStatus()!.encaissementsEspeces)
-                    }}</span>
+                  <span class="caisse-stat-value text-success">{{ formatCurrency(caisseStatus()!.encaissementsEspeces) }}</span>
                 </div>
                 <div class="caisse-stat-separator"></div>
                 <div class="caisse-stat">
                   <span class="caisse-stat-label">Espèces théoriques</span>
-                  <span class="caisse-stat-value fw-bold">{{
-                      formatCurrency(caisseStatus()!.especesTheoriques)
-                    }}</span>
+                  <span class="caisse-stat-value fw-bold">{{ formatCurrency(caisseStatus()!.especesTheoriques) }}</span>
                 </div>
               </div>
             }
@@ -130,7 +103,6 @@
          ROW 1 : ENCAISSEMENTS SESSION + DIFFÉRÉS À RELANCER
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="row mb-3">
-
       <!-- Encaissements de MA Session -->
       <div class="col-lg-6 mb-2 mb-lg-0">
         <div class="card data-card h-100">
@@ -141,14 +113,14 @@
             </h5>
           </div>
           <div class="card-body p-0">
-            @if (sessionEncaissements() && (sessionEncaissements()!.lignes.length > 0
-              || sessionEncaissements()!.carnet > 0 || sessionEncaissements()!.differe > 0)) {
+            @if (
+              sessionEncaissements() &&
+              (sessionEncaissements()!.lignes.length > 0 || sessionEncaissements()!.carnet > 0 || sessionEncaissements()!.differe > 0)
+            ) {
               <div class="encaissements-table">
-
                 <!-- Lignes dynamiques par mode de paiement (CASH, MOBILE, CB, …) -->
                 @for (ligne of sessionEncaissements()!.lignes; track ligne.code) {
-                  <div [class.encaissement-divider]="!isModeEncaisse(ligne)"
-                       class="encaissement-row">
+                  <div [class.encaissement-divider]="!isModeEncaisse(ligne)" class="encaissement-row">
                     <div class="encaissement-mode">
                       <i [class]="getModeIcon(ligne) + ' ' + getModeColorClass(ligne)"></i>
                       <span>{{ ligne.libelle }}</span>
@@ -166,9 +138,7 @@
                       <i class="pi pi-book text-warning"></i>
                       <span>Carnet</span>
                     </div>
-                    <span class="text-warning">{{
-                        formatCurrency(sessionEncaissements()!.carnet)
-                      }}</span>
+                    <span class="text-warning">{{ formatCurrency(sessionEncaissements()!.carnet) }}</span>
                   </div>
                 }
 
@@ -179,9 +149,7 @@
                       <i class="pi pi-clock text-secondary"></i>
                       <span>Différé</span>
                     </div>
-                    <span class="text-secondary">{{
-                        formatCurrency(sessionEncaissements()!.differe)
-                      }}</span>
+                    <span class="text-secondary">{{ formatCurrency(sessionEncaissements()!.differe) }}</span>
                   </div>
                 }
 
@@ -191,9 +159,7 @@
                     <i class="pi pi-check-circle text-success"></i>
                     <strong>Total encaissé</strong>
                   </div>
-                  <strong class="text-success fs-6">{{
-                      formatCurrency(sessionEncaissements()!.totalEncaisse)
-                    }}</strong>
+                  <strong class="text-success fs-6">{{ formatCurrency(sessionEncaissements()!.totalEncaisse) }}</strong>
                 </div>
 
                 <!-- À recouvrer -->
@@ -203,20 +169,17 @@
                       <i class="pi pi-exclamation-circle text-warning"></i>
                       <span>À recouvrer</span>
                     </div>
-                    <span class="text-warning fw-bold">{{
-                        formatCurrency(sessionEncaissements()!.totalARecouvrer)
-                      }}</span>
+                    <span class="text-warning fw-bold">{{ formatCurrency(sessionEncaissements()!.totalARecouvrer) }}</span>
                   </div>
                 }
 
                 <div class="encaissement-footer">
-                  <span class="text-muted small">{{ sessionEncaissements()!.nombreTransactions }}
-                    transaction(s)</span>
+                  <span class="text-muted small">{{ sessionEncaissements()!.nombreTransactions }} transaction(s)</span>
                 </div>
               </div>
             } @else {
               <div class="text-center text-muted py-4">
-                <i class="pi pi-wallet" style="font-size:2rem"></i>
+                <i class="pi pi-wallet" style="font-size: 2rem"></i>
                 <p class="mt-2">Aucune donnée de session</p>
               </div>
             }
@@ -240,10 +203,8 @@
             @if (resumeDifferes() && resumeDifferes()!.differes.length > 0) {
               <div class="differes-summary">
                 <span class="text-muted small">
-                  {{ resumeDifferes()!.nombreEcheancesAujourdhui }} échéance(s) aujourd'hui
-                  · Total dû : <strong>{{
-                    formatCurrency(resumeDifferes()!.montantTotalDu)
-                  }}</strong>
+                  {{ resumeDifferes()!.nombreEcheancesAujourdhui }} échéance(s) aujourd'hui · Total dû :
+                  <strong>{{ formatCurrency(resumeDifferes()!.montantTotalDu) }}</strong>
                 </span>
               </div>
               <div class="differes-list">
@@ -252,9 +213,7 @@
                     <div class="differe-info">
                       <span class="differe-client fw-semibold">{{ d.clientNom }}</span>
                       @if (d.clientTelephone) {
-                        <span class="differe-tel text-muted small">
-                          <i class="pi pi-phone"></i> {{ d.clientTelephone }}
-                        </span>
+                        <span class="differe-tel text-muted small"> <i class="pi pi-phone"></i> {{ d.clientTelephone }} </span>
                       }
                     </div>
                     <div class="differe-meta">
@@ -266,7 +225,7 @@
               </div>
             } @else {
               <div class="text-center text-muted py-4">
-                <i class="pi pi-check-circle text-success" style="font-size:2rem"></i>
+                <i class="pi pi-check-circle text-success" style="font-size: 2rem"></i>
                 <p class="mt-2">Aucun différé à relancer aujourd'hui</p>
               </div>
             }
@@ -279,7 +238,6 @@
          ROW 2 : LIVRAISONS DU JOUR + DERNIÈRES TRANSACTIONS
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="row">
-
       <!-- Livraisons attendues du jour -->
       <div class="col-lg-4 mb-2">
         <div class="card data-card h-100">
@@ -303,20 +261,16 @@
                     </div>
                     <div class="livraison-details">
                       @if (liv.heureAttendue) {
-                        <span class="badge bg-info-subtle text-info me-1">
-                          <i class="pi pi-clock"></i> {{ liv.heureAttendue }}
-                        </span>
+                        <span class="badge bg-info-subtle text-info me-1"> <i class="pi pi-clock"></i> {{ liv.heureAttendue }} </span>
                       }
-                      <span class="badge bg-primary-subtle text-primary">
-                        {{ liv.nombreReferences }} réf.
-                      </span>
+                      <span class="badge bg-primary-subtle text-primary"> {{ liv.nombreReferences }} réf. </span>
                     </div>
                   </div>
                 }
               </div>
             } @else {
               <div class="text-center text-muted py-4">
-                <i class="pi pi-truck" style="font-size:2rem"></i>
+                <i class="pi pi-truck" style="font-size: 2rem"></i>
                 <p class="mt-2">Aucune livraison prévue aujourd'hui</p>
               </div>
             }
@@ -338,12 +292,7 @@
           </div>
           <div class="card-body p-0">
             @if (ventesRecentes().length > 0) {
-              <app-data-table
-                [scrollable]="true"
-                [stripedRows]="true"
-                [value]="ventesRecentes()"
-                scrollHeight="320px"
-              >
+              <app-data-table [scrollable]="true" [stripedRows]="true" [value]="ventesRecentes()" scrollHeight="320px">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>N° Ticket</th>
@@ -364,10 +313,7 @@
                         [label]="getTypeVenteLabel(vente.typeVente)"
                       ></app-badge>
                     </td>
-                    <td class="text-end fw-bold text-success">{{
-                        formatCurrency(vente.montant)
-                      }}
-                    </td>
+                    <td class="text-end fw-bold text-success">{{ formatCurrency(vente.montant) }}</td>
                     <td class="text-muted">{{ vente.dateVente | date: 'HH:mm' }}</td>
                     <td class="text-center">
                       <app-button
@@ -385,14 +331,13 @@
               </app-data-table>
             } @else {
               <div class="text-center text-muted py-4">
-                <i class="pi pi-inbox" style="font-size:2rem"></i>
+                <i class="pi pi-inbox" style="font-size: 2rem"></i>
                 <p class="mt-2">Aucune transaction dans cette session</p>
               </div>
             }
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>

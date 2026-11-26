@@ -5,7 +5,6 @@ import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import com.kobe.warehouse.service.facturation.service.EditionAllService;
 import com.kobe.warehouse.service.facturation.service.EditionByGroupTiersService;
 import com.kobe.warehouse.service.facturation.service.EditionBySelectionBonsService;
-import com.kobe.warehouse.service.facturation.service.EditionBySelectionService;
 import com.kobe.warehouse.service.facturation.service.EditionByTiersPayantService;
 import com.kobe.warehouse.service.facturation.service.EditionByTypeTiersPayantService;
 import com.kobe.warehouse.service.facturation.service.EditionService;
@@ -19,12 +18,11 @@ public class FacturationServiceRegistry {
     private final Map<ModeEditionEnum, EditionService> serviceMap = new HashMap<>();
 
     public FacturationServiceRegistry(
-        EditionAllService editionAllService,
-        EditionBySelectionBonsService editionBySelectionBonsService,
-        EditionByTiersPayantService editionByTiersPayantService,
-        EditionByTypeTiersPayantService editionByTypeTiersPayantService,
-        EditionByGroupTiersService editionByGroupTiersService
-    ) {
+            EditionAllService editionAllService,
+            EditionBySelectionBonsService editionBySelectionBonsService,
+            EditionByTiersPayantService editionByTiersPayantService,
+            EditionByTypeTiersPayantService editionByTypeTiersPayantService,
+            EditionByGroupTiersService editionByGroupTiersService) {
         registerService(ModeEditionEnum.ALL, editionAllService);
         registerService(ModeEditionEnum.SELECTION_BON, editionBySelectionBonsService);
         registerService(ModeEditionEnum.TIERS_PAYANT, editionByTiersPayantService);

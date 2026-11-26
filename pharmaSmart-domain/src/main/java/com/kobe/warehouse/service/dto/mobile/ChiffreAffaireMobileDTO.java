@@ -16,18 +16,17 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param margePercent      Margin percentage
  */
 public record ChiffreAffaireMobileDTO(
-    long montantTtc,
-    long montantTva,
-    long montantHt,
-    long montantRemise,
-    long montantNet,
-    long montantEspece,
-    long montantAutreMode,
-    long montantCredit,
-    long montantRegle,
-    long marge,
-    double margePercent
-) {
+        long montantTtc,
+        long montantTva,
+        long montantHt,
+        long montantRemise,
+        long montantNet,
+        long montantEspece,
+        long montantAutreMode,
+        long montantCredit,
+        long montantRegle,
+        long marge,
+        double margePercent) {
     public static ChiffreAffaireMobileDTO empty() {
         return new ChiffreAffaireMobileDTO(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0);
     }

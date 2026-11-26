@@ -35,9 +35,9 @@ export class ComptabiliteLayoutComponent {
 
   private readonly ability = inject(AbilityService);
 
-  protected readonly showBalance           = this.ability.canSignal('display', 'comptabilite.balance');
-  protected readonly showTaxeReport        = this.ability.canSignal('display', 'comptabilite.taxe-report');
+  protected readonly showBalance = this.ability.canSignal('display', 'comptabilite.balance');
+  protected readonly showTaxeReport = this.ability.canSignal('display', 'comptabilite.taxe-report');
   protected readonly showTableauPharmacien = this.ability.canSignal('display', 'comptabilite.tableau-pharmacien');
-  protected readonly showRecapCaisse       = this.ability.canSignal('display', 'comptabilite.recapitulatif-caisse');
-  protected readonly showRaportActivite    = this.ability.canSignal('display', 'comptabilite.raport-activite');
+  protected readonly showRecapCaisse = this.ability.canSignal('display', 'comptabilite.recapitulatif-caisse');
+  protected readonly showRaportActivite = this.ability.canSignal('display', 'comptabilite.raport-activite');
 }

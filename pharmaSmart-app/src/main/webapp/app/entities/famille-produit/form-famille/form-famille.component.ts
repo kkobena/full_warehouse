@@ -1,24 +1,15 @@
-import {HttpResponse} from '@angular/common/http';
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from '@angular/core';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {FamilleProduitService} from '../famille-produit.service';
-import {FamilleProduit, IFamilleProduit} from '../../../shared/model/famille-produit.model';
-import {CategorieService} from '../../categorie/categorie.service';
-import {ICategorie} from '../../../shared/model/categorie.model';
-import {CommonModule} from '@angular/common';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, SelectComponent} from '../../../shared/ui';
-import {NotificationService} from "../../../shared/services/notification.service";
+import { HttpResponse } from '@angular/common/http';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { FamilleProduitService } from '../famille-produit.service';
+import { FamilleProduit, IFamilleProduit } from '../../../shared/model/famille-produit.model';
+import { CategorieService } from '../../categorie/categorie.service';
+import { ICategorie } from '../../../shared/model/categorie.model';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, SelectComponent } from '../../../shared/ui';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'jhi-form-famille',
@@ -68,7 +59,7 @@ export class FormFamilleComponent implements OnInit {
   }
 
   protected populateAssurrance(): void {
-    this.categorieProduitService.query({search: ''}).subscribe({
+    this.categorieProduitService.query({ search: '' }).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
         this.categorieproduits.set(res.body);
       },
@@ -91,7 +82,7 @@ export class FormFamilleComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving.set(false);
-    this.notificationService.error("Erreur interne du serveur.");
+    this.notificationService.error('Erreur interne du serveur.');
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {

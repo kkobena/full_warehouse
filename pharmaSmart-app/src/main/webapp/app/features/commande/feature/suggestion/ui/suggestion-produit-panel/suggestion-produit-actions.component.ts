@@ -1,8 +1,8 @@
-import {signal, Component, ChangeDetectionStrategy} from '@angular/core';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from 'app/shared/ui';
-import {SuggestionLigneEnrichie} from '../../data-access/suggestion-enrichie.model';
+import { signal, Component, ChangeDetectionStrategy } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from 'app/shared/ui';
+import { SuggestionLigneEnrichie } from '../../data-access/suggestion-enrichie.model';
 
 @Component({
   selector: 'app-suggestion-produit-actions',

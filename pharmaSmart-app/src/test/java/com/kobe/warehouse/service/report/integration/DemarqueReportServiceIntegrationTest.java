@@ -86,7 +86,10 @@ class DemarqueReportServiceIntegrationTest extends AbstractReportIntegrationTest
             demarque(LocalDate.now().atTime(0, 1), produitCoutant("DERNIER JOUR", 6_000), 1, casse);
             viderLeCache();
 
-            assertThat(services.demarqueReportService.getKpi(ilYA(7), LocalDate.now()).nbAjustements()).isEqualTo(2);
+            assertThat(services.demarqueReportService
+                            .getKpi(ilYA(7), LocalDate.now())
+                            .nbAjustements())
+                    .isEqualTo(2);
         }
 
         @Test
@@ -111,16 +114,18 @@ class DemarqueReportServiceIntegrationTest extends AbstractReportIntegrationTest
         @DisplayName("un bon en brouillon n'est pas une perte")
         void bonEnBrouillonExclu() {
             ajustement(
-                hier(),
-                produitCoutant("DOLIPRANE", 6_000),
-                10,
-                motif("CASSE " + unique("")),
-                AjustType.AJUSTEMENT_OUT,
-                AjustementStatut.PENDING
-            );
+                    hier(),
+                    produitCoutant("DOLIPRANE", 6_000),
+                    10,
+                    motif("CASSE " + unique("")),
+                    AjustType.AJUSTEMENT_OUT,
+                    AjustementStatut.PENDING);
             viderLeCache();
 
-            assertThat(services.demarqueReportService.getKpi(ilYA(7), LocalDate.now()).nbAjustements()).isZero();
+            assertThat(services.demarqueReportService
+                            .getKpi(ilYA(7), LocalDate.now())
+                            .nbAjustements())
+                    .isZero();
         }
 
         /** Un ajustement entrant corrige le stock à la hausse : c'est l'inverse d'une démarque. */
@@ -128,17 +133,20 @@ class DemarqueReportServiceIntegrationTest extends AbstractReportIntegrationTest
         @DisplayName("un ajustement entrant n'est pas une perte")
         void ajustementEntrantExclu() {
             ajustement(
-                hier(),
-                produitCoutant("DOLIPRANE", 6_000),
-                10,
-                motif("REGULARISATION " + unique("")),
-                AjustType.AJUSTEMENT_IN,
-                AjustementStatut.CLOSED
-            );
+                    hier(),
+                    produitCoutant("DOLIPRANE", 6_000),
+                    10,
+                    motif("REGULARISATION " + unique("")),
+                    AjustType.AJUSTEMENT_IN,
+                    AjustementStatut.CLOSED);
             viderLeCache();
 
-            assertThat(services.demarqueReportService.getKpi(ilYA(7), LocalDate.now()).nbAjustements()).isZero();
-            assertThat(services.demarqueReportService.getByMotif(ilYA(7), LocalDate.now())).isEmpty();
+            assertThat(services.demarqueReportService
+                            .getKpi(ilYA(7), LocalDate.now())
+                            .nbAjustements())
+                    .isZero();
+            assertThat(services.demarqueReportService.getByMotif(ilYA(7), LocalDate.now()))
+                    .isEmpty();
         }
     }
 
@@ -161,7 +169,9 @@ class DemarqueReportServiceIntegrationTest extends AbstractReportIntegrationTest
 
             List<DemarqueByMotifDTO> ventilation = services.demarqueReportService.getByMotif(ilYA(7), LocalDate.now());
 
-            assertThat(ventilation).extracting(DemarqueByMotifDTO::motif).containsExactly(perime.getLibelle(), casse.getLibelle());
+            assertThat(ventilation)
+                    .extracting(DemarqueByMotifDTO::motif)
+                    .containsExactly(perime.getLibelle(), casse.getLibelle());
             assertThat(ventilation.getFirst().valeur()).isEqualTo(200_000L);
             assertThat(ventilation.get(1).valeur()).isEqualTo(2_000L);
         }
@@ -207,14 +217,21 @@ class DemarqueReportServiceIntegrationTest extends AbstractReportIntegrationTest
             DemarqueKpiDTO kpi = services.demarqueReportService.getKpi(ilYA(7), LocalDate.now());
             List<DemarqueByMotifDTO> ventilation = services.demarqueReportService.getByMotif(ilYA(7), LocalDate.now());
 
-            assertThat(ventilation.stream().mapToLong(DemarqueByMotifDTO::valeur).sum()).isEqualTo(kpi.valeurPerdue());
-            assertThat(ventilation.stream().mapToLong(DemarqueByMotifDTO::totalQty).sum()).isEqualTo(kpi.totalQtyPerdue());
+            assertThat(ventilation.stream()
+                            .mapToLong(DemarqueByMotifDTO::valeur)
+                            .sum())
+                    .isEqualTo(kpi.valeurPerdue());
+            assertThat(ventilation.stream()
+                            .mapToLong(DemarqueByMotifDTO::totalQty)
+                            .sum())
+                    .isEqualTo(kpi.totalQtyPerdue());
         }
 
         @Test
         @DisplayName("base vierge : aucune ventilation")
         void baseVierge() {
-            assertThat(services.demarqueReportService.getByMotif(ilYA(30), LocalDate.now())).isEmpty();
+            assertThat(services.demarqueReportService.getByMotif(ilYA(30), LocalDate.now()))
+                    .isEmpty();
         }
     }
 

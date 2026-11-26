@@ -30,59 +30,57 @@ import org.springframework.util.StringUtils;
 public class CustomerFicheService {
 
     /** Ventes qui comptent : clôturées et non annulées. */
-    private static final String VENTES_DU_CLIENT = "s.customer.id = :customerId AND s.statut = :statut AND s.canceled = false";
+    private static final String VENTES_DU_CLIENT =
+            "s.customer.id = :customerId AND s.statut = :statut AND s.canceled = false";
 
     private final EntityManager em;
     private final SalesRepository salesRepository;
     private final ReglementDiffereService reglementDiffereService;
 
-    public CustomerFicheService(EntityManager em, SalesRepository salesRepository, ReglementDiffereService reglementDiffereService) {
+    public CustomerFicheService(
+            EntityManager em, SalesRepository salesRepository, ReglementDiffereService reglementDiffereService) {
         this.em = em;
         this.salesRepository = salesRepository;
         this.reglementDiffereService = reglementDiffereService;
     }
 
     public CustomerSyntheseDTO synthese(Integer customerId) {
-        Object[] douzeMois = em
-            .createQuery(
-                "SELECT COUNT(s), COALESCE(SUM(s.salesAmount), 0L) FROM Sales s WHERE " + VENTES_DU_CLIENT + " AND s.saleDate >= :debut",
-                Object[].class
-            )
-            .setParameter("customerId", customerId)
-            .setParameter("statut", SalesStatut.CLOSED)
-            .setParameter("debut", LocalDate.now().minusMonths(12))
-            .getSingleResult();
-        LocalDateTime derniereVisite = em
-            .createQuery("SELECT MAX(s.updatedAt) FROM Sales s WHERE " + VENTES_DU_CLIENT, LocalDateTime.class)
-            .setParameter("customerId", customerId)
-            .setParameter("statut", SalesStatut.CLOSED)
-            .getSingleResult();
+        Object[] douzeMois = em.createQuery(
+                        "SELECT COUNT(s), COALESCE(SUM(s.salesAmount), 0L) FROM Sales s WHERE " + VENTES_DU_CLIENT
+                                + " AND s.saleDate >= :debut",
+                        Object[].class)
+                .setParameter("customerId", customerId)
+                .setParameter("statut", SalesStatut.CLOSED)
+                .setParameter("debut", LocalDate.now().minusMonths(12))
+                .getSingleResult();
+        LocalDateTime derniereVisite = em.createQuery(
+                        "SELECT MAX(s.updatedAt) FROM Sales s WHERE " + VENTES_DU_CLIENT, LocalDateTime.class)
+                .setParameter("customerId", customerId)
+                .setParameter("statut", SalesStatut.CLOSED)
+                .getSingleResult();
         BigDecimal encours = salesRepository.getDiffereSoldeByCustomerId(customerId);
         return new CustomerSyntheseDTO(
-            customerId,
-            encours == null ? 0 : encours.longValue(),
-            derniereVisite,
-            ((Number) douzeMois[0]).longValue(),
-            ((Number) douzeMois[1]).longValue()
-        );
+                customerId,
+                encours == null ? 0 : encours.longValue(),
+                derniereVisite,
+                ((Number) douzeMois[0]).longValue(),
+                ((Number) douzeMois[1]).longValue());
     }
 
     /** Produits délivrés sur la période, du plus récemment délivré au plus ancien. */
-    public Page<ProduitDelivreDTO> produitsDelivres(Integer customerId, LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        String filtre =
-            " FROM SalesLine l JOIN l.sales s JOIN l.produit p WHERE " +
-            VENTES_DU_CLIENT +
-            " AND s.saleDate BETWEEN :debut AND :fin" +
-            (StringUtils.hasText(search) ? " AND UPPER(p.libelle) LIKE :search" : "");
+    public Page<ProduitDelivreDTO> produitsDelivres(
+            Integer customerId, LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+        String filtre = " FROM SalesLine l JOIN l.sales s JOIN l.produit p WHERE " + VENTES_DU_CLIENT
+                + " AND s.saleDate BETWEEN :debut AND :fin"
+                + (StringUtils.hasText(search) ? " AND UPPER(p.libelle) LIKE :search" : "");
 
         TypedQuery<Long> count = em.createQuery("SELECT COUNT(DISTINCT p.id)" + filtre, Long.class);
         TypedQuery<ProduitDelivreDTO> query = em.createQuery(
-            "SELECT new com.kobe.warehouse.service.customer.ProduitDelivreDTO(p.id, p.libelle, COUNT(l), " +
-            "COALESCE(SUM(l.quantitySold), 0L), COALESCE(SUM(l.salesAmount), 0L), MAX(s.updatedAt))" +
-            filtre +
-            " GROUP BY p.id, p.libelle ORDER BY MAX(s.updatedAt) DESC",
-            ProduitDelivreDTO.class
-        );
+                "SELECT new com.kobe.warehouse.service.customer.ProduitDelivreDTO(p.id, p.libelle, COUNT(l), "
+                        + "COALESCE(SUM(l.quantitySold), 0L), COALESCE(SUM(l.salesAmount), 0L), MAX(s.updatedAt))"
+                        + filtre
+                        + " GROUP BY p.id, p.libelle ORDER BY MAX(s.updatedAt) DESC",
+                ProduitDelivreDTO.class);
         for (TypedQuery<?> q : List.of(count, query)) {
             q.setParameter("customerId", customerId);
             q.setParameter("statut", SalesStatut.CLOSED);
@@ -112,7 +110,8 @@ public class CustomerFicheService {
         return reglementDiffereService.getOne(customerId);
     }
 
-    public Page<ReglementDiffereWrapperDTO> reglementsDifferes(Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+    public Page<ReglementDiffereWrapperDTO> reglementsDifferes(
+            Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
         return reglementDiffereService.getReglementsDifferes(customerId, fromDate, toDate, pageable);
     }
 }

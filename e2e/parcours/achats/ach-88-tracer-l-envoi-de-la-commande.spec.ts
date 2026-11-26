@@ -27,10 +27,18 @@ scenario('ACH-88', async ({ etape, page }) => {
 
   // Mise en scène : la commande doit partir d'un état connu. Si elle est déjà datée, on la
   // ramène au brouillon avant de commencer.
-  if (await premiereLigne.getByText('ENVOYÉE').isVisible().catch(() => false)) {
+  if (
+    await premiereLigne
+      .getByText('ENVOYÉE')
+      .isVisible()
+      .catch(() => false)
+  ) {
     await menu().click();
     await page.getByRole('button', { name: /Annuler l'envoi/ }).click();
-    await page.locator('.modal-content').getByRole('button', { name: /Oui|Confirmer/ }).click();
+    await page
+      .locator('.modal-content')
+      .getByRole('button', { name: /Oui|Confirmer/ })
+      .click();
   }
 
   await etape(1, async () => {
@@ -82,7 +90,10 @@ scenario('ACH-88', async ({ etape, page }) => {
     // ce qui empêche le verrou d'enfermer qui que ce soit.
     await menu().click();
     await page.getByRole('button', { name: /Annuler l'envoi/ }).click();
-    await page.locator('.modal-content').getByRole('button', { name: /Oui|Confirmer/ }).click();
+    await page
+      .locator('.modal-content')
+      .getByRole('button', { name: /Oui|Confirmer/ })
+      .click();
 
     await expect(premiereLigne.getByText('BROUILLON')).toBeVisible();
   });

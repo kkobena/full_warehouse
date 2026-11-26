@@ -40,12 +40,11 @@ public class DonneesPersonnellesClientService {
     private final LogsService logsService;
 
     public DonneesPersonnellesClientService(
-        EntityManager em,
-        DossierSanteService dossierSanteService,
-        CustomerDocumentService documentService,
-        SalesRepository salesRepository,
-        LogsService logsService
-    ) {
+            EntityManager em,
+            DossierSanteService dossierSanteService,
+            CustomerDocumentService documentService,
+            SalesRepository salesRepository,
+            LogsService logsService) {
         this.em = em;
         this.dossierSanteService = dossierSanteService;
         this.documentService = documentService;
@@ -58,55 +57,51 @@ public class DonneesPersonnellesClientService {
         Customer customer = customer(customerId);
         LocalDate aujourdhui = LocalDate.now();
         List<DonneesClientDTO.Identite> ayantsDroit = em
-            .createQuery("SELECT c FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id ORDER BY c.lastName, c.firstName", AssuredCustomer.class)
-            .setParameter("id", customerId)
-            .getResultList()
-            .stream()
-            .map(DonneesPersonnellesClientService::identite)
-            .toList();
+                .createQuery(
+                        "SELECT c FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id ORDER BY c.lastName, c.firstName",
+                        AssuredCustomer.class)
+                .setParameter("id", customerId)
+                .getResultList()
+                .stream()
+                .map(DonneesPersonnellesClientService::identite)
+                .toList();
         List<DonneesClientDTO.TiersPayant> tiersPayants = em
-            .createQuery(
-                "SELECT c FROM ClientTiersPayant c JOIN FETCH c.tiersPayant WHERE c.assuredCustomer.id = :id ORDER BY c.priorite",
-                ClientTiersPayant.class
-            )
-            .setParameter("id", customerId)
-            .getResultList()
-            .stream()
-            .map(c ->
-                new DonneesClientDTO.TiersPayant(
-                    c.getTiersPayant().getFullName(),
-                    c.getNum(),
-                    c.getTaux(),
-                    c.getPriorite().name(),
-                    c.getDateFinValidite()
-                )
-            )
-            .toList();
+                .createQuery(
+                        "SELECT c FROM ClientTiersPayant c JOIN FETCH c.tiersPayant WHERE c.assuredCustomer.id = :id ORDER BY c.priorite",
+                        ClientTiersPayant.class)
+                .setParameter("id", customerId)
+                .getResultList()
+                .stream()
+                .map(c -> new DonneesClientDTO.TiersPayant(
+                        c.getTiersPayant().getFullName(),
+                        c.getNum(),
+                        c.getTaux(),
+                        c.getPriorite().name(),
+                        c.getDateFinValidite()))
+                .toList();
         List<RelanceDiffereDTO> relances = em
-            .createQuery("SELECT r FROM RelanceDiffere r JOIN FETCH r.user WHERE r.customerId = :id ORDER BY r.createdAt", RelanceDiffere.class)
-            .setParameter("id", customerId)
-            .getResultList()
-            .stream()
-            .map(r ->
-                new RelanceDiffereDTO(
-                    r.getCreatedAt(),
-                    r.getTelephone(),
-                    r.getMontant(),
-                    r.getMessage(),
-                    r.getUser().getFirstName() + " " + r.getUser().getLastName()
-                )
-            )
-            .toList();
+                .createQuery(
+                        "SELECT r FROM RelanceDiffere r JOIN FETCH r.user WHERE r.customerId = :id ORDER BY r.createdAt",
+                        RelanceDiffere.class)
+                .setParameter("id", customerId)
+                .getResultList()
+                .stream()
+                .map(r -> new RelanceDiffereDTO(
+                        r.getCreatedAt(),
+                        r.getTelephone(),
+                        r.getMontant(),
+                        r.getMessage(),
+                        r.getUser().getFirstName() + " " + r.getUser().getLastName()))
+                .toList();
         return new DonneesClientDTO(
-            LocalDateTime.now(),
-            identite(customer),
-            ayantsDroit,
-            tiersPayants,
-            dossierSanteService.dossier(customerId),
-            documentService.attestation(customerId, ORIGINE, aujourdhui).depenses(),
-            documentService.releve(customerId, ORIGINE, aujourdhui).lignes(),
-            relances
-        );
+                LocalDateTime.now(),
+                identite(customer),
+                ayantsDroit,
+                tiersPayants,
+                dossierSanteService.dossier(customerId),
+                documentService.attestation(customerId, ORIGINE, aujourdhui).depenses(),
+                documentService.releve(customerId, ORIGINE, aujourdhui).lignes(),
+                relances);
     }
 
     public void anonymiser(Integer customerId) {
@@ -117,9 +112,9 @@ public class DonneesPersonnellesClientService {
         BigDecimal encours = salesRepository.getDiffereSoldeByCustomerId(customerId);
         if (encours != null && encours.signum() > 0) {
             throw new GenericError(
-                "Le client doit encore " + encours.toBigInteger() + " : ses données ne peuvent être effacées qu'une fois ses différés réglés.",
-                "anonymisationAvecEncours"
-            );
+                    "Le client doit encore " + encours.toBigInteger()
+                            + " : ses données ne peuvent être effacées qu'une fois ses différés réglés.",
+                    "anonymisationAvecEncours");
         }
         customer.setFirstName(PRENOM_ANONYME);
         customer.setLastName(customer.getCode());
@@ -131,20 +126,25 @@ public class DonneesPersonnellesClientService {
             assure.setDatNaiss(null);
             assure.setSexe(null);
             assure.setNumAyantDroit(null);
-            em
-                .createQuery("UPDATE ClientTiersPayant c SET c.num = :num WHERE c.assuredCustomer = :client")
-                .setParameter("num", NUMERO_ANONYME)
-                .setParameter("client", assure)
-                .executeUpdate();
+            em.createQuery("UPDATE ClientTiersPayant c SET c.num = :num WHERE c.assuredCustomer = :client")
+                    .setParameter("num", NUMERO_ANONYME)
+                    .setParameter("client", assure)
+                    .executeUpdate();
         }
-        em.createQuery("DELETE FROM CustomerAllergie a WHERE a.customerId = :id").setParameter("id", customerId).executeUpdate();
-        em.createQuery("DELETE FROM CustomerDossierSante d WHERE d.customerId = :id").setParameter("id", customerId).executeUpdate();
+        em.createQuery("DELETE FROM CustomerAllergie a WHERE a.customerId = :id")
+                .setParameter("id", customerId)
+                .executeUpdate();
+        em.createQuery("DELETE FROM CustomerDossierSante d WHERE d.customerId = :id")
+                .setParameter("id", customerId)
+                .executeUpdate();
         // Le message de relance reprend le prénom : il part avec le numéro.
-        em
-            .createQuery("UPDATE RelanceDiffere r SET r.telephone = '', r.message = '' WHERE r.customerId = :id")
-            .setParameter("id", customerId)
-            .executeUpdate();
-        logsService.create(TransactionType.ANONYMISATION_CLIENT, "Anonymisation du client " + customer.getCode(), customerId.toString());
+        em.createQuery("UPDATE RelanceDiffere r SET r.telephone = '', r.message = '' WHERE r.customerId = :id")
+                .setParameter("id", customerId)
+                .executeUpdate();
+        logsService.create(
+                TransactionType.ANONYMISATION_CLIENT,
+                "Anonymisation du client " + customer.getCode(),
+                customerId.toString());
     }
 
     private Customer customer(Integer customerId) {
@@ -158,17 +158,16 @@ public class DonneesPersonnellesClientService {
     private static DonneesClientDTO.Identite identite(Customer c) {
         AssuredCustomer a = c instanceof AssuredCustomer assure ? assure : null;
         return new DonneesClientDTO.Identite(
-            c.getId(),
-            c.getCode(),
-            c.getFirstName(),
-            c.getLastName(),
-            c.getPhone(),
-            c.getEmail(),
-            c.getDatNaiss(),
-            c.getSexe(),
-            a == null ? null : a.getNumAyantDroit(),
-            c.getStatus().name(),
-            c.getCreatedAt()
-        );
+                c.getId(),
+                c.getCode(),
+                c.getFirstName(),
+                c.getLastName(),
+                c.getPhone(),
+                c.getEmail(),
+                c.getDatNaiss(),
+                c.getSexe(),
+                a == null ? null : a.getNumAyantDroit(),
+                c.getStatus().name(),
+                c.getCreatedAt());
     }
 }

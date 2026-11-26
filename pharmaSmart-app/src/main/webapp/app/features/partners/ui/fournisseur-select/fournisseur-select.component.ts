@@ -1,24 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal
-} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {map} from 'rxjs/operators';
-import {IFournisseur} from '../../../../shared/model/fournisseur.model';
-import {FournisseurApiService} from '../../data-access/services/fournisseur-api.service';
-import {
-  FloatLabelComponent,
-  MultiSelectComponent,
-  SelectSearchComponent
-} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { map } from 'rxjs/operators';
+import { IFournisseur } from '../../../../shared/model/fournisseur.model';
+import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
+import { FloatLabelComponent, MultiSelectComponent, SelectSearchComponent } from '../../../../shared/ui';
 
 interface IFournisseurOption extends IFournisseur {
   groupLabel: string;
@@ -53,7 +39,6 @@ export class FournisseurSelectComponent implements OnInit {
   selectionChange = output<IFournisseur | null>();
   /** Émis en mode sélection multiple. */
   multiSelectionChange = output<IFournisseur[]>();
-
 
   readonly fournisseurs = signal<IFournisseur[]>([]);
   readonly groupedFournisseurs = signal<IFournisseurOption[]>([]);
@@ -101,28 +86,31 @@ export class FournisseurSelectComponent implements OnInit {
   }
 
   /** Enrichit la clé de groupe (`groupLabel`) avec `hasChildren`, pour choisir l'icône du groupe. */
-  protected groupValueFn = (key: unknown, children: unknown[]): {
+  protected groupValueFn = (
+    key: unknown,
+    children: unknown[],
+  ): {
     label: string;
-    hasChildren: boolean
+    hasChildren: boolean;
   } => ({
     label: String(key ?? ''),
     hasChildren: children.some(c => (c as IFournisseurOption).parentId != null),
   });
 
   private load(): void {
-    const req$ = this.parentsOnly()
-      ? this.api.queryParents({page: 0, size: 999})
-      : this.api.query({page: 0, size: 999});
+    const req$ = this.parentsOnly() ? this.api.queryParents({ page: 0, size: 999 }) : this.api.query({ page: 0, size: 999 });
 
-    req$.pipe(
-      takeUntilDestroyed(this.destroyRef),
-      map(res => res.body ?? []),
-    ).subscribe(list => {
-      this.fournisseurs.set(list);
-      if (this.grouped()) {
-        this.groupedFournisseurs.set(this.buildGroupedList(list));
-      }
-    });
+    req$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map(res => res.body ?? []),
+      )
+      .subscribe(list => {
+        this.fournisseurs.set(list);
+        if (this.grouped()) {
+          this.groupedFournisseurs.set(this.buildGroupedList(list));
+        }
+      });
   }
 
   private buildGroupedList(list: IFournisseur[]): IFournisseurOption[] {
@@ -143,7 +131,7 @@ export class FournisseurSelectComponent implements OnInit {
       const groupLabel = p.libelle ?? '';
       // Avec agences : le principal est l'en-tête, les agences sont les items (pas de doublon).
       // Sans agences  : le principal est son propre item.
-      return (children.length > 0 ? children : [p]).map(f => ({...f, groupLabel}));
+      return (children.length > 0 ? children : [p]).map(f => ({ ...f, groupLabel }));
     });
   }
 }

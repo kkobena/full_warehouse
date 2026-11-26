@@ -17,15 +17,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public final class LicenseJson {
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
-        .registerModule(new JavaTimeModule())
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        // Une feature inconnue (émise par un CLI plus récent) est ignorée plutôt que fatale.
-        .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-        .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            // Une feature inconnue (émise par un CLI plus récent) est ignorée plutôt que fatale.
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
-    private LicenseJson() {
-    }
+    private LicenseJson() {}
 
     public static ObjectMapper mapper() {
         return MAPPER;

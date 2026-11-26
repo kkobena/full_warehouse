@@ -10,7 +10,8 @@ public interface RapportCourbesService {
      * @param contreObjectif la référence est l'objectif (comparaison « Objectifs ») : pas de seconde ligne d'objectif
      * @return l'image en data URI, {@code null} sans donnée
      */
-    String dessinerHistorique(RequetePilotageDTO requete, IndicateurPilotage indicateur, boolean contreObjectif, FormatGraphe format);
+    String dessinerHistorique(
+            RequetePilotageDTO requete, IndicateurPilotage indicateur, boolean contreObjectif, FormatGraphe format);
 
     /** La même courbe sur la seule période de la requête, à son découpage (les ventes par jour de la fréquentation). */
     String dessinerPeriode(RequetePilotageDTO requete, IndicateurPilotage indicateur, FormatGraphe format);

@@ -33,9 +33,11 @@ public final class Variations {
     }
 
     /** @param avecReference sans période de référence, la cellule n'a ni référence ni écart */
-    public static CelluleAnalyseDTO cellule(IndicateurPilotage indicateur, MesuresComparees mesures, boolean avecReference) {
+    public static CelluleAnalyseDTO cellule(
+            IndicateurPilotage indicateur, MesuresComparees mesures, boolean avecReference) {
         Double valeur = CalculateurIndicateurs.calculer(indicateur, mesures.periode());
-        Double valeurReference = avecReference ? CalculateurIndicateurs.calculer(indicateur, mesures.reference()) : null;
+        Double valeurReference =
+                avecReference ? CalculateurIndicateurs.calculer(indicateur, mesures.reference()) : null;
         return cellule(indicateur, valeur, valeurReference);
     }
 
@@ -45,6 +47,7 @@ public final class Variations {
 
     /** Pour une mesure hors dictionnaire (part des ventes remisées, remise moyenne…), d'unité connue. */
     public static CelluleAnalyseDTO cellule(UniteIndicateur unite, Double valeur, Double valeurReference) {
-        return new CelluleAnalyseDTO(valeur, valeurReference, ecart(valeur, valeurReference), ecartPct(unite, valeur, valeurReference));
+        return new CelluleAnalyseDTO(
+                valeur, valeurReference, ecart(valeur, valeurReference), ecartPct(unite, valeur, valeurReference));
     }
 }

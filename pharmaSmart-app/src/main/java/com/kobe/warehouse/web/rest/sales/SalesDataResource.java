@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.sales;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
@@ -25,11 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class SalesDataResource {
 
     private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
@@ -47,143 +47,135 @@ public class SalesDataResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/sales/{id}/{saleDate}")
-    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
 
         return ResponseEntity.ok().body(saleDataService.fetchPurchaseBy(id, saleDate));
     }
 
     @GetMapping("/sales/edit/{id}/{saleDate}")
-    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<SaleDTO> getSalesForEdit(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to get Sales : {}", id);
 
-        return saleDataService.fetchPurchaseForEditBy(id, saleDate)
-            .map(dto -> ResponseEntity.ok().body(dto))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return saleDataService
+                .fetchPurchaseForEditBy(id, saleDate)
+                .map(dto -> ResponseEntity.ok().body(dto))
+                .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @GetMapping("/sales/print/invoice/{id}/{saleDate}")
     public ResponseEntity<byte[]> printInvoice(
-        @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) throws IOException {
 
-    ) throws IOException {
-
-        return Utils.printPDF(saleDataService.printInvoice(new SaleId(id, saleDate)),
-            String.format("fature_client_%d_%s.pdf", id,
-                saleDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))));
+        return Utils.printPDF(
+                saleDataService.printInvoice(new SaleId(id, saleDate)),
+                String.format(
+                        "fature_client_%d_%s.pdf", id, saleDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))));
     }
 
     @GetMapping("/sales/prevente")
     public ResponseEntity<List<SaleDTO>> getAllSalesPreventes(
-        @RequestParam(name = "search", required = false) String search,
-        @RequestParam(name = "type", required = false) String typeVente,
-        @RequestParam(name = "statut") Set<SalesStatut> statuts,
-        @RequestParam(name = "userId", required = false) Integer userId,
-        @RequestParam(name = "excludeDepot", required = false, defaultValue = "true") boolean excludeDepot
-    ) {
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "type", required = false) String typeVente,
+            @RequestParam(name = "statut") Set<SalesStatut> statuts,
+            @RequestParam(name = "userId", required = false) Integer userId,
+            @RequestParam(name = "excludeDepot", required = false, defaultValue = "true") boolean excludeDepot) {
 
         return ResponseEntity.ok()
-            .body(saleDataService.allPrevente(search, typeVente, userId, statuts,
-                LocalDate.now(), LocalDate.now(), excludeDepot));
+                .body(saleDataService.allPrevente(
+                        search, typeVente, userId, statuts, LocalDate.now(), LocalDate.now(), excludeDepot));
     }
 
     @GetMapping("/sales")
     public ResponseEntity<List<SaleDTO>> getAllSales(
-        @RequestParam(name = "search", required = false) String search,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "fromHour", required = false) String fromHour,
-        @RequestParam(name = "toHour", required = false) String toHour,
-        @RequestParam(name = "global", required = false) Boolean global,
-        @RequestParam(name = "userId", required = false) Integer userId,
-        @RequestParam(name = "types", required = false) Set<String> types,
-        @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(name = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate,
+            @RequestParam(name = "fromHour", required = false) String fromHour,
+            @RequestParam(name = "toHour", required = false) String toHour,
+            @RequestParam(name = "global", required = false) Boolean global,
+            @RequestParam(name = "userId", required = false) Integer userId,
+            @RequestParam(name = "types", required = false) Set<String> types,
+            @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(name = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            Pageable pageable) {
         Page<SaleDTO> page = saleDataService.listVenteTerminees(
-            search,
-            fromDate,
-            toDate,
-            fromHour,
-            toHour,
-            global,
-            userId,
-            types,
-            statuts,
-            null,
-            null,
-            categorieChiffreAffaires,
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                search,
+                fromDate,
+                toDate,
+                fromHour,
+                toHour,
+                global,
+                userId,
+                types,
+                statuts,
+                null,
+                null,
+                categorieChiffreAffaires,
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/sales/total-amount")
     public ResponseEntity<Long> getTotalSalesAmount(
-        @RequestParam(name = "search", required = false) String search,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "fromHour", required = false) String fromHour,
-        @RequestParam(name = "toHour", required = false) String toHour,
-        @RequestParam(name = "global", required = false) Boolean global,
-        @RequestParam(name = "userId", required = false) Integer userId,
-        @RequestParam(name = "types", required = false) Set<String> types,
-        @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(name = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires
-    ) {
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate,
+            @RequestParam(name = "fromHour", required = false) String fromHour,
+            @RequestParam(name = "toHour", required = false) String toHour,
+            @RequestParam(name = "global", required = false) Boolean global,
+            @RequestParam(name = "userId", required = false) Integer userId,
+            @RequestParam(name = "types", required = false) Set<String> types,
+            @RequestParam(name = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(name = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires) {
         return ResponseEntity.ok(saleDataService.totalVenteTerminees(
-            search, fromDate, toDate, fromHour, toHour, global, userId, types, statuts, categorieChiffreAffaires
-        ));
+                search, fromDate, toDate, fromHour, toHour, global, userId, types, statuts, categorieChiffreAffaires));
     }
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> printCashReceipt(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/re-print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> rePrintCashReceipt(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> rePrintCashReceipt(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> printVoReceipt(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> printVoReceipt(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/assurance/re-print/receipt/{id}/{saleDate}")
-    public ResponseEntity<Void> rePrintVoReceipt(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> rePrintVoReceipt(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/sales/receipt/tauri/{id}/{saleDate}")
     public ResponseEntity<byte[]> getReceiptForTauri(
-        @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        @RequestParam(value = "isEdition", required = false) boolean isEdition
-    ) {
-        log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id,
-            saleDate);
+            @PathVariable("id") Long id,
+            @PathVariable("saleDate") LocalDate saleDate,
+            @RequestParam(value = "isEdition", required = false) boolean isEdition) {
+        log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id, saleDate);
         try {
-            byte[] escPosData = saleDataService.generateEscPosReceipt(new SaleId(id, saleDate),
-                isEdition);
+            byte[] escPosData = saleDataService.generateEscPosReceipt(new SaleId(id, saleDate), isEdition);
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
-                .body(escPosData);
+                    .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                    .body(escPosData);
         } catch (IOException e) {
             log.error("Error generating ESC/POS receipt for Tauri client", e);
             return ResponseEntity.internalServerError().build();
@@ -192,23 +184,26 @@ public class SalesDataResource {
 
     @GetMapping("/sales/vente-en-attente-count")
     public ResponseEntity<Long> getVenteEnAttenteCount(
-        @RequestParam(name = "userId", required = false) Integer userId) {
+            @RequestParam(name = "userId", required = false) Integer userId) {
         return ResponseEntity.ok(saleDataService.countPendingSales(userId));
     }
 
     @GetMapping("/sales/devis")
     public ResponseEntity<List<SaleDTO>> getAllDevis(
-        @RequestParam(name = "search", required = false) String search,
-        @RequestParam(name = "type", required = false) String typeVente,
-        @RequestParam(name = "statut", required = false, defaultValue = "DEVIS") SalesStatut statut,
-        @RequestParam(name = "userId", required = false) Integer userId,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate
-    ) {
-        List<SaleDTO> data = saleDataService.allPrevente(search, typeVente, userId, Set.of(statut),
-            Objects.requireNonNullElse(fromDate, LocalDate.now()),
-            Objects.requireNonNullElse(toDate, LocalDate.now()), true);
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "type", required = false) String typeVente,
+            @RequestParam(name = "statut", required = false, defaultValue = "DEVIS") SalesStatut statut,
+            @RequestParam(name = "userId", required = false) Integer userId,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate) {
+        List<SaleDTO> data = saleDataService.allPrevente(
+                search,
+                typeVente,
+                userId,
+                Set.of(statut),
+                Objects.requireNonNullElse(fromDate, LocalDate.now()),
+                Objects.requireNonNullElse(toDate, LocalDate.now()),
+                true);
         return ResponseEntity.ok().body(data);
     }
-
 }

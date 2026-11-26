@@ -3,8 +3,8 @@ package com.kobe.warehouse.web.rest.stock;
 import com.kobe.warehouse.domain.SemoisClasseConfig;
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.ReapproDashboardDTO;
-import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SemoisExclusionDTO;
 import com.kobe.warehouse.service.dto.SemoisSuggestionDTO;
 import com.kobe.warehouse.service.scheduler.SemoisCalculationService;
@@ -13,6 +13,9 @@ import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,11 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-
 /**
  * REST controller for managing SEMOIS (Stock Économique Mensuel d'Objectif Interne de Sécurité).
  * Provides endpoints for:
@@ -39,7 +37,7 @@ import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
  */
 @RestController
 @RequestMapping("/api/semois")
-@RequiresNavAccess({ "commande", "commande.suggestions", "catalogue" })
+@RequiresNavAccess({"commande", "commande.suggestions", "catalogue"})
 public class SemoisResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SemoisResource.class);
@@ -49,10 +47,9 @@ public class SemoisResource {
     private final SuggestionProduitService suggestionProduitService;
 
     public SemoisResource(
-        SemoisCalculationService semoisCalculationService,
-        VentesAgregeesService ventesAgregeesService,
-        SuggestionProduitService suggestionProduitService
-    ) {
+            SemoisCalculationService semoisCalculationService,
+            VentesAgregeesService ventesAgregeesService,
+            SuggestionProduitService suggestionProduitService) {
         this.semoisCalculationService = semoisCalculationService;
         this.ventesAgregeesService = ventesAgregeesService;
         this.suggestionProduitService = suggestionProduitService;
@@ -71,13 +68,12 @@ public class SemoisResource {
      */
     @PutMapping("/classe-configs/{classeCriticite}")
     public ResponseEntity<SemoisClasseConfig> updateClasseConfig(
-        @PathVariable ClasseCriticite classeCriticite,
-        @Valid @RequestBody SemoisClasseConfig config
-    ) {
+            @PathVariable ClasseCriticite classeCriticite, @Valid @RequestBody SemoisClasseConfig config) {
         LOG.debug("REST request to update SemoisClasseConfig for classe: {}", classeCriticite);
-        return semoisCalculationService.updateClasseConfig(classeCriticite, config)
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.notFound().build());
+        return semoisCalculationService
+                .updateClasseConfig(classeCriticite, config)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -91,21 +87,25 @@ public class SemoisResource {
      */
     @GetMapping("/suggestions")
     public ResponseEntity<List<SemoisSuggestionDTO>> getAllSuggestions(
-        Pageable pageable,
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) ClasseCriticite classeCriticite,
-        @RequestParam(required = false) Integer fournisseurId,
-        @RequestParam(required = false) String niveauUrgence,
-        @RequestParam(required = false) Integer magasinId
-    ) {
-        LOG.debug("REST request to get paged SEMOIS suggestions - page: {}, search: {}, classe: {}, fournisseur: {}, urgence: {}",
-            pageable.getPageNumber(), search, classeCriticite, fournisseurId, niveauUrgence);
+            Pageable pageable,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) ClasseCriticite classeCriticite,
+            @RequestParam(required = false) Integer fournisseurId,
+            @RequestParam(required = false) String niveauUrgence,
+            @RequestParam(required = false) Integer magasinId) {
+        LOG.debug(
+                "REST request to get paged SEMOIS suggestions - page: {}, search: {}, classe: {}, fournisseur: {}, urgence: {}",
+                pageable.getPageNumber(),
+                search,
+                classeCriticite,
+                fournisseurId,
+                niveauUrgence);
 
         Page<SemoisSuggestionDTO> page = semoisCalculationService.getAllSuggestions(
-            search, classeCriticite, fournisseurId, niveauUrgence, pageable, magasinId);
+                search, classeCriticite, fournisseurId, niveauUrgence, pageable, magasinId);
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -116,8 +116,7 @@ public class SemoisResource {
      */
     @GetMapping("/suggestions/urgents")
     public ResponseEntity<List<SemoisSuggestionDTO>> getAllUrgentSuggestions(
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @RequestParam(required = false) Integer magasinId) {
         LOG.debug("REST request to get all urgent SEMOIS suggestions");
         return ResponseEntity.ok(semoisCalculationService.getAllUrgentSuggestions(magasinId));
     }
@@ -127,8 +126,7 @@ public class SemoisResource {
      */
     @GetMapping("/suggestions/fournisseurs")
     public ResponseEntity<List<java.util.Map<String, Object>>> getSemoisFournisseurs(
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @RequestParam(required = false) Integer magasinId) {
         return ResponseEntity.ok(semoisCalculationService.getDistinctFournisseurs(magasinId));
     }
 
@@ -140,9 +138,7 @@ public class SemoisResource {
      */
     @GetMapping("/suggestions/{produitId}")
     public ResponseEntity<SemoisSuggestionDTO> getSuggestionForProduct(
-        @PathVariable Integer produitId,
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @PathVariable Integer produitId, @RequestParam(required = false) Integer magasinId) {
         LOG.debug("REST request to get SEMOIS suggestion for product: {}", produitId);
         try {
             SemoisSuggestionDTO suggestion = semoisCalculationService.getSuggestionForProduct(produitId, magasinId);
@@ -161,13 +157,12 @@ public class SemoisResource {
      */
     @GetMapping("/configuration/{produitId}")
     public ResponseEntity<SemoisConfiguration> getConfiguration(
-        @PathVariable Integer produitId,
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @PathVariable Integer produitId, @RequestParam(required = false) Integer magasinId) {
         LOG.debug("REST request to get SEMOIS configuration for product: {}", produitId);
-        return semoisCalculationService.findConfiguration(produitId, magasinId)
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.notFound().build());
+        return semoisCalculationService
+                .findConfiguration(produitId, magasinId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -179,13 +174,13 @@ public class SemoisResource {
      */
     @PostMapping("/configuration")
     public ResponseEntity<SemoisConfiguration> initializeConfiguration(
-        @Valid @RequestBody InitConfigurationRequest request
-    ) {
+            @Valid @RequestBody InitConfigurationRequest request) {
         LOG.debug("REST request to initialize SEMOIS configuration for product: {}", request.produitId);
 
         SemoisConfiguration config = request.classeCriticite != null
-            ? semoisCalculationService.initializeConfiguration(request.produitId, request.classeCriticite, request.magasinId)
-            : semoisCalculationService.initializeConfiguration(request.produitId, request.magasinId);
+                ? semoisCalculationService.initializeConfiguration(
+                        request.produitId, request.classeCriticite, request.magasinId)
+                : semoisCalculationService.initializeConfiguration(request.produitId, request.magasinId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(config);
     }
@@ -199,10 +194,9 @@ public class SemoisResource {
      */
     @PutMapping("/configuration/{produitId}")
     public ResponseEntity<SemoisConfiguration> updateConfiguration(
-        @PathVariable Integer produitId,
-        @Valid @RequestBody SemoisConfiguration config,
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @PathVariable Integer produitId,
+            @Valid @RequestBody SemoisConfiguration config,
+            @RequestParam(required = false) Integer magasinId) {
         LOG.debug("REST request to update SEMOIS configuration for product: {}", produitId);
         if (!semoisCalculationService.configurationExists(produitId, magasinId)) {
             return ResponseEntity.notFound().build();
@@ -212,8 +206,6 @@ public class SemoisResource {
         return ResponseEntity.ok().body(updated);
     }
 
-
-
     /**
      * GET /api/semois/magasins : les magasins entre lesquels l'écran peut choisir.
      *
@@ -222,11 +214,9 @@ public class SemoisResource {
      */
     @GetMapping("/magasins")
     public ResponseEntity<List<MagasinDuReassortDTO>> listerLesMagasinsDuReassort() {
-        return ResponseEntity.ok(
-            semoisCalculationService.listerLesMagasinsDuReassort().stream()
+        return ResponseEntity.ok(semoisCalculationService.listerLesMagasinsDuReassort().stream()
                 .map(m -> new MagasinDuReassortDTO(m.getId(), m.getName()))
-                .toList()
-        );
+                .toList());
     }
 
     /** Un magasin tel que le sélecteur de réassort l'affiche. */
@@ -239,7 +229,8 @@ public class SemoisResource {
     public ResponseEntity<FraicheurResponse> getFreshness() {
         LocalDateTime lastCalc = semoisCalculationService.getLastCalculDate();
         long nbProduits = semoisCalculationService.countConfiguredProducts();
-        boolean recente = lastCalc != null && lastCalc.isAfter(LocalDateTime.now().minusHours(24));
+        boolean recente =
+                lastCalc != null && lastCalc.isAfter(LocalDateTime.now().minusHours(24));
         return ResponseEntity.ok(new FraicheurResponse(lastCalc, recente, nbProduits));
     }
 
@@ -247,15 +238,11 @@ public class SemoisResource {
      * GET /api/semois/dashboard : Tableau de bord réapprovisionnement temps réel (Axe 6).
      */
     @GetMapping("/dashboard")
-    public ResponseEntity<ReapproDashboardDTO> getDashboard(
-        @RequestParam(required = false) Integer magasinId
-    ) {
+    public ResponseEntity<ReapproDashboardDTO> getDashboard(@RequestParam(required = false) Integer magasinId) {
         LOG.debug("REST request to get SEMOIS reappro dashboard");
         ReapproDashboardDTO dashboard = semoisCalculationService.getDashboard(magasinId);
         return ResponseEntity.ok(dashboard);
     }
-
-
 
     /**
      * POST /api/semois/recalculate : Déclenche un recalcul SEMOIS forcé pour tous les produits.
@@ -274,7 +261,8 @@ public class SemoisResource {
         } catch (IllegalStateException e) {
             LOG.warn("SEMOIS recalculation rejected: already in progress");
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new MessageResponse("Un recalcul SEMOIS est déjà en cours. Veuillez réessayer dans quelques minutes."));
+                    .body(new MessageResponse(
+                            "Un recalcul SEMOIS est déjà en cours. Veuillez réessayer dans quelques minutes."));
         }
         return ResponseEntity.ok().body(new MessageResponse("Recalcul SEMOIS forcé déclenché avec succès"));
     }
@@ -290,9 +278,8 @@ public class SemoisResource {
     public ResponseEntity<MessageResponse> importHistoricalData(@Valid @RequestBody ImportHistoricalRequest request) {
         LOG.info("REST request to import {} months of historical sales data", request.nbMois);
         ventesAgregeesService.importHistoricalMonths(request.nbMois);
-        return ResponseEntity.ok().body(
-            new MessageResponse(request.nbMois + " mois de données historiques importés avec succès")
-        );
+        return ResponseEntity.ok()
+                .body(new MessageResponse(request.nbMois + " mois de données historiques importés avec succès"));
     }
 
     /**
@@ -311,14 +298,14 @@ public class SemoisResource {
         long lastMonthCount = ventesAgregeesService.countAgregationsForMonth(lastMonth);
         boolean lastMonthFrozen = ventesAgregeesService.isMonthFrozen(lastMonth);
 
-        return ResponseEntity.ok().body(new AggregationStatusResponse(
-            now.toString(),
-            currentMonthCount,
-            lastMonth.toString(),
-            lastMonthCount,
-            lastMonthFrozen,
-            ventesAgregeesService.getFreezeDelayDays()
-        ));
+        return ResponseEntity.ok()
+                .body(new AggregationStatusResponse(
+                        now.toString(),
+                        currentMonthCount,
+                        lastMonth.toString(),
+                        lastMonthCount,
+                        lastMonthFrozen,
+                        ventesAgregeesService.getFreezeDelayDays()));
     }
 
     /**
@@ -336,9 +323,8 @@ public class SemoisResource {
         YearMonth mois = YearMonth.parse(request.anneeMois);
         ventesAgregeesService.unfreezeMonth(mois, request.reason);
 
-        return ResponseEntity.ok().body(
-            new MessageResponse("Mois " + request.anneeMois + " dégelé. Raison: " + request.reason)
-        );
+        return ResponseEntity.ok()
+                .body(new MessageResponse("Mois " + request.anneeMois + " dégelé. Raison: " + request.reason));
     }
 
     // ── S4.3 — Exclusion temporaire ──────────────────────────────────────────
@@ -349,12 +335,14 @@ public class SemoisResource {
      */
     @PostMapping("/configuration/{produitId}/exclure")
     public ResponseEntity<Void> exclureProduit(
-        @PathVariable Integer produitId,
-        @Valid @RequestBody ExclusionRequest request,
-        @RequestParam(required = false) Integer magasinId
-    ) {
-        LOG.info("REST request to exclude produit {} from SEMOIS for {} days - motif: {}",
-            produitId, request.dureeJours, request.motif);
+            @PathVariable Integer produitId,
+            @Valid @RequestBody ExclusionRequest request,
+            @RequestParam(required = false) Integer magasinId) {
+        LOG.info(
+                "REST request to exclude produit {} from SEMOIS for {} days - motif: {}",
+                produitId,
+                request.dureeJours,
+                request.motif);
         try {
             semoisCalculationService.exclureProduit(produitId, request.dureeJours, request.motif, magasinId);
         } catch (IllegalArgumentException e) {
@@ -369,9 +357,7 @@ public class SemoisResource {
      */
     @DeleteMapping("/configuration/{produitId}/exclusion")
     public ResponseEntity<Void> leverExclusion(
-        @PathVariable Integer produitId,
-        @RequestParam(required = false) Integer magasinId
-    ) {
+            @PathVariable Integer produitId, @RequestParam(required = false) Integer magasinId) {
         LOG.info("REST request to lift exclusion for produit {}", produitId);
         semoisCalculationService.leverExclusion(produitId, magasinId);
         return ResponseEntity.noContent().build();
@@ -400,17 +386,13 @@ public class SemoisResource {
      * Request DTO for initializing SEMOIS configuration
      */
     public record InitConfigurationRequest(
-        @NotNull Integer produitId,
-        ClasseCriticite classeCriticite,
-        /** Magasin dont on initialise le réassort. Null : l'officine. */
-        Integer magasinId
-    ) {}
+            @NotNull Integer produitId,
+            ClasseCriticite classeCriticite,
+            /** Magasin dont on initialise le réassort. Null : l'officine. */
+            Integer magasinId) {}
 
     /** Request DTO for temporarily excluding a product from SEMOIS suggestions */
-    public record ExclusionRequest(
-        Integer dureeJours,
-        String motif
-    ) {}
+    public record ExclusionRequest(Integer dureeJours, String motif) {}
 
     /** Response DTO for exclusion count badge */
     public record ExclusionCountResponse(long count) {}
@@ -418,18 +400,13 @@ public class SemoisResource {
     /**
      * Request DTO for importing historical data
      */
-    public record ImportHistoricalRequest(
-        @NotNull Integer nbMois
-    ) {}
+    public record ImportHistoricalRequest(@NotNull Integer nbMois) {}
 
     /**
      * Request DTO for unfreezing a month
      */
     public record UnfreezeMonthRequest(
-        @NotNull String anneeMois,
-        @NotNull String reason
-    ) {}
-
+            @NotNull String anneeMois, @NotNull String reason) {}
 
     /**
      * Response DTO for generic messages
@@ -439,21 +416,16 @@ public class SemoisResource {
     /**
      * Response DTO for SEMOIS freshness status
      */
-    public record FraicheurResponse(
-        LocalDateTime dernierCalcul,
-        boolean calculeRecent,
-        long nbProduitsConfigures
-    ) {}
+    public record FraicheurResponse(LocalDateTime dernierCalcul, boolean calculeRecent, long nbProduitsConfigures) {}
 
     /**
      * Response DTO for aggregation status
      */
     public record AggregationStatusResponse(
-        String currentMonth,
-        long currentMonthProductCount,
-        String lastMonth,
-        long lastMonthProductCount,
-        boolean lastMonthFrozen,
-        int freezeDelayDays
-    ) {}
+            String currentMonth,
+            long currentMonthProductCount,
+            String lastMonth,
+            long lastMonthProductCount,
+            boolean lastMonthFrozen,
+            int freezeDelayDays) {}
 }

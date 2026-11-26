@@ -28,15 +28,14 @@ class RepartitionStockPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new RepartitionStockPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
     }
 
     @Test
     @DisplayName("le nombre de mouvements correspond aux lignes imprimées")
     void nombreDeMouvements() {
-        Map<String, Object> modele = modele(recherche(null, null), mouvement("DOLIPRANE"), mouvement("EFFERALGAN"), mouvement("ZOVIRAX"));
+        Map<String, Object> modele =
+                modele(recherche(null, null), mouvement("DOLIPRANE"), mouvement("EFFERALGAN"), mouvement("ZOVIRAX"));
 
         assertThat(modele.get("totalMouvements")).isEqualTo(3);
         assertThat((List<?>) modele.get("repartitions")).hasSize(3);
@@ -45,9 +44,11 @@ class RepartitionStockPdfReportServiceTest {
     @Test
     @DisplayName("le titre porte la période analysée")
     void titreAvecPeriode() {
-        Map<String, Object> modele = modele(recherche(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)), mouvement("DOLIPRANE"));
+        Map<String, Object> modele =
+                modele(recherche(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)), mouvement("DOLIPRANE"));
 
-        assertThat(modele.get("reportTitle")).isEqualTo("Historique des Répartitions de Stock du 05-01-2026 au 31-03-2026");
+        assertThat(modele.get("reportTitle"))
+                .isEqualTo("Historique des Répartitions de Stock du 05-01-2026 au 31-03-2026");
     }
 
     /** Sans bornes, l'intitulé reste seul — un historique non borné ne se prétend pas daté. */
@@ -62,10 +63,12 @@ class RepartitionStockPdfReportServiceTest {
     @Test
     @DisplayName("une période incomplète ne produit pas de libellé bancal")
     void periodeIncomplete() {
-        assertThat(modele(recherche(LocalDate.of(2026, 1, 5), null), mouvement("A")).get("reportTitle"))
-            .isEqualTo("Historique des Répartitions de Stock");
-        assertThat(modele(recherche(null, LocalDate.of(2026, 3, 31)), mouvement("A")).get("reportTitle"))
-            .isEqualTo("Historique des Répartitions de Stock");
+        assertThat(modele(recherche(LocalDate.of(2026, 1, 5), null), mouvement("A"))
+                        .get("reportTitle"))
+                .isEqualTo("Historique des Répartitions de Stock");
+        assertThat(modele(recherche(null, LocalDate.of(2026, 3, 31)), mouvement("A"))
+                        .get("reportTitle"))
+                .isEqualTo("Historique des Répartitions de Stock");
     }
 
     @Test

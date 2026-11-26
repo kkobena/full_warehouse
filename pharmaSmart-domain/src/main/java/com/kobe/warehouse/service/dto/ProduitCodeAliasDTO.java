@@ -17,23 +17,21 @@ import java.time.LocalDateTime;
  * @param createdBy login de l'auteur, null pour une reprise automatique
  */
 public record ProduitCodeAliasDTO(
-    Integer id,
-    Integer produitId,
-    String code,
-    CodeAliasType codeType,
-    CodeAliasSource source,
-    LocalDateTime createdAt,
-    String createdBy
-) {
+        Integer id,
+        Integer produitId,
+        String code,
+        CodeAliasType codeType,
+        CodeAliasSource source,
+        LocalDateTime createdAt,
+        String createdBy) {
     public static ProduitCodeAliasDTO fromEntity(ProduitCodeAlias alias) {
         return new ProduitCodeAliasDTO(
-            alias.getId(),
-            alias.getProduit().getId(),
-            alias.getCode(),
-            alias.getCodeType(),
-            alias.getSource(),
-            alias.getCreatedAt(),
-            alias.getCreatedBy()
-        );
+                alias.getId(),
+                alias.getProduit().getId(),
+                alias.getCode(),
+                alias.getCodeType(),
+                alias.getSource(),
+                alias.getCreatedAt(),
+                alias.getCreatedBy());
     }
 }

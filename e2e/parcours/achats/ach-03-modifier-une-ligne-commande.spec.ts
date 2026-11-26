@@ -53,7 +53,11 @@ scenario('ACH-03', async ({ etape, page }) => {
   });
 
   // ── Remise en état : la ligne ajoutée est retirée. ──────────────────────────────────────
-  if (await ligne().isVisible().catch(() => false)) {
+  if (
+    await ligne()
+      .isVisible()
+      .catch(() => false)
+  ) {
     await ligne().locator('.ag-selection-checkbox, input[type="checkbox"]').first().click();
     const supprimer = page.getByRole('button', { name: /Supprimer \(/ });
     if (await supprimer.isVisible().catch(() => false)) {

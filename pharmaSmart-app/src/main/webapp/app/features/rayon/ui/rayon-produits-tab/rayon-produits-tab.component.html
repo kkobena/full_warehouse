@@ -1,17 +1,26 @@
 <app-detail-grid>
-  <app-detail-section header="Produits du rayon" icon="pi pi-box" [accent]="'blue'" [width]="'full'"
-                      [layout]="'block'" [count]="totalItems()" [loading]="loading()" [skeletonRows]="6"
-                      storageKey="rayon.produits.tab">
+  <app-detail-section
+    header="Produits du rayon"
+    icon="pi pi-box"
+    [accent]="'blue'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="totalItems()"
+    [loading]="loading()"
+    [skeletonRows]="6"
+    storageKey="rayon.produits.tab"
+  >
     <div class="rpt-assign-bar">
-      <app-select-search (ngModelChange)="selectedProduit.set($event)"
-                         (searched)="onComplete($event)"
-                         (selectionChange)="onProduitSelected($event)"
-                         [items]="searchSuggestions()"
-                         [ngModel]="selectedProduit()"
-                         [optionTemplate]="produitOption"
-                         appendTo="body"
-                         bindLabel="libelle"
-                         placeholder="Rechercher et affecter un produit..."
+      <app-select-search
+        (ngModelChange)="selectedProduit.set($event)"
+        (searched)="onComplete($event)"
+        (selectionChange)="onProduitSelected($event)"
+        [items]="searchSuggestions()"
+        [ngModel]="selectedProduit()"
+        [optionTemplate]="produitOption"
+        appendTo="body"
+        bindLabel="libelle"
+        placeholder="Rechercher et affecter un produit..."
       />
       <ng-template #produitOption let-p>
         <div class="d-flex gap-2 align-items-center">
@@ -28,12 +37,13 @@
         [lazy]="true"
         [loading]="loading()"
         [paginator]="true"
-        [rowsPerPageOptions]="[10,15,20,30,50,100]"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50, 100]"
         [rows]="rows()"
         [selection]="selectedProduits()"
         [totalRecords]="totalItems()"
         [value]="produits()"
-        class="p-datatable-sm" dataKey="id"
+        class="p-datatable-sm"
+        dataKey="id"
         selectionMode="multiple"
       >
         <ng-template #caption>
@@ -75,25 +85,31 @@
             <td style="text-align: center">
               <app-row-checkbox [row]="produit" />
             </td>
-            <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+            <td>
+              <span class="pharma-code">{{ produit.codeCip }}</span>
+            </td>
             <td>
               <div class="rpt-libelle-cell">
                 <span class="pharma-entity-name">{{ produit.libelle }}</span>
                 @if (produit.otherStorageLabels?.length) {
-                  <i [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
-                     class="pi pi-warehouse rpt-multi-storage-icon"></i>
+                  <i
+                    [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
+                    class="pi pi-warehouse rpt-multi-storage-icon"
+                  ></i>
                 }
               </div>
             </td>
-            <td style="text-align: right"><span class="pharma-qty-value">{{
-                produit.totalQuantity ?? 0
-              }}</span></td>
+            <td style="text-align: right">
+              <span class="pharma-qty-value">{{ produit.totalQuantity ?? 0 }}</span>
+            </td>
             <td style="text-align: center">
               <div class="d-flex justify-content-center gap-1">
                 @if (rayon().code === 'SANS') {
                   <app-button
                     (clicked)="onMove(produit)"
-                    [rounded]="true" [text]="true" icon="pi pi-arrows-h"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-arrows-h"
                     ngbTooltip="Assigner à un emplacement réel"
                     placement="left"
                     severity="info"
@@ -101,7 +117,9 @@
                 } @else {
                   <app-button
                     (clicked)="onClone(produit)"
-                    [rounded]="true" [text]="true" icon="pi pi-copy"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-copy"
                     ngbTooltip="Cloner vers un autre stockage"
                     placement="left"
                     severity="info"
@@ -109,7 +127,9 @@
                   @if (produit.rayonProduitId) {
                     <app-button
                       (clicked)="onRetirer(produit)"
-                      [rounded]="true" [text]="true" icon="pi pi-times"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-times"
                       ngbTooltip="Retirer du rayon (choisir un remplacement)"
                       placement="left"
                       severity="danger"

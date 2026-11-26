@@ -5,7 +5,6 @@ public enum TypeVente {
     CREDIT_SALE("ThirdPartySales"),
     VENTES_DEPOTS("VenteDepot");
 
-
     private final String value;
 
     TypeVente(String value) {

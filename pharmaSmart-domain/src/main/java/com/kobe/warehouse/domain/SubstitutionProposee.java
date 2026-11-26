@@ -31,7 +31,7 @@ public class SubstitutionProposee implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumns({
-        @JoinColumn(name = "commande_id",   referencedColumnName = "id"),
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
         @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
     })
     private Commande commande;
@@ -39,8 +39,8 @@ public class SubstitutionProposee implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumns({
-        @JoinColumn(name = "order_line_id",  referencedColumnName = "id"),
-        @JoinColumn(name = "commande_date",  referencedColumnName = "order_date"),
+        @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_date", referencedColumnName = "order_date"),
     })
     private OrderLine orderLine;
 
@@ -84,40 +84,110 @@ public class SubstitutionProposee implements Serializable {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Integer getId() { return id; }
+    public Integer getId() {
+        return id;
+    }
 
-    public Commande getCommande() { return commande; }
-    public SubstitutionProposee setCommande(Commande commande) { this.commande = commande; return this; }
+    public Commande getCommande() {
+        return commande;
+    }
 
-    public OrderLine getOrderLine() { return orderLine; }
-    public SubstitutionProposee setOrderLine(OrderLine orderLine) { this.orderLine = orderLine; return this; }
+    public SubstitutionProposee setCommande(Commande commande) {
+        this.commande = commande;
+        return this;
+    }
 
-    public Fournisseur getFournisseur() { return fournisseur; }
-    public SubstitutionProposee setFournisseur(Fournisseur fournisseur) { this.fournisseur = fournisseur; return this; }
+    public OrderLine getOrderLine() {
+        return orderLine;
+    }
 
-    public String getCipPropose() { return cipPropose; }
-    public SubstitutionProposee setCipPropose(String cipPropose) { this.cipPropose = cipPropose; return this; }
+    public SubstitutionProposee setOrderLine(OrderLine orderLine) {
+        this.orderLine = orderLine;
+        return this;
+    }
 
-    public String getDesignation() { return designation; }
-    public SubstitutionProposee setDesignation(String designation) { this.designation = designation; return this; }
+    public Fournisseur getFournisseur() {
+        return fournisseur;
+    }
 
-    public String getTypeCodification() { return typeCodification; }
-    public SubstitutionProposee setTypeCodification(String typeCodification) { this.typeCodification = typeCodification; return this; }
+    public SubstitutionProposee setFournisseur(Fournisseur fournisseur) {
+        this.fournisseur = fournisseur;
+        return this;
+    }
 
-    public int getQuantite() { return quantite; }
-    public SubstitutionProposee setQuantite(int quantite) { this.quantite = quantite; return this; }
+    public String getCipPropose() {
+        return cipPropose;
+    }
 
-    public SubstitutionStatut getStatut() { return statut; }
-    public SubstitutionProposee setStatut(SubstitutionStatut statut) { this.statut = statut; return this; }
+    public SubstitutionProposee setCipPropose(String cipPropose) {
+        this.cipPropose = cipPropose;
+        return this;
+    }
 
-    public String getCodeReponse() { return codeReponse; }
-    public SubstitutionProposee setCodeReponse(String codeReponse) { this.codeReponse = codeReponse; return this; }
+    public String getDesignation() {
+        return designation;
+    }
 
-    public String getAdditif() { return additif; }
-    public SubstitutionProposee setAdditif(String additif) { this.additif = additif; return this; }
+    public SubstitutionProposee setDesignation(String designation) {
+        this.designation = designation;
+        return this;
+    }
 
-    public String getTypeRemplacement() { return typeRemplacement; }
-    public SubstitutionProposee setTypeRemplacement(String typeRemplacement) { this.typeRemplacement = typeRemplacement; return this; }
+    public String getTypeCodification() {
+        return typeCodification;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public SubstitutionProposee setTypeCodification(String typeCodification) {
+        this.typeCodification = typeCodification;
+        return this;
+    }
+
+    public int getQuantite() {
+        return quantite;
+    }
+
+    public SubstitutionProposee setQuantite(int quantite) {
+        this.quantite = quantite;
+        return this;
+    }
+
+    public SubstitutionStatut getStatut() {
+        return statut;
+    }
+
+    public SubstitutionProposee setStatut(SubstitutionStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public String getCodeReponse() {
+        return codeReponse;
+    }
+
+    public SubstitutionProposee setCodeReponse(String codeReponse) {
+        this.codeReponse = codeReponse;
+        return this;
+    }
+
+    public String getAdditif() {
+        return additif;
+    }
+
+    public SubstitutionProposee setAdditif(String additif) {
+        this.additif = additif;
+        return this;
+    }
+
+    public String getTypeRemplacement() {
+        return typeRemplacement;
+    }
+
+    public SubstitutionProposee setTypeRemplacement(String typeRemplacement) {
+        this.typeRemplacement = typeRemplacement;
+        return this;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

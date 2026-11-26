@@ -20,9 +20,9 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -79,12 +79,11 @@ class ProducteurRapportsPartenairesTest {
     @DisplayName("récapitulatif des factures : le mois du début de la période, et le type retenu")
     void recapitulatifDesFactures() {
         partenaires.produire(
-            RapportExport.RECAPITULATIF_FACTURES,
-            FormatExport.XLSX,
-            DU,
-            AU,
-            Map.of(FiltreExport.TYPE_FACTURE, List.of("GROUPED"))
-        );
+                RapportExport.RECAPITULATIF_FACTURES,
+                FormatExport.XLSX,
+                DU,
+                AU,
+                Map.of(FiltreExport.TYPE_FACTURE, List.of("GROUPED")));
 
         verify(recapitulatifMensuelService).exportExcel(recapitulatif.capture());
         RecapitulatifMensuelParams params = recapitulatif.getValue();

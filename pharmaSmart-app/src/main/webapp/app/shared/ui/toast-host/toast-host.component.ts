@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {NgbToast} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgbToast } from '@ng-bootstrap/ng-bootstrap';
 
-import {NotificationService, NotificationSeverity} from 'app/shared/services/notification.service';
+import { NotificationService, NotificationSeverity } from 'app/shared/services/notification.service';
 
 /**
  * Rend les notifications de `NotificationService` — remplace `<p-toast>`.
@@ -15,8 +15,7 @@ import {NotificationService, NotificationSeverity} from 'app/shared/services/not
   selector: 'app-toast-host',
   imports: [NgbToast],
   template: `
-    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3"
-         aria-live="polite" aria-atomic="true">
+    <div class="toast-container position-fixed top-50 start-50 translate-middle p-3" aria-live="polite" aria-atomic="true">
       @for (message of notifications.messages(); track message.id) {
         <ngb-toast
           [class]="toastClass(message.severity)"

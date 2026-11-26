@@ -11,8 +11,7 @@
       info="Montant net des factures du mois affiché, pour tous les organismes du périmètre."
       valueClass="text-primary"
     >
-      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }}factures
-      </ng-container>
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }}factures </ng-container>
     </app-kpi-item>
 
     <app-kpi-item
@@ -24,8 +23,7 @@
       info="Ce qui a été encaissé sur les factures de ce mois. Le taux rapporte ce réglé au facturé du même mois."
       valueClass="text-success"
     >
-      <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }}%
-      </ng-container>
+      <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }}% </ng-container>
     </app-kpi-item>
 
     <app-kpi-item
@@ -37,8 +35,7 @@
       info="Facturé du mois moins réglé du mois. Le compteur dessous est celui des factures du mois non soldées, partiellement réglées comprises."
       valueClass="text-danger"
     >
-      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }}impayées
-      </ng-container>
+      <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }}impayées </ng-container>
     </app-kpi-item>
 
     <app-kpi-item

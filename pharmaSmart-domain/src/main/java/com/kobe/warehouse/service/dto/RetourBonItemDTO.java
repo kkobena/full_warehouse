@@ -46,8 +46,14 @@ public class RetourBonItemDTO {
             if (item.getOrderLine().getFournisseurProduit() != null) {
                 this.produitCip = item.getOrderLine().getFournisseurProduit().getCodeCip();
                 if (item.getOrderLine().getFournisseurProduit().getProduit() != null) {
-                    this.produitLibelle = item.getOrderLine().getFournisseurProduit().getProduit().getLibelle();
-                    this.produitId = item.getOrderLine().getFournisseurProduit().getProduit().getId();
+                    this.produitLibelle = item.getOrderLine()
+                            .getFournisseurProduit()
+                            .getProduit()
+                            .getLibelle();
+                    this.produitId = item.getOrderLine()
+                            .getFournisseurProduit()
+                            .getProduit()
+                            .getId();
                 }
             }
         }

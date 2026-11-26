@@ -18,7 +18,8 @@ final class ProgrammationExport {
 
     private ProgrammationExport() {}
 
-    static LocalDateTime calculerProchaine(ScheduledReportFrequency frequence, LocalTime heure, Integer jour, LocalDateTime maintenant) {
+    static LocalDateTime calculerProchaine(
+            ScheduledReportFrequency frequence, LocalTime heure, Integer jour, LocalDateTime maintenant) {
         LocalTime a = heure == null ? HEURE_PAR_DEFAUT : heure;
         return switch (frequence) {
             case DAILY -> {
@@ -27,11 +28,17 @@ final class ProgrammationExport {
             }
             case WEEKLY -> {
                 DayOfWeek jourDeLaSemaine = DayOfWeek.of(verifier(jour, 7));
-                LocalDateTime candidate = maintenant.toLocalDate().with(TemporalAdjusters.nextOrSame(jourDeLaSemaine)).atTime(a);
+                LocalDateTime candidate = maintenant
+                        .toLocalDate()
+                        .with(TemporalAdjusters.nextOrSame(jourDeLaSemaine))
+                        .atTime(a);
                 yield candidate.isAfter(maintenant) ? candidate : candidate.plusWeeks(1);
             }
             case MONTHLY -> {
-                LocalDateTime candidate = maintenant.toLocalDate().withDayOfMonth(verifier(jour, JOUR_DU_MOIS_MAX)).atTime(a);
+                LocalDateTime candidate = maintenant
+                        .toLocalDate()
+                        .withDayOfMonth(verifier(jour, JOUR_DU_MOIS_MAX))
+                        .atTime(a);
                 yield candidate.isAfter(maintenant) ? candidate : candidate.plusMonths(1);
             }
             case CUSTOM -> throw new GenericError("Programmation personnalisée non prise en charge pour un export");

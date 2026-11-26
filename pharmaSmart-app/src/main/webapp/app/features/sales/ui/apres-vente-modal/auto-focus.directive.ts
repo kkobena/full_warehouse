@@ -25,7 +25,8 @@ export class AutoFocusDirective implements AfterViewInit {
     const veille = setInterval(() => {
       const actif = document.activeElement;
       const ailleurs =
-        actif !== this.element && (actif instanceof HTMLInputElement || actif instanceof HTMLTextAreaElement || actif instanceof HTMLSelectElement);
+        actif !== this.element &&
+        (actif instanceof HTMLInputElement || actif instanceof HTMLTextAreaElement || actif instanceof HTMLSelectElement);
       if (++essais > 20 || (ailleurs && essais > TOURS_DE_GRACE) || !this.element.isConnected) {
         clearInterval(veille);
         return;

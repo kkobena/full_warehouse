@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -50,6 +49,7 @@ public class RetourClientLine implements Serializable {
 
     @Column(name = "original_sales_line_id")
     private Long originalSalesLineId;
+
     @Transient
     private int quantiteInit;
 
@@ -182,12 +182,30 @@ public class RetourClientLine implements Serializable {
         return this;
     }
 
-    public boolean isEmballageIntact() { return emballageIntact; }
-    public RetourClientLine setEmballageIntact(boolean emballageIntact) { this.emballageIntact = emballageIntact; return this; }
+    public boolean isEmballageIntact() {
+        return emballageIntact;
+    }
 
-    public boolean isNumLotLisible() { return numLotLisible; }
-    public RetourClientLine setNumLotLisible(boolean numLotLisible) { this.numLotLisible = numLotLisible; return this; }
+    public RetourClientLine setEmballageIntact(boolean emballageIntact) {
+        this.emballageIntact = emballageIntact;
+        return this;
+    }
 
-    public boolean isDatePeremptionValide() { return datePeremptionValide; }
-    public RetourClientLine setDatePeremptionValide(boolean datePeremptionValide) { this.datePeremptionValide = datePeremptionValide; return this; }
+    public boolean isNumLotLisible() {
+        return numLotLisible;
+    }
+
+    public RetourClientLine setNumLotLisible(boolean numLotLisible) {
+        this.numLotLisible = numLotLisible;
+        return this;
+    }
+
+    public boolean isDatePeremptionValide() {
+        return datePeremptionValide;
+    }
+
+    public RetourClientLine setDatePeremptionValide(boolean datePeremptionValide) {
+        this.datePeremptionValide = datePeremptionValide;
+        return this;
+    }
 }

@@ -1,4 +1,4 @@
-import {signal, Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -58,13 +58,7 @@ import { UtilisationCleSecurite } from '../../../../entities/action-autorisation
 
           <div class="form-group">
             <label for="comment">Commentaire (optionnel)</label>
-            <input
-              id="comment"
-              [(ngModel)]="comment"
-              name="comment"
-              placeholder="Motif de l'autorisation"
-              class="form-control w-100"
-            />
+            <input id="comment" [(ngModel)]="comment" name="comment" placeholder="Motif de l'autorisation" class="form-control w-100" />
           </div>
 
           @if (errorMessage()) {

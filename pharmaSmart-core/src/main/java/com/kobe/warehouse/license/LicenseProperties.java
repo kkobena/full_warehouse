@@ -131,8 +131,8 @@ public class LicenseProperties {
         }
         String programData = System.getenv("PROGRAMDATA");
         Path baseDir = programData != null && !programData.isBlank()
-            ? Path.of(programData, "PharmaSmart")
-            : Path.of(System.getProperty("user.home"), ".pharmasmart");
+                ? Path.of(programData, "PharmaSmart")
+                : Path.of(System.getProperty("user.home"), ".pharmasmart");
         return baseDir.resolve(DEFAULT_FILE_NAME);
     }
 

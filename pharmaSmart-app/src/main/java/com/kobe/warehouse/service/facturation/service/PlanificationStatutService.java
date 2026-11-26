@@ -22,18 +22,19 @@ public class PlanificationStatutService {
     private final HistoriquePlanificationRepository historiqueRepository;
 
     public PlanificationStatutService(
-        PlanificationFacturationRepository planificationRepository,
-        HistoriquePlanificationRepository historiqueRepository
-    ) {
+            PlanificationFacturationRepository planificationRepository,
+            HistoriquePlanificationRepository historiqueRepository) {
         this.planificationRepository = planificationRepository;
         this.historiqueRepository = historiqueRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sauvegarderSuccess(
-        PlanificationFacturation plan, LocalDateTime debut, LocalDate periodeFin,
-        Integer generationCode, LocalDateTime prochaineExecution
-    ) {
+            PlanificationFacturation plan,
+            LocalDateTime debut,
+            LocalDate periodeFin,
+            Integer generationCode,
+            LocalDateTime prochaineExecution) {
         enregistrerHistorique(plan, debut, ExecutionStatut.SUCCESS, generationCode, null);
         plan.setDernierePeriodeFin(periodeFin);
         plan.setDerniereExecution(debut);
@@ -45,9 +46,7 @@ public class PlanificationStatutService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sauvegarderEchec(
-        PlanificationFacturation plan, LocalDateTime debut,
-        String message, LocalDateTime prochaineExecution
-    ) {
+            PlanificationFacturation plan, LocalDateTime debut, String message, LocalDateTime prochaineExecution) {
         enregistrerHistorique(plan, debut, ExecutionStatut.ECHEC, null, message);
         plan.setDerniereExecution(debut);
         plan.setDernierStatut(ExecutionStatut.ECHEC);
@@ -57,9 +56,11 @@ public class PlanificationStatutService {
     }
 
     private void enregistrerHistorique(
-        PlanificationFacturation plan, LocalDateTime debut,
-        ExecutionStatut statut, Integer generationCode, String message
-    ) {
+            PlanificationFacturation plan,
+            LocalDateTime debut,
+            ExecutionStatut statut,
+            Integer generationCode,
+            String message) {
         HistoriquePlanification h = new HistoriquePlanification();
         h.setPlanificationId(plan.getId());
         h.setExecutionDebut(debut);

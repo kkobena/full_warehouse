@@ -3,19 +3,14 @@
     <ng-container ngProjectAs="[toolbarFilters]">
       <!-- Filtres liste des retours() -->
       <app-icon-field [overlay]="true" icon="pi pi-search">
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
-               placeholder="Réf. retour ou vente…"
-               type="text" />
+        <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Réf. retour ou vente…" type="text" />
       </app-icon-field>
-      <pharma-date-picker [(ngModel)]="fromDate" [style]="{ 'max-width': '180px' }" id="fromDate"
-                          label="Du" />
-      <pharma-date-picker [(ngModel)]="toDate" [style]="{ 'max-width': '180px' }" id="toDate"
-                          label="Au" />
+      <pharma-date-picker [(ngModel)]="fromDate" [style]="{ 'max-width': '180px' }" id="fromDate" label="Du" />
+      <pharma-date-picker [(ngModel)]="toDate" [style]="{ 'max-width': '180px' }" id="toDate" label="Au" />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
-      <app-button (clicked)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                  severity="info" size="small" />
+      <app-button (clicked)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
       <!--
         Pas de bouton « Nouveau retour » ici : un retour part TOUJOURS d'une vente, qu'il
         faut d'abord retrouver. Le bouton existait, mais sa condition d'activation
@@ -39,8 +34,8 @@
       [value]="retours()"
       class="p-datatable-sm p-datatable-striped"
       currentPageReportTemplate="{first} – {last} sur {totalRecords}"
-      dataKey="id">
-
+      dataKey="id"
+    >
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Référence</th>
@@ -48,7 +43,7 @@
           <th>Client</th>
           <th>Vente d'origine</th>
           <th>Motif</th>
-          <th style="text-align:right">Montant</th>
+          <th style="text-align: right">Montant</th>
           <th>Mode règlement</th>
           <th>Par</th>
         </tr>
@@ -56,19 +51,20 @@
 
       <ng-template #body let-r>
         <tr>
-          <td><span class="retour-ref">{{ r.reference }}</span></td>
-          <td>{{ r.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="retour-ref">{{ r.reference }}</span>
+          </td>
+          <td>{{ r.createdAt | date: 'dd/MM/yyyy' }}</td>
           <td>{{ r.customerName ?? '—' }}</td>
           <td>{{ r.originalSaleRef ?? '—' }}</td>
           <td>{{ motifLabelOf(r.motif) }}</td>
-          <td class="retour-amount" style="text-align:right">{{ r.montantTotal | devise }}
-          </td>
+          <td class="retour-amount" style="text-align: right">{{ r.montantTotal | devise }}</td>
           <td>
             @if (r.modeReglement) {
               <span class="mode-badge">
-              <i [class]="modeIconOf(r.modeReglement)"></i>
+                <i [class]="modeIconOf(r.modeReglement)"></i>
                 {{ modeLabelOf(r.modeReglement) }}
-            </span>
+              </span>
             }
           </td>
           <td>{{ r.createdByName }}</td>
@@ -77,10 +73,9 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="8" style="text-align:center;padding:2rem;color:#888">Aucun retour trouvé</td>
+          <td colspan="8" style="text-align: center; padding: 2rem; color: #888">Aucun retour trouvé</td>
         </tr>
       </ng-template>
     </app-data-table>
   </app-card>
-
 </div>

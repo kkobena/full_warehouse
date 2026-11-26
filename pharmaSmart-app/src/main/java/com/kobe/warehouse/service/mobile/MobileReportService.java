@@ -57,21 +57,19 @@ public class MobileReportService {
         double trendVs30j = calculateVariation(currentDay.caTotal(), averageCA30j);
 
         // Get alerts count
-        int alertsCount = alertService.getAlertsSummary()
-            .stream()
-            .mapToInt(MobileDashboardDTO.MobileAlertDTO::count)
-            .sum();
+        int alertsCount = alertService.getAlertsSummary().stream()
+                .mapToInt(MobileDashboardDTO.MobileAlertDTO::count)
+                .sum();
 
         return new DailyDigestDTO(
-            currentDay.caTotal(),
-            variation,
-            currentDay.transactionsCount(),
-            alertsCount,
-            averageCA30j,
-            trendVs30j,
-            currentDay.customersCount(),
-            currentDay.averageBasket()
-        );
+                currentDay.caTotal(),
+                variation,
+                currentDay.transactionsCount(),
+                alertsCount,
+                averageCA30j,
+                trendVs30j,
+                currentDay.customersCount(),
+                currentDay.averageBasket());
     }
 
     /**
@@ -98,13 +96,12 @@ public class MobileReportService {
         String userName = salesRepository.getUserName(userId);
 
         UserPerformanceDTO performance = new UserPerformanceDTO(
-            userId.longValue(),
-            userName,
-            currentDay.totalCA(),
-            currentDay.salesCount(),
-            currentDay.averageBasket(),
-            variation
-        );
+                userId.longValue(),
+                userName,
+                currentDay.totalCA(),
+                currentDay.salesCount(),
+                currentDay.averageBasket(),
+                variation);
 
         // Set margin data
         performance.setMarginAmount(currentDay.marginAmount());
@@ -112,7 +109,6 @@ public class MobileReportService {
 
         return performance;
     }
-
 
     /**
      * Calculate variation percentage between current and previous value.

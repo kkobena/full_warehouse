@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.update.ClientUpdateArtifact;
 import com.kobe.warehouse.service.update.ClientUpdateService;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * Relais de mise à jour pour les postes clients de l'officine.
@@ -58,10 +58,9 @@ public class ClientUpdateResource {
      */
     @GetMapping("/{target}/{arch}/{currentVersion}")
     public ResponseEntity<Map<String, String>> checkForUpdate(
-        @PathVariable(name = "target") String target,
-        @PathVariable(name = "arch") String arch,
-        @PathVariable(name = "currentVersion") String currentVersion
-    ) {
+            @PathVariable(name = "target") String target,
+            @PathVariable(name = "arch") String arch,
+            @PathVariable(name = "currentVersion") String currentVersion) {
         // Le poste client est un livrable Windows ; rien à proposer ailleurs.
         if (!target.toLowerCase().startsWith("windows")) {
             LOG.debug("Demande de mise à jour ignorée pour la cible {}/{}", target, arch);
@@ -81,20 +80,21 @@ public class ClientUpdateResource {
         // URL construite à partir de la requête entrante : le poste client reçoit donc l'adresse
         // par laquelle il vient lui-même de joindre le serveur, sans qu'aucune IP soit à configurer.
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path("/api/updates/download/")
-            .path(artifact.fileName())
-            .toUriString();
+                .path("/api/updates/download/")
+                .path(artifact.fileName())
+                .toUriString();
 
         LOG.info("Mise à jour proposée à un poste client : {} → {}", currentVersion, artifact.version());
 
-        return ResponseEntity.ok(
-            Map.of(
-                "version", artifact.version(),
-                "pub_date", artifact.publishedAt().toString(),
-                "url", downloadUrl,
-                "notes", "Mise à jour PharmaSmart " + artifact.version()
-            )
-        );
+        return ResponseEntity.ok(Map.of(
+                "version",
+                artifact.version(),
+                "pub_date",
+                artifact.publishedAt().toString(),
+                "url",
+                downloadUrl,
+                "notes",
+                "Mise à jour PharmaSmart " + artifact.version()));
     }
 
     /** Sert l'installeur. Seuls les fichiers réellement publiés par le catalogue sont accessibles. */
@@ -108,12 +108,12 @@ public class ClientUpdateResource {
 
         ClientUpdateArtifact found = artifact.get();
         String contentType = Optional.ofNullable(URLConnection.guessContentTypeFromName(found.fileName()))
-            .orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                .orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + found.fileName() + "\"")
-            .contentType(MediaType.parseMediaType(contentType))
-            .contentLength(Files.size(found.path()))
-            .body(new FileSystemResource(found.path()));
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + found.fileName() + "\"")
+                .contentType(MediaType.parseMediaType(contentType))
+                .contentLength(Files.size(found.path()))
+                .body(new FileSystemResource(found.path()));
     }
 }

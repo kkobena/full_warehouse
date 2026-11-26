@@ -29,7 +29,7 @@
   /* @include search-section(#00a86b);*/
   // vert pharma vente
   @include search-section(#2e7d97);
-/*  margin-bottom: 0.75rem;*/
+  /*  margin-bottom: 0.75rem;*/
   margin-left: 0;
   margin-right: 0;
   // Espacement resserré (12 → 8 px) : avec 5 lignes au panier, le règlement sortait de l'écran sur un 24 pouces.
@@ -92,7 +92,8 @@
           background: rgba(220, 53, 69, 0.1);
           border-color: rgba(220, 53, 69, 0.3);
 
-          i, strong {
+          i,
+          strong {
             color: #dc3545;
           }
         }
@@ -164,8 +165,6 @@
 
 // Row adjustments pour l'ancien système Bootstrap
 .row {
-
-
   .amounts-summary {
     display: flex;
     flex-direction: column;

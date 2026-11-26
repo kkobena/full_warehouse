@@ -13,11 +13,7 @@ import java.time.LocalDate;
  * @param tiersPayantId restreint aux ventes relevant de ce tiers-payant
  */
 public record JournalExclusionParamDTO(
-    LocalDate dateDebut,
-    LocalDate dateFin,
-    String recherche,
-    Integer tiersPayantId
-) {
+        LocalDate dateDebut, LocalDate dateFin, String recherche, Integer tiersPayantId) {
     public JournalExclusionParamDTO {
         if (dateDebut != null && dateFin != null && dateFin.isBefore(dateDebut)) {
             throw new IllegalArgumentException("La date de fin ne peut pas précéder la date de début.");

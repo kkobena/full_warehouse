@@ -1,14 +1,15 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
-import com.kobe.warehouse.service.dto.PriceHistoryDTO;
-import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
-import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
-import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
+import com.kobe.warehouse.service.dto.PriceHistoryDTO;
+import com.kobe.warehouse.service.dto.PutawayPreviewItemDTO;
+import com.kobe.warehouse.service.dto.ReceptionScanResultDTO;
+import com.kobe.warehouse.service.dto.StockEntryResultDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.StockEntryService;
@@ -24,20 +25,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "commande", "depot.achat-depot" })
+@RequiresNavAccess({"commande", "depot.achat-depot"})
 public class StockEntryResource {
 
     private static final String ENTITY_NAME = "deliveryReceipt";
@@ -53,7 +53,8 @@ public class StockEntryResource {
     }
 
     @PutMapping("/commandes/entree-stock/finalize")
-    public ResponseEntity<StockEntryResultDTO> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
+    public ResponseEntity<StockEntryResultDTO> finalizeSaisieEntreeStock(
+            @Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return ResponseEntity.accepted().body(stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite));
     }
 
@@ -63,8 +64,9 @@ public class StockEntryResource {
      * Utilisé par le frontend en mode MANUAL pour alimenter le modal de confirmation.
      */
     @GetMapping("/commandes/entree-stock/putaway-preview/{commandeId}/{orderDate}")
-    public ResponseEntity<List<PutawayPreviewItemDTO>> getPutawayPreview(@PathVariable Integer commandeId,@PathVariable LocalDate orderDate) {
-        return ResponseEntity.ok(stockEntryService.getPutawayPreview(commandeId,orderDate));
+    public ResponseEntity<List<PutawayPreviewItemDTO>> getPutawayPreview(
+            @PathVariable Integer commandeId, @PathVariable LocalDate orderDate) {
+        return ResponseEntity.ok(stockEntryService.getPutawayPreview(commandeId, orderDate));
     }
 
     /**
@@ -79,84 +81,109 @@ public class StockEntryResource {
 
     @GetMapping("/commandes/entree-stock/check-price-variation")
     public ResponseEntity<List<OrderLineDTO>> checkPriceVariation(
-        @RequestParam Integer commandeId,
-        @RequestParam String orderDate
-    ) {
+            @RequestParam Integer commandeId, @RequestParam String orderDate) {
 
         return ResponseEntity.ok(stockEntryService.findLignesAvecEcartPrix(commandeId, LocalDate.parse(orderDate)));
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-cost-amount")
-    public ResponseEntity<CommandeEntryDTO> updateOrderCostAmount(@Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
+    public ResponseEntity<CommandeEntryDTO> updateOrderCostAmount(@Valid @RequestBody OrderLineDTO orderLineDTO)
+            throws URISyntaxException {
         CommandeEntryDTO result = new CommandeEntryDTO(commandService.updateOrderCostAmount(orderLineDTO));
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-unit-price")
-    public ResponseEntity<Void> updateOrderUnitPrice(@Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
+    public ResponseEntity<Void> updateOrderUnitPrice(
+            @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
         stockEntryService.updateOrderUnitPrice(deliveryReceiptItem);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        deliveryReceiptItem.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-quantity-received")
-    public ResponseEntity<Void> updateQuantityReceived(@Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
+    public ResponseEntity<Void> updateQuantityReceived(
+            @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
         stockEntryService.updateQuantityReceived(deliveryReceiptItem);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        deliveryReceiptItem.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/entree-stock/batch-quantity-received")
-    public ResponseEntity<Void> batchUpdateQuantityReceived(@Valid @RequestBody List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems) {
+    public ResponseEntity<Void> batchUpdateQuantityReceived(
+            @Valid @RequestBody List<DeliveryReceiptItemLiteDTO> deliveryReceiptItems) {
         stockEntryService.batchUpdateQuantityReceived(deliveryReceiptItems);
-        return ResponseEntity.accepted()
-            .build();
+        return ResponseEntity.accepted().build();
     }
-
 
     @PutMapping("/commandes/entree-stock/update-provisional-cip")
     public ResponseEntity<Void> updateCodeCip(@Valid @RequestBody OrderLineDTO orderLineDTO) {
         commandService.updateCodeCip(orderLineDTO);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, orderLineDTO.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName, true, ENTITY_NAME, orderLineDTO.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-quantity-ug")
     public ResponseEntity<Void> updateQuantityUG(@Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
         stockEntryService.updateQuantityUG(deliveryReceiptItem);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        deliveryReceiptItem.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-tva")
     public ResponseEntity<Void> updateTva(@Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
         stockEntryService.updateTva(deliveryReceiptItem);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        deliveryReceiptItem.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-date-peremption")
-    public ResponseEntity<Void> updateDatePeremption(@Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
+    public ResponseEntity<Void> updateDatePeremption(
+            @Valid @RequestBody DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
         stockEntryService.updateDatePeremption(deliveryReceiptItem);
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, deliveryReceiptItem.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        deliveryReceiptItem.getId().toString()))
+                .build();
     }
 
     @PostMapping("/commandes/entree-stock/create")
-    public ResponseEntity<DeliveryReceiptLiteDTO> createBon(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLiteDTO) {
+    public ResponseEntity<DeliveryReceiptLiteDTO> createBon(
+            @Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLiteDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(stockEntryService.createBon(deliveryReceiptLiteDTO));
     }
 
     @PutMapping("/commandes/entree-stock/create")
-    public ResponseEntity<DeliveryReceiptLiteDTO> updateBon(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLiteDTO) {
+    public ResponseEntity<DeliveryReceiptLiteDTO> updateBon(
+            @Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLiteDTO) {
         return ResponseEntity.accepted().body(stockEntryService.updateBon(deliveryReceiptLiteDTO));
     }
 
@@ -166,17 +193,17 @@ public class StockEntryResource {
      */
     @PostMapping("/commandes/entree-stock/scan-reception")
     public ResponseEntity<ReceptionScanResultDTO> scanReception(
-        @RequestParam Integer commandeId,
-        @RequestBody String rawScan
-    ) {
+            @RequestParam Integer commandeId, @RequestBody String rawScan) {
         return ResponseEntity.ok(stockEntryService.processScanReception(commandeId, rawScan));
     }
 
-    @PostMapping(path = "/commandes/entree-stock/upload-new", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(
+            path = "/commandes/entree-stock/upload-new",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommandeResponseDTO> importerReponseCommande(
-        @RequestPart("deliveryReceipt") UploadDeleiveryReceiptDTO deliveryReceipt,
-        @RequestPart("fichier") MultipartFile file
-    ) throws IOException {
+            @RequestPart("deliveryReceipt") UploadDeleiveryReceiptDTO deliveryReceipt,
+            @RequestPart("fichier") MultipartFile file)
+            throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(stockEntryService.importNewBon(deliveryReceipt, file));
     }
 }

@@ -28,24 +28,18 @@ public class TiersPayantDataService implements TiersPayantMapper {
     }
 
     public Page<TiersPayantDto> fetchList(
-        String search,
-        String categorie,
-        TiersPayantStatut statut,
-        Integer groupeTiersPayantId,
-        Pageable pageable
-    ) {
+            String search, String categorie, TiersPayantStatut statut, Integer groupeTiersPayantId, Pageable pageable) {
         return fetchList(search, categorie, statut, groupeTiersPayantId, null, null, pageable);
     }
 
     public Page<TiersPayantDto> fetchList(
-        String search,
-        String categorie,
-        TiersPayantStatut statut,
-        Integer groupeTiersPayantId,
-        String periodiciteDefinitive,
-        String periodiciteProvisoire,
-        Pageable pageable
-    ) {
+            String search,
+            String categorie,
+            TiersPayantStatut statut,
+            Integer groupeTiersPayantId,
+            String periodiciteDefinitive,
+            String periodiciteProvisoire,
+            Pageable pageable) {
         Specification<TiersPayant> specification = this.tiersPayantRepository.specialisationStatut(statut);
         if (StringUtils.hasLength(search)) {
             var searchUpper = search.toUpperCase() + "%";
@@ -59,16 +53,15 @@ public class TiersPayantDataService implements TiersPayantMapper {
             specification = specification.and(this.tiersPayantRepository.specialisationCategorie(tiersPayantCategorie));
         }
         if (StringUtils.hasLength(periodiciteDefinitive)) {
-            specification = specification.and(
-                this.tiersPayantRepository.specialisationPeriodiciteDefinitive(Periodicite.valueOf(periodiciteDefinitive))
-            );
+            specification = specification.and(this.tiersPayantRepository.specialisationPeriodiciteDefinitive(
+                    Periodicite.valueOf(periodiciteDefinitive)));
         }
         if (StringUtils.hasLength(periodiciteProvisoire)) {
-            specification = specification.and(
-                this.tiersPayantRepository.specialisationPeriodiciteProvisoire(Periodicite.valueOf(periodiciteProvisoire))
-            );
+            specification = specification.and(this.tiersPayantRepository.specialisationPeriodiciteProvisoire(
+                    Periodicite.valueOf(periodiciteProvisoire)));
         }
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "fullName"));
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "fullName"));
         return this.tiersPayantRepository.findAll(specification, page).map(this::fromEntity);
     }
 }

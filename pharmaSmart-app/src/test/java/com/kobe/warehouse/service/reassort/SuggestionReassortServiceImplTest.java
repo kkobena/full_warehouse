@@ -96,12 +96,11 @@ class SuggestionReassortServiceImplTest {
     @BeforeEach
     void init() {
         service = new SuggestionReassortServiceImpl(
-            suggestionReassortRepository,
-            ligneReassortRepository,
-            repartitionStockService,
-            storageService,
-            referenceService
-        );
+                suggestionReassortRepository,
+                ligneReassortRepository,
+                repartitionStockService,
+                storageService,
+                referenceService);
         magasin = new Magasin();
         magasin.setId(MAGASIN_ID);
         rayon = storage(RAYON_ID, "Stock rayon", StorageType.PRINCIPAL);
@@ -130,8 +129,8 @@ class SuggestionReassortServiceImplTest {
         @DisplayName("Un stock de réserve sans seuil mini ou déjà au-dessus du seuil ne suggère rien")
         void riensASuggerer() {
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.empty());
             when(referenceService.buildNumReassort()).thenReturn("RE-1");
 
             StockProduit sansSeuil = stock(produit(10), reserve, 0);
@@ -139,9 +138,7 @@ class SuggestionReassortServiceImplTest {
             auDessusDuSeuil.setSeuilMini(10);
 
             service.createLigneReassort(
-                List.of(new ReassortRecord(sansSeuil, 50), new ReassortRecord(auDessusDuSeuil, 50)),
-                operateur
-            );
+                    List.of(new ReassortRecord(sansSeuil, 50), new ReassortRecord(auDessusDuSeuil, 50)), operateur);
 
             assertTrue(capturerLaSuggestion().getLigneReassorts().isEmpty());
         }
@@ -150,8 +147,8 @@ class SuggestionReassortServiceImplTest {
         @DisplayName("La quantité proposée comble l'écart au seuil, plafonné par ce que la réception apporte")
         void quantitePlafonneeParLaReception() {
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.empty());
             when(referenceService.buildNumReassort()).thenReturn("RE-1");
 
             StockProduit besoinCouvert = stock(produit(10), reserve, 4);
@@ -160,9 +157,7 @@ class SuggestionReassortServiceImplTest {
             besoinPlafonne.setSeuilMini(20);
 
             service.createLigneReassort(
-                List.of(new ReassortRecord(besoinCouvert, 50), new ReassortRecord(besoinPlafonne, 6)),
-                operateur
-            );
+                    List.of(new ReassortRecord(besoinCouvert, 50), new ReassortRecord(besoinPlafonne, 6)), operateur);
 
             SuggestionReassort suggestion = capturerLaSuggestion();
             assertEquals(MAGASIN_ID, suggestion.getMagasin().getId());
@@ -180,8 +175,8 @@ class SuggestionReassortServiceImplTest {
         void suggestionOuverteReutilisee() {
             SuggestionReassort ouverte = suggestion(7, TypeReassort.RESERVE, StatutReassort.OPEN);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.of(ouverte));
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.of(ouverte));
 
             StockProduit stockReserve = stock(produit(10), reserve, 4);
             stockReserve.setSeuilMini(20);
@@ -198,8 +193,8 @@ class SuggestionReassortServiceImplTest {
         void utilisateurConnecteParDefaut() {
             when(storageService.getUser()).thenReturn(operateur);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.empty());
             when(referenceService.buildNumReassort()).thenReturn("RE-1");
 
             StockProduit stockReserve = stock(produit(10), reserve, 4);
@@ -271,8 +266,8 @@ class SuggestionReassortServiceImplTest {
             when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
             when(storageService.getUser()).thenReturn(operateur);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RAYON))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RAYON))
+                    .thenReturn(Optional.empty());
             when(referenceService.buildNumReassort()).thenReturn("RE-9");
 
             Produit produit = produit(10);
@@ -344,8 +339,8 @@ class SuggestionReassortServiceImplTest {
             when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
             when(storageService.getUser()).thenReturn(operateur);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.empty());
             when(referenceService.buildNumReassort()).thenReturn("RE-3");
 
             Produit produit = produit(10);
@@ -358,7 +353,8 @@ class SuggestionReassortServiceImplTest {
 
             SuggestionReassort suggestion = capturerLaSuggestion();
             assertEquals(TypeReassort.RESERVE, suggestion.getTypeReassort());
-            assertEquals(30, quantiteProposeePour(suggestion, stockReserve), "80 - 50, la ligne porte le stock réserve");
+            assertEquals(
+                    30, quantiteProposeePour(suggestion, stockReserve), "80 - 50, la ligne porte le stock réserve");
         }
     }
 
@@ -428,11 +424,11 @@ class SuggestionReassortServiceImplTest {
         void sansFiltreDeType() {
             when(storageService.getUser()).thenReturn(operateur);
             when(suggestionReassortRepository.findAllByStatutAndMagasinId(StatutReassort.OPEN, MAGASIN_ID))
-                .thenReturn(List.of(suggestion(7, TypeReassort.RAYON, StatutReassort.OPEN)));
+                    .thenReturn(List.of(suggestion(7, TypeReassort.RAYON, StatutReassort.OPEN)));
 
             assertEquals(1, service.getOpenningSuggestions(null).size());
             verify(suggestionReassortRepository, never())
-                .findAllByStatutAndMagasinIdAndTypeReassort(any(), any(), any());
+                    .findAllByStatutAndMagasinIdAndTypeReassort(any(), any(), any());
         }
 
         @Test
@@ -444,15 +440,12 @@ class SuggestionReassortServiceImplTest {
             StockProduit stockReserve = stock(produit, reserve, 4);
             stockReserve.setSeuilMini(20);
             ouverte.getLigneReassorts().add(ligne(stockReserve, 16));
-            when(
-                suggestionReassortRepository.findAllByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN,
-                    MAGASIN_ID,
-                    TypeReassort.RESERVE
-                )
-            ).thenReturn(List.of(ouverte));
+            when(suggestionReassortRepository.findAllByStatutAndMagasinIdAndTypeReassort(
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(List.of(ouverte));
 
-            SuggestionReassortDto dto = service.getOpenningSuggestions(TypeReassort.RESERVE).getFirst();
+            SuggestionReassortDto dto =
+                    service.getOpenningSuggestions(TypeReassort.RESERVE).getFirst();
 
             assertEquals(7, dto.getId());
             assertEquals(StatutReassort.OPEN, dto.getStatut());
@@ -488,8 +481,8 @@ class SuggestionReassortServiceImplTest {
 
             when(storageService.getUser()).thenReturn(operateur);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.empty());
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.empty());
 
             service.autoExecuteOverflowForProducts(Set.of(10));
 
@@ -514,8 +507,8 @@ class SuggestionReassortServiceImplTest {
             ouverte.getLigneReassorts().add(ligne(reserveAbsent, 5));
 
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.of(ouverte));
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.of(ouverte));
 
             service.autoExecuteOverflowForProducts(Set.of(10));
 
@@ -537,8 +530,8 @@ class SuggestionReassortServiceImplTest {
             LigneReassort ligne = ligne(reserveRecu, 30);
             ouverte.getLigneReassorts().add(ligne);
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.of(ouverte));
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.of(ouverte));
 
             service.autoExecuteOverflowForProducts(Set.of(10));
 
@@ -557,8 +550,8 @@ class SuggestionReassortServiceImplTest {
             StockProduit stockReserve = stock(produit, reserve, 2);
             ouverte.getLigneReassorts().add(ligne(stockReserve, 30));
             when(suggestionReassortRepository.findOneByStatutAndMagasinIdAndTypeReassort(
-                    StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
-                .thenReturn(Optional.of(ouverte));
+                            StatutReassort.OPEN, MAGASIN_ID, TypeReassort.RESERVE))
+                    .thenReturn(Optional.of(ouverte));
 
             service.autoExecuteOverflowForProducts(Set.of(10));
 
@@ -582,13 +575,11 @@ class SuggestionReassortServiceImplTest {
     }
 
     private static int quantiteProposeePour(SuggestionReassort suggestion, StockProduit stockProduit) {
-        return suggestion
-            .getLigneReassorts()
-            .stream()
-            .filter(ligne -> ligne.getStockProduit().getId().equals(stockProduit.getId()))
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("aucune ligne proposée pour le stock " + stockProduit.getId()))
-            .getQuantity();
+        return suggestion.getLigneReassorts().stream()
+                .filter(ligne -> ligne.getStockProduit().getId().equals(stockProduit.getId()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("aucune ligne proposée pour le stock " + stockProduit.getId()))
+                .getQuantity();
     }
 
     private static Storage storage(int id, String nom, StorageType type) {

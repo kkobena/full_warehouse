@@ -12,8 +12,9 @@ public class InvoicePaymentWrapper {
     private String periode;
 
     public String getInvoicePaymentItemsCount() {
-        int invoicePaymentItemsCount =
-            this.invoicePayments.stream().map(InvoicePaymentDTO::getInvoicePaymentItemsCount).reduce(0, Integer::sum);
+        int invoicePaymentItemsCount = this.invoicePayments.stream()
+                .map(InvoicePaymentDTO::getInvoicePaymentItemsCount)
+                .reduce(0, Integer::sum);
         return NumberUtil.formatToString(invoicePaymentItemsCount);
     }
 
@@ -34,7 +35,9 @@ public class InvoicePaymentWrapper {
     }
 
     public String getTotalAmount() {
-        var totalAmount = this.invoicePayments.stream().map(InvoicePaymentDTO::getTotalAmount).reduce(0, Integer::sum);
+        var totalAmount = this.invoicePayments.stream()
+                .map(InvoicePaymentDTO::getTotalAmount)
+                .reduce(0, Integer::sum);
         return NumberUtil.formatToString(totalAmount);
     }
 

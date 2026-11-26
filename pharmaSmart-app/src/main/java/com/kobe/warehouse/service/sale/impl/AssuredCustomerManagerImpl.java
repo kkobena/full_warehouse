@@ -1,18 +1,17 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
 
 /**
  * Implémentation du service de gestion des clients assurés.
@@ -40,7 +39,7 @@ public class AssuredCustomerManagerImpl implements AssuredCustomerManager {
 
     @Override
     public void updateAssuredCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer)
-        throws InvalidPhoneNumberException {
+            throws InvalidPhoneNumberException {
         if (isNull(customer)) {
             return;
         }

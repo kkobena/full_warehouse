@@ -21,8 +21,7 @@ scenario('REF-47', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, produit);
-    await page.locator('tbody tr').filter({ visible: true }).first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('tbody tr').filter({ visible: true }).first().getByRole('button', { name: 'Actions' }).click();
     // Le libellé de l'action change avec l'état du produit : « Cloner vers un autre
     // stockage » quand il a déjà un emplacement, « Assigner un emplacement » sinon.
     await page.getByRole('button', { name: /Cloner vers un autre stockage|Assigner un emplacement/ }).click();

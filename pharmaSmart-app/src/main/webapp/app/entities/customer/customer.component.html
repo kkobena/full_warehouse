@@ -1,12 +1,12 @@
 <div class="pharma-smart-content p-1 customer-home-layout">
   <app-toolbar icon="pi pi-users" title="Liste des clients">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-float-label inputId="typeFilter" label="Filtrer par type">
           <app-select
             (ngModelChange)="typeSelected.set($event)"
-            (selectionChange)="onTypeChange()" [appendTo]="'body'"
+            (selectionChange)="onTypeChange()"
+            [appendTo]="'body'"
             [items]="types"
             [ngModel]="typeSelected()"
             [searchable]="false"
@@ -22,7 +22,8 @@
         <app-float-label inputId="statutFilter" label="Statut">
           <app-select
             (ngModelChange)="statutSelected.set($event)"
-            (selectionChange)="onTypeChange()" [appendTo]="'body'"
+            (selectionChange)="onTypeChange()"
+            [appendTo]="'body'"
             [items]="statuts"
             [ngModel]="statutSelected()"
             [searchable]="false"
@@ -37,8 +38,7 @@
 
         <div class="pharma-search-input">
           <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input (keyup.enter)="onSearch()" [(ngModel)]="search"
-                   class="form-control" placeholder="Taper pour rechercher" type="text" />
+            <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Taper pour rechercher" type="text" />
           </app-icon-field>
         </div>
       </div>
@@ -47,12 +47,16 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
-          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                      severity="info"></app-button>
+          <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info"></app-button>
 
-          <app-button (clicked)="openRenouvellements()" [raised]="true" icon="pi pi-replay" label="Renouvellements"
-                      ngbTooltip="Patients dont un traitement chronique arrive à échéance" severity="warn"></app-button>
-
+          <app-button
+            (clicked)="openRenouvellements()"
+            [raised]="true"
+            icon="pi pi-replay"
+            label="Renouvellements"
+            ngbTooltip="Patients dont un traitement chronique arrive à échéance"
+            severity="warn"
+          ></app-button>
 
           @if (canCreate()) {
             <app-split-button
@@ -70,20 +74,12 @@
   </app-toolbar>
 
   <!-- Barre d'actions groupées -->
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
-          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
     @if (hasSelection()) {
       <div class="bulk-action-bar mt-2">
         <span class="bulk-count">{{ selectedCustomers().length }} client(s) sélectionné(s)</span>
         @if (canMerge() && selectedCustomers().length >= 2) {
-          <app-button
-            (clicked)="onBulkMerge()"
-            [outlined]="true"
-            icon="pi pi-sitemap"
-            label="Fusionner"
-            severity="info"
-            size="small"
-          />
+          <app-button (clicked)="onBulkMerge()" [outlined]="true" icon="pi pi-sitemap" label="Fusionner" severity="info" size="small" />
         }
         <app-button
           (clicked)="onClearSelection()"
@@ -98,7 +94,6 @@
 
     <!-- Split panel -->
     <div [class.panel-open]="panelOpen()" class="split-container">
-
       <!-- Colonne gauche : liste -->
       <div class="list-column">
         @if (customers() && customers().length > 0) {
@@ -141,8 +136,11 @@
                 style="cursor: pointer"
               >
                 <td (click)="$event.stopPropagation()" class="text-center">
-                  <app-checkbox (ngModelChange)="toggleCheckbox(customer)" [ariaLabel]="'Sélectionner ' + customer.fullName"
-                                [ngModel]="isChecked(customer)" />
+                  <app-checkbox
+                    (ngModelChange)="toggleCheckbox(customer)"
+                    [ariaLabel]="'Sélectionner ' + customer.fullName"
+                    [ngModel]="isChecked(customer)"
+                  />
                 </td>
                 <td>
                   <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
@@ -253,14 +251,9 @@
       <!-- Colonne droite : fiche client -->
       @if (panelOpen()) {
         <div class="detail-column">
-          <app-customer-detail
-            (closePanel)="onClosePanel()"
-            (customerChanged)="loadPage()"
-            [customer]="selectedCustomer()!"
-          />
+          <app-customer-detail (closePanel)="onClosePanel()" (customerChanged)="loadPage()" [customer]="selectedCustomer()!" />
         </div>
       }
-
     </div>
   </app-card>
 </div>

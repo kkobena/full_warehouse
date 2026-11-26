@@ -4,4 +4,3 @@ export { PlanifSubtabTpsComponent } from './planif-subtab-tps.component';
 export { PlanifDetailPanelComponent } from './planif-detail-panel.component';
 export { PlanifTabFacturesComponent } from './planif-tab-factures.component';
 export { PlanifTabFneComponent } from './planif-tab-fne.component';
-

@@ -16,6 +16,12 @@ import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
 import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.AvoirFournisseurService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Year;
+import java.util.List;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,13 +29,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Year;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
@@ -41,11 +40,10 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
     private final UserService userService;
 
     public AvoirFournisseurServiceImpl(
-        AvoirFournisseurRepository avoirFournisseurRepository,
-        RetourBonRepository retourBonRepository,
-        RetourBonItemRepository retourBonItemRepository,
-        UserService userService
-    ) {
+            AvoirFournisseurRepository avoirFournisseurRepository,
+            RetourBonRepository retourBonRepository,
+            RetourBonItemRepository retourBonItemRepository,
+            UserService userService) {
         this.avoirFournisseurRepository = avoirFournisseurRepository;
         this.retourBonRepository = retourBonRepository;
         this.retourBonItemRepository = retourBonItemRepository;
@@ -54,8 +52,9 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
 
     @Override
     public AvoirFournisseurDTO create(AvoirFournisseurCommand command) {
-        RetourBon retourBon = retourBonRepository.findById(command.retourBonId())
-            .orElseThrow(() -> new GenericError("RetourBon non trouvé: " + command.retourBonId()));
+        RetourBon retourBon = retourBonRepository
+                .findById(command.retourBonId())
+                .orElseThrow(() -> new GenericError("RetourBon non trouvé: " + command.retourBonId()));
 
         if (retourBon.getStatut() != RetourStatut.VALIDATED && retourBon.getStatut() != RetourStatut.PROCESSING) {
             throw new GenericError("Ce retour est déjà traité");
@@ -65,7 +64,8 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
     }
 
     @Override
-    public AvoirFournisseurDTO createFromRetourBon(RetourBon retourBon, List<AvoirFournisseurCommand.AvoirLigneCommand> lignes, String commentaire) {
+    public AvoirFournisseurDTO createFromRetourBon(
+            RetourBon retourBon, List<AvoirFournisseurCommand.AvoirLigneCommand> lignes, String commentaire) {
         Fournisseur fournisseur = resolveFournisseur(retourBon);
 
         AvoirFournisseur avoir = new AvoirFournisseur();
@@ -87,8 +87,8 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
         }
 
         int montant = avoir.getLignes().stream()
-            .mapToInt(l -> l.getPrixAchat() * l.getQtyMvt())
-            .sum();
+                .mapToInt(l -> l.getPrixAchat() * l.getQtyMvt())
+                .sum();
         avoir.setMontant(montant);
 
         avoir = avoirFournisseurRepository.save(avoir);
@@ -105,37 +105,47 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AvoirFournisseurDTO> findAll(String reference, AvoirFournisseurStatut statut, Integer fournisseurId,
-                                             LocalDate dtStart, LocalDate dtEnd, Pageable pageable) {
+    public Page<AvoirFournisseurDTO> findAll(
+            String reference,
+            AvoirFournisseurStatut statut,
+            Integer fournisseurId,
+            LocalDate dtStart,
+            LocalDate dtEnd,
+            Pageable pageable) {
         LocalDateTime start = dtStart != null ? dtStart.atStartOfDay() : null;
         LocalDateTime end = dtEnd != null ? dtEnd.atTime(LocalTime.MAX) : null;
-        var notFilter = Objects.isNull(statut) && !StringUtils.hasText(reference) && Objects.isNull(fournisseurId) && Objects.isNull(dtStart) && Objects.isNull(dtEnd);
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "dateMtv"));
+        var notFilter = Objects.isNull(statut)
+                && !StringUtils.hasText(reference)
+                && Objects.isNull(fournisseurId)
+                && Objects.isNull(dtStart)
+                && Objects.isNull(dtEnd);
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "dateMtv"));
         if (notFilter) {
-            return avoirFournisseurRepository.findAll(page)
-                .map(AvoirFournisseurDTO::new);
+            return avoirFournisseurRepository.findAll(page).map(AvoirFournisseurDTO::new);
         }
 
-        return avoirFournisseurRepository.findAll(avoirFournisseurRepository.buildSpecification(statut, reference, fournisseurId, start, end), page)
-            .map(AvoirFournisseurDTO::new);
+        return avoirFournisseurRepository
+                .findAll(
+                        avoirFournisseurRepository.buildSpecification(statut, reference, fournisseurId, start, end),
+                        page)
+                .map(AvoirFournisseurDTO::new);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AvoirEncoursFournisseurDTO> getEncoursParFournisseur() {
         return avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE).stream()
-            .map(row -> new AvoirEncoursFournisseurDTO(
-                (Integer) row[0],
-                (String) row[1],
-                ((Number) row[2]).longValue()
-            ))
-            .toList();
+                .map(row -> new AvoirEncoursFournisseurDTO(
+                        (Integer) row[0], (String) row[1], ((Number) row[2]).longValue()))
+                .toList();
     }
 
     @Override
     public AvoirFournisseurDTO updateStatut(Integer id, AvoirFournisseurStatut statut) {
-        AvoirFournisseur avoir = avoirFournisseurRepository.findById(id)
-            .orElseThrow(() -> new GenericError("Avoir fournisseur non trouvé"));
+        AvoirFournisseur avoir = avoirFournisseurRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Avoir fournisseur non trouvé"));
         if (avoir.getStatut() == AvoirFournisseurStatut.ANNULE) {
             throw new GenericError("Impossible de modifier un avoir annulé");
         }
@@ -145,8 +155,9 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
 
     @Override
     public AvoirFournisseurDTO annuler(Integer id, String motif) {
-        AvoirFournisseur avoir = avoirFournisseurRepository.findById(id)
-            .orElseThrow(() -> new GenericError("Avoir fournisseur non trouvé"));
+        AvoirFournisseur avoir = avoirFournisseurRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Avoir fournisseur non trouvé"));
         if (avoir.getStatut() == AvoirFournisseurStatut.IMPUTE) {
             throw new GenericError("Impossible d'annuler un avoir déjà imputé");
         }
@@ -161,8 +172,9 @@ public class AvoirFournisseurServiceImpl implements AvoirFournisseurService {
     }
 
     private boolean buildLine(AvoirFournisseur avoir, AvoirFournisseurCommand.AvoirLigneCommand cmd) {
-        RetourBonItem retourBonItem = retourBonItemRepository.findById(cmd.retourBonItemId())
-            .orElseThrow(() -> new GenericError("RetourBonItem non trouvé: " + cmd.retourBonItemId()));
+        RetourBonItem retourBonItem = retourBonItemRepository
+                .findById(cmd.retourBonItemId())
+                .orElseThrow(() -> new GenericError("RetourBonItem non trouvé: " + cmd.retourBonItemId()));
 
         int prix = Objects.requireNonNullElse(cmd.prixAchat(), retourBonItem.getPrixAchat());
 

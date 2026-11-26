@@ -9,19 +9,18 @@ import java.util.List;
  * @param noteEcheancier comment l'échéance de chaque facture est estimée
  */
 public record TresorerieRapportDTO(
-    List<TuileRapportDTO> tuilesEncaissements,
-    String titreEncaissements,
-    String encaissementsParMode,
-    TableauRapportDTO modes,
-    TableauRapportDTO caissiers,
-    List<TuileRapportDTO> tuilesTiersPayant,
-    String titreCourbePartTiersPayant,
-    String courbePartTiersPayant,
-    String noteEcheancier,
-    String echeancier,
-    String vieillissementTiersPayant,
-    TableauRapportDTO organismes,
-    List<TuileRapportDTO> tuilesDifferes,
-    String vieillissementDifferes,
-    TableauRapportDTO clientsDebiteurs
-) {}
+        List<TuileRapportDTO> tuilesEncaissements,
+        String titreEncaissements,
+        String encaissementsParMode,
+        TableauRapportDTO modes,
+        TableauRapportDTO caissiers,
+        List<TuileRapportDTO> tuilesTiersPayant,
+        String titreCourbePartTiersPayant,
+        String courbePartTiersPayant,
+        String noteEcheancier,
+        String echeancier,
+        String vieillissementTiersPayant,
+        TableauRapportDTO organismes,
+        List<TuileRapportDTO> tuilesDifferes,
+        String vieillissementDifferes,
+        TableauRapportDTO clientsDebiteurs) {}

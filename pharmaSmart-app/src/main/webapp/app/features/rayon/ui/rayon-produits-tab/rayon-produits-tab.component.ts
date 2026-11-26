@@ -17,7 +17,7 @@ import {
   HeaderCheckboxComponent,
   IconFieldComponent,
   RowCheckboxComponent,
-  SelectSearchComponent
+  SelectSearchComponent,
 } from '../../../../shared/ui';
 
 interface ProduitInRayon extends IProduit {
@@ -40,7 +40,7 @@ interface ProduitInRayon extends IProduit {
     SelectSearchComponent,
     IconFieldComponent,
     HeaderCheckboxComponent,
-    RowCheckboxComponent
+    RowCheckboxComponent,
   ],
 })
 export class RayonProduitsTabComponent {
@@ -87,7 +87,10 @@ export class RayonProduitsTabComponent {
 
   protected onComplete(query: string): void {
     const trimmed = query?.trim();
-    if (!trimmed) { this.searchSuggestions.set([]); return; }
+    if (!trimmed) {
+      this.searchSuggestions.set([]);
+      return;
+    }
     this.api.searchProduits(trimmed).subscribe({
       next: res => this.searchSuggestions.set(res.body ?? []),
       error: () => this.searchSuggestions.set([]),
@@ -127,9 +130,7 @@ export class RayonProduitsTabComponent {
   }
 
   protected onClone(produit: ProduitInRayon): void {
-    const occupiedStorageIds = (produit.rayonProduits ?? [])
-      .map(rp => rp.storageId)
-      .filter((id): id is number => id != null);
+    const occupiedStorageIds = (produit.rayonProduits ?? []).map(rp => rp.storageId).filter((id): id is number => id != null);
 
     const ref = this.modalService.open(RayonAssignFormComponent, { size: 'lg', centered: true, backdrop: 'static' });
     const inst = ref.componentInstance as RayonAssignFormComponent;
@@ -150,16 +151,11 @@ export class RayonProduitsTabComponent {
 
   protected onMoveSelected(): void {
     if (!this.selectedProduits().length) return;
-    const title = this.selectedProduits().length === 1
-      ? `Déplacer "${this.selectedProduits()[0].libelle}"`
-      : `Déplacer ${this.selectedProduits().length} produits`;
-    this.openMoveModal(
-      [...this.selectedProduits()],
-      this.rayon().storageId!,
-      this.rayon().id!,
-      title,
-      this.rayon().code === 'SANS',
-    );
+    const title =
+      this.selectedProduits().length === 1
+        ? `Déplacer "${this.selectedProduits()[0].libelle}"`
+        : `Déplacer ${this.selectedProduits().length} produits`;
+    this.openMoveModal([...this.selectedProduits()], this.rayon().storageId!, this.rayon().id!, title, this.rayon().code === 'SANS');
   }
 
   protected onRetirer(produit: ProduitInRayon): void {
@@ -173,13 +169,7 @@ export class RayonProduitsTabComponent {
     );
   }
 
-  private openMoveModal(
-    produits: ProduitInRayon[],
-    storageId: number,
-    rayonId: number,
-    title: string,
-    isSansSource: boolean,
-  ): void {
+  private openMoveModal(produits: ProduitInRayon[], storageId: number, rayonId: number, title: string, isSansSource: boolean): void {
     const ref = this.modalService.open(RayonAssignFormComponent, { size: 'lg', centered: true, backdrop: 'static' });
     const inst = ref.componentInstance as RayonAssignFormComponent;
     inst.produit = produits[0];
@@ -196,9 +186,8 @@ export class RayonProduitsTabComponent {
           this.selectedProduits.set([]);
           this.page.set(0);
           this.loadProduits(this.rayon(), 0, this.rows(), this.filterText());
-          const msg = produits.length === 1
-            ? `"${produits[0].libelle}" déplacé avec succès`
-            : `${produits.length} produits déplacés avec succès`;
+          const msg =
+            produits.length === 1 ? `"${produits[0].libelle}" déplacé avec succès` : `${produits.length} produits déplacés avec succès`;
           this.notificationService.success(msg);
         },
         error: err => this.notificationService.error(this.errorService.getErrorMessage(err)),
@@ -222,11 +211,13 @@ export class RayonProduitsTabComponent {
         const data: ProduitInRayon[] = (res.body ?? []).map(p => ({
           ...p,
           rayonProduitId: p.rayonProduits?.find(rp => rp.rayonId === rayon.id)?.id,
-          otherStorageLabels: [...new Set(
-            (p.rayonProduits ?? [])
-              .filter(rp => rp.storageId !== rayon.storageId && rp.codeRayon !== 'SANS')
-              .map(rp => rp.libelleStorage ?? `Stockage ${rp.storageId}`)
-          )],
+          otherStorageLabels: [
+            ...new Set(
+              (p.rayonProduits ?? [])
+                .filter(rp => rp.storageId !== rayon.storageId && rp.codeRayon !== 'SANS')
+                .map(rp => rp.libelleStorage ?? `Stockage ${rp.storageId}`),
+            ),
+          ],
         }));
         this.produits.set(data);
         this.loading.set(false);

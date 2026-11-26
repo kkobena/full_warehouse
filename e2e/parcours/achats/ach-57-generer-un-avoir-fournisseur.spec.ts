@@ -24,13 +24,8 @@ scenario('ACH-57', async ({ etape, page }) => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Retours fournisseurs/);
     await expect(lignes.first()).toBeVisible();
-    const repondable = lignes
-      .filter({ has: page.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"]') })
-      .first();
-    await repondable
-      .locator('app-button[ngbtooltip="Saisir la réponse fournisseur"] button')
-      .first()
-      .click();
+    const repondable = lignes.filter({ has: page.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"]') }).first();
+    await repondable.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"] button').first().click();
     await expect(modale).toBeVisible();
   });
 

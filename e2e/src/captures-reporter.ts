@@ -83,9 +83,7 @@ export default class CapturesReporter implements Reporter {
     writeFileSync(FICHIER_INDEX, JSON.stringify(trie, null, 2) + '\n', 'utf8');
 
     const nbImages = Object.values(trie).reduce((total, liste) => total + liste.length, 0);
-    process.stdout.write(
-      `\nCaptures : ${Object.keys(trie).length} scénario(s), ${nbImages} image(s) — ${DOSSIER_CAPTURES}\n`,
-    );
+    process.stdout.write(`\nCaptures : ${Object.keys(trie).length} scénario(s), ${nbImages} image(s) — ${DOSSIER_CAPTURES}\n`);
   }
 
   private ecrireIndexVideos(): void {

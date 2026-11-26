@@ -4,8 +4,7 @@
       <app-toolbar icon="pi pi-list" title="Produits associés au tableau()">
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="py-1">
-            <app-button (clicked)="previousState()" icon="pi pi-angle-double-left" label="Retour"
-                        severity="secondary" />
+            <app-button (clicked)="previousState()" icon="pi pi-angle-double-left" label="Retour" severity="secondary" />
           </div>
         </ng-container>
       </app-toolbar>
@@ -31,8 +30,7 @@
                 type="text"
               />
             </div>
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource()"
-                            scrollHeight="calc(100vh - 480px)">
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsSource()" scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Code CIP</th>
@@ -43,12 +41,20 @@
               </ng-template>
               <ng-template #body let-item>
                 <tr>
-                  <td><span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span></td>
+                  <td>
+                    <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
+                  </td>
                   <td>{{ item.libelle }}</td>
                   <td class="text-end">{{ item.unitPrice | number }}</td>
                   <td class="text-center">
-                    <app-button (clicked)="moveToTarget(item)" [rounded]="true" [text]="true"
-                                icon="pi pi-angle-right" severity="secondary" size="small" />
+                    <app-button
+                      (clicked)="moveToTarget(item)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-angle-right"
+                      severity="secondary"
+                      size="small"
+                    />
                   </td>
                 </tr>
               </ng-template>
@@ -82,8 +88,7 @@
                 type="text"
               />
             </div>
-            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget()"
-                            scrollHeight="calc(100vh - 480px)">
+            <app-data-table [scrollable]="true" [size]="'small'" [value]="produitsTarget()" scrollHeight="calc(100vh - 480px)">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th style="width: 50px"></th>
@@ -95,10 +100,18 @@
               <ng-template #body let-item>
                 <tr>
                   <td class="text-center">
-                    <app-button (clicked)="moveToSource(item)" [rounded]="true" [text]="true"
-                                icon="pi pi-angle-left" severity="secondary" size="small" />
+                    <app-button
+                      (clicked)="moveToSource(item)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-angle-left"
+                      severity="secondary"
+                      size="small"
+                    />
                   </td>
-                  <td><span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span></td>
+                  <td>
+                    <span class="pharma-code">{{ item.fournisseurProduit?.codeCip }}</span>
+                  </td>
                   <td>{{ item.libelle }}</td>
                   <td class="text-end">{{ item.unitPrice | number }}</td>
                 </tr>
@@ -114,5 +127,4 @@
       </div>
     </div>
   </div>
-
 </div>

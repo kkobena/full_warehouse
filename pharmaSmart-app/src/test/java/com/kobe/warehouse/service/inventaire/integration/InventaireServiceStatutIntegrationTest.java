@@ -33,9 +33,10 @@ class InventaireServiceStatutIntegrationTest extends AbstractInventaireIntegrati
 
         assertThrows(BadRequestAlertException.class, () -> services.inventaireService.remove(id));
 
-        assertEquals(1L, compter(
-            "SELECT count(*) FROM store_inventory WHERE id = " + id),
-            "l'inventaire doit rester en base");
+        assertEquals(
+                1L,
+                compter("SELECT count(*) FROM store_inventory WHERE id = " + id),
+                "l'inventaire doit rester en base");
     }
 
     @Test
@@ -47,8 +48,7 @@ class InventaireServiceStatutIntegrationTest extends AbstractInventaireIntegrati
         dto.setQuantityOnHand(99);
         viderLeCache();
 
-        assertThrows(BadRequestAlertException.class,
-            () -> services.inventaireService.updateQuantityOnHand(dto));
+        assertThrows(BadRequestAlertException.class, () -> services.inventaireService.updateQuantityOnHand(dto));
     }
 
     /** La garde ne doit pas gêner le cas courant : un inventaire en cours reste modifiable. */
@@ -82,12 +82,10 @@ class InventaireServiceStatutIntegrationTest extends AbstractInventaireIntegrati
     }
 
     private StoreInventoryLine premiereLigne(StoreInventory inventaire) {
-        return em
-            .createQuery(
-                "SELECT l FROM StoreInventoryLine l WHERE l.storeInventory.id = :id",
-                StoreInventoryLine.class)
-            .setParameter("id", inventaire.getId())
-            .getResultList()
-            .getFirst();
+        return em.createQuery(
+                        "SELECT l FROM StoreInventoryLine l WHERE l.storeInventory.id = :id", StoreInventoryLine.class)
+                .setParameter("id", inventaire.getId())
+                .getResultList()
+                .getFirst();
     }
 }

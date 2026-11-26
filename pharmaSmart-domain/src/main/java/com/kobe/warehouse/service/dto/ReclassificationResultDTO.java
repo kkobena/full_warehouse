@@ -21,19 +21,18 @@ import java.util.Map;
  * @param raison Raison de la reclassification (automatique, manuelle, initiale)
  */
 public record ReclassificationResultDTO(
-    int totalProduitsAnalyses,
-    int totalChangements,
-    int nbPromotions,
-    int nbRetrogradations,
-    int nbProduitsNouveaux,
-    int nbProduitsOverridden,
-    int nbErreurs,
-    Map<String, Long> repartitionAvant,
-    Map<String, Long> repartitionApres,
-    long dureeExecutionMs,
-    LocalDateTime dateExecution,
-    String raison
-) {
+        int totalProduitsAnalyses,
+        int totalChangements,
+        int nbPromotions,
+        int nbRetrogradations,
+        int nbProduitsNouveaux,
+        int nbProduitsOverridden,
+        int nbErreurs,
+        Map<String, Long> repartitionAvant,
+        Map<String, Long> repartitionApres,
+        long dureeExecutionMs,
+        LocalDateTime dateExecution,
+        String raison) {
 
     /**
      * Calcule le pourcentage de changements
@@ -73,14 +72,13 @@ public record ReclassificationResultDTO(
      */
     public String getResume() {
         return String.format(
-            "Reclassification terminée: %d produits analysés, %d changements (%.1f%%), %d promotions, %d rétrogradations en %d ms",
-            totalProduitsAnalyses,
-            totalChangements,
-            getPourcentageChangements(),
-            nbPromotions,
-            nbRetrogradations,
-            dureeExecutionMs
-        );
+                "Reclassification terminée: %d produits analysés, %d changements (%.1f%%), %d promotions, %d rétrogradations en %d ms",
+                totalProduitsAnalyses,
+                totalChangements,
+                getPourcentageChangements(),
+                nbPromotions,
+                nbRetrogradations,
+                dureeExecutionMs);
     }
 
     /**
@@ -162,19 +160,18 @@ public record ReclassificationResultDTO(
 
         public ReclassificationResultDTO build() {
             return new ReclassificationResultDTO(
-                totalProduitsAnalyses,
-                totalChangements,
-                nbPromotions,
-                nbRetrogradations,
-                nbProduitsNouveaux,
-                nbProduitsOverridden,
-                nbErreurs,
-                repartitionAvant,
-                repartitionApres,
-                dureeExecutionMs,
-                dateExecution,
-                raison
-            );
+                    totalProduitsAnalyses,
+                    totalChangements,
+                    nbPromotions,
+                    nbRetrogradations,
+                    nbProduitsNouveaux,
+                    nbProduitsOverridden,
+                    nbErreurs,
+                    repartitionAvant,
+                    repartitionApres,
+                    dureeExecutionMs,
+                    dateExecution,
+                    raison);
         }
     }
 

@@ -2,14 +2,11 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <p class="text-muted mb-0 small">
     <i class="pi pi-info-circle me-1"></i>
-    Glissez-déposez les groupes et sous-menus pour réorganiser la navigation.
-    L'ordre est enregistré globalement pour tous les utilisateurs.
+    Glissez-déposez les groupes et sous-menus pour réorganiser la navigation. L'ordre est enregistré globalement pour tous les utilisateurs.
   </p>
   <div class="d-flex gap-2 align-items-center">
     @if (hasUnsavedChanges()) {
-      <span class="badge bg-warning text-white badge-unsaved">
-        <i class="pi pi-exclamation-triangle me-1"></i>Non enregistré
-      </span>
+      <span class="badge bg-warning text-white badge-unsaved"> <i class="pi pi-exclamation-triangle me-1"></i>Non enregistré </span>
     }
     <app-button
       label="Enregistrer l'ordre"
@@ -33,15 +30,9 @@
 </div>
 
 <!-- Zone de glisser-déposer — Groupes racines -->
-<div
-  cdkDropList
-  [cdkDropListData]="groups()"
-  (cdkDropListDropped)="onGroupDropped($event)"
-  class="nav-drop-zone">
-
+<div cdkDropList [cdkDropListData]="groups()" (cdkDropListDropped)="onGroupDropped($event)" class="nav-drop-zone">
   @for (group of groups(); track group.id) {
     <div class="nav-group-card" cdkDrag [cdkDragData]="group">
-
       <!-- En-tête du groupe (drag handle) -->
       <div class="nav-group-header" cdkDragHandle>
         <i class="pi pi-grip-vertical drag-handle-icon"></i>
@@ -49,11 +40,7 @@
           <i [class]="group.icon + ' group-icon'"></i>
         }
         <span class="fw-semibold">{{ group.libelle }}</span>
-        <app-badge
-          [label]="group.targetType"
-          [severity]="group.targetType === 'GROUP' ? 'secondary' : 'info'"
-          class="ms-auto"
-        />
+        <app-badge [label]="group.targetType" [severity]="group.targetType === 'GROUP' ? 'secondary' : 'info'" class="ms-auto" />
       </div>
 
       <!-- Enfants du groupe -->
@@ -65,8 +52,8 @@
             [cdkDropListData]="group.children"
             [cdkDropListConnectedTo]="getConnectedLists(group.id)"
             (cdkDropListDropped)="onChildDropped($event, group)"
-            class="nav-children-list">
-
+            class="nav-children-list"
+          >
             @for (child of group.children; track child.id) {
               <div class="nav-child-item" cdkDrag [cdkDragData]="child">
                 <i class="pi pi-grip-vertical drag-handle-icon me-2"></i>
@@ -80,9 +67,7 @@
                 <div *cdkDragPlaceholder class="nav-drag-placeholder"></div>
               </div>
             } @empty {
-              <div class="text-muted small fst-italic p-2 text-center">
-                Déposez des éléments ici
-              </div>
+              <div class="text-muted small fst-italic p-2 text-center">Déposez des éléments ici</div>
             }
           </div>
         </div>
@@ -97,4 +82,3 @@
     </div>
   }
 </div>
-

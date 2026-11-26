@@ -73,15 +73,14 @@ public final class IntegrationPostgresDatabase {
         postgres = new PostgreSQLContainer<>("postgres:18-alpine").withDatabaseName("pharma_smart_integration_test");
         postgres.start();
 
-        Flyway
-            .configure()
-            .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
-            .schemas(SCHEMA)
-            .defaultSchema(SCHEMA)
-            .table("pharma_smart_history")
-            .locations("classpath:db/migration")
-            .load()
-            .migrate();
+        Flyway.configure()
+                .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+                .schemas(SCHEMA)
+                .defaultSchema(SCHEMA)
+                .table("pharma_smart_history")
+                .locations("classpath:db/migration")
+                .load()
+                .migrate();
 
         creerLesPartitions();
 
@@ -118,26 +117,15 @@ public final class IntegrationPostgresDatabase {
             "order_line",
         };
         int annee = LocalDate.now().getYear();
-        try (
-            Connection connection = DriverManager.getConnection(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword()
-            );
-            Statement st = connection.createStatement()
-        ) {
+        try (Connection connection = DriverManager.getConnection(
+                        postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                Statement st = connection.createStatement()) {
             st.execute("SET search_path TO " + SCHEMA);
             for (int an = annee - 1; an <= annee + 1; an++) {
                 for (String table : tables) {
                     st.execute(
-                        "CREATE TABLE IF NOT EXISTS %s_%d PARTITION OF %s FOR VALUES FROM ('%d-01-01') TO ('%d-01-01')".formatted(
-                                table,
-                                an,
-                                table,
-                                an,
-                                an + 1
-                            )
-                    );
+                            "CREATE TABLE IF NOT EXISTS %s_%d PARTITION OF %s FOR VALUES FROM ('%d-01-01') TO ('%d-01-01')"
+                                    .formatted(table, an, table, an, an + 1));
                 }
             }
         } catch (SQLException e) {
@@ -185,13 +173,11 @@ public final class IntegrationPostgresDatabase {
             properties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, "false");
             properties.put(AvailableSettings.USE_QUERY_CACHE, "false");
             properties.put(
-                AvailableSettings.PHYSICAL_NAMING_STRATEGY,
-                "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl"
-            );
+                    AvailableSettings.PHYSICAL_NAMING_STRATEGY,
+                    "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl");
             properties.put(
-                AvailableSettings.IMPLICIT_NAMING_STRATEGY,
-                "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl"
-            );
+                    AvailableSettings.IMPLICIT_NAMING_STRATEGY,
+                    "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
             factory.setJpaProperties(properties);
             return factory;
         }

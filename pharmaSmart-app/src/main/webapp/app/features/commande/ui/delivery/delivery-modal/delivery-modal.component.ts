@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -33,7 +33,7 @@ import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
     PharmaDatePickerComponent,
     NgxSpinnerModule,
     InputNumberComponent,
-  ]
+  ],
 })
 export class DeliveryModalComponent implements OnInit {
   header = '';

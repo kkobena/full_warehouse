@@ -8,6 +8,11 @@ import com.kobe.warehouse.domain.enumeration.ClassificationType;
 import com.kobe.warehouse.repository.ClassificationCriticiteLogRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.scheduler.ClassificationCriticiteService;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -15,12 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Traitement par batch de la classification ABC Pareto.
@@ -46,7 +45,8 @@ public class ClassificationBatchProcessor {
      * @param qteVendue     Quantité totale vendue sur 12 mois (pour CMM = qteVendue / 12)
      */
     public record ParetoScore(Long ca12Mois, BigDecimal caCumulePct, int rang, int frequenceMois, int qteVendue) {
-        public static final ParetoScore NO_SALES = new ParetoScore(0L, new BigDecimal("100.00"), Integer.MAX_VALUE, 0, 0);
+        public static final ParetoScore NO_SALES =
+                new ParetoScore(0L, new BigDecimal("100.00"), Integer.MAX_VALUE, 0, 0);
 
         /**
          * Consommation Mensuelle Moyenne (entière, arrondie au plus proche).
@@ -60,9 +60,7 @@ public class ClassificationBatchProcessor {
     private final ClassificationCriticiteLogRepository logRepository;
 
     public ClassificationBatchProcessor(
-        ProduitRepository produitRepository,
-        ClassificationCriticiteLogRepository logRepository
-    ) {
+            ProduitRepository produitRepository, ClassificationCriticiteLogRepository logRepository) {
         this.produitRepository = produitRepository;
         this.logRepository = logRepository;
     }
@@ -90,18 +88,17 @@ public class ClassificationBatchProcessor {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processPage(
-        Pageable pageable,
-        ClassificationConfig config,
-        Map<Integer, ParetoScore> paretoMap,
-        String raison,
-        AtomicInteger nbAnalyses,
-        AtomicInteger nbChangements,
-        AtomicInteger nbPromotions,
-        AtomicInteger nbRetrogradations,
-        AtomicInteger nbNouveaux,
-        AtomicInteger nbOverridden,
-        AtomicInteger nbErreurs
-    ) {
+            Pageable pageable,
+            ClassificationConfig config,
+            Map<Integer, ParetoScore> paretoMap,
+            String raison,
+            AtomicInteger nbAnalyses,
+            AtomicInteger nbChangements,
+            AtomicInteger nbPromotions,
+            AtomicInteger nbRetrogradations,
+            AtomicInteger nbNouveaux,
+            AtomicInteger nbOverridden,
+            AtomicInteger nbErreurs) {
         Page<Produit> page = produitRepository.findActiveNonDetailWithFournisseur(pageable);
 
         for (Produit produit : page.getContent()) {
@@ -116,8 +113,8 @@ public class ClassificationBatchProcessor {
 
                 // 2. Nouveaux produits (< nbMoisMinNouveauProduit) → conserver classe par défaut
                 int ancienneteMois = produit.getCreatedAt() != null
-                    ? (int) ChronoUnit.MONTHS.between(produit.getCreatedAt().toLocalDate(), LocalDate.now())
-                    : Integer.MAX_VALUE;
+                        ? (int) ChronoUnit.MONTHS.between(produit.getCreatedAt().toLocalDate(), LocalDate.now())
+                        : Integer.MAX_VALUE;
                 if (ancienneteMois < config.getNbMoisMinNouveauProduit()) {
                     nbNouveaux.incrementAndGet();
                     continue;
@@ -144,14 +141,14 @@ public class ClassificationBatchProcessor {
                 produitRepository.save(produit);
 
                 ClassificationCriticiteLog log = new ClassificationCriticiteLog()
-                    .setProduit(produit)
-                    .setAncienneClasse(classeActuelle)
-                    .setNouvelleClasse(classeSuggeree)
-                    .setCa12Mois(pareto.ca12Mois())
-                    .setFrequenceVenteMois(pareto.frequenceMois())
-                    .setScoreTotal(pareto.caCumulePct())
-                    .setRaisonChangement(raison)
-                    .setClassificationType(ClassificationType.AUTO);
+                        .setProduit(produit)
+                        .setAncienneClasse(classeActuelle)
+                        .setNouvelleClasse(classeSuggeree)
+                        .setCa12Mois(pareto.ca12Mois())
+                        .setFrequenceVenteMois(pareto.frequenceMois())
+                        .setScoreTotal(pareto.caCumulePct())
+                        .setRaisonChangement(raison)
+                        .setClassificationType(ClassificationType.AUTO);
                 logRepository.save(log);
 
                 nbChangements.incrementAndGet();
@@ -161,8 +158,9 @@ public class ClassificationBatchProcessor {
                     nbRetrogradations.incrementAndGet();
                 }
 
-                LOG.debug("Reclassification produit {}: {} → {} (caCumulé: {}%)",
-                    produit.getId(), classeActuelle.getCode(), classeSuggeree.getCode(), pareto.caCumulePct());
+                LOG.debug(
+                        "Reclassification produit {}: {} → {} (caCumulé: {}%)",
+                        produit.getId(), classeActuelle.getCode(), classeSuggeree.getCode(), pareto.caCumulePct());
 
             } catch (Exception e) {
                 LOG.error("Erreur classification produit {}", produit.getId(), e);
@@ -253,10 +251,7 @@ public class ClassificationBatchProcessor {
      * @param config       Configuration avec les paramètres saisonniers
      * @return Classe ajustée (identique à classePareto jusqu'à l'implémentation de la phase 2.5)
      */
-    private ClasseCriticite appliquerCorrectionSaisonniere(
-        ClasseCriticite classePareto,
-        ClassificationConfig config
-    ) {
+    private ClasseCriticite appliquerCorrectionSaisonniere(ClasseCriticite classePareto, ClassificationConfig config) {
         if (!Boolean.TRUE.equals(config.getActiverCorrectionSaisonniere())) {
             return classePareto;
         }
@@ -275,11 +270,10 @@ public class ClassificationBatchProcessor {
      * le reclassement est autorisé.
      */
     public boolean passeHysteresis(
-        BigDecimal caCumulePct,
-        ClasseCriticite classeActuelle,
-        ClasseCriticite classeSuggeree,
-        ClassificationConfig config
-    ) {
+            BigDecimal caCumulePct,
+            ClasseCriticite classeActuelle,
+            ClasseCriticite classeSuggeree,
+            ClassificationConfig config) {
         if (caCumulePct == null) return true;
         double pct = caCumulePct.doubleValue();
         double frontiere = getFrontiereClasse(classeActuelle, config);

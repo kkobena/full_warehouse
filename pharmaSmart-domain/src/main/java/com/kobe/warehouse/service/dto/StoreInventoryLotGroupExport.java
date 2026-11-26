@@ -23,25 +23,60 @@ public class StoreInventoryLotGroupExport {
 
     public void addLot(StoreInventoryLotLineExport lot) {
         lots.add(lot);
-        totalInit    += lot.getQuantityInit();
-        totalOnHand  += lot.getQuantityOnHand();
-        totalGap     += lot.getGap();
-        valeurAvantAchat += (long) lot.getQuantityInit()   * lot.getPrixAchat();
+        totalInit += lot.getQuantityInit();
+        totalOnHand += lot.getQuantityOnHand();
+        totalGap += lot.getGap();
+        valeurAvantAchat += (long) lot.getQuantityInit() * lot.getPrixAchat();
         valeurApresAchat += (long) lot.getQuantityOnHand() * lot.getPrixAchat();
-        valeurAvantVente += (long) lot.getQuantityInit()   * lot.getLastUnitPrice();
+        valeurAvantVente += (long) lot.getQuantityInit() * lot.getLastUnitPrice();
         valeurApresVente += (long) lot.getQuantityOnHand() * lot.getLastUnitPrice();
     }
 
-    public String getCodeCip()             { return codeCip; }
-    public String getProduitLibelle()      { return produitLibelle; }
-    public List<StoreInventoryLotLineExport> getLots() { return lots; }
-    public long getTotalInit()             { return totalInit; }
-    public long getTotalOnHand()           { return totalOnHand; }
-    public long getTotalGap()              { return totalGap; }
-    public long getValeurAvantAchat()      { return valeurAvantAchat; }
-    public long getValeurApresAchat()      { return valeurApresAchat; }
-    public long getValeurAvantVente()      { return valeurAvantVente; }
-    public long getValeurApresVente()      { return valeurApresVente; }
-    public long getEcartAchat()            { return valeurApresAchat - valeurAvantAchat; }
-    public long getEcartVente()            { return valeurApresVente - valeurAvantVente; }
+    public String getCodeCip() {
+        return codeCip;
+    }
+
+    public String getProduitLibelle() {
+        return produitLibelle;
+    }
+
+    public List<StoreInventoryLotLineExport> getLots() {
+        return lots;
+    }
+
+    public long getTotalInit() {
+        return totalInit;
+    }
+
+    public long getTotalOnHand() {
+        return totalOnHand;
+    }
+
+    public long getTotalGap() {
+        return totalGap;
+    }
+
+    public long getValeurAvantAchat() {
+        return valeurAvantAchat;
+    }
+
+    public long getValeurApresAchat() {
+        return valeurApresAchat;
+    }
+
+    public long getValeurAvantVente() {
+        return valeurAvantVente;
+    }
+
+    public long getValeurApresVente() {
+        return valeurApresVente;
+    }
+
+    public long getEcartAchat() {
+        return valeurApresAchat - valeurAvantAchat;
+    }
+
+    public long getEcartVente() {
+        return valeurApresVente - valeurAvantVente;
+    }
 }

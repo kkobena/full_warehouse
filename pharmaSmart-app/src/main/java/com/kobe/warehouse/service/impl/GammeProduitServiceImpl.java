@@ -3,11 +3,11 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.GammeProduit;
 import com.kobe.warehouse.repository.GammeProduitRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.dto.GammeProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.referential.GammeProduitService;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,9 +55,9 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     public GammeProduitDTO save(GammeProduitDTO gammeProduitDTO) {
         log.debug("Request to save GammeProduit : {}", gammeProduitDTO);
         GammeProduit gammeProduit = new GammeProduit()
-            .code(gammeProduitDTO.getCode())
-            .libelle(gammeProduitDTO.getLibelle())
-            .id(gammeProduitDTO.getId());
+                .code(gammeProduitDTO.getCode())
+                .libelle(gammeProduitDTO.getLibelle())
+                .id(gammeProduitDTO.getId());
         gammeProduit = gammeProduitRepository.save(gammeProduit);
         return new GammeProduitDTO(gammeProduit);
     }
@@ -72,14 +72,22 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     @Transactional(readOnly = true)
     public Page<GammeProduitDTO> findAll(String search, Pageable pageable) {
         log.debug("Request to get all GammeProduits");
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
 
         if (!StringUtils.isEmpty(search)) {
             SpecificationBuilder<GammeProduit> builder = new SpecificationBuilder<>();
-            Specification<GammeProduit> spec = builder
-                .with(new String[] { "libelle" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.OR)
-                .with(new String[] { "code" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
-                .build();
+            Specification<GammeProduit> spec = builder.with(
+                            new String[] {"libelle"},
+                            search + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.OR)
+                    .with(
+                            new String[] {"code"},
+                            search + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.END)
+                    .build();
             return gammeProduitRepository.findAll(spec, page).map(GammeProduitDTO::new);
         }
         return gammeProduitRepository.findAll(page).map(GammeProduitDTO::new);
@@ -111,9 +119,8 @@ public class GammeProduitServiceImpl implements GammeProduitService {
         long rattaches = this.produitRepository.countByGammeId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "La gamme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "La gamme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                    "referentielUtilise");
         }
         log.debug("Request to delete GammeProduit : {}", id);
         gammeProduitRepository.deleteById(id);
@@ -123,7 +130,10 @@ public class GammeProduitServiceImpl implements GammeProduitService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .withDelimiter(';')
+                    .withFirstRecordAsHeader()
+                    .parse(br);
             records.forEach(record -> {
                 GammeProduit gammeProduit = new GammeProduit();
                 gammeProduit.setLibelle(record.get(0));

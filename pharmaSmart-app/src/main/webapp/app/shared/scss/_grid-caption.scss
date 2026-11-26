@@ -65,7 +65,9 @@ $gc-text: #333333 !default;
       font-weight: 700;
     }
 
-    i { font-size: 0.75rem; }
+    i {
+      font-size: 0.75rem;
+    }
   }
 
   // Variante d'alerte : ce qui reste À FAIRE (bons en attente de saisie, par exemple).
@@ -101,10 +103,16 @@ $gc-text: #333333 !default;
     font-weight: 700;
     color: $gc-text;
 
-    &--achat { color: $gc-primary; }
+    &--achat {
+      color: $gc-primary;
+    }
     // Ce que la marchandise rapportera : c'est la recette, d'où le vert.
-    &--vente { color: $gc-success; }
-    &--neutre { color: $gc-text; }
+    &--vente {
+      color: $gc-success;
+    }
+    &--neutre {
+      color: $gc-text;
+    }
   }
 
   &__sep {

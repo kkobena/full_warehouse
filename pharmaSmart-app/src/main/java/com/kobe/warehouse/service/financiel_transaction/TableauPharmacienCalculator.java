@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
@@ -33,8 +32,8 @@ public class TableauPharmacienCalculator {
 
         try {
             float ratio = BigDecimal.valueOf(wrapper.getMontantVenteNet())
-                .divide(BigDecimal.valueOf(netPurchase), DECIMAL_SCALE, RoundingMode.FLOOR)
-                .floatValue();
+                    .divide(BigDecimal.valueOf(netPurchase), DECIMAL_SCALE, RoundingMode.FLOOR)
+                    .floatValue();
             wrapper.setRatioVenteAchat(ratio);
         } catch (ArithmeticException e) {
             LOG.warn("Error calculating ratio V/A for wrapper: {}", e.getMessage());
@@ -54,8 +53,8 @@ public class TableauPharmacienCalculator {
         try {
             long netPurchase = wrapper.getMontantAchatNet() - wrapper.getMontantAvoirFournisseur();
             float ratio = BigDecimal.valueOf(netPurchase)
-                .divide(BigDecimal.valueOf(wrapper.getMontantVenteNet()), DECIMAL_SCALE, RoundingMode.FLOOR)
-                .floatValue();
+                    .divide(BigDecimal.valueOf(wrapper.getMontantVenteNet()), DECIMAL_SCALE, RoundingMode.FLOOR)
+                    .floatValue();
             wrapper.setRatioAchatVente(ratio);
         } catch (ArithmeticException e) {
             LOG.warn("Error calculating ratio A/V for wrapper: {}", e.getMessage());
@@ -75,8 +74,8 @@ public class TableauPharmacienCalculator {
 
         try {
             float ratio = BigDecimal.valueOf(dto.getMontantNet())
-                .divide(BigDecimal.valueOf(netPurchase), DECIMAL_SCALE, RoundingMode.FLOOR)
-                .floatValue();
+                    .divide(BigDecimal.valueOf(netPurchase), DECIMAL_SCALE, RoundingMode.FLOOR)
+                    .floatValue();
             dto.setRatioVenteAchat(ratio);
         } catch (ArithmeticException e) {
             LOG.warn("Error calculating ratio V/A for DTO: {}", e.getMessage());
@@ -96,8 +95,8 @@ public class TableauPharmacienCalculator {
         try {
             long netPurchase = dto.getMontantBonAchat() - dto.getMontantAvoirFournisseur();
             float ratio = BigDecimal.valueOf(netPurchase)
-                .divide(BigDecimal.valueOf(dto.getMontantNet()), DECIMAL_SCALE, RoundingMode.FLOOR)
-                .floatValue();
+                    .divide(BigDecimal.valueOf(dto.getMontantNet()), DECIMAL_SCALE, RoundingMode.FLOOR)
+                    .floatValue();
             dto.setRatioAchatVente(ratio);
         } catch (ArithmeticException e) {
             LOG.warn("Error calculating ratio A/V for DTO: {}", e.getMessage());

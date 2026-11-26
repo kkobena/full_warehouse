@@ -18,5 +18,4 @@ public interface ProfitabilityReportService {
      * @return Profitability summary with BCG distribution
      */
     ProfitabilitySummaryDTO getProfitabilitySummary();
-
 }

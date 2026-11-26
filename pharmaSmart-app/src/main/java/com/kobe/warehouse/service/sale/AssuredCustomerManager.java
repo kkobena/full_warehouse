@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.sale;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
-
 import java.util.Optional;
 
 /**
@@ -27,7 +26,8 @@ public interface AssuredCustomerManager {
      * @param customer les nouvelles données du client
      * @throws InvalidPhoneNumberException si le numéro de téléphone est invalide
      */
-    void updateAssuredCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer) throws InvalidPhoneNumberException;
+    void updateAssuredCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer)
+            throws InvalidPhoneNumberException;
 
     /**
      * Vérifie si deux clients assurés sont identiques.

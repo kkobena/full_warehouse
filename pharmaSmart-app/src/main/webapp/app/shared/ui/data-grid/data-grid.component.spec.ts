@@ -261,8 +261,9 @@ describe('DataGridComponent', () => {
     const fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const productHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th'))
-      .find(header => header.textContent?.includes('Produit'))!;
+    const productHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th')).find(header =>
+      header.textContent?.includes('Produit'),
+    )!;
     const handle = productHeader.querySelector<HTMLElement>('.app-data-grid__resize-handle')!;
 
     handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
@@ -282,8 +283,9 @@ describe('DataGridComponent', () => {
     const fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const productHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th'))
-      .find(header => header.textContent?.includes('Produit'))!;
+    const productHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th')).find(header =>
+      header.textContent?.includes('Produit'),
+    )!;
     const handle = productHeader.querySelector<HTMLElement>('.app-data-grid__resize-handle')!;
     Object.defineProperty(productHeader, 'getBoundingClientRect', { value: () => ({ width: 180 }) });
     Object.defineProperties(handle, {
@@ -314,8 +316,9 @@ describe('DataGridComponent', () => {
     const fixture = TestBed.createComponent(TestHostComponent);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const statusHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th'))
-      .find(header => header.textContent?.includes('État'))!;
+    const statusHeader = Array.from(host.querySelectorAll<HTMLTableCellElement>('th')).find(header =>
+      header.textContent?.includes('État'),
+    )!;
 
     expect(statusHeader.style.width).toBe('140px');
     expect(statusHeader.style.minWidth).toBe('140px');

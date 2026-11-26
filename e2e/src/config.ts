@@ -53,9 +53,7 @@ export const PROJET_CAPTURES = 'captures';
 export const CAPTURE_FORCEE = process.env.CAPTURE === '1';
 
 /** Dossier des images produites. Non versionné — cf. e2e/.gitignore. */
-export const DOSSIER_CAPTURES = process.env.E2E_CAPTURES_DIR
-  ? resolve(process.env.E2E_CAPTURES_DIR)
-  : resolve(RACINE, 'e2e', 'captures');
+export const DOSSIER_CAPTURES = process.env.E2E_CAPTURES_DIR ? resolve(process.env.E2E_CAPTURES_DIR) : resolve(RACINE, 'e2e', 'captures');
 
 /** Index des captures, lu ensuite par generate-cahier-recette-json.ts (lot 4). */
 export const FICHIER_INDEX = resolve(DOSSIER_CAPTURES, 'captures.json');

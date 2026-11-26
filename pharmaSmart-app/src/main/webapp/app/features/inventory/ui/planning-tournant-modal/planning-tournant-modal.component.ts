@@ -1,20 +1,18 @@
-import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NgbActiveModal, NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {StorageService} from '../../../../entities/storage/storage.service';
-import {Storage} from '../../../../entities/storage/storage.model';
-import {IUser} from '../../../../admin/user-management/user-management.model';
-import {
-  UserManagementService
-} from '../../../../admin/user-management/service/user-management.service';
-import {CRITERES, FREQUENCES, IPlanningInventaireTournant} from '../../models';
-import {PlanningTournantApiService} from '../../data-access/services/planning-tournant-api.service';
-import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
-import {ButtonComponent, CardComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
-import {ErrorService} from '../../../../shared/error.service';
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbActiveModal, NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { StorageService } from '../../../../entities/storage/storage.service';
+import { Storage } from '../../../../entities/storage/storage.model';
+import { IUser } from '../../../../admin/user-management/user-management.model';
+import { UserManagementService } from '../../../../admin/user-management/service/user-management.service';
+import { CRITERES, FREQUENCES, IPlanningInventaireTournant } from '../../models';
+import { PlanningTournantApiService } from '../../data-access/services/planning-tournant-api.service';
+import { NGB_DATE_TO_ISO } from '../../../../shared/util/warehouse-util';
+import { ButtonComponent, CardComponent, SelectComponent, SelectSearchComponent } from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { ErrorService } from '../../../../shared/error.service';
 
 interface IUserOption extends IUser {
   displayLabel: string;
@@ -22,7 +20,16 @@ interface IUserOption extends IUser {
 
 @Component({
   selector: 'app-planning-tournant-modal',
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, PharmaDatePickerComponent, NgbTooltip, CardComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    SelectComponent,
+    SelectSearchComponent,
+    PharmaDatePickerComponent,
+    NgbTooltip,
+    CardComponent,
+  ],
   templateUrl: './planning-tournant-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planning-tournant-modal.component.scss',
@@ -56,10 +63,11 @@ export class PlanningTournantModalComponent implements OnInit {
       this.patchForm(this.planning);
     } else {
       // En création : recalcule la date à chaque changement de fréquence
-      this.form.get('frequence')!.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
+      this.form
+        .get('frequence')!
+        .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(freq => {
-          this.form.get('prochaineExecution')!.setValue(this.computeNextDate(freq), {emitEvent: false});
+          this.form.get('prochaineExecution')!.setValue(this.computeNextDate(freq), { emitEvent: false });
         });
     }
   }
@@ -84,9 +92,7 @@ export class PlanningTournantModalComponent implements OnInit {
     };
 
     const p = this.planning;
-    const obs$ = p?.id
-      ? this.api.update(p.id, {...record, id: p.id})
-      : this.api.create(record);
+    const obs$ = p?.id ? this.api.update(p.id, { ...record, id: p.id }) : this.api.create(record);
 
     obs$.subscribe({
       next: result => {
@@ -95,8 +101,7 @@ export class PlanningTournantModalComponent implements OnInit {
       },
       error: err => {
         this.loading.set(false);
-        this.errorMessage.set(
-          this.errorService.getErrorMessage(err, 'Erreur lors de l\'enregistrement du planning'));
+        this.errorMessage.set(this.errorService.getErrorMessage(err, "Erreur lors de l'enregistrement du planning"));
       },
     });
   }
@@ -137,7 +142,7 @@ export class PlanningTournantModalComponent implements OnInit {
         d.setMonth(d.getMonth() + 3);
         break;
     }
-    return {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
   private patchForm(p: IPlanningInventaireTournant): void {
@@ -148,23 +153,21 @@ export class PlanningTournantModalComponent implements OnInit {
       critere: p.critere,
       storageId: p.storageId,
       userId: p.userId,
-      prochaineExecution: {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()},
+      prochaineExecution: { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() },
     });
   }
 
   private loadStorages(): void {
     this.storageService.fetchUserStorages().subscribe({
       next: res => this.storages.set(res.body ?? []),
-      error() {
-      },
+      error() {},
     });
   }
 
   private loadUsers(): void {
-    this.userService.query({page: 0, size: 200, sort: ['lastName,asc']}).subscribe({
-      next: res => this.users.set((res.body ?? []).filter(u => u.activated).map(u => ({...u, displayLabel: this.getUserLabel(u)}))),
-      error() {
-      },
+    this.userService.query({ page: 0, size: 200, sort: ['lastName,asc'] }).subscribe({
+      next: res => this.users.set((res.body ?? []).filter(u => u.activated).map(u => ({ ...u, displayLabel: this.getUserLabel(u) }))),
+      error() {},
     });
   }
 

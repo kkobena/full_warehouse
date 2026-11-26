@@ -1,23 +1,14 @@
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from '@angular/core';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {GammeProduitService} from '../gamme-produit.service';
-import {GammeProduit, IGammeProduit} from '../../../shared/model/gamme-produit.model';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorService} from '../../../shared/error.service';
-import {CommonModule} from '@angular/common';
-import {ButtonComponent, KeyFilterDirective} from '../../../shared/ui';
-import {NotificationService} from "../../../shared/services/notification.service";
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { GammeProduitService } from '../gamme-produit.service';
+import { GammeProduit, IGammeProduit } from '../../../shared/model/gamme-produit.model';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../shared/error.service';
+import { CommonModule } from '@angular/common';
+import { ButtonComponent, KeyFilterDirective } from '../../../shared/ui';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-form-gamme',

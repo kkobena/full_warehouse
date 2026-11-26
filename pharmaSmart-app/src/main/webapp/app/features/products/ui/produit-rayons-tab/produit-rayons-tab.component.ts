@@ -1,23 +1,18 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppSurfaceAccent,
   ButtonComponent,
   DetailFieldComponent,
   DetailGridComponent,
-  DetailSectionComponent
+  DetailSectionComponent,
 } from '../../../../shared/ui';
-import {IProduit} from "../../../../shared/model";
-import {IRayonProduit} from '../../../../shared/model/rayon-produit.model';
-import {
-  RayonProduitApiService
-} from '../../../rayon/data-access/services/rayon-produit-api.service';
-import {
-  RayonAssignFormComponent,
-  RayonAssignResult
-} from '../../../rayon/ui/rayon-assign-form/rayon-assign-form.component';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {ErrorService} from '../../../../shared/error.service';
+import { IProduit } from '../../../../shared/model';
+import { IRayonProduit } from '../../../../shared/model/rayon-produit.model';
+import { RayonProduitApiService } from '../../../rayon/data-access/services/rayon-produit-api.service';
+import { RayonAssignFormComponent, RayonAssignResult } from '../../../rayon/ui/rayon-assign-form/rayon-assign-form.component';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Component({
   selector: 'app-produit-rayons-tab',
@@ -52,20 +47,21 @@ export class ProduitRayonsTabComponent {
     const ref = this.modalService.open(RayonAssignFormComponent, {
       size: 'lg',
       centered: true,
-      backdrop: 'static'
+      backdrop: 'static',
     });
     const inst = ref.componentInstance as RayonAssignFormComponent;
     inst.produit = this.produit();
     inst.mode = 'move';
-    inst.title = assignment.codeRayon === 'SANS'
-      ? `Assigner un emplacement dans "${assignment.libelleStorage}"`
-      : `Déplacer "${this.produit().libelle}" dans "${assignment.libelleStorage}"`;
+    inst.title =
+      assignment.codeRayon === 'SANS'
+        ? `Assigner un emplacement dans "${assignment.libelleStorage}"`
+        : `Déplacer "${this.produit().libelle}" dans "${assignment.libelleStorage}"`;
     inst.currentStorageId = assignment.storageId;
     inst.currentRayonId = assignment.rayonId;
     inst.currentRayonIsSans = assignment.codeRayon === 'SANS';
 
     ref.closed.subscribe((result: RayonAssignResult) => {
-      this.api.move({produitId: result.produitId, rayonId: result.rayonId}).subscribe({
+      this.api.move({ produitId: result.produitId, rayonId: result.rayonId }).subscribe({
         next: () => {
           this.notificationService.success('Emplacement mis à jour');
           this.refreshRequested.emit();
@@ -79,14 +75,12 @@ export class ProduitRayonsTabComponent {
     if (this.isDisabled()) return;
     // Exclut tous les stockages déjà assignés (SANS inclus) — "assigner un emplacement"
     // dans un stockage existant se fait via le bouton dédié sur la ligne.
-    const occupiedStorageIds = (this.produit().rayonProduits ?? [])
-      .map(rp => rp.storageId)
-      .filter((id): id is number => id != null);
+    const occupiedStorageIds = (this.produit().rayonProduits ?? []).map(rp => rp.storageId).filter((id): id is number => id != null);
 
     const ref = this.modalService.open(RayonAssignFormComponent, {
       size: 'lg',
       centered: true,
-      backdrop: 'static'
+      backdrop: 'static',
     });
     const inst = ref.componentInstance as RayonAssignFormComponent;
     inst.produit = this.produit();
@@ -95,7 +89,7 @@ export class ProduitRayonsTabComponent {
     inst.occupiedRealStorageIds = occupiedStorageIds;
 
     ref.closed.subscribe((result: RayonAssignResult) => {
-      this.api.assign({produitId: result.produitId, rayonId: result.rayonId}).subscribe({
+      this.api.assign({ produitId: result.produitId, rayonId: result.rayonId }).subscribe({
         next: () => {
           this.notificationService.success('Affecté au nouveau stockage');
           this.refreshRequested.emit();

@@ -43,7 +43,9 @@
     .btn-close {
       filter: var(--pharma-chrome-close-filter);
       opacity: 0.8;
-      transition: opacity 0.2s, transform 0.2s;
+      transition:
+        opacity 0.2s,
+        transform 0.2s;
 
       &:hover {
         opacity: 1;
@@ -89,9 +91,7 @@
       }
     }
 
-
     .card {
-
       background-color: var(--p-surface-100);
       border: 1px solid var(--p-content-border-color);
       border-radius: var(--bs-border-radius);
@@ -194,7 +194,6 @@
     align-items: center;
     gap: 0.75rem;
     background-color: $light-bg;
-
   }
 
   // Responsive adjustments
@@ -215,7 +214,6 @@
       padding: 0.75rem 1rem;
       flex-direction: column;
       gap: 0.5rem;
-
     }
   }
 }

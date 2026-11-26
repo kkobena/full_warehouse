@@ -17,7 +17,10 @@ scenario('VTE-72', async ({ etape, page }) => {
   const modale = page.locator('.modal-content');
 
   rejouer('scripts/essai-ordonnance/nettoyer.sql');
-  expect(lire(`SELECT statut_legal <> 'SANS_LISTE' FROM produit WHERE libelle LIKE '${produit}%' ORDER BY id LIMIT 1`), `${produit} doit être sur ordonnance`).toBe('t');
+  expect(
+    lire(`SELECT statut_legal <> 'SANS_LISTE' FROM produit WHERE libelle LIKE '${produit}%' ORDER BY id LIMIT 1`),
+    `${produit} doit être sur ordonnance`,
+  ).toBe('t');
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);

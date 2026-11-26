@@ -1,11 +1,18 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,14 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("LotServiceReportServiceImpl")
@@ -37,7 +36,6 @@ class LotServiceReportServiceImplTest {
 
     @Mock
     private SpringTemplateEngine templateEngine;
-
 
     @Mock
     private StorageService storageService;
@@ -67,18 +65,14 @@ class LotServiceReportServiceImplTest {
     @Test
     @DisplayName("produit une reponse PDF en piece jointe")
     void reponsePdf() {
-        ResponseEntity<byte[]> response = service.generatePdf(
-            List.of(),
-            somme(),
-            LocalDate.of(2026, 1, 1),
-            LocalDate.of(2026, 3, 31)
-        );
+        ResponseEntity<byte[]> response =
+                service.generatePdf(List.of(), somme(), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31));
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))
-            .startsWith("attachment; filename=produits_perimes_")
-            .endsWith(".pdf");
+                .startsWith("attachment; filename=produits_perimes_")
+                .endsWith(".pdf");
         assertThat(response.getBody()).isNotEmpty();
         assertThat(new String(response.getBody(), 0, 5)).isEqualTo("%PDF-");
     }
@@ -89,8 +83,8 @@ class LotServiceReportServiceImplTest {
         service.generatePdf(List.of(), somme(), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31));
 
         assertThat((String) service.getParameters().get(Constant.REPORT_TITLE))
-            .startsWith("Liste des produits périmés du ")
-            .contains(" au ");
+                .startsWith("Liste des produits périmés du ")
+                .contains(" au ");
     }
 
     @Test
@@ -110,8 +104,8 @@ class LotServiceReportServiceImplTest {
         service.generatePdf(lots, sum, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 31));
 
         assertThat(service.getParameters())
-            .containsEntry(Constant.ITEMS, lots)
-            .containsEntry(Constant.REPORT_SUMMARY, sum);
+                .containsEntry(Constant.ITEMS, lots)
+                .containsEntry(Constant.REPORT_SUMMARY, sum);
     }
 
     @Test
@@ -121,8 +115,8 @@ class LotServiceReportServiceImplTest {
 
         assertThat(service.getParameters()).containsEntry(Constant.MAGASIN, magasin);
         assertThat((String) service.getParameters().get(Constant.FOOTER))
-            .contains("RC N° RC-001")
-            .contains("CC N° CC-002");
+                .contains("RC N° RC-001")
+                .contains("CC N° CC-002");
     }
 
     @Test

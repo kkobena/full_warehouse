@@ -8,7 +8,7 @@ import { AppTableLazyLoadEvent, BadgeComponent, ButtonComponent, DataTableCompon
   templateUrl: './rayon-list.component.html',
   styleUrl: './rayon-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip]
+  imports: [DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip],
 })
 export class RayonListComponent {
   readonly rayons = input<IRayon[]>([]);

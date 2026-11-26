@@ -17,7 +17,6 @@ export class RayonService {
 
   private readonly resourceUrl = SERVER_API_URL + 'api/rayons';
 
-
   update(rayon: IRayon): Observable<EntityResponseType> {
     return this.http.put<IRayon>(this.resourceUrl, rayon, { observe: 'response' });
   }
@@ -42,6 +41,4 @@ export class RayonService {
   cloner(ids: IRayon[], storageId: number): Observable<HttpResponse<IResponseDto>> {
     return this.http.post<IResponseDto>(`${this.resourceUrl}/clone/${storageId}`, ids, { observe: 'response' });
   }
-
-
 }

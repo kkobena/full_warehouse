@@ -110,9 +110,7 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             Page<RecapProduitVendu> page = services.recapProduitVenduService.getRecapProduitVenduReport(
-                parametres().build(),
-                PageRequest.of(0, 2)
-            );
+                    parametres().build(), PageRequest.of(0, 2));
 
             assertThat(page.getContent()).extracting(RecapProduitVendu::libelle).containsExactly("A", "B");
             assertThat(page.getTotalElements()).isEqualTo(3);
@@ -123,7 +121,8 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
         void baseVierge() {
             assertThat(recap()).isEmpty();
 
-            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(parametres().build());
+            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(
+                    parametres().build());
 
             assertThat(resume.totalProducts()).isZero();
             assertThat(resume.quantitySold()).isZero();
@@ -145,10 +144,15 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 7, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduRequestParam duJour = parametres().du(LocalDate.now()).au(LocalDate.now()).build();
+            RecapProduitVenduRequestParam duJour =
+                    parametres().du(LocalDate.now()).au(LocalDate.now()).build();
 
-            assertThat(services.recapProduitVenduService.getRecapProduitVenduReport(duJour, PAGE).getContent().getFirst().quantitySold())
-                .isEqualTo(7);
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(duJour, PAGE)
+                            .getContent()
+                            .getFirst()
+                            .quantitySold())
+                    .isEqualTo(7);
         }
 
         /**
@@ -166,20 +170,26 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             RecapProduitVenduRequestParam journeeEntiere = parametres()
-                .du(LocalDate.now())
-                .au(LocalDate.now())
-                .de(LocalTime.of(0, 0))
-                .a(LocalTime.of(23, 59))
-                .build();
+                    .du(LocalDate.now())
+                    .au(LocalDate.now())
+                    .de(LocalTime.of(0, 0))
+                    .a(LocalTime.of(23, 59))
+                    .build();
             RecapProduitVenduRequestParam soireeSeule = parametres()
-                .du(LocalDate.now())
-                .au(LocalDate.now())
-                .de(LocalTime.of(20, 0))
-                .a(LocalTime.of(23, 59))
-                .build();
+                    .du(LocalDate.now())
+                    .au(LocalDate.now())
+                    .de(LocalTime.of(20, 0))
+                    .a(LocalTime.of(23, 59))
+                    .build();
 
-            assertThat(services.recapProduitVenduService.getRecapProduitVenduReport(journeeEntiere, PAGE).getContent()).hasSize(1);
-            assertThat(services.recapProduitVenduService.getRecapProduitVenduReport(soireeSeule, PAGE).getContent()).isEmpty();
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(journeeEntiere, PAGE)
+                            .getContent())
+                    .hasSize(1);
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(soireeSeule, PAGE)
+                            .getContent())
+                    .isEmpty();
         }
 
         @Test
@@ -188,14 +198,16 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitVendable("DOLIPRANE", 10_000, 6_000), 5, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService
-                    .getRecapProduitVenduReport(parametres().caissier(utilisateur.getId()).build(), PAGE)
-                    .getContent()
-            ).hasSize(1);
-            assertThat(
-                services.recapProduitVenduService.getRecapProduitVenduReport(parametres().caissier(999_999).build(), PAGE).getContent()
-            ).isEmpty();
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().caissier(utilisateur.getId()).build(), PAGE)
+                            .getContent())
+                    .hasSize(1);
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().caissier(999_999).build(), PAGE)
+                            .getContent())
+                    .isEmpty();
         }
 
         @Test
@@ -205,11 +217,12 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitVendable("EFFERALGAN", 10_000, 6_000), 5, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService.getRecapProduitVenduReport(parametres().recherche("dolipr").build(), PAGE).getContent()
-            )
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("DOLIPRANE 1000");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().recherche("dolipr").build(), PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("DOLIPRANE 1000");
         }
 
         @Test
@@ -224,13 +237,12 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(ailleurs, 5, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService
-                    .getRecapProduitVenduReport(parametres().rayon(comptoir.getId()).build(), PAGE)
-                    .getContent()
-            )
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("AU COMPTOIR");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().rayon(comptoir.getId()).build(), PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("AU COMPTOIR");
         }
 
         @Test
@@ -244,13 +256,12 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitVendable("AUTRE", 10_000, 6_000), 5, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService
-                    .getRecapProduitVenduReport(parametres().fournisseur(laborex.getId()).build(), PAGE)
-                    .getContent()
-            )
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("DOLIPRANE");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().fournisseur(laborex.getId()).build(), PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("DOLIPRANE");
         }
 
         /** Vendre en dessous du prix d'achat est une anomalie de tarification : c'est ce filtre qui la débusque. */
@@ -262,13 +273,12 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitVendable("NORMAL", 10_000, 6_000), 5, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService
-                    .getRecapProduitVenduReport(parametres().sousLePrixDAchat().build(), PAGE)
-                    .getContent()
-            )
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("A PERTE");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().sousLePrixDAchat().build(), PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("A PERTE");
         }
 
         @Test
@@ -278,11 +288,12 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitVendable("SEPT", 10_000, 6_000), 7, LocalDate.now());
             viderLeCache();
 
-            assertThat(
-                services.recapProduitVenduService.getRecapProduitVenduReport(parametres().quantiteVendue(3).build(), PAGE).getContent()
-            )
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("TROIS");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(
+                                    parametres().quantiteVendue(3).build(), PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("TROIS");
         }
     }
 
@@ -324,7 +335,8 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(insuffisant, 5, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduRequestParam param = parametres().seuil(SeuilFilterType.SEUIL_MINI_ATTEINT, null).build();
+            RecapProduitVenduRequestParam param =
+                    parametres().seuil(SeuilFilterType.SEUIL_MINI_ATTEINT, null).build();
             Page<RecapProduitVendu> page = services.recapProduitVenduService.getRecapProduitVenduReport(param, PAGE);
 
             assertThat(page.getContent()).extracting(RecapProduitVendu::libelle).containsExactly("SUFFISANT");
@@ -365,29 +377,34 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(approvisionne, 1, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduRequestParam param = parametres().stock(StockFilterType.OUT_OF_STOCK, null).build();
+            RecapProduitVenduRequestParam param =
+                    parametres().stock(StockFilterType.OUT_OF_STOCK, null).build();
 
-            assertThat(services.recapProduitVenduService.getRecapProduitVenduReport(param, PAGE).getContent())
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("EPUISE");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduReport(param, PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("EPUISE");
         }
 
         private List<String> avecSeuil(SeuilFilterType type, int valeur) {
-            return services.recapProduitVenduService
-                .getRecapProduitVenduReport(parametres().seuil(type, valeur).build(), PAGE)
-                .getContent()
-                .stream()
-                .map(RecapProduitVendu::libelle)
-                .toList();
+            return services
+                    .recapProduitVenduService
+                    .getRecapProduitVenduReport(parametres().seuil(type, valeur).build(), PAGE)
+                    .getContent()
+                    .stream()
+                    .map(RecapProduitVendu::libelle)
+                    .toList();
         }
 
         private List<String> avecStock(StockFilterType type, int valeur) {
-            return services.recapProduitVenduService
-                .getRecapProduitVenduReport(parametres().stock(type, valeur).build(), PAGE)
-                .getContent()
-                .stream()
-                .map(RecapProduitVendu::libelle)
-                .toList();
+            return services
+                    .recapProduitVenduService
+                    .getRecapProduitVenduReport(parametres().stock(type, valeur).build(), PAGE)
+                    .getContent()
+                    .stream()
+                    .map(RecapProduitVendu::libelle)
+                    .toList();
         }
     }
 
@@ -441,11 +458,14 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 5, LocalDate.now().minusDays(30));
             viderLeCache();
 
-            RecapProduitVenduRequestParam duJour = parametres().du(LocalDate.now()).au(LocalDate.now()).build();
+            RecapProduitVenduRequestParam duJour =
+                    parametres().du(LocalDate.now()).au(LocalDate.now()).build();
 
-            assertThat(services.recapProduitVenduService.getRecapProduitInvenduReport(duJour, PAGE).getContent())
-                .extracting(RecapProduitVendu::libelle)
-                .containsExactly("VENDU AVANT");
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitInvenduReport(duJour, PAGE)
+                            .getContent())
+                    .extracting(RecapProduitVendu::libelle)
+                    .containsExactly("VENDU AVANT");
         }
 
         @Test
@@ -465,7 +485,8 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             stock(produitVendable("DORMANT B", 10_000, 6_000), 30);
             viderLeCache();
 
-            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitInvenduSummary(parametres().build());
+            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitInvenduSummary(
+                    parametres().build());
 
             assertThat(resume.totalProducts()).isEqualTo(2);
             assertThat(resume.totalStock()).isEqualTo(40L);
@@ -491,7 +512,8 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(b, 2, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(parametres().build());
+            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(
+                    parametres().build());
 
             assertThat(resume.totalProducts()).isEqualTo(2);
             assertThat(resume.quantitySold()).isEqualTo(6);
@@ -512,7 +534,8 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 10, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(parametres().build());
+            RecapProduitVenduSummary resume = services.recapProduitVenduService.getRecapProduitVenduSummary(
+                    parametres().build());
 
             assertThat(resume.totalProducts()).isEqualTo(1);
             assertThat(resume.quantitySold()).isEqualTo(10);
@@ -527,9 +550,13 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 7, LocalDate.now());
             viderLeCache();
 
-            RecapProduitVenduRequestParam duJour = parametres().du(LocalDate.now()).au(LocalDate.now()).build();
+            RecapProduitVenduRequestParam duJour =
+                    parametres().du(LocalDate.now()).au(LocalDate.now()).build();
 
-            assertThat(services.recapProduitVenduService.getRecapProduitVenduSummary(duJour).quantitySold()).isEqualTo(7);
+            assertThat(services.recapProduitVenduService
+                            .getRecapProduitVenduSummary(duJour)
+                            .quantitySold())
+                    .isEqualTo(7);
         }
     }
 
@@ -567,11 +594,15 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
     // ===== fabriques locales =====
 
     private List<RecapProduitVendu> recap() {
-        return services.recapProduitVenduService.getRecapProduitVenduReport(parametres().build(), PAGE).getContent();
+        return services.recapProduitVenduService
+                .getRecapProduitVenduReport(parametres().build(), PAGE)
+                .getContent();
     }
 
     private List<RecapProduitVendu> invendus() {
-        return services.recapProduitVenduService.getRecapProduitInvenduReport(parametres().build(), PAGE).getContent();
+        return services.recapProduitVenduService
+                .getRecapProduitInvenduReport(parametres().build(), PAGE)
+                .getContent();
     }
 
     private Produit produitVendable(String libelle, int prixVente, int coutAchat) {
@@ -673,28 +704,27 @@ class RecapProduitVenduServiceIntegrationTest extends AbstractReportIntegrationT
 
         RecapProduitVenduRequestParam build() {
             return new RecapProduitVenduRequestParam(
-                debut,
-                fin,
-                heureDebut,
-                heureFin,
-                caissierId,
-                recherche,
-                rayonId,
-                fournisseurId,
-                typeSeuil,
-                typeStock,
-                valeurSeuil,
-                valeurStock,
-                quantiteVendue,
-                sousLePrixDAchat,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                false
-            );
+                    debut,
+                    fin,
+                    heureDebut,
+                    heureFin,
+                    caissierId,
+                    recherche,
+                    rayonId,
+                    fournisseurId,
+                    typeSeuil,
+                    typeStock,
+                    valeurSeuil,
+                    valeurStock,
+                    quantiteVendue,
+                    sousLePrixDAchat,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false);
         }
     }
 }

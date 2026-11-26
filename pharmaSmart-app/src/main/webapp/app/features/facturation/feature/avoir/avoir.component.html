@@ -1,10 +1,8 @@
 <div class="pharma-smart-content">
-
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-wallet" title="Avoirs / Notes de crédit">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-
         <app-float-label inputId="av-tp" label="Tiers-payant">
           <app-multi-select
             (searched)="searchTiersPayant($event)"
@@ -17,11 +15,15 @@
           />
         </app-float-label>
 
-        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }" id="av-du"
-                            label="Du" />
+        <pharma-date-picker
+          [ngModel]="modelStartDate()"
+          (ngModelChange)="modelStartDate.set($event)"
+          [style]="{ 'max-width': '180px' }"
+          id="av-du"
+          label="Du"
+        />
 
-        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="av-au"
-                            label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="av-au" label="Au" />
 
         <app-float-label inputId="av-statut" label="">
           <app-select
@@ -37,35 +39,16 @@
         </app-float-label>
 
         <app-float-label inputId="av-num" label="N° avoir">
-          <input
-            [(ngModel)]="numAvoirSearch"
-            [style]="{ width: '130px' }"
-            class="form-control"
-            inputId="av-num" placeholder=" " />
+          <input [(ngModel)]="numAvoirSearch" [style]="{ width: '130px' }" class="form-control" inputId="av-num" placeholder=" " />
         </app-float-label>
-
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
-
-          <app-button
-            (clicked)="openNouvelAvoir()"
-            [raised]="true"
-            icon="pi pi-plus"
-            label="Nouvel avoir"
-            severity="primary"
-          />
-          <app-button
-            (clicked)="onSearch()"
-            [loading]="loading()"
-            [raised]="true"
-            icon="pi pi-search"
-            label="Rechercher"
-            severity="info"
-          />
+          <app-button (clicked)="openNouvelAvoir()" [raised]="true" icon="pi pi-plus" label="Nouvel avoir" severity="primary" />
+          <app-button (clicked)="onSearch()" [loading]="loading()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
           <app-split-button
             (clicked)="onExportExcel()"
@@ -76,7 +59,6 @@
             label="Exporter"
             severity="danger"
           />
-
         </div>
       </div>
     </ng-container>
@@ -90,42 +72,57 @@
       cumulé passe en sous-titre, où il explique le nombre.
     -->
     <app-kpi-strip [loading]="loading()" [skeletonCount]="4" stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'secondary'" [value]="kpi()['DRAFT'].count" icon="pi pi-file-edit"
-                    iconClass="text-secondary" label="Brouillons"
-                    info="Avoirs saisis mais pas encore émis à l'organisme : ils ne modifient aucune facture. Les quatre compteurs portent sur la liste filtrée ; un filtre de statut en laisse donc trois à zéro." valueClass="text-secondary">
-        <ng-container ngProjectAs="[kpiSub]">
-          {{ kpi()['DRAFT'].total | number: '1.0-0' }} <span appDevise></span>
-        </ng-container>
+      <app-kpi-item
+        [accent]="'secondary'"
+        [value]="kpi()['DRAFT'].count"
+        icon="pi pi-file-edit"
+        iconClass="text-secondary"
+        label="Brouillons"
+        info="Avoirs saisis mais pas encore émis à l'organisme : ils ne modifient aucune facture. Les quatre compteurs portent sur la liste filtrée ; un filtre de statut en laisse donc trois à zéro."
+        valueClass="text-secondary"
+      >
+        <ng-container ngProjectAs="[kpiSub]"> {{ kpi()['DRAFT'].total | number: '1.0-0' }} <span appDevise></span> </ng-container>
       </app-kpi-item>
 
-      <app-kpi-item [accent]="'info'" [value]="kpi()['EMIS'].count" icon="pi pi-send"
-                    iconClass="text-info" label="Émis"
-                    info="Avoirs transmis à l'organisme et en attente d'imputation. Un avoir émis peut encore être annulé." valueClass="text-info">
-        <ng-container ngProjectAs="[kpiSub]">
-          {{ kpi()['EMIS'].total | number: '1.0-0' }} <span appDevise></span>
-        </ng-container>
+      <app-kpi-item
+        [accent]="'info'"
+        [value]="kpi()['EMIS'].count"
+        icon="pi pi-send"
+        iconClass="text-info"
+        label="Émis"
+        info="Avoirs transmis à l'organisme et en attente d'imputation. Un avoir émis peut encore être annulé."
+        valueClass="text-info"
+      >
+        <ng-container ngProjectAs="[kpiSub]"> {{ kpi()['EMIS'].total | number: '1.0-0' }} <span appDevise></span> </ng-container>
       </app-kpi-item>
 
-      <app-kpi-item [accent]="'success'" [value]="kpi()['IMPUTE'].count" icon="pi pi-link"
-                    iconClass="text-success" label="Imputés"
-                    info="Avoirs rattachés à une facture : leur montant s'ajoute au réglé de cette facture, qui passe partiellement ou totalement soldée. Un avoir imputé ne peut plus être annulé." valueClass="text-success">
-        <ng-container ngProjectAs="[kpiSub]">
-          {{ kpi()['IMPUTE'].total | number: '1.0-0' }} <span appDevise></span>
-        </ng-container>
+      <app-kpi-item
+        [accent]="'success'"
+        [value]="kpi()['IMPUTE'].count"
+        icon="pi pi-link"
+        iconClass="text-success"
+        label="Imputés"
+        info="Avoirs rattachés à une facture : leur montant s'ajoute au réglé de cette facture, qui passe partiellement ou totalement soldée. Un avoir imputé ne peut plus être annulé."
+        valueClass="text-success"
+      >
+        <ng-container ngProjectAs="[kpiSub]"> {{ kpi()['IMPUTE'].total | number: '1.0-0' }} <span appDevise></span> </ng-container>
       </app-kpi-item>
 
-      <app-kpi-item [accent]="'danger'" [value]="kpi()['ANNULE'].count" icon="pi pi-ban"
-                    iconClass="text-danger" label="Annulés"
-                    info="Avoirs abandonnés avant imputation, avec leur motif. Ils n'ont touché aucune facture." valueClass="text-danger">
-        <ng-container ngProjectAs="[kpiSub]">
-          {{ kpi()['ANNULE'].total | number: '1.0-0' }} <span appDevise></span>
-        </ng-container>
+      <app-kpi-item
+        [accent]="'danger'"
+        [value]="kpi()['ANNULE'].count"
+        icon="pi pi-ban"
+        iconClass="text-danger"
+        label="Annulés"
+        info="Avoirs abandonnés avant imputation, avec leur motif. Ils n'ont touché aucune facture."
+        valueClass="text-danger"
+      >
+        <ng-container ngProjectAs="[kpiSub]"> {{ kpi()['ANNULE'].total | number: '1.0-0' }} <span appDevise></span> </ng-container>
       </app-kpi-item>
     </app-kpi-strip>
   }
 
   <app-card>
-
     <app-data-table
       [loading]="loading()"
       [paginator]="true"
@@ -154,16 +151,19 @@
       </ng-template>
       <ng-template #body let-avoir>
         <tr>
-          <td><span class="pharma-code">{{ avoir.numAvoir || '—' }}</span></td>
-          <td><span class="pharma-code">{{ avoir.factureNum }}</span></td>
+          <td>
+            <span class="pharma-code">{{ avoir.numAvoir || '—' }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ avoir.factureNum }}</span>
+          </td>
           <td>{{ avoir.tiersPayantName }}</td>
           <td class="small text-muted">{{ avoir.avoirDate }}</td>
-          <td class="text-end fw-bold">{{ (avoir.montantAvoir ?? 0) | number:'1.0-0' }}</td>
-          <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
-          <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
+          <td class="text-end fw-bold">{{ avoir.montantAvoir ?? 0 | number: '1.0-0' }}</td>
+          <td class="text-end small text-muted">{{ avoir.montantTva ?? 0 | number: '1.0-0' }}</td>
+          <td class="text-end small text-muted">{{ avoir.montantHt ?? 0 | number: '1.0-0' }}</td>
           <td>
-            <app-badge [label]="getStatutLabel(avoir.statut)"
-                       [severity]="getStatutSeverity(avoir.statut)" />
+            <app-badge [label]="getStatutLabel(avoir.statut)" [severity]="getStatutSeverity(avoir.statut)" />
           </td>
           <td [title]="avoir.motif ?? ''" class="small text-muted">
             <span class="avoir-motif-cell">{{ avoir.motif }}</span>
@@ -234,7 +234,6 @@
       </ng-template>
     </app-data-table>
   </app-card>
-
 </div>
 
 <!-- Modal : Imputation -->
@@ -243,8 +242,7 @@
     <h6 class="modal-title mb-0">
       <i class="pi pi-link me-2"></i>
       Imputer {{ currentImputerAvoir()?.numAvoir }}
-      <span
-        class="pharma-price ms-2">{{ currentImputerAvoir()?.montantAvoir | number:'1.0-0' }}</span>
+      <span class="pharma-price ms-2">{{ currentImputerAvoir()?.montantAvoir | number: '1.0-0' }}</span>
     </h6>
     <button (click)="modal.dismiss()" class="btn-close" type="button"></button>
   </div>
@@ -252,7 +250,8 @@
     <app-float-label inputId="imp-facture" label="Facture cible *">
       <app-select-search
         (searched)="searchFactureCible($event)"
-        [ngModel]="selectedTargetFacture()" (ngModelChange)="selectedTargetFacture.set($event)"
+        [ngModel]="selectedTargetFacture()"
+        (ngModelChange)="selectedTargetFacture.set($event)"
         [items]="factureCibleSuggestions()"
         [minSearchLength]="2"
         [optionTemplate]="tplFactureCible"
@@ -266,44 +265,46 @@
       <ng-template #tplFactureCible let-f>
         <div class="d-flex justify-content-between align-items-center gap-3 w-100">
           <span class="pharma-code fw-semibold">{{ f.numFacture }}</span>
-          <span class="small text-muted">Restant&nbsp;: <span
-            class="pharma-price">{{ f.montantRestant | number: '1.0-0' }}</span></span>
+          <span class="small text-muted"
+            >Restant&nbsp;: <span class="pharma-price">{{ f.montantRestant | number: '1.0-0' }}</span></span
+          >
         </div>
       </ng-template>
     </app-float-label>
     @if (selectedTargetFacture()) {
       @if (canConfirmImputer()) {
-        <small class="text-success d-block mt-1">
-          <i class="pi pi-check me-1"></i>Montant avoir ≤ montant restant
-        </small>
+        <small class="text-success d-block mt-1"> <i class="pi pi-check me-1"></i>Montant avoir ≤ montant restant </small>
       } @else {
         <small class="text-danger d-block mt-1">
-          <i class="pi pi-times me-1"></i>Montant avoir &gt; restant
-          ({{ selectedTargetFacture().montantRestant | number:'1.0-0' }})
+          <i class="pi pi-times me-1"></i>Montant avoir &gt; restant ({{ selectedTargetFacture().montantRestant | number: '1.0-0' }})
         </small>
       }
     }
   </div>
   <div class="modal-footer py-2">
-    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary"
-                size="small" />
-    <app-button (clicked)="modal.close()" [disabled]="!canConfirmImputer()" icon="pi pi-link" label="Imputer"
-                severity="success" size="small" />
+    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary" size="small" />
+    <app-button
+      (clicked)="modal.close()"
+      [disabled]="!canConfirmImputer()"
+      icon="pi pi-link"
+      label="Imputer"
+      severity="success"
+      size="small"
+    />
   </div>
 </ng-template>
 
 <!-- Modal : Annulation avec motif -->
 <ng-template #annulerModal let-modal>
   <div class="modal-header py-2">
-    <h6 class="modal-title mb-0">
-      <i class="pi pi-ban me-2 text-danger"></i>Annuler {{ currentAnnulerAvoir()?.numAvoir }}
-    </h6>
+    <h6 class="modal-title mb-0"><i class="pi pi-ban me-2 text-danger"></i>Annuler {{ currentAnnulerAvoir()?.numAvoir }}</h6>
     <button (click)="modal.dismiss()" class="btn-close" type="button"></button>
   </div>
   <div class="modal-body">
     <app-float-label inputId="ann-motif" label="Motif d'annulation *">
       <textarea
-        [ngModel]="motifAnnulation()" (ngModelChange)="motifAnnulation.set($event)"
+        [ngModel]="motifAnnulation()"
+        (ngModelChange)="motifAnnulation.set($event)"
         inputId="ann-motif"
         rows="3"
         style="width: 100%; resize: vertical"
@@ -311,8 +312,7 @@
     </app-float-label>
   </div>
   <div class="modal-footer py-2">
-    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary"
-                size="small" />
+    <app-button (clicked)="modal.dismiss()" [outlined]="true" label="Annuler" severity="secondary" size="small" />
     <app-button
       (clicked)="modal.close(motifAnnulation())"
       [disabled]="!motifAnnulation().trim()"
@@ -323,4 +323,3 @@
     />
   </div>
 </ng-template>
-

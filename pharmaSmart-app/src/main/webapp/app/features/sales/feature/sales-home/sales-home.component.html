@@ -1,7 +1,6 @@
 <!-- Drawer pour ventes en attente (masqué en mode devis) -->
 @if (!isDevisMode()) {
-  <app-offcanvas (visibleChange)="onDrawerHide()" [visible]="pendingSalesSidebar()" position="right"
-                 width="70vw">
+  <app-offcanvas (visibleChange)="onDrawerHide()" [visible]="pendingSalesSidebar()" position="right" width="70vw">
     <div appOffcanvasHeader class="drawer-header-content">
       <i class="pi pi-clock text-xl"></i>
       <div class="drawer-header-text">
@@ -11,10 +10,7 @@
     </div>
 
     @if (pendingSalesSidebar()) {
-      <app-pending-sales-list
-        (closed)="closePendingSales()"
-        (saleResumed)="onSaleResumed($event)"
-      />
+      <app-pending-sales-list (closed)="closePendingSales()" (saleResumed)="onSaleResumed($event)" />
     }
   </app-offcanvas>
 }
@@ -34,11 +30,14 @@
 </app-offcanvas>
 
 <!-- Interface principale Point de Vente -->
-<div appHauteurEcranVente [attr.data-comptoir-doc]="isPresaleMode() || isDevisMode() ? 'true' : null" [attr.data-comptoir-mode]="comptoirMode()"
-     class="pharma-sales-layout">
+<div
+  appHauteurEcranVente
+  [attr.data-comptoir-doc]="isPresaleMode() || isDevisMode() ? 'true' : null"
+  [attr.data-comptoir-mode]="comptoirMode()"
+  class="pharma-sales-layout"
+>
   <!-- HEADER TOOLBAR - Actions principales -->
-  <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()"
-       class="pharma-sales-header">
+  <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()" class="pharma-sales-header">
     <div class="header-left">
       <!-- Bouton retour -->
       <app-button
@@ -54,8 +53,11 @@
       <div class="page-title">
         <h1>
           <!-- Icône du mode ; celle du type de vente est dans la pastille. -->
-          <i [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"
-             aria-hidden="true" class="presale-icon"></i>
+          <i
+            [class]="isDevisMode() ? 'pi pi-file-edit' : isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart'"
+            aria-hidden="true"
+            class="presale-icon"
+          ></i>
           @if (isDevisMode()) {
             Proforma
           } @else if (isPresaleMode()) {
@@ -119,14 +121,14 @@
               [outlined]="true"
               container="body"
               severity="primary"
-              size="small" />
+              size="small"
+            />
           }
         </nav>
       }
 
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
-      @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale()
-        && !isDevisMode();
+      @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale() && !isDevisMode();
 
       @if (showCustomerPanel) {
         <div class="header-customer-wrapper">
@@ -146,7 +148,8 @@
           ngbTooltip="Entrée / sortie de caisse"
           placement="left"
           severity="primary"
-          size="small" />
+          size="small"
+        />
       }
 
       <!-- Pending sales button (masqué en mode prévente et devis) -->
@@ -165,7 +168,6 @@
       }
 
       @if (!isPresaleMode() && !isDevisMode()) {
-
         <button
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"
@@ -185,50 +187,49 @@
 
       <!-- Badge mode scanner SERIAL -->
       @if (scannerMode() === 'SERIAL') {
-        <span class="sales-serial-badge"
-              ngbTooltip="Douchette USB série active — lecture automatique"
-              placement="bottom">
+        <span class="sales-serial-badge" ngbTooltip="Douchette USB série active — lecture automatique" placement="bottom">
           <i class="pi pi-wifi"></i>
         </span>
       }
-
-
     </div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Navigation par type de vente -->
-    <div [class.collapsed]="sidebarCollapsed() && !navHorizontale()" [class.nav-horizontale]="navHorizontale()"
-         [class.presale-mode]="isPresaleMode()" class="sales-sidebar pharma-nav-sidebar">
+    <div
+      [class.collapsed]="sidebarCollapsed() && !navHorizontale()"
+      [class.nav-horizontale]="navHorizontale()"
+      [class.presale-mode]="isPresaleMode()"
+      class="sales-sidebar pharma-nav-sidebar"
+    >
       <div class="sidebar-card pharma-nav-sidebar-card">
         @if (!navHorizontale()) {
-        <div class="sidebar-header pharma-nav-sidebar-header">
-          @if (!sidebarCollapsed()) {
-            <i
-              [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"></i>
-            <span class="sidebar-title">
-              @if (isDevisMode()) {
-                Types de Proforma
-              } @else if (isPresaleMode()) {
-                Types de Pré-vente
-              } @else {
-                Types de vente
-              }
-            </span>
-          }
-          <app-button
-            (clicked)="toggleSidebar()"
-            [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
-            [ngbTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
-            [rounded]="true"
-            [text]="true"
-            class="sidebar-toggle-btn"
-            placement="right"
-            size="small"
-          >
-          </app-button>
-        </div>
+          <div class="sidebar-header pharma-nav-sidebar-header">
+            @if (!sidebarCollapsed()) {
+              <i [class]="isDevisMode() ? 'pi pi-file-edit' : isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart'"></i>
+              <span class="sidebar-title">
+                @if (isDevisMode()) {
+                  Types de Proforma
+                } @else if (isPresaleMode()) {
+                  Types de Pré-vente
+                } @else {
+                  Types de vente
+                }
+              </span>
+            }
+            <app-button
+              (clicked)="toggleSidebar()"
+              [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+              [ngbTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
+              [rounded]="true"
+              [text]="true"
+              class="sidebar-toggle-btn"
+              placement="right"
+              size="small"
+            >
+            </app-button>
+          </div>
         }
 
         <div [class.hidden]="sidebarCollapsed() && !navHorizontale()" class="sale-types-nav pharma-nav-sidebar-content">
@@ -261,7 +262,8 @@
                     [(initSaleForEditInfo)]="initSaleForEditInfo"
                     [isSmallScreen]="isSmallScreen()"
                     [remises]="remises()"
-                    [showStock]="showStock()"></app-sale-devis>
+                    [showStock]="showStock()"
+                  ></app-sale-devis>
                 } @else {
                   <app-sale-creation
                     (cashRegisterOpened)="onCashRegisterStatusChanged()"
@@ -270,7 +272,8 @@
                     [isPresale]="isPresaleMode()"
                     [isSmallScreen]="isSmallScreen()"
                     [remises]="remises()"
-                    [showStock]="showStock()"></app-sale-creation>
+                    [showStock]="showStock()"
+                  ></app-sale-creation>
                 }
               </ng-template>
             </ng-container>
@@ -294,7 +297,8 @@
                     [isPresale]="isPresaleMode()"
                     [isSmallScreen]="isSmallScreen()"
                     [remises]="remises()"
-                    [showStock]="showStock()"></app-sale-assurance>
+                    [showStock]="showStock()"
+                  ></app-sale-assurance>
                 </ng-template>
               </ng-container>
             }
@@ -320,7 +324,8 @@
                     [isPresale]="isPresaleMode()"
                     [isSmallScreen]="isSmallScreen()"
                     [remises]="remises()"
-                    [showStock]="showStock()"></app-sale-carnet>
+                    [showStock]="showStock()"
+                  ></app-sale-carnet>
                 </ng-template>
               </ng-container>
             }
@@ -338,7 +343,8 @@
             label="Aide et raccourcis"
             placement="right"
             severity="primary"
-            size="small" />
+            size="small"
+          />
         </div>
       </div>
     </div>
@@ -353,8 +359,9 @@
   </div>
 </div>
 
-
-
-<app-fiche-client-panel [customerId]="ficheClient.customerId()" [(visible)]="ficheClient.visible"
-                        (redelivrer)="ficheClient.redelivrer$.next($event)" />
+<app-fiche-client-panel
+  [customerId]="ficheClient.customerId()"
+  [(visible)]="ficheClient.visible"
+  (redelivrer)="ficheClient.redelivrer$.next($event)"
+/>
 <app-ordonnance-panel [customerId]="ordonnancePanel.customerId()" [(visible)]="ordonnancePanel.visible" />

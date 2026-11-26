@@ -33,11 +33,41 @@ export class SectionRupturesComponent {
       return [];
     }
     return [
-      { libelle: 'Ruptures fournisseurs', definition: 'Lignes commandées non livrées / lignes commandées.', unite: 'POURCENTAGE', sens: 'BAISSE', cellule: ruptures.tauxRupture },
-      { libelle: 'Ventes manquées', definition: 'Valeur des quantités demandées au comptoir et non servies (avoirs clients).', unite: 'MONTANT', sens: 'BAISSE', cellule: ruptures.ventesManquees },
-      { libelle: 'Taux de ventes manquées', definition: 'Quantités en avoir / quantités demandées.', unite: 'POURCENTAGE', sens: 'BAISSE', cellule: ruptures.tauxVentesManquees },
-      { libelle: 'Périmé sur la période', definition: 'Lots arrivés à péremption et encore en stock, au prix d’achat.', unite: 'MONTANT', sens: 'BAISSE', cellule: ruptures.valeurPerimee },
-      { libelle: 'À périmer sous 3 mois', definition: 'Lots en stock qui périment dans les 3 mois.', unite: 'MONTANT', sens: 'BAISSE', cellule: celluleSeule(ruptures.valeurAPerimerTroisMois) },
+      {
+        libelle: 'Ruptures fournisseurs',
+        definition: 'Lignes commandées non livrées / lignes commandées.',
+        unite: 'POURCENTAGE',
+        sens: 'BAISSE',
+        cellule: ruptures.tauxRupture,
+      },
+      {
+        libelle: 'Ventes manquées',
+        definition: 'Valeur des quantités demandées au comptoir et non servies (avoirs clients).',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: ruptures.ventesManquees,
+      },
+      {
+        libelle: 'Taux de ventes manquées',
+        definition: 'Quantités en avoir / quantités demandées.',
+        unite: 'POURCENTAGE',
+        sens: 'BAISSE',
+        cellule: ruptures.tauxVentesManquees,
+      },
+      {
+        libelle: 'Périmé sur la période',
+        definition: 'Lots arrivés à péremption et encore en stock, au prix d’achat.',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: ruptures.valeurPerimee,
+      },
+      {
+        libelle: 'À périmer sous 3 mois',
+        definition: 'Lots en stock qui périment dans les 3 mois.',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: celluleSeule(ruptures.valeurAPerimerTroisMois),
+      },
     ];
   });
 

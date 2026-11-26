@@ -2,23 +2,20 @@
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-receipt" title="Factures tiers payants">
     <ng-container ngProjectAs="[toolbarFilters]">
-      <app-pill-selector
-        (selectionChange)="onTypeFactureChange()"
-        [(ngModel)]="typeFacture"
-        [items]="typeFactureOptions"
+      <app-pill-selector (selectionChange)="onTypeFactureChange()" [(ngModel)]="typeFacture" [items]="typeFactureOptions" />
+
+      <app-pill-selector (selectionChange)="onSearch()" [(ngModel)]="factureProvisoire" [items]="factureProvisoireOptions" />
+
+      <pharma-date-picker
+        [ngModel]="modelStartDate()"
+        (ngModelChange)="modelStartDate.set($event)"
+        [maxDate]="modelEndDate"
+        [style]="{ 'max-width': '180px' }"
+        id="fhDu"
+        label="Du"
       />
 
-      <app-pill-selector
-        (selectionChange)="onSearch()"
-        [(ngModel)]="factureProvisoire"
-        [items]="factureProvisoireOptions"
-      />
-
-      <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [maxDate]="modelEndDate" [style]="{ 'max-width': '180px' }"
-                          id="fhDu" label="Du" />
-
-      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()" [style]="{ 'max-width': '180px' }"
-                          id="fhAu" label="Au" />
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()" [style]="{ 'max-width': '180px' }" id="fhAu" label="Au" />
 
       <app-float-label inputId="fhStatut" label="Statut">
         <app-select
@@ -89,9 +86,7 @@
   <!-- KPI Banner -->
   <app-facture-kpi-banner [kpi]="store.kpi()" [loading]="store.kpiLoading()" />
 
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
-          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
-
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
     <!-- Hint premier usage -->
     <app-hint storageKey="facturation" [visible]="!panelOpen()">
       Cliquez sur une ligne pour afficher le détail et régler la facture. Utilisez les filtres pour affiner la recherche.
@@ -100,8 +95,7 @@
     <!-- Bulk action bar -->
     @if (store.hasSelection() && canDelete()) {
       <div class="bulk-action-bar">
-        <span class="bulk-count">{{ store.selectedFactures().length }}
-          facture(s) sélectionnée(s)</span>
+        <span class="bulk-count">{{ store.selectedFactures().length }} facture(s) sélectionnée(s)</span>
         <app-button
           (clicked)="onDeleteSelected()"
           [loading]="deleteAllSpinner()"
@@ -117,19 +111,24 @@
     <!-- Split container: liste + panneau détail -->
     <div [class.panel-open]="panelOpen()" class="split-container">
       <div class="list-column">
-        <app-facture-list (createAvoir)="onCreateAvoir($event)" [canDelete]="canDelete()"
-                          [canExport]="canExport()" [searchParams]="currentSearchParams()" />
+        <app-facture-list
+          (createAvoir)="onCreateAvoir($event)"
+          [canDelete]="canDelete()"
+          [canExport]="canExport()"
+          [searchParams]="currentSearchParams()"
+        />
       </div>
 
       @if (panelOpen()) {
         <div class="detail-column">
-          <app-facture-detail-panel [activeTabRequest]="requestedDetailTab()"
-                                    [canExecute]="canExecute()"
-                                    [canExport]="canExport()"
-                                    [facture]="store.selectedFacture()" />
+          <app-facture-detail-panel
+            [activeTabRequest]="requestedDetailTab()"
+            [canExecute]="canExecute()"
+            [canExport]="canExport()"
+            [facture]="store.selectedFacture()"
+          />
         </div>
       }
     </div>
   </app-card>
-
 </div>

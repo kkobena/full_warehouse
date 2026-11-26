@@ -18,12 +18,11 @@ import java.time.LocalDate;
  * @param plafondApplique plafond par vente utilisé pour ce calcul, en pourcentage
  */
 public record PonctionAssietteDTO(
-    LocalDate dateDebut,
-    LocalDate dateFin,
-    long caReel,
-    long caEspece,
-    long caAssietteTva0,
-    long montantPonctionnable,
-    int nombreVentesEligibles,
-    java.math.BigDecimal plafondApplique
-) {}
+        LocalDate dateDebut,
+        LocalDate dateFin,
+        long caReel,
+        long caEspece,
+        long caAssietteTva0,
+        long montantPonctionnable,
+        int nombreVentesEligibles,
+        java.math.BigDecimal plafondApplique) {}

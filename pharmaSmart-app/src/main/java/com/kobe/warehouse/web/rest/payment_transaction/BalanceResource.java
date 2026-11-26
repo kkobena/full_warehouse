@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.payment_transaction;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseService;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
@@ -15,50 +17,54 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle" })
-public class BalanceResource  {
+@RequiresNavAccess({"comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle"})
+public class BalanceResource {
     private final BalanceCaisseService balanceCaisseService;
+
     public BalanceResource(BalanceCaisseService balanceCaisseService) {
         this.balanceCaisseService = balanceCaisseService;
     }
 
     @GetMapping("/balances")
     public ResponseEntity<BalanceCaisseWrapper> fetchBalanceCaisse(
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-        @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode
-    ) {
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+            @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode) {
         {
             return ResponseEntity.ok()
-                .body(
-                    this.balanceCaisseService.getBalanceCaisse(
-                        new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, null).setMode(mode).build()
-                    )
-                );
+                    .body(this.balanceCaisseService.getBalanceCaisse(
+                            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, null)
+                                    .setMode(mode)
+                                    .build()));
         }
     }
-    @GetMapping("/balances/pdf")
-    @RequiresNavAccess(value = { "comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle" }, action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> getExport(
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-        @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode
-    ) {
 
-        return Utils.printPDF(balanceCaisseService.exportToPdf(
-            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, null).setMode(mode).build()
-        ), nomFichier("balance_vente", mode, "pdf"));
+    @GetMapping("/balances/pdf")
+    @RequiresNavAccess(
+            value = {"comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle"},
+            action = NavAction.EXPORT)
+    public ResponseEntity<byte[]> getExport(
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+            @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode) {
+
+        return Utils.printPDF(
+                balanceCaisseService.exportToPdf(
+                        new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, null)
+                                .setMode(mode)
+                                .build()),
+                nomFichier("balance_vente", mode, "pdf"));
     }
 
     /**

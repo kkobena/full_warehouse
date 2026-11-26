@@ -22,7 +22,9 @@
 
     <ng-template #body let-unite>
       <tr>
-        <td><span class="pharma-entity-name">{{ unite.name }}</span></td>
+        <td>
+          <span class="pharma-entity-name">{{ unite.name }}</span>
+        </td>
         <td>{{ unite.fullName }}</td>
         <td>{{ unite.phone || '—' }}</td>
         <td>
@@ -50,8 +52,7 @@
     <ng-template #emptymessage>
       <tr>
         <td class="pharma-empty-message" colspan="5">
-          Aucune unité de gestion. Créez-en une pour un rayon tenu à part au même endroit —
-          une parapharmacie, par exemple.
+          Aucune unité de gestion. Créez-en une pour un rayon tenu à part au même endroit — une parapharmacie, par exemple.
         </td>
       </tr>
     </ng-template>

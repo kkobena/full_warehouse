@@ -1,31 +1,20 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, input, signal } from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {IRemise} from '../../../shared/model';
-import {RemiseService} from '../remise.service';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {
-  RemiseProduitFormModalComponent
-} from '../remise-produit-form-modal/remise-produit-form-modal.component';
-import {ErrorService} from '../../../shared/error.service';
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent} from '../../../shared/ui';
+import { ChangeDetectionStrategy, Component, inject, OnInit, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { IRemise } from '../../../shared/model';
+import { RemiseService } from '../remise.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
+import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent } from '../../../shared/ui';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-remise-produits',
-  imports: [CardComponent, 
-    FormsModule,
-    NgbTooltip,
-    ButtonComponent,
-    DataTableComponent,
-    SwitchComponent,
-    ToolbarComponent,
-  ],
+  imports: [CardComponent, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent],
   templateUrl: './remise-produits.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remise-produits.component.scss',
@@ -50,7 +39,7 @@ export class RemiseProduitsComponent implements OnInit {
 
   loadPage(): void {
     this.loading.set(true);
-    this.entityService.query({typeRemise: 'PRODUIT'}).subscribe({
+    this.entityService.query({ typeRemise: 'PRODUIT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
       error: () => this.onError(),
     });

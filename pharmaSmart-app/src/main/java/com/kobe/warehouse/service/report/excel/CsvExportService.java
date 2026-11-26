@@ -30,14 +30,15 @@ public class CsvExportService {
      * @param <T> Type des données
      * @return ByteArray du fichier CSV en UTF-8
      */
-    public <T> byte[] createCsvReport(String title, String[] headers, List<T> data, Function<T, String[]> rowMapper) throws IOException {
+    public <T> byte[] createCsvReport(String title, String[] headers, List<T> data, Function<T, String[]> rowMapper)
+            throws IOException {
         StringWriter writer = new StringWriter();
 
-        CSVFormat csvFormat = CSVFormat.Builder
-            .create(CSVFormat.EXCEL)
-            .setDelimiter(';')
-            .setHeader(headers).get();
-        
+        CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.EXCEL)
+                .setDelimiter(';')
+                .setHeader(headers)
+                .get();
+
         writer.write(title);
         writer.write(System.lineSeparator());
         writer.write("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
@@ -65,7 +66,7 @@ public class CsvExportService {
      * Ajoute le BOM UTF-8 pour Excel Windows
      */
     public byte[] addUtf8Bom(byte[] csvData) {
-        byte[] bom = new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
+        byte[] bom = new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
         byte[] result = new byte[bom.length + csvData.length];
         System.arraycopy(bom, 0, result, 0, bom.length);
         System.arraycopy(csvData, 0, result, bom.length, csvData.length);

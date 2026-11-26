@@ -21,20 +21,19 @@ import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
  *                       null dès que {@code found} est vrai
  */
 public record ReceptionScanResultDTO(
-    boolean found,
-    Long orderLineId,
-    String produitLibelle,
-    String produitCip,
-    boolean lotAutoCreated,
-    String lotNumero,
-    LotDTO lot,
-    String warningMessage,
-    BarcodeType barcodeType,
-    String serialNumber,
-    FmdStatus fmdStatus,
-    int scannedQty,
-    DataMatrixHintDTO dataMatrixHint
-) {
+        boolean found,
+        Long orderLineId,
+        String produitLibelle,
+        String produitCip,
+        boolean lotAutoCreated,
+        String lotNumero,
+        LotDTO lot,
+        String warningMessage,
+        BarcodeType barcodeType,
+        String serialNumber,
+        FmdStatus fmdStatus,
+        int scannedQty,
+        DataMatrixHintDTO dataMatrixHint) {
     public enum FmdStatus {
         /** Numéro de série présent et unique — traçabilité FMD assurée. */
         PRESENT,

@@ -32,13 +32,12 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(
-    name = "payment_transaction",
-    indexes = {
-        @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index"),
-        @Index(columnList = "type_transaction", name = "pt_type_transaction_index"),
-        @Index(columnList = "transaction_date", name = "pt_transaction_date_index"),
-    }
-)
+        name = "payment_transaction",
+        indexes = {
+            @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index"),
+            @Index(columnList = "type_transaction", name = "pt_type_transaction_index"),
+            @Index(columnList = "transaction_date", name = "pt_transaction_date_index"),
+        })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @IdClass(PaymentId.class)

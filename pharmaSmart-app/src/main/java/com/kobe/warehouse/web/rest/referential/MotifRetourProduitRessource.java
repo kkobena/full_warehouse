@@ -2,16 +2,13 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.MotifRetourProduit;
 import com.kobe.warehouse.repository.MotifRetourProduitRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
-import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -44,7 +37,8 @@ public class MotifRetourProduitRessource {
     @PostMapping("/motif-retour-produits")
     public ResponseEntity<Void> create(@Valid @RequestBody MotifRetourProduit entity) throws Exception {
         if (entity.getId() != null) {
-            throw new BadRequestAlertException("A new MotifRetourProduit cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException(
+                    "A new MotifRetourProduit cannot already have an ID", ENTITY_NAME, "idexists");
         }
         motifRetourProduitRepository.save(entity);
         return ResponseEntity.ok().build();
@@ -63,8 +57,8 @@ public class MotifRetourProduitRessource {
     public ResponseEntity<Void> deleter(@PathVariable Integer id) {
         motifRetourProduitRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping(value = "/motif-retour-produits")

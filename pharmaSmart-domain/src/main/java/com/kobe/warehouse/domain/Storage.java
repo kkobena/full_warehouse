@@ -21,12 +21,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(
-    name = "storage",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }), @UniqueConstraint(columnNames = { "name", "magasin_id" }),
-    }
-)
-@JsonIgnoreProperties(value = { "magasin" })
+        name = "storage",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"storage_type", "magasin_id"}),
+            @UniqueConstraint(columnNames = {"name", "magasin_id"}),
+        })
+@JsonIgnoreProperties(value = {"magasin"})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Storage implements Serializable {
 
@@ -106,6 +106,7 @@ public class Storage implements Serializable {
 
     @Override
     public String toString() {
-        return "Storage{" + "id=" + id + ", storageType=" + storageType + ", name='" + name + '\'' + ", magasin=" + magasin + '}';
+        return "Storage{" + "id=" + id + ", storageType=" + storageType + ", name='" + name + '\'' + ", magasin="
+                + magasin + '}';
     }
 }

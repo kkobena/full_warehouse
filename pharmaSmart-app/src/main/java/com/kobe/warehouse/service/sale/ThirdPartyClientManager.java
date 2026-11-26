@@ -8,7 +8,6 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,7 +38,7 @@ public interface ThirdPartyClientManager {
      * @throws GenericError              si un tiers-payant n'est pas trouvé
      */
     String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales)
-        throws NumBonAlreadyUseException, GenericError;
+            throws NumBonAlreadyUseException, GenericError;
 
     /**
      * Vérifie si un numéro de bon est déjà utilisé pour un client tiers-payant.
@@ -61,7 +60,7 @@ public interface ThirdPartyClientManager {
      * @throws GenericError              en cas d'erreur métier
      */
     String addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, SaleId saleId)
-        throws NumBonAlreadyUseException, GenericError;
+            throws NumBonAlreadyUseException, GenericError;
 
     /**
      * Supprime une ligne de tiers-payant d'une vente.
@@ -85,7 +84,6 @@ public interface ThirdPartyClientManager {
      * @param thirdPartySaleLine la ligne de vente tiers-payant
      */
     void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
-
 
     /**
      * Récupère toutes les lignes de tiers-payant d'une vente.
@@ -131,11 +129,8 @@ public interface ThirdPartyClientManager {
      * @throws NumBonAlreadyUseException si le numéro de bon est déjà utilisé
      */
     void updateThirdPartySaleLine(
-        String numBon,
-        ThirdPartySaleLine thirdPartySaleLine,
-        Integer clientTiersPayantId,
-        Integer montant
-    ) throws NumBonAlreadyUseException;
+            String numBon, ThirdPartySaleLine thirdPartySaleLine, Integer clientTiersPayantId, Integer montant)
+            throws NumBonAlreadyUseException;
 
     /**
      * Trouve une ligne de tiers-payant dans une vente par l'identifiant du client.

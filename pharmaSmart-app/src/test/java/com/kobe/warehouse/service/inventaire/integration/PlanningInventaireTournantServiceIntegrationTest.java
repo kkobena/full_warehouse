@@ -28,12 +28,11 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
     @DisplayName("Un planning créé se relit avec sa rotation initialisée")
     void creationEtRelecture() {
         PlanningInventaireTournantRecord cree = services.planningInventaireTournantService.create(
-            demande("Rotation ABC", "CLASSIFICATION_ABC", "MENSUEL"));
+                demande("Rotation ABC", "CLASSIFICATION_ABC", "MENSUEL"));
         viderLeCache();
 
-        PlanningInventaireTournantRecord relu = services.planningInventaireTournantService
-            .findById(cree.id())
-            .orElseThrow();
+        PlanningInventaireTournantRecord relu =
+                services.planningInventaireTournantService.findById(cree.id()).orElseThrow();
 
         assertEquals("Rotation ABC", relu.libelle());
         assertEquals("A_PLUS", relu.classeParetoCourante());
@@ -46,26 +45,32 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
     @Test
     @DisplayName("Activer puis désactiver un planning se voit en base")
     void bascule() {
-        PlanningInventaireTournantRecord cree = services.planningInventaireTournantService.create(
-            demande("Rotation rayon", "RAYON", "HEBDO"));
+        PlanningInventaireTournantRecord cree =
+                services.planningInventaireTournantService.create(demande("Rotation rayon", "RAYON", "HEBDO"));
         viderLeCache();
 
-        assertFalse(services.planningInventaireTournantService.toggleActif(cree.id()).actif());
+        assertFalse(services.planningInventaireTournantService
+                .toggleActif(cree.id())
+                .actif());
         viderLeCache();
-        assertFalse(services.planningInventaireTournantService.findById(cree.id()).orElseThrow().actif());
+        assertFalse(services.planningInventaireTournantService
+                .findById(cree.id())
+                .orElseThrow()
+                .actif());
     }
 
     @Test
     @DisplayName("Supprimer un planning le retire de la liste")
     void suppression() {
-        PlanningInventaireTournantRecord cree = services.planningInventaireTournantService.create(
-            demande("A supprimer", "RAYON", "HEBDO"));
+        PlanningInventaireTournantRecord cree =
+                services.planningInventaireTournantService.create(demande("A supprimer", "RAYON", "HEBDO"));
         viderLeCache();
 
         services.planningInventaireTournantService.delete(cree.id());
         viderLeCache();
 
-        assertTrue(services.planningInventaireTournantService.findById(cree.id()).isEmpty());
+        assertTrue(
+                services.planningInventaireTournantService.findById(cree.id()).isEmpty());
     }
 
     @Test
@@ -75,22 +80,23 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
         Produit range = produitEnStock(unique("RANGE"), 12);
         ranger(range, antibiotiques);
         PlanningInventaireTournantRecord planning = services.planningInventaireTournantService.create(
-            demande("Rotation rayon", "RAYON", "HEBDO", STORAGE_RAYON_ID));
+                demande("Rotation rayon", "RAYON", "HEBDO", STORAGE_RAYON_ID));
         viderLeCache();
 
         Long inventaireId = services.planningInventaireTournantService.executerManuellement(planning.id());
         viderLeCache();
 
         assertNotNull(inventaireId);
-        StoreInventory inventaire = services.storeInventoryRepository.findById(inventaireId).orElseThrow();
+        StoreInventory inventaire =
+                services.storeInventoryRepository.findById(inventaireId).orElseThrow();
         assertEquals(InventoryType.PROGRAMME, inventaire.getInventoryType());
         assertEquals(antibiotiques.getId(), inventaire.getRayon().getId());
         assertTrue(inventaire.getDescription().contains("AAA ANTIBIOTIQUES"));
         assertEquals(1, lignesDe(inventaireId));
 
         PlanningInventaireTournantRecord relu = services.planningInventaireTournantService
-            .findById(planning.id())
-            .orElseThrow();
+                .findById(planning.id())
+                .orElseThrow();
         assertEquals(1, relu.critereIndexCourant(), "la rotation a avancé d'un cran");
         assertEquals(1, relu.nbExecutions());
         assertEquals(LocalDate.now(), relu.derniereExecution());
@@ -101,17 +107,22 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
     @DisplayName("Exécuter un planning par famille crée l'inventaire de la famille courante")
     void executionParFamille() {
         produit(unique("DANS LA PREMIERE FAMILLE"), 1_000, 600, premiereFamille());
-        PlanningInventaireTournantRecord planning = services.planningInventaireTournantService.create(
-            demande("Rotation famille", "FAMILLE", "MENSUEL"));
+        PlanningInventaireTournantRecord planning =
+                services.planningInventaireTournantService.create(demande("Rotation famille", "FAMILLE", "MENSUEL"));
         viderLeCache();
 
         Long inventaireId = services.planningInventaireTournantService.executerManuellement(planning.id());
         viderLeCache();
 
-        StoreInventory inventaire = services.storeInventoryRepository.findById(inventaireId).orElseThrow();
+        StoreInventory inventaire =
+                services.storeInventoryRepository.findById(inventaireId).orElseThrow();
         assertTrue(inventaire.getDescription().startsWith("Inventaire tournant — Famille : "));
-        assertEquals(LocalDate.now().plusMonths(1),
-            services.planningInventaireTournantService.findById(planning.id()).orElseThrow().prochaineExecution());
+        assertEquals(
+                LocalDate.now().plusMonths(1),
+                services.planningInventaireTournantService
+                        .findById(planning.id())
+                        .orElseThrow()
+                        .prochaineExecution());
     }
 
     @Test
@@ -119,40 +130,49 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
     void executionDesEchus() {
         produit(unique("A COMPTER"), 1_000, 600, premiereFamille());
         PlanningInventaireTournantRecord echu = services.planningInventaireTournantService.create(
-            demande("Echu", "FAMILLE", "MENSUEL", null, LocalDate.now().minusDays(1), true));
+                demande("Echu", "FAMILLE", "MENSUEL", null, LocalDate.now().minusDays(1), true));
+        services.planningInventaireTournantService.create(demande(
+                "Pas encore", "FAMILLE", "MENSUEL", null, LocalDate.now().plusDays(10), true));
         services.planningInventaireTournantService.create(
-            demande("Pas encore", "FAMILLE", "MENSUEL", null, LocalDate.now().plusDays(10), true));
-        services.planningInventaireTournantService.create(
-            demande("Desactive", "FAMILLE", "MENSUEL", null, LocalDate.now().minusDays(1), false));
+                demande("Desactive", "FAMILLE", "MENSUEL", null, LocalDate.now().minusDays(1), false));
         viderLeCache();
 
         List<Long> crees = services.planningInventaireTournantService.executerTournantsEchus();
         viderLeCache();
 
         assertEquals(1, crees.size());
-        assertEquals(1, services.planningInventaireTournantService.findById(echu.id()).orElseThrow().nbExecutions());
+        assertEquals(
+                1,
+                services.planningInventaireTournantService
+                        .findById(echu.id())
+                        .orElseThrow()
+                        .nbExecutions());
     }
 
     @Test
     @DisplayName("Le tableau de bord d'un emplacement ne voit que ses plannings")
     void tableauDeBordParEmplacement() {
+        services.planningInventaireTournantService.create(demande("Sur le rayon", "RAYON", "HEBDO", STORAGE_RAYON_ID));
         services.planningInventaireTournantService.create(
-            demande("Sur le rayon", "RAYON", "HEBDO", STORAGE_RAYON_ID));
-        services.planningInventaireTournantService.create(
-            demande("Sur la reserve", "RAYON", "HEBDO", STORAGE_RESERVE_ID));
+                demande("Sur la reserve", "RAYON", "HEBDO", STORAGE_RESERVE_ID));
         viderLeCache();
 
-        assertEquals(1, services.planningInventaireTournantService.getDashboard(STORAGE_RAYON_ID).nbPlanningsActifs());
-        assertEquals(2, services.planningInventaireTournantService.getDashboard(null).nbPlanningsActifs());
+        assertEquals(
+                1,
+                services.planningInventaireTournantService
+                        .getDashboard(STORAGE_RAYON_ID)
+                        .nbPlanningsActifs());
+        assertEquals(
+                2, services.planningInventaireTournantService.getDashboard(null).nbPlanningsActifs());
     }
 
     @Test
     @DisplayName("La liste des plannings est ordonnée par échéance")
     void listeOrdonnee() {
         services.planningInventaireTournantService.create(
-            demande("Plus tard", "RAYON", "HEBDO", null, LocalDate.now().plusDays(20), true));
+                demande("Plus tard", "RAYON", "HEBDO", null, LocalDate.now().plusDays(20), true));
         services.planningInventaireTournantService.create(
-            demande("Bientot", "RAYON", "HEBDO", null, LocalDate.now().plusDays(2), true));
+                demande("Bientot", "RAYON", "HEBDO", null, LocalDate.now().plusDays(2), true));
         viderLeCache();
 
         List<PlanningInventaireTournantRecord> plannings = services.planningInventaireTournantService.findAll();
@@ -167,21 +187,32 @@ class PlanningInventaireTournantServiceIntegrationTest extends AbstractInventair
         return demande(libelle, critere, frequence, null);
     }
 
-    private PlanningInventaireTournantRecord demande(String libelle, String critere, String frequence, Integer storageId) {
+    private PlanningInventaireTournantRecord demande(
+            String libelle, String critere, String frequence, Integer storageId) {
         return demande(libelle, critere, frequence, storageId, LocalDate.now(), true);
     }
 
     private PlanningInventaireTournantRecord demande(
-        String libelle,
-        String critere,
-        String frequence,
-        Integer storageId,
-        LocalDate prochaineExecution,
-        boolean actif
-    ) {
+            String libelle,
+            String critere,
+            String frequence,
+            Integer storageId,
+            LocalDate prochaineExecution,
+            boolean actif) {
         return new PlanningInventaireTournantRecord(
-            null, libelle, frequence, critere, storageId, null, utilisateur.getId(), null,
-            prochaineExecution, actif, null, null, 0, null
-        );
+                null,
+                libelle,
+                frequence,
+                critere,
+                storageId,
+                null,
+                utilisateur.getId(),
+                null,
+                prochaineExecution,
+                actif,
+                null,
+                null,
+                0,
+                null);
     }
 }

@@ -1,42 +1,26 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  input,
-  OnInit,
-  signal
-} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {
-  NgbDateStruct,
-  NgbDropdown,
-  NgbDropdownItem,
-  NgbDropdownMenu,
-  NgbDropdownToggle,
-  NgbTooltip
-} from '@ng-bootstrap/ng-bootstrap';
-import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {ISales, SaleId} from '../../../shared/model/sales.model';
-import {IUser} from '../../../core/user/user.model';
-import {SalesService} from '../../sales/sales.service';
-import {UserService} from '../../../core/user/user.service';
-import {debounceTime, Subject} from 'rxjs';
-import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {handleBlobForTauri} from '../../../shared/util/tauri-util';
-import {IMagasin} from '../../../shared/model';
-import {FormsModule} from '@angular/forms';
-import {MagasinService} from 'app/features/magasin/data-access/services/magasin.service';
-import {RouterLink} from '@angular/router';
-import {StockDepotService} from '../stock-depot/stock-depot.service';
-import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
-import {saveAs} from 'file-saver';
-import {extractFileName2} from '../../../shared/util/file-utils';
-import {CommonModule} from '@angular/common';
-import {BlobDownloadService} from '../../../shared/services/blob-download.service';
-import {NotificationService} from '../../../shared/services/notification.service';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { ISales, SaleId } from '../../../shared/model/sales.model';
+import { IUser } from '../../../core/user/user.model';
+import { SalesService } from '../../sales/sales.service';
+import { UserService } from '../../../core/user/user.service';
+import { debounceTime, Subject } from 'rxjs';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { IMagasin } from '../../../shared/model';
+import { FormsModule } from '@angular/forms';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { RouterLink } from '@angular/router';
+import { StockDepotService } from '../stock-depot/stock-depot.service';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { saveAs } from 'file-saver';
+import { extractFileName2 } from '../../../shared/util/file-utils';
+import { CommonModule } from '@angular/common';
+import { BlobDownloadService } from '../../../shared/services/blob-download.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -45,7 +29,7 @@ import {
   SkeletonComponent,
   ToolbarComponent,
 } from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
   selector: 'app-achat-depot',
@@ -70,7 +54,6 @@ import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date
   styleUrl: './achat-depot.component.scss',
 })
 export class AchatDepotComponent implements OnInit {
-
   readonly navCode = input<string>('');
 
   protected readonly selectedDepot = signal<IMagasin | null>(null);
@@ -130,7 +113,7 @@ export class AchatDepotComponent implements OnInit {
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
       if (res.body) {
-        this.users = [{id: null, abbrName: 'TOUT'}];
+        this.users = [{ id: null, abbrName: 'TOUT' }];
         this.users = [...this.users, ...res.body];
       }
     });
@@ -156,7 +139,6 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.next();
   }
 
-
   protected onRowToggle(sale: ISales, table: DataTableComponent<ISales>): void {
     table.toggleRow(sale);
     if (!sale.saleId || (sale as ISales & { _loaded?: boolean })._loaded) {
@@ -167,10 +149,10 @@ export class AchatDepotComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: salesLines => {
-          const chargee = {...sale, salesLines, _loaded: true};
+          const chargee = { ...sale, salesLines, _loaded: true };
           this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
         },
-        error: () => this.notificationService.error("Le détail de la vente n'a pas pu être chargé.")
+        error: () => this.notificationService.error("Le détail de la vente n'a pas pu être chargé."),
       });
   }
 
@@ -245,7 +227,7 @@ export class AchatDepotComponent implements OnInit {
   }
 
   private dateToNgbStruct(date: Date): NgbDateStruct {
-    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 
   private buildCriteria(): any {

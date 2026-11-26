@@ -17,7 +17,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,9 +28,12 @@ import java.util.Set;
  * A SuggestionReassort.
  */
 @Entity
-@Table(name = "suggestion_reassort", indexes = {@Index(columnList = "type_reassort", name = "type_reassort_index"),
-    @Index(columnList = "statut", name = "suggestion_reassort_statut_index")
-})
+@Table(
+        name = "suggestion_reassort",
+        indexes = {
+            @Index(columnList = "type_reassort", name = "type_reassort_index"),
+            @Index(columnList = "statut", name = "suggestion_reassort_statut_index")
+        })
 public class SuggestionReassort implements Serializable {
 
     @Serial
@@ -40,6 +42,7 @@ public class SuggestionReassort implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @NotNull
     @Column(name = "reference", length = 20, nullable = false)
     private String reference;
@@ -52,7 +55,11 @@ public class SuggestionReassort implements Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "reassort", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "reassort",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private Set<LigneReassort> ligneReassorts = new HashSet<>();
 
     @ManyToOne(optional = false)
@@ -70,7 +77,6 @@ public class SuggestionReassort implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", length = 15)
     private StatutReassort statut = StatutReassort.OPEN;
-
 
     public Integer getId() {
         return id;

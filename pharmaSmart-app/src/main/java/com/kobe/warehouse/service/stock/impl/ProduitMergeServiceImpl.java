@@ -78,30 +78,28 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
 
     /** Entités simples réaffectées par UPDATE JPQL bulk : aucune contrainte UNIQUE portant sur produit_id. */
     private static final List<String> SIMPLE_ENTITIES = List.of(
-        "AvoirClient",
-        "ClassificationCriticiteLog",
-        "Decondition",
-        "InventoryTransaction",
-        "ProduitPerime",
-        "RetourClientLine",
-        "RetourDepotItem",
-        "Rupture"
-    );
+            "AvoirClient",
+            "ClassificationCriticiteLog",
+            "Decondition",
+            "InventoryTransaction",
+            "ProduitPerime",
+            "RetourClientLine",
+            "RetourDepotItem",
+            "Rupture");
 
     public ProduitMergeServiceImpl(
-        ProduitRepository produitRepository,
-        StockProduitRepository stockProduitRepository,
-        LotRepository lotRepository,
-        PrixReferenceRepository prixReferenceRepository,
-        FournisseurProduitRepository fournisseurProduitRepository,
-        RayonProduitRepository rayonProduitRepository,
-        SalesLineRepository salesLineRepository,
-        SemoisConfigurationRepository semoisConfigurationRepository,
-        VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository,
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        SubstitutRepository substitutRepository,
-        LogsService logsService
-    ) {
+            ProduitRepository produitRepository,
+            StockProduitRepository stockProduitRepository,
+            LotRepository lotRepository,
+            PrixReferenceRepository prixReferenceRepository,
+            FournisseurProduitRepository fournisseurProduitRepository,
+            RayonProduitRepository rayonProduitRepository,
+            SalesLineRepository salesLineRepository,
+            SemoisConfigurationRepository semoisConfigurationRepository,
+            VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository,
+            StoreInventoryLineRepository storeInventoryLineRepository,
+            SubstitutRepository substitutRepository,
+            LogsService logsService) {
         this.produitRepository = produitRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.lotRepository = lotRepository;
@@ -137,15 +135,13 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             } else if (targetHasTooManyChildren) {
                 rejected.add(sourceId);
                 rejectionReasons.put(
-                    sourceId.toString(),
-                    "Le produit cible a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement, à corriger avant fusion"
-                );
+                        sourceId.toString(),
+                        "Le produit cible a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement, à corriger avant fusion");
             } else if (produitRepository.findAllByParentId(sourceId).size() > 1) {
                 rejected.add(sourceId);
                 rejectionReasons.put(
-                    sourceId.toString(),
-                    "Le produit a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement, à corriger avant fusion"
-                );
+                        sourceId.toString(),
+                        "Le produit a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement, à corriger avant fusion");
             } else {
                 valid.add(sourceId);
             }
@@ -160,20 +156,22 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         for (Integer sourceId : valid) {
             counts.merge("stockProduit", (int) stockProduitRepository.countByProduitId(sourceId), Integer::sum);
             counts.merge("optionPrixProduit", (int) prixReferenceRepository.countByProduitId(sourceId), Integer::sum);
-            counts.merge("fournisseurProduit", (int) fournisseurProduitRepository.countByProduitId(sourceId), Integer::sum);
+            counts.merge(
+                    "fournisseurProduit", (int) fournisseurProduitRepository.countByProduitId(sourceId), Integer::sum);
             counts.merge("rayonProduit", (int) rayonProduitRepository.countByProduitId(sourceId), Integer::sum);
             counts.merge("salesLine", (int) salesLineRepository.countByProduitId(sourceId), Integer::sum);
             counts.merge(
-                "substitut",
-                (int) (substitutRepository.countByProduitId(sourceId) + substitutRepository.countBySubstitutId(sourceId)),
-                Integer::sum
-            );
+                    "substitut",
+                    (int) (substitutRepository.countByProduitId(sourceId)
+                            + substitutRepository.countBySubstitutId(sourceId)),
+                    Integer::sum);
 
             List<Lot> sourceLots = lotRepository.findByProduitId(sourceId);
             counts.merge("lot", sourceLots.size(), Integer::sum);
             lotConflicts.addAll(detectLotConflicts(sourceLots, targetLotsByNumLot));
 
-            stockConflicts.addAll(detectStockConflicts(stockProduitRepository.findAllByProduitId(sourceId), targetStocksByStorage));
+            stockConflicts.addAll(
+                    detectStockConflicts(stockProduitRepository.findAllByProduitId(sourceId), targetStocksByStorage));
 
             List<Produit> sourceChildren = produitRepository.findAllByParentId(sourceId);
             if (!sourceChildren.isEmpty()) {
@@ -186,12 +184,15 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             }
         }
 
-        return new ProduitMergePreviewDTO(targetId, valid, rejected, rejectionReasons, counts, lotConflicts, stockConflicts);
+        return new ProduitMergePreviewDTO(
+                targetId, valid, rejected, rejectionReasons, counts, lotConflicts, stockConflicts);
     }
 
     @Override
     public ProduitMergeResultDTO merge(ProduitMergeRequestDTO request) {
-        if (request.targetId() == null || request.sourceIds() == null || request.sourceIds().isEmpty()) {
+        if (request.targetId() == null
+                || request.sourceIds() == null
+                || request.sourceIds().isEmpty()) {
             throw new BadRequestAlertException("Cible et sources sont obligatoires", ENTITY_NAME, "mergemissingargs");
         }
         Produit target = getProduitOrThrow(request.targetId());
@@ -210,10 +211,9 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         List<Produit> targetChildren = produitRepository.findAllByParentId(target.getId());
         if (targetChildren.size() > 1) {
             throw new BadRequestAlertException(
-                "Le produit cible a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement",
-                ENTITY_NAME,
-                "mergetoomanychildren"
-            );
+                    "Le produit cible a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement",
+                    ENTITY_NAME,
+                    "mergetoomanychildren");
         }
 
         List<Produit> sources = new ArrayList<>();
@@ -222,19 +222,20 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             Produit source = getProduitOrThrow(sourceId);
             if (produitRepository.findAllByParentId(sourceId).size() > 1) {
                 throw new BadRequestAlertException(
-                    "Le produit " + source.getLibelle() + " a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement",
-                    ENTITY_NAME,
-                    "mergetoomanychildren"
-                );
+                        "Le produit " + source.getLibelle()
+                                + " a plusieurs produits détail (déconditionnés) rattachés : cas non géré automatiquement",
+                        ENTITY_NAME,
+                        "mergetoomanychildren");
             }
-            List<LotConflictDTO> conflicts = detectLotConflicts(lotRepository.findByProduitId(sourceId), targetLotsByNumLot);
+            List<LotConflictDTO> conflicts =
+                    detectLotConflicts(lotRepository.findByProduitId(sourceId), targetLotsByNumLot);
             for (LotConflictDTO conflict : conflicts) {
                 if (!resolutions.containsKey(conflict.sourceLotId())) {
                     throw new BadRequestAlertException(
-                        "Conflit de lot non résolu (num_lot=" + conflict.numLot() + ") : indiquez fusionner ou supprimer",
-                        ENTITY_NAME,
-                        "mergelotconflict"
-                    );
+                            "Conflit de lot non résolu (num_lot=" + conflict.numLot()
+                                    + ") : indiquez fusionner ou supprimer",
+                            ENTITY_NAME,
+                            "mergelotconflict");
                 }
             }
             sources.add(source);
@@ -267,17 +268,18 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         evictProduitCache(target.getId());
 
         List<Integer> mergedIds = sources.stream().map(Produit::getId).toList();
-        String comments =
-            "Fusion des produits " +
-            mergedIds +
-            " dans le produit " +
-            target.getId() +
-            " (" +
-            target.getLibelle() +
-            ") : " +
-            counts +
-            (stockConflicts.isEmpty() ? "" : " — ajustement de stock manuel requis sur " + stockConflicts.size() + " emplacement(s)");
-        logsService.create(TransactionType.MERGE_PRODUCT, comments, target.getId().toString());
+        String comments = "Fusion des produits " + mergedIds
+                + " dans le produit "
+                + target.getId()
+                + " ("
+                + target.getLibelle()
+                + ") : "
+                + counts
+                + (stockConflicts.isEmpty()
+                        ? ""
+                        : " — ajustement de stock manuel requis sur " + stockConflicts.size() + " emplacement(s)");
+        logsService.create(
+                TransactionType.MERGE_PRODUCT, comments, target.getId().toString());
 
         return new ProduitMergeResultDTO(target.getId(), mergedIds, counts, stockConflicts);
     }
@@ -288,8 +290,9 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
 
     private Produit getProduitOrThrow(Integer id) {
         return produitRepository
-            .findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable : " + id, ENTITY_NAME, "idnotfound"));
+                .findById(id)
+                .orElseThrow(
+                        () -> new BadRequestAlertException("Produit introuvable : " + id, ENTITY_NAME, "idnotfound"));
     }
 
     private List<Integer> distinctSourceIds(Integer targetId, List<Integer> sourceIds) {
@@ -314,17 +317,14 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         for (Lot sourceLot : sourceLots) {
             Lot targetLot = targetLotsByNumLot.get(sourceLot.getNumLot());
             if (targetLot != null) {
-                conflicts.add(
-                    new LotConflictDTO(
+                conflicts.add(new LotConflictDTO(
                         sourceLot.getNumLot(),
                         sourceLot.getId(),
                         sourceLot.getQuantity(),
                         sourceLot.getExpiryDate(),
                         targetLot.getId(),
                         targetLot.getQuantity(),
-                        targetLot.getExpiryDate()
-                    )
-                );
+                        targetLot.getExpiryDate()));
             }
         }
         return conflicts;
@@ -343,16 +343,17 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
      * produit cible n'est jamais fusionné automatiquement (cf. {@link StockConflictDTO}) : on se
      * contente de signaler l'écart, à charge pour l'utilisateur de faire un ajustement manuel.
      */
-    private List<StockConflictDTO> detectStockConflicts(List<StockProduit> sourceStocks, Map<Integer, StockProduit> targetStocksByStorage) {
+    private List<StockConflictDTO> detectStockConflicts(
+            List<StockProduit> sourceStocks, Map<Integer, StockProduit> targetStocksByStorage) {
         if (sourceStocks.isEmpty()) {
             return List.of();
         }
         List<StockConflictDTO> conflicts = new ArrayList<>();
         for (StockProduit sourceStock : sourceStocks) {
-            StockProduit targetStock = targetStocksByStorage.get(sourceStock.getStorage().getId());
+            StockProduit targetStock =
+                    targetStocksByStorage.get(sourceStock.getStorage().getId());
             if (targetStock != null) {
-                conflicts.add(
-                    new StockConflictDTO(
+                conflicts.add(new StockConflictDTO(
                         sourceStock.getStorage().getId(),
                         sourceStock.getStorage().getName(),
                         sourceStock.getQtyStock(),
@@ -360,9 +361,7 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                         sourceStock.getQtyUG(),
                         targetStock.getQtyStock(),
                         targetStock.getQtyVirtual(),
-                        targetStock.getQtyUG()
-                    )
-                );
+                        targetStock.getQtyUG()));
             }
         }
         return conflicts;
@@ -370,18 +369,18 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
 
     private int countByProduitId(String entityName, Integer produitId) {
         Long count = entityManager
-            .createQuery("SELECT COUNT(e) FROM " + entityName + " e WHERE e.produit.id = :produitId", Long.class)
-            .setParameter("produitId", produitId)
-            .getSingleResult();
+                .createQuery("SELECT COUNT(e) FROM " + entityName + " e WHERE e.produit.id = :produitId", Long.class)
+                .setParameter("produitId", produitId)
+                .getSingleResult();
         return count.intValue();
     }
 
     private int bulkReassign(String entityName, Produit target, Produit source) {
         return entityManager
-            .createQuery("UPDATE " + entityName + " e SET e.produit = :target WHERE e.produit = :source")
-            .setParameter("target", target)
-            .setParameter("source", source)
-            .executeUpdate();
+                .createQuery("UPDATE " + entityName + " e SET e.produit = :target WHERE e.produit = :source")
+                .setParameter("target", target)
+                .setParameter("source", source)
+                .executeUpdate();
     }
 
     /**
@@ -425,7 +424,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
     }
 
     private void evictProduitCache(Integer produitId) {
-        org.hibernate.Cache cache = entityManager.unwrap(Session.class).getSessionFactory().getCache();
+        org.hibernate.Cache cache =
+                entityManager.unwrap(Session.class).getSessionFactory().getCache();
         cache.evictEntityData(Produit.class, produitId);
         cache.evictCollectionData("com.kobe.warehouse.domain.Produit.optionPrixProduit", produitId);
         cache.evictCollectionData("com.kobe.warehouse.domain.Produit.fournisseurProduits", produitId);
@@ -451,13 +451,10 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         List<StockProduit> sourceStocks = stockProduitRepository.findAllByProduitId(source.getId());
         for (StockProduit stock : sourceStocks) {
             Optional<StockProduit> existing = stockProduitRepository.findStockProduitByStorageIdAndProduitId(
-                stock.getStorage().getId(),
-                target.getId()
-            );
+                    stock.getStorage().getId(), target.getId());
             if (existing.isPresent()) {
                 StockProduit kept = existing.get();
-                stockConflicts.add(
-                    new StockConflictDTO(
+                stockConflicts.add(new StockConflictDTO(
                         stock.getStorage().getId(),
                         stock.getStorage().getName(),
                         stock.getQtyStock(),
@@ -465,9 +462,7 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                         stock.getQtyUG(),
                         kept.getQtyStock(),
                         kept.getQtyVirtual(),
-                        kept.getQtyUG()
-                    )
-                );
+                        kept.getQtyUG()));
             } else {
                 stock.setProduit(target);
                 stockProduitRepository.save(stock);
@@ -497,9 +492,9 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                 // ces ajustements passés portaient sur le lot cible. Il est détaché (lot = null,
                 // colonne nullable) plutôt que réécrit.
                 entityManager
-                    .createQuery("UPDATE Ajustement a SET a.lot = null WHERE a.lot = :dup")
-                    .setParameter("dup", sourceLot)
-                    .executeUpdate();
+                        .createQuery("UPDATE Ajustement a SET a.lot = null WHERE a.lot = :dup")
+                        .setParameter("dup", sourceLot)
+                        .executeUpdate();
                 lotRepository.delete(sourceLot);
             } else {
                 sourceLot.setProduit(target);
@@ -544,7 +539,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             Integer fournisseurId = fp.getFournisseur().getId();
             FournisseurProduit kept = targetByFournisseur.get(fournisseurId);
             if (kept != null) {
-                if (source.getFournisseurProduitPrincipal() != null && source.getFournisseurProduitPrincipal().getId().equals(fp.getId())) {
+                if (source.getFournisseurProduitPrincipal() != null
+                        && source.getFournisseurProduitPrincipal().getId().equals(fp.getId())) {
                     // fournisseur_produit_principal_id est UNIQUE : pointer le produit source vers
                     // `kept` violerait la contrainte si la cible référence déjà (ou référencera)
                     // ce même FournisseurProduit comme principal. Le produit source étant archivé
@@ -553,10 +549,11 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                     produitRepository.save(source);
                 }
                 entityManager
-                    .createQuery("UPDATE OrderLine ol SET ol.fournisseurProduit = :kept WHERE ol.fournisseurProduit = :dup")
-                    .setParameter("kept", kept)
-                    .setParameter("dup", fp)
-                    .executeUpdate();
+                        .createQuery(
+                                "UPDATE OrderLine ol SET ol.fournisseurProduit = :kept WHERE ol.fournisseurProduit = :dup")
+                        .setParameter("kept", kept)
+                        .setParameter("dup", fp)
+                        .executeUpdate();
                 fournisseurProduitRepository.delete(fp);
             } else {
                 fp.setProduit(target);
@@ -568,7 +565,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
     }
 
     private int mergeRayonProduits(Produit target, Produit source) {
-        List<RayonProduit> sourceRayons = rayonProduitRepository.findAllByProduitId(source.getId()).stream().toList();
+        List<RayonProduit> sourceRayons = rayonProduitRepository.findAllByProduitId(source.getId()).stream()
+                .toList();
         Map<Integer, RayonProduit> targetByRayon = new HashMap<>();
         for (RayonProduit rp : rayonProduitRepository.findAllByProduitId(target.getId())) {
             targetByRayon.put(rp.getRayon().getId(), rp);
@@ -590,10 +588,7 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         List<SalesLine> sourceLines = salesLineRepository.findAllByProduitId(source.getId());
         for (SalesLine line : sourceLines) {
             Optional<SalesLine> existing = salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(
-                line.getSales().getId().getId(),
-                target.getId(),
-                line.getSaleDate()
-            );
+                    line.getSales().getId().getId(), target.getId(), line.getSaleDate());
             if (existing.isPresent()) {
                 SalesLine kept = existing.get();
                 kept.setQuantitySold(kept.getQuantitySold() + line.getQuantitySold());
@@ -604,7 +599,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                 kept.setSalesAmount(kept.getSalesAmount() + line.getSalesAmount());
                 kept.setTaxValue(kept.getTaxValue() + line.getTaxValue());
                 kept.setCostAmount(kept.getCostAmount() + line.getCostAmount());
-                kept.setAmountToBeTakenIntoAccount(kept.getAmountToBeTakenIntoAccount() + line.getAmountToBeTakenIntoAccount());
+                kept.setAmountToBeTakenIntoAccount(
+                        kept.getAmountToBeTakenIntoAccount() + line.getAmountToBeTakenIntoAccount());
                 List<LotSold> mergedLots = new ArrayList<>(kept.getLots());
                 mergedLots.addAll(line.getLots());
                 kept.setLots(mergedLots);
@@ -623,8 +619,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         List<com.kobe.warehouse.domain.Dci> dcis = new ArrayList<>(target.getDcis());
         int avant = dcis.size();
         source.getDcis().stream()
-            .filter(dci -> dcis.stream().noneMatch(d -> d.getId().equals(dci.getId())))
-            .forEach(dcis::add);
+                .filter(dci -> dcis.stream().noneMatch(d -> d.getId().equals(dci.getId())))
+                .forEach(dcis::add);
         if (dcis.size() > avant) {
             target.remplacerDcis(dcis);
         }
@@ -635,7 +631,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         int count = 0;
         for (Substitut s : substitutRepository.findAllByProduitId(source.getId())) {
             Produit other = s.getSubstitut();
-            if (other.getId().equals(target.getId()) || substitutRepository.existsByProduitAndSubstitut(target, other)) {
+            if (other.getId().equals(target.getId())
+                    || substitutRepository.existsByProduitAndSubstitut(target, other)) {
                 substitutRepository.delete(s);
             } else {
                 s.setProduit(target);
@@ -645,7 +642,8 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         }
         for (Substitut s : substitutRepository.findAllBySubstitutId(source.getId())) {
             Produit other = s.getProduit();
-            if (other.getId().equals(target.getId()) || substitutRepository.existsByProduitAndSubstitut(other, target)) {
+            if (other.getId().equals(target.getId())
+                    || substitutRepository.existsByProduitAndSubstitut(other, target)) {
                 substitutRepository.delete(s);
             } else {
                 s.setSubstitut(target);
@@ -671,7 +669,9 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         int count = 0;
         for (SemoisConfiguration sourceConfig : sourceConfigs) {
             Integer magasinId = sourceConfig.getMagasin().getId();
-            if (semoisConfigurationRepository.findByProduitIdAndMagasinId(target.getId(), magasinId).isPresent()) {
+            if (semoisConfigurationRepository
+                    .findByProduitIdAndMagasinId(target.getId(), magasinId)
+                    .isPresent()) {
                 // La cible a déjà une configuration dans ce magasin : elle prévaut sur le doublon.
                 semoisConfigurationRepository.delete(sourceConfig);
             } else {
@@ -684,21 +684,19 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
     }
 
     private int mergeVentesMensuellesAgregees(Produit target, Produit source) {
-        List<VentesMensuellesAgregees> sourceRows = ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(source.getId()));
+        List<VentesMensuellesAgregees> sourceRows =
+                ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(source.getId()));
         for (VentesMensuellesAgregees row : sourceRows) {
-            Optional<VentesMensuellesAgregees> existing = ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(
-                target.getId(),
-                row.getAnneeMois()
-            );
+            Optional<VentesMensuellesAgregees> existing =
+                    ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(target.getId(), row.getAnneeMois());
             if (existing.isPresent()) {
                 VentesMensuellesAgregees kept = existing.get();
                 kept.setQuantiteVendue(kept.getQuantiteVendue() + row.getQuantiteVendue());
                 kept.setMontantCa(kept.getMontantCa() + row.getMontantCa());
                 kept.setNombreVentes(kept.getNombreVentes() + row.getNombreVentes());
                 kept.setIsFrozen(Boolean.TRUE.equals(kept.getIsFrozen()) || Boolean.TRUE.equals(row.getIsFrozen()));
-                kept.setEstRuptureFournisseur(
-                    Boolean.TRUE.equals(kept.getEstRuptureFournisseur()) || Boolean.TRUE.equals(row.getEstRuptureFournisseur())
-                );
+                kept.setEstRuptureFournisseur(Boolean.TRUE.equals(kept.getEstRuptureFournisseur())
+                        || Boolean.TRUE.equals(row.getEstRuptureFournisseur()));
                 ventesMensuellesAgregeesRepository.save(kept);
                 ventesMensuellesAgregeesRepository.delete(row);
             } else {
@@ -718,12 +716,10 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         List<StoreInventoryLine> sourceLines = storeInventoryLineRepository.findAllByProduitId(source.getId());
         int reassigned = 0;
         for (StoreInventoryLine line : sourceLines) {
-            Integer storageId = line.getStorage() == null ? null : line.getStorage().getId();
+            Integer storageId =
+                    line.getStorage() == null ? null : line.getStorage().getId();
             boolean collision = storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(
-                target.getId(),
-                line.getStoreInventory().getId(),
-                storageId
-            );
+                    target.getId(), line.getStoreInventory().getId(), storageId);
             if (!collision) {
                 line.setProduit(target);
                 storeInventoryLineRepository.save(line);

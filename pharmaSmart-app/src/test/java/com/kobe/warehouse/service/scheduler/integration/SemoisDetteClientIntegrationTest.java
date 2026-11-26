@@ -85,19 +85,19 @@ class SemoisDetteClientIntegrationTest {
     @BeforeAll
     static void demarrerLaBase() {
         em = SharedEntityManagerCreator.createSharedEntityManager(
-            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
         vueRepository = IntegrationPostgresDatabase.bean(SemoisSuggestionViewRepository.class);
         avoirClientRepository = IntegrationPostgresDatabase.bean(AvoirClientRepository.class);
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager()
-            .getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         magasin = em.find(Magasin.class, MAGASIN_ID);
         utilisateur = em.createQuery("SELECT u FROM AppUser u ORDER BY u.id", AppUser.class)
-            .setMaxResults(1)
-            .getSingleResult();
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     @AfterEach
@@ -304,12 +304,11 @@ class SemoisDetteClientIntegrationTest {
         produit.setDeconditionnable(false);
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
-        produit.setTva(em.createQuery("SELECT t FROM Tva t WHERE t.taux = 0", Tva.class).getSingleResult());
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+        produit.setTva(em.createQuery("SELECT t FROM Tva t WHERE t.taux = 0", Tva.class)
+                .getSingleResult());
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
                 .setMaxResults(1)
-                .getSingleResult()
-        );
+                .getSingleResult());
         em.persist(produit);
         em.flush();
 
@@ -343,11 +342,12 @@ class SemoisDetteClientIntegrationTest {
     }
 
     private void stock(Produit produit, StorageType type, int quantite, int unitesGratuites) {
-        Storage storage = em
-            .createQuery("SELECT s FROM Storage s WHERE s.magasin.id = :magasin AND s.storageType = :type", Storage.class)
-            .setParameter("magasin", MAGASIN_ID)
-            .setParameter("type", type)
-            .getSingleResult();
+        Storage storage = em.createQuery(
+                        "SELECT s FROM Storage s WHERE s.magasin.id = :magasin AND s.storageType = :type",
+                        Storage.class)
+                .setParameter("magasin", MAGASIN_ID)
+                .setParameter("type", type)
+                .getSingleResult();
 
         StockProduit stockProduit = new StockProduit();
         stockProduit.setProduit(produit);

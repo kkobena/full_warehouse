@@ -9,9 +9,9 @@
       <!-- Section 1: Champs Obligatoires -->
       <app-card [variant]="'form'" [withHeader]="true">
         <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
-            <i class="pi pi-exclamation-circle"></i>
-            <span>Champs Obligatoires</span>
-          </div>
+          <i class="pi pi-exclamation-circle"></i>
+          <span>Champs Obligatoires</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Nom -->
@@ -27,7 +27,7 @@
             />
             @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -44,7 +44,7 @@
             />
             @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -62,7 +62,7 @@
             />
             @if (editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched) {
               @if (editForm.get('numAyantDroit')?.errors?.required) {
-                <small class="form-text text-danger" >Ce champ est obligatoire</small>
+                <small class="form-text text-danger">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -72,9 +72,9 @@
       <!-- Section 2: Informations Complémentaires -->
       <app-card [variant]="'form'" [withHeader]="true">
         <div ngProjectAs="[cardHeader]" class="section-header">
-            <i class="pi pi-user"></i>
-            <span>Informations Complémentaires</span>
-          </div>
+          <i class="pi pi-user"></i>
+          <span>Informations Complémentaires</span>
+        </div>
 
         <div class="form-grid-compact">
           <!-- Date de naissance -->

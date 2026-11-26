@@ -38,28 +38,23 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
         var cashRegisterJoin = root.join(SalePayment_.cashRegister);
         var userJoin = cashRegisterJoin.join(CashRegister_.user);
 
-        query
-            .select(
-                cb.construct(
-                    TicketZProjection.class,
-                    paymentModeJoin.get(PaymentMode_.code),
-                    paymentModeJoin.get(PaymentMode_.libelle),
-                    userJoin.get(AppUser_.id),
-                    userJoin.get(AppUser_.firstName),
-                    userJoin.get(AppUser_.lastName),
-                    cb.sumAsLong(root.get(SalePayment_.paidAmount)),
-                    cb.sumAsLong(root.get(SalePayment_.reelAmount)),
-                    root.get(SalePayment_.credit)
-                )
-            )
-            .groupBy(
-                userJoin.get(AppUser_.id),
-                userJoin.get(AppUser_.firstName),
-                userJoin.get(AppUser_.lastName),
-                paymentModeJoin.get(PaymentMode_.code),
-                paymentModeJoin.get(PaymentMode_.libelle),
-                root.get(SalePayment_.credit)
-            );
+        query.select(cb.construct(
+                        TicketZProjection.class,
+                        paymentModeJoin.get(PaymentMode_.code),
+                        paymentModeJoin.get(PaymentMode_.libelle),
+                        userJoin.get(AppUser_.id),
+                        userJoin.get(AppUser_.firstName),
+                        userJoin.get(AppUser_.lastName),
+                        cb.sumAsLong(root.get(SalePayment_.paidAmount)),
+                        cb.sumAsLong(root.get(SalePayment_.reelAmount)),
+                        root.get(SalePayment_.credit)))
+                .groupBy(
+                        userJoin.get(AppUser_.id),
+                        userJoin.get(AppUser_.firstName),
+                        userJoin.get(AppUser_.lastName),
+                        paymentModeJoin.get(PaymentMode_.code),
+                        paymentModeJoin.get(PaymentMode_.libelle),
+                        root.get(SalePayment_.credit));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -76,20 +71,13 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
 
         var paymentModeJoin = root.join(SalePayment_.paymentMode);
 
-        query
-            .select(
-                cb.construct(
-                    VenteModePaimentRecord.class,
-                    paymentModeJoin.get(PaymentMode_.code),
-                    paymentModeJoin.get(PaymentMode_.libelle),
-                    cb.sum(root.get(SalePayment_.reelAmount)),
-                    cb.sum(root.get(SalePayment_.paidAmount))
-                )
-            )
-            .groupBy(
-                paymentModeJoin.get(PaymentMode_.code),
-                paymentModeJoin.get(PaymentMode_.libelle)
-            );
+        query.select(cb.construct(
+                        VenteModePaimentRecord.class,
+                        paymentModeJoin.get(PaymentMode_.code),
+                        paymentModeJoin.get(PaymentMode_.libelle),
+                        cb.sum(root.get(SalePayment_.reelAmount)),
+                        cb.sum(root.get(SalePayment_.paidAmount))))
+                .groupBy(paymentModeJoin.get(PaymentMode_.code), paymentModeJoin.get(PaymentMode_.libelle));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

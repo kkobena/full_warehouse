@@ -17,7 +17,9 @@ import java.time.LocalDate;
  * A Reference.
  */
 @Entity
-@Table(name = "reference", uniqueConstraints = { @UniqueConstraint(columnNames = { "mvt_date", "d_type", "num" }) })
+@Table(
+        name = "reference",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"mvt_date", "d_type", "num"})})
 public class Reference implements Serializable {
 
     @Serial
@@ -119,16 +121,16 @@ public class Reference implements Serializable {
     @Override
     public String toString() {
         return "Reference{"
-            + "id="
-            + getId()
-            + ", num='"
-            + getNum()
-            + "'"
-            + ", numberTransac="
-            + getNumberTransac()
-            + ", mvtDate='"
-            + getMvtDate()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", num='"
+                + getNum()
+                + "'"
+                + ", numberTransac="
+                + getNumberTransac()
+                + ", mvtDate='"
+                + getMvtDate()
+                + "'"
+                + "}";
     }
 }

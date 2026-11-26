@@ -1,17 +1,17 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ProduitService} from '../../produit/produit.service';
-import {RemiseService} from '../remise.service';
-import {FormsModule} from '@angular/forms';
-import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {IProduit} from '../../../shared/model';
-import {IRayon} from '../../../shared/model/rayon.model';
-import {CodeRemise} from '../../../shared/model/remise.model';
-import {RayonService} from '../../rayon/rayon.service';
-import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {SpinerService} from '../../../shared/spiner.service';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {ErrorService} from '../../../shared/error.service';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ProduitService } from '../../produit/produit.service';
+import { RemiseService } from '../remise.service';
+import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { IProduit } from '../../../shared/model';
+import { IRayon } from '../../../shared/model/rayon.model';
+import { CodeRemise } from '../../../shared/model/remise.model';
+import { RayonService } from '../../rayon/rayon.service';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { SpinerService } from '../../../shared/spiner.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ErrorService } from '../../../shared/error.service';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -20,7 +20,7 @@ import {
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent,
-  SelectComponent
+  SelectComponent,
 } from '../../../shared/ui';
 
 @Component({
@@ -33,7 +33,7 @@ import {
     DataTableComponent,
     HeaderCheckboxComponent,
     RowCheckboxComponent,
-    SelectComponent
+    SelectComponent,
   ],
   templateUrl: './code-remise-produits-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

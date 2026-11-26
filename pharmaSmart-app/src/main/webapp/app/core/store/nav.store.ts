@@ -75,4 +75,3 @@ export class NavStore {
     this.navTree.set(reordered);
   }
 }
-

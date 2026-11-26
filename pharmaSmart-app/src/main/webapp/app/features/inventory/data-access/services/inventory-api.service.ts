@@ -75,24 +75,24 @@ export class InventoryApiService {
     inventoryId: number,
     groupBy: 'RAYON' | 'STORAGE' | 'FAMILLY' | 'NONE' = 'RAYON',
     filterParams: Record<string, any> = {},
-    gestionLot = false
+    gestionLot = false,
   ): Observable<Blob> {
     const body = {
       exportGroupBy: groupBy,
-      filterRecord: {storeInventoryId: inventoryId, ...filterParams},
+      filterRecord: { storeInventoryId: inventoryId, ...filterParams },
       gestionLot,
     };
-    return this.http.post(`${this.resourceUrl}/pdf`, body, {responseType: 'blob'});
+    return this.http.post(`${this.resourceUrl}/pdf`, body, { responseType: 'blob' });
   }
 
   getLots(lineId: number, params?: any): Observable<IInventoryLot[]> {
     const options = params ? createRequestOptions(params) : {};
-    return this.http.get<IInventoryLot[]>(`${this.linesUrl}/${lineId}/lots`, {params: options});
+    return this.http.get<IInventoryLot[]>(`${this.linesUrl}/${lineId}/lots`, { params: options });
   }
 
   getLotsPage(params: any): Observable<HttpResponse<IInventoryLotLine[]>> {
     const options = createRequestOptions(params);
-    return this.http.get<IInventoryLotLine[]>(`${this.linesUrl}/lots`, {params: options, observe: 'response'});
+    return this.http.get<IInventoryLotLine[]>(`${this.linesUrl}/lots`, { params: options, observe: 'response' });
   }
 
   createLot(lineId: number, lot: IInventoryLot): Observable<IInventoryLot> {

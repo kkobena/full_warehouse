@@ -1,5 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherDansSelect, chercherProduit, rattacherUnClient } from '../src/actions';
+import {
+  ajouterAuPanier,
+  assurerCaisseOuverte,
+  assurerPanierVide,
+  chercherDansSelect,
+  chercherProduit,
+  rattacherUnClient,
+} from '../src/actions';
 import { executer, lire, rejouer } from '../src/base-de-donnees';
 
 /**
@@ -106,7 +113,10 @@ test('suivi : saisir une ordonnance au comptoir, la reprendre et la rattacher à
   await expect(panneau.locator('tbody tr')).toHaveCount(1);
   await panneau.getByRole('button', { name: 'Enregistrer' }).click();
 
-  expect(lire("SELECT date_ordonnance = current_date FROM customer_traitement_chronique WHERE note = 'ESSAI E2E'"), 'le traitement chronique couvert est renouvelé').toBe('t');
+  expect(
+    lire("SELECT date_ordonnance = current_date FROM customer_traitement_chronique WHERE note = 'ESSAI E2E'"),
+    'le traitement chronique couvert est renouvelé',
+  ).toBe('t');
 
   // Liste : en cours, 1 renouvellement, capacité 2 x (1 + 1) = 4 à délivrer.
   await expect(panneau).toContainText('En cours');
@@ -114,7 +124,9 @@ test('suivi : saisir une ordonnance au comptoir, la reprendre et la rattacher à
   const ligneOrdonnance = panneau.locator('tbody tr').filter({ hasText: 'AMOXICILLINE' });
   await expect(ligneOrdonnance).toContainText('2');
   await expect(ligneOrdonnance.locator('td').nth(3)).toHaveText('4');
-  expect(Number(lire("SELECT count(*) FROM ordonnance o JOIN prescripteur p ON p.id = o.prescripteur_id WHERE p.nom LIKE 'ESSAI E2E%'"))).toBe(1);
+  expect(
+    Number(lire("SELECT count(*) FROM ordonnance o JOIN prescripteur p ON p.id = o.prescripteur_id WHERE p.nom LIKE 'ESSAI E2E%'")),
+  ).toBe(1);
 
   // Reprise : « Ajouter » présélectionne le produit par le circuit ordinaire, puis il se vend.
   await ligneOrdonnance.getByRole('button', { name: /Ajouter/ }).click();
@@ -128,7 +140,10 @@ test('suivi : saisir une ordonnance au comptoir, la reprendre et la rattacher à
   await panneau.getByRole('button', { name: 'Rattacher à la vente en cours' }).click();
   await expect(panneau).toContainText('1 vente(s) liée(s)');
   expect(Number(lire('SELECT count(*) FROM ordonnance_vente'))).toBe(1);
-  expect(lire("SELECT type_prescription FROM sales WHERE statut = 'ACTIVE' AND customer_id IS NOT NULL ORDER BY created_at DESC LIMIT 1"), 'la vente rattachée est une vente sur ordonnance').toBe('PRESCRIPTION');
+  expect(
+    lire("SELECT type_prescription FROM sales WHERE statut = 'ACTIVE' AND customer_id IS NOT NULL ORDER BY created_at DESC LIMIT 1"),
+    'la vente rattachée est une vente sur ordonnance',
+  ).toBe('PRESCRIPTION');
   expect(Number(lire('SELECT count(*) FROM ordonnance_delivrance'))).toBe(1);
 
   // La vente n'est pas clôturée : elle ne consomme rien, il reste 4 à délivrer.

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -45,7 +44,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 class InventoryReportReportServiceTest {
 
     /** Gabarit minimal : Flying Saucer rend réellement, il lui faut du XHTML valide. */
-    private static final String HTML = "<html><head><title>Inventaire</title></head><body><p>inventaire</p></body></html>";
+    private static final String HTML =
+            "<html><head><title>Inventaire</title></head><body><p>inventaire</p></body></html>";
 
     private static final long INVENTAIRE = 42L;
 
@@ -56,11 +56,8 @@ class InventoryReportReportServiceTest {
 
     private final InventoryValuationService valuationService = mock(InventoryValuationService.class);
 
-    private final InventoryReportReportService service = new InventoryReportReportService(
-        templateEngine,
-        storageService,
-        valuationService
-    );
+    private final InventoryReportReportService service =
+            new InventoryReportReportService(templateEngine, storageService, valuationService);
 
     @BeforeEach
     void officine() {
@@ -99,9 +96,9 @@ class InventoryReportReportServiceTest {
             service.printToPdf(wrapper);
 
             assertThat(service.getParameters())
-                .containsEntry(Constant.ENTITY, wrapper.getStoreInventory())
-                .containsEntry(Constant.ITEMS, wrapper.getInventoryGroups())
-                .containsEntry(Constant.REPORT_SUMMARY, wrapper.getInventoryExportSummaries());
+                    .containsEntry(Constant.ENTITY, wrapper.getStoreInventory())
+                    .containsEntry(Constant.ITEMS, wrapper.getInventoryGroups())
+                    .containsEntry(Constant.REPORT_SUMMARY, wrapper.getInventoryExportSummaries());
         }
 
         /** Le titre datant l'inventaire, c'est lui qui distingue deux comptages du même rayon. */
@@ -205,13 +202,12 @@ class InventoryReportReportServiceTest {
 
     private static StoreInventorySummaryRecord valorisation() {
         return new StoreInventorySummaryRecord(
-            BigDecimal.valueOf(1_000_000),
-            BigDecimal.valueOf(980_000),
-            BigDecimal.valueOf(1_500_000),
-            BigDecimal.valueOf(1_470_000),
-            BigDecimal.valueOf(-20_000),
-            BigDecimal.valueOf(-30_000)
-        );
+                BigDecimal.valueOf(1_000_000),
+                BigDecimal.valueOf(980_000),
+                BigDecimal.valueOf(1_500_000),
+                BigDecimal.valueOf(1_470_000),
+                BigDecimal.valueOf(-20_000),
+                BigDecimal.valueOf(-30_000));
     }
 
     private static InventoryExportWrapper inventaire(String statut) {

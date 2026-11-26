@@ -12,16 +12,12 @@ import java.util.List;
  * @param summary      Summary items (e.g., totals) for this cashier
  */
 public record CashierRecapDTO(
-    long userId,
-    String userName,
-    String userInitials,
-    List<SummaryItemDTO> details,
-    List<SummaryItemDTO> summary
-) {
+        long userId, String userName, String userInitials, List<SummaryItemDTO> details, List<SummaryItemDTO> summary) {
     /**
      * Creates a CashierRecapDTO with auto-generated initials.
      */
-    public static CashierRecapDTO of(long userId, String userName, List<SummaryItemDTO> details, List<SummaryItemDTO> summary) {
+    public static CashierRecapDTO of(
+            long userId, String userName, List<SummaryItemDTO> details, List<SummaryItemDTO> summary) {
         String initials = generateInitials(userName);
         return new CashierRecapDTO(userId, userName, initials, details, summary);
     }

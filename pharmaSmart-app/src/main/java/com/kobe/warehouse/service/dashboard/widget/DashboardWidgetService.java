@@ -19,9 +19,11 @@ public class DashboardWidgetService {
     private final Map<String, WidgetDataProvider> providers;
     private final WidgetAuthorizationService widgetAuthorizationService;
 
-    public DashboardWidgetService(ObjectProvider<WidgetDataProvider> providers, WidgetAuthorizationService widgetAuthorizationService) {
+    public DashboardWidgetService(
+            ObjectProvider<WidgetDataProvider> providers, WidgetAuthorizationService widgetAuthorizationService) {
         // toMap refuse les doublons : deux fournisseurs sur la même clé font échouer le démarrage
-        this.providers = providers.orderedStream().collect(Collectors.toMap(WidgetDataProvider::key, Function.identity()));
+        this.providers =
+                providers.orderedStream().collect(Collectors.toMap(WidgetDataProvider::key, Function.identity()));
         this.widgetAuthorizationService = widgetAuthorizationService;
     }
 
@@ -33,7 +35,8 @@ public class DashboardWidgetService {
         return widgetAuthorizationService.findAllowedForCurrentUser();
     }
 
-    public WidgetData load(String key, LocalDate startDate, LocalDate endDate, Integer magasinId, Map<String, String> params) {
+    public WidgetData load(
+            String key, LocalDate startDate, LocalDate endDate, Integer magasinId, Map<String, String> params) {
         WidgetDataProvider provider = providers.get(key);
         if (provider == null) {
             throw new GenericError("Widget inconnu : « %s ».".formatted(key), "widgetInconnu");

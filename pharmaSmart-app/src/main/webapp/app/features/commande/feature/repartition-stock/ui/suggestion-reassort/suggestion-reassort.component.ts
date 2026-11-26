@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, resource, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent, RowTogglerDirective } from "app/shared/ui";
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent, RowTogglerDirective } from 'app/shared/ui';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -20,14 +20,23 @@ import { ILigneReassort, ISuggestionReassort } from '../../../../../../entities/
 import { RepartitionStockService } from '../../../../../../entities/repartition-stock/repartition-stock.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { formatNumber } from 'app/shared/util/warehouse-util';
-import {AG_GRID_LOCALE_FR} from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { AG_GRID_LOCALE_FR } from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
   selector: 'app-suggestion-reassort',
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
-  imports: [CommonModule, DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip, RowTogglerDirective, AgGridAngular, CardComponent],
+  imports: [
+    CommonModule,
+    DataTableComponent,
+    ButtonComponent,
+    BadgeComponent,
+    NgbTooltip,
+    RowTogglerDirective,
+    AgGridAngular,
+    CardComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSuggestionReassortComponent {

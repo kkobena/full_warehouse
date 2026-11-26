@@ -80,30 +80,28 @@ class DashboardWidgetDroitsIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void preparer() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         when(licenseService.hasFeature(any())).thenReturn(true);
 
-        widgets = new WidgetAuthorizationService(
-            new NavAccessService(
+        widgets = new WidgetAuthorizationService(new NavAccessService(
                 IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
                 IntegrationPostgresDatabase.bean(NavItemRepository.class),
                 IntegrationPostgresDatabase.bean(UserRepository.class),
                 licenseService,
-                new NoOpCacheManager()
-            )
-        );
+                new NoOpCacheManager()));
         layouts = new DashboardLayoutServiceImpl(
-            IntegrationPostgresDatabase.bean(DashboardLayoutRepository.class),
-            IntegrationPostgresDatabase.bean(DashboardLayoutAuthorityRepository.class),
-            IntegrationPostgresDatabase.bean(UserRepository.class),
-            IntegrationPostgresDatabase.bean(AuthorityRepository.class),
-            widgets
-        );
+                IntegrationPostgresDatabase.bean(DashboardLayoutRepository.class),
+                IntegrationPostgresDatabase.bean(DashboardLayoutAuthorityRepository.class),
+                IntegrationPostgresDatabase.bean(UserRepository.class),
+                IntegrationPostgresDatabase.bean(AuthorityRepository.class),
+                widgets);
 
         caissier = utilisateur("ROLE_CAISSIER");
         pharmacien = utilisateur("ROLE_PHARMACIEN");
@@ -135,10 +133,16 @@ class DashboardWidgetDroitsIntegrationTest {
         @DisplayName("le caissier ne voit que ses widgets, le pharmacien que les siens")
         void catalogueParRole() {
             connecter(caissier);
-            assertThat(widgets.findAllowedForCurrentUser()).extracting(AllowedWidgetDTO::key).contains(WIDGET_CAISSE).doesNotContain(WIDGET_MARGE);
+            assertThat(widgets.findAllowedForCurrentUser())
+                    .extracting(AllowedWidgetDTO::key)
+                    .contains(WIDGET_CAISSE)
+                    .doesNotContain(WIDGET_MARGE);
 
             connecter(pharmacien);
-            assertThat(widgets.findAllowedForCurrentUser()).extracting(AllowedWidgetDTO::key).contains(WIDGET_MARGE).doesNotContain(WIDGET_CAISSE);
+            assertThat(widgets.findAllowedForCurrentUser())
+                    .extracting(AllowedWidgetDTO::key)
+                    .contains(WIDGET_MARGE)
+                    .doesNotContain(WIDGET_CAISSE);
         }
 
         @Test
@@ -146,9 +150,9 @@ class DashboardWidgetDroitsIntegrationTest {
         void donneesRefusees() {
             connecter(caissier);
             assertThatThrownBy(() -> widgets.checkCanLoad(WIDGET_MARGE))
-                .isInstanceOf(ForbiddenOperationException.class)
-                .extracting("errorKey")
-                .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
         }
 
         @Test
@@ -156,7 +160,9 @@ class DashboardWidgetDroitsIntegrationTest {
         void unionDesRoles() {
             AppUser polyvalent = utilisateur("ROLE_CAISSIER", "ROLE_PHARMACIEN");
             connecter(polyvalent);
-            assertThat(widgets.findAllowedForCurrentUser()).extracting(AllowedWidgetDTO::key).contains(WIDGET_MARGE, WIDGET_CAISSE);
+            assertThat(widgets.findAllowedForCurrentUser())
+                    .extracting(AllowedWidgetDTO::key)
+                    .contains(WIDGET_MARGE, WIDGET_CAISSE);
         }
 
         @Test
@@ -165,7 +171,9 @@ class DashboardWidgetDroitsIntegrationTest {
             widgetMarge.setActif(false);
             em.flush();
             connecter(pharmacien);
-            assertThat(widgets.findAllowedForCurrentUser()).extracting(AllowedWidgetDTO::key).doesNotContain(WIDGET_MARGE);
+            assertThat(widgets.findAllowedForCurrentUser())
+                    .extracting(AllowedWidgetDTO::key)
+                    .doesNotContain(WIDGET_MARGE);
         }
 
         @Test
@@ -178,9 +186,9 @@ class DashboardWidgetDroitsIntegrationTest {
 
             assertThat(widgets.findAllowedForCurrentUser()).contains(new AllowedWidgetDTO(WIDGET_MARGE, false));
             assertThatThrownBy(() -> widgets.checkCanLoad(WIDGET_MARGE))
-                .isInstanceOf(ForbiddenOperationException.class)
-                .extracting("errorKey")
-                .isEqualTo(WidgetAuthorizationService.ERROR_NON_SOUSCRIT);
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo(WidgetAuthorizationService.ERROR_NON_SOUSCRIT);
         }
     }
 
@@ -193,9 +201,9 @@ class DashboardWidgetDroitsIntegrationTest {
         void layoutRefuse() {
             connecter(caissier);
             assertThatThrownBy(() -> layouts.save(layout(WIDGET_CAISSE, WIDGET_MARGE)))
-                .isInstanceOf(ForbiddenOperationException.class)
-                .extracting("errorKey")
-                .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
         }
 
         @Test
@@ -220,7 +228,9 @@ class DashboardWidgetDroitsIntegrationTest {
             DashboardLayoutDTO enregistre = layouts.save(nouveau);
             em.flush();
 
-            assertThat(layouts.findDefaultForCurrentUser()).map(DashboardLayoutDTO::getId).contains(enregistre.getId());
+            assertThat(layouts.findDefaultForCurrentUser())
+                    .map(DashboardLayoutDTO::getId)
+                    .contains(enregistre.getId());
         }
     }
 
@@ -236,8 +246,14 @@ class DashboardWidgetDroitsIntegrationTest {
 
             DashboardLayoutDTO modification = layouts.findOne(homeBase.getId()).orElseThrow();
             modification.setDescription("détourné");
-            assertThatThrownBy(() -> layouts.update(modification)).isInstanceOf(ForbiddenOperationException.class).extracting("errorKey").isEqualTo("adminRequis");
-            assertThatThrownBy(() -> layouts.delete(homeBase.getId())).isInstanceOf(ForbiddenOperationException.class).extracting("errorKey").isEqualTo("adminRequis");
+            assertThatThrownBy(() -> layouts.update(modification))
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo("adminRequis");
+            assertThatThrownBy(() -> layouts.delete(homeBase.getId()))
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo("adminRequis");
         }
 
         @Test
@@ -256,7 +272,8 @@ class DashboardWidgetDroitsIntegrationTest {
         @DisplayName("dupliquer un layout système garde son composant (plantait sur une colonne NOT NULL)")
         void cloneGardeLeComposant() {
             connecter(pharmacien);
-            assertThat(layouts.clone(homeBase().getId(), "Mon accueil").getComponentKey()).isEqualTo("PHARMACIEN");
+            assertThat(layouts.clone(homeBase().getId(), "Mon accueil").getComponentKey())
+                    .isEqualTo("PHARMACIEN");
         }
 
         @Test
@@ -274,14 +291,19 @@ class DashboardWidgetDroitsIntegrationTest {
         @DisplayName("la liste « Charger » ne propose pas les layouts système")
         void listeSansLayoutSysteme() {
             connecter(pharmacien);
-            assertThat(layouts.findAllForCurrentUser()).extracting(DashboardLayoutDTO::getUserId).doesNotContainNull();
+            assertThat(layouts.findAllForCurrentUser())
+                    .extracting(DashboardLayoutDTO::getUserId)
+                    .doesNotContainNull();
         }
 
         @Test
         @DisplayName("un layout système ne peut pas devenir un accueil personnel")
         void accueilSystemeRefuse() {
             connecter(pharmacien);
-            assertThatThrownBy(() -> layouts.setAsDefault(homeBase().getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("layoutSysteme");
+            assertThatThrownBy(() -> layouts.setAsDefault(homeBase().getId()))
+                    .isInstanceOf(GenericError.class)
+                    .extracting("errorKey")
+                    .isEqualTo("layoutSysteme");
         }
 
         @Test
@@ -290,17 +312,19 @@ class DashboardWidgetDroitsIntegrationTest {
             Integer id = homeBase().getId();
             connecter(pharmacien);
             assertThatThrownBy(() -> layouts.setAsDefaultForAuthority(id, "ROLE_CAISSIER"))
-                .isInstanceOf(ForbiddenOperationException.class)
-                .extracting("errorKey")
-                .isEqualTo("adminRequis");
-            assertThatThrownBy(() -> layouts.findAllForAuthority("ROLE_CAISSIER")).isInstanceOf(ForbiddenOperationException.class);
+                    .isInstanceOf(ForbiddenOperationException.class)
+                    .extracting("errorKey")
+                    .isEqualTo("adminRequis");
+            assertThatThrownBy(() -> layouts.findAllForAuthority("ROLE_CAISSIER"))
+                    .isInstanceOf(ForbiddenOperationException.class);
         }
     }
 
     // ===== fixtures =====
 
     private static void connecter(AppUser user) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
     }
 
     private static AppUser utilisateur(String... roles) {
@@ -310,38 +334,49 @@ class DashboardWidgetDroitsIntegrationTest {
         user.setActivated(true);
         user.setLangKey("fr");
         user.setMagasin(em.find(Magasin.class, 1));
-        user.setAuthorities(Set.of(roles).stream().map(r -> em.find(Authority.class, r)).collect(java.util.stream.Collectors.toSet()));
+        user.setAuthorities(Set.of(roles).stream()
+                .map(r -> em.find(Authority.class, r))
+                .collect(java.util.stream.Collectors.toSet()));
         em.persist(user);
         em.flush();
         return user;
     }
 
     private static NavItem widget(String key, String categorie) {
-        NavItem parent = em.createQuery("SELECT n FROM NavItem n WHERE n.code = :code", NavItem.class).setParameter("code", categorie).getSingleResult();
+        NavItem parent = em.createQuery("SELECT n FROM NavItem n WHERE n.code = :code", NavItem.class)
+                .setParameter("code", categorie)
+                .getSingleResult();
         NavItem item = new NavItem()
-            .setCode(WidgetAuthorizationService.CODE_PREFIX + key)
-            .setLibelle(key)
-            .setParent(parent)
-            .setNiveau(3)
-            .setTargetType(NavTargetType.WIDGET);
+                .setCode(WidgetAuthorizationService.CODE_PREFIX + key)
+                .setLibelle(key)
+                .setParent(parent)
+                .setNiveau(3)
+                .setTargetType(NavTargetType.WIDGET);
         em.persist(item);
         return item;
     }
 
     private static void accorder(NavItem item, String role, boolean canDisplay) {
-        em.persist(new NavItemRole().setNavItem(item).setRoleName(role).setCanDisplay(canDisplay).setCanAccess(canDisplay));
+        em.persist(new NavItemRole()
+                .setNavItem(item)
+                .setRoleName(role)
+                .setCanDisplay(canDisplay)
+                .setCanAccess(canDisplay));
     }
 
     private static DashboardLayout homeBase() {
-        return em
-            .createQuery("SELECT d FROM DashboardLayout d WHERE d.name = 'home-base' AND d.user IS NULL", DashboardLayout.class)
-            .getSingleResult();
+        return em.createQuery(
+                        "SELECT d FROM DashboardLayout d WHERE d.name = 'home-base' AND d.user IS NULL",
+                        DashboardLayout.class)
+                .getSingleResult();
     }
 
     private static DashboardLayoutDTO layout(String... widgetKeys) {
         StringBuilder items = new StringBuilder();
         for (int i = 0; i < widgetKeys.length; i++) {
-            items.append(i == 0 ? "" : ",").append("{\"id\":\"w%d\",\"x\":0,\"y\":0,\"w\":4,\"h\":3,\"widgetKey\":\"%s\"}".formatted(i, widgetKeys[i]));
+            items.append(i == 0 ? "" : ",")
+                    .append("{\"id\":\"w%d\",\"x\":0,\"y\":0,\"w\":4,\"h\":3,\"widgetKey\":\"%s\"}"
+                            .formatted(i, widgetKeys[i]));
         }
         DashboardLayoutDTO dto = new DashboardLayoutDTO();
         dto.setName("Test " + COMPTEUR.incrementAndGet());

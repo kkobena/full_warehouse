@@ -2,44 +2,41 @@ package com.kobe.warehouse.service.pharmaml;
 
 public class PharmaMlUtils {
 
-
     /*
-  Ligne repartiteur suivi du l'identifiant
-   */
+    Ligne repartiteur suivi du l'identifiant
+     */
     public static final String R = "R";
     /*
-  la lettre P indique ENVIRONNEMENT DE PRODUCTION
-   */
+    la lettre P indique ENVIRONNEMENT DE PRODUCTION
+     */
     public static final String P = "P";
     /*
     Environnement de test
      */
     public static final String T = "T";
     /*
-  Type de commande
-   */
+    Type de commande
+     */
     public static final String TYPE_TRAVAIL_COMMANDE = "C";
     /*
-  Date de livraison souhaitee
-   */
+    Date de livraison souhaitee
+     */
     public static final String L = "L";
     /*
-  Ligne de produits
-   */
+    Ligne de produits
+     */
     public static final String E = "E";
     /*
-  Commentaire
-   */
+    Commentaire
+     */
     public static final String W = "W";
     /*
-  Fin de la commande
-   */
+    Fin de la commande
+     */
     public static final String Z = "Z";
-
 
     public static final String OUI = "O";
     public static final String NON = "N";
-
 
     public static final String VERSION_PROTOCLE_LIBELLE = "Version_Protocole";
     public static final String VERSION_PROTOCLE_VALUE = "1.0.0.0";
@@ -55,5 +52,4 @@ public class PharmaMlUtils {
     public static final String NATURE_ACTION_REQ_EMISSION = "REQ_EMISSION";
     public static final String TYPE_CODIFICATION_EAN = "EAN13";
     public static final String USAGE_VALUE = "P";
-
 }

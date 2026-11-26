@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.JwtService;
 import com.kobe.warehouse.service.dto.JwtTokenDTO;
 import com.kobe.warehouse.service.dto.LoginRequestDTO;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for authentication using JWT tokens.
@@ -63,11 +63,10 @@ public class AuthenticationResource {
     private final UserDetailsService userDetailsService;
 
     public AuthenticationResource(
-        AuthenticationManager authenticationManager,
-        JwtService jwtService,
-        JwtDecoder jwtDecoder,
-        UserDetailsService userDetailsService
-    ) {
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            JwtDecoder jwtDecoder,
+            UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.jwtDecoder = jwtDecoder;
@@ -87,18 +86,15 @@ public class AuthenticationResource {
         try {
             // Authenticate user credentials against database
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
-            );
+                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
             // Generate JWT tokens
             String accessToken = jwtService.generateAccessToken(authentication, ACCESS_TOKEN_HOURS);
             String refreshToken = jwtService.generateRefreshToken(authentication, REFRESH_TOKEN_HOURS);
 
             JwtTokenDTO tokenResponse = new JwtTokenDTO(
-                accessToken,
-                refreshToken,
-                ACCESS_TOKEN_HOURS * 3600 // expiration in seconds
-            );
+                    accessToken, refreshToken, ACCESS_TOKEN_HOURS * 3600 // expiration in seconds
+                    );
 
             log.debug("User {} authenticated successfully", loginRequest.username());
             return ResponseEntity.ok(tokenResponse);
@@ -135,11 +131,8 @@ public class AuthenticationResource {
 
             String login = refreshToken.getSubject();
             UserDetails userDetails = userDetailsService.loadUserByUsername(login);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-            );
+            Authentication authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             String accessToken = jwtService.generateAccessToken(authentication, ACCESS_TOKEN_HOURS);
             // Rotation : le refresh token consommé est remplacé, la session glisse tant
@@ -147,9 +140,7 @@ public class AuthenticationResource {
             String newRefreshToken = jwtService.generateRefreshToken(authentication, REFRESH_TOKEN_HOURS);
 
             log.debug("Access token renouvelé pour l'utilisateur {}", login);
-            return ResponseEntity.ok(
-                new JwtTokenDTO(accessToken, newRefreshToken, ACCESS_TOKEN_HOURS * 3600)
-            );
+            return ResponseEntity.ok(new JwtTokenDTO(accessToken, newRefreshToken, ACCESS_TOKEN_HOURS * 3600));
         } catch (JwtException e) {
             log.debug("Refresh token invalide ou expiré : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

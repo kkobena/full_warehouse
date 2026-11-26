@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -27,18 +26,17 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "semois_configuration",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_semois_config_produit_magasin",
-        columnNames = {"produit_id", "magasin_id"}
-    ),
-    indexes = {
-        @Index(name = "idx_semois_config_produit", columnList = "produit_id"),
-        @Index(name = "idx_semois_config_magasin", columnList = "magasin_id"),
-        @Index(name = "idx_semois_config_classe", columnList = "classe_criticite"),
-        @Index(name = "idx_semois_config_updated", columnList = "updated_at")
-    }
-)
+        name = "semois_configuration",
+        uniqueConstraints =
+                @UniqueConstraint(
+                        name = "uq_semois_config_produit_magasin",
+                        columnNames = {"produit_id", "magasin_id"}),
+        indexes = {
+            @Index(name = "idx_semois_config_produit", columnList = "produit_id"),
+            @Index(name = "idx_semois_config_magasin", columnList = "magasin_id"),
+            @Index(name = "idx_semois_config_classe", columnList = "classe_criticite"),
+            @Index(name = "idx_semois_config_updated", columnList = "updated_at")
+        })
 public class SemoisConfiguration implements Serializable {
 
     @Serial
@@ -359,12 +357,11 @@ public class SemoisConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "SemoisConfiguration{" +
-            "id=" + id +
-            ", classeCriticite=" + classeCriticite +
-            ", delaiLivraisonJours=" + delaiLivraisonJours +
-            ", vmmCalcule=" + vmmCalcule +
-            ", stockObjectifCalcule=" + stockObjectifCalcule +
-            '}';
+        return "SemoisConfiguration{" + "id="
+                + id + ", classeCriticite="
+                + classeCriticite + ", delaiLivraisonJours="
+                + delaiLivraisonJours + ", vmmCalcule="
+                + vmmCalcule + ", stockObjectifCalcule="
+                + stockObjectifCalcule + '}';
     }
 }

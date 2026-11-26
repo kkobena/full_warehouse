@@ -1,5 +1,8 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.report.excel.LotPerimeExcelCsvReportService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -27,13 +30,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire" })
+@RequiresNavAccess({"catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire"})
 public class LotResource {
 
     private final LotService lotService;
@@ -85,14 +85,14 @@ public class LotResource {
     @NavAccessExempt("lots d'un produit, consultés à la vente, à la réception et au catalogue")
     public ResponseEntity<List<LotDTO>> findByProduitId(@PathVariable Integer produitId) {
         return ResponseEntity.ok(
-            lotService.findByProduitId(produitId).stream().map(LotDTO::new).toList()
-        );
+                lotService.findByProduitId(produitId).stream().map(LotDTO::new).toList());
     }
 
     @GetMapping("/lot")
     public ResponseEntity<List<LotPerimeDTO>> fetchAll(LotFilterParam lotFilterParam, Pageable pageable) {
         Page<LotPerimeDTO> page = lotService.findLotsPerimes(lotFilterParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -101,46 +101,53 @@ public class LotResource {
         return ResponseEntity.ok().body(lotService.findPerimeSum(lotFilterParam));
     }
 
-
     @GetMapping("/lot/pdf")
-    @RequiresNavAccess(value = { "catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> generatePdf(LotFilterParam lotFilterParam) {
         return lotService.generatePdf(lotFilterParam);
     }
 
-    @GetMapping(value = "/lot/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @RequiresNavAccess(value = { "catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire" }, action = NavAction.EXPORT)
+    @GetMapping(
+            value = "/lot/export/excel",
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(
+            value = {"catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToExcel(LotFilterParam lotFilterParam) {
         try {
             byte[] excelData = lotPerimeExcelCsvReportService.exportToExcel(lotFilterParam);
             String filename = buildFilename("produits_perimes", ".xlsx");
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping(value = "/lot/export/csv", produces = "text/csv")
-    @RequiresNavAccess(value = { "catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "commande", "peremptions", "peremptions.lot-perimes", "peremptions.lot-a-detruire"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToCsv(LotFilterParam lotFilterParam) {
         try {
             byte[] csvData = lotPerimeExcelCsvReportService.exportToCsv(lotFilterParam);
             String filename = buildFilename("produits_perimes", ".csv");
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     private String buildFilename(String baseName, String extension) {
-        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + extension;
+        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
+                + extension;
     }
 }

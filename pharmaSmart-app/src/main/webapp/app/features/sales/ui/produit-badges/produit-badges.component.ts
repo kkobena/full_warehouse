@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 /** `AAAA-MM-JJ` → `MM/AAAA` : en pharmacie la péremption se lit au mois. */
 export function formaterMoisPeremption(date: string): string {
@@ -115,7 +115,7 @@ export class ProduitBadgesComponent {
     if (restant == null || !seuil || seuil <= 0 || restant > seuil) {
       return null;
     }
-    return {rupture: restant <= 0, infobulle: `Stock restant : ${restant} (seuil mini : ${seuil})`};
+    return { rupture: restant <= 0, infobulle: `Stock restant : ${restant} (seuil mini : ${seuil})` };
   });
 
   protected readonly stupefiant = computed(() => this.statutLegal() === 'STUPEFIANTS');
@@ -128,6 +128,10 @@ export class ProduitBadgesComponent {
     const jours = joursAvant(date);
     const perime = jours < 0;
     const quand = perime ? `périmé depuis ${-jours} j` : `périme dans ${jours} j`;
-    return {jour: formaterDatePeremption(date), perime, infobulle: `Lot ${this.peremptionLot()} : ${formaterDatePeremption(date)} (${quand})`};
+    return {
+      jour: formaterDatePeremption(date),
+      perime,
+      infobulle: `Lot ${this.peremptionLot()} : ${formaterDatePeremption(date)} (${quand})`,
+    };
   });
 }

@@ -9,9 +9,7 @@ import java.util.List;
  * DTO pour déclencher la création de commandes depuis les suggestions SEMOIS.
  * Les lignes sont groupées automatiquement par fournisseur côté service.
  */
-public record SemoisCommanderDTO(
-    @NotEmpty List<LigneSemois> lignes
-) {
+public record SemoisCommanderDTO(@NotEmpty List<LigneSemois> lignes) {
 
     /**
      * Une ligne de suggestion SEMOIS à commander.
@@ -21,9 +19,7 @@ public record SemoisCommanderDTO(
      * @param quantite      Quantité à commander (>= 1)
      */
     public record LigneSemois(
-        @NotNull Integer produitId,
-        @NotNull Integer fournisseurId,
-        @Min(1) int quantite
-    ) {}
+            @NotNull Integer produitId,
+            @NotNull Integer fournisseurId,
+            @Min(1) int quantite) {}
 }
-

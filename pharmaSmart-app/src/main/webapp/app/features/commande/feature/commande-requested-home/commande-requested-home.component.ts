@@ -1,62 +1,40 @@
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, Injector, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { filter, finalize } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
+import { saveAs } from 'file-saver';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { EnvoiPharmamlComponent } from '../pharmaml';
+import { DispoComparaisonComponent } from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
+import { IPharmamlCommandeResponse } from 'app/shared/model/pharmaml.model';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  Injector,
-  OnInit,
-  output,
-  signal
-} from '@angular/core';
-import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {CommonModule, DatePipe} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {filter, finalize} from 'rxjs/operators';
-import {HttpResponse} from '@angular/common/http';
-import {saveAs} from 'file-saver';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {EnvoiPharmamlComponent} from '../pharmaml';
-import {
-  DispoComparaisonComponent
-} from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
-import {IPharmamlCommandeResponse} from 'app/shared/model/pharmaml.model';
-import {
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent,
-  SortableHeaderDirective
-} from "../../../../shared/ui";
-import {ICommande} from 'app/shared/model/commande.model';
-import {CommandeId} from 'app/shared/model/abstract-commande.model';
-import {CommandeService} from '../../../../entities/commande/commande.service';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {
-  ImportationNewCommandeComponent
-} from '../../../../entities/commande/importation-new-commande.component';
-import {ICommandeResponse} from '../../../../shared/model/commande-response.model';
-import {
-  CommandeImportResponseDialogComponent
-} from '../../../../entities/commande/commande-import-response-dialog.component';
-import {CommandeRequestedComponent} from '../commande-requested/commande-requested.component';
-import {CommandCommonService} from '../../../../entities/commande/command-common.service';
-import {DeliveryModalComponent} from '../../ui/delivery/delivery-modal/delivery-modal.component';
-import {
-  CommandeRequestedAction,
-  CommandeRequestedActionsComponent
-} from './commande-requested-actions.component';
-import {DevisePipe} from 'app/shared/utils/devise';
-import {CanalEnvoi} from 'app/shared/model/abstract-commande.model';
-import {
-  MarquerEnvoiModalComponent
-} from '../../ui/envoi/marquer-envoi-modal.component';
+  SortableHeaderDirective,
+} from '../../../../shared/ui';
+import { ICommande } from 'app/shared/model/commande.model';
+import { CommandeId } from 'app/shared/model/abstract-commande.model';
+import { CommandeService } from '../../../../entities/commande/commande.service';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { ImportationNewCommandeComponent } from '../../../../entities/commande/importation-new-commande.component';
+import { ICommandeResponse } from '../../../../shared/model/commande-response.model';
+import { CommandeImportResponseDialogComponent } from '../../../../entities/commande/commande-import-response-dialog.component';
+import { CommandeRequestedComponent } from '../commande-requested/commande-requested.component';
+import { CommandCommonService } from '../../../../entities/commande/command-common.service';
+import { DeliveryModalComponent } from '../../ui/delivery/delivery-modal/delivery-modal.component';
+import { CommandeRequestedAction, CommandeRequestedActionsComponent } from './commande-requested-actions.component';
+import { DevisePipe } from 'app/shared/utils/devise';
+import { CanalEnvoi } from 'app/shared/model/abstract-commande.model';
+import { MarquerEnvoiModalComponent } from '../../ui/envoi/marquer-envoi-modal.component';
 
 @Component({
   selector: 'app-commande-requested-home',
@@ -76,11 +54,10 @@ import {
     SortableHeaderDirective,
     CommandeRequestedActionsComponent,
     DevisePipe,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
-
   readonly countChange = output<number>();
 
   // ── État master/detail ────────────────────────────────────────────────────
@@ -103,9 +80,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     return sel.every(c => c.fournisseur?.id === fId);
   });
   // ── Totaux page courante ───────────────────────────────────────────────────
-  readonly totalAmount = computed(() =>
-    this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0),
-  );
+  readonly totalAmount = computed(() => this.commandes().reduce((s, c) => s + (c.grossAmount ?? 0), 0));
   readonly totalPages = computed(() => Math.ceil(this.totalItems() / this.rows));
   // ── Recherche ─────────────────────────────────────────────────────────────
   protected searchText = '';
@@ -128,7 +103,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadPage(0);
 
-    toObservable(this.commandCommonService.pendingOpenCommandeId, {injector: this.injector})
+    toObservable(this.commandCommonService.pendingOpenCommandeId, { injector: this.injector })
       .pipe(
         filter(id => id != null),
         takeUntilDestroyed(this.destroyRef),
@@ -143,7 +118,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
         });
       });
 
-    toObservable(this.commandCommonService.pendingNewCommande, {injector: this.injector})
+    toObservable(this.commandCommonService.pendingNewCommande, { injector: this.injector })
       .pipe(
         filter(v => v),
         takeUntilDestroyed(this.destroyRef),
@@ -254,25 +229,15 @@ export class CommandeRequestedHomeComponent implements OnInit {
     ref.result.then(
       (result: IPharmamlCommandeResponse) => {
         if (result?.reliquatCommandeId != null) {
-          this.notificationService.info(
-            `Commande reliquat créée automatiquement (#${result.reliquatCommandeId})`,
-            'Reliquat créé',
-          );
+          this.notificationService.info(`Commande reliquat créée automatiquement (#${result.reliquatCommandeId})`, 'Reliquat créé');
         } else if (result) {
           result.success
-            ? this.notificationService.success(
-              `${result.successCount} / ${result.totalProduit} produits acceptés`,
-              'Envoi réussi',
-            )
-            : this.notificationService.warning(
-              `${result.successCount} / ${result.totalProduit} produits acceptés`,
-              'Envoi partiel',
-            );
+            ? this.notificationService.success(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi réussi')
+            : this.notificationService.warning(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi partiel');
         }
         this.loadPage();
       },
-      () => {
-      },
+      () => {},
     );
   }
 
@@ -306,31 +271,37 @@ export class CommandeRequestedHomeComponent implements OnInit {
   }
 
   exportCsv(c: ICommande): void {
-    this.commandeService.exportToCsv(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: blob => {
-        if (this.tauriPrinter.isRunningInTauri()) {
-          handleBlobForTauri(blob, 'commande', 'csv');
-        } else {
-          saveAs(blob);
-        }
-        this.proposerMarquageApresExport(c);
-      },
-      error: () => this.notificationService.error('Erreur export CSV', 'Erreur'),
-    });
+    this.commandeService
+      .exportToCsv(c.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinter.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'commande', 'csv');
+          } else {
+            saveAs(blob);
+          }
+          this.proposerMarquageApresExport(c);
+        },
+        error: () => this.notificationService.error('Erreur export CSV', 'Erreur'),
+      });
   }
 
   exportPdf(c: ICommande): void {
-    this.commandeService.exportToPdf(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: blob => {
-        if (this.tauriPrinter.isRunningInTauri()) {
-          handleBlobForTauri(blob, 'commande');
-        } else {
-          window.open(URL.createObjectURL(blob));
-        }
-        this.proposerMarquageApresExport(c);
-      },
-      error: () => this.notificationService.error('Erreur export PDF', 'Erreur'),
-    });
+    this.commandeService
+      .exportToPdf(c.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          if (this.tauriPrinter.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'commande');
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
+          this.proposerMarquageApresExport(c);
+        },
+        error: () => this.notificationService.error('Erreur export PDF', 'Erreur'),
+      });
   }
 
   // ── Traçabilité de l'envoi ────────────────────────────────────────────────
@@ -351,7 +322,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
       () => this.onMarquerEnvoyee(c),
       'Commande envoyée au grossiste ?',
       `Dater l'envoi de ${c.orderReference ?? 'cette commande'} ? Sans cette date, elle reste un brouillon : ` +
-      `le réassort ne la compte pas et aucun retard de livraison ne sera signalé.`,
+        `le réassort ne la compte pas et aucun retard de livraison ne sera signalé.`,
     );
   }
 
@@ -359,7 +330,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     if (!c?.commandeId) {
       return;
     }
-    const ref = this.modalService.open(MarquerEnvoiModalComponent, {centered: true});
+    const ref = this.modalService.open(MarquerEnvoiModalComponent, { centered: true });
     const inst = ref.componentInstance as MarquerEnvoiModalComponent;
     inst.reference = c.orderReference;
     inst.fournisseur = c.fournisseur?.libelle;
@@ -376,8 +347,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
             error: () => this.notificationService.error("Impossible de marquer l'envoi", 'Erreur'),
           });
       },
-      () => {
-      },
+      () => {},
     );
   }
 
@@ -393,35 +363,38 @@ export class CommandeRequestedHomeComponent implements OnInit {
           }),
       "Annuler l'envoi",
       `La commande ${c.orderReference ?? ''} redeviendra un brouillon : elle sortira de l'encours du réassort ` +
-      `et ne sera plus suivie en retard.`,
+        `et ne sera plus suivie en retard.`,
     );
   }
 
   // ── Importation (modale existante) ────────────────────────────────────────
 
   onReceptionner(c: ICommande): void {
-    this.commandeService.find(c.commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      if (!res.body) {
-        return;
-      }
-      showCommonModal(
-        this.modalService,
-        DeliveryModalComponent,
-        {commande: res.body, header: 'CREATION DU BON DE LIVRAISON'},
-        () => {
-          this.commandCommonService.pendingOpenDeliveryId.set(c.commandeId);
-          this.commandCommonService.navigateToBonsLivraison();
-        },
-        'lg',
-      );
-    });
+    this.commandeService
+      .find(c.commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        if (!res.body) {
+          return;
+        }
+        showCommonModal(
+          this.modalService,
+          DeliveryModalComponent,
+          { commande: res.body, header: 'CREATION DU BON DE LIVRAISON' },
+          () => {
+            this.commandCommonService.pendingOpenDeliveryId.set(c.commandeId);
+            this.commandCommonService.navigateToBonsLivraison();
+          },
+          'lg',
+        );
+      });
   }
 
   onImportation(): void {
     showCommonModal(
       this.modalService,
       ImportationNewCommandeComponent,
-      {header: 'IMPORTATION DE NOUVELLE COMMANDE'},
+      { header: 'IMPORTATION DE NOUVELLE COMMANDE' },
       (reason: ICommandeResponse) => {
         this.loadPage(0);
         if (reason) {
@@ -463,7 +436,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
     const count = this.selectionCount();
     this.confirmDialog.onConfirm(
       () => {
-        const ids = this.selectionMultiple().map(c => ({id: c.id, orderDate: c.orderDate}));
+        const ids = this.selectionMultiple().map(c => ({ id: c.id, orderDate: c.orderDate }));
         this.commandeService
           .deleteSelectedCommandes(ids)
           .pipe(takeUntilDestroyed(this.destroyRef))
@@ -489,16 +462,19 @@ export class CommandeRequestedHomeComponent implements OnInit {
   // ── Privé ─────────────────────────────────────────────────────────────────
 
   private deleteCommande(commandeId: CommandeId): void {
-    this.commandeService.delete(commandeId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.loadPage(this.currentPage()),
-      error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
-    });
+    this.commandeService
+      .delete(commandeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.loadPage(this.currentPage()),
+        error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
+      });
   }
 
   private openImportResponseDialog(response: ICommandeResponse): void {
     this.modalService.open(CommandeImportResponseDialogComponent, {
       size: 'xl',
-      scrollable: true
+      scrollable: true,
     }).componentInstance.response = response;
   }
 }

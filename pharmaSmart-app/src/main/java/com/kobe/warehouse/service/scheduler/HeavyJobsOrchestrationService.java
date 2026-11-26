@@ -29,10 +29,9 @@ public class HeavyJobsOrchestrationService {
     private final TournantSchedulerService tournantSchedulerService;
 
     public HeavyJobsOrchestrationService(
-        FacturationSchedulerJob facturationSchedulerJob,
-        CertificationFneSchedulerJob certificationFneSchedulerJob,
-        TournantSchedulerService tournantSchedulerService
-    ) {
+            FacturationSchedulerJob facturationSchedulerJob,
+            CertificationFneSchedulerJob certificationFneSchedulerJob,
+            TournantSchedulerService tournantSchedulerService) {
         this.facturationSchedulerJob = facturationSchedulerJob;
         this.certificationFneSchedulerJob = certificationFneSchedulerJob;
         this.tournantSchedulerService = tournantSchedulerService;
@@ -57,8 +56,10 @@ public class HeavyJobsOrchestrationService {
             run("Certification FNE", certificationFneSchedulerJob::executerCertificationsPendantes);
             run("Inventaire tournant", tournantSchedulerService::executerTournantsEchus);
         } finally {
-            LOG.info("[HEAVY-PIPELINE-{}] Terminé en {}", trigger,
-                Duration.between(start, Instant.now()).toSeconds() + "s");
+            LOG.info(
+                    "[HEAVY-PIPELINE-{}] Terminé en {}",
+                    trigger,
+                    Duration.between(start, Instant.now()).toSeconds() + "s");
         }
     }
 

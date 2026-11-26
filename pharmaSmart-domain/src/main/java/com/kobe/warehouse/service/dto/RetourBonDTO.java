@@ -4,12 +4,11 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.util.StringUtils;
 
 public class RetourBonDTO {
 
@@ -60,15 +59,21 @@ public class RetourBonDTO {
             Fournisseur pharmaMlConfig = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
             this.ediCompatible = !this.horsCommande && StringUtils.hasLength(pharmaMlConfig.getUrlPharmaMl());
         }
-        this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
-        this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null ? retourBon.getPharmamlEnvoi().getId() : null;
+        this.retourBonItems = retourBon.getRetourBonItems().stream()
+                .map(RetourBonItemDTO::new)
+                .toList();
+        this.pharmamlEnvoiId = retourBon.getPharmamlEnvoi() != null
+                ? retourBon.getPharmamlEnvoi().getId()
+                : null;
         this.reference = retourBon.getReference();
         this.montantTotal = this.retourBonItems.stream()
-            .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0) * (i.getQtyMvt() != null ? i.getQtyMvt() : 0))
-            .sum();
+                .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0)
+                        * (i.getQtyMvt() != null ? i.getQtyMvt() : 0))
+                .sum();
         this.montantAccepte = this.retourBonItems.stream()
-            .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0) * (i.getAcceptedQty() != null ? i.getAcceptedQty() : 0))
-            .sum();
+                .mapToLong(i -> (long) (i.getPrixAchat() != null ? i.getPrixAchat() : 0)
+                        * (i.getAcceptedQty() != null ? i.getAcceptedQty() : 0))
+                .sum();
     }
 
     public Integer getId() {

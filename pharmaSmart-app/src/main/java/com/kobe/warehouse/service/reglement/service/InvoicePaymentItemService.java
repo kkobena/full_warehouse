@@ -15,7 +15,8 @@ public class InvoicePaymentItemService {
         this.transactionItemIdGeneratorService = transactionItemIdGeneratorService;
     }
 
-    protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
+    protected InvoicePaymentItem buildInvoicePaymentItem(
+            ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
         InvoicePaymentItem invoicePaymentItem = new InvoicePaymentItem();
         invoicePaymentItem.setId(this.transactionItemIdGeneratorService.nextId());
         invoicePaymentItem.setAmount(thirdPartySaleLine.getMontant() - thirdPartySaleLine.getMontantRegle());

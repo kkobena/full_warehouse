@@ -40,9 +40,7 @@ scenario('RPT-21', async ({ etape, page }) => {
     // rapport manquait purement et simplement (« Error resolving template
     // [reports/stock-valuation/main] »), et un parcours qui se contente de voir le bouton
     // n'aurait rien remarqué.
-    const reponse = page.waitForResponse(
-      r => r.url().includes('/api/stock/valuation/export') && r.request().method() === 'GET',
-    );
+    const reponse = page.waitForResponse(r => r.url().includes('/api/stock/valuation/export') && r.request().method() === 'GET');
     await page.getByRole('button', { name: 'Exporter PDF' }).click();
     const pdf = await reponse;
     expect(pdf.status(), "L'export PDF de la valorisation a échoué.").toBe(200);

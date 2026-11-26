@@ -15,6 +15,7 @@ public interface DeliveryReceiptProjection {
     LocalDate getReceiptDate();
 
     LocalDate getOrderDate();
+
     Integer getOrderAmount();
 
     default CommandeId getCommandeId() {

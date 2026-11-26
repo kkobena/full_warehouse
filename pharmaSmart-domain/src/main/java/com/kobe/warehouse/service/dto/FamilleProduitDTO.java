@@ -91,12 +91,11 @@ public class FamilleProduitDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "FamilleProduitDTO{" +
-            "id=" + getId() +
-            ", code='" + getCode() + "'" +
-            ", libelle='" + getLibelle() + "'" +
-            ", categorieId=" + getCategorieId() +
-            ", categorieLibelle='" + getCategorieLibelle() + "'" +
-            "}";
+        return "FamilleProduitDTO{" + "id="
+                + getId() + ", code='"
+                + getCode() + "'" + ", libelle='"
+                + getLibelle() + "'" + ", categorieId="
+                + getCategorieId() + ", categorieLibelle='"
+                + getCategorieLibelle() + "'" + "}";
     }
 }

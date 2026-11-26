@@ -4,11 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { IUser } from '../user-management.model';
 import { UserManagementService } from '../service/user-management.service';
 import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } from 'app/shared/ui';
-import { CommonModule } from "@angular/common";
-import { AlertErrorComponent } from "../../../shared/alert/alert-error.component";
-import { IAuthority, NavApiService } from "../../../core/data-access/nav-api.service";
-import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
-import { IMagasin } from "../../../shared/model/magasin.model";
+import { CommonModule } from '@angular/common';
+import { AlertErrorComponent } from '../../../shared/alert/alert-error.component';
+import { IAuthority, NavApiService } from '../../../core/data-access/nav-api.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { IMagasin } from '../../../shared/model/magasin.model';
 
 const userTemplate = {} as IUser;
 
@@ -22,10 +22,18 @@ const newUser: IUser = {
   templateUrl: './user-management-update.component.html',
   styleUrl: './user-management-update.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CardComponent, ButtonComponent, ToolbarComponent, AlertErrorComponent, SelectComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CardComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    AlertErrorComponent,
+    SelectComponent,
+  ],
 })
 export default class UserManagementUpdateComponent implements OnInit {
-
   authorities = signal<IAuthority[]>([]);
   isSaving = signal(false);
 

@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest.report;
 
 import com.kobe.warehouse.domain.enumeration.ClassePareto;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.ABCParetoDTO;
 import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
 import com.kobe.warehouse.service.report.ABCParetoReportService;
-import java.util.List;
-
 import com.kobe.warehouse.service.report.pdf.ABCParetoPdfReportService;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +15,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
+@RequiresNavAccess({"rapport-stock.abc-pareto", "rapport-stock.stock-abc"})
 public class ABCParetoReportResource {
 
     private final ABCParetoReportService abcParetoReportService;
     private final ABCParetoPdfReportService abcParetoPdfReportService;
 
-    public ABCParetoReportResource(ABCParetoReportService abcParetoReportService, ABCParetoPdfReportService abcParetoPdfReportService) {
+    public ABCParetoReportResource(
+            ABCParetoReportService abcParetoReportService, ABCParetoPdfReportService abcParetoPdfReportService) {
         this.abcParetoReportService = abcParetoReportService;
         this.abcParetoPdfReportService = abcParetoPdfReportService;
     }
@@ -94,7 +94,9 @@ public class ABCParetoReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/abc-pareto/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-stock.abc-pareto", "rapport-stock.stock-abc" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"rapport-stock.abc-pareto", "rapport-stock.stock-abc"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportABCParetoToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=abc_pareto_report.pdf");

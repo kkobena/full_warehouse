@@ -10,9 +10,8 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record DemarqueRentabiliteDTO(
-    ComparaisonPeriodesDTO comparaison,
-    CelluleAnalyseDTO valeur,
-    CelluleAnalyseDTO partDuCa,
-    List<LigneDemarqueDTO> parMotif,
-    List<MontantDemarqueDTO> produits
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        CelluleAnalyseDTO valeur,
+        CelluleAnalyseDTO partDuCa,
+        List<LigneDemarqueDTO> parMotif,
+        List<MontantDemarqueDTO> produits) {}

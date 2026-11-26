@@ -36,7 +36,9 @@ public class Ajust implements Serializable {
     @Column(name = "commentaire")
     private String commentaire;
 
-    @OneToMany(mappedBy = "ajust", cascade = { CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "ajust",
+            cascade = {CascadeType.REMOVE})
     private List<Ajustement> ajustements = new ArrayList<>();
 
     public Integer getId() {
@@ -64,8 +66,6 @@ public class Ajust implements Serializable {
         this.commentaire = commentaire;
         return this;
     }
-
-
 
     public @NotNull AjustementStatut getStatut() {
         return statut;

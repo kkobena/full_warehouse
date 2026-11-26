@@ -18,13 +18,12 @@ public interface BedService {
     BedDTO findById(Integer bedId, LocalDate orderDate);
 
     Page<BedSummaryDTO> findAll(
-        String search,
-        MotifBed motifBed,
-        OrderStatut orderStatus,
-        LocalDate fromDate,
-        LocalDate toDate,
-        Pageable pageable
-    );
+            String search,
+            MotifBed motifBed,
+            OrderStatut orderStatus,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable);
 
     BedDTO addLigne(Integer bedId, LocalDate orderDate, BedLigneDTO ligne);
 

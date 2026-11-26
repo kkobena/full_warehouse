@@ -5,9 +5,7 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
   <div class="modal-body">
-    <p class="text-muted small mb-3">
-      {{ rayons.length }} rayon(s) seront copiés vers l'emplacement sélectionné.
-    </p>
+    <p class="text-muted small mb-3">{{ rayons.length }} rayon(s) seront copiés vers l'emplacement sélectionné.</p>
 
     <div class="form-grid-compact">
       <div class="form-field form-field-full">
@@ -46,14 +44,7 @@
   </div>
 
   <div class="modal-footer">
-    <app-button
-      (clicked)="cancel()"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      [raised]="true"
-      type="button"
-    />
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [raised]="true" type="button" />
     <app-button
       [disabled]="editForm.invalid || isSaving() || rayons.length === 0"
       [loading]="isSaving()"
@@ -65,4 +56,3 @@
     />
   </div>
 </form>
-

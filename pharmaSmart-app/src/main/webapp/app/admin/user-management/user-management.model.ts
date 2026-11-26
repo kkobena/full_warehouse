@@ -1,4 +1,4 @@
-import { IAuthority } from "../../shared/model/authority.model";
+import { IAuthority } from '../../shared/model/authority.model';
 
 export interface IUser {
   id: number | null;
@@ -31,7 +31,6 @@ export class User implements IUser {
     public createdBy?: string,
     public createdDate?: Date,
     public lastModifiedBy?: string,
-    public lastModifiedDate?: Date
-  ) {
-  }
+    public lastModifiedDate?: Date,
+  ) {}
 }

@@ -45,7 +45,10 @@ scenario('ADM-11', async ({ etape, page }) => {
   });
 
   // ── Remise en état : le menu est rendu au rôle. ─────────────────────────────────────────
-  await page.getByRole('tab', { name: /Permissions par rôle|Permissions/ }).first().click();
+  await page
+    .getByRole('tab', { name: /Permissions par rôle|Permissions/ })
+    .first()
+    .click();
   const ligne = page.locator('tbody tr').filter({ hasText: entree }).first();
   await ligne.locator('app-checkbox input').first().check();
   await expect(ligne.locator('app-checkbox input').first()).toBeChecked();

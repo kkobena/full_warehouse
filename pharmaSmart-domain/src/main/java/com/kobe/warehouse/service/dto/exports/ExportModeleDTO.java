@@ -21,20 +21,19 @@ import java.util.Map;
  * @param modifiable l'utilisateur courant en est le propriétaire
  */
 public record ExportModeleDTO(
-    Long id,
-    @NotBlank @Size(max = 100) String libelle,
-    @NotBlank String export,
-    @NotNull FormatExport format,
-    PeriodeRelative periode,
-    boolean partage,
-    ScheduledReportFrequency frequence,
-    LocalTime heure,
-    Integer jour,
-    LocalDateTime prochaineExecution,
-    String proprietaire,
-    boolean modifiable,
-    Map<FiltreExport, List<String>> filtres
-) {
+        Long id,
+        @NotBlank @Size(max = 100) String libelle,
+        @NotBlank String export,
+        @NotNull FormatExport format,
+        PeriodeRelative periode,
+        boolean partage,
+        ScheduledReportFrequency frequence,
+        LocalTime heure,
+        Integer jour,
+        LocalDateTime prochaineExecution,
+        String proprietaire,
+        boolean modifiable,
+        Map<FiltreExport, List<String>> filtres) {
     public ExportModeleDTO {
         filtres = filtres == null ? Map.of() : filtres;
     }

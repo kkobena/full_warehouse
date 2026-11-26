@@ -15,7 +15,15 @@ class TranchesRemiseTest {
     private final TranchesRemise tranches = TranchesRemise.decouper(List.of(5, 10, 20));
 
     @ParameterizedTest(name = "{0} % → {2}")
-    @CsvSource({ "0, 0-0, Sans remise", "1, 1-4, Moins de 5 %", "4, 1-4, Moins de 5 %", "5, 5-9, 5 à 10 %", "19, 10-19, 10 à 20 %", "20, 20-100, 20 % et plus", "100, 20-100, 20 % et plus" })
+    @CsvSource({
+        "0, 0-0, Sans remise",
+        "1, 1-4, Moins de 5 %",
+        "4, 1-4, Moins de 5 %",
+        "5, 5-9, 5 à 10 %",
+        "19, 10-19, 10 à 20 %",
+        "20, 20-100, 20 % et plus",
+        "100, 20-100, 20 % et plus"
+    })
     void classer(int taux, String cle, String libelle) {
         assertThat(tranches.classer(taux)).isEqualTo(new MembreAnalyseDTO(cle, libelle));
     }
@@ -23,6 +31,8 @@ class TranchesRemiseTest {
     @Test
     @DisplayName("un seuil à 1 % ou en double ne crée pas de tranche vide")
     void seuilsDegeneres() {
-        assertThat(TranchesRemise.decouper(List.of(1, 10, 10)).tranches()).extracting(TranchesRemise.Tranche::libelle).containsExactly("Sans remise", "Moins de 10 %", "10 % et plus");
+        assertThat(TranchesRemise.decouper(List.of(1, 10, 10)).tranches())
+                .extracting(TranchesRemise.Tranche::libelle)
+                .containsExactly("Sans remise", "Moins de 10 %", "10 % et plus");
     }
 }

@@ -20,13 +20,12 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReglementDiffereService {
     Page<DiffereItem> getDiffereItems(
-        Integer customerId,
-        String search,
-        LocalDate fromDate,
-        LocalDate toDate,
-        Set<PaymentStatus> paymentStatuses,
-        Pageable pageable
-    );
+            Integer customerId,
+            String search,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Set<PaymentStatus> paymentStatuses,
+            Pageable pageable);
 
     Page<ClientDiffere> getClientDiffere();
 
@@ -46,7 +45,8 @@ public interface ReglementDiffereService {
 
     byte[] printReglementToPdf(Integer customerId, LocalDate fromDate, LocalDate toDate);
 
-    Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
+    Page<ReglementDiffereWrapperDTO> getReglementsDifferes(
+            Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
     ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
 

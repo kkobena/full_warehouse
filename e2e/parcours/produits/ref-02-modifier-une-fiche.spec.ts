@@ -21,8 +21,7 @@ scenario('REF-02', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, produit);
-    await page.locator('tbody tr').filter({ visible: true }).first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('tbody tr').filter({ visible: true }).first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Éditer' }).click();
     // Le titre de la barre dit dans quel sens on travaille : « Modifier », et non « Nouveau ».
     await expect(page.getByRole('heading', { name: /Modifier Produit/i })).toBeVisible();
@@ -43,8 +42,7 @@ scenario('REF-02', async ({ etape, page }) => {
     await expect(page.getByRole('heading', { name: 'Catalogue produits' })).toBeVisible();
     // La modification vaut pour la suite : les tickets déjà émis, eux, gardent leurs prix.
     await chercherAuCatalogue(page, produit);
-    await page.locator('tbody tr').filter({ visible: true }).first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('tbody tr').filter({ visible: true }).first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Éditer' }).click();
     await expect(page.locator('#f_nomCommercial')).toHaveValue(nomCommercial);
   });

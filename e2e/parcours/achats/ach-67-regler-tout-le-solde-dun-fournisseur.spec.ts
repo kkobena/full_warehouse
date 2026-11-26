@@ -31,7 +31,10 @@ scenario('ACH-67', async ({ etape, page }) => {
 
   await etape(2, async () => {
     // L'onglet « Régler » du panneau : le solde dû y est rappelé avant toute saisie.
-    await page.getByRole('tab', { name: /Régler/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Régler/ })
+      .first()
+      .click();
     await expect(contenu).toContainText(/Solde à régler/);
   });
 

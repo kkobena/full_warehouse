@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.calculation;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
@@ -10,15 +12,12 @@ import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TvaRepartitionDto;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for TiersPayantCalculationServiceV2.
@@ -91,7 +90,10 @@ class TiersPayantCalculationServiceTest {
         CalculationResult result = serviceV2.calculate(input);
 
         assertEquals(new BigDecimal("800"), result.getTotalTiersPayant(), "80 % de la seule ligne remboursée");
-        assertEquals(new BigDecimal("700"), result.getTotalPatientShare(), "200 de ticket modérateur + 500 de ligne non remboursée");
+        assertEquals(
+                new BigDecimal("700"),
+                result.getTotalPatientShare(),
+                "200 de ticket modérateur + 500 de ligne non remboursée");
     }
 
     @Test
@@ -186,31 +188,27 @@ class TiersPayantCalculationServiceTest {
 
         // Verify TP1 was capped
         TiersPayantLineOutput tp1Line = result.getTiersPayantLines().stream()
-            .filter(line -> line.getClientTiersPayantId() == 1)
-            .findFirst()
-            .orElseThrow();
-        assertEquals(new BigDecimal("5000"), tp1Line.getMontant(),
-            "TP1 should be capped at 5000 (monthly ceiling)");
+                .filter(line -> line.getClientTiersPayantId() == 1)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(new BigDecimal("5000"), tp1Line.getMontant(), "TP1 should be capped at 5000 (monthly ceiling)");
 
         // Verify TP2 amount
         TiersPayantLineOutput tp2Line = result.getTiersPayantLines().stream()
-            .filter(line -> line.getClientTiersPayantId() == 2)
-            .findFirst()
-            .orElseThrow();
-        assertEquals(new BigDecimal("4000"), tp2Line.getMontant(),
-            "TP2 should be 4000 (40% of remaining after TP1's 60%)");
+                .filter(line -> line.getClientTiersPayantId() == 2)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(
+                new BigDecimal("4000"), tp2Line.getMontant(), "TP2 should be 4000 (40% of remaining after TP1's 60%)");
 
         // Verify total
-        assertEquals(new BigDecimal("9000"), result.getTotalTiersPayant(),
-            "Total should be 5000 + 4000 = 9000");
+        assertEquals(new BigDecimal("9000"), result.getTotalTiersPayant(), "Total should be 5000 + 4000 = 9000");
 
         // Verify warning about capping
-        assertTrue(result.getWarningMessage().contains("plafonné"),
-            "Should warn about TP1 being capped");
+        assertTrue(result.getWarningMessage().contains("plafonné"), "Should warn about TP1 being capped");
 
         // Patient pays the rest
-        assertEquals(new BigDecimal("1000"), result.getTotalPatientShare(),
-            "Patient pays 10000 - 9000 = 1000");
+        assertEquals(new BigDecimal("1000"), result.getTotalPatientShare(), "Patient pays 10000 - 9000 = 1000");
     }
 
     @Test
@@ -371,8 +369,9 @@ class TiersPayantCalculationServiceTest {
 
         assertNotNull(result);
         // Patient share should never be negative
-        assertTrue(result.getTotalPatientShare().compareTo(BigDecimal.ZERO) >= 0,
-            "Patient share should never be negative");
+        assertTrue(
+                result.getTotalPatientShare().compareTo(BigDecimal.ZERO) >= 0,
+                "Patient share should never be negative");
     }
 
     /**
@@ -399,14 +398,19 @@ class TiersPayantCalculationServiceTest {
         assertNotNull(result);
         // Should use reference price (800) instead of regular price (1000)
         // 80% of 800 = 640
-        assertEquals(new BigDecimal("640"), result.getTotalTiersPayant(),
-            "Should calculate based on reference price of 800");
+        assertEquals(
+                new BigDecimal("640"),
+                result.getTotalTiersPayant(),
+                "Should calculate based on reference price of 800");
 
         // Verify calculationBasePrice was set
-        assertTrue(result.getItemShares().getFirst().getCalculationBasePrice() != null,
-            "Calculation base price should be set when reference price is present");
-        assertEquals(800, result.getItemShares().getFirst().getCalculationBasePrice(),
-            "Calculation base price should be 800");
+        assertTrue(
+                result.getItemShares().getFirst().getCalculationBasePrice() != null,
+                "Calculation base price should be set when reference price is present");
+        assertEquals(
+                800,
+                result.getItemShares().getFirst().getCalculationBasePrice(),
+                "Calculation base price should be 800");
     }
 
     /**
@@ -426,10 +430,12 @@ class TiersPayantCalculationServiceTest {
 
         assertNotNull(result);
         // Should be zero because consumption already at ceiling
-        assertEquals(BigDecimal.ZERO, result.getTotalTiersPayant(),
-            "Should be zero when consumption already at ceiling");
-        assertEquals(new BigDecimal("5000"), result.getTotalPatientShare(),
-            "Patient pays full amount when TP is at ceiling");
+        assertEquals(
+                BigDecimal.ZERO, result.getTotalTiersPayant(), "Should be zero when consumption already at ceiling");
+        assertEquals(
+                new BigDecimal("5000"),
+                result.getTotalPatientShare(),
+                "Patient pays full amount when TP is at ceiling");
     }
 
     /**
@@ -449,10 +455,12 @@ class TiersPayantCalculationServiceTest {
 
         assertNotNull(result);
         // Should be zero because consumption already above ceiling
-        assertEquals(BigDecimal.ZERO, result.getTotalTiersPayant(),
-            "Should be zero when consumption already above ceiling");
-        assertEquals(new BigDecimal("3000"), result.getTotalPatientShare(),
-            "Patient pays full amount when TP is over ceiling");
+        assertEquals(
+                BigDecimal.ZERO, result.getTotalTiersPayant(), "Should be zero when consumption already above ceiling");
+        assertEquals(
+                new BigDecimal("3000"),
+                result.getTotalPatientShare(),
+                "Patient pays full amount when TP is over ceiling");
     }
 
     /**
@@ -487,8 +495,10 @@ class TiersPayantCalculationServiceTest {
 
         // Final taux should be 0 when total amount is 0
         if (!result.getTiersPayantLines().isEmpty()) {
-            assertEquals(0, result.getTiersPayantLines().getFirst().getFinalTaux(),
-                "Final taux should be 0 when total amount is 0");
+            assertEquals(
+                    0,
+                    result.getTiersPayantLines().getFirst().getFinalTaux(),
+                    "Final taux should be 0 when total amount is 0");
         }
     }
 
@@ -524,8 +534,7 @@ class TiersPayantCalculationServiceTest {
         // Should use minimum reference price (700)
         // TP1: 50% of 700 = 350
         // TP2: 50% of 700 = 350 (limited by remaining)
-        assertEquals(new BigDecimal("700"), result.getTotalTiersPayant(),
-            "Should use minimum reference price of 700");
+        assertEquals(new BigDecimal("700"), result.getTotalTiersPayant(), "Should use minimum reference price of 700");
     }
 
     /**
@@ -554,8 +563,7 @@ class TiersPayantCalculationServiceTest {
         assertNotNull(result);
         // Should use custom rate 90% instead of default 80%, but calculated on regular price
         // 90% of 1000 = 900
-        assertEquals(new BigDecimal("900"), result.getTotalTiersPayant(),
-            "Should apply custom rate to regular price");
+        assertEquals(new BigDecimal("900"), result.getTotalTiersPayant(), "Should apply custom rate to regular price");
     }
 
     /**
@@ -1244,8 +1252,7 @@ class TiersPayantCalculationServiceTest {
 
         // TP1: 2000 / 3455 * 100 = 57.89... → 58 (HALF_DOWN)
         TiersPayantLineOutput tp1Line = findLineById(result, 1);
-        assertEquals(58, tp1Line.getFinalTaux(),
-            "TP1 final taux should be 58% after capping (2000/3455*100)");
+        assertEquals(58, tp1Line.getFinalTaux(), "TP1 final taux should be 58% after capping (2000/3455*100)");
         assertEquals(new BigDecimal("2000"), tp1Line.getMontant());
 
         // TP2: 518.25 → 518 / 3455 * 100 = 14.99... → 15
@@ -1334,8 +1341,8 @@ class TiersPayantCalculationServiceTest {
 
         // Verify sum of final taux = 100%
         int totalTaux = result.getTiersPayantLines().stream()
-            .mapToInt(TiersPayantLineOutput::getFinalTaux)
-            .sum();
+                .mapToInt(TiersPayantLineOutput::getFinalTaux)
+                .sum();
         assertEquals(100, totalTaux, "Total taux should be exactly 100%");
 
         // Verify total amounts
@@ -1405,10 +1412,9 @@ class TiersPayantCalculationServiceTest {
         TiersPayantLineOutput ligne = result.getTiersPayantLines().getFirst();
         assertEquals(0, new BigDecimal("3000").compareTo(ligne.getMontant()));
         assertEquals(
-            0,
-            ligne.getMontant().compareTo(sommeTtc(ligne)),
-            "la ventilation TVA doit totaliser le montant facturé"
-        );
+                0,
+                ligne.getMontant().compareTo(sommeTtc(ligne)),
+                "la ventilation TVA doit totaliser le montant facturé");
     }
 
     /** Même invariant sans plafond : les parts non arrondies ne doivent pas dériver du total. */
@@ -1442,21 +1448,21 @@ class TiersPayantCalculationServiceTest {
 
         CalculationResult result = serviceV2.calculate(input);
 
-        for (TvaRepartitionDto repartition : result.getTiersPayantLines().getFirst().getRepartitions()) {
+        for (TvaRepartitionDto repartition :
+                result.getTiersPayantLines().getFirst().getRepartitions()) {
             assertEquals(
-                0,
-                repartition.getMontantTtc().compareTo(repartition.getMontantHt().add(repartition.getMontantTva())),
-                "HT + TVA doit rendre le TTC de la part"
-            );
+                    0,
+                    repartition
+                            .getMontantTtc()
+                            .compareTo(repartition.getMontantHt().add(repartition.getMontantTva())),
+                    "HT + TVA doit rendre le TTC de la part");
         }
     }
 
     private static BigDecimal sommeTtc(TiersPayantLineOutput ligne) {
-        return ligne
-            .getRepartitions()
-            .stream()
-            .map(TvaRepartitionDto::getMontantTtc)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ligne.getRepartitions().stream()
+                .map(TvaRepartitionDto::getMontantTtc)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private static SaleItemInput createSaleItem(long ligneId, String montant, int tauxTva) {
@@ -1502,8 +1508,8 @@ class TiersPayantCalculationServiceTest {
 
     private TiersPayantLineOutput findLineById(CalculationResult result, int clientTiersPayantId) {
         return result.getTiersPayantLines().stream()
-            .filter(line -> line.getClientTiersPayantId() == clientTiersPayantId)
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("TP line not found for id: " + clientTiersPayantId));
+                .filter(line -> line.getClientTiersPayantId() == clientTiersPayantId)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("TP line not found for id: " + clientTiersPayantId));
     }
 }

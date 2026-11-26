@@ -9,31 +9,31 @@ import {
   signal,
   untracked,
   viewChild,
-  ChangeDetectionStrategy
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent } from "../../../../../shared/ui";
-import { forkJoin } from "rxjs";
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../../shared/ui';
+import { forkJoin } from 'rxjs';
 
-import { IOrderLine } from "../../../../../shared/model/order-line.model";
-import { IDataMatrixHint, IReceptionScanResult } from "../../../../../shared/model/reception-scan-result.model";
-import { ProductsApiService } from "../../../../products/data-access/services/products-api.service";
-import { ILot } from "../../../../../shared/model/lot.model";
-import { DeliveryService } from "../../../../../entities/commande/delevery/delivery.service";
-import { CommandeService } from "../../../../../entities/commande/commande.service";
-import { LotService } from "../../../../../entities/commande/lot/lot.service";
-import { NotificationService } from "../../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../../shared/error.service";
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
+import { IDataMatrixHint, IReceptionScanResult } from '../../../../../shared/model/reception-scan-result.model';
+import { ProductsApiService } from '../../../../products/data-access/services/products-api.service';
+import { ILot } from '../../../../../shared/model/lot.model';
+import { DeliveryService } from '../../../../../entities/commande/delevery/delivery.service';
+import { CommandeService } from '../../../../../entities/commande/commande.service';
+import { LotService } from '../../../../../entities/commande/lot/lot.service';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../shared/error.service';
 
 @Component({
-  selector: "app-reception-sequential",
-  templateUrl: "./reception-sequential.component.html",
-  styleUrls: ["./reception-sequential.component.scss"],
-  host: { "(window:keydown)": "onKeydown($event)" },
+  selector: 'app-reception-sequential',
+  templateUrl: './reception-sequential.component.html',
+  styleUrls: ['./reception-sequential.component.scss'],
+  host: { '(window:keydown)': 'onKeydown($event)' },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip]
+  imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
 })
 export class ReceptionSequentialComponent {
   orderLines = input.required<IOrderLine[]>();
@@ -53,7 +53,7 @@ export class ReceptionSequentialComponent {
   autreLigneDemandee = output<{ code: string; hint: IDataMatrixHint | null }>();
 
   // ── Étape active ─────────────────────────────────────────────────────────
-  protected readonly step = signal<"qty" | "lot">("qty");
+  protected readonly step = signal<'qty' | 'lot'>('qty');
 
   // ── Navigation ───────────────────────────────────────────────────────────
   protected readonly ignoreComplete = signal(true);
@@ -66,12 +66,12 @@ export class ReceptionSequentialComponent {
 
   // ── Saisie lot inline ────────────────────────────────────────────────────
   protected readonly lineLots = signal<ILot[]>([]);
-  protected readonly draftLotNum = signal("");
-  protected readonly draftLotExpiry = signal("");
+  protected readonly draftLotNum = signal('');
+  protected readonly draftLotExpiry = signal('');
   protected readonly draftLotQty = signal<number | null>(null);
   protected readonly draftLotUg = signal<number | null>(null);
   protected readonly lotSaving = signal(false);
-  protected readonly expiryWarning = signal<"none" | "soon" | "critical">("none");
+  protected readonly expiryWarning = signal<'none' | 'soon' | 'critical'>('none');
   protected readonly lotJustAdded = signal(false);
 
   // ── AX-23d — CIP provisoire ───────────────────────────────────────────────
@@ -83,7 +83,7 @@ export class ReceptionSequentialComponent {
    */
   protected readonly scanInconnu = signal<{ code: string; hint: IDataMatrixHint | null; raw: string } | null>(null);
   protected readonly isEditingCip = signal(false);
-  protected readonly draftCip = signal("");
+  protected readonly draftCip = signal('');
 
   /** Pré-remplissage en attente, appliqué quand on entre en step lot. */
   private pendingPrefill: { numLot: string; expiry: string } | null = null;
@@ -142,13 +142,13 @@ export class ReceptionSequentialComponent {
   });
 
   /** Sens de variation du PMP par rapport au PMP actuel. */
-  protected readonly pmpVariation = computed<"up" | "down" | "stable" | null>(() => {
+  protected readonly pmpVariation = computed<'up' | 'down' | 'stable' | null>(() => {
     const prev = this.currentLine()?.costAmount ?? 0;
     const next = this.pmpPreview();
     if (next == null || prev === 0) return null;
-    if (next > prev) return "up";
-    if (next < prev) return "down";
-    return "stable";
+    if (next > prev) return 'up';
+    if (next < prev) return 'down';
+    return 'stable';
   });
 
   protected readonly remainingLotQty = computed(() => {
@@ -166,9 +166,7 @@ export class ReceptionSequentialComponent {
 
   protected readonly showUg = computed(() => (this.currentLine()?.freeQty ?? 0) > 0);
 
-  protected readonly isUgOnlyLotMode = computed(() =>
-    this.remainingLotQty() === 0 && this.remainingLotUg() > 0
-  );
+  protected readonly isUgOnlyLotMode = computed(() => this.remainingLotQty() === 0 && this.remainingLotUg() > 0);
 
   protected readonly lotsComplete = computed(() => {
     if (!this.showLotBtn()) return true;
@@ -180,7 +178,9 @@ export class ReceptionSequentialComponent {
   // AX-09 — Bandeau concordance compact dans la nav
   protected readonly navConcordance = computed(() => {
     const lines = this.orderLines();
-    let ecartQte = 0, ecartPrix = 0, lotsManquants = 0;
+    let ecartQte = 0,
+      ecartPrix = 0,
+      lotsManquants = 0;
     for (const l of lines) {
       if ((l.quantityReceivedTmp ?? 0) !== (l.quantityRequested ?? 0)) ecartQte++;
       if (l.costAmount && l.orderCostAmount && l.costAmount !== l.orderCostAmount) ecartPrix++;
@@ -191,17 +191,18 @@ export class ReceptionSequentialComponent {
 
   /** Lignes éligibles au lot commun : gestion lot, sans lot, quantité reçue > 0, hors ligne courante. */
   protected readonly linesForBatch = computed(() =>
-    this.orderLines().filter(l =>
-      l.id !== this.currentLine()?.id &&
-      l.gestionLot !== false &&
-      (l.lots?.length ?? 0) === 0 &&
-      (l.quantityReceivedTmp ?? l.quantityReceived ?? 0) > 0
-    )
+    this.orderLines().filter(
+      l =>
+        l.id !== this.currentLine()?.id &&
+        l.gestionLot !== false &&
+        (l.lots?.length ?? 0) === 0 &&
+        (l.quantityReceivedTmp ?? l.quantityReceived ?? 0) > 0,
+    ),
   );
 
   // ── ViewChildren ─────────────────────────────────────────────────────────
-  private readonly qtyInputRef = viewChild<ElementRef>("qtyInput");
-  private readonly numLotInputRef = viewChild<ElementRef>("numLotInput");
+  private readonly qtyInputRef = viewChild<ElementRef>('qtyInput');
+  private readonly numLotInputRef = viewChild<ElementRef>('numLotInput');
 
   // ── Services ─────────────────────────────────────────────────────────────
   private readonly deliveryService = inject(DeliveryService);
@@ -212,17 +213,13 @@ export class ReceptionSequentialComponent {
   private readonly productsApi = inject(ProductsApiService);
 
   constructor() {
-
     effect(() => {
-      const lines = this.visibleLines();   // tracké
-      const lineId = this.currentLineId();  // tracké
+      const lines = this.visibleLines(); // tracké
+      const lineId = this.currentLineId(); // tracké
 
       untracked(() => {
         // ID effectif : lineId valide → garder, sinon → premier visible
-        const effectiveId: number | null =
-          (lineId != null && lines.some(l => l.id === lineId))
-            ? lineId
-            : (lines[0]?.id ?? null);
+        const effectiveId: number | null = lineId != null && lines.some(l => l.id === lineId) ? lineId : (lines[0]?.id ?? null);
 
         // Snap initial uniquement : null → 1ère ligne visible
         // Ce write provoque un 2e déclenchement, mais _lastLineId === effectiveId → return early
@@ -233,10 +230,8 @@ export class ReceptionSequentialComponent {
         if (effectiveId === this._lastLineId) return; // même ligne → pas de reset
         this._lastLineId = effectiveId;
 
-        const line = effectiveId != null
-          ? (lines.find(l => l.id === effectiveId) ?? null)
-          : null;
-        this.step.set("qty");
+        const line = effectiveId != null ? (lines.find(l => l.id === effectiveId) ?? null) : null;
+        this.step.set('qty');
         this.resetQtyDraft(line);
         this.lineLots.set([...(line?.lots ?? [])]);
         this.resetLotDraft();
@@ -250,7 +245,7 @@ export class ReceptionSequentialComponent {
       untracked(() => {
         if (!pf) return;
         this.pendingPrefill = pf;
-        if (this.step() === "lot") {
+        if (this.step() === 'lot') {
           this.applyPrefill(pf);
           this.pendingPrefill = null;
         }
@@ -277,38 +272,38 @@ export class ReceptionSequentialComponent {
     // Un code inconnu attend une décision : il capte les touches avant les autres raccourcis,
     // l'opérateur ayant une boîte dans une main et le scanner dans l'autre.
     if (this.scanInconnu()) {
-      if (event.key === "Enter") {
+      if (event.key === 'Enter') {
         event.preventDefault();
         this.onAssocierCodeALaLigneCourante();
         return;
       }
-      if (event.key === "a" || event.key === "A") {
+      if (event.key === 'a' || event.key === 'A') {
         event.preventDefault();
         this.onDemanderAutreLigne();
         return;
       }
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         event.preventDefault();
         this.scanInconnu.set(null);
         return;
       }
     }
-    if (event.key === "F8") {
+    if (event.key === 'F8') {
       event.preventDefault();
       this.goPrev();
     }
-    if (event.key === "F9") {
+    if (event.key === 'F9') {
       event.preventDefault();
       this.goNext();
     }
-    if (event.key === "F12") {
+    if (event.key === 'F12') {
       event.preventDefault();
       this.onF12();
     }
   }
 
   private onF12(): void {
-    if (this.step() === "qty") this.onValidateQty();
+    if (this.step() === 'qty') this.onValidateQty();
     else this.onSaveLot();
   }
 
@@ -373,8 +368,8 @@ export class ReceptionSequentialComponent {
             },
             error: err => {
               this.saving.set(false);
-              this.notificationService.error(this.errorService.getErrorMessage(err), "UG");
-            }
+              this.notificationService.error(this.errorService.getErrorMessage(err), 'UG');
+            },
           });
         } else {
           this.saving.set(false);
@@ -383,8 +378,8 @@ export class ReceptionSequentialComponent {
       },
       error: err => {
         this.saving.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
-      }
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
+      },
     });
   }
 
@@ -393,8 +388,7 @@ export class ReceptionSequentialComponent {
     this.lineChanged.emit(line);
     // Aller en step lot si : lots incomplets OU lots existants (permettre modification)
     const hasExistingLots = this.lineLots().length > 0;
-    const needLots = this.showLotBtn() && line.gestionLot !== false &&
-      (!this.lotsComplete() || hasExistingLots);
+    const needLots = this.showLotBtn() && line.gestionLot !== false && (!this.lotsComplete() || hasExistingLots);
     if (needLots) {
       this.lineLots.set([...(line.lots ?? [])]);
       this.resetLotDraft();
@@ -402,7 +396,7 @@ export class ReceptionSequentialComponent {
         this.applyPrefill(this.pendingPrefill);
         this.pendingPrefill = null;
       }
-      this.step.set("lot");
+      this.step.set('lot');
       setTimeout(() => this.focusNumLot(), 60);
     } else {
       this.goNext();
@@ -411,7 +405,7 @@ export class ReceptionSequentialComponent {
 
   /** Accès direct au step lot depuis l'étape quantités. */
   protected goToLotStep(): void {
-    this.step.set("lot");
+    this.step.set('lot');
     setTimeout(() => this.focusNumLot(), 60);
   }
 
@@ -424,7 +418,7 @@ export class ReceptionSequentialComponent {
       this.draftLotUg.set(remUg > 0 ? remUg : null);
       return;
     }
-    this.draftLotUg.set(qty >= remQty ? remUg : (Math.round(remUg * qty / remQty) || 0));
+    this.draftLotUg.set(qty >= remQty ? remUg : Math.round((remUg * qty) / remQty) || 0);
   }
 
   protected onLotExpiryInput(value: string): void {
@@ -437,63 +431,65 @@ export class ReceptionSequentialComponent {
     if (!line || this.lotSaving()) return;
 
     if (!this.draftLotNum().trim()) {
-      this.notificationService.error("Le numéro de lot est obligatoire", "Lot");
+      this.notificationService.error('Le numéro de lot est obligatoire', 'Lot');
       return;
     }
     const expiryDate = this.formatExpiryForSave(this.draftLotExpiry());
     if (!expiryDate) {
-      this.notificationService.error("Format invalide. Utilisez MM/AAAA (ex: 06/2028)", "Lot");
+      this.notificationService.error('Format invalide. Utilisez MM/AAAA (ex: 06/2028)', 'Lot');
       return;
     }
     const qty = this.isUgOnlyLotMode() ? 0 : (this.draftLotQty() ?? 0);
     if (!this.isUgOnlyLotMode() && qty <= 0) {
-      this.notificationService.error("La quantité doit être supérieure à 0", "Lot");
+      this.notificationService.error('La quantité doit être supérieure à 0', 'Lot');
       return;
     }
     if (qty > this.remainingLotQty()) {
-      this.notificationService.error(`Qté (${qty}) dépasse le restant (${this.remainingLotQty()})`, "Lot");
+      this.notificationService.error(`Qté (${qty}) dépasse le restant (${this.remainingLotQty()})`, 'Lot');
       return;
     }
     const ug = this.draftLotUg() ?? 0;
     if (ug > this.remainingLotUg()) {
-      this.notificationService.error(`UG (${ug}) dépasse le restant (${this.remainingLotUg()})`, "Lot");
+      this.notificationService.error(`UG (${ug}) dépasse le restant (${this.remainingLotUg()})`, 'Lot');
       return;
     }
     if (this.lineLots().some(l => l.numLot === this.draftLotNum().trim())) {
-      this.notificationService.error(`Lot "${this.draftLotNum()}" déjà enregistré pour cette ligne`, "Doublon");
+      this.notificationService.error(`Lot "${this.draftLotNum()}" déjà enregistré pour cette ligne`, 'Doublon');
       return;
     }
 
     this.lotSaving.set(true);
-    this.lotService.addLot({
-      numLot: this.draftLotNum().trim(),
-      expiryDate,
-      quantityReceived: qty,
-      ugQuantityReceived: ug,
-      receiptItemId: line.orderLineId
-    }).subscribe({
-      next: res => {
-        const updated = [...this.lineLots(), res.body!];
-        this.lineLots.set(updated);
-        line.lots = updated;
-        this.lotSaving.set(false);
-        this.lineChanged.emit(line);
+    this.lotService
+      .addLot({
+        numLot: this.draftLotNum().trim(),
+        expiryDate,
+        quantityReceived: qty,
+        ugQuantityReceived: ug,
+        receiptItemId: line.orderLineId,
+      })
+      .subscribe({
+        next: res => {
+          const updated = [...this.lineLots(), res.body!];
+          this.lineLots.set(updated);
+          line.lots = updated;
+          this.lotSaving.set(false);
+          this.lineChanged.emit(line);
 
-        this.lotJustAdded.set(true);
-        setTimeout(() => this.lotJustAdded.set(false), 1800);
+          this.lotJustAdded.set(true);
+          setTimeout(() => this.lotJustAdded.set(false), 1800);
 
-        if (this.lotsComplete()) {
-          setTimeout(() => this.goNext(), 600);
-        } else {
-          this.resetLotDraft();
-          setTimeout(() => this.focusNumLot(), 50);
-        }
-      },
-      error: err => {
-        this.lotSaving.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Lot");
-      }
-    });
+          if (this.lotsComplete()) {
+            setTimeout(() => this.goNext(), 600);
+          } else {
+            this.resetLotDraft();
+            setTimeout(() => this.focusNumLot(), 50);
+          }
+        },
+        error: err => {
+          this.lotSaving.set(false);
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Lot');
+        },
+      });
   }
 
   /** Appliquer le lot courant à toutes les lignes sans lot ayant une quantité reçue. */
@@ -507,13 +503,15 @@ export class ReceptionSequentialComponent {
     this.lotSaving.set(true);
 
     forkJoin(
-      targets.map(l => this.lotService.addLot({
-        numLot,
-        expiryDate,
-        quantityReceived: l.quantityReceivedTmp ?? l.quantityReceived ?? 0,
-        ugQuantityReceived: l.freeQty ?? 0,
-        receiptItemId: l.orderLineId
-      }))
+      targets.map(l =>
+        this.lotService.addLot({
+          numLot,
+          expiryDate,
+          quantityReceived: l.quantityReceivedTmp ?? l.quantityReceived ?? 0,
+          ugQuantityReceived: l.freeQty ?? 0,
+          receiptItemId: l.orderLineId,
+        }),
+      ),
     ).subscribe({
       next: results => {
         targets.forEach((l, i) => {
@@ -522,12 +520,12 @@ export class ReceptionSequentialComponent {
           this.lineChanged.emit(l);
         });
         this.lotSaving.set(false);
-        this.notificationService.success(`Lot appliqué à ${results.length} ligne(s)`, "Lot commun");
+        this.notificationService.success(`Lot appliqué à ${results.length} ligne(s)`, 'Lot commun');
       },
       error: err => {
         this.lotSaving.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Lot commun");
-      }
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Lot commun');
+      },
     });
   }
 
@@ -544,12 +542,12 @@ export class ReceptionSequentialComponent {
         }
         this.resetLotDraft();
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Lot")
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Lot'),
     });
   }
 
   protected onSkipLots(): void {
-    this.step.set("qty");
+    this.step.set('qty');
     this.goNext();
   }
 
@@ -584,10 +582,10 @@ export class ReceptionSequentialComponent {
     this.productsApi.createCodeAlias(ligne.produitId, inconnu.code).subscribe({
       next: () => {
         this.scanInconnu.set(null);
-        this.notificationService.success(`Code ${inconnu.code} associé à ${ligne.produitLibelle}`, "Code reconnu");
+        this.notificationService.success(`Code ${inconnu.code} associé à ${ligne.produitLibelle}`, 'Code reconnu');
         this.rejouerScan.emit(inconnu.raw);
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Code"),
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Code'),
     });
   }
 
@@ -599,10 +597,10 @@ export class ReceptionSequentialComponent {
         this.scanInconnu.set(null);
         if (ligne.id) this.cipUpdated.emit(ligne.id);
         this.lineChanged.emit(ligne);
-        this.notificationService.success(`CIP mis à jour : ${code}`, "CIP");
+        this.notificationService.success(`CIP mis à jour : ${code}`, 'CIP');
         this.rejouerScan.emit(raw);
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP"),
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'CIP'),
     });
   }
 
@@ -625,12 +623,12 @@ export class ReceptionSequentialComponent {
     this.commandeService.updateCip(line).subscribe({
       next: () => {
         this.isEditingCip.set(false);
-        this.draftCip.set("");
+        this.draftCip.set('');
         if (line.id) this.cipUpdated.emit(line.id);
         this.lineChanged.emit(line);
-        this.notificationService.success(`CIP mis à jour : ${line.produitCip}`, "CIP");
+        this.notificationService.success(`CIP mis à jour : ${line.produitCip}`, 'CIP');
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP")
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'CIP'),
     });
   }
 
@@ -651,12 +649,12 @@ export class ReceptionSequentialComponent {
     const pcb = this.currentLine()?.qteColis;
     if (!pcb || pcb <= 1) return false;
     const qty = this.draftQty() ?? 0;
-    return qty > 0 && (qty % pcb) !== 0;
+    return qty > 0 && qty % pcb !== 0;
   }
 
   protected formatLotExpiry(lot: ILot): string {
     const d = lot.expiryDate as unknown as string | undefined;
-    if (!d) return "—";
+    if (!d) return '—';
     const m = d.match(/^(\d{4})-(\d{2})/);
     return m ? `${m[2]}/${m[1]}` : d;
   }
@@ -669,10 +667,12 @@ export class ReceptionSequentialComponent {
   }
 
   protected canApplyToAll(): boolean {
-    return !!this.draftLotNum().trim() &&
+    return (
+      !!this.draftLotNum().trim() &&
       !!this.formatExpiryForSave(this.draftLotExpiry()) &&
       this.linesForBatch().length > 0 &&
-      !this.lotSaving();
+      !this.lotSaving()
+    );
   }
 
   // ── Privé ─────────────────────────────────────────────────────────────────
@@ -682,9 +682,9 @@ export class ReceptionSequentialComponent {
   }
 
   private resetLotDraft(): void {
-    this.draftLotNum.set("");
-    this.draftLotExpiry.set("");
-    this.expiryWarning.set("none");
+    this.draftLotNum.set('');
+    this.draftLotExpiry.set('');
+    this.expiryWarning.set('none');
     const rem = this.remainingLotQty();
     const remUg = this.remainingLotUg();
     this.draftLotQty.set(rem > 0 ? rem : null);
@@ -721,7 +721,7 @@ export class ReceptionSequentialComponent {
   }
 
   private autoFormatExpiry(value: string): string {
-    const d = value.replace(/\D/g, "").slice(0, 6);
+    const d = value.replace(/\D/g, '').slice(0, 6);
     if (d.length <= 2) return d;
     return `${d.slice(0, 2)}/${d.slice(2)}`;
   }
@@ -729,18 +729,19 @@ export class ReceptionSequentialComponent {
   protected formatExpiryForSave(value: string): string | null {
     const m = value.match(/^(\d{1,2})\/(\d{4})$/);
     if (!m) return null;
-    const mo = parseInt(m[1], 10), yr = parseInt(m[2], 10);
+    const mo = parseInt(m[1], 10),
+      yr = parseInt(m[2], 10);
     if (mo < 1 || mo > 12 || yr < 2000) return null;
     const lastDay = new Date(yr, mo, 0).getDate();
-    return `${yr}-${String(mo).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    return `${yr}-${String(mo).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   }
 
-  private calcExpiryWarning(value: string): "none" | "soon" | "critical" {
+  private calcExpiryWarning(value: string): 'none' | 'soon' | 'critical' {
     const iso = this.formatExpiryForSave(value);
-    if (!iso) return "none";
+    if (!iso) return 'none';
     const months = (new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44);
-    if (months < 3) return "critical";
-    if (months < 6) return "soon";
-    return "none";
+    if (months < 3) return 'critical';
+    if (months < 6) return 'soon';
+    return 'none';
   }
 }

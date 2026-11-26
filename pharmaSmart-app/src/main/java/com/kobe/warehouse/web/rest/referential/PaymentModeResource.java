@@ -1,20 +1,17 @@
 package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.PaymentModeService;
-import java.io.IOException;
-import java.util.List;
-
 import com.kobe.warehouse.service.dto.PaymentModeUpdateDTO;
 import com.kobe.warehouse.service.dto.projection.QrCodeResponse;
-import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.PaymentMode}.
@@ -45,9 +42,10 @@ public class PaymentModeResource {
     @GetMapping("/payment-modes/{code}")
     @NavAccessExempt("lecture de référentiel, utilisée par l'encaissement pour tous les rôles de comptoir")
     public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable String code) {
-        return this.paymentModeService.findByCode(code)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        return this.paymentModeService
+                .findByCode(code)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/payment-modes/{code}/qr-code")
@@ -67,23 +65,18 @@ public class PaymentModeResource {
      */
     @PutMapping(value = "/payment-modes/{code}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PaymentMode> updatePaymentMode(
-        @PathVariable String code,
-        @RequestParam("libelle") String libelle,
-        @RequestParam("order") Short order,
-        @RequestParam(value = "qrCodeFile", required = false) MultipartFile qrCodeFile
-    ) {
+            @PathVariable String code,
+            @RequestParam("libelle") String libelle,
+            @RequestParam("order") Short order,
+            @RequestParam(value = "qrCodeFile", required = false) MultipartFile qrCodeFile) {
         try {
-            PaymentModeUpdateDTO dto = new PaymentModeUpdateDTO()
-                .setCode(code)
-                .setLibelle(libelle)
-                .setOrder(order);
+            PaymentModeUpdateDTO dto =
+                    new PaymentModeUpdateDTO().setCode(code).setLibelle(libelle).setOrder(order);
 
             PaymentMode result = this.paymentModeService.update(dto, qrCodeFile);
             return ResponseEntity.ok().body(result);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
 }

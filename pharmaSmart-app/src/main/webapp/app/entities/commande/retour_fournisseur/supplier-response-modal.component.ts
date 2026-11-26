@@ -1,20 +1,13 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgbActiveModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {IRetourBon} from "app/shared/model/retour-bon.model";
-import {IRetourBonItem} from "app/shared/model/retour-bon-item.model";
-import {
-  AvoirFournisseurService
-} from "app/entities/commande/retour_fournisseur/avoir-fournisseur.service";
-import {IAvoirLigneCommand} from "app/shared/model/avoir-fournisseur.model";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  ButtonComponent,
-  DataTableComponent,
-  EditableCellComponent,
-  InputNumberComponent
-} from "../../../shared/ui";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { IRetourBon } from 'app/shared/model/retour-bon.model';
+import { IRetourBonItem } from 'app/shared/model/retour-bon-item.model';
+import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
+import { IAvoirLigneCommand } from 'app/shared/model/avoir-fournisseur.model';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, DataTableComponent, EditableCellComponent, InputNumberComponent } from '../../../shared/ui';
 
 interface ResponseLine {
   item: IRetourBonItem;
@@ -24,15 +17,15 @@ interface ResponseLine {
 }
 
 @Component({
-  selector: "app-supplier-response-modal",
+  selector: 'app-supplier-response-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, InputNumberComponent, EditableCellComponent, NgbTooltip],
-  templateUrl: "./supplier-response-modal.component.html",
+  templateUrl: './supplier-response-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./supplier-response-modal.component.scss"
+  styleUrl: './supplier-response-modal.component.scss',
 })
 export class SupplierResponseModalComponent implements OnInit {
   retourBon: IRetourBon | null = null;
-  title = "Saisir la réponse fournisseur";
+  title = 'Saisir la réponse fournisseur';
   protected readonly activeModal = inject(NgbActiveModal);
   protected lines = signal<ResponseLine[]>([]);
   protected isSaving = signal(false);
@@ -46,8 +39,8 @@ export class SupplierResponseModalComponent implements OnInit {
           item,
           qtyAcceptee: item.acceptedQty ?? item.qtyMvt ?? 0,
           prixAchat: item.prixAchat ?? 0,
-          alreadyProcessed: (item.acceptedQty ?? 0) > 0 && item.acceptedQty === item.qtyMvt
-        }))
+          alreadyProcessed: (item.acceptedQty ?? 0) > 0 && item.acceptedQty === item.qtyMvt,
+        })),
       );
     }
   }
@@ -56,7 +49,7 @@ export class SupplierResponseModalComponent implements OnInit {
     const max = line.item.qtyMvt ?? 0;
     if (line.qtyAcceptee > max) {
       line.qtyAcceptee = max;
-      this.notificationService.warning(`La quantité acceptée ne peut pas dépasser ${max}`, "Attention");
+      this.notificationService.warning(`La quantité acceptée ne peut pas dépasser ${max}`, 'Attention');
     }
     if (line.qtyAcceptee < 0) {
       line.qtyAcceptee = 0;
@@ -77,12 +70,12 @@ export class SupplierResponseModalComponent implements OnInit {
 
   protected getRowClass(line: ResponseLine): string {
     if (line.qtyAcceptee === 0) {
-      return "rejected-row";
+      return 'rejected-row';
     }
     if (line.item.qtyMvt && line.qtyAcceptee < line.item.qtyMvt) {
-      return "partial-row";
+      return 'partial-row';
     }
-    return "accepted-row";
+    return 'accepted-row';
   }
 
   protected save(): void {
@@ -96,21 +89,19 @@ export class SupplierResponseModalComponent implements OnInit {
       .map(l => ({
         retourBonItemId: l.item.id!,
         qtyAcceptee: l.qtyAcceptee,
-        prixAchat: l.prixAchat || undefined
+        prixAchat: l.prixAchat || undefined,
       }));
 
-    this.avoirFournisseurService
-      .create({retourBonId: this.retourBon.id, lignes})
-      .subscribe({
-        next: avoir => {
-          this.isSaving.set(false);
-          this.activeModal.close(avoir);
-        },
-        error: () => {
-          this.isSaving.set(false);
-          this.notificationService.error("Une erreur est survenue lors de la création de l'avoir fournisseur.");
-        }
-      });
+    this.avoirFournisseurService.create({ retourBonId: this.retourBon.id, lignes }).subscribe({
+      next: avoir => {
+        this.isSaving.set(false);
+        this.activeModal.close(avoir);
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.notificationService.error("Une erreur est survenue lors de la création de l'avoir fournisseur.");
+      },
+    });
   }
 
   protected cancel(): void {

@@ -45,9 +45,7 @@ public interface LotStockLocationRepository extends JpaRepository<LotStockLocati
           l.expiryDate ASC
         """)
     List<LotStockLocation> findFefoByStorageAndProduit(
-        @Param("storageId") Integer storageId,
-        @Param("produitId") Integer produitId
-    );
+            @Param("storageId") Integer storageId, @Param("produitId") Integer produitId);
 
     /**
      * Lot le plus récemment reçu (createdDate DESC) pour un produit dans un storage donné.
@@ -62,9 +60,7 @@ public interface LotStockLocationRepository extends JpaRepository<LotStockLocati
         LIMIT 1
         """)
     Optional<LotStockLocation> findLastReceivedByStorageAndProduit(
-        @Param("storageId") Integer storageId,
-        @Param("produitId") Integer produitId
-    );
+            @Param("storageId") Integer storageId, @Param("produitId") Integer produitId);
 
     /** Somme des quantités d'un lot dans tous ses emplacements. */
     @Query("SELECT COALESCE(SUM(lsl.qty), 0) FROM LotStockLocation lsl WHERE lsl.lot.id = :lotId")

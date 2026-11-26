@@ -17,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface FinancialTransactionService {
     default List<Pair> getTypes() {
-        return Stream.of(TypeFinancialTransaction.values()).map(type -> new Pair(type.name(), type.getValue())).toList();
+        return Stream.of(TypeFinancialTransaction.values())
+                .map(type -> new Pair(type.name(), type.getValue()))
+                .toList();
     }
 
     PaymentId create(FinancialTransactionDTO financialTransactionDTO);

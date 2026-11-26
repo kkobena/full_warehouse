@@ -20,7 +20,6 @@ import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
  */
 @Injectable({ providedIn: 'root' })
 export class DashboardResolverService {
-
   private readonly layoutService = inject(DashboardLayoutApiService);
   private readonly router = inject(Router);
 
@@ -44,9 +43,7 @@ export class DashboardResolverService {
    * Route Angular à utiliser si isRoute=true.
    * Ex: '/sales-home/prevente', '/caissier', '/commande'
    */
-  readonly routePath = computed(() =>
-    this.isRoute() ? (this._resolvedLayout()?.name ?? '/') : null
-  );
+  readonly routePath = computed(() => (this.isRoute() ? (this._resolvedLayout()?.name ?? '/') : null));
 
   /**
    * Charge le layout résolu depuis le backend et le met en cache dans le signal.
@@ -69,7 +66,7 @@ export class DashboardResolverService {
         this._resolvedLayout.set(null);
         this._loaded.set(true);
         return EMPTY;
-      })
+      }),
     );
   }
 

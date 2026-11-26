@@ -57,21 +57,21 @@ class FneCertificationMagasinTest {
         when(licenseService.isDemo()).thenReturn(false);
 
         service = new FneServiceImpl(
-            facturationRepository,
-            mock(HttpClient.class),
-            mock(StorageService.class),
-            new ObjectMapper(),
-            magasinRepository,
-            certificationTransactionService,
-            licenseService
-        );
+                facturationRepository,
+                mock(HttpClient.class),
+                mock(StorageService.class),
+                new ObjectMapper(),
+                magasinRepository,
+                certificationTransactionService,
+                licenseService);
     }
 
     @Test
     @DisplayName("l'établissement certifié est l'officine, jamais le premier magasin venu")
     void certifieSousLOfficine() {
         when(facturationRepository.findPendingFneCertification()).thenReturn(List.of(new FactureTiersPayant()));
-        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)).thenReturn(Optional.of(officine()));
+        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE))
+                .thenReturn(Optional.of(officine()));
 
         service.certifierFacturesPendantes(plan());
 
@@ -87,7 +87,8 @@ class FneCertificationMagasinTest {
     @DisplayName("sans officine paramétrée, aucune facture n'est certifiée")
     void sansOfficineRienNEstCertifie() {
         when(facturationRepository.findPendingFneCertification()).thenReturn(List.of(new FactureTiersPayant()));
-        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)).thenReturn(Optional.empty());
+        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE))
+                .thenReturn(Optional.empty());
 
         CertificationFneResult resultat = service.certifierFacturesPendantes(plan());
 

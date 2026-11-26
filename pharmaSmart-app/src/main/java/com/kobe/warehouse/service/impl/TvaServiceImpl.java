@@ -1,11 +1,11 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.repository.TvaRepository;
 import com.kobe.warehouse.service.TvaService;
 import com.kobe.warehouse.service.dto.TvaDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,9 +90,9 @@ public class TvaServiceImpl implements TvaService {
         long rattaches = this.produitRepository.countByTvaId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "Le taux de TVA est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "Le taux de TVA est encore utilisé par %d produit(s) : suppression impossible."
+                            .formatted(rattaches),
+                    "referentielUtilise");
         }
         log.debug("Request to delete Tva : {}", id);
 

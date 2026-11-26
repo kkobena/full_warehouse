@@ -52,7 +52,9 @@ export class QuickProductsGridComponent implements OnInit {
     }
     this.productChosen.emit(produit);
     // Le clic change le stock : on relit la grille une fois l'ajout passé.
-    timer(1500).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.recharger());
+    timer(1500)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.recharger());
   }
 
   protected enRupture(produit: ProduitSearch): boolean {

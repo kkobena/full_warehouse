@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -35,23 +34,22 @@ import java.time.LocalDateTime;
  *        Distinct de quantiteACommander=0 qui peut aussi signifier "produit non configuré".
  */
 public record SemoisSuggestionDTO(
-    Integer produitId,
-    String libelle,
-    String codeCip,
-    Integer fournisseurId,
-    String fournisseurLibelle,
-    ClasseCriticite classeCriticite,
-    Integer vmm,
-    Integer margeSecurite,
-    Integer stockObjectif,
-    Integer stockActuel,
-    Integer detteClient,
-    Integer quantiteACommander,
-    Integer delaiLivraisonJours,
-    BigDecimal coefficientSecurite,
-    BigDecimal facteurSaisonnier,
-    LocalDateTime dateDernierCalcul
-) {
+        Integer produitId,
+        String libelle,
+        String codeCip,
+        Integer fournisseurId,
+        String fournisseurLibelle,
+        ClasseCriticite classeCriticite,
+        Integer vmm,
+        Integer margeSecurite,
+        Integer stockObjectif,
+        Integer stockActuel,
+        Integer detteClient,
+        Integer quantiteACommander,
+        Integer delaiLivraisonJours,
+        BigDecimal coefficientSecurite,
+        BigDecimal facteurSaisonnier,
+        LocalDateTime dateDernierCalcul) {
 
     /**
      * Calcule le taux de couverture en mois
@@ -100,8 +98,7 @@ public record SemoisSuggestionDTO(
      * @return Message "X.X mois / Y.Y mois cible"
      */
     public String getMessageCouvertureComparatif() {
-        return String.format("%.1f mois / %.1f mois cible",
-            getTauxCouvertureMois(), getCouvertureCibleMois());
+        return String.format("%.1f mois / %.1f mois cible", getTauxCouvertureMois(), getCouvertureCibleMois());
     }
 
     /**
@@ -206,20 +203,20 @@ public record SemoisSuggestionDTO(
         if (estEnRupture()) {
             if (quantiteACommander == null || quantiteACommander == 0) {
                 return String.format(
-                    "⏳ Rupture couverte par commande en cours — stock: %d (seuil: %d) — couverture: %.1f/%.1f mois",
-                    stockActuel, margeSecurite, getTauxCouvertureMois(), getCouvertureCibleMois());
+                        "⏳ Rupture couverte par commande en cours — stock: %d (seuil: %d) — couverture: %.1f/%.1f mois",
+                        stockActuel, margeSecurite, getTauxCouvertureMois(), getCouvertureCibleMois());
             }
             return String.format(
-                "⚠️ URGENT — Commander %d unité(s) — stock: %d (seuil: %d) — %d jour(s) restant(s)",
-                quantiteACommander, stockActuel, margeSecurite, getJoursStockRestant());
+                    "⚠️ URGENT — Commander %d unité(s) — stock: %d (seuil: %d) — %d jour(s) restant(s)",
+                    quantiteACommander, stockActuel, margeSecurite, getJoursStockRestant());
         }
         if (necessiteReappro()) {
             return String.format(
-                "ℹ️ Commander %d unité(s) — couverture: %.1f/%.1f mois (%d jour(s) restant(s))",
-                quantiteACommander, getTauxCouvertureMois(), getCouvertureCibleMois(), getJoursStockRestant());
+                    "ℹ️ Commander %d unité(s) — couverture: %.1f/%.1f mois (%d jour(s) restant(s))",
+                    quantiteACommander, getTauxCouvertureMois(), getCouvertureCibleMois(), getJoursStockRestant());
         }
         return String.format(
-            "✅ Stock suffisant — couverture: %.1f mois (cible: %.1f mois)",
-            getTauxCouvertureMois(), getCouvertureCibleMois());
+                "✅ Stock suffisant — couverture: %.1f mois (cible: %.1f mois)",
+                getTauxCouvertureMois(), getCouvertureCibleMois());
     }
 }

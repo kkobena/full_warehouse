@@ -1,9 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
-import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.service.sale.impl.CompteTiersPayant;
-
 import java.util.List;
 
 /**
@@ -23,10 +21,7 @@ public interface ThirdPartyCalculationManager {
      * @return message d'erreur si plafond dépassé, null sinon
      */
     String upddateThirdPartySaleAmounts(
-        ThirdPartySales thirdPartySales,
-        boolean isUpdate,
-        List<CompteTiersPayant> clientTiersPayants
-    );
+            ThirdPartySales thirdPartySales, boolean isUpdate, List<CompteTiersPayant> clientTiersPayants);
 
     /**
      * Recalcule et applique les montants sur une vente avec tiers-payants.
@@ -38,10 +33,7 @@ public interface ThirdPartyCalculationManager {
      * @return message d'erreur si plafond dépassé, null sinon
      */
     String reComputeAndApplyAmounts(
-        ThirdPartySales thirdPartySales,
-        List<CompteTiersPayant> clientTiersPayants,
-        boolean isUpdate
-    );
+            ThirdPartySales thirdPartySales, List<CompteTiersPayant> clientTiersPayants, boolean isUpdate);
 
     /**
      * Calcule les montants d'une vente avec tiers-payants.

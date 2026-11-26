@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest.report;
 
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import com.kobe.warehouse.service.report.StockRotationReportService;
+import com.kobe.warehouse.service.report.pdf.StockRotationPdfReportService;
 import java.util.List;
 import java.util.Map;
-
-import com.kobe.warehouse.service.report.pdf.StockRotationPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
@@ -25,7 +24,9 @@ public class StockRotationReportResource {
     private final StockRotationReportService stockRotationReportService;
     private final StockRotationPdfReportService stockRotationPdfReportService;
 
-    public StockRotationReportResource(StockRotationReportService stockRotationReportService, StockRotationPdfReportService stockRotationPdfReportService) {
+    public StockRotationReportResource(
+            StockRotationReportService stockRotationReportService,
+            StockRotationPdfReportService stockRotationPdfReportService) {
         this.stockRotationReportService = stockRotationReportService;
         this.stockRotationPdfReportService = stockRotationPdfReportService;
     }
@@ -61,8 +62,7 @@ public class StockRotationReportResource {
      */
     @GetMapping("/stock/rotation/abc")
     public ResponseEntity<List<StockRotationDTO>> getStockRotationByABCClassification(
-        @RequestParam CategorieABC categorieABC
-    ) {
+            @RequestParam CategorieABC categorieABC) {
         List<StockRotationDTO> rotations = stockRotationReportService.getStockRotationByABCClassification(categorieABC);
         return ResponseEntity.ok().body(rotations);
     }

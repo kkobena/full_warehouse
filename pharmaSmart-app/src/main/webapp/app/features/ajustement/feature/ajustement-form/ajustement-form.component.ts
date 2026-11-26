@@ -1,4 +1,16 @@
-import { AfterViewInit, Component, computed, DestroyRef, effect, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -61,9 +73,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   /** Valeur saisie : positive = entrée, négative = sortie. */
   protected readonly qty = signal(0);
 
-  private lastEvent$ = toObservable(this.facade.lastEvent).pipe(
-    filter((e): e is AjustEvent => e !== null),
-  );
+  private lastEvent$ = toObservable(this.facade.lastEvent).pipe(filter((e): e is AjustEvent => e !== null));
 
   constructor() {
     effect(() => {
@@ -94,7 +104,9 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.qtyBox()?.nativeElement.querySelector('input')?.addEventListener('focus', () => this.onQtyFocus());
+    this.qtyBox()
+      ?.nativeElement.querySelector('input')
+      ?.addEventListener('focus', () => this.onQtyFocus());
   }
 
   // ── Storage ───────────────────────────────────────────────────────────────
@@ -173,7 +185,7 @@ export class AjustementFormComponent implements OnInit, AfterViewInit {
     this.confirmDialog.onConfirm(
       () => this.facade.removeLine(line.id!),
       'Supprimer la ligne',
-      'Confirmer la suppression de cette ligne d\'ajustement ?',
+      "Confirmer la suppression de cette ligne d'ajustement ?",
       'pi pi-trash',
     );
   }

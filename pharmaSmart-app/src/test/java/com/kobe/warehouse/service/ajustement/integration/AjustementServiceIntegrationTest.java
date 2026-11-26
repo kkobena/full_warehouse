@@ -37,8 +37,7 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         Produit produit = produitEnStock(unique("DOLIPRANE"), 20);
         viderLeCache();
 
-        AjustDTO cree = services.ajustementService.createAjsut(
-            creation("casse en rayon", ligneSansAjust(produit, -4)));
+        AjustDTO cree = services.ajustementService.createAjsut(creation("casse en rayon", ligneSansAjust(produit, -4)));
         viderLeCache();
 
         Ajust relu = services.ajustRepository.findById(cree.getId()).orElseThrow();
@@ -83,8 +82,7 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
 
         AjustementDTO saisie = ligne(ajust, produit, -2).setStorageId(STORAGE_RAYON_ID);
 
-        GenericError erreur = assertThrows(GenericError.class,
-            () -> services.ajustementService.createOrUpdate(saisie));
+        GenericError erreur = assertThrows(GenericError.class, () -> services.ajustementService.createOrUpdate(saisie));
         assertTrue(erreur.getMessage().contains("n'a pas de stock dans le magasin selectionné"));
     }
 
@@ -100,7 +98,8 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         services.ajustementService.createOrUpdate(ligne(ajust, produit, -3).setStorageId(STORAGE_RESERVE_ID));
         viderLeCache();
 
-        Ajustement ligne = services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
+        Ajustement ligne =
+                services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
         assertEquals(STORAGE_RESERVE_ID, ligne.getStockProduit().getStorage().getId());
         assertEquals(8, ligne.getStockBefore(), "le stock de départ est celui de la réserve");
     }
@@ -117,10 +116,12 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
 
         assertEquals(
-            motif.getId(),
-            services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst()
-                .getMotifAjustement().getId()
-        );
+                motif.getId(),
+                services.ajustementRepository
+                        .findAllByAjustId(ajust.getId())
+                        .getFirst()
+                        .getMotifAjustement()
+                        .getId());
     }
 
     // ===== validation : stock et lots =====
@@ -131,8 +132,10 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         Ajust ajust = ajustEnCours("casse");
         Produit produit = produit(unique("DOLIPRANE"), 10_000, 6_000);
         stock(produit, rayon, 30);
-        Lot proche = lotSurEmplacement(produit, unique("LOT-PROCHE"), LocalDate.now().plusMonths(2), rayon, 12);
-        Lot lointain = lotSurEmplacement(produit, unique("LOT-LOINTAIN"), LocalDate.now().plusYears(2), rayon, 18);
+        Lot proche =
+                lotSurEmplacement(produit, unique("LOT-PROCHE"), LocalDate.now().plusMonths(2), rayon, 12);
+        Lot lointain = lotSurEmplacement(
+                produit, unique("LOT-LOINTAIN"), LocalDate.now().plusYears(2), rayon, 18);
         services.ajustementService.createOrUpdate(ligne(ajust, produit, -15));
         viderLeCache();
 
@@ -143,8 +146,9 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         assertEquals(0, quantiteCourante(proche), "le lot le plus proche de la péremption part en premier");
         assertEquals(15, quantiteCourante(lointain), "le reliquat est pris sur le lot suivant");
         assertEquals(15, quantiteSurEmplacement(lointain, rayon));
-        assertEquals(AjustementStatut.CLOSED,
-            services.ajustRepository.findById(ajust.getId()).orElseThrow().getStatut());
+        assertEquals(
+                AjustementStatut.CLOSED,
+                services.ajustRepository.findById(ajust.getId()).orElseThrow().getStatut());
     }
 
     @Test
@@ -162,9 +166,9 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         assertEquals(0, stockEnBase(produit, rayon));
         assertEquals(0, quantiteCourante(lot));
         assertEquals(
-            StatutLot.SOLD.name(),
-            em.createNativeQuery("SELECT statut FROM lot WHERE id = " + lot.getId()).getSingleResult()
-        );
+                StatutLot.SOLD.name(),
+                em.createNativeQuery("SELECT statut FROM lot WHERE id = " + lot.getId())
+                        .getSingleResult());
         assertEquals(-1, quantiteSurEmplacement(lot, rayon), "la ligne d'emplacement à zéro est supprimée");
     }
 
@@ -205,8 +209,10 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
     void validationPositiveSansLotChoisi() {
         Ajust ajust = ajustEnCours("retrouvé en réserve");
         Produit produit = produitEnStock(unique("DOLIPRANE"), 10);
-        Lot ancien = lotSurEmplacement(produit, unique("LOT-ANCIEN"), LocalDate.now().plusMonths(2), rayon, 4);
-        Lot dernier = lotSurEmplacement(produit, unique("LOT-RECENT"), LocalDate.now().plusYears(2), rayon, 6);
+        Lot ancien =
+                lotSurEmplacement(produit, unique("LOT-ANCIEN"), LocalDate.now().plusMonths(2), rayon, 4);
+        Lot dernier =
+                lotSurEmplacement(produit, unique("LOT-RECENT"), LocalDate.now().plusYears(2), rayon, 6);
         services.ajustementService.createOrUpdate(ligne(ajust, produit, 5));
         viderLeCache();
 
@@ -224,8 +230,10 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
     void validationPositiveSurLotChoisi() {
         Ajust ajust = ajustEnCours("retour de tournée");
         Produit produit = produitEnStock(unique("DOLIPRANE"), 10);
-        Lot vise = lotSurEmplacement(produit, unique("LOT-VISE"), LocalDate.now().plusMonths(2), rayon, 4);
-        Lot dernier = lotSurEmplacement(produit, unique("LOT-RECENT"), LocalDate.now().plusYears(2), rayon, 6);
+        Lot vise =
+                lotSurEmplacement(produit, unique("LOT-VISE"), LocalDate.now().plusMonths(2), rayon, 4);
+        Lot dernier =
+                lotSurEmplacement(produit, unique("LOT-RECENT"), LocalDate.now().plusYears(2), rayon, 6);
         services.ajustementService.createOrUpdate(ligne(ajust, produit, 5).setLotId(vise.getId()));
         viderLeCache();
 
@@ -243,7 +251,8 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
     void lotAbsentDeLEmplacement() {
         Ajust ajust = ajustEnCours("remontée de réserve");
         Produit produit = produitEnStock(unique("DOLIPRANE"), 10);
-        Lot enReserve = lotSurEmplacement(produit, unique("LOT-RESERVE"), LocalDate.now().plusYears(1), reserve, 8);
+        Lot enReserve = lotSurEmplacement(
+                produit, unique("LOT-RESERVE"), LocalDate.now().plusYears(1), reserve, 8);
         services.ajustementService.createOrUpdate(ligne(ajust, produit, 3).setLotId(enReserve.getId()));
         viderLeCache();
 
@@ -268,9 +277,12 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
 
         assertEquals(15, stockEnBase(produit, rayon), "le stock physique perd les 5 unités");
-        assertEquals(0, compter("SELECT qty_ug FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-            .formatted(produit.getId(), STORAGE_RAYON_ID)));
-        Ajustement ligne = services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
+        assertEquals(
+                0,
+                compter("SELECT qty_ug FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RAYON_ID)));
+        Ajustement ligne =
+                services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
         assertEquals(23, ligne.getStockBefore(), "l'écart est calculé sur le stock total, UG comprises");
         assertEquals(15, ligne.getStockAfter(), "mais le stock écrit ne compte plus les UG");
     }
@@ -321,8 +333,7 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
 
         AjustDTO seconde = validation(ajust, "revalidation");
-        GenericError erreur = assertThrows(GenericError.class,
-            () -> services.ajustementService.saveAjust(seconde));
+        GenericError erreur = assertThrows(GenericError.class, () -> services.ajustementService.saveAjust(seconde));
         viderLeCache();
 
         assertTrue(erreur.getMessage().contains("déjà été validé"));
@@ -330,15 +341,14 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         assertEquals(15, quantiteCourante(lot), "le lot non plus");
         assertEquals(15, quantiteSurEmplacement(lot, rayon));
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM inventory_transaction WHERE produit_id = " + produit.getId()),
-            "le journal ne porte qu'un seul mouvement"
-        );
+                1,
+                compter("SELECT count(*) FROM inventory_transaction WHERE produit_id = " + produit.getId()),
+                "le journal ne porte qu'un seul mouvement");
         assertEquals(
-            "validation",
-            em.createNativeQuery("SELECT commentaire FROM ajust WHERE id = " + ajust.getId()).getSingleResult(),
-            "le commentaire de la première validation fait foi"
-        );
+                "validation",
+                em.createNativeQuery("SELECT commentaire FROM ajust WHERE id = " + ajust.getId())
+                        .getSingleResult(),
+                "le commentaire de la première validation fait foi");
     }
 
     // ===== journal =====
@@ -357,17 +367,21 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
 
         String filtre = "WHERE produit_id = " + produit.getId();
         assertEquals(1, compter("SELECT count(*) FROM inventory_transaction " + filtre));
-        assertEquals("AJUSTEMENT_OUT",
-            em.createNativeQuery("SELECT mouvement_type FROM inventory_transaction " + filtre).getSingleResult());
+        assertEquals(
+                "AJUSTEMENT_OUT",
+                em.createNativeQuery("SELECT mouvement_type FROM inventory_transaction " + filtre)
+                        .getSingleResult());
         assertEquals(-5, compter("SELECT quantity FROM inventory_transaction " + filtre));
         assertEquals(20, compter("SELECT quantity_befor FROM inventory_transaction " + filtre));
         assertEquals(15, compter("SELECT quantity_after FROM inventory_transaction " + filtre));
-        assertEquals(6_000, compter("SELECT cost_amount FROM inventory_transaction " + filtre),
-            "le prix vient du fournisseur principal");
+        assertEquals(
+                6_000,
+                compter("SELECT cost_amount FROM inventory_transaction " + filtre),
+                "le prix vient du fournisseur principal");
         assertEquals(STORAGE_RAYON_ID, compter("SELECT storage_id FROM inventory_transaction " + filtre));
         assertEquals(MAGASIN_ID, compter("SELECT magasin_id FROM inventory_transaction " + filtre));
-        assertEquals(utilisateur.getId().intValue(),
-            (int) compter("SELECT user_id FROM inventory_transaction " + filtre));
+        assertEquals(
+                utilisateur.getId().intValue(), (int) compter("SELECT user_id FROM inventory_transaction " + filtre));
     }
 
     @Test
@@ -381,9 +395,11 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         services.ajustementService.saveAjust(validation(ajust, "validation"));
         viderLeCache();
 
-        assertEquals("AJUSTEMENT_IN",
-            em.createNativeQuery("SELECT mouvement_type FROM inventory_transaction WHERE produit_id = " + produit.getId())
-                .getSingleResult());
+        assertEquals(
+                "AJUSTEMENT_IN",
+                em.createNativeQuery("SELECT mouvement_type FROM inventory_transaction WHERE produit_id = "
+                                + produit.getId())
+                        .getSingleResult());
         assertEquals(6, compter("SELECT quantity FROM inventory_transaction WHERE produit_id = " + produit.getId()));
     }
 
@@ -400,9 +416,9 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
         // La date de mouvement est posée à la saisie : on la recule pour départager les deux lignes.
         em.createNativeQuery(
-                "UPDATE ajustement SET date_mtv = date_mtv - INTERVAL '1 day' WHERE stock_produit_id IN (SELECT id FROM stock_produit WHERE produit_id = %d)"
-                    .formatted(ancien.getId()))
-            .executeUpdate();
+                        "UPDATE ajustement SET date_mtv = date_mtv - INTERVAL '1 day' WHERE stock_produit_id IN (SELECT id FROM stock_produit WHERE produit_id = %d)"
+                                .formatted(ancien.getId()))
+                .executeUpdate();
         viderLeCache();
 
         List<AjustementDTO> lignes = services.ajustementService.findAll(ajust.getId(), null);
@@ -423,10 +439,17 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         services.ajustementService.createOrUpdate(ligne(ajust, efferalgan, -3));
         viderLeCache();
 
-        assertEquals(1, services.ajustementService.findAll(ajust.getId(), "dolipra").size(),
-            "la casse n'entre pas en ligne de compte");
-        assertEquals(1, services.ajustementService.findAll(ajust.getId(), codeCip(efferalgan)).size());
-        assertEquals(0, services.ajustementService.findAll(ajust.getId(), "ASPIRINE").size());
+        assertEquals(
+                1,
+                services.ajustementService.findAll(ajust.getId(), "dolipra").size(),
+                "la casse n'entre pas en ligne de compte");
+        assertEquals(
+                1,
+                services.ajustementService
+                        .findAll(ajust.getId(), codeCip(efferalgan))
+                        .size());
+        assertEquals(
+                0, services.ajustementService.findAll(ajust.getId(), "ASPIRINE").size());
         assertEquals(2, services.ajustementService.findAll(ajust.getId(), null).size());
     }
 
@@ -453,7 +476,8 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         stock(produit, rayon, 20, 3);
         services.ajustementService.createOrUpdate(ligne(ajust, produit, -4));
         viderLeCache();
-        Ajustement saisie = services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
+        Ajustement saisie =
+                services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst();
 
         AjustementDTO modification = ligne(ajust, produit, -6);
         modification.setId(saisie.getId());
@@ -461,7 +485,8 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
 
         assertEquals(-6, resultat.getQtyMvt(), "la quantité est remplacée, pas cumulée");
-        Ajustement relue = services.ajustementRepository.findById(saisie.getId()).orElseThrow();
+        Ajustement relue =
+                services.ajustementRepository.findById(saisie.getId()).orElseThrow();
         assertEquals(20, relue.getStockBefore(), "le recalcul se fait sur le stock physique, sans les UG");
         assertEquals(14, relue.getStockAfter());
         assertEquals(20, stockEnBase(produit, rayon), "le stock n'est écrit qu'à la validation");
@@ -476,12 +501,16 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         services.ajustementService.createOrUpdate(ligne(ajust, premier, -2));
         services.ajustementService.createOrUpdate(ligne(ajust, second, -3));
         viderLeCache();
-        Integer aSupprimer = services.ajustementRepository.findAllByAjustId(ajust.getId()).getFirst().getId();
+        Integer aSupprimer = services.ajustementRepository
+                .findAllByAjustId(ajust.getId())
+                .getFirst()
+                .getId();
 
         services.ajustementService.deleteItem(aSupprimer);
         viderLeCache();
 
-        assertEquals(1, services.ajustementRepository.findAllByAjustId(ajust.getId()).size());
+        assertEquals(
+                1, services.ajustementRepository.findAllByAjustId(ajust.getId()).size());
     }
 
     @Test
@@ -496,8 +525,10 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         viderLeCache();
 
         assertTrue(services.ajustRepository.findById(ajust.getId()).isEmpty());
-        assertEquals(0, compter("SELECT count(*) FROM ajustement WHERE ajust_id = " + ajust.getId()),
-            "les lignes partent avec l'en-tête");
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM ajustement WHERE ajust_id = " + ajust.getId()),
+                "les lignes partent avec l'en-tête");
         assertEquals(20, stockEnBase(produit, rayon));
     }
 
@@ -514,8 +545,9 @@ class AjustementServiceIntegrationTest extends AbstractAjustementIntegrationTest
         services.ajustementService.delete(ajust.getId());
         viderLeCache();
 
-        assertTrue(services.ajustRepository.findById(ajust.getId()).isPresent(),
-            "un mouvement de stock déjà journalisé ne peut plus être effacé");
+        assertTrue(
+                services.ajustRepository.findById(ajust.getId()).isPresent(),
+                "un mouvement de stock déjà journalisé ne peut plus être effacé");
     }
 
     // ===== outils =====

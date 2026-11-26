@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-
 @Repository
-public interface MvStockValuationRayonViewRepository extends JpaRepository<MvStockValuationByRayonView, Integer>, JpaSpecificationExecutor<MvStockValuationByRayonView> {
-
+public interface MvStockValuationRayonViewRepository
+        extends JpaRepository<MvStockValuationByRayonView, Integer>,
+                JpaSpecificationExecutor<MvStockValuationByRayonView> {
 
     default Specification<MvStockValuationByRayonView> filterByMagasinId(Integer magasinId) {
         if (magasinId == null) return null;

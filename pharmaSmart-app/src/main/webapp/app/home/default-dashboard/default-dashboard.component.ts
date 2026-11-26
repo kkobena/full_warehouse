@@ -15,8 +15,5 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class DefaultDashboardComponent {
   private readonly accountService = inject(AccountService);
 
-  protected readonly account = toSignal<Account | null>(
-    this.accountService.getAuthenticationState(),
-    { initialValue: null }
-  );
+  protected readonly account = toSignal<Account | null>(this.accountService.getAuthenticationState(), { initialValue: null });
 }

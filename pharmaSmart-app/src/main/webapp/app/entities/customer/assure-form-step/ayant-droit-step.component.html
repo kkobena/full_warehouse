@@ -6,8 +6,16 @@
           <div ngProjectAs="[cardHeader]" class="section-header d-flex align-items-center justify-content-between w-100">
             <span><i class="pi pi-user me-2"></i>{{ libelleLigne(i) }}</span>
             @if (lignes.length > 1 || ligne.dirty) {
-              <app-button (clicked)="supprimer(i)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                          severity="danger" size="small" type="button" aria-label="Retirer cet ayant droit" />
+              <app-button
+                (clicked)="supprimer(i)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                severity="danger"
+                size="small"
+                type="button"
+                aria-label="Retirer cet ayant droit"
+              />
             }
           </div>
 
@@ -97,7 +105,14 @@
   </div>
 
   <div class="d-flex justify-content-start mt-2">
-    <app-button (clicked)="ajouter()" icon="pi pi-plus" label="Ajouter un ayant droit" severity="primary"
-                size="small" type="button" data-testid="ajouter-ayant-droit" />
+    <app-button
+      (clicked)="ajouter()"
+      icon="pi pi-plus"
+      label="Ajouter un ayant droit"
+      severity="primary"
+      size="small"
+      type="button"
+      data-testid="ajouter-ayant-droit"
+    />
   </div>
 </form>

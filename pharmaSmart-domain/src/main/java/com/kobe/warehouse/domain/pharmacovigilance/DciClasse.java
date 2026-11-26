@@ -30,6 +30,7 @@ public class DciClasse implements Serializable {
     }
 
     @Embeddable
-    public record Id(@Column(name = "classe_id") Integer classeId, @Column(name = "ref_dci_id") Integer refDciId)
-        implements Serializable {}
+    public record Id(
+            @Column(name = "classe_id") Integer classeId,
+            @Column(name = "ref_dci_id") Integer refDciId) implements Serializable {}
 }

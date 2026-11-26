@@ -69,7 +69,7 @@ public class DashboardLayout implements Serializable {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "component_key", length = 30)
-    private DashboardComponentKey componentKey ;
+    private DashboardComponentKey componentKey;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "layout_config", columnDefinition = "jsonb")
@@ -79,7 +79,7 @@ public class DashboardLayout implements Serializable {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt= LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PrePersist
     public void prePersist() {

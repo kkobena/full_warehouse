@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.Importation;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.ImportationProduitService;
 import com.kobe.warehouse.service.dto.InstallationDataDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -19,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/importation")
@@ -34,7 +34,8 @@ public class ImportationProduitResource {
     }
 
     @PostMapping("importjson")
-    public ResponseEntity<Void> uploadFile(@RequestPart("importjson") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<Void> uploadFile(@RequestPart("importjson") MultipartFile file)
+            throws URISyntaxException, IOException {
         importationProduitService.updateStocFromJSON(file.getInputStream());
         return ResponseEntity.ok().build();
     }
@@ -55,11 +56,12 @@ public class ImportationProduitResource {
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
 
-    @PostMapping(path = "importcsv", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(
+            path = "importcsv",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDTO> importCsv(
-        @RequestPart("fichier") MultipartFile file,
-        @RequestPart("data") InstallationDataDTO installationData
-    ) throws IOException {
+            @RequestPart("fichier") MultipartFile file, @RequestPart("data") InstallationDataDTO installationData)
+            throws IOException {
         return ResponseEntity.ok(importationProduitService.installNewOfficine(file.getInputStream(), installationData));
     }
 

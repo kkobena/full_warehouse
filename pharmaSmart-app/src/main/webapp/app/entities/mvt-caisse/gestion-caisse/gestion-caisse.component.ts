@@ -1,27 +1,28 @@
-import { Component, computed, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
-import { CashRegisterService } from "../../cash-register/cash-register.service";
-import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
-import { IMagasin } from "../../../shared/model/magasin.model";
-import { FormsModule } from "@angular/forms";
-import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { IUser } from "../../../core/user/user.model";
-import { CashRegister, CashRegisterStatut, MvtCaisse } from "../../cash-register/model/cash-register.model";
-import { MvtParamServiceService } from "../mvt-param-service.service";
-import { MvtCaisseParams } from "../mvt-caisse-util";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { UserService } from "../../../core/user/user.service";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { CommonModule } from "@angular/common";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from "../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+import { Component, computed, inject, OnInit, ChangeDetectionStrategy, input, signal } from '@angular/core';
+import { CashRegisterService } from '../../cash-register/cash-register.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { IMagasin } from '../../../shared/model/magasin.model';
+import { FormsModule } from '@angular/forms';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { IUser } from '../../../core/user/user.model';
+import { CashRegister, CashRegisterStatut, MvtCaisse } from '../../cash-register/model/cash-register.model';
+import { MvtParamServiceService } from '../mvt-param-service.service';
+import { MvtCaisseParams } from '../mvt-caisse-util';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { UserService } from '../../../core/user/user.service';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
-  selector: "app-gestion-caisse",
-  styleUrls: ["./gestion-caisse.component.scss"],
-  imports: [CardComponent, 
+  selector: 'app-gestion-caisse',
+  styleUrls: ['./gestion-caisse.component.scss'],
+  imports: [
+    CardComponent,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -30,10 +31,10 @@ import { CardComponent } from 'app/shared/ui';
     SelectComponent,
     PharmaDatePickerComponent,
     BadgeComponent,
-    NgbTooltip
+    NgbTooltip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./gestion-caisse.component.html"
+  templateUrl: './gestion-caisse.component.html',
 })
 export class GestionCaisseComponent implements OnInit {
   /**
@@ -84,14 +85,14 @@ export class GestionCaisseComponent implements OnInit {
     this.entityService
       .query({
         page: pageToLoad,
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading.set(false);
-        }
+        },
       });
   }
 
@@ -107,11 +108,11 @@ export class GestionCaisseComponent implements OnInit {
   }
 
   protected onPrint(): void {
-    this.notificationService.warning("Fonctionnalité non implémentée");
+    this.notificationService.warning('Fonctionnalité non implémentée');
   }
 
   protected onSuccess(data: CashRegister[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.page.set(page);
 
     this.datas.set(data || []);
@@ -145,7 +146,7 @@ export class GestionCaisseComponent implements OnInit {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate(),
       toDate: this.toDate(),
-      selectedUser: this.selectedUser()
+      selectedUser: this.selectedUser(),
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -157,7 +158,7 @@ export class GestionCaisseComponent implements OnInit {
       fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()) : null,
       toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()) : null,
       userId: this.selectedUser()?.id,
-      magasinId: this.selectedMagasin()?.id
+      magasinId: this.selectedMagasin()?.id,
     };
   }
 }

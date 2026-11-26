@@ -15,30 +15,29 @@ import java.util.Map;
  */
 enum RequeteExport {
     VENTES(
-        ExportDonnees.VENTES,
-        "s",
-        """
+            ExportDonnees.VENTES,
+            "s",
+            """
         SELECT s.saleDate, s.createdAt, s.numberTransaction, cast(s.natureVente AS String), cast(s.typePrescription AS String),
                concat(vend.firstName, ' ', vend.lastName), concat(caiss.firstName, ' ', caiss.lastName),
                s.salesAmount, s.htAmount, s.discountAmount, s.netAmount
         """,
-        """
+            """
         FROM Sales s
         LEFT JOIN s.seller vend
         LEFT JOIN s.caissier caiss
         LEFT JOIN s.magasin mag
         """,
-        "s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories",
-        "ORDER BY s.saleDate, s.createdAt"
-    ),
+            "s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories",
+            "ORDER BY s.saleDate, s.createdAt"),
     LIGNES_VENTE(
-        ExportDonnees.LIGNES_VENTE,
-        "s",
-        """
+            ExportDonnees.LIGNES_VENTE,
+            "s",
+            """
         SELECT s.saleDate, s.numberTransaction, fp.codeCip, p.libelle, fam.libelle,
                l.quantityRequested, l.quantitySold, l.regularUnitPrice, l.salesAmount, l.discountAmount, l.costAmount
         """,
-        """
+            """
         FROM SalesLine l
         JOIN l.sales s
         JOIN l.produit p
@@ -49,33 +48,31 @@ enum RequeteExport {
         LEFT JOIN s.seller vend
         LEFT JOIN s.magasin mag
         """,
-        "s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories",
-        "ORDER BY s.saleDate, s.numberTransaction"
-    ),
+            "s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories",
+            "ORDER BY s.saleDate, s.numberTransaction"),
     ENCAISSEMENTS(
-        ExportDonnees.ENCAISSEMENTS,
-        "",
-        """
+            ExportDonnees.ENCAISSEMENTS,
+            "",
+            """
         SELECT t.transactionDate, t.createdAt, t.type, cast(t.typeFinancialTransaction AS String), pm.libelle, t.paidAmount,
                concat(caiss.firstName, ' ', caiss.lastName), t.transactionNumber
         """,
-        """
+            """
         FROM PaymentTransaction t
         LEFT JOIN t.paymentMode pm
         LEFT JOIN t.cashRegister cr
         LEFT JOIN cr.user caiss
         """,
-        "t.transactionDate BETWEEN :du AND :au",
-        "ORDER BY t.transactionDate, t.createdAt"
-    ),
+            "t.transactionDate BETWEEN :du AND :au",
+            "ORDER BY t.transactionDate, t.createdAt"),
     ACHATS(
-        ExportDonnees.ACHATS,
-        "",
-        """
+            ExportDonnees.ACHATS,
+            "",
+            """
         SELECT c.receiptDate, c.receiptReference, four.libelle, fp.codeCip, p.libelle, ol.quantityReceived, ol.freeQty,
                ol.orderCostAmount, coalesce(ol.orderCostAmount, 0) * coalesce(ol.quantityReceived, 0)
         """,
-        """
+            """
         FROM OrderLine ol
         JOIN ol.commande c
         LEFT JOIN c.fournisseur four
@@ -84,17 +81,16 @@ enum RequeteExport {
         LEFT JOIN p.famille fam
         LEFT JOIN p.laboratoire lab
         """,
-        "c.receiptDate BETWEEN :du AND :au AND c.orderStatus IN :statuts",
-        "ORDER BY c.receiptDate, c.receiptReference"
-    ),
+            "c.receiptDate BETWEEN :du AND :au AND c.orderStatus IN :statuts",
+            "ORDER BY c.receiptDate, c.receiptReference"),
     MOUVEMENTS_STOCK(
-        ExportDonnees.MOUVEMENTS_STOCK,
-        "",
-        """
+            ExportDonnees.MOUVEMENTS_STOCK,
+            "",
+            """
         SELECT t.transactionDate, t.createdAt, cast(t.mouvementType AS String), p.libelle, t.quantity, t.quantityBefor,
                t.quantityAfter, t.costAmount, t.regularUnitPrice, concat(util.firstName, ' ', util.lastName)
         """,
-        """
+            """
         FROM InventoryTransaction t
         JOIN t.produit p
         LEFT JOIN t.user util
@@ -102,17 +98,12 @@ enum RequeteExport {
         LEFT JOIN p.laboratoire lab
         LEFT JOIN t.magasin mag
         """,
-        "t.transactionDate BETWEEN :du AND :au",
-        "ORDER BY t.createdAt"
-    ),
-    PRODUITS(
-        ExportDonnees.PRODUITS,
-        "",
-        """
+            "t.transactionDate BETWEEN :du AND :au",
+            "ORDER BY t.createdAt"),
+    PRODUITS(ExportDonnees.PRODUITS, "", """
         SELECT fp.codeCip, p.libelle, fam.libelle, lab.libelle, tva.taux, p.regularUnitPrice, fp.prixAchat,
                (SELECT coalesce(sum(sp.qtyStock), 0) FROM StockProduit sp WHERE sp.produit = p)
-        """,
-        """
+        """, """
         FROM Produit p
         LEFT JOIN p.famille fam
         LEFT JOIN p.laboratoire lab
@@ -121,28 +112,24 @@ enum RequeteExport {
         LEFT JOIN p.gamme gam
         LEFT JOIN p.fournisseurProduitPrincipal fp
         LEFT JOIN fp.fournisseur four
-        """,
-        null,
-        "ORDER BY p.libelle"
-    ),
+        """, null, "ORDER BY p.libelle"),
     CLIENTS(
-        ExportDonnees.CLIENTS,
-        "",
-        "SELECT c.code, c.lastName, c.firstName, c.phone, c.email, c.datNaiss, c.sexe, c.createdAt",
-        "FROM Customer c",
-        null,
-        "ORDER BY c.lastName, c.firstName"
-    ),
+            ExportDonnees.CLIENTS,
+            "",
+            "SELECT c.code, c.lastName, c.firstName, c.phone, c.email, c.datNaiss, c.sexe, c.createdAt",
+            "FROM Customer c",
+            null,
+            "ORDER BY c.lastName, c.firstName"),
     VENTES_JOUR_PRODUIT(
-        ExportDonnees.VENTES_JOUR_PRODUIT,
-        "l",
-        """
+            ExportDonnees.VENTES_JOUR_PRODUIT,
+            "l",
+            """
         SELECT l.jour, fp.codeCip, p.libelle, fam.libelle, lab.libelle, four.libelle, forme.libelle, gam.libelle, tva.taux,
                cast(l.natureVente AS String), cast(l.typePrescription AS String), concat(vend.firstName, ' ', vend.lastName),
                mag.name, l.tauxRemise, cast(l.octroiRemise AS String), l.quantiteServie, l.montantTtc, l.montantHt, l.remise,
                l.coutHt, l.montantHt - l.coutHt
         """,
-        """
+            """
         FROM PilotageVenteLigneJour l
         JOIN Produit p ON p.id = l.produitId
         LEFT JOIN p.famille fam
@@ -155,9 +142,8 @@ enum RequeteExport {
         LEFT JOIN AppUser vend ON vend.id = l.vendeurId
         LEFT JOIN Magasin mag ON mag.id = l.magasinId
         """,
-        "l.jour BETWEEN :du AND :au AND l.categorieChiffreAffaire IN :categories",
-        "ORDER BY l.jour, p.libelle"
-    );
+            "l.jour BETWEEN :du AND :au AND l.categorieChiffreAffaire IN :categories",
+            "ORDER BY l.jour, p.libelle");
 
     private static final Map<ExportDonnees, RequeteExport> PAR_EXPORT = new EnumMap<>(ExportDonnees.class);
 
@@ -174,7 +160,13 @@ enum RequeteExport {
     private final String conditions;
     private final String tri;
 
-    RequeteExport(ExportDonnees export, String racineVente, String projection, String origine, String conditions, String tri) {
+    RequeteExport(
+            ExportDonnees export,
+            String racineVente,
+            String projection,
+            String origine,
+            String conditions,
+            String tri) {
         this.export = export;
         this.racineVente = racineVente;
         this.projection = projection;

@@ -28,10 +28,7 @@ scenario('VTE-74', async ({ etape, page }) => {
   // Le code doit exister en base AVANT d'ouvrir l'écran : sans lui, l'échec ressemblerait à
   // une recherche cassée alors que c'est le jeu de démonstration qui serait incomplet.
   const memorise = lire(`SELECT count(*) FROM produit_code_alias WHERE code = '${CODE_BOITE}'`);
-  expect(
-    Number(memorise),
-    `Le code ${CODE_BOITE} n'est pas mémorisé : recharger 27_codes_alias_datamatrix.sql.`,
-  ).toBeGreaterThan(0);
+  expect(Number(memorise), `Le code ${CODE_BOITE} n'est pas mémorisé : recharger 27_codes_alias_datamatrix.sql.`).toBeGreaterThan(0);
 
   await etape(1, async () => {
     await assurerPanierVide(page);

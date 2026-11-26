@@ -1,13 +1,13 @@
-import { Component, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
-import { IOrderLine } from "../../../../../shared/model/order-line.model";
-import { ILot } from "../../../../../shared/model/lot.model";
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
+import { ILot } from '../../../../../shared/model/lot.model';
 
 @Component({
-  selector: "app-lot-expand-cell",
+  selector: 'app-lot-expand-cell',
   imports: [CommonModule, NgbTooltip],
   template: `
     <div class="lec-wrap">
@@ -36,33 +36,59 @@ import { ILot } from "../../../../../shared/model/lot.model";
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`
-    .lec-wrap {
-      display: flex; align-items: center; gap: 4px;
-      height: 100%; padding: 0 2px;
-    }
-    .lec-chevron {
-      font-size: 0.78rem; flex-shrink: 0; cursor: pointer;
-      transition: color .15s;
-      &:hover { opacity: 0.7; }
-    }
-    .lec-open  { color: #0d6efd; }
-    .lec-warn  { color: #f59e0b; }
-    .lec-ok    { color: #16a34a; }
-    .lec-badge {
-      font-size: 0.65rem; font-family: monospace; padding: 0 3px;
-      background: #e0f2fe; border-radius: 3px; color: #0369a1;
-      white-space: nowrap;
-    }
-    .lec-none { font-size: 0.7rem; color: #9ca3af; font-style: italic; }
-    .lec-dash { font-size: 0.8rem; color: #d1d5db; }
-  `]
+  styles: [
+    `
+      .lec-wrap {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 100%;
+        padding: 0 2px;
+      }
+      .lec-chevron {
+        font-size: 0.78rem;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: color 0.15s;
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+      .lec-open {
+        color: #0d6efd;
+      }
+      .lec-warn {
+        color: #f59e0b;
+      }
+      .lec-ok {
+        color: #16a34a;
+      }
+      .lec-badge {
+        font-size: 0.65rem;
+        font-family: monospace;
+        padding: 0 3px;
+        background: #e0f2fe;
+        border-radius: 3px;
+        color: #0369a1;
+        white-space: nowrap;
+      }
+      .lec-none {
+        font-size: 0.7rem;
+        color: #9ca3af;
+        font-style: italic;
+      }
+      .lec-dash {
+        font-size: 0.8rem;
+        color: #d1d5db;
+      }
+    `,
+  ],
 })
 export class LotExpandCellComponent implements ICellRendererAngularComp {
-  protected expanded   = signal(false);
-  protected lots       = signal<ILot[]>([]);
+  protected expanded = signal(false);
+  protected lots = signal<ILot[]>([]);
   protected isComplete = signal(false);
-  protected hasLot     = signal(false);
+  protected hasLot = signal(false);
 
   private params!: ICellRendererParams;
 
@@ -86,7 +112,7 @@ export class LotExpandCellComponent implements ICellRendererAngularComp {
     this.hasLot.set(line.gestionLot !== false);
     this.expanded.set(!!params.data.__expanded);
     this.lots.set(line.lots ?? []);
-    const total   = line.quantityReceivedTmp ?? line.quantityReceived ?? line.quantityRequested ?? 0;
+    const total = line.quantityReceivedTmp ?? line.quantityReceived ?? line.quantityRequested ?? 0;
     const covered = (line.lots ?? []).reduce((s, l) => s + (l.quantityReceived ?? 0), 0);
     this.isComplete.set(total > 0 && covered >= total);
   }

@@ -16,18 +16,32 @@
   flex: 1 1 180px;
   min-width: 160px;
 
-  ::ng-deep input { height: 32px; font-size: 0.82rem; }
+  ::ng-deep input {
+    height: 32px;
+    font-size: 0.82rem;
+  }
 }
 
 .lb-select {
-  ::ng-deep .p-select { height: 32px; min-width: 160px; font-size: 0.82rem; }
+  ::ng-deep .p-select {
+    height: 32px;
+    min-width: 160px;
+    font-size: 0.82rem;
+  }
 
-  &--statut ::ng-deep .p-select { min-width: 140px; }
+  &--statut ::ng-deep .p-select {
+    min-width: 140px;
+  }
 }
 
 .lb-date {
-  ::ng-deep .p-datepicker-input { height: 32px; font-size: 0.82rem; }
-  ::ng-deep .p-datepicker-input-icon-container { height: 32px; }
+  ::ng-deep .p-datepicker-input {
+    height: 32px;
+    font-size: 0.82rem;
+  }
+  ::ng-deep .p-datepicker-input-icon-container {
+    height: 32px;
+  }
 }
 
 // ── GRILLE BL ─────────────────────────────────────────────────────────────────
@@ -43,10 +57,15 @@
     display: flex;
     flex-direction: column;
 
-    .p-datatable-wrapper { flex: 1 1 0; min-height: 0; }
+    .p-datatable-wrapper {
+      flex: 1 1 0;
+      min-height: 0;
+    }
   }
 
-  ::ng-deep tr { cursor: pointer; }
+  ::ng-deep tr {
+    cursor: pointer;
+  }
 
   ::ng-deep tr.row-received {
     background: #fffbeb !important;
@@ -79,13 +98,19 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
   white-space: nowrap;
   max-width: 340px;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  i { font-size: 0.8rem; flex-shrink: 0; }
+  i {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
 
   &:hover:not(.lb-tab--active) {
     color: var(--pharma-chrome-tab, #{$pharma-primary});
@@ -105,9 +130,14 @@
     margin-left: 0.25rem;
     padding: 2px 3px;
     border-radius: 3px;
-    transition: background 0.1s, color 0.1s;
+    transition:
+      background 0.1s,
+      color 0.1s;
 
-    &:hover { background: rgba($pharma-danger, 0.12); color: $pharma-danger; }
+    &:hover {
+      background: rgba($pharma-danger, 0.12);
+      color: $pharma-danger;
+    }
   }
 }
 
@@ -161,7 +191,10 @@
     display: flex;
     flex-direction: column;
 
-    .p-datatable-wrapper { flex: 1 1 0; min-height: 0; }
+    .p-datatable-wrapper {
+      flex: 1 1 0;
+      min-height: 0;
+    }
   }
 }
 
@@ -225,7 +258,9 @@
     font-size: 0.75rem;
     padding: 3px 10px;
 
-    i { color: #065f46; }
+    i {
+      color: #065f46;
+    }
   }
 }
 .cr-header-actions {
@@ -253,37 +288,37 @@
 .cc__badge {
   @extend %badge-base;
 
-  &[data-severity="success"] {
+  &[data-severity='success'] {
     background: #d1fae5;
     color: #065f46;
     border: 1px solid #a7f3d0;
   }
 
-  &[data-severity="warn"] {
+  &[data-severity='warn'] {
     background: #fef3c7;
     color: #92400e;
     border: 1px solid #fde68a;
   }
 
-  &[data-severity="danger"] {
+  &[data-severity='danger'] {
     background: #fee2e2;
     color: #991b1b;
     border: 1px solid #fecaca;
   }
 
-  &[data-severity="info"] {
+  &[data-severity='info'] {
     background: #dbeafe;
     color: #1e40af;
     border: 1px solid #bfdbfe;
   }
 
-  &[data-severity="secondary"] {
+  &[data-severity='secondary'] {
     background: #f3f4f6;
     color: #374151;
     border: 1px solid #d1d5db;
   }
 }
-.p-floatlabel{
+.p-floatlabel {
   min-width: 90px !important;
 }
 

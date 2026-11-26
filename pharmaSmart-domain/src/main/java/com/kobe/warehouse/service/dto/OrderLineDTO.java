@@ -59,6 +59,7 @@ public class OrderLineDTO {
     private Integer couvertureStockJours;
     /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
     private Integer qteColis;
+
     private Integer qteMinimaleCommande;
     private Boolean gestionLot;
     private Boolean thermosensible;
@@ -91,7 +92,9 @@ public class OrderLineDTO {
         produitCodeEan = produit.getCodeEanLaboratoire();
         orderCostAmount = orderLine.getOrderCostAmount();
         provisionalCode = orderLine.getProvisionalCode();
-        quantityReceivedTmp = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested();
+        quantityReceivedTmp = orderLine.getQuantityReceived() != null
+                ? orderLine.getQuantityReceived()
+                : orderLine.getQuantityRequested();
         lots = orderLine.getLots().stream().map(LotDTO::new).collect(java.util.stream.Collectors.toSet());
         Tva tvaEntity = orderLine.getTva();
         if (nonNull(tvaEntity)) {
@@ -101,7 +104,9 @@ public class OrderLineDTO {
 
         freeQty = orderLine.getFreeQty();
         costAmount = fournisseurProduit.getPrixAchat();
-        orderUnitPrice = Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0) + orderLine.getOrderUnitPrice();
+        orderUnitPrice =
+                Optional.ofNullable(produit.getTableau()).map(Tableau::getValue).orElse(0)
+                        + orderLine.getOrderUnitPrice();
         fournisseurProduitId = fournisseurProduit.getId();
         produitId = produit.getId();
         updated = orderLine.getUpdated();

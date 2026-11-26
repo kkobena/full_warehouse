@@ -32,10 +32,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final TransactionIdGeneratorService transactionIdGeneratorService;
 
     public PaymentServiceImpl(
-        SalePaymentRepository paymentRepository,
-        PaymentModeRepository paymentModeRepository,
-        TransactionIdGeneratorService transactionIdGeneratorService
-    ) {
+            SalePaymentRepository paymentRepository,
+            PaymentModeRepository paymentModeRepository,
+            TransactionIdGeneratorService transactionIdGeneratorService) {
         this.paymentRepository = paymentRepository;
         this.paymentModeRepository = paymentModeRepository;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
@@ -69,11 +68,9 @@ public class PaymentServiceImpl implements PaymentService {
             paymentCopy.setCashRegister(copy.getCashRegister());
             paymentCopy.setSale(copy);
             copyPayments.add(paymentCopy);
-
         }
 
         return copyPayments;
-
     }
 
     @Override
@@ -93,19 +90,18 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        if (CollectionUtils.isEmpty(saleDTO.getPayments()) || saleDTO.getPayrollAmount() == null
-            || saleDTO.getPayrollAmount() <= 0) {
+        if (CollectionUtils.isEmpty(saleDTO.getPayments())
+                || saleDTO.getPayrollAmount() == null
+                || saleDTO.getPayrollAmount() <= 0) {
             sales.setPayments(new HashSet<>());
             return;
         }
-        saleDTO.getPayments().stream().filter(
-            paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount())
-                && paymentDTO.getPaidAmount() > 0).forEach(paymentDTO -> paymentRepository.save(
-            buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
+        saleDTO.getPayments().stream()
+                .filter(paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount()) && paymentDTO.getPaidAmount() > 0)
+                .forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
     }
 
     private void removeOldPayment(Sales sales) {
@@ -137,7 +133,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (paymentDTO.getPaymentMode() != null) {
             PaymentMode paymentMode = paymentModeRepository.getReferenceById(
-                paymentDTO.getPaymentMode().getCode());
+                    paymentDTO.getPaymentMode().getCode());
             ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
 
             if (modePaimentCode == ModePaimentCode.CASH) {
@@ -168,8 +164,7 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO,
-        int netAmount) {
+    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO, int netAmount) {
         int montantVerse = Objects.requireNonNullElse(paymentDTO.getMontantVerse(), 0);
         payment.setMontantVerse(montantVerse);
 
@@ -179,7 +174,8 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setReelAmount(montantVerse);
             payment.setPaidAmount(ServiceUtil.arrondirAuMultipleDe5(montantVerse));
         } else {
-            // Le client couvre la totalité : reelAmount = montant net attendu, paidAmount = montant arrondi au multiple de 5
+            // Le client couvre la totalité : reelAmount = montant net attendu, paidAmount = montant arrondi au multiple
+            // de 5
             payment.setReelAmount(netAmount);
             payment.setPaidAmount(ServiceUtil.resoudreMontantPaye(montantVerse, montantAttendu));
         }

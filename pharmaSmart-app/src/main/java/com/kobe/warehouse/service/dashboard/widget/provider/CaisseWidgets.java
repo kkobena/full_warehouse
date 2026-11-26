@@ -9,8 +9,8 @@ import com.kobe.warehouse.service.dashboard.widget.WidgetData.Column;
 import com.kobe.warehouse.service.dashboard.widget.WidgetData.SeriesItem;
 import com.kobe.warehouse.service.dashboard.widget.WidgetDataProvider;
 import com.kobe.warehouse.service.dashboard.widget.WidgetPeriods;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,11 +35,11 @@ public class CaisseWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(null, null, devise(), "Caisse fermée");
             }
             return new WidgetData.Kpi(
-                zeroIfNull(caisse.especesTheoriques()),
-                null,
-                devise(),
-                "Espèces théoriques · fond %s · ouverte à %s".formatted(amount(caisse.fondOuverture()), caisse.heureOuverture())
-            );
+                    zeroIfNull(caisse.especesTheoriques()),
+                    null,
+                    devise(),
+                    "Espèces théoriques · fond %s · ouverte à %s"
+                            .formatted(amount(caisse.fondOuverture()), caisse.heureOuverture()));
         });
     }
 
@@ -52,35 +52,43 @@ public class CaisseWidgets extends AbstractWidgets {
                 return new WidgetData.Series(List.of(), List.of(new SeriesItem("Montant", List.of())), null);
             }
             return new WidgetData.Series(
-                session.lignes().stream().map(l -> l.libelle()).toList(),
-                List.of(new SeriesItem("Montant", session.lignes().stream().map(l -> zeroIfNull(l.montant())).toList())),
-                "Total encaissé : %s · %d transaction(s)".formatted(amount(session.totalEncaisse()), zeroIfNull(session.nombreTransactions()))
-            );
+                    session.lignes().stream().map(l -> l.libelle()).toList(),
+                    List.of(new SeriesItem(
+                            "Montant",
+                            session.lignes().stream()
+                                    .map(l -> zeroIfNull(l.montant()))
+                                    .toList())),
+                    "Total encaissé : %s · %d transaction(s)"
+                            .formatted(amount(session.totalEncaisse()), zeroIfNull(session.nombreTransactions())));
         });
     }
 
     /** Moi : mes dernières ventes. Paramètre : {@code limite} = 8. */
     @Bean
     WidgetDataProvider mesVentesRecentesWidget(CaissierDashboardService service) {
-        return WidgetDataProvider.of("mes-ventes-recentes", (context, params) ->
-            new WidgetData.Table(
-                List.of(
-                    new Column("date", "Heure", "datetime"),
-                    Column.text("recu", "Reçu"),
-                    Column.text("client", "Client"),
-                    Column.text("type", "Type"),
-                    Column.amount("montant", "Montant")
-                ),
-                service
-                    .getVentesRecentes(WidgetPeriods.intParam(params, "limite", 8, 1, 30))
-                    .stream()
-                    .map(v ->
-                        buildRow("date", v.dateVente(), "recu", v.numeroRecu(), "client", v.clientNom(), "type", v.typeVente(), "montant", v.montant())
-                    )
-                    .toList(),
-                null
-            )
-        );
+        return WidgetDataProvider.of(
+                "mes-ventes-recentes",
+                (context, params) -> new WidgetData.Table(
+                        List.of(
+                                new Column("date", "Heure", "datetime"),
+                                Column.text("recu", "Reçu"),
+                                Column.text("client", "Client"),
+                                Column.text("type", "Type"),
+                                Column.amount("montant", "Montant")),
+                        service.getVentesRecentes(WidgetPeriods.intParam(params, "limite", 8, 1, 30)).stream()
+                                .map(v -> buildRow(
+                                        "date",
+                                        v.dateVente(),
+                                        "recu",
+                                        v.numeroRecu(),
+                                        "client",
+                                        v.clientNom(),
+                                        "type",
+                                        v.typeVente(),
+                                        "montant",
+                                        v.montant()))
+                                .toList(),
+                        null));
     }
 
     @Bean
@@ -88,49 +96,47 @@ public class CaisseWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("differes-a-relancer", (context, params) -> {
             var resume = service.getDifferesRelance();
             List<java.util.Map<String, Object>> rows = resume == null || resume.differes() == null
-                ? List.of()
-                : resume
-                    .differes()
-                    .stream()
-                    .map(d ->
-                        buildRow(
-                            "client",
-                            d.clientNom(),
-                            "telephone",
-                            d.clientTelephone(),
-                            "montant",
-                            d.montantDu(),
-                            "echeance",
-                            d.dateEcheance(),
-                            "retard",
-                            d.joursRetard()
-                        )
-                    )
-                    .toList();
+                    ? List.of()
+                    : resume.differes().stream()
+                            .map(d -> buildRow(
+                                    "client",
+                                    d.clientNom(),
+                                    "telephone",
+                                    d.clientTelephone(),
+                                    "montant",
+                                    d.montantDu(),
+                                    "echeance",
+                                    d.dateEcheance(),
+                                    "retard",
+                                    d.joursRetard()))
+                            .toList();
             return new WidgetData.Table(
-                List.of(
-                    Column.text("client", "Client"),
-                    Column.text("telephone", "Téléphone"),
-                    Column.amount("montant", "Montant dû"),
-                    new Column("echeance", "Échéance", "date"),
-                    Column.number("retard", "Retard (j)")
-                ),
-                rows,
-                resume == null
-                    ? null
-                    : "%d échéance(s) aujourd'hui · total dû %s".formatted(zeroIfNull(resume.nombreEcheancesAujourdhui()), amount(resume.montantTotalDu()))
-            );
+                    List.of(
+                            Column.text("client", "Client"),
+                            Column.text("telephone", "Téléphone"),
+                            Column.amount("montant", "Montant dû"),
+                            new Column("echeance", "Échéance", "date"),
+                            Column.number("retard", "Retard (j)")),
+                    rows,
+                    resume == null
+                            ? null
+                            : "%d échéance(s) aujourd'hui · total dû %s"
+                                    .formatted(
+                                            zeroIfNull(resume.nombreEcheancesAujourdhui()),
+                                            amount(resume.montantTotalDu())));
         });
     }
 
     @Bean
     WidgetDataProvider livraisonsDuJourWidget(CaissierDashboardService service) {
-        return WidgetDataProvider.of("livraisons-du-jour", (context, params) ->
-            new WidgetData.Table(
-                List.of(Column.text("fournisseur", "Fournisseur"), Column.number("references", "Références")),
-                service.getLivraisonsJour().stream().map(l -> buildRow("fournisseur", l.fournisseurNom(), "references", l.nombreReferences())).toList(),
-                null
-            )
-        );
+        return WidgetDataProvider.of(
+                "livraisons-du-jour",
+                (context, params) -> new WidgetData.Table(
+                        List.of(Column.text("fournisseur", "Fournisseur"), Column.number("references", "Références")),
+                        service.getLivraisonsJour().stream()
+                                .map(l ->
+                                        buildRow("fournisseur", l.fournisseurNom(), "references", l.nombreReferences()))
+                                .toList(),
+                        null));
     }
 }

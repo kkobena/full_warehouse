@@ -47,17 +47,25 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             fournisseur("JAMAIS SERVI " + unique(""));
             rafraichir(VUE);
 
-            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance()).isEmpty();
+            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance())
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("une réception d'il y a plus d'un an ne compte plus")
         void receptionHorsFenetreIgnoree() {
             Fournisseur laborex = fournisseur("LABOREX " + unique(""));
-            reception(laborex, LocalDate.now().minusMonths(15), LocalDate.now().minusMonths(15).plusDays(3), 1_000_000, 10, 10);
+            reception(
+                    laborex,
+                    LocalDate.now().minusMonths(15),
+                    LocalDate.now().minusMonths(15).plusDays(3),
+                    1_000_000,
+                    10,
+                    10);
             rafraichir(VUE);
 
-            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance()).isEmpty();
+            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance())
+                    .isEmpty();
         }
 
         @Test
@@ -65,9 +73,11 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
         void baseVierge() {
             rafraichir(VUE);
 
-            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance()).isEmpty();
+            assertThat(services.supplierPerformanceReportService.getAllSupplierPerformance())
+                    .isEmpty();
 
-            SupplierPerformanceSummaryDTO synthese = services.supplierPerformanceReportService.getSupplierPerformanceSummary();
+            SupplierPerformanceSummaryDTO synthese =
+                    services.supplierPerformanceReportService.getSupplierPerformanceSummary();
 
             assertThat(synthese.totalSuppliers()).isZero();
             assertThat(synthese.totalPurchaseAmountLast12Months()).isZero();
@@ -79,7 +89,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
         void fournisseurInconnu() {
             rafraichir(VUE);
 
-            assertThat(services.supplierPerformanceReportService.getSupplierPerformance(999_999)).isNull();
+            assertThat(services.supplierPerformanceReportService.getSupplierPerformance(999_999))
+                    .isNull();
         }
     }
 
@@ -97,7 +108,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(40), LocalDate.now().minusDays(37), 2_000_000, 10, 10);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.nbOrdersLast12Months()).isEqualTo(2);
             assertThat(resultat.purchaseAmountLast12Months()).isEqualTo(5_000_000L);
@@ -112,7 +124,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(40), LocalDate.now().minusDays(37), 2_000_000, 10, 10);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.nbOrdersLast30Days()).isEqualTo(1);
             assertThat(resultat.purchaseAmountLast30Days()).isEqualTo(3_000_000L);
@@ -126,7 +139,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(20), LocalDate.now().minusDays(16), 1_000_000, 10, 10);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.minDeliveryDays()).isEqualTo(2);
             assertThat(resultat.maxDeliveryDays()).isEqualTo(4);
@@ -144,7 +158,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 1_000_000, 100, 70);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.conformityRatePct()).isEqualByComparingTo("70.00");
         }
@@ -161,7 +176,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 10_000_000, 100, 100);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.performanceScore()).isEqualByComparingTo("97.00");
         }
@@ -173,7 +189,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(laborex, LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 1_000_000, 10, 10);
             rafraichir(VUE);
 
-            SupplierPerformanceDTO resultat = services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
+            SupplierPerformanceDTO resultat =
+                    services.supplierPerformanceReportService.getSupplierPerformance(laborex.getId());
 
             assertThat(resultat.fournisseurName()).startsWith("LABOREX");
             assertThat(resultat.fournisseurCode()).isEqualTo(laborex.getCode());
@@ -197,20 +214,30 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(petit, LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 1_000_000, 10, 10);
             rafraichir(VUE);
 
-            List<SupplierPerformanceDTO> classement = services.supplierPerformanceReportService.getTopSuppliersByVolume(5);
+            List<SupplierPerformanceDTO> classement =
+                    services.supplierPerformanceReportService.getTopSuppliersByVolume(5);
 
-            assertThat(classement).extracting(SupplierPerformanceDTO::fournisseurName).containsExactly(gros.getLibelle(), petit.getLibelle());
+            assertThat(classement)
+                    .extracting(SupplierPerformanceDTO::fournisseurName)
+                    .containsExactly(gros.getLibelle(), petit.getLibelle());
         }
 
         @Test
         @DisplayName("la limite du classement est respectée")
         void limiteDuClassement() {
             for (int i = 0; i < 3; i++) {
-                reception(fournisseur("FRS " + unique("")), LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 1_000_000, 10, 10);
+                reception(
+                        fournisseur("FRS " + unique("")),
+                        LocalDate.now().minusDays(10),
+                        LocalDate.now().minusDays(7),
+                        1_000_000,
+                        10,
+                        10);
             }
             rafraichir(VUE);
 
-            assertThat(services.supplierPerformanceReportService.getTopSuppliersByVolume(2)).hasSize(2);
+            assertThat(services.supplierPerformanceReportService.getTopSuppliersByVolume(2))
+                    .hasSize(2);
         }
 
         @Test
@@ -224,7 +251,9 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
 
             List<SupplierPerformanceDTO> tous = services.supplierPerformanceReportService.getAllSupplierPerformance();
 
-            assertThat(tous).extracting(SupplierPerformanceDTO::fournisseurName).containsExactly(bon.getLibelle(), mauvais.getLibelle());
+            assertThat(tous)
+                    .extracting(SupplierPerformanceDTO::fournisseurName)
+                    .containsExactly(bon.getLibelle(), mauvais.getLibelle());
         }
 
         @Test
@@ -237,8 +266,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             rafraichir(VUE);
 
             assertThat(services.supplierPerformanceReportService.getSuppliersByPerformanceScore(90.0))
-                .extracting(SupplierPerformanceDTO::fournisseurName)
-                .containsExactly(bon.getLibelle());
+                    .extracting(SupplierPerformanceDTO::fournisseurName)
+                    .containsExactly(bon.getLibelle());
         }
 
         /**
@@ -251,14 +280,20 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             Fournisseur irreprochable = fournisseur("IRREPROCHABLE " + unique(""));
             Fournisseur lent = fournisseur("LENT " + unique(""));
             Fournisseur incomplet = fournisseur("INCOMPLET " + unique(""));
-            reception(irreprochable, LocalDate.now().minusDays(10), LocalDate.now().minusDays(9), 1_000_000, 100, 100);
+            reception(
+                    irreprochable,
+                    LocalDate.now().minusDays(10),
+                    LocalDate.now().minusDays(9),
+                    1_000_000,
+                    100,
+                    100);
             reception(lent, LocalDate.now().minusDays(30), LocalDate.now().minusDays(10), 1_000_000, 100, 100);
             reception(incomplet, LocalDate.now().minusDays(10), LocalDate.now().minusDays(9), 1_000_000, 100, 60);
             rafraichir(VUE);
 
             assertThat(services.supplierPerformanceReportService.getSuppliersWithDeliveryIssues())
-                .extracting(SupplierPerformanceDTO::fournisseurName)
-                .containsExactlyInAnyOrder(lent.getLibelle(), incomplet.getLibelle());
+                    .extracting(SupplierPerformanceDTO::fournisseurName)
+                    .containsExactlyInAnyOrder(lent.getLibelle(), incomplet.getLibelle());
         }
     }
 
@@ -284,10 +319,7 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             em.flush();
 
             List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
-                LocalDate.now().minusDays(7),
-                LocalDate.now(),
-                5
-            );
+                    LocalDate.now().minusDays(7), LocalDate.now(), 5);
 
             assertThat(achats).hasSize(1);
             assertThat(achats.getFirst().montantAchat()).isEqualTo(3_000_000L);
@@ -304,20 +336,30 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
         void classementSuitLaFenetre() {
             Fournisseur grosSurLAnnee = fournisseur("ANNUEL " + unique(""));
             Fournisseur grosCetteSemaine = fournisseur("RECENT " + unique(""));
-            reception(grosSurLAnnee, LocalDate.now().minusMonths(6), LocalDate.now().minusMonths(6).plusDays(2), 9_000_000, 10, 10);
-            reception(grosSurLAnnee, LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 500_000, 10, 10);
-            reception(grosCetteSemaine, LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 2_000_000, 10, 10);
+            reception(
+                    grosSurLAnnee,
+                    LocalDate.now().minusMonths(6),
+                    LocalDate.now().minusMonths(6).plusDays(2),
+                    9_000_000,
+                    10,
+                    10);
+            reception(
+                    grosSurLAnnee, LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 500_000, 10, 10);
+            reception(
+                    grosCetteSemaine,
+                    LocalDate.now().minusDays(2),
+                    LocalDate.now().minusDays(1),
+                    2_000_000,
+                    10,
+                    10);
             em.flush();
 
             List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
-                LocalDate.now().minusDays(7),
-                LocalDate.now(),
-                5
-            );
+                    LocalDate.now().minusDays(7), LocalDate.now(), 5);
 
             assertThat(achats)
-                .extracting(SupplierPurchaseDTO::fournisseurName)
-                .containsExactly(grosCetteSemaine.getLibelle(), grosSurLAnnee.getLibelle());
+                    .extracting(SupplierPurchaseDTO::fournisseurName)
+                    .containsExactly(grosCetteSemaine.getLibelle(), grosSurLAnnee.getLibelle());
         }
 
         @Test
@@ -329,10 +371,7 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             em.flush();
 
             List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
-                LocalDate.now().minusDays(7),
-                LocalDate.now(),
-                5
-            );
+                    LocalDate.now().minusDays(7), LocalDate.now(), 5);
 
             assertThat(achats).hasSize(1);
             assertThat(achats.getFirst().nbCommandes()).isEqualTo(2);
@@ -353,10 +392,7 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             rafraichir(VUE);
 
             List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
-                LocalDate.now(),
-                LocalDate.now(),
-                5
-            );
+                    LocalDate.now(), LocalDate.now(), 5);
 
             assertThat(achats).hasSize(1);
             assertThat(achats.getFirst().montantAchat()).isEqualTo(1_000_000L);
@@ -368,28 +404,36 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
         @DisplayName("la limite du classement est respectée")
         void limiteRespectee() {
             for (int i = 0; i < 3; i++) {
-                reception(fournisseur("FRS " + unique("")), LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 1_000_000, 10, 10);
+                reception(
+                        fournisseur("FRS " + unique("")),
+                        LocalDate.now().minusDays(2),
+                        LocalDate.now().minusDays(1),
+                        1_000_000,
+                        10,
+                        10);
             }
             em.flush();
 
-            assertThat(
-                services.supplierPerformanceReportService.getTopSuppliersByPeriode(LocalDate.now().minusDays(7), LocalDate.now(), 2)
-            ).hasSize(2);
+            assertThat(services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                            LocalDate.now().minusDays(7), LocalDate.now(), 2))
+                    .hasSize(2);
         }
 
         @Test
         @DisplayName("une fenêtre sans achat ne rend rien")
         void fenetreVide() {
-            reception(fournisseur("LABOREX " + unique("")), LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 1_000_000, 10, 10);
+            reception(
+                    fournisseur("LABOREX " + unique("")),
+                    LocalDate.now().minusDays(2),
+                    LocalDate.now().minusDays(1),
+                    1_000_000,
+                    10,
+                    10);
             em.flush();
 
-            assertThat(
-                services.supplierPerformanceReportService.getTopSuppliersByPeriode(
-                    LocalDate.now().minusMonths(6),
-                    LocalDate.now().minusMonths(5),
-                    5
-                )
-            ).isEmpty();
+            assertThat(services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                            LocalDate.now().minusMonths(6), LocalDate.now().minusMonths(5), 5))
+                    .isEmpty();
         }
     }
 
@@ -408,7 +452,8 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             reception(mauvais, LocalDate.now().minusDays(10), LocalDate.now(), 100_000, 100, 50);
             rafraichir(VUE);
 
-            SupplierPerformanceSummaryDTO synthese = services.supplierPerformanceReportService.getSupplierPerformanceSummary();
+            SupplierPerformanceSummaryDTO synthese =
+                    services.supplierPerformanceReportService.getSupplierPerformanceSummary();
 
             assertThat(synthese.totalSuppliers()).isEqualTo(2);
             assertThat(synthese.totalPurchaseAmountLast12Months()).isEqualTo(10_100_000L);

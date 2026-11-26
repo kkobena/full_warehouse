@@ -39,9 +39,9 @@ import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -59,21 +59,50 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SaleDepotExtensionImplTest {
 
-    @Mock private RemiseRepository remiseRepository;
-    @Mock private ReferenceService referenceService;
-    @Mock private StorageService storageService;
-    @Mock private UserRepository userRepository;
-    @Mock private SaleLineServiceFactory lineServiceFactory;
-    @Mock private CashRegisterService cashRegisterService;
-    @Mock private PosteRepository posteRepository;
-    @Mock private CustomerDisplayService customerDisplayService;
-    @Mock private SaleIdGeneratorService idGeneratorService;
-    @Mock private VenteDepotRepository repository;
-    @Mock private StockUpdateService stockUpdateService;
-    @Mock private InventoryTransactionService inventoryTransactionService;
-    @Mock private SalesManager salesManager;
-    @Mock private AppConfigurationService appConfigurationService;
-    @Mock private SalesLineService lineService;
+    @Mock
+    private RemiseRepository remiseRepository;
+
+    @Mock
+    private ReferenceService referenceService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SaleLineServiceFactory lineServiceFactory;
+
+    @Mock
+    private CashRegisterService cashRegisterService;
+
+    @Mock
+    private PosteRepository posteRepository;
+
+    @Mock
+    private CustomerDisplayService customerDisplayService;
+
+    @Mock
+    private SaleIdGeneratorService idGeneratorService;
+
+    @Mock
+    private VenteDepotRepository repository;
+
+    @Mock
+    private StockUpdateService stockUpdateService;
+
+    @Mock
+    private InventoryTransactionService inventoryTransactionService;
+
+    @Mock
+    private SalesManager salesManager;
+
+    @Mock
+    private AppConfigurationService appConfigurationService;
+
+    @Mock
+    private SalesLineService lineService;
 
     private SaleDepotExtensionImpl service;
     private AppUser user;
@@ -98,12 +127,22 @@ class SaleDepotExtensionImplTest {
         lenient().when(referenceService.buildNumSale()).thenReturn("SALE");
         lenient().when(posteRepository.findFirstByAddressOrName(any(), any())).thenReturn(Optional.empty());
         service = new SaleDepotExtensionImpl(
-            remiseRepository, referenceService, storageService, userRepository, lineServiceFactory,
-            new SaleAmountCalculator(lineServiceFactory),
-            cashRegisterService, posteRepository, customerDisplayService, idGeneratorService,
-            repository, stockUpdateService, inventoryTransactionService, new ObjectMapper(),
-            salesManager, appConfigurationService
-        );
+                remiseRepository,
+                referenceService,
+                storageService,
+                userRepository,
+                lineServiceFactory,
+                new SaleAmountCalculator(lineServiceFactory),
+                cashRegisterService,
+                posteRepository,
+                customerDisplayService,
+                idGeneratorService,
+                repository,
+                stockUpdateService,
+                inventoryTransactionService,
+                new ObjectMapper(),
+                salesManager,
+                appConfigurationService);
     }
 
     @Test
@@ -163,7 +202,7 @@ class SaleDepotExtensionImplTest {
         when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user)).thenReturn(null);
         when(cashRegisterService.openCashRegister(user, user)).thenReturn(opened);
         when(stockUpdateService.updateStockDepot(any(SalesLine.class), eq(depotStorage)))
-            .thenReturn(new StockUpdateService.StockUpdateResult(4, 6));
+                .thenReturn(new StockUpdateService.StockUpdateResult(4, 6));
 
         FinalyseSaleDTO result = service.save(dto);
 
@@ -172,8 +211,7 @@ class SaleDepotExtensionImplTest {
         assertEquals(PaymentStatus.IMPAYE, sale.getPaymentStatus());
         assertSame(opened, sale.getCashRegister());
         verify(lineService).save(sale.getSalesLines(), user, 3);
-        verify(inventoryTransactionService)
-            .saveVenteDepotExtensionInventoryTransactions(eq(depot), any(List.class));
+        verify(inventoryTransactionService).saveVenteDepotExtensionInventoryTransactions(eq(depot), any(List.class));
         verify(repository).save(sale);
     }
 
@@ -287,4 +325,3 @@ class SaleDepotExtensionImplTest {
         return line;
     }
 }
-

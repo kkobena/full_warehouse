@@ -34,13 +34,9 @@ class RecapProduitVenduPdfServiceTest {
     @BeforeEach
     void setUp() {
         vendus = new RecapProduitVenduPdfService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
         invendus = new RecapProduitInvenduPdfService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
     }
 
     // ===== produits vendus =====
@@ -52,10 +48,11 @@ class RecapProduitVenduPdfServiceTest {
         @Test
         @DisplayName("le titre porte la période analysée")
         void titreAvecPeriode() {
-            vendus.export(page(ligne("DOLIPRANE")), resume(), periode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)));
+            vendus.export(
+                    page(ligne("DOLIPRANE")), resume(), periode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)));
 
             assertThat(vendus.getParameters().get("reportTitle"))
-                .isEqualTo("Récapitulatif des Produits Vendus du 05/01/2026 au 31/03/2026");
+                    .isEqualTo("Récapitulatif des Produits Vendus du 05/01/2026 au 31/03/2026");
         }
 
         /** Sans bornes, l'intitulé reste seul — plutôt qu'assorti de dates nulles. */
@@ -103,10 +100,11 @@ class RecapProduitVenduPdfServiceTest {
         @Test
         @DisplayName("le titre distingue les invendus et porte la période")
         void titreAvecPeriode() {
-            invendus.export(page(ligne("DORMANT")), resume(), periode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)));
+            invendus.export(
+                    page(ligne("DORMANT")), resume(), periode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)));
 
             assertThat(invendus.getParameters().get("reportTitle"))
-                .isEqualTo("Récapitulatif des Produits Invendus du 05/01/2026 au 31/03/2026");
+                    .isEqualTo("Récapitulatif des Produits Invendus du 05/01/2026 au 31/03/2026");
         }
 
         /**
@@ -151,7 +149,7 @@ class RecapProduitVenduPdfServiceTest {
 
     private static RecapProduitVenduRequestParam periode(LocalDate debut, LocalDate fin) {
         return new RecapProduitVenduRequestParam(
-            debut, fin, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, false
-        );
+                debut, fin, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, false);
     }
 }

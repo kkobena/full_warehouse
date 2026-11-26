@@ -2,8 +2,6 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/bulk-action-bar';
 
-
-
 // ── Filtres avancés ──────────────────────────────────────────────────
 .advanced-filters-row {
   display: flex;
@@ -18,13 +16,21 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ── KPI cards interactives ───────────────────────────────────────────
 .kpi-card {
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 
 .kpi-clickable {
@@ -44,4 +50,3 @@
     outline-offset: 2px;
   }
 }
-

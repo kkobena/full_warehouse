@@ -1,199 +1,177 @@
+<div class="pharma-smart-content">
+  <!-- Modern Pharma Toolbar (Standard) -->
+  <app-toolbar [code]="navCode()" icon="pi pi-clock" title="Ventes en cours">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-select
+        (selectionChange)="load()"
+        [(ngModel)]="typeVenteSelected"
+        [items]="typeVentes"
+        [searchable]="false"
+        appendTo="body"
+        class="mr-2"
+        placeholder="Filtrer par critère"
+      />
 
-  <div class="pharma-smart-content ">
-    <!-- Modern Pharma Toolbar (Standard) -->
-    <app-toolbar [code]="navCode()" icon="pi pi-clock" title="Ventes en cours">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <app-select
-          (selectionChange)="load()"
-          [(ngModel)]="typeVenteSelected"
-          [items]="typeVentes"
-          [searchable]="false"
-          appendTo="body"
-          class="mr-2"
-          placeholder="Filtrer par critère"
-        />
+      <div class="pharma-search-input">
+        <app-icon-field icon="pi pi-search">
+          <input (keyup.enter)="load()" class="form-control" placeholder="Rechercher..." type="text" />
+        </app-icon-field>
+      </div>
+    </ng-container>
 
-        <div class="pharma-search-input">
-          <app-icon-field icon="pi pi-search">
-            <input (keyup.enter)="load()" class="form-control" placeholder="Rechercher..."
-                   type="text" />
-          </app-icon-field>
-        </div>
-      </ng-container>
-
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div>
-
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div>
+        <app-button (clicked)="openNewSalesHome()" [raised]="true" icon="pi pi-shopping-bag" label="Nouvelle vente" severity="primary" />
+      </div>
+    </ng-container>
+  </app-toolbar>
+  <app-card>
+    <app-data-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage()"
+      [showCurrentPageReport]="true"
+      [totalRecords]="totalItems()"
+      [value]="sales()"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes en cours"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 3%"></th>
+          <th style="width: 6%">Type</th>
+          <th style="width: 9%">Référence</th>
+          <th style="width: 8%">Nbre d'articles</th>
+          <th style="width: 8%">Montant</th>
+          <th style="width: 18%">Client</th>
+          <th style="width: 20%">Vendeur</th>
+          <th style="width: 20%">Caissier</th>
+          <th style="width: 9%"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-expanded="expanded" let-sale>
+        <tr>
+          <td>
             <app-button
-              (clicked)="openNewSalesHome()"
-              [raised]="true"
-              icon="pi pi-shopping-bag"
-              label="Nouvelle vente"
-              severity="primary"
+              [appRowToggler]="sale"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [rounded]="true"
+              [text]="true"
+              type="button"
             />
-
-
-        </div>
-      </ng-container>
-    </app-toolbar>
-    <app-card>
-      <app-data-table
-        (onLazyLoad)="lazyLoading($event)"
-        [lazy]="true"
-        [loading]="loading()"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage()"
-        [showCurrentPageReport]="true"
-        [totalRecords]="totalItems()"
-        [value]="sales()"
-        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes en cours"
-        dataKey="id"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th style="width: 3%"></th>
-            <th style="width: 6%">Type</th>
-            <th style="width: 9%">Référence</th>
-            <th style="width: 8%">Nbre d'articles</th>
-            <th style="width: 8%">Montant</th>
-            <th style="width: 18%">Client</th>
-            <th style="width: 20%">Vendeur</th>
-            <th style="width: 20%">Caissier</th>
-            <th style="width: 9%"></th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-expanded="expanded" let-sale>
-          <tr>
-            <td>
+          </td>
+          @if (sale.natureVente === 'ASSURANCE') {
+            <td><span class="pharma-badge pharma-badge-info">Assurance</span></td>
+          } @else if (sale.natureVente === 'CARNET') {
+            <td><span class="pharma-badge pharma-badge-info">Carnet</span></td>
+          } @else {
+            <td><span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance" placement="top">Comptant</span></td>
+          }
+          <td>
+            <span class="pharma-code">{{ sale.numberTransaction }}</span>
+          </td>
+          <td class="text-right">{{ sale.salesLines.length | number }}</td>
+          <td class="pharma-total">{{ sale.salesAmount | number }}</td>
+          <td>
+            <span class="pharma-entity-name">{{ sale.customer?.fullName }}</span>
+          </td>
+          <td>{{ sale.seller?.abbrName }}</td>
+          <td>{{ sale.cassier?.abbrName }}</td>
+          <td>
+            <div class="btn-group" role="group">
               <app-button
-                [appRowToggler]="sale"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                (clicked)="navigateToSale(sale)"
                 [rounded]="true"
                 [text]="true"
-                type="button"
+                icon="pi pi-file-edit"
+                ngbTooltip="Editer"
+                severity="success"
               />
-            </td>
-            @if (sale.natureVente === 'ASSURANCE') {
-              <td><span class="pharma-badge pharma-badge-info">Assurance</span></td>
-            } @else if (sale.natureVente === 'CARNET') {
-              <td><span class="pharma-badge pharma-badge-info">Carnet</span></td>
-            } @else {
-              <td><span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance"
-                        placement="top">Comptant</span></td>
-            }
-            <td>
-              <span class="pharma-code">{{ sale.numberTransaction }}</span>
-            </td>
-            <td class="text-right">{{ sale.salesLines.length | number }}</td>
-            <td class="pharma-total">{{ sale.salesAmount | number }}</td>
-            <td>
-              <span class="pharma-entity-name">{{ sale.customer?.fullName }}</span>
-            </td>
-            <td>{{ sale.seller?.abbrName }}</td>
-            <td>{{ sale.cassier?.abbrName }}</td>
-            <td>
-              <div class="btn-group" role="group">
+              @if (canDeleteEnCours()) {
                 <app-button
-                  (clicked)="navigateToSale(sale)"
+                  (clicked)="confirmDelete(sale)"
                   [rounded]="true"
                   [text]="true"
-                  icon="pi pi-file-edit"
-                  ngbTooltip="Editer"
-
-                  severity="success"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
                 />
-                @if (canDeleteEnCours()) {
-                  <app-button
-                    (clicked)="confirmDelete(sale)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    ngbTooltip="Supprimer"
-                    severity="danger"
-                  />
-                }
-
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template #expandedrow let-elRow>
-          <tr class="pharma-expanded-row">
-            <td colspan="9">
-              <div class="expanded-row-container">
-                <div class="activity-card activity-card-products">
-                  <div class="activity-card-header">
-                    <div class="activity-card-icon activity-card-icon-small">
-                      <i class="pi pi-list"></i>
-                    </div>
-                    <div class="activity-card-header-content">
-                      <h3 class="activity-card-title">Liste des produits</h3>
-                      <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
-                        article(s)</span>
-                    </div>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #expandedrow let-elRow>
+        <tr class="pharma-expanded-row">
+          <td colspan="9">
+            <div class="expanded-row-container">
+              <div class="activity-card activity-card-products">
+                <div class="activity-card-header">
+                  <div class="activity-card-icon activity-card-icon-small">
+                    <i class="pi pi-list"></i>
                   </div>
-                  <div class="activity-card-table-body">
-                    <app-data-table
-                      [paginator]="true"
-                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                      [rows]="10"
-                      [showCurrentPageReport]="true"
-                      [stripedRows]="true"
-                      [value]="elRow.salesLines"
-                      class="rowexpansion-table"
-                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                      dataKey="id"
-                    >
-                      <ng-template #header>
-                        <tr class="pharma-table-head">
-                          <th style="width: 5%">#</th>
-                          <th style="width: 10%">CODE</th>
-                          <th style="width: 44%">LIBELLE</th>
-                          <th class="text-right" style="width: 8%">QTE.D</th>
-                          <th class="text-right" style="width: 8%">QTE.S</th>
-                          <th class="text-right" style="width: 9%">PU</th>
-                          <th class="text-right" style="width: 10%">TOTAL</th>
-                        </tr>
-                      </ng-template>
-                      <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                        <tr
-                          [class]="{
-                            'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
-                            'pharma-row-hover': true,
-                          }"
-                        >
-                          <td style="text-align: left">
-                            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                          </td>
-                          <td>
-                            <span class="pharma-code">{{ saleLine.code }}</span>
-                          </td>
-                          <td>
-                            <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
-                          </td>
-                          <td
-                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                          </td>
-                          <td
-                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                          </td>
-                          <td
-                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                          </td>
-                          <td class="pharma-total" style="text-align: right; font-weight: bold">
-                            {{ saleLine.salesAmount | number }}
-                          </td>
-                        </tr>
-                      </ng-template>
-                    </app-data-table>
+                  <div class="activity-card-header-content">
+                    <h3 class="activity-card-title">Liste des produits</h3>
+                    <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
                   </div>
                 </div>
+                <div class="activity-card-table-body">
+                  <app-data-table
+                    [paginator]="true"
+                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                    [rows]="10"
+                    [showCurrentPageReport]="true"
+                    [stripedRows]="true"
+                    [value]="elRow.salesLines"
+                    class="rowexpansion-table"
+                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                    dataKey="id"
+                  >
+                    <ng-template #header>
+                      <tr class="pharma-table-head">
+                        <th style="width: 5%">#</th>
+                        <th style="width: 10%">CODE</th>
+                        <th style="width: 44%">LIBELLE</th>
+                        <th class="text-right" style="width: 8%">QTE.D</th>
+                        <th class="text-right" style="width: 8%">QTE.S</th>
+                        <th class="text-right" style="width: 9%">PU</th>
+                        <th class="text-right" style="width: 10%">TOTAL</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                      <tr
+                        [class]="{
+                          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+                          'pharma-row-hover': true,
+                        }"
+                      >
+                        <td style="text-align: left">
+                          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                        </td>
+                        <td>
+                          <span class="pharma-code">{{ saleLine.code }}</span>
+                        </td>
+                        <td>
+                          <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                        </td>
+                        <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                        <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                        <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                        <td class="pharma-total" style="text-align: right; font-weight: bold">
+                          {{ saleLine.salesAmount | number }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </app-data-table>
+                </div>
               </div>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </app-card>
-
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>

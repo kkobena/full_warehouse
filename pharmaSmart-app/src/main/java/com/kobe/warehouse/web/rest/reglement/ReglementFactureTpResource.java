@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.reglement;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.PaymentId;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.reglement.ReglementRegistry;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
@@ -26,12 +28,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "factures", "facturation.factures", "facturation.historique" })
+@RequiresNavAccess({"factures", "facturation.factures", "facturation.historique"})
 public class ReglementFactureTpResource {
 
     private final ReglementRegistry reglementRegistry;
@@ -44,53 +44,47 @@ public class ReglementFactureTpResource {
 
     @PostMapping("/reglement-factures-tp")
     public ResponseEntity<ResponseReglementDTO> doReglement(@Valid @RequestBody ReglementParam reglementParam) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            reglementRegistry.getService(reglementParam).doReglement(reglementParam)
-        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reglementRegistry.getService(reglementParam).doReglement(reglementParam));
     }
 
     @GetMapping("/reglements")
     public ResponseEntity<List<InvoicePaymentDTO>> getAll(
-        @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
-        @RequestParam(required = false, name = "toDate") LocalDate toDate,
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "organismeId") Integer organismeId,
-        @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped
-    ) {
-        return ResponseEntity.ok(
-            this.reglementDataService.fetchInvoicesPayments(new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped))
-        );
+            @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
+            @RequestParam(required = false, name = "toDate") LocalDate toDate,
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "organismeId") Integer organismeId,
+            @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped) {
+        return ResponseEntity.ok(this.reglementDataService.fetchInvoicesPayments(
+                new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped)));
     }
 
     @GetMapping("/reglements/items/{idReglement}/{transactionDate}")
     public ResponseEntity<List<InvoicePaymentItemDTO>> getItems(
-        @PathVariable(name = "idReglement") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
-        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsItems(new PaymentId(idReglement, transactionDate)));
+            @PathVariable(name = "idReglement") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
+        return ResponseEntity.ok(
+                this.reglementDataService.getInvoicePaymentsItems(new PaymentId(idReglement, transactionDate)));
     }
 
     @GetMapping("/reglements/group/items/{idReglement}/{transactionDate}")
     public ResponseEntity<List<InvoicePaymentDTO>> getGroupeItems(
-        @PathVariable(name = "idReglement") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
-        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsGroupItems(new PaymentId(idReglement, transactionDate)));
+            @PathVariable(name = "idReglement") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
+        return ResponseEntity.ok(
+                this.reglementDataService.getInvoicePaymentsGroupItems(new PaymentId(idReglement, transactionDate)));
     }
 
-   @GetMapping("/reglements/facture/{id}/{invoiceDate}")
+    @GetMapping("/reglements/facture/{id}/{invoiceDate}")
     public ResponseEntity<List<InvoicePaymentDTO>> findByInvoice(
-        @PathVariable(name = "id") long id,
-        @PathVariable(name = "invoiceDate") LocalDate invoiceDate
-    ) {
+            @PathVariable(name = "id") long id, @PathVariable(name = "invoiceDate") LocalDate invoiceDate) {
         return ResponseEntity.ok(this.reglementDataService.findByInvoice(new FactureItemId(id, invoiceDate)));
     }
 
     @GetMapping("/reglements/print-receipt/{idReglement}/{transactionDate}")
     public ResponseEntity<Void> printReceipt(
-        @PathVariable(name = "idReglement") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable(name = "idReglement") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
         this.reglementDataService.printReceipt(new PaymentId(idReglement, transactionDate));
         return ResponseEntity.ok().build();
     }
@@ -108,31 +102,32 @@ public class ReglementFactureTpResource {
     }
 
     @GetMapping("/reglements/pdf")
-    @RequiresNavAccess(value = { "factures", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"factures", "facturation.factures", "facturation.historique"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportAllInvoicesPayment(
-        @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
-        @RequestParam(required = false, name = "toDate") LocalDate toDate,
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "organismeId") Integer organismeId,
-        @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped
-    ) {
+            @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
+            @RequestParam(required = false, name = "toDate") LocalDate toDate,
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "organismeId") Integer organismeId,
+            @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped) {
         return Utils.printPDF(
-            reglementDataService.printToPdf(new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped)),
-            "reglements_factures.pdf"
-        );
+                reglementDataService.printToPdf(
+                        new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped)),
+                "reglements_factures.pdf");
     }
 
     @GetMapping("/reglements/print-tauri/{idReglement}/{transactionDate}")
     public ResponseEntity<byte[]> getReceiptForTauri(
-        @PathVariable(name = "idReglement") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable(name = "idReglement") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
         try {
-            byte[] escPosData = reglementDataService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            byte[] escPosData =
+                    reglementDataService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
-                .body(escPosData);
+                    .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                    .body(escPosData);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }

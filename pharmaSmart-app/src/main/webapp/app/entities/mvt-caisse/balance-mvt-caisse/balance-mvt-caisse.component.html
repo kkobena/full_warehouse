@@ -1,112 +1,112 @@
 <div class="pharma-smart-content">
-    <app-toolbar [code]="navCode()" icon="pi pi-balance-scale" title="Balance de caisse">
-      <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" id="dateDebut" label="Du" />
+  <app-toolbar [code]="navCode()" icon="pi pi-balance-scale" title="Balance de caisse">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" id="dateDebut" label="Du" />
 
-          <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" id="dateFin" label="Au" />
+        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" id="dateFin" label="Au" />
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="onSearch()"
+            [disabled]="loading()"
+            [loading]="loading()"
+            [raised]="true"
+            icon="pi pi-search"
+            label="Rechercher"
+            ngbTooltip="Rechercher"
+            severity="info"
+          />
+
+          <app-button
+            (clicked)="onPrint()"
+            [loading]="loading()"
+            [outlined]="true"
+            icon="pi pi-print"
+            label="Imprimer"
+            ngbTooltip="Imprimer"
+            severity="warn"
+          />
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
+  </app-toolbar>
 
-      <ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="onSearch()"
-              [disabled]="loading()"
-              [loading]="loading()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              ngbTooltip="Rechercher"
-              severity="info"
-            />
+  <div class="row mt-1">
+    @if (balanceMvtCaisseWrapper(); as balance) {
+      @if (balance.balanceCaisses.length > 0) {
+        <app-card class="mb-1">
+          <app-data-table [value]="balance.balanceCaisses" [size]="'small'" [stripedRows]="true" [showGridlines]="true">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th rowspan="2" class="text-center">Type</th>
+                <th rowspan="2" class="text-center">Nombre</th>
+                <th colspan="4" class="text-center">Montants</th>
+                <th rowspan="2" class="text-center">Panier moyen</th>
+                <th colspan="5" class="text-center">Modes règlements</th>
+                <th rowspan="2" class="text-center">Différé</th>
+                <th rowspan="2" class="text-center">Tiers-payant</th>
+              </tr>
+              <tr class="pharma-table-head">
+                <th class="text-center">Brut(TTC)</th>
+                <th class="text-center">Remise</th>
+                <th class="text-center">Net(TTC)</th>
+                <th class="text-center">%</th>
+                <th class="text-center">Espèce</th>
+                <th class="text-center">Chèque</th>
+                <th class="text-center">CB</th>
+                <th class="text-center">Virement</th>
+                <th class="text-center">Mobile</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-item>
+              <tr>
+                <td>{{ item.typeVeTypeAffichage }}</td>
+                <td class="amount-td-column">{{ item.count | number }}</td>
+                <td class="amount-td-column">{{ item.montantTtc | number }}</td>
+                <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
+                <td class="amount-td-column">{{ item.montantNet | number }}</td>
+                <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
+                <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
+                <td class="amount-td-column">{{ item.montantCash | number }}</td>
+                <td class="amount-td-column">{{ item.montantCheck | number }}</td>
+                <td class="amount-td-column">{{ item.montantCard | number }}</td>
+                <td class="amount-td-column">{{ item.montantVirement | number }}</td>
+                <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
+                <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
+                <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #footer>
+              <tr>
+                <td class="tf-column">Total</td>
+                <td class="amount-column">{{ balance.count | number }}</td>
+                <td class="amount-column">{{ balance.montantTtc | number }}</td>
+                <td class="amount-column">{{ balance.montantDiscount | number }}</td>
+                <td class="amount-column">{{ balance.montantNet | number }}</td>
+                <td class="amount-column">100</td>
+                <td class="amount-column">{{ balance.panierMoyen | number }}</td>
+                <td class="amount-column">{{ balance.montantCash | number }}</td>
+                <td class="amount-column">{{ balance.montantCheck | number }}</td>
+                <td class="amount-column">{{ balance.montantCard | number }}</td>
+                <td class="amount-column">{{ balance.montantVirement | number }}</td>
+                <td class="amount-column">{{ balance.montantMobileMoney | number }}</td>
+                <td class="amount-column">{{ balance.montantDiffere | number }}</td>
+                <td class="amount-column">{{ balance.partTiersPayant | number }}</td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </app-card>
+      }
 
-            <app-button
-              (clicked)="onPrint()"
-              [loading]="loading()"
-              [outlined]="true"
-              icon="pi pi-print"
-              label="Imprimer"
-              ngbTooltip="Imprimer"
-              severity="warn"
-            />
-          </div>
-        </div>
-      </ng-container>
-    </app-toolbar>
-
-    <div class="row mt-1">
-      @if (balanceMvtCaisseWrapper(); as balance) {
-        @if (balance.balanceCaisses.length > 0) {
-          <app-card class="mb-1">
-            <app-data-table [value]="balance.balanceCaisses" [size]="'small'" [stripedRows]="true" [showGridlines]="true">
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th rowspan="2" class="text-center">Type</th>
-                  <th rowspan="2" class="text-center">Nombre</th>
-                  <th colspan="4" class="text-center">Montants</th>
-                  <th rowspan="2" class="text-center">Panier moyen</th>
-                  <th colspan="5" class="text-center">Modes règlements</th>
-                  <th rowspan="2" class="text-center">Différé</th>
-                  <th rowspan="2" class="text-center">Tiers-payant</th>
-                </tr>
-                <tr class="pharma-table-head">
-                  <th class="text-center">Brut(TTC)</th>
-                  <th class="text-center">Remise</th>
-                  <th class="text-center">Net(TTC)</th>
-                  <th class="text-center">%</th>
-                  <th class="text-center">Espèce</th>
-                  <th class="text-center">Chèque</th>
-                  <th class="text-center">CB</th>
-                  <th class="text-center">Virement</th>
-                  <th class="text-center">Mobile</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item>
-                <tr>
-                  <td>{{ item.typeVeTypeAffichage }}</td>
-                  <td class="amount-td-column">{{ item.count | number }}</td>
-                  <td class="amount-td-column">{{ item.montantTtc | number }}</td>
-                  <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
-                  <td class="amount-td-column">{{ item.montantNet | number }}</td>
-                  <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
-                  <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
-                  <td class="amount-td-column">{{ item.montantCash | number }}</td>
-                  <td class="amount-td-column">{{ item.montantCheck | number }}</td>
-                  <td class="amount-td-column">{{ item.montantCard | number }}</td>
-                  <td class="amount-td-column">{{ item.montantVirement | number }}</td>
-                  <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
-                  <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
-                  <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
-                </tr>
-              </ng-template>
-              <ng-template #footer>
-                <tr>
-                  <td class="tf-column">Total</td>
-                  <td class="amount-column">{{ balance.count | number }}</td>
-                  <td class="amount-column">{{ balance.montantTtc | number }}</td>
-                  <td class="amount-column">{{ balance.montantDiscount | number }}</td>
-                  <td class="amount-column">{{ balance.montantNet | number }}</td>
-                  <td class="amount-column">100</td>
-                  <td class="amount-column">{{ balance.panierMoyen | number }}</td>
-                  <td class="amount-column">{{ balance.montantCash | number }}</td>
-                  <td class="amount-column">{{ balance.montantCheck | number }}</td>
-                  <td class="amount-column">{{ balance.montantCard | number }}</td>
-                  <td class="amount-column">{{ balance.montantVirement | number }}</td>
-                  <td class="amount-column">{{ balance.montantMobileMoney | number }}</td>
-                  <td class="amount-column">{{ balance.montantDiffere | number }}</td>
-                  <td class="amount-column">{{ balance.partTiersPayant | number }}</td>
-                </tr>
-              </ng-template>
-            </app-data-table>
-          </app-card>
-        }
-
-        <!-- Balance Summary Cards -->
-        <div class="balance-cards-container mt-1">
-          <!-- Card 1: Information sur la vente -->
-          <app-card>
+      <!-- Balance Summary Cards -->
+      <div class="balance-cards-container mt-1">
+        <!-- Card 1: Information sur la vente -->
+        <app-card>
           <div class="balance-card balance-card-primary">
             <div class="balance-card-header">
               <div class="balance-card-icon">
@@ -183,10 +183,10 @@
               </div>
             </div>
           </div>
-          </app-card>
-          <!-- Card 2: Montant ventes par modes règlement -->
-          @if (balance.mvtCaissesByModes.length > 0) {
-            <app-card>
+        </app-card>
+        <!-- Card 2: Montant ventes par modes règlement -->
+        @if (balance.mvtCaissesByModes.length > 0) {
+          <app-card>
             <div class="balance-card balance-card-success">
               <div class="balance-card-header">
                 <div class="balance-card-icon balance-card-icon-small">
@@ -209,12 +209,12 @@
                 }
               </div>
             </div>
-            </app-card>
-          }
+          </app-card>
+        }
 
-          <!-- Card 3: Information sur les mouvements de caisse -->
-          @if (balance.mvtCaisses.length > 0) {
-            <app-card>
+        <!-- Card 3: Information sur les mouvements de caisse -->
+        @if (balance.mvtCaisses.length > 0) {
+          <app-card>
             <div class="balance-card balance-card-warning">
               <div class="balance-card-header">
                 <div class="balance-card-icon balance-card-icon-small">
@@ -245,13 +245,14 @@
                     </div>
                   }
                 }
-              </div>
-            </div></app-card>
-          }
-        </div>
-      } @else {
-        <app-card>  <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div></app-card>
-      }
-    </div>
-
+              </div></div
+          ></app-card>
+        }
+      </div>
+    } @else {
+      <app-card>
+        <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div></app-card
+      >
+    }
+  </div>
 </div>

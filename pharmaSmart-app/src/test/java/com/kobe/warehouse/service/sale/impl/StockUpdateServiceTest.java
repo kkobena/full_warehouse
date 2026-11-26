@@ -14,10 +14,9 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +31,10 @@ class StockUpdateServiceTest {
 
     @Mock
     private StockProduitRepository stockProduitRepository;
+
     @Mock
-    private  SuggestionReassortService suggestionReassortService;
+    private SuggestionReassortService suggestionReassortService;
+
     @Mock
     private LogsService logsService;
 
@@ -41,7 +42,7 @@ class StockUpdateServiceTest {
 
     @BeforeEach
     void setUp() {
-        stockUpdateService = new StockUpdateService(stockProduitRepository, logsService,suggestionReassortService);
+        stockUpdateService = new StockUpdateService(stockProduitRepository, logsService, suggestionReassortService);
     }
 
     @Test
@@ -63,12 +64,9 @@ class StockUpdateServiceTest {
         assertEquals(110, result.quantityBefore(), "Quantity before should be sum of stock and UG");
         assertEquals(105, result.quantityAfter(), "Quantity after should be reduced by requested amount");
 
-        verify(stockProduitRepository).save(
-            argThat(
-                sp ->
-                    sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) && sp.getQtyUG() == (initialQtyUG - quantityUg)
-            )
-        );
+        verify(stockProduitRepository)
+                .save(argThat(sp -> sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg))
+                        && sp.getQtyUG() == (initialQtyUG - quantityUg)));
 
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
         verify(logsService, never()).create(eq(TransactionType.FORCE_STOCK), anyString(), anyString());
@@ -93,7 +91,8 @@ class StockUpdateServiceTest {
         assertEquals(-5, result.quantityAfter());
 
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
-        verify(logsService).create(eq(TransactionType.FORCE_STOCK), eq(TransactionType.FORCE_STOCK.getValue()), anyString());
+        verify(logsService)
+                .create(eq(TransactionType.FORCE_STOCK), eq(TransactionType.FORCE_STOCK.getValue()), anyString());
     }
 
     @Test
@@ -114,7 +113,11 @@ class StockUpdateServiceTest {
         // Then
         ArgumentCaptor<String> descriptionCaptor = ArgumentCaptor.forClass(String.class);
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
-        verify(logsService).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), descriptionCaptor.capture(), anyString());
+        verify(logsService)
+                .create(
+                        eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE),
+                        descriptionCaptor.capture(),
+                        anyString());
 
         String description = descriptionCaptor.getValue();
         assertTrue(description.contains("modifié"), "Description should mention price modification");
@@ -139,7 +142,8 @@ class StockUpdateServiceTest {
 
         // Then
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
-        verify(logsService, never()).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), anyString(), anyString());
+        verify(logsService, never())
+                .create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), anyString(), anyString());
     }
 
     @Test
@@ -159,13 +163,12 @@ class StockUpdateServiceTest {
 
         // Then
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
-        verify(stockProduitRepository).save(
-            argThat(
-                sp ->
-                    sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) && // 100 - 5 = 95
-                    sp.getQtyUG() == (initialQtyUG - quantityUg) // 20 - 5 = 15
-            )
-        );
+        verify(stockProduitRepository)
+                .save(argThat(
+                        sp -> sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg))
+                                && // 100 - 5 = 95
+                                sp.getQtyUG() == (initialQtyUG - quantityUg) // 20 - 5 = 15
+                        ));
     }
 
     @Test
@@ -181,9 +184,9 @@ class StockUpdateServiceTest {
 
         // Then
         verify(suggestionReassortService).createRayonSuggestionReassort(stockProduit);
-        verify(stockProduitRepository).save(
-            argThat(sp -> sp.getUpdatedAt() != null && (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp)))
-        );
+        verify(stockProduitRepository)
+                .save(argThat(sp -> sp.getUpdatedAt() != null
+                        && (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp))));
     }
 
     @Test

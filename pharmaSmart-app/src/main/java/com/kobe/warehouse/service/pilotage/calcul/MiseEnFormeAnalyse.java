@@ -10,8 +10,10 @@ import java.util.List;
  * MiseEnFormeAnalyse en forme des éléments : une cellule par indicateur ; part du total et contribution à l'écart sur le premier, s'il est
  * additif.
  */
-public record MiseEnFormeAnalyse(List<IndicateurPilotage> indicateurs, List<CelluleAnalyseDTO> total, boolean avecReference) {
-    public static MiseEnFormeAnalyse preparer(List<IndicateurPilotage> indicateurs, MesuresComparees total, boolean avecReference) {
+public record MiseEnFormeAnalyse(
+        List<IndicateurPilotage> indicateurs, List<CelluleAnalyseDTO> total, boolean avecReference) {
+    public static MiseEnFormeAnalyse preparer(
+            List<IndicateurPilotage> indicateurs, MesuresComparees total, boolean avecReference) {
         return new MiseEnFormeAnalyse(indicateurs, calculer(indicateurs, total, avecReference), avecReference);
     }
 
@@ -23,15 +25,23 @@ public record MiseEnFormeAnalyse(List<IndicateurPilotage> indicateurs, List<Cell
         List<CelluleAnalyseDTO> cellules = calculer(indicateurs, mesures, avecReference);
         boolean additif = principal().estAdditif();
         return new ElementAnalyseDTO(
-            membre.cle(),
-            membre.libelle(),
-            cellules,
-            additif ? Variations.part(cellules.getFirst().valeur(), total.getFirst().valeur()) : null,
-            additif ? Variations.part(cellules.getFirst().ecart(), total.getFirst().ecart()) : null
-        );
+                membre.cle(),
+                membre.libelle(),
+                cellules,
+                additif
+                        ? Variations.part(
+                                cellules.getFirst().valeur(), total.getFirst().valeur())
+                        : null,
+                additif
+                        ? Variations.part(
+                                cellules.getFirst().ecart(), total.getFirst().ecart())
+                        : null);
     }
 
-    private static List<CelluleAnalyseDTO> calculer(List<IndicateurPilotage> indicateurs, MesuresComparees mesures, boolean avecReference) {
-        return indicateurs.stream().map(indicateur -> Variations.cellule(indicateur, mesures, avecReference)).toList();
+    private static List<CelluleAnalyseDTO> calculer(
+            List<IndicateurPilotage> indicateurs, MesuresComparees mesures, boolean avecReference) {
+        return indicateurs.stream()
+                .map(indicateur -> Variations.cellule(indicateur, mesures, avecReference))
+                .toList();
     }
 }

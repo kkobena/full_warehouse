@@ -10,13 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class DashboardCARepository {
 
-    private static final String DAILY_SUMMARY_SQL =
-        "SELECT sale_date, nb_transactions, ca_total, ca_net," +
-            "  panier_moyen, cout_total, marge_brute, taux_marge_pct, nb_clients," +
-            "  montant_encaisse, montant_credit" +
-            " FROM mv_dashboard_ca_daily" +
-            " WHERE sale_date BETWEEN :startDate AND :endDate" +
-            " ORDER BY sale_date DESC";
+    private static final String DAILY_SUMMARY_SQL = "SELECT sale_date, nb_transactions, ca_total, ca_net,"
+            + "  panier_moyen, cout_total, marge_brute, taux_marge_pct, nb_clients,"
+            + "  montant_encaisse, montant_credit"
+            + " FROM mv_dashboard_ca_daily"
+            + " WHERE sale_date BETWEEN :startDate AND :endDate"
+            + " ORDER BY sale_date DESC";
 
     /**
      * Agrégation d'une période à partir des journées qui la composent.
@@ -37,28 +36,26 @@ public class DashboardCARepository {
      * le taux, rapporté au CA net, se trouvait surévalué dès qu'une remise était consentie.
      */
     private static final String PERIOD_AGGREGATION_SQL =
-        "SELECT COALESCE(SUM(ca_net), 0) AS ca," +
-            "  COALESCE(SUM(nb_transactions), 0) AS nb_trans," +
-            "  COALESCE(ROUND(SUM(ca_net)::numeric" +
-            "    / NULLIF(SUM(nb_transactions), 0), 2), 0) AS panier_moyen," +
-            "  COALESCE(ROUND(100.0 * (SUM(ca_net) - SUM(cout_total))" +
-            "    / NULLIF(SUM(ca_net), 0), 2), 0) AS taux_marge" +
-            " FROM mv_dashboard_ca_daily" +
-            " WHERE sale_date BETWEEN :startDate AND :endDate";
+            "SELECT COALESCE(SUM(ca_net), 0) AS ca," + "  COALESCE(SUM(nb_transactions), 0) AS nb_trans,"
+                    + "  COALESCE(ROUND(SUM(ca_net)::numeric"
+                    + "    / NULLIF(SUM(nb_transactions), 0), 2), 0) AS panier_moyen,"
+                    + "  COALESCE(ROUND(100.0 * (SUM(ca_net) - SUM(cout_total))"
+                    + "    / NULLIF(SUM(ca_net), 0), 2), 0) AS taux_marge"
+                    + " FROM mv_dashboard_ca_daily"
+                    + " WHERE sale_date BETWEEN :startDate AND :endDate";
 
     private static final String PAYMENT_METHODS_SQL =
-        "SELECT payment_date, payment_method, payment_code, nb_payments," +
-            "  montant_total, montant_moyen" +
-            " FROM mv_dashboard_ca_payment_methods" +
-            " WHERE payment_date BETWEEN :startDate AND :endDate" +
-            " ORDER BY montant_total DESC";
+            "SELECT payment_date, payment_method, payment_code, nb_payments," + "  montant_total, montant_moyen"
+                    + " FROM mv_dashboard_ca_payment_methods"
+                    + " WHERE payment_date BETWEEN :startDate AND :endDate"
+                    + " ORDER BY montant_total DESC";
 
     private static final String PRODUCT_FAMILIES_SQL =
-        "SELECT sale_date, famille, quantite_vendue, ca_total, cout_total," +
-            "  marge_brute, taux_marge_pct, nb_lignes_vente" +
-            " FROM mv_dashboard_ca_product_families" +
-            " WHERE sale_date BETWEEN :startDate AND :endDate" +
-            " ORDER BY ca_total DESC";
+            "SELECT sale_date, famille, quantite_vendue, ca_total, cout_total,"
+                    + "  marge_brute, taux_marge_pct, nb_lignes_vente"
+                    + " FROM mv_dashboard_ca_product_families"
+                    + " WHERE sale_date BETWEEN :startDate AND :endDate"
+                    + " ORDER BY ca_total DESC";
 
     /**
      * Meilleures ventes d'une période.
@@ -75,55 +72,51 @@ public class DashboardCARepository {
      * ressemblent, leurs intentions non.
      */
     private static final String TOP_PRODUCTS_SQL =
-        "SELECT :period AS mois, p.id, p.libelle," +
-            "  COALESCE(fp.code_cip, '') AS code_cip," +
-            "  COUNT(DISTINCT sl.sales_id) AS nb_ventes," +
-            "  SUM(sl.quantity_requested) AS qty_vendue," +
-            "  SUM(sl.sales_amount) AS ca," +
-            "  AVG(sl.sales_amount / NULLIF(sl.quantity_requested, 0)) AS prix_moyen" +
-            " FROM sales s" +
-            " INNER JOIN sales_line sl ON s.id = sl.sales_id" +
-            " INNER JOIN produit p ON sl.produit_id = p.id" +
-            " LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id" +
-            " WHERE s.statut = 'CLOSED'" +
-            "   AND s.canceled = false" +
-            "   AND s.ca = 'CA'" +
-            "   AND s.sale_date BETWEEN :startDate AND :endDate" +
-            " GROUP BY p.id, p.libelle, fp.code_cip" +
-            " ORDER BY ca DESC";
+            "SELECT :period AS mois, p.id, p.libelle," + "  COALESCE(fp.code_cip, '') AS code_cip,"
+                    + "  COUNT(DISTINCT sl.sales_id) AS nb_ventes,"
+                    + "  SUM(sl.quantity_requested) AS qty_vendue,"
+                    + "  SUM(sl.sales_amount) AS ca,"
+                    + "  AVG(sl.sales_amount / NULLIF(sl.quantity_requested, 0)) AS prix_moyen"
+                    + " FROM sales s"
+                    + " INNER JOIN sales_line sl ON s.id = sl.sales_id"
+                    + " INNER JOIN produit p ON sl.produit_id = p.id"
+                    + " LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id"
+                    + " WHERE s.statut = 'CLOSED'"
+                    + "   AND s.canceled = false"
+                    + "   AND s.ca = 'CA'"
+                    + "   AND s.sale_date BETWEEN :startDate AND :endDate"
+                    + " GROUP BY p.id, p.libelle, fp.code_cip"
+                    + " ORDER BY ca DESC";
 
-    private static final String BASKET_EVOLUTION_SQL =
-        "SELECT" +
-            "  CAST(EXTRACT(YEAR FROM sale_date) AS int) AS yr," +
-            "  CAST(EXTRACT(MONTH FROM sale_date) AS int) AS mo," +
-            "  CASE WHEN SUM(nb_transactions) > 0" +
-            "       THEN ROUND(SUM(ca_net)::numeric / SUM(nb_transactions), 2)" +
-            "       ELSE 0 END AS basket" +
-            " FROM mv_dashboard_ca_daily" +
-            " WHERE sale_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'" +
-            "   AND sale_date <= CURRENT_DATE" +
-            " GROUP BY 1, 2" +
-            " ORDER BY 1, 2";
+    private static final String BASKET_EVOLUTION_SQL = "SELECT" + "  CAST(EXTRACT(YEAR FROM sale_date) AS int) AS yr,"
+            + "  CAST(EXTRACT(MONTH FROM sale_date) AS int) AS mo,"
+            + "  CASE WHEN SUM(nb_transactions) > 0"
+            + "       THEN ROUND(SUM(ca_net)::numeric / SUM(nb_transactions), 2)"
+            + "       ELSE 0 END AS basket"
+            + " FROM mv_dashboard_ca_daily"
+            + " WHERE sale_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'"
+            + "   AND sale_date <= CURRENT_DATE"
+            + " GROUP BY 1, 2"
+            + " ORDER BY 1, 2";
 
-    private static final String DETTE_FOURNISSEUR_SQL =
-        "SELECT COALESCE(SUM(c.final_amount), 0) - COALESCE((" +
-            "  SELECT SUM(pt.paid_amount) FROM payment_transaction pt" +
-            "  WHERE pt.dtype = 'PaymentFournisseur'" +
-            "    AND pt.commande_id IN (" +
-            "      SELECT c2.id FROM commande c2" +
-            "      WHERE c2.paiment_status != 'PAID' AND c2.order_status IN ('CLOSED')" +
-            "    )" +
-            "), 0)" +
-            " FROM commande c" +
-            " WHERE c.paiment_status != 'PAID' AND c.order_status IN ('CLOSED')";
+    private static final String DETTE_FOURNISSEUR_SQL = "SELECT COALESCE(SUM(c.final_amount), 0) - COALESCE(("
+            + "  SELECT SUM(pt.paid_amount) FROM payment_transaction pt"
+            + "  WHERE pt.dtype = 'PaymentFournisseur'"
+            + "    AND pt.commande_id IN ("
+            + "      SELECT c2.id FROM commande c2"
+            + "      WHERE c2.paiment_status != 'PAID' AND c2.order_status IN ('CLOSED')"
+            + "    )"
+            + "), 0)"
+            + " FROM commande c"
+            + " WHERE c.paiment_status != 'PAID' AND c.order_status IN ('CLOSED')";
 
     private static final String CREANCE_TP_SQL =
-        "SELECT COALESCE(SUM(tpsl.montant - COALESCE(tpsl.montant_regle, 0)), 0)" +
-            " FROM third_party_sale_line tpsl" +
-            " WHERE tpsl.statut NOT IN ('PAID', 'DELETE')";
+            "SELECT COALESCE(SUM(tpsl.montant - COALESCE(tpsl.montant_regle, 0)), 0)"
+                    + " FROM third_party_sale_line tpsl"
+                    + " WHERE tpsl.statut NOT IN ('PAID', 'DELETE')";
 
     private static final String NB_ECHEANCES_RETARD_SQL =
-        "SELECT COUNT(*) FROM commande c JOIN fournisseur f ON c.fournisseur_id = f.id WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' AND (COALESCE(c.receipt_date, c.order_date) + (COALESCE(f.jours_credit,  30) || ' days')::interval) < CURRENT_DATE";
+            "SELECT COUNT(*) FROM commande c JOIN fournisseur f ON c.fournisseur_id = f.id WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' AND (COALESCE(c.receipt_date, c.order_date) + (COALESCE(f.jours_credit,  30) || ' days')::interval) < CURRENT_DATE";
 
     /**
      * Factures tiers payant non soldées dont l'échéance est dépassée — le compteur qui s'affiche
@@ -137,80 +130,66 @@ public class DashboardCARepository {
      * d'une facture groupée sont écartées, sans quoi une facture groupée compterait deux fois.
      */
     private static final String NB_FACTURES_IMPAYEES_SQL =
-        "SELECT COUNT(*) FROM facture_tiers_payant f" +
-            " LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id" +
-            " LEFT JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id" +
-            " WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID')" +
-            "   AND f.groupe_facture_tiers_payant_id IS NULL" +
-            "   AND (f.invoice_date + make_interval(days =>" +
-            "        COALESCE(tp.delai_reglement, gtp.delai_reglement, 30))) < CURRENT_DATE";
+            "SELECT COUNT(*) FROM facture_tiers_payant f" + " LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id"
+                    + " LEFT JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id"
+                    + " WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID')"
+                    + "   AND f.groupe_facture_tiers_payant_id IS NULL"
+                    + "   AND (f.invoice_date + make_interval(days =>"
+                    + "        COALESCE(tp.delai_reglement, gtp.delai_reglement, 30))) < CURRENT_DATE";
 
-    private static final String REMISES_KPI_SQL =
-        "SELECT" +
-            "  COALESCE(SUM(sl.discount_amount), 0) AS total_remise," +
-            "  COALESCE(SUM(sl.sales_amount), 0) AS ca_apres_remise," +
-            "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)" +
-            "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise," +
-            "  COUNT(DISTINCT CASE WHEN sl.discount_amount > 0 THEN sl.sales_id END) AS nb_ventes_avec_remise,"
-            +
-            "  COUNT(DISTINCT sl.sales_id) AS nb_ventes_total" +
-            " FROM sales s" +
-            " JOIN sales_line sl ON s.id = sl.sales_id" +
-            " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
-            "   AND s.sale_date BETWEEN :startDate AND :endDate";
+    private static final String REMISES_KPI_SQL = "SELECT" + "  COALESCE(SUM(sl.discount_amount), 0) AS total_remise,"
+            + "  COALESCE(SUM(sl.sales_amount), 0) AS ca_apres_remise,"
+            + "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)"
+            + "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise,"
+            + "  COUNT(DISTINCT CASE WHEN sl.discount_amount > 0 THEN sl.sales_id END) AS nb_ventes_avec_remise,"
+            + "  COUNT(DISTINCT sl.sales_id) AS nb_ventes_total"
+            + " FROM sales s"
+            + " JOIN sales_line sl ON s.id = sl.sales_id"
+            + " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'"
+            + "   AND s.sale_date BETWEEN :startDate AND :endDate";
 
     private static final String REMISES_TOP_PRODUCTS_SQL =
-        "SELECT p.libelle," +
-            "  COALESCE(SUM(sl.discount_amount), 0) AS montant_remise," +
-            "  COUNT(DISTINCT sl.sales_id) AS nb_ventes" +
-            " FROM sales s" +
-            " JOIN sales_line sl ON s.id = sl.sales_id" +
-            " JOIN produit p ON sl.produit_id = p.id" +
-            " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
-            "   AND sl.discount_amount > 0" +
-            "   AND s.sale_date BETWEEN :startDate AND :endDate" +
-            " GROUP BY p.id, p.libelle" +
-            " ORDER BY montant_remise DESC";
+            "SELECT p.libelle," + "  COALESCE(SUM(sl.discount_amount), 0) AS montant_remise,"
+                    + "  COUNT(DISTINCT sl.sales_id) AS nb_ventes"
+                    + " FROM sales s"
+                    + " JOIN sales_line sl ON s.id = sl.sales_id"
+                    + " JOIN produit p ON sl.produit_id = p.id"
+                    + " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'"
+                    + "   AND sl.discount_amount > 0"
+                    + "   AND s.sale_date BETWEEN :startDate AND :endDate"
+                    + " GROUP BY p.id, p.libelle"
+                    + " ORDER BY montant_remise DESC";
 
-    private static final String SALES_BY_STAFF_SQL =
-        "SELECT u.id," +
-            "  COALESCE(NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''), u.login) AS vendeur_nom,"
-            +
-            "  COUNT(DISTINCT s.id) AS nombre_ventes," +
-            "  COALESCE(SUM(sl.sales_amount), 0) AS montant_total," +
-            "  CASE WHEN COUNT(DISTINCT s.id) > 0" +
-            "    THEN COALESCE(SUM(sl.sales_amount), 0) / COUNT(DISTINCT s.id)" +
-            "    ELSE 0 END AS ticket_moyen," +
-            "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)" +
-            "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise" +
-            " FROM sales s" +
-            " JOIN app_user u ON s.seller_id = u.id" +
-            " JOIN sales_line sl ON s.id = sl.sales_id" +
-            " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
-            "   AND s.sale_date BETWEEN :startDate AND :endDate" +
-            " GROUP BY u.id, u.first_name, u.last_name, u.login" +
-            " ORDER BY montant_total DESC";
+    private static final String SALES_BY_STAFF_SQL = "SELECT u.id,"
+            + "  COALESCE(NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''), u.login) AS vendeur_nom,"
+            + "  COUNT(DISTINCT s.id) AS nombre_ventes,"
+            + "  COALESCE(SUM(sl.sales_amount), 0) AS montant_total,"
+            + "  CASE WHEN COUNT(DISTINCT s.id) > 0"
+            + "    THEN COALESCE(SUM(sl.sales_amount), 0) / COUNT(DISTINCT s.id)"
+            + "    ELSE 0 END AS ticket_moyen,"
+            + "  ROUND(100.0 * COALESCE(SUM(sl.discount_amount), 0)"
+            + "    / NULLIF(SUM(sl.sales_amount + sl.discount_amount), 0), 2) AS taux_remise"
+            + " FROM sales s"
+            + " JOIN app_user u ON s.seller_id = u.id"
+            + " JOIN sales_line sl ON s.id = sl.sales_id"
+            + " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'"
+            + "   AND s.sale_date BETWEEN :startDate AND :endDate"
+            + " GROUP BY u.id, u.first_name, u.last_name, u.login"
+            + " ORDER BY montant_total DESC";
 
     private static final String GENERICS_SUBSTITUTION_SQL =
-        "SELECT" +
-            "  COUNT(DISTINCT sl.produit_id) AS total_produits," +
-            "  COUNT(DISTINCT CASE WHEN sub_g.id IS NOT NULL THEN sl.produit_id END) AS produits_generiques,"
-            +
-            "  COUNT(DISTINCT CASE WHEN sub_p.id IS NOT NULL THEN sl.produit_id END) AS princeps_avec_generique,"
-            +
-            "  COALESCE(SUM(sl.sales_amount), 0) AS ca_total," +
-            "  COALESCE(SUM(CASE WHEN sub_g.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_generiques,"
-            +
-            "  COALESCE(SUM(CASE WHEN sub_p.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_princeps"
-            +
-            " FROM sales s" +
-            " JOIN sales_line sl ON s.id = sl.sales_id" +
-            " LEFT JOIN substitut sub_g ON sub_g.substitut_id = sl.produit_id AND sub_g.type_substitut = 'GENERIQUE'"
-            +
-            " LEFT JOIN substitut sub_p ON sub_p.produit_id = sl.produit_id AND sub_p.type_substitut = 'GENERIQUE'"
-            +
-            " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'" +
-            "   AND s.sale_date BETWEEN :startDate AND :endDate";
+            "SELECT" + "  COUNT(DISTINCT sl.produit_id) AS total_produits,"
+                    + "  COUNT(DISTINCT CASE WHEN sub_g.id IS NOT NULL THEN sl.produit_id END) AS produits_generiques,"
+                    + "  COUNT(DISTINCT CASE WHEN sub_p.id IS NOT NULL THEN sl.produit_id END) AS princeps_avec_generique,"
+                    + "  COALESCE(SUM(sl.sales_amount), 0) AS ca_total,"
+                    + "  COALESCE(SUM(CASE WHEN sub_g.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_generiques,"
+                    + "  COALESCE(SUM(CASE WHEN sub_p.id IS NOT NULL THEN sl.sales_amount ELSE 0 END), 0) AS ca_princeps"
+                    + " FROM sales s"
+                    + " JOIN sales_line sl ON s.id = sl.sales_id"
+                    + " LEFT JOIN substitut sub_g ON sub_g.substitut_id = sl.produit_id AND sub_g.type_substitut = 'GENERIQUE'"
+                    + " LEFT JOIN substitut sub_p ON sub_p.produit_id = sl.produit_id AND sub_p.type_substitut = 'GENERIQUE'"
+                    + " WHERE s.statut = 'CLOSED' AND s.canceled = false AND s.ca = 'CA'"
+                    + "   AND s.sale_date BETWEEN :startDate AND :endDate";
 
     private final EntityManager entityManager;
 
@@ -220,43 +199,48 @@ public class DashboardCARepository {
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findDailySummary(LocalDate startDate, LocalDate endDate) {
-        return entityManager.createNativeQuery(DAILY_SUMMARY_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(DAILY_SUMMARY_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 
     public Object[] getPeriodAggregation(LocalDate startDate, LocalDate endDate) {
-        return (Object[]) entityManager.createNativeQuery(PERIOD_AGGREGATION_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getSingleResult();
+        return (Object[]) entityManager
+                .createNativeQuery(PERIOD_AGGREGATION_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getSingleResult();
     }
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findPaymentMethodDistribution(LocalDate startDate, LocalDate endDate) {
-        return entityManager.createNativeQuery(PAYMENT_METHODS_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(PAYMENT_METHODS_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findProductFamilyDistribution(LocalDate startDate, LocalDate endDate) {
-        return entityManager.createNativeQuery(PRODUCT_FAMILIES_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(PRODUCT_FAMILIES_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findTopProducts(LocalDate startDate, LocalDate endDate, int limit) {
-        return entityManager.createNativeQuery(TOP_PRODUCTS_SQL)
-            .setParameter("period", startDate)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .setMaxResults(limit)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(TOP_PRODUCTS_SQL)
+                .setParameter("period", startDate)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
@@ -265,8 +249,8 @@ public class DashboardCARepository {
     }
 
     public long getDetteFournisseur() {
-        Number result = (Number) entityManager.createNativeQuery(DETTE_FOURNISSEUR_SQL)
-            .getSingleResult();
+        Number result =
+                (Number) entityManager.createNativeQuery(DETTE_FOURNISSEUR_SQL).getSingleResult();
         return result != null ? result.longValue() : 0L;
     }
 
@@ -276,14 +260,14 @@ public class DashboardCARepository {
     }
 
     public long getNbEcheancesEnRetard() {
-        Number result = (Number) entityManager.createNativeQuery(NB_ECHEANCES_RETARD_SQL)
-            .getSingleResult();
+        Number result = (Number)
+                entityManager.createNativeQuery(NB_ECHEANCES_RETARD_SQL).getSingleResult();
         return result != null ? result.longValue() : 0L;
     }
 
     public long getNbFacturesImpayees() {
-        Number result = (Number) entityManager.createNativeQuery(NB_FACTURES_IMPAYEES_SQL)
-            .getSingleResult();
+        Number result = (Number)
+                entityManager.createNativeQuery(NB_FACTURES_IMPAYEES_SQL).getSingleResult();
         return result != null ? result.longValue() : 0L;
     }
 
@@ -293,34 +277,37 @@ public class DashboardCARepository {
     }
 
     public Object[] findRemisesKpi(LocalDate startDate, LocalDate endDate) {
-        return (Object[]) entityManager.createNativeQuery(REMISES_KPI_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getSingleResult();
+        return (Object[]) entityManager
+                .createNativeQuery(REMISES_KPI_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getSingleResult();
     }
 
     @SuppressWarnings("unchecked")
-    public List<Object[]> findRemisesTopProducts(LocalDate startDate, LocalDate endDate,
-        int limit) {
-        return entityManager.createNativeQuery(REMISES_TOP_PRODUCTS_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .setMaxResults(limit)
-            .getResultList();
+    public List<Object[]> findRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit) {
+        return entityManager
+                .createNativeQuery(REMISES_TOP_PRODUCTS_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .setMaxResults(limit)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findSalesByStaff(LocalDate startDate, LocalDate endDate) {
-        return entityManager.createNativeQuery(SALES_BY_STAFF_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(SALES_BY_STAFF_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 
     public Object[] findGenericsSubstitutionStats(LocalDate startDate, LocalDate endDate) {
-        return (Object[]) entityManager.createNativeQuery(GENERICS_SUBSTITUTION_SQL)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getSingleResult();
+        return (Object[]) entityManager
+                .createNativeQuery(GENERICS_SUBSTITUTION_SQL)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getSingleResult();
     }
 }

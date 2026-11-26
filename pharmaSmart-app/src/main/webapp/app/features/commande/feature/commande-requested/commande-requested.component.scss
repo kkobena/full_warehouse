@@ -38,14 +38,18 @@
     background: #eff6ff;
     border-left: 4px solid #60a5fa;
     color: #1e3a5f;
-    i { color: #3b82f6; }
+    i {
+      color: #3b82f6;
+    }
   }
 
   &--reliquat {
     background: #fff7ed;
     border-left: 4px solid #fb923c;
     color: #7c2d12;
-    i { color: #f97316; }
+    i {
+      color: #f97316;
+    }
   }
 }
 
@@ -96,20 +100,30 @@
     color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
     font-weight: 500;
 
-    i { font-size: 0.75rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
+    i {
+      font-size: 0.75rem;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
+    }
   }
 
   .low-stock {
     color: $pharma-danger;
     font-weight: 700;
-    i { color: $pharma-danger; }
+    i {
+      color: $pharma-danger;
+    }
   }
-
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-locked {
@@ -145,7 +159,9 @@
   color: $gray-400;
   font-size: 0.85rem;
 
-  i { font-size: 2rem; }
+  i {
+    font-size: 2rem;
+  }
 }
 
 // ── PANNEAU PHARMAML (colonne latérale) ──────────────────────────────────────
@@ -176,11 +192,19 @@
     background-color: #fffbeb !important;
     border-left: 3px solid #f59e0b !important;
 
-    .ag-cell { font-style: italic; color: #78350f; }
+    .ag-cell {
+      font-style: italic;
+      color: #78350f;
+    }
   }
 
-  .ag-row { font-size: 0.82rem; }
-  .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+  .ag-row {
+    font-size: 0.82rem;
+  }
+  .ag-header-cell-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
 }
 
 // ── Responsive ───────────────────────────────────────────────────────────────
@@ -188,11 +212,18 @@
 @media (max-width: 1024px) {
   .add-product-bar .search-controls {
     .fournisseur-select-input,
-    .product-search-input { flex: 1 1 calc(50% - 0.2rem); min-width: 180px; }
-    .quantity-input-wrapper { flex: 1 1 calc(50% - 0.2rem); }
+    .product-search-input {
+      flex: 1 1 calc(50% - 0.2rem);
+      min-width: 180px;
+    }
+    .quantity-input-wrapper {
+      flex: 1 1 calc(50% - 0.2rem);
+    }
   }
 
-  .pharmaml-col { flex: 0 0 280px; }
+  .pharmaml-col {
+    flex: 0 0 280px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -200,6 +231,9 @@
     flex-direction: column;
     .fournisseur-select-input,
     .product-search-input,
-    .quantity-input-wrapper { flex: 1 1 100%; width: 100%; }
+    .quantity-input-wrapper {
+      flex: 1 1 100%;
+      width: 100%;
+    }
   }
 }

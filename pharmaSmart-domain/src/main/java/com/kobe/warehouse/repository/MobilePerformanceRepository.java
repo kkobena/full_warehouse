@@ -38,12 +38,7 @@ public interface MobilePerformanceRepository {
      * @return List of top products
      */
     List<TopProductProjection> getTopProducts(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate,
-        int limit
-    );
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate, int limit);
 
     /**
      * Get data points for chart.
@@ -58,43 +53,27 @@ public interface MobilePerformanceRepository {
     /**
      * Projection for period summary.
      */
-    record PeriodSummaryProjection(
-        long caTotal,
-        int transactionsCount,
-        int customersCount,
-        long marginTotal
-    ) {}
+    record PeriodSummaryProjection(long caTotal, int transactionsCount, int customersCount, long marginTotal) {}
 
     /**
      * Projection for payment method summary.
      */
-    record PaymentMethodProjection(
-        String code,
-        String libelle,
-        long amount,
-        int transactionsCount
-    ) {}
+    record PaymentMethodProjection(String code, String libelle, long amount, int transactionsCount) {}
 
     /**
      * Projection for top product.
      */
     record TopProductProjection(
-        long productId,
-        String productName,
-        String codeCip,
-        long salesAmount,
-        int quantitySold,
-        double percentOfTotal,
-        double variationPercent
-    ) {}
+            long productId,
+            String productName,
+            String codeCip,
+            long salesAmount,
+            int quantitySold,
+            double percentOfTotal,
+            double variationPercent) {}
 
     /**
      * Projection for data point.
      */
-    record DataPointProjection(
-        LocalDate date,
-        long caAmount,
-        int transactionsCount,
-        long marginAmount
-    ) {}
+    record DataPointProjection(LocalDate date, long caAmount, int transactionsCount, long marginAmount) {}
 }

@@ -30,7 +30,9 @@ class NavAccessInterceptorTest {
 
         public void lire() {}
 
-        @RequiresNavAccess(value = { "ecran", "autre-ecran" }, action = NavAction.EXPORT)
+        @RequiresNavAccess(
+                value = {"ecran", "autre-ecran"},
+                action = NavAction.EXPORT)
         public void exporter() {}
 
         @NavAccessExempt("test")
@@ -49,8 +51,8 @@ class NavAccessInterceptorTest {
     @DisplayName("en mode ENFORCE, un accès sans droit est refusé avec le libellé de l'écran")
     void enforceRefuse() {
         assertThatThrownBy(() -> appeler(NavAccessMode.ENFORCE, "GET", "/api/test", "lire"))
-            .isInstanceOf(NavAccessDeniedException.class)
-            .hasMessage("Accès refusé : Écran de test");
+                .isInstanceOf(NavAccessDeniedException.class)
+                .hasMessage("Accès refusé : Écran de test");
     }
 
     @Test
@@ -83,23 +85,27 @@ class NavAccessInterceptorTest {
     @DisplayName("l'annotation de la méthode l'emporte sur celle de la classe")
     void methodeLEmporte() throws Exception {
         when(service.isAllowed(anyCollection(), eq(NavAction.EXPORT))).thenReturn(true);
-        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/test/export", "exporter")).isTrue();
+        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/test/export", "exporter"))
+                .isTrue();
         verify(service).isAllowed(List.of("ecran", "autre-ecran"), NavAction.EXPORT);
 
-        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/test/libre", "libre")).isTrue();
+        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/test/libre", "libre"))
+                .isTrue();
     }
 
     @Test
     @DisplayName("/api/admin/** est laissé à la chaîne de filtres")
     void adminLaisseALaChaine() throws Exception {
-        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/admin/test", "lire")).isTrue();
+        assertThat(appeler(NavAccessMode.ENFORCE, "GET", "/api/admin/test", "lire"))
+                .isTrue();
         verify(service, never()).isAllowed(anyCollection(), any());
     }
 
     @Test
     @DisplayName("un refus sort en 403, et non plus en 500")
     void refusEn403() {
-        ResponseEntity<Object> reponse = new ExceptionTranslator().handleAccessDenied(new NavAccessDeniedException("Valorisation du stock"));
+        ResponseEntity<Object> reponse =
+                new ExceptionTranslator().handleAccessDenied(new NavAccessDeniedException("Valorisation du stock"));
         assertThat(reponse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(((ProblemDetail) reponse.getBody()).getDetail()).isEqualTo("Accès refusé : Valorisation du stock");
     }

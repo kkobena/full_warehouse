@@ -8,11 +8,10 @@ import java.time.LocalDate;
  * tranche via {@link LotResolutionDTO} avant de confirmer la fusion.
  */
 public record LotConflictDTO(
-    String numLot,
-    Integer sourceLotId,
-    Integer sourceQuantity,
-    LocalDate sourceExpiryDate,
-    Integer targetLotId,
-    Integer targetQuantity,
-    LocalDate targetExpiryDate
-) {}
+        String numLot,
+        Integer sourceLotId,
+        Integer sourceQuantity,
+        LocalDate sourceExpiryDate,
+        Integer targetLotId,
+        Integer targetQuantity,
+        LocalDate targetExpiryDate) {}

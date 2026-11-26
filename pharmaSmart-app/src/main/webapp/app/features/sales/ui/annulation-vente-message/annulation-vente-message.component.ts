@@ -1,22 +1,27 @@
-import { afterNextRender, signal, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {NgxSpinnerService} from "ngx-spinner";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {ISales} from "../../../../shared/model";
-import {SalesApiService} from "../../data-access/services/sales-api.service";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../shared/error.service";
-import {ButtonComponent, CardComponent} from "../../../../shared/ui";
+import {
+  afterNextRender,
+  signal,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ISales } from '../../../../shared/model';
+import { SalesApiService } from '../../data-access/services/sales-api.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { ButtonComponent, CardComponent } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-annulation-vente-message',
-  imports: [
-    ButtonComponent,
-    CardComponent,
-    FormsModule,
-    ReactiveFormsModule
-  ],
+  imports: [ButtonComponent, CardComponent, FormsModule, ReactiveFormsModule],
   templateUrl: './annulation-vente-message.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './annulation-vente-message.component.scss',
@@ -42,7 +47,6 @@ export class AnnulationVenteMessageComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildForm();
-
   }
 
   save(): void {
@@ -56,34 +60,30 @@ export class AnnulationVenteMessageComponent implements OnInit {
     this.spinner.show();
 
     const updateObservable$ =
-      this.sale?.natureVente === 'COMPTANT' ? this.api.cancelComptant(this.sale?.saleId, cancelComment) : this.api.cancelAssurance(this.sale?.saleId, cancelComment);
-    updateObservable$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: resp => {
-          this.spinner.hide();
-          this.isSaving.set(false);
-          this.activeModal.close(resp.body);
-        },
-        error: err => {
-          this.spinner.hide();
-          this.isSaving.set(false);
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Annulation de vente échouée');
-        },
-      });
+      this.sale?.natureVente === 'COMPTANT'
+        ? this.api.cancelComptant(this.sale?.saleId, cancelComment)
+        : this.api.cancelAssurance(this.sale?.saleId, cancelComment);
+    updateObservable$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: resp => {
+        this.spinner.hide();
+        this.isSaving.set(false);
+        this.activeModal.close(resp.body);
+      },
+      error: err => {
+        this.spinner.hide();
+        this.isSaving.set(false);
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Annulation de vente échouée');
+      },
+    });
   }
 
   cancel(): void {
     this.activeModal.dismiss();
   }
 
-
   private buildForm(): void {
     this.form = this.fb.group({
-      cancelComment: [null, Validators.required]
-
+      cancelComment: [null, Validators.required],
     });
   }
-
-
 }

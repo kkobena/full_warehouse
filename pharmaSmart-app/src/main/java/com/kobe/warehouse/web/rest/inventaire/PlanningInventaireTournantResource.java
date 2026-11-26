@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.inventaire;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.records.PlanningInventaireTournantRecord;
 import com.kobe.warehouse.service.dto.records.TournantDashboardRecord;
 import com.kobe.warehouse.service.inventaire.PlanningInventaireTournantService;
@@ -18,18 +19,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for {@link com.kobe.warehouse.domain.PlanningInventaireTournant}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "inventaire.tournant", "inventaire" })
+@RequiresNavAccess({"inventaire.tournant", "inventaire"})
 public class PlanningInventaireTournantResource {
 
-    private static final Logger log = LoggerFactory.getLogger(
-        PlanningInventaireTournantResource.class);
+    private static final Logger log = LoggerFactory.getLogger(PlanningInventaireTournantResource.class);
 
     private final PlanningInventaireTournantService planningService;
 
@@ -50,9 +49,10 @@ public class PlanningInventaireTournantResource {
      */
     @GetMapping("/plannings-tournants/{id}")
     public ResponseEntity<PlanningInventaireTournantRecord> findById(@PathVariable Integer id) {
-        return planningService.findById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        return planningService
+                .findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -60,8 +60,7 @@ public class PlanningInventaireTournantResource {
      */
     @PostMapping("/plannings-tournants")
     public ResponseEntity<PlanningInventaireTournantRecord> create(
-        @Valid @RequestBody PlanningInventaireTournantRecord record
-    ) {
+            @Valid @RequestBody PlanningInventaireTournantRecord record) {
         log.debug("REST request to create planning tournant : {}", record);
         return ResponseEntity.ok(planningService.create(record));
     }
@@ -71,9 +70,7 @@ public class PlanningInventaireTournantResource {
      */
     @PutMapping("/plannings-tournants/{id}")
     public ResponseEntity<PlanningInventaireTournantRecord> update(
-        @PathVariable Integer id,
-        @Valid @RequestBody PlanningInventaireTournantRecord record
-    ) {
+            @PathVariable Integer id, @Valid @RequestBody PlanningInventaireTournantRecord record) {
         log.debug("REST request to update planning tournant id={}", id);
         return ResponseEntity.ok(planningService.update(record));
     }
@@ -111,9 +108,7 @@ public class PlanningInventaireTournantResource {
      * Dashboard inventaire tournant pour un storage donné (optionnel).
      */
     @GetMapping("/plannings-tournants/dashboard")
-    public ResponseEntity<TournantDashboardRecord> getDashboard(
-        @RequestParam(required = false) Integer storageId
-    ) {
+    public ResponseEntity<TournantDashboardRecord> getDashboard(@RequestParam(required = false) Integer storageId) {
         return ResponseEntity.ok(planningService.getDashboard(storageId));
     }
 }

@@ -1,10 +1,12 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.MargeDTO;
 import com.kobe.warehouse.service.dto.report.MargeSummaryDTO;
 import com.kobe.warehouse.service.report.MargeReportService;
-import com.kobe.warehouse.service.report.pdf.ProfitabilityPdfReportService;
 import com.kobe.warehouse.web.util.PaginationUtil;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,34 +19,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
+@RequiresNavAccess({"rapport-ventes.profitability", "rapport-finance.profitability"})
 public class ProfitabilityReportResource {
-
-
 
     private final MargeReportService margeReportService;
 
-    public ProfitabilityReportResource(
-
-
-        MargeReportService margeReportService
-    ) {
-
+    public ProfitabilityReportResource(MargeReportService margeReportService) {
 
         this.margeReportService = margeReportService;
     }
 
-
     @GetMapping(value = "/profitability/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-ventes.profitability", "rapport-finance.profitability" }, action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> exportProfitabilityToPdf(  @RequestParam(required = false) Integer familleProduitId,
-                                                             @RequestParam(required = false) String search) {
+    @RequiresNavAccess(
+            value = {"rapport-ventes.profitability", "rapport-finance.profitability"},
+            action = NavAction.EXPORT)
+    public ResponseEntity<byte[]> exportProfitabilityToPdf(
+            @RequestParam(required = false) Integer familleProduitId, @RequestParam(required = false) String search) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=profitability-report.pdf");
         return ResponseEntity.ok().headers(headers).body(margeReportService.export(familleProduitId, search));
@@ -64,12 +56,12 @@ public class ProfitabilityReportResource {
      */
     @GetMapping("/marges-profitability")
     public ResponseEntity<List<MargeDTO>> getMarges(
-        @RequestParam(required = false) Integer familleProduitId,
-        @RequestParam(required = false) String search,
-        @PageableDefault(size = 20, sort = "margeBrute") Pageable pageable
-    ) {
+            @RequestParam(required = false) Integer familleProduitId,
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 20, sort = "margeBrute") Pageable pageable) {
         Page<MargeDTO> page = margeReportService.getMarges(familleProduitId, search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -81,12 +73,11 @@ public class ProfitabilityReportResource {
      */
     @GetMapping("/marges-profitability/faible-marge")
     public ResponseEntity<List<MargeDTO>> getFaibleMarge(
-        @RequestParam(defaultValue = "10") int seuil,
-        @PageableDefault(size = 20) Pageable pageable
-    ) {
+            @RequestParam(defaultValue = "10") int seuil, @PageableDefault(size = 20) Pageable pageable) {
 
         Page<MargeDTO> page = margeReportService.getProduitsMargeInsuffisante(seuil, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -98,12 +89,11 @@ public class ProfitabilityReportResource {
      */
     @GetMapping("/marges-profitability/top")
     public ResponseEntity<List<MargeDTO>> getTopMarges(
-        @RequestParam(defaultValue = "20") int limit,
-        @PageableDefault(size = 20) Pageable pageable
-    ) {
+            @RequestParam(defaultValue = "20") int limit, @PageableDefault(size = 20) Pageable pageable) {
 
         Page<MargeDTO> page = margeReportService.getTopProduitsParMarge(limit, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -117,11 +107,9 @@ public class ProfitabilityReportResource {
      */
     @GetMapping("/marges-profitability/summary")
     public ResponseEntity<MargeSummaryDTO> getMargeSummary(
-        @RequestParam(required = false) Integer familleProduitId,
-        @RequestParam(defaultValue = "10") int seuilBas,
-        @RequestParam(defaultValue = "20") int seuilHaut
-    ) {
+            @RequestParam(required = false) Integer familleProduitId,
+            @RequestParam(defaultValue = "10") int seuilBas,
+            @RequestParam(defaultValue = "20") int seuilHaut) {
         return ResponseEntity.ok(margeReportService.getMargeSummary(familleProduitId, seuilBas, seuilHaut));
     }
 }
-

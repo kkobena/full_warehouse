@@ -57,7 +57,7 @@ export class FormParamettreComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
       error: err => this.onSaveError(err),
     });

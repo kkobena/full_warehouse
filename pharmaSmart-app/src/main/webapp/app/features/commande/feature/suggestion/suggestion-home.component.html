@@ -1,144 +1,135 @@
 <app-card class="mt-2">
-@if (facade.budget(); as budget) {
-  @if (!budget.budgetIllimite) {
-    <div
-      [class.alert-danger]="budget.enDepassement"
-      [class.alert-info]="!budget.enDepassement"
-      class="alert d-flex align-items-center gap-2 mx-0 mt-2 mb-0"
-      role="alert">
-      <i [class.pi-exclamation-circle]="budget.enDepassement" [class.pi-info-circle]="!budget.enDepassement" class="pi"></i>
-      <div>
-        <strong>{{ budget.enDepassement ? 'Dépassement du budget mensuel !' : 'Suivi du budget mensuel' }}</strong>
-        Montant estimé :
-        <strong>{{ budget.montantEstime | number }} <span appDevise></span></strong>
-        · Budget mensuel :
-        <strong>{{ budget.budgetMensuel | number }} <span appDevise></span></strong>
-        · Déjà commandé ce mois :
-        <strong>{{ budget.montantCommande | number }} <span appDevise></span></strong>
+  @if (facade.budget(); as budget) {
+    @if (!budget.budgetIllimite) {
+      <div
+        [class.alert-danger]="budget.enDepassement"
+        [class.alert-info]="!budget.enDepassement"
+        class="alert d-flex align-items-center gap-2 mx-0 mt-2 mb-0"
+        role="alert"
+      >
+        <i [class.pi-exclamation-circle]="budget.enDepassement" [class.pi-info-circle]="!budget.enDepassement" class="pi"></i>
+        <div>
+          <strong>{{ budget.enDepassement ? 'Dépassement du budget mensuel !' : 'Suivi du budget mensuel' }}</strong>
+          Montant estimé :
+          <strong>{{ budget.montantEstime | number }} <span appDevise></span></strong>
+          · Budget mensuel :
+          <strong>{{ budget.budgetMensuel | number }} <span appDevise></span></strong>
+          · Déjà commandé ce mois :
+          <strong>{{ budget.montantCommande | number }} <span appDevise></span></strong>
+        </div>
       </div>
-    </div>
+    }
   }
-}
 
-<!-- MODE LISTE -->
-@if (!editingFournisseur()) {
-   <div class="view-panel">
-    <div class="view-panel__header view-panel__header--list">
-      <app-icon-field [overlay]="true" icon="pi pi-search">
-        <input
-          (input)="onListSearchChange($any($event.target).value)"
-          [value]="listSearch()"
-          class="form-control"
-          placeholder="CIP, désignation, EAN…"
-          style="width:14rem"
-          type="text" />
-      </app-icon-field>
-      <app-multi-select
-        (ngModelChange)="onListFournisseurChange($event)"
-        [clearable]="true"
-        [items]="fournisseurOptions()"
-        [ngModel]="listFournisseurIds()"
-        [style]="{'min-width':'12rem'}"
-        bindLabel="libelle"
-        bindValue="id"
-        placeholder="Tous les fournisseurs"
-      />
-      <span class="ms-auto"></span>
-      @if (childSelectionCount() >= 2) {
-        <span class="bulk-info"><i class="pi pi-check-square"></i> {{ childSelectionCount() }} sél.</span>
-        @if (childCanFusionner()) {
-          <button (click)="onFusionnerBulk()" class="bulk-btn bulk-btn--info" title="Fusionner">
-            <i class="pi pi-sitemap"></i> Fusionner
+  <!-- MODE LISTE -->
+  @if (!editingFournisseur()) {
+    <div class="view-panel">
+      <div class="view-panel__header view-panel__header--list">
+        <app-icon-field [overlay]="true" icon="pi pi-search">
+          <input
+            (input)="onListSearchChange($any($event.target).value)"
+            [value]="listSearch()"
+            class="form-control"
+            placeholder="CIP, désignation, EAN…"
+            style="width: 14rem"
+            type="text"
+          />
+        </app-icon-field>
+        <app-multi-select
+          (ngModelChange)="onListFournisseurChange($event)"
+          [clearable]="true"
+          [items]="fournisseurOptions()"
+          [ngModel]="listFournisseurIds()"
+          [style]="{ 'min-width': '12rem' }"
+          bindLabel="libelle"
+          bindValue="id"
+          placeholder="Tous les fournisseurs"
+        />
+        <span class="ms-auto"></span>
+        @if (childSelectionCount() >= 2) {
+          <span class="bulk-info"><i class="pi pi-check-square"></i> {{ childSelectionCount() }} sél.</span>
+          @if (childCanFusionner()) {
+            <button (click)="onFusionnerBulk()" class="bulk-btn bulk-btn--info" title="Fusionner">
+              <i class="pi pi-sitemap"></i> Fusionner
+            </button>
+          }
+          <button (click)="onSupprimerBulk()" class="bulk-btn bulk-btn--danger" title="Supprimer">
+            <i class="pi pi-trash"></i> Supprimer
           </button>
         }
-        <button (click)="onSupprimerBulk()" class="bulk-btn bulk-btn--danger" title="Supprimer">
-          <i class="pi pi-trash"></i> Supprimer
-        </button>
-      }
-      <app-button
-        (clicked)="onRecalculer()"
-        [loading]="facade.recalculEnCours()"
-        icon="pi pi-sync"
-        label="Recalculer VMM"
-        ngbTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
-        placement="bottom"
-        severity="warn"
-        size="small"
+        <app-button
+          (clicked)="onRecalculer()"
+          [loading]="facade.recalculEnCours()"
+          icon="pi pi-sync"
+          label="Recalculer VMM"
+          ngbTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
+          placement="bottom"
+          severity="warn"
+          size="small"
+        />
+      </div>
+      <app-suggestion-fournisseur-list
+        (canFusionnerChange)="onChildCanFusionnerChange($event)"
+        (commanderRequest)="onCommanderDirect($event)"
+        (dispoRequest)="onVerifierDispoDirect($event)"
+        (exportCsvRequest)="onExportCsvDirect($event)"
+        (exportPdfRequest)="onExportPdfDirect($event)"
+        (fournisseurSelected)="onFournisseurSelected($event)"
+        (fusionnerRequest)="onFusionnerSuggestions($event)"
+        (selectionCountChange)="onChildSelectionCountChange($event)"
+        (supprimerSelectionRequest)="onSuggestionsSupprimeees($event)"
+        (supprimerSuggestionRequest)="onSuggestionSupprimee($event)"
+        (validerRequest)="onValiderDirect($event)"
+        [fournisseurs]="facade.fournisseurs()"
+        [loading]="facade.loading()"
+        [selected]="facade.selectedFournisseur()"
       />
     </div>
-    <app-suggestion-fournisseur-list
-      (canFusionnerChange)="onChildCanFusionnerChange($event)"
-      (commanderRequest)="onCommanderDirect($event)"
-      (dispoRequest)="onVerifierDispoDirect($event)"
-      (exportCsvRequest)="onExportCsvDirect($event)"
-      (exportPdfRequest)="onExportPdfDirect($event)"
-      (fournisseurSelected)="onFournisseurSelected($event)"
-      (fusionnerRequest)="onFusionnerSuggestions($event)"
-      (selectionCountChange)="onChildSelectionCountChange($event)"
-      (supprimerSelectionRequest)="onSuggestionsSupprimeees($event)"
-      (supprimerSuggestionRequest)="onSuggestionSupprimee($event)"
-      (validerRequest)="onValiderDirect($event)"
-      [fournisseurs]="facade.fournisseurs()"
-      [loading]="facade.loading()"
-      [selected]="facade.selectedFournisseur()"
-    />
-  </div>
-
-} @else {
-  <!-- MODE DÉTAIL -->
-  <div class="view-panel">
-    <div class="view-panel__header view-panel__header--detail">
-      <app-button
-        (clicked)="onRetour()"
-        [text]="true"
-        icon="pi pi-arrow-left"
-        label="Retour à la liste"
-        size="small"
-      />
-      <span class="view-panel__title">{{ editingFournisseur()!.libelle }}</span>
-      <span class="view-panel__meta">
-        <i class="pi pi-tag"></i>&nbsp;{{ editingFournisseur()!.nbProduits }} produit(s)
-        &nbsp;·&nbsp;
-        {{ editingFournisseur()!.montantEstime | number : '1.0-0' }} <span appDevise></span>
-      </span>
-      @if (editingFournisseur()!.nbUrgents > 0) {
-        <span class="view-panel__urgent">
-          <i class="pi pi-bolt"></i>&nbsp;{{ editingFournisseur()!.nbUrgents }} urgent(s)
+  } @else {
+    <!-- MODE DÉTAIL -->
+    <div class="view-panel">
+      <div class="view-panel__header view-panel__header--detail">
+        <app-button (clicked)="onRetour()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste" size="small" />
+        <span class="view-panel__title">{{ editingFournisseur()!.libelle }}</span>
+        <span class="view-panel__meta">
+          <i class="pi pi-tag"></i>&nbsp;{{ editingFournisseur()!.nbProduits }} produit(s) &nbsp;·&nbsp;
+          {{ editingFournisseur()!.montantEstime | number: '1.0-0' }} <span appDevise></span>
         </span>
+        @if (editingFournisseur()!.nbUrgents > 0) {
+          <span class="view-panel__urgent"> <i class="pi pi-bolt"></i>&nbsp;{{ editingFournisseur()!.nbUrgents }} urgent(s) </span>
+        }
+      </div>
+      @if (facade.selectedFournisseur()) {
+        <app-suggestion-produit-panel
+          (ajouterProduit)="onAjouterProduit($event)"
+          (commander)="onCommander()"
+          (commanderFiltre)="onCommanderFiltre($event)"
+          (commanderSelection)="onCommanderSelection()"
+          (comparerRequest)="onComparer($event)"
+          (dispoRequest)="onVerifierDispo()"
+          (exportCsvRequest)="onExporterCsv()"
+          (exportPdfRequest)="onExporterPdf()"
+          (filterChange)="onFilterChange($event)"
+          (ligneSupprimer)="onLigneSupprimee($event)"
+          (lignesSupprimer)="onLignesSupprimeees($event)"
+          (pageChange)="onPageChange($event)"
+          (quantiteChanged)="onQuantiteChanged($event)"
+          (rejeterRequest)="onRejeter()"
+          (resetQte)="onResetQte($event)"
+          (sanitizeRequest)="onSanitize()"
+          (selectionChanged)="onSelectionChanged($event)"
+          (validerRequest)="onValider()"
+          [clientsEnAttente]="clientsEnAttente()"
+          [exportingCsv]="facade.exportingCsv()"
+          [exportingPdf]="facade.exportingPdf()"
+          [fournisseur]="facade.selectedFournisseur()"
+          [lignes]="facade.lignesEnrichies()"
+          [loading]="facade.loadingLignes()"
+          [page]="facade.page()"
+          [rows]="facade.rows()"
+          [total]="facade.totalLignes()"
+        />
       }
     </div>
-    @if (facade.selectedFournisseur()) {
-      <app-suggestion-produit-panel
-        (ajouterProduit)="onAjouterProduit($event)"
-        (commander)="onCommander()"
-        (commanderFiltre)="onCommanderFiltre($event)"
-        (commanderSelection)="onCommanderSelection()"
-        (comparerRequest)="onComparer($event)"
-        (dispoRequest)="onVerifierDispo()"
-        (exportCsvRequest)="onExporterCsv()"
-        (exportPdfRequest)="onExporterPdf()"
-        (filterChange)="onFilterChange($event)"
-        (ligneSupprimer)="onLigneSupprimee($event)"
-        (lignesSupprimer)="onLignesSupprimeees($event)"
-        (pageChange)="onPageChange($event)"
-        (quantiteChanged)="onQuantiteChanged($event)"
-        (rejeterRequest)="onRejeter()"
-        (resetQte)="onResetQte($event)"
-        (sanitizeRequest)="onSanitize()"
-        (selectionChanged)="onSelectionChanged($event)"
-        (validerRequest)="onValider()"
-        [clientsEnAttente]="clientsEnAttente()"
-        [exportingCsv]="facade.exportingCsv()"
-        [exportingPdf]="facade.exportingPdf()"
-        [fournisseur]="facade.selectedFournisseur()"
-        [lignes]="facade.lignesEnrichies()"
-        [loading]="facade.loadingLignes()"
-        [page]="facade.page()"
-        [rows]="facade.rows()"
-        [total]="facade.totalLignes()"
-      />
-    }
-  </div>
-}
-
+  }
 </app-card>

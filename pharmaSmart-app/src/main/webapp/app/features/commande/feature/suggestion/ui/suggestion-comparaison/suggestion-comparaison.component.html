@@ -1,7 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-chart-bar me-2"></i>Comparaison fournisseurs
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-chart-bar me-2"></i>Comparaison fournisseurs</h5>
   <button type="button" class="btn-close" (click)="close()"></button>
 </div>
 
@@ -12,14 +10,12 @@
 
   @if (loading()) {
     <div class="d-flex justify-content-center p-4">
-      <div class="spinner-border text-primary" style="width: 40px; height: 40px;" role="status">
+      <div class="spinner-border text-primary" style="width: 40px; height: 40px" role="status">
         <span class="visually-hidden">Chargement…</span>
       </div>
     </div>
   } @else if (fournisseurs().length === 0) {
-    <div class="text-center text-muted p-4">
-      <i class="pi pi-inbox me-2"></i>Aucun fournisseur référencé pour ce produit.
-    </div>
+    <div class="text-center text-muted p-4"><i class="pi pi-inbox me-2"></i>Aucun fournisseur référencé pour ce produit.</div>
   } @else {
     <table class="table table-sm table-hover align-middle">
       <thead class="table-light">
@@ -39,18 +35,21 @@
                 <app-badge label="Actuel" severity="info" class="ms-2" />
               }
             </td>
-            <td><code>{{ fp.codeCip ?? '—' }}</code></td>
+            <td>
+              <code>{{ fp.codeCip ?? '—' }}</code>
+            </td>
             <td class="text-end">
-              <span [class.text-success]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1"
-                    [class.fw-bold]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1">
+              <span
+                [class.text-success]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1"
+                [class.fw-bold]="(fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1"
+              >
                 {{ fp.prixAchat | number: '1.0-0' }}
               </span>
               @if ((fp.prixAchat ?? 0) === prixMinimal() && fournisseurs().length > 1) {
-                <i class="pi pi-star-fill text-warning ms-1" style="font-size:0.75rem" title="Meilleur prix"></i>
+                <i class="pi pi-star-fill text-warning ms-1" style="font-size: 0.75rem" title="Meilleur prix"></i>
               }
             </td>
             <td class="text-end">{{ fp.prixUni | number: '1.0-0' }}</td>
-
           </tr>
         }
       </tbody>

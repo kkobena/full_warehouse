@@ -1,5 +1,9 @@
 package com.kobe.warehouse.service.report;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
@@ -7,6 +11,13 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,18 +26,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
-
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link CommonReportService} est le socle dont héritent les vingt-quatre services de rapport du
@@ -70,9 +69,9 @@ class CommonReportServiceTest {
         void mentionsCompletes() {
             Magasin magasin = magasin("CI-ABJ-2020-B-1234", "1234567A", "CPT-9876", "2722000000", "Cocody, Abidjan");
 
-            assertThat(rapport.builderFooter(magasin).toString()).isEqualTo(
-                "RC N° CI-ABJ-2020-B-1234 - CC N° 1234567A - CPT N°: CPT-9876- Tel: 2722000000- Adr: Cocody, Abidjan"
-            );
+            assertThat(rapport.builderFooter(magasin).toString())
+                    .isEqualTo(
+                            "RC N° CI-ABJ-2020-B-1234 - CC N° 1234567A - CPT N°: CPT-9876- Tel: 2722000000- Adr: Cocody, Abidjan");
         }
 
         /**
@@ -93,7 +92,9 @@ class CommonReportServiceTest {
         @Test
         @DisplayName("un magasin sans aucune mention rend un pied de page vide")
         void aucuneMention() {
-            assertThat(rapport.builderFooter(magasin(null, null, null, null, null)).toString()).isEmpty();
+            assertThat(rapport.builderFooter(magasin(null, null, null, null, null))
+                            .toString())
+                    .isEmpty();
         }
 
         @Test
@@ -130,15 +131,16 @@ class CommonReportServiceTest {
         @DisplayName("une borne absente disparaît du libellé")
         void borneAbsente() {
             assertThat(rapport.buildPeriode("Ventes", new ReportPeriode(LocalDate.of(2026, 1, 5), null)))
-                .isEqualTo("Ventes du 05/01/2026");
+                    .isEqualTo("Ventes du 05/01/2026");
             assertThat(rapport.buildPeriode("Ventes", new ReportPeriode(null, LocalDate.of(2026, 3, 31))))
-                .isEqualTo("Ventes  au 31/03/2026");
+                    .isEqualTo("Ventes  au 31/03/2026");
         }
 
         @Test
         @DisplayName("une période de dates simples se formate en jours")
         void periodeDeDates() {
-            assertThat(rapport.buildPeriode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31))).isEqualTo("05-01-2026 au 31-03-2026");
+            assertThat(rapport.buildPeriode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31)))
+                    .isEqualTo("05-01-2026 au 31-03-2026");
         }
 
         /**
@@ -147,8 +149,9 @@ class CommonReportServiceTest {
         @Test
         @DisplayName("une période horodatée conserve l'heure")
         void periodeHorodatee() {
-            assertThat(rapport.buildPeriode(LocalDateTime.of(2026, 1, 5, 8, 0, 0), LocalDateTime.of(2026, 1, 5, 19, 30, 0)))
-                .isEqualTo("05/01/2026 08:00:00 au 05/01/2026 19:30:00");
+            assertThat(rapport.buildPeriode(
+                            LocalDateTime.of(2026, 1, 5, 8, 0, 0), LocalDateTime.of(2026, 1, 5, 19, 30, 0)))
+                    .isEqualTo("05/01/2026 08:00:00 au 05/01/2026 19:30:00");
         }
 
         @Test
@@ -156,7 +159,8 @@ class CommonReportServiceTest {
         void titreDuDocument() {
             rapport.exposerTitre("Rapport des ventes", "du 05/01/2026 au 31/03/2026");
 
-            assertThat(rapport.getParametres()).containsEntry(Constant.REPORT_TITLE, "Rapport des ventes du 05/01/2026 au 31/03/2026");
+            assertThat(rapport.getParametres())
+                    .containsEntry(Constant.REPORT_TITLE, "Rapport des ventes du 05/01/2026 au 31/03/2026");
         }
 
         @Test
@@ -167,7 +171,7 @@ class CommonReportServiceTest {
             rapport.exposerTitre("Rapport", periode);
 
             assertThat(rapport.getParametres().get(Constant.REPORT_TITLE).toString())
-                .isEqualTo("Rapport 05/01/2026 08:00:00 au 31/03/2026 19:00:00");
+                    .isEqualTo("Rapport 05/01/2026 08:00:00 au 31/03/2026 19:00:00");
         }
     }
 
@@ -235,9 +239,12 @@ class CommonReportServiceTest {
 
             assertThat(rapport.pagesRendues).hasSize(4);
             // La première page est rendue avec la liste complète : le gabarit y prend ses n premières.
-            assertThat(rapport.pagesRendues.get(1).get(Constant.ITEMS)).isEqualTo(lignes(15).subList(4, 8));
-            assertThat(rapport.pagesRendues.get(2).get(Constant.ITEMS)).isEqualTo(lignes(15).subList(8, 12));
-            assertThat(rapport.pagesRendues.get(3).get(Constant.ITEMS)).isEqualTo(lignes(15).subList(12, 15));
+            assertThat(rapport.pagesRendues.get(1).get(Constant.ITEMS))
+                    .isEqualTo(lignes(15).subList(4, 8));
+            assertThat(rapport.pagesRendues.get(2).get(Constant.ITEMS))
+                    .isEqualTo(lignes(15).subList(8, 12));
+            assertThat(rapport.pagesRendues.get(3).get(Constant.ITEMS))
+                    .isEqualTo(lignes(15).subList(12, 15));
         }
 
         @Test
@@ -249,8 +256,8 @@ class CommonReportServiceTest {
             rapport.imprimerSurPlusieursPages();
 
             assertThat(rapport.pagesRendues)
-                .extracting(page -> page.get(Constant.PAGE_COUNT))
-                .containsExactly("1/4", "2/4", "3/4", "4/4");
+                    .extracting(page -> page.get(Constant.PAGE_COUNT))
+                    .containsExactly("1/4", "2/4", "3/4", "4/4");
         }
 
         /**
@@ -278,7 +285,8 @@ class CommonReportServiceTest {
             rapport.imprimerSurPlusieursPages();
 
             assertThat(rapport.pagesRendues).hasSize(2);
-            assertThat(rapport.pagesRendues.get(1).get(Constant.ITEMS)).isEqualTo(lignes(8).subList(4, 8));
+            assertThat(rapport.pagesRendues.get(1).get(Constant.ITEMS))
+                    .isEqualTo(lignes(8).subList(4, 8));
             assertThat(rapport.pagesRendues.get(1).get(Constant.IS_LAST_PAGE)).isEqualTo(true);
         }
 
@@ -316,7 +324,8 @@ class CommonReportServiceTest {
         return lignes;
     }
 
-    private static Magasin magasin(String registre, String compteContribuable, String numComptable, String telephone, String adresse) {
+    private static Magasin magasin(
+            String registre, String compteContribuable, String numComptable, String telephone, String adresse) {
         Magasin magasin = new Magasin();
         magasin.setRegistre(registre);
         magasin.setCompteContribuable(compteContribuable);

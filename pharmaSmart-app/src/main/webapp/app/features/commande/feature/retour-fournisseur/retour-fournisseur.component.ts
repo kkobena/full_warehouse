@@ -1,40 +1,25 @@
-import {
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-  ChangeDetectionStrategy
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {CommonModule} from "@angular/common";
-import {HttpResponse} from "@angular/common/http";
-import {FormsModule} from "@angular/forms";
-import {Router} from "@angular/router";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {NotificationService} from "app/shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {IRetourBon} from "app/shared/model/retour-bon.model";
-import {IRetourBonGroupe} from "app/shared/model/retour-bon-groupe.model";
-import {IAvoirFournisseur} from "app/shared/model/avoir-fournisseur.model";
-import {RetourBonStatut} from "app/shared/model/enumerations/retour-bon-statut.model";
-import {ITEMS_PER_PAGE} from "app/shared/constants/pagination.constants";
-import {NGB_DATE_TO_ISO} from "app/shared/util/warehouse-util";
-import {
-  RetourBonService
-} from "../../../../entities/commande/retour_fournisseur/retour-bon.service";
-import {
-  SupplierResponseModalComponent
-} from "../../../../entities/commande/retour_fournisseur/supplier-response-modal.component";
-import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
-import {AvoirEncoursComponent} from "./avoir-encours/avoir-encours.component";
-import {
-  AvoirFournisseurService
-} from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
-import {NgbDateStruct, NgbNavModule, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { IRetourBon } from 'app/shared/model/retour-bon.model';
+import { IRetourBonGroupe } from 'app/shared/model/retour-bon-groupe.model';
+import { IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
+import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { RetourBonService } from '../../../../entities/commande/retour_fournisseur/retour-bon.service';
+import { SupplierResponseModalComponent } from '../../../../entities/commande/retour_fournisseur/supplier-response-modal.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { AvoirEncoursComponent } from './avoir-encours/avoir-encours.component';
+import { AvoirFournisseurService } from '../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
+import { NgbDateStruct, NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   ActionBarComponent,
   AppSplitButtonItem,
@@ -45,23 +30,22 @@ import {
   NavTabsComponent,
   RowTogglerDirective,
   SelectComponent,
-  SplitButtonComponent
-} from "../../../../shared/ui";
-import {
-  PharmaDatePickerComponent
-} from "../../../../shared/date-picker/pharma-date-picker.component";
+  SplitButtonComponent,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 import { DevisePipe } from 'app/shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
-import AppComponent from "../../../../app.component";
+import AppComponent from '../../../../app.component';
 
-export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
+export type RetourTab = 'EN_ATTENTE' | 'HISTORIQUE' | 'AVOIRS' | 'GROUPE';
 
 @Component({
-  selector: "app-retour-fournisseur",
-  templateUrl: "./retour-fournisseur.component.html",
-  styleUrls: ["./retour-fournisseur.scss"],
+  selector: 'app-retour-fournisseur',
+  templateUrl: './retour-fournisseur.component.html',
+  styleUrls: ['./retour-fournisseur.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent,
+  imports: [
+    CardComponent,
     CommonModule,
     FormsModule,
     NgbNavModule,
@@ -76,26 +60,28 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
     PharmaDatePickerComponent,
     RowTogglerDirective,
     SelectComponent,
-    SplitButtonComponent
-    , DevisePipe, AppComponent]
+    SplitButtonComponent,
+    DevisePipe,
+    AppComponent,
+  ],
 })
 export class AppRetourFournisseurComponent implements OnInit {
-  protected readonly search = signal("");
+  protected readonly search = signal('');
   protected readonly selectedStatut = signal<RetourBonStatut | null>(RetourBonStatut.VALIDATED);
   protected readonly dtStart = signal<NgbDateStruct | null>(null);
   protected readonly dtEnd = signal<NgbDateStruct | null>(null);
 
   /** Onglet actif : retours en cours (VALIDATED/PROCESSING) ou historique (CLOSED) */
-  protected activeTab = signal<RetourTab>("EN_ATTENTE");
+  protected activeTab = signal<RetourTab>('EN_ATTENTE');
   /** Badge : nb de retours VALIDATED en attente d'action */
   protected countEnAttente = signal<number>(0);
   protected countAvoirs = signal<number>(0);
 
   /** Options de filtre selon l'onglet actif */
   protected readonly enAttenteStatutOptions = [
-    {label: "En attente de réponse", value: RetourBonStatut.VALIDATED},
-    {label: "En cours de traitement", value: RetourBonStatut.PROCESSING},
-    {label: "Partiellement accepté", value: RetourBonStatut.PARTIALLY_ACCEPTED}
+    { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
+    { label: 'En cours de traitement', value: RetourBonStatut.PROCESSING },
+    { label: 'Partiellement accepté', value: RetourBonStatut.PARTIALLY_ACCEPTED },
   ];
 
   protected retourBons = signal<IRetourBon[]>([]);
@@ -117,15 +103,15 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   protected exportMenus: AppSplitButtonItem[] = [
     {
-      label: "Excel",
-      icon: "pi pi-file-excel",
-      command: () => this.exportRetourBons("excel")
+      label: 'Excel',
+      icon: 'pi pi-file-excel',
+      command: () => this.exportRetourBons('excel'),
     },
     {
-      label: "CSV",
-      icon: "pi pi-file-export",
-      command: () => this.exportRetourBons("csv")
-    }
+      label: 'CSV',
+      icon: 'pi pi-file-export',
+      command: () => this.exportRetourBons('csv'),
+    },
   ];
 
   ngOnInit(): void {
@@ -139,7 +125,7 @@ export class AppRetourFournisseurComponent implements OnInit {
   }
 
   onNewRetour(): void {
-    void this.router.navigate(["/commande/retour-fournisseur/new"]);
+    void this.router.navigate(['/commande/retour-fournisseur/new']);
   }
 
   /** Bascule vers l'onglet cible et recharge les données */
@@ -148,54 +134,59 @@ export class AppRetourFournisseurComponent implements OnInit {
       return;
     }
     this.activeTab.set(tab);
-    this.search.set("");
+    this.search.set('');
     this.dtStart.set(null);
     this.dtEnd.set(null);
     this.loadBadges();
-    if (tab === "AVOIRS") {
+    if (tab === 'AVOIRS') {
       return;
     }
-    if (tab === "GROUPE") {
+    if (tab === 'GROUPE') {
       this.loadGroupes();
       return;
     }
-    this.selectedStatut.set(tab === "EN_ATTENTE" ? null : RetourBonStatut.CLOSED);
+    this.selectedStatut.set(tab === 'EN_ATTENTE' ? null : RetourBonStatut.CLOSED);
     this.page.set(0);
     this.loadAll();
   }
 
   protected loadGroupes(): void {
     this.loadingGroupes.set(true);
-    this.retourBonService.getGroupedByFournisseur().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: res => {
-        this.retourBonsGroupes.set(res.body || []);
-        this.loadingGroupes.set(false);
-      },
-      error: () => {
-        this.notificationService.error("Erreur lors du chargement des retours groupés");
-        this.loadingGroupes.set(false);
-      }
-    });
+    this.retourBonService
+      .getGroupedByFournisseur()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.retourBonsGroupes.set(res.body || []);
+          this.loadingGroupes.set(false);
+        },
+        error: () => {
+          this.notificationService.error('Erreur lors du chargement des retours groupés');
+          this.loadingGroupes.set(false);
+        },
+      });
   }
 
   protected exportGroupePdf(groupe: IRetourBonGroupe): void {
     const ids = (groupe.retourBons || []).map(r => r.id!).filter(id => !!id);
-    this.retourBonService.exportGroupe(ids).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (blob: Blob) => {
-        this.downloadDocumentService.downloadPdf(blob, `bordereau-groupe-${groupe.fournisseurId}`);
-
-      },
-      error: () => {
-        this.notificationService.error("Impossible de générer le bordereau groupé");
-      }
-    });
+    this.retourBonService
+      .exportGroupe(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob: Blob) => {
+          this.downloadDocumentService.downloadPdf(blob, `bordereau-groupe-${groupe.fournisseurId}`);
+        },
+        error: () => {
+          this.notificationService.error('Impossible de générer le bordereau groupé');
+        },
+      });
   }
 
   protected loadAll(): void {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
     if (this.dtStart()) {
       query.dtStart = NGB_DATE_TO_ISO(this.dtStart());
@@ -207,7 +198,7 @@ export class AppRetourFournisseurComponent implements OnInit {
       query.search = this.search();
     }
 
-    if (this.activeTab() === "HISTORIQUE") {
+    if (this.activeTab() === 'HISTORIQUE') {
       query.statut = RetourBonStatut.CLOSED;
     } else if (this.selectedStatut()) {
       query.statut = this.selectedStatut();
@@ -226,7 +217,7 @@ export class AppRetourFournisseurComponent implements OnInit {
       error: () => {
         this.onError();
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -241,43 +232,43 @@ export class AppRetourFournisseurComponent implements OnInit {
       SupplierResponseModalComponent,
       {
         retourBon,
-        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`
+        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`,
       },
       (avoir: IAvoirFournisseur) => {
         if (avoir) {
-          this.notificationService.success("Avoir fournisseur créé avec succès — réf. " + (avoir.reference ?? ""));
+          this.notificationService.success('Avoir fournisseur créé avec succès — réf. ' + (avoir.reference ?? ''));
           this.loadAll();
         }
       },
-      "xl"
+      'xl',
     );
   }
 
-  protected getStatusSeverity(statut: RetourBonStatut): "success" | "info" | "warn" | "danger" | "secondary" {
+  protected getStatusSeverity(statut: RetourBonStatut): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
       case RetourBonStatut.VALIDATED:
-        return "info";
+        return 'info';
       case RetourBonStatut.PROCESSING:
-        return "secondary";
+        return 'secondary';
       case RetourBonStatut.CLOSED:
-        return "success";
+        return 'success';
       case RetourBonStatut.PARTIALLY_ACCEPTED:
-        return "warn";
+        return 'warn';
       default:
-        return "info";
+        return 'info';
     }
   }
 
   protected getStatusLabel(statut: RetourBonStatut): string {
     switch (statut) {
       case RetourBonStatut.VALIDATED:
-        return "En attente de réponse";
+        return 'En attente de réponse';
       case RetourBonStatut.PROCESSING:
-        return "En cours";
+        return 'En cours';
       case RetourBonStatut.CLOSED:
-        return "Clôturé";
+        return 'Clôturé';
       case RetourBonStatut.PARTIALLY_ACCEPTED:
-        return "Partiellement accepté";
+        return 'Partiellement accepté';
       default:
         return statut;
     }
@@ -296,135 +287,148 @@ export class AppRetourFournisseurComponent implements OnInit {
   }
 
   private onSuccess(data: IRetourBon[] | null, headers: any): void {
-    this.totalRecords.set(Number(headers.get("X-Total-Count")));
+    this.totalRecords.set(Number(headers.get('X-Total-Count')));
     this.retourBons.set(data || []);
   }
 
   private onError(): void {
-    this.notificationService.error("Erreur lors du chargement des retours");
+    this.notificationService.error('Erreur lors du chargement des retours');
   }
 
   protected loadBadges(): void {
-    this.retourBonService.countEnAttente()
+    this.retourBonService
+      .countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countEnAttente.set(count),
-        error() {
-        }
+        error() {},
       });
-    this.avoirFournisseurService.countEnAttente()
+    this.avoirFournisseurService
+      .countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countAvoirs.set(count),
-        error() {
-        }
+        error() {},
       });
   }
 
   protected downloadPdf(retourBon: IRetourBon): void {
-    this.retourBonService.getPdf(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (blob: Blob) => {
-        this.downloadDocumentService.downloadPdf(blob, `retour_bon-${retourBon.id}`);
-
-      },
-      error: () => {
-        this.notificationService.error("Impossible de générer le PDF");
-      }
-    });
+    this.retourBonService
+      .getPdf(retourBon.id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob: Blob) => {
+          this.downloadDocumentService.downloadPdf(blob, `retour_bon-${retourBon.id}`);
+        },
+        error: () => {
+          this.notificationService.error('Impossible de générer le PDF');
+        },
+      });
   }
 
   protected editRetour(retourBon: IRetourBon): void {
-    void this.router.navigate(["/commande/retour-fournisseur", retourBon.id, "edit"]);
+    void this.router.navigate(['/commande/retour-fournisseur', retourBon.id, 'edit']);
   }
 
   protected deleteRetour(retourBon: IRetourBon): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.retourBonService.delete(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => {
-            this.notificationService.success("Retour supprimé avec succès");
-            this.loadAll();
-          },
-          error: () => {
-            this.notificationService.error("Impossible de supprimer ce retour");
-          }
-        });
+        this.retourBonService
+          .delete(retourBon.id!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.notificationService.success('Retour supprimé avec succès');
+              this.loadAll();
+            },
+            error: () => {
+              this.notificationService.error('Impossible de supprimer ce retour');
+            },
+          });
       },
-      "Supprimer le retour",
-      `Supprimer le retour #${retourBon.id} (${retourBon.fournisseurLibelle}) ? Cette action est irréversible.`
+      'Supprimer le retour',
+      `Supprimer le retour #${retourBon.id} (${retourBon.fournisseurLibelle}) ? Cette action est irréversible.`,
     );
   }
 
   protected sendEdi(retourBon: IRetourBon): void {
-    this.retourBonService.sendEdi(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.notificationService.success("Retour envoyé via EDI PharmaML avec succès");
-        this.loadAll();
-      },
-      error: () => {
-        this.notificationService.error("Erreur lors de l'envoi EDI. Vérifiez la configuration PharmaML du fournisseur.");
-      }
-    });
+    this.retourBonService
+      .sendEdi(retourBon.id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notificationService.success('Retour envoyé via EDI PharmaML avec succès');
+          this.loadAll();
+        },
+        error: () => {
+          this.notificationService.error("Erreur lors de l'envoi EDI. Vérifiez la configuration PharmaML du fournisseur.");
+        },
+      });
   }
 
   protected markAsProcessing(retourBon: IRetourBon): void {
-    this.retourBonService.markAsProcessing(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.notificationService.success("Retour marqué en cours de traitement");
-        this.loadAll();
-      },
-      error: () => {
-        this.notificationService.error("Impossible de mettre à jour le statut");
-      }
-    });
+    this.retourBonService
+      .markAsProcessing(retourBon.id!)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notificationService.success('Retour marqué en cours de traitement');
+          this.loadAll();
+        },
+        error: () => {
+          this.notificationService.error('Impossible de mettre à jour le statut');
+        },
+      });
   }
 
   protected closeManually(retourBon: IRetourBon): void {
     this.confirmDialog.onConfirm(
       () => {
-        this.retourBonService.closeManually(retourBon.id!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => {
-            this.notificationService.success("Retour clôturé manuellement");
-            this.loadAll();
-          },
-          error: () => {
-            this.notificationService.error("Impossible de clôturer ce retour");
-          }
-        });
+        this.retourBonService
+          .closeManually(retourBon.id!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.notificationService.success('Retour clôturé manuellement');
+              this.loadAll();
+            },
+            error: () => {
+              this.notificationService.error('Impossible de clôturer ce retour');
+            },
+          });
       },
-      "Clôturer manuellement",
-      `Clôturer manuellement le retour ${retourBon.reference ?? "#" + retourBon.id} (acceptation partielle) ?`
+      'Clôturer manuellement',
+      `Clôturer manuellement le retour ${retourBon.reference ?? '#' + retourBon.id} (acceptation partielle) ?`,
     );
   }
 
-
-  protected exportRetourBons(format: "excel" | "csv"): void {
-    const statutToUse =
-      this.activeTab() === "HISTORIQUE"
-        ? RetourBonStatut.CLOSED
-        : this.selectedStatut();
+  protected exportRetourBons(format: 'excel' | 'csv'): void {
+    const statutToUse = this.activeTab() === 'HISTORIQUE' ? RetourBonStatut.CLOSED : this.selectedStatut();
 
     const params: Record<string, string> = {};
     if (statutToUse) {
-      params["statut"] = statutToUse;
+      params['statut'] = statutToUse;
     }
     if (this.dtStart()) {
-      params["dtStart"] = NGB_DATE_TO_ISO(this.dtStart())!;
+      params['dtStart'] = NGB_DATE_TO_ISO(this.dtStart())!;
     }
     if (this.dtEnd()) {
-      params["dtEnd"] = NGB_DATE_TO_ISO(this.dtEnd())!;
+      params['dtEnd'] = NGB_DATE_TO_ISO(this.dtEnd())!;
     }
     if (this.search()) {
-      params["search"] = this.search();
+      params['search'] = this.search();
     }
 
-    this.retourBonService.export(format, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: blob => {
-        this.downloadDocumentService.download(blob, "retours-fournisseur", format);
-      },
-      error: () => {
-        this.notificationService.error("Erreur lors de l'export des retours fournisseur.", "Erreur");
-      }
-    });
+    this.retourBonService
+      .export(format, params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: blob => {
+          this.downloadDocumentService.download(blob, 'retours-fournisseur', format);
+        },
+        error: () => {
+          this.notificationService.error("Erreur lors de l'export des retours fournisseur.", 'Erreur');
+        },
+      });
   }
 }

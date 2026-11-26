@@ -20,8 +20,7 @@ public interface PilotageVenteRepository extends Repository<Sales, SaleId> {
         return calculerChiffreAffaires(du, au, SalesStatut.CLOSED, CategorieChiffreAffaire.officine());
     }
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ChiffreAffairesReferenceDTO(
             count(s), coalesce(sum(s.salesAmount), 0L), coalesce(sum(s.htAmount), 0L), coalesce(sum(s.discountAmount), 0L))
         FROM Sales s
@@ -29,12 +28,7 @@ public interface PilotageVenteRepository extends Repository<Sales, SaleId> {
           AND s.statut = :statut
           AND s.canceled = false
           AND s.categorieChiffreAffaire IN :categories
-        """
-    )
+        """)
     ChiffreAffairesReferenceDTO calculerChiffreAffaires(
-        LocalDate du,
-        LocalDate au,
-        SalesStatut statut,
-        Set<CategorieChiffreAffaire> categories
-    );
+            LocalDate du, LocalDate au, SalesStatut statut, Set<CategorieChiffreAffaire> categories);
 }

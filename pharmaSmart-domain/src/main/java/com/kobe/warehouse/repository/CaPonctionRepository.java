@@ -32,20 +32,17 @@ public interface CaPonctionRepository extends JpaRepository<CaPonction, Integer>
      * 25 janvier au 5 février doit rester visible quand on interroge janvier. Exiger qu'elle tienne
      * entièrement dans l'intervalle la ferait disparaître des deux mois à la fois.
      */
-    @Query(
-        """
+    @Query("""
         select p from CaPonction p
          where p.magasin.id = :magasinId
            and p.dateDebut <= :dateFin
            and p.dateFin >= :dateDebut
          order by p.dateDebut desc
-        """
-    )
+        """)
     List<CaPonction> findHistoriqueSurPeriode(
-        @Param("magasinId") Integer magasinId,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin
-    );
+            @Param("magasinId") Integer magasinId,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin);
 
     /**
      * Ponctions dont la période recouvre celle demandée.
@@ -55,21 +52,18 @@ public interface CaPonctionRepository extends JpaRepository<CaPonction, Integer>
      * <strong>prévenir</strong> l'utilisateur avant la saisie ; la garantie, elle, reste portée par
      * la contrainte d'exclusion GiST, qu'aucun appel forgé ne contourne.
      */
-    @Query(
-        """
+    @Query("""
         select p from CaPonction p
          where p.magasin.id = :magasinId
            and p.statut in :statuts
            and p.dateDebut <= :dateFin
            and p.dateFin >= :dateDebut
-        """
-    )
+        """)
     List<CaPonction> findChevauchantes(
-        @Param("magasinId") Integer magasinId,
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("statuts") Collection<StatutPonction> statuts
-    );
+            @Param("magasinId") Integer magasinId,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("statuts") Collection<StatutPonction> statuts);
 
     /**
      * Reporte sur l'en-tête ce que le détail totalise réellement.
@@ -87,9 +81,7 @@ public interface CaPonctionRepository extends JpaRepository<CaPonction, Integer>
      * ponction dont les totaux ne correspondent pas à son propre détail.
      */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(
-        nativeQuery = true,
-        value = """
+    @Query(nativeQuery = true, value = """
         update ca_ponction p
            set montant_ponctionne = coalesce(d.total, 0),
                nombre_ventes = coalesce(d.ventes, 0),
@@ -97,7 +89,6 @@ public interface CaPonctionRepository extends JpaRepository<CaPonction, Integer>
           from (select coalesce(sum(montant_ponctionne), 0) as total, count(*) as ventes
                   from ca_ponction_detail where ponction_id = :id) d
          where p.id = :id
-        """
-    )
+        """)
     void alignerEnTeteSurLeDetail(@Param("id") Integer ponctionId);
 }

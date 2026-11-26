@@ -11,13 +11,12 @@ import java.util.List;
  * @param programmable enregistrable dans un modèle programmé
  */
 public record ExportCatalogueDTO(
-    String code,
-    String libelleRubrique,
-    String libelle,
-    String description,
-    boolean periodique,
-    boolean programmable,
-    List<FormatExport> formats,
-    List<String> colonnes,
-    List<FiltreCatalogueDTO> filtres
-) {}
+        String code,
+        String libelleRubrique,
+        String libelle,
+        String description,
+        boolean periodique,
+        boolean programmable,
+        List<FormatExport> formats,
+        List<String> colonnes,
+        List<FiltreCatalogueDTO> filtres) {}

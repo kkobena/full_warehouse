@@ -75,23 +75,21 @@ class PlanningInventaireTournantServiceImplTest {
     @BeforeEach
     void init() {
         service = new PlanningInventaireTournantServiceImpl(
-            planningRepository,
-            rayonRepository,
-            familleProduitRepository,
-            storageRepository,
-            userRepository,
-            inventaireCreationService
-        );
+                planningRepository,
+                rayonRepository,
+                familleProduitRepository,
+                storageRepository,
+                userRepository,
+                inventaireCreationService);
     }
 
     @Test
     @DisplayName("Un planning ABC démarre sur la première classe du cycle")
     void creationAbc() {
         when(planningRepository.saveAndFlush(any(PlanningInventaireTournant.class)))
-            .thenAnswer(i -> i.getArgument(0));
+                .thenAnswer(i -> i.getArgument(0));
 
-        PlanningInventaireTournantRecord cree = service.create(
-            record(null, "CLASSIFICATION_ABC", "MENSUEL", null));
+        PlanningInventaireTournantRecord cree = service.create(record(null, "CLASSIFICATION_ABC", "MENSUEL", null));
 
         assertEquals("A_PLUS", cree.classeParetoCourante(), "les 60 premiers % du CA sont comptés en premier");
     }
@@ -100,7 +98,7 @@ class PlanningInventaireTournantServiceImplTest {
     @DisplayName("Un planning par rayon n'initialise aucune classe Pareto")
     void creationRayon() {
         when(planningRepository.saveAndFlush(any(PlanningInventaireTournant.class)))
-            .thenAnswer(i -> i.getArgument(0));
+                .thenAnswer(i -> i.getArgument(0));
 
         assertNull(service.create(record(null, "RAYON", "HEBDO", null)).classeParetoCourante());
     }
@@ -108,7 +106,8 @@ class PlanningInventaireTournantServiceImplTest {
     @Test
     @DisplayName("Le cycle ABC parcourt les cinq classes puis revient au début")
     void cycleAbcComplet() {
-        PlanningInventaireTournant planning = planning(CritereTournant.CLASSIFICATION_ABC, FrequenceTournant.QUOTIDIEN, null);
+        PlanningInventaireTournant planning =
+                planning(CritereTournant.CLASSIFICATION_ABC, FrequenceTournant.QUOTIDIEN, null);
         planning.setClasseParetoCourante("A_PLUS");
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(inventaireCreationService.create(any(StoreInventoryRecord.class))).thenReturn(inventaire(100L));
@@ -119,14 +118,17 @@ class PlanningInventaireTournantServiceImplTest {
             service.executerManuellement(1);
         }
 
-        assertEquals(List.of("A_PLUS", "A", "B", "C", "D", "A_PLUS"), parcourues,
-            "aucune extrémité n'est sautée et le cycle boucle");
+        assertEquals(
+                List.of("A_PLUS", "A", "B", "C", "D", "A_PLUS"),
+                parcourues,
+                "aucune extrémité n'est sautée et le cycle boucle");
     }
 
     @Test
     @DisplayName("La description d'un inventaire ABC affiche « A+ », pas la valeur stockée")
     void libelleClassePareto() {
-        PlanningInventaireTournant planning = planning(CritereTournant.CLASSIFICATION_ABC, FrequenceTournant.MENSUEL, null);
+        PlanningInventaireTournant planning =
+                planning(CritereTournant.CLASSIFICATION_ABC, FrequenceTournant.MENSUEL, null);
         planning.setClasseParetoCourante("A_PLUS");
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(inventaireCreationService.create(any(StoreInventoryRecord.class))).thenReturn(inventaire(100L));
@@ -145,7 +147,7 @@ class PlanningInventaireTournantServiceImplTest {
         planning.setCritereIndexCourant(1);
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(rayonRepository.findAll(any(Sort.class)))
-            .thenReturn(List.of(rayon(10, "ANTIBIOTIQUES"), rayon(11, "DERMATOLOGIE")));
+                .thenReturn(List.of(rayon(10, "ANTIBIOTIQUES"), rayon(11, "DERMATOLOGIE")));
         when(inventaireCreationService.create(any(StoreInventoryRecord.class))).thenReturn(inventaire(100L));
 
         service.executerManuellement(1);
@@ -202,7 +204,7 @@ class PlanningInventaireTournantServiceImplTest {
         planning.setNbExecutions(2);
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(familleProduitRepository.findAllByOrderByLibelleAsc())
-            .thenReturn(List.of(famille(1, "ANTALGIQUES"), famille(2, "VITAMINES")));
+                .thenReturn(List.of(famille(1, "ANTALGIQUES"), famille(2, "VITAMINES")));
         when(inventaireCreationService.create(any(StoreInventoryRecord.class))).thenReturn(inventaire(100L));
 
         Long inventoryId = service.executerManuellement(1);
@@ -232,7 +234,7 @@ class PlanningInventaireTournantServiceImplTest {
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(familleProduitRepository.findAllByOrderByLibelleAsc()).thenReturn(List.of(famille(1, "ANTALGIQUES")));
         when(userRepository.findAll(any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(new PageImpl<>(List.of(utilisateur(8))));
+                .thenReturn(new PageImpl<>(List.of(utilisateur(8))));
         when(inventaireCreationService.create(any(StoreInventoryRecord.class))).thenReturn(inventaire(100L));
 
         service.executerManuellement(1);
@@ -262,7 +264,7 @@ class PlanningInventaireTournantServiceImplTest {
         planning.setUser(null);
         when(planningRepository.getReferenceById(1)).thenReturn(planning);
         when(userRepository.findAll(any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(new PageImpl<>(List.of()));
+                .thenReturn(new PageImpl<>(List.of()));
 
         assertThrows(IllegalStateException.class, () -> service.executerManuellement(1));
     }
@@ -319,13 +321,13 @@ class PlanningInventaireTournantServiceImplTest {
     void tableauDeBord() {
         PlanningInventaireTournant imminent = planning(CritereTournant.RAYON, FrequenceTournant.HEBDO, storage(4));
         imminent.setProchaineExecution(LocalDate.now().plusDays(2))
-            .setDerniereExecution(LocalDate.now().withDayOfMonth(1));
-        PlanningInventaireTournant lointain = planning(CritereTournant.FAMILLE, FrequenceTournant.TRIMESTRIEL, storage(4));
+                .setDerniereExecution(LocalDate.now().withDayOfMonth(1));
+        PlanningInventaireTournant lointain =
+                planning(CritereTournant.FAMILLE, FrequenceTournant.TRIMESTRIEL, storage(4));
         lointain.setProchaineExecution(LocalDate.now().plusMonths(2));
         PlanningInventaireTournant inactif = planning(CritereTournant.RAYON, FrequenceTournant.HEBDO, storage(4));
         inactif.setActif(false).setProchaineExecution(LocalDate.now());
-        when(planningRepository.findAllByStorageIdOrderByLibelle(4))
-            .thenReturn(List.of(imminent, lointain, inactif));
+        when(planningRepository.findAllByStorageIdOrderByLibelle(4)).thenReturn(List.of(imminent, lointain, inactif));
 
         TournantDashboardRecord tableau = service.getDashboard(4);
 
@@ -333,8 +335,10 @@ class PlanningInventaireTournantServiceImplTest {
         assertEquals(1, tableau.nbInventairesCeMois());
         assertEquals(50, tableau.tauxCouverturePct(), "un planning exécuté sur deux actifs");
         assertEquals(1, tableau.prochainesExecutions().size());
-        assertEquals(LocalDate.now().plusDays(2), tableau.prochaineTournant(),
-            "l'échéance la plus proche parmi les plannings actifs");
+        assertEquals(
+                LocalDate.now().plusDays(2),
+                tableau.prochaineTournant(),
+                "l'échéance la plus proche parmi les plannings actifs");
     }
 
     @Test
@@ -369,24 +373,35 @@ class PlanningInventaireTournantServiceImplTest {
 
     private PlanningInventaireTournant planning(CritereTournant critere, FrequenceTournant frequence, Storage storage) {
         return new PlanningInventaireTournant()
-            .setLibelle("Rotation")
-            .setCritere(critere)
-            .setFrequence(frequence)
-            .setStorage(storage)
-            .setUser(utilisateur(1))
-            .setActif(true)
-            .setCritereIndexCourant(0)
-            .setNbExecutions(0)
-            .setProchaineExecution(LocalDate.now())
-            .setCreatedAt(LocalDateTime.now())
-            .setUpdatedAt(LocalDateTime.now());
+                .setLibelle("Rotation")
+                .setCritere(critere)
+                .setFrequence(frequence)
+                .setStorage(storage)
+                .setUser(utilisateur(1))
+                .setActif(true)
+                .setCritereIndexCourant(0)
+                .setNbExecutions(0)
+                .setProchaineExecution(LocalDate.now())
+                .setCreatedAt(LocalDateTime.now())
+                .setUpdatedAt(LocalDateTime.now());
     }
 
     private PlanningInventaireTournantRecord record(Integer id, String critere, String frequence, Integer storageId) {
         return new PlanningInventaireTournantRecord(
-            id, "Rotation", frequence, critere, storageId, null, null, null,
-            LocalDate.now().plusDays(1), true, null, null, 0, null
-        );
+                id,
+                "Rotation",
+                frequence,
+                critere,
+                storageId,
+                null,
+                null,
+                null,
+                LocalDate.now().plusDays(1),
+                true,
+                null,
+                null,
+                0,
+                null);
     }
 
     private StoreInventoryDTO inventaire(Long id) {

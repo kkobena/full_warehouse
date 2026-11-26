@@ -9,47 +9,24 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {
-  ClientTiersPayant,
-  IClientTiersPayant
-} from '../../../../../shared/model/client-tiers-payant.model';
-import {ICustomer} from '../../../../../shared/model';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {CustomerService} from '../../../../customer/customer.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {finalize} from 'rxjs/operators';
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  SelectComponent,
-  SwitchComponent
-} from '../../../../../shared/ui';
+import { ClientTiersPayant, IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
+import { ICustomer } from '../../../../../shared/model';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CustomerService } from '../../../../customer/customer.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SwitchComponent } from '../../../../../shared/ui';
 
 @Component({
   selector: 'app-add-complementaire',
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    ButtonComponent,
-    CardComponent,
-    KeyFilterDirective,
-    SelectComponent,
-    SwitchComponent,
-  ],
+  imports: [ReactiveFormsModule, FormsModule, ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SwitchComponent],
   templateUrl: './add-complementaire.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements OnInit {
-  tiersPayant = viewChild.required('tiersPayant', {read: ElementRef<HTMLElement>});
+  tiersPayant = viewChild.required('tiersPayant', { read: ElementRef<HTMLElement> });
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
   tiersPayantsExisting: IClientTiersPayant[] = [];
@@ -121,7 +98,7 @@ export class AddComplementaireComponent implements OnInit {
     this.selectedTiersPayant.set(this.assure.tiersPayants.find(e => e.id === Number(tiersPayantId)));
     if (this.selectedTiersPayant()) {
       // Store original state for change detection
-      this.originalTiersPayant = {...this.selectedTiersPayant()};
+      this.originalTiersPayant = { ...this.selectedTiersPayant() };
       this.updateForm(this.selectedTiersPayant());
 
       // Show priorite switch if priorite is not 0, but keep it unchecked by default
@@ -212,7 +189,7 @@ export class AddComplementaireComponent implements OnInit {
     this.customerService
       .updateTiersPayant(clientTiersPayant)
       .pipe(
-        finalize(() => (this.isSaving.set(false))),
+        finalize(() => this.isSaving.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({

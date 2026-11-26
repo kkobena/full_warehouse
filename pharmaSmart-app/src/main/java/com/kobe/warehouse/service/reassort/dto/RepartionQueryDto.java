@@ -12,12 +12,11 @@ import com.kobe.warehouse.service.errors.GenericError;
  * @param createNewDestination   si true, crée automatiquement un emplacement SAFETY_STOCK pour le produit
  */
 public record RepartionQueryDto(
-    Integer stockSourceId,
-    Integer stockDestinationId,
-    int quantity,
-    Integer seuilMini,
-    boolean createNewDestination
-) {
+        Integer stockSourceId,
+        Integer stockDestinationId,
+        int quantity,
+        Integer seuilMini,
+        boolean createNewDestination) {
     public RepartionQueryDto {
         if (quantity <= 0) {
             throw new GenericError("La quantité doit être supérieure à 0");

@@ -30,35 +30,33 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
     private final ReglementFactureSelectionneesService reglementFactureSelectionneesService;
 
     public ReglementGroupeSelectionFactureService(
-        CashRegisterService cashRegisterService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        UserService userService,
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository,
-        ReglementFactureSelectionneesService reglementFactureSelectionneesService,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService,
-        ReferenceService referenceService
-    ) {
+            CashRegisterService cashRegisterService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            UserService userService,
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            BanqueRepository banqueRepository,
+            ReglementFactureSelectionneesService reglementFactureSelectionneesService,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            InvoicePaymentItemService invoicePaymentItemService,
+            ReferenceService referenceService) {
         super(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         this.facturationRepository = facturationRepository;
         this.reglementFactureSelectionneesService = reglementFactureSelectionneesService;
     }
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam)
-        throws CashRegisterException, PaymentAmountException, GenericError {
+            throws CashRegisterException, PaymentAmountException, GenericError {
         List<LigneSelectionnesDTO> ligneSelectionnes = reglementParam.getLigneSelectionnes();
         if (ligneSelectionnes.isEmpty()) {
             throw new GenericError("Aucun dossiers à regler");
@@ -79,7 +77,8 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             int itemAmount = Math.min(item.getMontantVerse(), montantVerse);
             FactureTiersPayant facture = this.facturationRepository.getReferenceById(item.getId());
             verifierFille(factureTiersPayant, facture);
-            var invoicePaymentItem = this.reglementFactureSelectionneesService.doReglement(invoicePayment, facture, itemAmount, item);
+            var invoicePaymentItem =
+                    this.reglementFactureSelectionneesService.doReglement(invoicePayment, facture, itemAmount, item);
             // Le réellement imputé, pas le montant demandé par l'écran : une fille dont le reste dû a
             // baissé depuis l'affichage n'absorbe que ce qu'elle doit, le reste passe aux suivantes.
             montantVerse -= invoicePaymentItem.getPaidAmount();
@@ -110,9 +109,8 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         refuserSiProvisoire(fille);
         if (resteDu(fille) <= 0) {
             throw new GenericError(
-                "La facture " + fille.getNumFacture() + " est déjà réglée ; rechargez le groupe",
-                "factureDejaReglee"
-            );
+                    "La facture " + fille.getNumFacture() + " est déjà réglée ; rechargez le groupe",
+                    "factureDejaReglee");
         }
     }
 }

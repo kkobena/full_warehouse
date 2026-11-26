@@ -1,27 +1,32 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  KpiItemComponent,
-  KpiStripComponent,
-  ToolbarComponent
-} from '../../../shared/ui';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, ToolbarComponent } from '../../../shared/ui';
 
-import {DashboardCAService} from '../services/dashboard-ca.service';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {IDashboardCAEvolution} from '../../../shared/model/report';
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {ChartBuilderService, ChartConfig} from '../../../shared/util/chart-builder.service';
-import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
-import {ChartComponent} from "../../../shared/chart/chart.component";
+import { DashboardCAService } from '../services/dashboard-ca.service';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { IDashboardCAEvolution } from '../../../shared/model/report';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { ChartBuilderService, ChartConfig } from '../../../shared/util/chart-builder.service';
+import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { ChartComponent } from '../../../shared/chart/chart.component';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-seasonality',
-  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
+  imports: [
+    DeviseDirective,
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    ChartComponent,
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
   templateUrl: './seasonality.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./seasonality.component.scss'],
@@ -128,8 +133,8 @@ export default class SeasonalityComponent implements OnInit {
       return;
     }
     const config = this.chartBuilder.multiBarConfig(evo.labels, [
-      {label: 'CA Période', data: evo.caValues ?? []},
-      {label: 'CA Période préc.', data: evo.caPreviousValues ?? []},
+      { label: 'CA Période', data: evo.caValues ?? [] },
+      { label: 'CA Période préc.', data: evo.caPreviousValues ?? [] },
     ]);
     this.chartConfig.set(config);
   }

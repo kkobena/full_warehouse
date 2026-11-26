@@ -4,14 +4,7 @@ import { IAjustement } from '../../../shared/model/ajustement.model';
 export type AjustDirection = 'IN' | 'OUT';
 
 export type AjustEventType =
-  | 'AJUST_CREATED'
-  | 'AJUST_FINALIZED'
-  | 'LINE_ADDED'
-  | 'LINE_REMOVED'
-  | 'LINE_UPDATED'
-  | 'LINES_LOADED'
-  | 'HISTORY_LOADED'
-  | 'ERROR';
+  'AJUST_CREATED' | 'AJUST_FINALIZED' | 'LINE_ADDED' | 'LINE_REMOVED' | 'LINE_UPDATED' | 'LINES_LOADED' | 'HISTORY_LOADED' | 'ERROR';
 
 export interface AjustEvent {
   type: AjustEventType;

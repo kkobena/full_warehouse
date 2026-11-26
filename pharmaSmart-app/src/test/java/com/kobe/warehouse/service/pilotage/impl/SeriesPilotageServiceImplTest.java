@@ -36,16 +36,22 @@ class SeriesPilotageServiceImplTest {
     private final LecteurMesuresPilotage lecteurMesuresPilotage = mock(LecteurMesuresPilotage.class);
     private final DictionnaireIndicateursService dictionnaire = mock(DictionnaireIndicateursService.class);
     private final ObjectifPilotageRepository repository = mock(ObjectifPilotageRepository.class);
-    private final SeriesPilotageServiceImpl service = new SeriesPilotageServiceImpl(periodeComparaisonService, lecteurMesuresPilotage, dictionnaire, repository);
+    private final SeriesPilotageServiceImpl service =
+            new SeriesPilotageServiceImpl(periodeComparaisonService, lecteurMesuresPilotage, dictionnaire, repository);
 
     @BeforeEach
     void preparer() {
-        when(periodeComparaisonService.comparer(any(), any())).thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, null, false));
-        when(lecteurMesuresPilotage.lireParTranche(any(), anyList())).thenReturn(List.of(new MesuresPilotage(1, 0, 2_700, 2_700, 0, 0, 2_700, 2_700, 0, 1, 0, 0, 1)));
+        when(periodeComparaisonService.comparer(any(), any()))
+                .thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, null, false));
+        when(lecteurMesuresPilotage.lireParTranche(any(), anyList()))
+                .thenReturn(List.of(new MesuresPilotage(1, 0, 2_700, 2_700, 0, 0, 2_700, 2_700, 0, 1, 0, 0, 1)));
         when(dictionnaire.filtrerAutorises(anyList())).thenReturn(List.of(IndicateurPilotage.CA_TTC));
-        when(repository.findAllByAnneeBetween(anyInt(), anyInt())).thenReturn(
-            List.of(new ObjectifPilotage().setIndicateur(IndicateurPilotage.CA_TTC).setAnnee(2025).setMois(9).setValeur(3_000))
-        );
+        when(repository.findAllByAnneeBetween(anyInt(), anyInt()))
+                .thenReturn(List.of(new ObjectifPilotage()
+                        .setIndicateur(IndicateurPilotage.CA_TTC)
+                        .setAnnee(2025)
+                        .setMois(9)
+                        .setValeur(3_000)));
     }
 
     @Test
@@ -53,13 +59,17 @@ class SeriesPilotageServiceImplTest {
     void comparerALObjectif() {
         when(dictionnaire.lireDroitsAccordes()).thenReturn(Set.of(DroitPilotage.OBJECTIFS));
 
-        SerieIndicateurDTO ca = service.calculerSeries(lireRequete(TypeComparaison.OBJECTIF)).series().getFirst();
+        SerieIndicateurDTO ca = service.calculerSeries(lireRequete(TypeComparaison.OBJECTIF))
+                .series()
+                .getFirst();
 
         assertThat(ca.objectif()).isEqualTo(3_000.0);
         assertThat(ca.valeurReference()).isEqualTo(3_000.0);
         assertThat(ca.ecartPct()).isEqualTo(-10.0);
         assertThat(ca.points().getFirst().valeurReference()).isEqualTo(3_000.0);
-        assertThat(ca.projection()).as("septembre 2025 n'est pas le mois en cours").isNull();
+        assertThat(ca.projection())
+                .as("septembre 2025 n'est pas le mois en cours")
+                .isNull();
     }
 
     @Test
@@ -67,13 +77,24 @@ class SeriesPilotageServiceImplTest {
     void masquerSansDroit() {
         when(dictionnaire.lireDroitsAccordes()).thenReturn(Set.of(DroitPilotage.TABLEAU_DE_BORD));
 
-        SerieIndicateurDTO ca = service.calculerSeries(lireRequete(TypeComparaison.OBJECTIF)).series().getFirst();
+        SerieIndicateurDTO ca = service.calculerSeries(lireRequete(TypeComparaison.OBJECTIF))
+                .series()
+                .getFirst();
 
         assertThat(ca.objectif()).isNull();
         assertThat(ca.valeurReference()).isNull();
     }
 
     private static RequetePilotageDTO lireRequete(TypeComparaison comparaison) {
-        return new RequetePilotageDTO(SEPTEMBRE.du(), SEPTEMBRE.au(), comparaison, null, null, null, false, Granularite.MOIS, List.of(IndicateurPilotage.CA_TTC));
+        return new RequetePilotageDTO(
+                SEPTEMBRE.du(),
+                SEPTEMBRE.au(),
+                comparaison,
+                null,
+                null,
+                null,
+                false,
+                Granularite.MOIS,
+                List.of(IndicateurPilotage.CA_TTC));
     }
 }

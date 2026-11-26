@@ -30,22 +30,25 @@ public class HistoriqueClientService {
     public void verifierSuppression(Integer customerId) {
         List<Integer> ids = new ArrayList<>();
         ids.add(customerId);
-        ids.addAll(
-            em
-                .createQuery("SELECT c.id FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id", Integer.class)
+        ids.addAll(em.createQuery("SELECT c.id FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id", Integer.class)
                 .setParameter("id", customerId)
-                .getResultList()
-        );
+                .getResultList());
         List<String> elements = new ArrayList<>();
-        ajouter(elements, compter("SELECT COUNT(*) FROM sales WHERE customer_id IN (:ids) OR ayant_droit_id IN (:ids)", ids), "vente(s)");
-        ajouter(elements, compter("SELECT COUNT(*) FROM payment_transaction WHERE differecustomer_id IN (:ids)", ids), "règlement(s) de différé");
+        ajouter(
+                elements,
+                compter("SELECT COUNT(*) FROM sales WHERE customer_id IN (:ids) OR ayant_droit_id IN (:ids)", ids),
+                "vente(s)");
+        ajouter(
+                elements,
+                compter("SELECT COUNT(*) FROM payment_transaction WHERE differecustomer_id IN (:ids)", ids),
+                "règlement(s) de différé");
         ajouter(elements, compter("SELECT COUNT(*) FROM avoir_client WHERE customer_id IN (:ids)", ids), "avoir(s)");
         ajouter(elements, compter("SELECT COUNT(*) FROM retour_client WHERE customer_id IN (:ids)", ids), "retour(s)");
         if (!elements.isEmpty()) {
             throw new GenericError(
-                "Ce client a un historique (" + String.join(", ", elements) + ") : il ne peut pas être supprimé. Désactivez-le.",
-                ERROR_KEY
-            );
+                    "Ce client a un historique (" + String.join(", ", elements)
+                            + ") : il ne peut pas être supprimé. Désactivez-le.",
+                    ERROR_KEY);
         }
     }
 

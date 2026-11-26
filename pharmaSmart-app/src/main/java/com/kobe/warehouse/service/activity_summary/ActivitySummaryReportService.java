@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -25,11 +24,8 @@ public class ActivitySummaryReportService extends CommonReportService {
     private final Map<String, Object> variablesMap = new HashMap<>();
     private String templateFile;
 
-    public ActivitySummaryReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public ActivitySummaryReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
@@ -64,8 +60,6 @@ public class ActivitySummaryReportService extends CommonReportService {
     protected String getGenerateFileName() {
         return "activity_summary";
     }
-
-
 
     private BigDecimal getTotalRecette(List<Recette> recettes) {
         return recettes.stream().map(Recette::getMontantReel).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -109,18 +103,27 @@ public class ActivitySummaryReportService extends CommonReportService {
         return new Amount(montantTtc, montantTva, montantHt);
     }
 
-
-
     public byte[] printToPdfBytes(ActivitySummaryRecord activitySummaryRecord) {
         Magasin magasin = storageService.getUser().getMagasin();
         templateFile = Constant.ACTIVITY_SUMMARY;
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.ENTITY, activitySummaryRecord);
-        getParameters().put("totalRecette", getTotalRecette(activitySummaryRecord.chiffreAffaire().recettes()));
-        getParameters().put("totalMvt", getTotalMouvementCaisse(activitySummaryRecord.chiffreAffaire().mouvementCaisses()));
+        getParameters()
+                .put(
+                        "totalRecette",
+                        getTotalRecette(activitySummaryRecord.chiffreAffaire().recettes()));
+        getParameters()
+                .put(
+                        "totalMvt",
+                        getTotalMouvementCaisse(
+                                activitySummaryRecord.chiffreAffaire().mouvementCaisses()));
         getParameters().put("totauxAchat", getTotalAchatTiersPayant(activitySummaryRecord.achatTiersPayants()));
-        getParameters().put("totauxReglement", getTotalReglementTiersPayants(activitySummaryRecord.reglementTiersPayants()));
-        getParameters().put("totauxGroupeFour", getTotaGroupeFournisseurAchat(activitySummaryRecord.groupeFournisseurAchats()));
+        getParameters()
+                .put("totauxReglement", getTotalReglementTiersPayants(activitySummaryRecord.reglementTiersPayants()));
+        getParameters()
+                .put(
+                        "totauxGroupeFour",
+                        getTotaGroupeFournisseurAchat(activitySummaryRecord.groupeFournisseurAchats()));
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
         return super.exportReportToPdf();
     }

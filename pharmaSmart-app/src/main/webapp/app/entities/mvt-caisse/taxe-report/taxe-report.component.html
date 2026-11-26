@@ -2,14 +2,27 @@
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-line" title="Rapport TVA">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" [style]="{ 'max-width': '180px' }" id="dateDebut"
-                            label="Du" />
+        <pharma-date-picker
+          [ngModel]="fromDate()"
+          (ngModelChange)="fromDate.set($event)"
+          [maxDate]="toDate()"
+          [style]="{ 'max-width': '180px' }"
+          id="dateDebut"
+          label="Du"
+        />
 
-        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" [style]="{ 'max-width': '180px' }" id="dateFin"
-                            label="Au" />
+        <pharma-date-picker
+          [ngModel]="toDate()"
+          (ngModelChange)="toDate.set($event)"
+          [minDate]="fromDate()"
+          [style]="{ 'max-width': '180px' }"
+          id="dateFin"
+          label="Au"
+        />
 
         <app-select
-          [ngModel]="selectedVente()" (ngModelChange)="selectedVente.set($event)"
+          [ngModel]="selectedVente()"
+          (ngModelChange)="selectedVente.set($event)"
           [clearable]="true"
           [items]="types"
           appendTo="body"
@@ -20,7 +33,8 @@
         <div class="tva-radio flex align-items-center mr-1">
           <input
             (click)="onAffichageChange()"
-            [ngModel]="groupBy()" (ngModelChange)="groupBy.set($event)"
+            [ngModel]="groupBy()"
+            (ngModelChange)="groupBy.set($event)"
             class="form-check-input"
             id="codeTva"
             name="tvaGroupBy"
@@ -33,8 +47,16 @@
         </div>
 
         <div class="tva-radio flex align-items-center mr-1">
-          <input (click)="onAffichageChange()" [ngModel]="groupBy()" (ngModelChange)="groupBy.set($event)" class="form-check-input"
-                 id="daily" name="tvaGroupBy" type="radio" value="daily" />
+          <input
+            (click)="onAffichageChange()"
+            [ngModel]="groupBy()"
+            (ngModelChange)="groupBy.set($event)"
+            class="form-check-input"
+            id="daily"
+            name="tvaGroupBy"
+            type="radio"
+            value="daily"
+          />
           <label class="tva-radio-label mt-2 ml-1" for="daily">
             <span>Journalier</span>
           </label>
@@ -90,12 +112,12 @@
             <table class="table table-striped table-bordered table-hover">
               @if (groupBy() === 'codeTva') {
                 <thead class="pharma-table-head">
-                <tr>
-                  <th>Code tva</th>
-                  <th>Total HT</th>
-                  <th>Total TVA</th>
-                  <th>Total TTC</th>
-                </tr>
+                  <tr>
+                    <th>Code tva</th>
+                    <th>Total HT</th>
+                    <th>Total TVA</th>
+                    <th>Total TTC</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (taxe of taxeReport.taxes; track $index) {
@@ -108,22 +130,22 @@
                   }
                 </tbody>
                 <tfoot>
-                <tr>
-                  <td class="tf-column">Total</td>
-                  <td class="amount-column">{{ taxeReport.montantHt | number }}</td>
-                  <td class="amount-column">{{ taxeReport.montantTaxe | number }}</td>
-                  <td class="amount-column">{{ taxeReport.montantTtc | number }}</td>
-                </tr>
+                  <tr>
+                    <td class="tf-column">Total</td>
+                    <td class="amount-column">{{ taxeReport.montantHt | number }}</td>
+                    <td class="amount-column">{{ taxeReport.montantTaxe | number }}</td>
+                    <td class="amount-column">{{ taxeReport.montantTtc | number }}</td>
+                  </tr>
                 </tfoot>
               } @else {
                 <thead class="pharma-table-head">
-                <tr>
-                  <th>Date</th>
-                  <th>Code tva</th>
-                  <th>Total HT</th>
-                  <th>Total TVA</th>
-                  <th>Total TTC</th>
-                </tr>
+                  <tr>
+                    <th>Date</th>
+                    <th>Code tva</th>
+                    <th>Total HT</th>
+                    <th>Total TVA</th>
+                    <th>Total TTC</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (taxe of taxeReport.taxes; track $index) {
@@ -137,20 +159,19 @@
                   }
                 </tbody>
                 <tfoot>
-                <tr>
-                  <td class="tf-column" colspan="2">Total</td>
-                  <td class="amount-column">{{ taxeReport.montantHt | number }}</td>
-                  <td class="amount-column">{{ taxeReport.montantTaxe | number }}</td>
-                  <td class="amount-column">{{ taxeReport.montantTtc | number }}</td>
-                </tr>
+                  <tr>
+                    <td class="tf-column" colspan="2">Total</td>
+                    <td class="amount-column">{{ taxeReport.montantHt | number }}</td>
+                    <td class="amount-column">{{ taxeReport.montantTaxe | number }}</td>
+                    <td class="amount-column">{{ taxeReport.montantTtc | number }}</td>
+                  </tr>
                 </tfoot>
               }
             </table>
           </div>
         } @else {
           <div class="col-12 card flex justify-content-center">
-            <app-chart [data]="doughnutChart()?.data" [options]="doughnutChart()?.options"
-                       [responsive]="true" type="doughnut"></app-chart>
+            <app-chart [data]="doughnutChart()?.data" [options]="doughnutChart()?.options" [responsive]="true" type="doughnut"></app-chart>
           </div>
         }
       } @else {

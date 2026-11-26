@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
-import {NgStyle} from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NgStyle } from '@angular/common';
 
 /**
  * Gabarit visuel de la carte.

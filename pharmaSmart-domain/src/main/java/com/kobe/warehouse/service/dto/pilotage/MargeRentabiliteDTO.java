@@ -11,14 +11,13 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record MargeRentabiliteDTO(
-    ComparaisonPeriodesDTO comparaison,
-    AxeAnalyseDTO axe,
-    Double tauxMarge,
-    Double tauxMargeReference,
-    Double effetMix,
-    Double effetTaux,
-    List<LigneMargeDTO> lignes,
-    int seuilFaibleMarge,
-    List<LigneMargeDTO> faiblesMarges,
-    List<VenteMargeDTO> ventesAMargeNegative
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        AxeAnalyseDTO axe,
+        Double tauxMarge,
+        Double tauxMargeReference,
+        Double effetMix,
+        Double effetTaux,
+        List<LigneMargeDTO> lignes,
+        int seuilFaibleMarge,
+        List<LigneMargeDTO> faiblesMarges,
+        List<VenteMargeDTO> ventesAMargeNegative) {}

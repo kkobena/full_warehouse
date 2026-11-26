@@ -28,7 +28,6 @@ public class MailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
-
     public MailService(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine) {
         this.javaMailSender = javaMailSender;
         this.templateEngine = templateEngine;
@@ -40,7 +39,7 @@ public class MailService {
     }
 
     @Async
-    public void sendTicketZ(String content,String sendToEmail ) {
+    public void sendTicketZ(String content, String sendToEmail) {
 
         if (sendToEmail != null) {
             sendEmailSync(sendToEmail, "RECAPITULATIF DE CAISSE ", content, false, true);

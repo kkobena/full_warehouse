@@ -14,5 +14,6 @@ public interface AbstractReglementFactureDossier {
     long getParentId();
 
     LocalDate getInvoiceDate();
+
     LocalDate getParentInvoiceDate();
 }

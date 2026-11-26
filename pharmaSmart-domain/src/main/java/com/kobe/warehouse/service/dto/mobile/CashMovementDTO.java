@@ -6,13 +6,12 @@ import java.time.LocalDateTime;
  * DTO for cash movement in cash balance report.
  */
 public record CashMovementDTO(
-    long id,
-    String libelle,
-    long montant,
-    String type,  // ENTREE | SORTIE
-    LocalDateTime date,
-    String comment
-) {
+        long id,
+        String libelle,
+        long montant,
+        String type, // ENTREE | SORTIE
+        LocalDateTime date,
+        String comment) {
     public static final String TYPE_ENTREE = "ENTREE";
     public static final String TYPE_SORTIE = "SORTIE";
 

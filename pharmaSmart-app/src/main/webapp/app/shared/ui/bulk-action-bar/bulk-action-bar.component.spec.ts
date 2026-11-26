@@ -7,12 +7,7 @@ import { BulkActionBarComponent } from './bulk-action-bar.component';
   standalone: true,
   imports: [BulkActionBarComponent],
   template: `
-    <app-bulk-action-bar
-      ariaLabel="Actions groupées"
-      [count]="count()"
-      label="produit sélectionné"
-      labelPlural="produits sélectionnés"
-    >
+    <app-bulk-action-bar ariaLabel="Actions groupées" [count]="count()" label="produit sélectionné" labelPlural="produits sélectionnés">
       <button type="button" (click)="actions.set(actions() + 1)">Appliquer</button>
     </app-bulk-action-bar>
   `,

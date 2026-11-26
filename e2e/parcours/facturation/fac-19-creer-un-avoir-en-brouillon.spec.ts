@@ -53,7 +53,7 @@ scenario('FAC-19', async ({ etape, page }) => {
     // `app-input-number` pose l'identifiant SUR son `<input>` — pas sur l'hôte — et
     // concatène si l'on ne vide pas : d'où `fill` plutôt que `type`.
     await modal.locator('input#av-montant').fill('1000');
-    await modal.locator('textarea').first().fill('Rejet partiel de l\'organisme : trois lignes non prises en charge');
+    await modal.locator('textarea').first().fill("Rejet partiel de l'organisme : trois lignes non prises en charge");
 
     await expect(modal.getByRole('button', { name: "Créer l'avoir" })).toBeEnabled();
   });

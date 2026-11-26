@@ -137,8 +137,10 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(d);
             viderLeCache();
 
-            assertThat(associationsAvecSeuils(BigDecimal.valueOf(20), AUCUN_SEUIL)).hasSize(1);
-            assertThat(associationsAvecSeuils(BigDecimal.valueOf(30), AUCUN_SEUIL)).isEmpty();
+            assertThat(associationsAvecSeuils(BigDecimal.valueOf(20), AUCUN_SEUIL))
+                    .hasSize(1);
+            assertThat(associationsAvecSeuils(BigDecimal.valueOf(30), AUCUN_SEUIL))
+                    .isEmpty();
         }
 
         @Test
@@ -153,8 +155,10 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(a); // confiance A→B = 1/4 = 25 %
             viderLeCache();
 
-            assertThat(associationsAvecSeuils(AUCUN_SEUIL, BigDecimal.valueOf(20))).hasSize(1);
-            assertThat(associationsAvecSeuils(AUCUN_SEUIL, BigDecimal.valueOf(30))).isEmpty();
+            assertThat(associationsAvecSeuils(AUCUN_SEUIL, BigDecimal.valueOf(20)))
+                    .hasSize(1);
+            assertThat(associationsAvecSeuils(AUCUN_SEUIL, BigDecimal.valueOf(30)))
+                    .isEmpty();
         }
 
         @Test
@@ -168,15 +172,9 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
 
             // Trois paires possibles entre trois produits.
             assertThat(associations()).hasSize(3);
-            assertThat(
-                services.marketBasketAnalysisService.getProductAssociations(
-                    ilYA(30),
-                    LocalDate.now(),
-                    AUCUN_SEUIL,
-                    AUCUN_SEUIL,
-                    2
-                )
-            ).hasSize(2);
+            assertThat(services.marketBasketAnalysisService.getProductAssociations(
+                            ilYA(30), LocalDate.now(), AUCUN_SEUIL, AUCUN_SEUIL, 2))
+                    .hasSize(2);
         }
 
         @Test
@@ -250,11 +248,7 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             viderLeCache();
 
             List<ProductAssociationDTO> associes = services.marketBasketAnalysisService.getAssociationsForProduct(
-                a.getId().longValue(),
-                ilYA(30),
-                LocalDate.now(),
-                10
-            );
+                    a.getId().longValue(), ilYA(30), LocalDate.now(), 10);
 
             assertThat(associes).extracting(ProductAssociationDTO::productBName).containsExactly("BANDAGE", "CREME");
             assertThat(associes.getFirst().productAName()).isEqualTo("ANTALGIQUE");
@@ -268,14 +262,9 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(seul);
             viderLeCache();
 
-            assertThat(
-                services.marketBasketAnalysisService.getAssociationsForProduct(
-                    seul.getId().longValue(),
-                    ilYA(30),
-                    LocalDate.now(),
-                    10
-                )
-            ).isEmpty();
+            assertThat(services.marketBasketAnalysisService.getAssociationsForProduct(
+                            seul.getId().longValue(), ilYA(30), LocalDate.now(), 10))
+                    .isEmpty();
         }
 
         /** Les recommandations de vente croisée regardent les six derniers mois. */
@@ -288,9 +277,10 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(LocalDate.now().minusMonths(9), a, produitVendable("ANCIEN"));
             viderLeCache();
 
-            assertThat(services.marketBasketAnalysisService.getCrossSellRecommendations(a.getId().longValue()))
-                .extracting(ProductAssociationDTO::productBName)
-                .containsExactly("BANDAGE");
+            assertThat(services.marketBasketAnalysisService.getCrossSellRecommendations(
+                            a.getId().longValue()))
+                    .extracting(ProductAssociationDTO::productBName)
+                    .containsExactly("BANDAGE");
         }
     }
 
@@ -313,7 +303,8 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(c);
             viderLeCache();
 
-            MarketBasketSummaryDTO synthese = services.marketBasketAnalysisService.getMarketBasketSummary(ilYA(30), LocalDate.now());
+            MarketBasketSummaryDTO synthese =
+                    services.marketBasketAnalysisService.getMarketBasketSummary(ilYA(30), LocalDate.now());
 
             assertThat(synthese.totalTransactions()).isEqualTo(4L);
             assertThat(synthese.totalProducts()).isEqualTo(3L);
@@ -329,7 +320,8 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
             panier(a, b);
             viderLeCache();
 
-            MarketBasketSummaryDTO synthese = services.marketBasketAnalysisService.getMarketBasketSummary(ilYA(30), LocalDate.now());
+            MarketBasketSummaryDTO synthese =
+                    services.marketBasketAnalysisService.getMarketBasketSummary(ilYA(30), LocalDate.now());
 
             assertThat(synthese.mostFrequentPair()).isEqualTo("ANTALGIQUE + BANDAGE");
             assertThat(synthese.totalAssociations()).isEqualTo(1L);
@@ -344,17 +336,16 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
         @DisplayName("sans aucun ticket, la synthèse rend des zéros plutôt qu'une erreur")
         void baseVierge() {
             assertThatCode(() -> {
-                MarketBasketSummaryDTO synthese = services.marketBasketAnalysisService.getMarketBasketSummary(
-                    ilYA(30),
-                    LocalDate.now()
-                );
+                        MarketBasketSummaryDTO synthese =
+                                services.marketBasketAnalysisService.getMarketBasketSummary(ilYA(30), LocalDate.now());
 
-                assertThat(synthese.totalTransactions()).isZero();
-                assertThat(synthese.totalProducts()).isZero();
-                assertThat(synthese.totalAssociations()).isZero();
-                assertThat(synthese.averageBasketSize()).isEqualByComparingTo("0");
-                assertThat(synthese.mostFrequentPair()).isEqualTo("Aucune");
-            }).doesNotThrowAnyException();
+                        assertThat(synthese.totalTransactions()).isZero();
+                        assertThat(synthese.totalProducts()).isZero();
+                        assertThat(synthese.totalAssociations()).isZero();
+                        assertThat(synthese.averageBasketSize()).isEqualByComparingTo("0");
+                        assertThat(synthese.mostFrequentPair()).isEqualTo("Aucune");
+                    })
+                    .doesNotThrowAnyException();
         }
     }
 
@@ -369,7 +360,8 @@ class MarketBasketAnalysisServiceIntegrationTest extends AbstractReportIntegrati
     }
 
     private List<ProductAssociationDTO> associationsAvecSeuils(BigDecimal support, BigDecimal confiance) {
-        return services.marketBasketAnalysisService.getProductAssociations(ilYA(30), LocalDate.now(), support, confiance, 50);
+        return services.marketBasketAnalysisService.getProductAssociations(
+                ilYA(30), LocalDate.now(), support, confiance, 50);
     }
 
     private Produit produitVendable(String libelle) {

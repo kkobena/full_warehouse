@@ -45,9 +45,7 @@ public final class PaginationHelper {
         List<T> paginatedItems = paginateList(items, validatedPage, validatedSize);
         HttpHeaders headers = createPaginationHeaders(totalCount, totalPages, validatedPage, validatedSize);
 
-        return ResponseEntity.ok()
-            .headers(headers)
-            .body(paginatedItems);
+        return ResponseEntity.ok().headers(headers).body(paginatedItems);
     }
 
     /**
@@ -62,11 +60,7 @@ public final class PaginationHelper {
      * @return ResponseEntity with paginated list and headers
      */
     public static <T> ResponseEntity<List<T>> createPaginatedResponse(
-        Supplier<List<T>> itemsSupplier,
-        Supplier<Long> totalCountSupplier,
-        int page,
-        int size
-    ) {
+            Supplier<List<T>> itemsSupplier, Supplier<Long> totalCountSupplier, int page, int size) {
         int validatedSize = validateSize(size);
         long totalCountLong = totalCountSupplier.get();
         int totalCount = (int) Math.min(totalCountLong, Integer.MAX_VALUE);
@@ -76,9 +70,7 @@ public final class PaginationHelper {
         List<T> items = itemsSupplier.get();
         HttpHeaders headers = createPaginationHeaders(totalCount, totalPages, validatedPage, validatedSize);
 
-        return ResponseEntity.ok()
-            .headers(headers)
-            .body(items);
+        return ResponseEntity.ok().headers(headers).body(items);
     }
 
     /**
@@ -95,13 +87,12 @@ public final class PaginationHelper {
         int validatedPage = validatePage(page, totalPages);
 
         return new PaginationMetadata(
-            totalCount,
-            totalPages,
-            validatedPage,
-            validatedSize,
-            validatedPage < totalPages - 1,
-            validatedPage > 0
-        );
+                totalCount,
+                totalPages,
+                validatedPage,
+                validatedSize,
+                validatedPage < totalPages - 1,
+                validatedPage > 0);
     }
 
     /**
@@ -149,13 +140,12 @@ public final class PaginationHelper {
 
         // Expose headers to CORS clients
         headers.setAccessControlExposeHeaders(List.of(
-            HEADER_TOTAL_COUNT,
-            HEADER_TOTAL_PAGES,
-            HEADER_CURRENT_PAGE,
-            HEADER_PAGE_SIZE,
-            HEADER_HAS_NEXT,
-            HEADER_HAS_PREVIOUS
-        ));
+                HEADER_TOTAL_COUNT,
+                HEADER_TOTAL_PAGES,
+                HEADER_CURRENT_PAGE,
+                HEADER_PAGE_SIZE,
+                HEADER_HAS_NEXT,
+                HEADER_HAS_PREVIOUS));
 
         return headers;
     }
@@ -219,13 +209,7 @@ public final class PaginationHelper {
      * Record containing pagination metadata.
      */
     public record PaginationMetadata(
-        int totalCount,
-        int totalPages,
-        int currentPage,
-        int pageSize,
-        boolean hasNext,
-        boolean hasPrevious
-    ) {
+            int totalCount, int totalPages, int currentPage, int pageSize, boolean hasNext, boolean hasPrevious) {
         /**
          * Check if this is the first page.
          */

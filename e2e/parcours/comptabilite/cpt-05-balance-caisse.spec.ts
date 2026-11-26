@@ -31,7 +31,10 @@ scenario('CPT-05', async ({ etape, page }) => {
   // Une balance dont les colonnes ne se répondent pas n'est pas une balance. Deux identités
   // la tiennent, et l'écran donne tout ce qu'il faut pour les éprouver — constater qu'un
   // « Total TTC » non nul s'affiche ne disait rien de leur justesse.
-  const table = page.locator('table').filter({ has: page.getByText('Brut(TTC)') }).first();
+  const table = page
+    .locator('table')
+    .filter({ has: page.getByText('Brut(TTC)') })
+    .first();
   const nombre = async (ligne: Locator, colonne: number): Promise<number> =>
     Number((await ligne.locator('td').nth(colonne).innerText()).replace(/[^\d-]/g, ''));
 

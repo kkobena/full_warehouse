@@ -32,7 +32,7 @@ import {
   FloatLabelComponent,
   IconFieldComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../../shared/ui';
 
 @Component({
@@ -40,7 +40,8 @@ import {
   templateUrl: './rayon-home.component.html',
   styleUrl: './rayon-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     FormsModule,
     ToolbarComponent,
     ButtonComponent,
@@ -67,7 +68,6 @@ export class RayonHomeComponent implements OnInit {
   protected selectedTypeZone: TypeZone | null = null;
   protected search = '';
   protected readonly typeZoneOptions = TYPE_ZONE_OPTIONS;
-
 
   private readonly router = inject(Router);
   private readonly rayonApi = inject(RayonApiService);
@@ -115,16 +115,12 @@ export class RayonHomeComponent implements OnInit {
   }
 
   protected onRayonEdited(saved: IRayon): void {
-    this.rayons.update(list => list.map(r => r.id === saved.id ? { ...r, ...saved } : r));
-    this.selectedRayon.update(r => r?.id === saved.id ? { ...r, ...saved } : r);
+    this.rayons.update(list => list.map(r => (r.id === saved.id ? { ...r, ...saved } : r)));
+    this.selectedRayon.update(r => (r?.id === saved.id ? { ...r, ...saved } : r));
   }
 
   protected onDeleteRequested(rayon: IRayon): void {
-    this.confirmDialog.onConfirm(
-      () => this.deleteRayon(rayon),
-      'Suppression',
-      `Supprimer le rayon "${rayon.libelle}" ?`
-    );
+    this.confirmDialog.onConfirm(() => this.deleteRayon(rayon), 'Suppression', `Supprimer le rayon "${rayon.libelle}" ?`);
   }
 
   protected onCloneRequested(rayon: IRayon): void {
@@ -176,7 +172,7 @@ export class RayonHomeComponent implements OnInit {
             error: err => this.notificationService.error(this.errorService.getErrorMessage(err)),
           });
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -203,7 +199,7 @@ export class RayonHomeComponent implements OnInit {
             error: err => this.notificationService.error(this.errorService.getErrorMessage(err)),
           });
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -289,7 +285,10 @@ export class RayonHomeComponent implements OnInit {
         storageId: this.selectedStorage()?.id ?? undefined,
         typeZone: this.selectedTypeZone ?? undefined,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body ?? [], res.headers),
         error() {},

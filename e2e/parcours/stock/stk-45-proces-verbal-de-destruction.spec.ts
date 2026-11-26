@@ -25,7 +25,10 @@ scenario('STK-45', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    const exporter = page.locator('app-split-button').filter({ hasText: /Export/i }).first();
+    const exporter = page
+      .locator('app-split-button')
+      .filter({ hasText: /Export/i })
+      .first();
     await exporter.getByRole('button').last().click();
     await expect(page.getByRole('button', { name: 'PDF' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Excel' })).toBeVisible();

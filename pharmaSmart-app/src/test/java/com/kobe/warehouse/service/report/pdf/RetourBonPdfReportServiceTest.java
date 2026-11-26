@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -55,7 +54,7 @@ class RetourBonPdfReportServiceTest {
         AppConfigurationService configuration = mock(AppConfigurationService.class);
         when(configuration.getDevise()).thenReturn("EUR");
 
-        service = new RetourBonPdfReportService( storageService, moteurDeGabarits);
+        service = new RetourBonPdfReportService(storageService, moteurDeGabarits);
         service.setAppConfigurationService(configuration);
     }
 
@@ -74,7 +73,9 @@ class RetourBonPdfReportServiceTest {
         void lignesClasseesParLibelle() {
             service.export(bon("BR-2026-001", "LABOREX", ligne("ZOVIRAX"), ligne("AMOXICILLINE"), ligne("MOTILIUM")));
 
-            assertThat(lignesDuModele()).extracting(RetourBonItemDTO::getProduitLibelle).containsExactly("AMOXICILLINE", "MOTILIUM", "ZOVIRAX");
+            assertThat(lignesDuModele())
+                    .extracting(RetourBonItemDTO::getProduitLibelle)
+                    .containsExactly("AMOXICILLINE", "MOTILIUM", "ZOVIRAX");
         }
 
         /** Un libellé manquant ne doit pas faire échouer le tri — il passe en fin de liste. */
@@ -83,7 +84,9 @@ class RetourBonPdfReportServiceTest {
         void ligneSansLibelle() {
             service.export(bon("BR-2026-001", "LABOREX", ligne("ZOVIRAX"), ligne(null), ligne("AMOXICILLINE")));
 
-            assertThat(lignesDuModele()).extracting(RetourBonItemDTO::getProduitLibelle).containsExactly("AMOXICILLINE", "ZOVIRAX", null);
+            assertThat(lignesDuModele())
+                    .extracting(RetourBonItemDTO::getProduitLibelle)
+                    .containsExactly("AMOXICILLINE", "ZOVIRAX", null);
         }
 
         @Test
@@ -138,7 +141,8 @@ class RetourBonPdfReportServiceTest {
         @Test
         @DisplayName("le montant du bordereau totalise les bons regroupés")
         void montantDuBordereau() {
-            service.exportGroupe(List.of(bonDe("LABOREX", 300_000), bonDe("LABOREX", 150_000), bonDe("LABOREX", 50_000)));
+            service.exportGroupe(
+                    List.of(bonDe("LABOREX", 300_000), bonDe("LABOREX", 150_000), bonDe("LABOREX", 50_000)));
 
             assertThat(modele().get("montantTotalGroupe")).isEqualTo(500_000L);
         }
@@ -186,7 +190,9 @@ class RetourBonPdfReportServiceTest {
             service.export(bon("BR-2", "LABOREX", ligne("C")));
 
             assertThat(modele().get("item_size")).isEqualTo(1);
-            assertThat(lignesDuModele()).extracting(RetourBonItemDTO::getProduitLibelle).containsExactly("C");
+            assertThat(lignesDuModele())
+                    .extracting(RetourBonItemDTO::getProduitLibelle)
+                    .containsExactly("C");
         }
 
         /**

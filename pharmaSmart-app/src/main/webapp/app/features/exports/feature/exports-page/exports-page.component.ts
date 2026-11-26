@@ -7,25 +7,25 @@ import {
   inject,
   Signal,
   signal,
-  viewChild
-} from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { map } from "rxjs";
+  viewChild,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { map } from 'rxjs';
 
-import { AbilityService } from "app/core/auth/ability.service";
-import { NavTabsComponent, ToolbarComponent } from "app/shared/ui";
-import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
-import { ExportModele } from "../../models/exports.model";
-import { OngletCatalogueComponent } from "../../ui/onglet-catalogue/onglet-catalogue.component";
-import { OngletHistoriqueComponent } from "../../ui/onglet-historique/onglet-historique.component";
-import { OngletModelesComponent } from "../../ui/onglet-modeles/onglet-modeles.component";
+import { AbilityService } from 'app/core/auth/ability.service';
+import { NavTabsComponent, ToolbarComponent } from 'app/shared/ui';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
+import { ExportModele } from '../../models/exports.model';
+import { OngletCatalogueComponent } from '../../ui/onglet-catalogue/onglet-catalogue.component';
+import { OngletHistoriqueComponent } from '../../ui/onglet-historique/onglet-historique.component';
+import { OngletModelesComponent } from '../../ui/onglet-modeles/onglet-modeles.component';
 
 const ONGLETS = [
-  { id: "catalogue", code: "exports.catalogue", libelle: "Catalogue", icone: "pi pi-th-large" },
-  { id: "historique", code: "exports.historique", libelle: "Historique", icone: "pi pi-history" },
-  { id: "modeles", code: "exports.modeles", libelle: "Modèles", icone: "pi pi-bookmark" }
+  { id: 'catalogue', code: 'exports.catalogue', libelle: 'Catalogue', icone: 'pi pi-th-large' },
+  { id: 'historique', code: 'exports.historique', libelle: 'Historique', icone: 'pi pi-history' },
+  { id: 'modeles', code: 'exports.modeles', libelle: 'Modèles', icone: 'pi pi-bookmark' },
 ] as const;
 
 /**
@@ -33,12 +33,20 @@ const ONGLETS = [
  * programmés. Un export demandé se génère en tâche de fond : on bascule sur l'historique, qui suit son avancement.
  */
 @Component({
-  selector: "app-exports-page",
-  imports: [NgbNavModule, NavTabsComponent, ToolbarComponent, NavSectionLinkComponent, OngletCatalogueComponent, OngletHistoriqueComponent, OngletModelesComponent],
-  templateUrl: "./exports-page.component.html",
-  styleUrl: "./exports-page.component.scss",
+  selector: 'app-exports-page',
+  imports: [
+    NgbNavModule,
+    NavTabsComponent,
+    ToolbarComponent,
+    NavSectionLinkComponent,
+    OngletCatalogueComponent,
+    OngletHistoriqueComponent,
+    OngletModelesComponent,
+  ],
+  templateUrl: './exports-page.component.html',
+  styleUrl: './exports-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { "(window:resize)": "mesurerHauteurs()" }
+  host: { '(window:resize)': 'mesurerHauteurs()' },
 })
 export class ExportsPageComponent {
   private readonly ability = inject(AbilityService);
@@ -47,12 +55,12 @@ export class ExportsPageComponent {
 
   // `read: ElementRef` est indispensable : `#barre` posé sur un composant désigne l'instance de
   // `ToolbarComponent`, pas son élément — sans cela, `nativeElement` est `undefined`.
-  private readonly barre: Signal<ElementRef<HTMLElement> | undefined> = viewChild("barre", { read: ElementRef });
-  private readonly barreOnglets: Signal<ElementRef<HTMLElement> | undefined> = viewChild("barreOnglets", { read: ElementRef });
+  private readonly barre: Signal<ElementRef<HTMLElement> | undefined> = viewChild('barre', { read: ElementRef });
+  private readonly barreOnglets: Signal<ElementRef<HTMLElement> | undefined> = viewChild('barreOnglets', { read: ElementRef });
 
-  private readonly ongletDemande = toSignal(this.route.queryParamMap.pipe(map(params => params.get("onglet"))));
+  private readonly ongletDemande = toSignal(this.route.queryParamMap.pipe(map(params => params.get('onglet'))));
 
-  protected readonly ongletsVisibles = computed(() => ONGLETS.filter(onglet => this.ability.can("display", onglet.code)));
+  protected readonly ongletsVisibles = computed(() => ONGLETS.filter(onglet => this.ability.can('display', onglet.code)));
 
   protected readonly ongletActif = computed(() => {
     const visibles = this.ongletsVisibles();
@@ -63,10 +71,10 @@ export class ExportsPageComponent {
   protected modeleAPreparer: ExportModele | null = null;
 
   /** Hauteur de la barre d'outils, sous laquelle les onglets viennent se coller. */
-  protected readonly hautToolbar = signal("0px");
+  protected readonly hautToolbar = signal('0px');
 
   /** Hauteur de la barre d'onglets, sous laquelle se colle à son tour la barre d'ancres du catalogue. */
-  protected readonly hautOnglets = signal("0px");
+  protected readonly hautOnglets = signal('0px');
 
   constructor() {
     afterNextRender(() => this.mesurerHauteurs());
@@ -91,14 +99,14 @@ export class ExportsPageComponent {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { onglet: id },
-      queryParamsHandling: "merge",
-      replaceUrl: true
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 
   protected preparerModele(modele: ExportModele): void {
     this.modeleAPreparer = modele;
-    this.changerOnglet("modeles");
+    this.changerOnglet('modeles');
   }
 }
 

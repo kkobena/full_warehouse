@@ -50,11 +50,10 @@ public class TraitementChroniqueService {
     private final DerogationAuthorizer derogationAuthorizer;
 
     public TraitementChroniqueService(
-        CustomerTraitementChroniqueRepository repository,
-        EntityManager em,
-        AppConfigurationService configuration,
-        DerogationAuthorizer derogationAuthorizer
-    ) {
+            CustomerTraitementChroniqueRepository repository,
+            EntityManager em,
+            AppConfigurationService configuration,
+            DerogationAuthorizer derogationAuthorizer) {
         this.repository = repository;
         this.em = em;
         this.configuration = configuration;
@@ -64,26 +63,32 @@ public class TraitementChroniqueService {
     @Transactional(readOnly = true)
     public List<TraitementChroniqueDTO> traitements(Integer customerId) {
         LocalDate aujourdhui = LocalDate.now();
-        return repository.findAllByCustomerIdOrderByActifDescCreatedAtAsc(customerId).stream().map(t -> evaluer(t, aujourdhui)).toList();
+        return repository.findAllByCustomerIdOrderByActifDescCreatedAtAsc(customerId).stream()
+                .map(t -> evaluer(t, aujourdhui))
+                .toList();
     }
 
     /** Patients actifs dont un traitement arrive à échéance, est en retard ou interrompu ; les plus urgents d'abord. */
     @Transactional(readOnly = true)
     public List<TraitementARenouvelerDTO> aRenouveler() {
         LocalDate aujourdhui = LocalDate.now();
-        return repository
-            .findAllByActifTrue()
-            .stream()
-            .map(t -> {
-                Customer c = em.find(Customer.class, t.getCustomerId());
-                TraitementChroniqueDTO dto = evaluer(t, aujourdhui);
-                return c == null || c.getStatus() != Status.ENABLE || !A_RELANCER.contains(dto.suivi())
-                    ? null
-                    : new TraitementARenouvelerDTO(c.getId(), c.getCode(), c.getFirstName() + " " + c.getLastName(), c.getPhone(), dto);
-            })
-            .filter(java.util.Objects::nonNull)
-            .sorted(Comparator.comparing(r -> r.traitement().joursRestants(), Comparator.nullsLast(Comparator.naturalOrder())))
-            .toList();
+        return repository.findAllByActifTrue().stream()
+                .map(t -> {
+                    Customer c = em.find(Customer.class, t.getCustomerId());
+                    TraitementChroniqueDTO dto = evaluer(t, aujourdhui);
+                    return c == null || c.getStatus() != Status.ENABLE || !A_RELANCER.contains(dto.suivi())
+                            ? null
+                            : new TraitementARenouvelerDTO(
+                                    c.getId(),
+                                    c.getCode(),
+                                    c.getFirstName() + " " + c.getLastName(),
+                                    c.getPhone(),
+                                    dto);
+                })
+                .filter(java.util.Objects::nonNull)
+                .sorted(Comparator.comparing(
+                        r -> r.traitement().joursRestants(), Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
     }
 
     public TraitementChroniqueDTO declarer(Integer customerId, TraitementChroniqueSaisieDTO saisie) {
@@ -97,9 +102,9 @@ public class TraitementChroniqueService {
 
     public TraitementChroniqueDTO modifier(Integer customerId, Integer id, TraitementChroniqueSaisieDTO saisie) {
         CustomerTraitementChronique traitement = repository
-            .findById(id)
-            .filter(t -> t.getCustomerId().equals(customerId))
-            .orElseThrow(() -> new GenericError("Traitement introuvable", "traitementIntrouvable"));
+                .findById(id)
+                .filter(t -> t.getCustomerId().equals(customerId))
+                .orElseThrow(() -> new GenericError("Traitement introuvable", "traitementIntrouvable"));
         appliquer(traitement, saisie);
         return evaluer(repository.save(traitement), LocalDate.now());
     }
@@ -111,26 +116,28 @@ public class TraitementChroniqueService {
             throw new GenericError("Indiquez la molécule du traitement, ou le produit imposé.", "traitementSansCible");
         }
         if (dci != null && produit != null && !contient(produit.getId(), dci.getId())) {
-            throw new GenericError("Le produit imposé ne contient pas la molécule du traitement.", "traitementProduitSansMolecule");
+            throw new GenericError(
+                    "Le produit imposé ne contient pas la molécule du traitement.", "traitementProduitSansMolecule");
         }
         if (saisie.dureeJours() == null || saisie.dureeJours() <= 0) {
             throw new GenericError("La durée couverte par une délivrance est obligatoire.", "traitementSansDuree");
         }
-        if (saisie.dateOrdonnance() != null && saisie.dateFinOrdonnance() != null && saisie.dateFinOrdonnance().isBefore(saisie.dateOrdonnance())) {
+        if (saisie.dateOrdonnance() != null
+                && saisie.dateFinOrdonnance() != null
+                && saisie.dateFinOrdonnance().isBefore(saisie.dateOrdonnance())) {
             throw new GenericError("La fin de l'ordonnance précède sa date.", "traitementOrdonnanceIncoherente");
         }
-        t
-            .setDci(dci)
-            .setProduit(produit)
-            .setDosage(texte(saisie.dosage()))
-            .setPosologie(texte(saisie.posologie()))
-            .setDureeJours(saisie.dureeJours())
-            .setDateOrdonnance(saisie.dateOrdonnance())
-            .setDateFinOrdonnance(saisie.dateFinOrdonnance())
-            .setNote(texte(saisie.note()))
-            .setActif(saisie.actif() == null || saisie.actif())
-            .setUpdatedAt(LocalDateTime.now())
-            .setUpdatedBy(derogationAuthorizer.utilisateurCourant());
+        t.setDci(dci)
+                .setProduit(produit)
+                .setDosage(texte(saisie.dosage()))
+                .setPosologie(texte(saisie.posologie()))
+                .setDureeJours(saisie.dureeJours())
+                .setDateOrdonnance(saisie.dateOrdonnance())
+                .setDateFinOrdonnance(saisie.dateFinOrdonnance())
+                .setNote(texte(saisie.note()))
+                .setActif(saisie.actif() == null || saisie.actif())
+                .setUpdatedAt(LocalDateTime.now())
+                .setUpdatedBy(derogationAuthorizer.utilisateurCourant());
     }
 
     TraitementChroniqueDTO evaluer(CustomerTraitementChronique t, LocalDate aujourdhui) {
@@ -141,42 +148,42 @@ public class TraitementChroniqueService {
         Suivi suivi = suivi(t, joursRestants);
 
         Ordonnance ordonnance = t.getDateFinOrdonnance() == null
-            ? Ordonnance.NON_RENSEIGNEE
-            : t.getDateFinOrdonnance().isBefore(aujourdhui) ? Ordonnance.EXPIREE : Ordonnance.VALIDE;
+                ? Ordonnance.NON_RENSEIGNEE
+                : t.getDateFinOrdonnance().isBefore(aujourdhui) ? Ordonnance.EXPIREE : Ordonnance.VALIDE;
         LocalDate exceptionnelJusquau = null;
         String motif = null;
         if (t.isActif() && ordonnance == Ordonnance.EXPIREE && configuration.isRenouvellementExceptionnelEnabled()) {
             motif = motifRefusExceptionnel(t, derniere, aujourdhui);
             if (motif == null) {
-                exceptionnelJusquau = t.getDateFinOrdonnance().plusMonths(configuration.getRenouvellementExceptionnelMois());
+                exceptionnelJusquau =
+                        t.getDateFinOrdonnance().plusMonths(configuration.getRenouvellementExceptionnelMois());
             }
         }
 
         Dci dci = t.getDci();
         Produit produit = t.getProduit();
         return new TraitementChroniqueDTO(
-            t.getId(),
-            dci == null ? null : dci.getId(),
-            dci == null ? null : dci.getLibelle(),
-            produit == null ? null : produit.getId(),
-            produit == null ? null : produit.getLibelle(),
-            t.getDosage(),
-            t.getPosologie(),
-            t.getDureeJours(),
-            t.getDateOrdonnance(),
-            t.getDateFinOrdonnance(),
-            t.getNote(),
-            t.isActif(),
-            derniere,
-            delivrance == null ? null : delivrance.produitId(),
-            delivrance == null ? null : delivrance.libelle(),
-            prochaine,
-            joursRestants,
-            suivi,
-            ordonnance,
-            exceptionnelJusquau,
-            motif
-        );
+                t.getId(),
+                dci == null ? null : dci.getId(),
+                dci == null ? null : dci.getLibelle(),
+                produit == null ? null : produit.getId(),
+                produit == null ? null : produit.getLibelle(),
+                t.getDosage(),
+                t.getPosologie(),
+                t.getDureeJours(),
+                t.getDateOrdonnance(),
+                t.getDateFinOrdonnance(),
+                t.getNote(),
+                t.isActif(),
+                derniere,
+                delivrance == null ? null : delivrance.produitId(),
+                delivrance == null ? null : delivrance.libelle(),
+                prochaine,
+                joursRestants,
+                suivi,
+                ordonnance,
+                exceptionnelJusquau,
+                motif);
     }
 
     private Suivi suivi(CustomerTraitementChronique t, Long joursRestants) {
@@ -208,7 +215,8 @@ public class TraitementChroniqueService {
             return "Ordonnance de moins de " + DUREE_MINIMALE_ORDONNANCE_MOIS + " mois.";
         }
         if (aujourdhui.isAfter(fin.plusMonths(configuration.getRenouvellementExceptionnelMois()))) {
-            return "Délai de " + configuration.getRenouvellementExceptionnelMois() + " mois après l'expiration dépassé.";
+            return "Délai de " + configuration.getRenouvellementExceptionnelMois()
+                    + " mois après l'expiration dépassé.";
         }
         boolean delivreDepuisExpiration = derniere != null && derniere.isAfter(fin);
         if (!delivreDepuisExpiration && aujourdhui.isAfter(fin.plusMonths(1))) {
@@ -221,48 +229,53 @@ public class TraitementChroniqueService {
         if (t.getProduit() != null) {
             return STUPEFIANTS.contains(t.getProduit().getStatutLegal());
         }
-        Long n = em
-            .createQuery(
-                "SELECT COUNT(pd) FROM ProduitDci pd WHERE pd.dci.id = :dci AND pd.produit.statutLegal IN :statuts",
-                Long.class
-            )
-            .setParameter("dci", t.getDci().getId())
-            .setParameter("statuts", STUPEFIANTS)
-            .getSingleResult();
+        Long n = em.createQuery(
+                        "SELECT COUNT(pd) FROM ProduitDci pd WHERE pd.dci.id = :dci AND pd.produit.statutLegal IN :statuts",
+                        Long.class)
+                .setParameter("dci", t.getDci().getId())
+                .setParameter("statuts", STUPEFIANTS)
+                .getSingleResult();
         return n > 0;
     }
 
     private record Delivrance(LocalDate date, Integer produitId, String libelle) {}
 
     private Delivrance derniereDelivrance(CustomerTraitementChronique t) {
-        String produits = t.getProduit() != null ? ":cible" : "(SELECT pd.produit_id FROM produit_dci pd WHERE pd.dci_id = :cible)";
+        String produits = t.getProduit() != null
+                ? ":cible"
+                : "(SELECT pd.produit_id FROM produit_dci pd WHERE pd.dci_id = :cible)";
         @SuppressWarnings("unchecked")
-        List<Object[]> lignes = em
-            .createNativeQuery(
-                "SELECT s.sale_date, p.id, p.libelle FROM sales_line l" +
-                " JOIN sales s ON s.id = l.sales_id AND s.sale_date = l.sales_sale_date" +
-                " JOIN produit p ON p.id = l.produit_id" +
-                " WHERE s.statut = 'CLOSED' AND NOT s.canceled" +
-                " AND ((s.customer_id = :patient AND s.ayant_droit_id IS NULL) OR s.ayant_droit_id = :patient)" +
-                " AND (p.id IN (" + produits + ") OR p.parent_id IN (" + produits + "))" +
-                " ORDER BY s.sale_date DESC, s.updated_at DESC LIMIT 1"
-            )
-            .setParameter("patient", t.getCustomerId())
-            .setParameter("cible", t.getProduit() != null ? t.getProduit().getId() : t.getDci().getId())
-            .getResultList();
+        List<Object[]> lignes = em.createNativeQuery("SELECT s.sale_date, p.id, p.libelle FROM sales_line l"
+                        + " JOIN sales s ON s.id = l.sales_id AND s.sale_date = l.sales_sale_date"
+                        + " JOIN produit p ON p.id = l.produit_id"
+                        + " WHERE s.statut = 'CLOSED' AND NOT s.canceled"
+                        + " AND ((s.customer_id = :patient AND s.ayant_droit_id IS NULL) OR s.ayant_droit_id = :patient)"
+                        + " AND (p.id IN ("
+                        + produits + ") OR p.parent_id IN (" + produits + "))"
+                        + " ORDER BY s.sale_date DESC, s.updated_at DESC LIMIT 1")
+                .setParameter("patient", t.getCustomerId())
+                .setParameter(
+                        "cible",
+                        t.getProduit() != null
+                                ? t.getProduit().getId()
+                                : t.getDci().getId())
+                .getResultList();
         if (lignes.isEmpty()) {
             return null;
         }
         Object[] r = lignes.getFirst();
-        return new Delivrance(r[0] instanceof Date d ? d.toLocalDate() : (LocalDate) r[0], ((Number) r[1]).intValue(), (String) r[2]);
+        return new Delivrance(
+                r[0] instanceof Date d ? d.toLocalDate() : (LocalDate) r[0], ((Number) r[1]).intValue(), (String) r[2]);
     }
 
     private boolean contient(Integer produitId, Integer dciId) {
-        return em
-            .createQuery("SELECT COUNT(pd) FROM ProduitDci pd WHERE pd.produit.id = :produit AND pd.dci.id = :dci", Long.class)
-            .setParameter("produit", produitId)
-            .setParameter("dci", dciId)
-            .getSingleResult() > 0;
+        return em.createQuery(
+                                "SELECT COUNT(pd) FROM ProduitDci pd WHERE pd.produit.id = :produit AND pd.dci.id = :dci",
+                                Long.class)
+                        .setParameter("produit", produitId)
+                        .setParameter("dci", dciId)
+                        .getSingleResult()
+                > 0;
     }
 
     private static String texte(String valeur) {

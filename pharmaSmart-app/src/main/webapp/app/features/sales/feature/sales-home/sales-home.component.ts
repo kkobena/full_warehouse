@@ -11,7 +11,7 @@ import {
   OnInit,
   signal,
   viewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,16 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { fournirInfobullesEnHaut } from '../../shared/infobulles-en-haut';
 import { HauteurEcranVenteDirective } from '../../shared/hauteur-ecran-vente.directive';
-import { NgbModal, NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  NgbNav,
+  NgbNavChangeEvent,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavOutlet,
+  NgbTooltip,
+} from '@ng-bootstrap/ng-bootstrap';
 import { ApresVenteModalComponent } from '../../ui/apres-vente-modal/apres-vente-modal.component';
 import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
 import { SalesHelpService } from '../../data-access/services/sales-help.service';
@@ -57,7 +66,7 @@ import { ScanOrchestratorService } from '../../../../shared/scanner';
 import { getNavChangeMessage, SaleType } from '../../../../entities/sales/selling-home/sale-helper';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import { AbilityService } from '../../../../core/auth/ability.service';
 
 @Component({
@@ -71,7 +80,8 @@ import { AbilityService } from '../../../../core/auth/ability.service';
   },
   providers: [ScanOrchestratorService, SalesScannerService, fournirInfobullesEnHaut()],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SalesHelpPanelComponent,
+  imports: [
+    SalesHelpPanelComponent,
     HauteurEcranVenteDirective,
     FicheClientPanelComponent,
     OrdonnancePanelComponent,
@@ -290,7 +300,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
       const saleId: SaleId = saleInfo.saleId;
       const isPresale = saleInfo.isPresale === true;
       this.isPresaleFromRoute.set(isPresale);
-      this.initSaleForEditInfo.set({saleId, isPresale, isEdit});
+      this.initSaleForEditInfo.set({ saleId, isPresale, isEdit });
       this.loadSale(saleId);
     }
 
@@ -331,7 +341,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     this.apiService
       .countPendingSales({
         userId: this.salesFacade.cashier()?.id,
-        statut: [SalesStatut.ACTIVE]
+        statut: [SalesStatut.ACTIVE],
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(resp => this.countPendingSales.set(resp?.body?.toString() ?? '0'));
@@ -355,14 +365,17 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    * Recharge l'état de la caisse (appelé après ouverture de caisse depuis un composant enfant)
    */
   protected onCashRegisterStatusChanged(): void {
-    this.cashRegisterService.getConnectedUserHasOpenCashRegister().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: res => {
-        this.isCashRegisterOpen.set(res.body ?? false);
-      },
-      error: () => {
-        this.isCashRegisterOpen.set(false);
-      },
-    });
+    this.cashRegisterService
+      .getConnectedUserHasOpenCashRegister()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.isCashRegisterOpen.set(res.body ?? false);
+        },
+        error: () => {
+          this.isCashRegisterOpen.set(false);
+        },
+      });
   }
 
   /**
@@ -398,8 +411,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     if (cible.closest('.modal, .modal-content')) {
       return true;
     }
-    const estUnChamp =
-      cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+    const estUnChamp = cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
     return estUnChamp && cible.id !== 'produitbox';
   }
 
@@ -419,8 +431,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
         return;
       }
       const tabMap: Record<string, string> = this.isDevisMode()
-        ? {'1': 'comptant', '3': 'carnet'}  // En mode devis: 1=comptant, 3=carnet
-        : {'1': 'comptant', '2': 'assurance', '3': 'carnet'};
+        ? { '1': 'comptant', '3': 'carnet' } // En mode devis: 1=comptant, 3=carnet
+        : { '1': 'comptant', '2': 'assurance', '3': 'carnet' };
       const targetTab = tabMap[digit];
       if (targetTab) {
         this.switchToTab(targetTab);
@@ -473,7 +485,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
           this.focusActiveTab();
         },
         'Changement de type de vente',
-       this.isFromVo(fromTab)?'La vente sera mise en attente. Voulez-vous continuer ?': this.getMessateOnNavChange(evt),
+        this.isFromVo(fromTab) ? 'La vente sera mise en attente. Voulez-vous continuer ?' : this.getMessateOnNavChange(evt),
       );
     } else {
       if (asCurrentSale) {
@@ -484,12 +496,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
             this.goToNextTab(toTab);
           },
           'Changement de type de vente',
-          'La proforma en cours sera perdue. Souhaitez-vous continuer ?'
+          'La proforma en cours sera perdue. Souhaitez-vous continuer ?',
         );
       } else {
         this.goToNextTab(toTab);
       }
-
     }
   }
 
@@ -529,7 +540,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   /** Entrée ou sortie de caisse sans quitter le comptoir : le panier en cours n'est pas touché. */
   protected ouvrirMouvementCaisse(): void {
-    const ref = this.modalService.open(FormTransactionComponent, { size: 'lg', backdrop: 'static',centered: true });
+    const ref = this.modalService.open(FormTransactionComponent, { size: 'lg', backdrop: 'static', centered: true });
     ref.componentInstance.header = 'Mouvement de Caisse';
     ref.result.then(
       (paymentId: PaymentId) => {
@@ -602,9 +613,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private getMessateOnNavChange(evt: NgbNavChangeEvent): string {
     return getNavChangeMessage(evt.nextId, this.translate);
   }
-private isFromVo(fromTab: string): boolean {
-   return fromTab === SaleType.ASSURANCE || fromTab === SaleType.CARNET;
-}
+  private isFromVo(fromTab: string): boolean {
+    return fromTab === SaleType.ASSURANCE || fromTab === SaleType.CARNET;
+  }
   /**
    * Dispatch de la transition entre deux onglets quand une vente est en cours.
    * Utilisé par onNavChange() et switchToTab().
@@ -708,8 +719,6 @@ private isFromVo(fromTab: string): boolean {
   private loadSale(saleId: SaleId): void {
     this.salesFacade.loadSale(saleId);
   }
-
-
 
   private iniLoadSaleForEdit(): void {
     const sale = this.salesFacade.currentSale();
@@ -835,7 +844,7 @@ private isFromVo(fromTab: string): boolean {
 
   private searchAndDispatch(code: string): void {
     this.produitService
-      .search({page: 0, size: 5, search: code}, false)
+      .search({ page: 0, size: 5, search: code }, false)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         timeout(SalesHomeComponent.SCAN_SEARCH_TIMEOUT_MS),
@@ -855,7 +864,10 @@ private isFromVo(fromTab: string): boolean {
             this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
           } else {
             this.scanAudio.beepWarning();
-            const labels = results.slice(0, 3).map(p => p.libelle ?? '?').join(', ');
+            const labels = results
+              .slice(0, 3)
+              .map(p => p.libelle ?? '?')
+              .join(', ');
             const suffix = results.length > 3 ? ` (+${results.length - 3} autres)` : '';
             this.notificationService.warning(
               `${results.length} produits correspondent à « ${code} » : ${labels}${suffix}. Le 1er a été ajouté — vérifiez la ligne.`,
@@ -924,7 +936,7 @@ private isFromVo(fromTab: string): boolean {
       const isProductSearch = activeEl.closest('app-product-search');
       if (!isProductSearch) {
         activeEl.value = '';
-        activeEl.dispatchEvent(new Event('input', {bubbles: true}));
+        activeEl.dispatchEvent(new Event('input', { bubbles: true }));
       }
     }
   }

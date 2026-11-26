@@ -143,7 +143,7 @@ public class LogProperties {
         private final Security.RememberMe rememberMe = new Security.RememberMe();
         private final Security.OAuth2 oauth2 = new Security.OAuth2();
         private String contentSecurityPolicy =
-            "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* ";
+                "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* ";
 
         public Security.ClientAuthorization getClientAuthorization() {
             return this.clientAuthorization;
@@ -177,10 +177,13 @@ public class LogProperties {
             private String clientSecret;
 
             public ClientAuthorization() {
-                this.accessTokenUri = com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.accessTokenUri;
-                this.tokenServiceId = com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.tokenServiceId;
+                this.accessTokenUri =
+                        com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.accessTokenUri;
+                this.tokenServiceId =
+                        com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.tokenServiceId;
                 this.clientId = com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.clientId;
-                this.clientSecret = com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.clientSecret;
+                this.clientSecret =
+                        com.kobe.warehouse.config.PharmaSmartDefaults.Security.ClientAuthorization.clientSecret;
             }
 
             public String getAccessTokenUri() {
@@ -233,7 +236,8 @@ public class LogProperties {
 
                 public Jwt() {
                     this.secret = com.kobe.warehouse.config.PharmaSmartDefaults.Security.Authentication.Jwt.secret;
-                    this.base64Secret = com.kobe.warehouse.config.PharmaSmartDefaults.Security.Authentication.Jwt.base64Secret;
+                    this.base64Secret =
+                            com.kobe.warehouse.config.PharmaSmartDefaults.Security.Authentication.Jwt.base64Secret;
                     this.tokenValidityInSeconds = 1800L;
                     this.tokenValidityInSecondsForRememberMe = 2592000L;
                 }
@@ -326,7 +330,8 @@ public class LogProperties {
             this.license = com.kobe.warehouse.config.PharmaSmartDefaults.ApiDocs.license;
             this.licenseUrl = com.kobe.warehouse.config.PharmaSmartDefaults.ApiDocs.licenseUrl;
             this.defaultIncludePattern = com.kobe.warehouse.config.PharmaSmartDefaults.ApiDocs.defaultIncludePattern;
-            this.managementIncludePattern = com.kobe.warehouse.config.PharmaSmartDefaults.ApiDocs.managementIncludePattern;
+            this.managementIncludePattern =
+                    com.kobe.warehouse.config.PharmaSmartDefaults.ApiDocs.managementIncludePattern;
             this.servers = new ApiDocs.Server[0];
         }
 

@@ -13,7 +13,7 @@ public interface ResponseUtil {
 
     static <X> ResponseEntity<X> wrapOrNotFound(Optional<X> maybeResponse, HttpHeaders header) {
         return maybeResponse
-            .map(response -> ResponseEntity.ok().headers(header).body(response))
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .map(response -> ResponseEntity.ok().headers(header).body(response))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

@@ -18,9 +18,7 @@ import {
 } from '../../../shared/ui';
 // Non réexporté par shared/ui : import direct, comme sur l'écran DCI.
 import { PageLayoutComponent } from '../../../shared/ui/page-layout/page-layout.component';
-import {
-  CodeRemiseProduitsModalComponent
-} from '../code-remise-produits-modal/code-remise-produits-modal.component';
+import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/code-remise-produits-modal.component';
 
 /**
  * Codes de remise, en maître / détail.
@@ -157,15 +155,13 @@ export class CodeRemiseProduitComponent implements OnInit {
    */
   private chargerProduits(code: CodeRemise, page: number): void {
     this.chargementDetail.set(true);
-    this.produitService
-      .query({ codeRemise: code.value, page, size: this.taillePage() })
-      .subscribe({
-        next: (res: HttpResponse<IProduit[]>) => {
-          this.produits.set(res.body ?? []);
-          this.totalProduits.set(Number(res.headers.get('X-Total-Count')) || (res.body?.length ?? 0));
-          this.chargementDetail.set(false);
-        },
-        error: () => this.chargementDetail.set(false),
-      });
+    this.produitService.query({ codeRemise: code.value, page, size: this.taillePage() }).subscribe({
+      next: (res: HttpResponse<IProduit[]>) => {
+        this.produits.set(res.body ?? []);
+        this.totalProduits.set(Number(res.headers.get('X-Total-Count')) || (res.body?.length ?? 0));
+        this.chargementDetail.set(false);
+      },
+      error: () => this.chargementDetail.set(false),
+    });
   }
 }

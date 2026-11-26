@@ -28,20 +28,17 @@ public class ExclusionReferentielServiceImpl implements ExclusionReferentielServ
      * d'affaires tiers-payant à exclure — le carnet est un crédit client, le dépôt un stock
      * avancé.
      */
-    private static final EnumSet<TiersPayantCategorie> CATEGORIES_HORS_EXCLUSION = EnumSet.of(
-        TiersPayantCategorie.CARNET,
-        TiersPayantCategorie.DEPOT
-    );
+    private static final EnumSet<TiersPayantCategorie> CATEGORIES_HORS_EXCLUSION =
+            EnumSet.of(TiersPayantCategorie.CARNET, TiersPayantCategorie.DEPOT);
 
     private final RayonRepository rayonRepository;
     private final TiersPayantRepository tiersPayantRepository;
     private final StorageService storageService;
 
     public ExclusionReferentielServiceImpl(
-        RayonRepository rayonRepository,
-        TiersPayantRepository tiersPayantRepository,
-        StorageService storageService
-    ) {
+            RayonRepository rayonRepository,
+            TiersPayantRepository tiersPayantRepository,
+            StorageService storageService) {
         this.rayonRepository = rayonRepository;
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
@@ -51,47 +48,39 @@ public class ExclusionReferentielServiceImpl implements ExclusionReferentielServ
     @Transactional(readOnly = true)
     public Page<ExclusionItemDTO> listerRayons(Boolean exclus, String search, Pageable pageable) {
         Integer storageId = storageService.getDefaultConnectedUserMainStorage().getId();
-        Specification<Rayon> specification = rayonRepository.specialisationStorage(storageId)
-            .and(rayonRepository.notSansEmplacement());
+        Specification<Rayon> specification =
+                rayonRepository.specialisationStorage(storageId).and(rayonRepository.notSansEmplacement());
         if (exclus != null) {
             specification = specification.and(rayonRepository.isExclude(exclus));
         }
         if (StringUtils.hasLength(search)) {
-            specification = specification.and(
-                rayonRepository.specialisationQueryString(search.toUpperCase() + "%")
-            );
+            specification = specification.and(rayonRepository.specialisationQueryString(search.toUpperCase() + "%"));
         }
         return rayonRepository
-            .findAll(specification, trier(pageable, "libelle"))
-            .map(rayon -> new ExclusionItemDTO(rayon.getId(), rayon.getCode(), rayon.getLibelle(),
-                rayon.isExclude()));
+                .findAll(specification, trier(pageable, "libelle"))
+                .map(rayon ->
+                        new ExclusionItemDTO(rayon.getId(), rayon.getCode(), rayon.getLibelle(), rayon.isExclude()));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ExclusionItemDTO> listerTiersPayants(Boolean exclus, String search,
-        Pageable pageable) {
-        Specification<TiersPayant> specification = tiersPayantRepository
-            .isActif()
-            .and(tiersPayantRepository.notEqual(TiersPayantCategorie.ASSURANCE));
+    public Page<ExclusionItemDTO> listerTiersPayants(Boolean exclus, String search, Pageable pageable) {
+        Specification<TiersPayant> specification =
+                tiersPayantRepository.isActif().and(tiersPayantRepository.notEqual(TiersPayantCategorie.ASSURANCE));
         if (exclus != null) {
             specification = specification.and(tiersPayantRepository.isBeExclude(exclus));
         }
         if (StringUtils.hasLength(search)) {
-            specification = specification.and(
-                tiersPayantRepository.specialisationQueryString(search.toUpperCase() + "%")
-            );
+            specification =
+                    specification.and(tiersPayantRepository.specialisationQueryString(search.toUpperCase() + "%"));
         }
         return tiersPayantRepository
-            .findAll(specification, trier(pageable, "fullName"))
-            .map(tiersPayant ->
-                new ExclusionItemDTO(
-                    tiersPayant.getId(),
-                    tiersPayant.getCodeOrganisme(),
-                    tiersPayant.getFullName(),
-                    tiersPayant.isBeExclude()
-                )
-            );
+                .findAll(specification, trier(pageable, "fullName"))
+                .map(tiersPayant -> new ExclusionItemDTO(
+                        tiersPayant.getId(),
+                        tiersPayant.getCodeOrganisme(),
+                        tiersPayant.getFullName(),
+                        tiersPayant.isBeExclude()));
     }
 
     /**
@@ -105,10 +94,7 @@ public class ExclusionReferentielServiceImpl implements ExclusionReferentielServ
             return pageable;
         }
         return PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by(Sort.Direction.ASC, champParDefaut)
-        );
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, champParDefaut));
     }
 
     @Override

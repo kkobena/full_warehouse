@@ -89,29 +89,31 @@
     ::ng-deep {
       .pharma-table {
         tbody > tr {
-        transition: background-color 0.2s, box-shadow 0.2s;
+          transition:
+            background-color 0.2s,
+            box-shadow 0.2s;
 
-        &.hoverable-row {
-          cursor: pointer;
+          &.hoverable-row {
+            cursor: pointer;
 
-          &:hover {
-            background-color: var(--highlight-bg);
+            &:hover {
+              background-color: var(--highlight-bg);
+            }
+
+            &.selected-row {
+              background-color: var(--primary-100);
+              box-shadow: inset 3px 0 0 var(--primary-color);
+            }
           }
 
-          &.selected-row {
-            background-color: var(--primary-100);
-            box-shadow: inset 3px 0 0 var(--primary-color);
+          &.partial-qty {
+            background-color: var(--yellow-50);
           }
-        }
 
-        &.partial-qty {
-          background-color: var(--yellow-50);
-        }
-
-        > td {
-          padding: 0.75rem;
-          font-size: 0.875rem;
-          vertical-align: middle;
+          > td {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            vertical-align: middle;
 
             .sale-reference {
               font-weight: 600;

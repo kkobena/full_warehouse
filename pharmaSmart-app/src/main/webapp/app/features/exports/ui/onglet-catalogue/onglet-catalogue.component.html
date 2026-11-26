@@ -43,13 +43,24 @@
               </details>
             }
 
-            <app-pill-selector (selectionChange)="choisirFormat($event)" [items]="formats()" [ngModel]="format()" ariaLabel="Format du fichier" />
+            <app-pill-selector
+              (selectionChange)="choisirFormat($event)"
+              [items]="formats()"
+              [ngModel]="format()"
+              ariaLabel="Format du fichier"
+            />
             @if (erreur(); as message) {
               <p class="text-danger mb-0" role="alert">{{ message }}</p>
             }
             <div class="catalogue-actions">
               <app-button (clicked)="exporter(entree)" [loading]="envoi()" icon="pi pi-download" label="Exporter" size="small" />
-              <app-button (clicked)="enregistrerCommeModele(entree)" [outlined]="true" icon="pi pi-bookmark" label="Enregistrer comme modèle" size="small" />
+              <app-button
+                (clicked)="enregistrerCommeModele(entree)"
+                [outlined]="true"
+                icon="pi pi-bookmark"
+                label="Enregistrer comme modèle"
+                size="small"
+              />
             </div>
           </div>
         } @else {

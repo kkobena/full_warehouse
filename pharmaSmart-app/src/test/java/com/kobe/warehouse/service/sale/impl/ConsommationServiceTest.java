@@ -177,7 +177,6 @@ class ConsommationServiceTest {
 
         // Then
         assertEquals(100, entity.getConsoMensuelle().intValue());
-
     }
 
     @Test

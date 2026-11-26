@@ -219,7 +219,9 @@ class CashFlowBfrRepositoryIntegrationTest extends AbstractReportIntegrationTest
         @Test
         @DisplayName("les mois sont rendus dans l'ordre chronologique")
         void ordreChronologique() {
-            assertThat(repository.findEvolution()).extracting(row -> toLong(row[0]) * 100 + toLong(row[1])).isSorted();
+            assertThat(repository.findEvolution())
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
 
         @Test
@@ -229,7 +231,12 @@ class CashFlowBfrRepositoryIntegrationTest extends AbstractReportIntegrationTest
             long creancesAvant = toLong(avant[2]);
             long achatsAvant = toLong(avant[3]);
 
-            facture(payeur("CNAM"), LocalDate.now().withDayOfMonth(1).plusDays(1), 5_000_000, 0, InvoiceStatut.NOT_PAID);
+            facture(
+                    payeur("CNAM"),
+                    LocalDate.now().withDayOfMonth(1).plusDays(1),
+                    5_000_000,
+                    0,
+                    InvoiceStatut.NOT_PAID);
             Commande commande = commandeCloturee(4_000_000);
             commande.setReceiptDate(LocalDate.now().withDayOfMonth(1).plusDays(1));
             em.flush();
@@ -241,12 +248,11 @@ class CashFlowBfrRepositoryIntegrationTest extends AbstractReportIntegrationTest
         }
 
         private Object[] moisEnCours() {
-            return repository
-                .findEvolution()
-                .stream()
-                .filter(row -> toLong(row[0]) == LocalDate.now().getYear() && toLong(row[1]) == LocalDate.now().getMonthValue())
-                .findFirst()
-                .orElseThrow();
+            return repository.findEvolution().stream()
+                    .filter(row -> toLong(row[0]) == LocalDate.now().getYear()
+                            && toLong(row[1]) == LocalDate.now().getMonthValue())
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 

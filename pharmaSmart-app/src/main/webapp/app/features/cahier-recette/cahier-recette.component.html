@@ -2,11 +2,15 @@
   <aside class="cahier-sidebar no-print">
     <div class="cahier-sidebar__header">
       <h1>Guide des fonctionnalités</h1>
-      <app-button (clicked)="downloadPdf()" [disabled]="generatingModuleId() !== null"
-                  [loading]="generatingPdf()" [outlined]="true"
-                  [severity]="'info'"
-                  icon="pi pi-file-pdf"
-                  label="Télécharger" />
+      <app-button
+        (clicked)="downloadPdf()"
+        [disabled]="generatingModuleId() !== null"
+        [loading]="generatingPdf()"
+        [outlined]="true"
+        [severity]="'info'"
+        icon="pi pi-file-pdf"
+        label="Télécharger"
+      />
     </div>
     <input
       (ngModelChange)="searchText.set($event)"
@@ -43,9 +47,7 @@
         <div class="tree-module">
           <div class="tree-module__header">
             <button (click)="toggleModule(module.id)" class="tree-module__toggle" type="button">
-              <i [class.pi-chevron-down]="isExpanded(module.id)"
-                 [class.pi-chevron-right]="!isExpanded(module.id)"
-                 class="pi"></i>
+              <i [class.pi-chevron-down]="isExpanded(module.id)" [class.pi-chevron-right]="!isExpanded(module.id)" class="pi"></i>
               <i [class]="module.icone" aria-hidden="true"></i>
               <span>{{ module.nom }}</span>
             </button>
@@ -84,8 +86,7 @@
                       @if (fonctionnalite.roadmap) {
                         <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
                       } @else if (fonctionnalite.version) {
-                        <app-badge [label]="'v' + fonctionnalite.version" [rounded]="true"
-                                   severity="success" />
+                        <app-badge [label]="'v' + fonctionnalite.version" [rounded]="true" severity="success" />
                       }
                     </button>
                     <app-button
@@ -124,8 +125,7 @@
           @if (fonctionnalite.roadmap) {
             <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
           } @else if (fonctionnalite.version) {
-            <app-badge [label]="'Nouveau — v' + fonctionnalite.version" [rounded]="true"
-                       severity="success" />
+            <app-badge [label]="'Nouveau — v' + fonctionnalite.version" [rounded]="true" severity="success" />
           }
         </h2>
         @let acces = accesDe(fonctionnalite);
@@ -160,15 +160,19 @@
             <section class="scenario-doc__section">
               <h4>Marche à suivre</h4>
               @if (scenario.prerequis) {
-                <p class="scenario-doc__prerequis"><em>Avant de commencer :</em> {{ scenario.prerequis }}
-                </p>
+                <p class="scenario-doc__prerequis"><em>Avant de commencer :</em> {{ scenario.prerequis }}</p>
               }
-             
+
               @if (videoDuScenario(scenario); as video) {
                 <details class="scenario-doc__video">
                   <summary>Voir le parcours en vidéo</summary>
-                  <video [src]="video" class="scenario-doc__video-lecteur" controls preload="none"
-                         [attr.aria-label]="'Vidéo du parcours : ' + scenario.titre"></video>
+                  <video
+                    [src]="video"
+                    class="scenario-doc__video-lecteur"
+                    controls
+                    preload="none"
+                    [attr.aria-label]="'Vidéo du parcours : ' + scenario.titre"
+                  ></video>
                 </details>
               }
 
@@ -177,8 +181,7 @@
                   <li>
                     <span class="scenario-doc__etape-texte">{{ etape }}</span>
                     @if (captureDeLEtape(scenario, $index + 1); as capture) {
-                      <img [src]="capture.fichier" [alt]="etape" class="scenario-doc__capture"
-                           loading="lazy" />
+                      <img [src]="capture.fichier" [alt]="etape" class="scenario-doc__capture" loading="lazy" />
                     }
                   </li>
                 }
@@ -190,13 +193,11 @@
                 <p>{{ scenario.resultatAttendu }}</p>
               </section>
             }
-
           </article>
         }
       </div>
     } @else {
-      <p class="content-empty">Sélectionnez un menu dans la colonne de gauche pour afficher sa
-        documentation.</p>
+      <p class="content-empty">Sélectionnez un menu dans la colonne de gauche pour afficher sa documentation.</p>
     }
 
     <footer class="guide-footer">

@@ -5,14 +5,13 @@ import com.kobe.warehouse.service.dto.report.ComparativeByTypeDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeCADTO;
 import com.kobe.warehouse.service.dto.report.ComparativeSummaryDTO;
 import com.kobe.warehouse.service.report.ComparativeReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class ComparativePdfReportService extends AbstractStatistiqueReportService {
@@ -20,12 +19,14 @@ public class ComparativePdfReportService extends AbstractStatistiqueReportServic
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final ComparativeReportService comparativeReportService;
 
-    public ComparativePdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, ComparativeReportService comparativeReportService) {
+    public ComparativePdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            ComparativeReportService comparativeReportService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.comparativeReportService = comparativeReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -47,7 +48,6 @@ public class ComparativePdfReportService extends AbstractStatistiqueReportServic
     protected String getGenerateFileName() {
         return "rapport_comparatif_ventes";
     }
-
 
     public byte[] export(String comparisonType, Integer year) {
 

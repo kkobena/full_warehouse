@@ -28,9 +28,7 @@ export class FrenchDateParserFormatter extends NgbDateParserFormatter {
   }
 
   format(date: NgbDateStruct | null): string {
-    return date
-      ? `${String(date.day).padStart(2, '0')}/${String(date.month).padStart(2, '0')}/${date.year}`
-      : '';
+    return date ? `${String(date.day).padStart(2, '0')}/${String(date.month).padStart(2, '0')}/${date.year}` : '';
   }
 
   /** Valide jour/mois/année (rejette par ex. le 30/02) avant de construire le `NgbDateStruct`. */
@@ -46,4 +44,3 @@ export class FrenchDateParserFormatter extends NgbDateParserFormatter {
     return { day, month, year };
   }
 }
-

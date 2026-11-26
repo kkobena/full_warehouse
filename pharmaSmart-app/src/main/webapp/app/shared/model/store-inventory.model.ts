@@ -1,7 +1,7 @@
-import {IStoreInventoryLine} from 'app/shared/model/store-inventory-line.model';
-import {IUser} from '../../core/user/user.model';
-import {IStorage} from './magasin.model';
-import {IRayon} from './rayon.model';
+import { IStoreInventoryLine } from 'app/shared/model/store-inventory-line.model';
+import { IUser } from '../../core/user/user.model';
+import { IStorage } from './magasin.model';
+import { IRayon } from './rayon.model';
 
 export interface IStoreInventory {
   id?: number;
@@ -44,7 +44,7 @@ export class StoreInventory implements IStoreInventory {
 export type InventoryStatut = 'CREATE' | 'CLOSED' | 'PROCESSING';
 export type InventoryType = 'MANUEL' | 'PROGRAMME';
 export type InventoryCategoryType =
-  'STORAGE'
+  | 'STORAGE'
   | 'RAYON'
   | 'MAGASIN'
   | 'FAMILLY'

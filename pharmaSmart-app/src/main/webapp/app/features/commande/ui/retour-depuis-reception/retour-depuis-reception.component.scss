@@ -1,5 +1,5 @@
 @use 'app/shared/scss/modal-theme' as *;
-@use 'app/shared/scss/table-common'  as *;
+@use 'app/shared/scss/table-common' as *;
 :host {
   @include modal-theme;
 }
@@ -18,7 +18,9 @@
   color: var(--p-text-muted-color, #94a3b8);
   font-size: 0.9rem;
 
-  i { font-size: 2rem; }
+  i {
+    font-size: 2rem;
+  }
 }
 
 .rdr-toolbar {
@@ -40,4 +42,3 @@
 .rdr-comment textarea {
   resize: vertical;
 }
-

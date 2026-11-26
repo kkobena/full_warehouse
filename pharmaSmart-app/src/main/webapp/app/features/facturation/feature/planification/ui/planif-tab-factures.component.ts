@@ -1,21 +1,16 @@
-import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
-import { DatePipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import {
-  ButtonComponent, CardComponent,
-  DataTableComponent,
-  SelectableRowDirective,
-  SwitchComponent
-} from "../../../../../shared/ui";
+import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent, DataTableComponent, SelectableRowDirective, SwitchComponent } from '../../../../../shared/ui';
 
-import { IPlanification } from "../../../data-access/models";
-import { PlanificationStateService } from "../planification-state.service";
-import { PlanifDetailPanelComponent } from "./planif-detail-panel.component";
+import { IPlanification } from '../../../data-access/models';
+import { PlanificationStateService } from '../planification-state.service';
+import { PlanifDetailPanelComponent } from './planif-detail-panel.component';
 
 @Component({
-  selector: "app-planif-tab-factures",
+  selector: 'app-planif-tab-factures',
   imports: [
     HintComponent,
     DatePipe,
@@ -26,31 +21,28 @@ import { PlanifDetailPanelComponent } from "./planif-detail-panel.component";
     SelectableRowDirective,
     SwitchComponent,
     PlanifDetailPanelComponent,
-    CardComponent
+    CardComponent,
   ],
-  templateUrl: "./planif-tab-factures.component.html",
+  templateUrl: './planif-tab-factures.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./planif-tab-factures.component.scss"
+  styleUrl: './planif-tab-factures.component.scss',
 })
 export class PlanifTabFacturesComponent {
-  readonly mode = input.required<"def" | "prov">();
+  readonly mode = input.required<'def' | 'prov'>();
   protected readonly state = inject(PlanificationStateService);
 
   protected readonly planifications = computed(() =>
-    this.mode() === "def" ? this.state.planificationsDefinitives() : this.state.planificationsProvisoires()
+    this.mode() === 'def' ? this.state.planificationsDefinitives() : this.state.planificationsProvisoires(),
   );
 
-  protected readonly selectedPlan = computed(() =>
-    this.mode() === "def" ? this.state.selectedPlanDef() : this.state.selectedPlanProv()
-  );
+  protected readonly selectedPlan = computed(() => (this.mode() === 'def' ? this.state.selectedPlanDef() : this.state.selectedPlanProv()));
 
   protected readonly periodiciteBadgeClass = computed(() =>
-    this.mode() === "def" ? "pharma-badge pharma-badge-info" : "pharma-badge pharma-badge-warning"
+    this.mode() === 'def' ? 'pharma-badge pharma-badge-info' : 'pharma-badge pharma-badge-warning',
   );
 
-
   protected onSelectPlan(plan: IPlanification | null): void {
-    if (this.mode() === "def") this.state.onSelectPlanDef(plan);
+    if (this.mode() === 'def') this.state.onSelectPlanDef(plan);
     else this.state.onSelectPlanProv(plan);
   }
 
@@ -73,4 +65,3 @@ export class PlanifTabFacturesComponent {
     return () => switchRef.writeValue(plan.actif);
   }
 }
-

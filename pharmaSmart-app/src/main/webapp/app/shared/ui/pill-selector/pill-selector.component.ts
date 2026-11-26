@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, forwardRef, input, output} from '@angular/core';
-import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, forwardRef, input, output } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
+import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
 
 export interface AppPillOption {
   label: string;
@@ -33,14 +33,20 @@ export interface AppPillOption {
  */
 @Component({
   selector: 'app-pill-selector',
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => PillSelectorComponent),
-    multi: true
-  }],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PillSelectorComponent),
+      multi: true,
+    },
+  ],
   template: `
-    <div class="app-pill-selector" role="group" [attr.aria-label]="ariaLabel() || null"
-         [class.app-pill-selector--disabled]="isDisabled() || disabled()">
+    <div
+      class="app-pill-selector"
+      role="group"
+      [attr.aria-label]="ariaLabel() || null"
+      [class.app-pill-selector--disabled]="isDisabled() || disabled()"
+    >
       @for (opt of items(); track opt.value) {
         <button
           type="button"

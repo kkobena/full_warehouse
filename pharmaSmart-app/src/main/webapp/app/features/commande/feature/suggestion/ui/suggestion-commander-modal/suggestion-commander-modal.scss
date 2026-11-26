@@ -1,6 +1,6 @@
 @use 'app/shared/scss/modal-theme' as *;
 @use 'app/shared/scss/form-styles' as *;
-@use 'app/shared/scss/table-common'  as *;
+@use 'app/shared/scss/table-common' as *;
 
 :host {
   @include modal-theme;
@@ -18,7 +18,10 @@
   border: 1.5px solid #dee2e6;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
   background-color: #fff;
   user-select: none;
 
@@ -48,6 +51,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

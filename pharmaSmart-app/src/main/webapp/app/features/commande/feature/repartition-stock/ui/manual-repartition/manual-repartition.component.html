@@ -62,8 +62,7 @@
 
   @if (repartitionRows().length > 0) {
     <div class="repartition-table-container">
-      <app-data-table [scrollable]="true" [value]="repartitionRows()"
-                      class="p-datatable-sm" scrollHeight="calc(100vh - 250px)">
+      <app-data-table [scrollable]="true" [value]="repartitionRows()" class="p-datatable-sm" scrollHeight="calc(100vh - 250px)">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 45%">
@@ -91,17 +90,14 @@
                       <i class="pi pi-building"></i>
                       {{ row.stockSource?.storage?.name }}
                     </span>
-                    <span [class.reserve-badge]="row.stockSource?.storage?.type === 'SAFETY_STOCK'"
-                          class="stock-type-badge">
+                    <span [class.reserve-badge]="row.stockSource?.storage?.type === 'SAFETY_STOCK'" class="stock-type-badge">
                       {{ row.stockSource?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                     </span>
                   </div>
                   <div class="stock-info">
                     <div class="stock-item">
                       <label>Dispo</label>
-                      <span class="stock-value available">{{
-                          row.stockSource?.qtyStock || 0
-                        }}</span>
+                      <span class="stock-value available">{{ row.stockSource?.qtyStock || 0 }}</span>
                     </div>
                   </div>
                 </div>
@@ -130,8 +126,7 @@
                       </div>
                       <div class="stock-item">
                         <label>Après transfert</label>
-                        <span
-                          class="stock-value after text-success fw-semibold">{{ row.quantity }}</span>
+                        <span class="stock-value after text-success fw-semibold">{{ row.quantity }}</span>
                       </div>
                     </div>
                     <app-button
@@ -167,20 +162,14 @@
                         <i class="pi pi-building"></i>
                         {{ row.stockDestination?.storage?.name }}
                       </span>
-                      <span [class.reserve-badge]="row.stockDestination?.storage?.type === 'SAFETY_STOCK'"
-                            class="stock-type-badge">
-                        {{
-                          row.stockDestination?.storage?.type === 'SAFETY_STOCK' ? 'Réserve'
-                            : 'Rayon'
-                        }}
+                      <span [class.reserve-badge]="row.stockDestination?.storage?.type === 'SAFETY_STOCK'" class="stock-type-badge">
+                        {{ row.stockDestination?.storage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }}
                       </span>
                     </div>
                     <div class="stock-info">
                       <div class="stock-item">
                         <label>Actuel</label>
-                        <span class="stock-value current">{{
-                            row.stockDestination?.qtyStock || 0
-                          }}</span>
+                        <span class="stock-value current">{{ row.stockDestination?.qtyStock || 0 }}</span>
                       </div>
                       <div class="transfer-arrow">
                         <i class="pi pi-arrow-right"></i>
@@ -223,8 +212,7 @@
       <div class="summary-footer mt-2">
         <div class="alert alert-info mb-0">
           <i class="pi pi-info-circle me-2"></i>
-          <strong>{{ repartitionRows().length }}</strong> ligne(s) •
-          <strong>{{ validRowsCount }}</strong> valide(s)
+          <strong>{{ repartitionRows().length }}</strong> ligne(s) • <strong>{{ validRowsCount }}</strong> valide(s)
         </div>
       </div>
     </div>

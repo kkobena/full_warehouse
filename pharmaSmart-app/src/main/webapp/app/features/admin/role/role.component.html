@@ -1,31 +1,20 @@
 <div class="pharma-smart-content p-1">
-
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shield" title="Rôles">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
-        <app-button
-          (clicked)="openCreateForm()"
-          icon="pi pi-plus"
-          label="Nouveau rôle"
-          severity="primary"
-          size="small"
-        />
+        <app-button (clicked)="openCreateForm()" icon="pi pi-plus" label="Nouveau rôle" severity="primary" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
 
   <!-- Table des rôles -->
   <app-card>
-    <app-data-table
-      [loading]="loading()"
-      [value]="roles()"
-      class="p-datatable-sm"
-    >
+    <app-data-table [loading]="loading()" [value]="roles()" class="p-datatable-sm">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Libellé</th>
-          <th style="width:160px"></th>
+          <th style="width: 160px"></th>
         </tr>
       </ng-template>
 
@@ -35,20 +24,20 @@
           <td>
             @if (editingName() === role.name) {
               <div class="d-flex align-items-center gap-2">
-                <input (blur)="saveEdit(role)"
-                       (input)="editingLibelle.set($any($event.target).value)"
-                       (keydown.enter)="saveEdit(role)"
-                       (keydown.escape)="cancelEdit()"
-                       [value]="editingLibelle()"
-                       autofocus
-                       class="form-control"
+                <input
+                  (blur)="saveEdit(role)"
+                  (input)="editingLibelle.set($any($event.target).value)"
+                  (keydown.enter)="saveEdit(role)"
+                  (keydown.escape)="cancelEdit()"
+                  [value]="editingLibelle()"
+                  autofocus
+                  class="form-control"
                 />
               </div>
             } @else {
               <div class="libelle-display">
                 <span>{{ role.libelle ?? role.name }}</span>
-                <button (click)="startEdit(role)" class="edit-btn" title="Modifier le libellé"
-                        type="button">
+                <button (click)="startEdit(role)" class="edit-btn" title="Modifier le libellé" type="button">
                   <i class="pi pi-pencil"></i>
                 </button>
               </div>
@@ -87,9 +76,7 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td class="text-center text-muted py-4" colspan="3">
-            Aucun rôle trouvé.
-          </td>
+          <td class="text-center text-muted py-4" colspan="3">Aucun rôle trouvé.</td>
         </tr>
       </ng-template>
     </app-data-table>

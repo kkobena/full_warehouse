@@ -5,16 +5,11 @@ import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IGroupeTiersPayant } from '../../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../../shared/model';
-import {
-  IHistoriqueCertificationFne,
-  IHistoriquePlanification,
-  IPlanification,
-  IPlanificationFne,
-} from '../../data-access/models';
+import { IHistoriqueCertificationFne, IHistoriquePlanification, IPlanification, IPlanificationFne } from '../../data-access/models';
 import { PlanificationApiService } from '../../data-access/services/planification-api.service';
 import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
-import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
+import { GroupeTiersPayantService } from '../../../../entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
 
 @Injectable()
 export class PlanificationStateService {
@@ -97,7 +92,10 @@ export class PlanificationStateService {
     this.loading.set(true);
     this.api
       .getAll()
-      .pipe(finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.planifications.set(res.body ?? []),
         error: () => this.notificationService.error('Erreur lors du chargement des planifications'),
@@ -182,7 +180,10 @@ export class PlanificationStateService {
     if (this.filtrePeriodiciteGroupesDef) params['periodiciteDefinitive'] = this.filtrePeriodiciteGroupesDef;
     this.groupeService
       .query(params)
-      .pipe(finalize(() => this.loadingGroupesDef.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingGroupesDef.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.groupesDef.set(res.body ?? []),
         error: () => this.notificationService.error('Erreur chargement groupes'),
@@ -198,7 +199,10 @@ export class PlanificationStateService {
     if (this.filtrePeriodiciteGroupesProv) params['periodiciteProvisoire'] = this.filtrePeriodiciteGroupesProv;
     this.groupeService
       .query(params)
-      .pipe(finalize(() => this.loadingGroupesProv.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingGroupesProv.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.groupesProv.set(res.body ?? []),
         error: () => this.notificationService.error('Erreur chargement groupes'),
@@ -216,7 +220,10 @@ export class PlanificationStateService {
     if (this.filtreCategorieTpsDef) params['type'] = this.filtreCategorieTpsDef;
     this.tpService
       .query(params)
-      .pipe(finalize(() => this.loadingTpsDef.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingTpsDef.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.tpsDef.set(res.body ?? []),
         error: () => this.notificationService.error('Erreur chargement tiers payants'),
@@ -233,7 +240,10 @@ export class PlanificationStateService {
     if (this.filtreCategorieTpsProv) params['type'] = this.filtreCategorieTpsProv;
     this.tpService
       .query(params)
-      .pipe(finalize(() => this.loadingTpsProv.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingTpsProv.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.tpsProv.set(res.body ?? []),
         error: () => this.notificationService.error('Erreur chargement tiers payants'),
@@ -290,10 +300,11 @@ export class PlanificationStateService {
     const n = this.selectedGroupesDef.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesDef, { inclureAutoDefinitif: true }, () => {
-        this.groupesDef.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesDef, true, 'def'));
-        this.selectedGroupesDef = [];
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesDef, { inclureAutoDefinitif: true }, () => {
+          this.groupesDef.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesDef, true, 'def'));
+          this.selectedGroupesDef = [];
+        }),
       'Inclure en masse',
       `Inclure ${n} groupe(s) dans la facturation automatique définitive ?`,
     );
@@ -303,10 +314,11 @@ export class PlanificationStateService {
     const n = this.selectedGroupesDef.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesDef, { inclureAutoDefinitif: false }, () => {
-        this.groupesDef.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesDef, false, 'def'));
-        this.selectedGroupesDef = [];
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesDef, { inclureAutoDefinitif: false }, () => {
+          this.groupesDef.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesDef, false, 'def'));
+          this.selectedGroupesDef = [];
+        }),
       'Exclure en masse',
       `Exclure ${n} groupe(s) de la facturation automatique définitive ?`,
     );
@@ -317,11 +329,12 @@ export class PlanificationStateService {
     const n = this.selectedGroupesDef.length;
     const p = this.massPeriodiciteGroupesDef;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesDef, { periodiciteDefinitive: p }, () => {
-        this.selectedGroupesDef = [];
-        this.massPeriodiciteGroupesDef = null;
-        this.loadGroupesDef();
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesDef, { periodiciteDefinitive: p }, () => {
+          this.selectedGroupesDef = [];
+          this.massPeriodiciteGroupesDef = null;
+          this.loadGroupesDef();
+        }),
       'Modifier la périodicité',
       `Appliquer la périodicité « ${p} » à ${n} groupe(s) ?`,
     );
@@ -332,10 +345,11 @@ export class PlanificationStateService {
     const n = this.selectedGroupesProv.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesProv, { inclureAutoProvisoire: true }, () => {
-        this.groupesProv.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesProv, true, 'prov'));
-        this.selectedGroupesProv = [];
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesProv, { inclureAutoProvisoire: true }, () => {
+          this.groupesProv.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesProv, true, 'prov'));
+          this.selectedGroupesProv = [];
+        }),
       'Inclure en masse',
       `Inclure ${n} groupe(s) dans la facturation automatique provisoire ?`,
     );
@@ -345,10 +359,11 @@ export class PlanificationStateService {
     const n = this.selectedGroupesProv.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesProv, { inclureAutoProvisoire: false }, () => {
-        this.groupesProv.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesProv, false, 'prov'));
-        this.selectedGroupesProv = [];
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesProv, { inclureAutoProvisoire: false }, () => {
+          this.groupesProv.update(list => this.applyMassInclureGroupe(list, this.selectedGroupesProv, false, 'prov'));
+          this.selectedGroupesProv = [];
+        }),
       'Exclure en masse',
       `Exclure ${n} groupe(s) de la facturation automatique provisoire ?`,
     );
@@ -359,11 +374,12 @@ export class PlanificationStateService {
     const n = this.selectedGroupesProv.length;
     const p = this.massPeriodiciteGroupesProv;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateGroupes(this.selectedGroupesProv, { periodiciteProvisoire: p }, () => {
-        this.selectedGroupesProv = [];
-        this.massPeriodiciteGroupesProv = null;
-        this.loadGroupesProv();
-      }),
+      () =>
+        this.massUpdateGroupes(this.selectedGroupesProv, { periodiciteProvisoire: p }, () => {
+          this.selectedGroupesProv = [];
+          this.massPeriodiciteGroupesProv = null;
+          this.loadGroupesProv();
+        }),
       'Modifier la périodicité',
       `Appliquer la périodicité « ${p} » à ${n} groupe(s) ?`,
     );
@@ -374,10 +390,11 @@ export class PlanificationStateService {
     const n = this.selectedTpsDef.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsDef, { inclureAutoDefinitif: true }, () => {
-        this.tpsDef.update(list => this.applyMassInclureTp(list, this.selectedTpsDef, true, 'def'));
-        this.selectedTpsDef = [];
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsDef, { inclureAutoDefinitif: true }, () => {
+          this.tpsDef.update(list => this.applyMassInclureTp(list, this.selectedTpsDef, true, 'def'));
+          this.selectedTpsDef = [];
+        }),
       'Inclure en masse',
       `Inclure ${n} tiers payant(s) dans la facturation automatique définitive ?`,
     );
@@ -387,10 +404,11 @@ export class PlanificationStateService {
     const n = this.selectedTpsDef.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsDef, { inclureAutoDefinitif: false }, () => {
-        this.tpsDef.update(list => this.applyMassInclureTp(list, this.selectedTpsDef, false, 'def'));
-        this.selectedTpsDef = [];
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsDef, { inclureAutoDefinitif: false }, () => {
+          this.tpsDef.update(list => this.applyMassInclureTp(list, this.selectedTpsDef, false, 'def'));
+          this.selectedTpsDef = [];
+        }),
       'Exclure en masse',
       `Exclure ${n} tiers payant(s) de la facturation automatique définitive ?`,
     );
@@ -401,11 +419,12 @@ export class PlanificationStateService {
     const n = this.selectedTpsDef.length;
     const p = this.massPeriodiciteTPsDef;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsDef, { periodiciteDefinitive: p }, () => {
-        this.selectedTpsDef = [];
-        this.massPeriodiciteTPsDef = null;
-        this.loadTpsDef();
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsDef, { periodiciteDefinitive: p }, () => {
+          this.selectedTpsDef = [];
+          this.massPeriodiciteTPsDef = null;
+          this.loadTpsDef();
+        }),
       'Modifier la périodicité',
       `Appliquer la périodicité « ${p} » à ${n} tiers payant(s) ?`,
     );
@@ -416,10 +435,11 @@ export class PlanificationStateService {
     const n = this.selectedTpsProv.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsProv, { inclureAutoProvisoire: true }, () => {
-        this.tpsProv.update(list => this.applyMassInclureTp(list, this.selectedTpsProv, true, 'prov'));
-        this.selectedTpsProv = [];
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsProv, { inclureAutoProvisoire: true }, () => {
+          this.tpsProv.update(list => this.applyMassInclureTp(list, this.selectedTpsProv, true, 'prov'));
+          this.selectedTpsProv = [];
+        }),
       'Inclure en masse',
       `Inclure ${n} tiers payant(s) dans la facturation automatique provisoire ?`,
     );
@@ -429,10 +449,11 @@ export class PlanificationStateService {
     const n = this.selectedTpsProv.length;
     if (!n) return;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsProv, { inclureAutoProvisoire: false }, () => {
-        this.tpsProv.update(list => this.applyMassInclureTp(list, this.selectedTpsProv, false, 'prov'));
-        this.selectedTpsProv = [];
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsProv, { inclureAutoProvisoire: false }, () => {
+          this.tpsProv.update(list => this.applyMassInclureTp(list, this.selectedTpsProv, false, 'prov'));
+          this.selectedTpsProv = [];
+        }),
       'Exclure en masse',
       `Exclure ${n} tiers payant(s) de la facturation automatique provisoire ?`,
     );
@@ -443,11 +464,12 @@ export class PlanificationStateService {
     const n = this.selectedTpsProv.length;
     const p = this.massPeriodiciteTPsProv;
     this.confirmDialog.onConfirm(
-      () => this.massUpdateTps(this.selectedTpsProv, { periodiciteProvisoire: p }, () => {
-        this.selectedTpsProv = [];
-        this.massPeriodiciteTPsProv = null;
-        this.loadTpsProv();
-      }),
+      () =>
+        this.massUpdateTps(this.selectedTpsProv, { periodiciteProvisoire: p }, () => {
+          this.selectedTpsProv = [];
+          this.massPeriodiciteTPsProv = null;
+          this.loadTpsProv();
+        }),
       'Modifier la périodicité',
       `Appliquer la périodicité « ${p} » à ${n} tiers payant(s) ?`,
     );
@@ -470,10 +492,7 @@ export class PlanificationStateService {
           .toggleActif(planification.id!)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
-            next: () =>
-              this.planifications.update(list =>
-                list.map(p => (p.id === planification.id ? { ...p, actif: !p.actif } : p)),
-              ),
+            next: () => this.planifications.update(list => list.map(p => (p.id === planification.id ? { ...p, actif: !p.actif } : p))),
             error: () => {
               this.notificationService.error("Erreur lors du changement d'état");
               onReverted?.();
@@ -509,7 +528,10 @@ export class PlanificationStateService {
     this.loadingFne.set(true);
     this.api
       .getFnePlanification()
-      .pipe(finalize(() => this.loadingFne.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingFne.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.planificationFne.set(res.body),
         error: () => this.notificationService.error('Erreur chargement planification FNE'),
@@ -615,11 +637,7 @@ export class PlanificationStateService {
       });
   }
 
-  private massUpdateGroupes(
-    selection: IGroupeTiersPayant[],
-    config: Record<string, any>,
-    onSuccess: () => void,
-  ): void {
+  private massUpdateGroupes(selection: IGroupeTiersPayant[], config: Record<string, any>, onSuccess: () => void): void {
     const ids = selection.map(g => g.id!).filter(Boolean);
     if (!ids.length) return;
     this.groupeService
@@ -663,12 +681,7 @@ export class PlanificationStateService {
     );
   }
 
-  private applyMassInclureTp(
-    list: ITiersPayant[],
-    selection: ITiersPayant[],
-    inclure: boolean,
-    type: 'def' | 'prov',
-  ): ITiersPayant[] {
+  private applyMassInclureTp(list: ITiersPayant[], selection: ITiersPayant[], inclure: boolean, type: 'def' | 'prov'): ITiersPayant[] {
     const ids = new Set(selection.map(t => t.id));
     return list.map(t =>
       ids.has(t.id)
@@ -677,4 +690,3 @@ export class PlanificationStateService {
     );
   }
 }
-

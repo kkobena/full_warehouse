@@ -42,9 +42,7 @@ scenario('ACH-78', async ({ etape, page }) => {
     const ligneHT = espace.locator('.rw-compare__row').filter({ hasText: 'Montant HT' });
     const montant = ligneHT.locator('input').first();
     // Le montant du bon, tel que la ligne le rappelle à gauche du champ de saisie.
-    const montantDuBon = Number(
-      (await ligneHT.locator('.rw-val--ref').innerText()).replace(/[^\d-]/g, ''),
-    );
+    const montantDuBon = Number((await ligneHT.locator('.rw-val--ref').innerText()).replace(/[^\d-]/g, ''));
     await montant.click();
     await montant.fill('');
     await montant.pressSequentially('123456', { delay: 30 });
@@ -53,8 +51,7 @@ scenario('ACH-78', async ({ etape, page }) => {
     // L'écart annoncé est la différence des deux montants — c'est lui qui décide si le
     // rapprochement passe ou s'il faut l'enregistrer « avec écart ». Constater qu'il s'affiche
     // ne disait rien de sa justesse.
-    const ecartAffiche = async () =>
-      Number((await ligneHT.locator('.rw-ecart').innerText()).replace(/[^\d-]/g, ''));
+    const ecartAffiche = async () => Number((await ligneHT.locator('.rw-ecart').innerText()).replace(/[^\d-]/g, ''));
     await expect.poll(ecartAffiche, { timeout: 5000 }).toBe(123456 - montantDuBon);
   });
 

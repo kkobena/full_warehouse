@@ -10,13 +10,7 @@ import { IStockAlert, StockAlertType } from '../../../../shared/model/report/sto
 import { SalesSummaryReportService } from '../../../../entities/reports/services/sales-summary-report.service';
 import { StockAlertReportService } from '../../../../entities/reports/services/stock-alert-report.service';
 import { DeviseDirective } from 'app/shared/utils/devise';
-import {
-  backgroundColor,
-  hoverBackgroundColor,
-  surfaceBorder,
-  textColor,
-  textColorSecondary,
-} from '../../../../shared/chart-color-helper';
+import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../../../shared/chart-color-helper';
 
 interface KpiCard {
   label: string;
@@ -47,10 +41,34 @@ export class SalesKpiDashboardComponent implements OnInit {
   protected ruptureAlerts = signal<IStockAlert[]>([]);
   protected ruptureLoading = signal(false);
 
-  protected readonly kpiToday = signal<KpiCard>({ label: 'CA du jour', value: 0, subtitle: '0 ventes', icon: 'pi pi-sun', colorClass: 'kpi-primary' });
-  protected readonly kpiWeek = signal<KpiCard>({ label: 'CA semaine', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar-week', colorClass: 'kpi-success' });
-  protected readonly kpiMonth = signal<KpiCard>({ label: 'CA du mois', value: 0, subtitle: '0 ventes', icon: 'pi pi-calendar', colorClass: 'kpi-info' });
-  protected readonly kpiBasket = signal<KpiCard>({ label: 'Panier moyen', value: 0, subtitle: "aujourd'hui", icon: 'pi pi-shopping-cart', colorClass: 'kpi-warning' });
+  protected readonly kpiToday = signal<KpiCard>({
+    label: 'CA du jour',
+    value: 0,
+    subtitle: '0 ventes',
+    icon: 'pi pi-sun',
+    colorClass: 'kpi-primary',
+  });
+  protected readonly kpiWeek = signal<KpiCard>({
+    label: 'CA semaine',
+    value: 0,
+    subtitle: '0 ventes',
+    icon: 'pi pi-calendar-week',
+    colorClass: 'kpi-success',
+  });
+  protected readonly kpiMonth = signal<KpiCard>({
+    label: 'CA du mois',
+    value: 0,
+    subtitle: '0 ventes',
+    icon: 'pi pi-calendar',
+    colorClass: 'kpi-info',
+  });
+  protected readonly kpiBasket = signal<KpiCard>({
+    label: 'Panier moyen',
+    value: 0,
+    subtitle: "aujourd'hui",
+    icon: 'pi pi-shopping-cart',
+    colorClass: 'kpi-warning',
+  });
 
   protected readonly chartData = signal<any>(null);
   protected readonly chartOptions = signal<any>(null);
@@ -62,14 +80,16 @@ export class SalesKpiDashboardComponent implements OnInit {
   }
 
   private loadAlertCounts(): void {
-    this.stockAlertService.getStockAlertsCount()
+    this.stockAlertService
+      .getStockAlertsCount()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: res => this.alertCounts.set(res.body ?? {}) });
   }
 
   protected loadRuptureAlerts(): void {
     this.ruptureLoading.set(true);
-    this.stockAlertService.getStockAlerts({ page: 0, size: 20, types: [StockAlertType.RUPTURE] })
+    this.stockAlertService
+      .getStockAlerts({ page: 0, size: 20, types: [StockAlertType.RUPTURE] })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
@@ -131,13 +151,15 @@ export class SalesKpiDashboardComponent implements OnInit {
 
     this.chartData.set({
       labels,
-      datasets: [{
-        label: 'CA par type (mois en cours)',
-        data: values,
-        backgroundColor: bgs.slice(0, labels.length),
-        hoverBackgroundColor: hovers.slice(0, labels.length),
-        borderWidth: 1,
-      }],
+      datasets: [
+        {
+          label: 'CA par type (mois en cours)',
+          data: values,
+          backgroundColor: bgs.slice(0, labels.length),
+          hoverBackgroundColor: hovers.slice(0, labels.length),
+          borderWidth: 1,
+        },
+      ],
     });
 
     this.chartOptions.set({

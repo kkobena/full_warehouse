@@ -7,12 +7,11 @@ import com.kobe.warehouse.service.sale.calculation.dto.CalculationResult;
 import com.kobe.warehouse.service.sale.calculation.dto.SaleItemInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 /**
  * Debug test to see actual calculation results.
@@ -68,11 +67,9 @@ public class DebugCalculationTest {
         System.out.println("\nTiers Payant Lines:");
 
         for (TiersPayantLineOutput line : result.getTiersPayantLines()) {
-            System.out.printf("  TP%d: Montant=%s, Taux=%d%%%n",
-                line.getClientTiersPayantId(),
-                line.getMontant(),
-                line.getFinalTaux()
-            );
+            System.out.printf(
+                    "  TP%d: Montant=%s, Taux=%d%%%n",
+                    line.getClientTiersPayantId(), line.getMontant(), line.getFinalTaux());
         }
 
         System.out.println("\nWarnings: " + result.getWarningMessage());

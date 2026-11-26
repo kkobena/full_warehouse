@@ -22,12 +22,11 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(
-    name = "fournisseur_produit_price_history",
-    indexes = {
-        @Index(columnList = "fournisseur_produit_id", name = "fp_price_history_fp_id_idx"),
-        @Index(columnList = "changed_at", name = "fp_price_history_changed_at_idx"),
-    }
-)
+        name = "fournisseur_produit_price_history",
+        indexes = {
+            @Index(columnList = "fournisseur_produit_id", name = "fp_price_history_fp_id_idx"),
+            @Index(columnList = "changed_at", name = "fp_price_history_changed_at_idx"),
+        })
 public class FournisseurProduitPriceHistory implements Serializable {
 
     @Serial

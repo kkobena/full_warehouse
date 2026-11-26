@@ -15,17 +15,16 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Entity for scheduled automatic report generation
@@ -67,6 +66,7 @@ public class ScheduledReport implements Serializable {
     @NotNull
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "email_recipients", length = 200)
     private Set<String> emailRecipients = new HashSet<>(); // Comma-separated emails
@@ -237,7 +237,6 @@ public class ScheduledReport implements Serializable {
     public void setIncludeExcel(boolean includeExcel) {
         this.includeExcel = includeExcel;
     }
-
 
     @PrePersist
     public void prePersist() {

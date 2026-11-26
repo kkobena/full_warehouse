@@ -9,8 +9,8 @@ public interface ReglementDiffereReportService {
     byte[] printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException;
 
     byte[] printReglementToPdf(
-        List<ReglementDiffereWrapperDTO> reglements,
-        DifferePaymentSummaryDTO differePaymentSummary,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException;
+            List<ReglementDiffereWrapperDTO> reglements,
+            DifferePaymentSummaryDTO differePaymentSummary,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException;
 }

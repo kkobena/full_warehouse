@@ -1,24 +1,15 @@
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from '@angular/core';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {FamilleProduit} from '../../../shared/model/famille-produit.model';
-import {CommonModule} from '@angular/common';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../shared/ui';
-import {FormeProduitService} from '../forme-produit.service';
-import {IFormProduit} from '../../../shared/model/form-produit.model';
-import {ErrorService} from '../../../shared/error.service';
-import {NotificationService} from "../../../shared/services/notification.service";
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { FamilleProduit } from '../../../shared/model/famille-produit.model';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../shared/ui';
+import { FormeProduitService } from '../forme-produit.service';
+import { IFormProduit } from '../../../shared/model/form-produit.model';
+import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'jhi-form-famille',

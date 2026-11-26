@@ -36,7 +36,8 @@ public final class LibellesPilotage {
         boolean finRognee = tranche.au().isBefore(DecoupagePeriode.finDeTranche(tranche.du(), granularite));
         String libelle = libellerDebut(debutNaturel, granularite);
         if (debutRogne && finRognee) {
-            return libelle + " (du " + libellerJour(tranche.du(), granularite) + " au " + libellerJour(tranche.au(), granularite) + ")";
+            return libelle + " (du " + libellerJour(tranche.du(), granularite) + " au "
+                    + libellerJour(tranche.au(), granularite) + ")";
         }
         if (finRognee) {
             return libelle + " (au " + libellerJour(tranche.au(), granularite) + ")";

@@ -14,8 +14,7 @@
 
           <div class="form-field form-field-full">
             <label class="col-auto col-form-label" for="libelle">Libellé<span class="required">*</span></label>
-            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" id="libelle"
-                   name="libelle" type="text" />
+            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" id="libelle" name="libelle" type="text" />
             @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {

@@ -16,7 +16,9 @@ final class ReglagesRapports {
     /** Un réglage à valeur unique ; nul pour laisser le défaut s'appliquer. */
     static <T> T lireUnique(Map<FiltreExport, List<String>> filtres, FiltreExport filtre, Class<T> type) {
         List<String> valeurs = filtres.get(filtre);
-        return valeurs == null || valeurs.isEmpty() ? null : type.cast(filtre.getSource().convertir(valeurs.getFirst()));
+        return valeurs == null || valeurs.isEmpty()
+                ? null
+                : type.cast(filtre.getSource().convertir(valeurs.getFirst()));
     }
 
     static <T> List<T> lireListe(Map<FiltreExport, List<String>> filtres, FiltreExport filtre, Class<T> type) {

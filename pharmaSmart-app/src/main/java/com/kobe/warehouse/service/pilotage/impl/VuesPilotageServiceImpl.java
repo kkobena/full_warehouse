@@ -29,22 +29,25 @@ public class VuesPilotageServiceImpl implements VuesPilotageService {
     @Transactional(readOnly = true)
     public List<VuePilotageDTO> listerVues() {
         AppUser utilisateur = userService.getUser();
-        return pilotageVueRepository.listerVisibles(utilisateur.getId()).stream().map(vue -> versDTO(vue, utilisateur)).toList();
+        return pilotageVueRepository.listerVisibles(utilisateur.getId()).stream()
+                .map(vue -> versDTO(vue, utilisateur))
+                .toList();
     }
 
     @Override
     public VuePilotageDTO enregistrerVue(VuePilotageDTO dto) {
         AppUser utilisateur = userService.getUser();
-        PilotageVue vue = dto.id() == null ? new PilotageVue().setProprietaire(utilisateur) : lireModifiable(dto.id(), utilisateur);
-        vue
-            .setLibelle(dto.libelle().trim())
-            .setIndicateurs(List.copyOf(dto.indicateurs()))
-            .setAxe(dto.axe())
-            .setAxeCroise(dto.axe2())
-            .setNombreElements(Math.max(0, dto.top()))
-            .setTri(dto.tri())
-            .setAffichage(dto.affichage())
-            .setPartagee(dto.partagee());
+        PilotageVue vue = dto.id() == null
+                ? new PilotageVue().setProprietaire(utilisateur)
+                : lireModifiable(dto.id(), utilisateur);
+        vue.setLibelle(dto.libelle().trim())
+                .setIndicateurs(List.copyOf(dto.indicateurs()))
+                .setAxe(dto.axe())
+                .setAxeCroise(dto.axe2())
+                .setNombreElements(Math.max(0, dto.top()))
+                .setTri(dto.tri())
+                .setAffichage(dto.affichage())
+                .setPartagee(dto.partagee());
         return versDTO(pilotageVueRepository.save(vue), utilisateur);
     }
 
@@ -56,7 +59,8 @@ public class VuesPilotageServiceImpl implements VuesPilotageService {
     private PilotageVue lireModifiable(Long id, AppUser utilisateur) {
         PilotageVue vue = pilotageVueRepository.findById(id).orElseThrow(() -> new GenericError("Vue introuvable"));
         if (!appartientA(vue, utilisateur)) {
-            throw new ForbiddenOperationException("Seul l'auteur d'une vue peut la modifier ou la supprimer", "pilotageVueNonModifiable");
+            throw new ForbiddenOperationException(
+                    "Seul l'auteur d'une vue peut la modifier ou la supprimer", "pilotageVueNonModifiable");
         }
         return vue;
     }
@@ -67,17 +71,16 @@ public class VuesPilotageServiceImpl implements VuesPilotageService {
 
     private static VuePilotageDTO versDTO(PilotageVue vue, AppUser utilisateur) {
         return new VuePilotageDTO(
-            vue.getId(),
-            vue.getLibelle(),
-            vue.getIndicateurs(),
-            vue.getAxe(),
-            vue.getAxeCroise(),
-            vue.getNombreElements(),
-            vue.getTri(),
-            vue.getAffichage(),
-            vue.estLivree(),
-            vue.isPartagee(),
-            appartientA(vue, utilisateur)
-        );
+                vue.getId(),
+                vue.getLibelle(),
+                vue.getIndicateurs(),
+                vue.getAxe(),
+                vue.getAxeCroise(),
+                vue.getNombreElements(),
+                vue.getTri(),
+                vue.getAffichage(),
+                vue.estLivree(),
+                vue.isPartagee(),
+                appartientA(vue, utilisateur));
     }
 }

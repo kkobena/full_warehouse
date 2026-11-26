@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest.inventaire;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.records.GapEntryRecord;
 import com.kobe.warehouse.service.dto.records.GapLineRecord;
 import com.kobe.warehouse.service.dto.records.GapSummaryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
-import com.kobe.warehouse.service.stock.GapAnalysisService;
 import com.kobe.warehouse.service.inventaire.InventoryValuationService;
+import com.kobe.warehouse.service.stock.GapAnalysisService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/inventaires/{id}")
-@RequiresNavAccess({ "inventaire", "inventaire.en-cours", "inventaire.clotures" })
+@RequiresNavAccess({"inventaire", "inventaire.en-cours", "inventaire.clotures"})
 public class GapAnalysisResource {
 
     private final GapAnalysisService gapService;
@@ -46,17 +46,14 @@ public class GapAnalysisResource {
     @GetMapping("/gap-lines")
     public ResponseEntity<List<GapLineRecord>> getGapLines(@PathVariable Long id, Pageable pageable) {
         Page<GapLineRecord> page = gapService.getLinesWithGap(id, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /** Sauvegarde la qualification des causes d'écart. Ne bloque pas la clôture. */
     @PostMapping("/gap-analysis")
-    public ResponseEntity<Void> saveAnalysis(
-        @PathVariable Long id,
-        @RequestBody List<GapEntryRecord> entries
-    ) {
+    public ResponseEntity<Void> saveAnalysis(@PathVariable Long id, @RequestBody List<GapEntryRecord> entries) {
         gapService.saveAnalysis(id, entries);
         return ResponseEntity.noContent().build();
     }
@@ -73,7 +70,6 @@ public class GapAnalysisResource {
         return ResponseEntity.ok(Map.of("exists", gapService.hasAnalysis(id)));
     }
 
-
     /** Résumé global de valorisation (avant / après / écart). */
     @GetMapping("/valuation")
     public ResponseEntity<StoreInventorySummaryRecord> getValuation(@PathVariable Long id) {
@@ -87,9 +83,7 @@ public class GapAnalysisResource {
      */
     @GetMapping("/valuation/by-group")
     public ResponseEntity<List<StoreInventorySummaryByGroupRecord>> getValuationByGroup(
-        @PathVariable Long id,
-        @RequestParam(defaultValue = "STORAGE") String groupBy
-    ) {
+            @PathVariable Long id, @RequestParam(defaultValue = "STORAGE") String groupBy) {
         return ResponseEntity.ok(valuationService.getSummaryByGroup(id, groupBy));
     }
 }

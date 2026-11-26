@@ -11,7 +11,14 @@ import { REGLAGE_PAR_DEFAUT } from '../onglet-analyser/reglage-analyse';
 import { CelluleAnalyse, LigneVendeur, SensFavorable, UniteIndicateur } from '../../models/pilotage.model';
 import { AideComponent } from '../../ui/aide/aide.component';
 
-const VENDEURS_PAR_HEURE: ReglageAnalyse = { ...REGLAGE_PAR_DEFAUT, indicateurs: ['CA_TTC'], axe: 'VENDEUR', axe2: 'HEURE', top: 0, affichage: 'CROISE' };
+const VENDEURS_PAR_HEURE: ReglageAnalyse = {
+  ...REGLAGE_PAR_DEFAUT,
+  indicateurs: ['CA_TTC'],
+  axe: 'VENDEUR',
+  axe2: 'HEURE',
+  top: 0,
+  affichage: 'CROISE',
+};
 
 interface ColonneVendeur {
   libelle: string;
@@ -25,12 +32,30 @@ const COLONNES: readonly ColonneVendeur[] = [
   { libelle: 'Ventes', unite: 'NOMBRE', sens: 'HAUSSE', lire: ligne => ligne.nbVentes },
   { libelle: 'CA TTC', unite: 'MONTANT', sens: 'HAUSSE', lire: ligne => ligne.caTtc },
   { libelle: 'Panier moyen', aide: 'CA TTC / nombre de ventes.', unite: 'MONTANT', sens: 'HAUSSE', lire: ligne => ligne.panierMoyen },
-  { libelle: 'Articles par vente', aide: 'Quantités vendues / nombre de ventes.', unite: 'RATIO', sens: 'HAUSSE', lire: ligne => ligne.articlesParVente },
+  {
+    libelle: 'Articles par vente',
+    aide: 'Quantités vendues / nombre de ventes.',
+    unite: 'RATIO',
+    sens: 'HAUSSE',
+    lire: ligne => ligne.articlesParVente,
+  },
   { libelle: 'Taux de marge', aide: 'Marge / CA HT.', unite: 'POURCENTAGE', sens: 'HAUSSE', lire: ligne => ligne.tauxMarge },
   { libelle: 'Taux de remise', aide: 'Remises / CA TTC.', unite: 'POURCENTAGE', sens: 'BAISSE', lire: ligne => ligne.tauxRemise },
   { libelle: 'Annulations', aide: 'Ventes annulées par le vendeur.', unite: 'NOMBRE', sens: 'BAISSE', lire: ligne => ligne.annulations },
-  { libelle: 'Avoirs', aide: 'Avoirs émis : produits demandés mais non servis.', unite: 'NOMBRE', sens: 'BAISSE', lire: ligne => ligne.avoirs },
-  { libelle: 'Part ordonnance', aide: 'Part du CA du vendeur réalisée sur ordonnance.', unite: 'POURCENTAGE', sens: 'NEUTRE', lire: ligne => ligne.partOrdonnance },
+  {
+    libelle: 'Avoirs',
+    aide: 'Avoirs émis : produits demandés mais non servis.',
+    unite: 'NOMBRE',
+    sens: 'BAISSE',
+    lire: ligne => ligne.avoirs,
+  },
+  {
+    libelle: 'Part ordonnance',
+    aide: 'Part du CA du vendeur réalisée sur ordonnance.',
+    unite: 'POURCENTAGE',
+    sens: 'NEUTRE',
+    lire: ligne => ligne.partOrdonnance,
+  },
 ];
 
 /** Équipe : chaque vendeur face à la référence et à l'équipe entière ; CA par vendeur et par heure (qui est présent quand). */
@@ -48,7 +73,10 @@ export class SectionEquipeComponent {
 
   protected readonly colonnes = COLONNES;
   protected readonly equipe = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.lireEquipe(params) });
-  protected readonly parHeure = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.analyser(params, VENDEURS_PAR_HEURE) });
+  protected readonly parHeure = rxResource({
+    params: () => this.requete(),
+    stream: ({ params }) => this.api.analyser(params, VENDEURS_PAR_HEURE),
+  });
 
   protected readonly croise = computed(() => this.parHeure.value()?.croise ?? null);
   protected readonly indicateurCa = computed(() => this.parHeure.value()?.indicateurs[0] ?? null);

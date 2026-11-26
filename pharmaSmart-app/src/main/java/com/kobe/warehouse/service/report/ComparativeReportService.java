@@ -5,7 +5,6 @@ import com.kobe.warehouse.service.dto.report.ComparativeByFournisseurDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeByTypeDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeCADTO;
 import com.kobe.warehouse.service.dto.report.ComparativeSummaryDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 

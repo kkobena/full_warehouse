@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy,Component, EventEmitter, Input, OnChanges, Output, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../shared/ui';
-import {ILot} from 'app/shared/model/lot.model';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../shared/ui';
+import { ILot } from 'app/shared/model/lot.model';
 
 export interface InlineLotSelection {
   lot: ILot;
@@ -21,8 +21,7 @@ export interface InlineLotSelection {
       <!-- Summary Header -->
       <div class="lot-summary-header" (click)="toggleExpanded()">
         <div class="d-flex align-items-center gap-2">
-          <i class="pi" [class.pi-chevron-right]="!isExpanded()"
-             [class.pi-chevron-down]="isExpanded()"></i>
+          <i class="pi" [class.pi-chevron-right]="!isExpanded()" [class.pi-chevron-down]="isExpanded()"></i>
           <i class="pi pi-tag text-primary"></i>
           <span class="fw-bold">{{ lots.length }} lot(s) disponible(s)</span>
         </div>
@@ -167,8 +166,7 @@ export interface InlineLotSelection {
               ngbTooltip="Répartition automatique - Premier Expiré Premier Sorti"
             />
             <div class="flex-grow-1"></div>
-            <app-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small"
-                        severity="secondary" (clicked)="onCancel()" />
+            <app-button label="Annuler" icon="pi pi-times" [outlined]="true" size="small" severity="secondary" (clicked)="onCancel()" />
             <app-button
               label="Confirmer la sélection"
               icon="pi pi-check"

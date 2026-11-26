@@ -43,8 +43,7 @@ scenario('ACH-42', async ({ etape, page }) => {
     // trois unités doit l'augmenter de trois, ni plus ni moins : c'est la seule façon de
     // s'assurer que la correction porte sur ce qui entrera vraiment en stock.
     const stockApres = page.locator('.rh-seq__row--result .rh-seq__row-value');
-    const lireStockApres = async () =>
-      Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
+    const lireStockApres = async () => Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
     await page.locator('#rh-qty').fill(String(commande));
     await expect.poll(lireStockApres, { timeout: 5000 }).toBeGreaterThan(0);
     const avantCorrection = await lireStockApres();
@@ -67,7 +66,10 @@ scenario('ACH-42', async ({ etape, page }) => {
     if (await qteLot.isVisible().catch(() => false)) {
       await qteLot.fill('3');
     }
-    await page.getByRole('button', { name: /Ajouter ce lot/ }).first().click();
+    await page
+      .getByRole('button', { name: /Ajouter ce lot/ })
+      .first()
+      .click();
     // Le lot accepté referme la couverture de la ligne : il ne reste rien à ventiler, le
     // formulaire de saisie disparaît et le mode séquentiel rend la main.
     await expect(page.locator('#rh-numlot')).toBeHidden();

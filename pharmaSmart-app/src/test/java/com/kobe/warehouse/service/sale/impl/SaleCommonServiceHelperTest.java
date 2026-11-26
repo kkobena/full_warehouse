@@ -63,4 +63,3 @@ class SaleCommonServiceHelperTest {
         return line;
     }
 }
-

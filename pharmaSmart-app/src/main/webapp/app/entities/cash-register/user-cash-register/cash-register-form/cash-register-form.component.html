@@ -43,15 +43,7 @@
   </div>
 
   <div class="form-actions-compact">
-    <app-button
-      (clicked)="cancel()"
-      [raised]="true"
-      class="mr-1"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    />
+    <app-button (clicked)="cancel()" [raised]="true" class="mr-1" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <app-button
       [disabled]="editForm.invalid || isSaving"
       [loading]="isSaving"

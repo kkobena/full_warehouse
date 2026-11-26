@@ -28,9 +28,8 @@ public final class EtiquettePdf {
         try (ByteArrayOutputStream sortie = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             SharedContext contexte = renderer.getSharedContext();
-            EtiquetteBarcodeReplacedElement fabrique = new EtiquetteBarcodeReplacedElement(
-                new ITextReplacedElementFactory(renderer.getOutputDevice())
-            );
+            EtiquetteBarcodeReplacedElement fabrique =
+                    new EtiquetteBarcodeReplacedElement(new ITextReplacedElementFactory(renderer.getOutputDevice()));
             fabrique.setBarcodesData(codesBarres);
             contexte.setReplacedElementFactory(fabrique);
             contexte.getTextRenderer().setSmoothingThreshold(0);

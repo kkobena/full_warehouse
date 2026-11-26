@@ -4,13 +4,7 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.List;
 
 public record ReglementDiffereWrapperDTO(
-    Integer id,
-    String firstName,
-    String lastName,
-    long paidAmount,
-    Long solde,
-    List<ReglementDiffereDTO> items
-) {
+        Integer id, String firstName, String lastName, long paidAmount, Long solde, List<ReglementDiffereDTO> items) {
     public String customerfullName() {
         return String.format("%s %s", firstName, lastName);
     }

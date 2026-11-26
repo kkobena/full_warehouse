@@ -2,26 +2,20 @@
   <!-- Caption: filtres + recherche -->
   <div class="grid-caption">
     <div class="caption-filters">
-
       <!-- Recherche rapide -->
       <div class="caption-search">
         <i class="pi pi-search"></i>
-        <input
-          (input)="onQuickFilterChange()"
-          [(ngModel)]="quickFilterText"
-          placeholder="Code CIP, libellé..."
-          type="text"
-        />
+        <input (input)="onQuickFilterChange()" [(ngModel)]="quickFilterText" placeholder="Code CIP, libellé..." type="text" />
         @if (quickFilterText) {
-          <i (click)="quickFilterText = ''; onQuickFilterChange()"
-             class="pi pi-times caption-clear"></i>
+          <i (click)="quickFilterText = ''; onQuickFilterChange()" class="pi pi-times caption-clear"></i>
         }
       </div>
 
       <!-- Filtre lignes -->
       <app-select
         (selectionChange)="onLineFilterChange()"
-        [ngModel]="selectedLineFilter()" (ngModelChange)="selectedLineFilter.set($event)"
+        [ngModel]="selectedLineFilter()"
+        (ngModelChange)="selectedLineFilter.set($event)"
         [items]="lineFilters()"
         [style]="{ width: '150px' }"
         appendTo="body"
@@ -51,7 +45,8 @@
       @if (rayons().length > 0) {
         <app-select
           (selectionChange)="onRayonFilterChange()"
-          [ngModel]="selectedRayonId()" (ngModelChange)="selectedRayonId.set($event)"
+          [ngModel]="selectedRayonId()"
+          (ngModelChange)="selectedRayonId.set($event)"
           [items]="rayons()"
           [clearable]="true"
           [style]="{ 'min-width': '300px' }"
@@ -63,9 +58,7 @@
           [small]="true"
         />
       }
-
     </div>
-
   </div>
 
   <ag-grid-angular
@@ -86,6 +79,6 @@
     [stopEditingWhenCellsLoseFocus]="true"
     [suppressScrollOnNewData]="true"
     [theme]="theme"
-    style="width: 100%; height: 100%;"
+    style="width: 100%; height: 100%"
   />
 </div>

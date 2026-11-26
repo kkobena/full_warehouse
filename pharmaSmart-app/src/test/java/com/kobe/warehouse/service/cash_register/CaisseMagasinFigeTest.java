@@ -15,9 +15,9 @@ import com.kobe.warehouse.domain.enumeration.CashFundType;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.impl.CashRegisterServiceImpl;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,11 +57,17 @@ class CaisseMagasinFigeTest {
         allocationAutomatique.setValue("1");
         allocationAutomatique.setOtherValue("10000");
         when(appConfigurationService.findOneById(any())).thenReturn(Optional.of(allocationAutomatique));
-        when(cashFundService.allocateCashFund(anyInt(), any(CashFundType.class), any(AppUser.class), any(AppUser.class)))
-            .thenReturn(new CashFund());
+        when(cashFundService.allocateCashFund(
+                        anyInt(), any(CashFundType.class), any(AppUser.class), any(AppUser.class)))
+                .thenReturn(new CashFund());
         when(cashRegisterRepository.save(any(CashRegister.class))).thenAnswer(appel -> appel.getArgument(0));
 
-        service = new CashRegisterServiceImpl(cashRegisterRepository, appConfigurationService, cashFundService, userService, mock(PorteeMagasinService.class));
+        service = new CashRegisterServiceImpl(
+                cashRegisterRepository,
+                appConfigurationService,
+                cashFundService,
+                userService,
+                mock(PorteeMagasinService.class));
     }
 
     @Test
@@ -72,7 +78,8 @@ class CaisseMagasinFigeTest {
         AppUser admin = utilisateur(1, "admin", officine);
         AppUser caissier = utilisateur(2, "awa", parapharmacie);
         when(userService.getUser()).thenReturn(admin);
-        when(cashRegisterRepository.existsByUserIdAndStatut(anyInt(), any(CashRegisterStatut.class))).thenReturn(false);
+        when(cashRegisterRepository.existsByUserIdAndStatut(anyInt(), any(CashRegisterStatut.class)))
+                .thenReturn(false);
 
         CashRegister caisse = service.openCashRegister(admin, caissier);
 
@@ -86,7 +93,8 @@ class CaisseMagasinFigeTest {
         Magasin officine = magasin(1, TypeMagasin.OFFICINE);
         AppUser caissier = utilisateur(2, "awa", officine);
         when(userService.getUser()).thenReturn(caissier);
-        when(cashRegisterRepository.existsByUserIdAndStatut(anyInt(), any(CashRegisterStatut.class))).thenReturn(false);
+        when(cashRegisterRepository.existsByUserIdAndStatut(anyInt(), any(CashRegisterStatut.class)))
+                .thenReturn(false);
 
         CashRegister premiere = service.openCashRegister(caissier, caissier);
         assertThat(premiere.getMagasin().getId()).isEqualTo(1);

@@ -5,12 +5,11 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public record FetchCashRegisterParams(
-    Integer userId,
-    Set<CashRegisterStatut> statuts,
-    LocalDate fromDate,
-    LocalDate toDate,
-    String beginTime,
-    String endTime,
-    /** Magasin choisi par l'écran de supervision. Null : toute la portée de lecture. */
-    Integer magasinId
-) {}
+        Integer userId,
+        Set<CashRegisterStatut> statuts,
+        LocalDate fromDate,
+        LocalDate toDate,
+        String beginTime,
+        String endTime,
+        /** Magasin choisi par l'écran de supervision. Null : toute la portée de lecture. */
+        Integer magasinId) {}

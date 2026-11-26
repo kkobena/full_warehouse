@@ -12,14 +12,13 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record StockPilotageDTO(
-    LocalDate mois,
-    CelluleAnalyseDTO valeur,
-    Double rotation,
-    Double couvertureJours,
-    long nbDormants,
-    long valeurDormante,
-    int seuilDormant,
-    List<PointStockDTO> courbe,
-    List<LigneStockDTO> familles,
-    List<ProduitDormantDTO> dormants
-) {}
+        LocalDate mois,
+        CelluleAnalyseDTO valeur,
+        Double rotation,
+        Double couvertureJours,
+        long nbDormants,
+        long valeurDormante,
+        int seuilDormant,
+        List<PointStockDTO> courbe,
+        List<LigneStockDTO> familles,
+        List<ProduitDormantDTO> dormants) {}

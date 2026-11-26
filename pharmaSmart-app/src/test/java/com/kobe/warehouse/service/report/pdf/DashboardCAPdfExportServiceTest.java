@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -78,9 +77,11 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("les journées d'un même mode sont regroupées en une ligne")
         void regroupementParMode() {
-            when(dashboardCAService.getPaymentMethodDistribution(any(), any())).thenReturn(
-                List.of(paiement("ESPECE", "CASH", 100_000L, 10), paiement("ESPECE", "CASH", 50_000L, 5), paiement("WAVE", "WAVE", 30_000L, 3))
-            );
+            when(dashboardCAService.getPaymentMethodDistribution(any(), any()))
+                    .thenReturn(List.of(
+                            paiement("ESPECE", "CASH", 100_000L, 10),
+                            paiement("ESPECE", "CASH", 50_000L, 5),
+                            paiement("WAVE", "WAVE", 30_000L, 3)));
 
             Map<String, Object> modele = exporter();
 
@@ -91,9 +92,9 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("les montants et le nombre de règlements s'additionnent")
         void additionDesMontants() {
-            when(dashboardCAService.getPaymentMethodDistribution(any(), any())).thenReturn(
-                List.of(paiement("ESPECE", "CASH", 100_000L, 10), paiement("ESPECE", "CASH", 50_000L, 5))
-            );
+            when(dashboardCAService.getPaymentMethodDistribution(any(), any()))
+                    .thenReturn(
+                            List.of(paiement("ESPECE", "CASH", 100_000L, 10), paiement("ESPECE", "CASH", 50_000L, 5)));
 
             Object ligne = lignesDePaiement(exporter()).getFirst();
 
@@ -104,9 +105,9 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("les modes les plus utilisés passent en tête")
         void ordreParMontant() {
-            when(dashboardCAService.getPaymentMethodDistribution(any(), any())).thenReturn(
-                List.of(paiement("WAVE", "WAVE", 30_000L, 3), paiement("ESPECE", "CASH", 150_000L, 15))
-            );
+            when(dashboardCAService.getPaymentMethodDistribution(any(), any()))
+                    .thenReturn(
+                            List.of(paiement("WAVE", "WAVE", 30_000L, 3), paiement("ESPECE", "CASH", 150_000L, 15)));
 
             assertThat(lignesDePaiement(exporter()).getFirst().toString()).contains("ESPECE");
         }
@@ -121,9 +122,10 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("les journées d'une même famille sont regroupées")
         void regroupementParFamille() {
-            when(dashboardCAService.getProductFamilyDistribution(any(), any())).thenReturn(
-                List.of(famille("MEDICAMENT", 100_000L, 30_000L, "30.00"), famille("MEDICAMENT", 300_000L, 90_000L, "30.00"))
-            );
+            when(dashboardCAService.getProductFamilyDistribution(any(), any()))
+                    .thenReturn(List.of(
+                            famille("MEDICAMENT", 100_000L, 30_000L, "30.00"),
+                            famille("MEDICAMENT", 300_000L, 90_000L, "30.00")));
 
             Map<String, Object> modele = exporter();
 
@@ -139,20 +141,25 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("le taux de marge est recalculé, jamais additionné")
         void tauxDeMargeRecalcule() {
-            when(dashboardCAService.getProductFamilyDistribution(any(), any())).thenReturn(
-                List.of(famille("MEDICAMENT", 100_000L, 30_000L, "30.00"), famille("MEDICAMENT", 300_000L, 90_000L, "30.00"))
-            );
+            when(dashboardCAService.getProductFamilyDistribution(any(), any()))
+                    .thenReturn(List.of(
+                            famille("MEDICAMENT", 100_000L, 30_000L, "30.00"),
+                            famille("MEDICAMENT", 300_000L, 90_000L, "30.00")));
 
-            assertThat(lignesDeFamille(exporter()).getFirst().toString()).contains("30.00").doesNotContain("60.00");
+            assertThat(lignesDeFamille(exporter()).getFirst().toString())
+                    .contains("30.00")
+                    .doesNotContain("60.00");
         }
 
         @Test
         @DisplayName("des taux différents se combinent en un taux pondéré")
         void tauxPondere() {
-            when(dashboardCAService.getProductFamilyDistribution(any(), any())).thenReturn(
-                // 200 000 à 10 % et 200 000 à 50 % → 120 000 de marge sur 400 000, soit 30 %
-                List.of(famille("PARAPHARMACIE", 200_000L, 20_000L, "10.00"), famille("PARAPHARMACIE", 200_000L, 100_000L, "50.00"))
-            );
+            when(dashboardCAService.getProductFamilyDistribution(any(), any()))
+                    .thenReturn(
+                            // 200 000 à 10 % et 200 000 à 50 % → 120 000 de marge sur 400 000, soit 30 %
+                            List.of(
+                                    famille("PARAPHARMACIE", 200_000L, 20_000L, "10.00"),
+                                    famille("PARAPHARMACIE", 200_000L, 100_000L, "50.00")));
 
             assertThat(lignesDeFamille(exporter()).getFirst().toString()).contains("30.00");
         }
@@ -161,9 +168,8 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("une famille sans chiffre d'affaires garde un taux nul")
         void familleSansChiffreDAffaires() {
-            when(dashboardCAService.getProductFamilyDistribution(any(), any())).thenReturn(
-                List.of(famille("DORMANTE", 0L, 0L, "0.00"))
-            );
+            when(dashboardCAService.getProductFamilyDistribution(any(), any()))
+                    .thenReturn(List.of(famille("DORMANTE", 0L, 0L, "0.00")));
 
             Map<String, Object> modele = exporter();
 
@@ -174,9 +180,10 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("les familles les plus vendeuses passent en tête")
         void ordreParChiffreDAffaires() {
-            when(dashboardCAService.getProductFamilyDistribution(any(), any())).thenReturn(
-                List.of(famille("PETITE", 10_000L, 1_000L, "10.00"), famille("GROSSE", 900_000L, 90_000L, "10.00"))
-            );
+            when(dashboardCAService.getProductFamilyDistribution(any(), any()))
+                    .thenReturn(List.of(
+                            famille("PETITE", 10_000L, 1_000L, "10.00"),
+                            famille("GROSSE", 900_000L, 90_000L, "10.00")));
 
             assertThat(lignesDeFamille(exporter()).getFirst().toString()).contains("GROSSE");
         }
@@ -191,9 +198,8 @@ class DashboardCAPdfExportServiceTest {
         @Test
         @DisplayName("le palmarès des produits et son total accompagnent le document")
         void palmaresEtTotal() {
-            when(dashboardCAService.getTopProducts(any(), any(), any())).thenReturn(
-                List.of(topProduit("DOLIPRANE", 300_000), topProduit("EFFERALGAN", 200_000))
-            );
+            when(dashboardCAService.getTopProducts(any(), any(), any()))
+                    .thenReturn(List.of(topProduit("DOLIPRANE", 300_000), topProduit("EFFERALGAN", 200_000)));
 
             Map<String, Object> modele = exporter();
 
@@ -252,7 +258,15 @@ class DashboardCAPdfExportServiceTest {
     }
 
     private static ProductFamilyCADTO famille(String nom, long caTotal, long margeBrute, String tauxMarge) {
-        return new ProductFamilyCADTO(LocalDate.of(2026, 1, 15), nom, 1, caTotal, caTotal - margeBrute, margeBrute, new BigDecimal(tauxMarge), 1);
+        return new ProductFamilyCADTO(
+                LocalDate.of(2026, 1, 15),
+                nom,
+                1,
+                caTotal,
+                caTotal - margeBrute,
+                margeBrute,
+                new BigDecimal(tauxMarge),
+                1);
     }
 
     private static TopProductDTO topProduit(String libelle, int caGenere) {
@@ -261,13 +275,29 @@ class DashboardCAPdfExportServiceTest {
 
     private static DashboardCASummaryDTO resumeVide() {
         return new DashboardCASummaryDTO(
-            0L, 0L, BigDecimal.ZERO,
-            0L, 0L, BigDecimal.ZERO,
-            0L, 0L, BigDecimal.ZERO,
-            0L, 0L, BigDecimal.ZERO,
-            0, 0, 0, 0,
-            BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-            BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO
-        );
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                0,
+                0,
+                0,
+                0,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO);
     }
 }

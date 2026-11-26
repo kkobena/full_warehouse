@@ -22,4 +22,3 @@ import { BaseScannerService } from '../../../../shared/scanner';
  */
 @Injectable()
 export class ReceptionScannerService extends BaseScannerService {}
-

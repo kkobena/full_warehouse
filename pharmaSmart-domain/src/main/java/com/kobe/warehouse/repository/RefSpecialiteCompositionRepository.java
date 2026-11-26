@@ -9,9 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RefSpecialiteCompositionRepository extends JpaRepository<RefSpecialiteComposition, Integer> {
-    @Query(
-        "select c from RefSpecialiteComposition c join fetch c.substance left join fetch c.dci " +
-        "where c.specialite.cis = :cis order by c.nature desc, c.id"
-    )
+    @Query("select c from RefSpecialiteComposition c join fetch c.substance left join fetch c.dci "
+            + "where c.specialite.cis = :cis order by c.nature desc, c.id")
     List<RefSpecialiteComposition> findByCis(@Param("cis") String cis);
 }

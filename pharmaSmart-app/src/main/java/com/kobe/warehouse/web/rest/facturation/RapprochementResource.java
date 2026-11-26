@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.facturation;
 
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.facturation.dto.EtatRapprochementDto;
 import com.kobe.warehouse.service.facturation.dto.RapprochementParams;
 import com.kobe.warehouse.service.facturation.service.RapprochementService;
@@ -19,12 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/rapprochement")
-@RequiresNavAccess(value = { "facturation.rapprochement", "factures" }, action = NavAction.EXPORT)
+@RequiresNavAccess(
+        value = {"facturation.rapprochement", "factures"},
+        action = NavAction.EXPORT)
 public class RapprochementResource {
 
     private final RapprochementService rapprochementService;
@@ -35,27 +37,24 @@ public class RapprochementResource {
 
     @GetMapping
     public ResponseEntity<List<EtatRapprochementDto>> getEtatRapprochement(
-        @RequestParam(required = false) Integer tiersPayantId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(required = false) Set<InvoiceStatut> statuts,
-        Pageable pageable
-    ) {
+            @RequestParam(required = false) Integer tiersPayantId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Set<InvoiceStatut> statuts,
+            Pageable pageable) {
         RapprochementParams params = new RapprochementParams(tiersPayantId, startDate, endDate, statuts);
         Page<EtatRapprochementDto> page = rapprochementService.getEtatRapprochement(params, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/pdf")
     public ResponseEntity<byte[]> exportPdf(
-        @RequestParam(required = false) Integer tiersPayantId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(required = false) Set<InvoiceStatut> statuts
-    ) {
+            @RequestParam(required = false) Integer tiersPayantId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Set<InvoiceStatut> statuts) {
         RapprochementParams params = new RapprochementParams(tiersPayantId, startDate, endDate, statuts);
         byte[] pdf = rapprochementService.exportPdf(params);
         return Utils.printPDF(pdf, "rapprochement.pdf");
@@ -63,11 +62,10 @@ public class RapprochementResource {
 
     @GetMapping("/excel")
     public ResponseEntity<byte[]> exportExcel(
-        @RequestParam(required = false) Integer tiersPayantId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(required = false) Set<InvoiceStatut> statuts
-    ) {
+            @RequestParam(required = false) Integer tiersPayantId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Set<InvoiceStatut> statuts) {
         RapprochementParams params = new RapprochementParams(tiersPayantId, startDate, endDate, statuts);
         byte[] excel = rapprochementService.exportExcel(params);
         return Utils.exportExcel(excel, "rapprochement.xlsx");

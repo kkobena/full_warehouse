@@ -27,11 +27,10 @@ public class PlanificationCertificationFneServiceImpl implements PlanificationCe
     private final CertificationFneStatutService statutService;
 
     public PlanificationCertificationFneServiceImpl(
-        PlanificationCertificationFneRepository planificationRepository,
-        HistoriqueCertificationFneRepository historiqueRepository,
-        FneService fneService,
-        CertificationFneStatutService statutService
-    ) {
+            PlanificationCertificationFneRepository planificationRepository,
+            HistoriqueCertificationFneRepository historiqueRepository,
+            FneService fneService,
+            CertificationFneStatutService statutService) {
         this.planificationRepository = planificationRepository;
         this.historiqueRepository = historiqueRepository;
         this.fneService = fneService;

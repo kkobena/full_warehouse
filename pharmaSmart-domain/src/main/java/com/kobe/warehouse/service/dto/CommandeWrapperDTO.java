@@ -1,12 +1,12 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.ReconciliationFactureFournisseur;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ReconciliationStatut;
 import java.time.LocalDate;
@@ -39,9 +39,11 @@ public abstract class CommandeWrapperDTO {
     private boolean envoyee;
     /** Jours au-delà du délai annoncé par le grossiste ; 0 si dans les temps, non envoyée ou déjà reçue. */
     private long joursDeRetard;
+
     private Integer reliquatDeCommandeId;
     private String createdUser;
     private ReconciliationStatut reconciliationStatut;
+
     protected CommandeWrapperDTO() {}
 
     protected CommandeWrapperDTO(Commande commande) {
@@ -65,9 +67,10 @@ public abstract class CommandeWrapperDTO {
         envoyee = commande.estEnvoyee();
         Fournisseur fournisseurCommande = commande.getFournisseur();
         joursDeRetard = commande.joursDeRetard(
-            LocalDate.now(),
-            fournisseurCommande != null ? fournisseurCommande.delaiLivraisonEffectif() : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT
-        );
+                LocalDate.now(),
+                fournisseurCommande != null
+                        ? fournisseurCommande.delaiLivraisonEffectif()
+                        : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT);
         reliquatDeCommandeId = commande.getReliquatDeCommandeId();
         AppUser user1 = commande.getUser();
         createdUser = AppUserNames.shortName(user1);

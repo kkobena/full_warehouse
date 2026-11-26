@@ -1,25 +1,18 @@
-import { afterNextRender, signal, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import {
-  AbstractControl,
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators
-} from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { NavApiService } from "app/core/data-access/nav-api.service";
-import { NotificationService } from "app/shared/services/notification.service";
-import { ButtonComponent, CardComponent, KeyFilterDirective } from "app/shared/ui";
+import { afterNextRender, signal, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NavApiService } from 'app/core/data-access/nav-api.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective } from 'app/shared/ui';
 
 const ROLE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
 @Component({
-  selector: "app-role-form",
-  templateUrl: "./role-form.component.html",
-  styleUrl: "./role-form.component.scss",
+  selector: 'app-role-form',
+  templateUrl: './role-form.component.html',
+  styleUrl: './role-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective]
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective],
 })
 export class RoleFormComponent {
   /** Existing role names — set by parent for uniqueness check. */
@@ -31,11 +24,11 @@ export class RoleFormComponent {
   private readonly navApi = inject(NavApiService);
   private readonly notif = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
-  private readonly suffixInput = viewChild<ElementRef>("suffixInput");
+  private readonly suffixInput = viewChild<ElementRef>('suffixInput');
 
   protected readonly editForm = this.fb.group({
-    suffix: ["", [Validators.required, Validators.pattern(ROLE_PATTERN), this.duplicateValidator.bind(this)]],
-    libelle: ["",[Validators.required]],
+    suffix: ['', [Validators.required, Validators.pattern(ROLE_PATTERN), this.duplicateValidator.bind(this)]],
+    libelle: ['', [Validators.required]],
   });
 
   constructor() {
@@ -50,9 +43,9 @@ export class RoleFormComponent {
 
   save(): void {
     if (this.editForm.invalid) return;
-    const suffix = this.editForm.get("suffix")!.value!.trim().toUpperCase();
+    const suffix = this.editForm.get('suffix')!.value!.trim().toUpperCase();
     const name = `ROLE_${suffix}`;
-    const libelle = this.editForm.get("libelle")!.value?.trim() || name;
+    const libelle = this.editForm.get('libelle')!.value?.trim() || name;
     this.isSaving.set(true);
     this.navApi.createRole(name, libelle).subscribe({
       next: () => {
@@ -61,8 +54,8 @@ export class RoleFormComponent {
       },
       error: () => {
         this.isSaving.set(false);
-        this.notif.error("Erreur lors de la création du rôle.");
-      }
+        this.notif.error('Erreur lors de la création du rôle.');
+      },
     });
   }
 
@@ -78,7 +71,7 @@ export class RoleFormComponent {
   }
 
   private duplicateValidator(control: AbstractControl): ValidationErrors | null {
-    const val = (control.value ?? "").trim().toUpperCase();
+    const val = (control.value ?? '').trim().toUpperCase();
     return this.existingNames.includes(`ROLE_${val}`) ? { duplicate: true } : null;
   }
 }

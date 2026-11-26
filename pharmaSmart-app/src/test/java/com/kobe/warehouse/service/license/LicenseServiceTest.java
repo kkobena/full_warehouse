@@ -87,50 +87,52 @@ class LicenseServiceTest {
 
         Magasin magasin = new Magasin();
         magasin.setName(OFFICINE);
-        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)).thenReturn(Optional.of(magasin));
+        when(magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE))
+                .thenReturn(Optional.of(magasin));
     }
 
     private LicenseService service() {
         return new LicenseService(
-            properties,
-            new LicenseVerifier(List.of(keys.getPublic())),
-            fingerprintProvider,
-            licenseStateRepository,
-            licenseAuditRepository,
-            magasinRepository,
-            salesRepository,
-            produitRepository,
-            // L'arbre de navigation est filtré par les modules souscrits : sa purge à l'activation
-            // est un effet de bord, pas une décision à éprouver ici.
-            new NoOpCacheManager()
-        );
+                properties,
+                new LicenseVerifier(List.of(keys.getPublic())),
+                fingerprintProvider,
+                licenseStateRepository,
+                licenseAuditRepository,
+                magasinRepository,
+                salesRepository,
+                produitRepository,
+                // L'arbre de navigation est filtré par les modules souscrits : sa purge à l'activation
+                // est un effet de bord, pas une décision à éprouver ici.
+                new NoOpCacheManager());
     }
 
     private LicensePayload payload(LocalDate expiresAt, BindingPolicy binding, String magasinName, String fingerprint) {
         return new LicensePayload(
-            "lic-1",
-            LicenseType.SUBSCRIPTION,
-            "CI-ABJ-0042",
-            magasinName,
-            magasinName,
-            null,
-            "STANDARD",
-            Instant.now(),
-            LocalDate.now(ZoneOffset.UTC).minusYears(1),
-            expiresAt,
-            7,
-            10,
-            null,
-            null,
-            EnumSet.of(Feature.CAISSE),
-            fingerprint,
-            binding,
-            new SupportContacts("PharmaSmart CI", List.of("+225 07 00 00 00 00"), List.of(), null, null)
-        );
+                "lic-1",
+                LicenseType.SUBSCRIPTION,
+                "CI-ABJ-0042",
+                magasinName,
+                magasinName,
+                null,
+                "STANDARD",
+                Instant.now(),
+                LocalDate.now(ZoneOffset.UTC).minusYears(1),
+                expiresAt,
+                7,
+                10,
+                null,
+                null,
+                EnumSet.of(Feature.CAISSE),
+                fingerprint,
+                binding,
+                new SupportContacts("PharmaSmart CI", List.of("+225 07 00 00 00 00"), List.of(), null, null));
     }
 
     private void installLicense(LicensePayload payload) throws Exception {
-        Files.writeString(Path.of(properties.getFilePath()), new LicenseSigner(keys.getPrivate()).sign(payload), StandardCharsets.UTF_8);
+        Files.writeString(
+                Path.of(properties.getFilePath()),
+                new LicenseSigner(keys.getPrivate()).sign(payload),
+                StandardCharsets.UTF_8);
     }
 
     private LocalDate inDays(long days) {
@@ -234,7 +236,8 @@ class LicenseServiceTest {
     @Test
     void unChangementDeServeurRecentAvertitSansBloquer() throws Exception {
         installLicense(payload(inDays(200), BindingPolicy.MAGASIN_AND_HARDWARE, OFFICINE, "sha256:ancien-poste"));
-        LicenseState state = new LicenseState().setFingerprintMismatchSince(Instant.now().minus(Duration.ofDays(3)));
+        LicenseState state =
+                new LicenseState().setFingerprintMismatchSince(Instant.now().minus(Duration.ofDays(3)));
         when(licenseStateRepository.findSingleton()).thenReturn(Optional.of(state));
 
         LicenseInfo info = service().currentStatus();
@@ -246,7 +249,8 @@ class LicenseServiceTest {
     @Test
     void passeLeDelaiDeRegularisationLEmpreinteDivergenteBloque() throws Exception {
         installLicense(payload(inDays(200), BindingPolicy.MAGASIN_AND_HARDWARE, OFFICINE, "sha256:ancien-poste"));
-        LicenseState state = new LicenseState().setFingerprintMismatchSince(Instant.now().minus(Duration.ofDays(20)));
+        LicenseState state =
+                new LicenseState().setFingerprintMismatchSince(Instant.now().minus(Duration.ofDays(20)));
         when(licenseStateRepository.findSingleton()).thenReturn(Optional.of(state));
 
         LicenseInfo info = service().currentStatus();
@@ -271,7 +275,8 @@ class LicenseServiceTest {
 
     @Test
     void supprimerLeFichierNeSuffitPasSiLaLicenceEstEnBase() throws Exception {
-        String token = new LicenseSigner(keys.getPrivate()).sign(payload(inDays(200), BindingPolicy.MAGASIN, OFFICINE, null));
+        String token =
+                new LicenseSigner(keys.getPrivate()).sign(payload(inDays(200), BindingPolicy.MAGASIN, OFFICINE, null));
         when(licenseStateRepository.findSingleton()).thenReturn(Optional.of(new LicenseState().setLicenseToken(token)));
 
         // Aucun fichier sur disque : le repli sur la copie en base doit prendre le relais.
@@ -281,25 +286,24 @@ class LicenseServiceTest {
     @Test
     void uneLicencePasEncoreValideEstRefusee() throws Exception {
         LicensePayload future = new LicensePayload(
-            "lic-future",
-            LicenseType.SUBSCRIPTION,
-            null,
-            OFFICINE,
-            null,
-            null,
-            null,
-            Instant.now(),
-            inDays(30),
-            inDays(400),
-            0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            BindingPolicy.MAGASIN,
-            null
-        );
+                "lic-future",
+                LicenseType.SUBSCRIPTION,
+                null,
+                OFFICINE,
+                null,
+                null,
+                null,
+                Instant.now(),
+                inDays(30),
+                inDays(400),
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                BindingPolicy.MAGASIN,
+                null);
         installLicense(future);
 
         LicenseInfo info = service().currentStatus();
@@ -312,29 +316,28 @@ class LicenseServiceTest {
 
     private LicensePayload demoPayload(Integer maxSales, Integer maxProduits) {
         return new LicensePayload(
-            "lic-demo",
-            LicenseType.DEMO,
-            null,
-            null,
-            null,
-            null,
-            null,
-            Instant.now(),
-            null,
-            // Échéance volontairement lointaine : on éprouve ici le comportement propre à la
-            // démonstration, pas le moteur d'échéance. Une démo réelle dure 30 jours et serait donc
-            // d'emblée en EXPIRING_SOON, ce qui masquerait ce qu'on cherche à vérifier.
-            inDays(200),
-            0,
-            null,
-            maxSales,
-            maxProduits,
-            null,
-            null,
-            // Une démo s'installe partout : c'est voulu, et c'est ce qui impose les restrictions.
-            BindingPolicy.NONE,
-            null
-        );
+                "lic-demo",
+                LicenseType.DEMO,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Instant.now(),
+                null,
+                // Échéance volontairement lointaine : on éprouve ici le comportement propre à la
+                // démonstration, pas le moteur d'échéance. Une démo réelle dure 30 jours et serait donc
+                // d'emblée en EXPIRING_SOON, ce qui masquerait ce qu'on cherche à vérifier.
+                inDays(200),
+                0,
+                null,
+                maxSales,
+                maxProduits,
+                null,
+                null,
+                // Une démo s'installe partout : c'est voulu, et c'est ce qui impose les restrictions.
+                BindingPolicy.NONE,
+                null);
     }
 
     @Test
@@ -394,31 +397,31 @@ class LicenseServiceTest {
         // Les quotas ne concernent que la démonstration : une officine en production ne doit pas
         // payer deux COUNT(*) à chaque rafraîchissement.
         org.mockito.Mockito.verify(salesRepository, org.mockito.Mockito.never()).count();
-        org.mockito.Mockito.verify(produitRepository, org.mockito.Mockito.never()).count();
+        org.mockito.Mockito.verify(produitRepository, org.mockito.Mockito.never())
+                .count();
     }
 
     @Test
     void unTrialNestPasBrideCommeUneDemo() throws Exception {
         LicensePayload trial = new LicensePayload(
-            "lic-trial",
-            LicenseType.TRIAL,
-            null,
-            OFFICINE,
-            null,
-            null,
-            null,
-            Instant.now(),
-            null,
-            inDays(20),
-            0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            BindingPolicy.MAGASIN,
-            null
-        );
+                "lic-trial",
+                LicenseType.TRIAL,
+                null,
+                OFFICINE,
+                null,
+                null,
+                null,
+                Instant.now(),
+                null,
+                inDays(20),
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                BindingPolicy.MAGASIN,
+                null);
         installLicense(trial);
 
         LicenseInfo info = service().currentStatus();
@@ -437,7 +440,8 @@ class LicenseServiceTest {
         LicenseService service = service();
         assertThat(service.isWriteAllowed()).isFalse();
 
-        String renouvellement = new LicenseSigner(keys.getPrivate()).sign(payload(inDays(365), BindingPolicy.MAGASIN, OFFICINE, null));
+        String renouvellement =
+                new LicenseSigner(keys.getPrivate()).sign(payload(inDays(365), BindingPolicy.MAGASIN, OFFICINE, null));
         LicenseInfo info = service.activate(renouvellement.getBytes(StandardCharsets.UTF_8), "license.lic");
 
         // Sans redémarrage ni rechargement : le cache est reconstruit par activate() lui-même.
@@ -447,26 +451,28 @@ class LicenseServiceTest {
 
     @Test
     void deposerUneLicenceDejaExpireeEstRefuseAvecUnMessageExploitable() throws Exception {
-        String perimee = new LicenseSigner(keys.getPrivate()).sign(payload(inDays(-90), BindingPolicy.MAGASIN, OFFICINE, null));
+        String perimee =
+                new LicenseSigner(keys.getPrivate()).sign(payload(inDays(-90), BindingPolicy.MAGASIN, OFFICINE, null));
 
         assertThatThrownBy(() -> service().activate(perimee.getBytes(StandardCharsets.UTF_8), "license.lic"))
-            .isInstanceOf(LicenseActivationException.class)
-            .hasMessageContaining("déjà expirée");
+                .isInstanceOf(LicenseActivationException.class)
+                .hasMessageContaining("déjà expirée");
     }
 
     @Test
     void deposerLaLicenceDuneAutreOfficineEstRefuse() throws Exception {
-        String autre = new LicenseSigner(keys.getPrivate()).sign(payload(inDays(365), BindingPolicy.MAGASIN, "PHARMACIE DU PLATEAU", null));
+        String autre = new LicenseSigner(keys.getPrivate())
+                .sign(payload(inDays(365), BindingPolicy.MAGASIN, "PHARMACIE DU PLATEAU", null));
 
         assertThatThrownBy(() -> service().activate(autre.getBytes(StandardCharsets.UTF_8), "license.lic"))
-            .isInstanceOf(LicenseActivationException.class)
-            .hasMessageContaining("PHARMACIE DU PLATEAU");
+                .isInstanceOf(LicenseActivationException.class)
+                .hasMessageContaining("PHARMACIE DU PLATEAU");
     }
 
     @Test
     void unFichierAltereEstRefuseSansEcraserLaLicenceEnPlace() throws Exception {
         assertThatThrownBy(() -> service().activate("pas-une-licence".getBytes(StandardCharsets.UTF_8), "license.lic"))
-            .isInstanceOf(LicenseActivationException.class);
+                .isInstanceOf(LicenseActivationException.class);
     }
 
     @Test
@@ -497,25 +503,24 @@ class LicenseServiceTest {
     @Test
     void uneOptionExplicitementSouscriteEstAccordee() throws Exception {
         LicensePayload avecOption = new LicensePayload(
-            "lic-option",
-            LicenseType.SUBSCRIPTION,
-            null,
-            OFFICINE,
-            null,
-            null,
-            null,
-            Instant.now(),
-            null,
-            inDays(365),
-            0,
-            null,
-            null,
-            null,
-            EnumSet.of(Feature.CALLEBASSE),
-            null,
-            BindingPolicy.MAGASIN,
-            null
-        );
+                "lic-option",
+                LicenseType.SUBSCRIPTION,
+                null,
+                OFFICINE,
+                null,
+                null,
+                null,
+                Instant.now(),
+                null,
+                inDays(365),
+                0,
+                null,
+                null,
+                null,
+                EnumSet.of(Feature.CALLEBASSE),
+                null,
+                BindingPolicy.MAGASIN,
+                null);
         installLicense(avecOption);
         LicenseService service = service();
 
@@ -528,25 +533,24 @@ class LicenseServiceTest {
     @Test
     void uneLicenceAncienneSansListeConserveLexistantSansOuvrirDoption() throws Exception {
         LicensePayload sansFeatures = new LicensePayload(
-            "lic-legacy",
-            LicenseType.SUBSCRIPTION,
-            null,
-            OFFICINE,
-            null,
-            null,
-            null,
-            Instant.now(),
-            null,
-            inDays(365),
-            0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            BindingPolicy.MAGASIN,
-            null
-        );
+                "lic-legacy",
+                LicenseType.SUBSCRIPTION,
+                null,
+                OFFICINE,
+                null,
+                null,
+                null,
+                Instant.now(),
+                null,
+                inDays(365),
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                BindingPolicy.MAGASIN,
+                null);
         installLicense(sansFeatures);
         LicenseService service = service();
 
@@ -571,7 +575,8 @@ class LicenseServiceTest {
      */
     @Test
     void unFichierAbsentEstRetabliDepuisLaCopieEnBase() throws Exception {
-        String token = new LicenseSigner(keys.getPrivate()).sign(payload(inDays(100), BindingPolicy.MAGASIN, OFFICINE, null));
+        String token =
+                new LicenseSigner(keys.getPrivate()).sign(payload(inDays(100), BindingPolicy.MAGASIN, OFFICINE, null));
         LicenseState state = new LicenseState().setId(LicenseState.SINGLETON_ID).setLicenseToken(token);
         when(licenseStateRepository.findSingleton()).thenReturn(Optional.of(state));
         Path file = Path.of(properties.getFilePath());
@@ -659,9 +664,9 @@ class LicenseServiceTest {
      */
     @Test
     void uneBaseInjoignableNeBasculePasEnLectureSeule() {
-        when(licenseStateRepository.findSingleton()).thenThrow(
-            new DataAccessResourceFailureException("Connection is not available, request timed out after 30014ms")
-        );
+        when(licenseStateRepository.findSingleton())
+                .thenThrow(new DataAccessResourceFailureException(
+                        "Connection is not available, request timed out after 30014ms"));
 
         LicenseInfo info = service().currentStatus();
 
@@ -673,9 +678,9 @@ class LicenseServiceTest {
     /** Le détail technique (requête SQL, trace JDBC) appartient aux logs, pas à l'écran de caisse. */
     @Test
     void aucunMessageTechniqueNEstExposeAuFrontend() {
-        when(licenseStateRepository.findSingleton()).thenThrow(
-            new DataAccessResourceFailureException("select ls1_0.id from pharma_smart.license_state ls1_0 where ls1_0.id=?")
-        );
+        when(licenseStateRepository.findSingleton())
+                .thenThrow(new DataAccessResourceFailureException(
+                        "select ls1_0.id from pharma_smart.license_state ls1_0 where ls1_0.id=?"));
 
         assertThat(service().currentStatus().message()).doesNotContain("select", "pharma_smart", "Hikari");
     }
@@ -690,7 +695,8 @@ class LicenseServiceTest {
         LicenseService service = service();
         assertThat(service.currentStatus().status()).isEqualTo(LicenseStatus.VALID);
 
-        when(licenseStateRepository.findSingleton()).thenThrow(new DataAccessResourceFailureException("pool exhausted"));
+        when(licenseStateRepository.findSingleton())
+                .thenThrow(new DataAccessResourceFailureException("pool exhausted"));
 
         assertThat(service.refresh().status()).isEqualTo(LicenseStatus.VALID);
         assertThat(service.isWriteAllowed()).isTrue();

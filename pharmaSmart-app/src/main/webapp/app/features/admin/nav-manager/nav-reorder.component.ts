@@ -96,7 +96,7 @@ export class NavReorderComponent implements OnInit {
         this.saving.set(false);
       },
       error: () => {
-        this.notificationService.error('Impossible d\'enregistrer l\'ordre.');
+        this.notificationService.error("Impossible d'enregistrer l'ordre.");
         this.saving.set(false);
       },
     });
@@ -118,4 +118,3 @@ export class NavReorderComponent implements OnInit {
     return payload;
   }
 }
-

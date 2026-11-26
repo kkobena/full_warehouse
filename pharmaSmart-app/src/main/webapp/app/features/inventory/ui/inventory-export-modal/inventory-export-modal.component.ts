@@ -1,25 +1,25 @@
-import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ButtonComponent, CardComponent, SelectComponent} from '../../../../shared/ui';
-import {InventoryApiService} from '../../data-access/services/inventory-api.service';
-import {StorageService} from '../../../../entities/storage/storage.service';
-import {RayonService} from '../../../../entities/rayon/rayon.service';
-import {IStorage} from '../../../../shared/model/magasin.model';
-import {IRayon} from '../../../../shared/model/rayon.model';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
-import {LINE_FILTERS} from '../../models';
-import {ConfigurationService} from '../../../../shared/configuration.service';
-import {ErrorService} from '../../../../shared/error.service';
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ButtonComponent, CardComponent, SelectComponent } from '../../../../shared/ui';
+import { InventoryApiService } from '../../data-access/services/inventory-api.service';
+import { StorageService } from '../../../../entities/storage/storage.service';
+import { RayonService } from '../../../../entities/rayon/rayon.service';
+import { IStorage } from '../../../../shared/model/magasin.model';
+import { IRayon } from '../../../../shared/model/rayon.model';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { LINE_FILTERS } from '../../models';
+import { ConfigurationService } from '../../../../shared/configuration.service';
+import { ErrorService } from '../../../../shared/error.service';
 
 const GROUP_BY_OPTIONS = [
-  {value: 'RAYON', label: 'Grouper par rayon'},
-//  {value: 'STORAGE', label: 'Grouper par emplacement'},
-  {value: 'FAMILLY', label: 'Grouper par famille'},
-  {value: 'NONE', label: 'Sans regroupement'},
+  { value: 'RAYON', label: 'Grouper par rayon' },
+  //  {value: 'STORAGE', label: 'Grouper par emplacement'},
+  { value: 'FAMILLY', label: 'Grouper par famille' },
+  { value: 'NONE', label: 'Sans regroupement' },
 ];
 
 @Component({
@@ -58,10 +58,11 @@ export class InventoryExportModalComponent implements OnInit {
     this.storageService
       .fetchUserStorages()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({next: resp => this.storages.set(resp.body ?? [])});
-    this.configService.find('APP_GESTION_LOT_INVENTAIRE')
+      .subscribe({ next: resp => this.storages.set(resp.body ?? []) });
+    this.configService
+      .find('APP_GESTION_LOT_INVENTAIRE')
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({next: resp => this.gestionLot = resp.body?.value === '1'});
+      .subscribe({ next: resp => (this.gestionLot = resp.body?.value === '1') });
   }
 
   onStorageChange(storageId: number | null): void {
@@ -69,9 +70,9 @@ export class InventoryExportModalComponent implements OnInit {
     this.rayons.set([]);
     if (storageId) {
       this.rayonService
-        .query({storageId, size: 9999})
+        .query({ storageId, size: 9999 })
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({next: resp => this.rayons.set(resp.body ?? [])});
+        .subscribe({ next: resp => this.rayons.set(resp.body ?? []) });
     }
   }
 

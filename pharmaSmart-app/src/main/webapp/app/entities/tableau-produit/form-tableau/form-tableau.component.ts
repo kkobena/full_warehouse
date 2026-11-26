@@ -1,19 +1,13 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {ITableau, Tableau} from '../../../shared/model/tableau.model';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ErrorService} from '../../../shared/error.service';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {TableauProduitService} from '../tableau-produit.service';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, KeyFilterDirective} from '../../../shared/ui';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ITableau, Tableau } from '../../../shared/model/tableau.model';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { TableauProduitService } from '../tableau-produit.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, KeyFilterDirective } from '../../../shared/ui';
 
 @Component({
   selector: 'app-form-tableau',

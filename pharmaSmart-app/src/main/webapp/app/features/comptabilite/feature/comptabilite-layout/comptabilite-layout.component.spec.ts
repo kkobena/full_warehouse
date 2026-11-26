@@ -23,8 +23,13 @@ const CODES = [
 ];
 
 const PERMISSIONS = {
-  canDisplay: true, canAccess: true, canCreate: false,
-  canEdit: false, canDelete: false, canExport: false, canExecute: false,
+  canDisplay: true,
+  canAccess: true,
+  canCreate: false,
+  canEdit: false,
+  canDelete: false,
+  canExport: false,
+  canExecute: false,
 };
 
 describe('ComptabiliteLayout — menu vertical', () => {
@@ -41,9 +46,18 @@ describe('ComptabiliteLayout — menu vertical', () => {
     // conséquence de la refonte, c'est le fonctionnement nominal des permissions.
     const arbre: INavNode[] = [
       {
-        id: 1, code: 'comptabilite', libelle: 'Comptabilité', targetType: 'ROUTE', ordre: 10,
+        id: 1,
+        code: 'comptabilite',
+        libelle: 'Comptabilité',
+        targetType: 'ROUTE',
+        ordre: 10,
         children: CODES.map(({ code, libelle, icon }, i) => ({
-          id: i + 2, code, libelle, icon, targetType: 'SECTION' as const, ordre: (i + 1) * 10,
+          id: i + 2,
+          code,
+          libelle,
+          icon,
+          targetType: 'SECTION' as const,
+          ordre: (i + 1) * 10,
           permissions: PERMISSIONS,
         })),
         permissions: PERMISSIONS,
@@ -67,13 +81,7 @@ describe('ComptabiliteLayout — menu vertical', () => {
     const liens = element.querySelectorAll('.pharma-nav-vertical-link');
     expect(liens.length).toBe(5);
     const libelles = Array.from(liens, l => l.textContent?.replace(/[›\s]+/g, ' ').trim());
-    expect(libelles).toEqual([
-      'Balance caisse',
-      'Rapport TVA',
-      'Tableau pharmacien',
-      'Récapitulatif de caisse',
-      "Rapport d'activité",
-    ]);
+    expect(libelles).toEqual(['Balance caisse', 'Rapport TVA', 'Tableau pharmacien', 'Récapitulatif de caisse', "Rapport d'activité"]);
   });
 
   it('marque le premier onglet comme actif au chargement', () => {

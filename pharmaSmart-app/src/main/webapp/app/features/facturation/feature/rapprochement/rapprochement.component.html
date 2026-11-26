@@ -1,10 +1,8 @@
 <div class="pharma-smart-content">
-
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-arrows-h" title="État de rapprochement">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-
         <app-float-label inputId="rapr-tp" label="Tiers-payant">
           <app-multi-select
             (searched)="searchTiersPayant($event)"
@@ -17,11 +15,15 @@
           />
         </app-float-label>
 
-        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }" id="rapr-du"
-                            label="Du" />
+        <pharma-date-picker
+          [ngModel]="modelStartDate()"
+          (ngModelChange)="modelStartDate.set($event)"
+          [style]="{ 'max-width': '180px' }"
+          id="rapr-du"
+          label="Du"
+        />
 
-        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="rapr-au"
-                            label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="rapr-au" label="Au" />
 
         <app-float-label inputId="rapr-statut" label="Statut">
           <app-multi-select
@@ -34,21 +36,13 @@
             inputId="rapr-statut"
           />
         </app-float-label>
-
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
-          <app-button
-            (clicked)="onSearch()"
-            [loading]="loading()"
-            [raised]="true"
-            icon="pi pi-search"
-            label="Rechercher"
-            severity="info"
-          />
+          <app-button (clicked)="onSearch()" [loading]="loading()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
           <app-button
             (clicked)="onExportExcel()"
             [loading]="loadingExport()"
@@ -65,18 +59,13 @@
   <!-- KPI globaux -->
   <app-rapprochement-kpi-banner [kpi]="kpi()" [loading]="loading()" />
 
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
-          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
     <!-- Hint premier usage -->
-    <app-hint storageKey="rapprochement" [visible]="!panelOpen()">
-      Cliquez sur une ligne pour afficher le détail .
-    </app-hint>
+    <app-hint storageKey="rapprochement" [visible]="!panelOpen()"> Cliquez sur une ligne pour afficher le détail . </app-hint>
     <!-- Split master/detail -->
     <div [class.panel-open]="panelOpen()" class="split-container">
-
       <!-- Colonne maître : liste des organismes -->
       <div class="list-column p-2">
-
         <app-data-table
           [loading]="loading()"
           [paginator]="true"
@@ -108,7 +97,7 @@
             <tr
               (click)="onRowSelect(rappr)"
               [class.ligne-selected]="selectedRappr()?.tiersPayantName === rappr.tiersPayantName"
-              style="cursor:pointer"
+              style="cursor: pointer"
             >
               <td>
                 <span class="fw-semibold">{{ rappr.tiersPayantName }}</span>
@@ -118,17 +107,19 @@
               </td>
               @if (!panelOpen()) {
                 <td class="text-muted small">{{ rappr.debutPeriode }} → {{ rappr.finPeriode }}</td>
-                <td class="text-end fw-bold">{{ (rappr.totalFacture ?? 0) | number:'1.0-0' }}</td>
-                <td class="text-end text-success">{{ (rappr.totalRegle ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end fw-bold">{{ rappr.totalFacture ?? 0 | number: '1.0-0' }}</td>
+                <td class="text-end text-success">{{ rappr.totalRegle ?? 0 | number: '1.0-0' }}</td>
                 <td [class.text-danger]="(rappr.ecartTotal ?? 0) > 0" class="text-end">
-                  {{ (rappr.ecartTotal ?? 0) | number:'1.0-0' }}
+                  {{ rappr.ecartTotal ?? 0 | number: '1.0-0' }}
                 </td>
               } @else {
-                <td class="text-end fw-bold">{{ (rappr.totalFacture ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end fw-bold">{{ rappr.totalFacture ?? 0 | number: '1.0-0' }}</td>
                 <td class="text-end">
-                  <span [class.text-danger]="detailTaux(rappr) < 50"
-                        [class.text-success]="detailTaux(rappr) >= 80"
-                        [class.text-warning]="detailTaux(rappr) >= 50 && detailTaux(rappr) < 80">
+                  <span
+                    [class.text-danger]="detailTaux(rappr) < 50"
+                    [class.text-success]="detailTaux(rappr) >= 80"
+                    [class.text-warning]="detailTaux(rappr) >= 50 && detailTaux(rappr) < 80"
+                  >
                     {{ detailTaux(rappr) }} %
                   </span>
                 </td>
@@ -146,10 +137,7 @@
                     severity="secondary"
                     size="small"
                   />
-
-
                 </div>
-
               </td>
             </tr>
           </ng-template>
@@ -167,129 +155,123 @@
       <!-- Panneau détail : factures de l'organisme sélectionné -->
       @if (panelOpen()) {
         <div class="detail-column">
-
           <!-- En-tête du panneau -->
           <div class="panel-header">
             <div class="panel-title-block">
-              <div class="panel-libelle">
-                <i class="pi pi-building me-1"></i>{{ selectedRappr()?.tiersPayantName }}
-              </div>
+              <div class="panel-libelle"><i class="pi pi-building me-1"></i>{{ selectedRappr()?.tiersPayantName }}</div>
               <div class="panel-meta">
-                <span class="pharma-badge pharma-badge-secondary">{{ selectedRappr()?.debutPeriode }}
-                  → {{ selectedRappr()?.finPeriode }}</span>
-                <span class="pharma-badge pharma-badge-primary">Facturé : {{
-                    (selectedRappr()?.totalFacture ?? 0) | number:'1.0-0'
-                  }}</span>
-                <span class="pharma-badge pharma-badge-success">Réglé : {{
-                    (selectedRappr()?.totalRegle ?? 0) | number:'1.0-0'
-                  }}</span>
-                <span [class.pharma-badge-danger]="(selectedRappr()?.ecartTotal ?? 0) > 0"
-                      [class.pharma-badge-success]="(selectedRappr()?.ecartTotal ?? 0) === 0"
-                      class="pharma-badge">
-                  Écart : {{ (selectedRappr()?.ecartTotal ?? 0) | number:'1.0-0' }}
+                <span class="pharma-badge pharma-badge-secondary"
+                  >{{ selectedRappr()?.debutPeriode }} → {{ selectedRappr()?.finPeriode }}</span
+                >
+                <span class="pharma-badge pharma-badge-primary">Facturé : {{ selectedRappr()?.totalFacture ?? 0 | number: '1.0-0' }}</span>
+                <span class="pharma-badge pharma-badge-success">Réglé : {{ selectedRappr()?.totalRegle ?? 0 | number: '1.0-0' }}</span>
+                <span
+                  [class.pharma-badge-danger]="(selectedRappr()?.ecartTotal ?? 0) > 0"
+                  [class.pharma-badge-success]="(selectedRappr()?.ecartTotal ?? 0) === 0"
+                  class="pharma-badge"
+                >
+                  Écart : {{ selectedRappr()?.ecartTotal ?? 0 | number: '1.0-0' }}
                 </span>
-                <span [class.pharma-badge-danger]="detailTaux(selectedRappr()!) < 50"
-                      [class.pharma-badge-success]="detailTaux(selectedRappr()!) >= 80"
-                      [class.pharma-badge-warning]="detailTaux(selectedRappr()!) >= 50 && detailTaux(selectedRappr()!) < 80"
-                      class="pharma-badge">
+                <span
+                  [class.pharma-badge-danger]="detailTaux(selectedRappr()!) < 50"
+                  [class.pharma-badge-success]="detailTaux(selectedRappr()!) >= 80"
+                  [class.pharma-badge-warning]="detailTaux(selectedRappr()!) >= 50 && detailTaux(selectedRappr()!) < 80"
+                  class="pharma-badge"
+                >
                   Taux : {{ detailTaux(selectedRappr()!) }} %
                 </span>
               </div>
             </div>
             <div class="panel-actions">
-              <app-button
-                (clicked)="closePanel()"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-times"
-                size="small"
-                title="Fermer"
-              />
+              <app-button (clicked)="closePanel()" [rounded]="true" [text]="true" icon="pi pi-times" size="small" title="Fermer" />
             </div>
           </div>
 
           <!-- Table des lignes de factures -->
 
-            <app-detail-grid>
-              <app-detail-section header="Factures" icon="pi pi-file-invoice" [accent]="'blue'" [width]="'full'"
-                                  [layout]="'block'" [count]="(selectedRappr()?.lignes ?? []).length"
-                                  storageKey="rapprochement.detail.factures">
-                <app-data-table
-                  [scrollable]="true"
-                  [size]="'small'"
-                  [value]="selectedRappr()?.lignes ?? []"
-                  dataKey="numFacture"
-                  scrollHeight="flex"
-                >
-                  <ng-template #header>
-                    <tr class="pharma-table-head">
-                      <th style="width: 3rem"></th>
-                      <th>N° Facture</th>
-                      <th>Date</th>
-                      <th>Échéance</th>
-                      <th class="text-end">Facturé</th>
-                      <th class="text-end">Réglé</th>
-                      <th class="text-end">Écart</th>
-                      <th>Statut</th>
-                      <th class="text-center">Actions</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-expanded="expanded" let-ligne>
-                    <tr [class.rapr-row-retard]="isLigneEnRetard(ligne)">
-                      <td>
-                        @if ((ligne.reglements ?? []).length > 0) {
-                          <app-button
-                            [appRowToggler]="ligne"
-                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                            [text]="true"
-                            ariaLabel="Voir les règlements de la facture"
-                            size="small"
-                          />
-                        }
-                      </td>
-                      <td class="fw-semibold small">{{ ligne.numFacture }}</td>
-                      <td class="small">{{ ligne.invoiceDate }}</td>
-                      <td [class.text-danger]="isLigneEnRetard(ligne)" class="small">
-                        {{ ligne.echeance }}
-                        @if (isLigneEnRetard(ligne)) {
-                          <i class="pi pi-exclamation-triangle ms-1" title="En retard"></i>
-                        }
-                      </td>
-                      <td class="text-end">{{ (ligne.montantFacture ?? 0) | number:'1.0-0' }}</td>
-                      <td class="text-end text-success">{{
-                          (ligne.montantRegle ?? 0) | number:'1.0-0'
-                        }}
-                      </td>
-                      <td [class.text-danger]="(ligne.ecart ?? 0) > 0" class="text-end">
-                        {{ (ligne.ecart ?? 0) | number:'1.0-0' }}
-                      </td>
-                      <td>
-                        <span class="badge {{ statutClass(ligne.statut) }}">
-                          {{ statutLabel(ligne.statut) }}
-                        </span>
-                      </td>
-                      <td class="text-center">
-                        @if (ligne.statut !== 'PAID') {
-                          <app-button
-                            (clicked)="openReglementModal(ligne)"
-                            [outlined]="true"
-                            icon="pi pi-credit-card"
-                            label="Régler"
-                            severity="primary"
-                            size="small"
-                          />
-                        }
-                      </td>
-                    </tr>
-                  </ng-template>
+          <app-detail-grid>
+            <app-detail-section
+              header="Factures"
+              icon="pi pi-file-invoice"
+              [accent]="'blue'"
+              [width]="'full'"
+              [layout]="'block'"
+              [count]="(selectedRappr()?.lignes ?? []).length"
+              storageKey="rapprochement.detail.factures"
+            >
+              <app-data-table
+                [scrollable]="true"
+                [size]="'small'"
+                [value]="selectedRappr()?.lignes ?? []"
+                dataKey="numFacture"
+                scrollHeight="flex"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th style="width: 3rem"></th>
+                    <th>N° Facture</th>
+                    <th>Date</th>
+                    <th>Échéance</th>
+                    <th class="text-end">Facturé</th>
+                    <th class="text-end">Réglé</th>
+                    <th class="text-end">Écart</th>
+                    <th>Statut</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-expanded="expanded" let-ligne>
+                  <tr [class.rapr-row-retard]="isLigneEnRetard(ligne)">
+                    <td>
+                      @if ((ligne.reglements ?? []).length > 0) {
+                        <app-button
+                          [appRowToggler]="ligne"
+                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                          [text]="true"
+                          ariaLabel="Voir les règlements de la facture"
+                          size="small"
+                        />
+                      }
+                    </td>
+                    <td class="fw-semibold small">{{ ligne.numFacture }}</td>
+                    <td class="small">{{ ligne.invoiceDate }}</td>
+                    <td [class.text-danger]="isLigneEnRetard(ligne)" class="small">
+                      {{ ligne.echeance }}
+                      @if (isLigneEnRetard(ligne)) {
+                        <i class="pi pi-exclamation-triangle ms-1" title="En retard"></i>
+                      }
+                    </td>
+                    <td class="text-end">{{ ligne.montantFacture ?? 0 | number: '1.0-0' }}</td>
+                    <td class="text-end text-success">{{ ligne.montantRegle ?? 0 | number: '1.0-0' }}</td>
+                    <td [class.text-danger]="(ligne.ecart ?? 0) > 0" class="text-end">
+                      {{ ligne.ecart ?? 0 | number: '1.0-0' }}
+                    </td>
+                    <td>
+                      <span class="badge {{ statutClass(ligne.statut) }}">
+                        {{ statutLabel(ligne.statut) }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      @if (ligne.statut !== 'PAID') {
+                        <app-button
+                          (clicked)="openReglementModal(ligne)"
+                          [outlined]="true"
+                          icon="pi pi-credit-card"
+                          label="Régler"
+                          severity="primary"
+                          size="small"
+                        />
+                      }
+                    </td>
+                  </tr>
+                </ng-template>
 
-                  <!-- Détail des règlements (ligne expandée) -->
-                  <ng-template #expandedrow let-ligne>
-                    <tr>
-                      <td class="p-0" colspan="9">
-                        <div class="rapr-reglement-list">
-                          <table class="table table-sm mb-0">
-                            <thead>
+                <!-- Détail des règlements (ligne expandée) -->
+                <ng-template #expandedrow let-ligne>
+                  <tr>
+                    <td class="p-0" colspan="9">
+                      <div class="rapr-reglement-list">
+                        <table class="table table-sm mb-0">
+                          <thead>
                             <tr class="table-light">
                               <th>Date</th>
                               <th>Référence</th>
@@ -298,51 +280,45 @@
                               <th>Commentaire</th>
                               <th class="text-center">Action</th>
                             </tr>
-                            </thead>
-                            <tbody>
-                              @for (rg of ligne.reglements; track rg.id) {
-                                <tr>
-                                  <td>{{ rg.transactionDate }}</td>
-                                  <td>{{ rg.transactionNumber || '—' }}</td>
-                                  <td>{{ rg.paymentMode || '—' }}</td>
-                                  <td class="text-end">{{ (rg.paidAmount ?? 0) | number:'1.0-0' }}</td>
-                                  <td>{{ rg.commentaire || '—' }}</td>
-                                  <td class="text-center">
-                                    <app-button
-                                      (clicked)="onAnnulerReglement(ligne, rg)"
-                                      [text]="true"
-                                      ariaLabel="Annuler ce règlement"
-                                      icon="pi pi-trash"
-                                      severity="danger"
-                                      size="small"
-                                      title="Annuler ce règlement"
-                                    />
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-template>
+                          </thead>
+                          <tbody>
+                            @for (rg of ligne.reglements; track rg.id) {
+                              <tr>
+                                <td>{{ rg.transactionDate }}</td>
+                                <td>{{ rg.transactionNumber || '—' }}</td>
+                                <td>{{ rg.paymentMode || '—' }}</td>
+                                <td class="text-end">{{ rg.paidAmount ?? 0 | number: '1.0-0' }}</td>
+                                <td>{{ rg.commentaire || '—' }}</td>
+                                <td class="text-center">
+                                  <app-button
+                                    (clicked)="onAnnulerReglement(ligne, rg)"
+                                    [text]="true"
+                                    ariaLabel="Annuler ce règlement"
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    size="small"
+                                    title="Annuler ce règlement"
+                                  />
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
 
-                  <ng-template #emptymessage>
-                    <tr>
-                      <td class="text-center text-muted py-3" colspan="9">
-                        <i class="pi pi-info-circle me-1"></i>Aucune facture trouvée
-                      </td>
-                    </tr>
-                  </ng-template>
-                </app-data-table>
-              </app-detail-section>
-            </app-detail-grid>
-
-
+                <ng-template #emptymessage>
+                  <tr>
+                    <td class="text-center text-muted py-3" colspan="9"><i class="pi pi-info-circle me-1"></i>Aucune facture trouvée</td>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+            </app-detail-section>
+          </app-detail-grid>
         </div>
       }
-
     </div>
   </app-card>
-
 </div>

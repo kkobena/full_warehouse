@@ -3,7 +3,6 @@
 @import 'app/shared/scss/bulk-action-bar';
 @import 'app/shared/scss/split-panel';
 
-
 .produit-home-layout {
   display: flex;
   flex-direction: column;
@@ -166,4 +165,3 @@
 // La ligne sélectionnée est stylée globalement : `.ligne-selected`, dans
 // content/scss/table-common-global.scss. Le `::ng-deep` qui traînait ici visait une classe
 // que le gabarit ne pose plus.
-

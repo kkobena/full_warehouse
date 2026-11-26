@@ -26,10 +26,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Le tableau de bord du chiffre d'affaires est l'écran qu'on ouvre en premier le matin : le chiffre
@@ -73,23 +73,19 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("chaque colonne du tableau brut atterrit dans le champ qui la désigne")
         void lectureDesColonnes() {
-            when(repository.findDailySummary(DEBUT, FIN)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] {
-                        java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
-                        42,
-                        1_000_000L,
-                        950_000L,
-                        new BigDecimal("22619.05"),
-                        600_000L,
-                        350_000L,
-                        new BigDecimal("36.84"),
-                        38,
-                        900_000L,
-                        50_000L
-                    }
-                )
-            );
+            when(repository.findDailySummary(DEBUT, FIN)).thenReturn(List.<Object[]>of(new Object[] {
+                java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
+                42,
+                1_000_000L,
+                950_000L,
+                new BigDecimal("22619.05"),
+                600_000L,
+                350_000L,
+                new BigDecimal("36.84"),
+                38,
+                900_000L,
+                50_000L
+            }));
 
             DailyCADTO jour = service.getDailySummary(DEBUT, FIN).getFirst();
 
@@ -126,12 +122,15 @@ class DashboardCAServiceImplTest {
 
             service.getOverallSummary();
 
-            assertThat(bornesInterrogees()).contains(
-                List.of(aujourdHui, aujourdHui),
-                List.of(aujourdHui.minusDays(aujourdHui.getDayOfWeek().getValue() - 1), aujourdHui),
-                List.of(aujourdHui.withDayOfMonth(1), aujourdHui),
-                List.of(aujourdHui.withDayOfYear(1), aujourdHui)
-            );
+            assertThat(bornesInterrogees())
+                    .contains(
+                            List.of(aujourdHui, aujourdHui),
+                            List.of(
+                                    aujourdHui.minusDays(
+                                            aujourdHui.getDayOfWeek().getValue() - 1),
+                                    aujourdHui),
+                            List.of(aujourdHui.withDayOfMonth(1), aujourdHui),
+                            List.of(aujourdHui.withDayOfYear(1), aujourdHui));
         }
 
         /** Le mois précédent s'arrête la veille du premier du mois courant, jamais le même quantième. */
@@ -145,12 +144,12 @@ class DashboardCAServiceImplTest {
 
             service.getOverallSummary();
 
-            assertThat(bornesInterrogees()).contains(
-                List.of(aujourdHui.minusDays(1), aujourdHui.minusDays(1)),
-                List.of(lundi.minusDays(7), lundi.minusDays(1)),
-                List.of(premierDuMois.minusMonths(1), premierDuMois.minusDays(1)),
-                List.of(premierDeLAnnee.minusYears(1), premierDeLAnnee.minusDays(1))
-            );
+            assertThat(bornesInterrogees())
+                    .contains(
+                            List.of(aujourdHui.minusDays(1), aujourdHui.minusDays(1)),
+                            List.of(lundi.minusDays(7), lundi.minusDays(1)),
+                            List.of(premierDuMois.minusMonths(1), premierDuMois.minusDays(1)),
+                            List.of(premierDeLAnnee.minusYears(1), premierDeLAnnee.minusDays(1)));
         }
 
         /**
@@ -163,17 +162,19 @@ class DashboardCAServiceImplTest {
             ArgumentCaptor<LocalDate> fins = ArgumentCaptor.forClass(LocalDate.class);
             verify(repository, atLeastOnce()).getPeriodAggregation(debuts.capture(), fins.capture());
             return IntStream.range(0, debuts.getAllValues().size())
-                .mapToObj(i -> List.of(debuts.getAllValues().get(i), fins.getAllValues().get(i)))
-                .toList();
+                    .mapToObj(i -> List.of(
+                            debuts.getAllValues().get(i), fins.getAllValues().get(i)))
+                    .toList();
         }
 
         @Test
         @DisplayName("l'écart avec la période précédente se lit en pourcentage, arrondi au centième")
         void ecartEnPourcentage() {
             LocalDate aujourdHui = LocalDate.now();
-            when(repository.getPeriodAggregation(aujourdHui, aujourdHui)).thenReturn(periode(1_200_000L, 40, "30000", "35"));
+            when(repository.getPeriodAggregation(aujourdHui, aujourdHui))
+                    .thenReturn(periode(1_200_000L, 40, "30000", "35"));
             when(repository.getPeriodAggregation(aujourdHui.minusDays(1), aujourdHui.minusDays(1)))
-                .thenReturn(periode(900_000L, 30, "30000", "34"));
+                    .thenReturn(periode(900_000L, 30, "30000", "34"));
 
             DashboardCASummaryDTO resume = service.getOverallSummary();
 
@@ -188,7 +189,7 @@ class DashboardCAServiceImplTest {
             LocalDate aujourdHui = LocalDate.now();
             when(repository.getPeriodAggregation(aujourdHui, aujourdHui)).thenReturn(periode(750_000L, 20, "0", "0"));
             when(repository.getPeriodAggregation(aujourdHui.minusDays(1), aujourdHui.minusDays(1)))
-                .thenReturn(periode(1_000_000L, 30, "0", "0"));
+                    .thenReturn(periode(1_000_000L, 30, "0", "0"));
 
             assertThat(service.getOverallSummary().caTodayEvolutionPct()).isEqualByComparingTo("-25.00");
         }
@@ -207,7 +208,8 @@ class DashboardCAServiceImplTest {
         @DisplayName("les compteurs et taux de chaque période sont repris")
         void compteursEtTaux() {
             LocalDate aujourdHui = LocalDate.now();
-            when(repository.getPeriodAggregation(aujourdHui, aujourdHui)).thenReturn(periode(1_000_000L, 42, "23809.52", "36.84"));
+            when(repository.getPeriodAggregation(aujourdHui, aujourdHui))
+                    .thenReturn(periode(1_000_000L, 42, "23809.52", "36.84"));
 
             DashboardCASummaryDTO resume = service.getOverallSummary();
 
@@ -219,7 +221,7 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("une colonne non renseignée vaut zéro")
         void colonneAbsente() {
-            when(repository.getPeriodAggregation(any(), any())).thenReturn(new Object[] { null, null, null, null });
+            when(repository.getPeriodAggregation(any(), any())).thenReturn(new Object[] {null, null, null, null});
 
             DashboardCASummaryDTO resume = service.getOverallSummary();
 
@@ -252,10 +254,9 @@ class DashboardCAServiceImplTest {
         @DisplayName("au mois, les journées d'un même mois se cumulent")
         void auMois() {
             donneJournees(
-                jour(LocalDate.of(2026, 3, 1), 3, 100_000L),
-                jour(LocalDate.of(2026, 3, 15), 4, 150_000L),
-                jour(LocalDate.of(2026, 4, 2), 5, 200_000L)
-            );
+                    jour(LocalDate.of(2026, 3, 1), 3, 100_000L),
+                    jour(LocalDate.of(2026, 3, 15), 4, 150_000L),
+                    jour(LocalDate.of(2026, 4, 2), 5, 200_000L));
 
             DashboardCAEvolutionDTO evolution = service.getEvolutionData("monthly", DEBUT, FIN);
 
@@ -269,10 +270,9 @@ class DashboardCAServiceImplTest {
         void aLaSemaine() {
             // Lundi 9 et mercredi 11 mars 2026 : même semaine ISO.
             donneJournees(
-                jour(LocalDate.of(2026, 3, 9), 3, 100_000L),
-                jour(LocalDate.of(2026, 3, 11), 4, 150_000L),
-                jour(LocalDate.of(2026, 3, 16), 5, 200_000L)
-            );
+                    jour(LocalDate.of(2026, 3, 9), 3, 100_000L),
+                    jour(LocalDate.of(2026, 3, 11), 4, 150_000L),
+                    jour(LocalDate.of(2026, 3, 16), 5, 200_000L));
 
             DashboardCAEvolutionDTO evolution = service.getEvolutionData("weekly", DEBUT, FIN);
 
@@ -291,10 +291,9 @@ class DashboardCAServiceImplTest {
         @DisplayName("une semaine à cheval sur deux années reste une seule semaine")
         void semaineACheval() {
             donneJournees(
-                jour(LocalDate.of(2026, 12, 31), 2, 50_000L),
-                jour(LocalDate.of(2027, 1, 1), 3, 80_000L),
-                jour(LocalDate.of(2027, 1, 4), 4, 90_000L)
-            );
+                    jour(LocalDate.of(2026, 12, 31), 2, 50_000L),
+                    jour(LocalDate.of(2027, 1, 1), 3, 80_000L),
+                    jour(LocalDate.of(2027, 1, 4), 4, 90_000L));
 
             DashboardCAEvolutionDTO evolution = service.getEvolutionData("weekly", DEBUT, FIN);
 
@@ -306,13 +305,12 @@ class DashboardCAServiceImplTest {
         @DisplayName("les libellés sont rendus dans l'ordre chronologique")
         void ordreChronologique() {
             donneJournees(
-                jour(LocalDate.of(2026, 4, 2), 1, 1L),
-                jour(LocalDate.of(2026, 1, 15), 1, 1L),
-                jour(LocalDate.of(2026, 2, 20), 1, 1L)
-            );
+                    jour(LocalDate.of(2026, 4, 2), 1, 1L),
+                    jour(LocalDate.of(2026, 1, 15), 1, 1L),
+                    jour(LocalDate.of(2026, 2, 20), 1, 1L));
 
             assertThat(service.getEvolutionData("monthly", DEBUT, FIN).labels())
-                .containsExactly("2026-01", "2026-02", "2026-04");
+                    .containsExactly("2026-01", "2026-02", "2026-04");
         }
 
         @Test
@@ -320,7 +318,8 @@ class DashboardCAServiceImplTest {
         void periodeInconnue() {
             donneJournees(jour(LocalDate.of(2026, 3, 1), 1, 1L));
 
-            assertThat(service.getEvolutionData("trimestre", DEBUT, FIN).period()).isEqualTo("daily");
+            assertThat(service.getEvolutionData("trimestre", DEBUT, FIN).period())
+                    .isEqualTo("daily");
         }
 
         private void donneJournees(Object[]... journees) {
@@ -337,20 +336,17 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("la répartition par mode de règlement est reprise ligne à ligne")
         void parModeDeReglement() {
-            when(repository.findPaymentMethodDistribution(DEBUT, FIN)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] {
-                        java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
-                        "Espèces",
-                        "CASH",
-                        30,
-                        750_000L,
-                        new BigDecimal("25000.00")
-                    }
-                )
-            );
+            when(repository.findPaymentMethodDistribution(DEBUT, FIN)).thenReturn(List.<Object[]>of(new Object[] {
+                java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
+                "Espèces",
+                "CASH",
+                30,
+                750_000L,
+                new BigDecimal("25000.00")
+            }));
 
-            PaymentMethodCADTO mode = service.getPaymentMethodDistribution(DEBUT, FIN).getFirst();
+            PaymentMethodCADTO mode =
+                    service.getPaymentMethodDistribution(DEBUT, FIN).getFirst();
 
             assertThat(mode.paymentDate()).isEqualTo(LocalDate.of(2026, 3, 15));
             assertThat(mode.paymentMethod()).isEqualTo("Espèces");
@@ -363,22 +359,19 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("la répartition par famille est reprise ligne à ligne")
         void parFamille() {
-            when(repository.findProductFamilyDistribution(DEBUT, FIN)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] {
-                        java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
-                        "ANTALGIQUES",
-                        120,
-                        800_000L,
-                        500_000L,
-                        300_000L,
-                        new BigDecimal("37.50"),
-                        45
-                    }
-                )
-            );
+            when(repository.findProductFamilyDistribution(DEBUT, FIN)).thenReturn(List.<Object[]>of(new Object[] {
+                java.sql.Date.valueOf(LocalDate.of(2026, 3, 15)),
+                "ANTALGIQUES",
+                120,
+                800_000L,
+                500_000L,
+                300_000L,
+                new BigDecimal("37.50"),
+                45
+            }));
 
-            ProductFamilyCADTO famille = service.getProductFamilyDistribution(DEBUT, FIN).getFirst();
+            ProductFamilyCADTO famille =
+                    service.getProductFamilyDistribution(DEBUT, FIN).getFirst();
 
             assertThat(famille.famille()).isEqualTo("ANTALGIQUES");
             assertThat(famille.quantiteVendue()).isEqualTo(120);
@@ -392,20 +385,16 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("le palmarès des produits est repris ligne à ligne")
         void palmaresDesProduits() {
-            when(repository.findTopProducts(DEBUT, FIN, 10)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] {
-                        java.sql.Date.valueOf(LocalDate.of(2026, 3, 1)),
-                        42,
-                        "DOLIPRANE",
-                        "CIP1",
-                        120L,
-                        340,
-                        3_400_000,
-                        new BigDecimal("10000.00")
-                    }
-                )
-            );
+            when(repository.findTopProducts(DEBUT, FIN, 10)).thenReturn(List.<Object[]>of(new Object[] {
+                java.sql.Date.valueOf(LocalDate.of(2026, 3, 1)),
+                42,
+                "DOLIPRANE",
+                "CIP1",
+                120L,
+                340,
+                3_400_000,
+                new BigDecimal("10000.00")
+            }));
 
             TopProductDTO produit = service.getTopProducts(DEBUT, FIN, null).getFirst();
 
@@ -507,7 +496,7 @@ class DashboardCAServiceImplTest {
         private void donnePaniers(String... paniers) {
             List<Object[]> rows = new java.util.ArrayList<>();
             for (int i = 0; i < paniers.length; i++) {
-                rows.add(new Object[] { 2026, i + 1, paniers[i] });
+                rows.add(new Object[] {2026, i + 1, paniers[i]});
             }
             when(repository.findBasketEvolutionMonthly()).thenReturn(rows);
         }
@@ -538,9 +527,8 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("la performance par vendeur est reprise ligne à ligne")
         void performanceParVendeur() {
-            when(repository.findSalesByStaff(DEBUT, FIN)).thenReturn(
-                List.<Object[]>of(new Object[] { 7L, "Awa Koné", 120, 3_000_000L, 25_000L, 2.5 })
-            );
+            when(repository.findSalesByStaff(DEBUT, FIN))
+                    .thenReturn(List.<Object[]>of(new Object[] {7L, "Awa Koné", 120, 3_000_000L, 25_000L, 2.5}));
 
             PerformanceVendeurDTO vendeur = service.getSalesByStaff(DEBUT, FIN).getFirst();
 
@@ -555,19 +543,18 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("un taux de remise non renseigné vaut zéro")
         void tauxDeRemiseAbsent() {
-            when(repository.findSalesByStaff(DEBUT, FIN)).thenReturn(
-                List.<Object[]>of(new Object[] { 7L, "Awa Koné", 1, 1L, 1L, null })
-            );
+            when(repository.findSalesByStaff(DEBUT, FIN))
+                    .thenReturn(List.<Object[]>of(new Object[] {7L, "Awa Koné", 1, 1L, 1L, null}));
 
-            assertThat(service.getSalesByStaff(DEBUT, FIN).getFirst().tauxRemise()).isZero();
+            assertThat(service.getSalesByStaff(DEBUT, FIN).getFirst().tauxRemise())
+                    .isZero();
         }
 
         @Test
         @DisplayName("la substitution générique rend ses compteurs et ses taux dérivés")
         void substitutionGenerique() {
-            when(repository.findGenericsSubstitutionStats(DEBUT, FIN)).thenReturn(
-                new Object[] { 1_000L, 400L, 250L, 10_000_000L, 3_000_000L, 2_000_000L }
-            );
+            when(repository.findGenericsSubstitutionStats(DEBUT, FIN))
+                    .thenReturn(new Object[] {1_000L, 400L, 250L, 10_000_000L, 3_000_000L, 2_000_000L});
 
             GenericsSubstitutionDTO generiques = service.getGenericsSubstitution(DEBUT, FIN);
 
@@ -581,9 +568,8 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("une officine sans produit ne divise pas par zéro")
         void aucunProduit() {
-            when(repository.findGenericsSubstitutionStats(DEBUT, FIN)).thenReturn(
-                new Object[] { 0L, 0L, 0L, 0L, 0L, 0L }
-            );
+            when(repository.findGenericsSubstitutionStats(DEBUT, FIN))
+                    .thenReturn(new Object[] {0L, 0L, 0L, 0L, 0L, 0L});
 
             GenericsSubstitutionDTO generiques = service.getGenericsSubstitution(DEBUT, FIN);
 
@@ -594,9 +580,7 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("les remises rendent leur montant, leur taux et leur portée")
         void remises() {
-            when(repository.findRemisesKpi(DEBUT, FIN)).thenReturn(
-                new Object[] { 500_000L, 9_500_000L, 5.0, 120, 800 }
-            );
+            when(repository.findRemisesKpi(DEBUT, FIN)).thenReturn(new Object[] {500_000L, 9_500_000L, 5.0, 120, 800});
 
             RemisesAnalysisKpiDTO remises = service.getRemisesKpi(DEBUT, FIN);
 
@@ -610,11 +594,11 @@ class DashboardCAServiceImplTest {
         @Test
         @DisplayName("les produits les plus remisés sont repris avec leur montant")
         void produitsRemises() {
-            when(repository.findRemisesTopProducts(DEBUT, FIN, 5)).thenReturn(
-                List.<Object[]>of(new Object[] { "DOLIPRANE", 120_000L, 45 })
-            );
+            when(repository.findRemisesTopProducts(DEBUT, FIN, 5))
+                    .thenReturn(List.<Object[]>of(new Object[] {"DOLIPRANE", 120_000L, 45}));
 
-            TopRemiseProduitDTO produit = service.getRemisesTopProducts(DEBUT, FIN, 5).getFirst();
+            TopRemiseProduitDTO produit =
+                    service.getRemisesTopProducts(DEBUT, FIN, 5).getFirst();
 
             assertThat(produit.libelle()).isEqualTo("DOLIPRANE");
             assertThat(produit.montantRemise()).isEqualTo(120_000L);
@@ -625,7 +609,7 @@ class DashboardCAServiceImplTest {
     // ===== utilitaires =====
 
     private static Object[] periode(long ca, int nbTransactions, String panierMoyen, String tauxMarge) {
-        return new Object[] { ca, nbTransactions, new BigDecimal(panierMoyen), new BigDecimal(tauxMarge) };
+        return new Object[] {ca, nbTransactions, new BigDecimal(panierMoyen), new BigDecimal(tauxMarge)};
     }
 
     private static Object[] jour(LocalDate date, int nbTransactions, long caNet) {

@@ -1,6 +1,5 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
-
     <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-replay" title="Avoirs clients">
       <ng-container ngProjectAs="[toolbarFilters]">
         <app-select
@@ -13,22 +12,23 @@
         />
 
         <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [ngModel]="search()" (ngModelChange)="search.set($event)" class="form-control"
-                 placeholder="Référence, produit..." type="text" />
+          <input
+            (keyup.enter)="onSearch()"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            class="form-control"
+            placeholder="Référence, produit..."
+            type="text"
+          />
         </app-icon-field>
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                            [style]="{ 'max-width': '180px' }" id="avoir-fromDate"
-                            label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="avoir-fromDate" label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                            [style]="{ 'max-width': '180px' }" id="avoir-toDate"
-                            label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="avoir-toDate" label="Au" />
       </ng-container>
 
       <ng-container ngProjectAs="[toolbarActions]">
-        <app-button (clicked)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                    severity="info" />
+        <app-button (clicked)="onSearch()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
       </ng-container>
     </app-toolbar>
 
@@ -42,8 +42,7 @@
         <div class="summary-item">
           <i class="pi pi-wallet"></i>
           <span class="summary-label">Montant total :</span>
-          <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }}
-            <span appDevise></span></span>
+          <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }} <span appDevise></span></span>
         </div>
       </div>
 
@@ -93,7 +92,9 @@
 
         <ng-template #body let-doc>
           <tr [class.row-expiring]="doc.procheExpiration">
-            <td><span class="pharma-code">{{ doc.reference }}</span></td>
+            <td>
+              <span class="pharma-code">{{ doc.reference }}</span>
+            </td>
             <td>{{ doc.createdAt | date: 'dd/MM/yyyy' }}</td>
             @if (statut() !== 'OUVERT') {
               <td>{{ doc.clotureLe | date: 'dd/MM/yyyy' }}</td>
@@ -101,13 +102,11 @@
             @if (statut() === 'OUVERT' || statut() === null) {
               <td>
                 @if (doc.dateExpiration) {
-                  <span [class.fw-semibold]="doc.procheExpiration"
-                        [class.text-danger]="doc.procheExpiration">
+                  <span [class.fw-semibold]="doc.procheExpiration" [class.text-danger]="doc.procheExpiration">
                     {{ doc.dateExpiration | date: 'dd/MM/yyyy' }}
                   </span>
                   @if (doc.procheExpiration) {
-                    <span class="badge bg-warning text-white ms-1"
-                          style="font-size:.7rem">Bientôt</span>
+                    <span class="badge bg-warning text-white ms-1" style="font-size: 0.7rem">Bientôt</span>
                   }
                 } @else {
                   <span class="text-muted">—</span>
@@ -115,13 +114,15 @@
               </td>
             }
             <td class="pharma-product-name">{{ doc.produitLibelle }}</td>
-            <td><span class="pharma-code">{{ doc.codeCip }}</span></td>
+            <td>
+              <span class="pharma-code">{{ doc.codeCip }}</span>
+            </td>
             <td class="text-right pharma-qty-value avoir-qty">{{ doc.quantite | number }}</td>
             <td class="text-right pharma-price">{{ doc.montant | number: '1.0-0' }}</td>
             @if (statut() === 'OUVERT' || statut() === null) {
               <td class="text-right pharma-price fw-semibold text-success">
                 @if (doc.statut === 'OUVERT') {
-                  {{ (doc.montantRestant ?? doc.montant) | number: '1.0-0' }}
+                  {{ doc.montantRestant ?? doc.montant | number: '1.0-0' }}
                 } @else {
                   —
                 }
@@ -173,7 +174,7 @@
 
         <ng-template #emptymessage>
           <tr>
-            <td [attr.colspan]="16" style="text-align:center;padding:2rem;color:#888">
+            <td [attr.colspan]="16" style="text-align: center; padding: 2rem; color: #888">
               @if (statut() === 'OUVERT') {
                 Aucun avoir en attente de clôture
               } @else if (statut() === 'CLOTURE') {
@@ -188,6 +189,5 @@
         </ng-template>
       </app-data-table>
     </app-card>
-
   </div>
 </div>

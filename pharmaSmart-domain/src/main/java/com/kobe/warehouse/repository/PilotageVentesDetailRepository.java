@@ -18,8 +18,7 @@ import org.springframework.data.repository.Repository;
  * comme l'agrégat des lignes.
  */
 public interface PilotageVentesDetailRepository extends Repository<Sales, SaleId> {
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.VenteMargeDTO(
             s.id, s.saleDate, s.numberTransaction, concat(u.firstName, ' ', u.lastName),
             sum(l.salesAmount * 100.0 / (100 + coalesce(l.taxValue, 0))),
@@ -35,13 +34,12 @@ public interface PilotageVentesDetailRepository extends Repository<Sales, SaleId
         GROUP BY s.id, s.saleDate, s.numberTransaction, u.firstName, u.lastName
         HAVING sum(l.salesAmount * 100.0 / (100 + coalesce(l.taxValue, 0))) < sum(coalesce(l.costAmount, 0) * l.quantityRequested * 100.0 / (100 + coalesce(l.taxValue, 0)))
         ORDER BY sum(l.salesAmount * 100.0 / (100 + coalesce(l.taxValue, 0))) - sum(coalesce(l.costAmount, 0) * l.quantityRequested * 100.0 / (100 + coalesce(l.taxValue, 0)))
-        """
-    )
-    List<VenteMargeDTO> listerVentesAMargeNegative(LocalDate du, LocalDate au, SalesStatut statut, Set<CategorieChiffreAffaire> categories, Pageable page);
+        """)
+    List<VenteMargeDTO> listerVentesAMargeNegative(
+            LocalDate du, LocalDate au, SalesStatut statut, Set<CategorieChiffreAffaire> categories, Pageable page);
 
     /** @param privilege le privilège dont la clé de sécurité autorise une remise ({@code PR_AJOUTER_REMISE_VENTE}) */
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.VenteRemiseeDTO(
             s.id, s.saleDate, s.numberTransaction, concat(u.firstName, ' ', u.lastName), cast(s.salesAmount AS long), cast(s.discountAmount AS long),
             s.discountAmount * 100.0 / s.salesAmount,
@@ -57,14 +55,12 @@ public interface PilotageVentesDetailRepository extends Repository<Sales, SaleId
           AND s.discountAmount > 0
           AND s.salesAmount > 0
         ORDER BY s.discountAmount DESC
-        """
-    )
+        """)
     List<VenteRemiseeDTO> listerPlusFortesRemises(
-        LocalDate du,
-        LocalDate au,
-        SalesStatut statut,
-        Set<CategorieChiffreAffaire> categories,
-        String privilege,
-        Pageable page
-    );
+            LocalDate du,
+            LocalDate au,
+            SalesStatut statut,
+            Set<CategorieChiffreAffaire> categories,
+            String privilege,
+            Pageable page);
 }

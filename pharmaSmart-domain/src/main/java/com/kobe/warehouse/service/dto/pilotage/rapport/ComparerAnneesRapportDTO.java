@@ -7,14 +7,13 @@ package com.kobe.warehouse.service.dto.pilotage.rapport;
  * @param reglage le réglage de l'écran, dit en clair (indicateur, nombre d'années, lecture des mois, filtre)
  */
 public record ComparerAnneesRapportDTO(
-    String reglage,
-    String lecture,
-    String titreCourbes,
-    String courbes,
-    String trimestres,
-    String saisonnalite,
-    TableauRapportDTO moisAnnees,
-    TableauRapportDTO synthese,
-    TableauRapportDTO familles,
-    TableauRapportDTO natures
-) {}
+        String reglage,
+        String lecture,
+        String titreCourbes,
+        String courbes,
+        String trimestres,
+        String saisonnalite,
+        TableauRapportDTO moisAnnees,
+        TableauRapportDTO synthese,
+        TableauRapportDTO familles,
+        TableauRapportDTO natures) {}

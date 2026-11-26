@@ -2,7 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
-import { IComparativeByFamily, IComparativeByFournisseur, IComparativeCA, IComparativeByType, IComparativeSummary } from 'app/shared/model/report/comparative-report.model';
+import {
+  IComparativeByFamily,
+  IComparativeByFournisseur,
+  IComparativeCA,
+  IComparativeByType,
+  IComparativeSummary,
+} from 'app/shared/model/report/comparative-report.model';
 
 type ComparativeCAResponseType = HttpResponse<IComparativeCA[]>;
 type ComparativeByTypeResponseType = HttpResponse<IComparativeByType[]>;

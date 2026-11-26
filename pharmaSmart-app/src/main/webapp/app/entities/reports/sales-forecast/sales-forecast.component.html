@@ -1,7 +1,6 @@
 <div class="pharma-smart-content p-1">
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Prévisions de Ventes">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <!-- Signal : [ngModel] + (ngModelChange) au lieu de [(ngModel)] -->
@@ -34,15 +33,15 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <app-button
-          (clicked)="toggleHelpDrawer()" [outlined]="true"
+          (clicked)="toggleHelpDrawer()"
+          [outlined]="true"
           class="mr-1"
           icon="pi pi-question-circle"
           label="Aide"
           severity="secondary"
           size="small"
         />
-        <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Actualiser"
-                    severity="info" size="small" />
+        <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Actualiser" severity="info" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -74,21 +73,16 @@
                   ></i>
                   <div>
                     @if (sum.dataQuality === 'INSUFFICIENT') {
-                      <strong class="text-danger">Données insuffisantes ({{ sum.dataPointsUsed }}
-                        mois)</strong>
+                      <strong class="text-danger">Données insuffisantes ({{ sum.dataPointsUsed }} mois)</strong>
                       <p class="m-0 text-sm text-muted">
-                        Les prévisions et indicateurs statistiques ne sont pas fiables avec moins de
-                        4 mois d'historique.
-                        Les résultats affichés sont indicatifs uniquement. La fiabilité s'améliorera
-                        automatiquement au fur et à mesure
-                        de l'accumulation des données.
+                        Les prévisions et indicateurs statistiques ne sont pas fiables avec moins de 4 mois d'historique. Les résultats
+                        affichés sont indicatifs uniquement. La fiabilité s'améliorera automatiquement au fur et à mesure de l'accumulation
+                        des données.
                       </p>
                     } @else {
-                      <strong class="text-warning">Données limitées ({{ sum.dataPointsUsed }}
-                        mois)</strong>
+                      <strong class="text-warning">Données limitées ({{ sum.dataPointsUsed }} mois)</strong>
                       <p class="m-0 text-sm text-muted">
-                        La fiabilité des prévisions est limitée. Un historique de 12 mois minimum
-                        est recommandé.
+                        La fiabilité des prévisions est limitée. Un historique de 12 mois minimum est recommandé.
                       </p>
                     }
                   </div>
@@ -100,48 +94,70 @@
       }
 
       <app-kpi-strip stripClass="mt-2 mb-2">
-        <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.totalForecastedCA3M)" icon="pi pi-calendar"
-                      iconClass="text-primary" label="Prévision 3 Mois"
-                      info="Projection des trois prochains mois par régression linéaire sur les vingt-quatre derniers. Le taux de croissance mensuel n'est affiché qu'à partir de quatre mois d'historique : en deçà, il serait calculable mais trompeur."
-                      valueClass="text-primary">
+        <app-kpi-item
+          [accent]="'primary'"
+          [value]="formatCurrency(sum.totalForecastedCA3M)"
+          icon="pi pi-calendar"
+          iconClass="text-primary"
+          label="Prévision 3 Mois"
+          info="Projection des trois prochains mois par régression linéaire sur les vingt-quatre derniers. Le taux de croissance mensuel n'est affiché qu'à partir de quatre mois d'historique : en deçà, il serait calculable mais trompeur."
+          valueClass="text-primary"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]">@if (sum.averageMonthlyGrowthPct != null) {
-            {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
-          } @else {
-            Tendance non calculable
-          }</ng-container>
-        </app-kpi-item>
-        <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.totalForecastedCA6M)" icon="pi pi-chart-bar"
-                      iconClass="text-success" label="Prévision 6 Mois"
-                      info="Même modèle prolongé à six mois. Une tendance linéaire ignore la saisonnalité : plus l'horizon s'éloigne, plus la projection est fragile."
-                      valueClass="text-success">
-          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]">{{
-              getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION')
-            }}
+          <ng-container ngProjectAs="[kpiSub]">
+            @if (sum.averageMonthlyGrowthPct != null) {
+              {{ formatPercent(sum.averageMonthlyGrowthPct) }}%/mois
+            } @else {
+              Tendance non calculable
+            }
           </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'warning'" [value]="formatCurrency(sum.totalForecastedCA12M)" icon="pi pi-chart-line"
-                      iconClass="text-warning" label="Prévision 12 Mois"
-                      info="Projection à un an. La croissance annoncée est la croissance mensuelle moyenne composée sur douze mois, non une simple multiplication."
-                      valueClass="text-warning">
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="formatCurrency(sum.totalForecastedCA6M)"
+          icon="pi pi-chart-bar"
+          iconClass="text-success"
+          label="Prévision 6 Mois"
+          info="Même modèle prolongé à six mois. Une tendance linéaire ignore la saisonnalité : plus l'horizon s'éloigne, plus la projection est fragile."
+          valueClass="text-success"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]">@if (sum.predictedYearlyGrowthPct != null) {
-            Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
-          } @else {
-            Croissance non calculable
-          }</ng-container>
+          <ng-container ngProjectAs="[kpiSub]">{{ getMethodLabel(sum.forecastMethod || 'LINEAR_REGRESSION') }} </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'danger'" icon="pi pi-check-circle" iconClass="text-danger"
-                      label="Précision du Modèle" valueClass="text-danger"
-                      info="Le modèle est réentraîné sur le début de l'historique, puis confronté aux derniers mois réels — six si l'historique atteint deux ans, la moitié sinon. La précision est le complément de l'écart moyen constaté sur ces mois.">
-          <ng-container ngProjectAs="[kpiValue]">@if (sum.modelAccuracyPct != null) {
-            {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
-          } @else {
-            <span style="font-size: 0.9rem">Non calculable</span>
-          }</ng-container>
-          <ng-container ngProjectAs="[kpiSub]">{{ sum.dataPointsUsed }} mois de données
+        <app-kpi-item
+          [accent]="'warning'"
+          [value]="formatCurrency(sum.totalForecastedCA12M)"
+          icon="pi pi-chart-line"
+          iconClass="text-warning"
+          label="Prévision 12 Mois"
+          info="Projection à un an. La croissance annoncée est la croissance mensuelle moyenne composée sur douze mois, non une simple multiplication."
+          valueClass="text-warning"
+        >
+          <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+          <ng-container ngProjectAs="[kpiSub]">
+            @if (sum.predictedYearlyGrowthPct != null) {
+              Croissance : {{ formatPercent(sum.predictedYearlyGrowthPct) }}%/an
+            } @else {
+              Croissance non calculable
+            }
           </ng-container>
+        </app-kpi-item>
+        <app-kpi-item
+          [accent]="'danger'"
+          icon="pi pi-check-circle"
+          iconClass="text-danger"
+          label="Précision du Modèle"
+          valueClass="text-danger"
+          info="Le modèle est réentraîné sur le début de l'historique, puis confronté aux derniers mois réels — six si l'historique atteint deux ans, la moitié sinon. La précision est le complément de l'écart moyen constaté sur ces mois."
+        >
+          <ng-container ngProjectAs="[kpiValue]">
+            @if (sum.modelAccuracyPct != null) {
+              {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
+            } @else {
+              <span style="font-size: 0.9rem">Non calculable</span>
+            }
+          </ng-container>
+          <ng-container ngProjectAs="[kpiSub]">{{ sum.dataPointsUsed }} mois de données </ng-container>
         </app-kpi-item>
       </app-kpi-strip>
 
@@ -178,9 +194,8 @@
                 <div class="d-flex align-items-center gap-2">
                   <i class="pi pi-exclamation-triangle text-danger"></i>
                   <p class="m-0 text-sm text-muted">
-                    <strong class="text-danger">Fiabilité réduite</strong> — Au-delà de 6 mois, le
-                    niveau de confiance des prévisions
-                    est dégradé automatiquement. Utilisez ces valeurs à titre indicatif uniquement.
+                    <strong class="text-danger">Fiabilité réduite</strong> — Au-delà de 6 mois, le niveau de confiance des prévisions est
+                    dégradé automatiquement. Utilisez ces valeurs à titre indicatif uniquement.
                   </p>
                 </div>
               </div>
@@ -240,49 +255,42 @@
             } @else {
               <table>
                 <thead class="pharma-table-head">
-                <tr>
-                  <th>Période</th>
-                  <th class="text-end">CA Prévu (<span appDevise></span>)</th>
-                  <th class="text-end">Limite Basse (<span appDevise></span>)</th>
-                  <th class="text-end">Limite Haute (<span appDevise></span>)</th>
-                  <th class="text-center">Confiance</th>
-                  <th>Méthode</th>
-                </tr>
+                  <tr>
+                    <th>Période</th>
+                    <th class="text-end">CA Prévu (<span appDevise></span>)</th>
+                    <th class="text-end">Limite Basse (<span appDevise></span>)</th>
+                    <th class="text-end">Limite Haute (<span appDevise></span>)</th>
+                    <th class="text-center">Confiance</th>
+                    <th>Méthode</th>
+                  </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (forecast of forecasts(); track forecast.forecastPeriod) {
                     <tr>
                       <td class="fw-medium">{{ formatMonth(forecast.forecastPeriod || '') }}</td>
                       <td class="text-end">{{ formatCurrency(forecast.forecastedCA || 0) }}</td>
-                      <td class="text-end text-muted">{{
-                          formatCurrency(forecast.lowerBound || 0)
-                        }}
-                      </td>
-                      <td class="text-end text-muted">{{
-                          formatCurrency(forecast.upperBound || 0)
-                        }}
-                      </td>
+                      <td class="text-end text-muted">{{ formatCurrency(forecast.lowerBound || 0) }}</td>
+                      <td class="text-end text-muted">{{ formatCurrency(forecast.upperBound || 0) }}</td>
                       <td class="text-center">
                         {{ forecast.confidenceLevel }}
                         <!-- Sévérité contextuelle : confiance < 80 → warn, < 65 → danger -->
                         <app-badge
                           [label]="formatPercent(forecast.confidenceLevel || 0) + '%'"
-                          [severity]="(forecast.confidenceLevel || 0) >= 80 ? 'success' : (forecast.confidenceLevel || 0) >= 65 ? 'warn' : 'danger'"
+                          [severity]="
+                            (forecast.confidenceLevel || 0) >= 80 ? 'success' : (forecast.confidenceLevel || 0) >= 65 ? 'warn' : 'danger'
+                          "
                         />
                       </td>
-                      <td>{{
-                          getMethodLabel(forecast.forecastMethod || 'LINEAR_REGRESSION')
-                        }}
-                      </td>
+                      <td>{{ getMethodLabel(forecast.forecastMethod || 'LINEAR_REGRESSION') }}</td>
                     </tr>
                   }
                 </tbody>
                 <tfoot>
-                <tr>
-                  <td class="fw-bold">Total ({{ selectedPeriod() }} mois)</td>
-                  <td class="text-end fw-bold">{{ formatCurrency(getTotalForecastedCA()) }}</td>
-                  <td colspan="4"></td>
-                </tr>
+                  <tr>
+                    <td class="fw-bold">Total ({{ selectedPeriod() }} mois)</td>
+                    <td class="text-end fw-bold">{{ formatCurrency(getTotalForecastedCA()) }}</td>
+                    <td colspan="4"></td>
+                  </tr>
                 </tfoot>
               </table>
             }
@@ -302,13 +310,10 @@
     </div>
     <div class="p-3">
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la
-          prévision de ventes ?</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Qu'est-ce que la prévision de ventes ?</h6>
         <p class="text-sm text-muted">
-          La prévision de ventes utilise des <strong>modèles statistiques</strong> pour estimer le
-          chiffre d'affaires futur en se basant sur
-          l'historique des ventes. Cela permet d'<strong>anticiper les besoins</strong>, d'<strong>optimiser
-          les stocks</strong> et de
+          La prévision de ventes utilise des <strong>modèles statistiques</strong> pour estimer le chiffre d'affaires futur en se basant sur
+          l'historique des ventes. Cela permet d'<strong>anticiper les besoins</strong>, d'<strong>optimiser les stocks</strong> et de
           <strong>planifier la trésorerie</strong>.
         </p>
       </div>
@@ -316,55 +321,42 @@
       <hr />
 
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-line me-2"></i>Méthodes de
-          prévision disponibles</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-chart-line me-2"></i>Méthodes de prévision disponibles</h6>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
+        <div class="mb-3 p-3 rounded" style="background-color: #e3f2fd; border-left: 4px solid #2196f3">
           <p class="fw-bold mb-2">1. Régression Linéaire (par défaut)</p>
           <p class="text-sm mb-2">
-            <strong>Principe :</strong> Calcule une droite de tendance à partir des données
-            historiques<br />
+            <strong>Principe :</strong> Calcule une droite de tendance à partir des données historiques<br />
             <strong>Formule :</strong> y = ax + b (où x = temps, y = CA prévu)
           </p>
           <p class="text-sm mb-0">
-            <strong>Utilisez-la si :</strong> Vos ventes suivent une tendance stable (croissance ou
-            décroissance régulière)
+            <strong>Utilisez-la si :</strong> Vos ventes suivent une tendance stable (croissance ou décroissance régulière)
           </p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <p class="fw-bold mb-2">2. Moyenne Mobile (Rolling)</p>
           <p class="text-sm mb-2">
-            <strong>Principe :</strong> Fenêtre glissante sur les 6 derniers mois — intègre les
-            prévisions précédentes<br />
-            <strong>Formule :</strong> CA prévu = Moyenne des N derniers mois (mise à jour à chaque
-            étape)
+            <strong>Principe :</strong> Fenêtre glissante sur les 6 derniers mois — intègre les prévisions précédentes<br />
+            <strong>Formule :</strong> CA prévu = Moyenne des N derniers mois (mise à jour à chaque étape)
           </p>
-          <p class="text-sm mb-0"><strong>Utilisez-la si :</strong> Vos ventes sont relativement
-            stables sans tendance marquée</p>
+          <p class="text-sm mb-0"><strong>Utilisez-la si :</strong> Vos ventes sont relativement stables sans tendance marquée</p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #fff3e0; border-left: 4px solid #ff9800">
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <p class="fw-bold mb-2">3. Saisonnier (Recommandé si saisonnalité détectée)</p>
           <p class="text-sm mb-2">
             <strong>Principe :</strong> Moyenne historique par mois (janvier de n-1, n-2…)<br />
             <strong>Formule :</strong> CA prévu = Moyenne des CA du même mois les années précédentes
           </p>
-          <p class="text-sm mb-0">
-            <strong>Utilisez-la si :</strong> L'alerte "Saisonnalité détectée" s'affiche (η² &gt;
-            0.5)
-          </p>
+          <p class="text-sm mb-0"><strong>Utilisez-la si :</strong> L'alerte "Saisonnalité détectée" s'affiche (η² &gt; 0.5)</p>
         </div>
       </div>
 
       <hr />
 
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les
-          métriques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Précision du Modèle (MAPE)</p>
@@ -382,10 +374,8 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">MAE — Erreur Absolue Moyenne (<span appDevise></span>)</p>
           <p class="text-sm text-muted mb-2">
-            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour
-            un pharmacien : un
-            MAE de 500 000 <span appDevise></span> signifie que la
-            prévision se trompe en moyenne de 500 000 <span appDevise></span> par mois.
+            Écart moyen en <span appDevise></span> entre la prévision et le réel. Plus parlant pour un pharmacien : un MAE de 500 000
+            <span appDevise></span> signifie que la prévision se trompe en moyenne de 500 000 <span appDevise></span> par mois.
           </p>
         </div>
 
@@ -400,10 +390,8 @@
         <div class="mb-3">
           <p class="fw-semibold mb-1">Niveau de Confiance</p>
           <p class="text-sm text-muted mb-2">
-            <strong>95%</strong> pour les 6 premiers mois, <strong>réduit progressivement</strong>
-            au-delà (90%, 85%…).<br />
-            L'intervalle borne les valeurs avec 1,96 × erreur standard de régression (n-2 degrés de
-            liberté).
+            <strong>95%</strong> pour les 6 premiers mois, <strong>réduit progressivement</strong> au-delà (90%, 85%…).<br />
+            L'intervalle borne les valeurs avec 1,96 × erreur standard de régression (n-2 degrés de liberté).
           </p>
         </div>
       </div>
@@ -411,14 +399,12 @@
       <hr />
 
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calendar me-2"></i>Comprendre la
-          saisonnalité</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calendar me-2"></i>Comprendre la saisonnalité</h6>
         <div class="alert alert-warning">
           <strong><i class="pi pi-info-circle me-2"></i>Détection automatique (η²)</strong>
           <p class="text-sm mb-0 mt-2">
-            Le système calcule le ratio variance inter-mois / variance totale (η²). Si η² &gt; 0.5,
-            la variation mensuelle explique plus
-            de 50% de la variance totale → saisonnalité significative.
+            Le système calcule le ratio variance inter-mois / variance totale (η²). Si η² &gt; 0.5, la variation mensuelle explique plus de
+            50% de la variance totale → saisonnalité significative.
           </p>
           <ul class="text-sm mb-0 mt-2 ps-3">
             <li><strong>Mois pic :</strong> mois historiquement le plus fort</li>
@@ -430,30 +416,26 @@
       <hr />
 
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter
-          ces prévisions</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter ces prévisions</h6>
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Planification des stocks (prévision 3M)</p>
-            <p class="text-xs text-muted mb-0">Anticipez les besoins en produits. Augmentez les
-              stocks avant les mois de forte demande.</p>
+            <p class="text-xs text-muted mb-0">Anticipez les besoins en produits. Augmentez les stocks avant les mois de forte demande.</p>
           </div>
         </div>
 
         <div class="card mb-2" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Gestion de la trésorerie (prévision 6M)</p>
-            <p class="text-xs text-muted mb-0">Anticipez les besoins de financement et planifiez les
-              investissements.</p>
+            <p class="text-xs text-muted mb-0">Anticipez les besoins de financement et planifiez les investissements.</p>
           </div>
         </div>
 
         <div class="card mb-2" style="border-left: 3px solid #ff9800">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Négociation fournisseurs</p>
-            <p class="text-xs text-muted mb-0">Si forte croissance prévue, négociez des
-              contrats-cadres ou des remises sur volumes.</p>
+            <p class="text-xs text-muted mb-0">Si forte croissance prévue, négociez des contrats-cadres ou des remises sur volumes.</p>
           </div>
         </div>
 
@@ -461,8 +443,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Détection d'anomalies</p>
             <p class="text-xs text-muted mb-0">
-              Si le CA réel s'écarte de l'intervalle de confiance → analysez les causes :
-              concurrence, rupture de stock, etc.
+              Si le CA réel s'écarte de l'intervalle de confiance → analysez les causes : concurrence, rupture de stock, etc.
             </p>
           </div>
         </div>
@@ -471,8 +452,7 @@
       <hr />
 
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Conseils
-          d'utilisation</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Conseils d'utilisation</h6>
         <ul class="text-sm text-muted ps-3">
           <li>Comparez les 3 méthodes — choisissez celle avec la meilleure précision</li>
           <li>Horizon recommandé : <strong>3 mois</strong> (fiabilité maximale)</li>

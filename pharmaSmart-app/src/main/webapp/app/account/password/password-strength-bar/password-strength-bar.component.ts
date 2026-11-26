@@ -1,4 +1,4 @@
-import {Component, effect, ElementRef, inject, input, Renderer2, ChangeDetectionStrategy} from '@angular/core';
+import { Component, effect, ElementRef, inject, input, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'jhi-password-strength-bar',
@@ -74,6 +74,6 @@ export default class PasswordStrengthBarComponent {
         idx = 4;
       }
     }
-    return {idx: idx + 1, color: this.colors[idx]};
+    return { idx: idx + 1, color: this.colors[idx] };
   }
 }

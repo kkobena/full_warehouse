@@ -19,15 +19,39 @@ public class LigneRetour {
     @XmlAttribute(name = "Motif_Retour")
     private String motifRetour;
 
-    public String getCodeProduit() { return codeProduit; }
-    public LigneRetour setCodeProduit(String codeProduit) { this.codeProduit = codeProduit; return this; }
+    public String getCodeProduit() {
+        return codeProduit;
+    }
 
-    public String getTypeCodification() { return typeCodification; }
-    public LigneRetour setTypeCodification(String typeCodification) { this.typeCodification = typeCodification; return this; }
+    public LigneRetour setCodeProduit(String codeProduit) {
+        this.codeProduit = codeProduit;
+        return this;
+    }
 
-    public int getQuantite() { return quantite; }
-    public LigneRetour setQuantite(int quantite) { this.quantite = quantite; return this; }
+    public String getTypeCodification() {
+        return typeCodification;
+    }
 
-    public String getMotifRetour() { return motifRetour; }
-    public LigneRetour setMotifRetour(String motifRetour) { this.motifRetour = motifRetour; return this; }
+    public LigneRetour setTypeCodification(String typeCodification) {
+        this.typeCodification = typeCodification;
+        return this;
+    }
+
+    public int getQuantite() {
+        return quantite;
+    }
+
+    public LigneRetour setQuantite(int quantite) {
+        this.quantite = quantite;
+        return this;
+    }
+
+    public String getMotifRetour() {
+        return motifRetour;
+    }
+
+    public LigneRetour setMotifRetour(String motifRetour) {
+        this.motifRetour = motifRetour;
+        return this;
+    }
 }

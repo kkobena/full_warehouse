@@ -5,8 +5,4 @@ import java.util.List;
 /**
  * Résultat de disponibilité pour un grossiste donné.
  */
-public record DispoGrossisteResultDTO(
-    Integer grossisteId,
-    String fournisseurLibelle,
-    List<InfoProduitDTO> produits
-) {}
+public record DispoGrossisteResultDTO(Integer grossisteId, String fournisseurLibelle, List<InfoProduitDTO> produits) {}

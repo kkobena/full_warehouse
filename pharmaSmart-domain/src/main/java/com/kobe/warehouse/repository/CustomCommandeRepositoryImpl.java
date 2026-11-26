@@ -4,11 +4,7 @@ import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Commande_;
-import com.kobe.warehouse.domain.Customer_;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
-import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -39,15 +35,12 @@ public class CustomCommandeRepositoryImpl implements CustomCommandeRepository {
             CriteriaQuery<AchatRecord> query = cb.createQuery(AchatRecord.class);
             Root<Commande> root = query.from(Commande.class);
 
-            query.select(
-                cb.construct(
+            query.select(cb.construct(
                     AchatRecord.class,
                     cb.sumAsLong(root.get(Commande_.htAmount)),
                     cb.sumAsLong(root.get(Commande_.discountAmount)),
                     cb.sumAsLong(root.get(Commande_.taxAmount)),
-                    cb.count(root.get(Commande_.id))
-                )
-            );
+                    cb.count(root.get(Commande_.id))));
 
             if (nonNull(specification)) {
                 Predicate predicate = specification.toPredicate(root, query, cb);

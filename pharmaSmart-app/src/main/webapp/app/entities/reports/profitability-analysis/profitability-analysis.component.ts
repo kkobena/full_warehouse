@@ -1,11 +1,11 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { IMargeDTO, IMargeSummary } from "app/shared/model/report";
-import { MargeReportService } from "../services/marge-report.service";
-import { FamilleProduitService } from "../../famille-produit/famille-produit.service";
+import { IMargeDTO, IMargeSummary } from 'app/shared/model/report';
+import { MargeReportService } from '../services/marge-report.service';
+import { FamilleProduitService } from '../../famille-produit/famille-produit.service';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -15,13 +15,13 @@ import {
   KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 @Component({
-  selector: "app-profitability-analysis",
-  templateUrl: "./profitability-analysis.component.html",
-  styleUrls: ["./profitability-analysis.component.scss"],
+  selector: 'app-profitability-analysis',
+  templateUrl: './profitability-analysis.component.html',
+  styleUrls: ['./profitability-analysis.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -34,8 +34,8 @@ import {
     SelectComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
-  ]
+    KpiItemComponent,
+  ],
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
   /**
@@ -54,7 +54,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   // Filtres
   protected selectedFamilleId = signal<number | null>(null);
-  protected searchQuery = signal<string>("");
+  protected searchQuery = signal<string>('');
   protected showFaibleMarge = signal<boolean>(false);
   protected seuilFaibleMarge = 10;
 
@@ -62,10 +62,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected readonly pageSize = signal(20);
   protected readonly first = signal(0);
 
-
-  protected familleOptions = signal<{ label: string; value: number | null }[]>([
-    { label: "Toutes les familles", value: null }
-  ]);
+  protected familleOptions = signal<{ label: string; value: number | null }[]>([{ label: 'Toutes les familles', value: null }]);
 
   private readonly margeService = inject(MargeReportService);
   private readonly familleProduitService = inject(FamilleProduitService);
@@ -83,7 +80,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
       page,
       size: this.pageSize(),
       familleProduitId: this.selectedFamilleId() ?? undefined,
-      search: this.searchQuery() || undefined
+      search: this.searchQuery() || undefined,
     };
 
     const obs = this.showFaibleMarge()
@@ -93,10 +90,10 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     obs.subscribe({
       next: (res: HttpResponse<IMargeDTO[]>) => {
         this.products.set(res.body ?? []);
-        this.totalRecords.set(Number(res.headers.get("X-Total-Count") ?? 0));
+        this.totalRecords.set(Number(res.headers.get('X-Total-Count') ?? 0));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
@@ -105,10 +102,10 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
       .getMargeSummary({
         familleProduitId: this.selectedFamilleId() ?? undefined,
         seuilBas: this.seuilFaibleMarge,
-        seuilHaut: 20
+        seuilHaut: 20,
       })
       .subscribe({
-        next: (res: HttpResponse<IMargeSummary>) => this.summary.set(res.body ?? null)
+        next: (res: HttpResponse<IMargeSummary>) => this.summary.set(res.body ?? null),
       });
   }
 
@@ -128,7 +125,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
   protected onClearFilters(): void {
     this.selectedFamilleId.set(null);
-    this.searchQuery.set("");
+    this.searchQuery.set('');
     this.showFaibleMarge.set(false);
     this.first.set(0);
     this.loadProducts(0);
@@ -138,7 +135,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
   protected showLowMarginProducts(): void {
     this.showFaibleMarge.set(true);
     this.selectedFamilleId.set(null);
-    this.searchQuery.set("");
+    this.searchQuery.set('');
     this.first.set(0);
     this.loadProducts(0);
   }
@@ -154,20 +151,20 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.loadProducts(0);
   }
 
-  protected getMarginSeverity(margin: number | undefined): "success" | "info" | "warn" | "danger" | "secondary" {
+  protected getMarginSeverity(margin: number | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     if (!margin && margin !== 0) {
-      return "secondary";
+      return 'secondary';
     }
     if (margin >= 30) {
-      return "success";
+      return 'success';
     }
     if (margin >= 20) {
-      return "info";
+      return 'info';
     }
     if (margin >= 10) {
-      return "warn";
+      return 'warn';
     }
-    return "danger";
+    return 'danger';
   }
 
   protected toggleHelpDrawer(): void {
@@ -178,8 +175,8 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.familleProduitService.query({ page: 0, size: 200 }).subscribe({
       next: res => {
         const opts = (res.body ?? []).map((f: any) => ({ label: f.libelle, value: f.id }));
-        this.familleOptions.set([{ label: "Toutes les familles", value: null }, ...opts]);
-      }
+        this.familleOptions.set([{ label: 'Toutes les familles', value: null }, ...opts]);
+      },
     });
   }
 }

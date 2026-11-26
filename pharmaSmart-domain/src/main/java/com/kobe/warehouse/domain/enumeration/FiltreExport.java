@@ -19,25 +19,35 @@ public enum FiltreExport {
     VENDEUR("Vendeur", SourceOptionsExport.UTILISATEUR, true, "vend.id IN :vendeurs", "vendeurs"),
     CAISSIER("Caissier", SourceOptionsExport.UTILISATEUR, true, "caiss.id IN :caissiers", "caissiers"),
     UTILISATEUR("Utilisateur", SourceOptionsExport.UTILISATEUR, true, "util.id IN :utilisateurs", "utilisateurs"),
-    MODE_PAIEMENT("Mode de paiement", SourceOptionsExport.MODE_PAIEMENT, true, "pm.code IN :modesPaiement", "modesPaiement"),
-    NATURE_VENTE("Type de vente", SourceOptionsExport.NATURE_VENTE, true, "{v}.natureVente IN :naturesVente", "naturesVente"),
+    MODE_PAIEMENT(
+            "Mode de paiement", SourceOptionsExport.MODE_PAIEMENT, true, "pm.code IN :modesPaiement", "modesPaiement"),
+    NATURE_VENTE(
+            "Type de vente",
+            SourceOptionsExport.NATURE_VENTE,
+            true,
+            "{v}.natureVente IN :naturesVente",
+            "naturesVente"),
     TYPE_PRESCRIPTION(
-        "Ordonnance / conseil",
-        SourceOptionsExport.TYPE_PRESCRIPTION,
-        true,
-        "{v}.typePrescription IN :typesPrescription",
-        "typesPrescription"
-    ),
+            "Ordonnance / conseil",
+            SourceOptionsExport.TYPE_PRESCRIPTION,
+            true,
+            "{v}.typePrescription IN :typesPrescription",
+            "typesPrescription"),
     TYPE_TRANSACTION(
-        "Type de transaction",
-        SourceOptionsExport.TYPE_TRANSACTION,
-        true,
-        "t.typeFinancialTransaction IN :typesTransaction",
-        "typesTransaction"
-    ),
-    TYPE_MOUVEMENT("Type de mouvement", SourceOptionsExport.TYPE_MOUVEMENT, true, "t.mouvementType IN :typesMouvement", "typesMouvement"),
+            "Type de transaction",
+            SourceOptionsExport.TYPE_TRANSACTION,
+            true,
+            "t.typeFinancialTransaction IN :typesTransaction",
+            "typesTransaction"),
+    TYPE_MOUVEMENT(
+            "Type de mouvement",
+            SourceOptionsExport.TYPE_MOUVEMENT,
+            true,
+            "t.mouvementType IN :typesMouvement",
+            "typesMouvement"),
     SEXE("Sexe", SourceOptionsExport.SEXE, true, "c.sexe IN :sexes", "sexes"),
-    STATUT_CLIENT("Statut du client", SourceOptionsExport.STATUT_CLIENT, true, "c.status IN :statutsClient", "statutsClient"),
+    STATUT_CLIENT(
+            "Statut du client", SourceOptionsExport.STATUT_CLIENT, true, "c.status IN :statutsClient", "statutsClient"),
 
     /** Réglages des éditions : honorés par le service qui bâtit l'édition, pas par une requête d'export. */
     SECTIONS_COMPTABLES("Feuilles", SourceOptionsExport.SECTIONS_COMPTABLES, true),

@@ -47,13 +47,12 @@ class DashboardDTOMapperTest {
         @DisplayName("compte séparément ruptures, alertes de seuil et péremptions")
         void compteChaqueTypeSeparement() {
             List<StockAlertDTO> alertes = List.of(
-                alerte(1, StockAlertType.RUPTURE),
-                alerte(2, StockAlertType.RUPTURE),
-                alerte(3, StockAlertType.ALERTE),
-                alerte(4, StockAlertType.PEREMPTION),
-                alerte(5, StockAlertType.PEREMPTION),
-                alerte(6, StockAlertType.PEREMPTION)
-            );
+                    alerte(1, StockAlertType.RUPTURE),
+                    alerte(2, StockAlertType.RUPTURE),
+                    alerte(3, StockAlertType.ALERTE),
+                    alerte(4, StockAlertType.PEREMPTION),
+                    alerte(5, StockAlertType.PEREMPTION),
+                    alerte(6, StockAlertType.PEREMPTION));
 
             StockAlertsDTO resultat = mapper.toStockAlertsDTO(alertes);
 
@@ -86,7 +85,14 @@ class DashboardDTOMapperTest {
         }
 
         private StockAlertDTO alerte(int produitId, StockAlertType type) {
-            return new StockAlertDTO(produitId, "PRODUIT " + produitId, "CIP" + produitId, 0, 5, LocalDate.now().plusMonths(1), type);
+            return new StockAlertDTO(
+                    produitId,
+                    "PRODUIT " + produitId,
+                    "CIP" + produitId,
+                    0,
+                    5,
+                    LocalDate.now().plusMonths(1),
+                    type);
         }
     }
 
@@ -100,8 +106,7 @@ class DashboardDTOMapperTest {
         @DisplayName("reporte produits, pourcentage et CA de chaque classe")
         void reporteLesTroisClasses() {
             AnalyseABCDTO resultat = mapper.toAnalyseABCDTO(
-                resume(BigDecimal.valueOf(78.5), BigDecimal.valueOf(16.2), BigDecimal.valueOf(5.3))
-            );
+                    resume(BigDecimal.valueOf(78.5), BigDecimal.valueOf(16.2), BigDecimal.valueOf(5.3)));
 
             assertThat(resultat.classeA().nombreProduits()).isEqualTo(10);
             assertThat(resultat.classeA().pourcentageProduits()).isEqualTo(78.5);
@@ -149,24 +154,23 @@ class DashboardDTOMapperTest {
 
         private ABCParetoSummaryDTO resume(BigDecimal pctA, BigDecimal pctB, BigDecimal pctC) {
             return new ABCParetoSummaryDTO(
-                100,
-                10_000_000L,
-                5,
-                4_000_000L,
-                BigDecimal.valueOf(40),
-                10,
-                8_000_000L,
-                pctA,
-                30,
-                1_500_000L,
-                pctB,
-                60,
-                500_000L,
-                pctC,
-                0,
-                0L,
-                BigDecimal.ZERO
-            );
+                    100,
+                    10_000_000L,
+                    5,
+                    4_000_000L,
+                    BigDecimal.valueOf(40),
+                    10,
+                    8_000_000L,
+                    pctA,
+                    30,
+                    1_500_000L,
+                    pctB,
+                    60,
+                    500_000L,
+                    pctC,
+                    0,
+                    0L,
+                    BigDecimal.ZERO);
         }
     }
 
@@ -180,8 +184,7 @@ class DashboardDTOMapperTest {
         @DisplayName("reporte identité, volume et délais du fournisseur")
         void reporteLesIndicateurs() {
             PerformanceFournisseurDTO resultat = mapper.toPerformanceFournisseurDTO(
-                fournisseur(7, 24, 3, BigDecimal.valueOf(95.5), BigDecimal.valueOf(88))
-            );
+                    fournisseur(7, 24, 3, BigDecimal.valueOf(95.5), BigDecimal.valueOf(88)));
 
             assertThat(resultat.fournisseurId()).isEqualTo(7L);
             assertThat(resultat.fournisseurName()).isEqualTo("LABOREX");
@@ -196,12 +199,12 @@ class DashboardDTOMapperTest {
          * se joue la différence entre trois et quatre étoiles affichées à l'acheteur.
          */
         @ParameterizedTest(name = "score {0} → {1} étoiles")
-        @CsvSource({ "100, 5", "90, 5", "89.99, 4", "75, 4", "74.99, 3", "60, 3", "59.99, 2", "40, 2", "39.99, 1", "0, 1" })
+        @CsvSource({"100, 5", "90, 5", "89.99, 4", "75, 4", "74.99, 3", "60, 3", "59.99, 2", "40, 2", "39.99, 1", "0, 1"
+        })
         @DisplayName("convertit le score de performance en note sur cinq")
         void noteSelonLesPaliers(String score, int noteAttendue) {
-            PerformanceFournisseurDTO resultat = mapper.toPerformanceFournisseurDTO(
-                fournisseur(1, 10, 2, BigDecimal.TEN, new BigDecimal(score))
-            );
+            PerformanceFournisseurDTO resultat =
+                    mapper.toPerformanceFournisseurDTO(fournisseur(1, 10, 2, BigDecimal.TEN, new BigDecimal(score)));
 
             assertThat(resultat.note()).isEqualTo(noteAttendue);
         }
@@ -209,7 +212,8 @@ class DashboardDTOMapperTest {
         @Test
         @DisplayName("sans score, la note vaut 3 — ni récompense ni sanction")
         void scoreAbsentDonneUneNoteMoyenne() {
-            PerformanceFournisseurDTO resultat = mapper.toPerformanceFournisseurDTO(fournisseur(1, 10, 2, BigDecimal.TEN, null));
+            PerformanceFournisseurDTO resultat =
+                    mapper.toPerformanceFournisseurDTO(fournisseur(1, 10, 2, BigDecimal.TEN, null));
 
             assertThat(resultat.note()).isEqualTo(3);
         }
@@ -217,9 +221,8 @@ class DashboardDTOMapperTest {
         @Test
         @DisplayName("délai et conformité absents deviennent zéro")
         void delaiEtConformiteAbsentsDeviennentZero() {
-            PerformanceFournisseurDTO resultat = mapper.toPerformanceFournisseurDTO(
-                fournisseur(1, 10, null, null, BigDecimal.valueOf(50))
-            );
+            PerformanceFournisseurDTO resultat =
+                    mapper.toPerformanceFournisseurDTO(fournisseur(1, 10, null, null, BigDecimal.valueOf(50)));
 
             assertThat(resultat.delaiMoyenJours()).isZero();
             assertThat(resultat.tauxConformite()).isZero();
@@ -234,15 +237,14 @@ class DashboardDTOMapperTest {
         @Test
         @DisplayName("la conversion de liste préserve l'ordre du classement")
         void listePreserveLOrdre() {
-            List<PerformanceFournisseurDTO> resultat = mapper.toPerformanceFournisseurDTOList(
-                List.of(
+            List<PerformanceFournisseurDTO> resultat = mapper.toPerformanceFournisseurDTOList(List.of(
                     fournisseur(3, 30, 1, BigDecimal.TEN, BigDecimal.valueOf(95)),
                     fournisseur(1, 20, 2, BigDecimal.TEN, BigDecimal.valueOf(70)),
-                    fournisseur(2, 10, 5, BigDecimal.TEN, BigDecimal.valueOf(30))
-                )
-            );
+                    fournisseur(2, 10, 5, BigDecimal.TEN, BigDecimal.valueOf(30))));
 
-            assertThat(resultat).extracting(PerformanceFournisseurDTO::fournisseurId).containsExactly(3L, 1L, 2L);
+            assertThat(resultat)
+                    .extracting(PerformanceFournisseurDTO::fournisseurId)
+                    .containsExactly(3L, 1L, 2L);
             assertThat(resultat).extracting(PerformanceFournisseurDTO::note).containsExactly(5, 3, 1);
         }
 
@@ -253,28 +255,22 @@ class DashboardDTOMapperTest {
         }
 
         private SupplierPerformanceDTO fournisseur(
-            int id,
-            int nbCommandes12Mois,
-            Integer delaiMoyen,
-            BigDecimal conformite,
-            BigDecimal score
-        ) {
+                int id, int nbCommandes12Mois, Integer delaiMoyen, BigDecimal conformite, BigDecimal score) {
             return new SupplierPerformanceDTO(
-                id,
-                "LABOREX",
-                "LBX",
-                "0100000000",
-                "0700000000",
-                2,
-                10_000_000L,
-                nbCommandes12Mois,
-                120_000_000L,
-                delaiMoyen,
-                1,
-                10,
-                conformite,
-                score
-            );
+                    id,
+                    "LABOREX",
+                    "LBX",
+                    "0100000000",
+                    "0700000000",
+                    2,
+                    10_000_000L,
+                    nbCommandes12Mois,
+                    120_000_000L,
+                    delaiMoyen,
+                    1,
+                    10,
+                    conformite,
+                    score);
         }
     }
 }

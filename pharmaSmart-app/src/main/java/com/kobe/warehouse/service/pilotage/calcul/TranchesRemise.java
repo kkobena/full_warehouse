@@ -28,7 +28,10 @@ public record TranchesRemise(List<Tranche> tranches) {
     }
 
     public MembreAnalyseDTO classer(int taux) {
-        Tranche tranche = tranches.stream().filter(candidate -> taux <= candidate.max()).findFirst().orElse(tranches.getLast());
+        Tranche tranche = tranches.stream()
+                .filter(candidate -> taux <= candidate.max())
+                .findFirst()
+                .orElse(tranches.getLast());
         return new MembreAnalyseDTO(tranche.min() + "-" + tranche.max(), tranche.libelle());
     }
 

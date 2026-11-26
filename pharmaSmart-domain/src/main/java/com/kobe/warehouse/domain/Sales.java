@@ -40,97 +40,121 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(
-    name = "sales",
-    indexes = {
-        @Index(columnList = "dtype", name = "vente_dtype_index"),
-        @Index(columnList = "sale_date", name = "vente_sale_date_index"),
-        @Index(columnList = "statut", name = "vente_statut_index"),
-        @Index(columnList = "number_transaction", name = "vente_number_transaction_index"),
-        @Index(columnList = "ca", name = "vente_ca_index"),
-        @Index(columnList = "imported", name = "vente_imported_index"),
-        @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
-        @Index(columnList = "payment_status", name = "vente_payment_status_index"),
-    }
-)
+        name = "sales",
+        indexes = {
+            @Index(columnList = "dtype", name = "vente_dtype_index"),
+            @Index(columnList = "sale_date", name = "vente_sale_date_index"),
+            @Index(columnList = "statut", name = "vente_statut_index"),
+            @Index(columnList = "number_transaction", name = "vente_number_transaction_index"),
+            @Index(columnList = "ca", name = "vente_ca_index"),
+            @Index(columnList = "imported", name = "vente_imported_index"),
+            @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
+            @Index(columnList = "payment_status", name = "vente_payment_status_index"),
+        })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @IdClass(SaleId.class)
 public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @OneToMany(mappedBy = "sales")
     protected Set<SalesLine> salesLines = new HashSet<>();
+
     @ManyToOne
     protected Remise remise;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser user;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser seller;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected AppUser caissier;
+
     @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
     protected Set<SalePayment> payments = new HashSet<>();
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     protected Magasin magasin;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "canceled_sale_id", referencedColumnName = "id"),
-            @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "canceled_sale_id", referencedColumnName = "id"),
+        @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date"),
+    })
     protected Sales canceledSale;
+
     @Transient
     private boolean isNew = true;
+
     @Id
     private Long id;
+
     @Id
     @Column(name = "sale_date")
     private LocalDate saleDate = LocalDate.now();
+
     @Column(name = "dtype", insertable = false, updatable = false)
     private String type;
+
     @NotNull
     @Column(name = "number_transaction", nullable = false, length = 20)
     private String numberTransaction;
+
     @NotNull
     @Column(name = "discount_amount", nullable = false)
     private Integer discountAmount = 0;
+
     @NotNull
     @Column(name = "sales_amount", nullable = false)
     private Integer salesAmount = 0;
+
     @Column(name = "ht_amount")
     private Integer htAmount = 0;
+
     @Column(name = "net_amount")
     private Integer netAmount = 0;
+
     @Column(name = "tax_amount")
     private Integer taxAmount = 0;
+
     @Column(name = "cost_amount")
     private Integer costAmount = 0;
+
     @NotNull
     @Column(name = "amount_to_be_paid", nullable = false)
     private Integer amountToBePaid = 0;
+
     @NotNull
     @Column(name = "payroll_amount", nullable = false)
     private Integer payrollAmount = 0; // montant paye
+
     @NotNull
     @Column(name = "rest_to_pay", nullable = false)
     private Integer restToPay = 0;
+
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
     private Integer amountToBeTakenIntoAccount;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 11)
     private SalesStatut statut;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
@@ -263,9 +287,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     }
 
     public @NotNull Integer getNetAmount() {
-        netAmount =
-            Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount,
-                0);
+        netAmount = Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount, 0);
         return netAmount;
     }
 

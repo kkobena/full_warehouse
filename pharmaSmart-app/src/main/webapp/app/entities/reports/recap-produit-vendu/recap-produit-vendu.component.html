@@ -1,17 +1,22 @@
 <!-- Modern Pharma Toolbar -->
-<app-toolbar [code]="navCode()" icon="pi pi-chart-bar"
-             title="Récapitulatif Produits Vendus/Invendus">
-
+<app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Récapitulatif Produits Vendus/Invendus">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters py-1">
-      <input [(ngModel)]="searchTerm" [style]="{ 'max-width': '200px' }" class="form-control"
-             placeholder="Rechercher un produit..."
-             type="text" />
-      <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
-                          [style]="{ 'max-width': '180px' }"
-                          id="startDate" label="Du" />
-      <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="endDate"
-                          label="Au" />
+      <input
+        [(ngModel)]="searchTerm"
+        [style]="{ 'max-width': '200px' }"
+        class="form-control"
+        placeholder="Rechercher un produit..."
+        type="text"
+      />
+      <pharma-date-picker
+        (ngModelChange)="onFilterChange()"
+        [(ngModel)]="startDate"
+        [style]="{ 'max-width': '180px' }"
+        id="startDate"
+        label="Du"
+      />
+      <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="endDate" label="Au" />
     </div>
   </ng-container>
 
@@ -26,33 +31,33 @@
         size="small"
       />
 
-      <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher"
-                  severity="info" size="small" />
+      <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher" severity="info" size="small" />
 
+      <app-split-button
+        (clicked)="createInventory()"
+        [items]="actionsMenuItems()"
+        icon="pi pi-cog"
+        label="Actions"
+        severity="info"
+        size="small"
+      />
 
-      <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
-                        icon="pi pi-cog" label="Actions"
-                        severity="info" size="small" />
-
-      <app-split-button (clicked)="exportToPdf()" [items]="exportMenuItems()"
-                        icon="pi pi-file-pdf" label="Exporter"
-                        severity="warn" size="small" />
-      <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres"
-                  severity="secondary" size="small" />
+      <app-split-button
+        (clicked)="exportToPdf()"
+        [items]="exportMenuItems()"
+        icon="pi pi-file-pdf"
+        label="Exporter"
+        severity="warn"
+        size="small"
+      />
+      <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Effacer filtres" severity="secondary" size="small" />
     </div>
   </ng-container>
 </app-toolbar>
 
 <!-- Tabs -->
 <app-nav-tabs [nav]="nav">
-  <div
-    #nav="ngbNav"
-    (navChange)="onTabChange($event)"
-    [(activeId)]="activeTab"
-    class="nav pharma-nav-tabs"
-    ngbNav
-    orientation="horizontal"
-  >
+  <div #nav="ngbNav" (navChange)="onTabChange($event)" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
     <ng-container ngbNavItem="vendus">
       <a class="pharma-nav-tab-link" ngbNavLink>
         <i class="pi pi-shopping-cart"></i>
@@ -62,30 +67,49 @@
         <!-- KPI Strip -->
         @if (summary()) {
           <app-kpi-strip stripClass="mt-2 mb-2">
-            <app-kpi-item [accent]="'primary'" [value]="summary()!.quantitySold || 0 | number"
-                          info="Unités sorties sur la période, gratuités comprises, pour les ventes clôturées non annulées du périmètre filtré." icon="pi pi-shopping-cart"
-                          iconClass="text-primary" label="Quantité vendue"
-                          valueClass="text-primary">
+            <app-kpi-item
+              [accent]="'primary'"
+              [value]="summary()!.quantitySold || 0 | number"
+              info="Unités sorties sur la période, gratuités comprises, pour les ventes clôturées non annulées du périmètre filtré."
+              icon="pi pi-shopping-cart"
+              iconClass="text-primary"
+              label="Quantité vendue"
+              valueClass="text-primary"
+            >
               <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'danger'" [value]="summary()!.quantityAvoir || 0 | number"
-                          info="Unités reprises au client par avoir sur ces mêmes lignes de vente. Elles ne sont pas retranchées de la quantité vendue affichée à côté." icon="pi pi-replay"
-                          iconClass="text-danger" label="Quantité avoir"
-                          valueClass="text-danger">
+            <app-kpi-item
+              [accent]="'danger'"
+              [value]="summary()!.quantityAvoir || 0 | number"
+              info="Unités reprises au client par avoir sur ces mêmes lignes de vente. Elles ne sont pas retranchées de la quantité vendue affichée à côté."
+              icon="pi pi-replay"
+              iconClass="text-danger"
+              label="Quantité avoir"
+              valueClass="text-danger"
+            >
               <ng-container ngProjectAs="[kpiSub]">retours</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesAmount)"
-                          info="Montant des lignes de vente, remise de ligne déduite." icon="pi pi-money-bill"
-                          iconClass="text-success" label="CA Total"
-                          valueClass="text-success">
+            <app-kpi-item
+              [accent]="'success'"
+              [value]="formatCurrency(summary()!.totalSalesAmount)"
+              info="Montant des lignes de vente, remise de ligne déduite."
+              icon="pi pi-money-bill"
+              iconClass="text-success"
+              label="CA Total"
+              valueClass="text-success"
+            >
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPurchaseAmount)"
-                          info="Coût d'achat des quantités sorties : prix de revient de la ligne multiplié par la quantité. L'écart avec le CA est la marge brute." icon="pi pi-dollar"
-                          iconClass="text-warning"
-                          label="Coût d'achat"
-                          valueClass="text-warning">
+            <app-kpi-item
+              [accent]="'warning'"
+              [value]="formatCurrency(summary()!.totalPurchaseAmount)"
+              info="Coût d'achat des quantités sorties : prix de revient de la ligne multiplié par la quantité. L'écart avec le CA est la marge brute."
+              icon="pi pi-dollar"
+              iconClass="text-warning"
+              label="Coût d'achat"
+              valueClass="text-warning"
+            >
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
             </app-kpi-item>
@@ -141,30 +165,22 @@
                     <span class="pharma-code">{{ product.codeEanLaboratoire }}</span>
                   </td>
                   <td>{{ product.rayonName }}</td>
-                  <td class="text-end pharma-qty-value">{{
-                      product.quantitySold || 0 | number
-                    }}
-                  </td>
-                  <td class="text-end pharma-qty-avoir">{{
-                      product.quantityAvoir || 0 | number
-                    }}
-                  </td>
+                  <td class="text-end pharma-qty-value">{{ product.quantitySold || 0 | number }}</td>
+                  <td class="text-end pharma-qty-avoir">{{ product.quantityAvoir || 0 | number }}</td>
                   <td class="text-end">
-                      <span
-                        [class]="{
-                          'bg-success-subtle text-success': (product.stock || 0) > 50,
-                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
-                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
-                        }"
-                        class="px-2 py-1 rounded fw-semibold"
-                      >
-                        {{ product.stock || 0 | number }}
-                      </span>
+                    <span
+                      [class]="{
+                        'bg-success-subtle text-success': (product.stock || 0) > 50,
+                        'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                        'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
+                      }"
+                      class="px-2 py-1 rounded fw-semibold"
+                    >
+                      {{ product.stock || 0 | number }}
+                    </span>
                   </td>
-                  <td class="text-end pharma-total">{{ product.totalSalesAmount || 0 | devise }}
-                  </td>
-                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}
-                  </td>
+                  <td class="text-end pharma-total">{{ product.totalSalesAmount || 0 | devise }}</td>
+                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}</td>
                   <td class="text-end">
                     <app-badge
                       [label]="(getMarginPercentage(product) | number: '1.2-2') + '%'"
@@ -198,31 +214,49 @@
         <!-- KPI Strip -->
         @if (unsoldSummary()) {
           <app-kpi-strip stripClass="mt-2 mb-2">
-            <app-kpi-item [accent]="'primary'" [value]="unsoldSummary()?.totalProducts | number"
-                          info="Produits actifs du périmètre filtré qui n'ont fait aucune vente clôturée sur la période." icon="pi pi-box"
-                          iconClass="text-primary" label="Nb produits"
-                          valueClass="text-primary">
+            <app-kpi-item
+              [accent]="'primary'"
+              [value]="unsoldSummary()?.totalProducts | number"
+              info="Produits actifs du périmètre filtré qui n'ont fait aucune vente clôturée sur la période."
+              icon="pi pi-box"
+              iconClass="text-primary"
+              label="Nb produits"
+              valueClass="text-primary"
+            >
               <ng-container ngProjectAs="[kpiSub]">références</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'warning'" [value]="unsoldSummary()?.totalStock | number"
-                          info="Unités immobilisées par ces invendus, gratuités comprises." icon="pi pi-database"
-                          iconClass="text-warning" label="Stock total"
-                          valueClass="text-warning">
+            <app-kpi-item
+              [accent]="'warning'"
+              [value]="unsoldSummary()?.totalStock | number"
+              info="Unités immobilisées par ces invendus, gratuités comprises."
+              icon="pi pi-database"
+              iconClass="text-warning"
+              label="Stock total"
+              valueClass="text-warning"
+            >
               <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'success'" [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)"
-                          info="Ce stock dormant valorisé au prix de vente en vigueur." icon="pi pi-money-bill"
-                          iconClass="text-success"
-                          label="Valeur vente"
-                          valueClass="text-success">
+            <app-kpi-item
+              [accent]="'success'"
+              [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)"
+              info="Ce stock dormant valorisé au prix de vente en vigueur."
+              icon="pi pi-money-bill"
+              iconClass="text-success"
+              label="Valeur vente"
+              valueClass="text-success"
+            >
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">prix de vente</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'danger'" [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)"
-                          info="Le même stock valorisé au prix de revient : la trésorerie qu'il retient." icon="pi pi-dollar"
-                          iconClass="text-danger"
-                          label="Coût d'achat"
-                          valueClass="text-danger">
+            <app-kpi-item
+              [accent]="'danger'"
+              [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)"
+              info="Le même stock valorisé au prix de revient : la trésorerie qu'il retient."
+              icon="pi pi-dollar"
+              iconClass="text-danger"
+              label="Coût d'achat"
+              valueClass="text-danger"
+            >
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">prix de revient</ng-container>
             </app-kpi-item>
@@ -277,22 +311,20 @@
                   </td>
                   <td>{{ product.rayonName }}</td>
                   <td class="text-end">
-                      <span
-                        [class]="{
-                          'bg-success-subtle text-success': (product.stock || 0) > 50,
-                          'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
-                          'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
-                        }"
-                        class="px-2 py-1 rounded fw-semibold"
-                      >
-                        {{ product.stock || 0 | number }}
-                      </span>
+                    <span
+                      [class]="{
+                        'bg-success-subtle text-success': (product.stock || 0) > 50,
+                        'bg-warning-subtle text-warning': (product.stock || 0) > 10 && (product.stock || 0) <= 50,
+                        'bg-danger-subtle text-danger': (product.stock || 0) <= 10,
+                      }"
+                      class="px-2 py-1 rounded fw-semibold"
+                    >
+                      {{ product.stock || 0 | number }}
+                    </span>
                   </td>
                   <td class="text-end">{{ product.seuilMini || 0 | number }}</td>
-                  <td class="text-end pharma-price">{{ product.totalSalesAmount || 0 | devise }}
-                  </td>
-                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}
-                  </td>
+                  <td class="text-end pharma-price">{{ product.totalSalesAmount || 0 | devise }}</td>
+                  <td class="text-end pharma-price">{{ product.totalPurchaseAmount || 0 | devise }}</td>
                 </tr>
               </ng-template>
 
@@ -328,13 +360,11 @@
       <div class="row g-2">
         <div class="col-6">
           <label class="form-label text-sm">Heure début</label>
-          <input [(ngModel)]="startTime" class="form-control w-100" placeholder="HH:mm"
-                 type="time" />
+          <input [(ngModel)]="startTime" class="form-control w-100" placeholder="HH:mm" type="time" />
         </div>
         <div class="col-6">
           <label class="form-label text-sm">Heure fin</label>
-          <input [(ngModel)]="endTime" class="form-control w-100" placeholder="HH:mm"
-                 type="time" />
+          <input [(ngModel)]="endTime" class="form-control w-100" placeholder="HH:mm" type="time" />
         </div>
       </div>
     </div>
@@ -343,8 +373,7 @@
 
     <!-- Selection Filters Section -->
     <div class="mb-2">
-      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de
-        sélection</h6>
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-filter-fill me-2"></i>Filtres de sélection</h6>
       <div class="row g-2">
         <div class="col-12">
           <label class="form-label text-sm">Utilisateur</label>
@@ -388,8 +417,7 @@
     <hr />
 
     <div class="mb-2">
-      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil
-      </h6>
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-sliders-h me-2"></i>Filtres de seuil</h6>
       <div class="row g-2">
         <div class="col-6">
           <label class="form-label text-sm">Filtre de seuil</label>
@@ -407,8 +435,7 @@
         @if (selectedSeuilFilter()) {
           <div class="col-6">
             <label class="form-label text-sm">Valeur du seuil</label>
-            <app-input-number [(ngModel)]="seuilValue" [min]="0" [style]="{ width: '100%' }"
-                              placeholder="Entrez la valeur" />
+            <app-input-number [(ngModel)]="seuilValue" [min]="0" [style]="{ width: '100%' }" placeholder="Entrez la valeur" />
           </div>
         }
       </div>
@@ -446,8 +473,7 @@
 
     <!-- Quantity & Price Filters Section -->
     <div class="mb-2">
-      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de
-        quantité et prix</h6>
+      <h6 class="text-primary fw-bold mb-2"><i class="pi pi-shopping-cart me-2"></i>Filtres de quantité et prix</h6>
       <div class="row g-2">
         @if (activeTab() === 'vendus') {
           <div class="col-6">
@@ -457,8 +483,7 @@
         }
 
         <div class="col-6 pt-4">
-          <app-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice"
-                        label="Prix unitaire &lt; Prix d'achat" />
+          <app-checkbox [(ngModel)]="unitPriceLessThanPurchasePrice" label="Prix unitaire &lt; Prix d'achat" />
         </div>
       </div>
     </div>
@@ -467,14 +492,23 @@
 
     <!-- Action Buttons -->
     <div class="d-flex gap-1">
-      <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh"
-                  label="Rechercher" severity="info" />
-      <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
-                        icon="pi pi-cog" label="Actions"
-                        severity="info" size="small" />
-      <app-split-button (clicked)="exportToPdf()" [items]="exportMenuItems()"
-                        icon="pi pi-file-pdf" label="Exporter"
-                        severity="warn" size="small" />
+      <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh" label="Rechercher" severity="info" />
+      <app-split-button
+        (clicked)="createInventory()"
+        [items]="actionsMenuItems()"
+        icon="pi pi-cog"
+        label="Actions"
+        severity="info"
+        size="small"
+      />
+      <app-split-button
+        (clicked)="exportToPdf()"
+        [items]="exportMenuItems()"
+        icon="pi pi-file-pdf"
+        label="Exporter"
+        severity="warn"
+        size="small"
+      />
       <app-button
         (clicked)="onClearFilters()"
         [outlined]="true"
@@ -488,4 +522,3 @@
 </app-offcanvas>
 
 <jhi-spinner #spinner></jhi-spinner>
-

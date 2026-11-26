@@ -5,18 +5,19 @@ import com.kobe.warehouse.license.Feature;
 import com.kobe.warehouse.license.LicenseInfo;
 import com.kobe.warehouse.license.LicenseProperties;
 import com.kobe.warehouse.repository.LicenseAuditRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.license.LicenseActivationException;
 import com.kobe.warehouse.service.license.LicenseService;
 import com.kobe.warehouse.service.license.dto.LicenseAuditDTO;
 import com.kobe.warehouse.service.license.dto.PublisherContactsDTO;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * API de consultation et d'activation de la licence.
@@ -53,9 +53,10 @@ public class LicenseResource {
     private final LicenseAuditRepository licenseAuditRepository;
     private final LicenseProperties licenseProperties;
 
-    public LicenseResource(LicenseService licenseService,
-        LicenseAuditRepository licenseAuditRepository,
-        LicenseProperties licenseProperties) {
+    public LicenseResource(
+            LicenseService licenseService,
+            LicenseAuditRepository licenseAuditRepository,
+            LicenseProperties licenseProperties) {
         this.licenseService = licenseService;
         this.licenseAuditRepository = licenseAuditRepository;
         this.licenseProperties = licenseProperties;
@@ -83,11 +84,9 @@ public class LicenseResource {
      */
     @GetMapping("/features")
     public ResponseEntity<List<FeatureDTO>> features() {
-        return ResponseEntity.ok(
-            Arrays.stream(Feature.values())
+        return ResponseEntity.ok(Arrays.stream(Feature.values())
                 .map(feature -> new FeatureDTO(feature.name(), feature.getLibelle(), feature.isOptional()))
-                .toList()
-        );
+                .toList());
     }
 
     /** Un module du catalogue, tel que l'écran de licence l'affiche. */
@@ -114,14 +113,11 @@ public class LicenseResource {
     @PostMapping(consumes = "multipart/form-data")
     @PreAuthorize("hasAuthority('pr-gere-licence')")
     @LicenseExempt("Renouvellement : cet endpoint doit rester accessible licence expirée ou absente")
-    public ResponseEntity<LicenseInfo> activate(@RequestParam("file") MultipartFile file)
-        throws IOException {
+    public ResponseEntity<LicenseInfo> activate(@RequestParam("file") MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
-            throw new LicenseActivationException("Aucun fichier de licence n'a été déposé.",
-                "license.activate.empty");
+            throw new LicenseActivationException("Aucun fichier de licence n'a été déposé.", "license.activate.empty");
         }
-        return ResponseEntity.ok(
-            licenseService.activate(file.getBytes(), file.getOriginalFilename()));
+        return ResponseEntity.ok(licenseService.activate(file.getBytes(), file.getOriginalFilename()));
     }
 
     /**
@@ -149,10 +145,10 @@ public class LicenseResource {
     @GetMapping("/audit")
     @PreAuthorize("hasAuthority('pr-gere-licence')")
     public ResponseEntity<java.util.List<LicenseAuditDTO>> audit(Pageable pageable) {
-        Page<LicenseAuditDTO> page = licenseAuditRepository.findAllByOrderByCreatedAtDesc(pageable)
-            .map(LicenseAuditDTO::new);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        Page<LicenseAuditDTO> page =
+                licenseAuditRepository.findAllByOrderByCreatedAtDesc(pageable).map(LicenseAuditDTO::new);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

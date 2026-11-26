@@ -44,15 +44,29 @@ const TRIS: Record<TriAnalyse, string> = { VALEUR: 'Valeur', ECART_HAUSSE: 'Plus
         </section>
 
         <app-form-field [required]="true" label="Nom de la vue">
-          <app-input (ngModelChange)="libelle.set($event)" [maxlength]="100" [ngModel]="libelle()" [required]="true" ariaLabel="Nom de la vue" name="libelle"
-                     placeholder="Ex. : CA par famille, plus fortes baisses" />
+          <app-input
+            (ngModelChange)="libelle.set($event)"
+            [maxlength]="100"
+            [ngModel]="libelle()"
+            [required]="true"
+            ariaLabel="Nom de la vue"
+            name="libelle"
+            placeholder="Ex. : CA par famille, plus fortes baisses"
+          />
         </app-form-field>
         <app-checkbox (ngModelChange)="partagee.set($event)" [ngModel]="partagee()" label="Partager avec l'équipe" name="partagee" />
-        <p class="panneau-vue-note panneau-vue-note--champ">Une vue partagée apparaît chez vos collègues dans « Vues de l'équipe » ; eux ne peuvent pas la modifier.</p>
+        <p class="panneau-vue-note panneau-vue-note--champ">
+          Une vue partagée apparaît chez vos collègues dans « Vues de l'équipe » ; eux ne peuvent pas la modifier.
+        </p>
 
         <div class="panneau-vue-actions">
           <app-button (clicked)="visible.set(false)" [outlined]="true" label="Annuler" severity="secondary" />
-          <app-button [disabled]="!libelle().trim()" icon="pi pi-check" [label]="vueModifiee() ? 'Mettre à jour' : 'Enregistrer'" type="submit" />
+          <app-button
+            [disabled]="!libelle().trim()"
+            icon="pi pi-check"
+            [label]="vueModifiee() ? 'Mettre à jour' : 'Enregistrer'"
+            type="submit"
+          />
         </div>
       </form>
     </app-offcanvas>

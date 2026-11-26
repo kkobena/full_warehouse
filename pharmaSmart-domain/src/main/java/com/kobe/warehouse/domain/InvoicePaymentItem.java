@@ -22,7 +22,6 @@ import org.springframework.data.domain.Persistable;
 /**
  * A InvoicePaymentItem.
  */
-
 @Entity
 @Table(name = "invoice_payment_item")
 @IdClass(PaymentItemId.class)
@@ -48,22 +47,18 @@ public class InvoicePaymentItem implements Persistable<PaymentItemId>, Serializa
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id"),
-            @JoinColumn(name = "third_party_sale_sale_date", referencedColumnName = "sale_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id"),
+        @JoinColumn(name = "third_party_sale_sale_date", referencedColumnName = "sale_date"),
+    })
     private ThirdPartySaleLine thirdPartySaleLine;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    @JoinColumns(
-        {
-            @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id"),
-            @JoinColumn(name = "invoice_payment_transaction_date", referencedColumnName = "transaction_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id"),
+        @JoinColumn(name = "invoice_payment_transaction_date", referencedColumnName = "transaction_date"),
+    })
     private InvoicePayment invoicePayment;
 
     @Transient

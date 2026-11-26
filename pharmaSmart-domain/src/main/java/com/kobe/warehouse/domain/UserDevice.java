@@ -2,11 +2,10 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serializable;
 import java.time.Instant;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Entity representing a user's mobile device for push notifications.
@@ -150,11 +149,10 @@ public class UserDevice implements Serializable {
 
     @Override
     public String toString() {
-        return "UserDevice{" +
-            "id=" + id +
-            ", fcmToken='" + fcmToken + '\'' +
-            ", deviceName='" + deviceName + '\'' +
-            ", notificationsEnabled=" + notificationsEnabled +
-            '}';
+        return "UserDevice{" + "id="
+                + id + ", fcmToken='"
+                + fcmToken + '\'' + ", deviceName='"
+                + deviceName + '\'' + ", notificationsEnabled="
+                + notificationsEnabled + '}';
     }
 }

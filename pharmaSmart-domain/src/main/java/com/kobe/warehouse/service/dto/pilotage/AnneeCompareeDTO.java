@@ -9,4 +9,9 @@ import java.util.List;
  * @param complete année close ; l'année en cours ne l'est pas et son total se compare à la même date de l'année précédente
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record AnneeCompareeDTO(int annee, boolean complete, List<CelluleAnalyseDTO> mois, List<CelluleAnalyseDTO> trimestres, CelluleAnalyseDTO total) {}
+public record AnneeCompareeDTO(
+        int annee,
+        boolean complete,
+        List<CelluleAnalyseDTO> mois,
+        List<CelluleAnalyseDTO> trimestres,
+        CelluleAnalyseDTO total) {}

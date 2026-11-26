@@ -25,7 +25,9 @@ public final class ObjectifsPeriode {
     public static ObjectifsPeriode ranger(List<ObjectifPilotage> objectifs) {
         ObjectifsPeriode periode = new ObjectifsPeriode();
         for (ObjectifPilotage objectif : objectifs) {
-            periode.parMois.computeIfAbsent(objectif.getIndicateur(), cle -> new HashMap<>()).put(YearMonth.of(objectif.getAnnee(), objectif.getMois()), objectif.getValeur());
+            periode.parMois
+                    .computeIfAbsent(objectif.getIndicateur(), cle -> new HashMap<>())
+                    .put(YearMonth.of(objectif.getAnnee(), objectif.getMois()), objectif.getValeur());
         }
         return periode;
     }

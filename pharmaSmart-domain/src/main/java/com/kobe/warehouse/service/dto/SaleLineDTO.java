@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -15,59 +14,43 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class SaleLineDTO {
-
 
     private Long id;
 
-
     private Integer quantitySold;
 
-
     private Integer quantityRequested;
-
 
     private Integer regularUnitPrice;
 
     private Integer discountUnitPrice;
     private Integer netUnitPrice;
 
-
     private Integer discountAmount;
-
 
     private Integer salesAmount;
 
-
     private Integer htAmount;
-
 
     private Integer netAmount;
 
-
     private Integer taxAmount;
-
 
     private Integer costAmount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
     private String produitLibelle;
 
-
     private String code;
-
 
     private Integer produitId;
 
     private Long saleId;
 
-
     private Integer quantityStock;
-
 
     private Integer quantiyAvoir;
 
@@ -75,19 +58,21 @@ public class SaleLineDTO {
     private boolean nonRembourse;
     /** Lots réellement prélevés pour cette ligne (numéro, quantité, péremption) ; vide sans gestion de lots. */
     private List<LotSold> lots = new ArrayList<>();
+
     private Integer montantTvaUg = 0;
     private Integer quantityUg;
     private Integer amountToBeTakenIntoAccount;
     private boolean toIgnore;
     private LocalDateTime effectiveUpdateDate;
 
-
     private Integer taxValue;
 
     private boolean forceStock; // mis pour forcer le stock a la vente
-    // Pourquoi on force ; un motif renseigné vaut forçage. Jamais renvoyé : un DTO relu puis renvoyé forcerait sans confirmation.
+    // Pourquoi on force ; un motif renseigné vaut forçage. Jamais renvoyé : un DTO relu puis renvoyé forcerait sans
+    // confirmation.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private MotifForcageStock motifForcage;
+
     private String codeScan;
     private SaleLineId saleLineId;
     private SaleId saleCompositeId;

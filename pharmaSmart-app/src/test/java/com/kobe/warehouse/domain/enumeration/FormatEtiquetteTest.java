@@ -2,10 +2,10 @@ package com.kobe.warehouse.domain.enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,8 +37,9 @@ class FormatEtiquetteTest {
         @MethodSource("com.kobe.warehouse.domain.enumeration.FormatEtiquetteTest#planches")
         void tientDansLaLargeur(FormatEtiquette format) {
             // La dernière colonne ne porte pas de gouttière : elle sortirait de la page.
-            double occupee =
-                2 * format.getMargeCoteMm() + format.getColonnes() * format.getPasHorizontalMm() - format.getGouttiereHorizontaleMm();
+            double occupee = 2 * format.getMargeCoteMm()
+                    + format.getColonnes() * format.getPasHorizontalMm()
+                    - format.getGouttiereHorizontaleMm();
 
             assertThat(occupee).isLessThanOrEqualTo(FormatEtiquette.LARGEUR_A4_MM + TOLERANCE_MM);
         }
@@ -46,8 +47,9 @@ class FormatEtiquetteTest {
         @ParameterizedTest(name = "{0} tient dans la hauteur d une page A4")
         @MethodSource("com.kobe.warehouse.domain.enumeration.FormatEtiquetteTest#planches")
         void tientDansLaHauteur(FormatEtiquette format) {
-            double occupee =
-                2 * format.getMargeHautMm() + format.getRangees() * format.getPasVerticalMm() - format.getGouttiereVerticaleMm();
+            double occupee = 2 * format.getMargeHautMm()
+                    + format.getRangees() * format.getPasVerticalMm()
+                    - format.getGouttiereVerticaleMm();
 
             assertThat(occupee).isLessThanOrEqualTo(FormatEtiquette.HAUTEUR_A4_MM + TOLERANCE_MM);
         }
@@ -57,10 +59,10 @@ class FormatEtiquetteTest {
         void margesPlausibles(FormatEtiquette format) {
             // Une marge supérieure à une étiquette entière trahit une grille mal transcrite :
             // le format tiendrait une rangée ou une colonne de plus.
-            double resteLargeur =
-                FormatEtiquette.LARGEUR_A4_MM - (2 * format.getMargeCoteMm() + format.getColonnes() * format.getPasHorizontalMm());
-            double resteHauteur =
-                FormatEtiquette.HAUTEUR_A4_MM - (2 * format.getMargeHautMm() + format.getRangees() * format.getPasVerticalMm());
+            double resteLargeur = FormatEtiquette.LARGEUR_A4_MM
+                    - (2 * format.getMargeCoteMm() + format.getColonnes() * format.getPasHorizontalMm());
+            double resteHauteur = FormatEtiquette.HAUTEUR_A4_MM
+                    - (2 * format.getMargeHautMm() + format.getRangees() * format.getPasVerticalMm());
 
             assertThat(resteLargeur).isLessThan(format.getLargeurMm());
             assertThat(resteHauteur).isLessThan(format.getHauteurMm());
@@ -151,15 +153,16 @@ class FormatEtiquetteTest {
         @EnumSource(FormatEtiquette.class)
         void grilleEntreLesMarges(FormatEtiquette format) {
             assertThat(format.getMargeCoteMm() + format.getLargeurGrilleMm())
-                .isLessThanOrEqualTo(FormatEtiquette.LARGEUR_A4_MM - format.getMargeCoteMm() + TOLERANCE_MM);
+                    .isLessThanOrEqualTo(FormatEtiquette.LARGEUR_A4_MM - format.getMargeCoteMm() + TOLERANCE_MM);
         }
 
         @Test
         @DisplayName("aucun doublon de geometrie dans le catalogue")
         void pasDeDoublon() {
             assertThat(FormatEtiquette.values())
-                .extracting(f -> f.getLargeurMm() + "x" + f.getHauteurMm() + "/" + f.getColonnes() + "x" + f.getRangees())
-                .doesNotHaveDuplicates();
+                    .extracting(f ->
+                            f.getLargeurMm() + "x" + f.getHauteurMm() + "/" + f.getColonnes() + "x" + f.getRangees())
+                    .doesNotHaveDuplicates();
         }
     }
 
@@ -177,8 +180,9 @@ class FormatEtiquetteTest {
             assertThat(FormatEtiquette.listerPlanches()).isNotEmpty();
             assertThat(FormatEtiquette.parDefaut().isRouleau()).isFalse();
             // Les deux familles couvrent le catalogue, sans recouvrement.
-            assertThat(FormatEtiquette.listerPlanches().size() + FormatEtiquette.listerRouleaux().size())
-                .isEqualTo(FormatEtiquette.values().length);
+            assertThat(FormatEtiquette.listerPlanches().size()
+                            + FormatEtiquette.listerRouleaux().size())
+                    .isEqualTo(FormatEtiquette.values().length);
         }
 
         @ParameterizedTest(name = "{0} n a qu une seule case")
@@ -236,16 +240,20 @@ class FormatEtiquetteTest {
         @Test
         @DisplayName("une case valide est gardee telle quelle")
         void caseValide() {
-            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(12)).isEqualTo(12);
-            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(65)).isEqualTo(65);
+            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(12))
+                    .isEqualTo(12);
+            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(65))
+                    .isEqualTo(65);
         }
 
         @Test
         @DisplayName("une case hors planche est ramenee dans les bornes")
         void caseHorsBornes() {
             assertThat(FormatEtiquette.A4_21_63X38.normaliserCaseDeDepart(40)).isEqualTo(21);
-            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(0)).isEqualTo(1);
-            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(-3)).isEqualTo(1);
+            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(0))
+                    .isEqualTo(1);
+            assertThat(FormatEtiquette.A4_65_HISTORIQUE.normaliserCaseDeDepart(-3))
+                    .isEqualTo(1);
         }
     }
 }

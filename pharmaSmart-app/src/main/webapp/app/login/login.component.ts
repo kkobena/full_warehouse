@@ -1,33 +1,17 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {LoginService} from 'app/login/login.service';
-import {AccountService} from 'app/core/auth/account.service';
-import {PasswordComponent, SwitchComponent} from '../shared/ui';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {AppSettingsDialogComponent} from '../shared/settings/app-settings-dialog.component';
-import {TauriPrinterService} from '../shared/services/tauri-printer.service';
-import {CommonModule} from "@angular/common";
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { LoginService } from 'app/login/login.service';
+import { AccountService } from 'app/core/auth/account.service';
+import { PasswordComponent, SwitchComponent } from '../shared/ui';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dialog.component';
+import { TauriPrinterService } from '../shared/services/tauri-printer.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
-    PasswordComponent,
-    SwitchComponent,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, PasswordComponent, SwitchComponent],
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./login.component.scss'],
@@ -39,9 +23,9 @@ export default class LoginComponent implements OnInit {
   isTauri = signal(false);
 
   loginForm = new FormGroup({
-    username: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    password: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
-    rememberMe: new FormControl(false, {nonNullable: true, validators: [Validators.required]}),
+    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    rememberMe: new FormControl(false, { nonNullable: true, validators: [Validators.required] }),
   });
 
   private readonly accountService = inject(AccountService);

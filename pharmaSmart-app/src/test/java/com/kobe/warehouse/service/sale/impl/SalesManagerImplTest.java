@@ -1,48 +1,63 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.CashSaleRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.VenteDepotRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.StockException;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class SalesManagerImplTest {
 
-    @Mock private SaleLineServiceFactory saleLineServiceFactory;
-    @Mock private SalesLineService salesLineService;
-    @Mock private StorageService storageService;
-    @Mock private CustomerDisplayService customerDisplayService;
-    @Mock private CashSaleRepository cashSaleRepository;
-    @Mock private VenteDepotRepository venteDepotRepository;
-    @Mock private SaleService saleService;
-    @Mock private ThirdPartySaleService thirdPartySaleService;
-    @Mock private SaleAmountCalculator saleAmountCalculator;
+    @Mock
+    private SaleLineServiceFactory saleLineServiceFactory;
+
+    @Mock
+    private SalesLineService salesLineService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private CustomerDisplayService customerDisplayService;
+
+    @Mock
+    private CashSaleRepository cashSaleRepository;
+
+    @Mock
+    private VenteDepotRepository venteDepotRepository;
+
+    @Mock
+    private SaleService saleService;
+
+    @Mock
+    private ThirdPartySaleService thirdPartySaleService;
+
+    @Mock
+    private SaleAmountCalculator saleAmountCalculator;
 
     private SalesManagerImpl salesManager;
     private CashSale testCashSale;
@@ -62,15 +77,14 @@ class SalesManagerImplTest {
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
 
         salesManager = new SalesManagerImpl(
-            saleLineServiceFactory,
-            storageService,
-            customerDisplayService,
-            cashSaleRepository,
-            venteDepotRepository,
-            saleService,
-            thirdPartySaleService,
-            saleAmountCalculator
-        );
+                saleLineServiceFactory,
+                storageService,
+                customerDisplayService,
+                cashSaleRepository,
+                venteDepotRepository,
+                saleService,
+                thirdPartySaleService,
+                saleAmountCalculator);
 
         setupTestData();
     }
@@ -158,7 +172,7 @@ class SalesManagerImplTest {
         doNothing().when(saleService).upddateCashSaleAmounts(any());
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testCashSale,true);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testCashSale, true);
 
         // Then
         assertNotNull(result);
@@ -201,7 +215,7 @@ class SalesManagerImplTest {
         when(thirdPartySaleService.computeThirdPartySaleAmounts(any())).thenReturn(null);
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testThirdPartySale,true);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testThirdPartySale, true);
 
         // Then
         assertNotNull(result);
@@ -228,7 +242,7 @@ class SalesManagerImplTest {
         doNothing().when(saleAmountCalculator).arrondirMontantCaisse(any());
 
         // When
-        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testVenteDepot,true);
+        SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testVenteDepot, true);
 
         // Then
         assertNotNull(result);
@@ -437,9 +451,9 @@ class SalesManagerImplTest {
         when(thirdPartySaleService.computeThirdPartySaleAmounts(any())).thenReturn("Plafond dépassé");
 
         // When & Then
-        assertThrows(PlafondVenteException.class, () ->
-            salesManager.updateItemQuantityRequested(dto, testThirdPartySale,true)
-        );
+        assertThrows(
+                PlafondVenteException.class,
+                () -> salesManager.updateItemQuantityRequested(dto, testThirdPartySale, true));
     }
 
     @Test

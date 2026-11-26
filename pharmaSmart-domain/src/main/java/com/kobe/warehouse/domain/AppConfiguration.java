@@ -12,13 +12,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -63,6 +61,7 @@ public class AppConfiguration implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "value_type", nullable = false, length = 11)
     private ParametreValueType valueType;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", name = "options")
     private List<AppOption> options = new ArrayList<>();
@@ -149,6 +148,7 @@ public class AppConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "AppConfiguration{" + "name='" + name + '\'' + ", value='" + value + '\'' + ", description='" + description + '\'' + '}';
+        return "AppConfiguration{" + "name='" + name + '\'' + ", value='" + value + '\'' + ", description='"
+                + description + '\'' + '}';
     }
 }

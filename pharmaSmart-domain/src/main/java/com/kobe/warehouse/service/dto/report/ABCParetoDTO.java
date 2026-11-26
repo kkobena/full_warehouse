@@ -8,19 +8,18 @@ import java.math.BigDecimal;
  * Classification 5 classes basée sur le % du CA cumulé.
  */
 public record ABCParetoDTO(
-    Integer produitId,
-    String libelle,
-    String codeCip,
-    String famille,
-    String classeActuelle,
-    Integer caTotal,
-    Integer qteVendue,
-    Integer nbVentes,
-    Integer frequenceMois,
-    Long caGlobal,
-    Long caCumule,
-    BigDecimal contributionPct,
-    BigDecimal caCumulePct,
-    Integer rang,
-    ClassePareto classePareto
-) {}
+        Integer produitId,
+        String libelle,
+        String codeCip,
+        String famille,
+        String classeActuelle,
+        Integer caTotal,
+        Integer qteVendue,
+        Integer nbVentes,
+        Integer frequenceMois,
+        Long caGlobal,
+        Long caCumule,
+        BigDecimal contributionPct,
+        BigDecimal caCumulePct,
+        Integer rang,
+        ClassePareto classePareto) {}

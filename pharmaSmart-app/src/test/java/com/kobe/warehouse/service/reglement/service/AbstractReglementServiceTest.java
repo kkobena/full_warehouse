@@ -84,27 +84,25 @@ class AbstractReglementServiceTest {
     private static final class TestReglementService extends AbstractReglementService {
 
         TestReglementService(
-            CashRegisterService cashRegisterService,
-            InvoicePaymentRepository invoicePaymentRepository,
-            UserService userService,
-            FacturationRepository facturationRepository,
-            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-            BanqueRepository banqueRepository,
-            TransactionIdGeneratorService transactionIdGeneratorService,
-            InvoicePaymentItemService invoicePaymentItemService,
-            ReferenceService referenceService
-        ) {
+                CashRegisterService cashRegisterService,
+                InvoicePaymentRepository invoicePaymentRepository,
+                UserService userService,
+                FacturationRepository facturationRepository,
+                ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+                BanqueRepository banqueRepository,
+                TransactionIdGeneratorService transactionIdGeneratorService,
+                InvoicePaymentItemService invoicePaymentItemService,
+                ReferenceService referenceService) {
             super(
-                cashRegisterService,
-                invoicePaymentRepository,
-                userService,
-                facturationRepository,
-                thirdPartySaleLineRepository,
-                banqueRepository,
-                transactionIdGeneratorService,
-                invoicePaymentItemService,
-                referenceService
-            );
+                    cashRegisterService,
+                    invoicePaymentRepository,
+                    userService,
+                    facturationRepository,
+                    thirdPartySaleLineRepository,
+                    banqueRepository,
+                    transactionIdGeneratorService,
+                    invoicePaymentItemService,
+                    referenceService);
         }
 
         @Override
@@ -118,16 +116,15 @@ class AbstractReglementServiceTest {
     @BeforeEach
     void setUp() {
         service = new TestReglementService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         cashRegister = new CashRegister();
         currentUser = new AppUser();
         when(cashRegisterService.getCashRegister()).thenReturn(cashRegister);
@@ -148,10 +145,10 @@ class AbstractReglementServiceTest {
 
     private static ReglementParam param(int amount, LocalDate paymentDate, BanqueInfoDTO banqueInfo) {
         return new ReglementParam()
-            .setAmount(amount)
-            .setPaymentDate(paymentDate)
-            .setBanqueInfo(banqueInfo)
-            .setModePaimentCode(ModePaimentCode.CASH);
+                .setAmount(amount)
+                .setPaymentDate(paymentDate)
+                .setBanqueInfo(banqueInfo)
+                .setModePaimentCode(ModePaimentCode.CASH);
     }
 
     @Test
@@ -166,7 +163,8 @@ class AbstractReglementServiceTest {
         ThirdPartySaleLine ligne = ligne(1000, 0);
         InvoicePayment paiement = new InvoicePayment();
         InvoicePaymentItem attendu = new InvoicePaymentItem();
-        when(invoicePaymentItemService.buildInvoicePaymentItem(ligne, paiement, 600)).thenReturn(attendu);
+        when(invoicePaymentItemService.buildInvoicePaymentItem(ligne, paiement, 600))
+                .thenReturn(attendu);
 
         assertThat(service.buildInvoicePaymentItem(ligne, paiement, 600)).isSameAs(attendu);
     }
@@ -189,7 +187,7 @@ class AbstractReglementServiceTest {
         }
 
         @ParameterizedTest(name = "bon de {0} regle a {1} apres versement de {2} : {3}")
-        @CsvSource({ "1000, 0, 400, HALF_PAID", "1000, 600, 400, PAID", "1000, 0, 1200, PAID", "1000, 999, 1, PAID" })
+        @CsvSource({"1000, 0, 400, HALF_PAID", "1000, 600, 400, PAID", "1000, 0, 1200, PAID", "1000, 999, 1, PAID"})
         void statutSelonLeSolde(int montant, int dejaRegle, int verse, ThirdPartySaleStatut attendu) {
             ThirdPartySaleLine ligne = ligne(montant, dejaRegle);
 
@@ -208,7 +206,8 @@ class AbstractReglementServiceTest {
         void enteteDuPaiement() {
             FactureTiersPayant facture = facture();
 
-            InvoicePayment paiement = service.buildInvoicePayment(facture, param(5000, LocalDate.of(2026, 4, 18), null));
+            InvoicePayment paiement =
+                    service.buildInvoicePayment(facture, param(5000, LocalDate.of(2026, 4, 18), null));
 
             assertThat(paiement.getId().getId()).isEqualTo(55L);
             assertThat(paiement.getTransactionNumber()).isEqualTo("TR-0001");
@@ -239,7 +238,8 @@ class AbstractReglementServiceTest {
         @Test
         @DisplayName("enregistre la banque quand un cheque est renseigne")
         void avecBanque() {
-            BanqueInfoDTO banqueInfo = new BanqueInfoDTO().setCode("BQ1").setNom("SGBCI").setBeneficiaire("PHARMACIE");
+            BanqueInfoDTO banqueInfo =
+                    new BanqueInfoDTO().setCode("BQ1").setNom("SGBCI").setBeneficiaire("PHARMACIE");
 
             InvoicePayment paiement = service.buildInvoicePayment(facture(), param(5000, null, banqueInfo));
 
@@ -312,7 +312,7 @@ class AbstractReglementServiceTest {
     class UpdateStatut {
 
         @ParameterizedTest(name = "facture de {1} reglee a {0} : {2}")
-        @CsvSource({ "0, 1000, PARTIALLY_PAID", "400, 1000, PARTIALLY_PAID", "1000, 1000, PAID", "1200, 1000, PAID" })
+        @CsvSource({"0, 1000, PARTIALLY_PAID", "400, 1000, PARTIALLY_PAID", "1000, 1000, PAID", "1200, 1000, PAID"})
         void statutSelonLeSolde(int montantRegle, int montantFacture, InvoiceStatut attendu) {
             FactureTiersPayant facture = facture().setMontantRegle(montantRegle);
 
@@ -334,7 +334,8 @@ class AbstractReglementServiceTest {
             InvoicePayment enregistre = service.saveInvoicePayment(paiement);
 
             assertThat(enregistre).isSameAs(paiement);
-            assertThat(paiement.getTypeFinancialTransaction()).isEqualTo(TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT);
+            assertThat(paiement.getTypeFinancialTransaction())
+                    .isEqualTo(TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT);
             verify(invoicePaymentRepository).save(paiement);
         }
 

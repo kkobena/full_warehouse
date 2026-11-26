@@ -39,10 +39,9 @@ public class DemarquePilotageServiceImpl implements DemarquePilotageService {
     private final LecteurMesuresPilotage lecteurMesuresPilotage;
 
     public DemarquePilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        PilotageDemarqueRepository pilotageDemarqueRepository,
-        LecteurMesuresPilotage lecteurMesuresPilotage
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            PilotageDemarqueRepository pilotageDemarqueRepository,
+            LecteurMesuresPilotage lecteurMesuresPilotage) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.pilotageDemarqueRepository = pilotageDemarqueRepository;
         this.lecteurMesuresPilotage = lecteurMesuresPilotage;
@@ -62,37 +61,47 @@ public class DemarquePilotageServiceImpl implements DemarquePilotageService {
         long valeurReference = 0;
         if (avecReference) {
             for (MontantDemarqueDTO motif : sommerParMotif(comparaison.reference())) {
-                parMotif.merge(motif.cle(), new MotifDemarque(motif.libelle(), 0, 0, motif.valeur()), MotifDemarque::plus);
+                parMotif.merge(
+                        motif.cle(), new MotifDemarque(motif.libelle(), 0, 0, motif.valeur()), MotifDemarque::plus);
                 valeurReference += motif.valeur();
             }
         }
-        Double ca = CalculateurIndicateurs.calculer(IndicateurPilotage.CA_TTC, lecteurMesuresPilotage.lireTotal(comparaison.periode()));
+        Double ca = CalculateurIndicateurs.calculer(
+                IndicateurPilotage.CA_TTC, lecteurMesuresPilotage.lireTotal(comparaison.periode()));
         Double caReference = avecReference
-            ? CalculateurIndicateurs.calculer(IndicateurPilotage.CA_TTC, lecteurMesuresPilotage.lireTotal(comparaison.reference()))
-            : null;
+                ? CalculateurIndicateurs.calculer(
+                        IndicateurPilotage.CA_TTC, lecteurMesuresPilotage.lireTotal(comparaison.reference()))
+                : null;
 
         return new DemarqueRentabiliteDTO(
-            comparaison,
-            Variations.cellule(UniteIndicateur.MONTANT, (double) valeur, avecReference ? (double) valeurReference : null),
-            Variations.cellule(UniteIndicateur.POURCENTAGE, part(valeur, ca), avecReference ? part(valeurReference, caReference) : null),
-            parMotif
-                .values()
-                .stream()
-                .sorted(Comparator.comparingLong(MotifDemarque::valeur).reversed())
-                .map(motif -> new LigneDemarqueDTO(motif.libelle(), motif.quantite(), Variations.cellule(UniteIndicateur.MONTANT, (double) motif.valeur(), avecReference ? (double) motif.valeurReference() : null)))
-                .toList(),
-            pilotageDemarqueRepository.listerProduitsLesPlusTouches(
-                debut(comparaison.periode()),
-                fin(comparaison.periode()),
-                AjustementStatut.CLOSED,
-                AjustType.AJUSTEMENT_OUT,
-                PageRequest.of(0, PRODUITS_MAX)
-            )
-        );
+                comparaison,
+                Variations.cellule(
+                        UniteIndicateur.MONTANT, (double) valeur, avecReference ? (double) valeurReference : null),
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        part(valeur, ca),
+                        avecReference ? part(valeurReference, caReference) : null),
+                parMotif.values().stream()
+                        .sorted(Comparator.comparingLong(MotifDemarque::valeur).reversed())
+                        .map(motif -> new LigneDemarqueDTO(
+                                motif.libelle(),
+                                motif.quantite(),
+                                Variations.cellule(
+                                        UniteIndicateur.MONTANT,
+                                        (double) motif.valeur(),
+                                        avecReference ? (double) motif.valeurReference() : null)))
+                        .toList(),
+                pilotageDemarqueRepository.listerProduitsLesPlusTouches(
+                        debut(comparaison.periode()),
+                        fin(comparaison.periode()),
+                        AjustementStatut.CLOSED,
+                        AjustType.AJUSTEMENT_OUT,
+                        PageRequest.of(0, PRODUITS_MAX)));
     }
 
     private List<MontantDemarqueDTO> sommerParMotif(PeriodeDTO periode) {
-        return pilotageDemarqueRepository.sommerParMotif(debut(periode), fin(periode), AjustementStatut.CLOSED, AjustType.AJUSTEMENT_OUT);
+        return pilotageDemarqueRepository.sommerParMotif(
+                debut(periode), fin(periode), AjustementStatut.CLOSED, AjustType.AJUSTEMENT_OUT);
     }
 
     private static LocalDateTime debut(PeriodeDTO periode) {
@@ -106,5 +115,4 @@ public class DemarquePilotageServiceImpl implements DemarquePilotageService {
     private static Double part(long valeur, Double ca) {
         return ca == null || ca == 0 ? null : valeur * CENT / ca;
     }
-
 }

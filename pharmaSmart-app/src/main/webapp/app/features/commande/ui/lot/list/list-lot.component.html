@@ -6,18 +6,19 @@
   <app-card [variant]="'form'">
     @if (showUgAddNewBtn()) {
       <div class="mb-1" style="text-align: right">
-        <app-button (clicked)="add()" severity="info" [raised]="true" icon="pi pi-check" label="Ajouter un nouveau lot" type="button"></app-button>
+        <app-button
+          (clicked)="add()"
+          severity="info"
+          [raised]="true"
+          icon="pi pi-check"
+          label="Ajouter un nouveau lot"
+          type="button"
+        ></app-button>
       </div>
     }
 
     @if (lots()?.length > 0) {
-      <app-data-table
-        [(selection)]="selectedEl"
-        [value]="lots()"
-        dataKey="numLot"
-        [selectionMode]="'single'"
-        [stripedRows]="true"
-      >
+      <app-data-table [(selection)]="selectedEl" [value]="lots()" dataKey="numLot" [selectionMode]="'single'" [stripedRows]="true">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th scope="col"><span>Num</span></th>
@@ -51,7 +52,14 @@
                 [rounded]="true"
                 type="submit"
               ></app-button>
-              <app-button [text]="true" (clicked)="delete(elRow)" icon="pi pi-trash" severity="warn" [rounded]="true" type="submit"></app-button>
+              <app-button
+                [text]="true"
+                (clicked)="delete(elRow)"
+                icon="pi pi-trash"
+                severity="warn"
+                [rounded]="true"
+                type="submit"
+              ></app-button>
             </td>
           </tr>
         </ng-template>

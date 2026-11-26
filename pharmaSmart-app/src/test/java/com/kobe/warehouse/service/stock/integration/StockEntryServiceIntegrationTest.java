@@ -58,7 +58,9 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         StockProduit stock = em.find(StockProduit.class, reception.stockId());
         assertEquals(80, stock.getQtyStock(), "50 en rayon + 30 reçues");
         assertEquals(80, stock.getQtyVirtual(), "le stock virtuel suit le stock physique");
-        assertEquals(OrderStatut.CLOSED, em.find(Commande.class, reception.commandeId()).getOrderStatus());
+        assertEquals(
+                OrderStatut.CLOSED,
+                em.find(Commande.class, reception.commandeId()).getOrderStatus());
     }
 
     @Test
@@ -121,18 +123,17 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(7_200, fournisseurProduit.getPrixAchat(), "le tarif fournisseur suit le bon");
         assertEquals(11_500, fournisseurProduit.getPrixUni());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM fournisseur_produit_price_history WHERE fournisseur_produit_id = " +
-                reception.fournisseurProduitId()),
-            "une ligne d'historique garde l'ancien et le nouveau prix"
-        );
+                1,
+                compter("SELECT count(*) FROM fournisseur_produit_price_history WHERE fournisseur_produit_id = "
+                        + reception.fournisseurProduitId()),
+                "une ligne d'historique garde l'ancien et le nouveau prix");
         assertEquals(
-            6_000,
-            ((Number) em
-                    .createNativeQuery("SELECT old_prix_achat FROM fournisseur_produit_price_history WHERE fournisseur_produit_id = " +
-                        reception.fournisseurProduitId())
-                    .getSingleResult()).intValue()
-        );
+                6_000,
+                ((Number) em.createNativeQuery(
+                                        "SELECT old_prix_achat FROM fournisseur_produit_price_history WHERE fournisseur_produit_id = "
+                                                + reception.fournisseurProduitId())
+                                .getSingleResult())
+                        .intValue());
     }
 
     @Test
@@ -156,11 +157,15 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         DeliveryReceiptLiteDTO second = bon(reception);
-        GenericError erreur = assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(second));
+        GenericError erreur =
+                assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(second));
         viderLeCache();
 
         assertTrue(erreur.getMessage().contains("déjà finalisé"), erreur.getMessage());
-        assertEquals(45, em.find(StockProduit.class, reception.stockId()).getQtyStock(), "le stock n'a pas été entré deux fois");
+        assertEquals(
+                45,
+                em.find(StockProduit.class, reception.stockId()).getQtyStock(),
+                "le stock n'a pas été entré deux fois");
     }
 
     @Test
@@ -175,7 +180,9 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(30, em.find(StockProduit.class, reception.stockId()).getQtyStock(), "le stock est intact");
-        assertEquals(OrderStatut.RECEIVED, em.find(Commande.class, reception.commandeId()).getOrderStatus());
+        assertEquals(
+                OrderStatut.RECEIVED,
+                em.find(Commande.class, reception.commandeId()).getOrderStatus());
     }
 
     @Test
@@ -207,7 +214,10 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.stockEntryService.finalizeSaisieEntreeStock(bon(reception).setConformeSansLot(true));
         viderLeCache();
 
-        assertEquals(50, em.find(StockProduit.class, reception.stockId()).getQtyStock(), "les 40 commandées sont réputées reçues");
+        assertEquals(
+                50,
+                em.find(StockProduit.class, reception.stockId()).getQtyStock(),
+                "les 40 commandées sont réputées reçues");
         assertTrue(em.find(OrderLine.class, reception.ligneId()).getUpdated());
     }
 
@@ -220,7 +230,8 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         DeliveryReceiptLiteDTO bon = bon(reception);
-        GenericError erreur = assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(bon));
+        GenericError erreur =
+                assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(bon));
         viderLeCache();
 
         assertTrue(erreur.getMessage().contains("lots"), erreur.getMessage());
@@ -242,24 +253,26 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(StatutLot.AVAILABLE, relu.getStatut(), "le lot sort de l'état en cours de réception");
         assertEquals(25, quantiteSurEmplacement(relu, rayon), "le lot est crédité sur l'emplacement principal");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM lot_reception WHERE lot_id = " + lot.getId()),
-            "la réception du lot est tracée pour la traçabilité fournisseur"
-        );
+                1,
+                compter("SELECT count(*) FROM lot_reception WHERE lot_id = " + lot.getId()),
+                "la réception du lot est tracée pour la traçabilité fournisseur");
     }
 
     @Test
     @DisplayName("Un lot périmant avant le seuil minimum bloque la réception")
     void lotTropProcheDeLaPeremption() {
         lenient().when(services.appConfigurationService.useLot()).thenReturn(Optional.of(true));
-        lenient().when(services.appConfigurationService.getReceptionMinExpiryDays()).thenReturn(180L);
+        lenient()
+                .when(services.appConfigurationService.getReceptionMinExpiryDays())
+                .thenReturn(180L);
         Reception reception = reception(10, 25, 0);
         em.find(Produit.class, reception.produitId()).setCheckExpiryDate(true);
         lotDeReception(reception, "LOT-COURT", LocalDate.now().plusDays(30), 25);
         viderLeCache();
 
         DeliveryReceiptLiteDTO bon = bon(reception);
-        GenericError erreur = assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(bon));
+        GenericError erreur =
+                assertThrows(GenericError.class, () -> services.stockEntryService.finalizeSaisieEntreeStock(bon));
         viderLeCache();
 
         assertTrue(erreur.getMessage().contains("péremption"), erreur.getMessage());
@@ -270,7 +283,9 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
     @DisplayName("Le contrôle de péremption ne s'applique pas aux produits qui en sont dispensés")
     void peremptionNonControlee() {
         lenient().when(services.appConfigurationService.useLot()).thenReturn(Optional.of(true));
-        lenient().when(services.appConfigurationService.getReceptionMinExpiryDays()).thenReturn(180L);
+        lenient()
+                .when(services.appConfigurationService.getReceptionMinExpiryDays())
+                .thenReturn(180L);
         Reception reception = reception(10, 25, 0);
         em.find(Produit.class, reception.produitId()).setCheckExpiryDate(false);
         lotDeReception(reception, "LOT-COURT-2", LocalDate.now().plusDays(30), 25);
@@ -343,9 +358,9 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         Reception reception = reception(30, 0, 0);
         viderLeCache();
 
-        services.stockEntryService.updateQuantityReceived(
-            new DeliveryReceiptItemLiteDTO().setOrderLineId(reception.ligneId()).setQuantityReceivedTmp(18)
-        );
+        services.stockEntryService.updateQuantityReceived(new DeliveryReceiptItemLiteDTO()
+                .setOrderLineId(reception.ligneId())
+                .setQuantityReceivedTmp(18));
         viderLeCache();
 
         OrderLine ligne = em.find(OrderLine.class, reception.ligneId());
@@ -359,12 +374,12 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         Reception reception = reception(30, 12, 0);
         viderLeCache();
 
-        services.stockEntryService.updateQuantityUG(
-            new DeliveryReceiptItemLiteDTO().setOrderLineId(reception.ligneId()).setQuantityUG(4)
-        );
-        services.stockEntryService.updateOrderUnitPrice(
-            new DeliveryReceiptItemLiteDTO().setOrderLineId(reception.ligneId()).setOrderUnitPrice(12_000)
-        );
+        services.stockEntryService.updateQuantityUG(new DeliveryReceiptItemLiteDTO()
+                .setOrderLineId(reception.ligneId())
+                .setQuantityUG(4));
+        services.stockEntryService.updateOrderUnitPrice(new DeliveryReceiptItemLiteDTO()
+                .setOrderLineId(reception.ligneId())
+                .setOrderUnitPrice(12_000));
         viderLeCache();
 
         OrderLine ligne = em.find(OrderLine.class, reception.ligneId());
@@ -380,12 +395,13 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         Reception seconde = receptionSurCommande(premiere.commandeId(), 20, 0);
         viderLeCache();
 
-        services.stockEntryService.batchUpdateQuantityReceived(
-            List.of(
-                new DeliveryReceiptItemLiteDTO().setOrderLineId(premiere.ligneId()).setQuantityReceivedTmp(11),
-                new DeliveryReceiptItemLiteDTO().setOrderLineId(seconde.ligneId()).setQuantityReceivedTmp(7)
-            )
-        );
+        services.stockEntryService.batchUpdateQuantityReceived(List.of(
+                new DeliveryReceiptItemLiteDTO()
+                        .setOrderLineId(premiere.ligneId())
+                        .setQuantityReceivedTmp(11),
+                new DeliveryReceiptItemLiteDTO()
+                        .setOrderLineId(seconde.ligneId())
+                        .setQuantityReceivedTmp(7)));
         viderLeCache();
 
         assertEquals(11, em.find(OrderLine.class, premiere.ligneId()).getQuantityReceived());
@@ -406,9 +422,7 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         var ecarts = services.stockEntryService.findLignesAvecEcartPrix(
-            faible.commandeId().getId(),
-            faible.commandeId().getOrderDate()
-        );
+                faible.commandeId().getId(), faible.commandeId().getOrderDate());
 
         assertEquals(1, ecarts.size());
         assertEquals(4_000, ecarts.getFirst().getOrderCostAmount());
@@ -439,9 +453,10 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         Reception reception = reception(20, 0, 0);
         viderLeCache();
 
-        services.stockEntryService.createBon(
-            bon(reception).setReceiptReference("BL-2026-42").setReceiptAmount(150_000).setTaxAmount(27_000)
-        );
+        services.stockEntryService.createBon(bon(reception)
+                .setReceiptReference("BL-2026-42")
+                .setReceiptAmount(150_000)
+                .setTaxAmount(27_000));
         viderLeCache();
 
         Commande commande = em.find(Commande.class, reception.commandeId());
@@ -458,7 +473,8 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         Reception reception = reception(20, 0, 0);
         viderLeCache();
 
-        services.stockEntryService.updateBon(bon(reception).setReceiptAmount(90_000).setTaxAmount(16_200));
+        services.stockEntryService.updateBon(
+                bon(reception).setReceiptAmount(90_000).setTaxAmount(16_200));
         viderLeCache();
 
         Commande commande = em.find(Commande.class, reception.commandeId());
@@ -481,9 +497,7 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         var apercu = services.stockEntryService.getPutawayPreview(
-            debordant.commandeId().getId(),
-            debordant.commandeId().getOrderDate()
-        );
+                debordant.commandeId().getId(), debordant.commandeId().getOrderDate());
 
         assertEquals(1, apercu.size(), "sans stock de réserve configuré, aucun rangement n'est proposé");
         assertEquals(produitDebordant.getId(), apercu.getFirst().produitId());
@@ -494,12 +508,11 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
 
     /** Les identifiants d'une réception prête à finaliser, relus après vidage du contexte. */
     private record Reception(
-        com.kobe.warehouse.domain.CommandeId commandeId,
-        com.kobe.warehouse.domain.OrderLineId ligneId,
-        Integer produitId,
-        Integer stockId,
-        Integer fournisseurProduitId
-    ) {}
+            com.kobe.warehouse.domain.CommandeId commandeId,
+            com.kobe.warehouse.domain.OrderLineId ligneId,
+            Integer produitId,
+            Integer stockId,
+            Integer fournisseurProduitId) {}
 
     private Reception reception(int stockRayon, int quantiteRecue, int gratuites) {
         Produit produit = produit(unique("PRODUIT"));
@@ -510,11 +523,13 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         ligne.setFreeQty(gratuites);
         ligne.setUpdated(true);
         em.flush();
-        return new Reception(commande.getId(), ligne.getId(), produit.getId(), stockProduit.getId(), fournisseurProduit.getId());
+        return new Reception(
+                commande.getId(), ligne.getId(), produit.getId(), stockProduit.getId(), fournisseurProduit.getId());
     }
 
     /** Une seconde ligne sur la même commande : la finalisation les traite toutes. */
-    private Reception receptionSurCommande(com.kobe.warehouse.domain.CommandeId commandeId, int quantiteRecue, int gratuites) {
+    private Reception receptionSurCommande(
+            com.kobe.warehouse.domain.CommandeId commandeId, int quantiteRecue, int gratuites) {
         Commande commande = em.find(Commande.class, commandeId);
         Produit produit = produit(unique("PRODUIT"));
         StockProduit stockProduit = stock(produit, rayon, 0);
@@ -523,7 +538,8 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
         ligne.setFreeQty(gratuites);
         ligne.setUpdated(true);
         em.flush();
-        return new Reception(commandeId, ligne.getId(), produit.getId(), stockProduit.getId(), fournisseurProduit.getId());
+        return new Reception(
+                commandeId, ligne.getId(), produit.getId(), stockProduit.getId(), fournisseurProduit.getId());
     }
 
     private Lot lotDeReception(Reception reception, String numLot, LocalDate peremption, int quantite) {
@@ -549,9 +565,9 @@ class StockEntryServiceIntegrationTest extends AbstractStockIntegrationTest {
 
     private DeliveryReceiptLiteDTO bon(Reception reception) {
         return new DeliveryReceiptLiteDTO()
-            .setCommandeId(reception.commandeId())
-            .setReceiptDate(LocalDate.now())
-            .setReceiptAmount(0)
-            .setTaxAmount(0);
+                .setCommandeId(reception.commandeId())
+                .setReceiptDate(LocalDate.now())
+                .setReceiptAmount(0)
+                .setTaxAmount(0);
     }
 }

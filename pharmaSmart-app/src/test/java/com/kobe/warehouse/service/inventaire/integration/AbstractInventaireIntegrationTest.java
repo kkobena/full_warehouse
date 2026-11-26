@@ -18,8 +18,8 @@ import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
-import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
@@ -71,12 +71,13 @@ abstract class AbstractInventaireIntegrationTest {
     @BeforeAll
     static void demarrerLaBase() {
         em = SharedEntityManagerCreator.createSharedEntityManager(
-            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new InventaireServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -87,12 +88,18 @@ abstract class AbstractInventaireIntegrationTest {
         lenient().when(services.userService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
-        lenient().when(services.storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-        lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserMainStorage())
+                .thenReturn(rayon);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserReserveStorage())
+                .thenReturn(reserve);
         lenient().when(services.storageService.getOne(STORAGE_RAYON_ID)).thenReturn(rayon);
         lenient().when(services.storageService.getOne(STORAGE_RESERVE_ID)).thenReturn(reserve);
         // Sans gestion de lot par défaut : les tests qui l'éprouvent la rehaussent eux-mêmes.
-        lenient().when(services.appConfigurationService.useGestionLotInventaire()).thenReturn(false);
+        lenient()
+                .when(services.appConfigurationService.useGestionLotInventaire())
+                .thenReturn(false);
     }
 
     @AfterEach
@@ -109,11 +116,15 @@ abstract class AbstractInventaireIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
-        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult();
+        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     /**
@@ -321,12 +332,10 @@ abstract class AbstractInventaireIntegrationTest {
     }
 
     protected long lotsDe(Long inventaireId) {
-        return compter(
-            """
+        return compter("""
             SELECT count(*) FROM inventory_lot il
             JOIN store_inventory_line sil ON sil.id = il.store_inventory_line_id
             WHERE sil.store_inventory_id = %d
-            """.formatted(inventaireId)
-        );
+            """.formatted(inventaireId));
     }
 }

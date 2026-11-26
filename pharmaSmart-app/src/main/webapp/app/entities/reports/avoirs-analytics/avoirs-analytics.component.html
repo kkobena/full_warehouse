@@ -2,18 +2,8 @@
 <app-toolbar [code]="navCode()" icon="pi pi-undo" title="Analyse des Avoirs Tiers-Payants">
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
-      <pharma-date-picker
-        label="Du"
-        id="av-from"
-        [ngModel]="fromStruct()"
-        (ngModelChange)="fromDate.set(structToDate($event))"
-      />
-      <pharma-date-picker
-        label="Au"
-        id="av-to"
-        [ngModel]="toStruct()"
-        (ngModelChange)="toDate.set(structToDate($event))"
-      />
+      <pharma-date-picker label="Du" id="av-from" [ngModel]="fromStruct()" (ngModelChange)="fromDate.set(structToDate($event))" />
+      <pharma-date-picker label="Au" id="av-to" [ngModel]="toStruct()" (ngModelChange)="toDate.set(structToDate($event))" />
     </div>
   </ng-container>
 
@@ -41,24 +31,38 @@
 }
 
 @if (!isLoading()) {
-
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-undo" iconClass="text-primary" label="Avoirs actifs"
-                  info="Montant des avoirs émis ou déjà imputés : ceux qui engagent l'officine. Les brouillons et les annulés sont exclus du montant, mais comptés dans le total de lignes affiché à côté." [value]="formatCurrency(totalMontant())" valueClass="text-primary">
+    <app-kpi-item
+      [accent]="'primary'"
+      icon="pi pi-undo"
+      iconClass="text-primary"
+      label="Avoirs actifs"
+      info="Montant des avoirs émis ou déjà imputés : ceux qui engagent l'officine. Les brouillons et les annulés sont exclus du montant, mais comptés dans le total de lignes affiché à côté."
+      [value]="formatCurrency(totalMontant())"
+      valueClass="text-primary"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Émis + Imputés · {{ avoirs().length }} au total</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-check" iconClass="text-success" label="Montant imputé"
-                  info="Part des avoirs actifs déjà rattachée à une facture. Le taux les rapporte au montant actif ci-contre." [value]="formatCurrency(montantImpute())" valueClass="text-success">
+    <app-kpi-item
+      [accent]="'success'"
+      icon="pi pi-check"
+      iconClass="text-success"
+      label="Montant imputé"
+      info="Part des avoirs actifs déjà rattachée à une facture. Le taux les rapporte au montant actif ci-contre."
+      [value]="formatCurrency(montantImpute())"
+      valueClass="text-success"
+    >
       <ng-container ngProjectAs="[kpiSub]">{{ tauxImputation() }}% du total émis</ng-container>
     </app-kpi-item>
     @for (stat of stats(); track stat.statut) {
-    <app-kpi-item [value]="formatNumber(stat.count)"
-                  info="Nombre d'avoirs à ce statut dans le périmètre filtré, et leur montant cumulé.">
-      <ng-container ngProjectAs="[kpiLabel]"><span class="badge {{ stat.badgeClass }}">{{ stat.label }}</span></ng-container>
-      <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(stat.montant) }}</ng-container>
-    </app-kpi-item>
+      <app-kpi-item [value]="formatNumber(stat.count)" info="Nombre d'avoirs à ce statut dans le périmètre filtré, et leur montant cumulé.">
+        <ng-container ngProjectAs="[kpiLabel]"
+          ><span class="badge {{ stat.badgeClass }}">{{ stat.label }}</span></ng-container
+        >
+        <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(stat.montant) }}</ng-container>
+      </app-kpi-item>
     }
   </app-kpi-strip>
 
@@ -75,17 +79,19 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th appSortableHeader="numAvoir">N° Avoir </th>
-          <th appSortableHeader="avoirDate">Date </th>
+          <th appSortableHeader="numAvoir">N° Avoir</th>
+          <th appSortableHeader="avoirDate">Date</th>
           <th>Tiers-payant</th>
           <th>Statut</th>
-          <th class="text-end" appSortableHeader="montantAvoir">Montant </th>
+          <th class="text-end" appSortableHeader="montantAvoir">Montant</th>
           <th>Motif</th>
         </tr>
       </ng-template>
       <ng-template #body let-avoir>
         <tr>
-          <td><span class="pharma-code">{{ avoir.numAvoir }}</span></td>
+          <td>
+            <span class="pharma-code">{{ avoir.numAvoir }}</span>
+          </td>
           <td>{{ avoir.avoirDate ? formatDateFR(avoir.avoirDate) : '—' }}</td>
           <td>{{ avoir.tiersPayantName }}</td>
           <td>
@@ -107,5 +113,4 @@
       </ng-template>
     </app-data-table>
   </div>
-
 }

@@ -37,7 +37,6 @@ export class AlertBadgeService {
   /** Factures fournisseurs échues non réglées (comptes fournisseurs AP) */
   readonly comptesFournisseursOverdueCount = signal(0);
 
-
   // ─── Privé ───────────────────────────────────────────────────────────────
 
   private readonly dashboardService = inject(DashboardService);
@@ -86,4 +85,3 @@ export class AlertBadgeService {
     this.initialized = false;
   }
 }
-

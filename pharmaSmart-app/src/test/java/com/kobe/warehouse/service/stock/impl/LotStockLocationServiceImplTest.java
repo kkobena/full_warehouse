@@ -79,7 +79,7 @@ class LotStockLocationServiceImplTest {
     class Credit {
 
         @ParameterizedTest(name = "qtyDelta={0} ne touche pas au depot")
-        @ValueSource(ints = { 0, -1, -50 })
+        @ValueSource(ints = {0, -1, -50})
         void ignoreLesQuantitesNonPositives(int qtyDelta) {
             service.credit(lot, storage, qtyDelta);
 
@@ -118,7 +118,7 @@ class LotStockLocationServiceImplTest {
     class Debit {
 
         @ParameterizedTest(name = "qtyDelta={0} ne touche pas au depot")
-        @ValueSource(ints = { 0, -3 })
+        @ValueSource(ints = {0, -3})
         void ignoreLesQuantitesNonPositives(int qtyDelta) {
             service.debit(lot, storage, qtyDelta);
 
@@ -231,13 +231,13 @@ class LotStockLocationServiceImplTest {
         @Test
         @DisplayName("traite tous les lots de la liste")
         void traiteToutLaListe() {
-            when(lotStockLocationRepository.findByLotIdAndStorageId(10, 1)).thenReturn(Optional.of(location(lot, storage, 1)));
+            when(lotStockLocationRepository.findByLotIdAndStorageId(10, 1))
+                    .thenReturn(Optional.of(location(lot, storage, 1)));
             when(lotStockLocationRepository.findByLotIdAndStorageId(11, 1)).thenReturn(Optional.empty());
 
             service.creditFromSold(
-                List.of(new LotSold(10, "L1", 2, LocalDate.now()), new LotSold(11, "L2", 3, LocalDate.now())),
-                storage
-            );
+                    List.of(new LotSold(10, "L1", 2, LocalDate.now()), new LotSold(11, "L2", 3, LocalDate.now())),
+                    storage);
 
             verify(lotStockLocationRepository, times(2)).save(any(LotStockLocation.class));
         }
@@ -258,7 +258,8 @@ class LotStockLocationServiceImplTest {
         @Test
         @DisplayName("aucun lot recu : aucun effet")
         void aucunLot() {
-            when(lotStockLocationRepository.findLastReceivedByStorageAndProduit(1, 100)).thenReturn(Optional.empty());
+            when(lotStockLocationRepository.findLastReceivedByStorageAndProduit(1, 100))
+                    .thenReturn(Optional.empty());
 
             service.creditLastLot(produit, storage, 5);
 
@@ -269,7 +270,8 @@ class LotStockLocationServiceImplTest {
         @DisplayName("incremente le dernier lot recu")
         void incremente() {
             LotStockLocation last = location(lot, storage, 2);
-            when(lotStockLocationRepository.findLastReceivedByStorageAndProduit(1, 100)).thenReturn(Optional.of(last));
+            when(lotStockLocationRepository.findLastReceivedByStorageAndProduit(1, 100))
+                    .thenReturn(Optional.of(last));
 
             service.creditLastLot(produit, storage, 5);
 

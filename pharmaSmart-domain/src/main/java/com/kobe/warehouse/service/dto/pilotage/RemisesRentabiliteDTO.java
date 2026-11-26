@@ -13,15 +13,14 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record RemisesRentabiliteDTO(
-    ComparaisonPeriodesDTO comparaison,
-    CelluleAnalyseDTO remises,
-    CelluleAnalyseDTO tauxRemise,
-    CelluleAnalyseDTO partVentesRemisees,
-    CelluleAnalyseDTO remiseMoyenne,
-    CelluleAnalyseDTO poidsRemisesMarge,
-    List<LigneRemiseDTO> octrois,
-    List<LigneRemiseDTO> tranches,
-    List<LigneRemiseDTO> vendeurs,
-    double multipleAlerte,
-    List<VenteRemiseeDTO> plusFortesRemises
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        CelluleAnalyseDTO remises,
+        CelluleAnalyseDTO tauxRemise,
+        CelluleAnalyseDTO partVentesRemisees,
+        CelluleAnalyseDTO remiseMoyenne,
+        CelluleAnalyseDTO poidsRemisesMarge,
+        List<LigneRemiseDTO> octrois,
+        List<LigneRemiseDTO> tranches,
+        List<LigneRemiseDTO> vendeurs,
+        double multipleAlerte,
+        List<VenteRemiseeDTO> plusFortesRemises) {}

@@ -29,9 +29,7 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
     private final UserService userService;
 
     public InventaireSyncServiceImpl(
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        UserService userService
-    ) {
+            StoreInventoryLineRepository storeInventoryLineRepository, UserService userService) {
         this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.userService = userService;
     }
@@ -43,14 +41,13 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
         }
 
         Set<Long> ids = dtos.stream()
-            .map(StoreInventoryLineDTO::getId)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .map(StoreInventoryLineDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
         // Chargement en masse : 1 requête au lieu de N getReferenceById
-        Map<Long, StoreInventoryLine> lineMap = storeInventoryLineRepository.findAllById(ids)
-            .stream()
-            .collect(Collectors.toMap(StoreInventoryLine::getId, l -> l));
+        Map<Long, StoreInventoryLine> lineMap = storeInventoryLineRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(StoreInventoryLine::getId, l -> l));
 
         List<Long> failedIds = new ArrayList<>();
         List<Long> conflictedIds = new ArrayList<>();
@@ -71,8 +68,11 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
             // Verrou optimiste : ligne recomptée entre-temps par un autre opérateur.
             // Isolé du reste du batch — les autres lignes sont enregistrées.
             if (isStale(dto, line)) {
-                log.warn("Conflit de comptage sur la ligne id={} (version client={}, serveur={})",
-                    dto.getId(), dto.getVersion(), line.getVersion());
+                log.warn(
+                        "Conflit de comptage sur la ligne id={} (version client={}, serveur={})",
+                        dto.getId(),
+                        dto.getVersion(),
+                        line.getVersion());
                 conflictedIds.add(dto.getId());
                 continue;
             }
@@ -89,11 +89,7 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
         storeInventoryLineRepository.saveAll(toSave);
 
         return new BatchSyncResultRecord(
-            toSave.size(),
-            failedIds.size() + conflictedIds.size(),
-            failedIds,
-            conflictedIds
-        );
+                toSave.size(), failedIds.size() + conflictedIds.size(), failedIds, conflictedIds);
     }
 
     /**
@@ -102,15 +98,14 @@ public class InventaireSyncServiceImpl implements InventaireSyncService {
      */
     private boolean isStale(StoreInventoryLineDTO dto, StoreInventoryLine line) {
         return dto.getVersion() != null
-            && line.getVersion() != null
-            && !dto.getVersion().equals(line.getVersion());
+                && line.getVersion() != null
+                && !dto.getVersion().equals(line.getVersion());
     }
 
     private void applyDto(StoreInventoryLineDTO dto, StoreInventoryLine line, AppUser countedBy) {
         line.applyCount(
-            Objects.requireNonNullElse(dto.getQuantityInit(), 0),
-            Objects.requireNonNullElse(dto.getQuantityOnHand(), 0),
-            countedBy
-        );
+                Objects.requireNonNullElse(dto.getQuantityInit(), 0),
+                Objects.requireNonNullElse(dto.getQuantityOnHand(), 0),
+                countedBy);
     }
 }

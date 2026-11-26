@@ -77,7 +77,8 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             }
             em.flush();
 
-            assertThat(repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 3)).hasSize(3);
+            assertThat(repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 3))
+                    .hasSize(3);
         }
 
         @Test
@@ -90,7 +91,7 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             LocalDate demain = LocalDate.now().plusDays(1);
 
             assertThat(repository.findConcentration(demain, demain.plusDays(1), 10))
-                .noneMatch(row -> payeur.getName().equals(row[0]));
+                    .noneMatch(row -> payeur.getName().equals(row[0]));
         }
 
         /** Une facture regroupée est portée par sa facture de groupe : la compter doublerait le chiffre. */
@@ -125,10 +126,8 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             List<Object[]> lignes = repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100);
             long total = toLong(lignes.getFirst()[5]);
 
-            assertThat(toDouble(ligneDe(premier.getName())[4]))
-                .isEqualTo(arrondiCentieme(7_500_000.0 * 100 / total));
-            assertThat(toDouble(ligneDe(second.getName())[4]))
-                .isEqualTo(arrondiCentieme(2_500_000.0 * 100 / total));
+            assertThat(toDouble(ligneDe(premier.getName())[4])).isEqualTo(arrondiCentieme(7_500_000.0 * 100 / total));
+            assertThat(toDouble(ligneDe(second.getName())[4])).isEqualTo(arrondiCentieme(2_500_000.0 * 100 / total));
         }
 
         @Test
@@ -159,11 +158,13 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             }
             em.flush();
 
-            long totalSansPlafond = toLong(repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100).getFirst()[5]);
+            long totalSansPlafond = toLong(repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100)
+                    .getFirst()[5]);
             List<Object[]> palmares = repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 2);
 
             assertThat(toLong(palmares.getFirst()[5])).isEqualTo(totalSansPlafond);
-            assertThat(palmares.stream().mapToDouble(row -> toDouble(row[4])).sum()).isLessThan(100.0);
+            assertThat(palmares.stream().mapToDouble(row -> toDouble(row[4])).sum())
+                    .isLessThan(100.0);
         }
 
         @Test
@@ -189,12 +190,11 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             facture(payeur, ceMois, 3_000_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            Object[] ligne = repository
-                .findEvolution(100)
-                .stream()
-                .filter(row -> payeur.getName().equals(row[2]) && toLong(row[1]) == LocalDate.now().getMonthValue())
-                .findFirst()
-                .orElseThrow();
+            Object[] ligne = repository.findEvolution(100).stream()
+                    .filter(row -> payeur.getName().equals(row[2])
+                            && toLong(row[1]) == LocalDate.now().getMonthValue())
+                    .findFirst()
+                    .orElseThrow();
 
             assertThat(toLong(ligne[3])).isEqualTo(3_000_000L);
         }
@@ -207,7 +207,12 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
         @DisplayName("les organismes hors palmarès sont réunis sous « Autres »")
         void autresOrganismesRegroupes() {
             for (int i = 0; i < 4; i++) {
-                facture(payeur("PAYEUR-" + i, 30), LocalDate.now().withDayOfMonth(1).plusDays(2), 1_000_000 * (i + 1), 0, InvoiceStatut.NOT_PAID);
+                facture(
+                        payeur("PAYEUR-" + i, 30),
+                        LocalDate.now().withDayOfMonth(1).plusDays(2),
+                        1_000_000 * (i + 1),
+                        0,
+                        InvoiceStatut.NOT_PAID);
             }
             em.flush();
 
@@ -221,7 +226,12 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
         void aucunMontantPerdu() {
             long avant = sommeDeLEvolution(1);
             for (int i = 0; i < 4; i++) {
-                facture(payeur("PAYEUR-" + i, 30), LocalDate.now().withDayOfMonth(1).plusDays(2), 1_000_000, 0, InvoiceStatut.NOT_PAID);
+                facture(
+                        payeur("PAYEUR-" + i, 30),
+                        LocalDate.now().withDayOfMonth(1).plusDays(2),
+                        1_000_000,
+                        0,
+                        InvoiceStatut.NOT_PAID);
             }
             em.flush();
 
@@ -237,27 +247,31 @@ class ConcentrationPayersRepositoryIntegrationTest extends AbstractReportIntegra
             facture(payeur, LocalDate.now().withDayOfMonth(1), 2_000_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            assertThat(repository.findEvolution(100)).extracting(row -> toLong(row[0]) * 100 + toLong(row[1])).isSorted();
+            assertThat(repository.findEvolution(100))
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
 
         private long sommeDeLEvolution(int topN) {
-            return repository.findEvolution(topN).stream().mapToLong(row -> toLong(row[3])).sum();
+            return repository.findEvolution(topN).stream()
+                    .mapToLong(row -> toLong(row[3]))
+                    .sum();
         }
     }
 
     // ===== utilitaires =====
 
     private Object[] ligneDe(String organisme) {
-        return repository
-            .findConcentration(debutDeLAnnee(), LocalDate.now(), 100)
-            .stream()
-            .filter(row -> organisme.equals(row[0]))
-            .findFirst()
-            .orElseThrow();
+        return repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100).stream()
+                .filter(row -> organisme.equals(row[0]))
+                .findFirst()
+                .orElseThrow();
     }
 
     private List<String> organismes() {
-        return repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100).stream().map(row -> (String) row[0]).toList();
+        return repository.findConcentration(debutDeLAnnee(), LocalDate.now(), 100).stream()
+                .map(row -> (String) row[0])
+                .toList();
     }
 
     private TiersPayant payeur(String nom, int delaiReglement) {

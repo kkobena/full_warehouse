@@ -1,13 +1,11 @@
 package com.kobe.warehouse.service.dto.filter;
 
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
 import static com.kobe.warehouse.domain.enumeration.OrderStatut.CLOSED;
 import static com.kobe.warehouse.domain.enumeration.OrderStatut.RECEIVED;
+
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import java.time.LocalDate;
+import java.util.Set;
 
 public class DeliveryReceiptFilterDTO {
 
@@ -124,17 +122,16 @@ public class DeliveryReceiptFilterDTO {
 
     @Override
     public String toString() {
-        return "DeliveryReceiptFilterDTO{" +
-            "fromDate=" + fromDate +
-            ", toDate=" + toDate +
-            ", search='" + search + '\'' +
-            ", searchByRef='" + searchByRef + '\'' +
-            ", start=" + start +
-            ", limit=" + limit +
-            ", fournisseurId=" + fournisseurId +
-            ", userId=" + userId +
-            ", all=" + all +
-            ", statut=" + statut +
-            '}';
+        return "DeliveryReceiptFilterDTO{" + "fromDate="
+                + fromDate + ", toDate="
+                + toDate + ", search='"
+                + search + '\'' + ", searchByRef='"
+                + searchByRef + '\'' + ", start="
+                + start + ", limit="
+                + limit + ", fournisseurId="
+                + fournisseurId + ", userId="
+                + userId + ", all="
+                + all + ", statut="
+                + statut + '}';
     }
 }

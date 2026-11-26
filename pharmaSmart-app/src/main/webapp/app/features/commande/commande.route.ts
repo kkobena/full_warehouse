@@ -12,7 +12,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
   if (id) {
     if (route.url.some(url => url.path.includes('stock-entry'))) {
       return inject(CommandeService)
-        .findSaisieEntreeStock({id, orderDate})
+        .findSaisieEntreeStock({ id, orderDate })
         .pipe(
           mergeMap((commande: HttpResponse<ICommande>) => {
             if (commande.body) {
@@ -25,7 +25,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
         );
     }
     return inject(CommandeService)
-      .find({id, orderDate})
+      .find({ id, orderDate })
       .pipe(
         mergeMap((res: HttpResponse<ICommande>) => {
           if (res.body) {
@@ -43,8 +43,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
 const commandeRoute: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
+    loadComponent: () => import('./feature/commande-home/commande-home.component').then(m => m.CommandeHomeComponent),
     data: {
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.commande.home.title',
@@ -52,8 +51,7 @@ const commandeRoute: Routes = [
   },
   {
     path: 'new',
-    loadComponent: () =>
-      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
+    loadComponent: () => import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -68,23 +66,18 @@ const commandeRoute: Routes = [
   {
     path: 'retour-fournisseur/new',
     loadComponent: () =>
-      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
-        m => m.SupplierReturnsComponent,
-      ),
+      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(m => m.SupplierReturnsComponent),
     data: { pageTitle: 'Nouveau Retour Fournisseur' },
   },
   {
     path: 'retour-fournisseur/:id/edit',
     loadComponent: () =>
-      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(
-        m => m.SupplierReturnsComponent,
-      ),
+      import('./feature/retour-fournisseur/ui/supplier-returns/supplier-returns.component').then(m => m.SupplierReturnsComponent),
     data: { pageTitle: 'Modifier le Retour Fournisseur' },
   },
   {
     path: ':id/:orderDate/edit',
-    loadComponent: () =>
-      import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
+    loadComponent: () => import('./feature/commande-detail/commande-detail.component').then(m => m.CommandeDetailComponent),
     resolve: {
       commande: CommandeResolve,
     },
@@ -92,16 +85,12 @@ const commandeRoute: Routes = [
   },
   {
     path: 'suggestions',
-    loadComponent: () =>
-      import('./feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
+    loadComponent: () => import('./feature/suggestion/suggestion-home.component').then(m => m.SuggestionHomeComponent),
     data: { pageTitle: 'Suggestions de commande' },
   },
   {
     path: 'semois-classe-config',
-    loadComponent: () =>
-      import('./feature/semois-classe-config/semois-classe-config.component').then(
-        m => m.SemoisClasseConfigComponent,
-      ),
+    loadComponent: () => import('./feature/semois-classe-config/semois-classe-config.component').then(m => m.SemoisClasseConfigComponent),
     data: { pageTitle: 'Configuration SEMOIS — Classes de criticité' },
   },
 ];

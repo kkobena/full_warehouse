@@ -21,7 +21,7 @@ interface SetupDefaults {
   imports: [ReactiveFormsModule, NgOptimizedImage, ButtonComponent, PasswordComponent],
 })
 export class SetupWizardComponent implements OnInit, OnDestroy {
-  readonly visible    = signal(false);
+  readonly visible = signal(false);
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
 
@@ -30,13 +30,13 @@ export class SetupWizardComponent implements OnInit, OnDestroy {
   private unlistenSetupRequired?: () => void;
 
   readonly form = new FormGroup({
-    dbHost:     new FormControl('localhost',    [Validators.required]),
-    dbPort:     new FormControl(5432,           [Validators.required, Validators.min(1), Validators.max(65535)]),
-    dbName:     new FormControl('pharma_smart', [Validators.required]),
+    dbHost: new FormControl('localhost', [Validators.required]),
+    dbPort: new FormControl(5432, [Validators.required, Validators.min(1), Validators.max(65535)]),
+    dbName: new FormControl('pharma_smart', [Validators.required]),
     dbUsername: new FormControl('pharma_smart', [Validators.required]),
     dbPassword: new FormControl(''),
-    dbSchema:   new FormControl(''),
-    serverPort: new FormControl(9080,           [Validators.required, Validators.min(1), Validators.max(65535)]),
+    dbSchema: new FormControl(''),
+    serverPort: new FormControl(9080, [Validators.required, Validators.min(1), Validators.max(65535)]),
   });
 
   async ngOnInit(): Promise<void> {
@@ -50,7 +50,9 @@ export class SetupWizardComponent implements OnInit, OnDestroy {
 
       // Écouter les événements futurs (normal flow)
       this.unlistenSetupRequired = await listen<void>('setup-required', () => {
-        this.ngZone.run((): void => { void this.openWizard(); });
+        this.ngZone.run((): void => {
+          void this.openWizard();
+        });
       });
 
       // Détecter un événement manqué (Angular chargé après l'émission Rust)
@@ -69,7 +71,9 @@ export class SetupWizardComponent implements OnInit, OnDestroy {
 
   private async openWizard(): Promise<void> {
     await this.loadDefaults();
-    this.ngZone.run((): void => { this.visible.set(true); });
+    this.ngZone.run((): void => {
+      this.visible.set(true);
+    });
   }
 
   private async loadDefaults(): Promise<void> {
@@ -78,11 +82,11 @@ export class SetupWizardComponent implements OnInit, OnDestroy {
       const d = await invoke<SetupDefaults>('get_setup_defaults');
       this.ngZone.run((): void => {
         this.form.patchValue({
-          dbHost:     d.db_host,
-          dbPort:     d.db_port,
-          dbName:     d.db_name,
+          dbHost: d.db_host,
+          dbPort: d.db_port,
+          dbName: d.db_name,
           dbUsername: d.db_username,
-          dbSchema:   d.db_schema,
+          dbSchema: d.db_schema,
           serverPort: d.server_port,
         });
       });
@@ -104,15 +108,17 @@ export class SetupWizardComponent implements OnInit, OnDestroy {
       const { invoke } = await import('@tauri-apps/api/core');
       const v = this.form.getRawValue();
       await invoke('complete_initial_setup', {
-        dbHost:     v.dbHost ?? '',
-        dbPort:     v.dbPort ?? 5432,
-        dbName:     v.dbName ?? '',
+        dbHost: v.dbHost ?? '',
+        dbPort: v.dbPort ?? 5432,
+        dbName: v.dbName ?? '',
         dbUsername: v.dbUsername ?? '',
         dbPassword: v.dbPassword ?? '',
-        dbSchema:   v.dbSchema ?? '',
+        dbSchema: v.dbSchema ?? '',
         serverPort: v.serverPort ?? 9080,
       });
-      this.ngZone.run((): void => { this.visible.set(false); });
+      this.ngZone.run((): void => {
+        this.visible.set(false);
+      });
     } catch (e) {
       this.ngZone.run((): void => {
         this.errorMessage.set(String(e));

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.UserDTO;
 import com.kobe.warehouse.web.rest.proxy.PublicUserResourceProxy;
@@ -7,7 +8,6 @@ import java.util.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -26,7 +26,8 @@ public class PublicUserResource extends PublicUserResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
      */
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllPublicUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<UserDTO>> getAllPublicUsers(
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         return super.getAllPublicUsers(pageable);
     }
 

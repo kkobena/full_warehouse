@@ -19,17 +19,14 @@ public interface ProduitFavoriRepository extends JpaRepository<ProduitFavori, In
      * Produits fréquents au comptoir (vue {@code mv_produits_frequents_comptoir}) qui ne sont pas déjà épinglés, du plus
      * fréquent au moins fréquent : {@code [produit_id, nb_ventes, qte_vendue]}.
      */
-    @Query(
-        value = """
+    @Query(value = """
         SELECT m.produit_id, m.nb_ventes, m.qte_vendue
         FROM mv_produits_frequents_comptoir m
         WHERE m.magasin_id = :magasinId
           AND NOT EXISTS (SELECT 1 FROM produit_favori f WHERE f.magasin_id = m.magasin_id AND f.produit_id = m.produit_id)
         ORDER BY m.rang
         LIMIT :limite
-        """,
-        nativeQuery = true
-    )
+        """, nativeQuery = true)
     List<Object[]> findSuggestions(@Param("magasinId") Integer magasinId, @Param("limite") int limite);
 
     Optional<ProduitFavori> findByMagasinIdAndProduitId(Integer magasinId, Integer produitId);

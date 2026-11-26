@@ -34,7 +34,8 @@ public interface AssuredCustomerService {
         assuredCustomer.setUpdatedAt(assuredCustomer.getUpdatedAt());
         assuredCustomer.setStatus(Status.ENABLE);
         assuredCustomer.setTypeAssure(TypeAssure.PRINCIPAL);
-        assuredCustomer.setNumAyantDroit(Objects.nonNull(dto.getNumAyantDroit()) ? dto.getNumAyantDroit().trim() : null);
+        assuredCustomer.setNumAyantDroit(
+                Objects.nonNull(dto.getNumAyantDroit()) ? dto.getNumAyantDroit().trim() : null);
         assuredCustomer.setCode(RandomStringUtils.randomNumeric(6));
         ClientTiersPayant o = getClientTiersPayantFromDto(dto);
         o.setAssuredCustomer(assuredCustomer);
@@ -113,7 +114,8 @@ public interface AssuredCustomerService {
     AssuredCustomer createFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 
     /** Contrôle anticipé : numéro de carte déjà utilisé pour cet organisme, et homonymes. */
-    ControleAssureDTO controlerAssure(Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu);
+    ControleAssureDTO controlerAssure(
+            Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu);
 
     AssuredCustomer updateFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 
@@ -141,10 +143,9 @@ public interface AssuredCustomerService {
     }
 
     default void clientTiersPayantExternalFromDto(
-        final List<ClientTiersPayantDTO> dtos,
-        final TiersPayant tiersPayant,
-        final AssuredCustomer assuredCustomer
-    ) {
+            final List<ClientTiersPayantDTO> dtos,
+            final TiersPayant tiersPayant,
+            final AssuredCustomer assuredCustomer) {
         dtos.forEach(c -> {
             ClientTiersPayant o = new ClientTiersPayant();
             o.setCreated(LocalDateTime.now());
@@ -160,7 +161,8 @@ public interface AssuredCustomerService {
         });
     }
 
-    default ClientTiersPayant updateClientTiersPayantFromDto(ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
+    default ClientTiersPayant updateClientTiersPayantFromDto(
+            ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer) {
         o.setUpdated(LocalDateTime.now());
         o.setNum(c.getNum());
         o.setPriorite(c.getPriorite());
@@ -196,7 +198,8 @@ public interface AssuredCustomerService {
         return assuredCustomer;
     }
 
-    ClientTiersPayant upadateClientTiersPayant(ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer);
+    ClientTiersPayant upadateClientTiersPayant(
+            ClientTiersPayantDTO c, ClientTiersPayant o, AssuredCustomer assuredCustomer);
 
     AssuredCustomerDTO mappEntityToDto(AssuredCustomer assuredCustomer);
 

@@ -33,11 +33,10 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
     private final DataMatrixParserService dataMatrixParserService;
 
     public ProductCodeResolverServiceImpl(
-        FournisseurProduitRepository fournisseurProduitRepository,
-        ProduitRepository produitRepository,
-        ProduitCodeAliasRepository aliasRepository,
-        DataMatrixParserService dataMatrixParserService
-    ) {
+            FournisseurProduitRepository fournisseurProduitRepository,
+            ProduitRepository produitRepository,
+            ProduitCodeAliasRepository aliasRepository,
+            DataMatrixParserService dataMatrixParserService) {
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.produitRepository = produitRepository;
         this.aliasRepository = aliasRepository;
@@ -91,12 +90,13 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
 
     @Override
     @Transactional
-    public ProduitCodeAliasDTO enregistrerAlias(Integer produitId, String code, CodeAliasType type, CodeAliasSource source) {
+    public ProduitCodeAliasDTO enregistrerAlias(
+            Integer produitId, String code, CodeAliasType type, CodeAliasSource source) {
         String normalise = code.trim();
         return aliasRepository
-            .findFirstByProduitIdAndCode(produitId, normalise)
-            .map(ProduitCodeAliasDTO::fromEntity)
-            .orElseGet(() -> creerAlias(produitId, normalise, type, source));
+                .findFirstByProduitIdAndCode(produitId, normalise)
+                .map(ProduitCodeAliasDTO::fromEntity)
+                .orElseGet(() -> creerAlias(produitId, normalise, type, source));
     }
 
     @Override
@@ -130,11 +130,11 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
 
     private ProduitCodeAliasDTO creerAlias(Integer produitId, String code, CodeAliasType type, CodeAliasSource source) {
         ProduitCodeAlias alias = new ProduitCodeAlias()
-            .setProduit(produitRepository.getReferenceById(produitId))
-            .setCode(code)
-            .setCodeType(type)
-            .setSource(source)
-            .setCreatedBy(SecurityUtils.getCurrentUserLogin().orElse(null));
+                .setProduit(produitRepository.getReferenceById(produitId))
+                .setCode(code)
+                .setCodeType(type)
+                .setSource(source)
+                .setCreatedBy(SecurityUtils.getCurrentUserLogin().orElse(null));
         return ProduitCodeAliasDTO.fromEntity(aliasRepository.saveAndFlush(alias));
     }
 
@@ -146,12 +146,11 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
 
     /** Un produit déjà retenu par une source plus sûre n'est pas réinscrit. */
     private void ajouterResultat(
-        List<ProductResolveResult> resultats,
-        Set<Integer> produitsVus,
-        Produit produit,
-        String code,
-        MatchedBy matchedBy
-    ) {
+            List<ProductResolveResult> resultats,
+            Set<Integer> produitsVus,
+            Produit produit,
+            String code,
+            MatchedBy matchedBy) {
         if (produit == null || !produitsVus.add(produit.getId())) {
             return;
         }

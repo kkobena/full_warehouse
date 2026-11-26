@@ -131,14 +131,14 @@ public class FamilleProduit implements Serializable {
     @Override
     public String toString() {
         return "FamilleProduit{"
-            + "id="
-            + getId()
-            + ", code='"
-            + getCode()
-            + "'"
-            + ", libelle='"
-            + getLibelle()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", code='"
+                + getCode()
+                + "'"
+                + ", libelle='"
+                + getLibelle()
+                + "'"
+                + "}";
     }
 }

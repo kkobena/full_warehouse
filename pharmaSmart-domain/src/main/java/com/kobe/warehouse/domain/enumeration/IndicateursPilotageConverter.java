@@ -14,11 +14,17 @@ public class IndicateursPilotageConverter implements AttributeConverter<List<Ind
 
     @Override
     public String convertToDatabaseColumn(List<IndicateurPilotage> indicateurs) {
-        return indicateurs == null ? null : indicateurs.stream().map(Enum::name).collect(Collectors.joining(SEPARATEUR));
+        return indicateurs == null
+                ? null
+                : indicateurs.stream().map(Enum::name).collect(Collectors.joining(SEPARATEUR));
     }
 
     @Override
     public List<IndicateurPilotage> convertToEntityAttribute(String colonne) {
-        return colonne == null || colonne.isBlank() ? List.of() : Arrays.stream(colonne.split(SEPARATEUR)).map(IndicateurPilotage::valueOf).toList();
+        return colonne == null || colonne.isBlank()
+                ? List.of()
+                : Arrays.stream(colonne.split(SEPARATEUR))
+                        .map(IndicateurPilotage::valueOf)
+                        .toList();
     }
 }

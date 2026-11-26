@@ -33,28 +33,29 @@ public class RegleRemisesAnormales implements RegleAlerte {
 
     @Override
     public List<AlertePilotageDTO> evaluer(LocalDate aujourdhui) {
-        RemisesRentabiliteDTO remises = remisesPilotageService.analyserRemises(RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.TAUX_REMISE)));
+        RemisesRentabiliteDTO remises = remisesPilotageService.analyserRemises(
+                RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.TAUX_REMISE)));
         if (remises.vendeurs() == null) {
             return List.of();
         }
         List<String> vendeurs = new ArrayList<>();
         for (LigneRemiseDTO vendeur : remises.vendeurs()) {
             if (vendeur.alerte()) {
-                vendeurs.add(vendeur.libelle() + " (" + RequetesAlertes.formaterDecimal(vendeur.tauxRemise().valeur()) + " %)");
+                vendeurs.add(vendeur.libelle() + " ("
+                        + RequetesAlertes.formaterDecimal(vendeur.tauxRemise().valeur()) + " %)");
             }
         }
         if (vendeurs.isEmpty()) {
             return List.of();
         }
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "REMISES_ANORMALES",
                 GraviteAlerte.MOYENNE,
                 "Remises anormales",
-                "Taux de remise du mois au-delà de " + RequetesAlertes.formaterDecimal(remises.multipleAlerte()) + " fois celui de l'équipe (" +
-                RequetesAlertes.formaterDecimal(remises.tauxRemise().valeur()) + " %) : " + String.join(", ", vendeurs) + ".",
-                "rentabilite-remises"
-            )
-        );
+                "Taux de remise du mois au-delà de " + RequetesAlertes.formaterDecimal(remises.multipleAlerte())
+                        + " fois celui de l'équipe ("
+                        + RequetesAlertes.formaterDecimal(remises.tauxRemise().valeur()) + " %) : "
+                        + String.join(", ", vendeurs) + ".",
+                "rentabilite-remises"));
     }
 }

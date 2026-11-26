@@ -12,18 +12,18 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {map} from 'rxjs';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, IconFieldComponent} from '../../../../shared/ui';
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { map } from 'rxjs';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, IconFieldComponent } from '../../../../shared/ui';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 import {
   CustomerSelectionModalComponent,
   ProductListComponent,
@@ -33,12 +33,12 @@ import {
   SaleSummaryComponent,
   SaleType,
 } from '../../ui';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {CustomerService} from '../../../../entities/customer/customer.service';
-import {ICustomer, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { CustomerService } from '../../../../entities/customer/customer.service';
+import { ICustomer, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
 import {
   createCustomerHandling,
   createDeconditionnementHandling,
@@ -48,10 +48,8 @@ import {
   createSaleLifecycle,
   ProductSearchHost,
 } from '../../shared/mixins';
-import {
-  UninsuredCustomerFormComponent
-} from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
-import {SaleForEditInfo} from '../../../../shared/model/sales.model';
+import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
+import { SaleForEditInfo } from '../../../../shared/model/sales.model';
 
 /**
  * SaleDevisComponent
@@ -150,7 +148,6 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
 
-
   // ===== Product Handling Mixin =====
   private productHandling = createProductHandling({
     facade: this.facade,
@@ -172,7 +169,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   private forceStockHandling = createForceStockHandling({
     facade: this.facade,
     authorizationService: this.authorizationService,
-    config: {saleType: 'COMPTANT'},
+    config: { saleType: 'COMPTANT' },
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -213,8 +210,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     customerListComponent: CustomerSelectionModalComponent,
     customerFormComponent: UninsuredCustomerFormComponent,
     selectCustomerFn: customer => this.facade.setSelectedCustomer(customer),
-    searchFn: (term, limit) =>
-      this.customerService.queryUninsuredCustomers({search: term, size: limit}).pipe(map(res => res.body || [])),
+    searchFn: (term, limit) => this.customerService.queryUninsuredCustomers({ search: term, size: limit }).pipe(map(res => res.body || [])),
     smartSearch: true,
     onCustomerSelectedCallback: () => this.focusProductSearch(),
   });
@@ -228,7 +224,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   });
   // ===== Keyboard Shortcuts Mixin =====
   private keyboardShortcutsMixin = createKeyboardShortcuts(
-    {saleType: 'COMPTANT', isPresale: () => true}, // Toujours en mode "prévente" pour devis (pas de paiement)
+    { saleType: 'COMPTANT', isPresale: () => true }, // Toujours en mode "prévente" pour devis (pas de paiement)
     {
       focusProductSearch: () => this.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
@@ -247,8 +243,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       cancelSale: () => this.onCancel(),
       openCustomerRecord: () => this.ouvrirFicheClient(),
       openOrdonnances: () => this.ouvrirOrdonnances(),
-      focusPayment() {
-      }, // Pas de paiement pour devis
+      focusPayment() {}, // Pas de paiement pour devis
       saveAsPresale: () => this.onSaveAsDevis(),
     },
   );
@@ -435,11 +430,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   onCancel(): void {
     // Confirm before canceling
     if (this.salesLines().length > 0) {
-      this.confirmDialog.onConfirm(
-        () => this.facade.cancelSale(),
-        'Annulation du devis',
-        'Êtes-vous sûr de vouloir annuler ce devis ?',
-      );
+      this.confirmDialog.onConfirm(() => this.facade.cancelSale(), 'Annulation du devis', 'Êtes-vous sûr de vouloir annuler ce devis ?');
     } else {
       this.resetForNewSale();
     }
@@ -511,7 +502,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   }
 
   protected onOpenCustomerList(): void {
-    this.customerHandling.openCustomerListModal({modalDialogClass: 'modal-dialog-70'});
+    this.customerHandling.openCustomerListModal({ modalDialogClass: 'modal-dialog-70' });
   }
 
   protected onEditCustomer(): void {

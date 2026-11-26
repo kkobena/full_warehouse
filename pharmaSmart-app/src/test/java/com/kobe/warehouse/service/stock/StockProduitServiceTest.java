@@ -24,9 +24,9 @@ import com.kobe.warehouse.service.stock.dto.StockProduitSearchDTO;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,7 +61,8 @@ class StockProduitServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new StockProduitService(stockProduitRepository, produitRepository, storageService, repartitionStockService);
+        service = new StockProduitService(
+                stockProduitRepository, produitRepository, storageService, repartitionStockService);
         reserve = storage(2, "RESERVE", StorageType.SAFETY_STOCK);
         produit = produit();
     }
@@ -115,8 +116,8 @@ class StockProduitServiceTest {
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.createStockProduit(dto))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Produit not found with id: " + PRODUIT_ID);
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Produit not found with id: " + PRODUIT_ID);
 
             verify(stockProduitRepository, never()).save(any());
         }
@@ -199,8 +200,8 @@ class StockProduitServiceTest {
             when(stockProduitRepository.findById(77)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.updateStockProduit(dto))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("StockProduit not found with id: 77");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("StockProduit not found with id: 77");
         }
 
         @Test
@@ -214,7 +215,8 @@ class StockProduitServiceTest {
             when(stockProduitRepository.save(existing)).thenReturn(existing);
 
             LocalDateTime before = LocalDateTime.now();
-            StockProduitDTO result = service.updateStockProduit(commande(0, 8, 25, 60).setId(77));
+            StockProduitDTO result =
+                    service.updateStockProduit(commande(0, 8, 25, 60).setId(77));
 
             assertThat(existing.getSeuilMini()).isEqualTo(8);
             assertThat(existing.getStockReassort()).isEqualTo(25);
@@ -263,8 +265,8 @@ class StockProduitServiceTest {
             when(stockProduitRepository.findById(77)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.getStockProduit(77))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("StockProduit not found with id: 77");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("StockProduit not found with id: 77");
         }
 
         @Test
@@ -299,7 +301,8 @@ class StockProduitServiceTest {
         @DisplayName("restreint la recherche au magasin de l utilisateur connecte")
         void restreintAuMagasin() {
             stubMagasin();
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, "dolipra")).thenReturn(List.of());
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, "dolipra"))
+                    .thenReturn(List.of());
 
             assertThat(service.searchStockProduitsForRepartition(2, "dolipra")).isEmpty();
 
@@ -316,9 +319,11 @@ class StockProduitServiceTest {
             StockProduit sp = stockProduit(77, reserve, produit, 30);
             sp.setSeuilMini(4);
             produit.setStockProduits(Set.of(sp));
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            StockProduitSearchDTO dto = service.searchStockProduitsForRepartition(2, null).getFirst();
+            StockProduitSearchDTO dto =
+                    service.searchStockProduitsForRepartition(2, null).getFirst();
 
             assertThat(dto.getId()).isEqualTo(77);
             assertThat(dto.getQtyStock()).isEqualTo(30);
@@ -338,9 +343,11 @@ class StockProduitServiceTest {
             stubMagasin();
             StockProduit sp = stockProduit(77, null, produit, 30);
             produit.setStockProduits(new HashSet<>());
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            StockProduitSearchDTO dto = service.searchStockProduitsForRepartition(2, null).getFirst();
+            StockProduitSearchDTO dto =
+                    service.searchStockProduitsForRepartition(2, null).getFirst();
 
             assertThat(dto.getStorageId()).isNull();
             assertThat(dto.getStorageName()).isNull();
@@ -353,9 +360,13 @@ class StockProduitServiceTest {
             stubMagasin();
             StockProduit sp = stockProduit(77, storage(3, "AUTRE", null), produit, 30);
             produit.setStockProduits(new HashSet<>());
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            assertThat(service.searchStockProduitsForRepartition(2, null).getFirst().getStorageType()).isNull();
+            assertThat(service.searchStockProduitsForRepartition(2, null)
+                            .getFirst()
+                            .getStorageType())
+                    .isNull();
         }
 
         @Test
@@ -363,9 +374,11 @@ class StockProduitServiceTest {
         void produitAbsent() {
             stubMagasin();
             StockProduit sp = stockProduit(77, reserve, null, 30);
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            StockProduitSearchDTO dto = service.searchStockProduitsForRepartition(2, null).getFirst();
+            StockProduitSearchDTO dto =
+                    service.searchStockProduitsForRepartition(2, null).getFirst();
 
             assertThat(dto.getProduitId()).isNull();
             assertThat(dto.getProduitLibelle()).isNull();
@@ -378,9 +391,13 @@ class StockProduitServiceTest {
             stubMagasin();
             StockProduit sp = stockProduit(77, reserve, produit, 30);
             produit.setStockProduits(new HashSet<>());
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            assertThat(service.searchStockProduitsForRepartition(2, null).getFirst().getProduitCodeCip()).isNull();
+            assertThat(service.searchStockProduitsForRepartition(2, null)
+                            .getFirst()
+                            .getProduitCodeCip())
+                    .isNull();
         }
 
         @Test
@@ -389,9 +406,13 @@ class StockProduitServiceTest {
             stubMagasin();
             StockProduit sp = stockProduit(77, reserve, produit, 30);
             produit.setStockProduits(null);
-            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null)).thenReturn(List.of(sp));
+            when(stockProduitRepository.searchStockProduitsForRepartition(2, 1, null))
+                    .thenReturn(List.of(sp));
 
-            assertThat(service.searchStockProduitsForRepartition(2, null).getFirst().getAllStocks()).isEmpty();
+            assertThat(service.searchStockProduitsForRepartition(2, null)
+                            .getFirst()
+                            .getAllStocks())
+                    .isEmpty();
         }
     }
 

@@ -61,57 +61,60 @@ public class MobilePerformanceService {
 
         // Get current and previous period summaries from repository
         PeriodSummaryProjection currentSummary = performanceRepository.getPeriodSummary(startDate, endDate);
-        PeriodSummaryProjection previousSummary = performanceRepository.getPeriodSummary(previousStartDate, previousEndDate);
-        PeriodSummaryProjection lastYearSummary = performanceRepository.getPeriodSummary(lastYearStartDate, lastYearEndDate);
+        PeriodSummaryProjection previousSummary =
+                performanceRepository.getPeriodSummary(previousStartDate, previousEndDate);
+        PeriodSummaryProjection lastYearSummary =
+                performanceRepository.getPeriodSummary(lastYearStartDate, lastYearEndDate);
 
         // Calculate derived values
         long averageBasket = currentSummary.transactionsCount() > 0
-            ? currentSummary.caTotal() / currentSummary.transactionsCount()
-            : 0;
+                ? currentSummary.caTotal() / currentSummary.transactionsCount()
+                : 0;
 
         double marginPercent = currentSummary.caTotal() > 0
-            ? BigDecimal.valueOf((currentSummary.marginTotal() * 100.0) / currentSummary.caTotal())
-                .setScale(2, RoundingMode.HALF_UP)
-                .doubleValue()
-            : 0;
+                ? BigDecimal.valueOf((currentSummary.marginTotal() * 100.0) / currentSummary.caTotal())
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue()
+                : 0;
 
         Double variationPercent = calculateVariation(currentSummary.caTotal(), previousSummary.caTotal());
         Double variationVsLastYearPercent = calculateVariation(currentSummary.caTotal(), lastYearSummary.caTotal());
 
         // Get payment methods breakdown from repository
-        List<PaymentMethodProjection> paymentProjections = performanceRepository.getPaymentMethodsSummary(startDate, endDate);
+        List<PaymentMethodProjection> paymentProjections =
+                performanceRepository.getPaymentMethodsSummary(startDate, endDate);
         List<PaymentMethodSummaryDTO> paymentMethods = mapPaymentMethods(paymentProjections, currentSummary.caTotal());
 
         // Get top products from repository
         List<TopProductProjection> topProductProjections = performanceRepository.getTopProducts(
-            startDate, endDate, previousStartDate, previousEndDate, TOP_PRODUCTS_LIMIT
-        );
+                startDate, endDate, previousStartDate, previousEndDate, TOP_PRODUCTS_LIMIT);
         List<TopProductPerformanceDTO> topProducts = mapTopProducts(topProductProjections);
 
         // Get data points for chart from repository
-        List<DataPointProjection> dataPointProjections = performanceRepository.getDataPoints(startDate, endDate, performancePeriod);
+        List<DataPointProjection> dataPointProjections =
+                performanceRepository.getDataPoints(startDate, endDate, performancePeriod);
         List<PeriodDataPointDTO> dataPoints = mapDataPoints(dataPointProjections, performancePeriod);
 
         return MobilePerformanceDTO.builder()
-            .period(performancePeriod.getCode())
-            .startDate(startDate)
-            .endDate(endDate)
-            .caTotal(currentSummary.caTotal())
-            .caPreviousPeriod(previousSummary.caTotal())
-            .variationPercent(variationPercent)
-            .previousStartDate(previousStartDate)
-            .previousEndDate(previousEndDate)
-            .caSamePeriodLastYear(lastYearSummary.caTotal())
-            .variationVsLastYearPercent(variationVsLastYearPercent)
-            .transactionsCount(currentSummary.transactionsCount())
-            .averageBasket(averageBasket)
-            .customersCount(currentSummary.customersCount())
-            .marginTotal(currentSummary.marginTotal())
-            .marginPercent(marginPercent)
-            .paymentMethods(paymentMethods)
-            .topProducts(topProducts)
-            .dataPoints(dataPoints)
-            .build();
+                .period(performancePeriod.getCode())
+                .startDate(startDate)
+                .endDate(endDate)
+                .caTotal(currentSummary.caTotal())
+                .caPreviousPeriod(previousSummary.caTotal())
+                .variationPercent(variationPercent)
+                .previousStartDate(previousStartDate)
+                .previousEndDate(previousEndDate)
+                .caSamePeriodLastYear(lastYearSummary.caTotal())
+                .variationVsLastYearPercent(variationVsLastYearPercent)
+                .transactionsCount(currentSummary.transactionsCount())
+                .averageBasket(averageBasket)
+                .customersCount(currentSummary.customersCount())
+                .marginTotal(currentSummary.marginTotal())
+                .marginPercent(marginPercent)
+                .paymentMethods(paymentMethods)
+                .topProducts(topProducts)
+                .dataPoints(dataPoints)
+                .build();
     }
 
     /**
@@ -130,16 +133,17 @@ public class MobilePerformanceService {
      */
     private List<PaymentMethodSummaryDTO> mapPaymentMethods(List<PaymentMethodProjection> projections, long totalCA) {
         return projections.stream()
-            .map(p -> {
-                double percent = totalCA > 0
-                    ? BigDecimal.valueOf((p.amount() * 100.0) / totalCA)
-                        .setScale(1, RoundingMode.HALF_UP)
-                        .doubleValue()
-                    : 0;
-                String color = PaymentMethodColor.getColorForCode(p.code());
-                return new PaymentMethodSummaryDTO(p.code(), p.libelle(), p.amount(), percent, p.transactionsCount(), color);
-            })
-            .toList();
+                .map(p -> {
+                    double percent = totalCA > 0
+                            ? BigDecimal.valueOf((p.amount() * 100.0) / totalCA)
+                                    .setScale(1, RoundingMode.HALF_UP)
+                                    .doubleValue()
+                            : 0;
+                    String color = PaymentMethodColor.getColorForCode(p.code());
+                    return new PaymentMethodSummaryDTO(
+                            p.code(), p.libelle(), p.amount(), percent, p.transactionsCount(), color);
+                })
+                .toList();
     }
 
     /**
@@ -148,17 +152,20 @@ public class MobilePerformanceService {
     private List<TopProductPerformanceDTO> mapTopProducts(List<TopProductProjection> projections) {
         AtomicInteger rank = new AtomicInteger(1);
         return projections.stream()
-            .map(p -> new TopProductPerformanceDTO(
-                rank.getAndIncrement(),
-                p.productId(),
-                p.productName(),
-                p.codeCip(),
-                p.salesAmount(),
-                p.quantitySold(),
-                BigDecimal.valueOf(p.percentOfTotal()).setScale(1, RoundingMode.HALF_UP).doubleValue(),
-                BigDecimal.valueOf(p.variationPercent()).setScale(1, RoundingMode.HALF_UP).doubleValue()
-            ))
-            .toList();
+                .map(p -> new TopProductPerformanceDTO(
+                        rank.getAndIncrement(),
+                        p.productId(),
+                        p.productName(),
+                        p.codeCip(),
+                        p.salesAmount(),
+                        p.quantitySold(),
+                        BigDecimal.valueOf(p.percentOfTotal())
+                                .setScale(1, RoundingMode.HALF_UP)
+                                .doubleValue(),
+                        BigDecimal.valueOf(p.variationPercent())
+                                .setScale(1, RoundingMode.HALF_UP)
+                                .doubleValue()))
+                .toList();
     }
 
     /**
@@ -166,14 +173,9 @@ public class MobilePerformanceService {
      */
     private List<PeriodDataPointDTO> mapDataPoints(List<DataPointProjection> projections, PerformancePeriod period) {
         return projections.stream()
-            .map(p -> new PeriodDataPointDTO(
-                p.date(),
-                getLabel(p.date(), period),
-                p.caAmount(),
-                p.transactionsCount(),
-                p.marginAmount()
-            ))
-            .toList();
+                .map(p -> new PeriodDataPointDTO(
+                        p.date(), getLabel(p.date(), period), p.caAmount(), p.transactionsCount(), p.marginAmount()))
+                .toList();
     }
 
     /**
@@ -200,7 +202,7 @@ public class MobilePerformanceService {
             return current == 0 ? Double.valueOf(0) : null;
         }
         return BigDecimal.valueOf(((current - previous) * 100.0) / previous)
-            .setScale(2, RoundingMode.HALF_UP)
-            .doubleValue();
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }

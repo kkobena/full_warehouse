@@ -77,14 +77,13 @@ class InventoryLotServiceImplTest {
     @BeforeEach
     void init() {
         service = new InventoryLotServiceImpl(
-            inventoryLotRepository,
-            storeInventoryLineRepository,
-            storeInventoryRepository,
-            lotRepository,
-            userService,
-            inventoryStockService,
-            em
-        );
+                inventoryLotRepository,
+                storeInventoryLineRepository,
+                storeInventoryRepository,
+                lotRepository,
+                userService,
+                inventoryStockService,
+                em);
         produit = new Produit();
         produit.setId(77);
         produit.setCostAmount(600);
@@ -105,11 +104,11 @@ class InventoryLotServiceImplTest {
         when(lotRepository.getReferenceById(11)).thenReturn(lot);
         when(inventoryLotRepository.saveAndFlush(any(InventoryLot.class))).thenAnswer(i -> i.getArgument(0));
         when(inventoryLotRepository.findAllByStoreInventoryLineId(LIGNE))
-            .thenReturn(List.of(inventoryLot(18), inventoryLot(4)));
+                .thenReturn(List.of(inventoryLot(18), inventoryLot(4)));
         when(userService.getUser()).thenReturn(operateur);
 
-        InventoryLotRecord resultat = service.save(
-            new InventoryLotRecord(null, LIGNE, 11, null, null, 18, null, null, false, 1_200));
+        InventoryLotRecord resultat =
+                service.save(new InventoryLotRecord(null, LIGNE, 11, null, null, 18, null, null, false, 1_200));
 
         assertEquals(20, resultat.quantityInit(), "la quantité initiale du lot est son stock courant");
         assertEquals(-2, resultat.gap());
@@ -132,8 +131,8 @@ class InventoryLotServiceImplTest {
         when(inventoryLotRepository.findAllByStoreInventoryLineId(LIGNE)).thenReturn(List.of(inventoryLot(20)));
         when(userService.getUser()).thenReturn(operateur);
 
-        InventoryLotRecord resultat = service.save(
-            new InventoryLotRecord(null, LIGNE, null, "LOT-A", null, 20, null, null, false, null));
+        InventoryLotRecord resultat =
+                service.save(new InventoryLotRecord(null, LIGNE, null, "LOT-A", null, 20, null, null, false, null));
 
         assertEquals(11, resultat.lotId());
         verify(lotRepository, never()).saveAndFlush(any(Lot.class));
@@ -151,7 +150,7 @@ class InventoryLotServiceImplTest {
         when(userService.getUser()).thenReturn(operateur);
 
         InventoryLotRecord resultat = service.save(
-            new InventoryLotRecord(null, LIGNE, null, "LOT-NEUF", peremption, 5, null, null, false, null));
+                new InventoryLotRecord(null, LIGNE, null, "LOT-NEUF", peremption, 5, null, null, false, null));
 
         ArgumentCaptor<Lot> cree = ArgumentCaptor.forClass(Lot.class);
         verify(lotRepository).saveAndFlush(cree.capture());
@@ -175,9 +174,8 @@ class InventoryLotServiceImplTest {
         when(storeInventoryLineRepository.getReferenceById(LIGNE)).thenReturn(ligne);
 
         assertThrows(
-            IllegalArgumentException.class,
-            () -> service.save(new InventoryLotRecord(null, LIGNE, null, null, null, 3, null, null, false, null))
-        );
+                IllegalArgumentException.class,
+                () -> service.save(new InventoryLotRecord(null, LIGNE, null, null, null, 3, null, null, false, null)));
         verify(inventoryLotRepository, never()).saveAndFlush(any(InventoryLot.class));
     }
 
@@ -189,8 +187,8 @@ class InventoryLotServiceImplTest {
         when(lotRepository.getReferenceById(11)).thenReturn(lot);
         when(inventoryLotRepository.saveAndFlush(any(InventoryLot.class))).thenAnswer(i -> i.getArgument(0));
 
-        InventoryLotRecord resultat = service.save(
-            new InventoryLotRecord(null, LIGNE, 11, null, null, null, null, null, false, null));
+        InventoryLotRecord resultat =
+                service.save(new InventoryLotRecord(null, LIGNE, 11, null, null, null, null, null, false, null));
 
         assertEquals(0, resultat.gap(), "sans quantité comptée, l'écart reste nul");
         assertFalse(resultat.updated());
@@ -211,8 +209,8 @@ class InventoryLotServiceImplTest {
         when(inventoryLotRepository.findAllByStoreInventoryLineId(LIGNE)).thenReturn(List.of(existant));
         when(userService.getUser()).thenReturn(operateur);
 
-        InventoryLotRecord resultat = service.update(
-            new InventoryLotRecord(1L, LIGNE, 11, "LOT-A", null, 23, null, null, false, null));
+        InventoryLotRecord resultat =
+                service.update(new InventoryLotRecord(1L, LIGNE, 11, "LOT-A", null, 23, null, null, false, null));
 
         assertEquals(-2, resultat.gap(), "23 comptés pour 25 initialement en stock");
         assertTrue(resultat.updated());
@@ -257,7 +255,7 @@ class InventoryLotServiceImplTest {
         when(lotRepository.getReferenceById(11)).thenReturn(lot);
         when(inventoryLotRepository.saveAndFlush(any(InventoryLot.class))).thenAnswer(i -> i.getArgument(0));
         when(inventoryLotRepository.findAllByStoreInventoryLineId(LIGNE))
-            .thenReturn(List.of(inventoryLot(6), inventoryLot(null)));
+                .thenReturn(List.of(inventoryLot(6), inventoryLot(null)));
         when(userService.getUser()).thenReturn(operateur);
 
         service.save(new InventoryLotRecord(null, LIGNE, 11, null, null, 6, null, null, false, null));
@@ -287,11 +285,11 @@ class InventoryLotServiceImplTest {
 
     private Lot lot(int id, String numLot, int quantiteCourante) {
         return new Lot()
-            .setId(id)
-            .setNumLot(numLot)
-            .setProduit(produit)
-            .setCurrentQuantity(quantiteCourante)
-            .setExpiryDate(LocalDate.now().plusYears(1));
+                .setId(id)
+                .setNumLot(numLot)
+                .setProduit(produit)
+                .setCurrentQuantity(quantiteCourante)
+                .setExpiryDate(LocalDate.now().plusYears(1));
     }
 
     private InventoryLot inventoryLot(Integer quantiteComptee) {

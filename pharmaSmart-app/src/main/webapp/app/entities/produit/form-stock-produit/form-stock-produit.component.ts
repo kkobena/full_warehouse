@@ -5,7 +5,7 @@ import { ErrorService } from '../../../shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { IProduit } from "../../../shared/model";
+import { IProduit } from '../../../shared/model';
 import { IStockProduit } from '../../../shared/model/stock-produit.model';
 import { StockProduitService } from './stock-produit.service';
 import { RepartitionStockService } from '../../repartition-stock/repartition-stock.service';
@@ -164,7 +164,7 @@ export class FormStockProduitComponent implements OnInit {
 
     this.stockProduitService
       .create(newStock)
-      .pipe(finalize(() => (this.isSaving.set(false))))
+      .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: response => {
           const createdStock = response.body!;
@@ -205,7 +205,7 @@ export class FormStockProduitComponent implements OnInit {
 
     this.stockProduitService
       .update(updatedStock)
-      .pipe(finalize(() => (this.isSaving.set(false))))
+      .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: response => this.onSaveSuccess([response.body!]),
         error: (error: HttpErrorResponse) => this.onSaveError(error),

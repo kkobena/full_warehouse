@@ -9,8 +9,4 @@ package com.kobe.warehouse.service.dto;
  *                     (updatedAt de la commande CLOSED).
  * @param periodeJours Nombre de jours de la période analysée (ex. 30, 60, 90).
  */
-public record FournisseurStatsServiceDTO(
-    double tauxService,
-    double delaiMoyen,
-    int periodeJours
-) {}
+public record FournisseurStatsServiceDTO(double tauxService, double delaiMoyen, int periodeJours) {}

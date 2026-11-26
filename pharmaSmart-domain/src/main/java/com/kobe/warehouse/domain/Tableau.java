@@ -16,10 +16,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(
-    name = "tableau",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }) },
-    indexes = { @Index(columnList = "code", name = "code_index") }
-)
+        name = "tableau",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"code"})},
+        indexes = {@Index(columnList = "code", name = "code_index")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Tableau implements Serializable {
 

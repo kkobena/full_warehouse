@@ -1,15 +1,12 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-arrows-h me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-arrows-h me-2"></i>{{ header }}</h5>
 </div>
 
 <div class="modal-body">
   <div class="putaway-info">
     <i class="pi pi-info-circle"></i>
     <span>
-      Les produits ci-dessous dépassent leur stock maxi rayon après réception.
-      Voulez-vous transférer l'excédent vers la réserve ?
+      Les produits ci-dessous dépassent leur stock maxi rayon après réception. Voulez-vous transférer l'excédent vers la réserve ?
     </span>
   </div>
 
@@ -32,7 +29,7 @@
           <td class="text-center pharma-code">{{ item.codeCip }}</td>
           <td class="text-center">
             @if (item.classePareto) {
-              <app-badge [label]="item.classePareto" [severity]="abcSeverity(item.classePareto)" style="font-size: 0.7rem"/>
+              <app-badge [label]="item.classePareto" [severity]="abcSeverity(item.classePareto)" style="font-size: 0.7rem" />
             }
           </td>
           <td class="text-right">{{ item.qtyRayon | number }}</td>

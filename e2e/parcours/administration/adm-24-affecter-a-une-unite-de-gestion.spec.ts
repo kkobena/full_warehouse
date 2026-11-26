@@ -92,7 +92,10 @@ scenario('ADM-24', async ({ etape, page }) => {
     //    préservée par la remise à zéro du jeu de démonstration — un compte oublié ici
     //    resterait indéfiniment.
     await page.goto('/admin/user-management').catch((): void => undefined);
-    await page.getByPlaceholder('Rechercher…').fill(login).catch((): void => undefined);
+    await page
+      .getByPlaceholder('Rechercher…')
+      .fill(login)
+      .catch((): void => undefined);
     const aSupprimer = lignes.filter({ hasText: login }).first();
     const present = await aSupprimer
       .waitFor({ state: 'visible', timeout: 10_000 })
@@ -101,7 +104,10 @@ scenario('ADM-24', async ({ etape, page }) => {
     if (present) {
       await aSupprimer.getByRole('button', { name: 'Supprimer' }).click({ timeout: 5_000 });
       await expect(modale).toBeVisible({ timeout: 5_000 });
-      await modale.getByRole('button', { name: /Supprimer|Oui/ }).first().click({ timeout: 5_000 });
+      await modale
+        .getByRole('button', { name: /Supprimer|Oui/ })
+        .first()
+        .click({ timeout: 5_000 });
       await expect(modale).toBeHidden({ timeout: 10_000 });
     }
     const reste = lire(`SELECT count(*) FROM app_user WHERE login = '${login}'`);

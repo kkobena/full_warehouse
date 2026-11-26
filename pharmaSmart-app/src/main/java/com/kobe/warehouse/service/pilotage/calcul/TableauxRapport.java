@@ -19,25 +19,32 @@ public final class TableauxRapport {
     private TableauxRapport() {}
 
     /** Pendant d'{@code app-croise-analyse} : valeur complète et variation quand une référence existe. */
-    public static TableauRapportDTO lireCroise(String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur) {
+    public static TableauRapportDTO lireCroise(
+            String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur) {
         return lireCroise(entete, croise, indicateur, true);
     }
 
     /** @param avecReference faux : les valeurs seules, sans variation (CA par vendeur et par heure) */
-    public static TableauRapportDTO lireCroise(String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur, boolean avecReference) {
-        List<String> colonnes = croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList();
+    public static TableauRapportDTO lireCroise(
+            String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur, boolean avecReference) {
+        List<String> colonnes =
+                croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList();
         List<LigneRapportDTO> lignes = new ArrayList<>(croise.lignes().size());
         for (LigneCroiseeDTO ligne : croise.lignes()) {
             List<CelluleRapportDTO> cellules = new ArrayList<>(ligne.cellules().size());
             for (CelluleAnalyseDTO cellule : ligne.cellules()) {
-                cellules.add(avecReference ? lireCellule(cellule, indicateur) : lireValeur(cellule == null ? null : cellule.valeur(), indicateur.unite()));
+                cellules.add(
+                        avecReference
+                                ? lireCellule(cellule, indicateur)
+                                : lireValeur(cellule == null ? null : cellule.valeur(), indicateur.unite()));
             }
             lignes.add(new LigneRapportDTO(ligne.libelle(), cellules));
         }
         return new TableauRapportDTO(entete, colonnes, lignes);
     }
 
-    public static List<CelluleRapportDTO> lireCellules(List<CelluleAnalyseDTO> cellules, IndicateurPilotageDTO indicateur) {
+    public static List<CelluleRapportDTO> lireCellules(
+            List<CelluleAnalyseDTO> cellules, IndicateurPilotageDTO indicateur) {
         List<CelluleRapportDTO> resultat = new ArrayList<>(cellules.size());
         for (CelluleAnalyseDTO cellule : cellules) {
             resultat.add(lireCellule(cellule, indicateur));
@@ -46,7 +53,8 @@ public final class TableauxRapport {
     }
 
     /** Une cellule par indicateur, chacune à l'unité et au sens de son indicateur (le détail de l'onglet Analyser). */
-    public static List<CelluleRapportDTO> lireCellules(List<CelluleAnalyseDTO> cellules, List<IndicateurPilotageDTO> indicateurs) {
+    public static List<CelluleRapportDTO> lireCellules(
+            List<CelluleAnalyseDTO> cellules, List<IndicateurPilotageDTO> indicateurs) {
         List<CelluleRapportDTO> resultat = new ArrayList<>(cellules.size());
         for (int rang = 0; rang < cellules.size(); rang++) {
             resultat.add(lireCellule(cellules.get(rang), indicateurs.get(rang)));
@@ -59,11 +67,11 @@ public final class TableauxRapport {
             return new CelluleRapportDTO("—", null);
         }
         return new CelluleRapportDTO(
-            FormatRapport.formaterValeurComplete(cellule.valeur(), indicateur.unite()),
-            cellule.valeurReference() == null
-                ? null
-                : FormatRapport.formaterVariation(cellule.ecart(), cellule.ecartPct(), indicateur.unite(), indicateur.sensFavorable())
-        );
+                FormatRapport.formaterValeurComplete(cellule.valeur(), indicateur.unite()),
+                cellule.valeurReference() == null
+                        ? null
+                        : FormatRapport.formaterVariation(
+                                cellule.ecart(), cellule.ecartPct(), indicateur.unite(), indicateur.sensFavorable()));
     }
 
     /** Cellule d'une mesure hors dictionnaire : valeur complète et, s'il y a une référence, variation. */
@@ -72,14 +80,16 @@ public final class TableauxRapport {
             return new CelluleRapportDTO("—", null);
         }
         return new CelluleRapportDTO(
-            FormatRapport.formaterValeurComplete(cellule.valeur(), unite),
-            cellule.valeurReference() == null ? null : FormatRapport.formaterVariation(cellule.ecart(), cellule.ecartPct(), unite, sens)
-        );
+                FormatRapport.formaterValeurComplete(cellule.valeur(), unite),
+                cellule.valeurReference() == null
+                        ? null
+                        : FormatRapport.formaterVariation(cellule.ecart(), cellule.ecartPct(), unite, sens));
     }
 
     /** Cellule d'une valeur seule, complète (montant non abrégé), sans variation. */
     public static CelluleRapportDTO lireValeur(Number valeur, UniteIndicateur unite) {
-        return new CelluleRapportDTO(FormatRapport.formaterValeurComplete(valeur == null ? null : valeur.doubleValue(), unite), null);
+        return new CelluleRapportDTO(
+                FormatRapport.formaterValeurComplete(valeur == null ? null : valeur.doubleValue(), unite), null);
     }
 
     /** Les {@code maximum} premières lignes ; la mention dit combien n'ont pas été imprimées. */
@@ -89,6 +99,7 @@ public final class TableauxRapport {
             return tableau;
         }
         String mention = "… et " + (total - maximum) + " autres lignes, non imprimées.";
-        return new TableauRapportDTO(tableau.entete(), tableau.colonnes(), tableau.lignes().subList(0, maximum), mention);
+        return new TableauRapportDTO(
+                tableau.entete(), tableau.colonnes(), tableau.lignes().subList(0, maximum), mention);
     }
 }

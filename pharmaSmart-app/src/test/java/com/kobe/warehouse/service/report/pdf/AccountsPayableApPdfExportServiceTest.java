@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -55,7 +54,7 @@ class AccountsPayableApPdfExportServiceTest {
         StorageService storageService = mock(StorageService.class);
         when(storageService.getUser()).thenReturn(utilisateur);
 
-        service = new AccountsPayableApPdfExportService( storageService, moteurDeGabarits);
+        service = new AccountsPayableApPdfExportService(storageService, moteurDeGabarits);
     }
 
     // ===== vue d'ensemble =====
@@ -69,11 +68,10 @@ class AccountsPayableApPdfExportServiceTest {
         @DisplayName("le total dû est la somme des soldes de chaque fournisseur")
         void totalDesSoldes() {
             service.exportGlobal(
-                List.of(compte("LABOREX", 300_000), compte("DPCI", 150_000), compte("COPHARMED", 50_000)),
-                resume(),
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 3, 31)
-            );
+                    List.of(compte("LABOREX", 300_000), compte("DPCI", 150_000), compte("COPHARMED", 50_000)),
+                    resume(),
+                    LocalDate.of(2026, 1, 1),
+                    LocalDate.of(2026, 3, 31));
 
             assertThat(modele().get("totalSolde")).isEqualTo(500_000L);
         }
@@ -150,9 +148,7 @@ class AccountsPayableApPdfExportServiceTest {
         @DisplayName("le restant dû totalise les lignes du compte")
         void totalRestantDu() {
             service.exportFournisseur(
-                compte("LABOREX", 300_000),
-                List.of(ligne("BON-1", 200_000, 50_000), ligne("BON-2", 150_000, 0))
-            );
+                    compte("LABOREX", 300_000), List.of(ligne("BON-1", 200_000, 50_000), ligne("BON-2", 150_000, 0)));
 
             assertThat(modele().get("totalRestant")).isEqualTo(300_000L); // 150 000 + 150 000
         }
@@ -225,11 +221,13 @@ class AccountsPayableApPdfExportServiceTest {
     }
 
     private static CompteFournisseurAPDTO compte(String nom, long solde) {
-        return new CompteFournisseurAPDTO(1, nom, "F1", "0100000000", "0700000000", solde, 0L, solde, 0L, null, "ACTIF");
+        return new CompteFournisseurAPDTO(
+                1, nom, "F1", "0100000000", "0700000000", solde, 0L, solde, 0L, null, "ACTIF");
     }
 
     private static LigneFournisseurAPDTO ligne(String numBon, long montant, long montantRegle) {
-        return new LigneFournisseurAPDTO(1, numBon, "01/01/2026", "31/01/2026", montant, montantRegle, montant - montantRegle, "NOT_PAID");
+        return new LigneFournisseurAPDTO(
+                1, numBon, "01/01/2026", "31/01/2026", montant, montantRegle, montant - montantRegle, "NOT_PAID");
     }
 
     private static FournisseurAPSummaryDTO resume() {

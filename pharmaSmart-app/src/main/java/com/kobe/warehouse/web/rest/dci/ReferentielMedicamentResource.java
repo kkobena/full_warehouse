@@ -42,7 +42,8 @@ public class ReferentielMedicamentResource {
     @GetMapping("/rapprochements")
     public ResponseEntity<List<RapprochementDTO>> listerRapprochementsARelire(Pageable pageable) {
         Page<RapprochementDTO> page = service.listerRapprochementsARelire(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 

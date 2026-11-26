@@ -28,15 +28,15 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(
-    name = "inventory_transaction",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"entity_id", "produit_id", "mouvement_type",
-            "storage_id", "transaction_date"})},
-    indexes = {
-        @Index(columnList = "mouvement_type", name = "inventory_mouvement_type_type_index"),
-        @Index(columnList = "transaction_date", name = "inventory_transaction_date_index"),
-    }
-)
+        name = "inventory_transaction",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    columnNames = {"entity_id", "produit_id", "mouvement_type", "storage_id", "transaction_date"})
+        },
+        indexes = {
+            @Index(columnList = "mouvement_type", name = "inventory_mouvement_type_type_index"),
+            @Index(columnList = "transaction_date", name = "inventory_transaction_date_index"),
+        })
 @IdClass(ProductMvtId.class)
 public class InventoryTransaction implements Persistable<ProductMvtId>, Serializable {
 

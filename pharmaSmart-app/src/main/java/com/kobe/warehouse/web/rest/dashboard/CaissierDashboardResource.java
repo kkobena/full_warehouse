@@ -1,12 +1,14 @@
 package com.kobe.warehouse.web.rest.dashboard;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dashboard.CaissierDashboardService;
-import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.LivraisonAttendueDTO;
 import com.kobe.warehouse.service.dto.dashboard.ResumeDifferesDTO;
 import com.kobe.warehouse.service.dto.dashboard.SessionEncaissementsDTO;
 import com.kobe.warehouse.service.dto.dashboard.VenteRecenteDTO;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-
 /**
  * REST controller du dashboard préparateur en pharmacie.
  * Toutes les données sont filtrées sur l'utilisateur connecté.
  */
 @RestController
 @RequestMapping("/api/caissier/dashboard")
-@RequiresNavAccess({ "mvt-caisse", "ventes" })
+@RequiresNavAccess({"mvt-caisse", "ventes"})
 public class CaissierDashboardResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaissierDashboardResource.class);
@@ -92,9 +91,7 @@ public class CaissierDashboardResource {
      * @param limit nombre de résultats (défaut : 8)
      */
     @GetMapping("/ventes-recentes")
-    public ResponseEntity<List<VenteRecenteDTO>> getVentesRecentes(
-        @RequestParam(defaultValue = "8") Integer limit
-    ) {
+    public ResponseEntity<List<VenteRecenteDTO>> getVentesRecentes(@RequestParam(defaultValue = "8") Integer limit) {
         LOG.debug("REST request to get {} ventes recentes", limit);
         return ResponseEntity.ok(dashboardService.getVentesRecentes(limit));
     }

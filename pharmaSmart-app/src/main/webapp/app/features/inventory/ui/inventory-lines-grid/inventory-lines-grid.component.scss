@@ -51,7 +51,9 @@
     border: 1px solid #d1d5db;
     border-radius: 6px;
     padding: 0.28rem 0.5rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:focus-within {
       border-color: var(--pharma-chrome-tab, #5b89a6);
@@ -93,7 +95,6 @@
     }
   }
 
-
   ::ng-deep {
     .p-select {
       flex-shrink: 0;
@@ -130,7 +131,11 @@
   .inventory-grid {
     // En-têtes de colonnes
     .ag-header-cell {
-      background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
+      background: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff),
+        var(--pharma-chrome-tab, #5b89a6)
+      );
       color: #fff;
       font-weight: 600;
       font-size: 12px;

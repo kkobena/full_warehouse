@@ -17,7 +17,8 @@
  * L'ordre des règles reproduit celui du CSS injecté au runtime — la cascade en dépend.
  */
 
-:root,:host {
+:root,
+:host {
   --p-zinc-50: #fafafa;
   --p-zinc-100: #f4f4f5;
   --p-zinc-200: #e4e4e7;
@@ -121,7 +122,8 @@
 /* Ligne sélectionnée d'un tableau : une seule teinte pour toute l'application, reprise par
    la classe globale `.ligne-selected` (voir table-common-global.scss). Un thème n'a que ces
    deux variables à redéfinir pour changer l'aspect de la sélection partout. */
-:root,:host {
+:root,
+:host {
   --pharma-row-selected-bg: #cfe6ff;
   --pharma-row-selected-hover-bg: #b9daff;
   --pharma-row-selected-fg: #0a2f5c;
@@ -134,10 +136,11 @@
   --pharma-badge-primary-border: #b6d4fe;
 }
 
-:root,:host {
+:root,
+:host {
   --p-transition-duration: 0.2s;
   --p-overlay-select-border-radius: var(--p-border-radius-md);
-  --p-overlay-select-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);
+  --p-overlay-select-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --p-content-border-radius: var(--p-border-radius-md);
   --p-list-option-group-padding: 0.5rem 0.75rem;
   --p-list-option-group-font-weight: 600;
@@ -186,7 +189,7 @@
   --p-form-field-placeholder-color: var(--p-surface-500);
   --p-form-field-invalid-placeholder-color: var(--p-red-600);
   --p-form-field-icon-color: var(--p-surface-400);
-  --p-form-field-shadow: 0 0 #0000,0 0 #0000,0 1px 2px 0 rgba(18,18,23,0.05);
+  --p-form-field-shadow: 0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18, 18, 23, 0.05);
   --p-highlight-background: var(--p-primary-50);
   --p-highlight-focus-background: var(--p-primary-100);
   --p-highlight-color: var(--p-primary-700);
@@ -212,8 +215,9 @@
   --p-surface-950: var(--p-slate-950);
 }
 
-@media (prefers-color-scheme:dark) {
-  :root,:host {
+@media (prefers-color-scheme: dark) {
+  :root,
+  :host {
     --p-list-option-group-background: transparent;
     --p-list-option-group-color: var(--p-text-muted-color);
     --p-list-option-focus-background: var(--p-surface-800);
@@ -242,11 +246,11 @@
     --p-form-field-placeholder-color: var(--p-surface-400);
     --p-form-field-invalid-placeholder-color: var(--p-red-400);
     --p-form-field-icon-color: var(--p-surface-400);
-    --p-form-field-shadow: 0 0 #0000,0 0 #0000,0 1px 2px 0 rgba(18,18,23,0.05);
-    --p-highlight-background: color-mix(in srgb,var(--p-primary-400),transparent 84%);
-    --p-highlight-focus-background: color-mix(in srgb,var(--p-primary-400),transparent 76%);
-    --p-highlight-color: rgba(255,255,255,.87);
-    --p-highlight-focus-color: rgba(255,255,255,.87);
+    --p-form-field-shadow: 0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18, 18, 23, 0.05);
+    --p-highlight-background: color-mix(in srgb, var(--p-primary-400), transparent 84%);
+    --p-highlight-focus-background: color-mix(in srgb, var(--p-primary-400), transparent 76%);
+    --p-highlight-color: rgba(255, 255, 255, 0.87);
+    --p-highlight-focus-color: rgba(255, 255, 255, 0.87);
     --p-primary-color: var(--p-primary-400);
     --p-primary-contrast-color: var(--p-surface-900);
     --p-surface-0: #ffffff;

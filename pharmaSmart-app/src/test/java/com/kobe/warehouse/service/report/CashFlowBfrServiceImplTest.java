@@ -210,9 +210,10 @@ class CashFlowBfrServiceImplTest {
         @Test
         @DisplayName("chaque mois porte son libellé, ses créances émises et ses achats reçus")
         void contenuDeLaCourbe() {
-            when(repository.findEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2026, 1, 5_000_000L, 4_000_000L }, new Object[] { 2026, 2, 6_000_000L, 3_500_000L })
-            );
+            when(repository.findEvolution())
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {2026, 1, 5_000_000L, 4_000_000L},
+                            new Object[] {2026, 2, 6_000_000L, 3_500_000L}));
 
             BfrEvolutionDTO evolution = service.getEvolution();
 
@@ -224,9 +225,9 @@ class CashFlowBfrServiceImplTest {
         @Test
         @DisplayName("un mois sans mouvement vaut zéro et ne disparaît pas de la courbe")
         void moisSansMouvement() {
-            when(repository.findEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2026, 1, null, null }, new Object[] { 2026, 2, 6_000_000L, 3_500_000L })
-            );
+            when(repository.findEvolution())
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {2026, 1, null, null}, new Object[] {2026, 2, 6_000_000L, 3_500_000L}));
 
             BfrEvolutionDTO evolution = service.getEvolution();
 
@@ -238,9 +239,11 @@ class CashFlowBfrServiceImplTest {
         @Test
         @DisplayName("les trois séries ont toujours la même longueur")
         void seriesDeMemeLongueur() {
-            when(repository.findEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2025, 12, 1L, 1L }, new Object[] { 2026, 1, 2L, 2L }, new Object[] { 2026, 2, 3L, 3L })
-            );
+            when(repository.findEvolution())
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {2025, 12, 1L, 1L},
+                            new Object[] {2026, 1, 2L, 2L},
+                            new Object[] {2026, 2, 3L, 3L}));
 
             BfrEvolutionDTO evolution = service.getEvolution();
 

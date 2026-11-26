@@ -41,12 +41,16 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         ligneNonComptee(inventaire, "NON COMPTEE", 100, 80);
         viderLeCache();
 
-        List<GapLineRecord> lignes = services.gapAnalysisService.getLinesWithGap(inventaire.getId(), page()).getContent();
+        List<GapLineRecord> lignes = services.gapAnalysisService
+                .getLinesWithGap(inventaire.getId(), page())
+                .getContent();
 
         assertEquals(2, lignes.size(), "ni la ligne sans écart, ni celle qui n'a pas été comptée");
-        assertEquals(grosse.getId(), lignes.getFirst().lineId(), "l'écart le plus grand en valeur absolue vient en tête");
+        assertEquals(
+                grosse.getId(), lignes.getFirst().lineId(), "l'écart le plus grand en valeur absolue vient en tête");
         assertEquals(30, lignes.getFirst().gap());
-        assertEquals(15_000, lignes.getFirst().valeurEcart(), "30 unités à 500 : la valeur de l'écart est calculée en base");
+        assertEquals(
+                15_000, lignes.getFirst().valeurEcart(), "30 unités à 500 : la valeur de l'écart est calculée en base");
         assertNull(lignes.getFirst().existingCause(), "rien n'est encore qualifié");
     }
 
@@ -58,21 +62,24 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(ligne.getId(), CauseEcart.CASSE.name(), "carton tombé à la réception"))
-        );
+                inventaire.getId(),
+                List.of(new GapEntryRecord(ligne.getId(), CauseEcart.CASSE.name(), "carton tombé à la réception")));
         viderLeCache();
 
-        GapLineRecord relue = services.gapAnalysisService.getLinesWithGap(inventaire.getId(), page()).getContent().getFirst();
+        GapLineRecord relue = services.gapAnalysisService
+                .getLinesWithGap(inventaire.getId(), page())
+                .getContent()
+                .getFirst();
         assertEquals(CauseEcart.CASSE, relue.existingCause());
         assertEquals("carton tombé à la réception", relue.existingComment());
         assertEquals(
-            6,
-            ((Number) em
-                    .createNativeQuery("SELECT quantity FROM inventory_gap_analysis WHERE store_inventory_line_id = " + ligne.getId())
-                    .getSingleResult()).intValue(),
-            "la quantité enregistrée est l'écart en valeur absolue"
-        );
+                6,
+                ((Number) em.createNativeQuery(
+                                        "SELECT quantity FROM inventory_gap_analysis WHERE store_inventory_line_id = "
+                                                + ligne.getId())
+                                .getSingleResult())
+                        .intValue(),
+                "la quantité enregistrée est l'écart en valeur absolue");
     }
 
     @Test
@@ -81,26 +88,26 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         StoreInventory inventaire = inventaire();
         StoreInventoryLine ligne = ligne(inventaire, "REQUALIFIE", 50, 40, 1_000);
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(ligne.getId(), CauseEcart.INCONNU.name(), "à vérifier"))
-        );
+                inventaire.getId(),
+                List.of(new GapEntryRecord(ligne.getId(), CauseEcart.INCONNU.name(), "à vérifier")));
         viderLeCache();
 
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(ligne.getId(), CauseEcart.VOL.name(), "confirmé après visionnage"))
-        );
+                inventaire.getId(),
+                List.of(new GapEntryRecord(ligne.getId(), CauseEcart.VOL.name(), "confirmé après visionnage")));
         viderLeCache();
 
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM inventory_gap_analysis WHERE store_inventory_line_id = " + ligne.getId()),
-            "la qualification est réécrite, pas dupliquée"
-        );
+                1,
+                compter("SELECT count(*) FROM inventory_gap_analysis WHERE store_inventory_line_id = " + ligne.getId()),
+                "la qualification est réécrite, pas dupliquée");
         assertEquals(
-            CauseEcart.VOL,
-            services.gapAnalysisService.getLinesWithGap(inventaire.getId(), page()).getContent().getFirst().existingCause()
-        );
+                CauseEcart.VOL,
+                services.gapAnalysisService
+                        .getLinesWithGap(inventaire.getId(), page())
+                        .getContent()
+                        .getFirst()
+                        .existingCause());
     }
 
     @Test
@@ -109,15 +116,17 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         StoreInventory inventaire = inventaire();
         StoreInventoryLine ligne = ligne(inventaire, "ANNULE", 30, 25, 800);
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(ligne.getId(), CauseEcart.PEREMPTION.name(), null))
-        );
+                inventaire.getId(), List.of(new GapEntryRecord(ligne.getId(), CauseEcart.PEREMPTION.name(), null)));
         viderLeCache();
 
-        services.gapAnalysisService.saveAnalysis(inventaire.getId(), List.of(new GapEntryRecord(ligne.getId(), "  ", null)));
+        services.gapAnalysisService.saveAnalysis(
+                inventaire.getId(), List.of(new GapEntryRecord(ligne.getId(), "  ", null)));
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM inventory_gap_analysis WHERE store_inventory_line_id = " + ligne.getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM inventory_gap_analysis WHERE store_inventory_line_id = "
+                        + ligne.getId()));
         assertFalse(services.gapAnalysisService.hasAnalysis(inventaire.getId()));
     }
 
@@ -128,19 +137,16 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         StoreInventoryLine premiere = ligne(inventaire, "PAGE 1", 40, 30, 700);
         StoreInventoryLine seconde = ligne(inventaire, "PAGE 2", 40, 35, 700);
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(
-                new GapEntryRecord(premiere.getId(), CauseEcart.VOL.name(), null),
-                new GapEntryRecord(seconde.getId(), CauseEcart.CASSE.name(), null)
-            )
-        );
+                inventaire.getId(),
+                List.of(
+                        new GapEntryRecord(premiere.getId(), CauseEcart.VOL.name(), null),
+                        new GapEntryRecord(seconde.getId(), CauseEcart.CASSE.name(), null)));
         viderLeCache();
 
         // L'écran est paginé : la page suivante ne soumet que ses propres lignes.
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(seconde.getId(), CauseEcart.ERREUR_SAISIE.name(), null))
-        );
+                inventaire.getId(),
+                List.of(new GapEntryRecord(seconde.getId(), CauseEcart.ERREUR_SAISIE.name(), null)));
         viderLeCache();
 
         assertEquals(2, compter("SELECT count(*) FROM inventory_gap_analysis"), "la première qualification survit");
@@ -155,9 +161,7 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(new GapEntryRecord(ligneDeLAutre.getId(), CauseEcart.VOL.name(), null))
-        );
+                inventaire.getId(), List.of(new GapEntryRecord(ligneDeLAutre.getId(), CauseEcart.VOL.name(), null)));
         viderLeCache();
 
         assertEquals(0, compter("SELECT count(*) FROM inventory_gap_analysis"), "le filtre par inventaire tient");
@@ -171,19 +175,20 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
         StoreInventoryLine seconde = ligne(inventaire, "VOL 2", 50, 45, 1_000);
         StoreInventoryLine troisieme = ligne(inventaire, "CASSE 1", 50, 47, 1_000);
         services.gapAnalysisService.saveAnalysis(
-            inventaire.getId(),
-            List.of(
-                new GapEntryRecord(premiere.getId(), CauseEcart.VOL.name(), null),
-                new GapEntryRecord(seconde.getId(), CauseEcart.VOL.name(), null),
-                new GapEntryRecord(troisieme.getId(), CauseEcart.CASSE.name(), null)
-            )
-        );
+                inventaire.getId(),
+                List.of(
+                        new GapEntryRecord(premiere.getId(), CauseEcart.VOL.name(), null),
+                        new GapEntryRecord(seconde.getId(), CauseEcart.VOL.name(), null),
+                        new GapEntryRecord(troisieme.getId(), CauseEcart.CASSE.name(), null)));
         viderLeCache();
 
         List<GapSummaryRecord> resume = services.gapAnalysisService.getSummary(inventaire.getId());
 
         assertEquals(2, resume.size());
-        GapSummaryRecord vols = resume.stream().filter(r -> r.cause().equals(CauseEcart.VOL.name())).findFirst().orElseThrow();
+        GapSummaryRecord vols = resume.stream()
+                .filter(r -> r.cause().equals(CauseEcart.VOL.name()))
+                .findFirst()
+                .orElseThrow();
         assertEquals(2L, vols.nbProduits());
         assertEquals(15L, vols.quantiteTotale(), "10 + 5 unités volées");
         assertTrue(services.gapAnalysisService.hasAnalysis(inventaire.getId()));
@@ -194,14 +199,16 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
     void chargeUtileVide() {
         StoreInventory inventaire = inventaire();
         StoreInventoryLine ligne = ligne(inventaire, "INTACTE", 20, 15, 600);
-        services.gapAnalysisService.saveAnalysis(inventaire.getId(), List.of(new GapEntryRecord(ligne.getId(), CauseEcart.VOL.name(), null)));
+        services.gapAnalysisService.saveAnalysis(
+                inventaire.getId(), List.of(new GapEntryRecord(ligne.getId(), CauseEcart.VOL.name(), null)));
         viderLeCache();
 
         services.gapAnalysisService.saveAnalysis(inventaire.getId(), List.of());
         viderLeCache();
 
         assertEquals(1, compter("SELECT count(*) FROM inventory_gap_analysis"));
-        assertEquals(1, services.gapAnalysisService.getSummary(inventaire.getId()).size());
+        assertEquals(
+                1, services.gapAnalysisService.getSummary(inventaire.getId()).size());
     }
 
     // ===== outils =====
@@ -226,7 +233,8 @@ class GapAnalysisServiceIntegrationTest extends AbstractStockIntegrationTest {
     }
 
     /** Une ligne comptée : {@code updated = true} est ce qui la fait entrer dans l'analyse. */
-    private StoreInventoryLine ligne(StoreInventory inventaire, String libelle, int theorique, int compte, int prixUnitaire) {
+    private StoreInventoryLine ligne(
+            StoreInventory inventaire, String libelle, int theorique, int compte, int prixUnitaire) {
         StoreInventoryLine ligne = ligneNonComptee(inventaire, libelle, theorique, compte);
         ligne.setUpdated(true);
         ligne.setLastUnitPrice(prixUnitaire);

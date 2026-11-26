@@ -34,7 +34,6 @@ scenario('ACH-11', async ({ etape, page }) => {
     await expect(liste).toContainText('Statut');
     // Une ligne RÉELLE, et non le message d'écran vide : `tbody tr` matche aussi la ligne
     // « Aucun fournisseur », et l'assertion passerait sur un écran qui ne montre rien.
-    await expect(liste.locator('tbody tr').filter({ hasNotText: 'Aucun fournisseur' }).first())
-      .toContainText(/\d/);
+    await expect(liste.locator('tbody tr').filter({ hasNotText: 'Aucun fournisseur' }).first()).toContainText(/\d/);
   });
 });

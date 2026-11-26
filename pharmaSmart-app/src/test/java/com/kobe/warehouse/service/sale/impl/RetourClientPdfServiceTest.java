@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.lenient;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
@@ -27,9 +27,14 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @ExtendWith(MockitoExtension.class)
 class RetourClientPdfServiceTest {
 
-    @Mock private RetourClientService retourClientService;
-    @Mock private StorageService storageService;
-    @Mock private SpringTemplateEngine templateEngine;
+    @Mock
+    private RetourClientService retourClientService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private SpringTemplateEngine templateEngine;
 
     private TestableRetourClientPdfService service;
     private Magasin magasin;
@@ -41,15 +46,13 @@ class RetourClientPdfServiceTest {
         AppUser user = new AppUser();
         user.setMagasin(magasin);
         lenient().when(storageService.getUser()).thenReturn(user);
-        service = new TestableRetourClientPdfService(
-            retourClientService, storageService, templateEngine
-        );
+        service = new TestableRetourClientPdfService(retourClientService, storageService, templateEngine);
     }
 
     @Test
     void exposesReceiptTemplateContract() {
         when(templateEngine.process(eq("retour-client/receipt/main"), any(Context.class)))
-            .thenReturn("<html>retour</html>");
+                .thenReturn("<html>retour</html>");
 
         assertEquals(0, service.getMaxiRowCount());
         assertEquals(0, service.getItems().size());
@@ -65,9 +68,7 @@ class RetourClientPdfServiceTest {
     @Test
     void generatesPdfWithFreshReturnAndCommonParameters() {
         RetourClientDTO retour = new RetourClientDTO(
-            17, "RET-17", null, null, null, null, 0, 0,
-            null, null, null, null, java.util.List.of(), false, null
-        );
+                17, "RET-17", null, null, null, null, 0, 0, null, null, null, null, java.util.List.of(), false, null);
         byte[] expected = {1, 2, 3};
         service.pdf = expected;
         service.getParameters().put("obsolete", true);
@@ -90,10 +91,9 @@ class RetourClientPdfServiceTest {
         private int exportCalls;
 
         private TestableRetourClientPdfService(
-            RetourClientService retourClientService,
-            StorageService storageService,
-            SpringTemplateEngine templateEngine
-        ) {
+                RetourClientService retourClientService,
+                StorageService storageService,
+                SpringTemplateEngine templateEngine) {
             super(retourClientService, storageService, templateEngine);
         }
 
@@ -104,5 +104,3 @@ class RetourClientPdfServiceTest {
         }
     }
 }
-
-

@@ -42,13 +42,13 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
         Commande seconde = bonRecu(produit, 4, 6_000);
         viderLeCache();
 
-        Page<DeliveryReceiptDTO> page = services.stockEntryDataService.fetchAllReceipts(filtreParDefaut(), PageRequest.of(0, 20));
+        Page<DeliveryReceiptDTO> page =
+                services.stockEntryDataService.fetchAllReceipts(filtreParDefaut(), PageRequest.of(0, 20));
 
         assertEquals(2, page.getTotalElements());
         assertEquals(
-            Set.of(premiere.getId().getId(), seconde.getId().getId()),
-            page.getContent().stream().map(DeliveryReceiptDTO::getId).collect(java.util.stream.Collectors.toSet())
-        );
+                Set.of(premiere.getId().getId(), seconde.getId().getId()),
+                page.getContent().stream().map(DeliveryReceiptDTO::getId).collect(java.util.stream.Collectors.toSet()));
     }
 
     @Test
@@ -60,15 +60,17 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
         viderLeCache();
 
         assertEquals(
-            1,
-            services.stockEntryDataService.fetchAllReceipts(filtreParDefaut(), PageRequest.of(0, 20)).getTotalElements(),
-            "la requête part des lignes de commande : un bon vide n'y figure pas"
-        );
+                1,
+                services.stockEntryDataService
+                        .fetchAllReceipts(filtreParDefaut(), PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "la requête part des lignes de commande : un bon vide n'y figure pas");
         assertEquals(
-            2,
-            services.stockEntryDataService.fetchAllWithoutDetail(filtreParDefaut(), PageRequest.of(0, 20)).getTotalElements(),
-            "la liste sans détail part des commandes et voit donc le bon vide"
-        );
+                2,
+                services.stockEntryDataService
+                        .fetchAllWithoutDetail(filtreParDefaut(), PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "la liste sans détail part des commandes et voit donc le bon vide");
     }
 
     @Test
@@ -83,9 +85,9 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
         viderLeCache();
 
         DeliveryReceiptDTO bon = services.stockEntryDataService
-            .fetchAllWithoutDetail(filtreParDefaut(), PageRequest.of(0, 20))
-            .getContent()
-            .getFirst();
+                .fetchAllWithoutDetail(filtreParDefaut(), PageRequest.of(0, 20))
+                .getContent()
+                .getFirst();
 
         assertEquals(commande.getId().getId(), bon.getId());
         assertEquals(2, bon.getItemSize());
@@ -128,26 +130,35 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
 
         DeliveryReceiptFilterDTO parStatut = filtreParDefaut();
         parStatut.setStatuts(Set.of(OrderStatut.CLOSED));
-        assertEquals(1, services.stockEntryDataService.fetchAllReceipts(parStatut, PageRequest.of(0, 20)).getTotalElements());
+        assertEquals(
+                1,
+                services.stockEntryDataService
+                        .fetchAllReceipts(parStatut, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertEquals(1, services.stockEntryDataService.computeTotals(parStatut).count());
 
-        DeliveryReceiptFilterDTO parFournisseur = filtreParDefaut().setFournisseurId(fournisseur.getId().longValue());
+        DeliveryReceiptFilterDTO parFournisseur =
+                filtreParDefaut().setFournisseurId(fournisseur.getId().longValue());
         parFournisseur.setStatuts(Set.of(OrderStatut.CLOSED, OrderStatut.REQUESTED));
         assertEquals(
-            List.of(close.getId().getId()),
-            services.stockEntryDataService
-                .fetchAllWithoutDetail(parFournisseur, PageRequest.of(0, 20))
-                .map(DeliveryReceiptDTO::getId)
-                .getContent()
-        );
+                List.of(close.getId().getId()),
+                services.stockEntryDataService
+                        .fetchAllWithoutDetail(parFournisseur, PageRequest.of(0, 20))
+                        .map(DeliveryReceiptDTO::getId)
+                        .getContent());
 
         DeliveryReceiptFilterDTO horsPeriode = new DeliveryReceiptFilterDTO()
-            .setFromDate(LocalDate.now().minusYears(3))
-            .setToDate(LocalDate.now().minusYears(2));
+                .setFromDate(LocalDate.now().minusYears(3))
+                .setToDate(LocalDate.now().minusYears(2));
         // meme fenetre pour les deux chemins de lecture
         horsPeriode.setStatuts(Set.of(OrderStatut.CLOSED));
-        assertEquals(0, services.stockEntryDataService.fetchAllReceipts(horsPeriode, PageRequest.of(0, 20)).getTotalElements());
-        assertEquals(0, services.stockEntryDataService.computeTotals(horsPeriode).count());
+        assertEquals(
+                0,
+                services.stockEntryDataService
+                        .fetchAllReceipts(horsPeriode, PageRequest.of(0, 20))
+                        .getTotalElements());
+        assertEquals(
+                0, services.stockEntryDataService.computeTotals(horsPeriode).count());
     }
 
     @Test
@@ -158,19 +169,22 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
         viderLeCache();
 
         DeliveryReceiptFilterDTO parReference = filtreParDefaut().setSearchByRef(commande.getReceiptReference());
-        assertEquals(1, services.stockEntryDataService.fetchAllWithoutDetail(parReference, PageRequest.of(0, 20)).getTotalElements());
+        assertEquals(
+                1,
+                services.stockEntryDataService
+                        .fetchAllWithoutDetail(parReference, PageRequest.of(0, 20))
+                        .getTotalElements());
 
         assertEquals(
-            1,
-            services.stockEntryDataService.findAllByCommandeIdAndCommandeOrderDate(commande.getId()).size(),
-            "le détail du bon rend sa ligne"
-        );
+                1,
+                services.stockEntryDataService
+                        .findAllByCommandeIdAndCommandeOrderDate(commande.getId())
+                        .size(),
+                "le détail du bon rend sa ligne");
         assertTrue(services.stockEntryDataService.findOneById(commande.getId()).isPresent());
-        assertTrue(
-            services.stockEntryDataService
+        assertTrue(services.stockEntryDataService
                 .findOneById(new com.kobe.warehouse.domain.CommandeId(999_999, LocalDate.now()))
-                .isEmpty()
-        );
+                .isEmpty());
     }
 
     @Test
@@ -182,20 +196,14 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
         ligneDeCommande(enAttente, produit.getFournisseurProduitPrincipal(), 5, 0);
         viderLeCache();
 
+        assertTrue(services.stockEntryDataService.fetchAllReceipts(close.getReceiptReference()).getContent().stream()
+                .anyMatch(p -> p.getReceiptReference().equals(close.getReceiptReference())));
         assertTrue(
-            services.stockEntryDataService
-                .fetchAllReceipts(close.getReceiptReference())
-                .getContent()
-                .stream()
-                .anyMatch(p -> p.getReceiptReference().equals(close.getReceiptReference()))
-        );
-        assertTrue(
-            services.stockEntryDataService
-                .fetchAllReceipts(enAttente.getReceiptReference())
-                .getContent()
-                .isEmpty(),
-            "un bon encore en attente n'est pas proposé"
-        );
+                services.stockEntryDataService
+                        .fetchAllReceipts(enAttente.getReceiptReference())
+                        .getContent()
+                        .isEmpty(),
+                "un bon encore en attente n'est pas proposé");
     }
 
     /**
@@ -213,8 +221,16 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
 
         DeliveryReceiptFilterDTO sansPeriode = new DeliveryReceiptFilterDTO();
 
-        assertEquals(0, services.stockEntryDataService.fetchAllReceipts(sansPeriode, PageRequest.of(0, 20)).getTotalElements());
-        assertEquals(1, services.stockEntryDataService.fetchAllWithoutDetail(sansPeriode, PageRequest.of(0, 20)).getTotalElements());
+        assertEquals(
+                0,
+                services.stockEntryDataService
+                        .fetchAllReceipts(sansPeriode, PageRequest.of(0, 20))
+                        .getTotalElements());
+        assertEquals(
+                1,
+                services.stockEntryDataService
+                        .fetchAllWithoutDetail(sansPeriode, PageRequest.of(0, 20))
+                        .getTotalElements());
     }
 
     @Test
@@ -237,7 +253,9 @@ class StockEntryDataServiceIntegrationTest extends AbstractStockIntegrationTest 
      * {@code BETWEEN} inconditionnel sur les bornes du filtre (cf. {@link #periodeObligatoireCoteLignes()}).
      */
     private DeliveryReceiptFilterDTO filtreParDefaut() {
-        return new DeliveryReceiptFilterDTO().setFromDate(LocalDate.now().minusDays(1)).setToDate(LocalDate.now().plusDays(1));
+        return new DeliveryReceiptFilterDTO()
+                .setFromDate(LocalDate.now().minusDays(1))
+                .setToDate(LocalDate.now().plusDays(1));
     }
 
     private Produit produitReference(String libelle) {

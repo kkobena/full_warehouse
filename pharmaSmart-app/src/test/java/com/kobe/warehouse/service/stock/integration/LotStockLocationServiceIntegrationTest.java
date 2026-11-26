@@ -47,10 +47,9 @@ class LotStockLocationServiceIntegrationTest extends AbstractStockIntegrationTes
 
         assertEquals(55, quantiteSurEmplacement(lot, rayon));
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM lot_stock_location WHERE lot_id = " + lot.getId()),
-            "la contrainte d'unicité (lot, emplacement) interdit une seconde ligne"
-        );
+                1,
+                compter("SELECT count(*) FROM lot_stock_location WHERE lot_id = " + lot.getId()),
+                "la contrainte d'unicité (lot, emplacement) interdit une seconde ligne");
     }
 
     @Test
@@ -129,10 +128,9 @@ class LotStockLocationServiceIntegrationTest extends AbstractStockIntegrationTes
 
         assertEquals(0, compter("SELECT count(*) FROM lot_stock_location WHERE lot_id = " + lot.getId()));
         assertEquals(
-            0,
-            compter("SELECT count(*) FROM lot_stock_location WHERE qty < 0"),
-            "aucune quantité négative ne subsiste"
-        );
+                0,
+                compter("SELECT count(*) FROM lot_stock_location WHERE qty < 0"),
+                "aucune quantité négative ne subsiste");
     }
 
     @Test
@@ -185,7 +183,8 @@ class LotStockLocationServiceIntegrationTest extends AbstractStockIntegrationTes
         Produit produit = produitEnStock("BETADINE", 100);
         Lot lot = lot(produit, unique("L"), LocalDate.now().plusMonths(6), 12);
 
-        services.lotStockLocationService.creditFromSold(List.of(new LotSold(lot.getId(), lot.getNumLot(), 12, lot.getExpiryDate())), rayon);
+        services.lotStockLocationService.creditFromSold(
+                List.of(new LotSold(lot.getId(), lot.getNumLot(), 12, lot.getExpiryDate())), rayon);
         viderLeCache();
 
         assertEquals(12, quantiteSurEmplacement(lot, rayon), "la ligne est recréée pour le lot qui n'en avait plus");
@@ -199,9 +198,10 @@ class LotStockLocationServiceIntegrationTest extends AbstractStockIntegrationTes
         Lot intact = lotSurEmplacement(produit, unique("L"), LocalDate.now().plusMonths(7), rayon, 5);
 
         services.lotStockLocationService.creditFromSold(
-            List.of(new LotSold(servi.getId(), servi.getNumLot(), 3, servi.getExpiryDate()), new LotSold(intact.getId(), intact.getNumLot(), 0, intact.getExpiryDate())),
-            rayon
-        );
+                List.of(
+                        new LotSold(servi.getId(), servi.getNumLot(), 3, servi.getExpiryDate()),
+                        new LotSold(intact.getId(), intact.getNumLot(), 0, intact.getExpiryDate())),
+                rayon);
         viderLeCache();
 
         assertEquals(8, quantiteSurEmplacement(servi, rayon));
@@ -220,7 +220,8 @@ class LotStockLocationServiceIntegrationTest extends AbstractStockIntegrationTes
         var emplacements = services.lotStockLocationRepository.findAvailableByLotId(lot.getId());
 
         assertEquals(2, emplacements.size());
-        assertEquals(STORAGE_RAYON_ID, emplacements.getFirst().getStorage().getId(), "le rayon (PRINCIPAL) vient en tête");
+        assertEquals(
+                STORAGE_RAYON_ID, emplacements.getFirst().getStorage().getId(), "le rayon (PRINCIPAL) vient en tête");
         assertEquals(30, services.lotStockLocationRepository.sumQtyByLot(lot.getId()));
         assertTrue(emplacements.stream().allMatch(e -> e.getQty() > 0));
     }

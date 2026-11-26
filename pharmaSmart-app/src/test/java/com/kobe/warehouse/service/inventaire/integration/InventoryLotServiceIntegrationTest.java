@@ -44,16 +44,17 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         ligne(inventaire, sansLot);
         viderLeCache();
 
-        Page<StoreInventoryLotLineRecord> page = services.inventoryLotService.findLotFlatPage(
-            filtre(inventaire), PREMIERE_PAGE);
+        Page<StoreInventoryLotLineRecord> page =
+                services.inventoryLotService.findLotFlatPage(filtre(inventaire), PREMIERE_PAGE);
 
         assertEquals(2, page.getTotalElements());
         StoreInventoryLotLineRecord ligneSansLot = page.getContent().stream()
-            .filter(r -> r.id() == null)
-            .findFirst()
-            .orElseThrow();
+                .filter(r -> r.id() == null)
+                .findFirst()
+                .orElseThrow();
         assertEquals(sansLot.getId().intValue(), ligneSansLot.produitId());
-        assertEquals(7, ligneSansLot.quantityInit(), "le stock théorique vient de la même source que la grille produit");
+        assertEquals(
+                7, ligneSansLot.quantityInit(), "le stock théorique vient de la même source que la grille produit");
         assertNull(ligneSansLot.numLot());
         assertNotNull(ligneSansLot.storeInventoryLineId(), "la saisie est routée vers l'API ligne produit");
     }
@@ -64,7 +65,9 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN);
         viderLeCache();
 
-        assertTrue(services.inventoryLotService.findLotFlatPage(filtre(inventaire), PREMIERE_PAGE).isEmpty());
+        assertTrue(services.inventoryLotService
+                .findLotFlatPage(filtre(inventaire), PREMIERE_PAGE)
+                .isEmpty());
     }
 
     @Test
@@ -78,13 +81,14 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         ligne.setQuantityInit(30);
         viderLeCache();
 
-        services.inventoryLotService.save(new InventoryLotRecord(null, ligne.getId(), premier.getId(),
-            null, null, 18, null, null, false, 1_000));
-        services.inventoryLotService.save(new InventoryLotRecord(null, ligne.getId(), second.getId(),
-            null, null, 9, null, null, false, 1_000));
+        services.inventoryLotService.save(
+                new InventoryLotRecord(null, ligne.getId(), premier.getId(), null, null, 18, null, null, false, 1_000));
+        services.inventoryLotService.save(
+                new InventoryLotRecord(null, ligne.getId(), second.getId(), null, null, 9, null, null, false, 1_000));
         viderLeCache();
 
-        StoreInventoryLine relue = services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
+        StoreInventoryLine relue =
+                services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
         assertEquals(27, relue.getQuantityOnHand(), "la ligne produit vaut la somme de ses lots");
         assertEquals(-3, relue.getGap());
         assertTrue(relue.getUpdated());
@@ -100,21 +104,21 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         StoreInventoryLine ligne = ligne(inventaire, produit);
         viderLeCache();
 
-        InventoryLotRecord cree = services.inventoryLotService.save(
-            new InventoryLotRecord(null, ligne.getId(), null, "LOT-SURPRISE",
-                LocalDate.now().plusMonths(6), 4, null, null, false, null));
+        InventoryLotRecord cree = services.inventoryLotService.save(new InventoryLotRecord(
+                null, ligne.getId(), null, "LOT-SURPRISE", LocalDate.now().plusMonths(6), 4, null, null, false, null));
         viderLeCache();
 
         assertNotNull(cree.lotId(), "le lot manquant est créé, pas refusé");
         assertEquals(0, cree.quantityInit(), "un lot découvert au comptage part d'un théorique nul");
         assertEquals(4, cree.gap());
         assertEquals(
-            0,
-            compter("SELECT current_quantity FROM lot WHERE id = " + cree.lotId()),
-            "la quantité du lot n'est écrite qu'à la clôture"
-        );
-        assertEquals(600, compter("SELECT prixachat FROM lot WHERE id = " + cree.lotId()),
-            "les colonnes obligatoires du lot sont reprises du produit");
+                0,
+                compter("SELECT current_quantity FROM lot WHERE id = " + cree.lotId()),
+                "la quantité du lot n'est écrite qu'à la clôture");
+        assertEquals(
+                600,
+                compter("SELECT prixachat FROM lot WHERE id = " + cree.lotId()),
+                "les colonnes obligatoires du lot sont reprises du produit");
         assertEquals(1_000, compter("SELECT prixunit FROM lot WHERE id = " + cree.lotId()));
     }
 
@@ -128,18 +132,25 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         StoreInventoryLine ligneDuSecond = ligne(inventaire, second);
         viderLeCache();
 
-        InventoryLotRecord cree = services.inventoryLotService.save(
-            new InventoryLotRecord(null, ligneDuSecond.getId(), null, "LOT-COMMUN",
-                LocalDate.now().plusYears(1), 5, null, null, false, null));
+        InventoryLotRecord cree = services.inventoryLotService.save(new InventoryLotRecord(
+                null,
+                ligneDuSecond.getId(),
+                null,
+                "LOT-COMMUN",
+                LocalDate.now().plusYears(1),
+                5,
+                null,
+                null,
+                false,
+                null));
         viderLeCache();
 
-        assertFalse(lotDuPremier.getId().equals(cree.lotId()),
-            "le numéro de lot n'est unique que par produit");
+        assertFalse(lotDuPremier.getId().equals(cree.lotId()), "le numéro de lot n'est unique que par produit");
         assertEquals(
-            second.getId().intValue(),
-            ((Number) em.createNativeQuery("SELECT produit_id FROM lot WHERE id = " + cree.lotId())
-                .getSingleResult()).intValue()
-        );
+                second.getId().intValue(),
+                ((Number) em.createNativeQuery("SELECT produit_id FROM lot WHERE id = " + cree.lotId())
+                                .getSingleResult())
+                        .intValue());
     }
 
     @Test
@@ -153,14 +164,18 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         var ligneDeLot = ligneDeLot(ligne, lot, 18);
         viderLeCache();
 
-        InventoryLotRecord recompte = services.inventoryLotService.update(
-            new InventoryLotRecord(ligneDeLot.getId(), ligne.getId(), lot.getId(), null, null, 15,
-                null, null, false, null));
+        InventoryLotRecord recompte = services.inventoryLotService.update(new InventoryLotRecord(
+                ligneDeLot.getId(), ligne.getId(), lot.getId(), null, null, 15, null, null, false, null));
         viderLeCache();
 
         assertEquals(-5, recompte.gap());
         assertTrue(recompte.updated());
-        assertEquals(15, services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow().getQuantityOnHand());
+        assertEquals(
+                15,
+                services.storeInventoryLineRepository
+                        .findById(ligne.getId())
+                        .orElseThrow()
+                        .getQuantityOnHand());
     }
 
     @Test
@@ -179,8 +194,17 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         services.inventoryLotService.delete(aSupprimer.getId());
         viderLeCache();
 
-        assertEquals(1, services.inventoryLotService.findByStoreInventoryLineId(ligne.getId()).size());
-        assertEquals(9, services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow().getQuantityOnHand());
+        assertEquals(
+                1,
+                services.inventoryLotService
+                        .findByStoreInventoryLineId(ligne.getId())
+                        .size());
+        assertEquals(
+                9,
+                services.storeInventoryLineRepository
+                        .findById(ligne.getId())
+                        .orElseThrow()
+                        .getQuantityOnHand());
     }
 
     @Test
@@ -239,14 +263,15 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         ligne(inventaire, produitEnStock(unique("EFFERALGAN HOSTILE"), 12));
         viderLeCache();
 
-        assertEquals(0, rechercher(inventaire, "' OR 1=1 OR ''='").getTotalElements(),
-            "le terme est une donnée, pas du SQL");
+        assertEquals(
+                0,
+                rechercher(inventaire, "' OR 1=1 OR ''='").getTotalElements(),
+                "le terme est une donnée, pas du SQL");
     }
 
     private Page<StoreInventoryLotLineRecord> rechercher(StoreInventory inventaire, String terme) {
         return services.inventoryLotService.findLotFlatPage(
-            new StoreInventoryLineFilterRecord(inventaire.getId(), terme, null, null, null),
-            PREMIERE_PAGE);
+                new StoreInventoryLineFilterRecord(inventaire.getId(), terme, null, null, null), PREMIERE_PAGE);
     }
 
     private StoreInventoryLineFilterRecord filtre(StoreInventory inventaire) {

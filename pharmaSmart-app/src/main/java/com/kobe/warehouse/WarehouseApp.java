@@ -25,7 +25,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ ApplicationProperties.class, MailProperties.class, LogProperties.class, LicenseProperties.class })
+@EnableConfigurationProperties({
+    ApplicationProperties.class,
+    MailProperties.class,
+    LogProperties.class,
+    LicenseProperties.class
+})
 @EnableCaching
 @EnableAsync
 @EnableScheduling
@@ -52,12 +57,14 @@ public class WarehouseApp {
     }
 
     private static void logApplicationStartup(Environment env) {
-        String protocol = Optional.ofNullable(env.getProperty("server.ssl.key-store")).map(key -> "https").orElse("http");
+        String protocol = Optional.ofNullable(env.getProperty("server.ssl.key-store"))
+                .map(key -> "https")
+                .orElse("http");
         String applicationName = env.getProperty("spring.application.name");
         String serverPort = env.getProperty("server.port");
         String contextPath = Optional.ofNullable(env.getProperty("server.servlet.context-path"))
-            .filter(StringUtils::isNotBlank)
-            .orElse("/");
+                .filter(StringUtils::isNotBlank)
+                .orElse("/");
         String hostAddress = "localhost";
         try {
             hostAddress = InetAddress.getLocalHost().getHostAddress();
@@ -65,8 +72,8 @@ public class WarehouseApp {
             LOG.warn("The host name could not be determined, using `localhost` as fallback");
         }
         LOG.info(
-            CRLFLogConverter.CRLF_SAFE_MARKER,
-            """
+                CRLFLogConverter.CRLF_SAFE_MARKER,
+                """
 
             ----------------------------------------------------------
             \tApplication '{}' is running! Access URLs:
@@ -74,16 +81,15 @@ public class WarehouseApp {
             \tExternal: \t{}://{}:{}{}
             \tProfile(s): \t{}
             ----------------------------------------------------------""",
-            applicationName,
-            protocol,
-            serverPort,
-            contextPath,
-            protocol,
-            hostAddress,
-            serverPort,
-            contextPath,
-            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
-        );
+                applicationName,
+                protocol,
+                serverPort,
+                contextPath,
+                protocol,
+                hostAddress,
+                serverPort,
+                contextPath,
+                env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles());
     }
 
     /**
@@ -98,23 +104,15 @@ public class WarehouseApp {
     @PostConstruct
     public void initApplication() {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
-        if (
-            activeProfiles.contains(ConfigConstants.SPRING_PROFILE_DEVELOPMENT) &&
-            activeProfiles.contains(ConfigConstants.SPRING_PROFILE_PRODUCTION)
-        ) {
-            LOG.error(
-                "You have misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
-            );
+        if (activeProfiles.contains(ConfigConstants.SPRING_PROFILE_DEVELOPMENT)
+                && activeProfiles.contains(ConfigConstants.SPRING_PROFILE_PRODUCTION)) {
+            LOG.error("You have misconfigured your application! It should not run "
+                    + "with both the 'dev' and 'prod' profiles at the same time.");
         }
-        if (
-            activeProfiles.contains(ConfigConstants.SPRING_PROFILE_DEVELOPMENT) &&
-            activeProfiles.contains(ConfigConstants.SPRING_PROFILE_CLOUD)
-        ) {
-            LOG.error(
-                "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
-            );
+        if (activeProfiles.contains(ConfigConstants.SPRING_PROFILE_DEVELOPMENT)
+                && activeProfiles.contains(ConfigConstants.SPRING_PROFILE_CLOUD)) {
+            LOG.error("You have misconfigured your application! It should not "
+                    + "run with both the 'dev' and 'cloud' profiles at the same time.");
         }
     }
-
-
 }

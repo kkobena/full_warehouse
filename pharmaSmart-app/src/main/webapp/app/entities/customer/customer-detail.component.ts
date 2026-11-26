@@ -9,20 +9,20 @@ import {
   OnInit,
   output,
   signal,
-  untracked
-} from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { ICustomer } from "app/shared/model/customer.model";
-import { IAvoirClientDocument } from "app/shared/model/avoir-client-document.model";
-import { IClientTiersPayant } from "app/shared/model/client-tiers-payant.model";
-import { CustomerService } from "./customer.service";
-import { HttpErrorResponse } from "@angular/common/http";
-import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
-import { IMagasin } from "app/shared/model/magasin.model";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { NgbModal, NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { FormsModule } from "@angular/forms";
+  untracked,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ICustomer } from 'app/shared/model/customer.model';
+import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
+import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
+import { CustomerService } from './customer.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { IMagasin } from 'app/shared/model/magasin.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { NgbModal, NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -30,40 +30,34 @@ import {
   DetailFieldComponent,
   DetailGridComponent,
   DetailSectionComponent,
-  NavTabsComponent
-} from "../../shared/ui";
-import { CommonModule } from "@angular/common";
-import { ErrorService } from "../../shared/error.service";
-import { currencySymbol } from "../../shared/utils/format-utils";
-import { AbilityService } from "app/core/auth/ability.service";
-import { BlobDownloadService } from "app/shared/services/blob-download.service";
-import { ICustomerSynthese, IDossierSante, ITraitementChronique } from "./customer-fiche.model";
-import { IS_ISO_DATE_PAST } from "../../shared/util/warehouse-util";
-import { NotificationService } from "../../shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { DossierSanteTabComponent } from "./dossier-sante/dossier-sante-tab.component";
-import { TraitementsChroniquesComponent } from "./traitements-chroniques/traitements-chroniques.component";
-import {
-  A_RELANCER,
-  echeanceTraitement,
-  libelleTraitement,
-  SUIVI_TRAITEMENT
-} from "./traitements-chroniques/suivi-traitement";
-import { ConsentementsComponent } from "./consentements/consentements.component";
-import { showCommonModal } from "../sales/selling-home/sale-helper";
-import { AssureFormStepComponent } from "./assure-form-step/assure-form-step.component";
-import { UninsuredCustomerFormComponent } from "./uninsured-customer-form/uninsured-customer-form.component";
-import { CustomerAchatsTabComponent } from "./achats-tab/customer-achats-tab.component";
-import { CustomerProduitsTabComponent } from "./produits-delivres-tab/customer-produits-tab.component";
-import { CustomerCouvertureTabComponent } from "./couverture-tab/customer-couverture-tab.component";
-import { CustomerCreditTabComponent } from "./credit-tab/customer-credit-tab.component";
-import { CustomerAvoirsTabComponent } from "./avoirs-tab/customer-avoirs-tab.component";
-
+  NavTabsComponent,
+} from '../../shared/ui';
+import { CommonModule } from '@angular/common';
+import { ErrorService } from '../../shared/error.service';
+import { currencySymbol } from '../../shared/utils/format-utils';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { BlobDownloadService } from 'app/shared/services/blob-download.service';
+import { ICustomerSynthese, IDossierSante, ITraitementChronique } from './customer-fiche.model';
+import { IS_ISO_DATE_PAST } from '../../shared/util/warehouse-util';
+import { NotificationService } from '../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { DossierSanteTabComponent } from './dossier-sante/dossier-sante-tab.component';
+import { TraitementsChroniquesComponent } from './traitements-chroniques/traitements-chroniques.component';
+import { A_RELANCER, echeanceTraitement, libelleTraitement, SUIVI_TRAITEMENT } from './traitements-chroniques/suivi-traitement';
+import { ConsentementsComponent } from './consentements/consentements.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
+import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
+import { CustomerAchatsTabComponent } from './achats-tab/customer-achats-tab.component';
+import { CustomerProduitsTabComponent } from './produits-delivres-tab/customer-produits-tab.component';
+import { CustomerCouvertureTabComponent } from './couverture-tab/customer-couverture-tab.component';
+import { CustomerCreditTabComponent } from './credit-tab/customer-credit-tab.component';
+import { CustomerAvoirsTabComponent } from './avoirs-tab/customer-avoirs-tab.component';
 
 @Component({
-  selector: "app-customer-detail",
-  templateUrl: "./customer-detail.component.html",
-  styleUrls: ["./customer-detail.component.scss"],
+  selector: 'app-customer-detail',
+  templateUrl: './customer-detail.component.html',
+  styleUrls: ['./customer-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgbNavModule,
@@ -84,12 +78,12 @@ import { CustomerAvoirsTabComponent } from "./avoirs-tab/customer-avoirs-tab.com
     CustomerProduitsTabComponent,
     CustomerCouvertureTabComponent,
     CustomerCreditTabComponent,
-    CustomerAvoirsTabComponent
-  ]
+    CustomerAvoirsTabComponent,
+  ],
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   /** Renseigné quand la fiche est le panneau de détail de la liste ; sinon, lue sur la route. */
-  readonly customerInput = input<ICustomer | null>(null, { alias: "customer" });
+  readonly customerInput = input<ICustomer | null>(null, { alias: 'customer' });
   readonly closePanel = output();
   /** La fiche a modifié le client : la liste se recharge. */
   readonly customerChanged = output();
@@ -103,15 +97,15 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
 
   // ── Avoirs : juste de quoi afficher la pastille de l'onglet ; l'onglet charge lui-même sa liste ──
   protected readonly avoirs = signal<IAvoirClientDocument[]>([]);
-  protected readonly avoirsOuverts = computed(() => this.avoirs().filter(a => a.statut === "OUVERT"));
+  protected readonly avoirsOuverts = computed(() => this.avoirs().filter(a => a.statut === 'OUVERT'));
   protected readonly soldeTotalAvoirs = computed(() => this.avoirsOuverts().reduce((sum, a) => sum + (a.montant ?? 0), 0));
 
   // ── En-tête ──
-  protected readonly estAssure = computed(() => this.customer()?.categorie === "ASSURE");
+  protected readonly estAssure = computed(() => this.customer()?.categorie === 'ASSURE');
   protected readonly age = computed(() => this.ageDe(this.customer()?.datNaiss));
   /** Tiers payants par priorité : le premier est la couverture principale. */
   protected readonly tiersPayants = computed<IClientTiersPayant[]>(() =>
-    [...(this.customer()?.tiersPayants ?? [])].sort((a, b) => (a.categorie ?? 0) - (b.categorie ?? 0))
+    [...(this.customer()?.tiersPayants ?? [])].sort((a, b) => (a.categorie ?? 0) - (b.categorie ?? 0)),
   );
   protected readonly couverturePrincipale = computed(() => this.tiersPayants()[0]);
   protected readonly carteExpiree = IS_ISO_DATE_PAST;
@@ -130,7 +124,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     return !!d?.grossesse && (!d.dateTerme || new Date(d.dateTerme) >= new Date(new Date().toDateString()));
   });
 
-  protected activeTab = "synthese";
+  protected activeTab = 'synthese';
   protected activatedRoute = inject(ActivatedRoute);
   protected customerService = inject(CustomerService);
   protected magasinService = inject(MagasinService);
@@ -140,12 +134,16 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   private readonly blobDownloadService = inject(BlobDownloadService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly errorService = inject(ErrorService);
-  protected readonly canEdit = this.ability.canSignal("edit", "customer");
-  protected readonly canDonneesPersonnelles = this.ability.canSignal("execute", "pr-donnees-personnelles-client");
-  protected readonly canOpenDifferes = this.ability.canSignal("access", "differes");
+  protected readonly canEdit = this.ability.canSignal('edit', 'customer');
+  protected readonly canDonneesPersonnelles = this.ability.canSignal('execute', 'pr-donnees-personnelles-client');
+  protected readonly canOpenDifferes = this.ability.canSignal('access', 'differes');
   // Même périmètre que le serveur : le comptoir renseigne aussi le dossier santé.
   protected readonly canEditSante = computed(
-    () => this.canEdit() || this.ability.can("edit", "nouvelle-vente") || this.ability.can("edit", "nouvelle-prevente") || this.ability.can("edit", "ventes")
+    () =>
+      this.canEdit() ||
+      this.ability.can('edit', 'nouvelle-vente') ||
+      this.ability.can('edit', 'nouvelle-prevente') ||
+      this.ability.can('edit', 'ventes'),
   );
   private destroy$ = new Subject<void>();
 
@@ -178,7 +176,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   /** Remet la fiche à zéro pour un client, puis charge l'en-tête. */
   private ouvrir(customer: ICustomer): void {
     this.customer.set(customer);
-    this.activeTab = "synthese";
+    this.activeTab = 'synthese';
     this.synthese.set(null);
     this.dossierSante.set(null);
     this.traitements.set([]);
@@ -190,20 +188,20 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: dossier => this.dossierSante.set(dossier),
-        error: this.signaler("Le dossier santé n'a pas pu être chargé")
+        error: this.signaler("Le dossier santé n'a pas pu être chargé"),
       });
     this.customerService
       .traitementsChroniques(customer.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: traitements => this.traitements.set(traitements),
-        error: this.signaler("Les traitements chroniques n'ont pas pu être chargés")
+        error: this.signaler("Les traitements chroniques n'ont pas pu être chargés"),
       });
   }
 
   /** L'encours de l'en-tête mène à l'onglet Crédit. */
   voirCredit(): void {
-    this.activeTab = "credit";
+    this.activeTab = 'credit';
   }
 
   edit(): void {
@@ -222,8 +220,8 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
         AssureFormStepComponent,
         { entity: customer, header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]` },
         onSaved,
-        "xl",
-        "modal-dialog-80"
+        'xl',
+        'modal-dialog-80',
       );
     } else {
       showCommonModal(
@@ -231,7 +229,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
         UninsuredCustomerFormComponent,
         { entity: customer, title: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]` },
         onSaved,
-        "xl"
+        'xl',
       );
     }
   }
@@ -247,7 +245,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: avoirs => this.avoirs.set(avoirs),
-        error: this.signaler("Les avoirs n'ont pas pu être chargés")
+        error: this.signaler("Les avoirs n'ont pas pu être chargés"),
       });
   }
 
@@ -259,8 +257,8 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       .donneesPersonnelles(this.customer().id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: blob => this.blobDownloadService.download(blob, `donnees-client-${this.customer().code}`, "json"),
-        error: this.signaler("L'export des données a échoué")
+        next: blob => this.blobDownloadService.download(blob, `donnees-client-${this.customer().code}`, 'json'),
+        error: this.signaler("L'export des données a échoué"),
       });
   }
 
@@ -273,15 +271,15 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
-              this.notificationService.success("Les données du client ont été effacées");
+              this.notificationService.success('Les données du client ont été effacées');
               this.reloadCustomer();
               this.dossierSante.set(null);
             },
-            error: this.signaler("L'effacement a échoué")
+            error: this.signaler("L'effacement a échoué"),
           }),
-      "EFFACEMENT DES DONNÉES",
+      'EFFACEMENT DES DONNÉES',
       "Nom, téléphone, e-mail, date de naissance, numéros d'assuré et dossier santé seront définitivement effacés, et la fiche désactivée. " +
-      "L'historique des ventes est conservé, sans identité. Continuer ?"
+        "L'historique des ventes est conservé, sans identité. Continuer ?",
     );
   }
 
@@ -293,7 +291,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: synthese => this.synthese.set(synthese),
-        error: this.signaler("La synthèse du client n'a pas pu être chargée")
+        error: this.signaler("La synthèse du client n'a pas pu être chargée"),
       });
   }
 
@@ -308,7 +306,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
             this.customer.set(res.body);
           }
         },
-        error: this.signaler("Le client n'a pas pu être rechargé")
+        error: this.signaler("Le client n'a pas pu être rechargé"),
       });
     this.loadSynthese();
     this.customerChanged.emit();
@@ -334,6 +332,4 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     }
     return age;
   }
-
-
 }

@@ -12,12 +12,11 @@ public interface GestionStockDepotService {
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable);
 
     Page<DepotExtensionSaleDTO> getVenteDepot(
-        PaymentStatus paymentStatus,
-        Integer depotId,
-        String search,
-        LocalDate fromDate,
-        LocalDate toDate,
-        Integer userId,
-        Pageable pageabl
-    );
+            PaymentStatus paymentStatus,
+            Integer depotId,
+            String search,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer userId,
+            Pageable pageabl);
 }

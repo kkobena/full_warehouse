@@ -1,16 +1,6 @@
 // Extended category types (10 types, extending the original 4)
 export type InventoryCategoryType =
-  | 'MAGASIN'
-  | 'STORAGE'
-  | 'RAYON'
-  | 'FAMILLY'
-  | 'PERIME'
-  | 'ALERTE_PEREMPTION'
-  | 'VENDU'
-  | 'INVENDU'
-  | 'SOUS_SEUIL'
-  | 'EN_RUPTURE'
-  | 'ABC';
+  'MAGASIN' | 'STORAGE' | 'RAYON' | 'FAMILLY' | 'PERIME' | 'ALERTE_PEREMPTION' | 'VENDU' | 'INVENDU' | 'SOUS_SEUIL' | 'EN_RUPTURE' | 'ABC';
 
 export interface InventoryProgressRecord {
   inventoryId: number;
@@ -117,13 +107,7 @@ export interface PendingEdit {
 }
 
 // Filter for line query
-export type InventoryLineFilter =
-  'NONE'
-  | 'UPDATED'
-  | 'NOT_UPDATED'
-  | 'GAP'
-  | 'GAP_NEGATIF'
-  | 'GAP_POSITIF';
+export type InventoryLineFilter = 'NONE' | 'UPDATED' | 'NOT_UPDATED' | 'GAP' | 'GAP_NEGATIF' | 'GAP_POSITIF';
 
 // Creation request
 export interface StoreInventoryCreateRecord {
@@ -152,13 +136,13 @@ export interface InventoryCategoryInfo {
 }
 
 export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
-  {value: 'MAGASIN', label: 'Inventaire global (magasin)', icon: 'pi pi-building', group: 'scope'},
+  { value: 'MAGASIN', label: 'Inventaire global (magasin)', icon: 'pi pi-building', group: 'scope' },
   {
     value: 'STORAGE',
     label: "Inventaire d'un emplacement",
     icon: 'pi pi-box',
     group: 'scope',
-    needsStorage: true
+    needsStorage: true,
   },
   {
     value: 'RAYON',
@@ -166,65 +150,65 @@ export const INVENTORY_CATEGORIES: InventoryCategoryInfo[] = [
     icon: 'pi pi-th-large',
     group: 'scope',
     needsStorage: true,
-    needsRayon: true
+    needsRayon: true,
   },
   {
     value: 'FAMILLY',
     label: "Inventaire d'une famille",
     icon: 'pi pi-tags',
     group: 'scope',
-    needsFamilly: true
+    needsFamilly: true,
   },
   {
     value: 'PERIME',
     label: 'Produits périmés',
     icon: 'pi pi-exclamation-triangle',
-    group: 'thematic'
+    group: 'thematic',
   },
   {
     value: 'ALERTE_PEREMPTION',
     label: 'Alerte péremption',
     icon: 'pi pi-clock',
     group: 'thematic',
-    needsAlerteJours: true
+    needsAlerteJours: true,
   },
   {
     value: 'VENDU',
     label: 'Produits vendus (période)',
     icon: 'pi pi-shopping-cart',
     group: 'thematic',
-    needsDateRange: true
+    needsDateRange: true,
   },
   {
     value: 'INVENDU',
     label: 'Produits invendus (période)',
     icon: 'pi pi-inbox',
     group: 'thematic',
-    needsDateRange: true
+    needsDateRange: true,
   },
   {
     value: 'SOUS_SEUIL',
     label: 'Stock sous seuil minimum',
     icon: 'pi pi-arrow-down',
-    group: 'thematic'
+    group: 'thematic',
   },
-  {value: 'EN_RUPTURE', label: 'Rupture de stock', icon: 'pi pi-ban', group: 'thematic'},
+  { value: 'EN_RUPTURE', label: 'Rupture de stock', icon: 'pi pi-ban', group: 'thematic' },
   {
     value: 'ABC',
     label: 'Classification ABC (Pareto)',
     icon: 'pi pi-chart-bar',
     group: 'thematic',
-    needsClassePareto: true
+    needsClassePareto: true,
   },
 ];
 
 export const LINE_FILTERS = [
-  {value: 'NONE', label: 'Tous'},
-  {value: 'NOT_UPDATED', label: 'A compter'},
-  {value: 'UPDATED', label: 'Comptés'},
-  {value: 'GAP', label: 'Avec écart'},
-  {value: 'GAP_NEGATIF', label: 'Écart négatif'},
-  {value: 'GAP_POSITIF', label: 'Écart positif'},
+  { value: 'NONE', label: 'Tous' },
+  { value: 'NOT_UPDATED', label: 'A compter' },
+  { value: 'UPDATED', label: 'Comptés' },
+  { value: 'GAP', label: 'Avec écart' },
+  { value: 'GAP_NEGATIF', label: 'Écart négatif' },
+  { value: 'GAP_POSITIF', label: 'Écart positif' },
 ];
 
 /**
@@ -234,14 +218,11 @@ export const LINE_FILTERS = [
  */
 export const GAP_LINE_FILTERS: InventoryLineFilter[] = ['GAP', 'GAP_NEGATIF', 'GAP_POSITIF'];
 
-export const isGapLineFilter = (filter: InventoryLineFilter): boolean =>
-  GAP_LINE_FILTERS.includes(filter);
+export const isGapLineFilter = (filter: InventoryLineFilter): boolean => GAP_LINE_FILTERS.includes(filter);
 
 /** Options proposées à l'opérateur : sans le privilège, les filtres d'écart sautent */
 export const lineFiltersFor = (blindMode: boolean): typeof LINE_FILTERS =>
-  blindMode
-    ? LINE_FILTERS.filter(f => !isGapLineFilter(f.value as InventoryLineFilter))
-    : LINE_FILTERS;
+  blindMode ? LINE_FILTERS.filter(f => !isGapLineFilter(f.value as InventoryLineFilter)) : LINE_FILTERS;
 
 export interface InventoryEvent {
   type: InventoryEventType;

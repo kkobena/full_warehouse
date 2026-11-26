@@ -8,9 +8,8 @@ import java.util.List;
  * Tous les champs optionnels sauf {@code ids}.
  */
 public record MassUpdateFactureConfigRequest(
-    List<Integer> ids,
-    Boolean inclureAutoDefinitif,
-    Boolean inclureAutoProvisoire,
-    Periodicite periodiciteDefinitive,
-    Periodicite periodiciteProvisoire
-) {}
+        List<Integer> ids,
+        Boolean inclureAutoDefinitif,
+        Boolean inclureAutoProvisoire,
+        Periodicite periodiciteDefinitive,
+        Periodicite periodiciteProvisoire) {}

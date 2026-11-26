@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.TvaService;
 import com.kobe.warehouse.service.dto.TvaDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -26,8 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -54,18 +54,16 @@ public class TvaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/tvas")
-    public ResponseEntity<TvaDTO> createTva(@Valid @RequestBody TvaDTO tvaDTO)
-        throws URISyntaxException {
+    public ResponseEntity<TvaDTO> createTva(@Valid @RequestBody TvaDTO tvaDTO) throws URISyntaxException {
 
         if (tvaDTO.getId() != null) {
-            throw new BadRequestAlertException("A new tva cannot already have an ID", ENTITY_NAME,
-                "idexists");
+            throw new BadRequestAlertException("A new tva cannot already have an ID", ENTITY_NAME, "idexists");
         }
         TvaDTO result = tvaService.save(tvaDTO);
         return ResponseEntity.created(new URI("/api/tvas/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
-                result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -79,8 +77,8 @@ public class TvaResource {
     public ResponseEntity<List<TvaDTO>> getAllTvas(Pageable pageable) {
         log.debug("REST request to get a page of Tvas");
         Page<TvaDTO> page = tvaService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -111,8 +109,7 @@ public class TvaResource {
 
         tvaService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-                id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

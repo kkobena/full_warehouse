@@ -1,12 +1,12 @@
 // Modèle de navigation dynamique — indépendant du NavItem frontend existant
 export interface INavNode {
   id: number;
-  code: string;           // clé métier unique ex: "commande"
-  libelle: string;        // label affiché
-  icon?: string;          // "pi pi-send" (PrimeIcons)
+  code: string; // clé métier unique ex: "commande"
+  libelle: string; // label affiché
+  icon?: string; // "pi pi-send" (PrimeIcons)
   /** Titre de la barre d'outils de l'écran, quand il diffère du libellé du menu. */
   titreLong?: string;
-  routerLink?: string;    // "/commande"
+  routerLink?: string; // "/commande"
   badgeType?: 'RUPTURE' | 'PEREMPTION' | 'URGENT' | 'NONE';
   targetType: 'ROUTE' | 'ACTION' | 'GROUP' | 'SECTION' | 'DIVIDER' | 'WIDGET';
   ordre: number;
@@ -52,4 +52,3 @@ export interface NavItemAssignment {
   canExport: boolean;
   canExecute: boolean;
 }
-

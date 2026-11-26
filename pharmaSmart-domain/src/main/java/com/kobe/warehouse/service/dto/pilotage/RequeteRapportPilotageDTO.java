@@ -13,12 +13,11 @@ import java.util.List;
  * @param analyse réglage de l'onglet Analyser
  */
 public record RequeteRapportPilotageDTO(
-    @NotNull RequetePilotageDTO requete,
-    @NotEmpty List<OngletRapportPilotage> onglets,
-    RequeteAnneesDTO annees,
-    String libelleFiltreAnnees,
-    ReglageAnalyseRapportDTO analyse
-) {
+        @NotNull RequetePilotageDTO requete,
+        @NotEmpty List<OngletRapportPilotage> onglets,
+        RequeteAnneesDTO annees,
+        String libelleFiltreAnnees,
+        ReglageAnalyseRapportDTO analyse) {
     public RequeteRapportPilotageDTO {
         analyse = analyse == null ? new ReglageAnalyseRapportDTO(null, null, null, null) : analyse;
     }
@@ -26,6 +25,12 @@ public record RequeteRapportPilotageDTO(
     /** « À date » vient de la barre, comme à l'écran. */
     public RequeteAnneesDTO lireReglageAnnees() {
         RequeteAnneesDTO reglage = annees == null ? new RequeteAnneesDTO(null, null, null, null, null, null) : annees;
-        return new RequeteAnneesDTO(reglage.indicateur(), reglage.annees(), reglage.mode(), reglage.parJourOuvre(), requete.aDate(), reglage.filtre());
+        return new RequeteAnneesDTO(
+                reglage.indicateur(),
+                reglage.annees(),
+                reglage.mode(),
+                reglage.parJourOuvre(),
+                requete.aDate(),
+                reglage.filtre());
     }
 }

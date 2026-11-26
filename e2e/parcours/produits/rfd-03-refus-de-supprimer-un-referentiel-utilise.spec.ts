@@ -31,7 +31,10 @@ scenario('RFD-03', async ({ etape, page }) => {
 
     // Le refus nomme la cause ET le nombre, sans quoi il n'aiderait pas à décider.
     await expect(
-      page.locator('[role="alert"], .toast').filter({ hasText: /encore utilisée par/i }).first(),
+      page
+        .locator('[role="alert"], .toast')
+        .filter({ hasText: /encore utilisée par/i })
+        .first(),
     ).toBeVisible({ timeout: 15000 });
   });
 });

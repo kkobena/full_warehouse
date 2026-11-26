@@ -31,10 +31,7 @@ public class PorteeMagasinServiceImpl implements PorteeMagasinService {
     private final NavAccessService navAccessService;
 
     public PorteeMagasinServiceImpl(
-        UserService userService,
-        MagasinRepository magasinRepository,
-        NavAccessService navAccessService
-    ) {
+            UserService userService, MagasinRepository magasinRepository, NavAccessService navAccessService) {
         this.userService = userService;
         this.magasinRepository = magasinRepository;
         this.navAccessService = navAccessService;

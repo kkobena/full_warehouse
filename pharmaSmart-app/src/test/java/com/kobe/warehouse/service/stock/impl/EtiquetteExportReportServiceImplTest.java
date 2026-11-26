@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -14,8 +13,8 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
 import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.etiquette.zpl.impl.ZplEtiquetteServiceImpl;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
+import com.kobe.warehouse.service.etiquette.zpl.impl.ZplEtiquetteServiceImpl;
 import com.kobe.warehouse.service.report.Constant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,9 +38,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @DisplayName("EtiquetteExportReportServiceImpl")
 class EtiquetteExportReportServiceImplTest {
 
-    private static final String HTML = "<html><head><title>Etiquettes</title></head><body><p>etiquettes</p></body></html>";
-
-
+    private static final String HTML =
+            "<html><head><title>Etiquettes</title></head><body><p>etiquettes</p></body></html>";
 
     @Mock
     private SpringTemplateEngine templateEngine;
@@ -150,12 +148,13 @@ class EtiquetteExportReportServiceImplTest {
         }
 
         @ParameterizedTest(name = "un depart a {0} n insere aucune etiquette blanche")
-        @ValueSource(ints = { 0, 1 })
+        @ValueSource(ints = {0, 1})
         void sansEtiquetteBlanche(int startAt) {
             service.export(List.of(orderLine("1234567", 1500)), startAt);
 
             assertThat(etiquettesRendues()).hasSize(1);
-            assertThat(etiquettesRendues()).allSatisfy(e -> assertThat(e.isPrint()).isTrue());
+            assertThat(etiquettesRendues())
+                    .allSatisfy(e -> assertThat(e.isPrint()).isTrue());
         }
 
         @Test
@@ -167,7 +166,8 @@ class EtiquetteExportReportServiceImplTest {
             // comme l'etiquette produit et l'etiquette de lot. Le gabarit en sautait trois.
             List<EtiquetteDTO> etiquettes = etiquettesRendues();
             assertThat(etiquettes).hasSize(3);
-            assertThat(etiquettes.subList(0, 2)).allSatisfy(e -> assertThat(e.isPrint()).isFalse());
+            assertThat(etiquettes.subList(0, 2))
+                    .allSatisfy(e -> assertThat(e.isPrint()).isFalse());
             assertThat(etiquettes.getLast().isPrint()).isTrue();
         }
 
@@ -175,10 +175,12 @@ class EtiquetteExportReportServiceImplTest {
         @DisplayName("les trois chemins d impression sautent le meme nombre de cases")
         void memeCaseDeDepartQueLesAutresChemins() {
             service.export(List.of(orderLine("1234567", 1500)), 5);
-            long blanchesDuBon = etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
+            long blanchesDuBon =
+                    etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
 
             service.exportForProduit(produit("1234567", 1500), 1, 5);
-            long blanchesDuProduit = etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
+            long blanchesDuProduit =
+                    etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
 
             assertThat(blanchesDuBon).isEqualTo(4);
             assertThat(blanchesDuBon).isEqualTo(blanchesDuProduit);
@@ -252,11 +254,12 @@ class EtiquetteExportReportServiceImplTest {
 
             List<EtiquetteDTO> etiquettes = etiquettesRendues();
             assertThat(etiquettes).hasSize(4);
-            assertThat(etiquettes.subList(0, 2)).allSatisfy(e -> assertThat(e.isPrint()).isFalse());
+            assertThat(etiquettes.subList(0, 2))
+                    .allSatisfy(e -> assertThat(e.isPrint()).isFalse());
         }
 
         @ParameterizedTest(name = "un depart a {0} ne consomme aucune case")
-        @ValueSource(ints = { 0, 1 })
+        @ValueSource(ints = {0, 1})
         void sansCaseConsommee(int startAt) {
             service.exportForProduit(produit("1234567", 1500), 2, startAt);
 
@@ -281,11 +284,7 @@ class EtiquetteExportReportServiceImplTest {
         @DisplayName("rend un bloc par etiquette de l article")
         void unBlocParEtiquette() {
             String zpl = service.genererZplPourProduit(
-                produit("1234567", 1500),
-                3,
-                FormatEtiquette.ROULEAU_40X30,
-                ResolutionEtiquette.DPI_203
-            );
+                    produit("1234567", 1500), 3, FormatEtiquette.ROULEAU_40X30, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).startsWith("^XA");
             assertThat(zpl.lastIndexOf("^XA")).isGreaterThan(zpl.indexOf("^XZ"));
@@ -296,10 +295,9 @@ class EtiquetteExportReportServiceImplTest {
         @DisplayName("un bon rend une etiquette par ligne, sans case de depart")
         void unBonSansCaseDeDepart() {
             String zpl = service.genererZplPourBon(
-                List.of(orderLine("1234567", 1500), orderLine("7654321", 2000)),
-                FormatEtiquette.ROULEAU_40X30,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(orderLine("1234567", 1500), orderLine("7654321", 2000)),
+                    FormatEtiquette.ROULEAU_40X30,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("1234567");
             assertThat(zpl).contains("7654321");

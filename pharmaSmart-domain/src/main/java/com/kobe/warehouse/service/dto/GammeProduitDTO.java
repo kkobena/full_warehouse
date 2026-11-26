@@ -71,10 +71,9 @@ public class GammeProduitDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "GammeProduitDTO{" +
-            "id=" + getId() +
-            ", code='" + getCode() + "'" +
-            ", libelle='" + getLibelle() + "'" +
-            "}";
+        return "GammeProduitDTO{" + "id="
+                + getId() + ", code='"
+                + getCode() + "'" + ", libelle='"
+                + getLibelle() + "'" + "}";
     }
 }

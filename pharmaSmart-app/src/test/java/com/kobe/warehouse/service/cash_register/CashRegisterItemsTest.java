@@ -11,12 +11,12 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegisterItem;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
 import com.kobe.warehouse.service.cash_register.impl.CashRegisterServiceImpl;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -40,27 +40,27 @@ class CashRegisterItemsTest {
     private final CashRegisterRepository repository = mock(CashRegisterRepository.class);
 
     private final CashRegisterService service = new CashRegisterServiceImpl(
-        repository,
-        mock(AppConfigurationService.class),
-        mock(CashFundService.class),
-        mock(UserService.class),
-        mock(PorteeMagasinService.class)
-    );
+            repository,
+            mock(AppConfigurationService.class),
+            mock(CashFundService.class),
+            mock(UserService.class),
+            mock(PorteeMagasinService.class));
 
     @Test
     @DisplayName("un règlement fournisseur figure au détail de la caisse")
     void reglementFournisseurAuDetail() {
         CashRegister caisse = caisse();
-        when(repository.findCashRegisterSalesDataById(anyInt(), any(), any())).thenReturn(List.<CashRegisterVenteSpecialisation>of());
-        when(repository.findCashRegisterMvtDataById(anyInt(), any(), any())).thenReturn(
-            List.of(mouvement("REGLMENT_FOURNISSEUR", "VIREMENT", 5_000))
-        );
+        when(repository.findCashRegisterSalesDataById(anyInt(), any(), any()))
+                .thenReturn(List.<CashRegisterVenteSpecialisation>of());
+        when(repository.findCashRegisterMvtDataById(anyInt(), any(), any()))
+                .thenReturn(List.of(mouvement("REGLMENT_FOURNISSEUR", "VIREMENT", 5_000)));
 
         service.buildCashRegisterItems(caisse);
 
         assertThat(caisse.getCashRegisterItems())
-            .extracting(CashRegisterItem::getTypeFinancialTransaction, CashRegisterItem::getAmount)
-            .containsExactly(org.assertj.core.api.Assertions.tuple(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L));
+                .extracting(CashRegisterItem::getTypeFinancialTransaction, CashRegisterItem::getAmount)
+                .containsExactly(
+                        org.assertj.core.api.Assertions.tuple(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L));
     }
 
     /**
@@ -71,8 +71,10 @@ class CashRegisterItemsTest {
     @Test
     @DisplayName("seules les ventes sont écartées de la requête des mouvements")
     void seulesLesVentesSontEcartees() {
-        when(repository.findCashRegisterSalesDataById(anyInt(), any(), any())).thenReturn(List.<CashRegisterVenteSpecialisation>of());
-        when(repository.findCashRegisterMvtDataById(anyInt(), any(), any())).thenReturn(List.<CashRegisterTransactionSpecialisation>of());
+        when(repository.findCashRegisterSalesDataById(anyInt(), any(), any()))
+                .thenReturn(List.<CashRegisterVenteSpecialisation>of());
+        when(repository.findCashRegisterMvtDataById(anyInt(), any(), any()))
+                .thenReturn(List.<CashRegisterTransactionSpecialisation>of());
 
         service.buildCashRegisterItems(caisse());
 

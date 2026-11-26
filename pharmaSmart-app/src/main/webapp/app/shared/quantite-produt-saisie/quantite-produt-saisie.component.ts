@@ -1,4 +1,4 @@
-import {signal, Component, computed, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, computed, ElementRef, input, output, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui';
@@ -11,7 +11,13 @@ import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui'
     <app-float-label label="{{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}" inputId="quantiteSaisie">
       <div class="input-group">
         @if (showSteppers()) {
-          <app-button (clicked)="decrementQuantity()" [disabled]="!isValid()" ariaLabel="Diminuer la quantité" icon="pi pi-minus" severity="secondary" />
+          <app-button
+            (clicked)="decrementQuantity()"
+            [disabled]="!isValid()"
+            ariaLabel="Diminuer la quantité"
+            icon="pi pi-minus"
+            severity="secondary"
+          />
         }
         <input
           [style]="style()"
@@ -23,14 +29,27 @@ import { ButtonComponent, FloatLabelComponent, KeyFilterDirective } from '../ui'
           [attr.aria-describedby]="depasseStock() ? 'quantiteSaisie-stock' : null"
           id="quantiteSaisie"
           placeholder=" "
-          [ngModel]="quantite()" (ngModelChange)="quantite.set($event)"
+          [ngModel]="quantite()"
+          (ngModelChange)="quantite.set($event)"
           [disabled]="!isValid()"
           (keydown.enter)="onAdd()"
         />
         @if (showSteppers()) {
-          <app-button (clicked)="incrementQuantity()" [disabled]="!isValid()" ariaLabel="Augmenter la quantité" icon="pi pi-plus" severity="secondary" />
+          <app-button
+            (clicked)="incrementQuantity()"
+            [disabled]="!isValid()"
+            ariaLabel="Augmenter la quantité"
+            icon="pi pi-plus"
+            severity="secondary"
+          />
         }
-        <app-button (clicked)="handleEnter()" icon="pi pi-check" ariaLabel="Ajouter au panier" [disabled]="disabledButton()" severity="primary" />
+        <app-button
+          (clicked)="handleEnter()"
+          icon="pi pi-check"
+          ariaLabel="Ajouter au panier"
+          [disabled]="disabledButton()"
+          severity="primary"
+        />
       </div>
     </app-float-label>
     <!-- Avant l'ajout : la quantité tapée dépasse le stock rayon (le forçage reste possible à l'ajout) -->

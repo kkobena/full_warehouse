@@ -4,13 +4,16 @@
 <div class="mx-auto mt-5" style="max-width: 32rem">
   <app-card [variant]="'form'" class="p-5">
     <div class="form-check form-switch mb-3">
-      <input (change)="enregistrer($any($event.target).checked)" [checked]="excludeFreeUnit()"
-             [disabled]="chargement()" class="form-check-input"
-             id="exclude-free-unit" role="switch"
-             type="checkbox" />
-      <label class="form-check-label" for="exclude-free-unit">
-        Exclure les unités gratuites du chiffre d'affaires à déclarer
-      </label>
+      <input
+        (change)="enregistrer($any($event.target).checked)"
+        [checked]="excludeFreeUnit()"
+        [disabled]="chargement()"
+        class="form-check-input"
+        id="exclude-free-unit"
+        role="switch"
+        type="checkbox"
+      />
+      <label class="form-check-label" for="exclude-free-unit"> Exclure les unités gratuites du chiffre d'affaires à déclarer </label>
     </div>
 
     <div class="alert alert-warning py-2 small d-flex align-items-start gap-2 mb-0">

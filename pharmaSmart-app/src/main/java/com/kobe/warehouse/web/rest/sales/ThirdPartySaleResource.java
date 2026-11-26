@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -37,15 +39,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link Sales}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class ThirdPartySaleResource {
 
     private static final String ENTITY_NAME = "sales";
@@ -67,83 +67,69 @@ public class ThirdPartySaleResource {
         }
         ResponseDTO result = saleService.putThirdPartySaleOnHold(sale);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME,
-                sale.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, sale.getId().toString()))
+                .body(result);
     }
 
     @PostMapping("/sales/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<ThirdPartySaleDTO> createSale(
-        @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO,
-        HttpServletRequest request
-    ) {
+            @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO, HttpServletRequest request) {
         log.debug("REST request to save thirdPartySaleDTO : {}", thirdPartySaleDTO);
         if (thirdPartySaleDTO.getId() != null) {
-            throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME,
-                "idexists");
+            throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME, "idexists");
         }
         thirdPartySaleDTO.setCaisseNum(request.getRemoteHost());
         thirdPartySaleDTO.setCaisseEndNum(request.getRemoteHost());
 
         ThirdPartySaleDTO result = saleService.createSale(thirdPartySaleDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @PutMapping("/sales/assurance/save")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<FinalyseSaleDTO> closeSale(
-        @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
+    public ResponseEntity<FinalyseSaleDTO> closeSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
         if (thirdPartySaleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FinalyseSaleDTO result = saleService.save(thirdPartySaleDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @PostMapping("/sales/add-item/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<SaleLineDTO> addItem(@Valid @RequestBody SaleLineDTO saleLineDTO)
-        throws URISyntaxException {
+    public ResponseEntity<SaleLineDTO> addItem(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.createOrUpdateSaleLine(saleLineDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @PutMapping("/sales/update-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        return ResponseEntity.accepted()
-            .body(saleService.updateItemQuantityRequested(saleLineDTO, true));
+    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO)
+            throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, true));
     }
-
 
     @PutMapping("/sales/increment-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        return ResponseEntity.accepted()
-            .body(saleService.updateItemQuantityRequested(saleLineDTO, true));
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO)
+            throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, true));
     }
 
     @PutMapping("/sales/set-item/quantity-requested/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<SaleLineDTO> setItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) {
-        return ResponseEntity.accepted()
-            .body(saleService.updateItemQuantityRequested(saleLineDTO, false));
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, false));
     }
 
     @PutMapping("/sales/update-item/price/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO)
-        throws URISyntaxException {
+            throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemRegularPrice(saleLineDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @PutMapping("/sales/update-item/non-rembourse/assurance")
@@ -154,82 +140,80 @@ public class ThirdPartySaleResource {
 
     @PutMapping("/sales/update-item/quantity-sold/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<SaleLineDTO> updateItemQtySold(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+    public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO)
+            throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemQuantitySold(saleLineDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @DeleteMapping("/sales/delete-item/assurance/{id}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> deleteSaleItem(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSaleItem(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/sales/prevente/assurance/{id}/{saleDate}")
-    public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSalePrevente(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSalePrevente(new SaleId(id, saleDate));
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/sales/cancel/assurance/{id}/{saleDate}")
-    @RequiresNavAccess(value = { "ventes.journal.cancel", "pr-annuler-vente" }, action = NavAction.EXECUTE)
-    public ResponseEntity<Void> cancelSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        @RequestParam(required = false) String cancelComment) throws CashRegisterException {
+    @RequiresNavAccess(
+            value = {"ventes.journal.cancel", "pr-annuler-vente"},
+            action = NavAction.EXECUTE)
+    public ResponseEntity<Void> cancelSale(
+            @PathVariable("id") Long id,
+            @PathVariable("saleDate") LocalDate saleDate,
+            @RequestParam(required = false) String cancelComment)
+            throws CashRegisterException {
         saleService.cancelSale(new SaleId(id, saleDate), cancelComment);
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/sales/remove-tiers-payant/assurance/{id}/{saleId}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> removeThirdPartySaleLineToSales(
-        @PathVariable("id") Integer clientTiersPayantId,
-        @PathVariable("saleId") Long saleId,
-        @PathVariable("saleDate") LocalDate saleDate
-    ) {
-        saleService.removeThirdPartySaleLineToSales(clientTiersPayantId,
-            new SaleId(saleId, saleDate));
-        return ResponseEntity.noContent()
-            .build();
+            @PathVariable("id") Integer clientTiersPayantId,
+            @PathVariable("saleId") Long saleId,
+            @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.removeThirdPartySaleLineToSales(clientTiersPayantId, new SaleId(saleId, saleDate));
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/sales/add-assurance/assurance/{id}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> addThirdPartySaleLineToSales(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        @Valid @RequestBody ClientTiersPayantDTO dto) {
+    public ResponseEntity<Void> addThirdPartySaleLineToSales(
+            @PathVariable("id") Long id,
+            @PathVariable("saleDate") LocalDate saleDate,
+            @Valid @RequestBody ClientTiersPayantDTO dto) {
         saleService.addThirdPartySaleLineToSales(dto, new SaleId(id, saleDate));
         return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/sales/assurance/transform")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"ventes", "nouvelle-vente", "nouvelle-prevente"},
+            action = NavAction.EDIT)
     public ResponseEntity<SaleId> transform(
-        @RequestParam(name = "natureVente") NatureVente natureVente,
-        @RequestParam(name = "saleId") Long saleId,
-        @RequestParam(name = "sale_date") LocalDate SaleDate
-    ) {
+            @RequestParam(name = "natureVente") NatureVente natureVente,
+            @RequestParam(name = "saleId") Long saleId,
+            @RequestParam(name = "sale_date") LocalDate SaleDate) {
         if (saleId == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        return ResponseEntity.ok().body(
-            saleService.changeCashSaleToThirdPartySale(new SaleId(saleId, SaleDate), natureVente));
+        return ResponseEntity.ok()
+                .body(saleService.changeCashSaleToThirdPartySale(new SaleId(saleId, SaleDate), natureVente));
     }
 
     @PutMapping("/sales/assurance/transform/add-customer")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> updateTransformedSale(
-        @Valid @RequestBody ThirdPartySaleDTO thirdPartySale) {
+    public ResponseEntity<Void> updateTransformedSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySale) {
         saleService.updateTransformedSale(thirdPartySale);
         return ResponseEntity.accepted().build();
     }
@@ -244,22 +228,20 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/assurance/save/completed-sale")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     @RequiresNavAccess(value = "pr-modifier-vente", action = NavAction.EXECUTE)
-    public ResponseEntity<FinalyseSaleDTO> editSale(
-        @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
+    public ResponseEntity<FinalyseSaleDTO> editSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
         if (thirdPartySaleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FinalyseSaleDTO result = saleService.editSale(thirdPartySaleDTO);
-        return ResponseEntity.accepted()
-            .body(result);
+        return ResponseEntity.accepted().body(result);
     }
 
     @PostMapping("/sales/assurance/authorize-action")
-    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
+    @RequiresNavAccess(
+            value = {"ventes", "nouvelle-vente", "nouvelle-prevente"},
+            action = NavAction.ACCESS)
     public ResponseEntity<Void> authorizeAction(
-        @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
-        HttpServletRequest request
-    ) {
+            @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite, HttpServletRequest request) {
         utilisationCleSecurite.setCaisse(request.getRemoteHost());
         saleService.authorizeAction(utilisationCleSecurite);
         return ResponseEntity.accepted().build();
@@ -281,7 +263,7 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/assurance/update-customer-information")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> updateCustomerInformation(@Valid @RequestBody UpdateSale updateSale)
-        throws JsonProcessingException {
+            throws JsonProcessingException {
         saleService.updateCustomerInformation(updateSale);
         return ResponseEntity.accepted().build();
     }
@@ -293,20 +275,17 @@ public class ThirdPartySaleResource {
         return ResponseEntity.accepted().build();
     }
 
-
     @PutMapping("/sales/assurance/finalize-prevente-and-transform")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> savePreventeAndTransform(
-        @Valid @RequestBody ThirdPartySaleDTO sale) {
+    public ResponseEntity<Void> savePreventeAndTransform(@Valid @RequestBody ThirdPartySaleDTO sale) {
         saleService.savePrevente(sale, true);
         return ResponseEntity.accepted().build();
     }
 
-
     @DeleteMapping("/sales/assurance/remove-remise/{id}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> removeRemiseSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> removeRemiseSale(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.removeDiscount(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }
@@ -317,18 +296,15 @@ public class ThirdPartySaleResource {
      *
      * @return ThirdPartySaleDTO
      */
-
     @PutMapping("/sales/assurance/copier")
     @RequiresNavAccess(value = "pr-modifier-vente", action = NavAction.EXECUTE)
     public ResponseEntity<SaleId> copiePourEdition(@Valid @RequestBody SaleId sale) {
-        return ResponseEntity.accepted()
-            .body(saleService.copiePourEdition(sale));
+        return ResponseEntity.accepted().body(saleService.copiePourEdition(sale));
     }
 
-
     @PutMapping("/sales/assurance/transform")
-    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId,
-        @RequestParam(name = "version", required = false) Long version) {
+    public ResponseEntity<SaleId> transformToVenteEncour(
+            @Valid @RequestBody SaleId saleId, @RequestParam(name = "version", required = false) Long version) {
         return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId, version));
     }
 
@@ -337,6 +313,7 @@ public class ThirdPartySaleResource {
         saleService.cloneDevis(saleId);
         return ResponseEntity.accepted().build();
     }
+
     @PutMapping("/sales/assurance/ayant-droit")
     public ResponseEntity<Void> addAyantDroit(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
         saleService.addAyantDroitToSale(updateSaleInfo);
@@ -345,9 +322,7 @@ public class ThirdPartySaleResource {
 
     @PutMapping("/sales/assurance/update-tiers-payant-taux")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
-    public ResponseEntity<Void> updateTiersPayantTaux(
-        @Valid @RequestBody UpdateTiersPayantTauxInfo request
-    ) {
+    public ResponseEntity<Void> updateTiersPayantTaux(@Valid @RequestBody UpdateTiersPayantTauxInfo request) {
         saleService.updateTiersPayantTaux(request.clientTiersPayantId(), request.saleId(), request.taux());
         return ResponseEntity.accepted().build();
     }

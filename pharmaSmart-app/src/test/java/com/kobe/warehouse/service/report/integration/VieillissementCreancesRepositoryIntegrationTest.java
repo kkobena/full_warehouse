@@ -97,7 +97,10 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
 
             assertThat(ecart(avant, apres, 4)).isEqualTo(5_000_000L);
             assertThat(ecart(avant, apres, 4))
-                .isEqualTo(ecart(avant, apres, 0) + ecart(avant, apres, 1) + ecart(avant, apres, 2) + ecart(avant, apres, 3));
+                    .isEqualTo(ecart(avant, apres, 0)
+                            + ecart(avant, apres, 1)
+                            + ecart(avant, apres, 2)
+                            + ecart(avant, apres, 3));
         }
 
         /** Seul le reste dû entre en créance : la part déjà réglée n'est plus à recouvrer. */
@@ -207,12 +210,10 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
             facture(payeur, jourDeLAnnee(10), 1_000_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            Object[] ligne = repository
-                .findAgingByOrganisme(0, 1000)
-                .stream()
-                .filter(row -> payeur.getName().equals(row[0]))
-                .findFirst()
-                .orElseThrow();
+            Object[] ligne = repository.findAgingByOrganisme(0, 1000).stream()
+                    .filter(row -> payeur.getName().equals(row[0]))
+                    .findFirst()
+                    .orElseThrow();
 
             assertThat(toLong(ligne[1])).isEqualTo(60L);
         }
@@ -277,7 +278,9 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
             facture(gros, jourDeLAnnee(10), 50_000_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            List<String> noms = repository.findAgingByOrganisme(0, 100).stream().map(row -> (String) row[0]).toList();
+            List<String> noms = repository.findAgingByOrganisme(0, 100).stream()
+                    .map(row -> (String) row[0])
+                    .toList();
 
             assertThat(noms.indexOf(gros.getName())).isLessThan(noms.indexOf(petit.getName()));
         }
@@ -290,7 +293,8 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
             facture(payeur("MUGEF", 45), jourDeLAnnee(50), 2_000_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            assertThat(repository.countAgingByOrganisme()).isEqualTo(repository.findAgingByOrganisme(0, 1000).size());
+            assertThat(repository.countAgingByOrganisme())
+                    .isEqualTo(repository.findAgingByOrganisme(0, 1000).size());
         }
 
         @Test
@@ -311,12 +315,10 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
         }
 
         private Object[] ligneDe(String organisme) {
-            return repository
-                .findAgingByOrganisme(0, 1000)
-                .stream()
-                .filter(row -> organisme.equals(row[0]))
-                .findFirst()
-                .orElseThrow();
+            return repository.findAgingByOrganisme(0, 1000).stream()
+                    .filter(row -> organisme.equals(row[0]))
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 
@@ -350,8 +352,8 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
             List<Object[]> rows = repository.findEncoursMensuelEvolution();
 
             assertThat(rows)
-                .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
-                .isSorted();
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
 
         /** Une facture soldée reste au facturé du mois : c'est bien du chiffre d'affaires émis. */
@@ -373,12 +375,10 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
         }
 
         private Object[] moisDe(int annee, int mois) {
-            return repository
-                .findEncoursMensuelEvolution()
-                .stream()
-                .filter(row -> toLong(row[0]) == annee && toLong(row[1]) == mois)
-                .findFirst()
-                .orElse(null);
+            return repository.findEncoursMensuelEvolution().stream()
+                    .filter(row -> toLong(row[0]) == annee && toLong(row[1]) == mois)
+                    .findFirst()
+                    .orElse(null);
         }
     }
 

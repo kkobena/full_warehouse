@@ -23,7 +23,9 @@ public class PosteServiceImpl implements PosteService {
 
     @Override
     public List<PosteRecord> findAll() {
-        return posteRepository.findAll().stream().map(this::buildRecordFromEntity).toList();
+        return posteRepository.findAll().stream()
+                .map(this::buildRecordFromEntity)
+                .toList();
     }
 
     /**
@@ -45,7 +47,7 @@ public class PosteServiceImpl implements PosteService {
     @Transactional
     @CacheEvict(value = EntityConstant.APP_POST_CONFIG, allEntries = true)
     public PosteRecord create(PosteRecord posteRecord) {
-        return buildRecordFromEntity( posteRepository.save(buildEntityFromRecord(posteRecord)));
+        return buildRecordFromEntity(posteRepository.save(buildEntityFromRecord(posteRecord)));
     }
 
     /** Un poste supprimé restait sinon reconnu jusqu'à expiration du cache. */
@@ -57,19 +59,14 @@ public class PosteServiceImpl implements PosteService {
     }
 
     private PosteRecord buildRecordFromEntity(Poste poste) {
-        return new PosteRecord(
-            poste.getId(),
-            poste.getName(),
-            poste.getPosteNumber(),
-            poste.getAddress()
-        );
+        return new PosteRecord(poste.getId(), poste.getName(), poste.getPosteNumber(), poste.getAddress());
     }
 
     private Poste buildEntityFromRecord(PosteRecord posteRecord) {
         Poste poste = new Poste()
-            .setName(posteRecord.name())
-            .setPosteNumber(posteRecord.posteNumber())
-            .setAddress(posteRecord.address());
+                .setName(posteRecord.name())
+                .setPosteNumber(posteRecord.posteNumber())
+                .setAddress(posteRecord.address());
         if (posteRecord.id() != null) {
             poste.setId(posteRecord.id());
         }

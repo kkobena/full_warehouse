@@ -1,15 +1,15 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.domain.enumeration.StatutOrdonnance;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.ordonnance.AppariementDTO;
 import com.kobe.warehouse.service.dto.ordonnance.LigneVenteRefDTO;
 import com.kobe.warehouse.service.dto.ordonnance.OrdonnanceCreationDTO;
 import com.kobe.warehouse.service.dto.ordonnance.OrdonnanceDTO;
 import com.kobe.warehouse.service.dto.ordonnance.PrescripteurVenteDTO;
 import com.kobe.warehouse.service.dto.ordonnance.VenteRefDTO;
-import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
-import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.service.etiquette.EtiquetteUsageService;
 import com.kobe.warehouse.service.ordonnance.OrdonnanceService;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** Suivi d'ordonnance  */
 @RestController
 @RequestMapping("/api/ordonnances")
-@RequiresNavAccess({ "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"customer", "ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class OrdonnanceResource {
 
     private final OrdonnanceService ordonnanceService;
@@ -50,12 +50,11 @@ public class OrdonnanceResource {
      */
     @GetMapping("/{id}/etiquettes/posologie")
     public ResponseEntity<byte[]> posologie(
-        @PathVariable Integer id,
-        @RequestParam(required = false) Integer ligneId,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt,
-        @RequestParam(required = false) FormatEtiquette format
-    ) {
+            @PathVariable Integer id,
+            @RequestParam(required = false) Integer ligneId,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(defaultValue = "1") int startAt,
+            @RequestParam(required = false) FormatEtiquette format) {
         byte[] pdf = etiquetteUsageService.imprimerPosologie(id, ligneId, qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -66,22 +65,18 @@ public class OrdonnanceResource {
     /** La même posologie, en ZPL, pour une imprimante à rouleau pilotée en direct. */
     @GetMapping(value = "/{id}/etiquettes/posologie/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> posologieZpl(
-        @PathVariable Integer id,
-        @RequestParam(required = false) Integer ligneId,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(required = false) FormatEtiquette format,
-        @RequestParam(required = false) ResolutionEtiquette resolution
-    ) {
+            @PathVariable Integer id,
+            @RequestParam(required = false) Integer ligneId,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(required = false) FormatEtiquette format,
+            @RequestParam(required = false) ResolutionEtiquette resolution) {
         return ResponseEntity.ok()
-            .body(
-                etiquetteUsageService.genererZplPosologie(
-                    id,
-                    ligneId,
-                    qty,
-                    formatOuDefaut(format),
-                    resolution == null ? ResolutionEtiquette.parDefaut() : resolution
-                )
-            );
+                .body(etiquetteUsageService.genererZplPosologie(
+                        id,
+                        ligneId,
+                        qty,
+                        formatOuDefaut(format),
+                        resolution == null ? ResolutionEtiquette.parDefaut() : resolution));
     }
 
     private FormatEtiquette formatOuDefaut(FormatEtiquette format) {
@@ -91,7 +86,8 @@ public class OrdonnanceResource {
     @PostMapping
     public ResponseEntity<OrdonnanceDTO> creer(@Valid @RequestBody OrdonnanceCreationDTO dto) {
         OrdonnanceDTO cree = ordonnanceService.creer(dto);
-        return ResponseEntity.created(URI.create("/api/ordonnances/" + cree.id())).body(cree);
+        return ResponseEntity.created(URI.create("/api/ordonnances/" + cree.id()))
+                .body(cree);
     }
 
     @GetMapping("/{id}")
@@ -101,7 +97,8 @@ public class OrdonnanceResource {
 
     /** Ordonnances d'un client ; {@code statut=EN_COURS} pour celles qui se proposent à la reprise. */
     @GetMapping
-    public ResponseEntity<List<OrdonnanceDTO>> duClient(@RequestParam Integer customerId, @RequestParam(required = false) StatutOrdonnance statut) {
+    public ResponseEntity<List<OrdonnanceDTO>> duClient(
+            @RequestParam Integer customerId, @RequestParam(required = false) StatutOrdonnance statut) {
         return ResponseEntity.ok(ordonnanceService.duClient(customerId, statut));
     }
 
@@ -111,7 +108,8 @@ public class OrdonnanceResource {
     }
 
     @PostMapping("/{id}/ventes")
-    public ResponseEntity<OrdonnanceDTO> rattacherVente(@PathVariable Integer id, @Valid @RequestBody VenteRefDTO vente) {
+    public ResponseEntity<OrdonnanceDTO> rattacherVente(
+            @PathVariable Integer id, @Valid @RequestBody VenteRefDTO vente) {
         return ResponseEntity.ok(ordonnanceService.rattacherVente(id, vente.salesId(), vente.salesDate()));
     }
 
@@ -130,15 +128,16 @@ public class OrdonnanceResource {
 
     @DeleteMapping("/{id}/ventes/{salesId}")
     public ResponseEntity<OrdonnanceDTO> detacherVente(
-        @PathVariable Integer id,
-        @PathVariable Long salesId,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate salesDate
-    ) {
+            @PathVariable Integer id,
+            @PathVariable Long salesId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate salesDate) {
         return ResponseEntity.ok(ordonnanceService.detacherVente(id, salesId, salesDate));
     }
 
     @PostMapping("/{id}/lignes/{ligneId}/delivrances")
-    public ResponseEntity<OrdonnanceDTO> lierLigne(@PathVariable Integer id, @PathVariable Integer ligneId, @Valid @RequestBody LigneVenteRefDTO ligne) {
-        return ResponseEntity.ok(ordonnanceService.lierLigneDeVente(id, ligneId, ligne.salesLineId(), ligne.salesLineDate()));
+    public ResponseEntity<OrdonnanceDTO> lierLigne(
+            @PathVariable Integer id, @PathVariable Integer ligneId, @Valid @RequestBody LigneVenteRefDTO ligne) {
+        return ResponseEntity.ok(
+                ordonnanceService.lierLigneDeVente(id, ligneId, ligne.salesLineId(), ligne.salesLineDate()));
     }
 }

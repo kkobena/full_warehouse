@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal} from "@angular/core";
-import {FormsModule} from "@angular/forms";
-import {HttpResponse} from "@angular/common/http";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {Subject, takeUntil} from "rxjs";
-import {TiersPayantService} from "app/entities/tiers-payant/tierspayant.service";
-import {ITiersPayant} from "app/shared/model/tierspayant.model";
-import {ButtonComponent, SelectSearchComponent} from "../../../shared/ui";
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, takeUntil } from 'rxjs';
+import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
+import { ITiersPayant } from 'app/shared/model/tierspayant.model';
+import { ButtonComponent, SelectSearchComponent } from '../../../shared/ui';
 
 /** Ce que la fenêtre renvoie : un organisme existant à ouvrir, ou `null` pour en créer un nouveau. */
 export interface ResultatRechercheTiersPayant {
@@ -20,9 +20,9 @@ export interface ResultatRechercheTiersPayant {
  * que le parcours « client assuré » impose déjà ; ce composant l'étend au parcours back-office.
  */
 @Component({
-  selector: "app-rechercher-tiers-payant",
+  selector: 'app-rechercher-tiers-payant',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./rechercher-tiers-payant.component.scss",
+  styleUrl: './rechercher-tiers-payant.component.scss',
   imports: [FormsModule, ButtonComponent, SelectSearchComponent],
   template: `
     <div class="modal-header">
@@ -30,9 +30,7 @@ export interface ResultatRechercheTiersPayant {
       <button (click)="annuler()" class="btn-close" type="button" aria-label="Fermer">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="text-muted small">
-        Vérifiez d'abord que l'organisme n'existe pas déjà, sous un nom voisin.
-      </p>
+      <p class="text-muted small">Vérifiez d'abord que l'organisme n'existe pas déjà, sous un nom voisin.</p>
       <label for="rechercheTiersPayant" class="form-label">Rechercher un organisme</label>
       <app-select-search
         [(ngModel)]="selection"
@@ -54,7 +52,7 @@ export interface ResultatRechercheTiersPayant {
       <app-button (clicked)="annuler()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
       <app-button (clicked)="creer()" icon="pi pi-plus" label="Créer un nouveau" severity="primary" />
     </div>
-  `
+  `,
 })
 export class RechercherTiersPayantComponent implements OnInit, OnDestroy {
   categorie?: string | null = null;
@@ -82,7 +80,7 @@ export class RechercherTiersPayantComponent implements OnInit, OnDestroy {
 
   protected rechercher(terme: string): void {
     this.tiersPayantService
-      .query({page: 0, size: 10, type: this.categorie, search: terme || ""})
+      .query({ page: 0, size: 10, type: this.categorie, search: terme || '' })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const trouves = res.body ?? [];
@@ -94,12 +92,12 @@ export class RechercherTiersPayantComponent implements OnInit, OnDestroy {
   /** Un organisme existant est choisi : on l'ouvre en modification plutôt que d'en créer un second. */
   protected choisir(tiersPayant: ITiersPayant | null): void {
     if (tiersPayant?.id) {
-      this.activeModal.close({existant: tiersPayant} satisfies ResultatRechercheTiersPayant);
+      this.activeModal.close({ existant: tiersPayant } satisfies ResultatRechercheTiersPayant);
     }
   }
 
   protected creer(): void {
-    this.activeModal.close({existant: null} satisfies ResultatRechercheTiersPayant);
+    this.activeModal.close({ existant: null } satisfies ResultatRechercheTiersPayant);
   }
 
   protected annuler(): void {

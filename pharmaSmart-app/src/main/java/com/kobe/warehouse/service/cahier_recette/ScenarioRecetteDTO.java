@@ -8,17 +8,16 @@ import java.util.List;
 /** Miroir Java de l'interface TS ScenarioRecette (cahier-recette.model.ts). */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ScenarioRecetteDTO(
-    String id,
-    String titre,
-    String besoin,
-    String fonctionnement,
-    String prerequis,
-    List<String> etapes,
-    String resultatAttendu,
-    Boolean hidden,
-    /** Captures d'écran injectées à la génération ; null tant qu'aucune campagne n'a tourné. */
-    List<CaptureEcranDTO> captures
-) {
+        String id,
+        String titre,
+        String besoin,
+        String fonctionnement,
+        String prerequis,
+        List<String> etapes,
+        String resultatAttendu,
+        Boolean hidden,
+        /** Captures d'écran injectées à la génération ; null tant qu'aucune campagne n'a tourné. */
+        List<CaptureEcranDTO> captures) {
     /**
      * Associe chaque étape à la capture qui l'illustre, dans l'ordre de la marche à suivre.
      * <p>
@@ -35,9 +34,9 @@ public record ScenarioRecetteDTO(
         }
         if (captures != null) {
             captures.stream()
-                .filter(capture -> capture.ordre() != null && capture.ordre() > textes.size())
-                .forEach(capture -> illustrees.add(
-                    new EtapeIllustreeDTO(capture.ordre(), capture.legende(), capture)));
+                    .filter(capture -> capture.ordre() != null && capture.ordre() > textes.size())
+                    .forEach(capture ->
+                            illustrees.add(new EtapeIllustreeDTO(capture.ordre(), capture.legende(), capture)));
         }
         return illustrees;
     }
@@ -47,8 +46,8 @@ public record ScenarioRecetteDTO(
             return null;
         }
         return captures.stream()
-            .filter(capture -> capture.ordre() != null && capture.ordre() == numero)
-            .findFirst()
-            .orElse(null);
+                .filter(capture -> capture.ordre() != null && capture.ordre() == numero)
+                .findFirst()
+                .orElse(null);
     }
 }

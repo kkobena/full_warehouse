@@ -2,7 +2,13 @@ import { ParamMap, Params } from '@angular/router';
 
 import { AxeAnalyse, ModeAnnees, ReglageAnnees } from '../../models/pilotage.model';
 
-export const REGLAGE_ANNEES_PAR_DEFAUT: ReglageAnnees = { indicateur: 'CA_TTC', annees: 3, mode: 'MENSUEL', parJourOuvre: false, filtre: null };
+export const REGLAGE_ANNEES_PAR_DEFAUT: ReglageAnnees = {
+  indicateur: 'CA_TTC',
+  annees: 3,
+  mode: 'MENSUEL',
+  parJourOuvre: false,
+  filtre: null,
+};
 
 /** Réglage de l'onglet dans l'URL, sous des noms propres à l'onglet (`ann*`) : il ne se mêle pas à celui d'Analyser. */
 export function lireReglageAnnees(params: ParamMap | undefined): ReglageAnnees {

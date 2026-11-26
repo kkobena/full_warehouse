@@ -33,30 +33,84 @@ public class BedLigneDTO {
         }
     }
 
-    public Integer getId() { return id; }
-    public BedLigneDTO setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public LocalDate getOrderDate() { return orderDate; }
-    public BedLigneDTO setOrderDate(LocalDate orderDate) { this.orderDate = orderDate; return this; }
+    public BedLigneDTO setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public Integer getProduitId() { return produitId; }
-    public BedLigneDTO setProduitId(Integer produitId) { this.produitId = produitId; return this; }
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
 
-    public String getProduitLibelle() { return produitLibelle; }
-    public BedLigneDTO setProduitLibelle(String produitLibelle) { this.produitLibelle = produitLibelle; return this; }
+    public BedLigneDTO setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+        return this;
+    }
 
-    public String getCodeCip() { return codeCip; }
-    public BedLigneDTO setCodeCip(String codeCip) { this.codeCip = codeCip; return this; }
+    public Integer getProduitId() {
+        return produitId;
+    }
 
-    public Integer getFournisseurProduitId() { return fournisseurProduitId; }
-    public BedLigneDTO setFournisseurProduitId(Integer fournisseurProduitId) { this.fournisseurProduitId = fournisseurProduitId; return this; }
+    public BedLigneDTO setProduitId(Integer produitId) {
+        this.produitId = produitId;
+        return this;
+    }
 
-    public int getQuantite() { return quantite; }
-    public BedLigneDTO setQuantite(int quantite) { this.quantite = quantite; return this; }
+    public String getProduitLibelle() {
+        return produitLibelle;
+    }
 
-    public int getPrixAchat() { return prixAchat; }
-    public BedLigneDTO setPrixAchat(int prixAchat) { this.prixAchat = prixAchat; return this; }
+    public BedLigneDTO setProduitLibelle(String produitLibelle) {
+        this.produitLibelle = produitLibelle;
+        return this;
+    }
 
-    public int getPrixVente() { return prixVente; }
-    public BedLigneDTO setPrixVente(int prixVente) { this.prixVente = prixVente; return this; }
+    public String getCodeCip() {
+        return codeCip;
+    }
+
+    public BedLigneDTO setCodeCip(String codeCip) {
+        this.codeCip = codeCip;
+        return this;
+    }
+
+    public Integer getFournisseurProduitId() {
+        return fournisseurProduitId;
+    }
+
+    public BedLigneDTO setFournisseurProduitId(Integer fournisseurProduitId) {
+        this.fournisseurProduitId = fournisseurProduitId;
+        return this;
+    }
+
+    public int getQuantite() {
+        return quantite;
+    }
+
+    public BedLigneDTO setQuantite(int quantite) {
+        this.quantite = quantite;
+        return this;
+    }
+
+    public int getPrixAchat() {
+        return prixAchat;
+    }
+
+    public BedLigneDTO setPrixAchat(int prixAchat) {
+        this.prixAchat = prixAchat;
+        return this;
+    }
+
+    public int getPrixVente() {
+        return prixVente;
+    }
+
+    public BedLigneDTO setPrixVente(int prixVente) {
+        this.prixVente = prixVente;
+        return this;
+    }
 }

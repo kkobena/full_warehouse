@@ -13,15 +13,14 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record AnalysePilotageDTO(
-    ComparaisonPeriodesDTO comparaison,
-    SourceAnalyse source,
-    List<IndicateurPilotageDTO> indicateurs,
-    List<IndicateurPilotageDTO> indicateursIgnores,
-    AxeAnalyseDTO axe,
-    AxeAnalyseDTO axe2,
-    List<CelluleAnalyseDTO> total,
-    List<ElementAnalyseDTO> elements,
-    ElementAnalyseDTO autres,
-    int nombreElements,
-    CroiseAnalyseDTO croise
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        SourceAnalyse source,
+        List<IndicateurPilotageDTO> indicateurs,
+        List<IndicateurPilotageDTO> indicateursIgnores,
+        AxeAnalyseDTO axe,
+        AxeAnalyseDTO axe2,
+        List<CelluleAnalyseDTO> total,
+        List<ElementAnalyseDTO> elements,
+        ElementAnalyseDTO autres,
+        int nombreElements,
+        CroiseAnalyseDTO croise) {}

@@ -1,6 +1,6 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {provideTranslateService} from '@ngx-translate/core';
-import {QuantiteProdutSaisieComponent} from './quantite-produt-saisie.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
+import { QuantiteProdutSaisieComponent } from './quantite-produt-saisie.component';
 
 /** Saisie de la quantité au comptoir : boutons − / +, et alerte AVANT l'ajout quand le stock ne suffit pas. */
 describe('QuantiteProdutSaisieComponent', () => {
@@ -31,7 +31,7 @@ describe('QuantiteProdutSaisieComponent', () => {
   });
 
   it('ajoute et retire une unité avec les boutons, sans descendre sous 1', () => {
-    creer({showSteppers: true});
+    creer({ showSteppers: true });
     const composant = fixture.componentInstance;
 
     bouton('Augmenter la quantité')!.click();
@@ -44,13 +44,13 @@ describe('QuantiteProdutSaisieComponent', () => {
   });
 
   it("désactive les boutons tant qu'aucun produit n'est sélectionné", () => {
-    creer({showSteppers: true, isValid: false});
+    creer({ showSteppers: true, isValid: false });
 
     expect(bouton('Augmenter la quantité')!.disabled).toBe(true);
   });
 
   it("avertit avant l'ajout quand la quantité saisie dépasse le stock", () => {
-    creer({stockDisponible: 3});
+    creer({ stockDisponible: 3 });
 
     fixture.componentInstance.quantite.set(5);
     fixture.detectChanges();
@@ -60,7 +60,7 @@ describe('QuantiteProdutSaisieComponent', () => {
   });
 
   it("ne dit rien quand la quantité tient dans le stock, ou quand le stock n'est pas connu", () => {
-    creer({stockDisponible: 3});
+    creer({ stockDisponible: 3 });
     fixture.componentInstance.quantite.set(3);
     fixture.detectChanges();
     expect(el().textContent).not.toContain('Stock rayon');

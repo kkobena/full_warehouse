@@ -1,14 +1,13 @@
-import { inject, Injectable } from "@angular/core";
-import { HttpClient, HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { SERVER_API_URL } from "app/app.constants";
-import { IBed, IBedLigne, IBedSummary, MotifBed } from "./bed.model";
-import { createRequestOptions } from "app/shared/util/request-util";
-
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { SERVER_API_URL } from 'app/app.constants';
+import { IBed, IBedLigne, IBedSummary, MotifBed } from './bed.model';
+import { createRequestOptions } from 'app/shared/util/request-util';
 
 export type EntityBedArrayResponseType = HttpResponse<IBedSummary[]>;
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class BedService {
   private readonly http = inject(HttpClient);
   private readonly resourceUrl = `${SERVER_API_URL}api/beds`;
@@ -27,7 +26,7 @@ export class BedService {
     size?: number;
   }): Observable<EntityBedArrayResponseType> {
     const options = createRequestOptions(params);
-    return this.http.get<IBedSummary[]>(this.resourceUrl, { params: options, observe: "response" });
+    return this.http.get<IBedSummary[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   findById(id: number, orderDate: string): Observable<IBed> {
@@ -46,7 +45,7 @@ export class BedService {
 
   removeLigne(id: number, orderDate: string, ligneId: number, ligneDate: string): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}/lignes/${ligneId}`, {
-      params: { orderDate, ligneDate }
+      params: { orderDate, ligneDate },
     });
   }
 

@@ -24,7 +24,11 @@ class HoteSansCode {}
 function arbre(libelle: string, titreLong?: string): INavNode[] {
   return [
     {
-      id: 1, code: 'comptabilite', libelle: 'Comptabilité', targetType: 'ROUTE', ordre: 10,
+      id: 1,
+      code: 'comptabilite',
+      libelle: 'Comptabilité',
+      targetType: 'ROUTE',
+      ordre: 10,
       children: [{ id: 2, code: 'comptabilite.balance', libelle, titreLong, targetType: 'SECTION', ordre: 10 }],
     },
   ];
@@ -78,8 +82,7 @@ describe('AppToolbar — titre issu de la navigation', () => {
     store.navTree.set(arbre('Caisse du jour'));
     f.detectChanges();
 
-    expect((f.nativeElement as HTMLElement).querySelector('.pharma-toolbar-title')!.textContent!.trim())
-      .toBe('Caisse du jour');
+    expect((f.nativeElement as HTMLElement).querySelector('.pharma-toolbar-title')!.textContent!.trim()).toBe('Caisse du jour');
   });
 });
 

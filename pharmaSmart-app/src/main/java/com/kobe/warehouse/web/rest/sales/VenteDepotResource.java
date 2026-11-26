@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
@@ -10,6 +12,7 @@ import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,22 +24,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
 @RestController
 @RequestMapping("/api/vente-depot")
-@RequiresNavAccess({ "ventes.vente-depot", "depot.liste-depots", "depot" })
+@RequiresNavAccess({"ventes.vente-depot", "depot.liste-depots", "depot"})
 public class VenteDepotResource {
 
     private static final String ENTITY_NAME = "sales";
 
     private final SaleDepotExtensionService saleDepotExtensionService;
-
 
     public VenteDepotResource(SaleDepotExtensionService saleDepotExtensionService) {
         this.saleDepotExtensionService = saleDepotExtensionService;
@@ -44,9 +42,7 @@ public class VenteDepotResource {
 
     @PostMapping
     public ResponseEntity<DepotExtensionSaleDTO> createSale(
-        @Valid @RequestBody DepotExtensionSaleDTO depotExtensionSaleDTO,
-        HttpServletRequest request
-    ) {
+            @Valid @RequestBody DepotExtensionSaleDTO depotExtensionSaleDTO, HttpServletRequest request) {
         if (depotExtensionSaleDTO.getId() != null) {
             throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME, "idexists");
         }
@@ -57,9 +53,7 @@ public class VenteDepotResource {
 
     @PutMapping("/save")
     public ResponseEntity<FinalyseSaleDTO> closeSale(
-        @Valid @RequestBody DepotExtensionSaleDTO depotExtensionSaleDTO,
-        HttpServletRequest request
-    ) {
+            @Valid @RequestBody DepotExtensionSaleDTO depotExtensionSaleDTO, HttpServletRequest request) {
         depotExtensionSaleDTO.setCaisseEndNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
         return ResponseEntity.accepted().body(saleDepotExtensionService.save(depotExtensionSaleDTO));
     }
@@ -83,7 +77,8 @@ public class VenteDepotResource {
 
     @PutMapping("/set-item/quantity-requested")
     public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
-        return ResponseEntity.accepted().body(saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO, false));
+        return ResponseEntity.accepted()
+                .body(saleDepotExtensionService.updateItemQuantityRequested(saleLineDTO, false));
     }
 
     @PutMapping("/update-item/price")
@@ -99,13 +94,15 @@ public class VenteDepotResource {
     }
 
     @DeleteMapping("/delete-item/{id}/{saleDate}")
-    public ResponseEntity<Void> deleteSaleItem(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSaleItem(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDepotExtensionService.deleteSaleLineById(new SaleLineId(id, saleDate));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/prevente/{id}/{saleDate}")
-    public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSalePrevente(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDepotExtensionService.deleteSalePrevente(new SaleId(id, saleDate));
         return ResponseEntity.noContent().build();
     }
@@ -123,18 +120,20 @@ public class VenteDepotResource {
     }
 
     @DeleteMapping("/remove-remise/{id}/{saleDate}")
-    public ResponseEntity<Void> removeRemiseSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> removeRemiseSale(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleDepotExtensionService.removeRemiseFromSale(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/change-depot")
-    @RequiresNavAccess(value = { "ventes.vente-depot", "depot.liste-depots", "depot" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"ventes.vente-depot", "depot.liste-depots", "depot"},
+            action = NavAction.EDIT)
     public ResponseEntity<SaleId> changeDepot(
-        @RequestParam(name = "saleId") Long saleId,
-        @RequestParam(name = "saleDate") LocalDate SaleDate,
-        @RequestParam(name = "depotId") Integer depotId
-    ) {
+            @RequestParam(name = "saleId") Long saleId,
+            @RequestParam(name = "saleDate") LocalDate SaleDate,
+            @RequestParam(name = "depotId") Integer depotId) {
         if (saleId == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }

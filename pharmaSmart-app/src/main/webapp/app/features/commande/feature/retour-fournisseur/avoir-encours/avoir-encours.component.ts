@@ -2,14 +2,7 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  CardComponent,
-  DataTableComponent,
-  KpiItemComponent,
-  KpiStripComponent,
-  SelectComponent
-} from "app/shared/ui";
+import { ButtonComponent, CardComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from 'app/shared/ui';
 import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
 import { AvoirFournisseurStatut, IAvoirEncoursFournisseur, IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -26,7 +19,7 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
     KpiItemComponent,
     KpiStripComponent,
     SelectComponent,
-    CardComponent
+    CardComponent,
   ],
   templateUrl: './avoir-encours.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,8 +53,14 @@ export class AvoirEncoursComponent implements OnInit {
   protected loadEncours(): void {
     this.loadingEncours.set(true);
     this.avoirService.getEncoursParFournisseur().subscribe({
-      next: data => { this.encours.set(data); this.loadingEncours.set(false); },
-      error: () => { this.notificationService.error('Erreur chargement encours avoirs'); this.loadingEncours.set(false); },
+      next: data => {
+        this.encours.set(data);
+        this.loadingEncours.set(false);
+      },
+      error: () => {
+        this.notificationService.error('Erreur chargement encours avoirs');
+        this.loadingEncours.set(false);
+      },
     });
   }
 
@@ -82,8 +81,14 @@ export class AvoirEncoursComponent implements OnInit {
     this.loadingDetail.set(true);
     const statut = this.detailStatut() ?? undefined;
     this.avoirService.query({ statut, fournisseurId, size: 200 }).subscribe({
-      next: res => { this.avoirs.set(res.body ?? []); this.loadingDetail.set(false); },
-      error: () => { this.notificationService.error('Erreur chargement avoirs'); this.loadingDetail.set(false); },
+      next: res => {
+        this.avoirs.set(res.body ?? []);
+        this.loadingDetail.set(false);
+      },
+      error: () => {
+        this.notificationService.error('Erreur chargement avoirs');
+        this.loadingDetail.set(false);
+      },
     });
   }
 
@@ -97,11 +102,7 @@ export class AvoirEncoursComponent implements OnInit {
   }
 
   protected confirmAnnuler(avoir: IAvoirFournisseur): void {
-    this.confirmDialog.onConfirm(
-      () => this.annulerAvoir(avoir),
-      'Annulation',
-      `Annuler l'avoir ${avoir.reference ?? '#' + avoir.id} ?`,
-    );
+    this.confirmDialog.onConfirm(() => this.annulerAvoir(avoir), 'Annulation', `Annuler l'avoir ${avoir.reference ?? '#' + avoir.id} ?`);
   }
 
   private updateStatut(avoir: IAvoirFournisseur, statut: AvoirFournisseurStatut): void {
@@ -128,30 +129,44 @@ export class AvoirEncoursComponent implements OnInit {
 
   protected getStatutLabel(statut: AvoirFournisseurStatut | undefined): string {
     switch (statut) {
-      case 'EN_ATTENTE': return 'En attente';
-      case 'REMBOURSE':  return 'Remboursé';
-      case 'IMPUTE':     return 'Imputé';
-      case 'ANNULE':     return 'Annulé';
-      default:           return statut ?? '';
+      case 'EN_ATTENTE':
+        return 'En attente';
+      case 'REMBOURSE':
+        return 'Remboursé';
+      case 'IMPUTE':
+        return 'Imputé';
+      case 'ANNULE':
+        return 'Annulé';
+      default:
+        return statut ?? '';
     }
   }
 
   protected getStatutBadgeClass(statut: AvoirFournisseurStatut | undefined): string {
     switch (statut) {
-      case 'EN_ATTENTE': return 'pharma-badge pharma-badge-warning';
-      case 'REMBOURSE':  return 'pharma-badge pharma-badge-success';
-      case 'IMPUTE':     return 'pharma-badge pharma-badge-info';
-      case 'ANNULE':     return 'pharma-badge pharma-badge-danger';
-      default:           return 'pharma-badge pharma-badge-secondary';
+      case 'EN_ATTENTE':
+        return 'pharma-badge pharma-badge-warning';
+      case 'REMBOURSE':
+        return 'pharma-badge pharma-badge-success';
+      case 'IMPUTE':
+        return 'pharma-badge pharma-badge-info';
+      case 'ANNULE':
+        return 'pharma-badge pharma-badge-danger';
+      default:
+        return 'pharma-badge pharma-badge-secondary';
     }
   }
 
   protected getRowClass(avoir: IAvoirFournisseur): string {
     switch (avoir.statut) {
-      case 'REMBOURSE': return 'pharma-row-success';
-      case 'IMPUTE':    return 'pharma-row-info';
-      case 'ANNULE':    return 'pharma-row-danger';
-      default:          return '';
+      case 'REMBOURSE':
+        return 'pharma-row-success';
+      case 'IMPUTE':
+        return 'pharma-row-info';
+      case 'ANNULE':
+        return 'pharma-row-danger';
+      default:
+        return '';
     }
   }
 

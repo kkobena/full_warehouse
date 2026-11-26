@@ -4,15 +4,13 @@ import com.kobe.warehouse.service.dto.report.TopProductDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,8 +40,6 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
     ORDER BY ca_genere DESC
     """;
 
-
-
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, firstDayOfMonth.toString());
         query.setMaxResults(limit);
@@ -59,7 +55,6 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
     public List<TopProductDTO> getTopProductsByQuantity(LocalDate month, int limit) {
         // Ensure we're at the first day of the month
         LocalDate firstDayOfMonth = month.with(TemporalAdjusters.firstDayOfMonth());
-
 
         String sql = """
     SELECT
@@ -91,19 +86,17 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
         // Ensure we're at the first day of the month
         LocalDate firstDayOfMonth = month.with(TemporalAdjusters.firstDayOfMonth());
 
-        String sql =
-            "SELECT " +
-                "mois, " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "nb_ventes, " +
-                "qte_vendue, " +
-                "ca_genere, " +
-                "prix_moyen " +
-                "FROM mv_monthly_top_products " +
-                "WHERE  mois =?1 " +
-                "ORDER BY ca_genere DESC";
+        String sql = "SELECT " + "mois, "
+                + "produit_id, "
+                + "libelle, "
+                + "code_cip, "
+                + "nb_ventes, "
+                + "qte_vendue, "
+                + "ca_genere, "
+                + "prix_moyen "
+                + "FROM mv_monthly_top_products "
+                + "WHERE  mois =?1 "
+                + "ORDER BY ca_genere DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, firstDayOfMonth.toString());
@@ -120,26 +113,25 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
         // Limit to 6 months as per materialized view definition
         int months = Math.min(nbMonths, 6);
 
-        String sql =
-            "SELECT " +
-                "mois, " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "nb_ventes, " +
-                "qte_vendue, " +
-                "ca_genere, " +
-                "prix_moyen " +
-                "FROM mv_monthly_top_products " +
-                "WHERE produit_id = :produitId " +
+        String sql = "SELECT " + "mois, "
+                + "produit_id, "
+                + "libelle, "
+                + "code_cip, "
+                + "nb_ventes, "
+                + "qte_vendue, "
+                + "ca_genere, "
+                + "prix_moyen "
+                + "FROM mv_monthly_top_products "
+                + "WHERE produit_id = :produitId "
+                +
                 // `mois` est stocké en texte 'YYYY-MM-DD' par la vue : le comparer directement à un
                 // timestamp ne trouve aucun opérateur et fait échouer la requête. On ramène donc la
                 // borne au même format — à format fixe, l'ordre lexicographique est l'ordre
                 // chronologique.
-                "AND mois >= TO_CHAR(DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '" +
-                months +
-                " months', 'YYYY-MM-DD') " +
-                "ORDER BY mois DESC";
+                "AND mois >= TO_CHAR(DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '"
+                + months
+                + " months', 'YYYY-MM-DD') "
+                + "ORDER BY mois DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("produitId", produitId);
@@ -151,20 +143,20 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
     }
 
     private List<TopProductDTO> mapToTopProductDTOs(List<Object[]> results) {
-        return results
-            .stream()
-            .map(row -> {
-                LocalDate mois = row[0] != null ? LocalDate.parse(row[0]+""): null;
-                Integer produitId = row[1] != null ? ((Number) row[1]).intValue() : null;
-                String libelle = (String) row[2];
-                String codeCip = (String) row[3];
-                Long nbVentes = row[4] != null ? ((Number) row[4]).longValue() : 0L;
-                Integer qteVendue = row[5] != null ? ((Number) row[5]).intValue() : 0;
-                Integer caGenere = row[6] != null ? ((Number) row[6]).intValue() : 0;
-                BigDecimal prixMoyen = row[7] != null ? new BigDecimal(row[7].toString()) : BigDecimal.ZERO;
+        return results.stream()
+                .map(row -> {
+                    LocalDate mois = row[0] != null ? LocalDate.parse(row[0] + "") : null;
+                    Integer produitId = row[1] != null ? ((Number) row[1]).intValue() : null;
+                    String libelle = (String) row[2];
+                    String codeCip = (String) row[3];
+                    Long nbVentes = row[4] != null ? ((Number) row[4]).longValue() : 0L;
+                    Integer qteVendue = row[5] != null ? ((Number) row[5]).intValue() : 0;
+                    Integer caGenere = row[6] != null ? ((Number) row[6]).intValue() : 0;
+                    BigDecimal prixMoyen = row[7] != null ? new BigDecimal(row[7].toString()) : BigDecimal.ZERO;
 
-                return new TopProductDTO(mois, produitId, libelle, codeCip, nbVentes, qteVendue, caGenere, prixMoyen);
-            })
-            .toList();
+                    return new TopProductDTO(
+                            mois, produitId, libelle, codeCip, nbVentes, qteVendue, caGenere, prixMoyen);
+                })
+                .toList();
     }
 }

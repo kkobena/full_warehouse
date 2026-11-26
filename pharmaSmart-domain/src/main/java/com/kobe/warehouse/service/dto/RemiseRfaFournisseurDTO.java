@@ -16,13 +16,12 @@ import com.kobe.warehouse.domain.enumeration.EtatPalierRfa;
  * @param etat             où l'on en est, nommé et non rédigé — la phrase se compose au front.
  */
 public record RemiseRfaFournisseurDTO(
-    Integer fournisseurId,
-    String fournisseurName,
-    Long palierRfa,
-    long caCommandeN,
-    double pourcentageAtteint,
-    long rfaEstimee,
-    long rfaRecue,
-    long resteAvantPalier,
-    EtatPalierRfa etat
-) {}
+        Integer fournisseurId,
+        String fournisseurName,
+        Long palierRfa,
+        long caCommandeN,
+        double pourcentageAtteint,
+        long rfaEstimee,
+        long rfaRecue,
+        long resteAvantPalier,
+        EtatPalierRfa etat) {}

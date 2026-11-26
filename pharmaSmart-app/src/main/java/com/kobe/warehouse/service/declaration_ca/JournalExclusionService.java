@@ -49,7 +49,8 @@ public class JournalExclusionService {
     private final JournalExclusionRepository journalExclusionRepository;
     private final StorageService storageService;
 
-    public JournalExclusionService(JournalExclusionRepository journalExclusionRepository, StorageService storageService) {
+    public JournalExclusionService(
+            JournalExclusionRepository journalExclusionRepository, StorageService storageService) {
         this.journalExclusionRepository = journalExclusionRepository;
         this.storageService = storageService;
     }
@@ -76,22 +77,21 @@ public class JournalExclusionService {
     private JournalExclusionDTO journalDeLignes(JournalExclusionParamDTO param, ExclusionMotif motif) {
         String terme = terme(param.recherche());
         List<JournalLigneDTO> lignes = journalExclusionRepository.lignes(
-            motif,
-            param.dateDebut(),
-            param.dateFin(),
-            terme,
-            magasinId(),
-            storagePrincipal().getId(),
-            plafond()
-        );
+                motif,
+                param.dateDebut(),
+                param.dateFin(),
+                terme,
+                magasinId(),
+                storagePrincipal().getId(),
+                plafond());
 
         boolean tronque = lignes.size() > MAX_LIGNES;
         return new JournalExclusionDTO(
-            journalExclusionRepository.indicateurs(motif, param.dateDebut(), param.dateFin(), terme, magasinId(), null),
-            List.of(),
-            tronque ? List.copyOf(lignes.subList(0, MAX_LIGNES)) : lignes,
-            tronque
-        );
+                journalExclusionRepository.indicateurs(
+                        motif, param.dateDebut(), param.dateFin(), terme, magasinId(), null),
+                List.of(),
+                tronque ? List.copyOf(lignes.subList(0, MAX_LIGNES)) : lignes,
+                tronque);
     }
 
     // ===== Journal par vente : tiers-payants exclus =====
@@ -108,31 +108,28 @@ public class JournalExclusionService {
     public JournalExclusionDTO ventesTiersPayant(JournalExclusionParamDTO param) {
         String terme = terme(param.recherche());
         List<JournalVenteDTO> ventes = journalExclusionRepository.ventesTiersPayant(
-            ExclusionMotif.TIERS_PAYANT,
-            param.dateDebut(),
-            param.dateFin(),
-            terme,
-            magasinId(),
-            param.tiersPayantId(),
-            plafond()
-        );
-
-        boolean tronque = ventes.size() > MAX_LIGNES;
-        List<JournalVenteDTO> retenues = tronque ? ventes.subList(0, MAX_LIGNES) : ventes;
-
-        return new JournalExclusionDTO(
-            journalExclusionRepository.indicateurs(
                 ExclusionMotif.TIERS_PAYANT,
                 param.dateDebut(),
                 param.dateFin(),
                 terme,
                 magasinId(),
-                param.tiersPayantId()
-            ),
-            nommerLesTiersPayants(retenues),
-            List.of(),
-            tronque
-        );
+                param.tiersPayantId(),
+                plafond());
+
+        boolean tronque = ventes.size() > MAX_LIGNES;
+        List<JournalVenteDTO> retenues = tronque ? ventes.subList(0, MAX_LIGNES) : ventes;
+
+        return new JournalExclusionDTO(
+                journalExclusionRepository.indicateurs(
+                        ExclusionMotif.TIERS_PAYANT,
+                        param.dateDebut(),
+                        param.dateFin(),
+                        terme,
+                        magasinId(),
+                        param.tiersPayantId()),
+                nommerLesTiersPayants(retenues),
+                List.of(),
+                tronque);
     }
 
     /**
@@ -150,12 +147,15 @@ public class JournalExclusionService {
 
         Map<Long, String> parVente = new LinkedHashMap<>();
         for (IntituleTiersPayantDTO rattachement : journalExclusionRepository.nomsTiersPayant(identifiants)) {
-            parVente.merge(rattachement.saleId(), rattachement.intitule(), (existant, ajout) ->
-                existant.contains(ajout) ? existant : existant + ", " + ajout
-            );
+            parVente.merge(
+                    rattachement.saleId(),
+                    rattachement.intitule(),
+                    (existant, ajout) -> existant.contains(ajout) ? existant : existant + ", " + ajout);
         }
 
-        return ventes.stream().map(vente -> vente.avecTiersPayants(parVente.get(vente.saleId()))).toList();
+        return ventes.stream()
+                .map(vente -> vente.avecTiersPayants(parVente.get(vente.saleId())))
+                .toList();
     }
 
     /** Le détail d'une vente tiers-payant exclue, chargé à l'ouverture du panneau. */

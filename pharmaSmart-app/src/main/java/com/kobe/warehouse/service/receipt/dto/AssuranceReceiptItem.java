@@ -14,24 +14,21 @@ public class AssuranceReceiptItem extends SaleReceiptItem {
 
     @Override
     public String toString() {
-        return (
-            "AssuranceReceiptItem{" +
-            "taux='" +
-            taux +
-            '\'' +
-            ", produitName='" +
-            produitName +
-            '\'' +
-            ", quantity='" +
-            quantity +
-            '\'' +
-            ", totalPrice='" +
-            totalPrice +
-            '\'' +
-            ", unitPrice='" +
-            unitPrice +
-            '\'' +
-            '}'
-        );
+        return ("AssuranceReceiptItem{" + "taux='"
+                + taux
+                + '\''
+                + ", produitName='"
+                + produitName
+                + '\''
+                + ", quantity='"
+                + quantity
+                + '\''
+                + ", totalPrice='"
+                + totalPrice
+                + '\''
+                + ", unitPrice='"
+                + unitPrice
+                + '\''
+                + '}');
     }
 }

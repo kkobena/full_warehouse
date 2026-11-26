@@ -74,13 +74,10 @@ class AvoirClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         venteFermee(produit, 4, 1);
         viderLeCache();
 
-        var duJour = services.avoirClientService.findAvoirs(null, LocalDate.now(), LocalDate.now(), PageRequest.of(0, 20));
+        var duJour =
+                services.avoirClientService.findAvoirs(null, LocalDate.now(), LocalDate.now(), PageRequest.of(0, 20));
         var surDixJours = services.avoirClientService.findAvoirs(
-            null,
-            LocalDate.now().minusDays(10),
-            LocalDate.now(),
-            PageRequest.of(0, 20)
-        );
+                null, LocalDate.now().minusDays(10), LocalDate.now(), PageRequest.of(0, 20));
 
         assertEquals(1, duJour.getTotalElements());
         assertEquals(2, surDixJours.getTotalElements());

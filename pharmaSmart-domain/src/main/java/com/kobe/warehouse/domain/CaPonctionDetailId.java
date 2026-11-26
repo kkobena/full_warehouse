@@ -56,11 +56,9 @@ public class CaPonctionDetailId implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CaPonctionDetailId autre = (CaPonctionDetailId) o;
-        return (
-            Objects.equals(ponction, autre.ponction) &&
-            Objects.equals(saleId, autre.saleId) &&
-            Objects.equals(saleDate, autre.saleDate)
-        );
+        return (Objects.equals(ponction, autre.ponction)
+                && Objects.equals(saleId, autre.saleId)
+                && Objects.equals(saleDate, autre.saleDate));
     }
 
     @Override

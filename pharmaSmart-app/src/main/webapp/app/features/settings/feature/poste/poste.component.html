@@ -26,12 +26,7 @@
     </app-toolbar>
 
     <app-card>
-      <app-data-table
-        [loading]="loading()"
-        [value]="filteredEntities()"
-        class="p-datatable-sm"
-        dataKey="id"
-      >
+      <app-data-table [loading]="loading()" [value]="filteredEntities()" class="p-datatable-sm" dataKey="id">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th scope="col" style="width: 3rem"></th>
@@ -64,8 +59,22 @@
               <span class="pharma-entity-name">{{ elRow.address }}</span>
             </td>
             <td style="text-align: right">
-              <app-button (clicked)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
-              <app-button (clicked)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+              <app-button
+                (clicked)="onEdit(elRow)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-pencil"
+                ngbTooltip="Modifier"
+                severity="success"
+              />
+              <app-button
+                (clicked)="delete(elRow)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                severity="danger"
+              />
             </td>
           </tr>
         </ng-template>
@@ -92,7 +101,9 @@
                           <td>
                             <app-badge [severity]="deviceTypeSeverity(device.deviceType)" [label]="deviceTypeLabel(device.deviceType)" />
                           </td>
-                          <td><span class="pharma-code">{{ device.portName }}</span></td>
+                          <td>
+                            <span class="pharma-code">{{ device.portName }}</span>
+                          </td>
                           <td>{{ device.label || device.productName || '—' }}</td>
                           <td>{{ device.manufacturer || '—' }}</td>
                           <td>{{ device.baudRate }}</td>

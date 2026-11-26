@@ -75,6 +75,7 @@ public class LicenseService {
      * Format des dates dans les messages utilisateur.
      */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private final LicenseProperties properties;
     private final LicenseVerifier verifier;
     private final HardwareFingerprintProvider fingerprintProvider;
@@ -90,16 +91,15 @@ public class LicenseService {
     private final AtomicReference<CachedStatus> cache = new AtomicReference<>();
 
     public LicenseService(
-        LicenseProperties properties,
-        LicenseVerifier verifier,
-        HardwareFingerprintProvider fingerprintProvider,
-        LicenseStateRepository licenseStateRepository,
-        LicenseAuditRepository licenseAuditRepository,
-        MagasinRepository magasinRepository,
-        SalesRepository salesRepository,
-        ProduitRepository produitRepository,
-        CacheManager cacheManager
-    ) {
+            LicenseProperties properties,
+            LicenseVerifier verifier,
+            HardwareFingerprintProvider fingerprintProvider,
+            LicenseStateRepository licenseStateRepository,
+            LicenseAuditRepository licenseAuditRepository,
+            MagasinRepository magasinRepository,
+            SalesRepository salesRepository,
+            ProduitRepository produitRepository,
+            CacheManager cacheManager) {
         this.properties = properties;
         this.verifier = verifier;
         this.fingerprintProvider = fingerprintProvider;
@@ -140,9 +140,8 @@ public class LicenseService {
             return cached.frozenInfo();
         }
         LicensePayload payload = cached.payload();
-        LicenseStatus status = cached.pinnedStatus() != null
-            ? cached.pinnedStatus()
-            : computeDateStatus(payload, Instant.now());
+        LicenseStatus status =
+                cached.pinnedStatus() != null ? cached.pinnedStatus() : computeDateStatus(payload, Instant.now());
         return status(payload, status, cached.pinnedMessage());
     }
 
@@ -191,22 +190,24 @@ public class LicenseService {
         LicenseInfo info = refresh();
         switch (info.status()) {
             case VALID ->
-                LOG.info("Licence valide jusqu'au {} ({} jour(s) restant(s))", info.expiresAt(),
-                    info.daysRemaining());
-            case EXPIRING_SOON, EXPIRING_CRITICAL, GRACE -> LOG.warn(
-                "Licence à renouveler : {} — expiration le {} ({} jour(s))",
-                info.status(),
-                info.expiresAt(),
-                info.daysRemaining()
-            );
+                LOG.info("Licence valide jusqu'au {} ({} jour(s) restant(s))", info.expiresAt(), info.daysRemaining());
+            case EXPIRING_SOON, EXPIRING_CRITICAL, GRACE ->
+                LOG.warn(
+                        "Licence à renouveler : {} — expiration le {} ({} jour(s))",
+                        info.status(),
+                        info.expiresAt(),
+                        info.daysRemaining());
             // La base n'était pas joignable au démarrage : le statut réel sera établi au premier
             // rafraîchissement qui aboutit, sans que l'officine soit bridée entre-temps.
-            case UNKNOWN -> LOG.warn(
-                "Contrôle de licence indisponible au démarrage — nouvelle tentative dans {}",
-                FAILURE_RETRY_DELAY);
+            case UNKNOWN ->
+                LOG.warn(
+                        "Contrôle de licence indisponible au démarrage — nouvelle tentative dans {}",
+                        FAILURE_RETRY_DELAY);
             default ->
-                LOG.error("LICENCE NON VALIDE ({}) : {} — l'application est en LECTURE SEULE",
-                    info.status(), info.message());
+                LOG.error(
+                        "LICENCE NON VALIDE ({}) : {} — l'application est en LECTURE SEULE",
+                        info.status(),
+                        info.message());
         }
     }
 
@@ -251,15 +252,15 @@ public class LicenseService {
         Instant retryAfter = Instant.now().plus(FAILURE_RETRY_DELAY);
         if (isInfrastructureFailure(e)) {
             CachedStatus previous = cache.get();
-            CachedStatus fallback = (previous != null ? previous
-                : CachedStatus.frozen(LicenseInfo.unavailable(), today()))
-                .retryingAfter(today(), retryAfter);
+            CachedStatus fallback = (previous != null
+                            ? previous
+                            : CachedStatus.frozen(LicenseInfo.unavailable(), today()))
+                    .retryingAfter(today(), retryAfter);
             cache.set(fallback);
             return infoOf(fallback);
         }
-        LicenseInfo info = invalid(
-            "Le contrôle de licence n'a pas pu aboutir. Contactez votre revendeur.",
-            supportOf(null));
+        LicenseInfo info =
+                invalid("Le contrôle de licence n'a pas pu aboutir. Contactez votre revendeur.", supportOf(null));
         cache.set(CachedStatus.frozen(info, today()).retryingAfter(today(), retryAfter));
         return info;
     }
@@ -304,17 +305,24 @@ public class LicenseService {
         Instant now = Instant.now();
         LicenseState state = stateOpt.orElse(null);
         if (isClockTampered(state, now)) {
-            audit(LicenseAuditEventType.CLOCK_TAMPER,
-                "Horloge système reculée par rapport à la dernière exécution", payload.licenseId());
-            return CachedStatus.pinned(payload, LicenseStatus.CLOCK_TAMPERED,
-                "L'horloge du poste est incohérente avec l'historique d'utilisation.", today);
+            audit(
+                    LicenseAuditEventType.CLOCK_TAMPER,
+                    "Horloge système reculée par rapport à la dernière exécution",
+                    payload.licenseId());
+            return CachedStatus.pinned(
+                    payload,
+                    LicenseStatus.CLOCK_TAMPERED,
+                    "L'horloge du poste est incohérente avec l'historique d'utilisation.",
+                    today);
         }
         touchLastSeen(state, now);
 
         if (now.isBefore(payload.validFromInstant())) {
-            return CachedStatus.pinned(payload, LicenseStatus.INVALID,
-                "Cette licence n'est pas encore valide (à partir du " + payload.validFrom() + ").",
-                today);
+            return CachedStatus.pinned(
+                    payload,
+                    LicenseStatus.INVALID,
+                    "Cette licence n'est pas encore valide (à partir du " + payload.validFrom() + ").",
+                    today);
         }
 
         String bindingError = checkBinding(payload, state, now);
@@ -324,8 +332,7 @@ public class LicenseService {
 
         String quotaError = payload.isDemo() ? checkDemoQuotas(payload) : null;
         if (quotaError != null) {
-            return CachedStatus.pinned(payload, LicenseStatus.DEMO_QUOTA_REACHED, quotaError,
-                today);
+            return CachedStatus.pinned(payload, LicenseStatus.DEMO_QUOTA_REACHED, quotaError, today);
         }
 
         // Aucun contrôle n'a tranché : seule l'échéance décide, et elle se réévalue à chaque lecture.
@@ -347,15 +354,13 @@ public class LicenseService {
     private String checkDemoQuotas(LicensePayload payload) {
         long sales = salesRepository.count();
         if (sales >= payload.effectiveMaxSales()) {
-            return "Limite de la version de démonstration atteinte (%d ventes). Souscrivez un abonnement pour continuer.".formatted(
-                payload.effectiveMaxSales()
-            );
+            return "Limite de la version de démonstration atteinte (%d ventes). Souscrivez un abonnement pour continuer."
+                    .formatted(payload.effectiveMaxSales());
         }
         long produits = produitRepository.count();
         if (produits >= payload.effectiveMaxProduits()) {
-            return "Limite de la version de démonstration atteinte (%d produits). Souscrivez un abonnement pour continuer.".formatted(
-                payload.effectiveMaxProduits()
-            );
+            return "Limite de la version de démonstration atteinte (%d produits). Souscrivez un abonnement pour continuer."
+                    .formatted(payload.effectiveMaxProduits());
         }
         return null;
     }
@@ -399,8 +404,7 @@ public class LicenseService {
         if (state == null || state.getLastSeenInstant() == null) {
             return false;
         }
-        Instant floor = state.getLastSeenInstant()
-            .minus(Duration.ofHours(properties.getClockToleranceHours()));
+        Instant floor = state.getLastSeenInstant().minus(Duration.ofHours(properties.getClockToleranceHours()));
         return now.isBefore(floor);
     }
 
@@ -422,8 +426,9 @@ public class LicenseService {
         if (!payload.bindingPolicy().checksMagasin()) {
             return null;
         }
-        Magasin magasin = magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
-            .orElse(null);
+        Magasin magasin = magasinRepository
+                .findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
+                .orElse(null);
         if (magasin == null) {
             // Aucune officine paramétrée : on ne bloque pas une installation en cours de
             // configuration, il n'y a encore rien à comparer.
@@ -433,29 +438,25 @@ public class LicenseService {
 
         if (!LicenseTextNormalizer.matches(payload.magasinName(), magasin.getName())) {
             audit(
-                LicenseAuditEventType.MAGASIN_NAME_MISMATCH,
-                "Licence délivrée à « %s », officine paramétrée « %s »".formatted(
-                    payload.magasinName(), magasin.getName()),
-                payload.licenseId()
-            );
-            return "Cette licence est délivrée à l'officine « %s » et ne peut pas être utilisée ici.".formatted(
-                payload.magasinName());
+                    LicenseAuditEventType.MAGASIN_NAME_MISMATCH,
+                    "Licence délivrée à « %s », officine paramétrée « %s »"
+                            .formatted(payload.magasinName(), magasin.getName()),
+                    payload.licenseId());
+            return "Cette licence est délivrée à l'officine « %s » et ne peut pas être utilisée ici."
+                    .formatted(payload.magasinName());
         }
 
         // Renfort : ne tranche que si le n° contribuable est renseigné des deux côtés (colonne nullable).
-        if (!LicenseTextNormalizer.matchesIfBothPresent(payload.taxId(),
-            magasin.getCompteContribuable())) {
+        if (!LicenseTextNormalizer.matchesIfBothPresent(payload.taxId(), magasin.getCompteContribuable())) {
             audit(
-                LicenseAuditEventType.TAX_ID_MISMATCH,
-                "N° contribuable de la licence « %s », officine « %s »".formatted(payload.taxId(),
-                    magasin.getCompteContribuable()),
-                payload.licenseId()
-            );
+                    LicenseAuditEventType.TAX_ID_MISMATCH,
+                    "N° contribuable de la licence « %s », officine « %s »"
+                            .formatted(payload.taxId(), magasin.getCompteContribuable()),
+                    payload.licenseId());
             return "Le numéro contribuable de cette officine ne correspond pas à celui de la licence.";
         }
 
-        return payload.bindingPolicy().checksHardware() ? checkFingerprint(payload, state, now)
-            : null;
+        return payload.bindingPolicy().checksHardware() ? checkFingerprint(payload, state, now) : null;
     }
 
     /**
@@ -477,15 +478,13 @@ public class LicenseService {
         long days = ChronoUnit.DAYS.between(since, now);
         if (days < properties.getFingerprintMismatchToleranceDays()) {
             long remaining = properties.getFingerprintMismatchToleranceDays() - days;
-            LOG.warn("Empreinte matérielle divergente depuis {} jour(s) — blocage dans {} jour(s)",
-                days, remaining);
+            LOG.warn("Empreinte matérielle divergente depuis {} jour(s) — blocage dans {} jour(s)", days, remaining);
             return null;
         }
         audit(
-            LicenseAuditEventType.FINGERPRINT_MISMATCH,
-            "Empreinte divergente depuis %s (délai de régularisation dépassé)".formatted(since),
-            payload.licenseId()
-        );
+                LicenseAuditEventType.FINGERPRINT_MISMATCH,
+                "Empreinte divergente depuis %s (délai de régularisation dépassé)".formatted(since),
+                payload.licenseId());
         return "Cette licence a été délivrée pour un autre poste. Contactez votre revendeur pour la faire réémettre.";
     }
 
@@ -494,8 +493,10 @@ public class LicenseService {
             return now;
         }
         if (state.getFingerprintMismatchSince() == null) {
-            audit(LicenseAuditEventType.FINGERPRINT_MISMATCH,
-                "Première divergence d'empreinte matérielle constatée", state.getLicenseId());
+            audit(
+                    LicenseAuditEventType.FINGERPRINT_MISMATCH,
+                    "Première divergence d'empreinte matérielle constatée",
+                    state.getLicenseId());
             state.setFingerprintMismatchSince(now);
             licenseStateRepository.save(state);
             return now;
@@ -517,11 +518,11 @@ public class LicenseService {
             if (days > properties.getWarningThresholdDays()) {
                 return LicenseStatus.VALID;
             }
-            return days > properties.getCriticalThresholdDays() ? LicenseStatus.EXPIRING_SOON
-                : LicenseStatus.EXPIRING_CRITICAL;
+            return days > properties.getCriticalThresholdDays()
+                    ? LicenseStatus.EXPIRING_SOON
+                    : LicenseStatus.EXPIRING_CRITICAL;
         }
-        return now.isBefore(payload.graceEndInstant()) ? LicenseStatus.GRACE
-            : LicenseStatus.EXPIRED;
+        return now.isBefore(payload.graceEndInstant()) ? LicenseStatus.GRACE : LicenseStatus.EXPIRED;
     }
 
     // ------------------------------------------------------------------ statuts
@@ -530,33 +531,29 @@ public class LicenseService {
         if (payload.expiresAt() == null) {
             return Long.MAX_VALUE;
         }
-        return ChronoUnit.DAYS.between(now.atZone(ZoneOffset.UTC).toLocalDate(),
-            payload.expiresAt());
+        return ChronoUnit.DAYS.between(now.atZone(ZoneOffset.UTC).toLocalDate(), payload.expiresAt());
     }
 
-    private LicenseInfo status(LicensePayload payload, LicenseStatus status,
-        String overrideMessage) {
+    private LicenseInfo status(LicensePayload payload, LicenseStatus status, String overrideMessage) {
         Instant now = Instant.now();
         long days = daysRemaining(payload, now);
-        String message =
-            overrideMessage != null ? overrideMessage : defaultMessage(payload, status, days, now);
+        String message = overrideMessage != null ? overrideMessage : defaultMessage(payload, status, days, now);
         boolean demo = payload.isDemo();
         return new LicenseInfo(
-            status,
-            payload.licenseType(),
-            payload.edition(),
-            payload.expiresAt(),
-            days,
-            payload.magasinName(),
-            Set.copyOf(payload.features()),
-            status.isReadOnly(),
-            demo,
-            // Une démo doit s'annoncer en permanence, quel que soit le nombre de jours restants :
-            // un ticket de démonstration ne doit jamais pouvoir passer pour un document réel.
-            status.requiresBanner() || demo,
-            message,
-            payload.support()
-        );
+                status,
+                payload.licenseType(),
+                payload.edition(),
+                payload.expiresAt(),
+                days,
+                payload.magasinName(),
+                Set.copyOf(payload.features()),
+                status.isReadOnly(),
+                demo,
+                // Une démo doit s'annoncer en permanence, quel que soit le nombre de jours restants :
+                // un ticket de démonstration ne doit jamais pouvoir passer pour un document réel.
+                status.requiresBanner() || demo,
+                message,
+                payload.support());
     }
 
     /**
@@ -568,26 +565,21 @@ public class LicenseService {
      * se lit donc toujours au présent, et l'échéance est rappelée en clair pour que le client
      * puisse la noter.
      */
-    private String defaultMessage(LicensePayload payload, LicenseStatus status, long days,
-        Instant now) {
+    private String defaultMessage(LicensePayload payload, LicenseStatus status, long days, Instant now) {
         return switch (status) {
             // Une licence sans échéance (partenaire) n'a pas de décompte à afficher.
-            case VALID -> payload.expiresAt() == null
-                ? "Licence valide, sans échéance."
-                : "Licence valide jusqu'au %s (%d jours restants).".formatted(
-                    date(payload.expiresAt()), days);
-            case EXPIRING_SOON, EXPIRING_CRITICAL -> "Votre abonnement expire %s, le %s.".formatted(
-                countdown(days),
-                date(payload.expiresAt())
-            );
-            case GRACE -> "Votre abonnement a expiré le %s. %s".formatted(
-                date(payload.expiresAt()),
-                graceCountdown(graceDaysRemaining(payload, now))
-            );
+            case VALID ->
+                payload.expiresAt() == null
+                        ? "Licence valide, sans échéance."
+                        : "Licence valide jusqu'au %s (%d jours restants).".formatted(date(payload.expiresAt()), days);
+            case EXPIRING_SOON, EXPIRING_CRITICAL ->
+                "Votre abonnement expire %s, le %s.".formatted(countdown(days), date(payload.expiresAt()));
+            case GRACE ->
+                "Votre abonnement a expiré le %s. %s"
+                        .formatted(date(payload.expiresAt()), graceCountdown(graceDaysRemaining(payload, now)));
             case EXPIRED ->
-                "Votre abonnement a expiré le %s. L'application est en lecture seule.".formatted(
-                    date(payload.expiresAt())
-                );
+                "Votre abonnement a expiré le %s. L'application est en lecture seule."
+                        .formatted(date(payload.expiresAt()));
             case DEMO_QUOTA_REACHED -> "Limite de la version de démonstration atteinte.";
             default -> "Licence non valide.";
         };
@@ -612,9 +604,8 @@ public class LicenseService {
             return "Dernier jour pour le renouveler avant le passage en lecture seule.";
         }
         return days == 1
-            ? "Il vous reste jusqu'à demain pour le renouveler avant le passage en lecture seule."
-            : "Il vous reste %d jours pour le renouveler avant le passage en lecture seule.".formatted(
-                days);
+                ? "Il vous reste jusqu'à demain pour le renouveler avant le passage en lecture seule."
+                : "Il vous reste %d jours pour le renouveler avant le passage en lecture seule.".formatted(days);
     }
 
     /**
@@ -625,9 +616,7 @@ public class LicenseService {
             return Long.MAX_VALUE;
         }
         return ChronoUnit.DAYS.between(
-            now.atZone(ZoneOffset.UTC).toLocalDate(),
-            payload.expiresAt().plusDays(payload.gracePeriodDays())
-        );
+                now.atZone(ZoneOffset.UTC).toLocalDate(), payload.expiresAt().plusDays(payload.gracePeriodDays()));
     }
 
     /**
@@ -639,19 +628,18 @@ public class LicenseService {
 
     private LicenseInfo invalid(String message, SupportContacts support) {
         return new LicenseInfo(
-            LicenseStatus.INVALID,
-            LicenseType.SUBSCRIPTION,
-            "STANDARD",
-            null,
-            0,
-            null,
-            Set.of(),
-            true,
-            false,
-            true,
-            message,
-            support
-        );
+                LicenseStatus.INVALID,
+                LicenseType.SUBSCRIPTION,
+                "STANDARD",
+                null,
+                0,
+                null,
+                Set.of(),
+                true,
+                false,
+                true,
+                message,
+                support);
     }
 
     private SupportContacts supportOf(LicensePayload payload) {
@@ -671,13 +659,12 @@ public class LicenseService {
     @Transactional
     public LicenseInfo activate(byte[] content, String originalFilename) {
         if (content == null || content.length == 0) {
-            throw new LicenseActivationException("Le fichier déposé est vide.",
-                "license.activate.empty");
+            throw new LicenseActivationException("Le fichier déposé est vide.", "license.activate.empty");
         }
         if (content.length > properties.getMaxUploadBytes()) {
             throw new LicenseActivationException(
-                "Le fichier déposé n'est pas un fichier de licence (taille inattendue).",
-                "license.activate.tooLarge");
+                    "Le fichier déposé n'est pas un fichier de licence (taille inattendue).",
+                    "license.activate.tooLarge");
         }
 
         String token = new String(content, StandardCharsets.UTF_8).trim();
@@ -687,13 +674,16 @@ public class LicenseService {
         try {
             payload = verifier.verify(token);
         } catch (LicenseVerificationException e) {
-            audit(LicenseAuditEventType.REJECTION,
-                "%s (fichier : %s)".formatted(e.getMessage(), originalFilename), null);
+            audit(
+                    LicenseAuditEventType.REJECTION,
+                    "%s (fichier : %s)".formatted(e.getMessage(), originalFilename),
+                    null);
             throw new LicenseActivationException(e.getMessage(), e.getErrorKey());
         }
 
-        LicenseState state = licenseStateRepository.findSingleton()
-            .orElseGet(() -> new LicenseState().setId(LicenseState.SINGLETON_ID));
+        LicenseState state = licenseStateRepository
+                .findSingleton()
+                .orElseGet(() -> new LicenseState().setId(LicenseState.SINGLETON_ID));
         Instant now = Instant.now();
 
         // Nouveau fichier ⇒ l'historique de divergence d'empreinte de l'ancienne licence n'a plus
@@ -706,32 +696,28 @@ public class LicenseService {
             throw new LicenseActivationException(bindingError, "license.activate.binding");
         }
         if (now.isAfter(payload.graceEndInstant())) {
-            String message = "Cette licence est déjà expirée (échéance : %s).".formatted(
-                payload.expiresAt());
+            String message = "Cette licence est déjà expirée (échéance : %s).".formatted(payload.expiresAt());
             audit(LicenseAuditEventType.REJECTION, message, payload.licenseId());
             throw new LicenseActivationException(message, "license.activate.expired");
         }
 
-        state
-            .setLicenseToken(token)
-            .setLicenseId(payload.licenseId())
-            .setExpiresAt(payload.expiresAt())
-            .setActivatedAt(now)
-            .setActivatedBy(login)
-            .setLastSeenInstant(now)
-            .setHardwareFingerprint(fingerprintProvider.fingerprint());
+        state.setLicenseToken(token)
+                .setLicenseId(payload.licenseId())
+                .setExpiresAt(payload.expiresAt())
+                .setActivatedAt(now)
+                .setActivatedBy(login)
+                .setLastSeenInstant(now)
+                .setHardwareFingerprint(fingerprintProvider.fingerprint());
         licenseStateRepository.save(state);
 
         writeTokenToDisk(token);
 
         audit(
-            LicenseAuditEventType.ACTIVATION,
-            "Licence %s (%s) activée jusqu'au %s".formatted(payload.licenseId(),
-                payload.licenseType(), payload.expiresAt()),
-            payload.licenseId()
-        );
-        LOG.info("Licence {} activée par {} — échéance {}", payload.licenseId(), login,
-            payload.expiresAt());
+                LicenseAuditEventType.ACTIVATION,
+                "Licence %s (%s) activée jusqu'au %s"
+                        .formatted(payload.licenseId(), payload.licenseType(), payload.expiresAt()),
+                payload.licenseId());
+        LOG.info("Licence {} activée par {} — échéance {}", payload.licenseId(), login, payload.expiresAt());
 
         // Le cache est reconstruit immédiatement : la bannière doit disparaître et l'écriture être
         // rétablie sans redémarrage du backend ni rechargement de la page (scénario de recette n°5).
@@ -771,9 +757,7 @@ public class LicenseService {
 
             LOG.info("Fichier de licence écrit dans {}", path);
         } catch (IOException e) {
-            LOG.warn(
-                "Impossible d'écrire le fichier de licence dans {} — la copie en base fait foi",
-                path, e);
+            LOG.warn("Impossible d'écrire le fichier de licence dans {} — la copie en base fait foi", path, e);
         }
     }
 
@@ -782,8 +766,8 @@ public class LicenseService {
      */
     public void audit(LicenseAuditEventType type, String detail, String licenseId) {
         try {
-            licenseAuditRepository.save(new LicenseAudit(type, detail, licenseId,
-                SecurityUtils.getCurrentUserLogin().orElse(null)));
+            licenseAuditRepository.save(new LicenseAudit(
+                    type, detail, licenseId, SecurityUtils.getCurrentUserLogin().orElse(null)));
         } catch (RuntimeException e) {
             LOG.warn("Échec d'écriture du journal de licence ({})", type, e);
         }
@@ -812,13 +796,12 @@ public class LicenseService {
      *                     — {@code null} pour un statut normal, valorisé après un échec technique
      */
     private record CachedStatus(
-        LicensePayload payload,
-        LicenseStatus pinnedStatus,
-        String pinnedMessage,
-        LicenseInfo frozenInfo,
-        LocalDate computedOn,
-        Instant retryAfter
-    ) {
+            LicensePayload payload,
+            LicenseStatus pinnedStatus,
+            String pinnedMessage,
+            LicenseInfo frozenInfo,
+            LocalDate computedOn,
+            Instant retryAfter) {
 
         /**
          * Licence exploitable dont seule l'échéance tranche : tout est recalculé à la lecture.
@@ -830,8 +813,7 @@ public class LicenseService {
         /**
          * Licence exploitable, mais un contrôle indépendant du temps a déjà tranché.
          */
-        static CachedStatus pinned(LicensePayload payload, LicenseStatus status, String message,
-            LocalDate computedOn) {
+        static CachedStatus pinned(LicensePayload payload, LicenseStatus status, String message, LocalDate computedOn) {
             return new CachedStatus(payload, status, message, null, computedOn, null);
         }
 
@@ -848,8 +830,7 @@ public class LicenseService {
          * à nouveau le délai de connexion.
          */
         CachedStatus retryingAfter(LocalDate today, Instant instant) {
-            return new CachedStatus(payload, pinnedStatus, pinnedMessage, frozenInfo, today,
-                instant);
+            return new CachedStatus(payload, pinnedStatus, pinnedMessage, frozenInfo, today, instant);
         }
 
         boolean isStale(LocalDate today, Instant now) {

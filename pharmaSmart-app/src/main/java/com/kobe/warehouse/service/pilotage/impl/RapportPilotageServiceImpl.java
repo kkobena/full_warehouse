@@ -52,17 +52,16 @@ public class RapportPilotageServiceImpl extends AbstractStatistiqueReportService
     private final RapportAnalyserService rapportAnalyserService;
 
     public RapportPilotageServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        NavAccessService navAccessService,
-        RapportTableauDeBordService rapportTableauDeBordService,
-        RapportComparerAnneesService rapportComparerAnneesService,
-        RapportRentabiliteService rapportRentabiliteService,
-        RapportAchatsStockService rapportAchatsStockService,
-        RapportTresorerieService rapportTresorerieService,
-        RapportClientsEquipeService rapportClientsEquipeService,
-        RapportAnalyserService rapportAnalyserService
-    ) {
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            NavAccessService navAccessService,
+            RapportTableauDeBordService rapportTableauDeBordService,
+            RapportComparerAnneesService rapportComparerAnneesService,
+            RapportRentabiliteService rapportRentabiliteService,
+            RapportAchatsStockService rapportAchatsStockService,
+            RapportTresorerieService rapportTresorerieService,
+            RapportClientsEquipeService rapportClientsEquipeService,
+            RapportAnalyserService rapportAnalyserService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
@@ -78,14 +77,16 @@ public class RapportPilotageServiceImpl extends AbstractStatistiqueReportService
 
     @Override
     public byte[] imprimerRapport(RequeteRapportPilotageDTO demande) {
-        List<OngletRapportPilotage> onglets = demande.onglets().stream().distinct().toList();
+        List<OngletRapportPilotage> onglets =
+                demande.onglets().stream().distinct().toList();
         verifierDroits(onglets);
         RequetePilotageDTO requete = demande.requete();
         Context context = getContext();
         Magasin magasin = storageService.getUser().getMagasin();
         context.setVariable(Constant.MAGASIN, magasin);
         context.setVariable(Constant.FOOTER, "\"" + builderFooter(magasin) + "\"");
-        context.setVariable(Constant.REPORT_TITLE, "Pilotage de l'officine du " + buildPeriode(requete.du(), requete.au()));
+        context.setVariable(
+                Constant.REPORT_TITLE, "Pilotage de l'officine du " + buildPeriode(requete.du(), requete.au()));
         context.setVariable("onglets", onglets);
         for (OngletRapportPilotage onglet : onglets) {
             context.setVariable(lireVariable(onglet), construireOnglet(onglet, demande));
@@ -105,7 +106,9 @@ public class RapportPilotageServiceImpl extends AbstractStatistiqueReportService
         return switch (onglet) {
             case TABLEAU_DE_BORD -> rapportTableauDeBordService.construireTableauDeBord(demande.requete());
             case ANALYSER -> rapportAnalyserService.construireAnalyse(demande.requete(), demande.analyse());
-            case COMPARER_ANNEES -> rapportComparerAnneesService.construireComparaison(demande.lireReglageAnnees(), demande.libelleFiltreAnnees());
+            case COMPARER_ANNEES ->
+                rapportComparerAnneesService.construireComparaison(
+                        demande.lireReglageAnnees(), demande.libelleFiltreAnnees());
             case RENTABILITE_REMISES -> rapportRentabiliteService.construireRentabilite(demande.requete());
             case ACHATS_STOCK -> rapportAchatsStockService.construireAchatsStock(demande.requete());
             case TRESORERIE_TIERS_PAYANT -> rapportTresorerieService.construireTresorerie(demande.requete());

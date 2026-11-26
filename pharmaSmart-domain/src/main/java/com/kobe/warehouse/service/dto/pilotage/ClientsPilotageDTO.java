@@ -13,12 +13,11 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record ClientsPilotageDTO(
-    ComparaisonPeriodesDTO comparaison,
-    CelluleAnalyseDTO actifs,
-    CelluleAnalyseDTO nouveaux,
-    Long revenus,
-    Long perdus,
-    CelluleAnalyseDTO partCaIdentifie,
-    CelluleAnalyseDTO caMoyenParClient,
-    List<ContributionDTO> enBaisse
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        CelluleAnalyseDTO actifs,
+        CelluleAnalyseDTO nouveaux,
+        Long revenus,
+        Long perdus,
+        CelluleAnalyseDTO partCaIdentifie,
+        CelluleAnalyseDTO caMoyenParClient,
+        List<ContributionDTO> enBaisse) {}

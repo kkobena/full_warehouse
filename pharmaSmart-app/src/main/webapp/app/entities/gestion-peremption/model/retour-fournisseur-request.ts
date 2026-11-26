@@ -35,11 +35,7 @@ export interface RetourBonBatchError {
 
 // ── Types de résolution du lot ─────────────────────────────────────────────
 
-export type ResolutionStatut =
-  | 'COMMANDE_TROUVEE'
-  | 'HORS_COMMANDE_UN_FOURN'
-  | 'HORS_COMMANDE_MULTI'
-  | 'FOURNISSEUR_INCONNU';
+export type ResolutionStatut = 'COMMANDE_TROUVEE' | 'HORS_COMMANDE_UN_FOURN' | 'HORS_COMMANDE_MULTI' | 'FOURNISSEUR_INCONNU';
 
 export interface FournisseurSimple {
   id: number;
@@ -58,5 +54,3 @@ export interface RetourBonLotResolution {
   // HORS_COMMANDE_MULTI
   fournisseurs?: FournisseurSimple[];
 }
-
-

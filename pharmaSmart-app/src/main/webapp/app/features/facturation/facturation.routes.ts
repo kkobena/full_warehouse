@@ -3,8 +3,7 @@ import { Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./feature/facturation-layout/facturation-layout.component').then(m => m.FacturationLayoutComponent),
+    loadComponent: () => import('./feature/facturation-layout/facturation-layout.component').then(m => m.FacturationLayoutComponent),
     data: { pageTitle: 'facturation.factures' },
   },
   {

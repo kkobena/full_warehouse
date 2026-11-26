@@ -93,7 +93,8 @@
                   (keydown)="onRemiseKeydown($event, remise)"
                   class="remise-popover-item"
                   role="option"
-                  tabindex="0">
+                  tabindex="0"
+                >
                   <div class="remise-item-icon">
                     <i class="pi pi-tag"></i>
                   </div>
@@ -110,8 +111,6 @@
         </ng-template>
       </div>
     }
-
-
   </div>
 
   <!-- Tableau principal -->
@@ -128,7 +127,8 @@
     [size]="'small'"
     [value]="lignesAffichees()"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-    dataKey="id">
+    dataKey="id"
+  >
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
@@ -154,8 +154,9 @@
         [ngClass]="{
           'pharma-row-warning': line.quantitySold < line.quantityRequested,
           'ligne-non-remboursee': line.nonRembourse,
-          'ligne-selected': isLineSelected(line)
-        }">
+          'ligne-selected': isLineSelected(line),
+        }"
+      >
         <!-- # -->
         <td style="text-align: center; padding: 6px 5px">
           <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
@@ -177,7 +178,8 @@
               [seuilMini]="signaux().get(line.produitId)?.seuilMini"
               [statutLegal]="signaux().get(line.produitId)?.statutLegal"
               [stockRestant]="signaux().get(line.produitId)?.stockRestant"
-              [typeGenerique]="signaux().get(line.produitId)?.typeGenerique" />
+              [typeGenerique]="signaux().get(line.produitId)?.typeGenerique"
+            />
           </div>
           @if (line.lots?.length) {
             @let lots = lotsAffiches(line);
@@ -185,7 +187,13 @@
               <i class="pi pi-tags"></i>
               @for (lot of lots.visibles; track lot.numLot) {
                 <span [class.lot-perime]="lot.urgence === 'perime'" [class.lot-proche]="lot.urgence === 'proche'">
-                  {{ lot.numLot }}@if (lots.plusieurs) { ({{ lot.quantity }}) }@if (lot.mois) { · {{ lot.mois }} }
+                  {{ lot.numLot }}
+                  @if (lots.plusieurs) {
+                    ({{ lot.quantity }})
+                  }
+                  @if (lot.mois) {
+                    · {{ lot.mois }}
+                  }
                 </span>
               }
               @if (lots.reste > 0) {
@@ -206,7 +214,8 @@
                   class="form-control form-control-sm pharma-input-qty"
                   data-col="qty"
                   min="1"
-                  type="number" />
+                  type="number"
+                />
               </ng-template>
               <ng-template #output>
                 <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
@@ -222,10 +231,13 @@
                     class="form-control form-control-sm pharma-input-qty"
                     data-col="qs"
                     min="0"
-                    type="number" />
+                    type="number"
+                  />
                 </ng-template>
                 <ng-template #output>
-                  <span [class.qty-insuffisante]="line.quantitySold < line.quantityRequested" class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+                  <span [class.qty-insuffisante]="line.quantitySold < line.quantityRequested" class="pharma-qty-value">{{
+                    line.quantitySold | number
+                  }}</span>
                 </ng-template>
               </app-editable-cell>
               <span aria-hidden="true" class="qty-sep">/</span>
@@ -237,7 +249,8 @@
                     class="form-control form-control-sm pharma-input-qty"
                     data-col="qd"
                     min="1"
-                    type="number" />
+                    type="number"
+                  />
                 </ng-template>
                 <ng-template #output>
                   <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
@@ -258,7 +271,8 @@
                   class="form-control form-control-sm pharma-input-price"
                   data-col="pu"
                   min="0"
-                  type="number" />
+                  type="number"
+                />
               </ng-template>
               <ng-template #output>
                 <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
@@ -280,7 +294,8 @@
               placement="left"
               popoverClass="prix-popover"
               triggers="click"
-              type="button">
+              type="button"
+            >
               nég. {{ negocie | number }}
             </button>
           } @else if (aDesTauxNegocies(line)) {
@@ -294,7 +309,8 @@
               placement="left"
               popoverClass="prix-popover"
               triggers="click"
-              type="button">
+              type="button"
+            >
               taux nég.
             </button>
           } @else {
@@ -305,7 +321,8 @@
               container="body"
               placement="left"
               popoverClass="prix-popover"
-              triggers="click"></span>
+              triggers="click"
+            ></span>
           }
         </td>
 
@@ -321,7 +338,8 @@
               (ngModelChange)="basculerNonRembourse(line, $event)"
               [disabled]="!isEditable()"
               [ngModel]="!!line.nonRembourse"
-              ariaLabel="Ligne non remboursée" />
+              ariaLabel="Ligne non remboursée"
+            />
           </td>
         }
 
@@ -377,7 +395,6 @@
             </div>
           </div>
         </td>
-
       </tr>
     </ng-template>
     <ng-template #emptymessage>
@@ -421,15 +438,29 @@
     <div aria-label="Détail du prix" class="prix-popover-content" role="dialog">
       <div class="prix-popover-titre">{{ line.produitLibelle }}</div>
       <dl class="prix-popover-liste">
-        <div><dt>Prix public</dt><dd>{{ line.regularUnitPrice | number }}</dd></div>
+        <div>
+          <dt>Prix public</dt>
+          <dd>{{ line.regularUnitPrice | number }}</dd>
+        </div>
         @if (line.discountAmount) {
-          <div><dt>Remise sur la ligne</dt><dd>- {{ line.discountAmount | number }}</dd></div>
+          <div>
+            <dt>Remise sur la ligne</dt>
+            <dd>- {{ line.discountAmount | number }}</dd>
+          </div>
         }
         @if (prixNegocie(line); as negocie) {
-          <div><dt>Prix négocié (base de calcul)</dt><dd [class.prix-negocie-bas]="negocie < line.regularUnitPrice" [class.prix-negocie-haut]="negocie > line.regularUnitPrice">{{ negocie | number }}</dd></div>
+          <div>
+            <dt>Prix négocié (base de calcul)</dt>
+            <dd [class.prix-negocie-bas]="negocie < line.regularUnitPrice" [class.prix-negocie-haut]="negocie > line.regularUnitPrice">
+              {{ negocie | number }}
+            </dd>
+          </div>
         }
         @if (line.netUnitPrice) {
-          <div><dt>Net unitaire</dt><dd>{{ line.netUnitPrice | number }}</dd></div>
+          <div>
+            <dt>Net unitaire</dt>
+            <dd>{{ line.netUnitPrice | number }}</dd>
+          </div>
         }
       </dl>
       @if (saleType() !== 'COMPTANT' && detailTiersPayants(line).length > 0) {
@@ -439,8 +470,12 @@
             <div>
               <dt>{{ tp.nom }}</dt>
               <dd>
-                @if (tp.taux !== null) { {{ tp.taux }} % }
-                @if (tp.negocie) { <span class="badge bg-info ms-1">négocié</span> }
+                @if (tp.taux !== null) {
+                  {{ tp.taux }} %
+                }
+                @if (tp.negocie) {
+                  <span class="badge bg-info ms-1">négocié</span>
+                }
               </dd>
             </div>
           }

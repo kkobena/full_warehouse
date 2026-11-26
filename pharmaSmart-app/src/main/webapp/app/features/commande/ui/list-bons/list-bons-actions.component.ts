@@ -1,14 +1,9 @@
 import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
-import {
-  NgbDropdown,
-  NgbDropdownItem,
-  NgbDropdownMenu,
-  NgbDropdownToggle,
-  NgbTooltip,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 
-export type BonAction = 'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne' | 'reconcilierFacture';
+export type BonAction =
+  'voirDetail' | 'receive' | 'cancel' | 'exportPdf' | 'printEtiquette' | 'retourComplet' | 'retourParLigne' | 'reconcilierFacture';
 
 interface MenuEntry {
   label?: string;

@@ -66,8 +66,8 @@ class ReconciliationFournisseurServiceImplTest {
             when(commandeRepository.findById(commandeId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.save(commandeId, command(100, 10)))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Commande introuvable");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Commande introuvable");
 
             verify(commandeRepository, never()).save(any());
         }
@@ -187,8 +187,8 @@ class ReconciliationFournisseurServiceImplTest {
             when(commandeRepository.findById(commandeId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.findByCommandeId(commandeId))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Commande introuvable");
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Commande introuvable");
         }
 
         @Test
@@ -203,13 +203,11 @@ class ReconciliationFournisseurServiceImplTest {
         @DisplayName("mappe la reconciliation existante")
         void avecReconciliation() {
             Commande commande = commande(0, 0);
-            commande.setReconciliation(
-                new ReconciliationFactureFournisseur()
+            commande.setReconciliation(new ReconciliationFactureFournisseur()
                     .setId(9)
                     .setFactureReference("F-2026-042")
                     .setStatut(ReconciliationStatut.ECART)
-                    .setEcartHT(150)
-            );
+                    .setEcartHT(150));
             when(commandeRepository.findById(commandeId)).thenReturn(Optional.of(commande));
 
             ReconciliationFactureDTO dto = service.findByCommandeId(commandeId);

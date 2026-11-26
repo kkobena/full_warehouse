@@ -29,7 +29,12 @@ describe('widget-data', () => {
   });
 
   it('présente une série en tableau, une colonne par série', () => {
-    const series: SeriesData = { kind: 'SERIES', labels: ['Comptant', 'Tiers payant'], series: [{ name: 'CA net', values: [10, 20] }], footer: 'pied' };
+    const series: SeriesData = {
+      kind: 'SERIES',
+      labels: ['Comptant', 'Tiers payant'],
+      series: [{ name: 'CA net', values: [10, 20] }],
+      footer: 'pied',
+    };
     const table = toTable(series)!;
     expect(table.columns.map(c => c.header)).toEqual(['', 'CA net']);
     expect(table.rows).toEqual([
@@ -46,7 +51,13 @@ describe('widget-data', () => {
   });
 
   it('calcule l’évolution, sauf si la période précédente est nulle', () => {
-    const kpi = (value: number | null, previousValue: number | null): KpiData => ({ kind: 'KPI', value, previousValue, unit: 'F', detail: null });
+    const kpi = (value: number | null, previousValue: number | null): KpiData => ({
+      kind: 'KPI',
+      value,
+      previousValue,
+      unit: 'F',
+      detail: null,
+    });
     expect(evolutionPct(kpi(120, 100))).toBeCloseTo(20);
     expect(evolutionPct(kpi(80, 100))).toBeCloseTo(-20);
     expect(evolutionPct(kpi(80, 0))).toBeNull();
@@ -102,7 +113,9 @@ describe('chart-config', () => {
   });
 
   it('n’affiche la légende qu’à partir de deux séries', () => {
-    const une = buildChart('BAR', { ...evolution, series: [evolution.series[0]] }) as { options: { plugins: { legend: { display: boolean } } } };
+    const une = buildChart('BAR', { ...evolution, series: [evolution.series[0]] }) as {
+      options: { plugins: { legend: { display: boolean } } };
+    };
     const deux = buildChart('BAR', evolution) as { options: { plugins: { legend: { display: boolean } } } };
     expect(une.options.plugins.legend.display).toBe(false);
     expect(deux.options.plugins.legend.display).toBe(true);

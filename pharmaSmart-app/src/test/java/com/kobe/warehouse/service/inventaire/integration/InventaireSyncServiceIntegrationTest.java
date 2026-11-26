@@ -32,7 +32,7 @@ class InventaireSyncServiceIntegrationTest extends AbstractInventaireIntegration
         viderLeCache();
 
         BatchSyncResultRecord resultat = services.inventaireSyncService.synchronize(
-            List.of(comptage(premiere, 30, 28), comptage(seconde, 12, 12)));
+                List.of(comptage(premiere, 30, 28), comptage(seconde, 12, 12)));
         viderLeCache();
 
         assertEquals(2, resultat.saved());
@@ -52,8 +52,8 @@ class InventaireSyncServiceIntegrationTest extends AbstractInventaireIntegration
         StoreInventoryLineDTO fantome = comptage(valide, 30, 25);
         fantome.setId(999_999L);
 
-        BatchSyncResultRecord resultat = services.inventaireSyncService.synchronize(
-            List.of(comptage(valide, 30, 25), fantome));
+        BatchSyncResultRecord resultat =
+                services.inventaireSyncService.synchronize(List.of(comptage(valide, 30, 25), fantome));
         viderLeCache();
 
         assertEquals(1, resultat.saved());
@@ -77,16 +77,15 @@ class InventaireSyncServiceIntegrationTest extends AbstractInventaireIntegration
         StoreInventoryLineDTO saisiePerimee = comptage(disputee, 30, 20);
         saisiePerimee.setVersion(relire(disputee).getVersion() + 1);
 
-        BatchSyncResultRecord resultat = services.inventaireSyncService.synchronize(
-            List.of(saisiePerimee, comptage(paisible, 12, 11)));
+        BatchSyncResultRecord resultat =
+                services.inventaireSyncService.synchronize(List.of(saisiePerimee, comptage(paisible, 12, 11)));
         viderLeCache();
 
         assertEquals(1, resultat.saved());
         assertEquals(1, resultat.failed());
         assertEquals(List.of(disputee.getId()), resultat.conflictedIds());
         assertTrue(relire(paisible).getUpdated(), "la ligne sans conflit est enregistrée");
-        assertTrue(Boolean.FALSE.equals(relire(disputee).getUpdated()),
-            "la ligne en conflit reste à compter");
+        assertTrue(Boolean.FALSE.equals(relire(disputee).getUpdated()), "la ligne en conflit reste à compter");
     }
 
     @Test

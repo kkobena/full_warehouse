@@ -84,7 +84,12 @@ scenario('ACH-85', async ({ etape, page }) => {
     const excedent = page.locator('.modal-content:visible').filter({ hasText: 'Excédent détecté' });
     const badge = ecran.locator('.cr-scan-badge--ok');
     await expect(excedent.first().or(badge).first()).toBeVisible();
-    if (await excedent.first().isVisible().catch(() => false)) {
+    if (
+      await excedent
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
       await excedent.first().getByRole('button', { name: /Oui/ }).click();
     }
     await expect(badge).toBeVisible();

@@ -5,19 +5,18 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.MagasinRepository;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -37,12 +36,11 @@ public class MagasinServiceImpl implements MagasinService {
     private final RayonService rayonService;
 
     public MagasinServiceImpl(
-        MagasinRepository magasinRepository,
-        UserService userService,
-        StorageService storageService,
-        RayonService rayonService,
-        PorteeMagasinService porteeMagasinService
-    ) {
+            MagasinRepository magasinRepository,
+            UserService userService,
+            StorageService storageService,
+            RayonService rayonService,
+            PorteeMagasinService porteeMagasinService) {
         this.magasinRepository = magasinRepository;
         this.userService = userService;
         this.storageService = storageService;
@@ -51,7 +49,9 @@ public class MagasinServiceImpl implements MagasinService {
     }
 
     @Override
-    @CacheEvict(value = {EntityConstant.USER_MAGASIN, EntityConstant.CURRENT_USER_CACHE}, allEntries = true)
+    @CacheEvict(
+            value = {EntityConstant.USER_MAGASIN, EntityConstant.CURRENT_USER_CACHE},
+            allEntries = true)
     public MagasinDTO save(MagasinDTO magasinDto) {
         Magasin aEnregistrer = toEntity(magasinDto);
         appliquerLaHierarchie(aEnregistrer, magasinDto);
@@ -114,7 +114,9 @@ public class MagasinServiceImpl implements MagasinService {
         if (CollectionUtils.isEmpty(types)) {
             return magasinRepository.findAll().stream().map(MagasinDTO::new).toList();
         }
-        return magasinRepository.findAll(magasinRepository.hasTypes(EnumSet.copyOf(types))).stream().map(MagasinDTO::new).toList();
+        return magasinRepository.findAll(magasinRepository.hasTypes(EnumSet.copyOf(types))).stream()
+                .map(MagasinDTO::new)
+                .toList();
     }
 
     @Override
@@ -145,8 +147,9 @@ public class MagasinServiceImpl implements MagasinService {
     private void appliquerLaHierarchie(Magasin magasin, MagasinDTO dto) {
         if (magasin.getTypeMagasin() == TypeMagasin.OFFICINE) {
             if (dto.getParentId() != null) {
-                throw new GenericError("Une officine est racine : elle ne dépend d'aucun autre magasin.",
-                    "magasin.officineSansParent");
+                throw new GenericError(
+                        "Une officine est racine : elle ne dépend d'aucun autre magasin.",
+                        "magasin.officineSansParent");
             }
             magasin.setParent(null);
             return;
@@ -164,8 +167,10 @@ public class MagasinServiceImpl implements MagasinService {
         if (parentId.equals(magasin.getId())) {
             throw new GenericError("Un magasin ne peut pas dépendre de lui-même.", "magasin.parentCirculaire");
         }
-        Magasin parent = magasinRepository.findById(parentId)
-            .orElseThrow(() -> new GenericError("L'officine de rattachement est introuvable.", "magasin.parentIntrouvable"));
+        Magasin parent = magasinRepository
+                .findById(parentId)
+                .orElseThrow(() ->
+                        new GenericError("L'officine de rattachement est introuvable.", "magasin.parentIntrouvable"));
         if (parent.getTypeMagasin() != TypeMagasin.OFFICINE) {
             throw new GenericError("Un magasin ne peut dépendre que d'une officine.", "magasin.parentNonOfficine");
         }
@@ -183,7 +188,9 @@ public class MagasinServiceImpl implements MagasinService {
             return;
         }
         if (dto.getId() != null) {
-            magasinRepository.findById(dto.getId()).ifPresent(existant -> magasin.setCommandeEnPropre(existant.isCommandeEnPropre()));
+            magasinRepository
+                    .findById(dto.getId())
+                    .ifPresent(existant -> magasin.setCommandeEnPropre(existant.isCommandeEnPropre()));
             return;
         }
         magasin.setCommandeEnPropre(magasin.getTypeMagasin() != TypeMagasin.DEPOT);
@@ -199,8 +206,9 @@ public class MagasinServiceImpl implements MagasinService {
             return;
         }
         if (StringUtils.hasText(magasin.getFnePointOfSale()) || StringUtils.hasText(magasin.getFneSecretKey())) {
-            throw new GenericError("Seule l'officine porte une identité FNE : les factures de ce magasin partent sous la sienne.",
-                "magasin.fneReserveeALOfficine");
+            throw new GenericError(
+                    "Seule l'officine porte une identité FNE : les factures de ce magasin partent sous la sienne.",
+                    "magasin.fneReserveeALOfficine");
         }
     }
 

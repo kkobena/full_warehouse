@@ -16,8 +16,8 @@ public class PharmaSmartDefaults {
         String contactEmail = null;
         String license = null;
         String licenseUrl = null;
-        String[] defaultIncludePattern = new String[] { "/api/**" };
-        String[] managementIncludePattern = new String[] { "/management/**" };
+        String[] defaultIncludePattern = new String[] {"/api/**"};
+        String[] managementIncludePattern = new String[] {"/management/**"};
         String host = null;
         String[] protocols = new String[0];
         boolean useDefaultResponseMessages = true;
@@ -53,7 +53,7 @@ public class PharmaSmartDefaults {
 
     public interface Cache {
         interface Redis {
-            String[] server = new String[] { "redis://localhost:6379" };
+            String[] server = new String[] {"redis://localhost:6379"};
             int expiration = 300;
             boolean cluster = false;
             int connectionPoolSize = 64;
@@ -145,7 +145,7 @@ public class PharmaSmartDefaults {
 
     public interface Security {
         String contentSecurityPolicy =
-            "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:";
+                "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:";
 
         interface ClientAuthorization {
             String accessTokenUri = null;

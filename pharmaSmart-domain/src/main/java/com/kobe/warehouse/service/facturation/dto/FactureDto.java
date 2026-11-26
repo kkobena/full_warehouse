@@ -2,15 +2,14 @@ package com.kobe.warehouse.service.facturation.dto;
 
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.service.fne.model.FneResponse;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.kobe.warehouse.service.fne.model.FneResponse;
-import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import org.springframework.util.StringUtils;
 
 public class FactureDto extends FactureDtoWrapper {
@@ -41,32 +40,31 @@ public class FactureDto extends FactureDtoWrapper {
     private List<FactureItemDto> items;
     private FneResponse fneResponse;
     private Integer delaiReglement = 30;
-    private List<InvoicePaymentDTO> reglements ;
+    private List<InvoicePaymentDTO> reglements;
 
     public FactureDto() {}
 
     public FactureDto(
-        LocalDate invoiceDate,
-        LocalDateTime created,
-        Long id,
-        Long groupeFactureId,
-        Integer montantRegle,
-        Integer remiseForfetaire,
-        LocalDate debutPeriode,
-        InvoiceStatut statut,
-        LocalDate finPeriode,
-        Boolean factureProvisoire,
-        String numFacture,
-        String groupeNumFacture,
-        String tiersPayantName,
-        Integer montantVente,
-        Integer montantRemiseVente,
-        Integer itemMontantRegle,
-        Long itemsCount,
-        Integer montant,
-        FneResponse fneResponse,
-        Integer delaiReglement
-    ) {
+            LocalDate invoiceDate,
+            LocalDateTime created,
+            Long id,
+            Long groupeFactureId,
+            Integer montantRegle,
+            Integer remiseForfetaire,
+            LocalDate debutPeriode,
+            InvoiceStatut statut,
+            LocalDate finPeriode,
+            Boolean factureProvisoire,
+            String numFacture,
+            String groupeNumFacture,
+            String tiersPayantName,
+            Integer montantVente,
+            Integer montantRemiseVente,
+            Integer itemMontantRegle,
+            Long itemsCount,
+            Integer montant,
+            FneResponse fneResponse,
+            Integer delaiReglement) {
         this.created = created;
         this.factureId = id;
         this.factureItemId = new FactureItemId(id, invoiceDate);
@@ -98,22 +96,21 @@ public class FactureDto extends FactureDtoWrapper {
      * une colonne « N° » vide dans la liste comme dans l'export Excel.
      */
     public FactureDto(
-        LocalDate invoiceDate,
-        Integer montantRegle,
-        LocalDateTime created,
-        Long id,
-        LocalDate debutPeriode,
-        InvoiceStatut statut,
-        LocalDate finPeriode,
-        Boolean factureProvisoire,
-        String numFacture,
-        String tiersPayantName,
-        Integer montantVente,
-        Long itemsCount,
-        Integer montant,
-        Integer montantRemiseVente,
-        Integer delaiReglement
-    ) {
+            LocalDate invoiceDate,
+            Integer montantRegle,
+            LocalDateTime created,
+            Long id,
+            LocalDate debutPeriode,
+            InvoiceStatut statut,
+            LocalDate finPeriode,
+            Boolean factureProvisoire,
+            String numFacture,
+            String tiersPayantName,
+            Integer montantVente,
+            Long itemsCount,
+            Integer montant,
+            Integer montantRemiseVente,
+            Integer delaiReglement) {
         this.factureItemId = new FactureItemId(id, invoiceDate);
         this.montantRegle = montantRegle;
         this.created = created;
@@ -260,7 +257,8 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public Integer getMontantNetVente() {
-        montantNetVente = Objects.requireNonNullElse(montantVente, 0) - Objects.requireNonNullElse(montantRemiseVente, 0);
+        montantNetVente =
+                Objects.requireNonNullElse(montantVente, 0) - Objects.requireNonNullElse(montantRemiseVente, 0);
         return montantNetVente;
     }
 

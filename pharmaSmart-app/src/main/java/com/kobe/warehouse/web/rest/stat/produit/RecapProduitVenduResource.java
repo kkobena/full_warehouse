@@ -1,11 +1,16 @@
 package com.kobe.warehouse.web.rest.stat.produit;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.report.RecapProduitVenduService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -18,12 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 @RestController
 @RequestMapping("/api/recap-produit-vendu")
 @RequiresNavAccess("rapport-stock.recap-produit-vendu")
@@ -35,26 +34,32 @@ public class RecapProduitVenduResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<RecapProduitVendu>> getRecapProduitVenduReport(@Valid RecapProduitVenduRequestParam requestParam, Pageable pageable) {
+    public ResponseEntity<List<RecapProduitVendu>> getRecapProduitVenduReport(
+            @Valid RecapProduitVenduRequestParam requestParam, Pageable pageable) {
         Page<RecapProduitVendu> page = recapProduitVenduService.getRecapProduitVenduReport(requestParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/invendus")
-    public ResponseEntity<List<RecapProduitVendu>> getRecapProduitInvenduReport(@Valid RecapProduitVenduRequestParam requestParam, Pageable pageable) {
+    public ResponseEntity<List<RecapProduitVendu>> getRecapProduitInvenduReport(
+            @Valid RecapProduitVenduRequestParam requestParam, Pageable pageable) {
         Page<RecapProduitVendu> page = recapProduitVenduService.getRecapProduitInvenduReport(requestParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<RecapProduitVenduSummary> getRecapProduitVenduSummary(@Valid RecapProduitVenduRequestParam requestParam) {
+    public ResponseEntity<RecapProduitVenduSummary> getRecapProduitVenduSummary(
+            @Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.getRecapProduitVenduSummary(requestParam));
     }
 
     @GetMapping("/invendus/summary")
-    public ResponseEntity<RecapProduitVenduSummary> getRecapProduitInvenduSummary(@Valid RecapProduitVenduRequestParam requestParam) {
+    public ResponseEntity<RecapProduitVenduSummary> getRecapProduitInvenduSummary(
+            @Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.getRecapProduitInvenduSummary(requestParam));
     }
 
@@ -64,17 +69,17 @@ public class RecapProduitVenduResource {
      */
     @GetMapping(value = "/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> exportToExcel(@Valid RecapProduitVenduRequestParam requestParam
-    ) {
+    public ResponseEntity<byte[]> exportToExcel(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] excelData = recapProduitVenduService.exportToExcel(requestParam);
-            String filename = "recap_produit_vendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".xlsx";
+            String filename = "recap_produit_vendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".xlsx";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -86,17 +91,16 @@ public class RecapProduitVenduResource {
      */
     @GetMapping(value = "/csv", produces = "text/csv")
     @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> exportCsv(@Valid RecapProduitVenduRequestParam requestParam
-    ) {
+    public ResponseEntity<byte[]> exportCsv(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] csvData = recapProduitVenduService.exportToCsv(requestParam);
-            String filename = "recap_produit_vendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
+            String filename = "recap_produit_vendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -111,13 +115,13 @@ public class RecapProduitVenduResource {
     public ResponseEntity<byte[]> exportToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] pdfData = recapProduitVenduService.exportToPdf(requestParam);
-            String filename = "recap_produit_vendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+            String filename = "recap_produit_vendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -127,19 +131,21 @@ public class RecapProduitVenduResource {
      * @param requestParam request parameters
      * @return Excel file (.xlsx) for unsold products
      */
-    @GetMapping(value = "/invendus/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @GetMapping(
+            value = "/invendus/excel",
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> exportInvenduToExcel(@Valid RecapProduitVenduRequestParam requestParam
-    ) {
+    public ResponseEntity<byte[]> exportInvenduToExcel(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] excelData = recapProduitVenduService.exportInvenduToExcel(requestParam);
-            String filename = "recap_produit_invendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".xlsx";
+            String filename = "recap_produit_invendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".xlsx";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -151,17 +157,16 @@ public class RecapProduitVenduResource {
      */
     @GetMapping(value = "/invendus/csv", produces = "text/csv")
     @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
-    public ResponseEntity<byte[]> exportInvenduToCsv(@Valid RecapProduitVenduRequestParam requestParam
-    ) {
+    public ResponseEntity<byte[]> exportInvenduToCsv(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] csvData = recapProduitVenduService.exportInvenduToCsv(requestParam);
-            String filename = "recap_produit_invendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
+            String filename = "recap_produit_invendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -176,13 +181,13 @@ public class RecapProduitVenduResource {
     public ResponseEntity<byte[]> exportInvenduToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] pdfData = recapProduitVenduService.exportInvenduToPdf(requestParam);
-            String filename = "recap_produit_invendu_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
+            String filename = "recap_produit_invendu_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -197,13 +202,15 @@ public class RecapProduitVenduResource {
      * déclencher par n'importe quel préchargement.
      */
     @PostMapping("/create-inventory")
-    public ResponseEntity<Integer> createInventoryFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
+    public ResponseEntity<Integer> createInventoryFromRecapProduitVendu(
+            @Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.createInventoryFromRecapProduitVendu(requestParam));
     }
 
     /** Même inversion de verbe que ci-dessus, et même conséquence : l'action était injouable. */
     @PostMapping("/create-suggestion")
-    public ResponseEntity<Integer> createSuggestionFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
+    public ResponseEntity<Integer> createSuggestionFromRecapProduitVendu(
+            @Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.createSuggestionFromRecapProduitVendu(requestParam));
     }
 }

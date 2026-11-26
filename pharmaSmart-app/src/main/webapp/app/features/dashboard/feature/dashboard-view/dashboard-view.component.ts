@@ -1,28 +1,20 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  untracked
-} from '@angular/core';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {Router} from '@angular/router';
-import {catchError, of} from 'rxjs';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {AccountService} from 'app/core/auth/account.service';
-import {IDashboardLayout} from 'app/shared/model/dashboard-layout.model';
-import {ButtonComponent, SkeletonComponent, ToolbarComponent} from 'app/shared/ui';
-import {AllowedWidget} from '../../models/dashboard.model';
-import {parseLayoutConfig} from '../../models/layout-config';
-import {DEFAULT_CONTEXT} from '../../models/period';
-import {widgetAvailability} from '../../models/widget-availability';
-import {DashboardContext} from '../../data-access/dashboard-context';
-import {DashboardWidgetApiService} from '../../data-access/services/dashboard-widget-api.service';
-import {DashboardGridComponent} from '../../ui/dashboard-grid/dashboard-grid.component';
-import {DashboardContextBarComponent} from '../../ui/context-bar/dashboard-context-bar.component';
-import {DashboardViewportDirective} from '../../ui/dashboard-viewport.directive';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { catchError, of } from 'rxjs';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { AccountService } from 'app/core/auth/account.service';
+import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
+import { ButtonComponent, SkeletonComponent, ToolbarComponent } from 'app/shared/ui';
+import { AllowedWidget } from '../../models/dashboard.model';
+import { parseLayoutConfig } from '../../models/layout-config';
+import { DEFAULT_CONTEXT } from '../../models/period';
+import { widgetAvailability } from '../../models/widget-availability';
+import { DashboardContext } from '../../data-access/dashboard-context';
+import { DashboardWidgetApiService } from '../../data-access/services/dashboard-widget-api.service';
+import { DashboardGridComponent } from '../../ui/dashboard-grid/dashboard-grid.component';
+import { DashboardContextBarComponent } from '../../ui/context-bar/dashboard-context-bar.component';
+import { DashboardViewportDirective } from '../../ui/dashboard-viewport.directive';
 
 /**
  * Dashboard personnalisable en lecture seule : l'accueil de l'utilisateur quand il en a choisi un.
@@ -30,19 +22,24 @@ import {DashboardViewportDirective} from '../../ui/dashboard-viewport.directive'
  */
 @Component({
   selector: 'app-dashboard-view',
-  imports: [ToolbarComponent, SkeletonComponent, ButtonComponent, DashboardGridComponent, DashboardContextBarComponent, DashboardViewportDirective],
+  imports: [
+    ToolbarComponent,
+    SkeletonComponent,
+    ButtonComponent,
+    DashboardGridComponent,
+    DashboardContextBarComponent,
+    DashboardViewportDirective,
+  ],
   providers: [DashboardContext],
   template: `
     <div class="pharma-smart-content" appDashboardViewport>
-      <app-toolbar icon="pi pi-th-large" [title]="layout().name ?? 'Tableau de bord'"
-                   [compact]="true">
+      <app-toolbar icon="pi pi-th-large" [title]="layout().name ?? 'Tableau de bord'" [compact]="true">
         <ng-container ngProjectAs="[toolbarFilters]">
           <app-dashboard-context-bar />
         </ng-container>
         <ng-container ngProjectAs="[toolbarActions]">
           @if (canEdit()) {
-            <app-button label="Personnaliser" icon="pi pi-pencil" size="small" [outlined]="true"
-                        (clicked)="edit()" />
+            <app-button label="Personnaliser" icon="pi pi-pencil" size="small" [outlined]="true" (clicked)="edit()" />
           }
         </ng-container>
       </app-toolbar>
@@ -53,8 +50,7 @@ import {DashboardViewportDirective} from '../../ui/dashboard-viewport.directive'
         } @else if (allowed() === null) {
           <app-skeleton height="320px" width="100%" />
         } @else {
-          <app-dashboard-grid [items]="config().items" [availability]="availability()"
-                              [editable]="false" />
+          <app-dashboard-grid [items]="config().items" [availability]="availability()" [editable]="false" />
         }
       </div>
     </div>
@@ -79,7 +75,7 @@ export class DashboardViewComponent {
     inject(DashboardWidgetApiService)
       .allowed()
       .pipe(catchError(() => of<AllowedWidget[]>([]))),
-    {initialValue: null},
+    { initialValue: null },
   );
   protected readonly config = computed(() => parseLayoutConfig(this.layout().layoutConfig).config);
   protected readonly availability = computed(() => {

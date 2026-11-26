@@ -31,10 +31,10 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.dto.CashSaleDTO;
-import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.declaration_ca.DeclarationCaService;
 import com.kobe.warehouse.service.declaration_ca.PonctionService;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
@@ -47,25 +47,24 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -85,22 +84,39 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     private final DeclarationCaService declarationCaService;
     private final PonctionService ponctionService;
 
-    public SaleServiceImpl(SalesRepository salesRepository, UserRepository userRepository,
-                           UninsuredCustomerRepository uninsuredCustomerRepository,
-                           PaymentModeRepository paymentModeRepository, StorageService storageService,
-                           CashSaleRepository cashSaleRepository, CashRegisterService cashRegisterService,
-                           SaleLineServiceFactory saleLineServiceFactory, SaleAmountCalculator saleAmountCalculator, PaymentService paymentService,
-                           ReferenceService referenceService, PosteRepository posteRepository,
-                           UtilisationCleSecuriteService utilisationCleSecuriteService,
-                           RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
-                           SaleIdGeneratorService idGeneratorService, ObjectMapper objectMapper,
-                           SalesManager salesManager,
-                           AppConfigurationService appConfigurationService,
-                           DeclarationCaService declarationCaService,
-                           PonctionService ponctionService) {
-        super(referenceService, storageService, userRepository, saleAmountCalculator,
-            cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
-            objectMapper, appConfigurationService);
+    public SaleServiceImpl(
+            SalesRepository salesRepository,
+            UserRepository userRepository,
+            UninsuredCustomerRepository uninsuredCustomerRepository,
+            PaymentModeRepository paymentModeRepository,
+            StorageService storageService,
+            CashSaleRepository cashSaleRepository,
+            CashRegisterService cashRegisterService,
+            SaleLineServiceFactory saleLineServiceFactory,
+            SaleAmountCalculator saleAmountCalculator,
+            PaymentService paymentService,
+            ReferenceService referenceService,
+            PosteRepository posteRepository,
+            UtilisationCleSecuriteService utilisationCleSecuriteService,
+            RemiseRepository remiseRepository,
+            CustomerDisplayService afficheurPosService,
+            SaleIdGeneratorService idGeneratorService,
+            ObjectMapper objectMapper,
+            SalesManager salesManager,
+            AppConfigurationService appConfigurationService,
+            DeclarationCaService declarationCaService,
+            PonctionService ponctionService) {
+        super(
+                referenceService,
+                storageService,
+                userRepository,
+                saleAmountCalculator,
+                cashRegisterService,
+                posteRepository,
+                afficheurPosService,
+                idGeneratorService,
+                objectMapper,
+                appConfigurationService);
         this.salesRepository = salesRepository;
         this.userRepository = userRepository;
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
@@ -117,11 +133,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     private AppUser getUserFormImport() {
-        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin);
-        return user.orElseGet(() -> userRepository.findOneByLogin(Constants.SYSTEM).orElse(null));
+        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+        return user.orElseGet(
+                () -> userRepository.findOneByLogin(Constants.SYSTEM).orElse(null));
     }
-
 
     @Override
     public CashSale fromDTOOldCashSale(CashSaleDTO dto) {
@@ -145,20 +160,21 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         c.setSalesAmount(dto.getSalesAmount());
         c.setRestToPay(dto.getRestToPay());
         if (StringUtils.isNotEmpty(dto.getUserFullName())) {
-            userRepository.findOneByLogin(dto.getUserFullName())
-                .ifPresentOrElse(c::setUser, () -> c.setUser(getUserFormImport()));
+            userRepository
+                    .findOneByLogin(dto.getUserFullName())
+                    .ifPresentOrElse(c::setUser, () -> c.setUser(getUserFormImport()));
         } else {
             c.setUser(getUserFormImport());
         }
         if (StringUtils.isNotEmpty(dto.getSellerUserName())) {
-            userRepository.findOneByLogin(dto.getSellerUserName())
-                .ifPresentOrElse(c::setSeller, () -> c.setSeller(getUserFormImport()));
+            userRepository
+                    .findOneByLogin(dto.getSellerUserName())
+                    .ifPresentOrElse(c::setSeller, () -> c.setSeller(getUserFormImport()));
         } else {
             c.setSeller(getUserFormImport());
         }
         if (StringUtils.isNotEmpty(dto.getCustomerNum())) {
-            uninsuredCustomerRepository.findOneByCode(dto.getCustomerNum())
-                .ifPresent(c::setCustomer);
+            uninsuredCustomerRepository.findOneByCode(dto.getCustomerNum()).ifPresent(c::setCustomer);
         }
         c.setMagasin(c.getUser().getMagasin());
         return c;
@@ -172,8 +188,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         payment.setReelAmount(dto.getNetAmount());
         payment.setPaidAmount(dto.getPaidAmount());
         payment.setCashRegister(s.getCashRegister());
-        PaymentMode paymentMode = paymentModeRepository.findById(dto.getPaymentCode())
-            .orElse(paymentModeRepository.getReferenceById(Constants.MODE_ESP));
+        PaymentMode paymentMode = paymentModeRepository
+                .findById(dto.getPaymentCode())
+                .orElse(paymentModeRepository.getReferenceById(Constants.MODE_ESP));
         payment.setPaymentMode(paymentMode);
         payment.setSale(s);
         if (s instanceof CashSale) {
@@ -207,15 +224,15 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public CashSaleDTO createCashSale(CashSaleDTO dto)
-        throws StockException, DeconditionnementStockOut {
+    public CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut {
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         CashSale cashSale = new CashSale();
         this.intSale(dto, cashSale);
         cashSale.setCustomer(uninsuredCustomer);
         cashSale.setOrigineVente(OrigineVente.DIRECT);
-        SalesLine saleLine = salesLineService.createSaleLineFromDTO(dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserMainStorage().getId());
+        SalesLine saleLine = salesLineService.createSaleLineFromDTO(
+                dto.getSalesLines().getFirst(),
+                storageService.getDefaultConnectedUserMainStorage().getId());
         cashSale.getSalesLines().add(saleLine);
         upddateCashSaleAmounts(cashSale);
 
@@ -240,41 +257,37 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
-        throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO,
-            findOneById(saleLineDTO.getSaleCompositeId()), increment);
+            throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(
+                saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemQuantitySold(saleLineDTO,
-            findOneById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantitySold(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemRegularPrice(saleLineDTO,
-            findOneById(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemRegularPrice(saleLineDTO, findOneById(saleLineDTO.getSaleCompositeId()));
     }
-
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
         return salesManager.addOrUpdateSaleLine(dto, findOneById(dto.getSaleCompositeId()));
     }
 
-
     private CashSale findOne(SaleId id) {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-
     @Override
     public FinalyseSaleDTO save(CashSaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
-        CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),
-                dto.getSaleId().getSaleDate())
-            .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+            throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
+        CashSale cashSale = cashSaleRepository
+                .findOneWithEagerSalesLines(
+                        dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
+                .orElseThrow(() -> new GenericError("Une erreur est survenue"));
         verifierVersion(cashSale, dto.getVersion());
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
@@ -318,50 +331,51 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public void deleteSalePrevente(SaleId id) {
-        salesRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
-            .ifPresent(sales -> {
-                paymentService.findAllBySales(sales.getId()).forEach(paymentService::delete);
-                sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
-                salesRepository.delete(sales);
-            });
+        salesRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate()).ifPresent(sales -> {
+            paymentService.findAllBySales(sales.getId()).forEach(paymentService::delete);
+            sales.getSalesLines().forEach(salesLineService::deleteSaleLine);
+            salesRepository.delete(sales);
+        });
     }
 
     @Override
     public void cancelCashSale(SaleId id, String cancelComment) throws CashRegisterException {
         checkOpenningCaisse();
         AppUser user = storageService.getUser();
-        cashSaleRepository.findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
-            .ifPresent(sales -> {
-                if (sales.isCanceled()) {
-                    throw new GenericError("La vente est déjà annulée");
-                }
-                if (sales.getStatut() != SalesStatut.CLOSED) {
-                    throw new GenericError("La vente doit être clôturée pour être annulée");
-                }
-                checkCancellationDelay(sales.getSaleDate());
-                // La ponction cède devant l'annulation de vente : son montant a été réparti sur
-                // toutes ses ventes, et n'est pas décomposable ici sans refaire le calcul. La défaire
-                // en entier rétablit des montants exacts ; la laisser en place figerait un écart que
-                // plus rien n'explique. Avant la contrepassation, qui négate le montant rétabli.
-                ponctionService.annulerPourVente(id.getId(), sales.getSaleDate(), sales.getPonctionId());
-                CashSale copy = (CashSale) sales.clone();
-                copySale(sales, copy);
-                copy.setSaleDate(LocalDate.now());
-                sales.setEffectiveUpdateDate(LocalDateTime.now());
-                sales.setCanceled(true);
-                sales.setCancelComment(cancelComment);
-                sales.setCancelledBy(user);
-                copy.setCanceled(true);
+        cashSaleRepository
+                .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
+                .ifPresent(sales -> {
+                    if (sales.isCanceled()) {
+                        throw new GenericError("La vente est déjà annulée");
+                    }
+                    if (sales.getStatut() != SalesStatut.CLOSED) {
+                        throw new GenericError("La vente doit être clôturée pour être annulée");
+                    }
+                    checkCancellationDelay(sales.getSaleDate());
+                    // La ponction cède devant l'annulation de vente : son montant a été réparti sur
+                    // toutes ses ventes, et n'est pas décomposable ici sans refaire le calcul. La défaire
+                    // en entier rétablit des montants exacts ; la laisser en place figerait un écart que
+                    // plus rien n'explique. Avant la contrepassation, qui négate le montant rétabli.
+                    ponctionService.annulerPourVente(id.getId(), sales.getSaleDate(), sales.getPonctionId());
+                    CashSale copy = (CashSale) sales.clone();
+                    copySale(sales, copy);
+                    copy.setSaleDate(LocalDate.now());
+                    sales.setEffectiveUpdateDate(LocalDateTime.now());
+                    sales.setCanceled(true);
+                    sales.setCancelComment(cancelComment);
+                    sales.setCancelledBy(user);
+                    copy.setCanceled(true);
 
-                cashSaleRepository.save(sales);
-                cashSaleRepository.save(copy);
-                paymentService.findAllBySale(sales)
-                    .forEach(payment -> paymentService.clonePayment(payment, copy));
-                salesLineService.cloneSalesLine(sales.getSalesLines(), copy, user,
-                    storageService.getDefaultConnectedUserMainStorage().getId());
-            });
+                    cashSaleRepository.save(sales);
+                    cashSaleRepository.save(copy);
+                    paymentService.findAllBySale(sales).forEach(payment -> paymentService.clonePayment(payment, copy));
+                    salesLineService.cloneSalesLine(
+                            sales.getSalesLines(),
+                            copy,
+                            user,
+                            storageService.getDefaultConnectedUserMainStorage().getId());
+                });
     }
-
 
     @Override
     public void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
@@ -383,9 +397,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public SaleId transformToVenteEncour(SaleId saleId, Long version) {
-        CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLine(saleId.getId(),
-                saleId.getSaleDate())
-            .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        CashSale cashSale = cashSaleRepository
+                .findOneWithEagerSalesLine(saleId.getId(), saleId.getSaleDate())
+                .orElseThrow(() -> new GenericError("Une erreur est survenue"));
         verifierVersion(cashSale, version);
         preValidateTrasnform(cashSale.getStatut(), cashSale.getNatureVente());
         if (cashSale.getStatut() == SalesStatut.DEVIS) {
@@ -398,28 +412,26 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             cashSaleRepository.save(cashSale);
         }
         return saleId;
-
     }
 
     @Override
     public void cloneDevis(SaleId saleId) {
 
-        cashSaleRepository.findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate())
-            .ifPresent(s -> {
-                if (s.getStatut() != SalesStatut.DEVIS) {
-                    throw new GenericError("Une erreur est survenue");
-                }
-                clone(s, SalesStatut.DEVIS);
-            });
+        cashSaleRepository
+                .findOneWithEagerSalesLines(saleId.getId(), saleId.getSaleDate())
+                .ifPresent(s -> {
+                    if (s.getStatut() != SalesStatut.DEVIS) {
+                        throw new GenericError("Une erreur est survenue");
+                    }
+                    clone(s, SalesStatut.DEVIS);
+                });
     }
 
     // java -jar your-application.jar
     // --spring.config.location=file:/path/to/your/additional-config1.yml,file:/path/to/your/additional-config2.yml
     @Override
-    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
-        throws PrivilegeException {
-        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO,
-            ThirdPartySaleService.class);
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException {
+        this.utilisationCleSecuriteService.authorizeAction(utilisationCleSecuriteDTO, ThirdPartySaleService.class);
     }
 
     @Override
@@ -451,10 +463,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId,
-                                                                                LocalDate saleDate) {
-        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId,
-            saleDate);
+    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate) {
+        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate);
     }
 
     private SaleId clone(CashSale cashSale, SalesStatut salesStatut) {

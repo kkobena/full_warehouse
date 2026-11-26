@@ -37,7 +37,8 @@ export const SALES_ROUTES: Routes = [
   },
   {
     path: 'gestion',
-    loadComponent: () => import('./feature/sales-management-home/sales-management-home.component').then(m => m.SalesManagementHomeComponent),
+    loadComponent: () =>
+      import('./feature/sales-management-home/sales-management-home.component').then(m => m.SalesManagementHomeComponent),
     canActivate: [AuthGuard],
     data: {
       pageTitle: 'Gestion des ventes',
@@ -49,6 +50,5 @@ export const SALES_ROUTES: Routes = [
     loadComponent: () => import('./feature/vente-depot/vente-depot.component').then(m => m.VenteDepotComponent),
     canActivate: [AuthGuard],
     data: { pageTitle: 'Vente dépôt', abilitySubject: 'depot.liste-depots' },
-  }
-
+  },
 ];

@@ -16,7 +16,11 @@ scenario('FAC-44', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/facturation');
     await ouvrirOnglet(page, /Remises & RFA/);
-    await page.getByRole('tab').filter({ hasText: /Avoirs reçus/ }).first().click();
+    await page
+      .getByRole('tab')
+      .filter({ hasText: /Avoirs reçus/ })
+      .first()
+      .click();
     await expect(contenu).toContainText('N° Avoir');
   });
 

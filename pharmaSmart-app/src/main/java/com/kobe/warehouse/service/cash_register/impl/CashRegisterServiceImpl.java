@@ -15,7 +15,6 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterDTO;
@@ -26,9 +25,9 @@ import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentType;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,7 +37,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -56,7 +54,12 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     private final UserService userService;
     private final PorteeMagasinService porteeMagasinService;
 
-    public CashRegisterServiceImpl(CashRegisterRepository cashRegisterRepository, AppConfigurationService appConfigurationService, CashFundService cashFundService, UserService userService, PorteeMagasinService porteeMagasinService) {
+    public CashRegisterServiceImpl(
+            CashRegisterRepository cashRegisterRepository,
+            AppConfigurationService appConfigurationService,
+            CashFundService cashFundService,
+            UserService userService,
+            PorteeMagasinService porteeMagasinService) {
         this.cashRegisterRepository = cashRegisterRepository;
         this.appConfigurationService = appConfigurationService;
         this.cashFundService = cashFundService;
@@ -109,14 +112,19 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner)throws CashRegisterException,NonClosedCashRegisterException {
-        AppConfiguration appConfiguration = this.appConfigurationService.findOneById(EntityConstant.APP_CASH_FUND).orElse(null);
-        if (Objects.nonNull(appConfiguration) && Integer.parseInt(appConfiguration.getValue().trim()) == 1) {
+    public CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner)
+            throws CashRegisterException, NonClosedCashRegisterException {
+        AppConfiguration appConfiguration = this.appConfigurationService
+                .findOneById(EntityConstant.APP_CASH_FUND)
+                .orElse(null);
+        if (Objects.nonNull(appConfiguration)
+                && Integer.parseInt(appConfiguration.getValue().trim()) == 1) {
             if (this.hasOpenCashRegister()) {
                 throw new NonClosedCashRegisterException();
             }
             CashRegister cashRegister = create(cashRegisterOwner);
-            CashFund cashFund = this.cashFundService.allocateCashFund(convertInteger(appConfiguration.getOtherValue()), CashFundType.AUTO, cashRegisterOwner, user);
+            CashFund cashFund = this.cashFundService.allocateCashFund(
+                    convertInteger(appConfiguration.getOtherValue()), CashFundType.AUTO, cashRegisterOwner, user);
             cashFund.setCashRegister(cashRegister);
             cashFund.setStatut(CashFundStatut.VALIDETED);
             cashRegister.setCashFund(cashFund);
@@ -129,7 +137,9 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     @Override
     public boolean checkAutomaticFundAllocation() {
-        AppConfiguration appConfiguration = this.appConfigurationService.findOneById(EntityConstant.APP_CASH_FUND).orElse(null);
+        AppConfiguration appConfiguration = this.appConfigurationService
+                .findOneById(EntityConstant.APP_CASH_FUND)
+                .orElse(null);
         if (appConfiguration == null) {
             return false;
         } else {
@@ -165,11 +175,14 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     private void buildSaleItems(CashRegister cashRegister) {
-        List<CashRegisterVenteSpecialisation> salesData = this.cashRegisterRepository.findCashRegisterSalesDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(SalesStatut.CLOSED.name()));
+        List<CashRegisterVenteSpecialisation> salesData = this.cashRegisterRepository.findCashRegisterSalesDataById(
+                cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(SalesStatut.CLOSED.name()));
 
-        salesData.stream().collect(Collectors.groupingBy(CashRegisterVenteSpecialisation::getTypeVente)).forEach((typeFinancialTransaction, data) -> {
-            buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
-        });
+        salesData.stream()
+                .collect(Collectors.groupingBy(CashRegisterVenteSpecialisation::getTypeVente))
+                .forEach((typeFinancialTransaction, data) -> {
+                    buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
+                });
     }
 
     /**
@@ -184,28 +197,44 @@ public class CashRegisterServiceImpl implements CashRegisterService {
      * espèces, c'était une sortie de tiroir que le détail n'expliquait pas.
      */
     private void buildTransactions(CashRegister cashRegister) {
-        List<CashRegisterTransactionSpecialisation> mvtData = this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(PaymentType.SalePayment.name()));
-        mvtData.stream().collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction)).forEach((typeTransaction, data) -> {
-            TypeFinancialTransaction typeFinancialTransaction = switch (typeTransaction) {
-                case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, CAUTION -> null;
-                case REGLEMENT_DIFFERE -> TypeFinancialTransaction.REGLEMENT_DIFFERE;
-                case REGLEMENT_TIERS_PAYANT -> TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT;
-                case SORTIE_CAISSE -> TypeFinancialTransaction.SORTIE_CAISSE;
-                case ENTREE_CAISSE -> TypeFinancialTransaction.ENTREE_CAISSE;
-                case FONDS_CAISSE -> TypeFinancialTransaction.FONDS_CAISSE;
-                case REGLMENT_FOURNISSEUR -> TypeFinancialTransaction.REGLMENT_FOURNISSEUR;
-            };
-            buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
-        });
+        List<CashRegisterTransactionSpecialisation> mvtData = this.cashRegisterRepository.findCashRegisterMvtDataById(
+                cashRegister.getId(),
+                Set.of(CategorieChiffreAffaire.CA.name()),
+                Set.of(PaymentType.SalePayment.name()));
+        mvtData.stream()
+                .collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction))
+                .forEach((typeTransaction, data) -> {
+                    TypeFinancialTransaction typeFinancialTransaction = switch (typeTransaction) {
+                        case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, CAUTION -> null;
+                        case REGLEMENT_DIFFERE -> TypeFinancialTransaction.REGLEMENT_DIFFERE;
+                        case REGLEMENT_TIERS_PAYANT -> TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT;
+                        case SORTIE_CAISSE -> TypeFinancialTransaction.SORTIE_CAISSE;
+                        case ENTREE_CAISSE -> TypeFinancialTransaction.ENTREE_CAISSE;
+                        case FONDS_CAISSE -> TypeFinancialTransaction.FONDS_CAISSE;
+                        case REGLMENT_FOURNISSEUR -> TypeFinancialTransaction.REGLMENT_FOURNISSEUR;
+                    };
+                    buildCashRegisterItems(data, cashRegister, typeFinancialTransaction);
+                });
     }
 
-    private void buildCashRegisterItems(List<? extends CashRegisterSpecialisation> data, CashRegister cashRegister, TypeFinancialTransaction typeFinancialTransaction) {
-        data.stream().collect(Collectors.groupingBy(CashRegisterSpecialisation::getPaymentModeCode)).forEach((modePaymentCode, data1) -> {
-            CashRegisterItem cashRegisterItem = new CashRegisterItem().setTypeFinancialTransaction(typeFinancialTransaction).setPaymentMode(fromCode(modePaymentCode)).setAmount(data1.stream().map(CashRegisterSpecialisation::getPaidAmount).reduce(new BigDecimal(0), BigDecimal::add).longValue());
+    private void buildCashRegisterItems(
+            List<? extends CashRegisterSpecialisation> data,
+            CashRegister cashRegister,
+            TypeFinancialTransaction typeFinancialTransaction) {
+        data.stream()
+                .collect(Collectors.groupingBy(CashRegisterSpecialisation::getPaymentModeCode))
+                .forEach((modePaymentCode, data1) -> {
+                    CashRegisterItem cashRegisterItem = new CashRegisterItem()
+                            .setTypeFinancialTransaction(typeFinancialTransaction)
+                            .setPaymentMode(fromCode(modePaymentCode))
+                            .setAmount(data1.stream()
+                                    .map(CashRegisterSpecialisation::getPaidAmount)
+                                    .reduce(new BigDecimal(0), BigDecimal::add)
+                                    .longValue());
 
-            cashRegisterItem.setCashRegister(cashRegister);
-            cashRegister.getCashRegisterItems().add(cashRegisterItem);
-        });
+                    cashRegisterItem.setCashRegister(cashRegister);
+                    cashRegister.getCashRegisterItems().add(cashRegisterItem);
+                });
     }
 
     @Override
@@ -215,7 +244,8 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public Page<CashRegisterDTO> fetchCashRegisters(FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {
+    public Page<CashRegisterDTO> fetchCashRegisters(
+            FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {
         return loadCashRegisters(fetchCashRegisterParams, pageable).map(CashRegisterDTO::new);
     }
 
@@ -226,21 +256,35 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     @Override
     public List<CashRegisterDTO> getConnectedUserNonClosedCashRegisters() {
-        Specification<CashRegister> cashRegisterSpecification = this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING));
+        Specification<CashRegister> cashRegisterSpecification =
+                this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING));
 
-        cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisation(userService.getUser().getId()));
+        cashRegisterSpecification = cashRegisterSpecification.and(
+                this.cashRegisterRepository.specialisation(userService.getUser().getId()));
 
-        return this.cashRegisterRepository.findAll(cashRegisterSpecification).stream().sorted(Comparator.comparing(CashRegister::getCreated).reversed()).map(CashRegisterDTO::new).collect(Collectors.toList());
+        return this.cashRegisterRepository.findAll(cashRegisterSpecification).stream()
+                .sorted(Comparator.comparing(CashRegister::getCreated).reversed())
+                .map(CashRegisterDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public int getCanceledAmount(CashRegister cashRegister) {
-        return this.cashRegisterRepository.findCashRegisterSalesDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(SalesStatut.CANCELED.name())).stream().map(CashRegisterVenteSpecialisation::getPaidAmount).reduce(BigDecimal.ZERO, BigDecimal::add).intValue();
+        return this.cashRegisterRepository
+                .findCashRegisterSalesDataById(
+                        cashRegister.getId(),
+                        Set.of(CategorieChiffreAffaire.CA.name()),
+                        Set.of(SalesStatut.CANCELED.name()))
+                .stream()
+                .map(CashRegisterVenteSpecialisation::getPaidAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .intValue();
     }
 
     @Override
     public boolean hasOpenCashRegister() {
-        return this.cashRegisterRepository.existsByUserIdAndStatut(userService.getUser().getId(), CashRegisterStatut.OPEN);
+        return this.cashRegisterRepository.existsByUserIdAndStatut(
+                userService.getUser().getId(), CashRegisterStatut.OPEN);
     }
 
     /**
@@ -260,25 +304,30 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         // Cloisonnement : on ne voit que les caisses des magasins qu'on a le droit de lire. Sans le
         // droit de supervision, la portee se limite a son propre magasin.
         Specification<CashRegister> cashRegisterSpecification = this.cashRegisterRepository
-            .specialisationMagasins(restreindreALaPortee(fetchCashRegisterParams.magasinId()))
-            .and(this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts()));
+                .specialisationMagasins(restreindreALaPortee(fetchCashRegisterParams.magasinId()))
+                .and(this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts()));
         if (Objects.nonNull(fetchCashRegisterParams.userId())) {
-            cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisation(fetchCashRegisterParams.userId()));
+            cashRegisterSpecification = cashRegisterSpecification.and(
+                    this.cashRegisterRepository.specialisation(fetchCashRegisterParams.userId()));
         }
         if (Objects.nonNull(fetchCashRegisterParams.fromDate()) && Objects.nonNull(fetchCashRegisterParams.toDate())) {
             var fromDate = LocalDateTime.of(fetchCashRegisterParams.fromDate(), LocalTime.MIN);
             var toDate = LocalDateTime.of(fetchCashRegisterParams.toDate(), LocalTime.MAX);
-            cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisation(fromDate, toDate));
+            cashRegisterSpecification =
+                    cashRegisterSpecification.and(this.cashRegisterRepository.specialisation(fromDate, toDate));
         }
         if (StringUtils.hasLength(fetchCashRegisterParams.beginTime())) {
             LocalDateTime begin = DateUtil.fromString(fetchCashRegisterParams.beginTime());
-            cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisationBeginTime(begin));
+            cashRegisterSpecification =
+                    cashRegisterSpecification.and(this.cashRegisterRepository.specialisationBeginTime(begin));
 
             if (StringUtils.hasLength(fetchCashRegisterParams.endTime())) {
                 LocalDateTime end = DateUtil.fromString(fetchCashRegisterParams.endTime());
-                cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisationEndTime(end));
+                cashRegisterSpecification =
+                        cashRegisterSpecification.and(this.cashRegisterRepository.specialisationEndTime(end));
             } else {
-                cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisationEndTime(LocalDateTime.now()));
+                cashRegisterSpecification = cashRegisterSpecification.and(
+                        this.cashRegisterRepository.specialisationEndTime(LocalDateTime.now()));
             }
         }
         return this.cashRegisterRepository.findAll(cashRegisterSpecification, pageable);

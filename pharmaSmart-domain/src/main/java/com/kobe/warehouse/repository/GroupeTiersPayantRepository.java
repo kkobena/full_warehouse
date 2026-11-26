@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GroupeTiersPayantRepository
-    extends JpaRepository<GroupeTiersPayant, Integer>, JpaSpecificationExecutor<GroupeTiersPayant> {
+        extends JpaRepository<GroupeTiersPayant, Integer>, JpaSpecificationExecutor<GroupeTiersPayant> {
     Optional<GroupeTiersPayant> findOneByName(String String);
 
     @Query("""

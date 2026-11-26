@@ -9,7 +9,6 @@ import com.kobe.warehouse.service.dto.pilotage.AxeAnalyseDTO;
 import com.kobe.warehouse.service.dto.pilotage.IndicateurPilotageDTO;
 import com.kobe.warehouse.service.errors.ForbiddenOperationException;
 import com.kobe.warehouse.service.pilotage.DictionnaireIndicateursService;
-import com.kobe.warehouse.service.pilotage.calcul.Ventilation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -30,33 +29,38 @@ public class DictionnaireIndicateursServiceImpl implements DictionnaireIndicateu
     public List<IndicateurPilotageDTO> listerIndicateursAutorises() {
         Set<DroitPilotage> droitsAccordes = lireDroitsAccordes();
         return Arrays.stream(IndicateurPilotage.values())
-            .filter(indicateur -> droitsAccordes.contains(indicateur.getDroit()))
-            .map(IndicateurPilotageDTO::fromIndicateur)
-            .toList();
+                .filter(indicateur -> droitsAccordes.contains(indicateur.getDroit()))
+                .map(IndicateurPilotageDTO::fromIndicateur)
+                .toList();
     }
 
     @Override
     public List<IndicateurPilotage> filtrerAutorises(List<IndicateurPilotage> demandes) {
         Set<DroitPilotage> droitsAccordes = lireDroitsAccordes();
-        return demandes.stream().filter(indicateur -> droitsAccordes.contains(indicateur.getDroit())).toList();
+        return demandes.stream()
+                .filter(indicateur -> droitsAccordes.contains(indicateur.getDroit()))
+                .toList();
     }
 
     @Override
     public List<AxeAnalyseDTO> listerAxesAutorises() {
         Set<DroitPilotage> droitsAccordes = lireDroitsAccordes();
-        return Arrays.stream(AxeAnalyse.values()).filter(axe -> axe.estPropose() && droitsAccordes.contains(axe.getDroit())).map(AxeAnalyseDTO::fromAxe).toList();
+        return Arrays.stream(AxeAnalyse.values())
+                .filter(axe -> axe.estPropose() && droitsAccordes.contains(axe.getDroit()))
+                .map(AxeAnalyseDTO::fromAxe)
+                .toList();
     }
 
     @Override
     public void verifierAxesAutorises(Collection<AxeAnalyse> axes) {
         Set<DroitPilotage> droitsAccordes = lireDroitsAccordes();
-        axes
-            .stream()
-            .filter(axe -> !droitsAccordes.contains(axe.getDroit()))
-            .findFirst()
-            .ifPresent(axe -> {
-                throw new ForbiddenOperationException("Ventilation non autorisée : " + axe.getLibelle(), "pilotageAxeInterdit");
-            });
+        axes.stream()
+                .filter(axe -> !droitsAccordes.contains(axe.getDroit()))
+                .findFirst()
+                .ifPresent(axe -> {
+                    throw new ForbiddenOperationException(
+                            "Ventilation non autorisée : " + axe.getLibelle(), "pilotageAxeInterdit");
+                });
     }
 
     /** Un appel par droit plutôt que par indicateur : plusieurs indicateurs partagent le même onglet. */

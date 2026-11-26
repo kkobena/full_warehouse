@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface RequiresNavAccess {
     /** Codes {@code nav_item} acceptés. */
     String[] value();

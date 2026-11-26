@@ -6,14 +6,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record ProduitAuditing(
-    AuditType auditType,
-    Integer qtyMvt,
-    Integer beforeStock,
-    Integer afterStock,
-    LocalDateTime updated,
-    LocalDate mvtDate,
-    Boolean canceled,
-    String saleType,
-    TypeDeconditionnement typeDeconditionnement,
-    AjustType ajustType
-) {}
+        AuditType auditType,
+        Integer qtyMvt,
+        Integer beforeStock,
+        Integer afterStock,
+        LocalDateTime updated,
+        LocalDate mvtDate,
+        Boolean canceled,
+        String saleType,
+        TypeDeconditionnement typeDeconditionnement,
+        AjustType ajustType) {}

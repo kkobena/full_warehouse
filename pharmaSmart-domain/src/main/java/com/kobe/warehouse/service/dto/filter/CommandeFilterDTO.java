@@ -17,7 +17,7 @@ public class CommandeFilterDTO {
     private String typeSuggession;
     private Sort orderBy;
     private LocalDate orderDate;
-    private TypeDeliveryReceipt type=TypeDeliveryReceipt.ORDER;
+    private TypeDeliveryReceipt type = TypeDeliveryReceipt.ORDER;
     /** Portée de lecture. Vide ou nulle : aucune restriction, pour les appels internes et les batchs. */
     private Set<Integer> magasinIds;
 
@@ -29,7 +29,6 @@ public class CommandeFilterDTO {
         this.magasinIds = magasinIds;
         return this;
     }
-
 
     public Sort getOrderBy() {
         return orderBy;
@@ -114,26 +113,24 @@ public class CommandeFilterDTO {
 
     @Override
     public String toString() {
-        String sb =
-            "CommandeFilterDTO{" +
-            "search='" +
-            search +
-            '\'' +
-            ", searchCommande='" +
-            searchCommande +
-            '\'' +
-            ", commandeId=" +
-            commandeId +
-            ", orderStatuts=" +
-            orderStatuts +
-            ", filterCommaneEnCours=" +
-            filterCommaneEnCours +
-            ", typeSuggession='" +
-            typeSuggession +
-            '\'' +
-            ", orderBy=" +
-            orderBy +
-            '}';
+        String sb = "CommandeFilterDTO{" + "search='"
+                + search
+                + '\''
+                + ", searchCommande='"
+                + searchCommande
+                + '\''
+                + ", commandeId="
+                + commandeId
+                + ", orderStatuts="
+                + orderStatuts
+                + ", filterCommaneEnCours="
+                + filterCommaneEnCours
+                + ", typeSuggession='"
+                + typeSuggession
+                + '\''
+                + ", orderBy="
+                + orderBy
+                + '}';
         return sb;
     }
 }

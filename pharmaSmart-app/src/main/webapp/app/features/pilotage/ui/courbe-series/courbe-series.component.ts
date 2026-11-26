@@ -18,7 +18,13 @@ const FORMES = ['circle', 'rect', 'triangle', 'rectRot'];
 @Component({
   selector: 'app-courbe-series',
   imports: [ChartComponent],
-  template: `<app-chart [ariaLabel]="description()" [data]="configuration().data" [options]="configuration().options" height="260" type="line" />`,
+  template: `<app-chart
+    [ariaLabel]="description()"
+    [data]="configuration().data"
+    [options]="configuration().options"
+    height="260"
+    type="line"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourbeSeriesComponent {
@@ -55,7 +61,10 @@ export class CourbeSeriesComponent {
         plugins: { legend: { labels: { color: couleurs.text, usePointStyle: true } } },
         scales: {
           x: { ticks: { color: couleurs.textMuted }, grid: { color: couleurs.border } },
-          y: { ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) }, grid: { color: couleurs.border } },
+          y: {
+            ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) },
+            grid: { color: couleurs.border },
+          },
         },
       },
     };

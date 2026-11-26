@@ -1,32 +1,31 @@
-import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  DetailGridComponent,
-  DetailSectionComponent,
-  SwitchComponent
-} from "app/shared/ui";
-import {IProduit} from 'app/shared/model/produit.model';
-import {IFournisseurProduit} from 'app/shared/model/fournisseur-produit.model';
-import {ProduitService} from 'app/entities/produit/produit.service';
-import {
-  NgbConfirmDialogService
-} from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {
-  FormProduitFournisseurComponent
-} from 'app/entities/produit/form-produit-fournisseur/form-produit-fournisseur.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, SwitchComponent } from 'app/shared/ui';
+import { IProduit } from 'app/shared/model/produit.model';
+import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
+import { ProduitService } from 'app/entities/produit/produit.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { FormProduitFournisseurComponent } from 'app/entities/produit/form-produit-fournisseur/form-produit-fournisseur.component';
 
-import {formatNumber} from 'app/shared/utils/format-utils';
+import { formatNumber } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'app-produit-fournisseurs-tab',
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent, DetailGridComponent, DetailSectionComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    NgbTooltip,
+    ButtonComponent,
+    SwitchComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
+  ],
 })
 export class ProduitFournisseursTabComponent {
   readonly produit = input.required<IProduit>();
@@ -46,14 +45,13 @@ export class ProduitFournisseursTabComponent {
     const modalRef = this.modalService.open(FormProduitFournisseurComponent, {
       centered: true,
       size: 'xl',
-      backdrop: 'static'
+      backdrop: 'static',
     });
     modalRef.componentInstance.header = 'Ajouter un fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.result.then(
       () => this.refreshRequested.emit(),
-      () => {
-      },
+      () => {},
     );
   }
 
@@ -64,15 +62,14 @@ export class ProduitFournisseursTabComponent {
     const modalRef = this.modalService.open(FormProduitFournisseurComponent, {
       centered: true,
       size: 'xl',
-      backdrop: 'static'
+      backdrop: 'static',
     });
     modalRef.componentInstance.header = 'Modifier le fournisseur';
     modalRef.componentInstance.produit = this.produit();
     modalRef.componentInstance.entity = fp;
     modalRef.result.then(
       () => this.refreshRequested.emit(),
-      () => {
-      },
+      () => {},
     );
   }
 

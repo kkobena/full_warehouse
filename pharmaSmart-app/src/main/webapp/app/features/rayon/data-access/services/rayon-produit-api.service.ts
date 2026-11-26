@@ -3,9 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { IResponseDto } from '../../../../shared/util/response-dto';
-import { IProduit } from "../../../../shared/model";
+import { IProduit } from '../../../../shared/model';
 import { createRequestOptions } from '../../../../shared/util/request-util';
-import { IRayonProduit } from "../../models/rayon-produit.model";
+import { IRayonProduit } from '../../models/rayon-produit.model';
 
 export interface ProduitsRayonParams {
   page?: number;
@@ -42,7 +42,7 @@ export class RayonProduitApiService {
   }
 
   searchProduits(query: string): Observable<HttpResponse<IProduit[]>> {
-    const options = createRequestOptions({ search:query, size: 20 });
+    const options = createRequestOptions({ search: query, size: 20 });
     return this.http.get<IProduit[]>(this.produitUrl, { params: options, observe: 'response' });
   }
 

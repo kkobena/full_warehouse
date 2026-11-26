@@ -50,7 +50,9 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         RetourBonDTO retour = services.retourBonService.create(demandeDeRetour(ligneCommande, produit, 12));
         viderLeCache();
 
-        assertEquals("RET-" + java.time.Year.now().getValue() + "-" + String.format("%04d", retour.getId()), retour.getReference());
+        assertEquals(
+                "RET-" + java.time.Year.now().getValue() + "-" + String.format("%04d", retour.getId()),
+                retour.getReference());
         assertEquals(RetourStatut.VALIDATED, retour.getStatut());
         assertEquals(28, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayon.getId()));
 
@@ -75,7 +77,10 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(50, compter("SELECT init_stock FROM retour_bon_item WHERE retour_bon_id = " + retour.getId()));
         assertEquals(38, compter("SELECT after_stock FROM retour_bon_item WHERE retour_bon_id = " + retour.getId()));
         assertEquals(38, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayon.getId()));
-        assertEquals(10, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockReserve.getId()), "la réserve n'est pas touchée");
+        assertEquals(
+                10,
+                compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockReserve.getId()),
+                "la réserve n'est pas touchée");
     }
 
     @Test
@@ -88,9 +93,9 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         RetourBonDTO demande = demandeDeRetour(ligneCommande, produit, 12);
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourBonService.create(demande)).getMessage().contains("Stock insuffisant")
-        );
+        assertTrue(assertThrows(GenericError.class, () -> services.retourBonService.create(demande))
+                .getMessage()
+                .contains("Stock insuffisant"));
     }
 
     @Test
@@ -130,11 +135,9 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         RetourBonDTO second = demandeDeRetour(ligneCommande, produit, 15);
         second.getRetourBonItems().getFirst().setLotId(lot.getId());
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourBonService.create(second))
+        assertTrue(assertThrows(GenericError.class, () -> services.retourBonService.create(second))
                 .getMessage()
-                .contains("Quantité insuffisante dans le lot")
-        );
+                .contains("Quantité insuffisante dans le lot"));
     }
 
     @Test
@@ -164,11 +167,15 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
         assertEquals(28, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayon.getId()));
 
-        RetourBonDTO correction = demandeDeRetour(ligneCommande, produit, 5).setId(retour.getId()).setCommentaire("corrigé");
+        RetourBonDTO correction =
+                demandeDeRetour(ligneCommande, produit, 5).setId(retour.getId()).setCommentaire("corrigé");
         services.retourBonService.update(correction);
         viderLeCache();
 
-        assertEquals(35, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayon.getId()), "40 rendu puis 5 repris");
+        assertEquals(
+                35,
+                compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockRayon.getId()),
+                "40 rendu puis 5 repris");
         assertEquals(1, compter("SELECT COUNT(*) FROM retour_bon_item WHERE retour_bon_id = " + retour.getId()));
         assertEquals(5, compter("SELECT qty_mvt FROM retour_bon_item WHERE retour_bon_id = " + retour.getId()));
         assertEquals("corrigé", em.find(RetourBon.class, retour.getId()).getCommentaire());
@@ -208,27 +215,23 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         RetourBonDTO retour = services.retourBonService.create(demandeDeRetour(ligneCommande, produit, 12));
         viderLeCache();
 
-        assertEquals(RetourStatut.PROCESSING, services.retourBonService.markAsProcessing(retour.getId()).getStatut());
+        assertEquals(
+                RetourStatut.PROCESSING,
+                services.retourBonService.markAsProcessing(retour.getId()).getStatut());
         viderLeCache();
 
         Integer id = retour.getId();
         RetourBonDTO correction = demandeDeRetour(ligneCommande, produit, 5).setId(id);
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourBonService.update(correction))
+        assertTrue(assertThrows(GenericError.class, () -> services.retourBonService.update(correction))
                 .getMessage()
-                .contains("en attente peuvent être modifiés")
-        );
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourBonService.delete(id))
+                .contains("en attente peuvent être modifiés"));
+        assertTrue(assertThrows(GenericError.class, () -> services.retourBonService.delete(id))
                 .getMessage()
-                .contains("en attente peuvent être supprimés")
-        );
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.retourBonService.markAsProcessing(id))
+                .contains("en attente peuvent être supprimés"));
+        assertTrue(assertThrows(GenericError.class, () -> services.retourBonService.markAsProcessing(id))
                 .getMessage()
-                .contains("en attente peuvent être marqués")
-        );
+                .contains("en attente peuvent être marqués"));
     }
 
     @Test
@@ -279,25 +282,31 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
         LocalDate lendemain = LocalDate.now().plusDays(1);
 
         assertEquals(
-            1,
-            services.retourBonService.findAll(RetourStatut.PROCESSING, null, veille, lendemain, null, PageRequest.of(0, 20)).getTotalElements()
-        );
+                1,
+                services.retourBonService
+                        .findAll(RetourStatut.PROCESSING, null, veille, lendemain, null, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertEquals(
-            1,
-            services.retourBonService.findAll(null, RetourStatut.PROCESSING, veille, lendemain, null, PageRequest.of(0, 20)).getTotalElements(),
-            "le filtre d'exclusion écarte les retours pris en charge"
-        );
+                1,
+                services.retourBonService
+                        .findAll(null, RetourStatut.PROCESSING, veille, lendemain, null, PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "le filtre d'exclusion écarte les retours pris en charge");
         assertEquals(
-            1,
-            services.retourBonService.findAll(null, null, null, null, enAttente.getReference(), PageRequest.of(0, 20)).getTotalElements()
-        );
+                1,
+                services.retourBonService
+                        .findAll(null, null, null, null, enAttente.getReference(), PageRequest.of(0, 20))
+                        .getTotalElements());
         assertTrue(
-            services.retourBonService
-                .findAll(null, null, veille.minusDays(30), veille.minusDays(10), null, PageRequest.of(0, 20))
-                .isEmpty(),
-            "hors période, rien ne remonte"
-        );
-        assertEquals(2, services.retourBonService.findAllByCommande(ligneCommande.getCommande().getId().getId(), LocalDate.now()).size());
+                services.retourBonService
+                        .findAll(null, null, veille.minusDays(30), veille.minusDays(10), null, PageRequest.of(0, 20))
+                        .isEmpty(),
+                "hors période, rien ne remonte");
+        assertEquals(
+                2,
+                services.retourBonService
+                        .findAllByCommande(ligneCommande.getCommande().getId().getId(), LocalDate.now())
+                        .size());
     }
 
     /**
@@ -319,7 +328,8 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         services.retourBonService.markAsProcessing(retour.getId());
         viderLeCache();
-        assertEquals(depart + 1, services.retourBonService.countEnAttente(), "un retour pris en charge reste à traiter");
+        assertEquals(
+                depart + 1, services.retourBonService.countEnAttente(), "un retour pris en charge reste à traiter");
 
         em.find(RetourBon.class, retour.getId()).setStatut(RetourStatut.CLOSED);
         viderLeCache();
@@ -344,22 +354,21 @@ class RetourBonServiceIntegrationTest extends AbstractStockIntegrationTest {
 
     private RetourBonDTO demandeDeRetour(OrderLine ligneCommande, Produit produit, int quantite) {
         RetourBonItemDTO ligne = new RetourBonItemDTO()
-            .setProduitId(produit.getId())
-            .setProduitCip(produit.getFournisseurProduitPrincipal().getCodeCip())
-            .setQtyMvt(quantite)
-            .setMotifRetourId(premierMotif().getId())
-            .setOrderLineId(ligneCommande.getId().getId())
-            .setOrderLineOrderDate(ligneCommande.getId().getOrderDate());
+                .setProduitId(produit.getId())
+                .setProduitCip(produit.getFournisseurProduitPrincipal().getCodeCip())
+                .setQtyMvt(quantite)
+                .setMotifRetourId(premierMotif().getId())
+                .setOrderLineId(ligneCommande.getId().getId())
+                .setOrderLineOrderDate(ligneCommande.getId().getOrderDate());
         return new RetourBonDTO()
-            .setCommandeId(ligneCommande.getCommande().getId().getId())
-            .setCommandeOrderDate(ligneCommande.getCommande().getId().getOrderDate())
-            .setRetourBonItems(new java.util.ArrayList<>(List.of(ligne)));
+                .setCommandeId(ligneCommande.getCommande().getId().getId())
+                .setCommandeOrderDate(ligneCommande.getCommande().getId().getOrderDate())
+                .setRetourBonItems(new java.util.ArrayList<>(List.of(ligne)));
     }
 
     private MotifRetourProduit premierMotif() {
-        return em
-            .createQuery("SELECT m FROM MotifRetourProduit m ORDER BY m.id", MotifRetourProduit.class)
-            .setMaxResults(1)
-            .getSingleResult();
+        return em.createQuery("SELECT m FROM MotifRetourProduit m ORDER BY m.id", MotifRetourProduit.class)
+                .setMaxResults(1)
+                .getSingleResult();
     }
 }

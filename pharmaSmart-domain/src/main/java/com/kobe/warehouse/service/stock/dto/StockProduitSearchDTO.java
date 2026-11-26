@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.stock.dto;
 
 import com.kobe.warehouse.service.dto.StockProduitDTO;
-
 import java.util.List;
 
 public class StockProduitSearchDTO {

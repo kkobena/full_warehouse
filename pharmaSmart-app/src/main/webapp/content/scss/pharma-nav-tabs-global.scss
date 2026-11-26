@@ -91,7 +91,9 @@
         pointer-events: none;
         color: $gray-400;
 
-        i { color: $gray-400; }
+        i {
+          color: $gray-400;
+        }
       }
     }
   }
@@ -100,4 +102,3 @@
     padding: 0.3rem 0;
   }
 }
-

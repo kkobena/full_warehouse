@@ -17,7 +17,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
   templateUrl: './reconciliation-facture.component.html',
   styleUrls: ['./reconciliation-facture.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, KeyFilterDirective, DevisePipe]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, KeyFilterDirective, DevisePipe],
 })
 export class ReconciliationFactureComponent implements OnInit {
   commande!: ICommande;

@@ -6,7 +6,14 @@ import { GrilleObjectifs, Indicateur, SuiviMois, SuiviObjectifs } from '../../mo
 import { SaisieObjectifsComponent } from './saisie-objectifs.component';
 import { SuiviObjectifsComponent } from './suivi-objectifs.component';
 
-const CA = { code: 'CA_TTC', libelle: "Chiffre d'affaires TTC", definition: '', unite: 'MONTANT', sensFavorable: 'HAUSSE', droit: 'pilotage' } as Indicateur;
+const CA = {
+  code: 'CA_TTC',
+  libelle: "Chiffre d'affaires TTC",
+  definition: '',
+  unite: 'MONTANT',
+  sensFavorable: 'HAUSSE',
+  droit: 'pilotage',
+} as Indicateur;
 const mois = (numero: number, objectif: number | null, realise: number | null, tenu: boolean | null, enCours = false): SuiviMois => ({
   mois: numero,
   objectif,
@@ -22,13 +29,28 @@ const SUIVI: SuiviObjectifs = {
   indicateurs: [
     {
       indicateur: CA,
-      mois: [mois(1, 900, 1000, true), mois(2, 1200, 1000, false), ...Array.from({ length: 10 }, (_, rang) => mois(rang + 3, null, null, null, rang + 3 === 10))],
+      mois: [
+        mois(1, 900, 1000, true),
+        mois(2, 1200, 1000, false),
+        ...Array.from({ length: 10 }, (_, rang) => mois(rang + 3, null, null, null, rang + 3 === 10)),
+      ],
       cumul: mois(2, 2100, 2000, false),
-      projection: { realiseADate: 1000, projection: 3333, objectif: 5000, atteinteProjetee: 66.7, tenu: false, methode: "D'après octobre 2025 : au même jour, 30 % du mois était fait." },
+      projection: {
+        realiseADate: 1000,
+        projection: 3333,
+        objectif: 5000,
+        atteinteProjetee: 66.7,
+        tenu: false,
+        methode: "D'après octobre 2025 : au même jour, 30 % du mois était fait.",
+      },
     },
   ],
 };
-const GRILLE: GrilleObjectifs = { annee: 2026, moisClos: 9, lignes: [{ indicateur: CA, mois: Array(12).fill(null), modifiePar: null, modifieLe: null }] };
+const GRILLE: GrilleObjectifs = {
+  annee: 2026,
+  moisClos: 9,
+  lignes: [{ indicateur: CA, mois: Array(12).fill(null), modifiePar: null, modifieLe: null }],
+};
 
 describe('Onglet « Objectifs »', () => {
   const api = {
@@ -72,7 +94,11 @@ describe('Onglet « Objectifs »', () => {
 
     fixture.componentInstance['enregistrer'](ligne);
     // Les 9 mois clos gardent leur valeur (vide) : seule la suite de l'année est proposée.
-    expect(api.enregistrerObjectifs).toHaveBeenCalledWith({ annee: 2026, indicateur: 'CA_TTC', mois: [...Array(9).fill(null), 1050, 1050, 1050] });
+    expect(api.enregistrerObjectifs).toHaveBeenCalledWith({
+      annee: 2026,
+      indicateur: 'CA_TTC',
+      mois: [...Array(9).fill(null), 1050, 1050, 1050],
+    });
     expect(enregistre).toHaveBeenCalled();
     expect(fixture.componentInstance['estModifiee'](ligne)).toBe(false);
   });

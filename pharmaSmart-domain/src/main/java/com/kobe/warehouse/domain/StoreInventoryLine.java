@@ -26,20 +26,21 @@ import java.util.List;
 /**
  * A StoreInventoryLine.
  */
-
 @NamedStoredProcedureQuery(
-    name = "StoreInventoryLine.proc_close_inventory",
-    procedureName = "proc_close_inventory",
-    parameters = {
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "store_inventory_id", type = Long.class),
-        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "nombreLigne", type = Integer.class),
-    }
-)
+        name = "StoreInventoryLine.proc_close_inventory",
+        procedureName = "proc_close_inventory",
+        parameters = {
+            @StoredProcedureParameter(mode = ParameterMode.IN, name = "store_inventory_id", type = Long.class),
+            @StoredProcedureParameter(mode = ParameterMode.OUT, name = "nombreLigne", type = Integer.class),
+        })
 @Entity
-@Table(name = "store_inventory_line", uniqueConstraints = {
-    @UniqueConstraint(name = "uq_sil_produit_inventory_storage", columnNames = {"produit_id",
-        "store_inventory_id", "storage_id"})
-})
+@Table(
+        name = "store_inventory_line",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uq_sil_produit_inventory_storage",
+                    columnNames = {"produit_id", "store_inventory_id", "storage_id"})
+        })
 public class StoreInventoryLine implements Serializable {
 
     @Serial
@@ -305,20 +306,17 @@ public class StoreInventoryLine implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "StoreInventoryLine{" +
-                "id=" +
-                getId() +
-                ", quantityOnHand=" +
-                getQuantityOnHand() +
-                ", quantityInit=" +
-                getQuantityInit() +
-                ", quantitySold=" +
-                getQuantitySold() +
-                ", inventoryValueCost=" +
-                getInventoryValueCost() +
-                ", inventoryValueLatestSellingPrice=" +
-                "}"
-        );
+        return ("StoreInventoryLine{" + "id="
+                + getId()
+                + ", quantityOnHand="
+                + getQuantityOnHand()
+                + ", quantityInit="
+                + getQuantityInit()
+                + ", quantitySold="
+                + getQuantitySold()
+                + ", inventoryValueCost="
+                + getInventoryValueCost()
+                + ", inventoryValueLatestSellingPrice="
+                + "}");
     }
 }

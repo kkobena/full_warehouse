@@ -18,7 +18,8 @@ class SuiviObjectifsTest {
     @Test
     @DisplayName("projection d'un montant : le réalisé à date suit le profil du même mois N-1")
     void projeterSurLeProfilN1() {
-        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(IndicateurPilotage.CA_TTC, 1_500.0, lireCa(400), lireCa(300), lireCa(700), LE_10_OCTOBRE);
+        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(
+                IndicateurPilotage.CA_TTC, 1_500.0, lireCa(400), lireCa(300), lireCa(700), LE_10_OCTOBRE);
 
         assertThat(projection.projection()).isCloseTo(1_333.33, within(0.01));
         assertThat(projection.atteinteProjetee()).isCloseTo(88.89, within(0.01));
@@ -29,7 +30,8 @@ class SuiviObjectifsTest {
     @Test
     @DisplayName("sans vente N-1 au même jour, au rythme des jours écoulés")
     void projeterAuRythme() {
-        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(IndicateurPilotage.CA_TTC, null, lireCa(100), MesuresPilotage.AUCUNE, lireCa(700), LE_10_OCTOBRE);
+        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(
+                IndicateurPilotage.CA_TTC, null, lireCa(100), MesuresPilotage.AUCUNE, lireCa(700), LE_10_OCTOBRE);
 
         assertThat(projection.projection()).isEqualTo(310.0);
         assertThat(projection.atteinteProjetee()).isNull();
@@ -41,11 +43,14 @@ class SuiviObjectifsTest {
     void projeterUnPlafond() {
         MesuresPilotage remise5Pct = new MesuresPilotage(1, 0, 1_000, 1_000, 50, 0, 1_000, 1_000, 0, 1, 0, 0, 1);
 
-        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(IndicateurPilotage.TAUX_REMISE, 4.0, remise5Pct, lireCa(300), lireCa(700), LE_10_OCTOBRE);
+        ProjectionObjectifDTO projection = SuiviObjectifs.projeter(
+                IndicateurPilotage.TAUX_REMISE, 4.0, remise5Pct, lireCa(300), lireCa(700), LE_10_OCTOBRE);
 
         assertThat(projection.projection()).isEqualTo(5.0);
         assertThat(projection.tenu()).isFalse();
-        assertThat(SuiviObjectifs.suivre(IndicateurPilotage.TAUX_REMISE, 9, 6.0, 5.0, false).tenu()).isTrue();
+        assertThat(SuiviObjectifs.suivre(IndicateurPilotage.TAUX_REMISE, 9, 6.0, 5.0, false)
+                        .tenu())
+                .isTrue();
     }
 
     @Test
@@ -56,7 +61,9 @@ class SuiviObjectifsTest {
         assertThat(tenu.ecart()).isEqualTo(100.0);
         assertThat(tenu.atteinte()).isCloseTo(111.11, within(0.01));
         assertThat(tenu.tenu()).isTrue();
-        assertThat(SuiviObjectifs.suivre(IndicateurPilotage.CA_TTC, 2, null, 1_000.0, false).tenu()).isNull();
+        assertThat(SuiviObjectifs.suivre(IndicateurPilotage.CA_TTC, 2, null, 1_000.0, false)
+                        .tenu())
+                .isNull();
     }
 
     private static MesuresPilotage lireCa(long caTtc) {

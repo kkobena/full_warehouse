@@ -25,14 +25,19 @@ describe('Home Component', () => {
     imageUrl: null,
   };
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [HomeComponent],
-      providers: [AccountService],
-    })
-      .overrideTemplate(HomeComponent, '')
-      .compileComponents();
-  }));
+  // HomeComponent importe tout le tableau de bord : en suite complète, avec l'autre worker qui
+  // tourne, sa compilation dépasse parfois les 5 s par défaut.
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        imports: [HomeComponent],
+        providers: [AccountService],
+      })
+        .overrideTemplate(HomeComponent, '')
+        .compileComponents();
+    }),
+    30_000,
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HomeComponent);

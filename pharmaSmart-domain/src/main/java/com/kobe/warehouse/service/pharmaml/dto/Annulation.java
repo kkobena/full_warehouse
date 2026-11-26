@@ -16,12 +16,30 @@ public class Annulation {
     @XmlAttribute(name = "Motif")
     private String motif;
 
-    public String getRefCdeOfficine() { return refCdeOfficine; }
-    public Annulation setRefCdeOfficine(String refCdeOfficine) { this.refCdeOfficine = refCdeOfficine; return this; }
+    public String getRefCdeOfficine() {
+        return refCdeOfficine;
+    }
 
-    public String getRefCdeRepartiteur() { return refCdeRepartiteur; }
-    public Annulation setRefCdeRepartiteur(String refCdeRepartiteur) { this.refCdeRepartiteur = refCdeRepartiteur; return this; }
+    public Annulation setRefCdeOfficine(String refCdeOfficine) {
+        this.refCdeOfficine = refCdeOfficine;
+        return this;
+    }
 
-    public String getMotif() { return motif; }
-    public Annulation setMotif(String motif) { this.motif = motif; return this; }
+    public String getRefCdeRepartiteur() {
+        return refCdeRepartiteur;
+    }
+
+    public Annulation setRefCdeRepartiteur(String refCdeRepartiteur) {
+        this.refCdeRepartiteur = refCdeRepartiteur;
+        return this;
+    }
+
+    public String getMotif() {
+        return motif;
+    }
+
+    public Annulation setMotif(String motif) {
+        this.motif = motif;
+        return this;
+    }
 }

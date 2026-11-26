@@ -80,12 +80,11 @@ class ProducteurRapportsVentesTest {
     @DisplayName("comparatif : le découpage retenu part tel quel")
     void comparatifRegle() {
         ventes.produire(
-            RapportExport.COMPARATIF_VENTES,
-            FormatExport.PDF,
-            null,
-            null,
-            Map.of(FiltreExport.DECOUPAGE_COMPARATIF, List.of("YEARLY"))
-        );
+                RapportExport.COMPARATIF_VENTES,
+                FormatExport.PDF,
+                null,
+                null,
+                Map.of(FiltreExport.DECOUPAGE_COMPARATIF, List.of("YEARLY")));
 
         verify(comparativePdfReportService).export("YEARLY", LocalDate.now().getYear());
     }
@@ -94,12 +93,11 @@ class ProducteurRapportsVentesTest {
     @DisplayName("rentabilité : la famille retenue, une seule, sans recherche")
     void rentabilite() {
         ventes.produire(
-            RapportExport.RENTABILITE_PRODUITS,
-            FormatExport.PDF,
-            null,
-            null,
-            Map.of(FiltreExport.FAMILLE_UNIQUE, List.of("12"))
-        );
+                RapportExport.RENTABILITE_PRODUITS,
+                FormatExport.PDF,
+                null,
+                null,
+                Map.of(FiltreExport.FAMILLE_UNIQUE, List.of("12")));
 
         verify(margeReportService).export(12, null);
     }

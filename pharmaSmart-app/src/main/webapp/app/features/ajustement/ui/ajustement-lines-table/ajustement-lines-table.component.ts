@@ -34,13 +34,13 @@ import {
   ],
 })
 export class AjustementLinesTableComponent {
-  readonly lines    = input.required<IAjustement[]>();
-  readonly loading  = input(false);
+  readonly lines = input.required<IAjustement[]>();
+  readonly loading = input(false);
 
-  readonly deleteLine      = output<IAjustement>();
+  readonly deleteLine = output<IAjustement>();
   readonly deleteSelection = output<IAjustement[]>();
-  readonly updateQty       = output<{ line: IAjustement; absQty: number }>();
-  readonly searchChange    = output<string>();
+  readonly updateQty = output<{ line: IAjustement; absQty: number }>();
+  readonly searchChange = output<string>();
 
   protected search = '';
   protected readonly selectedRows = signal<IAjustement[]>([]);

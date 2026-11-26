@@ -6,8 +6,6 @@ import com.kobe.warehouse.service.dto.report.*;
 import java.time.LocalDate;
 import java.util.List;
 
-
-
 /**
  * Service interface for Dashboard Chiffre d'Affaires (CA)
  */
@@ -46,7 +44,6 @@ public interface DashboardCAService {
      */
     List<TopProductDTO> getTopProducts(LocalDate startDate, LocalDate endDate, Integer limit);
 
-
     /**
      * Get finances summary KPIs (supplier debt + third-party receivables)
      */
@@ -81,5 +78,4 @@ public interface DashboardCAService {
      * Get top N products by discount amount for a date range
      */
     List<TopRemiseProduitDTO> getRemisesTopProducts(LocalDate startDate, LocalDate endDate, int limit);
-
 }

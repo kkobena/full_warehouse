@@ -36,6 +36,7 @@ public class ProduitCriteria implements Serializable {
     private CodeRemise codeRemise;
     /** Substance active : filtrer le catalogue sur une DCI, et voir d'un coup ce qui la porte. */
     private Integer dciId;
+
     private Integer tableauId;
     private Integer storageId;
     private TypeProduit typeProduit;
@@ -324,62 +325,60 @@ public class ProduitCriteria implements Serializable {
 
     @Override
     public String toString() {
-        String sb =
-            "ProduitCriteria{" +
-            "id=" +
-            id +
-            ", codeEan='" +
-            codeEan +
-            '\'' +
-            ", codeCip='" +
-            codeCip +
-            '\'' +
-            ", libelle='" +
-            libelle +
-            '\'' +
-            ", status=" +
-            status +
-            ", dateperemption=" +
-            dateperemption +
-            ", deconditionnable=" +
-            deconditionnable +
-            ", qtySeuilMini=" +
-            qtySeuilMini +
-            ", qtyAppro=" +
-            qtyAppro +
-            ", parentId=" +
-            parentId +
-            ", prixPaf=" +
-            prixPaf +
-            ", prixUni=" +
-            prixUni +
-            ", formeId=" +
-            formeId +
-            ", familleId=" +
-            familleId +
-            ", gammeId=" +
-            gammeId +
-            ", fabriquantId=" +
-            fabriquantId +
-            ", laboratoireId=" +
-            laboratoireId +
-            ", tvaId=" +
-            tvaId +
-            ", magasinId=" +
-            magasinId +
-            ", rayonId=" +
-            rayonId +
-            ", search='" +
-            search +
-            '\'' +
-            ", deconditionne=" +
-            deconditionne +
-            ", remiseId=" +
-            ", storageId=" +
-            storageId +
-            ", typeProduit=" +
-            typeProduit +
-            '}';
+        String sb = "ProduitCriteria{" + "id="
+                + id
+                + ", codeEan='"
+                + codeEan
+                + '\''
+                + ", codeCip='"
+                + codeCip
+                + '\''
+                + ", libelle='"
+                + libelle
+                + '\''
+                + ", status="
+                + status
+                + ", dateperemption="
+                + dateperemption
+                + ", deconditionnable="
+                + deconditionnable
+                + ", qtySeuilMini="
+                + qtySeuilMini
+                + ", qtyAppro="
+                + qtyAppro
+                + ", parentId="
+                + parentId
+                + ", prixPaf="
+                + prixPaf
+                + ", prixUni="
+                + prixUni
+                + ", formeId="
+                + formeId
+                + ", familleId="
+                + familleId
+                + ", gammeId="
+                + gammeId
+                + ", fabriquantId="
+                + fabriquantId
+                + ", laboratoireId="
+                + laboratoireId
+                + ", tvaId="
+                + tvaId
+                + ", magasinId="
+                + magasinId
+                + ", rayonId="
+                + rayonId
+                + ", search='"
+                + search
+                + '\''
+                + ", deconditionne="
+                + deconditionne
+                + ", remiseId="
+                + ", storageId="
+                + storageId
+                + ", typeProduit="
+                + typeProduit
+                + '}';
         return sb;
     }
 }

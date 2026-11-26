@@ -50,17 +50,16 @@ public class NavAccessService {
     private final LicenseService licenseService;
     private final CacheManager cacheManager;
     private final com.github.benmanes.caffeine.cache.Cache<String, Set<String>> rolesByLogin = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofSeconds(30))
-        .maximumSize(500)
-        .build();
+            .expireAfterWrite(Duration.ofSeconds(30))
+            .maximumSize(500)
+            .build();
 
     public NavAccessService(
-        NavItemRoleRepository navItemRoleRepository,
-        NavItemRepository navItemRepository,
-        UserRepository userRepository,
-        LicenseService licenseService,
-        CacheManager cacheManager
-    ) {
+            NavItemRoleRepository navItemRoleRepository,
+            NavItemRepository navItemRepository,
+            UserRepository userRepository,
+            LicenseService licenseService,
+            CacheManager cacheManager) {
         this.navItemRoleRepository = navItemRoleRepository;
         this.navItemRepository = navItemRepository;
         this.userRepository = userRepository;
@@ -75,35 +74,33 @@ public class NavAccessService {
             return true;
         }
         Map<String, NavGrant> grants = grantsFor(roles);
-        return codes
-            .stream()
-            .map(grants::get)
-            .filter(Objects::nonNull)
-            .anyMatch(grant -> grant.allows(action) && isFeatureSubscribed(grant));
+        return codes.stream()
+                .map(grants::get)
+                .filter(Objects::nonNull)
+                .anyMatch(grant -> grant.allows(action) && isFeatureSubscribed(grant));
     }
 
     /** Items d'un type donné sur lesquels l'utilisateur courant a le droit demandé, sans passe-droit admin. */
     public List<NavGrant> grantsOfType(NavTargetType targetType, NavAction action) {
-        return grantsFor(currentUserRoles())
-            .values()
-            .stream()
-            .filter(grant -> grant.targetType() == targetType && grant.allows(action))
-            .toList();
+        return grantsFor(currentUserRoles()).values().stream()
+                .filter(grant -> grant.targetType() == targetType && grant.allows(action))
+                .toList();
     }
 
     public Set<String> currentUserRoles() {
-        return SecurityUtils.getCurrentUserLogin().map(login -> rolesByLogin.get(login, this::loadRoles)).orElse(Set.of());
+        return SecurityUtils.getCurrentUserLogin()
+                .map(login -> rolesByLogin.get(login, this::loadRoles))
+                .orElse(Set.of());
     }
 
     /** Libellé du premier code connu, pour le message de refus. */
     public String libelleOf(Collection<String> codes) {
-        return codes
-            .stream()
-            .map(navItemRepository::findByCode)
-            .filter(Objects::nonNull)
-            .map(NavItem::getLibelle)
-            .findFirst()
-            .orElseGet(() -> String.join(", ", codes));
+        return codes.stream()
+                .map(navItemRepository::findByCode)
+                .filter(Objects::nonNull)
+                .map(NavItem::getLibelle)
+                .findFirst()
+                .orElseGet(() -> String.join(", ", codes));
     }
 
     // Même règle que NavItemServiceImpl pour les menus : une valeur inconnue n'impose aucune contrainte.
@@ -134,15 +131,16 @@ public class NavAccessService {
     private Map<String, NavGrant> loadGrants(Set<String> roles) {
         Map<String, NavGrant> grants = new HashMap<>();
         navItemRoleRepository
-            .findAllActiveByRoleNames(roles)
-            .forEach(role -> grants.merge(role.getNavItem().getCode(), NavGrant.of(role), NavGrant::merge));
+                .findAllActiveByRoleNames(roles)
+                .forEach(role -> grants.merge(role.getNavItem().getCode(), NavGrant.of(role), NavGrant::merge));
         return Map.copyOf(grants);
     }
 
     private Set<String> loadRoles(String login) {
         return userRepository
-            .findOneWithAuthoritiesByLogin(login)
-            .map(user -> user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toUnmodifiableSet()))
-            .orElse(Set.of());
+                .findOneWithAuthoritiesByLogin(login)
+                .map(user ->
+                        user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toUnmodifiableSet()))
+                .orElse(Set.of());
     }
 }

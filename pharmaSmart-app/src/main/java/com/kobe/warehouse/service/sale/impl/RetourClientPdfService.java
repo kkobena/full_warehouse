@@ -24,11 +24,10 @@ public class RetourClientPdfService extends CommonReportService {
     private final Map<String, Object> params = new HashMap<>();
 
     public RetourClientPdfService(
-        RetourClientService retourClientService,
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
-        super( storageService);
+            RetourClientService retourClientService,
+            StorageService storageService,
+            SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.retourClientService = retourClientService;
         this.templateEngine = templateEngine;
     }

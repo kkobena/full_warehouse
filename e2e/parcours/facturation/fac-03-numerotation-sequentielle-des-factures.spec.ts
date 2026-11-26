@@ -28,9 +28,7 @@ scenario('FAC-03', async ({ etape, page }) => {
     // `evaluateAll` ne rend rien sur un locator filtré par visibilité : on relit les lignes
     // une à une, ce qui reste rapide sur une page de tableau.
     const textes = await lignes.allInnerTexts();
-    const numeros = textes
-      .map(texte => /\d{4}/.exec(texte)?.[0])
-      .filter((numero): numero is string => Boolean(numero));
+    const numeros = textes.map(texte => /\d{4}/.exec(texte)?.[0]).filter((numero): numero is string => Boolean(numero));
     expect(numeros.length).toBeGreaterThan(1);
     expect(new Set(numeros).size).toBe(numeros.length);
   });

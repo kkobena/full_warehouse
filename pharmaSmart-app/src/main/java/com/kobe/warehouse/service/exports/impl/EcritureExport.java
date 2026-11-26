@@ -35,10 +35,9 @@ class EcritureExport {
     private final FabriqueEcrivainsExport fabriqueEcrivainsExport;
 
     EcritureExport(
-        ExportDonneesRepository exportDonneesRepository,
-        ProducteurRapports producteurRapports,
-        FabriqueEcrivainsExport fabriqueEcrivainsExport
-    ) {
+            ExportDonneesRepository exportDonneesRepository,
+            ProducteurRapports producteurRapports,
+            FabriqueEcrivainsExport fabriqueEcrivainsExport) {
         this.exportDonneesRepository = exportDonneesRepository;
         this.producteurRapports = producteurRapports;
         this.fabriqueEcrivainsExport = fabriqueEcrivainsExport;
@@ -46,13 +45,12 @@ class EcritureExport {
 
     /** @return le nombre de lignes écrites, inconnu (et donc vide) pour une édition bâtie d'un bloc */
     Long ecrire(
-        SujetExport export,
-        FormatExport format,
-        LocalDate du,
-        LocalDate au,
-        Map<FiltreExport, List<String>> filtres,
-        OutputStream sortie
-    ) {
+            SujetExport export,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres,
+            OutputStream sortie) {
         return switch (export) {
             case ExportDonnees donnees -> ecrireLignes(donnees, format, du, au, filtres, sortie);
             case RapportExport rapport -> ecrireEdition(rapport, format, du, au, filtres, sortie);
@@ -60,18 +58,16 @@ class EcritureExport {
     }
 
     private Long ecrireLignes(
-        ExportDonnees donnees,
-        FormatExport format,
-        LocalDate du,
-        LocalDate au,
-        Map<FiltreExport, List<String>> filtres,
-        OutputStream sortie
-    ) {
+            ExportDonnees donnees,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres,
+            OutputStream sortie) {
         long lignes = 0;
-        try (
-            EcrivainExport ecrivain = fabriqueEcrivainsExport.ouvrir(format, donnees.getColonnes(), intituler(donnees, du, au, filtres), sortie);
-            Stream<Object[]> flux = exportDonneesRepository.lireLignes(donnees, du, au, filtres)
-        ) {
+        try (EcrivainExport ecrivain = fabriqueEcrivainsExport.ouvrir(
+                        format, donnees.getColonnes(), intituler(donnees, du, au, filtres), sortie);
+                Stream<Object[]> flux = exportDonneesRepository.lireLignes(donnees, du, au, filtres)) {
             for (Object[] ligne : (Iterable<Object[]>) flux::iterator) {
                 ecrivain.ecrire(ligne);
                 lignes++;
@@ -83,13 +79,12 @@ class EcritureExport {
     }
 
     private Long ecrireEdition(
-        RapportExport rapport,
-        FormatExport format,
-        LocalDate du,
-        LocalDate au,
-        Map<FiltreExport, List<String>> filtres,
-        OutputStream sortie
-    ) {
+            RapportExport rapport,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres,
+            OutputStream sortie) {
         try {
             sortie.write(producteurRapports.produire(rapport, format, du, au, filtres));
         } catch (IOException e) {
@@ -99,10 +94,11 @@ class EcritureExport {
     }
 
     /** « Lignes de vente — du 01/10/2026 au 31/10/2026 · Famille : 2 valeurs », en tête du PDF. */
-    private static String intituler(SujetExport export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    private static String intituler(
+            SujetExport export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
         String periode = du == null
-            ? "état du " + LocalDate.now().format(DATE_INTITULE)
-            : "du " + du.format(DATE_INTITULE) + " au " + au.format(DATE_INTITULE);
+                ? "état du " + LocalDate.now().format(DATE_INTITULE)
+                : "du " + du.format(DATE_INTITULE) + " au " + au.format(DATE_INTITULE);
         List<String> retenus = RedacteurFiltresExport.rediger(filtres);
         return export.getLibelle() + " — " + periode + (retenus.isEmpty() ? "" : " · " + String.join(" · ", retenus));
     }

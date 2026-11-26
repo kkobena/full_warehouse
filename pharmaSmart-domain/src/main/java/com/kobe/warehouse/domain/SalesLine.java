@@ -1,9 +1,11 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.service.sale.calculation.dto.Rate;
-import jakarta.persistence.Column;
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.enumeration.ExclusionMotif;
 import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
+import com.kobe.warehouse.service.sale.calculation.dto.Rate;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,10 +21,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,15 +28,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.Objects.isNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A SalesLine.
  */
 @Entity
 @IdClass(SaleLineId.class)
-@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id", "sale_date"})})
+@Table(
+        name = "sales_line",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id", "sale_date"})})
 public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneable {
 
     @Serial
@@ -115,12 +116,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "sales_id", referencedColumnName = "id"),
-            @JoinColumn(name = "sales_sale_date", referencedColumnName = "sale_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "sales_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sales_sale_date", referencedColumnName = "sale_date"),
+    })
     private Sales sales;
 
     @NotNull
@@ -193,7 +192,6 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     public List<Rate> getRates() {
         return rates;
     }
-
 
     public void setRates(List<Rate> rates) {
         this.rates = rates;
@@ -497,31 +495,30 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Override
     public String toString() {
         return "SalesLine{"
-            + "id="
-            + getId()
-            + ", quantitySold="
-            + getQuantitySold()
-            + ", regularUnitPrice="
-            + getRegularUnitPrice()
-            + ", discountUnitPrice="
-            + getDiscountUnitPrice()
-            + ", netUnitPrice="
-            + getNetUnitPrice()
-            + ", discountAmount="
-            + getDiscountAmount()
-            + ", salesAmount="
-            + getSalesAmount()
-            + ", netAmount="
-
-            + ", costAmount="
-            + getCostAmount()
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", quantitySold="
+                + getQuantitySold()
+                + ", regularUnitPrice="
+                + getRegularUnitPrice()
+                + ", discountUnitPrice="
+                + getDiscountUnitPrice()
+                + ", netUnitPrice="
+                + getNetUnitPrice()
+                + ", discountAmount="
+                + getDiscountAmount()
+                + ", salesAmount="
+                + getSalesAmount()
+                + ", netAmount="
+                + ", costAmount="
+                + getCostAmount()
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "'"
+                + "}";
     }
 
     @Override

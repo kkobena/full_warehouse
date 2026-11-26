@@ -22,8 +22,8 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
@@ -31,8 +31,8 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.DataMatrixInfo;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.QuantitySoldException;
 import com.kobe.warehouse.service.errors.StockException;
@@ -44,19 +44,18 @@ import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SalesLineServiceBaseImpl Tests")
@@ -79,44 +78,52 @@ class SalesLineServiceBaseImplTest {
 
     @Mock
     private SaleLineIdGeneratorService saleLineIdGeneratorService;
+
     @Mock
     private StockUpdateService stockUpdateService;
 
     private SalesLineServiceBaseImpl salesLineService;
+
     @Mock
     private StorageService storageService;
+
     @Mock
     private RepartitionStockService repartitionStockService;
+
     @Mock
-    private  LotStockLocationService lotStockLocationService;
+    private LotStockLocationService lotStockLocationService;
+
     @Mock
     private AvoirClientDocumentService avoirClientDocumentService;
-    @Mock private DataMatrixParserService dataMatrixParserService;
-    @Mock private com.kobe.warehouse.service.AjustementService ajustementService;
+
+    @Mock
+    private DataMatrixParserService dataMatrixParserService;
+
+    @Mock
+    private com.kobe.warehouse.service.AjustementService ajustementService;
 
     @BeforeEach
     void setUp() {
         Storage mainStorage = new Storage();
         mainStorage.setId(1);
-        lenient().when(storageService.getDefaultConnectedUserMainStorage())
-            .thenReturn(mainStorage);
-        lenient().when(stockProduitRepository.findPointVenteStock(anyInt(), eq(1)))
-            .thenReturn(100);
+        lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(mainStorage);
+        lenient()
+                .when(stockProduitRepository.findPointVenteStock(anyInt(), eq(1)))
+                .thenReturn(100);
         salesLineService = new SalesLineServiceBaseImpl(
-            produitRepository,
-            salesLineRepository,
-            stockProduitRepository,
-            lotService,
-            inventoryTransactionService,
-            saleLineIdGeneratorService,
-            stockUpdateService,
-            storageService,
-            repartitionStockService,
-            lotStockLocationService,
-            avoirClientDocumentService,
-            dataMatrixParserService,
-            ajustementService
-        );
+                produitRepository,
+                salesLineRepository,
+                stockProduitRepository,
+                lotService,
+                inventoryTransactionService,
+                saleLineIdGeneratorService,
+                stockUpdateService,
+                storageService,
+                repartitionStockService,
+                lotStockLocationService,
+                avoirClientDocumentService,
+                dataMatrixParserService,
+                ajustementService);
     }
 
     @Test
@@ -139,8 +146,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -148,20 +155,16 @@ class SalesLineServiceBaseImplTest {
 
         // Then
         assertNotNull(result, "Sales line should be created");
-        assertEquals(regularUnitPrice, result.getRegularUnitPrice(),
-            "Regular unit price should match");
+        assertEquals(regularUnitPrice, result.getRegularUnitPrice(), "Regular unit price should match");
         assertEquals(regularUnitPrice, result.getNetUnitPrice(), "Net unit price should match");
-        assertEquals(quantityRequested, result.getQuantityRequested(),
-            "Quantity requested should match");
+        assertEquals(quantityRequested, result.getQuantityRequested(), "Quantity requested should match");
         assertEquals(quantitySold, result.getQuantitySold(), "Quantity sold should match");
-        assertEquals(regularUnitPrice * quantityRequested, result.getSalesAmount(),
-            "Sales amount should be calculated");
+        assertEquals(
+                regularUnitPrice * quantityRequested, result.getSalesAmount(), "Sales amount should be calculated");
         assertEquals(0, result.getDiscountAmount(), "Discount should be zero initially");
         assertEquals(produit, result.getProduit(), "Product should be set");
-        assertEquals(produit.getCostAmount(), result.getCostAmount(),
-            "Cost amount should be set from product");
-        assertEquals(produit.getTva().getTaux(), result.getTaxValue(),
-            "Tax value should be set from product");
+        assertEquals(produit.getCostAmount(), result.getCostAmount(), "Cost amount should be set from product");
+        assertEquals(produit.getTva().getTaux(), result.getTaxValue(), "Tax value should be set from product");
         assertNotNull(result.getCreatedAt(), "Created timestamp should be set");
         assertNotNull(result.getUpdatedAt(), "Updated timestamp should be set");
         assertNotNull(result.getEffectiveUpdateDate(), "Effective update date should be set");
@@ -185,16 +188,15 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
         SalesLine result = salesLineService.createSaleLineFromDTO(dto, storageId);
 
         // Then
-        assertEquals(10, result.getQuantityUg(),
-            "UG quantity should be limited to available stock UG");
+        assertEquals(10, result.getQuantityUg(), "UG quantity should be limited to available stock UG");
     }
 
     @Test
@@ -215,16 +217,16 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
         SalesLine result = salesLineService.createSaleLineFromDTO(dto, storageId);
 
         // Then
-        assertEquals(quantitySold, result.getQuantityUg(),
-            "UG quantity should match quantity sold when less than stock UG");
+        assertEquals(
+                quantitySold, result.getQuantityUg(), "UG quantity should match quantity sold when less than stock UG");
     }
 
     @Test
@@ -244,8 +246,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0); // No UG
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -274,8 +276,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -283,8 +285,7 @@ class SalesLineServiceBaseImplTest {
 
         // Then
         int expectedSalesAmount = regularUnitPrice * quantityRequested; // 250 * 12 = 3000
-        assertEquals(expectedSalesAmount, result.getSalesAmount(),
-            "Sales amount should be price * quantity");
+        assertEquals(expectedSalesAmount, result.getSalesAmount(), "Sales amount should be price * quantity");
     }
 
     @Test
@@ -306,8 +307,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -334,8 +335,8 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 5);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId,
-            storageId)).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
+                .thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -354,22 +355,28 @@ class SalesLineServiceBaseImplTest {
         SalesLine line = completeLine();
         when(salesLineRepository.findById(id)).thenReturn(Optional.of(line));
         when(salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(8L, 100, date))
-            .thenReturn(Optional.of(line));
+                .thenReturn(Optional.of(line));
         when(salesLineRepository.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(8L, date))
-            .thenReturn(List.of(line));
+                .thenReturn(List.of(line));
         when(saleLineIdGeneratorService.nextId()).thenReturn(77L);
 
         assertEquals(line, salesLineService.getOneById(id));
-        assertTrue(salesLineService.findBySalesIdAndProduitId(new SaleId(8L, date), 100).isPresent());
-        assertEquals(1, salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(8L, date).size());
+        assertTrue(salesLineService
+                .findBySalesIdAndProduitId(new SaleId(8L, date), 100)
+                .isPresent());
+        assertEquals(
+                1,
+                salesLineService
+                        .findBySalesIdAndSalesSaleDateOrderByProduitLibelle(8L, date)
+                        .size());
         assertEquals(77L, salesLineService.getNextId());
         salesLineService.saveSalesLine(line);
         salesLineService.deleteSaleLine(line);
 
         verify(salesLineRepository).save(line);
         verify(salesLineRepository).delete(line);
-        assertThrows(java.util.NoSuchElementException.class,
-            () -> salesLineService.getOneById(new SaleLineId(99L, date)));
+        assertThrows(
+                java.util.NoSuchElementException.class, () -> salesLineService.getOneById(new SaleLineId(99L, date)));
     }
 
     @Test
@@ -379,8 +386,7 @@ class SalesLineServiceBaseImplTest {
         CashSale sale = new CashSale();
         sale.setSalesLines(new HashSet<>());
         when(produitRepository.getReferenceById(100)).thenReturn(product);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1))
-            .thenReturn(createStockProduit(20, 0));
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(createStockProduit(20, 0));
         when(saleLineIdGeneratorService.nextId()).thenReturn(9L);
         when(salesLineRepository.save(any(SalesLine.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -395,8 +401,7 @@ class SalesLineServiceBaseImplTest {
         SalesLine line = completeLine();
         SaleLineDTO dto = basicDto(3, 700);
         dto.setQuantitySold(2);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1))
-            .thenReturn(createStockProduit(20, 4));
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(createStockProduit(20, 4));
 
         salesLineService.updateItemRegularPrice(dto, line, 1);
         assertEquals(1_400, line.getSalesAmount());
@@ -420,18 +425,15 @@ class SalesLineServiceBaseImplTest {
         SaleLineDTO dto = basicDto(101, 500);
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(2);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
-        assertThrows(StockException.class,
-            () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
+        assertThrows(StockException.class, () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
 
         Produit parent = new Produit();
         parent.setId(200);
         line.getProduit().setParent(parent);
-        assertThrows(DeconditionnementStockOut.class,
-            () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
+        assertThrows(DeconditionnementStockOut.class, () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
 
         dto.setQuantitySold(20);
-        assertThrows(QuantitySoldException.class,
-            () -> salesLineService.updateItemQuantitySold(line, dto, 1));
+        assertThrows(QuantitySoldException.class, () -> salesLineService.updateItemQuantitySold(line, dto, 1));
     }
 
     @Test
@@ -443,11 +445,9 @@ class SalesLineServiceBaseImplTest {
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(3);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
         when(stockProduitRepository.findReserveStock(100, 2)).thenReturn(4);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1))
-            .thenReturn(createStockProduit(7, 0));
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(createStockProduit(7, 0));
 
-        assertThrows(StockInReserveException.class,
-            () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
+        assertThrows(StockInReserveException.class, () -> salesLineService.updateItemQuantityRequested(dto, line, 1));
 
         dto.setForceStock(true);
         salesLineService.updateItemQuantityRequested(dto, line, 1);
@@ -490,8 +490,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stock = createStockProduit(10, 0);
         stock.setStorage(storage);
         when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(stock);
-        when(stockUpdateService.updateStock(line, stock))
-            .thenReturn(new StockUpdateService.StockUpdateResult(10, 7));
+        when(stockUpdateService.updateStock(line, stock)).thenReturn(new StockUpdateService.StockUpdateResult(10, 7));
 
         salesLineService.save(Set.of(line), user, 1);
 
@@ -564,8 +563,7 @@ class SalesLineServiceBaseImplTest {
 
         when(produitRepository.findOneByLibelle("Inconnu")).thenReturn(Optional.empty());
         dto.setProduitLibelle("Inconnu");
-        assertThrows(java.util.NoSuchElementException.class,
-            () -> salesLineService.buildSaleLineFromDTO(dto));
+        assertThrows(java.util.NoSuchElementException.class, () -> salesLineService.buildSaleLineFromDTO(dto));
     }
 
     @Test
@@ -573,8 +571,7 @@ class SalesLineServiceBaseImplTest {
         SalesLine line = completeLine();
         SaleLineDTO dto = basicDto(3, 700);
         dto.setCodeScan("SCAN");
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1))
-            .thenReturn(createStockProduit(20, 0));
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(createStockProduit(20, 0));
 
         salesLineService.updateSaleLine(dto, line, 1);
 
@@ -585,13 +582,11 @@ class SalesLineServiceBaseImplTest {
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(1);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
         SaleLineDTO excessive = basicDto(10, 700);
-        assertThrows(StockException.class,
-            () -> salesLineService.updateSaleLine(excessive, line, 1));
+        assertThrows(StockException.class, () -> salesLineService.updateSaleLine(excessive, line, 1));
         Produit parent = new Produit();
         parent.setId(200);
         line.getProduit().setParent(parent);
-        assertThrows(DeconditionnementStockOut.class,
-            () -> salesLineService.updateSaleLine(excessive, line, 1));
+        assertThrows(DeconditionnementStockOut.class, () -> salesLineService.updateSaleLine(excessive, line, 1));
     }
 
     @Test
@@ -627,17 +622,22 @@ class SalesLineServiceBaseImplTest {
         storage.setId(1);
         StockProduit stock = createStockProduit(10, 0);
         stock.setStorage(storage);
-        Lot scanned = new Lot().setId(1).setNumLot("LOT-A").setCurrentQuantity(2)
-            .setExpiryDate(LocalDate.now().plusMonths(2));
-        Lot fefo = new Lot().setId(2).setNumLot("LOT-B").setCurrentQuantity(3)
-            .setExpiryDate(LocalDate.now().plusMonths(1));
+        Lot scanned = new Lot()
+                .setId(1)
+                .setNumLot("LOT-A")
+                .setCurrentQuantity(2)
+                .setExpiryDate(LocalDate.now().plusMonths(2));
+        Lot fefo = new Lot()
+                .setId(2)
+                .setNumLot("LOT-B")
+                .setCurrentQuantity(3)
+                .setExpiryDate(LocalDate.now().plusMonths(1));
         DataMatrixInfo info = DataMatrixInfo.builder().batchNumber("LOT-A").build();
         when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(stock);
         when(dataMatrixParserService.parse("DATAMATRIX")).thenReturn(Optional.of(info));
         when(lotService.findByProduitIdAndNumLot(100, "LOT-A")).thenReturn(Optional.of(scanned));
         when(lotService.findByProduitId(100)).thenReturn(List.of(scanned, fefo));
-        when(stockUpdateService.updateStock(line, stock))
-            .thenReturn(new StockUpdateService.StockUpdateResult(10, 5));
+        when(stockUpdateService.updateStock(line, stock)).thenReturn(new StockUpdateService.StockUpdateResult(10, 5));
 
         salesLineService.save(Set.of(line), new AppUser(), 1);
 
@@ -656,8 +656,7 @@ class SalesLineServiceBaseImplTest {
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(2);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
 
-        assertThrows(StockException.class,
-            () -> salesLineService.updateItemQuantitySold(line, dto, 1));
+        assertThrows(StockException.class, () -> salesLineService.updateItemQuantitySold(line, dto, 1));
     }
 
     @Test
@@ -668,8 +667,7 @@ class SalesLineServiceBaseImplTest {
         when(produitRepository.getReferenceById(100)).thenReturn(product);
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(0);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1))
-            .thenReturn(createStockProduit(0, 0));
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(createStockProduit(0, 0));
 
         SalesLine result = salesLineService.createSaleLineFromDTO(dto, 1);
 
@@ -685,14 +683,12 @@ class SalesLineServiceBaseImplTest {
         when(stockProduitRepository.findPointVenteStock(100, 1)).thenReturn(2);
         when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
 
-        assertThrows(StockException.class,
-            () -> salesLineService.createSaleLineFromDTO(dto, 1));
+        assertThrows(StockException.class, () -> salesLineService.createSaleLineFromDTO(dto, 1));
 
         Produit parent = new Produit();
         parent.setId(200);
         product.setParent(parent);
-        assertThrows(DeconditionnementStockOut.class,
-            () -> salesLineService.createSaleLineFromDTO(dto, 1));
+        assertThrows(DeconditionnementStockOut.class, () -> salesLineService.createSaleLineFromDTO(dto, 1));
     }
 
     @Test
@@ -722,8 +718,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stock = createStockProduit(0, 0);
         stock.setStorage(storage);
         when(stockProduitRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(stock);
-        when(stockUpdateService.updateStock(line, stock))
-            .thenReturn(new StockUpdateService.StockUpdateResult(0, 0));
+        when(stockUpdateService.updateStock(line, stock)).thenReturn(new StockUpdateService.StockUpdateResult(0, 0));
 
         salesLineService.save(Set.of(line), new AppUser(), 1);
 

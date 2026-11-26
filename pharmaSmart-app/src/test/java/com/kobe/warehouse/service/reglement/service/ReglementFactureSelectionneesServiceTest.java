@@ -87,27 +87,27 @@ class ReglementFactureSelectionneesServiceTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new ReglementFactureSelectionneesService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         when(cashRegisterService.getCashRegister()).thenReturn(new CashRegister());
         when(userService.getUser()).thenReturn(new AppUser());
         when(transactionIdGeneratorService.nextId()).thenReturn(55L);
         when(referenceService.buildNumTransaction()).thenReturn("TR-0001");
         when(invoicePaymentRepository.save(any(InvoicePayment.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(invoicePaymentItemService.buildInvoicePaymentItem(any(), any(), anyInt())).thenAnswer(inv -> {
-            InvoicePaymentItem item = new InvoicePaymentItem();
-            item.setThirdPartySaleLine(inv.getArgument(0));
-            item.setPaidAmount(inv.getArgument(2));
-            return item;
-        });
+        when(invoicePaymentItemService.buildInvoicePaymentItem(any(), any(), anyInt()))
+                .thenAnswer(inv -> {
+                    InvoicePaymentItem item = new InvoicePaymentItem();
+                    item.setThirdPartySaleLine(inv.getArgument(0));
+                    item.setPaidAmount(inv.getArgument(2));
+                    return item;
+                });
         Specification<ThirdPartySaleLine> spec = (r, q, cb) -> null;
         when(thirdPartySaleLineRepository.selectionBonCriteria(any())).thenReturn(spec);
     }
@@ -139,12 +139,12 @@ class ReglementFactureSelectionneesServiceTest {
 
     private static ReglementParam param(int amount, int totalAmount, int montantFacture, Long... dossierIds) {
         return new ReglementParam()
-            .setId(FACTURE_ID)
-            .setAmount(amount)
-            .setTotalAmount(totalAmount)
-            .setMontantFacture(montantFacture)
-            .setDossierIds(new ArrayList<>(List.of(dossierIds)))
-            .setModePaimentCode(ModePaimentCode.CASH);
+                .setId(FACTURE_ID)
+                .setAmount(amount)
+                .setTotalAmount(totalAmount)
+                .setMontantFacture(montantFacture)
+                .setDossierIds(new ArrayList<>(List.of(dossierIds)))
+                .setModePaimentCode(ModePaimentCode.CASH);
     }
 
     @Nested
@@ -157,8 +157,8 @@ class ReglementFactureSelectionneesServiceTest {
             ReglementParam param = param(1000, 1000, 1000);
 
             assertThatThrownBy(() -> service.doReglement(param))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Aucun dossiers à regler");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Aucun dossiers à regler");
 
             verifyNoInteractions(facturationRepository);
         }
@@ -221,7 +221,8 @@ class ReglementFactureSelectionneesServiceTest {
             ThirdPartySaleLine l1 = ligne(1000, 0);
             stubBonsSelectionnes(l1);
 
-            assertThatThrownBy(() -> service.doReglement(param(0, 1000, 1000, 1L))).isInstanceOf(GenericError.class);
+            assertThatThrownBy(() -> service.doReglement(param(0, 1000, 1000, 1L)))
+                    .isInstanceOf(GenericError.class);
 
             assertThat(facture.getMontantRegle()).isZero();
             verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
@@ -236,8 +237,8 @@ class ReglementFactureSelectionneesServiceTest {
             stubBonsSelectionnes(l1, l2);
 
             assertThatThrownBy(() -> service.doReglement(param(1500, 1500, 1500, 1L, 2L)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("déjà réglés");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("déjà réglés");
 
             assertThat(l1.getMontantRegle()).isZero();
             verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
@@ -247,13 +248,12 @@ class ReglementFactureSelectionneesServiceTest {
         @DisplayName("refuse un bon qui n appartient pas a la facture reglee")
         void bonHorsFacture() {
             facture();
-            ThirdPartySaleLine etranger = ligne(1000, 0)
-                .setFactureTiersPayant(new FactureTiersPayant().setId(99L));
+            ThirdPartySaleLine etranger = ligne(1000, 0).setFactureTiersPayant(new FactureTiersPayant().setId(99L));
             when(thirdPartySaleLineRepository.findAll(any(Specification.class))).thenReturn(List.of(etranger));
 
             assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, 1L)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("n'appartient pas");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("n'appartient pas");
         }
 
         @Test
@@ -263,8 +263,8 @@ class ReglementFactureSelectionneesServiceTest {
             stubBonsSelectionnes(ligne(1000, 0));
 
             assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, 1L, 2L)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("introuvables");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("introuvables");
         }
 
         @Test

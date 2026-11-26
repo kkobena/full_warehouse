@@ -14,9 +14,8 @@
           [ngModel]="selectedYear()"
           appendTo="body"
           (ngModelChange)="onYearChange($event)"
-          [style]="{'min-width': '100px'}"
+          [style]="{ 'min-width': '100px' }"
         />
-
       } @else {
         <span class="text-muted small"><i class="pi pi-calendar me-1" aria-hidden="true"></i>12 derniers mois glissants</span>
       }
@@ -38,10 +37,8 @@
 
 <!-- ========== SNAPSHOT VIEW ========== -->
 @if (view() === 'snapshot' && !isLoading()) {
-
   <!-- ---- Segment view ---- -->
   @if (snapshotTab() === 'segment') {
-
     @if (segmentData().length === 0) {
       <div class="card data-card">
         <div class="card-body text-center p-4">
@@ -50,23 +47,34 @@
         </div>
       </div>
     } @else {
-
       <!-- KPI strip par segment -->
       <app-kpi-strip stripClass="mb-3">
         @for (seg of segmentData(); track seg.segment; let i = $index) {
-          <app-kpi-item [accent]="segmentAccents[i % segmentAccents.length]" icon="pi pi-chart-bar"
-                        [iconClass]="segmentIconClasses[i % segmentIconClasses.length]"
-                        [label]="seg.segmentLabel" [value]="formatCurrency(seg.ca)"
-                        info="Chiffre d'affaires de l'année retenue pour ce mode de vente, et son taux de marge : marge brute — CA moins coût d'achat des quantités vendues — rapportée au CA du segment.">
+          <app-kpi-item
+            [accent]="segmentAccents[i % segmentAccents.length]"
+            icon="pi pi-chart-bar"
+            [iconClass]="segmentIconClasses[i % segmentIconClasses.length]"
+            [label]="seg.segmentLabel"
+            [value]="formatCurrency(seg.ca)"
+            info="Chiffre d'affaires de l'année retenue pour ce mode de vente, et son taux de marge : marge brute — CA moins coût d'achat des quantités vendues — rapportée au CA du segment."
+          >
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(seg.tauxMarge) }}% marge</ng-container>
           </app-kpi-item>
         }
-        <app-kpi-item [accent]="'danger'" icon="pi pi-calculator" iconClass="text-danger"
-                      label="Total" [value]="formatCurrency(totalSegment().ca)"
-                        info="Cumul des segments. Le taux est celui de l'ensemble — marge totale sur CA total — non la moyenne des taux de chaque segment." valueClass="text-danger">
+        <app-kpi-item
+          [accent]="'danger'"
+          icon="pi pi-calculator"
+          iconClass="text-danger"
+          label="Total"
+          [value]="formatCurrency(totalSegment().ca)"
+          info="Cumul des segments. Le taux est celui de l'ensemble — marge totale sur CA total — non la moyenne des taux de chaque segment."
+          valueClass="text-danger"
+        >
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-          <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(totalSegment().tauxMarge) }}% marge · {{ formatNumber(totalSegment().nbTransactions) }} tx</ng-container>
+          <ng-container ngProjectAs="[kpiSub]"
+            >{{ formatPercent(totalSegment().tauxMarge) }}% marge · {{ formatNumber(totalSegment().nbTransactions) }} tx</ng-container
+          >
         </app-kpi-item>
       </app-kpi-strip>
 
@@ -93,11 +101,13 @@
             </ng-template>
             <ng-template #body let-seg>
               <tr>
-                <td><span [class]="segmentBadgeClass(seg.segment)">{{ seg.segmentLabel }}</span></td>
+                <td>
+                  <span [class]="segmentBadgeClass(seg.segment)">{{ seg.segmentLabel }}</span>
+                </td>
                 <td class="text-end fw-semibold">{{ formatCurrency(seg.ca) }}</td>
                 <td class="text-end">
                   <div class="d-flex align-items-center justify-content-end gap-1">
-                    <div class="progress flex-grow-1" style="height: 6px; min-width: 40px; max-width: 60px;">
+                    <div class="progress flex-grow-1" style="height: 6px; min-width: 40px; max-width: 60px">
                       <div class="progress-bar bg-primary" [style.width]="partCaPct(seg.ca).toFixed(1) + '%'"></div>
                     </div>
                     <span class="text-muted small">{{ formatPercent(partCaPct(seg.ca)) }} %</span>
@@ -105,7 +115,9 @@
                 </td>
                 <td class="text-end text-muted">{{ formatCurrency(seg.coutAchat) }}</td>
                 <td class="text-end">{{ formatCurrency(seg.margeBrute) }}</td>
-                <td class="text-end"><span [class]="margeBadgeClass(seg.tauxMarge)">{{ formatPercent(seg.tauxMarge) }} %</span></td>
+                <td class="text-end">
+                  <span [class]="margeBadgeClass(seg.tauxMarge)">{{ formatPercent(seg.tauxMarge) }} %</span>
+                </td>
                 <td class="text-end">{{ formatNumber(seg.nbTransactions) }}</td>
               </tr>
             </ng-template>
@@ -116,7 +128,9 @@
                 <td class="text-end text-muted small">100,00 %</td>
                 <td class="text-end fw-bold text-muted">{{ formatCurrency(totalSegment().coutAchat) }}</td>
                 <td class="text-end fw-bold">{{ formatCurrency(totalSegment().margeBrute) }}</td>
-                <td class="text-end"><span [class]="margeBadgeClass(totalSegment().tauxMarge)">{{ formatPercent(totalSegment().tauxMarge) }} %</span></td>
+                <td class="text-end">
+                  <span [class]="margeBadgeClass(totalSegment().tauxMarge)">{{ formatPercent(totalSegment().tauxMarge) }} %</span>
+                </td>
                 <td class="text-end fw-bold">{{ formatNumber(totalSegment().nbTransactions) }}</td>
               </tr>
             </ng-template>
@@ -152,7 +166,7 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <app-data-table [value]="sortedFamille()"  [stripedRows]="true">
+          <app-data-table [value]="sortedFamille()" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>#</th>
@@ -177,7 +191,7 @@
                 <td class="text-end">{{ formatCurrency(fam.ca) }}</td>
                 <td class="text-end">
                   <div class="d-flex align-items-center justify-content-end gap-1">
-                    <div class="progress flex-grow-1" style="height: 6px; min-width: 40px; max-width: 60px;">
+                    <div class="progress flex-grow-1" style="height: 6px; min-width: 40px; max-width: 60px">
                       <div class="progress-bar bg-primary" [style.width]="partCaPct(fam.ca, totalFamilleCA()).toFixed(1) + '%'"></div>
                     </div>
                     <span class="text-muted small">{{ formatPercent(partCaPct(fam.ca, totalFamilleCA())) }} %</span>
@@ -185,7 +199,9 @@
                 </td>
                 <td class="text-end text-muted">{{ formatCurrency(fam.coutAchat) }}</td>
                 <td class="text-end">{{ formatCurrency(fam.margeBrute) }}</td>
-                <td class="text-end"><span [class]="margeBadgeClass(fam.tauxMarge)">{{ formatPercent(fam.tauxMarge) }} %</span></td>
+                <td class="text-end">
+                  <span [class]="margeBadgeClass(fam.tauxMarge)">{{ formatPercent(fam.tauxMarge) }} %</span>
+                </td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>
@@ -205,7 +221,6 @@
 
 <!-- ========== ÉVOLUTION VIEW ========== -->
 @if (view() === 'evolution' && !isLoading()) {
-
   <!-- Par type de vente -->
   @if (snapshotTab() === 'segment') {
     @if (!segmentEvolutionData()) {
@@ -223,7 +238,7 @@
             Taux de marge par type de vente — 12 mois glissants
           </h5>
         </div>
-        <div class="card-body" style="position: relative; height: 340px;">
+        <div class="card-body" style="position: relative; height: 340px">
           <canvas #segmentEvolutionChartCanvas></canvas>
         </div>
       </div>
@@ -247,7 +262,7 @@
             Taux de marge — Top 5 familles (12 mois glissants)
           </h5>
         </div>
-        <div class="card-body" style="position: relative; height: 340px;">
+        <div class="card-body" style="position: relative; height: 340px">
           <canvas #familleEvolutionChartCanvas></canvas>
         </div>
       </div>

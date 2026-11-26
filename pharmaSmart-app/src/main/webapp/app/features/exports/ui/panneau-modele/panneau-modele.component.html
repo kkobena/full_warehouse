@@ -8,12 +8,38 @@
       <span class="form-label mb-0">Nom</span>
       <app-input [(ngModel)]="libelle" [maxlength]="100" [required]="true" name="libelle" />
     </label>
-    <app-select (selectionChange)="choisirExport($event)" [clearable]="false" [items]="exports()" [ngModel]="export()" ariaLabel="Export" bindLabel="libelle"
-                bindValue="code" inputId="modeleExport" name="export" placeholder="Export…" />
-    <app-pill-selector (selectionChange)="choisir(format.set, $event)" [items]="formats()" [ngModel]="format()" ariaLabel="Format" name="format" />
+    <app-select
+      (selectionChange)="choisirExport($event)"
+      [clearable]="false"
+      [items]="exports()"
+      [ngModel]="export()"
+      ariaLabel="Export"
+      bindLabel="libelle"
+      bindValue="code"
+      inputId="modeleExport"
+      name="export"
+      placeholder="Export…"
+    />
+    <app-pill-selector
+      (selectionChange)="choisir(format.set, $event)"
+      [items]="formats()"
+      [ngModel]="format()"
+      ariaLabel="Format"
+      name="format"
+    />
     @if (periodique()) {
-      <app-select (selectionChange)="choisir(periode.set, $event)" [clearable]="false" [items]="periodes" [ngModel]="periode()" [searchable]="false"
-                  ariaLabel="Période, recalculée à chaque exécution" bindLabel="libelle" bindValue="valeur" inputId="modelePeriode" name="periode" />
+      <app-select
+        (selectionChange)="choisir(periode.set, $event)"
+        [clearable]="false"
+        [items]="periodes"
+        [ngModel]="periode()"
+        [searchable]="false"
+        ariaLabel="Période, recalculée à chaque exécution"
+        bindLabel="libelle"
+        bindValue="valeur"
+        inputId="modelePeriode"
+        name="periode"
+      />
     }
     @if (filtresDuModele().length) {
       <fieldset class="d-flex flex-column gap-2">
@@ -31,15 +57,45 @@
           Cette édition ne se programme pas : son service la bâtit avec vos droits. Enregistrée, elle se rejoue d'un clic.
         </p>
       } @else {
-        <app-select (selectionChange)="choisir(frequence.set, $event)" [clearable]="false" [items]="frequences" [ngModel]="frequence()" [searchable]="false"
-                    ariaLabel="Fréquence" bindLabel="libelle" bindValue="valeur" inputId="modeleFrequence" name="frequence" />
+        <app-select
+          (selectionChange)="choisir(frequence.set, $event)"
+          [clearable]="false"
+          [items]="frequences"
+          [ngModel]="frequence()"
+          [searchable]="false"
+          ariaLabel="Fréquence"
+          bindLabel="libelle"
+          bindValue="valeur"
+          inputId="modeleFrequence"
+          name="frequence"
+        />
         @if (frequence()) {
           @if (frequence() !== 'DAILY') {
-            <app-select (selectionChange)="choisir(jour.set, $event)" [clearable]="false" [items]="jours()" [ngModel]="jour()" [searchable]="false"
-                        ariaLabel="Jour" bindLabel="libelle" bindValue="valeur" inputId="modeleJour" name="jour" />
+            <app-select
+              (selectionChange)="choisir(jour.set, $event)"
+              [clearable]="false"
+              [items]="jours()"
+              [ngModel]="jour()"
+              [searchable]="false"
+              ariaLabel="Jour"
+              bindLabel="libelle"
+              bindValue="valeur"
+              inputId="modeleJour"
+              name="jour"
+            />
           }
-          <app-select (selectionChange)="choisir(heure.set, $event)" [clearable]="false" [items]="heures" [ngModel]="heure()" [searchable]="false"
-                      ariaLabel="Heure" bindLabel="libelle" bindValue="valeur" inputId="modeleHeure" name="heure" />
+          <app-select
+            (selectionChange)="choisir(heure.set, $event)"
+            [clearable]="false"
+            [items]="heures"
+            [ngModel]="heure()"
+            [searchable]="false"
+            ariaLabel="Heure"
+            bindLabel="libelle"
+            bindValue="valeur"
+            inputId="modeleHeure"
+            name="heure"
+          />
           <p class="small text-muted mb-0">
             Le fichier arrive dans l'historique de l'auteur du modèle. Poste éteint à l'heure dite : il part au démarrage suivant.
           </p>

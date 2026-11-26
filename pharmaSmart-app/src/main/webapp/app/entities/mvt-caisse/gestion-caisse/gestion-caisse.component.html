@@ -2,15 +2,28 @@
   <app-toolbar [code]="navCode()" icon="pi pi-briefcase" title="Gestion de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker [ngModel]="fromDate()" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()" [style]="{ 'max-width': '180px' }" id="dateDebut"
-                            label="Du" />
+        <pharma-date-picker
+          [ngModel]="fromDate()"
+          (ngModelChange)="fromDate.set($event)"
+          [maxDate]="toDate()"
+          [style]="{ 'max-width': '180px' }"
+          id="dateDebut"
+          label="Du"
+        />
 
-        <pharma-date-picker [ngModel]="toDate()" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()" [style]="{ 'max-width': '180px' }" id="dateFin"
-                            label="Au" />
+        <pharma-date-picker
+          [ngModel]="toDate()"
+          (ngModelChange)="toDate.set($event)"
+          [minDate]="fromDate()"
+          [style]="{ 'max-width': '180px' }"
+          id="dateFin"
+          label="Au"
+        />
 
         <app-select
           (selectionChange)="onSearch()"
-          [ngModel]="selectedUser()" (ngModelChange)="selectedUser.set($event)"
+          [ngModel]="selectedUser()"
+          (ngModelChange)="selectedUser.set($event)"
           [clearable]="true"
           [items]="users()"
           [style]="{ 'min-width': '200px' }"
@@ -22,7 +35,8 @@
         @if (superviseDAutresMagasins()) {
           <app-select
             (selectionChange)="onSearch()"
-            [ngModel]="selectedMagasin()" (ngModelChange)="selectedMagasin.set($event)"
+            [ngModel]="selectedMagasin()"
+            (ngModelChange)="selectedMagasin.set($event)"
             [clearable]="true"
             [items]="magasins()"
             [style]="{ 'min-width': '200px' }"

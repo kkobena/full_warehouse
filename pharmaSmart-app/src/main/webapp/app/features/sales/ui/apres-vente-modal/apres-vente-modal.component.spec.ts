@@ -18,10 +18,20 @@ describe('ApresVenteModalComponent', () => {
   const modalService = { open: jest.fn() };
   const droits: Record<string, boolean> = {};
 
-  const avoir: IAvoirClientDocument = { id: 7, reference: 'AV-7', produitLibelle: 'DOLIPRANE', quantite: 2, quantiteRestante: 2, montant: 1000, montantRestant: 1000 };
+  const avoir: IAvoirClientDocument = {
+    id: 7,
+    reference: 'AV-7',
+    produitLibelle: 'DOLIPRANE',
+    quantite: 2,
+    quantiteRestante: 2,
+    montant: 1000,
+    montantRestant: 1000,
+  };
   const el = () => fixture.nativeElement as HTMLElement;
   const boutons = () => Array.from(el().querySelectorAll<HTMLButtonElement>('button'));
-  const bouton = (texte: string) => boutons().find(b => b.textContent?.includes(texte)) ?? Array.from(el().querySelectorAll<HTMLElement>('a')).find(a => a.textContent?.includes(texte)) as HTMLButtonElement | undefined;
+  const bouton = (texte: string) =>
+    boutons().find(b => b.textContent?.includes(texte)) ??
+    (Array.from(el().querySelectorAll<HTMLElement>('a')).find(a => a.textContent?.includes(texte)) as HTMLButtonElement | undefined);
 
   function ouvrir(retour: boolean, cloture: boolean): void {
     droits['ventes.retours-client.create'] = retour;
@@ -69,7 +79,12 @@ describe('ApresVenteModalComponent', () => {
     const veille = () => new Promise(resolve => setTimeout(resolve, 80));
     // jsdom ne calcule aucune mise en page : `offsetParent` y est toujours nul, ce que la directive lit comme « masqué ».
     const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')!;
-    Object.defineProperty(HTMLElement.prototype, 'offsetParent', { configurable: true, get (this: HTMLElement) { return this.parentElement; } });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.parentElement;
+      },
+    });
     ouvrir(true, true);
     document.body.appendChild(el());
     fixture.detectChanges();

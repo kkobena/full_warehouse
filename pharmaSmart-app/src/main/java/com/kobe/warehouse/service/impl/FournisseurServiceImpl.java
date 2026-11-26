@@ -8,6 +8,14 @@ import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.FournisseurService;
 import com.kobe.warehouse.service.dto.FournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
@@ -20,15 +28,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Transactional
@@ -45,28 +44,28 @@ public class FournisseurServiceImpl implements FournisseurService {
     public FournisseurDTO save(FournisseurDTO fournisseurDTO) {
         log.debug("Request to save Fournisseur : {}", fournisseurDTO);
         Fournisseur fournisseur = new Fournisseur()
-            .id(fournisseurDTO.getId())
-            .libelle(fournisseurDTO.getLibelle())
-            .addressePostal(fournisseurDTO.getAddressePostal())
-            .code(fournisseurDTO.getCode())
-            .mobile(fournisseurDTO.getMobile())
-            .numFaxe(fournisseurDTO.getNumFaxe())
-            .phone(fournisseurDTO.getPhone())
-            .site(fournisseurDTO.getSite())
-            .setEmail(fournisseurDTO.getEmail())
-            .setOdre(Objects.requireNonNullElse(fournisseurDTO.getOdre(), 100))
-            .setDelaiLivraisonJours(fournisseurDTO.getDelaiLivraisonJours())
-            .setFrequenceCommandeJours(fournisseurDTO.getFrequenceCommandeJours())
-            .setIdentifiantRepartiteur(fournisseurDTO.getIdentifiantRepartiteur())
-            .setJoursCredit(fournisseurDTO.getJoursCredit())
-            .setJoursCritique(fournisseurDTO.getJoursCritique())
-            .setPalierRfa(fournisseurDTO.getPalierRfa())
-            .setTauxRfa(fournisseurDTO.getTauxRfa())
-            .setFrancoDePort(fournisseurDTO.getFrancoDePort())
-            .setUrlPharmaMl(fournisseurDTO.getUrlPharmaMl())
-            .setCodeOfficePharmaMl(fournisseurDTO.getCodeOfficePharmaMl())
-            .setCodeRecepteurPharmaMl(fournisseurDTO.getCodeRecepteurPharmaMl())
-            .setIdRecepteurPharmaMl(fournisseurDTO.getIdRecepteurPharmaMl());
+                .id(fournisseurDTO.getId())
+                .libelle(fournisseurDTO.getLibelle())
+                .addressePostal(fournisseurDTO.getAddressePostal())
+                .code(fournisseurDTO.getCode())
+                .mobile(fournisseurDTO.getMobile())
+                .numFaxe(fournisseurDTO.getNumFaxe())
+                .phone(fournisseurDTO.getPhone())
+                .site(fournisseurDTO.getSite())
+                .setEmail(fournisseurDTO.getEmail())
+                .setOdre(Objects.requireNonNullElse(fournisseurDTO.getOdre(), 100))
+                .setDelaiLivraisonJours(fournisseurDTO.getDelaiLivraisonJours())
+                .setFrequenceCommandeJours(fournisseurDTO.getFrequenceCommandeJours())
+                .setIdentifiantRepartiteur(fournisseurDTO.getIdentifiantRepartiteur())
+                .setJoursCredit(fournisseurDTO.getJoursCredit())
+                .setJoursCritique(fournisseurDTO.getJoursCritique())
+                .setPalierRfa(fournisseurDTO.getPalierRfa())
+                .setTauxRfa(fournisseurDTO.getTauxRfa())
+                .setFrancoDePort(fournisseurDTO.getFrancoDePort())
+                .setUrlPharmaMl(fournisseurDTO.getUrlPharmaMl())
+                .setCodeOfficePharmaMl(fournisseurDTO.getCodeOfficePharmaMl())
+                .setCodeRecepteurPharmaMl(fournisseurDTO.getCodeRecepteurPharmaMl())
+                .setIdRecepteurPharmaMl(fournisseurDTO.getIdRecepteurPharmaMl());
         if (fournisseurDTO.getParentId() != null) {
             fournisseur.setParent(fournisseurRepository.getReferenceById(fournisseurDTO.getParentId()));
         }
@@ -77,13 +76,21 @@ public class FournisseurServiceImpl implements FournisseurService {
     @Override
     @Transactional(readOnly = true)
     public Page<FournisseurDTO> findAll(String search, Pageable pageable) {
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
         if (!StringUtils.isEmpty(search)) {
             SpecificationBuilder<Fournisseur> builder = new SpecificationBuilder<>();
-            Specification<Fournisseur> spec = builder
-                .with(new String[]{"libelle"}, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.OR)
-                .with(new String[]{"code"}, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
-                .build();
+            Specification<Fournisseur> spec = builder.with(
+                            new String[] {"libelle"},
+                            search + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.OR)
+                    .with(
+                            new String[] {"code"},
+                            search + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.END)
+                    .build();
             return fournisseurRepository.findAll(spec, page).map(FournisseurDTO::new);
         }
         return fournisseurRepository.findAll(page).map(FournisseurDTO::new);
@@ -104,7 +111,8 @@ public class FournisseurServiceImpl implements FournisseurService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> {
                 if (count.getAndIncrement() == 0) return;
                 Fournisseur fournisseur = new Fournisseur();
@@ -117,9 +125,11 @@ public class FournisseurServiceImpl implements FournisseurService {
                 fournisseur.setIdentifiantRepartiteur(record.get(7));
                 String parentLibelle = record.get(2);
                 if (!StringUtils.isEmpty(parentLibelle)) {
-                    fournisseurRepository.findFirstByLibelleEqualsAndParentIsNull(parentLibelle)
-                        .or(() -> fournisseurRepository.findFirstByLibelleEqualsAndParentIsNull(EntityConstant.AUTRES_FOURNISSEURS))
-                        .ifPresent(fournisseur::setParent);
+                    fournisseurRepository
+                            .findFirstByLibelleEqualsAndParentIsNull(parentLibelle)
+                            .or(() -> fournisseurRepository.findFirstByLibelleEqualsAndParentIsNull(
+                                    EntityConstant.AUTRES_FOURNISSEURS))
+                            .ifPresent(fournisseur::setParent);
                 }
                 fournisseurRepository.save(fournisseur);
             });
@@ -137,18 +147,24 @@ public class FournisseurServiceImpl implements FournisseurService {
     @Override
     @Transactional(readOnly = true)
     public List<FournisseurDTO> findParents() {
-        return fournisseurRepository.findByParentIsNullOrderByOdreAsc().stream().map(FournisseurDTO::new).toList();
+        return fournisseurRepository.findByParentIsNullOrderByOdreAsc().stream()
+                .map(FournisseurDTO::new)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<FournisseurDTO> findParents(String search, Pageable pageable) {
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "odre", "libelle"));
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "odre", "libelle"));
         if (!StringUtils.isEmpty(search)) {
             SpecificationBuilder<Fournisseur> builder = new SpecificationBuilder<>();
-            Specification<Fournisseur> spec = builder
-                .with(new String[]{"libelle"}, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
-                .build();
+            Specification<Fournisseur> spec = builder.with(
+                            new String[] {"libelle"},
+                            search + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.END)
+                    .build();
             return fournisseurRepository.findByParentIsNull(spec, page).map(FournisseurDTO::new);
         }
         return fournisseurRepository.findByParentIsNull(page).map(FournisseurDTO::new);
@@ -157,7 +173,9 @@ public class FournisseurServiceImpl implements FournisseurService {
     @Override
     @Transactional(readOnly = true)
     public List<FournisseurDTO> findAgences(Integer parentId) {
-        return fournisseurRepository.findByParentId(parentId).stream().map(FournisseurDTO::new).toList();
+        return fournisseurRepository.findByParentId(parentId).stream()
+                .map(FournisseurDTO::new)
+                .toList();
     }
 
     @Override

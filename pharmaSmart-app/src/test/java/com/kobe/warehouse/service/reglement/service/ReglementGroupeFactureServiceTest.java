@@ -11,9 +11,8 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
-import com.kobe.warehouse.service.errors.GenericError;
-import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.InvoicePayment;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.repository.BanqueRepository;
@@ -23,6 +22,7 @@ import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
@@ -82,17 +82,16 @@ class ReglementGroupeFactureServiceTest {
     @BeforeEach
     void setUp() {
         service = new ReglementGroupeFactureService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            reglementFactureModeAllService,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                reglementFactureModeAllService,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         when(cashRegisterService.getCashRegister()).thenReturn(new CashRegister());
         when(userService.getUser()).thenReturn(new AppUser());
         when(transactionIdGeneratorService.nextId()).thenReturn(55L);
@@ -110,7 +109,8 @@ class ReglementGroupeFactureServiceTest {
     /** Une fille qui doit {@code montant} (un seul dossier) : le statut du groupe se lit sur les dossiers. */
     private static FactureTiersPayant fille(long id, int montant) {
         FactureTiersPayant fille = new FactureTiersPayant().setId(id).setMontantRegle(0);
-        fille.setFacturesDetails(new ArrayList<>(List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
+        fille.setFacturesDetails(new ArrayList<>(
+                List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
         return fille;
     }
 
@@ -125,22 +125,23 @@ class ReglementGroupeFactureServiceTest {
     private void stubReglementFille(FactureTiersPayant fille, int paidAmount) {
         InvoicePayment paiementFille = new InvoicePayment();
         paiementFille.setPaidAmount(paidAmount);
-        when(reglementFactureModeAllService.doReglement(any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(fille)))
-            .thenAnswer(inv -> {
-                ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
-                dossier.setMontantRegle(dossier.getMontantRegle() + paidAmount);
-                return paiementFille;
-            });
+        when(reglementFactureModeAllService.doReglement(
+                        any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(fille)))
+                .thenAnswer(inv -> {
+                    ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
+                    dossier.setMontantRegle(dossier.getMontantRegle() + paidAmount);
+                    return paiementFille;
+                });
     }
 
     private static ReglementParam param(int amount, int totalAmount, int montantFacture) {
         return new ReglementParam()
-            .setId(GROUPE_ID)
-            .setAmount(amount)
-            .setTotalAmount(totalAmount)
-            .setMontantFacture(montantFacture)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setComment("reglement groupe");
+                .setId(GROUPE_ID)
+                .setAmount(amount)
+                .setTotalAmount(totalAmount)
+                .setMontantFacture(montantFacture)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setComment("reglement groupe");
     }
 
     @Test
@@ -228,8 +229,8 @@ class ReglementGroupeFactureServiceTest {
         groupe(soldee);
 
         assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000)))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("déjà entièrement réglée");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("déjà entièrement réglée");
 
         verifyNoInteractions(reglementFactureModeAllService);
         verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
@@ -247,7 +248,7 @@ class ReglementGroupeFactureServiceTest {
         service.doReglement(param(400, 400, 400));
 
         verify(reglementFactureModeAllService, org.mockito.Mockito.never())
-            .doReglement(any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(soldee));
+                .doReglement(any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(soldee));
         assertThat(groupe.getMontantRegle()).isEqualTo(400);
         assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PAID);
     }
@@ -259,8 +260,8 @@ class ReglementGroupeFactureServiceTest {
         groupe.setFactureProvisoire(true);
 
         assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000)))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("provisoire");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("provisoire");
 
         verifyNoInteractions(reglementFactureModeAllService);
     }

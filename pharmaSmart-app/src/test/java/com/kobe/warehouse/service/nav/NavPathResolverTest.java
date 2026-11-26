@@ -25,7 +25,7 @@ class NavPathResolverTest {
         Map<String, String> chemins = resolver.resolveAll();
 
         assertThat(chemins.get("ventes.devis"))
-            .isEqualTo("Barre de navigation ▸ Gestion Courante ▸ Ventes ▸ Proformas");
+                .isEqualTo("Barre de navigation ▸ Gestion Courante ▸ Ventes ▸ Proformas");
         assertThat(chemins.get("ventes")).isEqualTo("Barre de navigation ▸ Gestion Courante ▸ Ventes");
     }
 
@@ -40,7 +40,7 @@ class NavPathResolverTest {
         when(repository.findAll()).thenReturn(List.of(groupe, ventes));
 
         assertThat(resolver.resolveAll().get("ventes"))
-            .isEqualTo("Barre de navigation ▸ Exploitation quotidienne ▸ Comptoir");
+                .isEqualTo("Barre de navigation ▸ Exploitation quotidienne ▸ Comptoir");
     }
 
     /** Un code absent ne doit pas propager de null au reste de la chaîne d'affichage. */
@@ -71,4 +71,3 @@ class NavPathResolverTest {
         return new NavItem().setId(id).setCode(code).setLibelle(libelle).setParent(parent);
     }
 }
-

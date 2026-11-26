@@ -81,19 +81,30 @@
     color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
     font-weight: 500;
 
-    i { font-size: 0.75rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
+    i {
+      font-size: 0.75rem;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
+    }
   }
 
   .low-stock {
     color: $pharma-danger;
     font-weight: 700;
-    i { color: $pharma-danger; }
+    i {
+      color: $pharma-danger;
+    }
   }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ── GRILLE ───────────────────────────────────────────────────────────────────
@@ -126,7 +137,9 @@
     color: $gray-600;
     white-space: nowrap;
 
-    strong { color: var(--pharma-chrome-tab, #{$pharma-primary}); }
+    strong {
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
+    }
   }
 }
 
@@ -147,14 +160,21 @@
   color: $gray-400;
   font-size: 0.85rem;
 
-  i { font-size: 2rem; }
+  i {
+    font-size: 2rem;
+  }
 }
 
 // ── AG Grid overrides ────────────────────────────────────────────────────────
 
 :host ::ng-deep {
-  .ag-row { font-size: 0.82rem; }
-  .ag-header-cell-label { font-size: 0.8rem; font-weight: 700; }
+  .ag-row {
+    font-size: 0.82rem;
+  }
+  .ag-header-cell-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
 }
 
 // ── Responsive ───────────────────────────────────────────────────────────────
@@ -165,6 +185,9 @@
 
     .product-search-input,
     .quantity-input-wrapper,
-    .price-input-wrapper { flex: 1 1 100%; width: 100%; }
+    .price-input-wrapper {
+      flex: 1 1 100%;
+      width: 100%;
+    }
   }
 }

@@ -1,11 +1,6 @@
 @if (suggestions()?.length > 0) {
   <app-card>
-    <app-data-table
-      [value]="suggestions()"
-      dataKey="id"
-      [stripedRows]="true"
-      class="p-datatable-sm"
-    >
+    <app-data-table [value]="suggestions()" dataKey="id" [stripedRows]="true" class="p-datatable-sm">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th style="width: 3rem"></th>
@@ -83,7 +78,7 @@
                 </h5>
               </div>
               <ag-grid-angular
-    [localeText]="localeFr"
+                [localeText]="localeFr"
                 [rowData]="suggestion.ligneReassorts ?? []"
                 [columnDefs]="columnDefs"
                 [defaultColDef]="defaultColDef"
@@ -125,5 +120,4 @@
       }
     </div>
   </app-card>
-
 }

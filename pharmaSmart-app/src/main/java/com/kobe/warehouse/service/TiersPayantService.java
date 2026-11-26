@@ -6,7 +6,6 @@ import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.service.dto.TiersPayantMapper;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
-import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
 import java.time.LocalDate;
@@ -27,7 +26,8 @@ public interface TiersPayantService extends TiersPayantMapper {
 
     List<Pair> getOrdreTrisFacture();
 
-    Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
+    Page<AchatTiersPayant> fetchAchatTiersPayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
     List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam);
 

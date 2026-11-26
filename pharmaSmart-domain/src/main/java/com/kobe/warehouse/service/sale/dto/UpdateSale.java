@@ -7,10 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 public record UpdateSale(
-    SaleId id,
-    AssuredCustomerDTO customer,
-    AssuredCustomerDTO ayantDroit,
-    Set<ThirdPartySaleLineDTO> thirdPartySaleLines,
-    Map<Object, Object> initialValue,
-    Map<Object, Object> finalValue
-) {}
+        SaleId id,
+        AssuredCustomerDTO customer,
+        AssuredCustomerDTO ayantDroit,
+        Set<ThirdPartySaleLineDTO> thirdPartySaleLines,
+        Map<Object, Object> initialValue,
+        Map<Object, Object> finalValue) {}

@@ -49,7 +49,8 @@ public interface MobileProductRepository {
      * @param monthStart Month start date
      * @return Sales stats
      */
-    ProductSalesStatsProjection getSalesStats(int productId, LocalDate today, LocalDate weekStart, LocalDate monthStart);
+    ProductSalesStatsProjection getSalesStats(
+            int productId, LocalDate today, LocalDate weekStart, LocalDate monthStart);
 
     /**
      * Calculate average daily quantity sold.
@@ -64,71 +65,52 @@ public interface MobileProductRepository {
      * Projection for basic product info.
      */
     record ProductBasicInfoProjection(
-        long id,
-        String name,
-        String codeCip,
-        String codeEan,
-        String supplierName,
-        Long supplierId,
-        String familyName,
-        Long familyId
-    ) {}
+            long id,
+            String name,
+            String codeCip,
+            String codeEan,
+            String supplierName,
+            Long supplierId,
+            String familyName,
+            Long familyId) {}
 
     /**
      * Projection for stock info.
      */
     record StockInfoProjection(
-        int totalQtyStock,
-        int totalQtyUg,
-        int totalQuantity,
-        int minThreshold,
-        int maxThreshold,
-        List<StorageStockProjection> storageStocks
-    ) {}
+            int totalQtyStock,
+            int totalQtyUg,
+            int totalQuantity,
+            int minThreshold,
+            int maxThreshold,
+            List<StorageStockProjection> storageStocks) {}
 
     /**
      * Projection for storage stock.
      */
     record StorageStockProjection(
-        long storageId,
-        String storageName,
-        String storageType,
-        int qtyStock,
-        int qtyUg,
-        int total
-    ) {}
+            long storageId, String storageName, String storageType, int qtyStock, int qtyUg, int total) {}
 
     /**
      * Projection for price info.
      */
-    record PriceInfoProjection(
-        int purchasePrice,
-        int sellingPrice,
-        double marginPercent,
-        int vatRate
-    ) {}
+    record PriceInfoProjection(int purchasePrice, int sellingPrice, double marginPercent, int vatRate) {}
 
     /**
      * Projection for lot info.
      */
     record LotInfoProjection(
-        long lotId,
-        String numLot,
-        LocalDate expiryDate,
-        int quantityReceived,
-        int daysUntilExpiry
-    ) {}
+            long lotId, String numLot, LocalDate expiryDate, int quantityReceived, int daysUntilExpiry) {}
 
     /**
      * Projection for product sales stats.
      */
     record ProductSalesStatsProjection(
-        int todayQty,
-        long todayAmount,
-        int weekQty,
-        long weekAmount,
-        int monthQty,
-        long monthAmount,
-        double avgDailyQty
-    ) {}
+            int todayQty,
+            long todayAmount,
+            int weekQty,
+            long weekAmount,
+            int monthQty,
+            long monthAmount,
+            double avgDailyQty) {}
 }

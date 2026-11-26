@@ -64,8 +64,10 @@ class MobileActivityReportServiceTest {
         when(activitySummaryService.findRecettes(any(), any())).thenReturn(List.of());
         when(activitySummaryService.findMouvementsCaisse(any(), any())).thenReturn(List.of());
         when(activitySummaryService.fetchAchats(any(), any(), any())).thenReturn(page(List.of()));
-        when(activitySummaryService.findReglementTierspayant(any(), any(), any(), any())).thenReturn(page(List.of()));
-        when(activitySummaryService.fetchAchatTiersPayant(any(), any(), any(), any())).thenReturn(page(List.of()));
+        when(activitySummaryService.findReglementTierspayant(any(), any(), any(), any()))
+                .thenReturn(page(List.of()));
+        when(activitySummaryService.fetchAchatTiersPayant(any(), any(), any(), any()))
+                .thenReturn(page(List.of()));
     }
 
     // ===== périmètre =====
@@ -93,8 +95,10 @@ class MobileActivityReportServiceTest {
             service.getActivityReport(JOUR, JOUR);
 
             verify(activitySummaryService).fetchAchats(JOUR, JOUR, PageRequest.of(0, 20));
-            verify(activitySummaryService).findReglementTierspayant(eq(JOUR), eq(JOUR), isNull(), eq(PageRequest.of(0, 20)));
-            verify(activitySummaryService).fetchAchatTiersPayant(eq(JOUR), eq(JOUR), isNull(), eq(PageRequest.of(0, 20)));
+            verify(activitySummaryService)
+                    .findReglementTierspayant(eq(JOUR), eq(JOUR), isNull(), eq(PageRequest.of(0, 20)));
+            verify(activitySummaryService)
+                    .fetchAchatTiersPayant(eq(JOUR), eq(JOUR), isNull(), eq(PageRequest.of(0, 20)));
         }
 
         @Test
@@ -120,8 +124,7 @@ class MobileActivityReportServiceTest {
         @Test
         @DisplayName("chaque montant est repris dans le champ qui le désigne")
         void montantsRepris() {
-            donneChiffreAffaire(
-                new ChiffreAffaireRecord(
+            donneChiffreAffaire(new ChiffreAffaireRecord(
                     BigDecimal.valueOf(1_000_000),
                     BigDecimal.valueOf(100_000),
                     BigDecimal.valueOf(900_000),
@@ -131,9 +134,7 @@ class MobileActivityReportServiceTest {
                     BigDecimal.valueOf(120_000),
                     BigDecimal.valueOf(880_000),
                     BigDecimal.valueOf(280_000),
-                    BigDecimal.valueOf(400_000)
-                )
-            );
+                    BigDecimal.valueOf(400_000)));
 
             ChiffreAffaireMobileDTO ca = service.getActivityReport(JOUR, JOUR).chiffreAffaire();
 
@@ -154,7 +155,8 @@ class MobileActivityReportServiceTest {
         void tauxDeMarge() {
             donneChiffreAffaire(chiffreAffaire(1_000_000L, 333_333L));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire().margePercent()).isEqualTo(33.3);
+            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire().margePercent())
+                    .isEqualTo(33.3);
         }
 
         /** Sans chiffre d'affaires, pas de division : le taux vaut zéro. */
@@ -163,16 +165,18 @@ class MobileActivityReportServiceTest {
         void chiffreDAffairesNul() {
             donneChiffreAffaire(chiffreAffaire(0L, 0L));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire().margePercent()).isZero();
+            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire().margePercent())
+                    .isZero();
         }
 
         @Test
         @DisplayName("un chiffre d'affaires absent du calcul rend un bloc vide")
         void chiffreAffaireAbsent() {
             when(activitySummaryService.getChiffreAffaire(any(), any()))
-                .thenReturn(new ChiffreAffaireDTO(List.of(), null, null, List.of()));
+                    .thenReturn(new ChiffreAffaireDTO(List.of(), null, null, List.of()));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire()).isEqualTo(ChiffreAffaireMobileDTO.empty());
+            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire())
+                    .isEqualTo(ChiffreAffaireMobileDTO.empty());
         }
 
         @Test
@@ -180,7 +184,8 @@ class MobileActivityReportServiceTest {
         void montantAbsent() {
             donneChiffreAffaire(new ChiffreAffaireRecord(null, null, null, null, null, null, null, null, null, null));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire()).isEqualTo(ChiffreAffaireMobileDTO.empty());
+            assertThat(service.getActivityReport(JOUR, JOUR).chiffreAffaire())
+                    .isEqualTo(ChiffreAffaireMobileDTO.empty());
         }
     }
 
@@ -200,7 +205,8 @@ class MobileActivityReportServiceTest {
         void codeEtLibelle() {
             donneRecettes(new Recette(300_000L, 300_000L, "CASH", "Espèces"));
 
-            RecetteMobileDTO recette = service.getActivityReport(JOUR, JOUR).recettes().getFirst();
+            RecetteMobileDTO recette =
+                    service.getActivityReport(JOUR, JOUR).recettes().getFirst();
 
             assertThat(recette.code()).isEqualTo("CASH");
             assertThat(recette.libelle()).isEqualTo("Espèces");
@@ -210,15 +216,14 @@ class MobileActivityReportServiceTest {
         @DisplayName("la couleur du graphique suit le mode de règlement")
         void couleurParMode() {
             donneRecettes(
-                new Recette(1L, 1L, "CASH", "Espèces"),
-                new Recette(1L, 1L, "CB", "Carte bancaire"),
-                new Recette(1L, 1L, "WAVE", "Wave"),
-                new Recette(1L, 1L, "INCONNU", "Autre")
-            );
+                    new Recette(1L, 1L, "CASH", "Espèces"),
+                    new Recette(1L, 1L, "CB", "Carte bancaire"),
+                    new Recette(1L, 1L, "WAVE", "Wave"),
+                    new Recette(1L, 1L, "INCONNU", "Autre"));
 
             assertThat(service.getActivityReport(JOUR, JOUR).recettes())
-                .extracting(RecetteMobileDTO::color)
-                .containsExactly("#28A745", "#007BFF", "#FFC107", "#6C757D");
+                    .extracting(RecetteMobileDTO::color)
+                    .containsExactly("#28A745", "#007BFF", "#FFC107", "#6C757D");
         }
 
         /** C'est le montant réellement encaissé qui compte, non le montant facturé. */
@@ -227,17 +232,24 @@ class MobileActivityReportServiceTest {
         void montantReellementEncaisse() {
             donneRecettes(new Recette(295_000L, 300_000L, "CASH", "Espèces"));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).recettes().getFirst().montant()).isEqualTo(295_000L);
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .recettes()
+                            .getFirst()
+                            .montant())
+                    .isEqualTo(295_000L);
         }
 
         @Test
         @DisplayName("chaque mode porte sa part du total encaissé")
         void partDuTotal() {
-            donneRecettes(new Recette(750_000L, 750_000L, "CASH", "Espèces"), new Recette(250_000L, 250_000L, "CB", "Carte"));
+            donneRecettes(
+                    new Recette(750_000L, 750_000L, "CASH", "Espèces"), new Recette(250_000L, 250_000L, "CB", "Carte"));
 
             MobileActivityReportDTO resultat = service.getActivityReport(JOUR, JOUR);
 
-            assertThat(resultat.recettes()).extracting(RecetteMobileDTO::percent).containsExactly(75.0, 25.0);
+            assertThat(resultat.recettes())
+                    .extracting(RecetteMobileDTO::percent)
+                    .containsExactly(75.0, 25.0);
             assertThat(resultat.totalRecettes()).isEqualTo(1_000_000L);
         }
 
@@ -246,7 +258,11 @@ class MobileActivityReportServiceTest {
         void totalNul() {
             donneRecettes(new Recette(0L, 0L, "CASH", "Espèces"));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).recettes().getFirst().percent()).isZero();
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .recettes()
+                            .getFirst()
+                            .percent())
+                    .isZero();
         }
     }
 
@@ -260,28 +276,26 @@ class MobileActivityReportServiceTest {
         @DisplayName("le sens du mouvement suit la catégorie que le domaine lui donne")
         void sensDuMouvement() {
             donneMouvements(
-                mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000L),
-                mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000L),
-                mouvement(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 400_000L),
-                mouvement(TypeFinancialTransaction.FONDS_CAISSE, 30_000L),
-                mouvement(TypeFinancialTransaction.CASH_SALE, 900_000L),
-                mouvement(TypeFinancialTransaction.CAUTION, 10_000L)
-            );
+                    mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000L),
+                    mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000L),
+                    mouvement(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 400_000L),
+                    mouvement(TypeFinancialTransaction.FONDS_CAISSE, 30_000L),
+                    mouvement(TypeFinancialTransaction.CASH_SALE, 900_000L),
+                    mouvement(TypeFinancialTransaction.CAUTION, 10_000L));
 
             assertThat(service.getActivityReport(JOUR, JOUR).mouvementsCaisse())
-                .extracting(MouvementCaisseMobileDTO::type)
-                .containsExactly("ENTREE", "SORTIE", "SORTIE", "SORTIE", "ENTREE", "ENTREE");
+                    .extracting(MouvementCaisseMobileDTO::type)
+                    .containsExactly("ENTREE", "SORTIE", "SORTIE", "SORTIE", "ENTREE", "ENTREE");
         }
 
         @Test
         @DisplayName("entrées et sorties sont totalisées séparément")
         void totauxSepares() {
             donneMouvements(
-                mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000L),
-                mouvement(TypeFinancialTransaction.CAUTION, 10_000L),
-                mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000L),
-                mouvement(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 400_000L)
-            );
+                    mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000L),
+                    mouvement(TypeFinancialTransaction.CAUTION, 10_000L),
+                    mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000L),
+                    mouvement(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 400_000L));
 
             MobileActivityReportDTO resultat = service.getActivityReport(JOUR, JOUR);
 
@@ -294,8 +308,11 @@ class MobileActivityReportServiceTest {
         void libelleCourt() {
             donneMouvements(mouvement(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 400_000L));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).mouvementsCaisse().getFirst().libelle())
-                .isEqualTo("Rgt fournisseur");
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .mouvementsCaisse()
+                            .getFirst()
+                            .libelle())
+                    .isEqualTo("Rgt fournisseur");
         }
 
         @Test
@@ -307,7 +324,11 @@ class MobileActivityReportServiceTest {
             when(mvt.getLibelle()).thenReturn("Entrée");
             donneMouvements(mvt);
 
-            assertThat(service.getActivityReport(JOUR, JOUR).mouvementsCaisse().getFirst().montant()).isZero();
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .mouvementsCaisse()
+                            .getFirst()
+                            .montant())
+                    .isZero();
         }
     }
 
@@ -325,11 +346,13 @@ class MobileActivityReportServiceTest {
             MobileActivityReportDTO resultat = service.getActivityReport(JOUR, JOUR);
 
             assertThat(resultat.achatsFournisseurs())
-                .extracting(GroupeFournisseurAchatMobileDTO::libelle, GroupeFournisseurAchatMobileDTO::montantTtc)
-                .containsExactly(org.assertj.core.api.Assertions.tuple("LABOREX", 800_000L), org.assertj.core.api.Assertions.tuple("COPHARMED", 200_000L));
+                    .extracting(GroupeFournisseurAchatMobileDTO::libelle, GroupeFournisseurAchatMobileDTO::montantTtc)
+                    .containsExactly(
+                            org.assertj.core.api.Assertions.tuple("LABOREX", 800_000L),
+                            org.assertj.core.api.Assertions.tuple("COPHARMED", 200_000L));
             assertThat(resultat.achatsFournisseurs())
-                .extracting(GroupeFournisseurAchatMobileDTO::percentTotal)
-                .containsExactly(80.0, 20.0);
+                    .extracting(GroupeFournisseurAchatMobileDTO::percentTotal)
+                    .containsExactly(80.0, 20.0);
             assertThat(resultat.totalAchats()).isEqualTo(1_000_000L);
         }
 
@@ -338,7 +361,8 @@ class MobileActivityReportServiceTest {
         void tvaEtHt() {
             donneAchats(achat("LABOREX", 800_000L, 80_000L, 720_000L));
 
-            GroupeFournisseurAchatMobileDTO groupe = service.getActivityReport(JOUR, JOUR).achatsFournisseurs().getFirst();
+            GroupeFournisseurAchatMobileDTO groupe =
+                    service.getActivityReport(JOUR, JOUR).achatsFournisseurs().getFirst();
 
             assertThat(groupe.montantTva()).isEqualTo(80_000L);
             assertThat(groupe.montantHt()).isEqualTo(720_000L);
@@ -349,7 +373,11 @@ class MobileActivityReportServiceTest {
         void totalNul() {
             donneAchats(achat("LABOREX", 0L, 0L, 0L));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).achatsFournisseurs().getFirst().percentTotal()).isZero();
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .achatsFournisseurs()
+                            .getFirst()
+                            .percentTotal())
+                    .isZero();
         }
     }
 
@@ -362,9 +390,13 @@ class MobileActivityReportServiceTest {
         @Test
         @DisplayName("un règlement affiche son reste à recouvrer")
         void resteARecouvrer() {
-            donneReglements(new ReglementTiersPayants("CNAM", TiersPayantCategorie.ASSURANCE, "F-2026-001", 300_000L, 500_000L));
+            donneReglements(new ReglementTiersPayants(
+                    "CNAM", TiersPayantCategorie.ASSURANCE, "F-2026-001", 300_000L, 500_000L));
 
-            ReglementTiersPayantMobileDTO reglement = service.getActivityReport(JOUR, JOUR).tiersPayants().reglements().getFirst();
+            ReglementTiersPayantMobileDTO reglement = service.getActivityReport(JOUR, JOUR)
+                    .tiersPayants()
+                    .reglements()
+                    .getFirst();
 
             assertThat(reglement.libelle()).isEqualTo("CNAM");
             assertThat(reglement.categorie()).isEqualTo("ASSURANCE");
@@ -378,11 +410,11 @@ class MobileActivityReportServiceTest {
         @DisplayName("les règlements sont totalisés, reste à recouvrer compris")
         void totauxDesReglements() {
             donneReglements(
-                new ReglementTiersPayants("CNAM", TiersPayantCategorie.ASSURANCE, "F1", 300_000L, 500_000L),
-                new ReglementTiersPayants("MUGEF", TiersPayantCategorie.ASSURANCE, "F2", 100_000L, 250_000L)
-            );
+                    new ReglementTiersPayants("CNAM", TiersPayantCategorie.ASSURANCE, "F1", 300_000L, 500_000L),
+                    new ReglementTiersPayants("MUGEF", TiersPayantCategorie.ASSURANCE, "F2", 100_000L, 250_000L));
 
-            TiersPayantSummaryMobileDTO tiersPayants = service.getActivityReport(JOUR, JOUR).tiersPayants();
+            TiersPayantSummaryMobileDTO tiersPayants =
+                    service.getActivityReport(JOUR, JOUR).tiersPayants();
 
             assertThat(tiersPayants.totalFacture()).isEqualTo(750_000L);
             assertThat(tiersPayants.totalRegle()).isEqualTo(400_000L);
@@ -395,7 +427,10 @@ class MobileActivityReportServiceTest {
         void reglementAbsent() {
             donneReglements(new ReglementTiersPayants("CNAM", TiersPayantCategorie.ASSURANCE, "F1", null, 500_000L));
 
-            ReglementTiersPayantMobileDTO reglement = service.getActivityReport(JOUR, JOUR).tiersPayants().reglements().getFirst();
+            ReglementTiersPayantMobileDTO reglement = service.getActivityReport(JOUR, JOUR)
+                    .tiersPayants()
+                    .reglements()
+                    .getFirst();
 
             assertThat(reglement.montantReglement()).isZero();
             assertThat(reglement.montantRestant()).isEqualTo(500_000L);
@@ -406,7 +441,12 @@ class MobileActivityReportServiceTest {
         void categorieAbsente() {
             donneReglements(new ReglementTiersPayants("CNAM", null, "F1", 0L, 0L));
 
-            assertThat(service.getActivityReport(JOUR, JOUR).tiersPayants().reglements().getFirst().categorie()).isEmpty();
+            assertThat(service.getActivityReport(JOUR, JOUR)
+                            .tiersPayants()
+                            .reglements()
+                            .getFirst()
+                            .categorie())
+                    .isEmpty();
         }
 
         @Test
@@ -414,7 +454,10 @@ class MobileActivityReportServiceTest {
         void bonsEtCompteurs() {
             donneAchatsTiersPayant(new AchatTiersPayant("CNAM", TiersPayantCategorie.ASSURANCE, 12L, 8L, 450_000));
 
-            AchatTiersPayantMobileDTO achat = service.getActivityReport(JOUR, JOUR).tiersPayants().achats().getFirst();
+            AchatTiersPayantMobileDTO achat = service.getActivityReport(JOUR, JOUR)
+                    .tiersPayants()
+                    .achats()
+                    .getFirst();
 
             assertThat(achat.libelle()).isEqualTo("CNAM");
             assertThat(achat.categorie()).isEqualTo("ASSURANCE");
@@ -427,11 +470,11 @@ class MobileActivityReportServiceTest {
         @DisplayName("les bons sont totalisés, en nombre comme en montant")
         void totauxDesBons() {
             donneAchatsTiersPayant(
-                new AchatTiersPayant("CNAM", TiersPayantCategorie.ASSURANCE, 12L, 8L, 450_000),
-                new AchatTiersPayant("MUGEF", TiersPayantCategorie.CARNET, 3L, 2L, 50_000)
-            );
+                    new AchatTiersPayant("CNAM", TiersPayantCategorie.ASSURANCE, 12L, 8L, 450_000),
+                    new AchatTiersPayant("MUGEF", TiersPayantCategorie.CARNET, 3L, 2L, 50_000));
 
-            TiersPayantSummaryMobileDTO tiersPayants = service.getActivityReport(JOUR, JOUR).tiersPayants();
+            TiersPayantSummaryMobileDTO tiersPayants =
+                    service.getActivityReport(JOUR, JOUR).tiersPayants();
 
             assertThat(tiersPayants.totalBons()).isEqualTo(15);
             assertThat(tiersPayants.totalMontantAchats()).isEqualTo(500_000L);
@@ -443,7 +486,10 @@ class MobileActivityReportServiceTest {
         void compteursAbsents() {
             donneAchatsTiersPayant(new AchatTiersPayant("CNAM", TiersPayantCategorie.ASSURANCE, null, null, null));
 
-            AchatTiersPayantMobileDTO achat = service.getActivityReport(JOUR, JOUR).tiersPayants().achats().getFirst();
+            AchatTiersPayantMobileDTO achat = service.getActivityReport(JOUR, JOUR)
+                    .tiersPayants()
+                    .achats()
+                    .getFirst();
 
             assertThat(achat.bonsCount()).isZero();
             assertThat(achat.montant()).isZero();
@@ -460,13 +506,16 @@ class MobileActivityReportServiceTest {
         @Test
         @DisplayName("la journée en cours se nomme « Aujourd'hui »")
         void aujourdHui() {
-            assertThat(service.getActivityReport(LocalDate.now(), null).periodLabel()).isEqualTo("Aujourd'hui");
+            assertThat(service.getActivityReport(LocalDate.now(), null).periodLabel())
+                    .isEqualTo("Aujourd'hui");
         }
 
         @Test
         @DisplayName("la veille se nomme « Hier »")
         void hier() {
-            assertThat(service.getActivityReport(LocalDate.now().minusDays(1), null).periodLabel()).isEqualTo("Hier");
+            assertThat(service.getActivityReport(LocalDate.now().minusDays(1), null)
+                            .periodLabel())
+                    .isEqualTo("Hier");
         }
 
         @Test
@@ -478,8 +527,9 @@ class MobileActivityReportServiceTest {
         @Test
         @DisplayName("une période encadrée affiche ses deux bornes")
         void periodeEncadree() {
-            assertThat(service.getActivityReport(JOUR, LocalDate.of(2026, 3, 12)).periodLabel())
-                .isEqualTo("10/03/2026 - 12/03/2026");
+            assertThat(service.getActivityReport(JOUR, LocalDate.of(2026, 3, 12))
+                            .periodLabel())
+                    .isEqualTo("10/03/2026 - 12/03/2026");
         }
     }
 
@@ -487,7 +537,7 @@ class MobileActivityReportServiceTest {
 
     private void donneChiffreAffaire(ChiffreAffaireRecord record) {
         when(activitySummaryService.getChiffreAffaire(any(), any()))
-            .thenReturn(new ChiffreAffaireDTO(List.of(), record, null, List.of()));
+                .thenReturn(new ChiffreAffaireDTO(List.of(), record, null, List.of()));
     }
 
     private void donneRecettes(Recette... recettes) {
@@ -504,26 +554,17 @@ class MobileActivityReportServiceTest {
 
     private void donneReglements(ReglementTiersPayants... reglements) {
         when(activitySummaryService.findReglementTierspayant(any(), any(), any(), any()))
-            .thenReturn(page(List.of(reglements)));
+                .thenReturn(page(List.of(reglements)));
     }
 
     private void donneAchatsTiersPayant(AchatTiersPayant... achats) {
-        when(activitySummaryService.fetchAchatTiersPayant(any(), any(), any(), any())).thenReturn(page(List.of(achats)));
+        when(activitySummaryService.fetchAchatTiersPayant(any(), any(), any(), any()))
+                .thenReturn(page(List.of(achats)));
     }
 
     private static ChiffreAffaireRecord chiffreAffaire(long ttc, long marge) {
         return new ChiffreAffaireRecord(
-            BigDecimal.valueOf(ttc),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            BigDecimal.valueOf(marge)
-        );
+                BigDecimal.valueOf(ttc), null, null, null, null, null, null, null, null, BigDecimal.valueOf(marge));
     }
 
     private static MouvementCaisse mouvement(TypeFinancialTransaction type, long montant) {

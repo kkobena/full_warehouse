@@ -12,10 +12,9 @@ import java.math.BigDecimal;
  * sur douze mois, qu'une fenetre d'un jour ne saurait mesurer.
  */
 public record SupplierPurchaseDTO(
-    Integer fournisseurId,
-    String fournisseurName,
-    Integer nbCommandes,
-    Long montantAchat,
-    Integer avgDeliveryDays,
-    BigDecimal performanceScore
-) {}
+        Integer fournisseurId,
+        String fournisseurName,
+        Integer nbCommandes,
+        Long montantAchat,
+        Integer avgDeliveryDays,
+        BigDecimal performanceScore) {}

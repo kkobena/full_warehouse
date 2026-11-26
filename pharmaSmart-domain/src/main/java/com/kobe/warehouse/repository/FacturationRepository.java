@@ -14,14 +14,12 @@ import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Predicate;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,8 +34,9 @@ import org.springframework.util.StringUtils;
 
 @Repository
 public interface FacturationRepository
-    extends
-    JpaRepository<FactureTiersPayant, FactureItemId>, JpaSpecificationExecutor<FactureTiersPayant>, FactureTiersPayantRepositoryCustom {
+        extends JpaRepository<FactureTiersPayant, FactureItemId>,
+                JpaSpecificationExecutor<FactureTiersPayant>,
+                FactureTiersPayantRepositoryCustom {
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
@@ -55,21 +54,18 @@ public interface FacturationRepository
     String definirDelaiVerrou(@Param("delai") String delai);
 
     @Query(
-        value = "SELECT f.id FROM facture_tiers_payant f WHERE f.id = :id AND f.invoice_date = :invoiceDate FOR UPDATE",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT f.id FROM facture_tiers_payant f WHERE f.id = :id AND f.invoice_date = :invoiceDate FOR UPDATE",
+            nativeQuery = true)
     List<Long> verrouillerLigne(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
     /** L'ordre de verrouillage est fixé par l'{@code ORDER BY} : c'est lui qui écarte les interblocages. */
-    @Query(
-        value = """
+    @Query(value = """
         SELECT f.id FROM facture_tiers_payant f
          WHERE f.groupe_facture_tiers_payant_id = :id AND f.groupe_facture_tiers_payant_invoice_date = :invoiceDate
          ORDER BY f.invoice_date, f.id
            FOR UPDATE
-        """,
-        nativeQuery = true
-    )
+        """, nativeQuery = true)
     List<Long> verrouillerLignesFilles(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
     /**
@@ -77,19 +73,18 @@ public interface FacturationRepository
      * ({@code invoice_date}, {@code id}) que les règlements. Un groupe reçoit son identifiant avant
      * ses filles : il passe donc devant elles, comme dans {@link #verrouillerFilles}.
      */
-    @Query(
-        value = """
+    @Query(value = """
         SELECT f.id FROM facture_tiers_payant f
          WHERE f.id IN (:ids) OR f.groupe_facture_tiers_payant_id IN (:ids)
          ORDER BY f.invoice_date, f.id
            FOR UPDATE
-        """,
-        nativeQuery = true
-    )
+        """, nativeQuery = true)
     List<Long> verrouillerLignesEtFilles(@Param("ids") Collection<Long> ids);
 
     /** Relu en SQL, hors contexte de persistance : la valeur est celle validée en base, pas une copie en mémoire. */
-    @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f WHERE f.id IN (:ids) AND f.montant_regle > 0", nativeQuery = true)
+    @Query(
+            value = "SELECT f.num_facture FROM facture_tiers_payant f WHERE f.id IN (:ids) AND f.montant_regle > 0",
+            nativeQuery = true)
     List<String> numerosFacturesReglees(@Param("ids") Collection<Long> ids);
 
     /**
@@ -103,9 +98,9 @@ public interface FacturationRepository
      * mutuellement leurs éditions. Seconde moitié de la clé : l'opération verrouillée.
      */
     @Query(
-        value = "SELECT count(*) FROM (SELECT pg_advisory_xact_lock(hashtext(current_schema()), hashtext('facturation.edition'))) verrou",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT count(*) FROM (SELECT pg_advisory_xact_lock(hashtext(current_schema()), hashtext('facturation.edition'))) verrou",
+            nativeQuery = true)
     Long verrouillerEditionSql();
 
     default void verrouillerEdition() {
@@ -155,9 +150,7 @@ public interface FacturationRepository
         """)
     List<FactureTiersPayant> findPendingFneCertification();
 
-
-    @Query(
-        """
+    @Query("""
             SELECT f FROM FactureTiersPayant f
             LEFT JOIN FETCH f.tiersPayant
             LEFT JOIN FETCH f.groupeTiersPayant
@@ -170,34 +163,24 @@ public interface FacturationRepository
             LEFT JOIN FETCH c.assuredCustomer
             LEFT JOIN FETCH c.tiersPayant
             WHERE f.id = :id AND f.invoiceDate = :invoiceDate
-            """
-    )
+            """)
     Optional<FactureTiersPayant> findOneWithDetails(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
-    @Query("SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate  ")
+    @Query(
+            "SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate  ")
     List<FactureTiersPayant> findAll(
-        @Param("generationCode") Integer generationCode,
-        @Param("invoiceDate") LocalDate invoiceDate,
-        Sort sort
-    );
+            @Param("generationCode") Integer generationCode, @Param("invoiceDate") LocalDate invoiceDate, Sort sort);
 
     @Query(
-        "SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate AND o.groupeFactureTiersPayant IS NULL "
-    )
+            "SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate AND o.groupeFactureTiersPayant IS NULL ")
     List<FactureTiersPayant> findAllByGenerationCodeAndGroupeFactureTiersPayantIsNull(
-        @Param("generationCode") Integer generationCode,
-        @Param("invoiceDate") LocalDate invoiceDate,
-        Sort sort
-    );
+            @Param("generationCode") Integer generationCode, @Param("invoiceDate") LocalDate invoiceDate, Sort sort);
 
     @Query(
-        "SELECT tp.id AS id, tp.name AS name, tp.fullName AS fullName, tp.telephone AS telephone,tp.email AS email, tp.adresse AS adresse, tp.ncc AS ncc, tp.categorie AS categorie FROM  FactureTiersPayant o JOIN  o.tiersPayant tp WHERE o.id=:id AND o.invoiceDate =:invoiceDate "
-    )
-    InfoTiersPayant getInfoTiersPayantByFactureId(@Param("id") Long id,
-                                                  @Param("invoiceDate") LocalDate invoiceDate);
+            "SELECT tp.id AS id, tp.name AS name, tp.fullName AS fullName, tp.telephone AS telephone,tp.email AS email, tp.adresse AS adresse, tp.ncc AS ncc, tp.categorie AS categorie FROM  FactureTiersPayant o JOIN  o.tiersPayant tp WHERE o.id=:id AND o.invoiceDate =:invoiceDate ")
+    InfoTiersPayant getInfoTiersPayantByFactureId(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
-    @Query(
-        value = """
+    @Query(value = """
             SELECT sl.quantity_requested       AS quantite,
                    sl.tax_value                AS codeTva,
                    four.code_cip               AS produitCode,
@@ -225,11 +208,11 @@ public interface FacturationRepository
                      prod.libelle, sl.regular_unit_price,
                      sl.taux_remise,
                      tl.taux,sl.calculation_base_price
-            """, nativeQuery = true
-    )
-    List<DetailProduitFacture> getDetailProduitFacture(@Param("id") Long id,
-                                                       @Param("invoiceDate") LocalDate invoiceDate, @Param("tiersPayantId") Integer tiersPayantId);
-
+            """, nativeQuery = true)
+    List<DetailProduitFacture> getDetailProduitFacture(
+            @Param("id") Long id,
+            @Param("invoiceDate") LocalDate invoiceDate,
+            @Param("tiersPayantId") Integer tiersPayantId);
 
     default Specification<FactureTiersPayant> fetchByIds(Set<FactureItemId> ids) {
         return (root, _, cb) -> {
@@ -241,8 +224,7 @@ public interface FacturationRepository
         };
     }
 
-    @Query(
-        value = """
+    @Query(value = """
                 SELECT
                     f.groupeFactureTiersPayant.id AS parentId,
                     f.groupeFactureTiersPayant.invoiceDate AS parentInvoiceDate,
@@ -266,23 +248,17 @@ public interface FacturationRepository
                   AND s.statut <> 'PAID'
                 GROUP BY f.invoiceDate,f.groupeFactureTiersPayant.id, f.groupeFactureTiersPayant.invoiceDate , f.id, f.numFacture, f.debutPeriode, f.finPeriode, tp.fullName, f.montantRegle
                 ORDER BY f.id
-            """,
-        countQuery = """
+            """, countQuery = """
                 SELECT COUNT(f.id)
                 FROM FactureTiersPayant f
                 WHERE f.groupeFactureTiersPayant.id = :id
                   AND f.statut <> 'PAID'
                   AND f.invoiceDate = :invoiceDate
-            """
-    )
+            """)
     Page<FacturationGroupeDossier> findGroupeFactureById(
-        @Param("id") Long id,
-        @Param("invoiceDate") LocalDate invoiceDate,
-        Pageable pageable
-    );
+            @Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate, Pageable pageable);
 
-    @Query(
-        value = """
+    @Query(value = """
                 SELECT
                     f.invoiceDate AS invoiceDate,
                     s.createdAt AS saleDate,
@@ -307,8 +283,7 @@ public interface FacturationRepository
 
                 ORDER BY t.id
 
-            """,
-        countQuery = """
+            """, countQuery = """
                 SELECT COUNT(t.id)
                 FROM ThirdPartySaleLine t
                 JOIN t.factureTiersPayant f
@@ -316,16 +291,11 @@ public interface FacturationRepository
                   AND f.id = :id
                     AND f.statut <> 'PAID'
                   AND f.invoiceDate = :invoiceDate
-            """
-    )
+            """)
     Page<FacturationDossier> findFacturationDossierByFactureId(
-        @Param("id") Long id,
-        @Param("invoiceDate") LocalDate invoiceDate,
-        Pageable pageable
-    );
+            @Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate, Pageable pageable);
 
-    @Query(
-        """
+    @Query("""
                 SELECT
                     f.id AS id,
                     f.invoiceDate AS invoiceDate,
@@ -346,12 +316,11 @@ public interface FacturationRepository
                   AND s.statut <> 'PAID'
                    AND f.invoiceDate = :invoiceDate
                 GROUP BY f.id,f.invoiceDate, f.created, g.name, f.numFacture
-            """
-    )
-    DossierFactureGroupProjection findGroupDossierFacture(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
+            """)
+    DossierFactureGroupProjection findGroupDossierFacture(
+            @Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
-    @Query(
-        """
+    @Query("""
                 SELECT
                     f.id AS id,
                     f.invoiceDate AS invoiceDate,
@@ -372,40 +341,41 @@ public interface FacturationRepository
                     AND f.invoiceDate = :invoiceDate
                   AND f.id = :id
                 GROUP BY f.invoiceDate ,f.id, f.created, f.montantRegle, tp.categorie, tp.name, f.numFacture
-            """
-    )
-    DossierFactureSingleProjection findSingleDossierFacture(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
-
+            """)
+    DossierFactureSingleProjection findSingleDossierFacture(
+            @Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
 
     default Specification<FactureTiersPayant> aFacture(InvoiceSearchParams invoiceSearchParams) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (StringUtils.hasText(invoiceSearchParams.search())) {
                 var search = "%" + invoiceSearchParams.search() + "%";
-                predicates.add(
-                    cb.or(
+                predicates.add(cb.or(
                         cb.like(root.get(FactureTiersPayant_.numFacture), search),
-                        cb.like(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName), search)
-                    )
-                );
+                        cb.like(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName), search)));
             } else {
-                predicates.add(
-                    cb.between(root.get(FactureTiersPayant_.invoiceDate), invoiceSearchParams.startDate(), invoiceSearchParams.endDate())
-                );
+                predicates.add(cb.between(
+                        root.get(FactureTiersPayant_.invoiceDate),
+                        invoiceSearchParams.startDate(),
+                        invoiceSearchParams.endDate()));
             }
 
             if (!CollectionUtils.isEmpty(invoiceSearchParams.tiersPayantIds())) {
-                predicates.add(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id).in(invoiceSearchParams.tiersPayantIds()));
+                predicates.add(root.get(FactureTiersPayant_.tiersPayant)
+                        .get(TiersPayant_.id)
+                        .in(invoiceSearchParams.tiersPayantIds()));
             }
             // null = les deux : le sélecteur de l'écran offre « Toutes » en plus de
             // « Définitives » et « Provisoires ».
             if (invoiceSearchParams.factureProvisoire() != null) {
-                predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+                predicates.add(cb.equal(
+                        root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
             }
             if (!CollectionUtils.isEmpty(invoiceSearchParams.statuts())) {
                 predicates.add(root.get(FactureTiersPayant_.statut).in(invoiceSearchParams.statuts()));
             }
-            predicates.add(root.get(FactureTiersPayant_.groupeFactureTiersPayant).isNull());
+            predicates.add(
+                    root.get(FactureTiersPayant_.groupeFactureTiersPayant).isNull());
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -416,27 +386,26 @@ public interface FacturationRepository
             List<Predicate> predicates = new ArrayList<>();
             if (StringUtils.hasText(invoiceSearchParams.search())) {
                 var search = "%" + invoiceSearchParams.search() + "%";
-                predicates.add(
-                    cb.or(
+                predicates.add(cb.or(
                         cb.like(root.get(FactureTiersPayant_.numFacture), search),
-                        cb.like(root.get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name), search)
-                    )
-                );
+                        cb.like(root.get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name), search)));
             } else {
-                predicates.add(
-                    cb.between(root.get(FactureTiersPayant_.invoiceDate), invoiceSearchParams.startDate(), invoiceSearchParams.endDate())
-                );
+                predicates.add(cb.between(
+                        root.get(FactureTiersPayant_.invoiceDate),
+                        invoiceSearchParams.startDate(),
+                        invoiceSearchParams.endDate()));
             }
 
             if (!CollectionUtils.isEmpty(invoiceSearchParams.groupIds())) {
-                predicates.add(
-                    root.get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id).in(invoiceSearchParams.groupIds())
-                );
+                predicates.add(root.get(FactureTiersPayant_.groupeTiersPayant)
+                        .get(GroupeTiersPayant_.id)
+                        .in(invoiceSearchParams.groupIds()));
             }
             // null = les deux : le sélecteur de l'écran offre « Toutes » en plus de
             // « Définitives » et « Provisoires ».
             if (invoiceSearchParams.factureProvisoire() != null) {
-                predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+                predicates.add(cb.equal(
+                        root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
             }
             if (!CollectionUtils.isEmpty(invoiceSearchParams.statuts())) {
                 predicates.add(root.get(FactureTiersPayant_.statut).in(invoiceSearchParams.statuts()));

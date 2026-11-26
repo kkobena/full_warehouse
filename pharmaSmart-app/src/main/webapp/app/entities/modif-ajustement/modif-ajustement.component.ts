@@ -1,25 +1,16 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {RouterModule} from '@angular/router';
-import {ModifAjustementService} from './motif-ajustement.service';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {IMotifAjustement} from '../../shared/model/motif-ajustement.model';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {
-  FormMotifAjustementComponent
-} from './form-motif-ajustement/form-motif-ajustement.component';
-import {FormsModule} from '@angular/forms';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { ModifAjustementService } from './motif-ajustement.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
+import { FormsModule } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { CardComponent } from 'app/shared/ui';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-} from '../../shared/ui';
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent } from '../../shared/ui';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
   selector: 'app-modif-ajustement',

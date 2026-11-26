@@ -17,8 +17,7 @@
 
         <div class="pharma-compact-search">
           <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input (keyup.enter)="onSearch($event)" class="form-control" placeholder="Rechercher..."
-                   type="text" />
+            <input (keyup.enter)="onSearch($event)" class="form-control" placeholder="Rechercher..." type="text" />
           </app-icon-field>
         </div>
       </div>
@@ -34,11 +33,9 @@
           severity="primary"
           size="small"
         />
-        <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
-                    severity="secondary" size="small" />
+        <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation" severity="secondary" size="small" />
 
-        <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
-                    severity="warn" size="small" />
+        <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -50,13 +47,10 @@
           <tr class="pharma-table-head">
             <th style="width: 8%">Cip</th>
             <th style="width: 11%">Code EAN</th>
-            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
-            </th>
-            <th style="text-align: right; width: 6%"><span
-              jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
+            <th style="text-align: right; width: 6%"><span jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
-            <th style="text-align: right; width: 8%"><span
-              jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+            <th style="text-align: right; width: 8%"><span jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
             <th style="text-align: right; width: 8%">
               <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
             </th>
@@ -74,17 +68,11 @@
               <div class="pharma-product-name">{{ produit.libelle }}</div>
             </td>
             @if (produit.totalQuantity < 0) {
-              <td class="amount-column red-400"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
+              <td class="amount-column red-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
             } @else if (produit.totalQuantity === 0) {
-              <td class="amount-column orange-400"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
+              <td class="amount-column orange-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
             } @else {
-              <td class="amount-column"
-                  style="text-align: right">{{ produit.totalQuantity | number }}
-              </td>
+              <td class="amount-column" style="text-align: right">{{ produit.totalQuantity | number }}</td>
             }
 
             <td style="text-align: right">
@@ -108,9 +96,6 @@
           </tr>
         </ng-template>
       </app-data-table>
-   
     </div>
   </app-card>
 </div>
-
-

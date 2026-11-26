@@ -7,11 +7,7 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param montant  Movement amount
  * @param type     Movement type (ENTREE or SORTIE)
  */
-public record MouvementCaisseMobileDTO(
-    String libelle,
-    long montant,
-    String type
-) {
+public record MouvementCaisseMobileDTO(String libelle, long montant, String type) {
     public static final String TYPE_ENTREE = "ENTREE";
     public static final String TYPE_SORTIE = "SORTIE";
 

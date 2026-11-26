@@ -1,10 +1,10 @@
-import {Signal, WritableSignal} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {Observable} from 'rxjs';
-import {ICustomer} from '../../../../shared/model';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {CustomerSearchService} from '../../data-access/services/customer-search.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
+import { Signal, WritableSignal } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { ICustomer } from '../../../../shared/model';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { CustomerSearchService } from '../../data-access/services/customer-search.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 /**
  * Configuration pour le mixin de gestion des clients
@@ -81,16 +81,14 @@ export interface CustomerHandlingContext {
  * ```
  */
 export function createCustomerHandling(context: CustomerHandlingContext) {
-  const {facade, notificationService, config, customers} = context;
+  const { facade, notificationService, config, customers } = context;
 
   /**
    * Recherche des clients par terme de recherche
    */
   function searchCustomers(searchTerm: string, minLength = 2, limit = 10): void {
     if (searchTerm && searchTerm.length >= minLength) {
-      const search$ = context.searchFn
-        ? context.searchFn(searchTerm, limit)
-        : context.customerSearchService!.search(searchTerm, limit);
+      const search$ = context.searchFn ? context.searchFn(searchTerm, limit) : context.customerSearchService!.search(searchTerm, limit);
 
       search$.subscribe({
         next(results: ICustomer[]) {
@@ -123,7 +121,7 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
       openCustomerFormModal(null);
     } else {
       customers.set(results);
-      openCustomerListModal({componentInputs: {customers: results}});
+      openCustomerListModal({ componentInputs: { customers: results } });
     }
   }
 

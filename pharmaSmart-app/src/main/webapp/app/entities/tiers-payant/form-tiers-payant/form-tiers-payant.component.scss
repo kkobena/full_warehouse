@@ -6,8 +6,6 @@
   @include modal-theme;
 }
 
-
-
 // Quand une section est absente, les autres occupent toute la largeur. Les grilles globales
 // (`.card-grid-2col`, `.card-grid-3col`) ont un nombre de colonnes fixe : ces modificateurs le
 // ramènent au nombre de sections réellement affichées. Les points de rupture sont répétés, car un

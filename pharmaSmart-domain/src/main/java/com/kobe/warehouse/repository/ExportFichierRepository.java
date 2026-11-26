@@ -12,11 +12,11 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ExportFichierRepository extends JpaRepository<ExportFichier, Long> {
     /** Historique d'un utilisateur, le plus récent d'abord. */
-    @EntityGraph(attributePaths = { "demandePar", "modele" })
+    @EntityGraph(attributePaths = {"demandePar", "modele"})
     Page<ExportFichier> findByDemandeParIdOrderByDemandeLeDesc(Integer utilisateurId, Pageable page);
 
     /** Historique de toute l'officine (administrateur). */
-    @EntityGraph(attributePaths = { "demandePar", "modele" })
+    @EntityGraph(attributePaths = {"demandePar", "modele"})
     Page<ExportFichier> findAllByOrderByDemandeLeDesc(Pageable page);
 
     @Query("SELECT f FROM ExportFichier f WHERE f.statut = :statut AND f.expireLe < :maintenant")

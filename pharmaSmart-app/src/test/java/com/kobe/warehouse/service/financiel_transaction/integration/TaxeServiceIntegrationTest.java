@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.JacksonConfiguration;
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
@@ -56,13 +55,12 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
         ObjectMapper objectMapper = new JacksonConfiguration().objectMapper();
 
         service = new TaxeServiceImpl(
-            mock(TvaReportReportService.class),
-            mock(DeclarationTvaPdfReportService.class),
-            IntegrationPostgresDatabase.bean(SalesRepository.class),
-            mock(AppConfigurationService.class),
-            objectMapper,
-            resolver
-        );
+                mock(TvaReportReportService.class),
+                mock(DeclarationTvaPdfReportService.class),
+                IntegrationPostgresDatabase.bean(SalesRepository.class),
+                mock(AppConfigurationService.class),
+                objectMapper,
+                resolver);
     }
 
     // ===== ventilation par taux =====
@@ -94,8 +92,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
             venteEncaissee(aujourdHui(), produit(unique("TAXE"), 1_000, 18), 10, 0, "CASH");
 
             assertThat(service.fetchTaxe(parametre(), false).getTaxes())
-                .extracting(TaxeDTO::getCodeTva)
-                .contains(0, 18);
+                    .extracting(TaxeDTO::getCodeTva)
+                    .contains(0, 18);
         }
 
         /** La taxe est l'écart entre le TTC et le HT : c'est elle que l'officine collecte. */
@@ -132,7 +130,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
         void exerciceSansVente() {
             LocalDate demain = LocalDate.now().plusDays(1);
 
-            assertThat(service.fetchTaxe(parametre(demain, demain.plusDays(1)), false)).isNull();
+            assertThat(service.fetchTaxe(parametre(demain, demain.plusDays(1)), false))
+                    .isNull();
         }
 
         @Test
@@ -142,7 +141,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
 
             LocalDate demain = LocalDate.now().plusDays(1);
 
-            assertThat(service.fetchTaxe(parametre(demain, demain.plusDays(1)), false)).isNull();
+            assertThat(service.fetchTaxe(parametre(demain, demain.plusDays(1)), false))
+                    .isNull();
         }
     }
 
@@ -203,7 +203,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
 
             TaxeWrapperDTO declaration = service.fetchDeclarationTva(parametre());
 
-            assertThat(declaration.getTvaNette()).isEqualTo(declaration.getMontantTaxe() - declaration.getTvaDeductible());
+            assertThat(declaration.getTvaNette())
+                    .isEqualTo(declaration.getMontantTaxe() - declaration.getTvaDeductible());
         }
 
         /** Un produit exonéré ne donne aucune TVA, ni collectée ni déductible. */
@@ -212,7 +213,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
         void produitExonere() {
             venteEncaissee(aujourdHui(), produit(unique("EXONERE"), 1_000, 0), 10, 0, "CASH");
 
-            assertThat(service.fetchDeclarationTva(parametre()).getTvaDeductible()).isZero();
+            assertThat(service.fetchDeclarationTva(parametre()).getTvaDeductible())
+                    .isZero();
         }
 
         /**
@@ -251,7 +253,8 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
             TaxeWrapperDTO etat = service.fetchTaxe(param, false);
 
             assertThat(etat.isGroupDate()).isTrue();
-            assertThat(etat.getTaxes()).allSatisfy(taxe -> assertThat(taxe.getMvtDate()).isNotNull());
+            assertThat(etat.getTaxes())
+                    .allSatisfy(taxe -> assertThat(taxe.getMvtDate()).isNotNull());
         }
 
         @Test

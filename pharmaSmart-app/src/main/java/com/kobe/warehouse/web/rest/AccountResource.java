@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing the current user's account.
@@ -49,12 +49,11 @@ public class AccountResource extends AccountResourcesProxy {
     private final PersistentTokenRepository persistentTokenRepository;
 
     public AccountResource(
-        UserRepository userRepository,
-        UserService userService,
-        // MailService mailService,
-        PersistentTokenRepository persistentTokenRepository,
-        CustomerDisplayService customerDisplayService
-    ) {
+            UserRepository userRepository,
+            UserService userService,
+            // MailService mailService,
+            PersistentTokenRepository persistentTokenRepository,
+            CustomerDisplayService customerDisplayService) {
         super(userRepository, userService, customerDisplayService);
         this.userRepository = userRepository;
         this.userService = userService;
@@ -63,11 +62,9 @@ public class AccountResource extends AccountResourcesProxy {
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
-        return (
-            StringUtils.isEmpty(password) ||
-            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
-            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
-        );
+        return (StringUtils.isEmpty(password)
+                || password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH
+                || password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH);
     }
 
     /**
@@ -136,13 +133,10 @@ public class AccountResource extends AccountResourcesProxy {
      */
     @GetMapping("/account/sessions")
     public List<PersistentToken> getCurrentSessions() {
-        return persistentTokenRepository.findByUser(
-            userRepository
-                .findOneByLogin(
-                    SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"))
-                )
-                .orElseThrow(() -> new AccountResourceException("User could not be found"))
-        );
+        return persistentTokenRepository.findByUser(userRepository
+                .findOneByLogin(SecurityUtils.getCurrentUserLogin()
+                        .orElseThrow(() -> new AccountResourceException("Current user login not found")))
+                .orElseThrow(() -> new AccountResourceException("User could not be found")));
     }
 
     /**
@@ -164,15 +158,11 @@ public class AccountResource extends AccountResourcesProxy {
     public void invalidateSession(@PathVariable String series) {
         String decodedSeries = URLDecoder.decode(series, StandardCharsets.UTF_8);
         SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .flatMap(u ->
-                persistentTokenRepository
-                    .findByUser(u)
-                    .stream()
-                    .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
-                    .findAny()
-            )
-            .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries));
+                .flatMap(userRepository::findOneByLogin)
+                .flatMap(u -> persistentTokenRepository.findByUser(u).stream()
+                        .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
+                        .findAny())
+                .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries));
     }
 
     /**

@@ -7,7 +7,7 @@ describe("Réglage de l'onglet Analyser dans l'URL", () => {
     expect(lireReglage(convertToParamMap({}))).toEqual(REGLAGE_PAR_DEFAUT);
   });
 
-  it("aller-retour, chemin de descente compris, même avec un libellé contenant « : »", () => {
+  it('aller-retour, chemin de descente compris, même avec un libellé contenant « : »', () => {
     const reglage = {
       indicateurs: ['CA_TTC', 'MARGE_BRUTE'],
       axe: 'PRODUIT' as const,

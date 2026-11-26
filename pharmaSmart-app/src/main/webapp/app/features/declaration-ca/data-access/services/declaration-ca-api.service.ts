@@ -51,11 +51,7 @@ export class DeclarationCaApiService {
    * Envoie l'état cible et non une bascule : rejouer la requête donne le même résultat, ce qu'un
    * double-clic ou une reprise réseau rendent parfaitement possible.
    */
-  majExclusion(
-    referentiel: ReferentielExclusion,
-    ids: number[],
-    exclure: boolean,
-  ): Observable<{ modifies: number }> {
+  majExclusion(referentiel: ReferentielExclusion, ids: number[], exclure: boolean): Observable<{ modifies: number }> {
     return this.http.put<{ modifies: number }>(`${this.base}/${referentiel}/exclusion`, { ids, exclure });
   }
 
@@ -150,7 +146,6 @@ export class DeclarationCaApiService {
     return this.http.get<Anomalie[]>(`${this.base}/audit`, { params });
   }
 }
-
 
 /** Comment l'objectif de ponction est exprimé. */
 export type ModeCalculPonction = 'MONTANT_FIXE' | 'POURCENTAGE';

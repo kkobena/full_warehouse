@@ -1,11 +1,9 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-tag me-2"></i>Saisir un lot — {{ produit?.libelle }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-tag me-2"></i>Saisir un lot — {{ produit?.libelle }}</h5>
   <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
-<div class="modal-body ">
+<div class="modal-body">
   <app-card [variant]="'form'">
     <!-- Info stock -->
     <div class="lot-stock-info">
@@ -22,7 +20,6 @@
 
     <form [formGroup]="form" autocomplete="off">
       <div class="form-grid">
-
         <!-- Numéro de lot -->
         <div class="field">
           <label class="field-label required" for="numLot">Numéro de lot</label>
@@ -69,17 +66,14 @@
           />
           @if (!isQuantiteValide && form.get('quantityReceived')?.touched) {
             <small class="field-error">
-              La quantité totale (reçue + UG) doit être entre 1 et {{ stockDisponible }} (stock
-              disponible).
+              La quantité totale (reçue + UG) doit être entre 1 et {{ stockDisponible }} (stock disponible).
             </small>
           }
         </div>
 
         <!-- Emplacement (optionnel) -->
         <div class="field">
-          <label class="field-label" for="storageId">
-            Emplacement <span class="optional">(défaut : stock principal)</span>
-          </label>
+          <label class="field-label" for="storageId"> Emplacement <span class="optional">(défaut : stock principal)</span> </label>
           <app-select-search
             [clearable]="true"
             [items]="storages()"
@@ -108,20 +102,13 @@
 
         <!-- UG (unités gratuites) -->
         <div class="field">
-          <label class="field-label" for="freeQty">UG <span
-            class="optional">(unités gratuites)</span></label>
-          <app-input-number
-            [min]="0"
-            [showButtons]="true"
-            formControlName="freeQty"
-            inputId="freeQty"
-          />
+          <label class="field-label" for="freeQty">UG <span class="optional">(unités gratuites)</span></label>
+          <app-input-number [min]="0" [showButtons]="true" formControlName="freeQty" inputId="freeQty" />
         </div>
 
         <!-- Date de fabrication (optionnelle) -->
         <div class="field">
-          <label class="field-label">Date de fabrication <span
-            class="optional">(optionnel)</span></label>
+          <label class="field-label">Date de fabrication <span class="optional">(optionnel)</span></label>
           <pharma-date-picker
             [maxDate]="todayMaxStruct()"
             formControlName="manufacturingDate"
@@ -130,21 +117,13 @@
             placeholder="jj/mm/aaaa"
           />
         </div>
-
       </div>
     </form>
   </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    [disabled]="isSaving()"
-    [outlined]="true"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-  />
+  <app-button (clicked)="cancel()" [disabled]="isSaving()" [outlined]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
   <app-button
     (clicked)="save()"
     [disabled]="form.invalid || !isQuantiteValide"

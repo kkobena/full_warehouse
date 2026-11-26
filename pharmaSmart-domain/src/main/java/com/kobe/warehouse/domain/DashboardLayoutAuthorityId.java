@@ -23,11 +23,21 @@ public class DashboardLayoutAuthorityId implements Serializable {
         this.authorityName = authorityName;
     }
 
-    public Integer getLayoutId() { return layoutId; }
-    public void setLayoutId(Integer layoutId) { this.layoutId = layoutId; }
+    public Integer getLayoutId() {
+        return layoutId;
+    }
 
-    public String getAuthorityName() { return authorityName; }
-    public void setAuthorityName(String authorityName) { this.authorityName = authorityName; }
+    public void setLayoutId(Integer layoutId) {
+        this.layoutId = layoutId;
+    }
+
+    public String getAuthorityName() {
+        return authorityName;
+    }
+
+    public void setAuthorityName(String authorityName) {
+        this.authorityName = authorityName;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -37,5 +47,7 @@ public class DashboardLayoutAuthorityId implements Serializable {
     }
 
     @Override
-    public int hashCode() { return Objects.hash(layoutId, authorityName); }
+    public int hashCode() {
+        return Objects.hash(layoutId, authorityName);
+    }
 }

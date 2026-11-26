@@ -11,8 +11,7 @@
           <div class="pharma-toolbar-filters">
             <div class="pharma-search-input">
               <app-icon-field [overlay]="true" icon="pi pi-search">
-                <input (keyup.enter)="search($event)" class="form-control"
-                       placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="search($event)" class="form-control" placeholder="Taper pour rechercher" type="text" />
               </app-icon-field>
             </div>
           </div>
@@ -52,10 +51,26 @@
                     <span class="pharma-entity-name">{{ elRow.libelle }}</span>
                   </td>
                   <td style="text-align: right">
-                    <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                                ariaLabel="Modifier" icon="pi pi-pencil" severity="success" size="small" />
-                    <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                                ariaLabel="Supprimer" icon="pi pi-trash" severity="danger" size="small" />
+                    <app-button
+                      (clicked)="onEdit(elRow)"
+                      [iconOnly]="true"
+                      [rounded]="true"
+                      [text]="true"
+                      ariaLabel="Modifier"
+                      icon="pi pi-pencil"
+                      severity="success"
+                      size="small"
+                    />
+                    <app-button
+                      (clicked)="delete(elRow)"
+                      [iconOnly]="true"
+                      [rounded]="true"
+                      [text]="true"
+                      ariaLabel="Supprimer"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      size="small"
+                    />
                   </td>
                 </tr>
               </ng-template>

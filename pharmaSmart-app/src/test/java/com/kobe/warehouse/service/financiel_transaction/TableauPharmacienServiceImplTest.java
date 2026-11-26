@@ -79,18 +79,17 @@ class TableauPharmacienServiceImplTest {
 
         // Manually create service with all dependencies
         service = new TableauPharmacienServiceImpl(
-            salesRepository,
-            commandeDataService,
-            avoirFournisseurLineRepository,
-            appConfigurationService,
-            objectMapper,
-            groupeFournisseurManager,
-            calculator,
-            aggregator,
-            exportService,
-            reportService,
-            modeResolver
-        );
+                salesRepository,
+                commandeDataService,
+                avoirFournisseurLineRepository,
+                appConfigurationService,
+                objectMapper,
+                groupeFournisseurManager,
+                calculator,
+                aggregator,
+                exportService,
+                reportService,
+                modeResolver);
         lenient().when(modeResolver.resoudre(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         mvtParam = createMvtParam();
@@ -113,7 +112,8 @@ class TableauPharmacienServiceImplTest {
         salesData.add(sales2);
 
         String salesJson = "[]"; // Simplified
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenReturn(salesJson);
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn(salesJson);
         when(objectMapper.readValue(eq(salesJson), any(TypeReference.class))).thenReturn(salesData);
 
         // Mock purchases data
@@ -121,9 +121,6 @@ class TableauPharmacienServiceImplTest {
         purchasesData.add(createAchatDTO(date1, 1, "Supplier A", 4000L));
         purchasesData.add(createAchatDTO(date3, 2, "Supplier B", 3000L)); // Date with no sales
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(purchasesData);
-
-
-
 
         // Mock configuration
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
@@ -149,11 +146,11 @@ class TableauPharmacienServiceImplTest {
         salesData.add(createSalesDTO(date1, 10000L, 5000L, 5000L));
 
         String salesJson = "[]";
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenReturn(salesJson);
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn(salesJson);
         when(objectMapper.readValue(eq(salesJson), any(TypeReference.class))).thenReturn(salesData);
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -169,14 +166,13 @@ class TableauPharmacienServiceImplTest {
         LocalDate date1 = LocalDate.of(2025, 1, 1);
 
         // Mock only purchases data, no sales or avoirs
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         List<AchatDTO> purchasesData = new ArrayList<>();
         purchasesData.add(createAchatDTO(date1, 1, "Supplier A", 4000L));
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(purchasesData);
-
-
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -192,14 +188,14 @@ class TableauPharmacienServiceImplTest {
         LocalDate date1 = LocalDate.of(2025, 1, 1);
 
         // Mock only avoirs data, no sales or purchases
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
 
         List<ReponseRetourBonItemProjection> avoirs = new ArrayList<>();
         avoirs.add(createAvoirProjection(date1, 500L));
-
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -213,11 +209,11 @@ class TableauPharmacienServiceImplTest {
     @Test
     void testGetTableauPharmacien_emptyData() throws Exception {
         // Mock all empty data
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of());
@@ -231,12 +227,10 @@ class TableauPharmacienServiceImplTest {
     @Test
     void testGetTableauPharmacien_errorHandling() throws Exception {
         // Mock error in fetching sales data
-        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString())).thenThrow(
-            new RuntimeException("Database error")
-        );
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyString()))
+                .thenThrow(new RuntimeException("Database error"));
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
-
 
         when(appConfigurationService.excludeFreeUnit()).thenReturn(false);
         when(groupeFournisseurManager.getDisplayedGroupIds()).thenReturn(Set.of(1, 2));
@@ -247,7 +241,6 @@ class TableauPharmacienServiceImplTest {
 
         assertNotNull(result);
     }
-
 
     @Test
     void testFetchGroupGrossisteToDisplay() {
@@ -273,7 +266,8 @@ class TableauPharmacienServiceImplTest {
         return param;
     }
 
-    private TableauPharmacienDTO createSalesDTO(LocalDate date, long montantNet, long montantComptant, long montantCredit) {
+    private TableauPharmacienDTO createSalesDTO(
+            LocalDate date, long montantNet, long montantComptant, long montantCredit) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMvtDate(date);
         dto.setMontantNet(montantNet);

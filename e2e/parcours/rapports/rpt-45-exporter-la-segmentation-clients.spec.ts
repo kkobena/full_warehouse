@@ -20,9 +20,7 @@ scenario('RPT-45', async ({ etape, page }) => {
     // bout, service et endpoint compris : la segmentation n'avait aucune sortie. Et le
     // gabarit Thymeleaf du document manquait par ailleurs — d'où un export réellement
     // déclenché ici, et pas seulement constaté.
-    const reponse = page.waitForResponse(
-      r => r.url().includes('/api/customers/segmentation/export') && r.request().method() === 'GET',
-    );
+    const reponse = page.waitForResponse(r => r.url().includes('/api/customers/segmentation/export') && r.request().method() === 'GET');
     await page.getByRole('button', { name: 'Exporter PDF' }).click();
     const pdf = await reponse;
     expect(pdf.status(), "L'export PDF de la segmentation a échoué.").toBe(200);

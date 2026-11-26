@@ -96,11 +96,12 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("chaque organisme porte son chiffre, ses factures, sa part et son délai")
         void contenuDeLaLigne() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 7_000_000L, 3_000_000L))
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(
+                            organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 7_000_000L, 3_000_000L)));
 
-            ConcentrationOrganismeDTO ligne = service.getSummary("90j", 10).organismes().getFirst();
+            ConcentrationOrganismeDTO ligne =
+                    service.getSummary("90j", 10).organismes().getFirst();
 
             assertThat(ligne.organisme()).isEqualTo("CNAM");
             assertThat(ligne.caTp()).isEqualTo(6_000_000L);
@@ -113,12 +114,10 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("les totaux de la période accompagnent le tableau")
         void totauxDeLaPeriode() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(
-                    organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 7_000_000L, 3_000_000L),
-                    organisme("MUGEF", 4_000_000L, 80, 30, 40.0, 10_000_000L, 7_000_000L, 3_000_000L)
-                )
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(
+                            organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 7_000_000L, 3_000_000L),
+                            organisme("MUGEF", 4_000_000L, 80, 30, 40.0, 10_000_000L, 7_000_000L, 3_000_000L)));
 
             ConcentrationSummaryDTO resume = service.getSummary("90j", 10);
 
@@ -134,44 +133,43 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("l'impact mensuel ramène le chiffre de la période à trente jours")
         void impactMensuel() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(organisme("CNAM", 9_000_000L, 120, 45, 60.0, 10_000_000L, 0L, 0L))
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(organisme("CNAM", 9_000_000L, 120, 45, 60.0, 10_000_000L, 0L, 0L)));
 
             // Quatre-vingt-dix jours de période : le tiers du chiffre revient à un mois.
-            assertThat(service.getSummary("90j", 10).organismes().getFirst().stressImpact30j()).isEqualTo(3_000_000L);
+            assertThat(service.getSummary("90j", 10).organismes().getFirst().stressImpact30j())
+                    .isEqualTo(3_000_000L);
         }
 
         @Test
         @DisplayName("un organisme sans chiffre n'a pas d'impact mensuel")
         void impactSansChiffre() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(organisme("DORMANT", 0L, 0, 30, 0.0, 10_000_000L, 0L, 0L))
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(organisme("DORMANT", 0L, 0, 30, 0.0, 10_000_000L, 0L, 0L)));
 
-            assertThat(service.getSummary("90j", 10).organismes().getFirst().stressImpact30j()).isZero();
+            assertThat(service.getSummary("90j", 10).organismes().getFirst().stressImpact30j())
+                    .isZero();
         }
 
         @Test
         @DisplayName("une part non renseignée vaut zéro")
         void partAbsente() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(new Object[] { "CNAM", 1L, 1, 30, null, 1L, 0L, 0L })
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(new Object[] {"CNAM", 1L, 1, 30, null, 1L, 0L, 0L}));
 
-            assertThat(service.getSummary("90j", 10).organismes().getFirst().partPct()).isZero();
+            assertThat(service.getSummary("90j", 10).organismes().getFirst().partPct())
+                    .isZero();
         }
 
         @Test
         @DisplayName("la liste des organismes est celle du résumé")
         void listeDesOrganismes() {
-            when(repository.findConcentration(any(), any(), anyInt())).thenReturn(
-                List.<Object[]>of(organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 0L, 0L))
-            );
+            when(repository.findConcentration(any(), any(), anyInt()))
+                    .thenReturn(List.<Object[]>of(organisme("CNAM", 6_000_000L, 120, 45, 60.0, 10_000_000L, 0L, 0L)));
 
             assertThat(service.getOrganismes("90j", 10))
-                .extracting(ConcentrationOrganismeDTO::organisme)
-                .containsExactly("CNAM");
+                    .extracting(ConcentrationOrganismeDTO::organisme)
+                    .containsExactly("CNAM");
         }
 
         /** Une officine sans tiers payant n'est dépendante de personne. */
@@ -253,8 +251,8 @@ class ConcentrationPayersServiceImplTest {
 
         private void donneParts(double... parts) {
             List<Object[]> rows = java.util.Arrays.stream(parts)
-                .mapToObj(part -> organisme("ORG" + part, 1_000L, 1, 30, part, 1_000L, 0L, 0L))
-                .toList();
+                    .mapToObj(part -> organisme("ORG" + part, 1_000L, 1, 30, part, 1_000L, 0L, 0L))
+                    .toList();
             when(repository.findConcentration(any(), any(), anyInt())).thenReturn(rows);
         }
     }
@@ -268,14 +266,12 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("chaque mois donne un point de l'axe, sans doublon")
         void axeDesMois() {
-            when(repository.findEvolution(anyInt())).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "CNAM", 5_000_000L),
-                    mois(2026, 1, "MUGEF", 2_000_000L),
-                    mois(2026, 2, "CNAM", 6_000_000L),
-                    mois(2026, 2, "MUGEF", 2_500_000L)
-                )
-            );
+            when(repository.findEvolution(anyInt()))
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "CNAM", 5_000_000L),
+                            mois(2026, 1, "MUGEF", 2_000_000L),
+                            mois(2026, 2, "CNAM", 6_000_000L),
+                            mois(2026, 2, "MUGEF", 2_500_000L)));
 
             assertThat(service.getEvolution(5).labels()).containsExactly(libelle(2026, 1), libelle(2026, 2));
         }
@@ -284,23 +280,19 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("un organisme absent un mois garde ses points alignés")
         void organismeAbsentUnMois() {
-            when(repository.findEvolution(anyInt())).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "CNAM", 5_000_000L),
-                    mois(2026, 1, "MUGEF", 2_000_000L),
-                    mois(2026, 2, "CNAM", 6_000_000L),
-                    mois(2026, 3, "CNAM", 7_000_000L),
-                    mois(2026, 3, "MUGEF", 2_500_000L)
-                )
-            );
+            when(repository.findEvolution(anyInt()))
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "CNAM", 5_000_000L),
+                            mois(2026, 1, "MUGEF", 2_000_000L),
+                            mois(2026, 2, "CNAM", 6_000_000L),
+                            mois(2026, 3, "CNAM", 7_000_000L),
+                            mois(2026, 3, "MUGEF", 2_500_000L)));
 
             ConcentrationEvolutionDTO evolution = service.getEvolution(5);
-            ConcentrationEvolutionSerieDTO mugef = evolution
-                .series()
-                .stream()
-                .filter(s -> "MUGEF".equals(s.organisme()))
-                .findFirst()
-                .orElseThrow();
+            ConcentrationEvolutionSerieDTO mugef = evolution.series().stream()
+                    .filter(s -> "MUGEF".equals(s.organisme()))
+                    .findFirst()
+                    .orElseThrow();
 
             assertThat(mugef.caValues()).containsExactly(2_000_000L, 0L, 2_500_000L);
         }
@@ -308,13 +300,14 @@ class ConcentrationPayersServiceImplTest {
         @Test
         @DisplayName("toutes les séries ont autant de points que l'axe a de mois")
         void seriesDeMemeLongueur() {
-            when(repository.findEvolution(anyInt())).thenReturn(
-                List.<Object[]>of(mois(2026, 1, "CNAM", 1L), mois(2026, 2, "MUGEF", 2L), mois(2026, 3, "CMU", 3L))
-            );
+            when(repository.findEvolution(anyInt()))
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "CNAM", 1L), mois(2026, 2, "MUGEF", 2L), mois(2026, 3, "CMU", 3L)));
 
             ConcentrationEvolutionDTO evolution = service.getEvolution(5);
 
-            assertThat(evolution.series()).allSatisfy(serie -> assertThat(serie.caValues()).hasSameSizeAs(evolution.labels()));
+            assertThat(evolution.series())
+                    .allSatisfy(serie -> assertThat(serie.caValues()).hasSameSizeAs(evolution.labels()));
         }
 
         @Test
@@ -330,20 +323,19 @@ class ConcentrationPayersServiceImplTest {
     // ===== utilitaires =====
 
     private static Object[] organisme(
-        String nom,
-        long caTp,
-        int nbFactures,
-        int delai,
-        double partPct,
-        long totalCaTp,
-        long totalRegle,
-        long totalImpaye
-    ) {
-        return new Object[] { nom, caTp, nbFactures, delai, partPct, totalCaTp, totalRegle, totalImpaye };
+            String nom,
+            long caTp,
+            int nbFactures,
+            int delai,
+            double partPct,
+            long totalCaTp,
+            long totalRegle,
+            long totalImpaye) {
+        return new Object[] {nom, caTp, nbFactures, delai, partPct, totalCaTp, totalRegle, totalImpaye};
     }
 
     private static Object[] mois(int annee, int mois, String organisme, long ca) {
-        return new Object[] { annee, mois, organisme, ca };
+        return new Object[] {annee, mois, organisme, ca};
     }
 
     private static String libelle(int annee, int mois) {

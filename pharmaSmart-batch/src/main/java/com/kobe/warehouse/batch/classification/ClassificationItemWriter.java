@@ -23,9 +23,7 @@ public class ClassificationItemWriter implements ItemWriter<ClassificationResult
     private final ClassificationCriticiteLogRepository logRepository;
 
     public ClassificationItemWriter(
-        ProduitRepository produitRepository,
-        ClassificationCriticiteLogRepository logRepository
-    ) {
+            ProduitRepository produitRepository, ClassificationCriticiteLogRepository logRepository) {
         this.produitRepository = produitRepository;
         this.logRepository = logRepository;
     }
@@ -38,15 +36,14 @@ public class ClassificationItemWriter implements ItemWriter<ClassificationResult
         for (ClassificationResult result : chunk.getItems()) {
             toSave.add(result.produit());
             logs.add(new ClassificationCriticiteLog()
-                .setProduit(result.produit())
-                .setAncienneClasse(result.ancienneClasse())
-                .setNouvelleClasse(result.nouvelleClasse())
-                .setCa12Mois(result.paretoScore().ca12Mois())
-                .setFrequenceVenteMois(result.paretoScore().frequenceMois())
-                .setScoreTotal(result.paretoScore().caCumulePct())
-                .setRaisonChangement(RAISON)
-                .setClassificationType(ClassificationType.AUTO)
-            );
+                    .setProduit(result.produit())
+                    .setAncienneClasse(result.ancienneClasse())
+                    .setNouvelleClasse(result.nouvelleClasse())
+                    .setCa12Mois(result.paretoScore().ca12Mois())
+                    .setFrequenceVenteMois(result.paretoScore().frequenceMois())
+                    .setScoreTotal(result.paretoScore().caCumulePct())
+                    .setRaisonChangement(RAISON)
+                    .setClassificationType(ClassificationType.AUTO));
         }
 
         produitRepository.saveAll(toSave);

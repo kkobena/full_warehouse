@@ -74,7 +74,8 @@ public class WarehouseSequence implements Serializable {
 
     @Override
     public String toString() {
-        String sb = "WarehouseSequence{" + "name='" + name + '\'' + ", value=" + value + ", increment=" + increment + '}';
+        String sb =
+                "WarehouseSequence{" + "name='" + name + '\'' + ", value=" + value + ", increment=" + increment + '}';
         return sb;
     }
 }

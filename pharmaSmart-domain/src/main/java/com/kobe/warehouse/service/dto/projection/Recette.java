@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto.projection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
-
 import java.math.BigDecimal;
 
 public record Recette(Long realAmount, Long paidAmount, String code, String libelle) {

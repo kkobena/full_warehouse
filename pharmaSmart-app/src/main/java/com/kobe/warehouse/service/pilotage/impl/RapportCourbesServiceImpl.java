@@ -23,14 +23,16 @@ public class RapportCourbesServiceImpl implements RapportCourbesService {
     private final SeriesPilotageService seriesPilotageService;
     private final GraphiquePilotageService graphiquePilotageService;
 
-    public RapportCourbesServiceImpl(SeriesPilotageService seriesPilotageService, GraphiquePilotageService graphiquePilotageService) {
+    public RapportCourbesServiceImpl(
+            SeriesPilotageService seriesPilotageService, GraphiquePilotageService graphiquePilotageService) {
         this.seriesPilotageService = seriesPilotageService;
         this.graphiquePilotageService = graphiquePilotageService;
     }
 
     /** La courbe remonte 13 tranches : la tendance, pas la seule période des tuiles. */
     @Override
-    public String dessinerHistorique(RequetePilotageDTO requete, IndicateurPilotage indicateur, boolean contreObjectif, FormatGraphe format) {
+    public String dessinerHistorique(
+            RequetePilotageDTO requete, IndicateurPilotage indicateur, boolean contreObjectif, FormatGraphe format) {
         return dessiner(HorizonCourbe.elargirAuxTreizeTranches(requete, indicateur), requete, contreObjectif, format);
     }
 
@@ -40,8 +42,10 @@ public class RapportCourbesServiceImpl implements RapportCourbesService {
     }
 
     /** @param requete la requête de la barre, qui nomme la référence */
-    private String dessiner(RequetePilotageDTO tracee, RequetePilotageDTO requete, boolean contreObjectif, FormatGraphe format) {
-        List<SerieIndicateurDTO> historique = seriesPilotageService.calculerSeries(tracee).series();
+    private String dessiner(
+            RequetePilotageDTO tracee, RequetePilotageDTO requete, boolean contreObjectif, FormatGraphe format) {
+        List<SerieIndicateurDTO> historique =
+                seriesPilotageService.calculerSeries(tracee).series();
         if (historique.isEmpty() || historique.getFirst().points().isEmpty()) {
             return null;
         }
@@ -64,11 +68,13 @@ public class RapportCourbesServiceImpl implements RapportCourbesService {
         List<SerieGraphiqueDTO> series = new ArrayList<>(3);
         series.add(new SerieGraphiqueDTO("Réalisé", realise, StyleSerie.REALISE));
         if (avecReference) {
-            series.add(new SerieGraphiqueDTO(HorizonCourbe.libellerReference(requete), reference, StyleSerie.REFERENCE));
+            series.add(
+                    new SerieGraphiqueDTO(HorizonCourbe.libellerReference(requete), reference, StyleSerie.REFERENCE));
         }
         if (avecObjectif && !contreObjectif) {
             series.add(new SerieGraphiqueDTO("Objectif", objectif, StyleSerie.OBJECTIF));
         }
-        return graphiquePilotageService.dessinerCourbes(libelles, series, serie.indicateur().unite(), format);
+        return graphiquePilotageService.dessinerCourbes(
+                libelles, series, serie.indicateur().unite(), format);
     }
 }

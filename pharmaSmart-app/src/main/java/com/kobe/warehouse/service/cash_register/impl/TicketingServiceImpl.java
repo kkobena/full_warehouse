@@ -23,10 +23,9 @@ public class TicketingServiceImpl implements TicketingService {
     private final TicketingRepository ticketingRepository;
 
     public TicketingServiceImpl(
-        CashRegisterService cashRegisterService,
-        StorageService storageService,
-        TicketingRepository ticketingRepository
-    ) {
+            CashRegisterService cashRegisterService,
+            StorageService storageService,
+            TicketingRepository ticketingRepository) {
         this.cashRegisterService = cashRegisterService;
         this.storageService = storageService;
         this.ticketingRepository = ticketingRepository;
@@ -36,7 +35,9 @@ public class TicketingServiceImpl implements TicketingService {
     public void doTicketing(TicketingDTO ticketingDto) {
         CashRegister cashRegister;
         if (Objects.isNull(ticketingDto.cashRegisterId())) {
-            cashRegister = this.cashRegisterService.getOpiningCashRegisterByUser(this.storageService.getUser()).orElseThrow();
+            cashRegister = this.cashRegisterService
+                    .getOpiningCashRegisterByUser(this.storageService.getUser())
+                    .orElseThrow();
         } else {
             cashRegister = this.cashRegisterService.getCashRegisterById(ticketingDto.cashRegisterId());
             if (cashRegister.getStatut() == CashRegisterStatut.CLOSED) {
@@ -56,38 +57,36 @@ public class TicketingServiceImpl implements TicketingService {
 
     private Ticketing buildTicketing(TicketingDTO ticketingDto, CashRegister cashRegister) {
         return new Ticketing()
-            .setCashRegister(cashRegister)
-            .setNumberOf10Thousand(ticketingDto.numberOf10Thousand())
-            .setNumberOf5Thousand(ticketingDto.numberOf5Thousand())
-            .setNumberOf2Thousand(ticketingDto.numberOf2Thousand())
-            .setNumberOf1Thousand(ticketingDto.numberOf1Thousand())
-            .setNumberOf500Hundred(ticketingDto.numberOf500Hundred())
-            .setNumberOf200Hundred(ticketingDto.numberOf200Hundred())
-            .setNumberOf100Hundred(ticketingDto.numberOf100Hundred())
-            .setNumberOf50(ticketingDto.numberOf50())
-            .setNumberOf25(ticketingDto.numberOf25())
-            .setNumberOf10(ticketingDto.numberOf10())
-            .setNumberOf5(ticketingDto.numberOf5())
-            .setNumberOf1(ticketingDto.numberOf1())
-            .setOtherAmount(ticketingDto.otherAmount())
-            .setTotalAmount(computeCashAmount(ticketingDto));
+                .setCashRegister(cashRegister)
+                .setNumberOf10Thousand(ticketingDto.numberOf10Thousand())
+                .setNumberOf5Thousand(ticketingDto.numberOf5Thousand())
+                .setNumberOf2Thousand(ticketingDto.numberOf2Thousand())
+                .setNumberOf1Thousand(ticketingDto.numberOf1Thousand())
+                .setNumberOf500Hundred(ticketingDto.numberOf500Hundred())
+                .setNumberOf200Hundred(ticketingDto.numberOf200Hundred())
+                .setNumberOf100Hundred(ticketingDto.numberOf100Hundred())
+                .setNumberOf50(ticketingDto.numberOf50())
+                .setNumberOf25(ticketingDto.numberOf25())
+                .setNumberOf10(ticketingDto.numberOf10())
+                .setNumberOf5(ticketingDto.numberOf5())
+                .setNumberOf1(ticketingDto.numberOf1())
+                .setOtherAmount(ticketingDto.otherAmount())
+                .setTotalAmount(computeCashAmount(ticketingDto));
     }
 
     private long computeCashAmount(TicketingDTO ticketingDto) {
-        return (
-            ticketingDto.otherAmount() +
-            ticketingDto.numberOf1() +
-            (ticketingDto.numberOf25() * 25L) +
-            (ticketingDto.numberOf5() * 5L) +
-            (ticketingDto.numberOf10() * 10L) +
-            (ticketingDto.numberOf50() * 50L) +
-            (ticketingDto.numberOf100Hundred() * 100L) +
-            (ticketingDto.numberOf200Hundred() * 200L) +
-            (ticketingDto.numberOf500Hundred() * 500L) +
-            (ticketingDto.numberOf1Thousand() * 1000L) +
-            (ticketingDto.numberOf2Thousand() * 2000L) +
-            (ticketingDto.numberOf5Thousand() * 5000L) +
-            (ticketingDto.numberOf10Thousand() * 10000L)
-        );
+        return (ticketingDto.otherAmount()
+                + ticketingDto.numberOf1()
+                + (ticketingDto.numberOf25() * 25L)
+                + (ticketingDto.numberOf5() * 5L)
+                + (ticketingDto.numberOf10() * 10L)
+                + (ticketingDto.numberOf50() * 50L)
+                + (ticketingDto.numberOf100Hundred() * 100L)
+                + (ticketingDto.numberOf200Hundred() * 200L)
+                + (ticketingDto.numberOf500Hundred() * 500L)
+                + (ticketingDto.numberOf1Thousand() * 1000L)
+                + (ticketingDto.numberOf2Thousand() * 2000L)
+                + (ticketingDto.numberOf5Thousand() * 5000L)
+                + (ticketingDto.numberOf10Thousand() * 10000L));
     }
 }

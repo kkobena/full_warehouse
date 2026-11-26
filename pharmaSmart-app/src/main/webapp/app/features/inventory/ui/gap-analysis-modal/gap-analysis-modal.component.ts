@@ -1,22 +1,11 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {
-  CAUSE_ECART_OPTIONS,
-  CauseEcart,
-  IGapEntry,
-  IGapLine
-} from '../../models/gap-analysis.model';
-import {GapAnalysisApiService} from '../../data-access/services/gap-analysis-api.service';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  CardComponent,
-  DataTableComponent,
-  SelectSearchComponent,
-} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { CAUSE_ECART_OPTIONS, CauseEcart, IGapEntry, IGapLine } from '../../models/gap-analysis.model';
+import { GapAnalysisApiService } from '../../data-access/services/gap-analysis-api.service';
+import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableComponent, SelectSearchComponent } from '../../../../shared/ui';
 
 interface GapLineVM extends IGapLine {
   selectedCause: CauseEcart | null;
@@ -138,16 +127,18 @@ export class GapAnalysisModalComponent implements OnInit {
     this.api.getGapLines(this.inventoryId, page, size).subscribe({
       next: res => {
         const changes = this.pending();
-        this.lines.set((res.body ?? []).map(line => {
-          // Une saisie non enregistrée prime sur ce que renvoie le serveur : sans cela,
-          // revenir sur une page déjà modifiée écraserait le travail de l'opérateur.
-          const change = changes.get(line.lineId);
-          return {
-            ...line,
-            selectedCause: change ? change.cause : (line.existingCause ?? 'INCONNU'),
-            comment: change ? change.comment : (line.existingComment ?? ''),
-          };
-        }));
+        this.lines.set(
+          (res.body ?? []).map(line => {
+            // Une saisie non enregistrée prime sur ce que renvoie le serveur : sans cela,
+            // revenir sur une page déjà modifiée écraserait le travail de l'opérateur.
+            const change = changes.get(line.lineId);
+            return {
+              ...line,
+              selectedCause: change ? change.cause : (line.existingCause ?? 'INCONNU'),
+              comment: change ? change.comment : (line.existingComment ?? ''),
+            };
+          }),
+        );
         this.totalItems.set(Number(res.headers.get('X-Total-Count')) || 0);
         this.loading.set(false);
       },
@@ -169,7 +160,7 @@ export class GapAnalysisModalComponent implements OnInit {
   private trackChange(line: GapLineVM): void {
     this.pending.update(changes => {
       const next = new Map(changes);
-      next.set(line.lineId, {cause: line.selectedCause, comment: line.comment});
+      next.set(line.lineId, { cause: line.selectedCause, comment: line.comment });
       return next;
     });
   }

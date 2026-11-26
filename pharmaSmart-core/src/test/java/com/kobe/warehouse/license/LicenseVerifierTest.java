@@ -30,25 +30,29 @@ class LicenseVerifierTest {
 
     private static LicensePayload samplePayload() {
         return new LicensePayload(
-            "b3c1f2e0-0000-0000-0000-000000000001",
-            LicenseType.SUBSCRIPTION,
-            "CI-ABJ-0042",
-            "PHARMACIE DE LA PAIX",
-            "PHARMACIE DE LA PAIX SARL",
-            "1234567A",
-            "STANDARD",
-            Instant.parse("2026-01-15T10:00:00Z"),
-            LocalDate.of(2026, 1, 15),
-            LocalDate.of(2027, 1, 15),
-            7,
-            10,
-            null,
-            null,
-            EnumSet.of(Feature.CAISSE, Feature.FACTURATION),
-            "sha256:9f2c",
-            BindingPolicy.MAGASIN_AND_HARDWARE,
-            new SupportContacts("PharmaSmart CI", List.of("+225 07 00 00 00 00"), List.of("support@pharmasmart.ci"), null, null)
-        );
+                "b3c1f2e0-0000-0000-0000-000000000001",
+                LicenseType.SUBSCRIPTION,
+                "CI-ABJ-0042",
+                "PHARMACIE DE LA PAIX",
+                "PHARMACIE DE LA PAIX SARL",
+                "1234567A",
+                "STANDARD",
+                Instant.parse("2026-01-15T10:00:00Z"),
+                LocalDate.of(2026, 1, 15),
+                LocalDate.of(2027, 1, 15),
+                7,
+                10,
+                null,
+                null,
+                EnumSet.of(Feature.CAISSE, Feature.FACTURATION),
+                "sha256:9f2c",
+                BindingPolicy.MAGASIN_AND_HARDWARE,
+                new SupportContacts(
+                        "PharmaSmart CI",
+                        List.of("+225 07 00 00 00 00"),
+                        List.of("support@pharmasmart.ci"),
+                        null,
+                        null));
     }
 
     private static String sign(KeyPair keys, LicensePayload payload) throws Exception {
@@ -82,8 +86,8 @@ class LicenseVerifierTest {
         String tampered = parts[0] + '.' + new String(claims) + '.' + parts[2];
 
         assertThatThrownBy(() -> verifier.verify(tampered))
-            .isInstanceOf(LicenseVerificationException.class)
-            .hasMessageContaining("signature");
+                .isInstanceOf(LicenseVerificationException.class)
+                .hasMessageContaining("signature");
     }
 
     @Test
@@ -91,9 +95,9 @@ class LicenseVerifierTest {
         String token = sign(foreignKeys, samplePayload());
 
         assertThatThrownBy(() -> verifier.verify(token))
-            .isInstanceOf(LicenseVerificationException.class)
-            .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
-            .isEqualTo("license.invalid.signature");
+                .isInstanceOf(LicenseVerificationException.class)
+                .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
+                .isEqualTo("license.invalid.signature");
     }
 
     @Test
@@ -102,23 +106,24 @@ class LicenseVerifierTest {
         // d'un coup toutes les licences déjà déployées (cf. plan §9).
         LicenseVerifier rotating = new LicenseVerifier(List.of(foreignKeys.getPublic(), editorKeys.getPublic()));
 
-        assertThat(rotating.verify(sign(editorKeys, samplePayload())).licenseId()).isNotNull();
+        assertThat(rotating.verify(sign(editorKeys, samplePayload())).licenseId())
+                .isNotNull();
     }
 
     @Test
     void rejetteUnFichierQuiNestPasUnJws() {
         assertThatThrownBy(() -> verifier.verify("ceci n'est pas une licence"))
-            .isInstanceOf(LicenseVerificationException.class)
-            .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
-            .isEqualTo("license.invalid.format");
+                .isInstanceOf(LicenseVerificationException.class)
+                .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
+                .isEqualTo("license.invalid.format");
     }
 
     @Test
     void rejetteUnFichierVide() {
         assertThatThrownBy(() -> verifier.verify("   "))
-            .isInstanceOf(LicenseVerificationException.class)
-            .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
-            .isEqualTo("license.invalid.empty");
+                .isInstanceOf(LicenseVerificationException.class)
+                .extracting(e -> ((LicenseVerificationException) e).getErrorKey())
+                .isEqualTo("license.invalid.empty");
     }
 
     @Test
@@ -135,25 +140,24 @@ class LicenseVerifierTest {
     @Test
     void uneLicenceSansFeaturesConserveLexistantSansOuvrirDoption() throws Exception {
         LicensePayload sansFeatures = new LicensePayload(
-            "id",
-            LicenseType.SUBSCRIPTION,
-            null,
-            "PHARMACIE",
-            null,
-            null,
-            null,
-            Instant.now(),
-            null,
-            LocalDate.of(2030, 1, 1),
-            0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+                "id",
+                LicenseType.SUBSCRIPTION,
+                null,
+                "PHARMACIE",
+                null,
+                null,
+                null,
+                Instant.now(),
+                null,
+                LocalDate.of(2030, 1, 1),
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
         LicensePayload verified = verifier.verify(sign(editorKeys, sansFeatures));
 

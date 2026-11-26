@@ -5,7 +5,6 @@
   @include modal-theme;
 }
 
-
 .avoir-summary {
   background: #fff;
   border: 1px solid var(--surface-200, #e9ecef);
@@ -58,7 +57,9 @@
     flex-direction: column;
     gap: 3px;
 
-    &.meta-full { grid-column: 1 / -1; }
+    &.meta-full {
+      grid-column: 1 / -1;
+    }
 
     .meta-label {
       font-size: 0.68rem;
@@ -119,7 +120,9 @@
   display: flex;
   flex-direction: column;
 
-  i { font-size: 0.875rem; }
+  i {
+    font-size: 0.875rem;
+  }
 
   .cloture-montant-badge {
     background: #dcfce7;
@@ -136,7 +139,10 @@
   font-size: 0.875rem;
   border-color: var(--p-content-border-color, #e5e7eb);
 
-  &:focus { border-color: var(--p-primary-color); box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15); }
+  &:focus {
+    border-color: var(--p-primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+  }
 }
 
 .mode-description {

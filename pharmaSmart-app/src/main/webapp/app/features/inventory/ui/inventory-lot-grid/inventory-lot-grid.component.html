@@ -1,24 +1,18 @@
 <div class="inventory-grid-wrapper">
   <div class="grid-caption">
     <div class="caption-filters">
-
       <div class="caption-search">
         <i class="pi pi-search"></i>
-        <input
-          (input)="onQuickFilterChange()"
-          [(ngModel)]="quickFilterText"
-          placeholder="Code CIP, N° lot..."
-          type="text"
-        />
+        <input (input)="onQuickFilterChange()" [(ngModel)]="quickFilterText" placeholder="Code CIP, N° lot..." type="text" />
         @if (quickFilterText) {
-          <i (click)="quickFilterText = ''; onQuickFilterChange()"
-             class="pi pi-times caption-clear"></i>
+          <i (click)="quickFilterText = ''; onQuickFilterChange()" class="pi pi-times caption-clear"></i>
         }
       </div>
 
       <app-select
         (selectionChange)="onLotFilterChange()"
-        [ngModel]="selectedLotFilter()" (ngModelChange)="selectedLotFilter.set($event)"
+        [ngModel]="selectedLotFilter()"
+        (ngModelChange)="selectedLotFilter.set($event)"
         [items]="lotFilters()"
         [style]="{ width: '150px' }"
         appendTo="body"
@@ -46,7 +40,8 @@
       @if (rayons().length > 0) {
         <app-select
           (selectionChange)="onRayonFilterChange()"
-          [ngModel]="selectedRayonId()" (ngModelChange)="selectedRayonId.set($event)"
+          [ngModel]="selectedRayonId()"
+          (ngModelChange)="selectedRayonId.set($event)"
           [items]="rayons()"
           [clearable]="true"
           [style]="{ 'min-width': '300px' }"
@@ -58,7 +53,6 @@
           [small]="true"
         />
       }
-
     </div>
   </div>
 
@@ -79,12 +73,10 @@
     [stopEditingWhenCellsLoseFocus]="true"
     [suppressScrollOnNewData]="true"
     [theme]="theme"
-    style="width: 100%; height: 100%;"
+    style="width: 100%; height: 100%"
   />
 
   @if (loading()) {
-    <div class="lot-loading">
-      <i class="pi pi-spin pi-spinner"></i> Chargement...
-    </div>
+    <div class="lot-loading"><i class="pi pi-spin pi-spinner"></i> Chargement...</div>
   }
 </div>

@@ -23,8 +23,7 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
 
     @Override
     public ProductBasicInfoProjection getBasicProductInfo(int productId) {
-        String sql =
-            """
+        String sql = """
             SELECT
                 p.id,
                 p.libelle,
@@ -47,15 +46,14 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
         try {
             Object[] row = (Object[]) query.getSingleResult();
             return new ProductBasicInfoProjection(
-                ((Number) row[0]).longValue(),
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                (String) row[4],
-                row[5] != null ? ((Number) row[5]).longValue() : null,
-                (String) row[6],
-                row[7] != null ? ((Number) row[7]).longValue() : null
-            );
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    (String) row[2],
+                    (String) row[3],
+                    (String) row[4],
+                    row[5] != null ? ((Number) row[5]).longValue() : null,
+                    (String) row[6],
+                    row[7] != null ? ((Number) row[7]).longValue() : null);
         } catch (NoResultException e) {
             return null;
         }
@@ -63,8 +61,7 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
 
     @Override
     public StockInfoProjection getStockInfo(int productId) {
-        String sql =
-            """
+        String sql = """
             SELECT
                 s.id as storage_id,
                 s.name as storage_name,
@@ -115,18 +112,19 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
             totalQtyStock += qtyStock;
             totalQtyUg += qtyUg;
 
-            storageStocks.add(new StorageStockProjection(storageId, storageName, storageType, qtyStock, qtyUg, storageTotal));
+            storageStocks.add(
+                    new StorageStockProjection(storageId, storageName, storageType, qtyStock, qtyUg, storageTotal));
         }
 
         int totalQuantity = totalQtyStock + totalQtyUg;
 
-        return new StockInfoProjection(totalQtyStock, totalQtyUg, totalQuantity, minThreshold, maxThreshold, storageStocks);
+        return new StockInfoProjection(
+                totalQtyStock, totalQtyUg, totalQuantity, minThreshold, maxThreshold, storageStocks);
     }
 
     @Override
     public PriceInfoProjection getPriceInfo(int productId) {
-        String sql =
-            """
+        String sql = """
             SELECT
                 COALESCE(p.cost_amount, 0) as purchase_price,
                 COALESCE(p.regular_unit_price, 0) as selling_price,
@@ -146,16 +144,17 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
         int vatRate = ((Number) row[2]).intValue();
 
         double marginPercent = sellingPrice > 0
-            ? BigDecimal.valueOf(((sellingPrice - purchasePrice) * 100.0) / sellingPrice).setScale(2, RoundingMode.HALF_UP).doubleValue()
-            : 0;
+                ? BigDecimal.valueOf(((sellingPrice - purchasePrice) * 100.0) / sellingPrice)
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue()
+                : 0;
 
         return new PriceInfoProjection(purchasePrice, sellingPrice, marginPercent, vatRate);
     }
 
     @Override
     public List<LotInfoProjection> getLotInfo(int productId) {
-        String sql =
-            """
+        String sql = """
             SELECT
                 l.id,
                 l.num_lot,
@@ -176,24 +175,21 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
 
         List<LotInfoProjection> lots = new ArrayList<>();
         for (Object[] row : results) {
-            lots.add(
-                new LotInfoProjection(
+            lots.add(new LotInfoProjection(
                     ((Number) row[0]).longValue(),
                     (String) row[1],
                     LocalDate.parse((String) row[2]),
                     ((Number) row[3]).intValue(),
-                    ((Number) row[4]).intValue()
-                )
-            );
+                    ((Number) row[4]).intValue()));
         }
 
         return lots;
     }
 
     @Override
-    public ProductSalesStatsProjection getSalesStats(int productId, LocalDate today, LocalDate weekStart, LocalDate monthStart) {
-        String sql =
-            """
+    public ProductSalesStatsProjection getSalesStats(
+            int productId, LocalDate today, LocalDate weekStart, LocalDate monthStart) {
+        String sql = """
             SELECT
                 COALESCE(SUM(CASE WHEN s.sale_date = :today THEN sl.quantity_requested ELSE 0 END), 0) as today_qty,
                 COALESCE(SUM(CASE WHEN s.sale_date = :today THEN sl.sales_amount ELSE 0 END), 0) as today_amount,
@@ -225,15 +221,17 @@ public class MobileProductRepositoryImpl implements MobileProductRepository {
         int monthQty = ((Number) row[4]).intValue();
         long monthAmount = ((Number) row[5]).longValue();
 
-        double avgDailyQty = BigDecimal.valueOf(monthQty / 30.0).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        double avgDailyQty = BigDecimal.valueOf(monthQty / 30.0)
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
 
-        return new ProductSalesStatsProjection(todayQty, todayAmount, weekQty, weekAmount, monthQty, monthAmount, avgDailyQty);
+        return new ProductSalesStatsProjection(
+                todayQty, todayAmount, weekQty, weekAmount, monthQty, monthAmount, avgDailyQty);
     }
 
     @Override
     public double getAverageDailyQuantitySold(int productId, int lookbackDays) {
-        String sql =
-            """
+        String sql = """
             SELECT COALESCE(AVG(daily_qty), 0)
             FROM (
                 SELECT SUM(sl.quantity_requested) as daily_qty

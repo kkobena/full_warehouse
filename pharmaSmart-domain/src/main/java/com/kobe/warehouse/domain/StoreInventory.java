@@ -16,7 +16,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,7 +25,6 @@ import java.util.List;
 /**
  * A StoreInventory.
  */
-
 @Entity
 @Table(name = "store_inventory")
 public class StoreInventory implements Serializable {
@@ -80,10 +78,12 @@ public class StoreInventory implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private InventoryStatut statut = InventoryStatut.CREATE;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 20)
     private CategroryInventaire category = CategroryInventaire.STOCK_TOTAL;
+
     @ManyToOne
     private Storage storage;
 
@@ -332,22 +332,22 @@ public class StoreInventory implements Serializable {
     @Override
     public String toString() {
         return "StoreInventory{"
-            + "id="
-            + getId()
-            + ", inventoryValueCostBegin="
-            + getInventoryValueCostBegin()
-            + ", inventoryAmountBegin="
-            + getInventoryAmountBegin()
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-            + "'"
-            + ", inventoryValueCostAfter="
-            + getInventoryValueCostAfter()
-            + ", inventoryAmountAfter="
-            + getInventoryAmountAfter()
-            + "}";
+                + "id="
+                + getId()
+                + ", inventoryValueCostBegin="
+                + getInventoryValueCostBegin()
+                + ", inventoryAmountBegin="
+                + getInventoryAmountBegin()
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "'"
+                + ", inventoryValueCostAfter="
+                + getInventoryValueCostAfter()
+                + ", inventoryAmountAfter="
+                + getInventoryAmountAfter()
+                + "}";
     }
 }

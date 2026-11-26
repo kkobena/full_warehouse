@@ -14,7 +14,9 @@ test.afterAll(() => {
 test('prescripteurs : corriger, fusionner un doublon, désactiver', async ({ page }) => {
   test.setTimeout(180_000);
   rejouer('scripts/essai-ordonnance/nettoyer.sql');
-  executer(`INSERT INTO prescripteur (nom, prenom) VALUES ('ESSAI E2E Dupont', 'A.'), ('ESSAI E2E Dupond', 'Alain'), ('ESSAI E2E Martin', NULL);`);
+  executer(
+    `INSERT INTO prescripteur (nom, prenom) VALUES ('ESSAI E2E Dupont', 'A.'), ('ESSAI E2E Dupond', 'Alain'), ('ESSAI E2E Martin', NULL);`,
+  );
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
@@ -22,7 +24,12 @@ test('prescripteurs : corriger, fusionner un doublon, désactiver', async ({ pag
   await chercherProduit(page, 'DOLIPRANE 500');
   await ajouterAuPanier(page, '1');
   await rattacherUnClient(page);
-  await page.locator('app-customer-overlay-panel').filter({ visible: true }).first().getByRole('button', { name: /Ordonnances du client/ }).click();
+  await page
+    .locator('app-customer-overlay-panel')
+    .filter({ visible: true })
+    .first()
+    .getByRole('button', { name: /Ordonnances du client/ })
+    .click();
   await page.locator('.offcanvas.show').getByRole('button', { name: 'Prescripteurs' }).click();
 
   const modale = page.locator('.modal-content');
@@ -32,14 +39,20 @@ test('prescripteurs : corriger, fusionner un doublon, désactiver', async ({ pag
   await expect(lignes).toHaveCount(3);
 
   // Correction : la spécialité se retrouve en base.
-  await lignes.filter({ hasText: 'Martin' }).getByRole('button', { name: /Modifier/ }).click();
+  await lignes
+    .filter({ hasText: 'Martin' })
+    .getByRole('button', { name: /Modifier/ })
+    .click();
   await modale.locator('app-form-field', { hasText: 'Spécialité' }).locator('input').fill('Cardiologue');
   await modale.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(lignes.filter({ hasText: 'Martin' })).toContainText('Cardiologue');
   expect(lire("SELECT specialite FROM prescripteur WHERE nom = 'ESSAI E2E Martin'")).toBe('Cardiologue');
 
   // Fusion du doublon « Dupont » dans « Dupond » : la fiche source est désactivée.
-  await lignes.filter({ hasText: 'Dupont' }).getByRole('button', { name: /Fusionner/ }).click();
+  await lignes
+    .filter({ hasText: 'Dupont' })
+    .getByRole('button', { name: /Fusionner/ })
+    .click();
   await modale.locator('ng-select').click();
   await page.locator('.ng-option', { hasText: 'Dupond' }).click();
   await modale.getByRole('button', { name: 'Fusionner' }).click();
@@ -47,7 +60,10 @@ test('prescripteurs : corriger, fusionner un doublon, désactiver', async ({ pag
   expect(lire("SELECT actif FROM prescripteur WHERE nom = 'ESSAI E2E Dupont'")).toBe('f');
 
   // Désactivation.
-  await lignes.filter({ hasText: 'Martin' }).getByRole('button', { name: /Désactiver/ }).click();
+  await lignes
+    .filter({ hasText: 'Martin' })
+    .getByRole('button', { name: /Désactiver/ })
+    .click();
   await expect(lignes).toHaveCount(1);
   expect(lire("SELECT actif FROM prescripteur WHERE nom = 'ESSAI E2E Martin'")).toBe('f');
 

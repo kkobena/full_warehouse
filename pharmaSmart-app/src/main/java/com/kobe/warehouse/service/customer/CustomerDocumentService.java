@@ -40,7 +40,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class CustomerDocumentService {
 
-    private static final String VENTES_DIFFEREES = "s.customer_id = :id AND s.differe AND s.statut = 'CLOSED' AND NOT s.canceled";
+    private static final String VENTES_DIFFEREES =
+            "s.customer_id = :id AND s.differe AND s.statut = 'CLOSED' AND NOT s.canceled";
 
     private final EntityManager em;
     private final SpringTemplateEngine templateEngine;
@@ -48,11 +49,10 @@ public class CustomerDocumentService {
     private final AppConfigurationService appConfigurationService;
 
     public CustomerDocumentService(
-        EntityManager em,
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        AppConfigurationService appConfigurationService
-    ) {
+            EntityManager em,
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            AppConfigurationService appConfigurationService) {
         this.em = em;
         this.templateEngine = templateEngine;
         this.storageService = storageService;
@@ -63,11 +63,16 @@ public class CustomerDocumentService {
         ClientDocumentDTO client = client(customerId);
         verifierPeriode(debut, fin);
 
-        List<Mouvement> mouvements = Stream.concat(ventesDifferees(customerId).stream(), reglements(customerId).stream())
-            .sorted(Comparator.comparing(Mouvement::date).thenComparing(Mouvement::horodatage, Comparator.nullsLast(Comparator.naturalOrder())))
-            .toList();
+        List<Mouvement> mouvements = Stream.concat(
+                        ventesDifferees(customerId).stream(), reglements(customerId).stream())
+                .sorted(Comparator.comparing(Mouvement::date)
+                        .thenComparing(Mouvement::horodatage, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
 
-        long solde = mouvements.stream().filter(m -> m.date().isBefore(debut)).mapToLong(m -> m.debit() - m.credit()).sum();
+        long solde = mouvements.stream()
+                .filter(m -> m.date().isBefore(debut))
+                .mapToLong(m -> m.debit() - m.credit())
+                .sum();
         long soldeInitial = solde;
         long totalDebit = 0;
         long totalCredit = 0;
@@ -89,73 +94,67 @@ public class CustomerDocumentService {
         ClientDocumentDTO client = client(customerId);
         verifierPeriode(debut, fin);
         String filtre =
-            " FROM sales s JOIN customer c ON c.id = s.customer_id LEFT JOIN customer ad ON ad.id = s.ayant_droit_id" +
-            " WHERE (s.customer_id = :id OR s.ayant_droit_id = :id) AND s.statut = 'CLOSED' AND NOT s.canceled" +
-            " AND s.sale_date BETWEEN :debut AND :fin";
+                " FROM sales s JOIN customer c ON c.id = s.customer_id LEFT JOIN customer ad ON ad.id = s.ayant_droit_id"
+                        + " WHERE (s.customer_id = :id OR s.ayant_droit_id = :id) AND s.statut = 'CLOSED' AND NOT s.canceled"
+                        + " AND s.sale_date BETWEEN :debut AND :fin";
 
         @SuppressWarnings("unchecked")
-        List<Object[]> lignes = em
-            .createNativeQuery(
-                "SELECT s.id, s.sale_date, p.libelle, l.quantity_sold, l.sales_amount" +
-                filtre.replace(" FROM sales s", " FROM sales_line l JOIN produit p ON p.id = l.produit_id JOIN sales s ON s.id = l.sales_id AND s.sale_date = l.sales_sale_date") +
-                " ORDER BY p.libelle"
-            )
-            .setParameter("id", customerId)
-            .setParameter("debut", debut)
-            .setParameter("fin", fin)
-            .getResultList();
-        Map<String, List<DepenseDTO.ProduitDepenseDTO>> produits = lignes
-            .stream()
-            .collect(
-                Collectors.groupingBy(
-                    r -> cle(r[0], r[1]),
-                    LinkedHashMap::new,
-                    Collectors.mapping(r -> new DepenseDTO.ProduitDepenseDTO((String) r[2], entier(r[3]), longue(r[4])), Collectors.toList())
-                )
-            );
+        List<Object[]> lignes = em.createNativeQuery(
+                        "SELECT s.id, s.sale_date, p.libelle, l.quantity_sold, l.sales_amount"
+                                + filtre.replace(
+                                        " FROM sales s",
+                                        " FROM sales_line l JOIN produit p ON p.id = l.produit_id JOIN sales s ON s.id = l.sales_id AND s.sale_date = l.sales_sale_date")
+                                + " ORDER BY p.libelle")
+                .setParameter("id", customerId)
+                .setParameter("debut", debut)
+                .setParameter("fin", fin)
+                .getResultList();
+        Map<String, List<DepenseDTO.ProduitDepenseDTO>> produits = lignes.stream()
+                .collect(Collectors.groupingBy(
+                        r -> cle(r[0], r[1]),
+                        LinkedHashMap::new,
+                        Collectors.mapping(
+                                r -> new DepenseDTO.ProduitDepenseDTO((String) r[2], entier(r[3]), longue(r[4])),
+                                Collectors.toList())));
 
         @SuppressWarnings("unchecked")
-        List<Object[]> ventes = em
-            .createNativeQuery(
-                "SELECT s.id, s.sale_date, s.number_transaction, s.sales_amount - s.discount_amount, COALESCE(s.part_tiers_payant, 0)," +
-                " COALESCE(ad.first_name || ' ' || ad.last_name, c.first_name || ' ' || c.last_name)" +
-                filtre +
-                " ORDER BY s.sale_date, s.created_at"
-            )
-            .setParameter("id", customerId)
-            .setParameter("debut", debut)
-            .setParameter("fin", fin)
-            .getResultList();
-        List<DepenseDTO> depenses = ventes
-            .stream()
-            .map(r -> {
-                long montant = longue(r[3]);
-                long partTiersPayant = longue(r[4]);
-                return new DepenseDTO(
-                    date(r[1]),
-                    (String) r[2],
-                    (String) r[5],
-                    produits.getOrDefault(cle(r[0], r[1]), List.of()),
-                    montant,
-                    partTiersPayant,
-                    montant - partTiersPayant
-                );
-            })
-            .toList();
+        List<Object[]> ventes = em.createNativeQuery(
+                        "SELECT s.id, s.sale_date, s.number_transaction, s.sales_amount - s.discount_amount, COALESCE(s.part_tiers_payant, 0),"
+                                + " COALESCE(ad.first_name || ' ' || ad.last_name, c.first_name || ' ' || c.last_name)"
+                                + filtre
+                                + " ORDER BY s.sale_date, s.created_at")
+                .setParameter("id", customerId)
+                .setParameter("debut", debut)
+                .setParameter("fin", fin)
+                .getResultList();
+        List<DepenseDTO> depenses = ventes.stream()
+                .map(r -> {
+                    long montant = longue(r[3]);
+                    long partTiersPayant = longue(r[4]);
+                    return new DepenseDTO(
+                            date(r[1]),
+                            (String) r[2],
+                            (String) r[5],
+                            produits.getOrDefault(cle(r[0], r[1]), List.of()),
+                            montant,
+                            partTiersPayant,
+                            montant - partTiersPayant);
+                })
+                .toList();
         return new AttestationDepensesDTO(
-            client,
-            debut,
-            fin,
-            depenses,
-            depenses.stream().mapToLong(DepenseDTO::montant).sum(),
-            depenses.stream().mapToLong(DepenseDTO::partTiersPayant).sum(),
-            depenses.stream().mapToLong(DepenseDTO::partClient).sum()
-        );
+                client,
+                debut,
+                fin,
+                depenses,
+                depenses.stream().mapToLong(DepenseDTO::montant).sum(),
+                depenses.stream().mapToLong(DepenseDTO::partTiersPayant).sum(),
+                depenses.stream().mapToLong(DepenseDTO::partClient).sum());
     }
 
     public byte[] relevePdf(Integer customerId, LocalDate debut, LocalDate fin) {
         ReleveCompteDTO releve = releve(customerId, debut, fin);
-        return pdf("customer/releve", "RELEVÉ DE COMPTE DU " + jour(debut) + " AU " + jour(fin), Map.of("releve", releve));
+        return pdf(
+                "customer/releve", "RELEVÉ DE COMPTE DU " + jour(debut) + " AU " + jour(fin), Map.of("releve", releve));
     }
 
     public byte[] attestationPdf(Integer customerId, LocalDate debut, LocalDate fin) {
@@ -185,13 +184,14 @@ public class CustomerDocumentService {
 
     private static String piedDePage(Magasin magasin) {
         return Stream.of(
-            StringUtils.hasText(magasin.getRegistre()) ? "RC N° " + magasin.getRegistre() : null,
-            StringUtils.hasText(magasin.getCompteContribuable()) ? "CC N° " + magasin.getCompteContribuable() : null,
-            StringUtils.hasText(magasin.getPhone()) ? "Tel: " + magasin.getPhone() : null,
-            StringUtils.hasText(magasin.getAddress()) ? "Adr: " + magasin.getAddress() : null
-        )
-            .filter(Objects::nonNull)
-            .collect(Collectors.joining(" - "));
+                        StringUtils.hasText(magasin.getRegistre()) ? "RC N° " + magasin.getRegistre() : null,
+                        StringUtils.hasText(magasin.getCompteContribuable())
+                                ? "CC N° " + magasin.getCompteContribuable()
+                                : null,
+                        StringUtils.hasText(magasin.getPhone()) ? "Tel: " + magasin.getPhone() : null,
+                        StringUtils.hasText(magasin.getAddress()) ? "Adr: " + magasin.getAddress() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(" - "));
     }
 
     private ClientDocumentDTO client(Integer customerId) {
@@ -211,49 +211,44 @@ public class CustomerDocumentService {
     /** Débit : ce qui restait dû à la vente, soit le reste actuel plus ce qui a été réglé depuis. */
     private List<Mouvement> ventesDifferees(Integer customerId) {
         @SuppressWarnings("unchecked")
-        List<Object[]> rows = em
-            .createNativeQuery(
-                "SELECT s.sale_date, s.number_transaction, s.rest_to_pay + COALESCE((SELECT SUM(i.paid_amount) FROM differe_payment_item i" +
-                " WHERE i.sale_id = s.id AND i.sale_sale_date = s.sale_date), 0), s.created_at FROM sales s WHERE " +
-                VENTES_DIFFEREES
-            )
-            .setParameter("id", customerId)
-            .getResultList();
-        return rows.stream().map(r -> new Mouvement(date(r[0]), "Vente différée", (String) r[1], longue(r[2]), 0, horodatage(r[3]))).toList();
+        List<Object[]> rows = em.createNativeQuery(
+                        "SELECT s.sale_date, s.number_transaction, s.rest_to_pay + COALESCE((SELECT SUM(i.paid_amount) FROM differe_payment_item i"
+                                + " WHERE i.sale_id = s.id AND i.sale_sale_date = s.sale_date), 0), s.created_at FROM sales s WHERE "
+                                + VENTES_DIFFEREES)
+                .setParameter("id", customerId)
+                .getResultList();
+        return rows.stream()
+                .map(r -> new Mouvement(date(r[0]), "Vente différée", (String) r[1], longue(r[2]), 0, horodatage(r[3])))
+                .toList();
     }
 
     /** Crédit : la part de chaque règlement imputée aux ventes du relevé. */
     private List<Mouvement> reglements(Integer customerId) {
         @SuppressWarnings("unchecked")
-        List<Object[]> rows = em
-            .createNativeQuery(
-                "SELECT p.transaction_date, p.transaction_number, SUM(i.paid_amount), pm.libelle, p.created_at" +
-                " FROM differe_payment_item i" +
-                " JOIN payment_transaction p ON p.id = i.differe_payment_id AND p.transaction_date = i.differe_payment_transaction_date" +
-                " JOIN sales s ON s.id = i.sale_id AND s.sale_date = i.sale_sale_date" +
-                " LEFT JOIN payment_mode pm ON pm.code = p.payment_mode_code" +
-                " WHERE " +
-                VENTES_DIFFEREES +
-                " GROUP BY p.id, p.transaction_date, p.transaction_number, pm.libelle, p.created_at"
-            )
-            .setParameter("id", customerId)
-            .getResultList();
-        return rows
-            .stream()
-            .map(r ->
-                new Mouvement(
-                    date(r[0]),
-                    r[3] == null ? "Règlement" : "Règlement " + ((String) r[3]).toLowerCase(Locale.ROOT),
-                    (String) r[1],
-                    0,
-                    longue(r[2]),
-                    horodatage(r[4])
-                )
-            )
-            .toList();
+        List<Object[]> rows = em.createNativeQuery(
+                        "SELECT p.transaction_date, p.transaction_number, SUM(i.paid_amount), pm.libelle, p.created_at"
+                                + " FROM differe_payment_item i"
+                                + " JOIN payment_transaction p ON p.id = i.differe_payment_id AND p.transaction_date = i.differe_payment_transaction_date"
+                                + " JOIN sales s ON s.id = i.sale_id AND s.sale_date = i.sale_sale_date"
+                                + " LEFT JOIN payment_mode pm ON pm.code = p.payment_mode_code"
+                                + " WHERE "
+                                + VENTES_DIFFEREES
+                                + " GROUP BY p.id, p.transaction_date, p.transaction_number, pm.libelle, p.created_at")
+                .setParameter("id", customerId)
+                .getResultList();
+        return rows.stream()
+                .map(r -> new Mouvement(
+                        date(r[0]),
+                        r[3] == null ? "Règlement" : "Règlement " + ((String) r[3]).toLowerCase(Locale.ROOT),
+                        (String) r[1],
+                        0,
+                        longue(r[2]),
+                        horodatage(r[4])))
+                .toList();
     }
 
-    private record Mouvement(LocalDate date, String libelle, String reference, long debit, long credit, LocalDateTime horodatage) {}
+    private record Mouvement(
+            LocalDate date, String libelle, String reference, long debit, long credit, LocalDateTime horodatage) {}
 
     private static String cle(Object id, Object date) {
         return id + "|" + date;

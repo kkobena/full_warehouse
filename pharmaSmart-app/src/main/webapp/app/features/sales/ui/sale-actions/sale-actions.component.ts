@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../shared/ui';
 
 /**
  * Composant de présentation : Boutons d'action vente

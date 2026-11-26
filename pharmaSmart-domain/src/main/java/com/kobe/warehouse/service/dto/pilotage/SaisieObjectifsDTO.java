@@ -8,4 +8,7 @@ import java.util.List;
 
 /** Objectifs d'un indicateur pour une année : 12 valeurs, {@code null} efface l'objectif du mois. */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record SaisieObjectifsDTO(int annee, @NotNull IndicateurPilotage indicateur, @NotNull @Size(min = 12, max = 12) List<Double> mois) {}
+public record SaisieObjectifsDTO(
+        int annee,
+        @NotNull IndicateurPilotage indicateur,
+        @NotNull @Size(min = 12, max = 12) List<Double> mois) {}

@@ -31,9 +31,13 @@
 
         <ng-template #body let-code>
           <tr [appSelectableRow]="code">
-            <td><span class="pharma-code">{{ code.value }}</span></td>
+            <td>
+              <span class="pharma-code">{{ code.value }}</span>
+            </td>
             @if (code.value !== '0') {
-              <td><span class="pharma-entity-name">{{ code.remise?.valeur }}</span></td>
+              <td>
+                <span class="pharma-entity-name">{{ code.remise?.valeur }}</span>
+              </td>
               <td class="text-end">{{ getVnoTaux(code.remise) }}</td>
               <td class="text-end">{{ getVoTaux(code.remise) }}</td>
             } @else {
@@ -73,24 +77,16 @@
       <div class="detail-column">
         <app-card [withHeader]="true" class="d-block" header="Produits rattachés" icon="pi pi-box">
           <div cardActions>
-            <app-button
-              (clicked)="fermerDetail()"
-              [iconOnly]="true"
-              [text]="true"
-              icon="pi pi-times"
-              label="Fermer"
-              severity="secondary"
-            />
+            <app-button (clicked)="fermerDetail()" [iconOnly]="true" [text]="true" icon="pi pi-times" label="Fermer" severity="secondary" />
           </div>
 
           <p class="text-muted small">
             Code <span class="pharma-badge pharma-badge-success">{{ selection()!.value }}</span>&nbsp;&nbsp;
             @if (!chargementDetail()) {
-              <span class="pharma-badge pharma-badge-info">  {{ totalProduits() | number }}</span>
+              <span class="pharma-badge pharma-badge-info"> {{ totalProduits() | number }}</span>
               produit(s)
             }
           </p>
-
 
           <app-data-table
             (onLazyLoad)="onLazyLoad($any($event))"
@@ -119,7 +115,9 @@
 
             <ng-template #body let-produit>
               <tr>
-                <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
+                <td>
+                  <span class="pharma-entity-name">{{ produit.libelle }}</span>
+                </td>
                 <td>
                   @if (produit.codeCip) {
                     <span class="pharma-code">{{ produit.codeCip }}</span>

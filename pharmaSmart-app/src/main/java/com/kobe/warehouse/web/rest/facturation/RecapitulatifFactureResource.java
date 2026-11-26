@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.facturation;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.facturation.dto.RecapitulatifMensuelDto;
 import com.kobe.warehouse.service.facturation.dto.RecapitulatifMensuelParams;
@@ -16,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/edition-factures")
-@RequiresNavAccess({ "facturation.recapitulatif", "factures" })
+@RequiresNavAccess({"facturation.recapitulatif", "factures"})
 public class RecapitulatifFactureResource {
 
     private final RecapitulatifMensuelService recapitulatifMensuelService;
@@ -32,45 +32,48 @@ public class RecapitulatifFactureResource {
 
     @GetMapping("/recapitulatif")
     public ResponseEntity<List<RecapitulatifMensuelDto>> getRecapitulatif(
-        @RequestParam int annee,
-        @RequestParam int mois,
-        @RequestParam(required = false) List<Integer> tiersPayantIds,
-        @RequestParam(required = false) List<Integer> groupIds,
-        @RequestParam(required = false) TypeFacture typeFacture,
-        Pageable pageable
-    ) {
-        RecapitulatifMensuelParams params = new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
+            @RequestParam int annee,
+            @RequestParam int mois,
+            @RequestParam(required = false) List<Integer> tiersPayantIds,
+            @RequestParam(required = false) List<Integer> groupIds,
+            @RequestParam(required = false) TypeFacture typeFacture,
+            Pageable pageable) {
+        RecapitulatifMensuelParams params =
+                new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
         Page<RecapitulatifMensuelDto> page = recapitulatifMensuelService.getRecapitulatif(params, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/recapitulatif/pdf")
-    @RequiresNavAccess(value = { "facturation.recapitulatif", "factures" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"facturation.recapitulatif", "factures"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportPdf(
-        @RequestParam int annee,
-        @RequestParam int mois,
-        @RequestParam(required = false) List<Integer> tiersPayantIds,
-        @RequestParam(required = false) List<Integer> groupIds,
-        @RequestParam(required = false) TypeFacture typeFacture
-    ) {
-        RecapitulatifMensuelParams params = new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
+            @RequestParam int annee,
+            @RequestParam int mois,
+            @RequestParam(required = false) List<Integer> tiersPayantIds,
+            @RequestParam(required = false) List<Integer> groupIds,
+            @RequestParam(required = false) TypeFacture typeFacture) {
+        RecapitulatifMensuelParams params =
+                new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
         byte[] pdf = recapitulatifMensuelService.exportPdf(params);
         return Utils.printPDF(pdf, "recapitulatif_" + annee + "_" + mois + ".pdf");
     }
 
     @GetMapping("/recapitulatif/excel")
-    @RequiresNavAccess(value = { "facturation.recapitulatif", "factures" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"facturation.recapitulatif", "factures"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportExcel(
-        @RequestParam int annee,
-        @RequestParam int mois,
-        @RequestParam(required = false) List<Integer> tiersPayantIds,
-        @RequestParam(required = false) List<Integer> groupIds,
-        @RequestParam(required = false) TypeFacture typeFacture
-    ) {
-        RecapitulatifMensuelParams params = new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
+            @RequestParam int annee,
+            @RequestParam int mois,
+            @RequestParam(required = false) List<Integer> tiersPayantIds,
+            @RequestParam(required = false) List<Integer> groupIds,
+            @RequestParam(required = false) TypeFacture typeFacture) {
+        RecapitulatifMensuelParams params =
+                new RecapitulatifMensuelParams(annee, mois, tiersPayantIds, groupIds, typeFacture);
         byte[] excel = recapitulatifMensuelService.exportExcel(params);
         return Utils.exportExcel(excel, "recapitulatif_" + annee + "_" + mois + ".xlsx");
     }

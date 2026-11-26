@@ -98,7 +98,7 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             CustomerSegmentationDTO client = segmentation("A CLIENT");
 
             assertThat(client.rfmSegment())
-                .isEqualTo(client.recencyScore() * 100 + client.frequencyScore() * 10 + client.monetaryScore());
+                    .isEqualTo(client.recencyScore() * 100 + client.frequencyScore() * 10 + client.monetaryScore());
         }
     }
 
@@ -116,8 +116,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
 
             assertThat(segmentation("A CHAMPION").customerClassification()).isEqualTo(CustomerClassification.CHAMPION);
             assertThat(services.customerSegmentationReportService.getChampionCustomers())
-                .extracting(CustomerSegmentationDTO::customerName)
-                .containsExactly("A CHAMPION");
+                    .extracting(CustomerSegmentationDTO::customerName)
+                    .containsExactly("A CHAMPION");
         }
 
         @Test
@@ -135,7 +135,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visite(client("GROS PANIER", "A", "01"), ilYA(10), 600_000);
             rafraichir(VUE);
 
-            assertThat(segmentation("A GROS PANIER").customerClassification()).isEqualTo(CustomerClassification.BIG_SPENDER);
+            assertThat(segmentation("A GROS PANIER").customerClassification())
+                    .isEqualTo(CustomerClassification.BIG_SPENDER);
         }
 
         @Test
@@ -167,7 +168,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visiteurRegulier("A REVEILLER", "A", 6, 10_000, 150);
             rafraichir(VUE);
 
-            assertThat(segmentation("A A REVEILLER").customerClassification()).isEqualTo(CustomerClassification.NEED_ATTENTION);
+            assertThat(segmentation("A A REVEILLER").customerClassification())
+                    .isEqualTo(CustomerClassification.NEED_ATTENTION);
         }
 
         @Test
@@ -193,9 +195,10 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visite(client("DORMANT", "B", "02"), ilYA(200), 10_000);
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getCustomersByClassification(CustomerClassification.INACTIVE))
-                .extracting(CustomerSegmentationDTO::customerName)
-                .containsExactly("B DORMANT");
+            assertThat(services.customerSegmentationReportService.getCustomersByClassification(
+                            CustomerClassification.INACTIVE))
+                    .extracting(CustomerSegmentationDTO::customerName)
+                    .containsExactly("B DORMANT");
         }
 
         /**
@@ -212,8 +215,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             rafraichir(VUE);
 
             assertThat(services.customerSegmentationReportService.getAtRiskCustomers())
-                .extracting(CustomerSegmentationDTO::customerName)
-                .containsExactlyInAnyOrder("A A RISQUE", "B A REVEILLER");
+                    .extracting(CustomerSegmentationDTO::customerName)
+                    .containsExactlyInAnyOrder("A A RISQUE", "B A REVEILLER");
         }
 
         @Test
@@ -224,12 +227,13 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visite(client("ACTIF", "C", "03"), ilYA(10), 10_000);
             rafraichir(VUE);
 
-            Map<CustomerClassification, Long> compteurs = services.customerSegmentationReportService.getCustomerCountByClassification();
+            Map<CustomerClassification, Long> compteurs =
+                    services.customerSegmentationReportService.getCustomerCountByClassification();
 
             assertThat(compteurs)
-                .containsEntry(CustomerClassification.INACTIVE, 2L)
-                .containsEntry(CustomerClassification.ACTIVE, 1L)
-                .containsEntry(CustomerClassification.CHAMPION, 0L);
+                    .containsEntry(CustomerClassification.INACTIVE, 2L)
+                    .containsEntry(CustomerClassification.ACTIVE, 1L)
+                    .containsEntry(CustomerClassification.CHAMPION, 0L);
         }
 
         @Test
@@ -239,7 +243,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visite(client, ilYA(10), 10_000);
             rafraichir(VUE);
 
-            CustomerSegmentationDTO fiche = services.customerSegmentationReportService.getCustomerSegmentation(client.getId());
+            CustomerSegmentationDTO fiche =
+                    services.customerSegmentationReportService.getCustomerSegmentation(client.getId());
 
             assertThat(fiche.customerName()).isEqualTo("Jean KOUASSI");
             assertThat(fiche.phone()).isEqualTo("0102030405");
@@ -253,7 +258,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
         void clientInconnu() {
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getCustomerSegmentation(999_999)).isNull();
+            assertThat(services.customerSegmentationReportService.getCustomerSegmentation(999_999))
+                    .isNull();
         }
 
         @Test
@@ -261,10 +267,11 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
         void baseVierge() {
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation()).isEmpty();
+            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation())
+                    .isEmpty();
             assertThat(services.customerSegmentationReportService.getCustomerCountByClassification())
-                .containsEntry(CustomerClassification.CHAMPION, 0L)
-                .containsEntry(CustomerClassification.INACTIVE, 0L);
+                    .containsEntry(CustomerClassification.CHAMPION, 0L)
+                    .containsEntry(CustomerClassification.INACTIVE, 0L);
         }
     }
 
@@ -280,7 +287,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             visite(client("ANCIEN", "A", "01"), LocalDate.now().minusMonths(14), 10_000);
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation()).isEmpty();
+            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation())
+                    .isEmpty();
         }
 
         @Test
@@ -290,7 +298,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             venteFermee(ilYA(10), true, CategorieChiffreAffaire.CA, client);
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation()).isEmpty();
+            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation())
+                    .isEmpty();
         }
 
         @Test
@@ -299,7 +308,8 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
             venteFermee(ilYA(10), false, CategorieChiffreAffaire.CA);
             rafraichir(VUE);
 
-            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation()).isEmpty();
+            assertThat(services.customerSegmentationReportService.getAllCustomerSegmentation())
+                    .isEmpty();
         }
     }
 
@@ -310,12 +320,10 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
     }
 
     private CustomerSegmentationDTO segmentation(String nom) {
-        return services.customerSegmentationReportService
-            .getAllCustomerSegmentation()
-            .stream()
-            .filter(c -> nom.equals(c.customerName()))
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("client absent de la segmentation : " + nom));
+        return services.customerSegmentationReportService.getAllCustomerSegmentation().stream()
+                .filter(c -> nom.equals(c.customerName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("client absent de la segmentation : " + nom));
     }
 
     private int noteRecence(String nom) {
@@ -352,12 +360,7 @@ class CustomerSegmentationReportServiceIntegrationTest extends AbstractReportInt
      * jours et les précédentes réparties dans l'année écoulée.
      */
     private void visiteurRegulier(
-        String nom,
-        String prenom,
-        int nombreDeVisites,
-        int montantParVisite,
-        int joursDepuisLaDerniere
-    ) {
+            String nom, String prenom, int nombreDeVisites, int montantParVisite, int joursDepuisLaDerniere) {
         UninsuredCustomer client = client(nom, prenom, "01");
         for (int i = 0; i < nombreDeVisites; i++) {
             visite(client, ilYA(joursDepuisLaDerniere + i * 15), montantParVisite);

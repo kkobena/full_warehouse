@@ -1,12 +1,10 @@
-import {inject, Injectable} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {from, Observable} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {
-  AuthorizationModalComponent
-} from '../../ui/authorization-modal/authorization-modal.component';
-import {HasAuthorityService} from '../../../../entities/sales/service/has-authority.service';
-import {Authority} from '../../../../shared/constants/authority.constants';
+import { inject, Injectable } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { from, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { AuthorizationModalComponent } from '../../ui/authorization-modal/authorization-modal.component';
+import { HasAuthorityService } from '../../../../entities/sales/service/has-authority.service';
+import { Authority } from '../../../../shared/constants/authority.constants';
 
 /**
  * AuthorizationService
@@ -22,7 +20,7 @@ import {Authority} from '../../../../shared/constants/authority.constants';
  *     }
  *   });
  */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthorizationService {
   private readonly modalService = inject(NgbModal);
   private readonly hasAuthorityService = inject(HasAuthorityService);
@@ -37,7 +35,7 @@ export class AuthorizationService {
   requestAuthorization(
     saleId: number | undefined,
     privilege: string,
-    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'
+    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT',
   ): Observable<boolean> {
     const modalRef = this.modalService.open(AuthorizationModalComponent, {
       backdrop: 'static',
@@ -51,35 +49,47 @@ export class AuthorizationService {
 
     return from(modalRef.result).pipe(
       map(result => result === true),
-      catchError(() => from([false]))
+      catchError(() => from([false])),
     );
   }
 
   /**
    * Request authorization to delete a product from sale
    */
-  requestDeleteProductAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
+  requestDeleteProductAuthorization(
+    saleId: number | undefined,
+    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT',
+  ): Observable<boolean> {
     return this.requestAuthorization(saleId, Authority.PR_SUPPRIME_PRODUIT_VENTE, saleType);
   }
 
   /**
    * Request authorization to apply discount
    */
-  requestDiscountAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
+  requestDiscountAuthorization(
+    saleId: number | undefined,
+    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT',
+  ): Observable<boolean> {
     return this.requestAuthorization(saleId, Authority.PR_AJOUTER_REMISE_VENTE, saleType);
   }
 
   /**
    * Request authorization to modify price
    */
-  requestPriceModificationAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
+  requestPriceModificationAuthorization(
+    saleId: number | undefined,
+    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT',
+  ): Observable<boolean> {
     return this.requestAuthorization(saleId, Authority.PR_MODIFIER_PRIX, saleType);
   }
 
   /**
    * Request authorization to cancel sale
    */
-  requestCancelSaleAuthorization(saleId: number | undefined, saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT'): Observable<boolean> {
+  requestCancelSaleAuthorization(
+    saleId: number | undefined,
+    saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT',
+  ): Observable<boolean> {
     return this.requestAuthorization(saleId, Authority.PR_ANNULATION_VENTE, saleType);
   }
 
@@ -87,14 +97,19 @@ export class AuthorizationService {
    * Check if current user can apply discount without authorization
    */
   canApplyDiscount(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
+    return (
+      this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN)
+    );
   }
 
   /**
    * Check if current user can delete products without authorization
    */
   canDeleteProduct(): boolean {
-    return this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
+    return (
+      this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE) ||
+      this.hasAuthorityService.hasAuthorities(Authority.ADMIN)
+    );
   }
 
   /**
@@ -116,7 +131,8 @@ export class AuthorizationService {
    */
   canRegulariserStock(): boolean {
     return (
-      this.hasAuthorityService.hasAuthorities(Authority.PR_REGULARISER_STOCK_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN)
+      this.hasAuthorityService.hasAuthorities(Authority.PR_REGULARISER_STOCK_VENTE) ||
+      this.hasAuthorityService.hasAuthorities(Authority.ADMIN)
     );
   }
 

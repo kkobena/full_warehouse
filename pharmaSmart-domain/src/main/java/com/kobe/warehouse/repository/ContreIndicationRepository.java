@@ -9,9 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContreIndicationRepository extends JpaRepository<ContreIndication, Integer> {
-    @Query(
-        "SELECT c FROM ContreIndication c WHERE c.refDciId IN :dcis AND c.versionId IN "
-        + "(SELECT v.id FROM ReferentielInteractionVersion v WHERE v.publie = TRUE)"
-    )
+    @Query("SELECT c FROM ContreIndication c WHERE c.refDciId IN :dcis AND c.versionId IN "
+            + "(SELECT v.id FROM ReferentielInteractionVersion v WHERE v.publie = TRUE)")
     List<ContreIndication> findPubliees(Collection<Integer> dcis);
 }

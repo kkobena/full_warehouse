@@ -1,32 +1,26 @@
-import { Component, HostListener, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
-import { ICustomer } from "../../../shared/model";
-import { AssureFormStepService } from "./assure-form-step.service";
-import { AssureStepComponent } from "./assure-step.component";
-import { AyantDroitStepComponent } from "./ayant-droit-step.component";
-import { ErrorService } from "../../../shared/error.service";
-import { Observable, Subject } from "rxjs";
-import { finalize, takeUntil } from "rxjs/operators";
-import { HttpResponse } from "@angular/common/http";
-import { CustomerService } from "../customer.service";
-import { CommonService } from "./common.service";
-import { NgbActiveModal, NgbNavChangeEvent } from "@ng-bootstrap/ng-bootstrap";
-import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, NavTabsComponent } from "../../../shared/ui";
+import { Component, HostListener, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ICustomer } from '../../../shared/model';
+import { AssureFormStepService } from './assure-form-step.service';
+import { AssureStepComponent } from './assure-step.component';
+import { AyantDroitStepComponent } from './ayant-droit-step.component';
+import { ErrorService } from '../../../shared/error.service';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
+import { CustomerService } from '../customer.service';
+import { CommonService } from './common.service';
+import { NgbActiveModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, NavTabsComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-assure-form-step",
-  imports: [
-    AssureStepComponent,
-    AyantDroitStepComponent,
-    NgbNavModule,
-    ButtonComponent,
-    NavTabsComponent
-  ],
-  templateUrl: "./assure-form-step.component.html",
+  selector: 'app-assure-form-step',
+  imports: [AssureStepComponent, AyantDroitStepComponent, NgbNavModule, ButtonComponent, NavTabsComponent],
+  templateUrl: './assure-form-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./assured-form-step.component.scss"]
+  styleUrls: ['./assured-form-step.component.scss'],
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;
@@ -36,8 +30,8 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   protected readonly isSaving = signal(false);
   typeAssure: string | undefined;
   protected readonly activeStep = signal(1);
-  ayantDroitStepComponent = viewChild<AyantDroitStepComponent>("ayantDroitStep");
-  assureStepComponent = viewChild<AssureStepComponent>("assureStep");
+  ayantDroitStepComponent = viewChild<AyantDroitStepComponent>('ayantDroitStep');
+  assureStepComponent = viewChild<AssureStepComponent>('assureStep');
   protected readonly commonService = inject(CommonService);
   protected readonly assureFormStepService = inject(AssureFormStepService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -82,7 +76,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   /** Pourquoi « Enregistrer » est grisé ; vide quand on peut enregistrer (ou pendant l'enregistrement). */
   protected raisonEnregistrementImpossible(): string {
     if (this.isSaving() || this.peutEnregistrer()) {
-      return "";
+      return '';
     }
     return this.assureValide()
       ? "Complétez ou retirez la ligne d'ayant droit incomplète."
@@ -118,24 +112,23 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
    * mutuelles ; un Échap involontaire ne doit pas en effacer la saisie.
    */
   confirmerFermeture(): boolean | Promise<boolean> {
-    const enCours =
-      this.saisieEntamee || !!this.assureStepComponent()?.editForm.dirty || !!this.ayantDroitStepComponent()?.editForm.dirty;
+    const enCours = this.saisieEntamee || !!this.assureStepComponent()?.editForm.dirty || !!this.ayantDroitStepComponent()?.editForm.dirty;
     if (!enCours || this.isSaving()) {
       return true;
     }
     return new Promise<boolean>(resolve =>
       this.confirmDialog.onConfirm(
         () => resolve(true),
-        "Annuler sans enregistrer ?",
-        "Les informations saisies seront perdues.",
+        'Annuler sans enregistrer ?',
+        'Les informations saisies seront perdues.',
         undefined,
-        () => resolve(false)
-      )
+        () => resolve(false),
+      ),
     );
   }
 
   /** Ctrl+Entrée : étape suivante, puis enregistrement. Alt+flèches : changer d'onglet. */
-  @HostListener("document:keydown.control.enter", ["$event"])
+  @HostListener('document:keydown.control.enter', ['$event'])
   protected onRaccourciValider(evenement: Event): void {
     evenement.preventDefault();
     if (this.activeStep() === 1 && this.peutAllerAuxAyantsDroit() && this.assureValide()) {
@@ -145,7 +138,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener("document:keydown.alt.arrowright", ["$event"])
+  @HostListener('document:keydown.alt.arrowright', ['$event'])
   protected onRaccourciSuivant(evenement: Event): void {
     if (this.activeStep() === 1 && this.peutAllerAuxAyantsDroit()) {
       evenement.preventDefault();
@@ -154,7 +147,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener("document:keydown.alt.arrowleft", ["$event"])
+  @HostListener('document:keydown.alt.arrowleft', ['$event'])
   protected onRaccourciPrecedent(evenement: Event): void {
     if (this.activeStep() === 2) {
       evenement.preventDefault();
@@ -164,7 +157,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
 
   /** L'onglet des ayants droit n'existe qu'en création, pour une assurance. */
   protected peutAllerAuxAyantsDroit(): boolean {
-    return !this.assureFormStepService.isEdition() && this.typeAssure === "ASSURANCE";
+    return !this.assureFormStepService.isEdition() && this.typeAssure === 'ASSURANCE';
   }
 
   onCompleteAssure(): void {
@@ -188,7 +181,7 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
     const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
     this.assureFormStepService.setAssure({
       ...assureComponent.createFromForm(),
-      ayantDroits
+      ayantDroits,
     });
   }
 
@@ -225,30 +218,34 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
         this.recapitulatifOuvert = false;
         this.enregistrer();
       },
-      "Créer ce client ?",
+      'Créer ce client ?',
       this.recapitulatif(customer),
-      "pi pi-question-circle",
-      () => (this.recapitulatifOuvert = false)
+      'pi pi-question-circle',
+      () => (this.recapitulatifOuvert = false),
     );
   }
 
   private recapitulatif(customer: ICustomer): string {
-    const identite = [customer.firstName, customer.lastName].filter(Boolean).join(" ");
-    const carte = [customer.tiersPayant?.fullName, customer.num ? `n°${customer.num}` : null, customer.taux != null ? `${customer.taux} %` : null]
+    const identite = [customer.firstName, customer.lastName].filter(Boolean).join(' ');
+    const carte = [
+      customer.tiersPayant?.fullName,
+      customer.num ? `n°${customer.num}` : null,
+      customer.taux != null ? `${customer.taux} %` : null,
+    ]
       .filter(Boolean)
-      .join(" — ");
-    const mutuelles = customer.tiersPayants?.length ? ` ; ${customer.tiersPayants.length} assurance(s) complémentaire(s)` : "";
+      .join(' — ');
+    const mutuelles = customer.tiersPayants?.length ? ` ; ${customer.tiersPayants.length} assurance(s) complémentaire(s)` : '';
     const ayants = customer.ayantDroits?.length
-      ? ` ; ayant(s) droit : ${customer.ayantDroits.map(a => [a.firstName, a.lastName].filter(Boolean).join(" ")).join(", ")}`
-      : "";
-    return `${identite}${carte ? ` — ${carte}` : ""}${mutuelles}${ayants}.`;
+      ? ` ; ayant(s) droit : ${customer.ayantDroits.map(a => [a.firstName, a.lastName].filter(Boolean).join(' ')).join(', ')}`
+      : '';
+    return `${identite}${carte ? ` — ${carte}` : ''}${mutuelles}${ayants}.`;
   }
 
   private enregistrer(): void {
     this.isSaving.set(true);
     const customer = this.assureFormStepService.assure();
     if (customer.id !== undefined && customer.id) {
-      customer.type = "ASSURE";
+      customer.type = 'ASSURE';
       this.subscribeToSaveResponse(this.customerService.update(customer));
     } else {
       this.subscribeToSaveResponse(this.customerService.create(customer));
@@ -258,12 +255,12 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result
       .pipe(
-        finalize(() => (this.isSaving.set(false))),
-        takeUntil(this.destroy$)
+        finalize(() => this.isSaving.set(false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-        error: (error: any) => this.onSaveError(error)
+        error: (error: any) => this.onSaveError(error),
       });
   }
 

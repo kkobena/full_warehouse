@@ -1,94 +1,93 @@
 <app-card>
-
-@if (rowData()?.length > 0) {
-  <app-data-table
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rows]="itemsPerPage()"
-    [rowsPerPageOptions]="[10, 20, 30, 50]"
-    [stripedRows]="true"
-    [totalRecords]="totalItems()"
-    [value]="rowData()"
-    (onLazyLoad)="onPageChange($event)"
-    class="p-datatable-sm"
-    dataKey="id"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 10%">Date</th>
-        <th style="width: 13%">Opérateur</th>
-        <th>Produit</th>
-        <th style="width: 10%">Code CIP</th>
-        <th style="width: 8%">Type</th>
-        <th style="width: 12%">Source</th>
-        <th style="width: 12%">Destination</th>
-        <th class="text-right" style="width: 7%">Quantité</th>
-        <th class="text-right" style="width: 8%">Stock Src</th>
-        <th class="text-right" style="width: 8%">Stock Dest</th>
-      </tr>
-    </ng-template>
-    <ng-template let-item #body>
-      <tr>
-        <td>
-          <span class="pharma-entity-name">{{ item.created | date: 'dd/MM/yyyy HH:mm' }}</span>
-        </td>
-        <td>
-          <span class="pharma-entity-name">{{ item.userFullName }}</span>
-        </td>
-        <td>
-          <span class="pharma-entity-name">{{ item.produitName }}</span>
-        </td>
-        <td>
-          <span class="pharma-code">{{ item.codeCip }}</span>
-        </td>
-        <td>
-          @if (item.typeRepartition) {
-            <app-badge
-              [label]="item.typeRepartition === 'AUTO' ? 'Auto' : 'Manuel'"
-              [severity]="item.typeRepartition === 'AUTO' ? 'info' : 'secondary'"
-              [icon]="item.typeRepartition === 'AUTO' ? 'pi pi-bolt' : 'pi pi-user'"
-            />
-          }
-        </td>
-        <td>
-          @if (item.stockProduitSrc) {
-            <app-badge [label]="item.stockProduitSrc.storageName" severity="secondary" />
-          } @else {
-            <span class="text-muted">-</span>
-          }
-        </td>
-        <td>
-          <app-badge [label]="item.stockProduitDest?.storageName ?? ''" severity="info" />
-        </td>
-        <td class="text-right">
-          <span class="pharma-qty-value">{{ item.mvtQty | number }}</span>
-        </td>
-        <td class="text-right">
-          @if (item.sourceInitStock !== null && item.sourceInitStock !== undefined) {
+  @if (rowData()?.length > 0) {
+    <app-data-table
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="itemsPerPage()"
+      [rowsPerPageOptions]="[10, 20, 30, 50]"
+      [stripedRows]="true"
+      [totalRecords]="totalItems()"
+      [value]="rowData()"
+      (onLazyLoad)="onPageChange($event)"
+      class="p-datatable-sm"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 10%">Date</th>
+          <th style="width: 13%">Opérateur</th>
+          <th>Produit</th>
+          <th style="width: 10%">Code CIP</th>
+          <th style="width: 8%">Type</th>
+          <th style="width: 12%">Source</th>
+          <th style="width: 12%">Destination</th>
+          <th class="text-right" style="width: 7%">Quantité</th>
+          <th class="text-right" style="width: 8%">Stock Src</th>
+          <th class="text-right" style="width: 8%">Stock Dest</th>
+        </tr>
+      </ng-template>
+      <ng-template let-item #body>
+        <tr>
+          <td>
+            <span class="pharma-entity-name">{{ item.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ item.userFullName }}</span>
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ item.produitName }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ item.codeCip }}</span>
+          </td>
+          <td>
+            @if (item.typeRepartition) {
+              <app-badge
+                [label]="item.typeRepartition === 'AUTO' ? 'Auto' : 'Manuel'"
+                [severity]="item.typeRepartition === 'AUTO' ? 'info' : 'secondary'"
+                [icon]="item.typeRepartition === 'AUTO' ? 'pi pi-bolt' : 'pi pi-user'"
+              />
+            }
+          </td>
+          <td>
+            @if (item.stockProduitSrc) {
+              <app-badge [label]="item.stockProduitSrc.storageName" severity="secondary" />
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+          <td>
+            <app-badge [label]="item.stockProduitDest?.storageName ?? ''" severity="info" />
+          </td>
+          <td class="text-right">
+            <span class="pharma-qty-value">{{ item.mvtQty | number }}</span>
+          </td>
+          <td class="text-right">
+            @if (item.sourceInitStock !== null && item.sourceInitStock !== undefined) {
+              <div>
+                <span class="text-muted">{{ item.sourceInitStock | number }}</span>
+                <i class="pi pi-arrow-right text-muted mx-1"></i>
+                <span class="pharma-qty-value">{{ item.sourceFinalStock | number }}</span>
+              </div>
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+          <td class="text-right">
             <div>
-              <span class="text-muted">{{ item.sourceInitStock | number }}</span>
+              <span class="text-muted">{{ item.destInitStock | number }}</span>
               <i class="pi pi-arrow-right text-muted mx-1"></i>
-              <span class="pharma-qty-value">{{ item.sourceFinalStock | number }}</span>
+              <span class="pharma-qty-value">{{ item.destFinalStock | number }}</span>
             </div>
-          } @else {
-            <span class="text-muted">-</span>
-          }
-        </td>
-        <td class="text-right">
-          <div>
-            <span class="text-muted">{{ item.destInitStock | number }}</span>
-            <i class="pi pi-arrow-right text-muted mx-1"></i>
-            <span class="pharma-qty-value">{{ item.destFinalStock | number }}</span>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
-} @else {
-  <div class="alert alert-warning">
-    <i class="pi pi-info-circle"></i>
-    Aucune répartition de stock trouvée pour les critères sélectionnés
-  </div>
-}
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  } @else {
+    <div class="alert alert-warning">
+      <i class="pi pi-info-circle"></i>
+      Aucune répartition de stock trouvée pour les critères sélectionnés
+    </div>
+  }
 </app-card>

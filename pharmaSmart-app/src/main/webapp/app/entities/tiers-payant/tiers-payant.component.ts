@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, input, signal } from "@angular/core";
-import {TiersPayantService} from "./tierspayant.service";
-import {Observable} from "rxjs";
-import {HttpHeaders, HttpResponse} from "@angular/common/http";
-import {IResponseDto} from "../../shared/util/response-dto";
-import {NgbActiveModal, NgbModal, NgbProgressbar, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, input, signal } from '@angular/core';
+import { TiersPayantService } from './tierspayant.service';
+import { Observable } from 'rxjs';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { NgbActiveModal, NgbModal, NgbProgressbar, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -12,41 +12,33 @@ import {
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
-  ToolbarComponent
-} from "../../shared/ui";
-import {
-  JsonImportDialogComponent
-} from "../../shared/json-import-dialog/json-import-dialog.component";
-import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
-import {ITiersPayant} from "../../shared/model";
-import {Router, RouterModule} from "@angular/router";
-import {FormTiersPayantComponent} from "./form-tiers-payant/form-tiers-payant.component";
-import {
-  RechercherTiersPayantComponent,
-  ResultatRechercheTiersPayant
-} from "./rechercher-tiers-payant/rechercher-tiers-payant.component";
-import {ErrorService} from "../../shared/error.service";
+  ToolbarComponent,
+} from '../../shared/ui';
+import { JsonImportDialogComponent } from '../../shared/json-import-dialog/json-import-dialog.component';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { ITiersPayant } from '../../shared/model';
+import { Router, RouterModule } from '@angular/router';
+import { FormTiersPayantComponent } from './form-tiers-payant/form-tiers-payant.component';
+import { RechercherTiersPayantComponent, ResultatRechercheTiersPayant } from './rechercher-tiers-payant/rechercher-tiers-payant.component';
+import { ErrorService } from '../../shared/error.service';
 
-import {FormsModule} from "@angular/forms";
-import {showCommonModal} from "../sales/selling-home/sale-helper";
-import {SpinnerComponent} from "../../shared/spinner/spinner.component";
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {NotificationService} from "../../shared/services/notification.service";
-import {
-  ListPrixReferenceComponent
-} from "../../features/products/ui/prix-reference/list-prix-reference/list-prix-reference.component";
-import {CommonModule} from "@angular/common";
+import { FormsModule } from '@angular/forms';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ListPrixReferenceComponent } from '../../features/products/ui/prix-reference/list-prix-reference/list-prix-reference.component';
+import { CommonModule } from '@angular/common';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
-  selector: "app-tiers-payant",
-  templateUrl: "./tiers-payant.component.html",
-  styleUrls: ["./tiers-payant.component.scss"],
+  selector: 'app-tiers-payant',
+  templateUrl: './tiers-payant.component.html',
+  styleUrls: ['./tiers-payant.component.scss'],
   providers: [NgbActiveModal],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     CommonModule,
     FormsModule,
     RouterModule,
@@ -58,8 +50,8 @@ import { CardComponent } from 'app/shared/ui';
     IconFieldComponent,
     SelectComponent,
     SplitButtonComponent,
-    ToolbarComponent
-  ]
+    ToolbarComponent,
+  ],
 })
 export class TiersPayantComponent implements OnInit {
   /**
@@ -77,38 +69,38 @@ export class TiersPayantComponent implements OnInit {
   protected responsedto!: IResponseDto;
   protected readonly isSaving = signal(false);
   protected jsonFileUploadProgress = 0;
-  protected jsonFileUploadStatutProgress = "Importation des tiers-payant en cours...";
+  protected jsonFileUploadStatutProgress = 'Importation des tiers-payant en cours...';
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected readonly page = signal<number | undefined>(undefined);
   protected readonly ngbPaginationPage = signal(1);
   protected readonly totalItems = signal(0);
   protected readonly loading = signal<boolean | undefined>(undefined);
-  protected type: string[] = ["TOUT", "ASSURANCE", "CARNET", "DEPOT"];
-  protected typeSelected = "TOUT";
-  protected search = "";
+  protected type: string[] = ['TOUT', 'ASSURANCE', 'CARNET', 'DEPOT'];
+  protected typeSelected = 'TOUT';
+  protected search = '';
   protected readonly tiersPayantSplitbuttons = signal<AppSplitButtonItem[] | undefined>(undefined);
   private readonly entityService = inject(TiersPayantService);
   private readonly errorService = inject(ErrorService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
-  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
   constructor() {
     this.tiersPayantSplitbuttons.set([
       {
-        label: "ASSURANCE",
-        command: () => this.addTiersPayantAssurance()
+        label: 'ASSURANCE',
+        command: () => this.addTiersPayantAssurance(),
       },
       {
-        label: "CARNET",
-        command: () => this.addCarnet()
+        label: 'CARNET',
+        command: () => this.addCarnet(),
       },
       {
-        label: "DEPOT",
-        command: () => this.addDepot()
-      }
+        label: 'DEPOT',
+        command: () => this.addDepot(),
+      },
     ]);
   }
 
@@ -119,7 +111,6 @@ export class TiersPayantComponent implements OnInit {
   onSearch(): void {
     this.loadPage();
   }
-
 
   openJsonImport(): void {
     showCommonModal(this.modalService, JsonImportDialogComponent, {}, (formData: FormData) => {
@@ -143,11 +134,11 @@ export class TiersPayantComponent implements OnInit {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         type: this.typeSelected,
-        search: this.search
+        search: this.search,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -160,25 +151,25 @@ export class TiersPayantComponent implements OnInit {
           page: this.page(),
           size: event.rows,
           type: this.typeSelected,
-          search: this.search
+          search: this.search,
         })
         .subscribe({
           next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page(), false),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
 
   addTiersPayantAssurance(): void {
-    this.rechercherAvantCreation("ASSURANCE", "FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE");
+    this.rechercherAvantCreation('ASSURANCE', 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE');
   }
 
   addCarnet(): void {
-    this.rechercherAvantCreation("CARNET", "FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET");
+    this.rechercherAvantCreation('CARNET', 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET');
   }
 
   addDepot(): void {
-    this.rechercherAvantCreation("DEPOT", "FORMULAIRE DE CREATION DE COMME DEPOT");
+    this.rechercherAvantCreation('DEPOT', 'FORMULAIRE DE CREATION DE COMME DEPOT');
   }
 
   /**
@@ -190,7 +181,7 @@ export class TiersPayantComponent implements OnInit {
     showCommonModal(
       this.modalService,
       RechercherTiersPayantComponent,
-      {categorie, title: titre.replace("FORMULAIRE DE CREATION", "RECHERCHE AVANT CREATION")},
+      { categorie, title: titre.replace('FORMULAIRE DE CREATION', 'RECHERCHE AVANT CREATION') },
       (resultat: ResultatRechercheTiersPayant) => {
         if (resultat?.existant) {
           this.editTiersPayant(resultat.existant);
@@ -198,7 +189,7 @@ export class TiersPayantComponent implements OnInit {
           this.ouvrirFormulaireCreation(categorie, titre);
         }
       },
-      "lg"
+      'lg',
     );
   }
 
@@ -206,12 +197,12 @@ export class TiersPayantComponent implements OnInit {
     showCommonModal(
       this.modalService,
       FormTiersPayantComponent,
-      {entity: null, categorie, title: titre},
+      { entity: null, categorie, title: titre },
       () => {
         this.loadPage();
       },
-      "xl",
-      "modal-dialog-70"
+      'xl',
+      'modal-dialog-70',
     );
   }
 
@@ -222,13 +213,13 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: tiersPayant,
         categorie: tiersPayant.categorie,
-        title: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`
+        title: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
       },
       () => {
         this.loadPage();
       },
-      "xl",
-      "modal-dialog-70"
+      'xl',
+      'modal-dialog-70',
     );
   }
 
@@ -241,42 +232,36 @@ export class TiersPayantComponent implements OnInit {
    * un tarif, et lequel ?
    */
   voirTarifsProduits(tiersPayant: ITiersPayant): void {
-    showCommonModal(
-      this.modalService,
-      ListPrixReferenceComponent,
-      { tiersPayant, isFromProduit: false },
-      undefined,
-      "lg"
-    );
+    showCommonModal(this.modalService, ListPrixReferenceComponent, { tiersPayant, isFromProduit: false }, undefined, 'lg');
   }
 
   confirmRemove(tiersPayant: ITiersPayant): void {
     this.confirmDialog.onConfirm(
       () => this.onDelete(tiersPayant),
-      "SUPPRESSION DE TIERS-PAYANT",
-      "Voulez-vous vraiment supprimer ce tiers-payant ?"
+      'SUPPRESSION DE TIERS-PAYANT',
+      'Voulez-vous vraiment supprimer ce tiers-payant ?',
     );
   }
 
   confirmDesactivation(tiersPayant: ITiersPayant): void {
     this.confirmDialog.onConfirm(
       () => this.onDesable(tiersPayant),
-      "DESACTIVATION DE TIERS-PAYANT",
-      "Voulez-vous vraiment désactiver ce tiers-payant ?"
+      'DESACTIVATION DE TIERS-PAYANT',
+      'Voulez-vous vraiment désactiver ce tiers-payant ?',
     );
   }
 
   onDelete(tiersPayant: ITiersPayant): void {
     this.entityService.delete(tiersPayant.id).subscribe({
       next: () => this.loadPage(),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
   onDesable(tiersPayant: ITiersPayant): void {
     this.entityService.desable(tiersPayant.id).subscribe({
       next: () => this.loadPage(),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
@@ -288,13 +273,13 @@ export class TiersPayantComponent implements OnInit {
   protected onImportError(): void {
     this.isSaving.set(false);
     this.spinner().hide();
-    this.notificationService.error("Enregistrement a échoué");
+    this.notificationService.error('Enregistrement a échoué');
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.subscribe({
       next: () => this.onPocesJsonSuccess(),
-      error: () => this.onImportError()
+      error: () => this.onImportError(),
     });
   }
 
@@ -304,14 +289,14 @@ export class TiersPayantComponent implements OnInit {
   }
 
   protected onSuccess(data: ITiersPayant[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.page.set(page);
     if (navigate) {
-      this.router.navigate(["/tiers-payant"], {
+      this.router.navigate(['/tiers-payant'], {
         queryParams: {
           page: this.page(),
-          size: this.itemsPerPage
-        }
+          size: this.itemsPerPage,
+        },
       });
     }
     this.tiersPayants.set(data || []);

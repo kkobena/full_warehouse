@@ -45,7 +45,8 @@ final class ReassortServicesUnderTest {
 
     // --- collaborateurs simulés, exposés pour être paramétrés par les tests ---
     final StorageService storageService = mock(StorageService.class);
-    final RepartitionStockPdfReportService repartitionStockPdfReportService = mock(RepartitionStockPdfReportService.class);
+    final RepartitionStockPdfReportService repartitionStockPdfReportService =
+            mock(RepartitionStockPdfReportService.class);
 
     // --- repositories réels ---
     final SuggestionReassortRepository suggestionReassortRepository;
@@ -68,7 +69,8 @@ final class ReassortServicesUnderTest {
     ReassortServicesUnderTest(EntityManager entityManager) {
         this.suggestionReassortRepository = IntegrationPostgresDatabase.bean(SuggestionReassortRepository.class);
         this.ligneReassortRepository = IntegrationPostgresDatabase.bean(LigneReassortRepository.class);
-        this.repartitionStockProduitRepository = IntegrationPostgresDatabase.bean(RepartitionStockProduitRepository.class);
+        this.repartitionStockProduitRepository =
+                IntegrationPostgresDatabase.bean(RepartitionStockProduitRepository.class);
         this.stockProduitRepository = IntegrationPostgresDatabase.bean(StockProduitRepository.class);
         this.lotRepository = IntegrationPostgresDatabase.bean(LotRepository.class);
         this.lotStockLocationRepository = IntegrationPostgresDatabase.bean(LotStockLocationRepository.class);
@@ -77,30 +79,27 @@ final class ReassortServicesUnderTest {
         this.lotStockLocationService = new LotStockLocationServiceImpl(lotStockLocationRepository, lotRepository);
 
         this.inventoryTransactionService = new InventoryTransactionServiceIml(
-            inventoryTransactionRepository,
-            new InventoryTransactionSpec(),
-            new MvtProduitIdGeneratorService(entityManager),
-            new ObjectMapper(),
-            storageService
-        );
+                inventoryTransactionRepository,
+                new InventoryTransactionSpec(),
+                new MvtProduitIdGeneratorService(entityManager),
+                new ObjectMapper(),
+                storageService);
 
         this.referenceService = new ReferenceService(IntegrationPostgresDatabase.bean(ReferenceRepository.class));
 
         this.repartitionStockService = new RepartitionStockServiceImpl(
-            storageService,
-            repartitionStockProduitRepository,
-            stockProduitRepository,
-            repartitionStockPdfReportService,
-            inventoryTransactionService,
-            lotStockLocationService
-        );
+                storageService,
+                repartitionStockProduitRepository,
+                stockProduitRepository,
+                repartitionStockPdfReportService,
+                inventoryTransactionService,
+                lotStockLocationService);
 
         this.suggestionReassortService = new SuggestionReassortServiceImpl(
-            suggestionReassortRepository,
-            ligneReassortRepository,
-            repartitionStockService,
-            storageService,
-            referenceService
-        );
+                suggestionReassortRepository,
+                ligneReassortRepository,
+                repartitionStockService,
+                storageService,
+                referenceService);
     }
 }

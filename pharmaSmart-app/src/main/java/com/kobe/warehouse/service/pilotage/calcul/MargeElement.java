@@ -8,11 +8,10 @@ public record MargeElement(long caHt, long marge, long caHtReference, long marge
 
     public static MargeElement lire(MesuresComparees mesures) {
         return new MargeElement(
-            mesures.periode().caLignesHt(),
-            mesures.periode().margeBrute(),
-            mesures.reference().caLignesHt(),
-            mesures.reference().margeBrute()
-        );
+                mesures.periode().caLignesHt(),
+                mesures.periode().margeBrute(),
+                mesures.reference().caLignesHt(),
+                mesures.reference().margeBrute());
     }
 
     public Double taux() {
@@ -48,16 +47,15 @@ public record MargeElement(long caHt, long marge, long caHtReference, long marge
         Double taux = taux();
         Double tauxReference = avecReference ? tauxReference() : null;
         return new LigneMargeDTO(
-            element.membre().cle(),
-            element.membre().libelle(),
-            caHt,
-            element.periode().coutHt(),
-            marge,
-            taux,
-            tauxReference,
-            Variations.ecart(taux, tauxReference),
-            avecReference ? Math.round((caHt - caHtReference) * tauxDeReference()) : null,
-            avecReference ? Math.round(caHt * (tauxDeLaPeriode() - tauxDeReference())) : null
-        );
+                element.membre().cle(),
+                element.membre().libelle(),
+                caHt,
+                element.periode().coutHt(),
+                marge,
+                taux,
+                tauxReference,
+                Variations.ecart(taux, tauxReference),
+                avecReference ? Math.round((caHt - caHtReference) * tauxDeReference()) : null,
+                avecReference ? Math.round(caHt * (tauxDeLaPeriode() - tauxDeReference())) : null);
     }
 }

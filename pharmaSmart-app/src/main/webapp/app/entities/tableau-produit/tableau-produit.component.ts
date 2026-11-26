@@ -1,22 +1,22 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { Router, RouterModule } from "@angular/router";
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { TableauProduitService } from "./tableau-produit.service";
-import { ITableau } from "../../shared/model/tableau.model";
-import { ButtonComponent, DataTableComponent, SelectableRowDirective } from "../../shared/ui";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { FormTableauComponent } from "./form-tableau/form-tableau.component";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../shared/services/notification.service";
-import { ErrorService } from "../../shared/error.service";
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { TableauProduitService } from './tableau-produit.service';
+import { ITableau } from '../../shared/model/tableau.model';
+import { ButtonComponent, DataTableComponent, SelectableRowDirective } from '../../shared/ui';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FormTableauComponent } from './form-tableau/form-tableau.component';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ErrorService } from '../../shared/error.service';
 
 @Component({
-  selector: "app-tableau-produit",
-  templateUrl: "./tableau-produit.component.html",
-  styleUrl: "./tableau-produit.component.scss",
+  selector: 'app-tableau-produit',
+  templateUrl: './tableau-produit.component.html',
+  styleUrl: './tableau-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterModule, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip]
+  imports: [FormsModule, RouterModule, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip],
 })
 export class TableauProduitComponent implements OnInit {
   protected fileDialog?: boolean;
@@ -46,10 +46,9 @@ export class TableauProduitComponent implements OnInit {
     this.loading.set(true);
     this.entityService.query().subscribe({
       next: (res: HttpResponse<ITableau[]>) => this.onSuccess(res.body),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
-
 
   protected onConfirmDialog(id: number): void {
     this.confirmDialog.onConfirm(
@@ -62,19 +61,19 @@ export class TableauProduitComponent implements OnInit {
           error: err => this.onErreurSuppression(err),
         });
       },
-      "Confirmation",
-      "Voulez-vous supprimer cet enregistrement ?"
+      'Confirmation',
+      'Voulez-vous supprimer cet enregistrement ?',
     );
   }
 
   protected addNewEntity(): void {
     const modalRef = this.ngModalService.open(FormTableauComponent, {
-      backdrop: "static",
-      size: "lg",
-      centered: true
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
     });
     modalRef.componentInstance.entity = null;
-    modalRef.componentInstance.header = "Ajouter un tableau";
+    modalRef.componentInstance.header = 'Ajouter un tableau';
     modalRef.result.then(r => {
       this.loadPage();
     });
@@ -83,9 +82,9 @@ export class TableauProduitComponent implements OnInit {
 
   protected onEdit(entity: ITableau): void {
     const modalRef = this.ngModalService.open(FormTableauComponent, {
-      backdrop: "static",
-      size: "lg",
-      centered: true
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
     });
     modalRef.componentInstance.entity = entity;
     modalRef.componentInstance.header = `Modifier un tableau [ ${entity.code} ]`;
@@ -110,14 +109,14 @@ export class TableauProduitComponent implements OnInit {
   }
 
   private onSuccess(data: ITableau[] | null): void {
-    this.router.navigate(["/tableaux"]);
+    this.router.navigate(['/tableaux']);
     this.entites.set(data || []);
     this.loading.set(false);
   }
 
   private onError(): void {
     this.loading.set(false);
-    this.notificationService.error("Erreur lors du chargement des données");
+    this.notificationService.error('Erreur lors du chargement des données');
   }
 
   /** Le message du serveur, et non un texte générique : lui seul dit COMBIEN de produits. */

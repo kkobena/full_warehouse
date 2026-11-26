@@ -7,14 +7,14 @@
             <jhi-produit-autocomplete
               #produitComponent
               (ngModelChange)="produitSelected.set($event)"
-              (selectedProduit)="onSelect($event)" [includeDetails]="includeDetail"
+              (selectedProduit)="onSelect($event)"
+              [includeDetails]="includeDetail"
               [ngModel]="produitSelected()"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
             >
             </jhi-produit-autocomplete>
           </div>
-          <app-float-label class="mr-1"
-                           inputId="numLot" label="{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}">
+          <app-float-label class="mr-1" inputId="numLot" label="{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}">
             <input
               #numLot
               (keyup.enter)="onNumLot($event)"
@@ -29,7 +29,8 @@
           <div class="mr-1">
             <pharma-date-picker
               #datePeremention
-              (ngModelChange)="dateValue.set($event)" (selectionChange)="onDatePerementionChange($event)"
+              (ngModelChange)="dateValue.set($event)"
+              (selectionChange)="onDatePerementionChange($event)"
               [disabled]="numLotIsEmpty"
               [ngModel]="dateValue()"
               id="datePeremtion"
@@ -87,8 +88,7 @@
       >
         <ng-template #caption>
           <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control"
-                   placeholder="Rechercher..." type="text" />
+            <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control" placeholder="Rechercher..." type="text" />
           </app-icon-field>
         </ng-template>
         <ng-template #header>
@@ -146,8 +146,7 @@
               <span class="pharma-price">{{ data.prixUni | number }}</span>
             </td>
             <td class="text-center">
-              <app-badge [label]="data.peremptionStatut.libelle"
-                         [severity]="getSeverity(data.peremptionStatut)" />
+              <app-badge [label]="data.peremptionStatut.libelle" [severity]="getSeverity(data.peremptionStatut)" />
             </td>
 
             <td class="pharma-entity-name">

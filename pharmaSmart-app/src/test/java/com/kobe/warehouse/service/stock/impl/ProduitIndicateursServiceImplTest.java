@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.stock.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
@@ -65,10 +64,12 @@ class ProduitIndicateursServiceImplTest {
             String sql = inv.getArgument(0);
             return sql.contains("v_stock_rotation") ? rotationQuery : produitQuery;
         });
-        when(produitQuery.setParameter(eq("produitId"), org.mockito.ArgumentMatchers.any())).thenReturn(produitQuery);
-        when(rotationQuery.setParameter(eq("produitId"), org.mockito.ArgumentMatchers.any())).thenReturn(rotationQuery);
+        when(produitQuery.setParameter(eq("produitId"), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(produitQuery);
+        when(rotationQuery.setParameter(eq("produitId"), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(rotationQuery);
         when(paretoAnalysisRepository.findByProduitId(PRODUIT_ID)).thenReturn(Optional.empty());
-        produitRow(new Object[] { "B", Boolean.FALSE, Boolean.FALSE, null, null });
+        produitRow(new Object[] {"B", Boolean.FALSE, Boolean.FALSE, null, null});
         rotationRows(List.of());
     }
 
@@ -102,42 +103,42 @@ class ProduitIndicateursServiceImplTest {
         }
 
         @ParameterizedTest(name = "classe_criticite=[{0}] devient {1}")
-        @CsvSource({ "A+, A_PLUS", "A_PLUS, A_PLUS", "APLUS, A_PLUS", "a, A", "B, B", "c, C", "D, D" })
+        @CsvSource({"A+, A_PLUS", "A_PLUS, A_PLUS", "APLUS, A_PLUS", "a, A", "B, B", "c, C", "D, D"})
         void mappeLaClasseDeCriticite(String stocke, ClasseCriticite attendue) {
-            produitRow(new Object[] { stocke, null, null, null, null });
+            produitRow(new Object[] {stocke, null, null, null, null});
 
             assertThat(service.getIndicateurs(PRODUIT_ID))
-                .get()
-                .extracting(ProduitIndicateursDTO::classeCriticite)
-                .isEqualTo(attendue);
+                    .get()
+                    .extracting(ProduitIndicateursDTO::classeCriticite)
+                    .isEqualTo(attendue);
         }
 
         @ParameterizedTest(name = "classe_criticite=[{0}] retombe sur B")
-        @ValueSource(strings = { "Z", "inconnue", "" })
+        @ValueSource(strings = {"Z", "inconnue", ""})
         void classeInvalideRetombeSurB(String stocke) {
-            produitRow(new Object[] { stocke, null, null, null, null });
+            produitRow(new Object[] {stocke, null, null, null, null});
 
             assertThat(service.getIndicateurs(PRODUIT_ID))
-                .get()
-                .extracting(ProduitIndicateursDTO::classeCriticite)
-                .isEqualTo(ClasseCriticite.B);
+                    .get()
+                    .extracting(ProduitIndicateursDTO::classeCriticite)
+                    .isEqualTo(ClasseCriticite.B);
         }
 
         @ParameterizedTest(name = "classe_criticite nulle retombe sur B")
         @NullSource
         void classeNulleRetombeSurB(String stocke) {
-            produitRow(new Object[] { stocke, null, null, null, null });
+            produitRow(new Object[] {stocke, null, null, null, null});
 
             assertThat(service.getIndicateurs(PRODUIT_ID))
-                .get()
-                .extracting(ProduitIndicateursDTO::classeCriticite)
-                .isEqualTo(ClasseCriticite.B);
+                    .get()
+                    .extracting(ProduitIndicateursDTO::classeCriticite)
+                    .isEqualTo(ClasseCriticite.B);
         }
 
         @Test
         @DisplayName("remonte les badges reglementaires")
         void badgesReglementaires() {
-            produitRow(new Object[] { "A", Boolean.TRUE, Boolean.TRUE, null, null });
+            produitRow(new Object[] {"A", Boolean.TRUE, Boolean.TRUE, null, null});
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -149,7 +150,7 @@ class ProduitIndicateursServiceImplTest {
         @Test
         @DisplayName("des badges nuls valent faux")
         void badgesNuls() {
-            produitRow(new Object[] { "A", null, null, null, null });
+            produitRow(new Object[] {"A", null, null, null, null});
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -160,43 +161,46 @@ class ProduitIndicateursServiceImplTest {
         @Test
         @DisplayName("calcule le taux de marge en pourcentage arrondi au centieme")
         void tauxDeMarge() {
-            produitRow(new Object[] { "A", null, null, 1500, 1000 });
+            produitRow(new Object[] {"A", null, null, 1500, 1000});
 
             assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge())
-                .isEqualByComparingTo(new BigDecimal("33.33"));
+                    .isEqualByComparingTo(new BigDecimal("33.33"));
         }
 
         @Test
         @DisplayName("taux de marge negatif quand le produit est vendu a perte")
         void margeNegative() {
-            produitRow(new Object[] { "A", null, null, 800, 1000 });
+            produitRow(new Object[] {"A", null, null, 800, 1000});
 
             assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge())
-                .isEqualByComparingTo(new BigDecimal("-25.00"));
+                    .isEqualByComparingTo(new BigDecimal("-25.00"));
         }
 
         @Test
         @DisplayName("taux de marge nul quand le prix de vente est absent")
         void margeSansPrixDeVente() {
-            produitRow(new Object[] { "A", null, null, null, 1000 });
+            produitRow(new Object[] {"A", null, null, null, 1000});
 
-            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge()).isNull();
+            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge())
+                    .isNull();
         }
 
         @Test
         @DisplayName("taux de marge nul quand le prix d achat est absent")
         void margeSansPrixDAchat() {
-            produitRow(new Object[] { "A", null, null, 1500, null });
+            produitRow(new Object[] {"A", null, null, 1500, null});
 
-            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge()).isNull();
+            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge())
+                    .isNull();
         }
 
         @Test
         @DisplayName("taux de marge nul quand le prix de vente est zero")
         void margeAvecPrixDeVenteZero() {
-            produitRow(new Object[] { "A", null, null, 0, 1000 });
+            produitRow(new Object[] {"A", null, null, 0, 1000});
 
-            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge()).isNull();
+            assertThat(service.getIndicateurs(PRODUIT_ID).orElseThrow().tauxMarge())
+                    .isNull();
         }
 
         @Test
@@ -217,7 +221,7 @@ class ProduitIndicateursServiceImplTest {
         @Test
         @DisplayName("remonte les indicateurs de rotation")
         void rotationPresente() {
-            rotationRows(List.<Object[]>of(new Object[] { new BigDecimal("12.5"), 150, 45, 30000, 360000, 180 }));
+            rotationRows(List.<Object[]>of(new Object[] {new BigDecimal("12.5"), 150, 45, 30000, 360000, 180}));
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -232,7 +236,7 @@ class ProduitIndicateursServiceImplTest {
         @Test
         @DisplayName("une ligne de rotation entierement nulle retombe sur les defauts")
         void rotationColonnesNulles() {
-            rotationRows(List.<Object[]>of(new Object[] { null, null, null, null, null, null }));
+            rotationRows(List.<Object[]>of(new Object[] {null, null, null, null, null, null}));
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -260,7 +264,7 @@ class ProduitIndicateursServiceImplTest {
         @DisplayName("remonte le score Pareto")
         void paretoPresent() {
             when(paretoAnalysisRepository.findByProduitId(PRODUIT_ID))
-                .thenReturn(Optional.of(new Object[] { PRODUIT_ID, new BigDecimal("18.40"), 7, "A", 11 }));
+                    .thenReturn(Optional.of(new Object[] {PRODUIT_ID, new BigDecimal("18.40"), 7, "A", 11}));
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -273,7 +277,7 @@ class ProduitIndicateursServiceImplTest {
         @DisplayName("une ligne Pareto aux colonnes nulles ne remplit rien")
         void paretoColonnesNulles() {
             when(paretoAnalysisRepository.findByProduitId(PRODUIT_ID))
-                .thenReturn(Optional.of(new Object[] { PRODUIT_ID, null, null, null, null }));
+                    .thenReturn(Optional.of(new Object[] {PRODUIT_ID, null, null, null, null}));
 
             ProduitIndicateursDTO dto = service.getIndicateurs(PRODUIT_ID).orElseThrow();
 
@@ -290,7 +294,8 @@ class ProduitIndicateursServiceImplTest {
         @Test
         @DisplayName("renvoie une liste vide quand il n y a pas d historique")
         void aucunHistorique() {
-            when(ventesMensuellesAgregeesRepository.findLastNMonthsByProduit(PRODUIT_ID, 12)).thenReturn(List.of());
+            when(ventesMensuellesAgregeesRepository.findLastNMonthsByProduit(PRODUIT_ID, 12))
+                    .thenReturn(List.of());
 
             assertThat(service.getVentesMensuelles(PRODUIT_ID, 12)).isEmpty();
         }
@@ -299,7 +304,8 @@ class ProduitIndicateursServiceImplTest {
         @DisplayName("reordonne du plus ancien au plus recent pour Chart.js")
         void ordreCroissant() {
             when(ventesMensuellesAgregeesRepository.findLastNMonthsByProduit(PRODUIT_ID, 3))
-                .thenReturn(List.of(vente("2026-03", 3, 300, 3), vente("2026-01", 1, 100, 1), vente("2026-02", 2, 200, 2)));
+                    .thenReturn(List.of(
+                            vente("2026-03", 3, 300, 3), vente("2026-01", 1, 100, 1), vente("2026-02", 2, 200, 2)));
 
             List<VenteMoisDTO> result = service.getVentesMensuelles(PRODUIT_ID, 3);
 
@@ -310,7 +316,7 @@ class ProduitIndicateursServiceImplTest {
         @DisplayName("mappe chaque colonne de l agregat")
         void mappeLesColonnes() {
             when(ventesMensuellesAgregeesRepository.findLastNMonthsByProduit(PRODUIT_ID, 1))
-                .thenReturn(List.of(vente("2026-05", 42, 84000, 17)));
+                    .thenReturn(List.of(vente("2026-05", 42, 84000, 17)));
 
             VenteMoisDTO dto = service.getVentesMensuelles(PRODUIT_ID, 1).getFirst();
 

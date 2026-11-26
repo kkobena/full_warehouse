@@ -1,19 +1,14 @@
 @if (account() !== null) {
-
   @if (loading()) {
     <!-- Skeleton pendant la résolution du layout -->
     <div class="d-flex justify-content-center align-items-center" style="height: 60vh">
       <app-skeleton height="160px" width="100%" />
     </div>
   } @else if (!isRoute()) {
-
     @switch (resolvedLayout()?.componentKey) {
-
       @case ('PHARMACIEN') {
         @defer (on immediate) {
-
           <app-home-base></app-home-base>
-
         } @loading {
           <app-skeleton height="160px" width="100%" />
         }
@@ -50,5 +45,4 @@
     }
   }
   <!-- isRoute()=true : redirection gérée dans ngOnInit, rien à rendre ici -->
-
 }

@@ -13,20 +13,19 @@ import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.report.ABCParetoReportService;
 import com.kobe.warehouse.service.report.ABCParetoReportServiceImpl;
-import com.kobe.warehouse.service.report.StockAlertReportService;
-import com.kobe.warehouse.service.report.StockAlertReportServiceImpl;
-import com.kobe.warehouse.service.report.MargeReportService;
-import com.kobe.warehouse.service.report.MargeReportServiceImpl;
 import com.kobe.warehouse.service.report.CashRegisterReportService;
 import com.kobe.warehouse.service.report.CashRegisterReportServiceImpl;
 import com.kobe.warehouse.service.report.ClientRetentionReportService;
 import com.kobe.warehouse.service.report.ClientRetentionReportServiceImpl;
 import com.kobe.warehouse.service.report.CustomerSegmentationReportService;
+import com.kobe.warehouse.service.report.CustomerSegmentationReportServiceImpl;
 import com.kobe.warehouse.service.report.DemarqueReportService;
 import com.kobe.warehouse.service.report.DemarqueReportServiceImpl;
-import com.kobe.warehouse.service.report.CustomerSegmentationReportServiceImpl;
+import com.kobe.warehouse.service.report.MargeReportService;
+import com.kobe.warehouse.service.report.MargeReportServiceImpl;
 import com.kobe.warehouse.service.report.MarketBasketAnalysisService;
 import com.kobe.warehouse.service.report.MarketBasketAnalysisServiceImpl;
 import com.kobe.warehouse.service.report.RecapProduitVenduService;
@@ -35,17 +34,18 @@ import com.kobe.warehouse.service.report.SalesForecastService;
 import com.kobe.warehouse.service.report.SalesForecastServiceImpl;
 import com.kobe.warehouse.service.report.SalesSummaryReportService;
 import com.kobe.warehouse.service.report.SalesSummaryReportServiceImpl;
+import com.kobe.warehouse.service.report.StockAlertReportService;
+import com.kobe.warehouse.service.report.StockAlertReportServiceImpl;
 import com.kobe.warehouse.service.report.StockRotationReportService;
 import com.kobe.warehouse.service.report.StockRotationReportServiceImpl;
 import com.kobe.warehouse.service.report.StockValuationReportService;
-import com.kobe.warehouse.service.report.TiersPayantReportService;
-import com.kobe.warehouse.service.report.TiersPayantReportServiceImpl;
 import com.kobe.warehouse.service.report.StockValuationReportServiceImpl;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
+import com.kobe.warehouse.service.report.SupplierPerformanceReportServiceImpl;
+import com.kobe.warehouse.service.report.TiersPayantReportService;
+import com.kobe.warehouse.service.report.TiersPayantReportServiceImpl;
 import com.kobe.warehouse.service.report.TopProductsReportService;
 import com.kobe.warehouse.service.report.TopProductsReportServiceImpl;
-import com.kobe.warehouse.service.report.SupplierPerformanceReportServiceImpl;
-import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.report.pdf.ProfitabilityPdfReportService;
@@ -132,7 +132,8 @@ final class ReportServicesUnderTest {
         ReflectionTestUtils.setField(abcPareto, "entityManager", entityManager);
         this.abcParetoReportService = abcPareto;
 
-        this.supplierPerformanceReportService = new SupplierPerformanceReportServiceImpl(entityManager, supplierEvolutionRepository);
+        this.supplierPerformanceReportService =
+                new SupplierPerformanceReportServiceImpl(entityManager, supplierEvolutionRepository);
         this.stockAlertReportService = new StockAlertReportServiceImpl(mvStockAlertRepository);
 
         StockRotationReportServiceImpl stockRotation = new StockRotationReportServiceImpl();
@@ -140,13 +141,10 @@ final class ReportServicesUnderTest {
         this.stockRotationReportService = stockRotation;
 
         this.mvStockValuationViewRepository = IntegrationPostgresDatabase.bean(MvStockValuationViewRepository.class);
-        this.mvStockValuationRayonViewRepository = IntegrationPostgresDatabase.bean(MvStockValuationRayonViewRepository.class);
+        this.mvStockValuationRayonViewRepository =
+                IntegrationPostgresDatabase.bean(MvStockValuationRayonViewRepository.class);
         this.stockValuationReportService = new StockValuationReportServiceImpl(
-            entityManager,
-            mvStockValuationViewRepository,
-            mvStockValuationRayonViewRepository,
-            userService
-        );
+                entityManager, mvStockValuationViewRepository, mvStockValuationRayonViewRepository, userService);
 
         SalesSummaryReportServiceImpl salesSummary = new SalesSummaryReportServiceImpl();
         ReflectionTestUtils.setField(salesSummary, "entityManager", entityManager);
@@ -162,14 +160,13 @@ final class ReportServicesUnderTest {
         // Exports et création d'inventaire simulés : ce paquet éprouve les requêtes, pas le rendu
         // des documents ni les écritures que déclenchent les actions de l'écran.
         this.recapProduitVenduService = new RecapProduitVenduServiceImpl(
-            entityManager,
-            mock(ReportExcelExportService.class),
-            mock(CsvExportService.class),
-            mock(InventaireService.class),
-            mock(RecapProduitVenduPdfService.class),
-            mock(RecapProduitInvenduPdfService.class),
-            mock(SuggestionProduitService.class)
-        );
+                entityManager,
+                mock(ReportExcelExportService.class),
+                mock(CsvExportService.class),
+                mock(InventaireService.class),
+                mock(RecapProduitVenduPdfService.class),
+                mock(RecapProduitInvenduPdfService.class),
+                mock(SuggestionProduitService.class));
 
         ClientRetentionReportServiceImpl clientRetention = new ClientRetentionReportServiceImpl();
         ReflectionTestUtils.setField(clientRetention, "entityManager", entityManager);

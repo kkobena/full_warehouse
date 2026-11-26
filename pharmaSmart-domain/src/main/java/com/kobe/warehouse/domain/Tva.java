@@ -5,14 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -20,7 +17,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * A Tva.
  */
 @Entity
-@Table(name = "tva", uniqueConstraints = { @UniqueConstraint(columnNames = { "taux" }) })
+@Table(
+        name = "tva",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"taux"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Tva implements Serializable {
 
@@ -76,9 +75,6 @@ public class Tva implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "Tva{" +
-            "id=" + getId() +
-            ", taux=" + getTaux() +
-            "}";
+        return "Tva{" + "id=" + getId() + ", taux=" + getTaux() + "}";
     }
 }

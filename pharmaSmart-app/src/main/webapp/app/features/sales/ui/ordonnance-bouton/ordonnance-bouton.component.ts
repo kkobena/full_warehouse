@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked} from '@angular/core';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {BadgeComponent, ButtonComponent} from 'app/shared/ui';
-import {OrdonnanceApiService} from '../../data-access/services/ordonnance-api.service';
-import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
+import { OrdonnanceApiService } from '../../data-access/services/ordonnance-api.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
 
 /**
  * Bouton « Ordonnances du client » avec, dès que le client est choisi, le nombre d'ordonnances en cours :
@@ -14,10 +14,24 @@ import {OrdonnancePanelService} from '../../data-access/services/ordonnance-pane
   imports: [ButtonComponent, BadgeComponent, NgbTooltip],
   template: `
     <span class="position-relative d-inline-block">
-      <app-button (clicked)="ouvrir()" [ariaLabel]="libelle()" [ngbTooltip]="libelle()" icon="pi pi-file-edit" severity="help"
-                  size="small" [rounded]="true" [outlined]="true" />
+      <app-button
+        (clicked)="ouvrir()"
+        [ariaLabel]="libelle()"
+        [ngbTooltip]="libelle()"
+        icon="pi pi-file-edit"
+        severity="help"
+        size="small"
+        [rounded]="true"
+        [outlined]="true"
+      />
       @if (nombre() > 0) {
-        <app-badge [label]="'' + nombre()" severity="success" [rounded]="true" class="position-absolute top-0 end-0" style="transform: scale(0.8); transform-origin: top right; pointer-events: none" />
+        <app-badge
+          [label]="'' + nombre()"
+          severity="success"
+          [rounded]="true"
+          class="position-absolute top-0 end-0"
+          style="transform: scale(0.8); transform-origin: top right; pointer-events: none"
+        />
       }
     </span>
   `,

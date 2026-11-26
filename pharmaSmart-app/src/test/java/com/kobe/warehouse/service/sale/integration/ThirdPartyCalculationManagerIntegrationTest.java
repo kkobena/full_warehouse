@@ -54,10 +54,10 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         assertEquals(21_000, relue.getPartTiersPayant(), "70 % de 30 000");
         assertEquals(9_000, relue.getPartAssure());
         assertEquals(
-            21_000,
-            compter("SELECT montant FROM third_party_sale_line WHERE sale_id = " + vente.getId().getId()),
-            "la ligne tiers-payant porte le même montant que la part de la vente"
-        );
+                21_000,
+                compter("SELECT montant FROM third_party_sale_line WHERE sale_id = "
+                        + vente.getId().getId()),
+                "la ligne tiers-payant porte le même montant que la part de la vente");
     }
 
     @Test
@@ -68,9 +68,9 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         venteAssurance(compte, taxe, 1, "BON-CALC-2");
         viderLeCache();
 
-        Object repartitions = em
-            .createNativeQuery("SELECT repartitions FROM third_party_sale_line WHERE num_bon = 'BON-CALC-2'")
-            .getSingleResult();
+        Object repartitions = em.createNativeQuery(
+                        "SELECT repartitions FROM third_party_sale_line WHERE num_bon = 'BON-CALC-2'")
+                .getSingleResult();
 
         assertNotNull(repartitions, "la ventilation par taux est conservée pour la facturation");
         assertTrue(repartitions.toString().contains("18"), repartitions.toString());
@@ -84,7 +84,8 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         ClientTiersPayant principal = compte(assure, "CNAM DUO", 60, PrioriteTiersPayant.R0);
         ClientTiersPayant complementaire = compte(assure, "MUTUELLE DUO", 25, PrioriteTiersPayant.R1);
         ThirdPartySaleDTO vente = services.thirdPartySaleService.createSale(venteDe(principal, produit, "BON-CALC-3"));
-        services.thirdPartySaleService.addThirdPartySaleLineToSales(compteDto(complementaire, "BON-CALC-4"), vente.getSaleId());
+        services.thirdPartySaleService.addThirdPartySaleLineToSales(
+                compteDto(complementaire, "BON-CALC-4"), vente.getSaleId());
         viderLeCache();
 
         ThirdPartySales relue = em.find(ThirdPartySales.class, vente.getSaleId());
@@ -111,16 +112,14 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         em.flush();
 
         PlafondVenteException alerte = assertThrows(
-            PlafondVenteException.class,
-            () -> services.thirdPartySaleService.createSale(venteDe(compte, produit, "BON-CALC-5"))
-        );
+                PlafondVenteException.class,
+                () -> services.thirdPartySaleService.createSale(venteDe(compte, produit, "BON-CALC-5")));
 
         assertTrue(alerte.getMessage().contains("CNAM PLAFOND"), alerte.getMessage());
         assertEquals(
-            1_000,
-            compter("SELECT montant FROM third_party_sale_line WHERE num_bon = 'BON-CALC-5'"),
-            "il ne restait que 1 000 sous le plafond de 10 000"
-        );
+                1_000,
+                compter("SELECT montant FROM third_party_sale_line WHERE num_bon = 'BON-CALC-5'"),
+                "il ne restait que 1 000 sous le plafond de 10 000");
     }
 
     @Test
@@ -136,12 +135,10 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         viderLeCache();
 
         ThirdPartySales entite = em.find(ThirdPartySales.class, vente.getSaleId());
-        SalesLine aRetirer = entite
-            .getSalesLines()
-            .stream()
-            .filter(l -> l.getProduit().getId().equals(second.getId()))
-            .findFirst()
-            .orElseThrow();
+        SalesLine aRetirer = entite.getSalesLines().stream()
+                .filter(l -> l.getProduit().getId().equals(second.getId()))
+                .findFirst()
+                .orElseThrow();
         entite.getSalesLines().remove(aRetirer);
         services.salesLineService.deleteSaleLine(aRetirer);
         services.thirdPartyCalculationManager.upddateSaleAmountsOnRemovingItem(entite);

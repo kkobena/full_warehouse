@@ -46,9 +46,12 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         services.suggestionReassortService.createLigneReassort(
-            List.of(new ReassortRecord(services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(), 50)),
-            utilisateur
-        );
+                List.of(new ReassortRecord(
+                        services.stockProduitRepository
+                                .findById(stockReserve.getId())
+                                .orElseThrow(),
+                        50)),
+                utilisateur);
         viderLeCache();
 
         SuggestionReassort suggestion = suggestionOuverteEnBase(TypeReassort.RESERVE);
@@ -72,26 +75,30 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         services.suggestionReassortService.createLigneReassort(
-            List.of(new ReassortRecord(services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(), 50)),
-            utilisateur
-        );
+                List.of(new ReassortRecord(
+                        services.stockProduitRepository
+                                .findById(stockReserve.getId())
+                                .orElseThrow(),
+                        50)),
+                utilisateur);
         viderLeCache();
         services.suggestionReassortService.createLigneReassort(
-            List.of(new ReassortRecord(services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(), 6)),
-            utilisateur
-        );
+                List.of(new ReassortRecord(
+                        services.stockProduitRepository
+                                .findById(stockReserve.getId())
+                                .orElseThrow(),
+                        6)),
+                utilisateur);
         viderLeCache();
 
         assertEquals(
-            1,
-            compter("SELECT COUNT(*) FROM ligne_reassort WHERE stock_produit_id = " + stockReserve.getId()),
-            "la contrainte d'unicité (suggestion, stock) tient"
-        );
+                1,
+                compter("SELECT COUNT(*) FROM ligne_reassort WHERE stock_produit_id = " + stockReserve.getId()),
+                "la contrainte d'unicité (suggestion, stock) tient");
         assertEquals(
-            6,
-            compter("SELECT quantity FROM ligne_reassort WHERE stock_produit_id = " + stockReserve.getId()),
-            "la quantité est ramenée à ce que la seconde réception apporte"
-        );
+                6,
+                compter("SELECT quantity FROM ligne_reassort WHERE stock_produit_id = " + stockReserve.getId()),
+                "la quantité est ramenée à ce que la seconde réception apporte");
     }
 
     @Test
@@ -104,12 +111,17 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         services.suggestionReassortService.createLigneReassort(
-            List.of(new ReassortRecord(services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(), 50)),
-            utilisateur
-        );
+                List.of(new ReassortRecord(
+                        services.stockProduitRepository
+                                .findById(stockReserve.getId())
+                                .orElseThrow(),
+                        50)),
+                utilisateur);
         viderLeCache();
 
-        assertTrue(suggestionOuverteEnBase(TypeReassort.RESERVE).getLigneReassorts().isEmpty());
+        assertTrue(suggestionOuverteEnBase(TypeReassort.RESERVE)
+                .getLigneReassorts()
+                .isEmpty());
     }
 
     // ===== détection depuis le stock =====
@@ -125,8 +137,7 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         services.suggestionReassortService.createReserveSuggestionReassort(
-            services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow()
-        );
+                services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow());
         viderLeCache();
 
         SuggestionReassort suggestion = suggestionOuverteEnBase(TypeReassort.RESERVE);
@@ -145,8 +156,7 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         services.suggestionReassortService.createRayonSuggestionReassort(
-            services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow()
-        );
+                services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow());
         viderLeCache();
 
         SuggestionReassort suggestion = suggestionOuverteEnBase(TypeReassort.RAYON);
@@ -168,7 +178,8 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         ligne(suggestion, stockReserve, 16);
         viderLeCache();
 
-        List<SuggestionReassortDto> reserve = services.suggestionReassortService.getOpenningSuggestions(TypeReassort.RESERVE);
+        List<SuggestionReassortDto> reserve =
+                services.suggestionReassortService.getOpenningSuggestions(TypeReassort.RESERVE);
 
         assertEquals(1, reserve.size());
         SuggestionReassortDto dto = reserve.getFirst();
@@ -185,10 +196,13 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         assertEquals(4, ligne.getStockActuel());
 
         assertTrue(
-            services.suggestionReassortService.getOpenningSuggestions(TypeReassort.RAYON).isEmpty(),
-            "le filtre par type ne mélange pas les deux sens de réassort"
-        );
-        assertEquals(1, services.suggestionReassortService.getOpenningSuggestions(null).size());
+                services.suggestionReassortService
+                        .getOpenningSuggestions(TypeReassort.RAYON)
+                        .isEmpty(),
+                "le filtre par type ne mélange pas les deux sens de réassort");
+        assertEquals(
+                1,
+                services.suggestionReassortService.getOpenningSuggestions(null).size());
     }
 
     @Test
@@ -202,7 +216,8 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         suggestion.setStatut(StatutReassort.CLOSED);
         viderLeCache();
 
-        assertTrue(services.suggestionReassortService.getOpenningSuggestions(null).isEmpty());
+        assertTrue(
+                services.suggestionReassortService.getOpenningSuggestions(null).isEmpty());
     }
 
     // ===== cycle de vie =====
@@ -260,7 +275,12 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         assertEquals(50, stockEnBase(produit, rayon));
         assertEquals(32, stockEnBase(produit, reserve));
         assertEquals(2, mouvementsJournalises(produit));
-        assertEquals(StatutReassort.CLOSED, services.suggestionReassortRepository.findById(suggestion.getId()).orElseThrow().getStatut());
+        assertEquals(
+                StatutReassort.CLOSED,
+                services.suggestionReassortRepository
+                        .findById(suggestion.getId())
+                        .orElseThrow()
+                        .getStatut());
     }
 
     @Test
@@ -310,11 +330,12 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         assertEquals(1, stockEnBase(absent, reserve));
 
         assertEquals(
-            1,
-            compter("SELECT COUNT(*) FROM ligne_reassort WHERE reassort_id = " + suggestion.getId()),
-            "la ligne exécutée quitte la suggestion"
-        );
-        SuggestionReassort relue = services.suggestionReassortRepository.findById(suggestion.getId()).orElseThrow();
+                1,
+                compter("SELECT COUNT(*) FROM ligne_reassort WHERE reassort_id = " + suggestion.getId()),
+                "la ligne exécutée quitte la suggestion");
+        SuggestionReassort relue = services.suggestionReassortRepository
+                .findById(suggestion.getId())
+                .orElseThrow();
         assertEquals(StatutReassort.OPEN, relue.getStatut(), "il reste une ligne à traiter");
         assertFalse(relue.getLigneReassorts().isEmpty());
     }
@@ -334,7 +355,12 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
         viderLeCache();
 
         assertEquals(0, compter("SELECT COUNT(*) FROM ligne_reassort WHERE reassort_id = " + suggestion.getId()));
-        assertEquals(StatutReassort.CLOSED, services.suggestionReassortRepository.findById(suggestion.getId()).orElseThrow().getStatut());
+        assertEquals(
+                StatutReassort.CLOSED,
+                services.suggestionReassortRepository
+                        .findById(suggestion.getId())
+                        .orElseThrow()
+                        .getStatut());
     }
 
     @Test
@@ -352,14 +378,19 @@ class SuggestionReassortServiceIntegrationTest extends AbstractReassortIntegrati
 
         assertEquals(80, stockEnBase(produit, rayon));
         assertEquals(1, compter("SELECT COUNT(*) FROM ligne_reassort WHERE reassort_id = " + suggestion.getId()));
-        assertEquals(StatutReassort.OPEN, services.suggestionReassortRepository.findById(suggestion.getId()).orElseThrow().getStatut());
+        assertEquals(
+                StatutReassort.OPEN,
+                services.suggestionReassortRepository
+                        .findById(suggestion.getId())
+                        .orElseThrow()
+                        .getStatut());
     }
 
     // ===== outils =====
 
     private SuggestionReassort suggestionOuverteEnBase(TypeReassort typeReassort) {
         return services.suggestionReassortRepository
-            .findOneByStatutAndMagasinIdAndTypeReassort(StatutReassort.OPEN, MAGASIN_ID, typeReassort)
-            .orElseThrow(() -> new AssertionError("aucune suggestion ouverte de type " + typeReassort));
+                .findOneByStatutAndMagasinIdAndTypeReassort(StatutReassort.OPEN, MAGASIN_ID, typeReassort)
+                .orElseThrow(() -> new AssertionError("aucune suggestion ouverte de type " + typeReassort));
     }
 }

@@ -55,7 +55,11 @@ class TraitementChroniqueIntegrationTest extends AbstractDashboardIntegrationTes
         when(authorizer.utilisateurCourant()).thenReturn(utilisateur);
         when(configuration.getRappelRenouvellementJours()).thenReturn(5);
         when(configuration.getRenouvellementExceptionnelMois()).thenReturn(3);
-        service = new TraitementChroniqueService(IntegrationPostgresDatabase.bean(CustomerTraitementChroniqueRepository.class), em, configuration, authorizer);
+        service = new TraitementChroniqueService(
+                IntegrationPostgresDatabase.bean(CustomerTraitementChroniqueRepository.class),
+                em,
+                configuration,
+                authorizer);
 
         caisse = caisseOuverte(0);
         jour = aujourdHui();
@@ -79,7 +83,9 @@ class TraitementChroniqueIntegrationTest extends AbstractDashboardIntegrationTes
         assertThat(suivi.dernierProduitId()).isEqualTo(generique.getId());
         assertThat(suivi.prochaineDelivrance()).isEqualTo(jour.plusDays(3));
         assertThat(suivi.suivi()).isEqualTo(Suivi.A_RENOUVELER);
-        assertThat(service.aRenouveler()).extracting(TraitementARenouvelerDTO::customerId).contains(patient.getId());
+        assertThat(service.aRenouveler())
+                .extracting(TraitementARenouvelerDTO::customerId)
+                .contains(patient.getId());
     }
 
     @Test
@@ -109,7 +115,9 @@ class TraitementChroniqueIntegrationTest extends AbstractDashboardIntegrationTes
         service.modifier(patient.getId(), traitement.id(), arret(saisie(metformine, null, 30, null, null)));
         em.flush();
         assertThat(service.traitements(patient.getId()).getFirst().suivi()).isEqualTo(Suivi.ARRETE);
-        assertThat(service.aRenouveler()).extracting(TraitementARenouvelerDTO::customerId).doesNotContain(patient.getId());
+        assertThat(service.aRenouveler())
+                .extracting(TraitementARenouvelerDTO::customerId)
+                .doesNotContain(patient.getId());
     }
 
     @Test
@@ -118,35 +126,41 @@ class TraitementChroniqueIntegrationTest extends AbstractDashboardIntegrationTes
         LocalDate fin = jour.minusDays(10);
         service.declarer(patient.getId(), saisie(metformine, null, 30, fin.minusMonths(6), fin));
 
-        TraitementChroniqueDTO sansParametre = service.traitements(patient.getId()).getFirst();
+        TraitementChroniqueDTO sansParametre =
+                service.traitements(patient.getId()).getFirst();
         assertThat(sansParametre.ordonnance()).isEqualTo(Ordonnance.EXPIREE);
         assertThat(sansParametre.renouvellementExceptionnelJusquau()).isNull();
         assertThat(sansParametre.renouvellementExceptionnelMotif()).isNull();
 
         when(configuration.isRenouvellementExceptionnelEnabled()).thenReturn(true);
-        TraitementChroniqueDTO avecParametre = service.traitements(patient.getId()).getFirst();
+        TraitementChroniqueDTO avecParametre =
+                service.traitements(patient.getId()).getFirst();
         assertThat(avecParametre.renouvellementExceptionnelJusquau()).isEqualTo(fin.plusMonths(3));
     }
 
     @Test
-    @DisplayName("renouvellement exceptionnel refusé : ordonnance courte, stupéfiant, ou mois suivant l'expiration passé sans délivrance")
+    @DisplayName(
+            "renouvellement exceptionnel refusé : ordonnance courte, stupéfiant, ou mois suivant l'expiration passé sans délivrance")
     void renouvellementExceptionnelRefuse() {
         when(configuration.isRenouvellementExceptionnelEnabled()).thenReturn(true);
 
         service.declarer(patient.getId(), saisie(metformine, null, 30, jour.minusMonths(2), jour.minusDays(1)));
-        assertThat(service.traitements(patient.getId()).getFirst().renouvellementExceptionnelMotif()).contains("moins de 3 mois");
+        assertThat(service.traitements(patient.getId()).getFirst().renouvellementExceptionnelMotif())
+                .contains("moins de 3 mois");
 
         UninsuredCustomer tardif = client(unique("CHRONIQUE"), "Yao", null);
         LocalDate fin = jour.minusDays(45);
         service.declarer(tardif.getId(), saisie(metformine, null, 30, fin.minusMonths(6), fin));
-        assertThat(service.traitements(tardif.getId()).getFirst().renouvellementExceptionnelMotif()).contains("mois qui a suivi");
+        assertThat(service.traitements(tardif.getId()).getFirst().renouvellementExceptionnelMotif())
+                .contains("mois qui a suivi");
 
         UninsuredCustomer sousStupefiant = client(unique("CHRONIQUE"), "Koffi", null);
         Produit morphine = produitAvec(dci(unique("MORPHINE")));
         morphine.setStatutLegal(StatutLegal.STUPEFIANTS);
         em.flush();
         service.declarer(sousStupefiant.getId(), saisie(null, morphine, 30, jour.minusMonths(6), jour.minusDays(5)));
-        assertThat(service.traitements(sousStupefiant.getId()).getFirst().renouvellementExceptionnelMotif()).contains("Stupéfiant");
+        assertThat(service.traitements(sousStupefiant.getId()).getFirst().renouvellementExceptionnelMotif())
+                .contains("Stupéfiant");
     }
 
     @Test
@@ -155,29 +169,38 @@ class TraitementChroniqueIntegrationTest extends AbstractDashboardIntegrationTes
         Produit autre = produitAvec(dci(unique("AMLODIPINE")));
 
         assertThatThrownBy(() -> service.declarer(patient.getId(), saisie(metformine, autre, 30, null, null)))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo("traitementProduitSansMolecule");
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("traitementProduitSansMolecule");
     }
 
     // ===== fixtures =====
 
-    private static TraitementChroniqueSaisieDTO saisie(Dci dci, Produit produit, int duree, LocalDate ordonnance, LocalDate fin) {
+    private static TraitementChroniqueSaisieDTO saisie(
+            Dci dci, Produit produit, int duree, LocalDate ordonnance, LocalDate fin) {
         return new TraitementChroniqueSaisieDTO(
-            dci == null ? null : dci.getId(),
-            produit == null ? null : produit.getId(),
-            "850 mg",
-            "1 cp matin et soir",
-            duree,
-            ordonnance,
-            fin,
-            null,
-            true
-        );
+                dci == null ? null : dci.getId(),
+                produit == null ? null : produit.getId(),
+                "850 mg",
+                "1 cp matin et soir",
+                duree,
+                ordonnance,
+                fin,
+                null,
+                true);
     }
 
     private static TraitementChroniqueSaisieDTO arret(TraitementChroniqueSaisieDTO s) {
-        return new TraitementChroniqueSaisieDTO(s.dciId(), s.produitId(), s.dosage(), s.posologie(), s.dureeJours(), s.dateOrdonnance(), s.dateFinOrdonnance(), s.note(), false);
+        return new TraitementChroniqueSaisieDTO(
+                s.dciId(),
+                s.produitId(),
+                s.dosage(),
+                s.posologie(),
+                s.dureeJours(),
+                s.dateOrdonnance(),
+                s.dateFinOrdonnance(),
+                s.note(),
+                false);
     }
 
     private void delivrer(Produit produit, LocalDate date) {

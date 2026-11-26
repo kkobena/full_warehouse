@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.settings;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.referential.magasin.MagasinService;
@@ -27,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Magasin}.
@@ -59,18 +59,16 @@ public class MagasinResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/magasins")
-    public ResponseEntity<MagasinDTO> createMagasin(@Valid @RequestBody MagasinDTO magasin)
-        throws URISyntaxException {
+    public ResponseEntity<MagasinDTO> createMagasin(@Valid @RequestBody MagasinDTO magasin) throws URISyntaxException {
         log.debug("REST request to save Magasin : {}", magasin);
         if (magasin.getId() != null) {
-            throw new BadRequestAlertException("A new magasin cannot already have an ID",
-                ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new magasin cannot already have an ID", ENTITY_NAME, "idexists");
         }
         MagasinDTO result = magasinService.save(magasin);
         return ResponseEntity.created(new URI("/api/magasins/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
-                result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -89,9 +87,9 @@ public class MagasinResource {
         }
         MagasinDTO result = magasinService.save(magasin);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME,
-                magasin.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, magasin.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -105,8 +103,7 @@ public class MagasinResource {
     public ResponseEntity<MagasinDTO> findOne() {
         log.debug("REST request to get all Magasins");
 
-        return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(magasinService.currentUserMagasin()));
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(magasinService.currentUserMagasin()));
     }
 
     /**
@@ -155,9 +152,8 @@ public class MagasinResource {
         log.debug("REST request to delete Magasin : {}", id);
         magasinService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-                id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping("/magasins")
@@ -169,9 +165,9 @@ public class MagasinResource {
     @GetMapping("/magasins/depots")
     @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<List<MagasinDTO>> getAllDepots(
-        @RequestParam(required = false, name = "types") Set<TypeMagasin> types) {
-        return ResponseEntity.ok().body(magasinService.findAll(
-            CollectionUtils.isEmpty(types) ? Set.of(TypeMagasin.DEPOT) : types));
+            @RequestParam(required = false, name = "types") Set<TypeMagasin> types) {
+        return ResponseEntity.ok()
+                .body(magasinService.findAll(CollectionUtils.isEmpty(types) ? Set.of(TypeMagasin.DEPOT) : types));
     }
 
     @GetMapping("/magasins/has-depot")

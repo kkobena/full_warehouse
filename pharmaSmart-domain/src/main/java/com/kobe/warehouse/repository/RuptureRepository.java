@@ -15,6 +15,7 @@ public interface RuptureRepository extends JpaRepository<Rupture, Integer> {
      * (le produit est de nouveau en stock).
      */
     @Modifying
-    @Query("UPDATE Rupture r SET r.productStillOutOfStock = false WHERE r.produit.id = :produitId AND r.productStillOutOfStock = true")
+    @Query(
+            "UPDATE Rupture r SET r.productStillOutOfStock = false WHERE r.produit.id = :produitId AND r.productStillOutOfStock = true")
     int markProductAsBackInStock(@Param("produitId") Integer produitId);
 }

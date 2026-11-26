@@ -22,7 +22,8 @@
       <div class="">
         <pharma-date-picker
           (ngModelChange)="dateLivraison.set($event)"
-          [labelPosition]="'top'" [minDate]="minDate"
+          [labelPosition]="'top'"
+          [minDate]="minDate"
           [ngModel]="dateLivraison()"
           id="dateLivraison"
           label="Date de livraison souhaitée"
@@ -31,28 +32,13 @@
 
       <div class="form-field form-field-full">
         <label class="form-label">Commentaire</label>
-        <textarea
-          (ngModelChange)="commentaire.set($event)"
-          [ngModel]="commentaire()"
-          class="form-control w-100"
-          rows="3"
-        ></textarea>
+        <textarea (ngModelChange)="commentaire.set($event)" [ngModel]="commentaire()" class="form-control w-100" rows="3"></textarea>
       </div>
     </div>
   </app-card>
-
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="dismiss()"
-    label="Annuler"
-    severity="secondary"
-  />
-  <app-button
-    (clicked)="envoi()"
-    [loading]="loading()"
-    icon="pi pi-send"
-    label="Envoyer"
-  />
+  <app-button (clicked)="dismiss()" label="Annuler" severity="secondary" />
+  <app-button (clicked)="envoi()" [loading]="loading()" icon="pi pi-send" label="Envoyer" />
 </div>

@@ -37,7 +37,7 @@ export interface AppConfigDto {
   templateUrl: './app-config-editor.component.html',
   styleUrls: ['./app-config-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, NavTabsComponent, ToolbarComponent]
+  imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, NavTabsComponent, ToolbarComponent],
 })
 export class AppConfigEditorComponent implements OnInit {
   readonly loading = signal(true);
@@ -56,26 +56,26 @@ export class AppConfigEditorComponent implements OnInit {
   private readonly ngZone = inject(NgZone);
 
   readonly form = new FormGroup({
-    serverPort:       new FormControl<number>(9080, [Validators.required, Validators.min(1), Validators.max(65535)]),
-    dbHost:           new FormControl('localhost', [Validators.required]),
-    dbPort:           new FormControl<number>(5432, [Validators.required, Validators.min(1), Validators.max(65535)]),
-    dbName:           new FormControl('pharma_smart', [Validators.required]),
-    dbUsername:       new FormControl('pharma_smart', [Validators.required]),
-    dbPassword:       new FormControl(''),
-    dbSchema:         new FormControl(''),
-    jvmHeapMin:       new FormControl('512m', [Validators.required]),
-    jvmHeapMax:       new FormControl('2g', [Validators.required]),
+    serverPort: new FormControl<number>(9080, [Validators.required, Validators.min(1), Validators.max(65535)]),
+    dbHost: new FormControl('localhost', [Validators.required]),
+    dbPort: new FormControl<number>(5432, [Validators.required, Validators.min(1), Validators.max(65535)]),
+    dbName: new FormControl('pharma_smart', [Validators.required]),
+    dbUsername: new FormControl('pharma_smart', [Validators.required]),
+    dbPassword: new FormControl(''),
+    dbSchema: new FormControl(''),
+    jvmHeapMin: new FormControl('512m', [Validators.required]),
+    jvmHeapMax: new FormControl('2g', [Validators.required]),
     jvmMetaspaceSize: new FormControl('256m'),
-    jvmMetaspaceMax:  new FormControl('512m'),
-    jvmDirectMemory:  new FormControl('256m'),
-    jvmGcPause:       new FormControl('200'),
+    jvmMetaspaceMax: new FormControl('512m'),
+    jvmDirectMemory: new FormControl('256m'),
+    jvmGcPause: new FormControl('200'),
     jvmAdditionalOptions: new FormControl(''),
-    mailUsername:     new FormControl(''),
-    mailEmail:        new FormControl('', [Validators.email]),
-    fneUrl:           new FormControl(''),
-    fneApiKey:        new FormControl(''),
-    fnePointOfSale:   new FormControl(''),
-    portCom:          new FormControl(''),
+    mailUsername: new FormControl(''),
+    mailEmail: new FormControl('', [Validators.email]),
+    fneUrl: new FormControl(''),
+    fneApiKey: new FormControl(''),
+    fnePointOfSale: new FormControl(''),
+    portCom: new FormControl(''),
   });
 
   async ngOnInit(): Promise<void> {
@@ -94,26 +94,26 @@ export class AppConfigEditorComponent implements OnInit {
       const dto = await invoke<AppConfigDto>('get_app_config_dto');
       this.ngZone.run(() => {
         this.form.patchValue({
-          serverPort:       dto.server_port,
-          dbHost:           dto.db_host,
-          dbPort:           dto.db_port,
-          dbName:           dto.db_name,
-          dbUsername:       dto.db_username,
-          dbPassword:       dto.db_password,
-          dbSchema:         dto.db_schema,
-          jvmHeapMin:       dto.jvm_heap_min,
-          jvmHeapMax:       dto.jvm_heap_max,
+          serverPort: dto.server_port,
+          dbHost: dto.db_host,
+          dbPort: dto.db_port,
+          dbName: dto.db_name,
+          dbUsername: dto.db_username,
+          dbPassword: dto.db_password,
+          dbSchema: dto.db_schema,
+          jvmHeapMin: dto.jvm_heap_min,
+          jvmHeapMax: dto.jvm_heap_max,
           jvmMetaspaceSize: dto.jvm_metaspace_size,
-          jvmMetaspaceMax:  dto.jvm_metaspace_max,
-          jvmDirectMemory:  dto.jvm_direct_memory,
-          jvmGcPause:       dto.jvm_gc_pause,
+          jvmMetaspaceMax: dto.jvm_metaspace_max,
+          jvmDirectMemory: dto.jvm_direct_memory,
+          jvmGcPause: dto.jvm_gc_pause,
           jvmAdditionalOptions: dto.jvm_additional_options.join('\n'),
-          mailUsername:     dto.mail_username,
-          mailEmail:        dto.mail_email,
-          fneUrl:           dto.fne_url,
-          fneApiKey:        dto.fne_api_key,
-          fnePointOfSale:   dto.fne_point_of_sale,
-          portCom:          dto.port_com,
+          mailUsername: dto.mail_username,
+          mailEmail: dto.mail_email,
+          fneUrl: dto.fne_url,
+          fneApiKey: dto.fne_api_key,
+          fnePointOfSale: dto.fne_point_of_sale,
+          portCom: dto.port_com,
         });
         this.loading.set(false);
       });
@@ -138,26 +138,29 @@ export class AppConfigEditorComponent implements OnInit {
       const { invoke } = await import('@tauri-apps/api/core');
       const v = this.form.getRawValue();
       const dto: AppConfigDto = {
-        server_port:        v.serverPort ?? 9080,
-        db_host:            v.dbHost ?? '',
-        db_port:            v.dbPort ?? 5432,
-        db_name:            v.dbName ?? '',
-        db_username:        v.dbUsername ?? '',
-        db_password:        v.dbPassword ?? '',
-        db_schema:          v.dbSchema ?? '',
-        jvm_heap_min:       v.jvmHeapMin ?? '512m',
-        jvm_heap_max:       v.jvmHeapMax ?? '2g',
+        server_port: v.serverPort ?? 9080,
+        db_host: v.dbHost ?? '',
+        db_port: v.dbPort ?? 5432,
+        db_name: v.dbName ?? '',
+        db_username: v.dbUsername ?? '',
+        db_password: v.dbPassword ?? '',
+        db_schema: v.dbSchema ?? '',
+        jvm_heap_min: v.jvmHeapMin ?? '512m',
+        jvm_heap_max: v.jvmHeapMax ?? '2g',
         jvm_metaspace_size: v.jvmMetaspaceSize ?? '256m',
-        jvm_metaspace_max:  v.jvmMetaspaceMax ?? '512m',
-        jvm_direct_memory:  v.jvmDirectMemory ?? '256m',
-        jvm_gc_pause:       v.jvmGcPause ?? '200',
-        jvm_additional_options: (v.jvmAdditionalOptions ?? '').split('\n').map(s => s.trim()).filter(Boolean),
-        mail_username:      v.mailUsername ?? '',
-        mail_email:         v.mailEmail ?? '',
-        fne_url:            v.fneUrl ?? '',
-        fne_api_key:        v.fneApiKey ?? '',
-        fne_point_of_sale:  v.fnePointOfSale ?? '',
-        port_com:           v.portCom ?? '',
+        jvm_metaspace_max: v.jvmMetaspaceMax ?? '512m',
+        jvm_direct_memory: v.jvmDirectMemory ?? '256m',
+        jvm_gc_pause: v.jvmGcPause ?? '200',
+        jvm_additional_options: (v.jvmAdditionalOptions ?? '')
+          .split('\n')
+          .map(s => s.trim())
+          .filter(Boolean),
+        mail_username: v.mailUsername ?? '',
+        mail_email: v.mailEmail ?? '',
+        fne_url: v.fneUrl ?? '',
+        fne_api_key: v.fneApiKey ?? '',
+        fne_point_of_sale: v.fnePointOfSale ?? '',
+        port_com: v.portCom ?? '',
       };
       await invoke('save_app_config_dto', { dto });
       this.appSettingsService.updateApiServerUrl(`http://localhost:${dto.server_port}`);
@@ -192,18 +195,20 @@ export class AppConfigEditorComponent implements OnInit {
     });
 
     const steps = [
-      { delay: 500,  progress: 20, msg: 'Arrêt du serveur...' },
+      { delay: 500, progress: 20, msg: 'Arrêt du serveur...' },
       { delay: 1500, progress: 40, msg: 'Démarrage du nouveau processus...' },
       { delay: 3000, progress: 60, msg: 'Initialisation du serveur...' },
       { delay: 5000, progress: 80, msg: 'Vérification de la disponibilité...' },
       { delay: 7000, progress: 95, msg: 'Finalisation...' },
     ];
-    steps.forEach(s => setTimeout(() => {
-      if (this.restarting() && this.restartProgress() < 100) {
-        this.restartProgress.set(s.progress);
-        this.restartMessage.set(s.msg);
-      }
-    }, s.delay));
+    steps.forEach(s =>
+      setTimeout(() => {
+        if (this.restarting() && this.restartProgress() < 100) {
+          this.restartProgress.set(s.progress);
+          this.restartMessage.set(s.msg);
+        }
+      }, s.delay),
+    );
   }
 
   isInvalid(field: string): boolean {

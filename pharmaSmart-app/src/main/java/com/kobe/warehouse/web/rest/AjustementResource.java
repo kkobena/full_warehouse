@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.repository.AjustService;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
@@ -28,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}.
@@ -53,9 +53,8 @@ public class AjustementResource {
 
     @GetMapping("/ajustements")
     public List<AjustementDTO> getAllAjustements(
-        @RequestParam(name = "ajustementId") Integer id,
-        @RequestParam(required = false, name = "search") String search
-    ) {
+            @RequestParam(name = "ajustementId") Integer id,
+            @RequestParam(required = false, name = "search") String search) {
         log.debug("REST request to get all Ajustements");
 
         return ajustementService.findAll(id, search);
@@ -82,17 +81,17 @@ public class AjustementResource {
     }
 
     @GetMapping("/ajustements/ecarts-a-regulariser")
-    @RequiresNavAccess({ "ajustements", "inventaire" })
+    @RequiresNavAccess({"ajustements", "inventaire"})
     public List<EcartStockDTO> getEcartsARegulariser() {
         return ajustementService.findEcartsARegulariser();
     }
 
     @GetMapping(value = "/ajustements/ajust")
     public ResponseEntity<List<AjustDTO>> getAllAjusts(
-        AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
+            AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
         Page<AjustDTO> page = ajustService.loadAll(ajustementFilterRecord, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -106,9 +105,8 @@ public class AjustementResource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         ajustementService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "ajustement",
-                id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "ajustement", id.toString()))
+                .build();
     }
 
     @PostMapping("/ajustements/item/add")

@@ -23,10 +23,9 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     private final AppConfigurationService appConfigurationService;
 
     public EtatProduitServiceImpl(
-        SuggestionLineRepository suggestionLineRepository,
-        OrderLineRepository orderLineRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            SuggestionLineRepository suggestionLineRepository,
+            OrderLineRepository orderLineRepository,
+            AppConfigurationService appConfigurationService) {
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
         this.appConfigurationService = appConfigurationService;
@@ -40,7 +39,8 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     @Override
     public EtatProduit getEtatProduit(Produit produit) {
         int currentStock = produit.getStockProduits().stream()
-            .map(StockProduit::getTotalStockQuantity).reduce(0, Integer::sum);
+                .map(StockProduit::getTotalStockQuantity)
+                .reduce(0, Integer::sum);
         return buildEtatProduit(produit.getId(), currentStock);
     }
 
@@ -57,35 +57,29 @@ public class EtatProduitServiceImpl implements EtatProduitService {
             return Set.of();
         }
         return orderLineRepository.findProduitIdsWithCommandes(
-            produitIds,
-            List.of(OrderStatut.REQUESTED, OrderStatut.RECEIVED),
-            getDateRetentionCommande()
-        );
+                produitIds, List.of(OrderStatut.REQUESTED, OrderStatut.RECEIVED), getDateRetentionCommande());
     }
 
     private EtatProduit buildEtatProduit(Integer idProduit, int currentStock) {
         boolean stockPositif = currentStock > 0;
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
-        int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(
-            idProduit);
+        int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
         int commandeCount = getCommandeEnvoyeeCount(idProduit);
-        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
-            idProduit,
-            OrderStatut.RECEIVED,
-            getDateRetentionCommande()
-        );
+        boolean entree =
+                orderLineRepository
+                        .existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
+                                idProduit, OrderStatut.RECEIVED, getDateRetentionCommande());
 
         return new EtatProduit(
-            stockPositif,
-            stockZero,
-            stockNegatif,
-            suggestionCount > 0,
-            commandeCount > 0,
-            entree,
-            suggestionCount > 1,
-            commandeCount > 1
-        );
+                stockPositif,
+                stockZero,
+                stockNegatif,
+                suggestionCount > 0,
+                commandeCount > 0,
+                entree,
+                suggestionCount > 1,
+                commandeCount > 1);
     }
 
     private LocalDate getDateRetentionCommande() {
@@ -99,10 +93,8 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     private int getCommandeCount(Integer idProduit, OrderStatut orderStatut) {
         LocalDate dateRetentionCommande = getDateRetentionCommande();
-        return orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
-            idProduit,
-            orderStatut,
-            dateRetentionCommande
-        );
+        return orderLineRepository
+                .countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
+                        idProduit, orderStatut, dateRetentionCommande);
     }
 }

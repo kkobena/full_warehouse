@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,6 +22,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.customer.LimiteCreditService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.CashRegisterException;
@@ -27,16 +31,12 @@ import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.ordonnance.OrdonnanceObligatoireService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import jakarta.persistence.OptimisticLockException;
-import org.springframework.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.kobe.warehouse.service.customer.LimiteCreditService;
-import com.kobe.warehouse.service.ordonnance.OrdonnanceObligatoireService;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -45,9 +45,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Socle commun aux quatre services de vente, qui en héritent.
@@ -67,19 +66,17 @@ public abstract class SaleCommonService {
     private LimiteCreditService limiteCreditService;
     private OrdonnanceObligatoireService ordonnanceObligatoireService;
 
-
     public SaleCommonService(
-        ReferenceService referenceService,
-        StorageService storageService,
-        UserRepository userRepository,
-        SaleAmountCalculator saleAmountCalculator,
-        CashRegisterService cashRegisterService,
-        PosteRepository posteRepository,
-        CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService,
-        ObjectMapper objectMapper,
-        AppConfigurationService appConfigurationService
-    ) {
+            ReferenceService referenceService,
+            StorageService storageService,
+            UserRepository userRepository,
+            SaleAmountCalculator saleAmountCalculator,
+            CashRegisterService cashRegisterService,
+            PosteRepository posteRepository,
+            CustomerDisplayService afficheurPosService,
+            SaleIdGeneratorService idGeneratorService,
+            ObjectMapper objectMapper,
+            AppConfigurationService appConfigurationService) {
         this.referenceService = referenceService;
 
         this.storageService = storageService;
@@ -91,7 +88,6 @@ public abstract class SaleCommonService {
         this.idGeneratorService = idGeneratorService;
         this.objectMapper = objectMapper;
         this.appConfigurationService = appConfigurationService;
-
     }
 
     /**
@@ -134,8 +130,8 @@ public abstract class SaleCommonService {
         int maxDays = appConfigurationService.getCancelSaleMaxDays();
         long daysSinceSale = ChronoUnit.DAYS.between(saleDate, LocalDate.now());
         if (daysSinceSale > maxDays) {
-            throw new GenericError(
-                String.format("Annulation impossible : la vente date de %d jour(s). Délai maximum autorisé : %d jour(s).",
+            throw new GenericError(String.format(
+                    "Annulation impossible : la vente date de %d jour(s). Délai maximum autorisé : %d jour(s).",
                     daysSinceSale, maxDays));
         }
     }
@@ -147,7 +143,6 @@ public abstract class SaleCommonService {
     protected void updateAmounts(Sales c) {
         saleAmountCalculator.updateAmounts(c);
     }
-
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         saleAmountCalculator.computeSaleEagerAmountOnRemovingItem(c, saleLine);
@@ -162,14 +157,15 @@ public abstract class SaleCommonService {
     }
 
     public void buildReference(Sales sales) {
-        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            .concat(referenceService.buildNumSale());
+        String ref =
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(referenceService.buildNumSale());
         sales.setNumberTransaction(ref);
     }
 
     public void buildPreventeReference(Sales sales) {
-        String ref = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            .concat(referenceService.buildNumPreventeSale());
+        String ref = LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                .concat(referenceService.buildNumPreventeSale());
         sales.setNumberTransaction(ref);
     }
 
@@ -177,23 +173,22 @@ public abstract class SaleCommonService {
         if (salesLines != null && !salesLines.isEmpty()) {
 
             ArrayNode array = objectMapper.createArrayNode();
-            salesLines
-                .stream()
-                .filter(saleLine -> saleLine.getTaxValue() > 0)
-                .collect(Collectors.groupingBy(SalesLine::getTaxValue))
-                .forEach((k, v) -> {
-                    ObjectNode json = objectMapper.createObjectNode();
+            salesLines.stream()
+                    .filter(saleLine -> saleLine.getTaxValue() > 0)
+                    .collect(Collectors.groupingBy(SalesLine::getTaxValue))
+                    .forEach((k, v) -> {
+                        ObjectNode json = objectMapper.createObjectNode();
 
-                    int totalTva = 0;
-                    for (SalesLine item : v) {
-                        Double valeurTva = 1 + (Double.valueOf(k) / 100);
-                        int htAmont = (int) Math.ceil(item.getSalesAmount() / valeurTva);
-                        totalTva += (item.getSalesAmount() - htAmont);
-                    }
-                    json.put("tva", k);
-                    json.put("amount", totalTva);
-                    array.add(json);
-                });
+                        int totalTva = 0;
+                        for (SalesLine item : v) {
+                            Double valeurTva = 1 + (Double.valueOf(k) / 100);
+                            int htAmont = (int) Math.ceil(item.getSalesAmount() / valeurTva);
+                            totalTva += (item.getSalesAmount() - htAmont);
+                        }
+                        json.put("tva", k);
+                        json.put("amount", totalTva);
+                        array.add(json);
+                    });
             if (!array.isEmpty()) {
                 return array.toString();
             }
@@ -237,11 +232,12 @@ public abstract class SaleCommonService {
             c.setStatut(SalesStatut.ACTIVE);
         }
 
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum())
-            .ifPresent(poste -> {
-                c.setCaisse(poste);
-                c.setLastCaisse(poste);
-            });
+        this.posteRepository
+                .findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum())
+                .ifPresent(poste -> {
+                    c.setCaisse(poste);
+                    c.setLastCaisse(poste);
+                });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
         c.setOrigineVente(OrigineVente.DIRECT);
@@ -295,7 +291,6 @@ public abstract class SaleCommonService {
         if (Objects.isNull(cashRegister)) {
             throw new CashRegisterException();
         }
-
     }
 
     private void finalizeSale(Sales c, SaleDTO dto) {
@@ -318,8 +313,9 @@ public abstract class SaleCommonService {
             throw new SaleNotFoundCustomerException();
         }
         c.setPayrollAmount(dto.getPayrollAmount());
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum())
-            .ifPresent(c::setLastCaisse);
+        this.posteRepository
+                .findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum())
+                .ifPresent(c::setLastCaisse);
         c.setRestToPay(calculateRestToPay(dto.getPayrollAmount(), dto.getAmountToBePaid()));
         controlerLimiteCredit(c);
         controlerOrdonnanceObligatoire(c);
@@ -343,8 +339,6 @@ public abstract class SaleCommonService {
             return 0;
         }
         return restToPay;
-
-
     }
 
     public void arrondirMontantCaisse(Sales sales) {
@@ -376,12 +370,10 @@ public abstract class SaleCommonService {
         sales.setNetAmount(sales.getSalesAmount());
         sales.setAmountToBePaid(sales.getSalesAmount());
         sales.setRestToPay(sales.getSalesAmount());
-        sales
-            .getSalesLines()
-            .forEach(salesLine -> {
-                salesLine.setDiscountAmount(0);
-                getSaleLineService(sales).saveSalesLine(salesLine);
-            });
+        sales.getSalesLines().forEach(salesLine -> {
+            salesLine.setDiscountAmount(0);
+            getSaleLineService(sales).saveSalesLine(salesLine);
+        });
     }
 
     public void applyRemiseProduit(Sales sales, RemiseProduit remiseProduit) {
@@ -452,7 +444,6 @@ public abstract class SaleCommonService {
         copy.setUser(user);
         copy.setCaissier(user);
         copy.setStatut(salesStatut);
-
     }
 
     protected void copyOrigin(Sales sales, Sales copy) {
@@ -488,9 +479,8 @@ public abstract class SaleCommonService {
     }
 
     protected void preValidatePrevente(Sales c, SalesStatut salesStatut)
-        throws GenericError, SaleNotFoundCustomerException {
-        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING,
-            SalesStatut.DEVIS);
+            throws GenericError, SaleNotFoundCustomerException {
+        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.PENDING, SalesStatut.DEVIS);
         if (!statuts.contains(c.getStatut())) {
             throw new GenericError("La vente ne peut pas être finalisée dans son état actuel");
         }
@@ -502,20 +492,14 @@ public abstract class SaleCommonService {
                 throw new SaleNotFoundCustomerException();
             }
         }
-
     }
 
-
     protected void preValidateTrasnform(SalesStatut salesStatut, NatureVente natureVente)
-        throws GenericError, SaleNotFoundCustomerException {
-        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING,
-            SalesStatut.DEVIS);
-        Set<NatureVente> natureVentes = Set.of(NatureVente.COMPTANT,
-            NatureVente.CARNET);
+            throws GenericError, SaleNotFoundCustomerException {
+        Set<SalesStatut> statuts = Set.of(SalesStatut.PROCESSING, SalesStatut.DEVIS);
+        Set<NatureVente> natureVentes = Set.of(NatureVente.COMPTANT, NatureVente.CARNET);
         if (!statuts.contains(salesStatut) || !natureVentes.contains(natureVente)) {
             throw new GenericError("Impossible de transformer la vente");
         }
-
-
     }
 }

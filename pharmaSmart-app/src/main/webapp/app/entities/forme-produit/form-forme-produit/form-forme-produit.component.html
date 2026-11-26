@@ -8,21 +8,16 @@
       <div class="card-body">
         <div class="form-grid-compact">
           <div [hidden]="!editForm.get('id')!.value" class="form-group">
-            <input class="form-control" formControlName="id" id="id" name="id" readonly
-                   type="hidden" />
+            <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
           </div>
 
           <div class="form-field form-field-full">
             <label for="libelle">Libellé<span class="required">*</span></label>
-            <input #libelle autocomplete="off" class="form-control" formControlName="libelle"
-                   id="libelle"
-                   name="libelle" type="text" />
-            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty
-              || editForm.get('libelle')!.touched)) {
+            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" id="libelle" name="libelle" type="text" />
+            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }

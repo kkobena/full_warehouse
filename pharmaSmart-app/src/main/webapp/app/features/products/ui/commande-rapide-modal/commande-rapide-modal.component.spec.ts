@@ -1,16 +1,16 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { of, Subject } from "rxjs";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { of, Subject } from 'rxjs';
 
-import { CommandeService } from "app/entities/commande/commande.service";
-import { CommandCommonService } from "app/entities/commande/command-common.service";
-import { SuggestionService } from "app/entities/commande/suggestion/suggestion.service";
-import { IFournisseurProduit } from "app/shared/model/fournisseur-produit.model";
-import { NotificationService } from "app/shared/services/notification.service";
-import { CommandeRapideModalComponent } from "./commande-rapide-modal.component";
+import { CommandeService } from 'app/entities/commande/commande.service';
+import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import { SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
+import { IFournisseurProduit } from 'app/shared/model/fournisseur-produit.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { CommandeRapideModalComponent } from './commande-rapide-modal.component';
 
-describe("CommandeRapideModalComponent", () => {
+describe('CommandeRapideModalComponent', () => {
   let fixture: ComponentFixture<CommandeRapideModalComponent>;
   let fournisseurs$: Subject<IFournisseurProduit[]>;
 
@@ -20,7 +20,7 @@ describe("CommandeRapideModalComponent", () => {
 
   /** Accès aux membres protégés : le test juge le comportement, pas la visibilité. */
   const interne = (): any => fixture.componentInstance as any;
-  const champQuantite = (): HTMLInputElement | null => fixture.nativeElement.querySelector("app-input-number input");
+  const champQuantite = (): HTMLInputElement | null => fixture.nativeElement.querySelector('app-input-number input');
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -37,7 +37,7 @@ describe("CommandeRapideModalComponent", () => {
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(CommandeRapideModalComponent);
-    fixture.componentInstance.produit = { id: 500, libelle: "DOLIPRANE 1000MG", totalQuantity: 3 } as any;
+    fixture.componentInstance.produit = { id: 500, libelle: 'DOLIPRANE 1000MG', totalQuantity: 3 } as any;
     fixture.detectChanges();
   });
 
@@ -46,26 +46,26 @@ describe("CommandeRapideModalComponent", () => {
     fixture.detectChanges();
   };
 
-  it("pose le curseur sur la quantité une fois les fournisseurs chargés, valeur sélectionnée", async () => {
+  it('pose le curseur sur la quantité une fois les fournisseurs chargés, valeur sélectionnée', async () => {
     // Pendant le chargement, le champ n'existe pas encore.
     expect(champQuantite()).toBeNull();
 
-    charger([{ id: 1, principal: true, fournisseurLibelle: "LABOREX", qteMinimaleCommande: 6, prixAchat: 100 }]);
+    charger([{ id: 1, principal: true, fournisseurLibelle: 'LABOREX', qteMinimaleCommande: 6, prixAchat: 100 }]);
 
     // Le champ apparu rend l'effet de focus « sale » : c'est le planificateur qui le relance.
     await fixture.whenStable();
 
     const champ = champQuantite()!;
     expect(document.activeElement).toBe(champ);
-    expect(champ.value).toBe("6");
+    expect(champ.value).toBe('6');
     expect(champ.selectionStart).toBe(0);
     expect(champ.selectionEnd).toBe(champ.value.length);
   });
 
-  it("commande chez le fournisseur principal la quantité minimale proposée", () => {
+  it('commande chez le fournisseur principal la quantité minimale proposée', () => {
     charger([
-      { id: 1, principal: false, fournisseurLibelle: "COPHARMED", qteMinimaleCommande: 2, prixAchat: 90 },
-      { id: 2, principal: true, fournisseurLibelle: "LABOREX", qteMinimaleCommande: 6, prixAchat: 100 },
+      { id: 1, principal: false, fournisseurLibelle: 'COPHARMED', qteMinimaleCommande: 2, prixAchat: 90 },
+      { id: 2, principal: true, fournisseurLibelle: 'LABOREX', qteMinimaleCommande: 6, prixAchat: 100 },
     ]);
 
     expect(interne().totalEstime).toBe(600);
@@ -75,8 +75,8 @@ describe("CommandeRapideModalComponent", () => {
     expect(activeModal.close).toHaveBeenCalledWith(true);
   });
 
-  it("refuse une quantité vidée", () => {
-    charger([{ id: 1, principal: true, fournisseurLibelle: "LABOREX", qteMinimaleCommande: 6, prixAchat: 100 }]);
+  it('refuse une quantité vidée', () => {
+    charger([{ id: 1, principal: true, fournisseurLibelle: 'LABOREX', qteMinimaleCommande: 6, prixAchat: 100 }]);
 
     interne().form.controls.quantite.setValue(null);
     interne().onSubmit();

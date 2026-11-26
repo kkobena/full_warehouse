@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -76,13 +76,12 @@ class PlanificationFacturationServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new PlanificationFacturationServiceImpl(
-            planificationRepository,
-            historiqueRepository,
-            facturationServiceRegistry,
-            tiersPayantRepository,
-            groupeTiersPayantRepository,
-            statutService
-        );
+                planificationRepository,
+                historiqueRepository,
+                facturationServiceRegistry,
+                tiersPayantRepository,
+                groupeTiersPayantRepository,
+                statutService);
     }
 
     @Nested
@@ -115,7 +114,8 @@ class PlanificationFacturationServiceImplTest {
 
             PlanificationDto cree = service.create(dto(Periodicite.MENSUEL, LocalDate.of(2026, 1, 31), null));
 
-            assertThat(cree.prochaineExecution()).isEqualTo(LocalDate.of(2026, 3, 1).atTime(8, 0));
+            assertThat(cree.prochaineExecution())
+                    .isEqualTo(LocalDate.of(2026, 3, 1).atTime(8, 0));
         }
 
         @Test
@@ -144,7 +144,8 @@ class PlanificationFacturationServiceImplTest {
             service.toggleActif(1);
 
             assertThat(plan.isActif()).isTrue();
-            assertThat(plan.getProchaineExecution()).isEqualTo(LocalDate.of(2026, 3, 1).atTime(6, 30));
+            assertThat(plan.getProchaineExecution())
+                    .isEqualTo(LocalDate.of(2026, 3, 1).atTime(6, 30));
         }
 
         @Test
@@ -186,29 +187,28 @@ class PlanificationFacturationServiceImplTest {
         void groupesPuisIndividuels() {
             PlanificationFacturation plan = entite(Periodicite.MENSUEL, LocalDate.of(2026, 1, 31));
             when(planificationRepository.getReferenceById(1)).thenReturn(plan);
-            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenReturn(List.of(7, 8));
-            when(
-                tiersPayantRepository.findIdsNotInGroupsForAutoGenerationDefinitive(Periodicite.MENSUEL, Set.of(7, 8))
-            ).thenReturn(List.of(21));
-            when(facturationServiceRegistry.getService(any()).createFactureEdition(any())).thenReturn(
-                new FactureEditionResponse(202601001, true)
-            );
+            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenReturn(List.of(7, 8));
+            when(tiersPayantRepository.findIdsNotInGroupsForAutoGenerationDefinitive(Periodicite.MENSUEL, Set.of(7, 8)))
+                    .thenReturn(List.of(21));
+            when(facturationServiceRegistry.getService(any()).createFactureEdition(any()))
+                    .thenReturn(new FactureEditionResponse(202601001, true));
 
             service.executerMaintenant(1);
 
             ArgumentCaptor<EditionSearchParams> params = ArgumentCaptor.forClass(EditionSearchParams.class);
             verify(facturationServiceRegistry.getService(ModeEditionEnum.GROUP), org.mockito.Mockito.atLeastOnce())
-                .createFactureEdition(params.capture());
+                    .createFactureEdition(params.capture());
             List<EditionSearchParams> captures = params.getAllValues();
             assertThat(captures)
-                .anySatisfy(p -> {
-                    assertThat(p.modeEdition()).isEqualTo(ModeEditionEnum.GROUP);
-                    assertThat(p.groupIds()).containsExactlyInAnyOrder(7, 8);
-                })
-                .anySatisfy(p -> {
-                    assertThat(p.modeEdition()).isEqualTo(ModeEditionEnum.TIERS_PAYANT);
-                    assertThat(p.tiersPayantIds()).containsExactly(21);
-                });
+                    .anySatisfy(p -> {
+                        assertThat(p.modeEdition()).isEqualTo(ModeEditionEnum.GROUP);
+                        assertThat(p.groupIds()).containsExactlyInAnyOrder(7, 8);
+                    })
+                    .anySatisfy(p -> {
+                        assertThat(p.modeEdition()).isEqualTo(ModeEditionEnum.TIERS_PAYANT);
+                        assertThat(p.tiersPayantIds()).containsExactly(21);
+                    });
             assertThat(captures).allSatisfy(p -> {
                 assertThat(p.origineGeneration()).isEqualTo(OrigineGeneration.AUTO);
                 assertThat(p.startDate()).isEqualTo(LocalDate.of(2026, 2, 1));
@@ -221,11 +221,12 @@ class PlanificationFacturationServiceImplTest {
         void aucunGroupe() {
             PlanificationFacturation plan = entite(Periodicite.MENSUEL, LocalDate.of(2026, 1, 31));
             when(planificationRepository.getReferenceById(1)).thenReturn(plan);
-            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenReturn(List.of());
-            when(tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenReturn(List.of(3, 4));
-            when(facturationServiceRegistry.getService(any()).createFactureEdition(any())).thenReturn(
-                new FactureEditionResponse(202601002, false)
-            );
+            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenReturn(List.of());
+            when(tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenReturn(List.of(3, 4));
+            when(facturationServiceRegistry.getService(any()).createFactureEdition(any()))
+                    .thenReturn(new FactureEditionResponse(202601002, false));
 
             service.executerMaintenant(1);
 
@@ -237,8 +238,10 @@ class PlanificationFacturationServiceImplTest {
         void aucunOrganisme() {
             PlanificationFacturation plan = entite(Periodicite.MENSUEL, LocalDate.of(2026, 1, 31));
             when(planificationRepository.getReferenceById(1)).thenReturn(plan);
-            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenReturn(List.of());
-            when(tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenReturn(List.of());
+            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenReturn(List.of());
+            when(tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenReturn(List.of());
 
             FactureEditionResponse reponse = service.executerMaintenant(1);
 
@@ -252,20 +255,22 @@ class PlanificationFacturationServiceImplTest {
             PlanificationFacturation plan = entite(Periodicite.QUINZAINE, LocalDate.of(2026, 1, 15));
             plan.setFactureProvisoire(true);
             when(planificationRepository.getReferenceById(1)).thenReturn(plan);
-            when(groupeTiersPayantRepository.findIdsForAutoGenerationProvisoire(Periodicite.QUINZAINE)).thenReturn(List.of());
-            when(tiersPayantRepository.findAllIdsForAutoGenerationProvisoire(Periodicite.QUINZAINE)).thenReturn(List.of(5));
-            when(facturationServiceRegistry.getService(any()).createFactureEdition(any())).thenReturn(
-                new FactureEditionResponse(202601003, false)
-            );
+            when(groupeTiersPayantRepository.findIdsForAutoGenerationProvisoire(Periodicite.QUINZAINE))
+                    .thenReturn(List.of());
+            when(tiersPayantRepository.findAllIdsForAutoGenerationProvisoire(Periodicite.QUINZAINE))
+                    .thenReturn(List.of(5));
+            when(facturationServiceRegistry.getService(any()).createFactureEdition(any()))
+                    .thenReturn(new FactureEditionResponse(202601003, false));
 
             service.executerMaintenant(1);
 
             ArgumentCaptor<EditionSearchParams> params = ArgumentCaptor.forClass(EditionSearchParams.class);
-            verify(facturationServiceRegistry.getService(ModeEditionEnum.TIERS_PAYANT)).createFactureEdition(params.capture());
+            verify(facturationServiceRegistry.getService(ModeEditionEnum.TIERS_PAYANT))
+                    .createFactureEdition(params.capture());
             assertThat(params.getValue().factureProvisoire()).isTrue();
             assertThat(params.getValue().endDate())
-                .as("du 16 au dernier jour du mois")
-                .isEqualTo(LocalDate.of(2026, 1, 31));
+                    .as("du 16 au dernier jour du mois")
+                    .isEqualTo(LocalDate.of(2026, 1, 31));
         }
     }
 
@@ -304,18 +309,18 @@ class PlanificationFacturationServiceImplTest {
         @DisplayName("le scheduler avance quand même l'échéance après un échec, pour ne pas boucler")
         void schedulerAvanceApresEchec() {
             PlanificationFacturation plan = entite(Periodicite.MENSUEL, LocalDate.of(2026, 1, 31));
-            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL)).thenThrow(
-                new IllegalStateException("base injoignable")
-            );
+            when(groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(Periodicite.MENSUEL))
+                    .thenThrow(new IllegalStateException("base injoignable"));
 
             service.executerPlanificationScheduled(plan);
 
-            verify(statutService).sauvegarderEchec(
-                org.mockito.ArgumentMatchers.eq(plan),
-                any(),
-                org.mockito.ArgumentMatchers.eq("base injoignable"),
-                org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 3, 1).atTime(6, 30))
-            );
+            verify(statutService)
+                    .sauvegarderEchec(
+                            org.mockito.ArgumentMatchers.eq(plan),
+                            any(),
+                            org.mockito.ArgumentMatchers.eq("base injoignable"),
+                            org.mockito.ArgumentMatchers.eq(
+                                    LocalDate.of(2026, 3, 1).atTime(6, 30)));
         }
     }
 
@@ -323,19 +328,18 @@ class PlanificationFacturationServiceImplTest {
 
     private PlanificationDto dto(Periodicite periodicite, LocalDate dernierePeriodeFin, LocalTime heure) {
         return new PlanificationDto(
-            null,
-            "Facturation " + periodicite,
-            periodicite,
-            heure,
-            false,
-            true,
-            dernierePeriodeFin,
-            null,
-            null,
-            null,
-            null,
-            0L
-        );
+                null,
+                "Facturation " + periodicite,
+                periodicite,
+                heure,
+                false,
+                true,
+                dernierePeriodeFin,
+                null,
+                null,
+                null,
+                null,
+                0L);
     }
 
     private PlanificationFacturation entite(Periodicite periodicite, LocalDate dernierePeriodeFin) {

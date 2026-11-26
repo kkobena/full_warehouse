@@ -1,5 +1,10 @@
 package com.kobe.warehouse.service.scheduler;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -8,12 +13,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Orchestrateur centralisé des jobs SEMOIS.
@@ -70,17 +69,16 @@ public class JobOrchestrationService {
     private final AvoirExpirationJob avoirExpirationJob;
 
     public JobOrchestrationService(
-        StockSnapshotSchedulerService stockSnapshotSchedulerService,
-        SemoisBatchJobService semoisBatchJobService,
-        VentesAgregeesService ventesAgregeesService,
-        ClassificationCriticiteService classificationService,
-        SemoisCalculationService semoisCalculationService,
-        TournantSchedulerService tournantSchedulerService,
-        MaterializedViewRefreshService materializedViewRefreshService,
-        FacturationSchedulerJob facturationSchedulerJob,
-        CertificationFneSchedulerJob certificationFneSchedulerJob,
-        AvoirExpirationJob avoirExpirationJob
-    ) {
+            StockSnapshotSchedulerService stockSnapshotSchedulerService,
+            SemoisBatchJobService semoisBatchJobService,
+            VentesAgregeesService ventesAgregeesService,
+            ClassificationCriticiteService classificationService,
+            SemoisCalculationService semoisCalculationService,
+            TournantSchedulerService tournantSchedulerService,
+            MaterializedViewRefreshService materializedViewRefreshService,
+            FacturationSchedulerJob facturationSchedulerJob,
+            CertificationFneSchedulerJob certificationFneSchedulerJob,
+            AvoirExpirationJob avoirExpirationJob) {
         this.stockSnapshotSchedulerService = stockSnapshotSchedulerService;
         this.semoisBatchJobService = semoisBatchJobService;
         this.ventesAgregeesService = ventesAgregeesService;
@@ -122,12 +120,10 @@ public class JobOrchestrationService {
 
     public record StepResult(JobStep step, boolean success, String message, Duration duration) {}
 
-
     @Scheduled(cron = "${pharma-smart.jobs.nightly-pipeline-cron:0 0 9 * * *}")
     public void runNightlyPipeline() {
         executePipeline("NIGHTLY");
     }
-
 
     /**
      * Catch-up au démarrage de l'application.
@@ -143,19 +139,18 @@ public class JobOrchestrationService {
     // ── Pipeline ─────────────────────────────────────────────────────────────────
 
     private static final List<JobStep> ALL_STEPS = List.of(
-        JobStep.STOCK_SNAPSHOT,
-        JobStep.REINTEGRATE_EXCLUSIONS,
-        JobStep.AGGREGATE_SALES,
-        JobStep.REFRESH_VIEWS,           // vues matérialisées fraîches avant le recalcul SEMOIS
-        JobStep.CLASSIFY_PRODUCTS,
-        JobStep.RECALCULATE_SEMOIS,
-        JobStep.CREATE_SUGGESTIONS,
-        JobStep.NETTOYER_SUGGESTIONS,
-        JobStep.INVENTAIRE_TOURNANT,
-        JobStep.FACTURATION_PLANIFICATIONS,
-        JobStep.CERTIFICATION_FNE,
-        JobStep.EXPIRATION_AVOIRS
-    );
+            JobStep.STOCK_SNAPSHOT,
+            JobStep.REINTEGRATE_EXCLUSIONS,
+            JobStep.AGGREGATE_SALES,
+            JobStep.REFRESH_VIEWS, // vues matérialisées fraîches avant le recalcul SEMOIS
+            JobStep.CLASSIFY_PRODUCTS,
+            JobStep.RECALCULATE_SEMOIS,
+            JobStep.CREATE_SUGGESTIONS,
+            JobStep.NETTOYER_SUGGESTIONS,
+            JobStep.INVENTAIRE_TOURNANT,
+            JobStep.FACTURATION_PLANIFICATIONS,
+            JobStep.CERTIFICATION_FNE,
+            JobStep.EXPIRATION_AVOIRS);
 
     /**
      * Exécute le pipeline complet de façon séquentielle.
@@ -177,8 +172,7 @@ public class JobOrchestrationService {
                 StepResult result = executeStep(step);
                 results.add(result);
                 if (!result.success()) {
-                    LOG.error("[PIPELINE-{}] Étape «{}» échouée — pipeline arrêté",
-                        trigger, step.getLabel());
+                    LOG.error("[PIPELINE-{}] Étape «{}» échouée — pipeline arrêté", trigger, step.getLabel());
                     break;
                 }
             }
@@ -188,9 +182,12 @@ public class JobOrchestrationService {
 
         Duration totalDuration = Duration.between(pipelineStart, Instant.now());
         long successCount = results.stream().filter(StepResult::success).count();
-        LOG.info("[PIPELINE-{}] Terminé en {} — {}/{} étapes réussies",
-            trigger, formatDuration(totalDuration), successCount, results.size());
-
+        LOG.info(
+                "[PIPELINE-{}] Terminé en {} — {}/{} étapes réussies",
+                trigger,
+                formatDuration(totalDuration),
+                successCount,
+                results.size());
     }
 
     // ── Exécution d'une étape ────────────────────────────────────────────────────

@@ -13,10 +13,8 @@ public class FournisseurIntrouvableException extends BadRequestAlertException {
 
     public FournisseurIntrouvableException(Integer lotId) {
         super(
-            "Aucun fournisseur associé au produit du lot #" + lotId
-            + ". Veuillez compléter la fiche produit avant de créer un retour.",
-            "fournisseurIntrouvable"
-        );
+                "Aucun fournisseur associé au produit du lot #" + lotId
+                        + ". Veuillez compléter la fiche produit avant de créer un retour.",
+                "fournisseurIntrouvable");
     }
 }
-

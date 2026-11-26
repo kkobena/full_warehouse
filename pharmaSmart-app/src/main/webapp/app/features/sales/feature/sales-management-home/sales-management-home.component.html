@@ -1,15 +1,25 @@
-<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                 [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-10"
-                 icon="pi pi-shopping-cart" menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-2"
-                 title="Gestion des ventes">
-  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-       class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-10"
+  icon="pi pi-shopping-cart"
+  menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-2"
+  title="Gestion des ventes"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
     @if (showJournal()) {
       <ng-container ngbNavItem="journal">
-        <a class="pharma-nav-vertical-link"ngbNavLink>
-          <app-nav-section-link code="ventes.journal"
-                                fallbackIcon="pi pi-book"
-                                fallbackLabel="Journal des ventes" />
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.journal" fallbackIcon="pi pi-book" fallbackLabel="Journal des ventes" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -23,10 +33,8 @@
 
     @if (showEnCours()) {
       <ng-container ngbNavItem="en-cours">
-        <a class="pharma-nav-vertical-link"ngbNavLink>
-          <app-nav-section-link code="ventes.en-cours"
-                                fallbackIcon="pi pi-clock"
-                                fallbackLabel="Ventes en cours" />
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.en-cours" fallbackIcon="pi pi-clock" fallbackLabel="Ventes en cours" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -41,9 +49,7 @@
     @if (showPresales()) {
       <ng-container ngbNavItem="presales">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="ventes.presales"
-                                fallbackIcon="pi pi-bookmark"
-                                fallbackLabel="Pré-ventes" />
+          <app-nav-section-link code="ventes.presales" fallbackIcon="pi pi-bookmark" fallbackLabel="Pré-ventes" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -58,9 +64,7 @@
     @if (showDevis()) {
       <ng-container ngbNavItem="devis">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="ventes.devis"
-                                fallbackIcon="pi pi-file-edit"
-                                fallbackLabel="Proformas" />
+          <app-nav-section-link code="ventes.devis" fallbackIcon="pi pi-file-edit" fallbackLabel="Proformas" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -74,10 +78,8 @@
 
     @if (showAnnulations()) {
       <ng-container ngbNavItem="annulations">
-        <a class="pharma-nav-vertical-link"ngbNavLink>
-          <app-nav-section-link code="ventes.annulations"
-                                fallbackIcon="pi pi-ban"
-                                fallbackLabel="Annulations" />
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="ventes.annulations" fallbackIcon="pi pi-ban" fallbackLabel="Annulations" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -92,9 +94,7 @@
     @if (showVenteDepot()) {
       <ng-container ngbNavItem="vente-depot">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="ventes.vente-depot"
-                                fallbackIcon="pi pi-warehouse"
-                                fallbackLabel="Ventes dépôt" />
+          <app-nav-section-link code="ventes.vente-depot" fallbackIcon="pi pi-warehouse" fallbackLabel="Ventes dépôt" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -109,9 +109,7 @@
     @if (showAvoirs()) {
       <ng-container ngbNavItem="avoirs">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="ventes.avoirs"
-                                fallbackIcon="pi pi-replay"
-                                fallbackLabel="Avoirs clients" />
+          <app-nav-section-link code="ventes.avoirs" fallbackIcon="pi pi-replay" fallbackLabel="Avoirs clients" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -125,9 +123,7 @@
     @if (showRetourClient()) {
       <ng-container ngbNavItem="retour-client">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="ventes.retours-client"
-                                fallbackIcon="pi pi-undo"
-                                fallbackLabel="Retours clients" />
+          <app-nav-section-link code="ventes.retours-client" fallbackIcon="pi pi-undo" fallbackLabel="Retours clients" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -138,6 +134,5 @@
         </ng-template>
       </ng-container>
     }
-
   </div>
 </app-nav-sidebar>

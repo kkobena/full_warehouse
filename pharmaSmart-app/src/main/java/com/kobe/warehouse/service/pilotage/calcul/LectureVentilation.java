@@ -8,9 +8,8 @@ import java.util.List;
 
 /** Ce qui ne change pas entre la lecture de la période et celle de la référence. */
 public record LectureVentilation(
-    SourceAnalyse source,
-    List<AxeAnalyse> axes,
-    List<FiltreAnalyseDTO> filtres,
-    Granularite granularite,
-    TranchesRemise tranchesRemise
-) {}
+        SourceAnalyse source,
+        List<AxeAnalyse> axes,
+        List<FiltreAnalyseDTO> filtres,
+        Granularite granularite,
+        TranchesRemise tranchesRemise) {}

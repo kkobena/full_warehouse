@@ -88,7 +88,7 @@ describe('FavoriEtoileComponent', () => {
     expect(api.ajouter).not.toHaveBeenCalled();
   });
 
-  it("dit pourquoi un refus (grille pleine) et ne relit rien", () => {
+  it('dit pourquoi un refus (grille pleine) et ne relit rien', () => {
     api.ajouter.mockReturnValue(throwError(() => ({ status: 400, error: { message: 'La grille est pleine : 12 favoris au maximum.' } })));
     afficher(1);
 

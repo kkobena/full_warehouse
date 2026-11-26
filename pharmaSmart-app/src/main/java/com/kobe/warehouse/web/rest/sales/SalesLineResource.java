@@ -1,9 +1,12 @@
 package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.web.util.HeaderUtil;
+import java.time.LocalDate;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class SalesLineResource {
 
     private static final String ENTITY_NAME = "salesLine";
@@ -39,13 +38,12 @@ public class SalesLineResource {
         return ResponseEntity.ok().body(saleService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(id, saleDate));
     }
 
-
     @DeleteMapping("/sales-lines/{id}/{saleDate}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to delete sales-lines : {}", id);
         saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

@@ -27,11 +27,7 @@
       </div>
       <div class="form-field form-field-full">
         <label>Charger un fichier<span class="required">*</span></label>
-        <app-file-upload
-          label="Importer un fichier"
-          accept=".csv,.txt"
-          (filesSelected)="onFilesSelected($event)"
-        />
+        <app-file-upload label="Importer un fichier" accept=".csv,.txt" (filesSelected)="onFilesSelected($event)" />
       </div>
     </div>
   </app-card>

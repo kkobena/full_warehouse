@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.tiketz.service;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -21,11 +23,6 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -38,8 +35,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -55,14 +54,13 @@ public class TicketZServiceImpl implements TicketZService {
     private final String MOBILE_LABEL = "Total Mobile";
 
     public TicketZServiceImpl(
-        SalePaymentRepository salePaymentRepository,
-        PaymentTransactionRepository paymentTransactionRepository,
-        SalesRepository salesRepository,
-        ThirdPartySaleRepository thirdPartySaleRepository,
-        PaymentModeService paymentModeService,
-        TicketZPrinterService ticketZPrinterService,
-        TicketZReportService ticketZReportService
-    ) {
+            SalePaymentRepository salePaymentRepository,
+            PaymentTransactionRepository paymentTransactionRepository,
+            SalesRepository salesRepository,
+            ThirdPartySaleRepository thirdPartySaleRepository,
+            PaymentModeService paymentModeService,
+            TicketZPrinterService ticketZPrinterService,
+            TicketZReportService ticketZReportService) {
         this.salePaymentRepository = salePaymentRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.salesRepository = salesRepository;
@@ -81,11 +79,7 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-            hostName,
-            getTicketZ(param),
-            (LocalDateTime) periode.key(),
-            (LocalDateTime) periode.value()
-        );
+                hostName, getTicketZ(param), (LocalDateTime) periode.key(), (LocalDateTime) periode.value());
     }
 
     @Override
@@ -102,97 +96,105 @@ public class TicketZServiceImpl implements TicketZService {
     public byte[] generateEscPosReceiptForTauri(TicketZParam param) throws IOException {
         Pair periode = getPeriode(param);
         return this.ticketZPrinterService.generateEscPosReceiptForTauri(
-            getTicketZ(param),
-            (LocalDateTime) periode.key(),
-            (LocalDateTime) periode.value()
-        );
+                getTicketZ(param), (LocalDateTime) periode.key(), (LocalDateTime) periode.value());
     }
 
     private TicketZ combineAll(TicketZParam param) {
         Pair periode = getPeriode(param);
-        List<TicketZProjection> ticketZProjections = param.onlyVente() ? fetchSalesPayment(param, periode) : fetchAllMvts(param, periode);
+        List<TicketZProjection> ticketZProjections =
+                param.onlyVente() ? fetchSalesPayment(param, periode) : fetchAllMvts(param, periode);
         List<TicketZCreditProjection> creditProjections = getTicketZCreditProjection(param, periode);
         creditProjections.addAll(getTicketZDifferes(param, periode));
 
         return combineCreditPerUser(ticketZProjections, creditProjections);
     }
 
-    private TicketZ combineCreditPerUser(List<TicketZProjection> ticketZProjections, List<TicketZCreditProjection> creditProjections) {
+    private TicketZ combineCreditPerUser(
+            List<TicketZProjection> ticketZProjections, List<TicketZCreditProjection> creditProjections) {
         AtomicInteger userCount = new AtomicInteger(0);
-        Map<Integer, List<TicketZCreditProjection>> creditProjectionsMap = creditProjections
-            .stream()
-            .collect(Collectors.groupingBy(TicketZCreditProjection::userId));
+        Map<Integer, List<TicketZCreditProjection>> creditProjectionsMap =
+                creditProjections.stream().collect(Collectors.groupingBy(TicketZCreditProjection::userId));
         AtomicInteger montantMobileCountG = new AtomicInteger(0);
         AtomicLong montantMobileG = new AtomicLong(0);
         AtomicLong montantMobileG2 = new AtomicLong(0);
         Map<ModePaimentCode, Tuple> summary = new HashMap<>();
         AtomicLong creditAmount = new AtomicLong(0);
         List<TicketZRecap> ticketZRecaps = new ArrayList<>();
-        ticketZProjections
-            .stream()
-            .collect(Collectors.groupingBy(TicketZProjection::userId))
-            .forEach((userId, data) -> {
-                userCount.incrementAndGet();
-                List<TicketZData> summaryMobile = new ArrayList<>(); //pour mobile
-                List<TicketZData> ticketZDataUser = new ArrayList<>();
-                TicketZProjection ticketZProjection = data.getFirst();
-                var userName = String.format("%s. %s", ticketZProjection.firstName().charAt(0), ticketZProjection.lastName());
-                AtomicLong montantMobile = new AtomicLong(0);
-                AtomicLong montantMobile2 = new AtomicLong(0);
-                AtomicInteger montantMobileCount = new AtomicInteger(0);
+        ticketZProjections.stream()
+                .collect(Collectors.groupingBy(TicketZProjection::userId))
+                .forEach((userId, data) -> {
+                    userCount.incrementAndGet();
+                    List<TicketZData> summaryMobile = new ArrayList<>(); // pour mobile
+                    List<TicketZData> ticketZDataUser = new ArrayList<>();
+                    TicketZProjection ticketZProjection = data.getFirst();
+                    var userName = String.format(
+                            "%s. %s", ticketZProjection.firstName().charAt(0), ticketZProjection.lastName());
+                    AtomicLong montantMobile = new AtomicLong(0);
+                    AtomicLong montantMobile2 = new AtomicLong(0);
+                    AtomicInteger montantMobileCount = new AtomicInteger(0);
 
-                data
-                    .stream()
-                    .collect(Collectors.groupingBy(TicketZProjection::modePaimentCode))
-                    .forEach((modePaimentCode, ticketZProjectionList) -> {
-                        long montant = 0;
-                        long montant1 = 0;
-                        TicketZProjection firstProjection = ticketZProjectionList.getFirst();
-                        for (TicketZProjection d : ticketZProjectionList) {
-                            if (d.credit()) {
-                                montant += ((-1) * d.montant());
-                                montant1 += ((-1) * d.montantReel());
-                            } else {
-                                montant += d.montant();
-                                montant1 += d.montantReel();
-                            }
-                        }
+                    data.stream()
+                            .collect(Collectors.groupingBy(TicketZProjection::modePaimentCode))
+                            .forEach((modePaimentCode, ticketZProjectionList) -> {
+                                long montant = 0;
+                                long montant1 = 0;
+                                TicketZProjection firstProjection = ticketZProjectionList.getFirst();
+                                for (TicketZProjection d : ticketZProjectionList) {
+                                    if (d.credit()) {
+                                        montant += ((-1) * d.montant());
+                                        montant1 += ((-1) * d.montantReel());
+                                    } else {
+                                        montant += d.montant();
+                                        montant1 += d.montantReel();
+                                    }
+                                }
 
-                        // Le cumul mobile se fait une fois le mode totalise, non a chaque ligne : la
-                        // requete rend une ligne par sens (reglement et credit), et ajouter le
-                        // sous-total courant a chaque passage comptait deux fois le reglement. Le
-                        // compteur denombre desormais les operateurs, ce qui est le sens du
-                        // sous-total « Total Mobile » : il n'a d'interet qu'a partir de deux.
-                        if (modePaimentCode.getPaymentGroup() == PaymentGroup.MOBILE) {
-                            montantMobileCount.incrementAndGet();
-                            montantMobileCountG.incrementAndGet();
-                            montantMobile.addAndGet(montant);
-                            montantMobile2.addAndGet(montant1);
-                            montantMobileG.addAndGet(montant);
-                            montantMobileG2.addAndGet(montant1);
-                        }
+                                // Le cumul mobile se fait une fois le mode totalise, non a chaque ligne : la
+                                // requete rend une ligne par sens (reglement et credit), et ajouter le
+                                // sous-total courant a chaque passage comptait deux fois le reglement. Le
+                                // compteur denombre desormais les operateurs, ce qui est le sens du
+                                // sous-total « Total Mobile » : il n'a d'interet qu'a partir de deux.
+                                if (modePaimentCode.getPaymentGroup() == PaymentGroup.MOBILE) {
+                                    montantMobileCount.incrementAndGet();
+                                    montantMobileCountG.incrementAndGet();
+                                    montantMobile.addAndGet(montant);
+                                    montantMobile2.addAndGet(montant1);
+                                    montantMobileG.addAndGet(montant);
+                                    montantMobileG2.addAndGet(montant1);
+                                }
 
-                        if (summary.containsKey(modePaimentCode)) {
-                            Tuple tuple = summary.get(modePaimentCode);
-                            summary.put(modePaimentCode, new Tuple(tuple.e1() + montant, tuple.e2() + montant1, 0L));
-                        } else {
-                            summary.put(modePaimentCode, new Tuple(montant, montant1, 0L));
-                        }
+                                if (summary.containsKey(modePaimentCode)) {
+                                    Tuple tuple = summary.get(modePaimentCode);
+                                    summary.put(
+                                            modePaimentCode,
+                                            new Tuple(tuple.e1() + montant, tuple.e2() + montant1, 0L));
+                                } else {
+                                    summary.put(modePaimentCode, new Tuple(montant, montant1, 0L));
+                                }
 
-                        ticketZDataUser.add(new TicketZData(firstProjection.libelle(), montant, montant1, modePaimentCode.getSortOrder(), modePaimentCode));
-                        List<TicketZCreditProjection> userCredit = creditProjectionsMap.remove(userId);
-                        if (!CollectionUtils.isEmpty(userCredit)) {
-                            long totalCredit = userCredit.stream().mapToLong(TicketZCreditProjection::montant).sum();
-                            ticketZDataUser.add(new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null));
-                            creditAmount.addAndGet(totalCredit);
-                        }
-                    });
-                if (montantMobileCount.get() > 1) {
-                    summaryMobile.add(new TicketZData(MOBILE_LABEL, montantMobile.get(), montantMobile2.get(), 100, null));
-                }
-                ticketZDataUser.sort(Comparator.comparing(TicketZData::sortOrder));
-                ticketZRecaps.add(new TicketZRecap(userId, userName, ticketZDataUser, summaryMobile));
-            });
+                                ticketZDataUser.add(new TicketZData(
+                                        firstProjection.libelle(),
+                                        montant,
+                                        montant1,
+                                        modePaimentCode.getSortOrder(),
+                                        modePaimentCode));
+                                List<TicketZCreditProjection> userCredit = creditProjectionsMap.remove(userId);
+                                if (!CollectionUtils.isEmpty(userCredit)) {
+                                    long totalCredit = userCredit.stream()
+                                            .mapToLong(TicketZCreditProjection::montant)
+                                            .sum();
+                                    ticketZDataUser.add(
+                                            new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null));
+                                    creditAmount.addAndGet(totalCredit);
+                                }
+                            });
+                    if (montantMobileCount.get() > 1) {
+                        summaryMobile.add(
+                                new TicketZData(MOBILE_LABEL, montantMobile.get(), montantMobile2.get(), 100, null));
+                    }
+                    ticketZDataUser.sort(Comparator.comparing(TicketZData::sortOrder));
+                    ticketZRecaps.add(new TicketZRecap(userId, userName, ticketZDataUser, summaryMobile));
+                });
 
         // Combine credit data
 
@@ -200,13 +202,17 @@ public class TicketZServiceImpl implements TicketZService {
             userCount.incrementAndGet();
             TicketZCreditProjection firstCredit = creditData.getFirst();
             String userName = String.format("%s. %s", firstCredit.firstName().charAt(0), firstCredit.lastName());
-            long totalCredit = creditData.stream().mapToLong(TicketZCreditProjection::montant).sum();
+            long totalCredit = creditData.stream()
+                    .mapToLong(TicketZCreditProjection::montant)
+                    .sum();
 
             creditAmount.addAndGet(totalCredit);
 
-            ticketZRecaps.add(
-                new TicketZRecap(userId, userName, List.of(new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null)), List.of())
-            );
+            ticketZRecaps.add(new TicketZRecap(
+                    userId,
+                    userName,
+                    List.of(new TicketZData(CREDIT_LABEL, totalCredit, totalCredit, 101, null)),
+                    List.of()));
         });
 
         // build summary
@@ -219,7 +225,8 @@ public class TicketZServiceImpl implements TicketZService {
         if (userCount.get() >= 1) {
             summary.forEach((modePaimentCode, tuple) -> {
                 String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);
-                summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder(), modePaimentCode));
+                summaryData.add(new TicketZData(
+                        libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder(), modePaimentCode));
             });
 
             if (montantMobileCountG.get() > 1) {
@@ -256,15 +263,15 @@ public class TicketZServiceImpl implements TicketZService {
         if (isNull(param.fromTime()) || isNull(param.toTime())) {
             return new Pair(param.fromDate().atStartOfDay(), param.toDate().atTime(LocalTime.MAX));
         }
-        return new Pair(param.fromDate().atTime(param.fromTime()), param.toDate().atTime(param.toTime()));
+        return new Pair(
+                param.fromDate().atTime(param.fromTime()), param.toDate().atTime(param.toTime()));
     }
 
     private Specification<Sales> getTicketZDiffereSpecification(TicketZParam param, Pair periode) {
         Specification<Sales> specification = this.salesRepository.between(param.fromDate(), param.toDate());
         if (!param.isMinDate()) {
-            specification = specification.and(
-                this.salesRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
-            );
+            specification = specification.and(this.salesRepository.filterByPeriode(
+                    (LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -274,11 +281,11 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<ThirdPartySales> getTicketZCreditSpecification(TicketZParam param, Pair periode) {
-        Specification<ThirdPartySales> specification = this.thirdPartySaleRepository.filterByPeriode(param.fromDate(), param.toDate());
+        Specification<ThirdPartySales> specification =
+                this.thirdPartySaleRepository.filterByPeriode(param.fromDate(), param.toDate());
         if (!param.isMinDate()) {
-            specification = specification.and(
-                this.thirdPartySaleRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
-            );
+            specification = specification.and(this.thirdPartySaleRepository.filterByPeriode(
+                    (LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -288,12 +295,12 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<SalePayment> getTicketZSalePaymentSpecification(TicketZParam param, Pair periode) {
-        Specification<SalePayment> specification = this.salePaymentRepository.paymentBetween(param.fromDate(), param.toDate());
+        Specification<SalePayment> specification =
+                this.salePaymentRepository.paymentBetween(param.fromDate(), param.toDate());
 
         if (!param.isMinDate()) {
-            specification = specification.and(
-                this.salePaymentRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
-            );
+            specification = specification.and(this.salePaymentRepository.filterByPeriode(
+                    (LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -303,16 +310,12 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<PaymentTransaction> getTicketZAllPaymentSpecification(TicketZParam param, Pair periode) {
-        Specification<PaymentTransaction> specification =
-            this.paymentTransactionRepository.filterByPeriode(
-                ((LocalDateTime) periode.key()).toLocalDate(),
-                ((LocalDateTime) periode.value()).toLocalDate()
-            );
+        Specification<PaymentTransaction> specification = this.paymentTransactionRepository.filterByPeriode(
+                ((LocalDateTime) periode.key()).toLocalDate(), ((LocalDateTime) periode.value()).toLocalDate());
 
         if (!param.isMinDate()) {
-            specification = specification.and(
-                this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
-            );
+            specification = specification.and(this.paymentTransactionRepository.filterByPeriode(
+                    (LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
         }
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.paymentTransactionRepository.filterByCaissierId(param.usersId()));

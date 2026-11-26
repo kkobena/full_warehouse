@@ -53,11 +53,7 @@ scenario('RPT-35', async ({ etape, page }) => {
 
   // Ménage hors étapes : le jeu de démonstration n'a pas à conserver cet inventaire.
   await page.goto('/inventaire');
-  const cree = page
-    .locator('tbody tr')
-    .filter({ visible: true })
-    .filter({ hasText: prefixeInventaire })
-    .first();
+  const cree = page.locator('tbody tr').filter({ visible: true }).filter({ hasText: prefixeInventaire }).first();
   await expect(cree).toBeVisible();
   await cree.getByRole('button', { name: 'Supprimer' }).click();
   await traverserConfirmations(page, { limite: 1 });

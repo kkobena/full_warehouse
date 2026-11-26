@@ -22,13 +22,12 @@ public interface AvoirTiersPayantRepository extends JpaRepository<AvoirTiersPaya
           AND (:numAvoir IS NULL OR LOWER(a.numAvoir) LIKE :numAvoir)
         """)
     Page<AvoirTiersPayant> searchByTiersPayant(
-        @Param("tiersPayantId") Integer tiersPayantId,
-        @Param("start") LocalDate start,
-        @Param("end") LocalDate end,
-        @Param("statuts") List<AvoirStatut> statuts,
-        @Param("numAvoir") String numAvoir,
-        Pageable pageable
-    );
+            @Param("tiersPayantId") Integer tiersPayantId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("statuts") List<AvoirStatut> statuts,
+            @Param("numAvoir") String numAvoir,
+            Pageable pageable);
 
     @Query("""
         SELECT a FROM AvoirTiersPayant a
@@ -37,12 +36,11 @@ public interface AvoirTiersPayantRepository extends JpaRepository<AvoirTiersPaya
           AND (:numAvoir IS NULL OR LOWER(a.numAvoir) LIKE :numAvoir)
         """)
     Page<AvoirTiersPayant> searchAll(
-        @Param("start") LocalDate start,
-        @Param("end") LocalDate end,
-        @Param("statuts") List<AvoirStatut> statuts,
-        @Param("numAvoir") String numAvoir,
-        Pageable pageable
-    );
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("statuts") List<AvoirStatut> statuts,
+            @Param("numAvoir") String numAvoir,
+            Pageable pageable);
 
     /**
      * Dernier numéro d'avoir attribué pour l'année donnée, 0 si elle n'en compte aucun.
@@ -55,13 +53,10 @@ public interface AvoirTiersPayantRepository extends JpaRepository<AvoirTiersPaya
      * <p>Le compteur est cadré sur l'année, comme celui des factures : le préfixe rend les
      * numéros uniques d'une année sur l'autre.
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT COALESCE(MAX(CAST(SPLIT_PART(num_avoir, '_', 2) AS int)), 0)
             FROM avoir_tiers_payant
             WHERE starts_with(num_avoir, CONCAT('AV-', CAST(:annee AS text), '_'))
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     int findMaxNumeroAvoir(@Param("annee") int annee);
 }

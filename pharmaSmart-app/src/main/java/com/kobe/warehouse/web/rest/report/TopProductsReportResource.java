@@ -1,7 +1,10 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
 import com.kobe.warehouse.service.report.TopProductsReportService;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,10 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for top products reports
@@ -36,11 +35,11 @@ public class TopProductsReportResource {
      * @return ResponseEntity with list of top products ordered by revenue DESC
      */
     @GetMapping("/by-revenue")
-   // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" + AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
+    // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" +
+    // AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
     public ResponseEntity<List<TopProductDTO>> getTopProductsByRevenue(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month,
-        @RequestParam(defaultValue = "20") int limit
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month,
+            @RequestParam(defaultValue = "20") int limit) {
         List<TopProductDTO> result = topProductsReportService.getTopProductsByRevenue(month, limit);
         return ResponseEntity.ok(result);
     }
@@ -53,11 +52,11 @@ public class TopProductsReportResource {
      * @return ResponseEntity with list of top products ordered by quantity DESC
      */
     @GetMapping("/by-quantity")
-  //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" + AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
+    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" +
+    // AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
     public ResponseEntity<List<TopProductDTO>> getTopProductsByQuantity(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month,
-        @RequestParam(defaultValue = "20") int limit
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month,
+            @RequestParam(defaultValue = "20") int limit) {
         List<TopProductDTO> result = topProductsReportService.getTopProductsByQuantity(month, limit);
         return ResponseEntity.ok(result);
     }
@@ -69,10 +68,10 @@ public class TopProductsReportResource {
      * @return ResponseEntity with list of all products with stats for that month
      */
     @GetMapping("/all")
-   // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" + AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
+    // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" +
+    // AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
     public ResponseEntity<List<TopProductDTO>> getAllProductsForMonth(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
         List<TopProductDTO> result = topProductsReportService.getAllProductsForMonth(month);
         return ResponseEntity.ok(result);
     }
@@ -85,11 +84,10 @@ public class TopProductsReportResource {
      * @return ResponseEntity with list of monthly stats for this product
      */
     @GetMapping("/evolution/{produitId}")
-  //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" + AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
+    //  @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\") or hasAuthority(\"" +
+    // AuthoritiesConstants.ROLE_RESPONSABLE_COMMANDE + "\")")
     public ResponseEntity<List<TopProductDTO>> getProductMonthlyEvolution(
-        @PathVariable Integer produitId,
-        @RequestParam(defaultValue = "6") int nbMonths
-    ) {
+            @PathVariable Integer produitId, @RequestParam(defaultValue = "6") int nbMonths) {
         List<TopProductDTO> result = topProductsReportService.getProductMonthlyEvolution(produitId, nbMonths);
         return ResponseEntity.ok(result);
     }

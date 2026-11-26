@@ -51,8 +51,8 @@ public class FournisseurProduitDTO {
         fournisseurLibelle = fr.getLibelle();
         codeEan = f.getCodeEan();
         delaiLivraisonJours = fr.getDelaiLivraisonJours() != null
-            ? fr.getDelaiLivraisonJours()
-            : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null);
+                ? fr.getDelaiLivraisonJours()
+                : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null);
         qteColis = f.getQteColis();
         qteMinimaleCommande = f.getQteMinimaleCommande();
     }
@@ -62,20 +62,21 @@ public class FournisseurProduitDTO {
 
         Fournisseur fr = f.getFournisseur();
         return new FournisseurProduitDTO()
-            .setId(f.getId())
-            .setCodeCip(f.getCodeCip())
-            .setPrixAchat(f.getPrixAchat())
-            .setPrixUni(f.getPrixUni())
-            .setFournisseurLibelle(fr.getLibelle())
-            .setProduitLibelle(p.getLibelle())
-            .setProduitId(p.getId())
-            .setFournisseurId(fr.getId())
-            .setProduit(ProduitBuilder.fromEntity(p, magasinId))
-            .setDelaiLivraisonJours(fr.getDelaiLivraisonJours() != null
-                ? fr.getDelaiLivraisonJours()
-                : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null))
-            .setQteColis(f.getQteColis())
-            .setQteMinimaleCommande(f.getQteMinimaleCommande());
+                .setId(f.getId())
+                .setCodeCip(f.getCodeCip())
+                .setPrixAchat(f.getPrixAchat())
+                .setPrixUni(f.getPrixUni())
+                .setFournisseurLibelle(fr.getLibelle())
+                .setProduitLibelle(p.getLibelle())
+                .setProduitId(p.getId())
+                .setFournisseurId(fr.getId())
+                .setProduit(ProduitBuilder.fromEntity(p, magasinId))
+                .setDelaiLivraisonJours(
+                        fr.getDelaiLivraisonJours() != null
+                                ? fr.getDelaiLivraisonJours()
+                                : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null))
+                .setQteColis(f.getQteColis())
+                .setQteMinimaleCommande(f.getQteMinimaleCommande());
     }
 
     public String getCodeEan() {

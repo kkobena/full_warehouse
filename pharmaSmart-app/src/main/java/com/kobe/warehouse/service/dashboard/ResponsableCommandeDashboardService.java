@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dashboard;
 
 import com.kobe.warehouse.service.dto.dashboard.*;
-
 import java.util.List;
 
 public interface ResponsableCommandeDashboardService {

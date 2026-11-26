@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
@@ -28,6 +27,7 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -36,7 +36,6 @@ import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
-import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
@@ -46,9 +45,9 @@ import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
-import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.time.LocalDateTime;
@@ -143,23 +142,22 @@ class ProduitServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ProduitServiceImpl(
-            produitRepository,
-            customizedProductService,
-            rayonRepository,
-            new ObjectMapper(),
-            storageService,
-            logsService,
-            stockProduitRepository,
-            rayonProduitRepository,
-            suggestionReassortService,
-            substitutRepository,
-            fournisseurProduitRepository,
-            prixReferenceService,
-            dataMatrixParserService,
-            salesLineRepository,
-            orderLineRepository,
-            inventoryTransactionService
-        );
+                produitRepository,
+                customizedProductService,
+                rayonRepository,
+                new ObjectMapper(),
+                storageService,
+                logsService,
+                stockProduitRepository,
+                rayonProduitRepository,
+                suggestionReassortService,
+                substitutRepository,
+                fournisseurProduitRepository,
+                prixReferenceService,
+                dataMatrixParserService,
+                salesLineRepository,
+                orderLineRepository,
+                inventoryTransactionService);
         ReflectionTestUtils.setField(service, "entityManager", entityManager);
 
         magasin = new Magasin();
@@ -198,15 +196,15 @@ class ProduitServiceImplTest {
     /** DTO minimal accepte par ProduitBuilder (libelle, prix et drapeaux non nuls). */
     private ProduitDTO dto() {
         ProduitDTO dto = new ProduitDTO()
-            .setLibelle(" doliprane 1000mg ")
-            .setRegularUnitPrice(800)
-            .setCostAmount(400)
-            .setDeconditionnable(false)
-            .setRayonId(4)
-            .setCodeCip("1234567")
-            .setFournisseurId(3)
-            .setQtyAppro(10)
-            .setQtySeuilMini(5);
+                .setLibelle(" doliprane 1000mg ")
+                .setRegularUnitPrice(800)
+                .setCostAmount(400)
+                .setDeconditionnable(false)
+                .setRayonId(4)
+                .setCodeCip("1234567")
+                .setFournisseurId(3)
+                .setQtyAppro(10)
+                .setQtySeuilMini(5);
         dto.setTvaId(5);
         return dto;
     }
@@ -217,7 +215,8 @@ class ProduitServiceImplTest {
         p.setLibelle("DOLIPRANE 1000MG");
         p.setCostAmount(400);
         p.setRegularUnitPrice(800);
-        p.setRayonProduits(new HashSet<>(Set.of(new RayonProduit().setRayon(rayon).setProduit(p))));
+        p.setRayonProduits(
+                new HashSet<>(Set.of(new RayonProduit().setRayon(rayon).setProduit(p))));
         p.setStockProduits(new HashSet<>());
         p.setProduits(new ArrayList<>());
         // champs requis par ProduitBuilder pour mapper un produit en DTO
@@ -264,11 +263,11 @@ class ProduitServiceImplTest {
             assertThat(captor.getValue().getLibelle()).isEqualTo("DOLIPRANE 1000MG");
             assertThat(captor.getValue().getTypeProduit()).isEqualTo(TypeProduit.PACKAGE);
             verify(stockProduitRepository).saveAll(any());
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.CREATE_PRODUCT),
-                anyString(),
-                org.mockito.ArgumentMatchers.eq("500")
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.CREATE_PRODUCT),
+                            anyString(),
+                            org.mockito.ArgumentMatchers.eq("500"));
         }
 
         @Test
@@ -308,7 +307,7 @@ class ProduitServiceImplTest {
         @DisplayName("un colisage et un minimum de commande absents retombent sur les defauts")
         void colisageAbsent() {
             com.kobe.warehouse.service.dto.FournisseurProduitDTO extra =
-                new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
+                    new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
             extra.setCodeCip("7654321");
             extra.setFournisseurId(4);
 
@@ -324,7 +323,7 @@ class ProduitServiceImplTest {
         @DisplayName("enregistre les fournisseurs supplementaires du produit")
         void fournisseursSupplementaires() {
             com.kobe.warehouse.service.dto.FournisseurProduitDTO extra =
-                new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
+                    new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
             extra.setCodeCip("7654321");
             extra.setPrixAchat(350);
             extra.setPrixUni(700);
@@ -345,7 +344,7 @@ class ProduitServiceImplTest {
         @DisplayName("normalise un colisage et un minimum de commande absents ou nuls")
         void colisageParDefaut() {
             com.kobe.warehouse.service.dto.FournisseurProduitDTO extra =
-                new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
+                    new com.kobe.warehouse.service.dto.FournisseurProduitDTO();
             extra.setCodeCip("7654321");
             extra.setFournisseurId(4);
             extra.setQteColis(1);
@@ -371,7 +370,7 @@ class ProduitServiceImplTest {
         @DisplayName("enregistre les prix de reference rattaches au produit cree")
         void prixDeReference() {
             com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO prix =
-                new com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO();
+                    new com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO();
 
             service.save(dto().setPrixReference(List.of(prix)));
 
@@ -473,7 +472,7 @@ class ProduitServiceImplTest {
             when(customizedProductService.lastSale(any())).thenReturn(vente);
             when(customizedProductService.lastOrder(any())).thenReturn(commande);
             when(inventoryTransactionService.fetchLastDateByTypeAndProduitId(MouvementProduit.INVENTAIRE, PRODUIT_ID))
-                .thenReturn(inventaire);
+                    .thenReturn(inventaire);
 
             ProduitDTO dto = service.findOne(PRODUIT_ID).orElseThrow();
 
@@ -509,7 +508,8 @@ class ProduitServiceImplTest {
         @DisplayName("findAll par critere renvoie une page vide en cas d erreur")
         void findAllParCritereEnErreur() throws Exception {
             ProduitCriteria criteria = new ProduitCriteria();
-            when(customizedProductService.findAll(criteria, Pageable.unpaged())).thenThrow(new IllegalStateException("boom"));
+            when(customizedProductService.findAll(criteria, Pageable.unpaged()))
+                    .thenThrow(new IllegalStateException("boom"));
 
             assertThat(service.findAll(criteria, Pageable.unpaged())).isEmpty();
         }
@@ -568,9 +568,11 @@ class ProduitServiceImplTest {
         @DisplayName("getFournisseurProduitByCriteria, find et productsLiteList deleguent")
         void delegationsSimples() {
             ProduitCriteria criteria = new ProduitCriteria();
-            when(customizedProductService.getFournisseurProduitByCriteria("1234567", 3)).thenReturn(Optional.empty());
+            when(customizedProductService.getFournisseurProduitByCriteria("1234567", 3))
+                    .thenReturn(Optional.empty());
             when(customizedProductService.find(criteria)).thenReturn(List.of());
-            when(customizedProductService.productsLiteList(criteria, Pageable.unpaged())).thenReturn(List.of());
+            when(customizedProductService.productsLiteList(criteria, Pageable.unpaged()))
+                    .thenReturn(List.of());
 
             assertThat(service.getFournisseurProduitByCriteria("1234567", 3)).isEmpty();
             assertThat(service.find(criteria)).isEmpty();
@@ -670,7 +672,9 @@ class ProduitServiceImplTest {
             StockProduitDTO dto = new StockProduitDTO();
             dto.setProduitId(PRODUIT_ID);
 
-            assertThatThrownBy(() -> service.save(dto)).isInstanceOf(GenericError.class).hasMessageContaining("Produit not found");
+            assertThatThrownBy(() -> service.save(dto))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Produit not found");
         }
 
         @Test
@@ -740,8 +744,8 @@ class ProduitServiceImplTest {
             p.getStockProduits().add(stock(reserve, 4, 0));
 
             assertThatThrownBy(() -> service.updateTotalStock(p, 5, 0))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Stock produit introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Stock produit introuvable");
         }
     }
 
@@ -771,11 +775,11 @@ class ProduitServiceImplTest {
             service.update(dto().setId(PRODUIT_ID));
 
             assertThat(p.getRayonProduits()).hasSize(1);
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.UPDATE_PRODUCT),
-                anyString(),
-                org.mockito.ArgumentMatchers.eq("500")
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.UPDATE_PRODUCT),
+                            anyString(),
+                            org.mockito.ArgumentMatchers.eq("500"));
         }
 
         @Test
@@ -787,7 +791,8 @@ class ProduitServiceImplTest {
             service.update(dto().setId(PRODUIT_ID).setRayonId(4));
 
             assertThat(p.getRayonProduits()).hasSize(1);
-            assertThat(p.getRayonProduits().iterator().next().getRayon().getId()).isEqualTo(4);
+            assertThat(p.getRayonProduits().iterator().next().getRayon().getId())
+                    .isEqualTo(4);
             // les produits detail suivent le rayon de la boite
             verify(produitRepository, atLeastOnce()).save(any(Produit.class));
         }
@@ -811,7 +816,8 @@ class ProduitServiceImplTest {
 
             // le rayon de reserve est conserve tel quel
             assertThat(p.getRayonProduits()).hasSize(1);
-            assertThat(p.getRayonProduits().iterator().next().getRayon().getId()).isEqualTo(9);
+            assertThat(p.getRayonProduits().iterator().next().getRayon().getId())
+                    .isEqualTo(9);
         }
 
         @Test
@@ -848,7 +854,8 @@ class ProduitServiceImplTest {
             service.update(dto().setId(PRODUIT_ID).setRayonId(4));
 
             assertThat(detail.getRayonProduits()).hasSize(1);
-            assertThat(detail.getRayonProduits().iterator().next().getRayon().getId()).isEqualTo(4);
+            assertThat(detail.getRayonProduits().iterator().next().getRayon().getId())
+                    .isEqualTo(4);
             verify(produitRepository).save(detail);
         }
 
@@ -861,7 +868,8 @@ class ProduitServiceImplTest {
             p.getStockProduits().add(principalStock);
             p.getStockProduits().add(reserveStock);
 
-            ProduitDTO dto = dto().setId(PRODUIT_ID).setQtySeuilMini(8).setSeuilMini(3).setStockReassort(20);
+            ProduitDTO dto =
+                    dto().setId(PRODUIT_ID).setQtySeuilMini(8).setSeuilMini(3).setStockReassort(20);
             dto.setStockMaxi(50);
 
             service.update(dto);
@@ -890,7 +898,10 @@ class ProduitServiceImplTest {
             Produit p = produitAModifier(new HashSet<>());
             p.getStockProduits().add(stock(principal, 10, 0));
 
-            service.update(dto().setId(PRODUIT_ID).setQtySeuilMini(null).setSeuilMini(null).setStockReassort(null));
+            service.update(dto().setId(PRODUIT_ID)
+                    .setQtySeuilMini(null)
+                    .setSeuilMini(null)
+                    .setStockReassort(null));
 
             verify(stockProduitRepository, never()).save(any(StockProduit.class));
         }
@@ -933,11 +944,11 @@ class ProduitServiceImplTest {
             assertThat(detail.getRegularUnitPrice()).isEqualTo(800);
             assertThat(detail.getCostAmount()).isEqualTo(400);
             assertThat(parent.getItemQty()).isEqualTo(12);
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.UPDATE_PRODUCT),
-                anyString(),
-                org.mockito.ArgumentMatchers.eq("500")
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.UPDATE_PRODUCT),
+                            anyString(),
+                            org.mockito.ArgumentMatchers.eq("500"));
         }
     }
 
@@ -979,14 +990,14 @@ class ProduitServiceImplTest {
         @Test
         @DisplayName("cherche sur le code extrait du DataMatrix")
         void codeIssuDuDataMatrix() {
-            com.kobe.warehouse.service.dto.DataMatrixInfo info = com.kobe.warehouse.service.dto.DataMatrixInfo
-                .builder()
-                .cip13("3400930000000")
-                .build();
+            com.kobe.warehouse.service.dto.DataMatrixInfo info = com.kobe.warehouse.service.dto.DataMatrixInfo.builder()
+                    .cip13("3400930000000")
+                    .build();
             when(dataMatrixParserService.parse("01034009300000005")).thenReturn(Optional.of(info));
             when(produitRepository.searchProduitsJson("3400930000000", 1, 20)).thenReturn("[]");
 
-            assertThat(service.searchProducts("01034009300000005", null, PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.searchProducts("01034009300000005", null, PageRequest.of(0, 20)))
+                    .isEmpty();
 
             verify(produitRepository).searchProduitsJson("3400930000000", 1, 20);
         }
@@ -1005,10 +1016,9 @@ class ProduitServiceImplTest {
         @Test
         @DisplayName("retombe sur le terme saisi quand le DataMatrix ne porte pas de code produit")
         void dataMatrixSansCodeProduit() {
-            com.kobe.warehouse.service.dto.DataMatrixInfo info = com.kobe.warehouse.service.dto.DataMatrixInfo
-                .builder()
-                .batchNumber("LOT1")
-                .build();
+            com.kobe.warehouse.service.dto.DataMatrixInfo info = com.kobe.warehouse.service.dto.DataMatrixInfo.builder()
+                    .batchNumber("LOT1")
+                    .build();
             when(dataMatrixParserService.parse("10LOT1")).thenReturn(Optional.of(info));
             when(produitRepository.searchProduitsJson("10LOT1", 1, 20)).thenReturn("[]");
 
@@ -1021,15 +1031,18 @@ class ProduitServiceImplTest {
         @DisplayName("une charge utile illisible renvoie une liste vide")
         void chargeUtileIllisible() {
             when(dataMatrixParserService.parse(anyString())).thenReturn(Optional.empty());
-            when(produitRepository.searchProduitsJson(anyString(), anyInt(), anyInt())).thenReturn("pas du json");
+            when(produitRepository.searchProduitsJson(anyString(), anyInt(), anyInt()))
+                    .thenReturn("pas du json");
 
-            assertThat(service.searchProducts("dolipra", 1, PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.searchProducts("dolipra", 1, PageRequest.of(0, 20)))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("searchProductsByStorage renvoie vide sans emplacement")
         void parEmplacementSansEmplacement() {
-            assertThat(service.searchProductsByStorage(null, "dolipra", PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.searchProductsByStorage(null, "dolipra", PageRequest.of(0, 20)))
+                    .isEmpty();
 
             verifyNoInteractions(produitRepository);
         }
@@ -1039,15 +1052,18 @@ class ProduitServiceImplTest {
         void parEmplacement() {
             when(produitRepository.searchProductsByStorage("dolipra", 2, 20)).thenReturn("[]");
 
-            assertThat(service.searchProductsByStorage(2, "dolipra", PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.searchProductsByStorage(2, "dolipra", PageRequest.of(0, 20)))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("searchProductsByStorage renvoie vide sur charge utile illisible")
         void parEmplacementIllisible() {
-            when(produitRepository.searchProductsByStorage(anyString(), anyInt(), anyInt())).thenReturn("pas du json");
+            when(produitRepository.searchProductsByStorage(anyString(), anyInt(), anyInt()))
+                    .thenReturn("pas du json");
 
-            assertThat(service.searchProductsByStorage(2, "dolipra", PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.searchProductsByStorage(2, "dolipra", PageRequest.of(0, 20)))
+                    .isEmpty();
         }
     }
 
@@ -1061,8 +1077,8 @@ class ProduitServiceImplTest {
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.deleteProduit(PRODUIT_ID))
-                .isInstanceOf(BadRequestAlertException.class)
-                .hasMessageContaining("Produit introuvable : 500");
+                    .isInstanceOf(BadRequestAlertException.class)
+                    .hasMessageContaining("Produit introuvable : 500");
         }
 
         @Test
@@ -1073,8 +1089,8 @@ class ProduitServiceImplTest {
             when(salesLineRepository.countByProduitId(PRODUIT_ID)).thenReturn(3L);
 
             assertThatThrownBy(() -> service.deleteProduit(PRODUIT_ID))
-                .isInstanceOf(BadRequestAlertException.class)
-                .hasMessageContaining("des ventes sont enregistrées");
+                    .isInstanceOf(BadRequestAlertException.class)
+                    .hasMessageContaining("des ventes sont enregistrées");
         }
 
         @Test
@@ -1083,11 +1099,12 @@ class ProduitServiceImplTest {
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit()));
             when(produitRepository.findAllByParentId(PRODUIT_ID)).thenReturn(List.of());
             when(salesLineRepository.countByProduitId(PRODUIT_ID)).thenReturn(0L);
-            when(orderLineRepository.existsByFournisseurProduitProduitId(PRODUIT_ID)).thenReturn(true);
+            when(orderLineRepository.existsByFournisseurProduitProduitId(PRODUIT_ID))
+                    .thenReturn(true);
 
             assertThatThrownBy(() -> service.deleteProduit(PRODUIT_ID))
-                .isInstanceOf(BadRequestAlertException.class)
-                .hasMessageContaining("des commandes sont enregistrées");
+                    .isInstanceOf(BadRequestAlertException.class)
+                    .hasMessageContaining("des commandes sont enregistrées");
         }
 
         @Test
@@ -1102,11 +1119,11 @@ class ProduitServiceImplTest {
             verify(entityManager).createNativeQuery(anyString());
             verify(entityManager, atLeastOnce()).createQuery(anyString());
             verify(entityManager).detach(p);
-            verify(logsService).create(
-                org.mockito.ArgumentMatchers.eq(TransactionType.DELETE_PRODUCT),
-                anyString(),
-                org.mockito.ArgumentMatchers.eq("500")
-            );
+            verify(logsService)
+                    .create(
+                            org.mockito.ArgumentMatchers.eq(TransactionType.DELETE_PRODUCT),
+                            anyString(),
+                            org.mockito.ArgumentMatchers.eq("500"));
         }
 
         @Test
@@ -1148,7 +1165,8 @@ class ProduitServiceImplTest {
 
             service.delete(PRODUIT_ID);
 
-            verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.DELETE_PRODUCT), anyString(), anyString());
+            verify(logsService)
+                    .create(org.mockito.ArgumentMatchers.eq(TransactionType.DELETE_PRODUCT), anyString(), anyString());
         }
     }
 
@@ -1210,9 +1228,11 @@ class ProduitServiceImplTest {
 
             switch (flag) {
                 case THERMOSENSIBLE -> assertThat(p.getThermosensible()).isTrue();
-                case MEDICAMENT_ESSENTIEL -> assertThat(p.getEstMedicamentEssentiel()).isTrue();
+                case MEDICAMENT_ESSENTIEL ->
+                    assertThat(p.getEstMedicamentEssentiel()).isTrue();
                 case PRODUIT_GARDE -> assertThat(p.getEstProduitGarde()).isTrue();
-                case CLASSIFICATION_OVERRIDDEN -> assertThat(p.getIsClassificationOverridden()).isTrue();
+                case CLASSIFICATION_OVERRIDDEN ->
+                    assertThat(p.getIsClassificationOverridden()).isTrue();
             }
             verify(produitRepository).save(p);
         }

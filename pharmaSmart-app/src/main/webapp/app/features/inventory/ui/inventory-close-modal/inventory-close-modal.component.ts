@@ -1,13 +1,13 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {forkJoin, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
-import {InventoryApiService} from '../../data-access/services/inventory-api.service';
-import {InventoryValuationApiService} from '../../data-access/services/inventory-valuation-api.service';
-import {InventoryProgressRecord} from '../../models';
-import {IInventoryGlobalSummary} from '../../models/inventory-valuation.model';
-import {ButtonComponent, KpiItemComponent, KpiStripComponent} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { InventoryApiService } from '../../data-access/services/inventory-api.service';
+import { InventoryValuationApiService } from '../../data-access/services/inventory-valuation-api.service';
+import { InventoryProgressRecord } from '../../models';
+import { IInventoryGlobalSummary } from '../../models/inventory-valuation.model';
+import { ButtonComponent, KpiItemComponent, KpiStripComponent } from '../../../../shared/ui';
 
 /**
  * Récapitulatif présenté avant la clôture d'un inventaire.
@@ -45,11 +45,10 @@ export class InventoryCloseModalComponent implements OnInit {
   private readonly valuationApi = inject(InventoryValuationApiService);
 
   ngOnInit(): void {
-
     forkJoin({
       progress: this.api.getProgress(this.inventoryId).pipe(catchError(() => of(null))),
       valuation: this.valuationApi.getGlobalSummary(this.inventoryId).pipe(catchError(() => of(null))),
-    }).subscribe(({progress, valuation}) => {
+    }).subscribe(({ progress, valuation }) => {
       this.progress.set(progress?.body ?? null);
       this.valuation.set(valuation);
       this.loading.set(false);

@@ -27,8 +27,7 @@ public class PonctionCalculator {
      * les modes retenus, dont aucune ligne n'a déjà été retraitée, et dont la part à TVA 0 est
      * strictement positive.
      */
-    private static final String ELIGIBLE =
-        """
+    private static final String ELIGIBLE = """
         eligible as (
           select s.id,
                  s.sale_date,
@@ -86,8 +85,7 @@ public class PonctionCalculator {
      * la capacité réelle d'une vente, et trier sur le total ferait remonter en tête des ventes
      * majoritairement taxées, donc quasiment inéligibles.
      */
-    private static final String PLAFONNE =
-        """
+    private static final String PLAFONNE = """
         plafonne as (
           select e.id, e.sale_date, e.number_transaction, e.montant_vente, e.base_tva0, e.montant_regle,
                  least(floor(e.montant_vente * :plafond / 100)::bigint, e.base_tva0, e.montant_regle) as cap,
@@ -117,13 +115,9 @@ public class PonctionCalculator {
      * l'assiette exonérée, qui, elle, ne dit rien du mode de règlement.
      */
     @Transactional(readOnly = true)
-    public Assiette calculerAssiette(LocalDate dateDebut, LocalDate dateFin, int magasinId, BigDecimal plafond, String[] modes) {
-        String sql =
-            "with " +
-            ELIGIBLE +
-            ", " +
-            PLAFONNE +
-            """
+    public Assiette calculerAssiette(
+            LocalDate dateDebut, LocalDate dateFin, int magasinId, BigDecimal plafond, String[] modes) {
+        String sql = "with " + ELIGIBLE + ", " + PLAFONNE + """
             select coalesce(sum(p.base_tva0), 0),
                    coalesce(sum(p.cap), 0),
                    count(*),
@@ -131,12 +125,10 @@ public class PonctionCalculator {
               from plafonne p
             """;
         return jdbcClient
-            .sql(sql)
-            .params(parametres(dateDebut, dateFin, magasinId, modes, plafond))
-            .query((rs, n) ->
-                new Assiette(rs.getLong(1), rs.getLong(2), rs.getInt(3), rs.getLong(4))
-            )
-            .single();
+                .sql(sql)
+                .params(parametres(dateDebut, dateFin, magasinId, modes, plafond))
+                .query((rs, n) -> new Assiette(rs.getLong(1), rs.getLong(2), rs.getInt(3), rs.getLong(4)))
+                .single();
     }
 
     /**
@@ -154,19 +146,8 @@ public class PonctionCalculator {
      */
     @Transactional(readOnly = true)
     public List<PonctionLigneDTO> repartir(
-        LocalDate dateDebut,
-        LocalDate dateFin,
-        int magasinId,
-        BigDecimal plafond,
-        String[] modes,
-        long objectif
-    ) {
-        String sql =
-            "with " +
-            ELIGIBLE +
-            ", " +
-            PLAFONNE +
-            """
+            LocalDate dateDebut, LocalDate dateFin, int magasinId, BigDecimal plafond, String[] modes, long objectif) {
+        String sql = "with " + ELIGIBLE + ", " + PLAFONNE + """
             select p.id, p.sale_date, p.number_transaction, p.montant_vente, p.base_tva0, p.rang,
                    least(p.cap, greatest(0, :objectif - (p.cumul - p.cap))) / 5 * 5 as prise
               from plafonne p
@@ -177,20 +158,17 @@ public class PonctionCalculator {
         Map<String, Object> params = parametres(dateDebut, dateFin, magasinId, modes, plafond);
         params.put("objectif", objectif);
         return jdbcClient
-            .sql(sql)
-            .params(params)
-            .query((rs, n) ->
-                new PonctionLigneDTO(
-                    rs.getLong("id"),
-                    rs.getDate("sale_date").toLocalDate(),
-                    rs.getString("number_transaction"),
-                    rs.getLong("montant_vente"),
-                    rs.getLong("base_tva0"),
-                    rs.getLong("prise"),
-                    rs.getInt("rang")
-                )
-            )
-            .list();
+                .sql(sql)
+                .params(params)
+                .query((rs, n) -> new PonctionLigneDTO(
+                        rs.getLong("id"),
+                        rs.getDate("sale_date").toLocalDate(),
+                        rs.getString("number_transaction"),
+                        rs.getLong("montant_vente"),
+                        rs.getLong("base_tva0"),
+                        rs.getLong("prise"),
+                        rs.getInt("rang")))
+                .list();
     }
 
     /**
@@ -208,20 +186,14 @@ public class PonctionCalculator {
      */
     @Transactional
     public int enregistrerDetail(
-        Integer ponctionId,
-        LocalDate dateDebut,
-        LocalDate dateFin,
-        int magasinId,
-        BigDecimal plafond,
-        String[] modes,
-        long objectif
-    ) {
-        String sql =
-            "with " +
-            ELIGIBLE +
-            ", " +
-            PLAFONNE +
-            """
+            Integer ponctionId,
+            LocalDate dateDebut,
+            LocalDate dateFin,
+            int magasinId,
+            BigDecimal plafond,
+            String[] modes,
+            long objectif) {
+        String sql = "with " + ELIGIBLE + ", " + PLAFONNE + """
             insert into ca_ponction_detail (ponction_id, sale_id, sale_date, montant_vente,
                                             montant_base, montant_ponctionne, rang, numero_transaction)
             select :ponctionId, p.id, p.sale_date, p.montant_vente, p.base_tva0,
@@ -254,9 +226,7 @@ public class PonctionCalculator {
         // une ligne qui n'en portait que 4. Un franc par ligne ne peut pas dépasser : la part
         // entière d'une ligne est au plus son montant moins un dès que la prise est inférieure à
         // l'assiette, et le reliquat est nul quand elle lui est égale.
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 with base as (
                   select l.id,
                          l.sale_date,
@@ -289,29 +259,19 @@ public class PonctionCalculator {
                        exclusion_motif = 'PONCTION'
                   from reparti r
                  where sl.id = r.id and sl.sale_date = r.sale_date
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
 
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 update sales s
                    set amount_to_be_taken_into_account = s.amount_to_be_taken_into_account - d.montant_ponctionne,
                        ponction_id = d.ponction_id
                   from ca_ponction_detail d
                  where s.id = d.sale_id and s.sale_date = d.sale_date and d.ponction_id = :ponctionId
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
 
         // Les règlements : espèces d'abord, puis le reste. Même somme cumulée glissante que pour le
         // choix des ventes — la prise mord sur chaque règlement à hauteur de ce qu'il porte.
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 with ordonne as (
                   select p.id, p.transaction_date, p.paid_amount, d.montant_ponctionne,
                          sum(p.paid_amount) over (partition by d.sale_id, d.sale_date
@@ -328,10 +288,7 @@ public class PonctionCalculator {
                                                greatest(0, o.montant_ponctionne - (o.cumul - o.paid_amount)))
                   from ordonne o
                  where pt.id = o.id and pt.transaction_date = o.transaction_date
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
     }
 
     /**
@@ -348,54 +305,34 @@ public class PonctionCalculator {
      */
     @Transactional
     public void annuler(Integer ponctionId) {
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 update sales_line sl
                    set amount_to_be_taken_into_account = sl.quantity_requested * sl.regular_unit_price,
                        exclusion_motif = null
                   from ca_ponction_detail d
                  where sl.sales_id = d.sale_id and sl.sales_sale_date = d.sale_date
                    and d.ponction_id = :ponctionId
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
 
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 update sales s
                    set amount_to_be_taken_into_account = s.amount_to_be_taken_into_account + d.montant_ponctionne,
                        ponction_id = null
                   from ca_ponction_detail d
                  where s.id = d.sale_id and s.sale_date = d.sale_date and d.ponction_id = :ponctionId
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
 
-        jdbcClient
-            .sql(
-                """
+        jdbcClient.sql("""
                 update payment_transaction pt
                    set amount_to_be_taken_into_account = null
                   from ca_ponction_detail d
                  where pt.sale_id = d.sale_id and pt.sale_date = d.sale_date
                    and pt.dtype = 'SalePayment' and d.ponction_id = :ponctionId
-                """
-            )
-            .param("ponctionId", ponctionId)
-            .update();
+                """).param("ponctionId", ponctionId).update();
     }
 
     private Map<String, Object> parametres(
-        LocalDate dateDebut,
-        LocalDate dateFin,
-        int magasinId,
-        String[] modes,
-        BigDecimal plafond
-    ) {
+            LocalDate dateDebut, LocalDate dateFin, int magasinId, String[] modes, BigDecimal plafond) {
         Map<String, Object> params = new HashMap<>();
         params.put("dateDebut", dateDebut);
         params.put("dateFin", dateFin);

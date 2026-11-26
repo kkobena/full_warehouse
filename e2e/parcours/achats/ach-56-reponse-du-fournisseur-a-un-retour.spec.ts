@@ -26,14 +26,9 @@ scenario('ACH-56', async ({ etape, page }) => {
     await expect(lignes.first()).toBeVisible();
     // La saisie n'est offerte que sur un retour dont le fournisseur a été avisé : répondre
     // à sa place sur un bon jamais envoyé n'aurait pas de sens.
-    const repondable = lignes
-      .filter({ has: page.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"]') })
-      .first();
+    const repondable = lignes.filter({ has: page.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"]') }).first();
     await expect(repondable).toBeVisible();
-    await repondable
-      .locator('app-button[ngbtooltip="Saisir la réponse fournisseur"] button')
-      .first()
-      .click();
+    await repondable.locator('app-button[ngbtooltip="Saisir la réponse fournisseur"] button').first().click();
     await expect(modale).toBeVisible();
   });
 

@@ -81,8 +81,12 @@ class PosteServiceImplCacheTest {
     void posteTrouveEnCache() {
         when(posteRepository.findFirstByAddressOrName(IP, HOTE)).thenReturn(Optional.of(poste(8)));
 
-        assertThat(posteService.findFirstByAddressOrName(IP, HOTE)).map(PosteRecord::id).contains(8);
-        assertThat(posteService.findFirstByAddressOrName(IP, HOTE)).map(PosteRecord::id).contains(8);
+        assertThat(posteService.findFirstByAddressOrName(IP, HOTE))
+                .map(PosteRecord::id)
+                .contains(8);
+        assertThat(posteService.findFirstByAddressOrName(IP, HOTE))
+                .map(PosteRecord::id)
+                .contains(8);
 
         verify(posteRepository, times(1)).findFirstByAddressOrName(IP, HOTE);
     }
@@ -96,7 +100,9 @@ class PosteServiceImplCacheTest {
         // L'administrateur enregistre le poste — ici directement en base, sans passer par create().
         when(posteRepository.findFirstByAddressOrName(IP, HOTE)).thenReturn(Optional.of(poste(8)));
 
-        assertThat(posteService.findFirstByAddressOrName(IP, HOTE)).map(PosteRecord::id).contains(8);
+        assertThat(posteService.findFirstByAddressOrName(IP, HOTE))
+                .map(PosteRecord::id)
+                .contains(8);
     }
 
     @Test
@@ -115,13 +121,17 @@ class PosteServiceImplCacheTest {
     @DisplayName("la modification d'un poste vide le cache")
     void modificationVideLeCache() {
         when(posteRepository.findFirstByAddressOrName(IP, HOTE)).thenReturn(Optional.of(poste(8)));
-        assertThat(posteService.findFirstByAddressOrName(IP, HOTE)).map(PosteRecord::name).contains("Caisse 1");
+        assertThat(posteService.findFirstByAddressOrName(IP, HOTE))
+                .map(PosteRecord::name)
+                .contains("Caisse 1");
 
         Poste renomme = poste(8).setName("Caisse comptoir");
         when(posteRepository.save(any(Poste.class))).thenReturn(renomme);
         posteService.create(new PosteRecord(8, "Caisse comptoir", "P1", IP));
         when(posteRepository.findFirstByAddressOrName(IP, HOTE)).thenReturn(Optional.of(renomme));
 
-        assertThat(posteService.findFirstByAddressOrName(IP, HOTE)).map(PosteRecord::name).contains("Caisse comptoir");
+        assertThat(posteService.findFirstByAddressOrName(IP, HOTE))
+                .map(PosteRecord::name)
+                .contains("Caisse comptoir");
     }
 }

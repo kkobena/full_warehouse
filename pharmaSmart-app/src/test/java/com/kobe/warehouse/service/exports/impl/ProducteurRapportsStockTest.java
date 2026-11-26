@@ -22,9 +22,9 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
@@ -76,7 +76,12 @@ class ProducteurRapportsStockTest {
     @Test
     @DisplayName("valorisation : la famille retenue, sans rayon")
     void valorisation() {
-        stock.produire(RapportExport.VALORISATION_STOCK, FormatExport.PDF, null, null, Map.of(FiltreExport.FAMILLE_UNIQUE, List.of("12")));
+        stock.produire(
+                RapportExport.VALORISATION_STOCK,
+                FormatExport.PDF,
+                null,
+                null,
+                Map.of(FiltreExport.FAMILLE_UNIQUE, List.of("12")));
 
         verify(stockValuationPdfReportService).export(12, null);
     }

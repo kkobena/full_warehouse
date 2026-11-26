@@ -11,11 +11,10 @@ import java.util.List;
  * @param vendeursParHeure CA par vendeur et par heure, {@code null} sans vente
  */
 public record ClientsEquipeRapportDTO(
-    String lectureCreneaux,
-    CarteChaleurRapportDTO frequentation,
-    String ventesParJour,
-    List<TuileRapportDTO> tuilesClients,
-    TableauRapportDTO enBaisse,
-    TableauRapportDTO vendeurs,
-    TableauRapportDTO vendeursParHeure
-) {}
+        String lectureCreneaux,
+        CarteChaleurRapportDTO frequentation,
+        String ventesParJour,
+        List<TuileRapportDTO> tuilesClients,
+        TableauRapportDTO enBaisse,
+        TableauRapportDTO vendeurs,
+        TableauRapportDTO vendeursParHeure) {}

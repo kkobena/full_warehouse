@@ -13,6 +13,10 @@ import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing users.
@@ -68,18 +67,17 @@ import java.util.Optional;
 public class UserResource {
 
     private static final List<String> ALLOWED_ORDERED_PROPERTIES = List.of(
-        "id",
-        "login",
-        "firstName",
-        "lastName",
-        "email",
-        "activated",
-        "langKey",
-        "createdBy",
-        "createdDate",
-        "lastModifiedBy",
-        "lastModifiedDate"
-    );
+            "id",
+            "login",
+            "firstName",
+            "lastName",
+            "email",
+            "activated",
+            "langKey",
+            "createdBy",
+            "createdDate",
+            "lastModifiedBy",
+            "lastModifiedDate");
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
     private final UserService userService;
@@ -90,7 +88,7 @@ public class UserResource {
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public UserResource(UserService userService, UserRepository userRepository/*, MailService mailService*/) {
+    public UserResource(UserService userService, UserRepository userRepository /*, MailService mailService*/) {
         this.userService = userService;
         this.userRepository = userRepository;
         // this.mailService = mailService;
@@ -117,16 +115,19 @@ public class UserResource {
         if (userDTO.getId() != null) {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
+        } else if (userRepository
+                .findOneByLogin(userDTO.getLogin().toLowerCase())
+                .isPresent()) {
             throw new LoginAlreadyUsedException();
-        } else if (StringUtils.hasLength(userDTO.getEmail()) && userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
+        } else if (StringUtils.hasLength(userDTO.getEmail())
+                && userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyUsedException();
         } else {
             AppUser newUser = userService.createUser(userDTO);
             //   mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI("/api/admin/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newUser.getLogin()))
-                .body(newUser);
+                    .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newUser.getLogin()))
+                    .body(newUser);
         }
     }
 
@@ -156,9 +157,8 @@ public class UserResource {
             throw new LoginAlreadyUsedException();
         }
         return ResponseUtil.wrapOrNotFound(
-            userService.updateUser(userDTO),
-            HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin())
-        );
+                userService.updateUser(userDTO),
+                HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin()));
     }
 
     /**
@@ -170,14 +170,16 @@ public class UserResource {
      */
     @GetMapping("/users")
     // @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers(
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get all User for an admin");
         if (!onlyContainsAllowedProperties(pageable)) {
             return ResponseEntity.badRequest().build();
         }
 
         final Page<AdminUserDTO> page = userService.getAllManagedUsers(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
@@ -193,10 +195,11 @@ public class UserResource {
      * user, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/users/{login}")
-
-    public ResponseEntity<AdminUserDTO> getUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
+    public ResponseEntity<AdminUserDTO> getUser(
+            @PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to get User : {}", login);
-        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
+        return ResponseUtil.wrapOrNotFound(
+                userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
     }
 
     /**
@@ -206,9 +209,12 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/users/{login}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
-        return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login)).build();
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login))
+                .build();
     }
 }

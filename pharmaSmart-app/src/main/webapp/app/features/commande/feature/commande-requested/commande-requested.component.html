@@ -1,8 +1,6 @@
 <div class="d-flex flex-column h-100">
-
   <!-- ── PANEL HEADER — actions ──────────────────────────────────────── -->
   <div class="panel-header">
-
     <!-- Actions gauche -->
     <div class="d-flex gap-2 align-items-center flex-wrap">
       <!-- Ajouter des lignes à la main : interdit dès que la commande est partie. -->
@@ -54,8 +52,7 @@
           size="small"
         />
       }
-      @if (seuilMontantCommande > 0 && (currentCommande()?.grossAmount ?? 0)
-      > seuilMontantCommande) {
+      @if (seuilMontantCommande > 0 && (currentCommande()?.grossAmount ?? 0) > seuilMontantCommande) {
         <app-badge
           [ngbTooltip]="'Seuil : ' + (seuilMontantCommande | number) + ' F'"
           icon="pi pi-exclamation-triangle"
@@ -79,19 +76,11 @@
            />-->
         } @else {
           @if (!currentCommande().hasBeenSubmittedToPharmaML) {
-            <app-split-button
-              [items]="pharmamlActions()"
-              [outlined]="true"
-              icon="pi pi-send"
-              label="Actions PharmaML"
-              severity="warn"
-            />
+            <app-split-button [items]="pharmamlActions()" [outlined]="true" icon="pi pi-send" label="Actions PharmaML" severity="warn" />
           }
-
         }
       }
     </div>
-
   </div>
 
   <!-- ── BANDEAUX CONTEXTUELS ──────────────────────────────────────────── -->
@@ -117,7 +106,9 @@
   @if (currentCommande()?.reliquatDeCommandeId != null) {
     <div class="cr-banner cr-banner--reliquat">
       <i class="pi pi-arrow-right-arrow-left"></i>
-      <span>Reliquat de la commande <strong>#{{ currentCommande()!.reliquatDeCommandeId }}</strong></span>
+      <span
+        >Reliquat de la commande <strong>#{{ currentCommande()!.reliquatDeCommandeId }}</strong></span
+      >
     </div>
   }
 
@@ -151,13 +142,7 @@
               placeholder="Qté"
               type="number"
             />
-            <app-button
-              (clicked)="onQuantity()"
-              [disabled]="!produitSelected()"
-              icon="pi pi-plus"
-              severity="primary"
-              type="button"
-            />
+            <app-button (clicked)="onQuantity()" [disabled]="!produitSelected()" icon="pi pi-plus" severity="primary" type="button" />
           </div>
         </div>
       }
@@ -185,7 +170,6 @@
 
   <!-- ── GRILLE + PANNEAU PHARMAML ─────────────────────────────────────── -->
   <div class="grid-wrapper flex-grow-1">
-
     <!-- CAPTION — totaux + compteur lignes -->
     @if (currentCommande() && orderLines().length > 0) {
       <!--
@@ -227,19 +211,21 @@
             <span aria-hidden="true" class="grid-caption__sep"></span>
             <span
               class="grid-caption__stat"
-              [ngbTooltip]="'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' : en dessous, les frais de port sont facturés.'"
+              [ngbTooltip]="
+                'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' : en dessous, les frais de port sont facturés.'
+              "
               placement="top"
             >
               <span class="grid-caption__stat-label">Franco</span>
-              <span class="grid-caption__stat-value text-warning">
-                il manque {{ manque | devise }}
-              </span>
+              <span class="grid-caption__stat-value text-warning"> il manque {{ manque | devise }} </span>
             </span>
           } @else if (francoAtteint()) {
             <span aria-hidden="true" class="grid-caption__sep"></span>
             <span
               class="grid-caption__stat"
-              [ngbTooltip]="'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' — atteint : pas de frais de port sur ce bon.'"
+              [ngbTooltip]="
+                'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' — atteint : pas de frais de port sur ce bon.'
+              "
               placement="top"
             >
               <span class="grid-caption__stat-label">Franco</span>
@@ -251,8 +237,12 @@
             <span
               class="grid-caption__stat"
               [ngbTooltip]="
-                rfa.fournisseurName + ' — ' + (rfa.caCommandeN | devise) + ' sur un palier de ' +
-                (rfa.palierRfa | devise) + '.' +
+                rfa.fournisseurName +
+                ' — ' +
+                (rfa.caCommandeN | devise) +
+                ' sur un palier de ' +
+                (rfa.palierRfa | devise) +
+                '.' +
                 (rfa.resteAvantPalier > 0
                   ? ' Il reste ' + (rfa.resteAvantPalier | devise) + ' à facturer.'
                   : ' Palier franchi, la remise est acquise.')
@@ -273,7 +263,13 @@
                 icon="pi pi-star"
                 label="Ce bon franchit le palier"
                 severity="success"
-                [ngbTooltip]="'Il reste ' + (rfa.resteAvantPalier | devise) + ' à facturer, ce bon en porte ' + (currentCommande().grossAmount | devise) + '.'"
+                [ngbTooltip]="
+                  'Il reste ' +
+                  (rfa.resteAvantPalier | devise) +
+                  ' à facturer, ce bon en porte ' +
+                  (currentCommande().grossAmount | devise) +
+                  '.'
+                "
                 placement="top"
               />
             }
@@ -284,7 +280,6 @@
 
     <!-- CORPS : grille (+ PharmaML latéral) -->
     <div class="grid-body d-flex overflow-hidden">
-
       <!-- AG GRID -->
       <div class="flex-grow-1 overflow-hidden h-100">
         @if (currentCommande()) {
@@ -307,7 +302,7 @@
             [singleClickEdit]="true"
             [stopEditingWhenCellsLoseFocus]="true"
             [theme]="theme"
-            style="width: 100%; height: 100%;"
+            style="width: 100%; height: 100%"
           />
         } @else {
           <div class="grid-empty-state">
@@ -316,7 +311,6 @@
           </div>
         }
       </div>
-
 
       @if (currentCommande() && estSoumisePharmaml) {
         <div class="pharmaml-col">
@@ -328,8 +322,6 @@
           />
         </div>
       }
-
     </div>
   </div>
-
 </div>

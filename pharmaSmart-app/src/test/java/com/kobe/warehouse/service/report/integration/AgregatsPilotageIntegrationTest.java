@@ -25,8 +25,8 @@ import com.kobe.warehouse.repository.PilotageVenteJourRepository;
 import com.kobe.warehouse.repository.PilotageVenteRepository;
 import com.kobe.warehouse.repository.PilotageVentesDetailRepository;
 import com.kobe.warehouse.repository.PilotageVueRepository;
-import com.kobe.warehouse.service.dto.pilotage.LignesJourDTO;
 import com.kobe.warehouse.service.dto.pilotage.FiltreAnalyseDTO;
+import com.kobe.warehouse.service.dto.pilotage.LignesJourDTO;
 import com.kobe.warehouse.service.dto.pilotage.MesuresVentileesDTO;
 import com.kobe.warehouse.service.dto.pilotage.RequeteVentilationDTO;
 import com.kobe.warehouse.service.dto.pilotage.VenteRemiseeDTO;
@@ -72,8 +72,10 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
     void lesEntetesSuiventLaReference() {
         recalculerLaJournee();
 
-        assertThat(IntegrationPostgresDatabase.bean(PilotageVenteJourRepository.class).calculerChiffreAffairesOfficine(JOUR, JOUR))
-            .isEqualTo(IntegrationPostgresDatabase.bean(PilotageVenteRepository.class).calculerChiffreAffairesOfficine(JOUR, JOUR));
+        assertThat(IntegrationPostgresDatabase.bean(PilotageVenteJourRepository.class)
+                        .calculerChiffreAffairesOfficine(JOUR, JOUR))
+                .isEqualTo(IntegrationPostgresDatabase.bean(PilotageVenteRepository.class)
+                        .calculerChiffreAffairesOfficine(JOUR, JOUR));
     }
 
     @Test
@@ -82,11 +84,11 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         recalculerLaJournee();
 
         long[] lignes = sommes(
-            "SELECT sum(quantite_demandee), sum(montant_ttc), sum(remise), sum(cout_ttc), sum(cout_ht) FROM pilotage_vente_ligne_jour " +
-            "WHERE jour = :jour AND produit_id = :produit AND categorie_ca = 'CA'"
-        );
+                "SELECT sum(quantite_demandee), sum(montant_ttc), sum(remise), sum(cout_ttc), sum(cout_ht) FROM pilotage_vente_ligne_jour "
+                        + "WHERE jour = :jour AND produit_id = :produit AND categorie_ca = 'CA'");
 
-        assertThat(lignes).containsExactly(5, 5L * PRIX, REMISE, 5L * produit.getCostAmount(), 5L * produit.getCostAmount());
+        assertThat(lignes)
+                .containsExactly(5, 5L * PRIX, REMISE, 5L * produit.getCostAmount(), 5L * produit.getCostAmount());
     }
 
     @Test
@@ -94,7 +96,8 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
     void lAnnulationEstMarquee() {
         recalculerLaJournee();
 
-        long[] annulees = sommes("SELECT sum(nb_ventes), sum(montant_ttc) FROM pilotage_vente_jour WHERE jour = :jour AND annulee");
+        long[] annulees = sommes(
+                "SELECT sum(nb_ventes), sum(montant_ttc) FROM pilotage_vente_jour WHERE jour = :jour AND annulee");
 
         assertThat(annulees).containsExactly(1, PRIX);
     }
@@ -107,7 +110,8 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
 
         recalculerLaJournee();
 
-        assertThat(sommes("SELECT count(*), sum(montant_ttc) FROM pilotage_vente_jour WHERE jour = :jour")).containsExactly(premierPassage);
+        assertThat(sommes("SELECT count(*), sum(montant_ttc) FROM pilotage_vente_jour WHERE jour = :jour"))
+                .containsExactly(premierPassage);
     }
 
     @Test
@@ -116,7 +120,8 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         reception(fournisseur(unique("FRS RECEPTION")), JOUR.minusDays(3), JOUR, 60_000, 10, 8);
         recalculerLaJournee();
 
-        long[] achats = sommes("SELECT sum(quantite_recue), sum(montant_ttc), sum(montant_ht), sum(nb_bons) FROM pilotage_achat_jour WHERE jour = :jour");
+        long[] achats = sommes(
+                "SELECT sum(quantite_recue), sum(montant_ttc), sum(montant_ht), sum(nb_bons) FROM pilotage_achat_jour WHERE jour = :jour");
 
         assertThat(achats).containsExactly(8, 8L * 6_000, 8L * 6_000, 1);
     }
@@ -130,7 +135,8 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         reglement(vente, caisse, "CB", 8_000);
         recalculerLaJournee();
 
-        long[] especes = sommes("SELECT sum(montant), sum(nb_transactions) FROM pilotage_encaissement_jour WHERE jour = :jour AND mode_paiement = 'CASH'");
+        long[] especes = sommes(
+                "SELECT sum(montant), sum(nb_transactions) FROM pilotage_encaissement_jour WHERE jour = :jour AND mode_paiement = 'CASH'");
         long[] total = sommes("SELECT sum(montant) FROM pilotage_encaissement_jour WHERE jour = :jour");
 
         assertThat(especes).containsExactly(12_000, 1);
@@ -144,9 +150,8 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         pilotageAgregatRepository.photographierStock(JOUR);
 
         long[] photo = sommes(
-            "SELECT sum(quantite), sum(valeur_achat), sum(valeur_vente), count(*) FROM pilotage_stock_mensuel " +
-            "WHERE produit_id = :produit AND mois = '" + JOUR.withDayOfMonth(JOUR.lengthOfMonth()) + "'"
-        );
+                "SELECT sum(quantite), sum(valeur_achat), sum(valeur_vente), count(*) FROM pilotage_stock_mensuel "
+                        + "WHERE produit_id = :produit AND mois = '" + JOUR.withDayOfMonth(JOUR.lengthOfMonth()) + "'");
 
         assertThat(photo).containsExactly(25, 25L * produit.getCostAmount(), 25L * PRIX, 1);
     }
@@ -157,9 +162,12 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         venteDepot(JOUR.plusDays(1), 7_000);
         recalculer(JOUR.minusDays(1), JOUR.plusDays(1));
 
-        long joursOuvres = IntegrationPostgresDatabase.bean(PilotageVenteJourRepository.class).compterJoursOuvres(JOUR.minusDays(1), JOUR.plusDays(1));
+        long joursOuvres = IntegrationPostgresDatabase.bean(PilotageVenteJourRepository.class)
+                .compterJoursOuvres(JOUR.minusDays(1), JOUR.plusDays(1));
 
-        assertThat(joursOuvres).as("la veille est sans vente, le lendemain n'a qu'une vente au dépôt").isEqualTo(1);
+        assertThat(joursOuvres)
+                .as("la veille est sans vente, le lendemain n'a qu'une vente au dépôt")
+                .isEqualTo(1);
     }
 
     @Test
@@ -168,8 +176,10 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         recalculerLaJournee();
         PilotageMesuresRepository mesures = IntegrationPostgresDatabase.bean(PilotageMesuresRepository.class);
 
-        VentesJourDTO ventes = mesures.listerVentesParJour(JOUR, JOUR, CategorieChiffreAffaire.officine()).getFirst();
-        LignesJourDTO lignes = mesures.listerLignesParJour(JOUR, JOUR, CategorieChiffreAffaire.officine()).getFirst();
+        VentesJourDTO ventes = mesures.listerVentesParJour(JOUR, JOUR, CategorieChiffreAffaire.officine())
+                .getFirst();
+        LignesJourDTO lignes = mesures.listerLignesParJour(JOUR, JOUR, CategorieChiffreAffaire.officine())
+                .getFirst();
 
         assertThat(ventes.nbVentes()).isEqualTo(2);
         assertThat(ventes.nbVentesAnnulees()).isEqualTo(1);
@@ -184,12 +194,18 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         recalculerLaJournee();
 
         assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.PRODUIT))
-            .filteredOn(ligne -> ligne.cle1().equals(produit.getId().toString()))
-            .extracting(MesuresVentileesDTO::caTtc, MesuresVentileesDTO::quantite)
-            .containsExactly(tuple(5L * PRIX, 5L));
-        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.FAMILLE)).extracting(MesuresVentileesDTO::libelle1).contains(produit.getFamille().getLibelle());
-        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.VENDEUR)).extracting(MesuresVentileesDTO::cle1).contains(utilisateur.getId().toString());
-        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.NATURE_VENTE)).extracting(MesuresVentileesDTO::cle1).contains("COMPTANT");
+                .filteredOn(ligne -> ligne.cle1().equals(produit.getId().toString()))
+                .extracting(MesuresVentileesDTO::caTtc, MesuresVentileesDTO::quantite)
+                .containsExactly(tuple(5L * PRIX, 5L));
+        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.FAMILLE))
+                .extracting(MesuresVentileesDTO::libelle1)
+                .contains(produit.getFamille().getLibelle());
+        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.VENDEUR))
+                .extracting(MesuresVentileesDTO::cle1)
+                .contains(utilisateur.getId().toString());
+        assertThat(ventiler(SourceAnalyse.LIGNES, AxeAnalyse.NATURE_VENTE))
+                .extracting(MesuresVentileesDTO::cle1)
+                .contains("COMPTANT");
     }
 
     @Test
@@ -197,10 +213,16 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
     void chaqueAxeSeLit() {
         recalculerLaJournee();
         for (SourceAnalyse source : SourceAnalyse.values()) {
-            long total = ventiler(source).stream().mapToLong(MesuresVentileesDTO::caTtc).sum();
+            long total = ventiler(source).stream()
+                    .mapToLong(MesuresVentileesDTO::caTtc)
+                    .sum();
             for (AxeAnalyse axe : AxeAnalyse.values()) {
                 if (axe.estLuEnBase() && axe.getSources().contains(source)) {
-                    assertThat(ventiler(source, axe).stream().mapToLong(MesuresVentileesDTO::caTtc).sum()).as("%s par %s", source, axe).isEqualTo(total);
+                    assertThat(ventiler(source, axe).stream()
+                                    .mapToLong(MesuresVentileesDTO::caTtc)
+                                    .sum())
+                            .as("%s par %s", source, axe)
+                            .isEqualTo(total);
                 }
             }
         }
@@ -212,12 +234,17 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         recalculerLaJournee();
         String famille = produit.getFamille().getId().toString();
 
-        assertThat(
-            analyse().ventiler(requete(SourceAnalyse.LIGNES, List.of(AxeAnalyse.PRODUIT), List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of(famille)))))
-        )
-            .extracting(MesuresVentileesDTO::cle1)
-            .containsOnly(produit.getId().toString());
-        assertThat(ventiler(SourceAnalyse.ENTETES, AxeAnalyse.HEURE).stream().mapToLong(MesuresVentileesDTO::nbVentes).sum()).isEqualTo(2);
+        assertThat(analyse()
+                        .ventiler(requete(
+                                SourceAnalyse.LIGNES,
+                                List.of(AxeAnalyse.PRODUIT),
+                                List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of(famille))))))
+                .extracting(MesuresVentileesDTO::cle1)
+                .containsOnly(produit.getId().toString());
+        assertThat(ventiler(SourceAnalyse.ENTETES, AxeAnalyse.HEURE).stream()
+                        .mapToLong(MesuresVentileesDTO::nbVentes)
+                        .sum())
+                .isEqualTo(2);
     }
 
     @Test
@@ -226,18 +253,20 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         recalculerLaJournee();
 
         // 500 de remise sur 3 × 2 000 : 8 %, accordée par privilège (aucune clé de sécurité saisie).
-        assertThat(ventiler(SourceAnalyse.ENTETES, AxeAnalyse.REMISE)).extracting(MesuresVentileesDTO::cle1).contains("8", "0");
+        assertThat(ventiler(SourceAnalyse.ENTETES, AxeAnalyse.REMISE))
+                .extracting(MesuresVentileesDTO::cle1)
+                .contains("8", "0");
         assertThat(ventiler(SourceAnalyse.ENTETES, AxeAnalyse.OCTROI_REMISE))
-            .filteredOn(ligne -> ligne.cle1().equals("PRIVILEGE"))
-            .extracting(MesuresVentileesDTO::nbVentes, MesuresVentileesDTO::remise)
-            .containsExactly(tuple(1L, (long) REMISE));
-        assertThat(
-            analyse().ventiler(
-                requete(SourceAnalyse.LIGNES, List.of(AxeAnalyse.PRODUIT), List.of(new FiltreAnalyseDTO(AxeAnalyse.REMISE, List.of("5-9"))))
-            )
-        )
-            .extracting(MesuresVentileesDTO::quantite)
-            .containsExactly(3L);
+                .filteredOn(ligne -> ligne.cle1().equals("PRIVILEGE"))
+                .extracting(MesuresVentileesDTO::nbVentes, MesuresVentileesDTO::remise)
+                .containsExactly(tuple(1L, (long) REMISE));
+        assertThat(analyse()
+                        .ventiler(requete(
+                                SourceAnalyse.LIGNES,
+                                List.of(AxeAnalyse.PRODUIT),
+                                List.of(new FiltreAnalyseDTO(AxeAnalyse.REMISE, List.of("5-9"))))))
+                .extracting(MesuresVentileesDTO::quantite)
+                .containsExactly(3L);
     }
 
     @Test
@@ -246,51 +275,64 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
         PilotageVentesDetailRepository ventes = IntegrationPostgresDatabase.bean(PilotageVentesDetailRepository.class);
         var officine = CategorieChiffreAffaire.officine();
 
-        assertThat(ventes.listerPlusFortesRemises(JOUR, JOUR, SalesStatut.CLOSED, officine, "PR_AJOUTER_REMISE_VENTE", PageRequest.of(0, 10)))
-            .extracting(VenteRemiseeDTO::remise)
-            .contains((long) REMISE);
-        assertThat(ventes.listerVentesAMargeNegative(JOUR, JOUR, SalesStatut.CLOSED, officine, PageRequest.of(0, 10))).isNotNull();
+        assertThat(ventes.listerPlusFortesRemises(
+                        JOUR, JOUR, SalesStatut.CLOSED, officine, "PR_AJOUTER_REMISE_VENTE", PageRequest.of(0, 10)))
+                .extracting(VenteRemiseeDTO::remise)
+                .contains((long) REMISE);
+        assertThat(ventes.listerVentesAMargeNegative(JOUR, JOUR, SalesStatut.CLOSED, officine, PageRequest.of(0, 10)))
+                .isNotNull();
         PilotageDemarqueRepository demarque = IntegrationPostgresDatabase.bean(PilotageDemarqueRepository.class);
-        assertThat(demarque.sommerParMotif(JOUR.atStartOfDay(), JOUR.plusDays(1).atStartOfDay(), AjustementStatut.CLOSED, AjustType.AJUSTEMENT_OUT)).isNotNull();
-        assertThat(
-            demarque.listerProduitsLesPlusTouches(JOUR.atStartOfDay(), JOUR.plusDays(1).atStartOfDay(), AjustementStatut.CLOSED, AjustType.AJUSTEMENT_OUT, PageRequest.of(0, 5))
-        ).isNotNull();
+        assertThat(demarque.sommerParMotif(
+                        JOUR.atStartOfDay(),
+                        JOUR.plusDays(1).atStartOfDay(),
+                        AjustementStatut.CLOSED,
+                        AjustType.AJUSTEMENT_OUT))
+                .isNotNull();
+        assertThat(demarque.listerProduitsLesPlusTouches(
+                        JOUR.atStartOfDay(),
+                        JOUR.plusDays(1).atStartOfDay(),
+                        AjustementStatut.CLOSED,
+                        AjustType.AJUSTEMENT_OUT,
+                        PageRequest.of(0, 5)))
+                .isNotNull();
     }
 
     @Test
     @DisplayName("les vues livrées d'office sont visibles de tous ; une vue enregistrée garde ses indicateurs")
     void lesVuesEnregistrees() {
         PilotageVueRepository vues = IntegrationPostgresDatabase.bean(PilotageVueRepository.class);
-        PilotageVue vue = vues.save(
-            new PilotageVue()
+        PilotageVue vue = vues.save(new PilotageVue()
                 .setLibelle("Mes antalgiques")
                 .setIndicateurs(List.of(IndicateurPilotage.CA_TTC, IndicateurPilotage.MARGE_BRUTE))
                 .setAxe(AxeAnalyse.PRODUIT)
                 .setNombreElements(20)
                 .setTri(TriAnalyse.VALEUR)
                 .setAffichage(AffichageAnalyse.TABLEAU)
-                .setProprietaire(utilisateur)
-        );
+                .setProprietaire(utilisateur));
         em.flush();
         em.clear();
 
         List<PilotageVue> visibles = vues.listerVisibles(utilisateur.getId());
         assertThat(visibles).filteredOn(PilotageVue::estLivree).hasSize(9);
         assertThat(visibles.getLast().getId()).isEqualTo(vue.getId());
-        assertThat(visibles.getLast().getIndicateurs()).containsExactly(IndicateurPilotage.CA_TTC, IndicateurPilotage.MARGE_BRUTE);
+        assertThat(visibles.getLast().getIndicateurs())
+                .containsExactly(IndicateurPilotage.CA_TTC, IndicateurPilotage.MARGE_BRUTE);
     }
 
     @Test
     @DisplayName("un jour dont une vente vient de changer est repéré pour recalcul")
     void unJourModifieEstRepere() {
-        assertThat(pilotageAgregatRepository.listerJoursModifiesDepuis(LocalDateTime.now().minusMinutes(5))).contains(JOUR);
+        assertThat(pilotageAgregatRepository.listerJoursModifiesDepuis(
+                        LocalDateTime.now().minusMinutes(5)))
+                .contains(JOUR);
     }
 
     private List<MesuresVentileesDTO> ventiler(SourceAnalyse source, AxeAnalyse... axes) {
         return analyse().ventiler(requete(source, List.of(axes), List.of()));
     }
 
-    private static RequeteVentilationDTO requete(SourceAnalyse source, List<AxeAnalyse> axes, List<FiltreAnalyseDTO> filtres) {
+    private static RequeteVentilationDTO requete(
+            SourceAnalyse source, List<AxeAnalyse> axes, List<FiltreAnalyseDTO> filtres) {
         return new RequeteVentilationDTO(JOUR, JOUR, source, axes, false, filtres, CategorieChiffreAffaire.officine());
     }
 
@@ -327,7 +369,7 @@ class AgregatsPilotageIntegrationTest extends AbstractReportIntegrationTest {
             requete.setParameter("produit", produit.getId());
         }
         Object resultat = requete.getSingleResult();
-        Object[] colonnes = resultat instanceof Object[] tableau ? tableau : new Object[] { resultat };
+        Object[] colonnes = resultat instanceof Object[] tableau ? tableau : new Object[] {resultat};
         long[] valeurs = new long[colonnes.length];
         for (int i = 0; i < colonnes.length; i++) {
             valeurs[i] = colonnes[i] == null ? 0 : ((Number) colonnes[i]).longValue();

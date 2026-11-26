@@ -14,12 +14,30 @@ public class AvoirEncoursFournisseurDTO {
         this.montantEncours = montantEncours;
     }
 
-    public Integer getFournisseurId() { return fournisseurId; }
-    public AvoirEncoursFournisseurDTO setFournisseurId(Integer fournisseurId) { this.fournisseurId = fournisseurId; return this; }
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
 
-    public String getFournisseurLibelle() { return fournisseurLibelle; }
-    public AvoirEncoursFournisseurDTO setFournisseurLibelle(String fournisseurLibelle) { this.fournisseurLibelle = fournisseurLibelle; return this; }
+    public AvoirEncoursFournisseurDTO setFournisseurId(Integer fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
 
-    public long getMontantEncours() { return montantEncours; }
-    public AvoirEncoursFournisseurDTO setMontantEncours(long montantEncours) { this.montantEncours = montantEncours; return this; }
+    public String getFournisseurLibelle() {
+        return fournisseurLibelle;
+    }
+
+    public AvoirEncoursFournisseurDTO setFournisseurLibelle(String fournisseurLibelle) {
+        this.fournisseurLibelle = fournisseurLibelle;
+        return this;
+    }
+
+    public long getMontantEncours() {
+        return montantEncours;
+    }
+
+    public AvoirEncoursFournisseurDTO setMontantEncours(long montantEncours) {
+        this.montantEncours = montantEncours;
+        return this;
+    }
 }

@@ -1,11 +1,5 @@
 import { expect } from '@playwright/test';
-import {
-  assurerCaisseOuverte,
-  ouvrirFactureARegler,
-  ouvrirOnglet,
-  rechercher,
-  traverserConfirmations,
-} from '../../src/actions';
+import { assurerCaisseOuverte, ouvrirFactureARegler, ouvrirOnglet, rechercher, traverserConfirmations } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -49,7 +43,11 @@ scenario('FAC-48', async ({ etape, page }) => {
     // Les espèces, explicitement : un chèque réclamerait la banque, son numéro et le
     // bénéficiaire, et la validation resterait fermée tant qu'ils manquent.
     await modale.locator('ng-select').first().click();
-    await page.locator('.ng-option').filter({ hasText: /ESPECE/i }).first().click();
+    await page
+      .locator('.ng-option')
+      .filter({ hasText: /ESPECE/i })
+      .first()
+      .click();
     await modale.getByRole('button', { name: 'Valider' }).click();
   });
 

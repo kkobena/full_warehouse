@@ -62,19 +62,19 @@ class AccountsPayableServiceImplTest {
     private final AccountsPayableApPdfExportService pdfExportService = mock(AccountsPayableApPdfExportService.class);
 
     private final AccountsPayableService service = new AccountsPayableServiceImpl(
-        commandeRepository,
-        paymentFournisseurRepository,
-        cashRegisterService,
-        idGenerator,
-        appConfigurationService,
-        pdfExportService
-    );
+            commandeRepository,
+            paymentFournisseurRepository,
+            cashRegisterService,
+            idGenerator,
+            appConfigurationService,
+            pdfExportService);
 
     @BeforeEach
     void aucuneDette() {
-        when(commandeRepository.findUnpaidCommandesApByPeriod(any(), any(), any(), any())).thenReturn(List.of());
+        when(commandeRepository.findUnpaidCommandesApByPeriod(any(), any(), any(), any()))
+                .thenReturn(List.of());
         when(commandeRepository.findUnpaidCommandesApByFournisseurAndPeriod(any(), any(), anyInt(), any(), any()))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
         when(paymentFournisseurRepository.sumPaidAmountsByCommandeIds(any())).thenReturn(List.of());
         when(appConfigurationService.getApDefaultCreditDays()).thenReturn(JOURS_CREDIT_PAR_DEFAUT);
         when(appConfigurationService.getApDefaultCritiqueDays()).thenReturn(JOURS_CRITIQUE_PAR_DEFAUT);
@@ -94,7 +94,8 @@ class AccountsPayableServiceImplTest {
             Fournisseur laborex = fournisseur(3, "LABOREX", 45, null, null);
             donneCommandes(commande(1, laborex, jour(60), jour(50), 1_000_000));
 
-            assertThat(ligneUnique().dateEcheance()).isEqualTo(jour(50).plusDays(45).toString());
+            assertThat(ligneUnique().dateEcheance())
+                    .isEqualTo(jour(50).plusDays(45).toString());
         }
 
         /** Un bon jamais réceptionné garde la date de commande comme point de départ. */
@@ -105,7 +106,8 @@ class AccountsPayableServiceImplTest {
             Commande commande = commande(1, laborex, jour(60), null, 1_000_000);
             donneCommandes(commande);
 
-            assertThat(ligneUnique().dateEcheance()).isEqualTo(jour(60).plusDays(45).toString());
+            assertThat(ligneUnique().dateEcheance())
+                    .isEqualTo(jour(60).plusDays(45).toString());
         }
 
         @Test
@@ -114,7 +116,8 @@ class AccountsPayableServiceImplTest {
             Fournisseur laborex = fournisseur(3, "LABOREX", 60, null, null);
             donneCommandes(commande(1, laborex, jour(10), jour(10), 1_000_000));
 
-            assertThat(ligneUnique().dateEcheance()).isEqualTo(jour(10).plusDays(60).toString());
+            assertThat(ligneUnique().dateEcheance())
+                    .isEqualTo(jour(10).plusDays(60).toString());
         }
 
         /** Un dépôt régional hérite des conditions négociées avec sa maison mère. */
@@ -125,7 +128,8 @@ class AccountsPayableServiceImplTest {
             Fournisseur depot = fournisseur(3, "DEPOT", null, null, groupe);
             donneCommandes(commande(1, depot, jour(10), jour(10), 1_000_000));
 
-            assertThat(ligneUnique().dateEcheance()).isEqualTo(jour(10).plusDays(90).toString());
+            assertThat(ligneUnique().dateEcheance())
+                    .isEqualTo(jour(10).plusDays(90).toString());
         }
 
         @Test
@@ -134,7 +138,8 @@ class AccountsPayableServiceImplTest {
             Fournisseur laborex = fournisseur(3, "LABOREX", null, null, null);
             donneCommandes(commande(1, laborex, jour(10), jour(10), 1_000_000));
 
-            assertThat(ligneUnique().dateEcheance()).isEqualTo(jour(10).plusDays(JOURS_CREDIT_PAR_DEFAUT).toString());
+            assertThat(ligneUnique().dateEcheance())
+                    .isEqualTo(jour(10).plusDays(JOURS_CREDIT_PAR_DEFAUT).toString());
         }
     }
 
@@ -198,8 +203,8 @@ class AccountsPayableServiceImplTest {
             donneCommandes(avecReception, sansReception);
 
             assertThat(service.getLignes(3, null, PageRequest.of(0, 20)).getContent())
-                .extracting(LigneFournisseurAPDTO::numBon)
-                .containsExactlyInAnyOrder("BL-001", sansReception.getOrderReference());
+                    .extracting(LigneFournisseurAPDTO::numBon)
+                    .containsExactlyInAnyOrder("BL-001", sansReception.getOrderReference());
         }
     }
 
@@ -214,14 +219,13 @@ class AccountsPayableServiceImplTest {
         void ordreChronologique() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(10), jour(10), 100_000),
-                commande(2, laborex, jour(60), jour(60), 200_000),
-                commande(3, laborex, jour(30), jour(30), 300_000)
-            );
+                    commande(1, laborex, jour(10), jour(10), 100_000),
+                    commande(2, laborex, jour(60), jour(60), 200_000),
+                    commande(3, laborex, jour(30), jour(30), 300_000));
 
             assertThat(service.getLignes(3, null, PageRequest.of(0, 20)).getContent())
-                .extracting(LigneFournisseurAPDTO::dateCommande)
-                .isSorted();
+                    .extracting(LigneFournisseurAPDTO::dateCommande)
+                    .isSorted();
         }
 
         @Test
@@ -229,15 +233,10 @@ class AccountsPayableServiceImplTest {
         void filtreParStatut() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(90), jour(90), 100_000),
-                commande(2, laborex, jour(5), jour(5), 200_000)
-            );
+                    commande(1, laborex, jour(90), jour(90), 100_000), commande(2, laborex, jour(5), jour(5), 200_000));
 
-            Page<LigneFournisseurAPDTO> enRetard = service.getLignes(
-                3,
-                StatutLigneFournisseurAP.EN_RETARD,
-                PageRequest.of(0, 20)
-            );
+            Page<LigneFournisseurAPDTO> enRetard =
+                    service.getLignes(3, StatutLigneFournisseurAP.EN_RETARD, PageRequest.of(0, 20));
 
             assertThat(enRetard.getContent()).hasSize(1);
             assertThat(enRetard.getContent().getFirst().statut()).isEqualTo(StatutLigneFournisseurAP.EN_RETARD.name());
@@ -248,12 +247,11 @@ class AccountsPayableServiceImplTest {
         void totalApresFiltrage() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(90), jour(90), 100_000),
-                commande(2, laborex, jour(5), jour(5), 200_000)
-            );
+                    commande(1, laborex, jour(90), jour(90), 100_000), commande(2, laborex, jour(5), jour(5), 200_000));
 
-            assertThat(service.getLignes(3, StatutLigneFournisseurAP.EN_RETARD, PageRequest.of(0, 20)).getTotalElements())
-                .isEqualTo(1L);
+            assertThat(service.getLignes(3, StatutLigneFournisseurAP.EN_RETARD, PageRequest.of(0, 20))
+                            .getTotalElements())
+                    .isEqualTo(1L);
         }
 
         @Test
@@ -261,20 +259,23 @@ class AccountsPayableServiceImplTest {
         void pagesDistinctes() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(50), jour(50), 100_000),
-                commande(2, laborex, jour(40), jour(40), 200_000),
-                commande(3, laborex, jour(30), jour(30), 300_000),
-                commande(4, laborex, jour(20), jour(20), 400_000)
-            );
+                    commande(1, laborex, jour(50), jour(50), 100_000),
+                    commande(2, laborex, jour(40), jour(40), 200_000),
+                    commande(3, laborex, jour(30), jour(30), 300_000),
+                    commande(4, laborex, jour(20), jour(20), 400_000));
 
-            List<LigneFournisseurAPDTO> premiere = service.getLignes(3, null, PageRequest.of(0, 2)).getContent();
-            List<LigneFournisseurAPDTO> seconde = service.getLignes(3, null, PageRequest.of(1, 2)).getContent();
+            List<LigneFournisseurAPDTO> premiere =
+                    service.getLignes(3, null, PageRequest.of(0, 2)).getContent();
+            List<LigneFournisseurAPDTO> seconde =
+                    service.getLignes(3, null, PageRequest.of(1, 2)).getContent();
 
             assertThat(premiere).hasSize(2);
             assertThat(seconde).hasSize(2);
             assertThat(premiere)
-                .extracting(LigneFournisseurAPDTO::commandeId)
-                .doesNotContainAnyElementsOf(seconde.stream().map(LigneFournisseurAPDTO::commandeId).toList());
+                    .extracting(LigneFournisseurAPDTO::commandeId)
+                    .doesNotContainAnyElementsOf(seconde.stream()
+                            .map(LigneFournisseurAPDTO::commandeId)
+                            .toList());
         }
 
         /** Le téléphone peut demander une page au-delà de la fin : elle doit être vide, pas fatale. */
@@ -284,7 +285,8 @@ class AccountsPayableServiceImplTest {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(commande(1, laborex, jour(10), jour(10), 100_000));
 
-            assertThat(service.getLignes(3, null, PageRequest.of(9, 20)).getContent()).isEmpty();
+            assertThat(service.getLignes(3, null, PageRequest.of(9, 20)).getContent())
+                    .isEmpty();
         }
     }
 
@@ -299,9 +301,8 @@ class AccountsPayableServiceImplTest {
         void cumulParFournisseur() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(10), jour(10), 1_000_000),
-                commande(2, laborex, jour(20), jour(20), 500_000)
-            );
+                    commande(1, laborex, jour(10), jour(10), 1_000_000),
+                    commande(2, laborex, jour(20), jour(20), 500_000));
             donneReglements(1, 400_000L);
 
             CompteFournisseurAPDTO compte = service.getComptes().getFirst();
@@ -319,13 +320,11 @@ class AccountsPayableServiceImplTest {
             Fournisseur gros = fournisseur(3, "GROS", 30, null, null);
             Fournisseur petit = fournisseur(4, "PETIT", 30, null, null);
             donneCommandes(
-                commande(1, petit, jour(10), jour(10), 100_000),
-                commande(2, gros, jour(10), jour(10), 9_000_000)
-            );
+                    commande(1, petit, jour(10), jour(10), 100_000), commande(2, gros, jour(10), jour(10), 9_000_000));
 
             assertThat(service.getComptes())
-                .extracting(CompteFournisseurAPDTO::fournisseurName)
-                .containsExactly("GROS", "PETIT");
+                    .extracting(CompteFournisseurAPDTO::fournisseurName)
+                    .containsExactly("GROS", "PETIT");
         }
 
         @Test
@@ -333,13 +332,12 @@ class AccountsPayableServiceImplTest {
         void prochaineEcheance() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(10), jour(10), 100_000),
-                commande(2, laborex, jour(40), jour(40), 200_000)
-            );
+                    commande(1, laborex, jour(10), jour(10), 100_000),
+                    commande(2, laborex, jour(40), jour(40), 200_000));
 
             // Le bon le plus ancien échoit le premier.
             assertThat(service.getComptes().getFirst().prochaineEcheance())
-                .isEqualTo(jour(40).plusDays(30).toString());
+                    .isEqualTo(jour(40).plusDays(30).toString());
         }
 
         @Test
@@ -402,9 +400,8 @@ class AccountsPayableServiceImplTest {
         void totalDu() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(10), jour(10), 1_000_000),
-                commande(2, laborex, jour(20), jour(20), 500_000)
-            );
+                    commande(1, laborex, jour(10), jour(10), 1_000_000),
+                    commande(2, laborex, jour(20), jour(20), 500_000));
             donneReglements(1, 400_000L);
 
             assertThat(service.getSummary().totalDu()).isEqualTo(1_100_000L);
@@ -416,9 +413,8 @@ class AccountsPayableServiceImplTest {
         void bonTropPaye() {
             Fournisseur laborex = fournisseur(3, "LABOREX", 30, null, null);
             donneCommandes(
-                commande(1, laborex, jour(10), jour(10), 100_000),
-                commande(2, laborex, jour(20), jour(20), 500_000)
-            );
+                    commande(1, laborex, jour(10), jour(10), 100_000),
+                    commande(2, laborex, jour(20), jour(20), 500_000));
             donneReglements(1, 150_000L);
 
             assertThat(service.getSummary().totalDu()).isEqualTo(500_000L);
@@ -430,9 +426,7 @@ class AccountsPayableServiceImplTest {
             Fournisseur enRetard = fournisseur(3, "RETARD", 30, null, null);
             Fournisseur aJour = fournisseur(4, "A JOUR", 30, null, null);
             donneCommandes(
-                commande(1, enRetard, jour(90), jour(90), 100_000),
-                commande(2, aJour, jour(1), jour(1), 200_000)
-            );
+                    commande(1, enRetard, jour(90), jour(90), 100_000), commande(2, aJour, jour(1), jour(1), 200_000));
 
             FournisseurAPSummaryDTO synthese = service.getSummary();
 
@@ -517,8 +511,8 @@ class AccountsPayableServiceImplTest {
             service.enregistrerReglement(3, reglement(500_000, null));
 
             assertThat(paiementsEnregistres())
-                .extracting(PaymentFournisseur::getPaidAmount)
-                .containsExactly(300_000, 200_000);
+                    .extracting(PaymentFournisseur::getPaidAmount)
+                    .containsExactly(300_000, 200_000);
             assertThat(ancien.getPaimentStatut()).isEqualTo(PaimentStatut.PAID);
             assertThat(recent.getPaimentStatut()).isNotEqualTo(PaimentStatut.PAID);
         }
@@ -550,8 +544,8 @@ class AccountsPayableServiceImplTest {
             service.enregistrerReglement(3, reglement(600_000, 2));
 
             assertThat(paiementsEnregistres())
-                .extracting(PaymentFournisseur::getPaidAmount)
-                .containsExactly(400_000, 200_000);
+                    .extracting(PaymentFournisseur::getPaidAmount)
+                    .containsExactly(400_000, 200_000);
         }
 
         @Test
@@ -614,7 +608,8 @@ class AccountsPayableServiceImplTest {
     // ===== utilitaires =====
 
     private LigneFournisseurAPDTO ligneUnique() {
-        List<LigneFournisseurAPDTO> lignes = service.getLignes(3, null, PageRequest.of(0, 20)).getContent();
+        List<LigneFournisseurAPDTO> lignes =
+                service.getLignes(3, null, PageRequest.of(0, 20)).getContent();
         assertThat(lignes).hasSize(1);
         return lignes.getFirst();
     }
@@ -627,18 +622,20 @@ class AccountsPayableServiceImplTest {
     }
 
     private void donneCommandes(Commande... commandes) {
-        when(commandeRepository.findUnpaidCommandesApByPeriod(any(), any(), any(), any())).thenReturn(List.of(commandes));
+        when(commandeRepository.findUnpaidCommandesApByPeriod(any(), any(), any(), any()))
+                .thenReturn(List.of(commandes));
         when(commandeRepository.findUnpaidCommandesApByFournisseurAndPeriod(any(), any(), anyInt(), any(), any()))
-            .thenReturn(List.of(commandes));
+                .thenReturn(List.of(commandes));
     }
 
     private void donneReglements(int commandeId, long montant) {
         when(paymentFournisseurRepository.sumPaidAmountsByCommandeIds(any()))
-            .thenReturn(List.<Object[]>of(new Object[] { commandeId, montant }));
+                .thenReturn(List.<Object[]>of(new Object[] {commandeId, montant}));
     }
 
     private static ReglementFournisseurAPCommand reglement(int montant, Integer commandeId) {
-        return new ReglementFournisseurAPCommand(montant, "2026-03-10", "VIR-001", "VIREMENT", "règlement mensuel", commandeId);
+        return new ReglementFournisseurAPCommand(
+                montant, "2026-03-10", "VIR-001", "VIREMENT", "règlement mensuel", commandeId);
     }
 
     /** Une date située {@code anciennete} jours en arrière. */
@@ -646,7 +643,8 @@ class AccountsPayableServiceImplTest {
         return LocalDate.now().minusDays(anciennete);
     }
 
-    private static Fournisseur fournisseur(int id, String libelle, Integer joursCredit, Integer joursCritique, Fournisseur parent) {
+    private static Fournisseur fournisseur(
+            int id, String libelle, Integer joursCredit, Integer joursCritique, Fournisseur parent) {
         Fournisseur fournisseur = new Fournisseur();
         ReflectionTestUtils.setField(fournisseur, "id", id);
         fournisseur.setLibelle(libelle);
@@ -657,7 +655,8 @@ class AccountsPayableServiceImplTest {
         return fournisseur;
     }
 
-    private static Commande commande(int id, Fournisseur fournisseur, LocalDate dateCommande, LocalDate dateReception, int montant) {
+    private static Commande commande(
+            int id, Fournisseur fournisseur, LocalDate dateCommande, LocalDate dateReception, int montant) {
         Commande commande = new Commande();
         commande.setId(id);
         commande.setOrderDate(dateCommande);

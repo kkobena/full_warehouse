@@ -51,9 +51,6 @@ scenario('FAC-25', async ({ etape, page }) => {
     // On repose l'interrupteur comme on l'a trouvé : le jeu de démonstration doit rester stable.
     await ligne.locator('app-switch input[role="switch"]').first().click();
     await confirmation.getByRole('button', { name: 'Oui' }).click();
-    await expect(ligne).toContainText(
-      etaitDesactivee ? /désactivé/ : /\d{2}\/\d{2}\/\d{4}|à calculer/,
-      { timeout: 15000 },
-    );
+    await expect(ligne).toContainText(etaitDesactivee ? /désactivé/ : /\d{2}\/\d{2}\/\d{4}|à calculer/, { timeout: 15000 });
   });
 });

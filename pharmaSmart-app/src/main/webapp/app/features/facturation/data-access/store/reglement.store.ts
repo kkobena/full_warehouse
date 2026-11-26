@@ -1,11 +1,6 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import {
-  IDossierFactureProjection,
-  IInvoicePaymentParam,
-  IReglement,
-  IReglementFactureDossier,
-} from '../models';
+import { IDossierFactureProjection, IInvoicePaymentParam, IReglement, IReglementFactureDossier } from '../models';
 
 interface ReglementState {
   // Historique des règlements (liste factures réglées)
@@ -57,10 +52,7 @@ export const ReglementStore = signalStore(
     setSearchParams(searchParams: IInvoicePaymentParam): void {
       patchState(store, { searchParams });
     },
-    setDossierContext(
-      projection: IDossierFactureProjection | null,
-      dossiers: IReglementFactureDossier[],
-    ): void {
+    setDossierContext(projection: IDossierFactureProjection | null, dossiers: IReglementFactureDossier[]): void {
       patchState(store, {
         dossierFactureProjection: projection,
         reglementFactureDossiers: dossiers,

@@ -23,5 +23,4 @@ public interface StockAlertReportService {
      * @return Map of alert type to count
      */
     Map<StockAlertType, Long> getStockAlertsCount();
-
 }

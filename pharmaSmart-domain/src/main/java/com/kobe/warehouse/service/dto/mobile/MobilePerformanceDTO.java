@@ -9,86 +9,77 @@ import java.util.List;
  * Supports weekly, monthly, and yearly views.
  */
 public record MobilePerformanceDTO(
-    // Period info
-    String period,            // WEEK, MONTH, YEAR
-    LocalDate startDate,
-    LocalDate endDate,
+        // Period info
+        String period, // WEEK, MONTH, YEAR
+        LocalDate startDate,
+        LocalDate endDate,
 
-    // CA Summary
-    long caTotal,
-    long caPreviousPeriod,
+        // CA Summary
+        long caTotal,
+        long caPreviousPeriod,
 
-    // Nul quand la periode de reference est vide : une officine sans historique n'a pas progresse de
-    // cent pour cent, elle n'a simplement rien a quoi se comparer. L'ecran doit pouvoir afficher un
-    // tiret plutot qu'un chiffre qui se lit comme une performance.
-    Double variationPercent,
+        // Nul quand la periode de reference est vide : une officine sans historique n'a pas progresse de
+        // cent pour cent, elle n'a simplement rien a quoi se comparer. L'ecran doit pouvoir afficher un
+        // tiret plutot qu'un chiffre qui se lit comme une performance.
+        Double variationPercent,
 
-    // Période de référence réellement comparée : elle s'arrête au même avancement que la période
-    // courante, il faut donc pouvoir le dire à l'écran.
-    LocalDate previousStartDate,
-    LocalDate previousEndDate,
+        // Période de référence réellement comparée : elle s'arrête au même avancement que la période
+        // courante, il faut donc pouvoir le dire à l'écran.
+        LocalDate previousStartDate,
+        LocalDate previousEndDate,
 
-    // Même période l'an passé — la lecture qui échappe à la saison
-    long caSamePeriodLastYear,
-    Double variationVsLastYearPercent,
+        // Même période l'an passé — la lecture qui échappe à la saison
+        long caSamePeriodLastYear,
+        Double variationVsLastYearPercent,
 
-    // Transactions
-    int transactionsCount,
-    long averageBasket,
-    int customersCount,
+        // Transactions
+        int transactionsCount,
+        long averageBasket,
+        int customersCount,
 
-    // Margins
-    long marginTotal,
-    double marginPercent,
+        // Margins
+        long marginTotal,
+        double marginPercent,
 
-    // Payment methods breakdown
-    List<PaymentMethodSummaryDTO> paymentMethods,
+        // Payment methods breakdown
+        List<PaymentMethodSummaryDTO> paymentMethods,
 
-    // Top products
-    List<TopProductPerformanceDTO> topProducts,
+        // Top products
+        List<TopProductPerformanceDTO> topProducts,
 
-    // Daily/weekly data for charts
-    List<PeriodDataPointDTO> dataPoints,
+        // Daily/weekly data for charts
+        List<PeriodDataPointDTO> dataPoints,
 
-    // Metadata
-    LocalDateTime generatedAt
-) {
+        // Metadata
+        LocalDateTime generatedAt) {
     /**
      * Payment method summary.
      */
     public record PaymentMethodSummaryDTO(
-        String code,
-        String label,
-        long amount,
-        double percent,
-        int transactionsCount,
-        String color
-    ) {}
+            String code, String label, long amount, double percent, int transactionsCount, String color) {}
 
     /**
      * Top product with performance data.
      */
     public record TopProductPerformanceDTO(
-        int rank,
-        Long productId,
-        String productName,
-        String codeCip,
-        long salesAmount,
-        int quantitySold,
-        double percentOfTotal,
-        double variationPercent
-    ) {}
+            int rank,
+            Long productId,
+            String productName,
+            String codeCip,
+            long salesAmount,
+            int quantitySold,
+            double percentOfTotal,
+            double variationPercent) {}
 
     /**
      * Data point for charts (daily for week/month, monthly for year).
      */
     public record PeriodDataPointDTO(
-        LocalDate date,
-        String label,         // "Lun", "Mar", "Jan", etc.
-        long caAmount,
-        int transactionsCount,
-        long marginAmount
-    ) {}
+            LocalDate date,
+            String label, // "Lun", "Mar", "Jan", etc.
+            long caAmount,
+            int transactionsCount,
+            long marginAmount) {}
 
     /**
      * Builder for creating performance data.
@@ -209,11 +200,25 @@ public record MobilePerformanceDTO(
 
         public MobilePerformanceDTO build() {
             return new MobilePerformanceDTO(
-                period, startDate, endDate, caTotal, caPreviousPeriod, variationPercent,
-                previousStartDate, previousEndDate, caSamePeriodLastYear, variationVsLastYearPercent,
-                transactionsCount, averageBasket, customersCount, marginTotal, marginPercent,
-                paymentMethods, topProducts, dataPoints, LocalDateTime.now()
-            );
+                    period,
+                    startDate,
+                    endDate,
+                    caTotal,
+                    caPreviousPeriod,
+                    variationPercent,
+                    previousStartDate,
+                    previousEndDate,
+                    caSamePeriodLastYear,
+                    variationVsLastYearPercent,
+                    transactionsCount,
+                    averageBasket,
+                    customersCount,
+                    marginTotal,
+                    marginPercent,
+                    paymentMethods,
+                    topProducts,
+                    dataPoints,
+                    LocalDateTime.now());
         }
     }
 }

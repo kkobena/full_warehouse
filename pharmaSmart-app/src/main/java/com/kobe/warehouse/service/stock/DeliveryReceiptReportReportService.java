@@ -25,11 +25,8 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
 
     private Commande deliveryReceipt;
 
-    public DeliveryReceiptReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public DeliveryReceiptReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

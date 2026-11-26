@@ -72,7 +72,8 @@ class SalesManagerIntegrationTest extends AbstractSaleIntegrationTest {
         SalesLine relue = em.find(SalesLine.class, ligne.getId());
         assertEquals(1, relue.getQuantityRequested());
         assertEquals(3_000, relue.getSalesAmount());
-        assertEquals(3_000, relue.getAmountToBeTakenIntoAccount(), "sinon la contrainte déclarable refuserait la ligne");
+        assertEquals(
+                3_000, relue.getAmountToBeTakenIntoAccount(), "sinon la contrainte déclarable refuserait la ligne");
         assertEquals(3_000, em.find(CashSale.class, vente.getSaleId()).getSalesAmount());
     }
 
@@ -108,7 +109,8 @@ class SalesManagerIntegrationTest extends AbstractSaleIntegrationTest {
         trop.setSaleCompositeId(vente.getSaleId());
         trop.setSaleLineId(ligne.getId());
 
-        assertThrows(StockException.class, () -> services.salesManager.updateItemQuantityRequested(trop, entite, false));
+        assertThrows(
+                StockException.class, () -> services.salesManager.updateItemQuantityRequested(trop, entite, false));
     }
 
     @Test
@@ -123,16 +125,17 @@ class SalesManagerIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         CashSale entite = em.find(CashSale.class, vente.getSaleId());
-        SalesLine aSupprimer = entite
-            .getSalesLines()
-            .stream()
-            .filter(l -> l.getProduit().getId().equals(second.getId()))
-            .findFirst()
-            .orElseThrow();
+        SalesLine aSupprimer = entite.getSalesLines().stream()
+                .filter(l -> l.getProduit().getId().equals(second.getId()))
+                .findFirst()
+                .orElseThrow();
         services.salesManager.deleteSaleLineById(aSupprimer);
         viderLeCache();
 
-        assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + vente.getSaleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + vente.getSaleId().getId()));
         assertEquals(1_000, em.find(CashSale.class, vente.getSaleId()).getSalesAmount());
     }
 
@@ -155,7 +158,8 @@ class SalesManagerIntegrationTest extends AbstractSaleIntegrationTest {
         VenteDepot relue = em.find(VenteDepot.class, vente.getSaleId());
         assertEquals(15_000, relue.getSalesAmount());
         assertEquals(15_000, relue.getAmountToBePaid());
-        assertEquals(0, relue.getAmountToBeTakenIntoAccount(), "une vente dépôt ne compte pas dans le chiffre d'affaires");
+        assertEquals(
+                0, relue.getAmountToBeTakenIntoAccount(), "une vente dépôt ne compte pas dans le chiffre d'affaires");
     }
 
     @Test
@@ -171,16 +175,17 @@ class SalesManagerIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         VenteDepot entite = em.find(VenteDepot.class, vente.getSaleId());
-        SalesLine aSupprimer = entite
-            .getSalesLines()
-            .stream()
-            .filter(l -> l.getProduit().getId().equals(second.getId()))
-            .findFirst()
-            .orElseThrow();
+        SalesLine aSupprimer = entite.getSalesLines().stream()
+                .filter(l -> l.getProduit().getId().equals(second.getId()))
+                .findFirst()
+                .orElseThrow();
         services.salesManager.deleteSaleLineById(aSupprimer);
         viderLeCache();
 
-        assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + vente.getSaleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + vente.getSaleId().getId()));
         assertEquals(2_000, em.find(VenteDepot.class, vente.getSaleId()).getSalesAmount());
     }
 

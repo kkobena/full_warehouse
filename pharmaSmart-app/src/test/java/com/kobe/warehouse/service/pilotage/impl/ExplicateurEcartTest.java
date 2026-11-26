@@ -47,8 +47,10 @@ class ExplicateurEcartTest {
 
     private static final PeriodeDTO PERIODE = new PeriodeDTO(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 9));
     private static final PeriodeDTO REFERENCE = new PeriodeDTO(LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 9));
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
-    private static final List<FiltreAnalyseDTO> ANTALGIQUES = List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of("1")));
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
+    private static final List<FiltreAnalyseDTO> ANTALGIQUES =
+            List.of(new FiltreAnalyseDTO(AxeAnalyse.FAMILLE, List.of("1")));
 
     @Mock
     private PeriodeComparaisonService periodeComparaisonService;
@@ -64,21 +66,22 @@ class ExplicateurEcartTest {
 
     @BeforeEach
     void antalgiquesEnBaisseDe10000() {
-        when(periodeComparaisonService.comparer(any(), any())).thenReturn(new ComparaisonPeriodesDTO(PERIODE, REFERENCE, true));
+        when(periodeComparaisonService.comparer(any(), any()))
+                .thenReturn(new ComparaisonPeriodesDTO(PERIODE, REFERENCE, true));
         when(dictionnaireIndicateursService.filtrerAutorises(anyList())).thenAnswer(appel -> appel.getArgument(0));
         when(dictionnaireIndicateursService.lireDroitsAccordes()).thenReturn(EnumSet.of(DroitPilotage.PAGE));
         // Par défaut, un axe ne rend qu'un élément : il n'explique rien.
-        when(ventilateurPilotage.comparer(any(), any(), any(), any(), anyList(), any())).thenReturn(ventilation(element("x", "Seul", 50_000, 60_000)));
-        when(ventilateurPilotage.comparer(any(), any(), isNull(), isNull(), anyList(), any())).thenReturn(ventilation(element(null, null, 50_000, 60_000)));
+        when(ventilateurPilotage.comparer(any(), any(), any(), any(), anyList(), any()))
+                .thenReturn(ventilation(element("x", "Seul", 50_000, 60_000)));
+        when(ventilateurPilotage.comparer(any(), any(), isNull(), isNull(), anyList(), any()))
+                .thenReturn(ventilation(element(null, null, 50_000, 60_000)));
         // Trois produits portent 9 000 des 10 000 de baisse, un quatrième le reste.
-        when(ventilateurPilotage.comparer(any(), any(), eq(AxeAnalyse.PRODUIT), isNull(), anyList(), any())).thenReturn(
-            ventilation(
-                element("10", "Doliprane 1000", 20_000, 25_000),
-                element("11", "Efferalgan", 10_000, 13_000),
-                element("12", "Dafalgan", 5_000, 6_000),
-                element("13", "Ibuprofène", 15_000, 16_000)
-            )
-        );
+        when(ventilateurPilotage.comparer(any(), any(), eq(AxeAnalyse.PRODUIT), isNull(), anyList(), any()))
+                .thenReturn(ventilation(
+                        element("10", "Doliprane 1000", 20_000, 25_000),
+                        element("11", "Efferalgan", 10_000, 13_000),
+                        element("12", "Dafalgan", 5_000, 6_000),
+                        element("13", "Ibuprofène", 15_000, 16_000)));
     }
 
     @Test
@@ -89,7 +92,9 @@ class ExplicateurEcartTest {
         assertThat(explication.ecart()).isEqualTo(-10_000);
         AxeExpliqueDTO premier = explication.axes().getFirst();
         assertThat(premier.axe().code()).isEqualTo(AxeAnalyse.PRODUIT);
-        assertThat(premier.principales()).extracting(ContributionDTO::libelle).containsExactly("Doliprane 1000", "Efferalgan", "Dafalgan");
+        assertThat(premier.principales())
+                .extracting(ContributionDTO::libelle)
+                .containsExactly("Doliprane 1000", "Efferalgan", "Dafalgan");
         assertThat(premier.part()).isEqualTo(90.0);
         assertThat(explication.axes()).extracting(axe -> axe.axe().code()).doesNotContain(AxeAnalyse.FAMILLE);
     }
@@ -105,7 +110,8 @@ class ExplicateurEcartTest {
     @Test
     @DisplayName("sans période de comparaison, il n'y a pas d'écart à expliquer")
     void sansReference() {
-        when(periodeComparaisonService.comparer(any(), any())).thenReturn(new ComparaisonPeriodesDTO(PERIODE, null, true));
+        when(periodeComparaisonService.comparer(any(), any()))
+                .thenReturn(new ComparaisonPeriodesDTO(PERIODE, null, true));
 
         assertThatThrownBy(() -> explicateur.expliquer(REQUETE, ANTALGIQUES)).isInstanceOf(GenericError.class);
     }

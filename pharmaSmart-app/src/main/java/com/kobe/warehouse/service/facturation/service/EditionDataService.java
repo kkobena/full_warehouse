@@ -8,21 +8,20 @@ import com.kobe.warehouse.service.facturation.dto.DossierFactureProjection;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FacturationDossier;
 import com.kobe.warehouse.service.facturation.dto.FacturationGroupeDossier;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
-import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface EditionDataService {
     Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams, Pageable pageable);
@@ -58,14 +57,12 @@ public interface EditionDataService {
     InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId);
 
     FacturationKpiDto getKpi(
-        LocalDate fromDate,
-        LocalDate toDate,
-        Integer organismeId,
-        Integer groupeId,
-        TypeFacture typeFacture,
-        Boolean factureProvisoire
-    );
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer organismeId,
+            Integer groupeId,
+            TypeFacture typeFacture,
+            Boolean factureProvisoire);
 
     byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup);
-
 }

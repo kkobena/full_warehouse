@@ -4,11 +4,12 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.EntityManagerFactory;
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.step.Step;
+import java.util.Map;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.database.JpaPagingItemReader;
 import org.springframework.batch.infrastructure.item.database.builder.JpaPagingItemReaderBuilder;
@@ -16,8 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.util.Map;
 
 /**
  * Job autonome de classification criticité ABC-Pareto (Phase 2).
@@ -34,46 +33,47 @@ public class ClassificationJobConfig {
 
     @Bean
     public Job classificationCriticiteJob(
-        JobRepository jobRepository,
-        Step classifyChunkStep,
-        ClassificationStepListener classificationStepListener
-    ) {
+            JobRepository jobRepository,
+            Step classifyChunkStep,
+            ClassificationStepListener classificationStepListener) {
         return new JobBuilder("classificationCriticiteJob", jobRepository)
-            .preventRestart()
-            .start(classifyChunkStep)
-            .build();
+                .preventRestart()
+                .start(classifyChunkStep)
+                .build();
     }
 
     @Bean
     public Step classifyChunkStep(
-        JobRepository jobRepository,
-        PlatformTransactionManager txManager,
-        JpaPagingItemReader<Produit> classificationProduitReader,
-        ClassificationItemProcessor classificationItemProcessor,
-        ClassificationItemWriter classificationItemWriter,
-        ClassificationStepListener classificationStepListener
-    ) {
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            JpaPagingItemReader<Produit> classificationProduitReader,
+            ClassificationItemProcessor classificationItemProcessor,
+            ClassificationItemWriter classificationItemWriter,
+            ClassificationStepListener classificationStepListener) {
         return new StepBuilder("classifyChunkStep", jobRepository)
-            .<Produit, ClassificationResult>chunk(chunkSize).transactionManager(txManager)
-            .reader(classificationProduitReader)
-            .processor(classificationItemProcessor)
-            .writer(classificationItemWriter)
-            .faultTolerant()
-                .skip(Exception.class).skipLimit(20)
-            .listener(classificationStepListener)
-            .build();
+                .<Produit, ClassificationResult>chunk(chunkSize)
+                .transactionManager(txManager)
+                .reader(classificationProduitReader)
+                .processor(classificationItemProcessor)
+                .writer(classificationItemWriter)
+                .faultTolerant()
+                .skip(Exception.class)
+                .skipLimit(20)
+                .listener(classificationStepListener)
+                .build();
     }
 
     @Bean
     @StepScope
     public JpaPagingItemReader<Produit> classificationProduitReader(EntityManagerFactory emf) {
         return new JpaPagingItemReaderBuilder<Produit>()
-            .name("classificationProduitReader")
-            .entityManagerFactory(emf)
-            .transacted(false)
-            .parameterValues(Map.of("status", Status.ENABLE, "typeProduit", TypeProduit.PACKAGE))
-            .queryString("SELECT p FROM Produit p WHERE p.status = :status AND p.typeProduit = :typeProduit ORDER BY p.id")
-            .pageSize(chunkSize)
-            .build();
+                .name("classificationProduitReader")
+                .entityManagerFactory(emf)
+                .transacted(false)
+                .parameterValues(Map.of("status", Status.ENABLE, "typeProduit", TypeProduit.PACKAGE))
+                .queryString(
+                        "SELECT p FROM Produit p WHERE p.status = :status AND p.typeProduit = :typeProduit ORDER BY p.id")
+                .pageSize(chunkSize)
+                .build();
     }
 }

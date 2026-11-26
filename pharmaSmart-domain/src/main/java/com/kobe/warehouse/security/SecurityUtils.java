@@ -1,6 +1,9 @@
 package com.kobe.warehouse.security;
 
 import com.kobe.warehouse.config.Constants;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -8,17 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 /**
  * Utility class for Spring Security.
  */
 public final class SecurityUtils {
 
-    private SecurityUtils() {
-    }
+    private SecurityUtils() {}
 
     /**
      * Get the login of the current user.
@@ -51,7 +49,8 @@ public final class SecurityUtils {
      */
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && getAuthorities(authentication).noneMatch(AuthoritiesConstants.ANONYMOUS::equals);
+        return authentication != null
+                && getAuthorities(authentication).noneMatch(AuthoritiesConstants.ANONYMOUS::equals);
     }
 
     /**
@@ -62,11 +61,10 @@ public final class SecurityUtils {
      */
     public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (
-            authentication != null && getAuthorities(authentication).anyMatch(authority -> Arrays.asList(authorities).contains(authority))
-        );
+        return (authentication != null
+                && getAuthorities(authentication)
+                        .anyMatch(authority -> Arrays.asList(authorities).contains(authority)));
     }
-
 
     /**
      * Checks if the current user has a specific authority.
@@ -82,13 +80,10 @@ public final class SecurityUtils {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
     }
 
-
     public static boolean hasMobileAccess(String authority) {
-        return (
-            Constants.PR_MOBILE_ADMIN.equals(authority) ||
-                Constants.PR_MOBILE_USER.equals(authority) ||
-                Constants.ROLE_ADMIN.equals(authority)
-        );
+        return (Constants.PR_MOBILE_ADMIN.equals(authority)
+                || Constants.PR_MOBILE_USER.equals(authority)
+                || Constants.ROLE_ADMIN.equals(authority));
     }
 
     public static boolean isAdmin(String authority) {

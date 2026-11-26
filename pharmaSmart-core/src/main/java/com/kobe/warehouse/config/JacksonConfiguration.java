@@ -25,15 +25,13 @@ public class JacksonConfiguration {
     @Bean
     public JavaTimeModule javaTimeModule() {
         final JavaTimeModule javaTime = new JavaTimeModule();
-        javaTime.addSerializer(
-            LocalTime.class,
-            new JsonSerializer<>() {
-                @Override
-                public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-                    gen.writeString(value.toString());
-                }
+        javaTime.addSerializer(LocalTime.class, new JsonSerializer<>() {
+            @Override
+            public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers)
+                    throws IOException {
+                gen.writeString(value.toString());
             }
-        );
+        });
         return javaTime;
     }
 
@@ -41,11 +39,11 @@ public class JacksonConfiguration {
     @Primary
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
-            .addModule(javaTimeModule())
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .build();
+                .addModule(javaTimeModule())
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
     }
 }

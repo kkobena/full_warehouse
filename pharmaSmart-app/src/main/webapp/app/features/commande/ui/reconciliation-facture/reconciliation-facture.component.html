@@ -1,12 +1,9 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-file-check me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-file-check me-2"></i>{{ header }}</h5>
   <button type="button" class="btn-close" aria-label="Fermer" (click)="onCancel()"></button>
 </div>
 
 <div class="modal-body rf-body">
-
   <!-- Tableau de comparaison BL ↔ Facture -->
   <div class="rf-compare">
     <div class="rf-compare__header">
@@ -22,7 +19,8 @@
       <span class="rf-val rf-val--ref">{{ blMontantHT | devise }}</span>
       <span class="rf-val">
         <app-input-number
-          [ngModel]="factureMontantHT()" (ngModelChange)="factureMontantHT.set($event)"
+          [ngModel]="factureMontantHT()"
+          (ngModelChange)="factureMontantHT.set($event)"
           [min]="0"
           inputClass="rf-number-input"
           style="width: 130px"
@@ -44,7 +42,8 @@
       <span class="rf-val rf-val--ref">{{ blTVA | devise }}</span>
       <span class="rf-val">
         <app-input-number
-          [ngModel]="factureTVA()" (ngModelChange)="factureTVA.set($event)"
+          [ngModel]="factureTVA()"
+          (ngModelChange)="factureTVA.set($event)"
           [min]="0"
           inputClass="rf-number-input"
           style="width: 130px"
@@ -65,10 +64,12 @@
       <span class="rf-row-label fw-bold">Total TTC</span>
       <span class="rf-val rf-val--ref fw-bold">{{ totalBL | devise }}</span>
       <span class="rf-val fw-bold">{{ totalFacture | devise }}</span>
-      <span class="rf-val rf-ecart fw-bold"
-            [class.rf-ecart--ok]="ecartHT === 0 && ecartTVA === 0"
-            [class.rf-ecart--err]="ecartHT !== 0 || ecartTVA !== 0">
-        {{ (totalFacture - totalBL) | devise }}
+      <span
+        class="rf-val rf-ecart fw-bold"
+        [class.rf-ecart--ok]="ecartHT === 0 && ecartTVA === 0"
+        [class.rf-ecart--err]="ecartHT !== 0 || ecartTVA !== 0"
+      >
+        {{ totalFacture - totalBL | devise }}
       </span>
     </div>
   </div>
@@ -84,7 +85,7 @@
     }
   </div>
 
-  <hr class="my-2"/>
+  <hr class="my-2" />
 
   <!-- Métadonnées de la facture -->
   <div class="rf-meta">
@@ -93,30 +94,21 @@
       <input
         class="form-control"
         [appKeyFilter]="'alphanum'"
-        [ngModel]="factureReference()" (ngModelChange)="factureReference.set($event)"
+        [ngModel]="factureReference()"
+        (ngModelChange)="factureReference.set($event)"
         type="text"
         maxlength="50"
       />
     </div>
     <div class="rf-meta__field">
       <label class="form-label small fw-semibold">Date facture</label>
-      <pharma-date-picker
-        [ngModel]="factureDate()" (ngModelChange)="factureDate.set($event)"
-        id="factureDate"
-      />
+      <pharma-date-picker [ngModel]="factureDate()" (ngModelChange)="factureDate.set($event)" id="factureDate" />
     </div>
   </div>
-
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="onCancel()"
-    label="Annuler"
-    severity="secondary"
-    size="small"
-    [text]="true"
-  />
+  <app-button (clicked)="onCancel()" label="Annuler" severity="secondary" size="small" [text]="true" />
   <app-button
     (clicked)="onSubmit()"
     icon="pi pi-save"

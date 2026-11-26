@@ -36,49 +36,40 @@ public class LotPerimeExcelCsvReportService {
     private final LotService lotService;
 
     public LotPerimeExcelCsvReportService(
-        ReportExcelExportService excelExportService,
-        CsvExportService csvExportService,
-        LotService lotService
-    ) {
+            ReportExcelExportService excelExportService, CsvExportService csvExportService, LotService lotService) {
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
         this.lotService = lotService;
     }
 
     public byte[] exportToExcel(LotFilterParam lotFilterParam) throws IOException {
-        List<LotPerimeDTO> data = lotService.findLotsPerimes(lotFilterParam, Pageable.unpaged())
-            .getContent();
+        List<LotPerimeDTO> data =
+                lotService.findLotsPerimes(lotFilterParam, Pageable.unpaged()).getContent();
         String title = buildReportTitle(lotFilterParam.getFromDate(), lotFilterParam.getToDate());
 
         return excelExportService.createExcelReport(title, HEADERS, data, (row, dto) -> {
             row.createCell(0).setCellValue(dto.getNumLot() != null ? dto.getNumLot() : "");
-            row.createCell(1)
-                .setCellValue(dto.getFournisseur() != null ? dto.getFournisseur() : "");
-            row.createCell(2)
-                .setCellValue(dto.getProduitName() != null ? dto.getProduitName() : "");
-            row.createCell(3)
-                .setCellValue(dto.getProduitCode() != null ? dto.getProduitCode() : "");
-            row.createCell(4)
-                .setCellValue(dto.getDatePeremption() != null ? dto.getDatePeremption() : "");
+            row.createCell(1).setCellValue(dto.getFournisseur() != null ? dto.getFournisseur() : "");
+            row.createCell(2).setCellValue(dto.getProduitName() != null ? dto.getProduitName() : "");
+            row.createCell(3).setCellValue(dto.getProduitCode() != null ? dto.getProduitCode() : "");
+            row.createCell(4).setCellValue(dto.getDatePeremption() != null ? dto.getDatePeremption() : "");
             row.createCell(5).setCellValue(dto.getQuantity());
             row.createCell(6).setCellValue(dto.getPrixAchat());
             row.createCell(7).setCellValue(dto.getPrixVente());
             row.createCell(8).setCellValue(dto.getPrixTotalVente());
             row.createCell(9).setCellValue(dto.getPrixTotaAchat());
-            row.createCell(10)
-                .setCellValue(dto.getStatutPerime() != null ? dto.getStatutPerime() : "");
+            row.createCell(10).setCellValue(dto.getStatutPerime() != null ? dto.getStatutPerime() : "");
             row.createCell(11).setCellValue(dto.getRayonName() != null ? dto.getRayonName() : "");
-            row.createCell(12).setCellValue(
-                dto.getFamilleProduitName() != null ? dto.getFamilleProduitName() : "");
+            row.createCell(12).setCellValue(dto.getFamilleProduitName() != null ? dto.getFamilleProduitName() : "");
         });
     }
 
     public byte[] exportToCsv(LotFilterParam lotFilterParam) throws IOException {
-        List<LotPerimeDTO> data = lotService.findLotsPerimes(lotFilterParam, Pageable.unpaged())
-            .getContent();
+        List<LotPerimeDTO> data =
+                lotService.findLotsPerimes(lotFilterParam, Pageable.unpaged()).getContent();
         String title = buildReportTitle(lotFilterParam.getFromDate(), lotFilterParam.getToDate());
 
-        byte[] csvData = csvExportService.createCsvReport(title, HEADERS, data, dto -> new String[]{
+        byte[] csvData = csvExportService.createCsvReport(title, HEADERS, data, dto -> new String[] {
             dto.getNumLot() != null ? dto.getNumLot() : "",
             dto.getFournisseur() != null ? dto.getFournisseur() : "",
             dto.getProduitName() != null ? dto.getProduitName() : "",
@@ -101,8 +92,10 @@ public class LotPerimeExcelCsvReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         StringBuilder title = new StringBuilder("Liste des produits périmés");
         if (fromDate != null && toDate != null) {
-            title.append(" du ").append(fromDate.format(formatter)).append(" au ")
-                .append(toDate.format(formatter));
+            title.append(" du ")
+                    .append(fromDate.format(formatter))
+                    .append(" au ")
+                    .append(toDate.format(formatter));
         } else if (fromDate != null) {
             title.append(" à partir du ").append(fromDate.format(formatter));
         } else if (toDate != null) {

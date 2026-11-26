@@ -6,8 +6,8 @@ import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
-import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
@@ -48,9 +48,11 @@ public interface CommandService {
 
     void deleteAll(List<CommandeId> ids);
 
-    VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, CommandeModel model, MultipartFile multipartFile);
+    VerificationResponseCommandeDTO importerReponseCommande(
+            CommandeId commandeId, CommandeModel model, MultipartFile multipartFile);
 
-    CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
+    CommandeResponseDTO uploadNewCommande(
+            Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
     /**
      * Crée une commande à partir de toutes les lignes d'une suggestion.
@@ -67,7 +69,8 @@ public interface CommandService {
      * @param lignes          Sélection de lignes avec quantités
      * @param fournisseurId   Fournisseur cible (null = utilise le fournisseur de la suggestion)
      */
-    CommandeId createCommandeFromSelection(Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes, Integer fournisseurId);
+    CommandeId createCommandeFromSelection(
+            Suggestion suggestion, List<CommanderSelectionDTO.LigneSelection> lignes, Integer fournisseurId);
 
     /**
      * Crée une commande à partir d'une liste de lignes SEMOIS pour un fournisseur donné.

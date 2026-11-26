@@ -1,90 +1,107 @@
-
-<app-toolbar [icon]="active() === 'pareto' ? 'pi pi-chart-pie' : 'pi pi-sync'"
-             [title]="active() === 'pareto' ? 'Analyse ABC Pareto (5 classes)' : 'Rotation du Stock (Analyse ABC)'">
+<app-toolbar
+  [icon]="active() === 'pareto' ? 'pi pi-chart-pie' : 'pi pi-sync'"
+  [title]="active() === 'pareto' ? 'Analyse ABC Pareto (5 classes)' : 'Rotation du Stock (Analyse ABC)'"
+>
   <ng-container ngProjectAs="[toolbarFilters]">
-      @if (active() === 'pareto') {
-        <app-select
-          (ngModelChange)="onParetoFamilleChange($event)"
-          [clearable]="true"
-          [items]="paretoComp?.familleOptions() ?? []"
-          [ngModel]="paretoComp?.selectedFamille()"
-          [style]="{ 'min-width': '300px' }"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          inputId="abcFamille"
-
-          placeholder="Famille"
-        />
-        <app-select
-          (ngModelChange)="onParetoClasseChange($event)"
-          [clearable]="true"
-          [items]="paretoComp?.classeParetoOptions() ?? []"
-          [ngModel]="paretoComp?.selectedClassePareto()"
-          [style]="{ 'width': '220px' }"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          inputId="abcClasse"
-          placeholder="Classe Pareto"
-          size="large"
-        />
-      }
-      @if (active() === 'rotation') {
-        <app-select
-          (ngModelChange)="onRotationCategorieChange($event)"
-          [clearable]="true"
-          [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-          [items]="rotationComp?.categorieOptions() ?? []"
-          [ngModel]="rotationComp?.selectedCategorie()"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          inputId="rotCategorie"
-          placeholder="Catégorie"
-          size="large"
-        />
-        <app-select
-          (ngModelChange)="onRotationABCChange($event)"
-          [clearable]="true"
-          [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
-          [items]="rotationComp?.abcOptions ?? []"
-          [ngModel]="rotationComp?.selectedABC()"
-          appendTo="body"
-          bindLabel="label"
-          bindValue="value"
-          inputId="rotClassification"
-          placeholder="Classification ABC"
-          size="large"
-        />
-      }
+    @if (active() === 'pareto') {
+      <app-select
+        (ngModelChange)="onParetoFamilleChange($event)"
+        [clearable]="true"
+        [items]="paretoComp?.familleOptions() ?? []"
+        [ngModel]="paretoComp?.selectedFamille()"
+        [style]="{ 'min-width': '300px' }"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        inputId="abcFamille"
+        placeholder="Famille"
+      />
+      <app-select
+        (ngModelChange)="onParetoClasseChange($event)"
+        [clearable]="true"
+        [items]="paretoComp?.classeParetoOptions() ?? []"
+        [ngModel]="paretoComp?.selectedClassePareto()"
+        [style]="{ width: '220px' }"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        inputId="abcClasse"
+        placeholder="Classe Pareto"
+        size="large"
+      />
+    }
+    @if (active() === 'rotation') {
+      <app-select
+        (ngModelChange)="onRotationCategorieChange($event)"
+        [clearable]="true"
+        [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+        [items]="rotationComp?.categorieOptions() ?? []"
+        [ngModel]="rotationComp?.selectedCategorie()"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        inputId="rotCategorie"
+        placeholder="Catégorie"
+        size="large"
+      />
+      <app-select
+        (ngModelChange)="onRotationABCChange($event)"
+        [clearable]="true"
+        [disabled]="rotationComp?.showSlowMovingOnly() ?? false"
+        [items]="rotationComp?.abcOptions ?? []"
+        [ngModel]="rotationComp?.selectedABC()"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        inputId="rotClassification"
+        placeholder="Classification ABC"
+        size="large"
+      />
+    }
   </ng-container>
 
   <ng-container ngProjectAs="[toolbarActions]">
     @if (active() === 'pareto') {
       <div class="flex gap-2">
-        <app-button (clicked)="paretoComp?.toggleHelpDrawer()" [outlined]="true"
-                    icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-        <app-button (clicked)="paretoComp?.showTopContributors()"
-                    icon="pi pi-star" label="Top 50 Contributeurs" severity="info" size="small" />
+        <app-button
+          (clicked)="paretoComp?.toggleHelpDrawer()"
+          [outlined]="true"
+          icon="pi pi-question-circle"
+          label="Aide"
+          severity="secondary"
+          size="small"
+        />
+        <app-button
+          (clicked)="paretoComp?.showTopContributors()"
+          icon="pi pi-star"
+          label="Top 50 Contributeurs"
+          severity="info"
+          size="small"
+        />
 
-        <app-button (clicked)="paretoComp?.exportToPdf()"
-                    icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
-        <app-button (clicked)="paretoComp?.loadABCPareto()"
-                    icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
+        <app-button (clicked)="paretoComp?.exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+        <app-button (clicked)="paretoComp?.loadABCPareto()" icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     }
     @if (active() === 'rotation') {
       <div class="flex gap-2">
-        <app-button (clicked)="rotationComp?.toggleHelpDrawer()" [outlined]="true"
-                    icon="pi pi-question-circle" label="Aide" severity="secondary" size="small" />
-        <app-button (clicked)="rotationComp?.onClearFilters()"
-                    icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary"
-                    size="small" />
-        <app-button (clicked)="rotationComp?.exportToPdf()"
-                    icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
-        <app-button (clicked)="rotationComp?.loadRotations()"
-                    icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
+        <app-button
+          (clicked)="rotationComp?.toggleHelpDrawer()"
+          [outlined]="true"
+          icon="pi pi-question-circle"
+          label="Aide"
+          severity="secondary"
+          size="small"
+        />
+        <app-button
+          (clicked)="rotationComp?.onClearFilters()"
+          icon="pi pi-filter-slash"
+          label="Effacer les filtres"
+          severity="secondary"
+          size="small"
+        />
+        <app-button (clicked)="rotationComp?.exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+        <app-button (clicked)="rotationComp?.loadRotations()" icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     }
   </ng-container>
@@ -120,7 +137,4 @@
       </ng-template>
     </ng-container>
   </div>
-
 </app-nav-tabs>
-
-

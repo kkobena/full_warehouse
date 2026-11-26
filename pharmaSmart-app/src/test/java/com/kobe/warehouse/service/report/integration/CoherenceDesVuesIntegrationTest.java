@@ -39,15 +39,14 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
         vendu(produit, 3, avantHier());
         rafraichir("mv_dashboard_ca_daily");
 
-        for (Tuple jour : lignes(
-            """
+        for (Tuple jour : lignes("""
             SELECT sale_date, ca_total, cout_total, marge_brute
             FROM mv_dashboard_ca_daily
             WHERE sale_date BETWEEN :debut AND :fin
             """)) {
             assertThat(decimal(jour, "marge_brute").add(decimal(jour, "cout_total")))
-                .as("journée %s", jour.get("sale_date"))
-                .isEqualByComparingTo(decimal(jour, "ca_total"));
+                    .as("journée %s", jour.get("sale_date"))
+                    .isEqualByComparingTo(decimal(jour, "ca_total"));
         }
     }
 
@@ -65,8 +64,7 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
         rafraichir("mv_dashboard_ca_daily");
         rafraichir("mv_dashboard_ca_product_families");
 
-        Tuple totaux = ligne(
-            """
+        Tuple totaux = ligne("""
             SELECT
               (SELECT COALESCE(sum(ca_total), 0) FROM mv_dashboard_ca_daily
                 WHERE sale_date BETWEEN :debut AND :fin)            AS ca_journalier,
@@ -79,11 +77,11 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
             """);
 
         assertThat(decimal(totaux, "ca_familles"))
-            .as("chiffre d'affaires")
-            .isEqualByComparingTo(decimal(totaux, "ca_journalier"));
+                .as("chiffre d'affaires")
+                .isEqualByComparingTo(decimal(totaux, "ca_journalier"));
         assertThat(decimal(totaux, "marge_familles"))
-            .as("marge brute")
-            .isEqualByComparingTo(decimal(totaux, "marge_journaliere"));
+                .as("marge brute")
+                .isEqualByComparingTo(decimal(totaux, "marge_journaliere"));
     }
 
     /**
@@ -99,14 +97,13 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
         stock(produit, 25);
         rafraichir("mv_stock_valuation");
 
-        for (Tuple ligne : lignes(
-            """
+        for (Tuple ligne : lignes("""
             SELECT produit_id, total_sales_value, total_purchase_value, potential_margin
             FROM mv_stock_valuation
             """)) {
             assertThat(decimal(ligne, "total_sales_value").subtract(decimal(ligne, "total_purchase_value")))
-                .as("produit %s", ligne.get("produit_id"))
-                .isEqualByComparingTo(decimal(ligne, "potential_margin"));
+                    .as("produit %s", ligne.get("produit_id"))
+                    .isEqualByComparingTo(decimal(ligne, "potential_margin"));
         }
     }
 
@@ -124,8 +121,7 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
         reglement(vente, caisse, "CB", 8_000);
         rafraichir("mv_dashboard_ca_payment_methods");
 
-        Tuple totaux = ligne(
-            """
+        Tuple totaux = ligne("""
             SELECT
               (SELECT COALESCE(sum(montant_total), 0) FROM mv_dashboard_ca_payment_methods
                 WHERE payment_date BETWEEN :debut AND :fin)  AS vue,
@@ -148,13 +144,12 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
     void factureDeGroupeTotaliseSesFilles() {
         GroupeTiersPayant groupe = groupeTiersPayant(unique("GROUPE"));
         FactureTiersPayant premiere =
-            facture(tiersPayant(unique("TP-A"), groupe), hier(), 30_000, 0, InvoiceStatut.NOT_PAID);
+                facture(tiersPayant(unique("TP-A"), groupe), hier(), 30_000, 0, InvoiceStatut.NOT_PAID);
         FactureTiersPayant seconde =
-            facture(tiersPayant(unique("TP-B"), groupe), hier(), 20_000, 0, InvoiceStatut.NOT_PAID);
+                facture(tiersPayant(unique("TP-B"), groupe), hier(), 20_000, 0, InvoiceStatut.NOT_PAID);
         FactureTiersPayant groupee = factureDeGroupe(groupe, hier(), premiere, seconde);
 
-        Tuple totaux = ligne(
-            """
+        Tuple totaux = ligne("""
             SELECT
               (SELECT COALESCE(sum(f.montant_ttc), 0) FROM facture_tiers_payant f
                 WHERE f.groupe_facture_tiers_payant_id = %d)   AS somme_filles,
@@ -166,14 +161,14 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
             """.formatted(groupee.getId().getId()));
 
         assertThat(decimal(totaux, "somme_filles"))
-            .as("le groupe annonce ce que portent ses filles")
-            .isEqualByComparingTo(groupee.getMontantTtc());
+                .as("le groupe annonce ce que portent ses filles")
+                .isEqualByComparingTo(groupee.getMontantTtc());
         assertThat(decimal(totaux, "somme_naive"))
-            .as("sans filtre, les filles sont comptées deux fois — dans elles-mêmes et dans leur groupe")
-            .isEqualByComparingTo(groupee.getMontantTtc().multiply(new java.math.BigDecimal(2)));
+                .as("sans filtre, les filles sont comptées deux fois — dans elles-mêmes et dans leur groupe")
+                .isEqualByComparingTo(groupee.getMontantTtc().multiply(new java.math.BigDecimal(2)));
         assertThat(decimal(totaux, "somme_filtree"))
-            .as("le filtre des écrans d'encours élimine le double compte")
-            .isEqualByComparingTo(groupee.getMontantTtc());
+                .as("le filtre des écrans d'encours élimine le double compte")
+                .isEqualByComparingTo(groupee.getMontantTtc());
     }
 
     // ===== utilitaires =====
@@ -188,7 +183,9 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
             requete.setParameter("debutSeul", hier());
         }
         java.util.List<Tuple> resultats = requete.getResultList();
-        assertThat(resultats).as("la vue doit porter au moins une ligne à vérifier").isNotEmpty();
+        assertThat(resultats)
+                .as("la vue doit porter au moins une ligne à vérifier")
+                .isNotEmpty();
         return resultats;
     }
 
@@ -198,9 +195,7 @@ class CoherenceDesVuesIntegrationTest extends AbstractReportIntegrationTest {
 
     private java.math.BigDecimal decimal(Tuple tuple, String colonne) {
         Object valeur = tuple.get(colonne);
-        return valeur == null
-            ? java.math.BigDecimal.ZERO
-            : new java.math.BigDecimal(valeur.toString());
+        return valeur == null ? java.math.BigDecimal.ZERO : new java.math.BigDecimal(valeur.toString());
     }
 
     private static LocalDate hier() {

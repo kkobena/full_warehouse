@@ -1,14 +1,10 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {SERVER_API_URL} from '../../../../app.constants';
-import {
-  IInventoryGlobalSummary,
-  IValuationGroup,
-  ValuationGroupBy
-} from '../../models/inventory-valuation.model';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { SERVER_API_URL } from '../../../../app.constants';
+import { IInventoryGlobalSummary, IValuationGroup, ValuationGroupBy } from '../../models/inventory-valuation.model';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class InventoryValuationApiService {
   private readonly http = inject(HttpClient);
 
@@ -21,9 +17,6 @@ export class InventoryValuationApiService {
   }
 
   getSummaryByGroup(inventoryId: number, groupBy: ValuationGroupBy): Observable<IValuationGroup[]> {
-    return this.http.get<IValuationGroup[]>(
-      `${this.url(inventoryId)}/valuation/by-group`,
-      {params: {groupBy}}
-    );
+    return this.http.get<IValuationGroup[]>(`${this.url(inventoryId)}/valuation/by-group`, { params: { groupBy } });
   }
 }

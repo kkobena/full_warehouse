@@ -14,7 +14,8 @@ import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 public interface SaleDepotExtensionService {
     DepotExtensionSaleDTO create(DepotExtensionSaleDTO dto);
 
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment) throws StockException, DeconditionnementStockOut;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
+            throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 
@@ -33,7 +34,6 @@ public interface SaleDepotExtensionService {
     void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void removeRemiseFromSale(SaleId saleId);
-
 
     void changeDepot(SaleId saleId, Integer depotId);
 }

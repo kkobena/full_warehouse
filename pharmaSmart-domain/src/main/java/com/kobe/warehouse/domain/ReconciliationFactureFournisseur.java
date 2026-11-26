@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
@@ -70,42 +69,120 @@ public class ReconciliationFactureFournisseur implements Serializable {
     @JoinColumn(name = "avoir_fournisseur_id")
     private AvoirFournisseur avoir;
 
-    public Integer getId() { return id; }
-    public ReconciliationFactureFournisseur setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getFactureReference() { return factureReference; }
-    public ReconciliationFactureFournisseur setFactureReference(String factureReference) { this.factureReference = factureReference; return this; }
+    public ReconciliationFactureFournisseur setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDate getFactureDate() { return factureDate; }
-    public ReconciliationFactureFournisseur setFactureDate(LocalDate factureDate) { this.factureDate = factureDate; return this; }
+    public String getFactureReference() {
+        return factureReference;
+    }
 
-    public Integer getFactureMontantHT() { return factureMontantHT; }
-    public ReconciliationFactureFournisseur setFactureMontantHT(Integer factureMontantHT) { this.factureMontantHT = factureMontantHT; return this; }
+    public ReconciliationFactureFournisseur setFactureReference(String factureReference) {
+        this.factureReference = factureReference;
+        return this;
+    }
 
-    public Integer getFactureTVA() { return factureTVA; }
-    public ReconciliationFactureFournisseur setFactureTVA(Integer factureTVA) { this.factureTVA = factureTVA; return this; }
+    public LocalDate getFactureDate() {
+        return factureDate;
+    }
 
-    public Integer getBlMontantHT() { return blMontantHT; }
-    public ReconciliationFactureFournisseur setBlMontantHT(Integer blMontantHT) { this.blMontantHT = blMontantHT; return this; }
+    public ReconciliationFactureFournisseur setFactureDate(LocalDate factureDate) {
+        this.factureDate = factureDate;
+        return this;
+    }
 
-    public Integer getBlTVA() { return blTVA; }
-    public ReconciliationFactureFournisseur setBlTVA(Integer blTVA) { this.blTVA = blTVA; return this; }
+    public Integer getFactureMontantHT() {
+        return factureMontantHT;
+    }
 
-    public Integer getEcartHT() { return ecartHT; }
-    public ReconciliationFactureFournisseur setEcartHT(Integer ecartHT) { this.ecartHT = ecartHT; return this; }
+    public ReconciliationFactureFournisseur setFactureMontantHT(Integer factureMontantHT) {
+        this.factureMontantHT = factureMontantHT;
+        return this;
+    }
 
-    public Integer getEcartTVA() { return ecartTVA; }
-    public ReconciliationFactureFournisseur setEcartTVA(Integer ecartTVA) { this.ecartTVA = ecartTVA; return this; }
+    public Integer getFactureTVA() {
+        return factureTVA;
+    }
 
-    public ReconciliationStatut getStatut() { return statut; }
-    public ReconciliationFactureFournisseur setStatut(ReconciliationStatut statut) { this.statut = statut; return this; }
+    public ReconciliationFactureFournisseur setFactureTVA(Integer factureTVA) {
+        this.factureTVA = factureTVA;
+        return this;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public ReconciliationFactureFournisseur setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+    public Integer getBlMontantHT() {
+        return blMontantHT;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public ReconciliationFactureFournisseur setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; return this; }
+    public ReconciliationFactureFournisseur setBlMontantHT(Integer blMontantHT) {
+        this.blMontantHT = blMontantHT;
+        return this;
+    }
 
-    public AvoirFournisseur getAvoir() { return avoir; }
-    public ReconciliationFactureFournisseur setAvoir(AvoirFournisseur avoir) { this.avoir = avoir; return this; }
+    public Integer getBlTVA() {
+        return blTVA;
+    }
+
+    public ReconciliationFactureFournisseur setBlTVA(Integer blTVA) {
+        this.blTVA = blTVA;
+        return this;
+    }
+
+    public Integer getEcartHT() {
+        return ecartHT;
+    }
+
+    public ReconciliationFactureFournisseur setEcartHT(Integer ecartHT) {
+        this.ecartHT = ecartHT;
+        return this;
+    }
+
+    public Integer getEcartTVA() {
+        return ecartTVA;
+    }
+
+    public ReconciliationFactureFournisseur setEcartTVA(Integer ecartTVA) {
+        this.ecartTVA = ecartTVA;
+        return this;
+    }
+
+    public ReconciliationStatut getStatut() {
+        return statut;
+    }
+
+    public ReconciliationFactureFournisseur setStatut(ReconciliationStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public ReconciliationFactureFournisseur setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public ReconciliationFactureFournisseur setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
+    }
+
+    public AvoirFournisseur getAvoir() {
+        return avoir;
+    }
+
+    public ReconciliationFactureFournisseur setAvoir(AvoirFournisseur avoir) {
+        this.avoir = avoir;
+        return this;
+    }
 }

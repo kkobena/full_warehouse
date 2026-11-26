@@ -8,14 +8,13 @@ import java.util.Set;
 import org.springframework.util.CollectionUtils;
 
 public record NewDifferePaymentDTO(
-    Integer customerId,
-    Set<Long> saleIds,
-    int expectedAmount,
-    int amount,
-    ModePaimentCode paimentMode,
-    LocalDate paymentDate,
-    BanqueInfoDTO banqueInfo
-) {
+        Integer customerId,
+        Set<Long> saleIds,
+        int expectedAmount,
+        int amount,
+        ModePaimentCode paimentMode,
+        LocalDate paymentDate,
+        BanqueInfoDTO banqueInfo) {
     public NewDifferePaymentDTO {
         if (amount <= 0) {
             throw new IllegalArgumentException("Le montant doit être supérieur à zéro");

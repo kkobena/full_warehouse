@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.reglement.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
@@ -43,7 +43,8 @@ public class InvoicePaymentReceiptDTO {
         this.codeFacture = factureTiersPayant.getNumFacture();
         this.created = DateUtil.format(invoicePayment.getCreatedAt());
         this.grouped = invoicePayment.isGrouped();
-        this.invoicePaymentItemsCount = String.valueOf(invoicePayment.getInvoicePaymentItems().size());
+        this.invoicePaymentItemsCount =
+                String.valueOf(invoicePayment.getInvoicePaymentItems().size());
         this.montantVerse = NumberUtil.formatToStringIfNotNull(invoicePayment.getMontantVerse());
         this.paidAmount = NumberUtil.formatToString(invoicePayment.getPaidAmount());
 
@@ -66,7 +67,8 @@ public class InvoicePaymentReceiptDTO {
         } else {
             this.montantRestant = "0";
         }
-        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
+        var change0 =
+                Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
         if (change0 > 0) {
             this.change = NumberUtil.formatToString(change0);
         } else {

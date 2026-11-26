@@ -74,4 +74,3 @@ export interface ISystemInfo {
   hostname: string;
   localIp: string;
 }
-

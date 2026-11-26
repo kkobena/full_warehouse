@@ -1,190 +1,158 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-plus-circle me-2"></i>Nouvel inventaire
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-plus-circle me-2"></i>Nouvel inventaire</h5>
   <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
-<app-card [variant]="'form'">
-  <form [formGroup]="form">
-    <!-- Catégorie -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold" for="inventoryCategory">
-        Type d'inventaire <span class="text-danger">*</span>
-      </label>
-      <app-select-search
-        [items]="categories"
-        bindLabel="label"
-        bindValue="value"
-        groupBy="groupLabel"
-        [searchable]="false"
-        appendTo="body"
-        formControlName="inventoryCategory"
-        inputId="inventoryCategory"
-        placeholder="Sélectionner un type"
-        [optionTemplate]="categoryOption"
-      />
-      <ng-template #categoryOption let-cat>
-        <div class="category-option">
-          <i [class]="cat.icon"></i>
-          <span>{{ cat.label }}</span>
-        </div>
-      </ng-template>
-      @if (form.get('inventoryCategory')?.invalid && form.get('inventoryCategory')?.touched) {
-        <div class="text-danger small mt-1">Ce champ est requis.</div>
-      }
-    </div>
-
-
-    <!-- Storage (conditional) -->
-    @if (selectedCategory()?.needsStorage) {
+  <app-card [variant]="'form'">
+    <form [formGroup]="form">
+      <!-- Catégorie -->
       <div class="mb-3">
-        <label class="form-label fw-semibold" for="storage">
-          Emplacement <span class="text-danger">*</span>
-        </label>
-        <app-select
-          [items]="storages()"
-          appendTo="body"
-          formControlName="storage"
-          inputId="storage"
-          bindLabel="name"
-          bindValue="id"
-          placeholder="Sélectionner un emplacement"
-        />
-        @if (form.get('storage')?.invalid && form.get('storage')?.touched) {
-          <div class="text-danger small mt-1">Ce champ est requis.</div>
-        }
-      </div>
-    }
-
-    <!-- Rayon (conditional) -->
-    @if (selectedCategory()?.needsRayon) {
-      <div class="mb-3">
-        <label class="form-label fw-semibold" for="rayon">
-          Rayon <span class="text-danger">*</span>
-        </label>
-        <app-select
-          [items]="rayons()"
-          appendTo="body"
-          formControlName="rayon"
-          inputId="rayon"
-          bindLabel="libelle"
-          bindValue="id"
-          placeholder="Sélectionner un rayon"
-        />
-        @if (form.get('rayon')?.invalid && form.get('rayon')?.touched) {
-          <div class="text-danger small mt-1">Ce champ est requis.</div>
-        }
-      </div>
-    }
-
-    <!-- Famille (conditional) -->
-    @if (selectedCategory()?.needsFamilly) {
-      <div class="mb-3">
-        <label class="form-label fw-semibold" for="famillyId">
-          Famille de produits <span class="text-danger">*</span>
-        </label>
-        <app-select
-          [items]="familles()"
-          appendTo="body"
-          formControlName="famillyId"
-          inputId="famillyId"
-          bindLabel="libelle"
-          bindValue="id"
-          placeholder="Sélectionner une famille"
-        />
-        @if (form.get('famillyId')?.invalid && form.get('famillyId')?.touched) {
-          <div class="text-danger small mt-1">Ce champ est requis.</div>
-        }
-      </div>
-    }
-
-    <!-- Date range (conditional) -->
-    @if (selectedCategory()?.needsDateRange) {
-      <div class="row mb-3">
-        <div class="col-6">
-          <label class="form-label fw-semibold" for="dateFrom">
-            Date début <span class="text-danger">*</span>
-          </label>
-          <pharma-date-picker
-            formControlName="dateFrom"
-            inputId="dateFrom"
-            label=""
-          />
-          @if (form.get('dateFrom')?.invalid && form.get('dateFrom')?.touched) {
-            <div class="text-danger small mt-1">Ce champ est requis.</div>
-          }
-        </div>
-        <div class="col-6">
-          <label class="form-label fw-semibold" for="dateTo">
-            Date fin <span class="text-danger">*</span>
-          </label>
-          <pharma-date-picker
-            formControlName="dateTo"
-            inputId="dateTo"
-            label=""
-          />
-          @if (form.get('dateTo')?.invalid && form.get('dateTo')?.touched) {
-            <div class="text-danger small mt-1">Ce champ est requis.</div>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Alerte jours (conditional) -->
-    @if (selectedCategory()?.needsAlerteJours) {
-      <div class="mb-3">
-        <label class="form-label fw-semibold" for="alerteJours">
-          Alerte péremption (jours) <span class="text-danger">*</span>
-        </label>
-        <app-input-number
-          [min]="1"
-          formControlName="alerteJours"
-          inputId="alerteJours"
-        />
-        @if (form.get('alerteJours')?.invalid && form.get('alerteJours')?.touched) {
-          <div class="text-danger small mt-1">Ce champ est requis (minimum 1 jour).</div>
-        }
-      </div>
-    }
-
-    <!-- Classe Pareto ABC (conditional) -->
-    @if (selectedCategory()?.needsClassePareto) {
-      <div class="mb-3">
-        <label class="form-label fw-semibold" for="classePareto">
-          Classe Pareto
-        </label>
-        <app-select
-          [items]="classesParetoOptions"
-          appendTo="body"
-          formControlName="classePareto"
-          inputId="classePareto"
+        <label class="form-label fw-semibold" for="inventoryCategory"> Type d'inventaire <span class="text-danger">*</span> </label>
+        <app-select-search
+          [items]="categories"
           bindLabel="label"
           bindValue="value"
-          placeholder="Toutes les classes (A+ → D)"
+          groupBy="groupLabel"
+          [searchable]="false"
+          appendTo="body"
+          formControlName="inventoryCategory"
+          inputId="inventoryCategory"
+          placeholder="Sélectionner un type"
+          [optionTemplate]="categoryOption"
         />
+        <ng-template #categoryOption let-cat>
+          <div class="category-option">
+            <i [class]="cat.icon"></i>
+            <span>{{ cat.label }}</span>
+          </div>
+        </ng-template>
+        @if (form.get('inventoryCategory')?.invalid && form.get('inventoryCategory')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis.</div>
+        }
       </div>
-    }
 
-    <!-- Description -->
-    <div class="mb-3">
-      <label class="form-label fw-semibold" for="description">Description<span
-        class="text-danger">*</span></label>
-      <input
-        autocomplete="off"
-        class="form-control w-100"
-        formControlName="description"
-        id="description"
-        placeholder="Description de l'inventaire"
-        type="text"
-      />
-      @if (form.get('description')?.invalid && form.get('description')?.touched) {
-        <div class="text-danger small mt-1">Ce champ est requis.</div>
+      <!-- Storage (conditional) -->
+      @if (selectedCategory()?.needsStorage) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="storage"> Emplacement <span class="text-danger">*</span> </label>
+          <app-select
+            [items]="storages()"
+            appendTo="body"
+            formControlName="storage"
+            inputId="storage"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Sélectionner un emplacement"
+          />
+          @if (form.get('storage')?.invalid && form.get('storage')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis.</div>
+          }
+        </div>
       }
-    </div>
-  </form>
-</app-card>
+
+      <!-- Rayon (conditional) -->
+      @if (selectedCategory()?.needsRayon) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="rayon"> Rayon <span class="text-danger">*</span> </label>
+          <app-select
+            [items]="rayons()"
+            appendTo="body"
+            formControlName="rayon"
+            inputId="rayon"
+            bindLabel="libelle"
+            bindValue="id"
+            placeholder="Sélectionner un rayon"
+          />
+          @if (form.get('rayon')?.invalid && form.get('rayon')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis.</div>
+          }
+        </div>
+      }
+
+      <!-- Famille (conditional) -->
+      @if (selectedCategory()?.needsFamilly) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="famillyId"> Famille de produits <span class="text-danger">*</span> </label>
+          <app-select
+            [items]="familles()"
+            appendTo="body"
+            formControlName="famillyId"
+            inputId="famillyId"
+            bindLabel="libelle"
+            bindValue="id"
+            placeholder="Sélectionner une famille"
+          />
+          @if (form.get('famillyId')?.invalid && form.get('famillyId')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis.</div>
+          }
+        </div>
+      }
+
+      <!-- Date range (conditional) -->
+      @if (selectedCategory()?.needsDateRange) {
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="dateFrom"> Date début <span class="text-danger">*</span> </label>
+            <pharma-date-picker formControlName="dateFrom" inputId="dateFrom" label="" />
+            @if (form.get('dateFrom')?.invalid && form.get('dateFrom')?.touched) {
+              <div class="text-danger small mt-1">Ce champ est requis.</div>
+            }
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="dateTo"> Date fin <span class="text-danger">*</span> </label>
+            <pharma-date-picker formControlName="dateTo" inputId="dateTo" label="" />
+            @if (form.get('dateTo')?.invalid && form.get('dateTo')?.touched) {
+              <div class="text-danger small mt-1">Ce champ est requis.</div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Alerte jours (conditional) -->
+      @if (selectedCategory()?.needsAlerteJours) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="alerteJours"> Alerte péremption (jours) <span class="text-danger">*</span> </label>
+          <app-input-number [min]="1" formControlName="alerteJours" inputId="alerteJours" />
+          @if (form.get('alerteJours')?.invalid && form.get('alerteJours')?.touched) {
+            <div class="text-danger small mt-1">Ce champ est requis (minimum 1 jour).</div>
+          }
+        </div>
+      }
+
+      <!-- Classe Pareto ABC (conditional) -->
+      @if (selectedCategory()?.needsClassePareto) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="classePareto"> Classe Pareto </label>
+          <app-select
+            [items]="classesParetoOptions"
+            appendTo="body"
+            formControlName="classePareto"
+            inputId="classePareto"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Toutes les classes (A+ → D)"
+          />
+        </div>
+      }
+
+      <!-- Description -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="description">Description<span class="text-danger">*</span></label>
+        <input
+          autocomplete="off"
+          class="form-control w-100"
+          formControlName="description"
+          id="description"
+          placeholder="Description de l'inventaire"
+          type="text"
+        />
+        @if (form.get('description')?.invalid && form.get('description')?.touched) {
+          <div class="text-danger small mt-1">Ce champ est requis.</div>
+        }
+      </div>
+    </form>
+  </app-card>
 </div>
 
 <div class="modal-footer flex-column align-items-stretch gap-2">

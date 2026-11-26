@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 class CalendrierMensuelTest {
 
     /** Janvier 2025 à mars 2026 : le mois n (1 = janvier 2025) vaut n × 100 de CA. */
-    private final CalendrierMensuel calendrier = CalendrierMensuel.ranger(2025, LongStream.rangeClosed(1, 15).mapToObj(n -> ca(n * 100)).toList());
+    private final CalendrierMensuel calendrier = CalendrierMensuel.ranger(
+            2025, LongStream.rangeClosed(1, 15).mapToObj(n -> ca(n * 100)).toList());
 
     @Test
     @DisplayName("le mois, le cumul depuis janvier et les douze mois glissants")
@@ -19,7 +20,8 @@ class CalendrierMensuelTest {
         assertThat(calendrier.lireFenetre(2026, 2, ModeAnnees.MENSUEL).caTtc()).isEqualTo(1_400);
         assertThat(calendrier.lireFenetre(2026, 2, ModeAnnees.CUMULE).caTtc()).isEqualTo(1_300 + 1_400);
         // Mars 2025 à février 2026 : mois 3 à 14.
-        assertThat(calendrier.lireFenetre(2026, 2, ModeAnnees.GLISSANT).caTtc()).isEqualTo(LongStream.rangeClosed(3, 14).sum() * 100);
+        assertThat(calendrier.lireFenetre(2026, 2, ModeAnnees.GLISSANT).caTtc())
+                .isEqualTo(LongStream.rangeClosed(3, 14).sum() * 100);
     }
 
     @Test

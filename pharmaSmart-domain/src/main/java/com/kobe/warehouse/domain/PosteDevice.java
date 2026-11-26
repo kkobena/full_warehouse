@@ -27,11 +27,8 @@ import org.hibernate.annotations.ColumnDefault;
  */
 @Entity
 @Table(
-    name = "poste_device",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"poste_id", "device_type", "port_name"})
-    }
-)
+        name = "poste_device",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"poste_id", "device_type", "port_name"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PosteDevice implements Serializable {
 
@@ -230,12 +227,10 @@ public class PosteDevice implements Serializable {
 
     @Override
     public String toString() {
-        return "PosteDevice{" +
-            "id=" + id +
-            ", deviceType=" + deviceType +
-            ", portName='" + portName + '\'' +
-            ", active=" + active +
-            '}';
+        return "PosteDevice{" + "id="
+                + id + ", deviceType="
+                + deviceType + ", portName='"
+                + portName + '\'' + ", active="
+                + active + '}';
     }
 }
-

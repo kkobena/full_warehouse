@@ -12,8 +12,8 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
-import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.InvoicePayment;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.repository.BanqueRepository;
@@ -85,33 +85,33 @@ class ReglementGroupeSelectionFactureServiceTest {
     @BeforeEach
     void setUp() {
         service = new ReglementGroupeSelectionFactureService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            reglementFactureSelectionneesService,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                reglementFactureSelectionneesService,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         when(cashRegisterService.getCashRegister()).thenReturn(new CashRegister());
         when(userService.getUser()).thenReturn(new AppUser());
         when(transactionIdGeneratorService.nextId()).thenReturn(55L);
         when(referenceService.buildNumTransaction()).thenReturn("TR-0001");
         when(invoicePaymentRepository.save(any(InvoicePayment.class))).thenAnswer(inv -> inv.getArgument(0));
         // Le simulacre impute comme le vrai service : au plus le reste du dossier de la fille.
-        when(reglementFactureSelectionneesService.doReglement(any(), any(), anyInt(), any())).thenAnswer(inv -> {
-            FactureTiersPayant fille = inv.getArgument(1);
-            int montant = inv.getArgument(2);
-            ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
-            int paye = Math.min(montant, dossier.getMontant() - dossier.getMontantRegle());
-            dossier.setMontantRegle(dossier.getMontantRegle() + paye);
-            InvoicePayment paiement = new InvoicePayment();
-            paiement.setPaidAmount(paye);
-            return paiement;
-        });
+        when(reglementFactureSelectionneesService.doReglement(any(), any(), anyInt(), any()))
+                .thenAnswer(inv -> {
+                    FactureTiersPayant fille = inv.getArgument(1);
+                    int montant = inv.getArgument(2);
+                    ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
+                    int paye = Math.min(montant, dossier.getMontant() - dossier.getMontantRegle());
+                    dossier.setMontantRegle(dossier.getMontantRegle() + paye);
+                    InvoicePayment paiement = new InvoicePayment();
+                    paiement.setPaidAmount(paye);
+                    return paiement;
+                });
     }
 
     private FactureTiersPayant groupeVerrouille;
@@ -126,8 +126,10 @@ class ReglementGroupeSelectionFactureServiceTest {
 
     /** Une fille du groupe, d'un seul dossier de {@code montant}. */
     private FactureTiersPayant stubFille(FactureItemId id, long entityId, int montant) {
-        FactureTiersPayant fille = new FactureTiersPayant().setId(entityId).setMontantRegle(0).setNumFacture("F-" + entityId);
-        fille.setFacturesDetails(new ArrayList<>(List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
+        FactureTiersPayant fille =
+                new FactureTiersPayant().setId(entityId).setMontantRegle(0).setNumFacture("F-" + entityId);
+        fille.setFacturesDetails(new ArrayList<>(
+                List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
         fille.setGroupeFactureTiersPayant(groupeVerrouille);
         groupeVerrouille.getFactureTiersPayants().add(fille);
         when(facturationRepository.getReferenceById(id)).thenReturn(fille);
@@ -135,19 +137,22 @@ class ReglementGroupeSelectionFactureServiceTest {
     }
 
     private static LigneSelectionnesDTO selection(FactureItemId id, int montantVerse) {
-        return new LigneSelectionnesDTO().setId(id).setMontantVerse(montantVerse).setMontantAttendu(montantVerse).setMontantFacture(
-            montantVerse
-        );
+        return new LigneSelectionnesDTO()
+                .setId(id)
+                .setMontantVerse(montantVerse)
+                .setMontantAttendu(montantVerse)
+                .setMontantFacture(montantVerse);
     }
 
-    private static ReglementParam param(int amount, int totalAmount, int montantFacture, LigneSelectionnesDTO... lignes) {
+    private static ReglementParam param(
+            int amount, int totalAmount, int montantFacture, LigneSelectionnesDTO... lignes) {
         return new ReglementParam()
-            .setId(GROUPE_ID)
-            .setAmount(amount)
-            .setTotalAmount(totalAmount)
-            .setMontantFacture(montantFacture)
-            .setLigneSelectionnes(new ArrayList<>(List.of(lignes)))
-            .setModePaimentCode(ModePaimentCode.CASH);
+                .setId(GROUPE_ID)
+                .setAmount(amount)
+                .setTotalAmount(totalAmount)
+                .setMontantFacture(montantFacture)
+                .setLigneSelectionnes(new ArrayList<>(List.of(lignes)))
+                .setModePaimentCode(ModePaimentCode.CASH);
     }
 
     @Test
@@ -156,8 +161,8 @@ class ReglementGroupeSelectionFactureServiceTest {
         ReglementParam param = param(1000, 1000, 1000);
 
         assertThatThrownBy(() -> service.doReglement(param))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("Aucun dossiers à regler");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("Aucun dossiers à regler");
 
         verifyNoInteractions(facturationRepository);
     }
@@ -169,9 +174,8 @@ class ReglementGroupeSelectionFactureServiceTest {
         stubFille(FILLE_1, 9L, 1000);
         stubFille(FILLE_2, 10L, 500);
 
-        ResponseReglementDTO response = service.doReglement(
-            param(1500, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500))
-        );
+        ResponseReglementDTO response =
+                service.doReglement(param(1500, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
 
         assertThat(groupe.getMontantRegle()).isEqualTo(1500);
         assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PAID);
@@ -197,8 +201,10 @@ class ReglementGroupeSelectionFactureServiceTest {
         assertThat(groupe.getMontantRegle()).isEqualTo(1200);
         assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PARTIALLY_PAID);
         // la seconde facture ne recoit que le reliquat
-        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(1000), any());
-        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(200), any());
+        verify(reglementFactureSelectionneesService)
+                .doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(1000), any());
+        verify(reglementFactureSelectionneesService)
+                .doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(200), any());
     }
 
     @Test
@@ -212,7 +218,8 @@ class ReglementGroupeSelectionFactureServiceTest {
 
         // la seconde facture n est jamais chargee : le versement etait deja consomme
         verify(facturationRepository, org.mockito.Mockito.never()).getReferenceById(FILLE_2);
-        verify(reglementFactureSelectionneesService, org.mockito.Mockito.times(1)).doReglement(any(), any(), anyInt(), any());
+        verify(reglementFactureSelectionneesService, org.mockito.Mockito.times(1))
+                .doReglement(any(), any(), anyInt(), any());
     }
 
     @Test
@@ -222,7 +229,7 @@ class ReglementGroupeSelectionFactureServiceTest {
         stubFille(FILLE_1, 9L, 1000);
 
         assertThatThrownBy(() -> service.doReglement(param(0, 1000, 1000, selection(FILLE_1, 1000))))
-            .isInstanceOf(GenericError.class);
+                .isInstanceOf(GenericError.class);
 
         assertThat(groupe.getMontantRegle()).isZero();
         verifyNoInteractions(reglementFactureSelectionneesService);
@@ -237,8 +244,8 @@ class ReglementGroupeSelectionFactureServiceTest {
         soldee.getFacturesDetails().getFirst().setMontantRegle(1000);
 
         assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("déjà réglée");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("déjà réglée");
 
         verifyNoInteractions(reglementFactureSelectionneesService);
     }
@@ -250,8 +257,8 @@ class ReglementGroupeSelectionFactureServiceTest {
         stubFille(FILLE_1, 9L, 1000).setFactureProvisoire(true);
 
         assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("provisoire");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("provisoire");
 
         verifyNoInteractions(reglementFactureSelectionneesService);
     }
@@ -264,8 +271,8 @@ class ReglementGroupeSelectionFactureServiceTest {
         etrangere.setGroupeFactureTiersPayant(new FactureTiersPayant().setId(99L));
 
         assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("n'appartient pas");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("n'appartient pas");
     }
 
     @Test
@@ -278,8 +285,10 @@ class ReglementGroupeSelectionFactureServiceTest {
 
         service.doReglement(param(900, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
 
-        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(900), any());
-        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(500), any());
+        verify(reglementFactureSelectionneesService)
+                .doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(900), any());
+        verify(reglementFactureSelectionneesService)
+                .doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(500), any());
         assertThat(groupe.getMontantRegle()).isEqualTo(900);
         assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PAID);
     }

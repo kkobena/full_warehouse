@@ -15,7 +15,8 @@ import java.util.List;
  * @param nombreAnomalies violations détectées ; {@code 0} = invariant tenu
  * @param exemples quelques cas concrets, au plus dix
  */
-public record AnomalieDTO(String code, String libelle, String consequence, long nombreAnomalies, List<String> exemples) {
+public record AnomalieDTO(
+        String code, String libelle, String consequence, long nombreAnomalies, List<String> exemples) {
     public boolean estSain() {
         return nombreAnomalies == 0;
     }

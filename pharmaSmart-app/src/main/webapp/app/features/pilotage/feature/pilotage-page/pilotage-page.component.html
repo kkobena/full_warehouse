@@ -23,7 +23,14 @@
       >
         @for (onglet of ongletsVisibles(); track onglet.id) {
           <ng-container [ngbNavItem]="onglet.id">
-            <a [ngbTooltip]="onglet.question + ' ' + onglet.aide" class="pharma-nav-tab-link" container="body" ngbNavLink [openDelay]="400" placement="bottom">
+            <a
+              [ngbTooltip]="onglet.question + ' ' + onglet.aide"
+              class="pharma-nav-tab-link"
+              container="body"
+              ngbNavLink
+              [openDelay]="400"
+              placement="bottom"
+            >
               <app-nav-section-link [arrow]="false" [code]="onglet.code" [fallbackIcon]="onglet.icone" [fallbackLabel]="onglet.libelle" />
             </a>
             <ng-template ngbNavContent>

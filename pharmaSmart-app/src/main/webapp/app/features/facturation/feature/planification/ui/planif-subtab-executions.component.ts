@@ -49,7 +49,9 @@ import { PlanificationStateService } from '../planification-state.service';
           <tr>
             <td class="small">{{ h.executionDebut | date: 'dd/MM/yy HH:mm' }}</td>
             <td class="small">{{ h.executionFin ? (h.executionFin | date: 'dd/MM/yy HH:mm') : '—' }}</td>
-            <td><span [class]="state.getStatutBadgeClass(h.statut)">{{ h.statut }}</span></td>
+            <td>
+              <span [class]="state.getStatutBadgeClass(h.statut)">{{ h.statut }}</span>
+            </td>
             <td class="text-end">{{ h.nombreFactures ?? 0 }}</td>
             <td class="plan-message-cell small text-muted">{{ h.message || '—' }}</td>
           </tr>
@@ -62,4 +64,3 @@ export class PlanifSubtabExecutionsComponent {
   readonly planId = input.required<number>();
   protected readonly state = inject(PlanificationStateService);
 }
-

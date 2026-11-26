@@ -1,23 +1,17 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { DatePipe, DecimalPipe } from "@angular/common";
-import { finalize } from "rxjs/operators";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 
-
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
-import { ITiersPayant } from "../../../../shared/model";
-import {
-  IRecapitulatifKpi,
-  IRecapitulatifMensuelDto,
-  IRecapitulatifMensuelRow,
-  IRecapitulatifParams
-} from "../../data-access/models";
-import { RecapitulatifApiService } from "../../data-access/services/recapitulatif-api.service";
-import { RecapitulatifKpiBannerComponent } from "../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
+import { ITiersPayant } from '../../../../shared/model';
+import { IRecapitulatifKpi, IRecapitulatifMensuelDto, IRecapitulatifMensuelRow, IRecapitulatifParams } from '../../data-access/models';
+import { RecapitulatifApiService } from '../../data-access/services/recapitulatif-api.service';
+import { RecapitulatifKpiBannerComponent } from '../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { CardComponent } from 'app/shared/ui';
 import {
   ButtonComponent,
@@ -28,8 +22,8 @@ import {
   FloatLabelComponent,
   MultiSelectComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent,
+} from '../../../../shared/ui';
 
 interface IMoisOption {
   label: string;
@@ -47,8 +41,9 @@ interface IAnneeOption {
 }
 
 @Component({
-  selector: "app-recapitulatif",
-  imports: [CardComponent, 
+  selector: 'app-recapitulatif',
+  imports: [
+    CardComponent,
     HintComponent,
     FormsModule,
     DecimalPipe,
@@ -62,11 +57,11 @@ interface IAnneeOption {
     FloatLabelComponent,
     MultiSelectComponent,
     SelectComponent,
-    ToolbarComponent
+    ToolbarComponent,
   ],
-  templateUrl: "./recapitulatif.component.html",
+  templateUrl: './recapitulatif.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./recapitulatif.component.scss"
+  styleUrl: './recapitulatif.component.scss',
 })
 export class RecapitulatifComponent implements OnInit {
   /**
@@ -79,25 +74,31 @@ export class RecapitulatifComponent implements OnInit {
   readonly navCode = input<string>('');
 
   protected readonly moisOptions: IMoisOption[] = [
-    { label: "Janvier", value: 1 }, { label: "Février", value: 2 },
-    { label: "Mars", value: 3 }, { label: "Avril", value: 4 },
-    { label: "Mai", value: 5 }, { label: "Juin", value: 6 },
-    { label: "Juillet", value: 7 }, { label: "Août", value: 8 },
-    { label: "Septembre", value: 9 }, { label: "Octobre", value: 10 },
-    { label: "Novembre", value: 11 }, { label: "Décembre", value: 12 }
+    { label: 'Janvier', value: 1 },
+    { label: 'Février', value: 2 },
+    { label: 'Mars', value: 3 },
+    { label: 'Avril', value: 4 },
+    { label: 'Mai', value: 5 },
+    { label: 'Juin', value: 6 },
+    { label: 'Juillet', value: 7 },
+    { label: 'Août', value: 8 },
+    { label: 'Septembre', value: 9 },
+    { label: 'Octobre', value: 10 },
+    { label: 'Novembre', value: 11 },
+    { label: 'Décembre', value: 12 },
   ];
 
   protected readonly typeFactureOptions: ITypeFactureOption[] = [
-    { label: "Tous", value: "" },
-    { label: "Individuelle", value: "INDIVIDUAL" },
-    { label: "Groupée", value: "GROUPED" }
+    { label: 'Tous', value: '' },
+    { label: 'Individuelle', value: 'INDIVIDUAL' },
+    { label: 'Groupée', value: 'GROUPED' },
   ];
 
   protected readonly anneeOptions: IAnneeOption[] = this.generateAnneeOptions();
 
   protected annee: number = Math.max(new Date().getFullYear(), 2026);
   protected selectedMois: number = new Date().getMonth() + 1;
-  protected selectedTypeFacture = "";
+  protected selectedTypeFacture = '';
   protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
@@ -121,7 +122,7 @@ export class RecapitulatifComponent implements OnInit {
       soldeCumule: data.reduce((s, r) => s + (r.soldeCumule ?? 0), 0),
       tauxRecouvrement: totalFacture > 0 ? (totalRegle / totalFacture) * 100 : 0,
       countFactures: data.reduce((s, r) => s + (r.nombreFactures ?? 0), 0),
-      countImpayees: data.reduce((s, r) => s + (r.nombreImpayees ?? 0), 0)
+      countImpayees: data.reduce((s, r) => s + (r.nombreImpayees ?? 0), 0),
     };
   });
 
@@ -142,11 +143,11 @@ export class RecapitulatifComponent implements OnInit {
       .query(this.buildParams())
       .pipe(
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: res => this.rows.set(res.body ?? []),
-        error: () => this.notificationService.error("Erreur lors du chargement du récapitulatif")
+        error: () => this.notificationService.error('Erreur lors du chargement du récapitulatif'),
       });
   }
 
@@ -166,11 +167,11 @@ export class RecapitulatifComponent implements OnInit {
       .exportExcel(this.buildParams())
       .pipe(
         finalize(() => this.loadingExport.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: blob => this.downloadDocumentService.downloadExcel(blob, 'recapitulatif'),
-        error: () => this.notificationService.error("Erreur export Excel")
+        error: () => this.notificationService.error('Erreur export Excel'),
       });
   }
 
@@ -180,11 +181,11 @@ export class RecapitulatifComponent implements OnInit {
       .exportPdf(this.buildParams())
       .pipe(
         finalize(() => this.loadingPdf.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: blob => this.downloadDocumentService.downloadPdf(blob, 'recapitulatif'),
-        error: () => this.notificationService.error("Erreur export PDF")
+        error: () => this.notificationService.error('Erreur export PDF'),
       });
   }
 
@@ -192,32 +193,32 @@ export class RecapitulatifComponent implements OnInit {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
+      .subscribe(res => this.tiersPayantSuggestions.set(res.body ?? []));
   }
 
   statutLabel(statut?: string): string {
     switch (statut) {
-      case "PAID":
-        return "Payé";
-      case "NOT_PAID":
-        return "Impayé";
-      case "PARTIALLY_PAID":
-        return "Partiel";
+      case 'PAID':
+        return 'Payé';
+      case 'NOT_PAID':
+        return 'Impayé';
+      case 'PARTIALLY_PAID':
+        return 'Partiel';
       default:
-        return statut ?? "—";
+        return statut ?? '—';
     }
   }
 
   statutClass(statut?: string): string {
     switch (statut) {
-      case "PAID":
-        return "bg-success";
-      case "NOT_PAID":
-        return "bg-danger";
-      case "PARTIALLY_PAID":
-        return "bg-warning text-dark";
+      case 'PAID':
+        return 'bg-success';
+      case 'NOT_PAID':
+        return 'bg-danger';
+      case 'PARTIALLY_PAID':
+        return 'bg-warning text-dark';
       default:
-        return "bg-secondary";
+        return 'bg-secondary';
     }
   }
 
@@ -263,9 +264,7 @@ export class RecapitulatifComponent implements OnInit {
       annee: this.annee,
       mois: this.selectedMois,
       tiersPayantIds: this.selectedTiersPayants.map(t => t.id),
-      typeFacture: this.selectedTypeFacture || undefined
+      typeFacture: this.selectedTypeFacture || undefined,
     };
   }
-
-
 }

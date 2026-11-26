@@ -1,7 +1,7 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
 
-import {AuthGuard} from 'app/core/auth/auth.guard';
-import {errorRoute} from './layouts/error/error.route';
+import { AuthGuard } from 'app/core/auth/auth.guard';
+import { errorRoute } from './layouts/error/error.route';
 
 const routes: Routes = [
   {
@@ -22,14 +22,13 @@ const routes: Routes = [
   {
     path: 'admin',
 
-    data: {abilitySubject: 'admin'},
+    data: { abilitySubject: 'admin' },
     canActivate: [AuthGuard],
     loadChildren: () => import('./admin/admin.routes'),
   },
   {
-
     path: 'licence',
-    data: {abilitySubject: 'gestion-licence'},
+    data: { abilitySubject: 'gestion-licence' },
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/license/license.routes'),
   },
@@ -51,8 +50,7 @@ const routes: Routes = [
   },
   {
     path: 'cahier-recette',
-    loadComponent: () =>
-      import('./features/cahier-recette/cahier-recette.component').then(m => m.CahierRecetteComponent),
+    loadComponent: () => import('./features/cahier-recette/cahier-recette.component').then(m => m.CahierRecetteComponent),
     canActivate: [AuthGuard],
     title: 'Cahier de recette',
   },

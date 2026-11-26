@@ -20,14 +20,19 @@
           <div class="form-field form-field-full">
             <label for="field_libelle">Nom<span class="required">*</span></label>
 
-            <input #firstName autocomplete="off" class="form-control" formControlName="firstName"
-                   id="field_firstName" name="firstName" type="text" />
-            @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
-              || editForm.get('firstName')!.touched)) {
+            <input
+              #firstName
+              autocomplete="off"
+              class="form-control"
+              formControlName="firstName"
+              id="field_firstName"
+              name="firstName"
+              type="text"
+            />
+            @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
               <div>
                 @if (editForm.get('firstName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -35,15 +40,11 @@
 
           <div class="form-field form-field-full">
             <label for="field_lastName">Prénom(s) <span class="required">*</span> </label>
-            <input autocomplete="off" class="form-control" formControlName="lastName"
-                   id="field_lastName"
-                   name="lastName" type="text" />
-            @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
-              || editForm.get('lastName')!.touched)) {
+            <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" name="lastName" type="text" />
+            @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
               <div>
                 @if (editForm.get('lastName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -65,27 +66,31 @@
               placeholder="Taper pour rechercher"
             />
 
-            @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty
-              || editForm.get('tiersPayantId')!.touched)) {
+            @if (
+              editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)
+            ) {
               <div>
                 @if (editForm.get('tiersPayantId')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
             <label for="field_num">Numéro de sécurité <span class="required">*</span> </label>
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                   formControlName="num"
-                   id="field_num" name="num" type="text" />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
+            <input
+              [appKeyFilter]="'alphanum'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="num"
+              id="field_num"
+              name="num"
+              type="text"
+            />
+            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -93,15 +98,19 @@
 
           <div class="form-field form-field-full">
             <label for="field_taux">Taux(%)<span class="required">*</span></label>
-            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
-                   formControlName="taux"
-                   id="field_taux" name="taux" type="text" />
-            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-              'taux')!.touched)) {
+            <input
+              [appKeyFilter]="'int'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="taux"
+              id="field_taux"
+              name="taux"
+              type="text"
+            />
+            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -116,16 +125,21 @@
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
             <label for="field_phone">Téléphone</label>
-            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
-                   formControlName="phone"
-                   id="field_phone" name="phone" type="text" />
+            <input
+              [appKeyFilter]="'int'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="phone"
+              id="field_phone"
+              name="phone"
+              type="text"
+            />
           </div>
 
           @let datNaiss = editForm.get('datNaiss');
           <div class="form-field form-field-full">
             <label for="datNaiss">Date de naissance</label>
-            <input class="form-control" formControlName="datNaiss" id="datNaiss" jhiDateNaiss
-                   name="datNaiss" placeholder="jj/mm/aaaa" />
+            <input class="form-control" formControlName="datNaiss" id="datNaiss" jhiDateNaiss name="datNaiss" placeholder="jj/mm/aaaa" />
             @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
               <div>
                 @let errors = datNaiss?.errors;
@@ -138,17 +152,13 @@
 
           <div class="form-field form-field-full">
             <label for="email">E-mail</label>
-            <input autocomplete="off" class="form-control" formControlName="email" id="email"
-                   name="email"
-                   type="email" />
+            <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email" type="email" />
           </div>
           <div class="form-field form-field-full">
             <label>Sexe</label>
             <div class="radio-group">
-              <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin"
-                         name="sexe" />
-              <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Feminin"
-                         name="sexe" />
+              <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin" name="sexe" />
+              <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Feminin" name="sexe" />
             </div>
           </div>
         </div>

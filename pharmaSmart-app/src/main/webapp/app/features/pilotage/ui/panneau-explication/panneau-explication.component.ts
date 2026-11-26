@@ -31,6 +31,8 @@ export class PanneauExplicationComponent {
   }
 
   protected formaterEcart(valeur: number | null): string {
-    return valeur === null ? '—' : `${valeur > 0 ? '+' : ''}${this.valeurIndicateur.transform(valeur, this.explication()!.indicateur.unite, true)}`;
+    return valeur === null
+      ? '—'
+      : `${valeur > 0 ? '+' : ''}${this.valeurIndicateur.transform(valeur, this.explication()!.indicateur.unite, true)}`;
   }
 }

@@ -68,7 +68,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         Produit produit = produitEnStock("BETADINE", 900, 500, 0, 2);
         SaleLineDTO dto = ligneDe(produit, 5);
 
-        assertThrows(StockException.class, () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
+        assertThrows(
+                StockException.class, () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
     }
 
     @Test
@@ -94,9 +95,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
 
         SaleLineDTO dto = ligneDe(produit, 4);
         StockInReserveException echec = assertThrows(
-            StockInReserveException.class,
-            () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID)
-        );
+                StockInReserveException.class,
+                () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
 
         assertNotNull(echec, "le frontal doit pouvoir proposer le transfert plutôt que d'échouer");
     }
@@ -113,12 +113,9 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         dto.setForceStock(true);
         SalesLine ligne = services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID);
 
-        verify(services.repartitionStockService).transfertImpliciteReserveVersRayon(
-            eq(produit.getId()),
-            eq(STORAGE_RAYON_ID),
-            eq(STORAGE_RESERVE_ID),
-            eq(3)
-        );
+        verify(services.repartitionStockService)
+                .transfertImpliciteReserveVersRayon(
+                        eq(produit.getId()), eq(STORAGE_RAYON_ID), eq(STORAGE_RESERVE_ID), eq(3));
         assertEquals(4, ligne.getQuantitySold(), "1 en rayon + 3 transférés couvrent la demande");
     }
 
@@ -159,10 +156,10 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(-3, relue.getAfterStock(), "5 demandées sur 2 disponibles");
         assertEquals(3, relue.getQuantityAvoir(), "l'écart part en avoir client");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM avoir_client WHERE sales_line_id = " + ligne.getId().getId()),
-            "et l'avoir correspondant est bien écrit en base"
-        );
+                1,
+                compter("SELECT count(*) FROM avoir_client WHERE sales_line_id = "
+                        + ligne.getId().getId()),
+                "et l'avoir correspondant est bien écrit en base");
     }
 
     @Test
@@ -243,9 +240,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         dto.setQuantitySold(5);
 
         assertThrows(
-            QuantitySoldException.class,
-            () -> services.salesLineService.updateItemQuantitySold(ligne, dto, STORAGE_RAYON_ID)
-        );
+                QuantitySoldException.class,
+                () -> services.salesLineService.updateItemQuantitySold(ligne, dto, STORAGE_RAYON_ID));
     }
 
     @Test
@@ -277,11 +273,11 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         List<SaleLineDTO> lignes = services.salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(
-            vente.getId().getId(),
-            vente.getSaleDate()
-        );
+                vente.getId().getId(), vente.getSaleDate());
 
-        assertEquals(List.of("ASPIRINE UPSA", "ZINC"), lignes.stream().map(SaleLineDTO::getProduitLibelle).toList());
+        assertEquals(
+                List.of("ASPIRINE UPSA", "ZINC"),
+                lignes.stream().map(SaleLineDTO::getProduitLibelle).toList());
     }
 
     @Test
@@ -292,7 +288,9 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ligneEnBase(vente, produit, 2);
         viderLeCache();
 
-        assertTrue(services.salesLineService.findBySalesIdAndProduitId(vente.getId(), produit.getId()).isPresent());
+        assertTrue(services.salesLineService
+                .findBySalesIdAndProduitId(vente.getId(), produit.getId())
+                .isPresent());
     }
 
     @Test
@@ -315,7 +313,10 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.salesLineService.deleteSaleLine(em.find(SalesLine.class, ligne.getId()));
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + vente.getId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + vente.getId().getId()));
     }
 
     @Test
@@ -333,7 +334,10 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(1, clones.size());
         SalesLine clone = clones.iterator().next();
         assertTrue(clone.getId().getId() != ligne.getId().getId(), "le clone a son propre identifiant");
-        assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + copie.getId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + copie.getId().getId()));
     }
 
     // ===== motif de forçage (lot 1 de PLAN-VENTE-SUR-STOCK-ERRONE) =====
@@ -345,7 +349,9 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         SalesLine ligne = ligneEnBase(venteActive(), produit, forcee(ligneDe(produit, 5)));
         viderLeCache();
 
-        assertEquals(MotifForcageStock.RUPTURE_AVOIR, em.find(SalesLine.class, ligne.getId()).getMotifForcage());
+        assertEquals(
+                MotifForcageStock.RUPTURE_AVOIR,
+                em.find(SalesLine.class, ligne.getId()).getMotifForcage());
         assertEquals(2, ligne.getQuantitySold(), "aucun changement de comportement : on sert ce qui existe");
     }
 
@@ -370,7 +376,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         em.flush();
         when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
 
-        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 4)), STORAGE_RAYON_ID);
+        SalesLine ligne =
+                services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 4)), STORAGE_RAYON_ID);
 
         assertNull(ligne.getMotifForcage(), "le transfert implicite sert toute la demande");
     }
@@ -423,15 +430,18 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         SaleLineDTO increment = ligneDe(produit, 3);
         increment.setSaleLineId(ligne.getId());
 
-        assertThrows(StockException.class,
-            () -> services.salesLineService.incrementItemQuantityRequested(increment, ligne, STORAGE_RAYON_ID));
+        assertThrows(
+                StockException.class,
+                () -> services.salesLineService.incrementItemQuantityRequested(increment, ligne, STORAGE_RAYON_ID));
         assertEquals(2, ligne.getQuantityRequested(), "la ligne reste telle quelle");
     }
 
     @Test
     @DisplayName("La migration crée le motif d'ajustement et le privilège de régularisation")
     void referentielsDuForcage() {
-        assertEquals(1, compter("SELECT count(*) FROM motif_ajustement WHERE libelle = 'Régularisation constatée à la vente'"));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM motif_ajustement WHERE libelle = 'Régularisation constatée à la vente'"));
         assertEquals(2, compter("""
             SELECT count(*) FROM nav_item_role r JOIN nav_item n ON n.id = r.nav_item_id
             WHERE n.code = 'pr-regulariser-stock-vente' AND r.can_execute
@@ -465,8 +475,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         Produit produit = produitEnStock("NUROFEN", 1_500, 900, 0, 0);
         SaleLineDTO dto = ecart(ligneDe(produit, 3));
 
-        GenericError refus = assertThrows(GenericError.class,
-            () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
+        GenericError refus = assertThrows(
+                GenericError.class, () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
         assertTrue(refus.getMessage().contains("privilège"), refus.getMessage());
     }
 
@@ -503,7 +513,9 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
         viderLeCache();
 
-        assertEquals(1, compter("""
+        assertEquals(
+                1,
+                compter("""
             SELECT count(*) FROM ajustement a
             JOIN ajust j ON j.id = a.ajust_id
             JOIN motif_ajustement m ON m.id = a.motif_ajustement_id
@@ -511,13 +523,17 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
               AND a.stock_before = 1 AND a.stock_after = 3
               AND j.statut = 'CLOSED' AND j.user_id = %d
               AND m.libelle = 'Régularisation constatée à la vente'
-            """.formatted(stockProduit.getId(), caissier.getId())), "1 en machine + 2 constatés au rayon");
+            """.formatted(stockProduit.getId(), caissier.getId())),
+                "1 en machine + 2 constatés au rayon");
         SalesLine relue = em.find(SalesLine.class, ligne.getId());
         assertEquals(3, relue.getInitStock(), "la sortie lit le stock régularisé");
         assertEquals(0, relue.getAfterStock());
         assertEquals(0, relue.getQuantityAvoir());
         assertEquals(0, em.find(StockProduit.class, stockProduit.getId()).getQtyStock());
-        assertEquals(0, compter("SELECT count(*) FROM avoir_client WHERE sales_line_id = " + ligne.getId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM avoir_client WHERE sales_line_id = "
+                        + ligne.getId().getId()));
         verify(services.lotStockLocationService).creditLastLot(any(Produit.class), eq(rayon), eq(2));
     }
 
@@ -533,9 +549,13 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
         viderLeCache();
 
-        assertEquals(1, compter("SELECT count(*) FROM ajustement WHERE qty_mvt = 2 AND stock_produit_id = " + stockProduit.getId()),
-            "on régularise les 2 boîtes vendues, pas les 3 dues");
-        assertEquals(-3, em.find(StockProduit.class, stockProduit.getId()).getQtyStock(), "les 3 boîtes dues le restent");
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM ajustement WHERE qty_mvt = 2 AND stock_produit_id = "
+                        + stockProduit.getId()),
+                "on régularise les 2 boîtes vendues, pas les 3 dues");
+        assertEquals(
+                -3, em.find(StockProduit.class, stockProduit.getId()).getQtyStock(), "les 3 boîtes dues le restent");
     }
 
     @Test
@@ -564,7 +584,8 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
     void ruptureSansAjustement() {
         Produit produit = produitEnStock("RENNIE", 1_500, 900, 0, 1);
         StockProduit stockProduit = stockRayonDe(produit);
-        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 3)), STORAGE_RAYON_ID);
+        SalesLine ligne =
+                services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 3)), STORAGE_RAYON_ID);
         ligne.setSales(venteActive());
 
         services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
@@ -597,8 +618,13 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
     // ===== outils =====
 
     private void habiliter(String... autorites) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-            "caissier", null, Arrays.stream(autorites).map(SimpleGrantedAuthority::new).toList()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "caissier",
+                        null,
+                        Arrays.stream(autorites)
+                                .map(SimpleGrantedAuthority::new)
+                                .toList()));
     }
 
     private SaleLineDTO ecart(SaleLineDTO dto) {

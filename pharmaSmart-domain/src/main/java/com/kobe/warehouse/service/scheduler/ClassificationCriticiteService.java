@@ -68,19 +68,19 @@ public class ClassificationCriticiteService {
     private final ClassificationBatchProcessor batchProcessor;
     private final SemoisCalculationService semoisCalculationService;
     private final AppConfigurationService appConfigurationService;
+
     @Value("${pharma-smart.classification.batch-size:100}")
     private int batchSize;
 
     public ClassificationCriticiteService(
-        ClassificationConfigRepository configRepository,
-        ClassificationCriticiteLogRepository logRepository,
-        ProduitRepository produitRepository,
-        ParetoAnalysisRepository paretoRepository,
-        UserRepository userRepository,
-        ClassificationBatchProcessor batchProcessor,
-        SemoisCalculationService semoisCalculationService,
-        AppConfigurationService appConfigurationService
-    ) {
+            ClassificationConfigRepository configRepository,
+            ClassificationCriticiteLogRepository logRepository,
+            ProduitRepository produitRepository,
+            ParetoAnalysisRepository paretoRepository,
+            UserRepository userRepository,
+            ClassificationBatchProcessor batchProcessor,
+            SemoisCalculationService semoisCalculationService,
+            AppConfigurationService appConfigurationService) {
         this.configRepository = configRepository;
         this.logRepository = logRepository;
         this.produitRepository = produitRepository;
@@ -125,8 +125,7 @@ public class ClassificationCriticiteService {
     }
 
     public ClassificationConfig getConfig() {
-        return configRepository.findConfiguration()
-            .orElseGet(this::createDefaultConfig);
+        return configRepository.findConfiguration().orElseGet(this::createDefaultConfig);
     }
 
     public ClassificationConfigDTO getConfigDTO() {
@@ -219,9 +218,9 @@ public class ClassificationCriticiteService {
         int cmm = (int) Math.round(qteVendue / 12.0);
 
         int ancienneteMois = produit.getCreatedAt() != null
-            ? (int) java.time.temporal.ChronoUnit.MONTHS.between(
-            produit.getCreatedAt().toLocalDate(), LocalDate.now())
-            : 0;
+                ? (int) java.time.temporal.ChronoUnit.MONTHS.between(
+                        produit.getCreatedAt().toLocalDate(), LocalDate.now())
+                : 0;
         boolean estNouveauProduit = ancienneteMois < config.getNbMoisMinNouveauProduit();
 
         ParetoScore ps = new ParetoScore(ca12Mois, caCumulePct, rang, frequenceMois, qteVendue);
@@ -230,28 +229,27 @@ public class ClassificationCriticiteService {
         ClasseCriticite classeActuelle = produit.getEffectiveClasseCriticite();
 
         boolean changementSignificatif = classeSuggeree != classeActuelle
-            && batchProcessor.passeHysteresis(caCumulePct, classeActuelle, classeSuggeree, config);
+                && batchProcessor.passeHysteresis(caCumulePct, classeActuelle, classeSuggeree, config);
 
         int scoreTotal = (int) Math.clamp(100.0 - caCumulePct.doubleValue(), 0, 100);
 
         return new ClassificationScoreDTO(
-            produitId,
-            produit.getLibelle(),
-            ca12Mois,
-            cmm,
-            qteVendue,
-            frequenceMois,
-            caCumulePct,
-            stockActuel,
-            rang,
-            frequenceMois,
-            scoreTotal,
-            classeSuggeree,
-            classeActuelle,
-            estNouveauProduit,
-            ancienneteMois,
-            changementSignificatif
-        );
+                produitId,
+                produit.getLibelle(),
+                ca12Mois,
+                cmm,
+                qteVendue,
+                frequenceMois,
+                caCumulePct,
+                stockActuel,
+                rang,
+                frequenceMois,
+                scoreTotal,
+                classeSuggeree,
+                classeActuelle,
+                estNouveauProduit,
+                ancienneteMois,
+                changementSignificatif);
     }
 
     /**
@@ -259,12 +257,12 @@ public class ClassificationCriticiteService {
      */
     @Transactional
     public void overrideClasse(Integer produitId, ClasseCriticite nouvelleClasse, String raison) {
-        Produit produit = produitRepository.findById(produitId)
-            .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé: " + produitId));
+        Produit produit = produitRepository
+                .findById(produitId)
+                .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé: " + produitId));
 
         ClassificationScoreDTO score = calculerScore(produitId);
-        appliquerChangementClasse(produit, nouvelleClasse, score, raison,
-            ClassificationType.MANUAL);
+        appliquerChangementClasse(produit, nouvelleClasse, score, raison, ClassificationType.MANUAL);
         produit.setIsClassificationOverridden(true);
         produitRepository.save(produit);
     }
@@ -293,18 +291,18 @@ public class ClassificationCriticiteService {
         if (!config.getAutoClassificationEnabled()) {
             LOG.warn("Classification automatique désactivée");
             return ReclassificationResultDTO.builder()
-                .raison("Classification automatique désactivée")
-                .dateExecution(LocalDateTime.now())
-                .build();
+                    .raison("Classification automatique désactivée")
+                    .dateExecution(LocalDateTime.now())
+                    .build();
         }
 
         // Garde idempotente mensuelle — marqueur dédié, indépendant de classification_config
         if (raison.equals(AUTO_DESCRIPTION) && dejaReclassifieCeMois()) {
             LOG.warn("Reclassification automatique déjà exécutée ce mois-ci");
             return ReclassificationResultDTO.builder()
-                .raison("Reclassification automatique déjà exécutée ce mois-ci")
-                .dateExecution(LocalDateTime.now())
-                .build();
+                    .raison("Reclassification automatique déjà exécutée ce mois-ci")
+                    .dateExecution(LocalDateTime.now())
+                    .build();
         }
 
         Map<String, Long> repartitionAvant = getDistributionClasses();
@@ -327,18 +325,17 @@ public class ClassificationCriticiteService {
         for (int page = 0; page < totalPages; page++) {
             try {
                 batchProcessor.processPage(
-                    PageRequest.of(page, batchSize),
-                    config,
-                    paretoMap,
-                    raison,
-                    nbAnalyses,
-                    nbChangements,
-                    nbPromotions,
-                    nbRetrogradations,
-                    nbNouveaux,
-                    nbOverridden,
-                    nbErreurs
-                );
+                        PageRequest.of(page, batchSize),
+                        config,
+                        paretoMap,
+                        raison,
+                        nbAnalyses,
+                        nbChangements,
+                        nbPromotions,
+                        nbRetrogradations,
+                        nbNouveaux,
+                        nbOverridden,
+                        nbErreurs);
             } catch (Exception e) {
                 LOG.error("Erreur lors du traitement du batch {}/{}", page + 1, totalPages, e);
                 nbErreurs.incrementAndGet();
@@ -349,25 +346,26 @@ public class ClassificationCriticiteService {
         long duree = System.currentTimeMillis() - startTime;
 
         ReclassificationResultDTO result = ReclassificationResultDTO.builder()
-            .totalProduitsAnalyses(nbAnalyses.get())
-            .totalChangements(nbChangements.get())
-            .nbPromotions(nbPromotions.get())
-            .nbRetrogradations(nbRetrogradations.get())
-            .nbProduitsNouveaux(nbNouveaux.get())
-            .nbProduitsOverridden(nbOverridden.get())
-            .nbErreurs(nbErreurs.get())
-            .repartitionAvant(repartitionAvant)
-            .repartitionApres(repartitionApres)
-            .dureeExecutionMs(duree)
-            .dateExecution(LocalDateTime.now())
-            .raison(raison)
-            .build();
+                .totalProduitsAnalyses(nbAnalyses.get())
+                .totalChangements(nbChangements.get())
+                .nbPromotions(nbPromotions.get())
+                .nbRetrogradations(nbRetrogradations.get())
+                .nbProduitsNouveaux(nbNouveaux.get())
+                .nbProduitsOverridden(nbOverridden.get())
+                .nbErreurs(nbErreurs.get())
+                .repartitionAvant(repartitionAvant)
+                .repartitionApres(repartitionApres)
+                .dureeExecutionMs(duree)
+                .dateExecution(LocalDateTime.now())
+                .raison(raison)
+                .build();
 
         LOG.info("Reclassification terminée: {}", result.getResume());
 
         if (result.hasAnomaliePotentielle()) {
-            LOG.warn("ALERTE: Pourcentage de changements anormalement élevé: {}%",
-                String.format("%.1f", result.getPourcentageChangements()));
+            LOG.warn(
+                    "ALERTE: Pourcentage de changements anormalement élevé: {}%",
+                    String.format("%.1f", result.getPourcentageChangements()));
         }
 
         // Marquer l'exécution du mois (garde d'idempotence mensuelle)
@@ -390,10 +388,11 @@ public class ClassificationCriticiteService {
     /**
      * Récupère les logs d'un produit.
      */
-    public Page<ClassificationLogDTO> getLogsProduit(Integer produitId,
-        org.springframework.data.domain.Pageable pageable) {
-        return logRepository.findByProduitIdOrderByCreatedAtDesc(produitId, pageable)
-            .map(ClassificationLogDTO::fromEntity);
+    public Page<ClassificationLogDTO> getLogsProduit(
+            Integer produitId, org.springframework.data.domain.Pageable pageable) {
+        return logRepository
+                .findByProduitIdOrderByCreatedAtDesc(produitId, pageable)
+                .map(ClassificationLogDTO::fromEntity);
     }
 
     /**
@@ -427,12 +426,13 @@ public class ClassificationCriticiteService {
      * qui bloquait à tort l'exécution du batch.
      */
     private boolean dejaReclassifieCeMois() {
-        return appConfigurationService.findOneById(APP_LAST_DAY_CLASSIFICATION)
-            .map(AppConfiguration::getValue)
-            .filter(StringUtils::hasText)
-            .map(LocalDate::parse)
-            .map(date -> date.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1)))
-            .orElse(false);
+        return appConfigurationService
+                .findOneById(APP_LAST_DAY_CLASSIFICATION)
+                .map(AppConfiguration::getValue)
+                .filter(StringUtils::hasText)
+                .map(LocalDate::parse)
+                .map(date -> date.withDayOfMonth(1).equals(LocalDate.now().withDayOfMonth(1)))
+                .orElse(false);
     }
 
     // ── Helpers de conversion de colonnes native query ──
@@ -444,12 +444,11 @@ public class ClassificationCriticiteService {
      */
     private void marquerReclassificationDuMois() {
         try {
-            appConfigurationService.findOneById(APP_LAST_DAY_CLASSIFICATION)
-                .ifPresent(cfg -> {
-                    cfg.setValue(LocalDate.now().toString());
-                    cfg.setUpdated(LocalDateTime.now());
-                    appConfigurationService.update(cfg);
-                });
+            appConfigurationService.findOneById(APP_LAST_DAY_CLASSIFICATION).ifPresent(cfg -> {
+                cfg.setValue(LocalDate.now().toString());
+                cfg.setUpdated(LocalDateTime.now());
+                appConfigurationService.update(cfg);
+            });
         } catch (Exception e) {
             LOG.error("Erreur mise à jour du marqueur de reclassification mensuelle", e);
         }
@@ -466,13 +465,9 @@ public class ClassificationCriticiteService {
             if (produitId == null) {
                 continue;
             }
-            map.put(produitId, new ParetoScore(
-                toLong(row[3]),
-                toBigDecimal(row[1]),
-                toInt(row[2]),
-                toInt(row[4]),
-                toInt(row[5])
-            ));
+            map.put(
+                    produitId,
+                    new ParetoScore(toLong(row[3]), toBigDecimal(row[1]), toInt(row[2]), toInt(row[4]), toInt(row[5])));
         }
         return map;
     }
@@ -480,8 +475,7 @@ public class ClassificationCriticiteService {
     /**
      * Classe Pareto sans les overrides médicaux (pour calculerScore sans Produit chargé).
      */
-    private ClasseCriticite classeDepuisPareto(BigDecimal caCumulePct, int frequenceMois,
-        ClassificationConfig config) {
+    private ClasseCriticite classeDepuisPareto(BigDecimal caCumulePct, int frequenceMois, ClassificationConfig config) {
         if (frequenceMois < config.getSeuilFrequenceMinMois()) {
             return ClasseCriticite.D;
         }
@@ -502,40 +496,40 @@ public class ClassificationCriticiteService {
     }
 
     private void appliquerChangementClasse(
-        Produit produit,
-        ClasseCriticite nouvelleClasse,
-        ClassificationScoreDTO score,
-        String raison,
-        ClassificationType type
-    ) {
+            Produit produit,
+            ClasseCriticite nouvelleClasse,
+            ClassificationScoreDTO score,
+            String raison,
+            ClassificationType type) {
         ClasseCriticite ancienneClasse = produit.getClasseCriticite();
         produit.setClasseCriticite(nouvelleClasse);
         produitRepository.save(produit);
 
         ClassificationCriticiteLog log = new ClassificationCriticiteLog()
-            .setProduit(produit)
-            .setAncienneClasse(ancienneClasse)
-            .setNouvelleClasse(nouvelleClasse)
-            .setVmm12Mois(score != null ? score.vmm12Mois() : null)
-            .setCa12Mois(score != null ? score.ca12Mois() : null)
-            .setFrequenceVenteMois(score != null ? score.frequenceVenteMois() : null)
-            .setScoreTotal(score != null ? BigDecimal.valueOf(score.scoreTotal()) : null)
-            .setRaisonChangement(raison)
-            .setClassificationType(type);
+                .setProduit(produit)
+                .setAncienneClasse(ancienneClasse)
+                .setNouvelleClasse(nouvelleClasse)
+                .setVmm12Mois(score != null ? score.vmm12Mois() : null)
+                .setCa12Mois(score != null ? score.ca12Mois() : null)
+                .setFrequenceVenteMois(score != null ? score.frequenceVenteMois() : null)
+                .setScoreTotal(score != null ? BigDecimal.valueOf(score.scoreTotal()) : null)
+                .setRaisonChangement(raison)
+                .setClassificationType(type);
 
         if (type == ClassificationType.MANUAL) {
             SecurityUtils.getCurrentUserLogin()
-                .flatMap(userRepository::findOneByLogin)
-                .ifPresent(log::setUser);
+                    .flatMap(userRepository::findOneByLogin)
+                    .ifPresent(log::setUser);
         }
 
         logRepository.save(log);
 
-        LOG.info("Classification changée pour produit {}: {} → {} (caCumulé: {}, type: {})",
-            produit.getId(),
-            ancienneClasse != null ? ancienneClasse.getCode() : "null",
-            nouvelleClasse.getCode(),
-            score != null ? score.caCumulePct() : "N/A",
-            type);
+        LOG.info(
+                "Classification changée pour produit {}: {} → {} (caCumulé: {}, type: {})",
+                produit.getId(),
+                ancienneClasse != null ? ancienneClasse.getCode() : "null",
+                nouvelleClasse.getCode(),
+                score != null ? score.caCumulePct() : "N/A",
+                type);
     }
 }

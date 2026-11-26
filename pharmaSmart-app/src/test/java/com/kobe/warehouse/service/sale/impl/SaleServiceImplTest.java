@@ -24,9 +24,8 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Produit;
@@ -35,6 +34,7 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalePayment;
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -64,10 +64,10 @@ import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -80,8 +80,8 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -89,38 +89,55 @@ class SaleServiceImplTest {
 
     @Mock
     private SalesRepository salesRepository;
+
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private UninsuredCustomerRepository uninsuredCustomerRepository;
+
     @Mock
     private PaymentModeRepository paymentModeRepository;
+
     @Mock
     private StorageService storageService;
+
     @Mock
     private CashSaleRepository cashSaleRepository;
+
     @Mock
     private SalesLineService salesLineService;
+
     @Mock
     private SaleLineServiceFactory saleLineServiceFactory;
+
     @Mock
     private PaymentService paymentService;
+
     @Mock
     private ReferenceService referenceService;
+
     @Mock
     private PosteRepository posteRepository;
+
     @Mock
     private UtilisationCleSecuriteService utilisationCleSecuriteService;
+
     @Mock
     private RemiseRepository remiseRepository;
+
     @Mock
     private CustomerDisplayService customerDisplayService;
+
     @Mock
     private SaleIdGeneratorService idGeneratorService;
+
     @Mock
     private ObjectMapper objectMapper;
+
     @Mock
     private SalesManager salesManager;
+
     @Mock
     private AppConfigurationService appConfigurationService;
 
@@ -154,8 +171,7 @@ class SaleServiceImplTest {
         testStorage = new Storage();
         testStorage.setId(1);
 
-        lenient().when(saleLineServiceFactory.getService(TypeVente.CashSale))
-            .thenReturn(salesLineService);
+        lenient().when(saleLineServiceFactory.getService(TypeVente.CashSale)).thenReturn(salesLineService);
         lenient().when(referenceService.buildNumSale()).thenReturn("NUM");
         lenient().when(referenceService.buildNumPreventeSale()).thenReturn("PRE");
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
@@ -166,14 +182,27 @@ class SaleServiceImplTest {
         lenient().when(objectMapper.createObjectNode()).thenReturn(mapper.createObjectNode());
 
         saleService = new SaleServiceImpl(
-            salesRepository, userRepository, uninsuredCustomerRepository,
-            paymentModeRepository, storageService, cashSaleRepository,
-            cashRegisterService, saleLineServiceFactory, new SaleAmountCalculator(saleLineServiceFactory),
-            paymentService, referenceService, posteRepository,
-            utilisationCleSecuriteService, remiseRepository,
-            customerDisplayService, idGeneratorService, objectMapper,
-            salesManager, appConfigurationService, declarationCaService, ponctionService
-        );
+                salesRepository,
+                userRepository,
+                uninsuredCustomerRepository,
+                paymentModeRepository,
+                storageService,
+                cashSaleRepository,
+                cashRegisterService,
+                saleLineServiceFactory,
+                new SaleAmountCalculator(saleLineServiceFactory),
+                paymentService,
+                referenceService,
+                posteRepository,
+                utilisationCleSecuriteService,
+                remiseRepository,
+                customerDisplayService,
+                idGeneratorService,
+                objectMapper,
+                salesManager,
+                appConfigurationService,
+                declarationCaService,
+                ponctionService);
 
         setupTestData();
     }
@@ -213,7 +242,6 @@ class SaleServiceImplTest {
         testSale.getSalesLines().add(testSalesLine);
     }
 
-
     @Test
     void testFromDTOOldCashSale() {
         CashSaleDTO dto = new CashSaleDTO();
@@ -224,8 +252,7 @@ class SaleServiceImplTest {
         AppUser user = new AppUser();
         user.setMagasin(new Magasin());
         when(userRepository.findOneByLogin("userLogin")).thenReturn(Optional.of(user));
-        when(uninsuredCustomerRepository.findOneByCode("CUST001")).thenReturn(
-            Optional.of(new UninsuredCustomer()));
+        when(uninsuredCustomerRepository.findOneByCode("CUST001")).thenReturn(Optional.of(new UninsuredCustomer()));
 
         CashSale result = saleService.fromDTOOldCashSale(dto);
 
@@ -356,7 +383,8 @@ class SaleServiceImplTest {
         dto.setSaleCompositeId(new SaleId(1L, testDate));
 
         when(cashSaleRepository.getReferenceById(any())).thenReturn(testSale);
-        when(salesManager.updateItemQuantityRequested(any(), any(), anyBoolean())).thenReturn(dto);
+        when(salesManager.updateItemQuantityRequested(any(), any(), anyBoolean()))
+                .thenReturn(dto);
 
         SaleLineDTO result = saleService.updateItemQuantityRequested(dto, true);
 
@@ -428,8 +456,7 @@ class SaleServiceImplTest {
         eagerSale.setSalesLines(new HashSet<>(List.of(testSalesLine)));
         eagerSale.setUser(testUser);
 
-        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
-            Optional.of(eagerSale));
+        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(eagerSale));
         when(uninsuredCustomerRepository.getReferenceById(1)).thenReturn(new UninsuredCustomer());
         lenient().when(storageService.getUser()).thenReturn(testUser);
 
@@ -439,8 +466,7 @@ class SaleServiceImplTest {
         assertTrue(result.success());
         assertEquals(SalesStatut.CLOSED, eagerSale.getStatut());
         verify(cashSaleRepository).findOneWithEagerSalesLines(1L, testDate);
-        InOrder finalizationOrder = org.mockito.Mockito.inOrder(paymentService,
-            declarationCaService, salesRepository);
+        InOrder finalizationOrder = org.mockito.Mockito.inOrder(paymentService, declarationCaService, salesRepository);
         finalizationOrder.verify(paymentService).buildPaymentFromFromPaymentDTO(eagerSale, dto);
         finalizationOrder.verify(declarationCaService).appliquerExclusions(eagerSale);
         finalizationOrder.verify(salesRepository).save(eagerSale);
@@ -450,8 +476,7 @@ class SaleServiceImplTest {
     void testSave_SaleNotFound_HasNoSideEffect() {
         CashSaleDTO dto = new CashSaleDTO();
         dto.setSaleId(new SaleId(42L, testDate));
-        when(cashSaleRepository.findOneWithEagerSalesLines(42L, testDate))
-            .thenReturn(Optional.empty());
+        when(cashSaleRepository.findOneWithEagerSalesLines(42L, testDate)).thenReturn(Optional.empty());
 
         assertThrows(GenericError.class, () -> saleService.save(dto));
 
@@ -467,8 +492,7 @@ class SaleServiceImplTest {
         dto.setAmountToBePaid(1000);
         dto.setPayrollAmount(900);
         dto.setRestToPay(100);
-        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate))
-            .thenReturn(Optional.of(testSale));
+        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate)).thenReturn(Optional.of(testSale));
 
         assertThrows(PaymentAmountException.class, () -> saleService.save(dto));
 
@@ -503,8 +527,7 @@ class SaleServiceImplTest {
     @Test
     void testDeleteSalePrevente() {
         SaleId id = new SaleId(1L, testDate);
-        when(salesRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
-            Optional.of(testSale));
+        when(salesRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(testSale));
 
         saleService.deleteSalePrevente(id);
 
@@ -516,18 +539,15 @@ class SaleServiceImplTest {
         SaleId id = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.CLOSED);
         when(storageService.getUser()).thenReturn(testUser);
-        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(
-            Optional.of(testSale));
+        when(cashSaleRepository.findOneWithEagerSalesLines(anyLong(), any())).thenReturn(Optional.of(testSale));
         when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(testStorage);
         when(cashRegisterService.getLastOpiningUserCashRegisterByUser(testUser)).thenReturn(new CashRegister());
 
         saleService.cancelCashSale(id, null);
 
         assertTrue(testSale.isCanceled());
-        InOrder cancellationOrder = org.mockito.Mockito.inOrder(ponctionService,
-            cashSaleRepository);
-        cancellationOrder.verify(ponctionService).annulerPourVente(1L, testDate,
-            testSale.getPonctionId());
+        InOrder cancellationOrder = org.mockito.Mockito.inOrder(ponctionService, cashSaleRepository);
+        cancellationOrder.verify(ponctionService).annulerPourVente(1L, testDate, testSale.getPonctionId());
         cancellationOrder.verify(cashSaleRepository, times(2)).save(any());
         verify(cashSaleRepository, times(2)).save(any());
     }
@@ -588,11 +608,9 @@ class SaleServiceImplTest {
 
     @Test
     void testTransformMissingSaleThrowsBusinessError() {
-        when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate))
-            .thenReturn(Optional.empty());
+        when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate)).thenReturn(Optional.empty());
 
-        assertThrows(GenericError.class,
-            () -> saleService.transformToVenteEncour(testSale.getId(), null));
+        assertThrows(GenericError.class, () -> saleService.transformToVenteEncour(testSale.getId(), null));
     }
 
     @Test
@@ -602,8 +620,7 @@ class SaleServiceImplTest {
         testSale.setPayments(new HashSet<>());
         when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate)).thenReturn(Optional.of(testSale));
         when(idGeneratorService.nextId()).thenReturn(20L);
-        when(cashSaleRepository.saveAndFlush(any(CashSale.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(cashSaleRepository.saveAndFlush(any(CashSale.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(salesLineService.cloneSalesLine(anySet(), any(CashSale.class))).thenReturn(Set.of());
 
         SaleId cloneId = saleService.transformToVenteEncour(testSale.getId(), null);
@@ -623,8 +640,7 @@ class SaleServiceImplTest {
 
         testSale.setStatut(SalesStatut.DEVIS);
         when(idGeneratorService.nextId()).thenReturn(21L);
-        when(cashSaleRepository.saveAndFlush(any(CashSale.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(cashSaleRepository.saveAndFlush(any(CashSale.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(salesLineService.cloneSalesLine(anySet(), any(CashSale.class))).thenReturn(Set.of());
         saleService.cloneDevis(testSale.getId());
 
@@ -637,13 +653,10 @@ class SaleServiceImplTest {
         SaleId id = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.CLOSED);
         testSale.setCanceled(true);
-        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(testUser))
-            .thenReturn(new CashRegister());
-        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate))
-            .thenReturn(Optional.of(testSale));
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(testUser)).thenReturn(new CashRegister());
+        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate)).thenReturn(Optional.of(testSale));
 
-        GenericError error = assertThrows(GenericError.class,
-            () -> saleService.cancelCashSale(id, "motif"));
+        GenericError error = assertThrows(GenericError.class, () -> saleService.cancelCashSale(id, "motif"));
 
         assertEquals("La vente est déjà annulée", error.getMessage());
         verify(ponctionService, never()).annulerPourVente(anyLong(), any(), any());
@@ -654,13 +667,10 @@ class SaleServiceImplTest {
     void testCancelCashSale_NotClosed_DoesNotCancelPonction() {
         SaleId id = new SaleId(1L, testDate);
         testSale.setStatut(SalesStatut.ACTIVE);
-        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(testUser))
-            .thenReturn(new CashRegister());
-        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate))
-            .thenReturn(Optional.of(testSale));
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(testUser)).thenReturn(new CashRegister());
+        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate)).thenReturn(Optional.of(testSale));
 
-        GenericError error = assertThrows(GenericError.class,
-            () -> saleService.cancelCashSale(id, "motif"));
+        GenericError error = assertThrows(GenericError.class, () -> saleService.cancelCashSale(id, "motif"));
 
         assertEquals("La vente doit être clôturée pour être annulée", error.getMessage());
         verify(ponctionService, never()).annulerPourVente(anyLong(), any(), any());
@@ -717,7 +727,6 @@ class SaleServiceImplTest {
         assertSame(replacement, testSale.getRemise());
         verify(salesLineService).saveSalesLine(testSalesLine);
     }
-
 
     @Test
     void testAddOrUpdateSaleLine_UpdateExisting() {

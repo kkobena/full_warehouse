@@ -54,16 +54,14 @@ public class InventaireLineWriter implements ItemWriter<InventaireLigneValidee> 
             return;
         }
 
-        Set<String> cips = chunk.getItems().stream()
-            .map(InventaireLigneValidee::cip13)
-            .collect(Collectors.toSet());
+        Set<String> cips =
+                chunk.getItems().stream().map(InventaireLigneValidee::cip13).collect(Collectors.toSet());
 
         Map<String, Integer> quantiteByCip = chunk.getItems().stream()
-            .collect(Collectors.toMap(
-                InventaireLigneValidee::cip13,
-                InventaireLigneValidee::quantite,
-                (existing, replacement) -> replacement
-            ));
+                .collect(Collectors.toMap(
+                        InventaireLigneValidee::cip13,
+                        InventaireLigneValidee::quantite,
+                        (existing, replacement) -> replacement));
 
         // JOIN FETCH produit + fournisseurProduitPrincipal chargé en EAGER (@ManyToOne)
         var lines = lineRepository.findAllByStoreInventoryIdAndCodeCipIn(storeInventoryId, cips);
@@ -85,14 +83,11 @@ public class InventaireLineWriter implements ItemWriter<InventaireLigneValidee> 
         }
 
         lineRepository.saveAll(toSave);
-        LOG.info("[INVENTAIRE-WRITER] {} lignes mises à jour / {} CIPs dans le chunk",
-            toSave.size(), cips.size());
+        LOG.info("[INVENTAIRE-WRITER] {} lignes mises à jour / {} CIPs dans le chunk", toSave.size(), cips.size());
     }
 
     private String extractCip(StoreInventoryLine line) {
-        FournisseurProduit fp = line.getProduit() != null
-            ? line.getProduit().getFournisseurProduitPrincipal()
-            : null;
+        FournisseurProduit fp = line.getProduit() != null ? line.getProduit().getFournisseurProduitPrincipal() : null;
         return fp != null ? fp.getCodeCip() : null;
     }
 }

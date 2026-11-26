@@ -26,8 +26,8 @@ import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 import java.time.LocalDate;
@@ -83,28 +83,28 @@ class ReglementFactureModeAllServiceTest {
     @BeforeEach
     void setUp() {
         service = new ReglementFactureModeAllService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         when(cashRegisterService.getCashRegister()).thenReturn(new CashRegister());
         when(userService.getUser()).thenReturn(new AppUser());
         when(transactionIdGeneratorService.nextId()).thenReturn(55L);
         when(referenceService.buildNumTransaction()).thenReturn("TR-0001");
         when(invoicePaymentRepository.save(any(InvoicePayment.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(invoicePaymentItemService.buildInvoicePaymentItem(any(), any(), anyInt())).thenAnswer(inv -> {
-            InvoicePaymentItem item = new InvoicePaymentItem();
-            item.setThirdPartySaleLine(inv.getArgument(0));
-            item.setInvoicePayment(inv.getArgument(1));
-            item.setPaidAmount(inv.getArgument(2));
-            return item;
-        });
+        when(invoicePaymentItemService.buildInvoicePaymentItem(any(), any(), anyInt()))
+                .thenAnswer(inv -> {
+                    InvoicePaymentItem item = new InvoicePaymentItem();
+                    item.setThirdPartySaleLine(inv.getArgument(0));
+                    item.setInvoicePayment(inv.getArgument(1));
+                    item.setPaidAmount(inv.getArgument(2));
+                    return item;
+                });
     }
 
     private static ThirdPartySaleLine ligne(int montant, int montantRegle) {
@@ -120,11 +120,11 @@ class ReglementFactureModeAllServiceTest {
 
     private static ReglementParam param(int amount, int montantFacture) {
         return new ReglementParam()
-            .setId(FACTURE_ID)
-            .setAmount(amount)
-            .setMontantFacture(montantFacture)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setComment("solde de tout compte");
+                .setId(FACTURE_ID)
+                .setAmount(amount)
+                .setMontantFacture(montantFacture)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setComment("solde de tout compte");
     }
 
     @Nested
@@ -198,8 +198,8 @@ class ReglementFactureModeAllServiceTest {
             facture.setFactureProvisoire(true);
 
             assertThatThrownBy(() -> service.doReglement(param(1000, 1000)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("provisoire");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("provisoire");
 
             assertThat(l1.getMontantRegle()).isZero();
             verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
@@ -222,8 +222,8 @@ class ReglementFactureModeAllServiceTest {
             FactureTiersPayant facture = facture(l1);
 
             assertThatThrownBy(() -> service.doReglement(param(1000, 1000)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("déjà entièrement réglée");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("déjà entièrement réglée");
 
             assertThat(l1.getMontantRegle()).isEqualTo(1000);
             assertThat(facture.getMontantRegle()).isZero();

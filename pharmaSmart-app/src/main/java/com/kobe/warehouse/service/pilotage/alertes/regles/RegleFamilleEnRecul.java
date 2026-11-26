@@ -31,7 +31,8 @@ public class RegleFamilleEnRecul implements RegleAlerte {
     private final AnalysePilotageService analysePilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleFamilleEnRecul(AnalysePilotageService analysePilotageService, AppConfigurationService appConfigurationService) {
+    public RegleFamilleEnRecul(
+            AnalysePilotageService analysePilotageService, AppConfigurationService appConfigurationService) {
         this.analysePilotageService = analysePilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -44,9 +45,8 @@ public class RegleFamilleEnRecul implements RegleAlerte {
     @Override
     public List<AlertePilotageDTO> evaluer(LocalDate aujourdhui) {
         AnalysePilotageDTO analyse = analysePilotageService.analyser(
-            RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.CA_TTC)),
-            new RequeteAnalyseDTO(AxeAnalyse.FAMILLE, null, 0, TriAnalyse.ECART_BAISSE, null)
-        );
+                RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.CA_TTC)),
+                new RequeteAnalyseDTO(AxeAnalyse.FAMILLE, null, 0, TriAnalyse.ECART_BAISSE, null));
         Double referenceTotale = analyse.total().getFirst().valeurReference();
         if (referenceTotale == null || referenceTotale <= 0) {
             return List.of();
@@ -56,7 +56,8 @@ public class RegleFamilleEnRecul implements RegleAlerte {
         int nombre = 0;
         for (ElementAnalyseDTO famille : analyse.elements()) {
             CelluleAnalyseDTO ca = famille.cellules().getFirst();
-            boolean significative = ca.valeurReference() != null && ca.valeurReference() >= PART_MINIMALE * referenceTotale;
+            boolean significative =
+                    ca.valeurReference() != null && ca.valeurReference() >= PART_MINIMALE * referenceTotale;
             if (significative && ca.ecartPct() != null && ca.ecartPct() < seuil) {
                 nombre++;
                 if (familles.size() < FAMILLES_CITEES) {
@@ -68,14 +69,11 @@ public class RegleFamilleEnRecul implements RegleAlerte {
             return List.of();
         }
         String autres = nombre > familles.size() ? " et " + (nombre - familles.size()) + " autre(s)" : "";
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "FAMILLE_EN_RECUL",
                 GraviteAlerte.MOYENNE,
                 nombre == 1 ? "Une famille en recul" : nombre + " familles en recul",
                 "Sur le mois à date, face au même mois l'an dernier : " + String.join(", ", familles) + autres + ".",
-                "analyser"
-            )
-        );
+                "analyser"));
     }
 }

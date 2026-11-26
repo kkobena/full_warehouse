@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 
-
 public class GroupeFournisseurDTO implements Serializable {
 
     @Serial
@@ -36,8 +35,7 @@ public class GroupeFournisseurDTO implements Serializable {
     private Long palierRfa;
     private Integer tauxRfa;
 
-    public GroupeFournisseurDTO() {
-    }
+    public GroupeFournisseurDTO() {}
 
     public GroupeFournisseurDTO(Fournisseur fournisseur) {
         id = fournisseur.getId();
@@ -58,7 +56,6 @@ public class GroupeFournisseurDTO implements Serializable {
         palierRfa = fournisseur.getPalierRfa();
         tauxRfa = fournisseur.getTauxRfa();
     }
-
 
     public Integer getDelaiLivraisonJours() {
         return delaiLivraisonJours;

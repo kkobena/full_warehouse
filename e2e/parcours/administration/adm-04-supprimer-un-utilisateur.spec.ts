@@ -44,7 +44,10 @@ scenario('ADM-04', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await modale.getByRole('button', { name: /Supprimer|Oui/ }).first().click();
+    await modale
+      .getByRole('button', { name: /Supprimer|Oui/ })
+      .first()
+      .click();
     await expect(modale).toBeHidden();
     // Le compte a disparu de la liste ; les ventes qu'il a enregistrées, elles, sont
     // toujours au journal.

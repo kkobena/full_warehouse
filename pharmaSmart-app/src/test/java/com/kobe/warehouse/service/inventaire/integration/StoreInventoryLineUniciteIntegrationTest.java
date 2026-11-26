@@ -43,14 +43,9 @@ class StoreInventoryLineUniciteIntegrationTest extends AbstractInventaireIntegra
         viderLeCache();
 
         assertEquals(
-            2,
-            compter(
-                "SELECT COUNT(*) FROM store_inventory_line WHERE produit_id = %d AND store_inventory_id = %d".formatted(
-                        produit.getId(),
-                        inventaire.getId()
-                    )
-            )
-        );
+                2,
+                compter("SELECT COUNT(*) FROM store_inventory_line WHERE produit_id = %d AND store_inventory_id = %d"
+                        .formatted(produit.getId(), inventaire.getId())));
     }
 
     @Test
@@ -84,24 +79,16 @@ class StoreInventoryLineUniciteIntegrationTest extends AbstractInventaireIntegra
     @Test
     @DisplayName("Il ne reste qu'une seule unicité sur la table, et c'est celle du triplet")
     void uneSeuleUniciteSubsiste() {
-        assertEquals(
-            1,
-            compter(
-                """
+        assertEquals(1, compter("""
                 SELECT COUNT(*) FROM pg_constraint con
                   JOIN pg_class rel ON rel.oid = con.conrelid
                   JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
                  WHERE rel.relname = 'store_inventory_line'
                    AND nsp.nspname = current_schema()
                    AND con.contype = 'u'
-                """
-            ),
-            "l'ancienne unicité à deux colonnes a bien été supprimée par V2.0.7"
-        );
+                """), "l'ancienne unicité à deux colonnes a bien été supprimée par V2.0.7");
 
-        assertTrue(
-            compter(
-                """
+        assertTrue(compter("""
                 SELECT COUNT(*) FROM pg_constraint con
                   JOIN pg_class rel ON rel.oid = con.conrelid
                   JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
@@ -112,14 +99,12 @@ class StoreInventoryLineUniciteIntegrationTest extends AbstractInventaireIntegra
                           FROM unnest(con.conkey) AS k(attnum)
                           JOIN pg_attribute att ON att.attrelid = con.conrelid AND att.attnum = k.attnum)
                        = ARRAY['produit_id', 'storage_id', 'store_inventory_id']
-                """
-            ) == 1,
-            "et celle qui subsiste porte bien sur les trois colonnes"
-        );
+                """) == 1, "et celle qui subsiste porte bien sur les trois colonnes");
     }
 
     /** La fabrique du socle range la ligne sur l'emplacement de l'inventaire ; ici on l'impose. */
-    private StoreInventoryLine ligneSur(StoreInventory inventaire, Produit produit, com.kobe.warehouse.domain.Storage storage) {
+    private StoreInventoryLine ligneSur(
+            StoreInventory inventaire, Produit produit, com.kobe.warehouse.domain.Storage storage) {
         StoreInventoryLine ligne = new StoreInventoryLine();
         ligne.setStoreInventory(inventaire);
         ligne.setProduit(produit);

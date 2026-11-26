@@ -1,8 +1,8 @@
-import {DestroyRef, inject} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {ProductHandling} from './product-handling.mixin';
-import {PanierFocusService} from '../../data-access/services/panier-focus.service';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { ProductHandling } from './product-handling.mixin';
+import { PanierFocusService } from '../../data-access/services/panier-focus.service';
 
 /**
  * Contexte pour le mixin de cycle de vie des ventes
@@ -44,7 +44,7 @@ export interface SaleLifecycleContext {
  * ```
  */
 export function createSaleLifecycle(context: SaleLifecycleContext) {
-  const {facade, destroyRef, productHandling, resetForNewSale} = context;
+  const { facade, destroyRef, productHandling, resetForNewSale } = context;
   // Appelé dans l'initialiseur de champ du composant : le contexte d'injection est disponible.
   const panierFocus = inject(PanierFocusService);
 

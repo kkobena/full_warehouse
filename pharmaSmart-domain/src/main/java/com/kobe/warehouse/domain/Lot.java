@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -25,14 +24,13 @@ import java.util.Objects;
 
 @Entity
 @Table(
-    name = "lot",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"num_lot", "produit_id"})},
-    indexes = {
-        @Index(columnList = "expiry_date", name = "lot_expiry_date_index"),
-        @Index(columnList = "num_lot", name = "num_lot_index"),
-        @Index(columnList = "statut", name = "lot_statut_index"),
-    }
-)
+        name = "lot",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"num_lot", "produit_id"})},
+        indexes = {
+            @Index(columnList = "expiry_date", name = "lot_expiry_date_index"),
+            @Index(columnList = "num_lot", name = "num_lot_index"),
+            @Index(columnList = "statut", name = "lot_statut_index"),
+        })
 public class Lot implements Serializable {
 
     @Serial
@@ -46,14 +44,11 @@ public class Lot implements Serializable {
     @Column(name = "num_lot", nullable = false, length = 20)
     private String numLot;
 
-
-    @ManyToOne( fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
-            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
-        }
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+    })
     private OrderLine orderLine;
 
     @Column(name = "quantity", nullable = false)

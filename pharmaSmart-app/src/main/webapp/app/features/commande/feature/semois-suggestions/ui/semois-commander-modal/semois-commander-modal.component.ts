@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
-import {CommonModule, DecimalPipe} from '@angular/common';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {BadgeComponent, ButtonComponent} from "../../../../../../shared/ui";
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent } from '../../../../../../shared/ui';
 
 export interface SemoisCommandeLine {
   produitId: number;
@@ -40,7 +40,7 @@ export class SemoisCommanderModalComponent {
   get fournisseurEntries(): { label: string; lignes: SemoisCommandeLine[] }[] {
     return Array.from(this.lignesParFournisseur.entries()).map(([label, lignes]) => ({
       label,
-      lignes
+      lignes,
     }));
   }
 
@@ -64,4 +64,3 @@ export class SemoisCommanderModalComponent {
     this.activeModal.dismiss();
   }
 }
-

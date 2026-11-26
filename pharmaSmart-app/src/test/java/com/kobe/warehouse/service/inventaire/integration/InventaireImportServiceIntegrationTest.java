@@ -34,12 +34,13 @@ class InventaireImportServiceIntegrationTest extends AbstractInventaireIntegrati
         StoreInventoryLine ligne = ligne(inventaire, produit);
         viderLeCache();
 
-        ImportResultRecord resultat = services.inventaireImportService.importDetail(
-            inventaire.getId(), fichier(codeCip(produit) + ";7"));
+        ImportResultRecord resultat =
+                services.inventaireImportService.importDetail(inventaire.getId(), fichier(codeCip(produit) + ";7"));
         viderLeCache();
 
         assertEquals(1, resultat.imported());
-        StoreInventoryLine relue = services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
+        StoreInventoryLine relue =
+                services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
         assertEquals(10, relue.getQuantityInit(), "la quantité initiale est relue du stock théorique");
         assertEquals(7, relue.getQuantityOnHand());
         assertEquals(-3, relue.getGap());
@@ -63,9 +64,18 @@ class InventaireImportServiceIntegrationTest extends AbstractInventaireIntegrati
         services.inventaireImportService.importDetail(vise.getId(), fichier(codeCip(produit) + ";4"));
         viderLeCache();
 
-        assertEquals(4, services.storeInventoryLineRepository.findById(ligneVisee.getId()).orElseThrow().getQuantityOnHand());
-        assertFalse(services.storeInventoryLineRepository.findById(ligneVoisine.getId()).orElseThrow().getUpdated(),
-            "l'inventaire voisin n'a pas été compté à l'insu de son opérateur");
+        assertEquals(
+                4,
+                services.storeInventoryLineRepository
+                        .findById(ligneVisee.getId())
+                        .orElseThrow()
+                        .getQuantityOnHand());
+        assertFalse(
+                services.storeInventoryLineRepository
+                        .findById(ligneVoisine.getId())
+                        .orElseThrow()
+                        .getUpdated(),
+                "l'inventaire voisin n'a pas été compté à l'insu de son opérateur");
     }
 
     @Test
@@ -81,7 +91,8 @@ class InventaireImportServiceIntegrationTest extends AbstractInventaireIntegrati
         services.inventaireImportService.importDetail(inventaireDeRayon.getId(), fichier(codeCip(produit) + ";12"));
         viderLeCache();
 
-        StoreInventoryLine relue = services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
+        StoreInventoryLine relue =
+                services.storeInventoryLineRepository.findById(ligne.getId()).orElseThrow();
         assertEquals(12, relue.getQuantityInit(), "un inventaire de rayon ne consolide pas la réserve");
         assertEquals(0, relue.getGap());
     }
@@ -95,8 +106,8 @@ class InventaireImportServiceIntegrationTest extends AbstractInventaireIntegrati
         Produit dehors = produitEnStock(unique("DEHORS"), 10);
         viderLeCache();
 
-        ImportResultRecord resultat = services.inventaireImportService.importDetail(
-            inventaire.getId(), fichier(codeCip(dehors) + ";5"));
+        ImportResultRecord resultat =
+                services.inventaireImportService.importDetail(inventaire.getId(), fichier(codeCip(dehors) + ";5"));
 
         assertEquals(0, resultat.imported());
         assertEquals(1, resultat.ignored());
@@ -114,19 +125,17 @@ class InventaireImportServiceIntegrationTest extends AbstractInventaireIntegrati
         viderLeCache();
 
         ImportResultRecord resultat = services.inventaireImportService.importDetail(
-            inventaire.getId(),
-            fichier("%s;9\n%s;beaucoup\n%s;18".formatted(codeCip(premier), codeCip(second), codeCip(second)))
-        );
+                inventaire.getId(),
+                fichier("%s;9\n%s;beaucoup\n%s;18".formatted(codeCip(premier), codeCip(second), codeCip(second))));
         viderLeCache();
 
         assertEquals(2, resultat.imported());
         assertEquals(1, resultat.rejected());
         assertEquals(1, resultat.errors().size(), "une seule ligne du fichier a été rejetée");
         assertEquals(
-            2,
-            compter("SELECT count(*) FROM store_inventory_line WHERE store_inventory_id = %d AND updated"
-                .formatted(inventaire.getId()))
-        );
+                2,
+                compter("SELECT count(*) FROM store_inventory_line WHERE store_inventory_id = %d AND updated"
+                        .formatted(inventaire.getId())));
     }
 
     private MultipartFile fichier(String contenu) {

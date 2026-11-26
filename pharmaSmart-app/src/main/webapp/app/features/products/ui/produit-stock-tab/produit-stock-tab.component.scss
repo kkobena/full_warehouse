@@ -4,20 +4,20 @@
 // les lots et ce qui n'existe que sur cet onglet.
 
 // ── Variables alignées sur la charte Pharma-Smart ────────────
-$pharma-primary:       #5b89a6;   // bleu acier
-$pharma-warning:       #e99002;   // ambre
-$pharma-warning-bg:    #fffbeb;
-$pharma-warning-bd:    #f5c842;
-$pharma-danger:        #dc3545;   // rouge
-$pharma-danger-bg:     #fff1f2;
-$pharma-danger-bd:     #f5b8b8;
-$gray-50:              #f9fafb;
-$gray-200:             #e5e7eb;
-$gray-300:             #d1d5db;
-$gray-400:             #9ca3af;
-$gray-600:             #4b5563;
-$text-muted:           #6b7280;
-$pharma-dark:          #374151;
+$pharma-primary: #5b89a6; // bleu acier
+$pharma-warning: #e99002; // ambre
+$pharma-warning-bg: #fffbeb;
+$pharma-warning-bd: #f5c842;
+$pharma-danger: #dc3545; // rouge
+$pharma-danger-bg: #fff1f2;
+$pharma-danger-bd: #f5b8b8;
+$gray-50: #f9fafb;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-600: #4b5563;
+$text-muted: #6b7280;
+$pharma-dark: #374151;
 
 // ── Entre rayon et réserve ───────────────────────────────────
 .stock-arrow,
@@ -85,9 +85,15 @@ $pharma-dark:          #374151;
   min-width: 2px;
 }
 
-.niveau-danger  .niveau-bar-fill { background: $pharma-danger; }
-.niveau-warning .niveau-bar-fill { background: $pharma-warning; }
-.niveau-empty   .niveau-bar-fill { background: $gray-400; }
+.niveau-danger .niveau-bar-fill {
+  background: $pharma-danger;
+}
+.niveau-warning .niveau-bar-fill {
+  background: $pharma-warning;
+}
+.niveau-empty .niveau-bar-fill {
+  background: $gray-400;
+}
 
 .niveau-seuil-marker {
   position: absolute;
@@ -171,7 +177,9 @@ $pharma-dark:          #374151;
   font-size: 0.72rem;
   border-bottom: 1px solid $pharma-border;
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
 
   &.fefo-head {
     font-weight: 700;
@@ -182,13 +190,26 @@ $pharma-dark:          #374151;
     background: $gray-50;
   }
 
-  &.fefo-critical { background: #fff1f2; }
-  &.fefo-warning  { background: $pharma-warning-bg; }
+  &.fefo-critical {
+    background: #fff1f2;
+  }
+  &.fefo-warning {
+    background: $pharma-warning-bg;
+  }
 }
 
-.fefo-num  { font-family: monospace; font-size: 0.7rem; color: $pharma-dark; }
-.fefo-date { color: $pharma-dark; }
-.fefo-qty  { font-weight: 600; color: $pharma-dark; }
+.fefo-num {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: $pharma-dark;
+}
+.fefo-date {
+  color: $pharma-dark;
+}
+.fefo-qty {
+  font-weight: 600;
+  color: $pharma-dark;
+}
 
 .fefo-badge {
   display: inline-block;

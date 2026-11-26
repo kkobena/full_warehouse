@@ -11,7 +11,8 @@
           [ngbTooltip]="getSaveButtonLabel()"
           [raised]="true"
           [severity]="getSaveButtonSeverity()"
-          size="large" />
+          size="large"
+        />
 
         <app-button
           (clicked)="onPutOnHold()"
@@ -20,7 +21,8 @@
           icon="pi pi-pause"
           ngbTooltip="Mettre en attente"
           severity="secondary"
-          size="large" />
+          size="large"
+        />
         <app-button
           (clicked)="onCancel()"
           [disabled]="!canCancel() || isSaving()"
@@ -28,29 +30,31 @@
           icon="pi pi-times"
           ngbTooltip="Annuler"
           severity="danger"
-          size="large" />
+          size="large"
+        />
       } @else {
-
         <app-button
           (clicked)="onSaveAsPresale()"
           [buttonClass]="isPresale() ? 'btn-passer-en-vente' : ''"
-          [disabled]=" isSaving()"
+          [disabled]="isSaving()"
           [icon]="getSaveButtonIcon()"
           [loading]="isSaving()"
           [ngbTooltip]="getSaveButtonLabel()"
           [raised]="true"
           [severity]="getSaveButtonSeverity()"
-          size="large" />
+          size="large"
+        />
         @if (isPresale()) {
           <app-button
             (clicked)="onSavePresale()"
-            [disabled]=" isSaving()"
+            [disabled]="isSaving()"
             [icon]="getSavePresaleIcon()"
             [loading]="isSaving()"
             [ngbTooltip]="getSavePresaleButtonLabel()"
             [raised]="true"
             [severity]="getSavePresaleSeverity()"
-            size="large" />
+            size="large"
+          />
         } @else {
           <app-button
             (clicked)="onCancel()"
@@ -59,10 +63,10 @@
             icon="pi pi-times"
             ngbTooltip="Annuler"
             severity="danger"
-            size="large" />
+            size="large"
+          />
         }
       }
-
     </div>
   } @else {
     <!-- Version Desktop : Boutons avec labels dans ButtonGroup -->
@@ -76,7 +80,8 @@
             [label]="getSaveButtonLabel()"
             [loading]="isSaving()"
             [raised]="true"
-            [severity]="getSaveButtonSeverity()" />
+            [severity]="getSaveButtonSeverity()"
+          />
 
           @if (showButtonEnAttente()) {
             <app-button
@@ -85,7 +90,8 @@
               [raised]="true"
               icon="pi pi-pause"
               label="En attente"
-              severity="secondary" />
+              severity="secondary"
+            />
           }
 
           <app-button
@@ -94,27 +100,30 @@
             [raised]="true"
             icon="pi pi-times"
             label="Annuler"
-            severity="danger" />
+            severity="danger"
+          />
         } @else {
           <app-button
             (clicked)="onSaveAsPresale()"
-          [buttonClass]="isPresale() ? 'btn-passer-en-vente' : ''"
+            [buttonClass]="isPresale() ? 'btn-passer-en-vente' : ''"
             [disabled]="isSaving()"
             [icon]="getSaveButtonIcon()"
             [label]="getSaveButtonLabel()"
             [loading]="isSaving()"
             [raised]="true"
-            [severity]="getSaveButtonSeverity()" />
+            [severity]="getSaveButtonSeverity()"
+          />
 
           @if (isPresale()) {
             <app-button
               (clicked)="onSavePresale()"
-              [disabled]=" isSaving()"
+              [disabled]="isSaving()"
               [icon]="getSavePresaleIcon()"
               [label]="getSavePresaleButtonLabel()"
               [loading]="isSaving()"
               [raised]="true"
-              [severity]="getSavePresaleSeverity()" />
+              [severity]="getSavePresaleSeverity()"
+            />
           } @else {
             <app-button
               (clicked)="onCancel()"
@@ -122,28 +131,17 @@
               [raised]="true"
               icon="pi pi-times"
               label="Annuler"
-              severity="danger" />
+              severity="danger"
+            />
           }
         }
-
-
       </div>
-
-
     </div>
 
     @if (showPrintButton() && canPrint()) {
       <div class="btn-group" role="group">
-        <app-button
-          (clicked)="onPrint()"
-          [disabled]="!canPrint()"
-          icon="pi pi-print"
-          label="Imprimer"
-          severity="warn" />
+        <app-button (clicked)="onPrint()" [disabled]="!canPrint()" icon="pi pi-print" label="Imprimer" severity="warn" />
       </div>
-
     }
-
-
   }
 </div>

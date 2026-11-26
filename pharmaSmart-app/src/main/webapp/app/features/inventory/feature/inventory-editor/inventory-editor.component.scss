@@ -250,7 +250,9 @@
       align-items: center;
       gap: 0.4rem;
 
-      i { color: var(--pharma-chrome-head-icon, #2e7d97); }
+      i {
+        color: var(--pharma-chrome-head-icon, #2e7d97);
+      }
     }
   }
 }

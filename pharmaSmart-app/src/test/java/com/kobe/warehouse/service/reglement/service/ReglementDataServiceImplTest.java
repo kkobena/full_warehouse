@@ -81,7 +81,7 @@ class ReglementDataServiceImplTest {
     @Mock
     private InvoiceReceiptService invoiceReceiptService;
 
-    private final byte[] pdf = { 1, 2, 3 };
+    private final byte[] pdf = {1, 2, 3};
 
     private ReglementDataServiceImpl service;
 
@@ -89,21 +89,22 @@ class ReglementDataServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new ReglementDataServiceImpl(
-            facturationRepository,
-            invoicePaymentRepository,
-            thirdPartySaleLineRepository,
-            invoicePaymentItemRepository,
-            reglementReportService,
-            invoiceReceiptService
-        );
+                facturationRepository,
+                invoicePaymentRepository,
+                thirdPartySaleLineRepository,
+                invoicePaymentItemRepository,
+                reglementReportService,
+                invoiceReceiptService);
         Specification<InvoicePayment> spec = (r, q, cb) -> null;
         when(invoicePaymentRepository.periodeCriteria(any(), any())).thenReturn(spec);
-        when(invoicePaymentRepository.invoicesTypePredicats(org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(spec);
+        when(invoicePaymentRepository.invoicesTypePredicats(org.mockito.ArgumentMatchers.anyBoolean()))
+                .thenReturn(spec);
         when(invoicePaymentRepository.filterByOrganismeId(anyLong())).thenReturn(spec);
         when(invoicePaymentRepository.filterByTiersPayantId(anyLong())).thenReturn(spec);
         when(invoicePaymentRepository.specialisationQueryString(anyString())).thenReturn(spec);
         when(invoicePaymentRepository.findByFactureId(any())).thenReturn(spec);
-        when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+        when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
+                .thenReturn(List.of());
     }
 
     private static TiersPayant tiersPayant(int id, String nom) {
@@ -133,7 +134,7 @@ class ReglementDataServiceImplTest {
     /** Le règlement existe encore : sa facture est retrouvée, verrouillée, puis le règlement relu. */
     private void stubAnnulable(PaymentId id, InvoicePayment paiement) {
         when(invoicePaymentRepository.findFactureIdOf(any(), any()))
-            .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
+                .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
         when(invoicePaymentRepository.findById(id)).thenReturn(java.util.Optional.of(paiement));
     }
 
@@ -166,11 +167,11 @@ class ReglementDataServiceImplTest {
         client.setAssuredCustomer(assure);
         client.setNum("MAT-1");
         return new ThirdPartySaleLine()
-            .setMontant(montant)
-            .setMontantRegle(montantRegle)
-            .setNumBon("BON-1")
-            .setCreated(LocalDateTime.of(2026, 4, 18, 10, 0))
-            .setClientTiersPayant(client);
+                .setMontant(montant)
+                .setMontantRegle(montantRegle)
+                .setNumBon("BON-1")
+                .setCreated(LocalDateTime.of(2026, 4, 18, 10, 0))
+                .setClientTiersPayant(client);
     }
 
     private static InvoicePaymentItem item(ThirdPartySaleLine bon, int amount, int paidAmount) {
@@ -191,8 +192,8 @@ class ReglementDataServiceImplTest {
             when(invoicePaymentRepository.findFactureIdOf(any(), any())).thenReturn(java.util.Optional.empty());
 
             assertThatThrownBy(() -> service.deleteReglement(PAYMENT_ID))
-                .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
-                .hasMessageContaining("déjà été annulé");
+                    .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
+                    .hasMessageContaining("déjà été annulé");
 
             verify(facturationRepository, org.mockito.Mockito.never()).save(any());
             verify(invoicePaymentRepository, org.mockito.Mockito.never()).delete(any(InvoicePayment.class));
@@ -282,7 +283,8 @@ class ReglementDataServiceImplTest {
         @Test
         @DisplayName("annule un reglement groupe et decremente la facture de groupe")
         void reglementGroupe() {
-            FactureTiersPayant groupe = facture(null, groupeTiersPayant(4, "MUGEFCI")).setMontantRegle(1000);
+            FactureTiersPayant groupe =
+                    facture(null, groupeTiersPayant(4, "MUGEFCI")).setMontantRegle(1000);
             FactureTiersPayant fille = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(1000);
             InvoicePayment paiementFille = paiement(fille, 1000, 1000);
             ThirdPartySaleLine bon = bon(1000, 1000);
@@ -319,8 +321,9 @@ class ReglementDataServiceImplTest {
         void lotDeReglements() {
             FactureTiersPayant facture = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(0);
             when(invoicePaymentRepository.findFactureIdOf(any(), any()))
-                .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
-            when(invoicePaymentRepository.findById(any(PaymentId.class))).thenReturn(java.util.Optional.of(paiement(facture, 0, 0)));
+                    .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
+            when(invoicePaymentRepository.findById(any(PaymentId.class)))
+                    .thenReturn(java.util.Optional.of(paiement(facture, 0, 0)));
 
             service.deleteReglement(Set.of(PAYMENT_ID, new PaymentId(56L, LocalDate.of(2026, 4, 19))));
 
@@ -397,7 +400,7 @@ class ReglementDataServiceImplTest {
         }
 
         @ParameterizedTest(name = "une recherche [{0}] n ajoute aucun filtre de texte")
-        @CsvSource({ "''", "'   '" })
+        @CsvSource({"''", "'   '"})
         void rechercheBlanche(String search) {
             service.fetchInvoicesPayments(new InvoicePaymentParam(search, null, null, null, false));
 
@@ -412,7 +415,8 @@ class ReglementDataServiceImplTest {
             service.fetchInvoicesPayments(new InvoicePaymentParam(null, null, null, null, true));
 
             ArgumentCaptor<Sort> captor = ArgumentCaptor.forClass(Sort.class);
-            verify(invoicePaymentRepository, org.mockito.Mockito.times(2)).findAll(any(Specification.class), captor.capture());
+            verify(invoicePaymentRepository, org.mockito.Mockito.times(2))
+                    .findAll(any(Specification.class), captor.capture());
             assertThat(captor.getAllValues().get(0).toString()).contains("factureTiersPayant.tiersPayant.name");
             assertThat(captor.getAllValues().get(1).toString()).contains("factureTiersPayant.groupeTiersPayant.name");
         }
@@ -422,9 +426,10 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void mappeLesPaiements() {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
 
-            List<InvoicePaymentDTO> paiements = service.fetchInvoicesPayments(new InvoicePaymentParam(null, null, null, null, false));
+            List<InvoicePaymentDTO> paiements =
+                    service.fetchInvoicesPayments(new InvoicePaymentParam(null, null, null, null, false));
 
             assertThat(paiements).hasSize(1);
             assertThat(paiements.getFirst().getCodeFacture()).isEqualTo("FA-0007");
@@ -440,16 +445,18 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void findByInvoice() {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
 
-            assertThat(service.findByInvoice(new FactureItemId(7L, LocalDate.of(2026, 4, 18)))).hasSize(1);
+            assertThat(service.findByInvoice(new FactureItemId(7L, LocalDate.of(2026, 4, 18))))
+                    .hasSize(1);
         }
 
         @Test
         @DisplayName("getInvoicePaymentsItems mappe les lignes d un reglement")
         void getInvoicePaymentsItems() {
-            when(invoicePaymentItemRepository.findByInvoicePaymentIdAndInvoicePaymentTransactionDate(55L, LocalDate.of(2026, 4, 18)))
-                .thenReturn(List.of(item(bon(1000, 0), 1000, 600)));
+            when(invoicePaymentItemRepository.findByInvoicePaymentIdAndInvoicePaymentTransactionDate(
+                            55L, LocalDate.of(2026, 4, 18)))
+                    .thenReturn(List.of(item(bon(1000, 0), 1000, 600)));
 
             List<InvoicePaymentItemDTO> items = service.getInvoicePaymentsItems(PAYMENT_ID);
 
@@ -461,8 +468,9 @@ class ReglementDataServiceImplTest {
         @Test
         @DisplayName("getInvoicePaymentsGroupItems mappe les reglements filles")
         void getInvoicePaymentsGroupItems() {
-            when(invoicePaymentRepository.findInvoicePaymentByParentIdAndParentTransactionDate(55L, LocalDate.of(2026, 4, 18)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+            when(invoicePaymentRepository.findInvoicePaymentByParentIdAndParentTransactionDate(
+                            55L, LocalDate.of(2026, 4, 18)))
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
 
             assertThat(service.getInvoicePaymentsGroupItems(PAYMENT_ID)).hasSize(1);
         }
@@ -476,19 +484,21 @@ class ReglementDataServiceImplTest {
         @DisplayName("printReceipt imprime le recu du reglement")
         void printReceipt() {
             when(invoicePaymentRepository.getReferenceById(PAYMENT_ID))
-                .thenReturn(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000));
+                    .thenReturn(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000));
 
             service.printReceipt(PAYMENT_ID);
 
-            verify(invoiceReceiptService).printReceipt(org.mockito.ArgumentMatchers.isNull(), any(InvoicePaymentReceiptDTO.class));
+            verify(invoiceReceiptService)
+                    .printReceipt(org.mockito.ArgumentMatchers.isNull(), any(InvoicePaymentReceiptDTO.class));
         }
 
         @Test
         @DisplayName("generateEscPosReceiptForTauri delegue au service de recu")
         void generateEscPos() throws IOException {
             when(invoicePaymentRepository.getReferenceById(PAYMENT_ID))
-                .thenReturn(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000));
-            when(invoiceReceiptService.generateEscPosReceiptForTauri(any(InvoicePaymentReceiptDTO.class))).thenReturn(new byte[] { 7 });
+                    .thenReturn(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000));
+            when(invoiceReceiptService.generateEscPosReceiptForTauri(any(InvoicePaymentReceiptDTO.class)))
+                    .thenReturn(new byte[] {7});
 
             assertThat(service.generateEscPosReceiptForTauri(PAYMENT_ID)).containsExactly(7);
         }
@@ -506,12 +516,15 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void releveSimple() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class)))
+                    .thenReturn(pdf);
 
-            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(pdf);
+            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false)))
+                    .isSameAs(pdf);
 
-            verify(reglementReportService, never()).printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any());
+            verify(reglementReportService, never())
+                    .printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any());
         }
 
         @Test
@@ -519,15 +532,14 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void relevePlusieursOrganismes() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(
-                    List.of(
-                        paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000),
-                        paiement(facture(tiersPayant(4, "MUGEFCI"), null), 500, 500)
-                    )
-                );
-            when(reglementReportService.printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any())).thenReturn(pdf);
+                    .thenReturn(List.of(
+                            paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000),
+                            paiement(facture(tiersPayant(4, "MUGEFCI"), null), 500, 500)));
+            when(reglementReportService.printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any()))
+                    .thenReturn(pdf);
 
-            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(pdf);
+            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false)))
+                    .isSameAs(pdf);
         }
 
         @Test
@@ -535,8 +547,9 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void releveGroupe() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(null, groupeTiersPayant(4, "MUGEFCI")), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
+                    .thenReturn(List.of(paiement(facture(null, groupeTiersPayant(4, "MUGEFCI")), 1000, 1000)));
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class)))
+                    .thenReturn(pdf);
 
             service.printToPdf(new InvoicePaymentParam(null, null, null, null, true));
 
@@ -550,8 +563,9 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void periodeDUneJournee() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class)))
+                    .thenReturn(pdf);
             LocalDate jour = LocalDate.of(2026, 4, 18);
 
             service.printToPdf(new InvoicePaymentParam(null, null, jour, jour, false));
@@ -566,10 +580,12 @@ class ReglementDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void periodeIntervalle() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
-                .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
+                    .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class)))
+                    .thenReturn(pdf);
 
-            service.printToPdf(new InvoicePaymentParam(null, null, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), false));
+            service.printToPdf(
+                    new InvoicePaymentParam(null, null, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), false));
 
             ArgumentCaptor<InvoicePaymentWrapper> captor = ArgumentCaptor.forClass(InvoicePaymentWrapper.class);
             verify(reglementReportService).printToPdf(captor.capture());

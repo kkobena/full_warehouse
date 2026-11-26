@@ -46,7 +46,9 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDe(50_000, 0);
             rafraichir(VUE);
 
-            DailySalesSummaryDTO ligne = services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()).getFirst();
+            DailySalesSummaryDTO ligne = services.salesSummaryReportService
+                    .getDailySalesSummaryByDate(LocalDate.now())
+                    .getFirst();
 
             assertThat(ligne.saleDate()).isEqualTo(LocalDate.now());
             assertThat(ligne.nbVentes()).isEqualTo(2);
@@ -64,7 +66,9 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDe(100_000, 15_000);
             rafraichir(VUE);
 
-            DailySalesSummaryDTO ligne = services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()).getFirst();
+            DailySalesSummaryDTO ligne = services.salesSummaryReportService
+                    .getDailySalesSummaryByDate(LocalDate.now())
+                    .getFirst();
 
             assertThat(ligne.caTotal()).isEqualTo(100_000);
             assertThat(ligne.totalRemises()).isEqualTo(15_000);
@@ -78,9 +82,12 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDepot(LocalDate.now(), 40_000);
             rafraichir(VUE);
 
-            List<DailySalesSummaryDTO> lignes = services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now());
+            List<DailySalesSummaryDTO> lignes =
+                    services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now());
 
-            assertThat(lignes).extracting(DailySalesSummaryDTO::type).containsExactlyInAnyOrder("CashSale", "VenteDepot");
+            assertThat(lignes)
+                    .extracting(DailySalesSummaryDTO::type)
+                    .containsExactlyInAnyOrder("CashSale", "VenteDepot");
         }
 
         /** L'écran n'affiche pas le nom de la classe Java mais le code métier : VNO, VO, dépôt. */
@@ -90,8 +97,11 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDe(100_000, 0);
             rafraichir(VUE);
 
-            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()).getFirst().typeVente())
-                .isEqualTo("VNO");
+            assertThat(services.salesSummaryReportService
+                            .getDailySalesSummaryByDate(LocalDate.now())
+                            .getFirst()
+                            .typeVente())
+                    .isEqualTo("VNO");
         }
     }
 
@@ -108,7 +118,9 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             vente(LocalDate.now(), 999_000, 0, true, false, CategorieChiffreAffaire.CA);
             rafraichir(VUE);
 
-            DailySalesSummaryDTO ligne = services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()).getFirst();
+            DailySalesSummaryDTO ligne = services.salesSummaryReportService
+                    .getDailySalesSummaryByDate(LocalDate.now())
+                    .getFirst();
 
             assertThat(ligne.nbVentes()).isEqualTo(1);
             assertThat(ligne.caTotal()).isEqualTo(100_000);
@@ -125,8 +137,11 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             vente(LocalDate.now(), 999_000, 0, false, true, CategorieChiffreAffaire.CA);
             rafraichir(VUE);
 
-            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()).getFirst().nbVentes())
-                .isEqualTo(1);
+            assertThat(services.salesSummaryReportService
+                            .getDailySalesSummaryByDate(LocalDate.now())
+                            .getFirst()
+                            .nbVentes())
+                    .isEqualTo(1);
         }
 
         @Test
@@ -135,7 +150,8 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             vente(LocalDate.now(), 100_000, 0, false, false, CategorieChiffreAffaire.TO_IGNORE);
             rafraichir(VUE);
 
-            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now())).isEmpty();
+            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()))
+                    .isEmpty();
         }
 
         @Test
@@ -143,8 +159,11 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
         void baseVierge() {
             rafraichir(VUE);
 
-            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now())).isEmpty();
-            assertThat(services.salesSummaryReportService.getDailySalesSummary(LocalDate.now().minusDays(7), LocalDate.now())).isEmpty();
+            assertThat(services.salesSummaryReportService.getDailySalesSummaryByDate(LocalDate.now()))
+                    .isEmpty();
+            assertThat(services.salesSummaryReportService.getDailySalesSummary(
+                            LocalDate.now().minusDays(7), LocalDate.now()))
+                    .isEmpty();
         }
     }
 
@@ -163,9 +182,7 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             rafraichir(VUE);
 
             List<DailySalesSummaryDTO> dansLaPeriode = services.salesSummaryReportService.getDailySalesSummary(
-                LocalDate.now().minusDays(3),
-                LocalDate.now().minusDays(1)
-            );
+                    LocalDate.now().minusDays(3), LocalDate.now().minusDays(1));
 
             assertThat(dansLaPeriode).extracting(DailySalesSummaryDTO::caTotal).containsExactly(20_000, 10_000);
         }
@@ -178,9 +195,10 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDe(LocalDate.now(), 30_000);
             rafraichir(VUE);
 
-            assertThat(services.salesSummaryReportService.getDailySalesSummary(LocalDate.now().minusDays(7), LocalDate.now()))
-                .extracting(DailySalesSummaryDTO::saleDate)
-                .containsExactly(LocalDate.now(), LocalDate.now().minusDays(2));
+            assertThat(services.salesSummaryReportService.getDailySalesSummary(
+                            LocalDate.now().minusDays(7), LocalDate.now()))
+                    .extracting(DailySalesSummaryDTO::saleDate)
+                    .containsExactly(LocalDate.now(), LocalDate.now().minusDays(2));
         }
 
         @Test
@@ -190,25 +208,15 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDepot(LocalDate.now(), 40_000);
             rafraichir(VUE);
 
-            assertThat(
-                services.salesSummaryReportService.getDailySalesSummaryByType(
-                    LocalDate.now().minusDays(7),
-                    LocalDate.now(),
-                    TypeVenteDTO.VenteDepot
-                )
-            )
-                .extracting(DailySalesSummaryDTO::caTotal)
-                .containsExactly(40_000);
+            assertThat(services.salesSummaryReportService.getDailySalesSummaryByType(
+                            LocalDate.now().minusDays(7), LocalDate.now(), TypeVenteDTO.VenteDepot))
+                    .extracting(DailySalesSummaryDTO::caTotal)
+                    .containsExactly(40_000);
 
-            assertThat(
-                services.salesSummaryReportService.getDailySalesSummaryByType(
-                    LocalDate.now().minusDays(7),
-                    LocalDate.now(),
-                    TypeVenteDTO.CashSale
-                )
-            )
-                .extracting(DailySalesSummaryDTO::caTotal)
-                .containsExactly(100_000);
+            assertThat(services.salesSummaryReportService.getDailySalesSummaryByType(
+                            LocalDate.now().minusDays(7), LocalDate.now(), TypeVenteDTO.CashSale))
+                    .extracting(DailySalesSummaryDTO::caTotal)
+                    .containsExactly(100_000);
         }
 
         @Test
@@ -217,13 +225,9 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
             venteDe(100_000, 0);
             rafraichir(VUE);
 
-            assertThat(
-                services.salesSummaryReportService.getDailySalesSummaryByType(
-                    LocalDate.now().minusDays(7),
-                    LocalDate.now(),
-                    TypeVenteDTO.ThirdPartySales
-                )
-            ).isEmpty();
+            assertThat(services.salesSummaryReportService.getDailySalesSummaryByType(
+                            LocalDate.now().minusDays(7), LocalDate.now(), TypeVenteDTO.ThirdPartySales))
+                    .isEmpty();
         }
     }
 
@@ -238,13 +242,12 @@ class SalesSummaryReportServiceIntegrationTest extends AbstractReportIntegration
     }
 
     private CashSale vente(
-        LocalDate date,
-        int montant,
-        int remise,
-        boolean annulee,
-        boolean importee,
-        CategorieChiffreAffaire categorie
-    ) {
+            LocalDate date,
+            int montant,
+            int remise,
+            boolean annulee,
+            boolean importee,
+            CategorieChiffreAffaire categorie) {
         CashSale vente = venteFermee(date, annulee, categorie);
         vente.setSalesAmount(montant);
         vente.setNetAmount(montant - remise);

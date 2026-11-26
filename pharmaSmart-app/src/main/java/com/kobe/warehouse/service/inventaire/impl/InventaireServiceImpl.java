@@ -1,18 +1,19 @@
 package com.kobe.warehouse.service.inventaire.impl;
 
-import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
-import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
+import com.kobe.warehouse.domain.StoreInventory_;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
-import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.CreateInventoryFromProduitIds;
@@ -28,15 +29,10 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.InventoryException;
+import com.kobe.warehouse.service.inventaire.InventaireQueryService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
-import com.kobe.warehouse.service.inventaire.InventaireQueryService;
-import com.kobe.warehouse.service.inventaire.InventoryStockService;
-import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.AppUser_;
-import com.kobe.warehouse.domain.Rayon_;
-import com.kobe.warehouse.domain.Storage_;
-import com.kobe.warehouse.domain.StoreInventory_;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
@@ -48,11 +44,9 @@ import jakarta.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -78,15 +72,14 @@ public class InventaireServiceImpl implements InventaireService {
     private final InventaireQueryService inventaireQueryService;
 
     public InventaireServiceImpl(
-        UserService userService,
-        StoreInventoryRepository storeInventoryRepository,
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        StorageService storageService,
-        RayonRepository rayonRepository,
-        InventoryReportReportService inventoryReportService,
-        EntityManager em,
-        InventaireQueryService inventaireQueryService
-    ) {
+            UserService userService,
+            StoreInventoryRepository storeInventoryRepository,
+            StoreInventoryLineRepository storeInventoryLineRepository,
+            StorageService storageService,
+            RayonRepository rayonRepository,
+            InventoryReportReportService inventoryReportService,
+            EntityManager em,
+            InventaireQueryService inventaireQueryService) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
         this.storeInventoryLineRepository = storeInventoryLineRepository;
@@ -104,8 +97,8 @@ public class InventaireServiceImpl implements InventaireService {
             return null;
         }
         if (filterRecord.isGestionLot()) {
-            List<StoreInventoryLotGroupExport> lotGroups =
-                inventaireQueryService.getLotGroupsForExport(filterRecord.filterRecord().storeInventoryId());
+            List<StoreInventoryLotGroupExport> lotGroups = inventaireQueryService.getLotGroupsForExport(
+                    filterRecord.filterRecord().storeInventoryId());
             return this.inventoryReportService.printLotToPdf(wrapper, lotGroups);
         }
         return this.inventoryReportService.printToPdf(wrapper);
@@ -113,8 +106,7 @@ public class InventaireServiceImpl implements InventaireService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<StoreInventoryGroupExport> getStoreInventoryToExport(
-        StoreInventoryExportRecord filterRecord) {
+    public List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord) {
         return inventaireQueryService.getStoreInventoryToExport(filterRecord);
     }
 
@@ -122,49 +114,44 @@ public class InventaireServiceImpl implements InventaireService {
     @Transactional(readOnly = true)
     public List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId) {
         return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream()
-            .map(StoreInventoryLineDTO::new).toList();
+                .map(StoreInventoryLineDTO::new)
+                .toList();
     }
 
     @Override
     public void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines) {
         if (!CollectionUtils.isEmpty(storeInventoryLines)) {
             storeInventoryLines.forEach(storeInventoryLineDTO -> {
-                StoreInventoryLine storeInventoryLine = this.storeInventoryLineRepository.getReferenceById(
-                    storeInventoryLineDTO.getId());
+                StoreInventoryLine storeInventoryLine =
+                        this.storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
                 updateStoreInventoryLine(storeInventoryLineDTO, storeInventoryLine);
                 this.storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
             });
         }
     }
 
-    private void updateStoreInventoryLine(StoreInventoryLineDTO storeInventoryLineDTO,
-        StoreInventoryLine storeInventoryLine) {
+    private void updateStoreInventoryLine(
+            StoreInventoryLineDTO storeInventoryLineDTO, StoreInventoryLine storeInventoryLine) {
         storeInventoryLine.applyCount(
-            Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityInit(), 0),
-            Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityOnHand(), 0),
-            userService.getUser()
-        );
+                Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityInit(), 0),
+                Objects.requireNonNullElse(storeInventoryLineDTO.getQuantityOnHand(), 0),
+                userService.getUser());
     }
 
     @Transactional(readOnly = true)
     @Override
     public Page<StoreInventoryDTO> storeInventoryList(
-        StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
-        List<StoreInventory> inventories = this.fetchInventories(storeInventoryFilterRecord,
-            pageable);
+            StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
+        List<StoreInventory> inventories = this.fetchInventories(storeInventoryFilterRecord, pageable);
         Set<Long> countedIds = fetchIdsWithCountedLines(inventories);
 
-        List<StoreInventoryDTO> content = inventories
-            .stream()
-            .map(inventory ->
-                StoreInventoryDTO.builder(inventory)
-                    .statut(resolveStatut(inventory, countedIds.contains(inventory.getId())))
-                    .build()
-            )
-            .toList();
+        List<StoreInventoryDTO> content = inventories.stream()
+                .map(inventory -> StoreInventoryDTO.builder(inventory)
+                        .statut(resolveStatut(inventory, countedIds.contains(inventory.getId())))
+                        .build())
+                .toList();
 
-        return new PageImpl<>(content, pageable,
-            this.fetchInventoriesCount(storeInventoryFilterRecord));
+        return new PageImpl<>(content, pageable, this.fetchInventoriesCount(storeInventoryFilterRecord));
     }
 
     private Set<Long> fetchIdsWithCountedLines(List<StoreInventory> inventories) {
@@ -172,7 +159,7 @@ public class InventaireServiceImpl implements InventaireService {
             return Set.of();
         }
         return this.storeInventoryLineRepository.findStoreInventoryIdsWithCountedLines(
-            inventories.stream().map(StoreInventory::getId).toList());
+                inventories.stream().map(StoreInventory::getId).toList());
     }
 
     /**
@@ -200,26 +187,25 @@ public class InventaireServiceImpl implements InventaireService {
     @Override
     @Transactional(readOnly = true)
     public List<StoreInventoryDTO> fetchActifs() {
-        return this.storeInventoryRepository.findActif().stream().map(StoreInventoryDTO::new)
-            .toList();
+        return this.storeInventoryRepository.findActif().stream()
+                .map(StoreInventoryDTO::new)
+                .toList();
     }
 
     @Override
     public List<RayonRecord> fetchRayonsByStoreInventoryId(Long storeInventoryId) {
-        return this.storeInventoryLineRepository.findAllRayons(storeInventoryId)
-            .stream()
-            .map(rayon -> {
-                Storage storage = rayon.getStorage();
-                return new RayonRecord(
-                    rayon.getId(),
-                    rayon.getCode(),
-                    rayon.getLibelle(),
-                    storage.getId(),
-                    storage.getName(),
-                    storeInventoryId
-                );
-            })
-            .toList();
+        return this.storeInventoryLineRepository.findAllRayons(storeInventoryId).stream()
+                .map(rayon -> {
+                    Storage storage = rayon.getStorage();
+                    return new RayonRecord(
+                            rayon.getId(),
+                            rayon.getCode(),
+                            rayon.getLibelle(),
+                            storage.getId(),
+                            storage.getName(),
+                            storeInventoryId);
+                })
+                .toList();
     }
 
     @Override
@@ -235,14 +221,14 @@ public class InventaireServiceImpl implements InventaireService {
 
     @Override
     public int createInventoryFromFrom(CreateInventoryFromProduitIds createInventoryFromProduitIds)
-        throws InventoryException {
-        StoreInventory storeInventory = buildStoreInventory(
-            createInventoryFromProduitIds.storeInventoryRecord());
+            throws InventoryException {
+        StoreInventory storeInventory = buildStoreInventory(createInventoryFromProduitIds.storeInventoryRecord());
         storeInventory = this.storeInventoryRepository.save(storeInventory);
         StoreInventory finalStoreInventory = storeInventory;
-        createInventoryFromProduitIds.produitIds()
-            .forEach(id -> buildStoreInventoryLineFromProduit(
-                em.getReference(Produit.class, id), finalStoreInventory));
+        createInventoryFromProduitIds
+                .produitIds()
+                .forEach(id ->
+                        buildStoreInventoryLineFromProduit(em.getReference(Produit.class, id), finalStoreInventory));
         storeInventoryLineRepository.saveAll(storeInventory.getStoreInventoryLines());
         return storeInventory.getStoreInventoryLines().size();
     }
@@ -252,8 +238,7 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.createdAt(LocalDateTime.now());
         storeInventory.updatedAt(storeInventory.getCreatedAt());
         storeInventory.setUser(userService.getUser());
-        storeInventory.setInventoryCategory(
-            InventoryCategory.valueOf(storeInventoryRecord.inventoryCategory()));
+        storeInventory.setInventoryCategory(InventoryCategory.valueOf(storeInventoryRecord.inventoryCategory()));
         storeInventory.setInventoryAmountAfter(0L);
         storeInventory.setInventoryAmountBegin(0L);
         storeInventory.setInventoryValueCostBegin(0L);
@@ -287,8 +272,7 @@ public class InventaireServiceImpl implements InventaireService {
      * {@code InventoryStockService}. Le figer à zéro ferait passer chaque comptage pour un écart
      * positif du total compté.
      */
-    private void buildStoreInventoryLineFromProduit(Produit produit,
-        StoreInventory storeInventory) {
+    private void buildStoreInventoryLineFromProduit(Produit produit, StoreInventory storeInventory) {
         StoreInventoryLine storeInventoryLine = new StoreInventoryLine();
         storeInventoryLine.setStoreInventory(storeInventory);
         storeInventoryLine.setProduit(produit);
@@ -305,8 +289,10 @@ public class InventaireServiceImpl implements InventaireService {
      */
     @Override
     public void remove(Long id) {
-        refuserSiCloture(storeInventoryRepository.getReferenceById(id),
-            "Un inventaire clôturé ne peut pas être supprimé", "inventoryClosedCannotBeDeleted");
+        refuserSiCloture(
+                storeInventoryRepository.getReferenceById(id),
+                "Un inventaire clôturé ne peut pas être supprimé",
+                "inventoryClosedCannotBeDeleted");
         storeInventoryLineRepository.deleteAllByStoreInventoryId(id);
         storeInventoryRepository.deleteById(id);
     }
@@ -322,45 +308,46 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
-    public StoreInventoryLineRecord updateQuantityOnHand(
-        StoreInventoryLineDTO storeInventoryLineDTO) {
-        StoreInventoryLine storeInventoryLine = storeInventoryLineRepository.getReferenceById(
-            storeInventoryLineDTO.getId());
+    public StoreInventoryLineRecord updateQuantityOnHand(StoreInventoryLineDTO storeInventoryLineDTO) {
+        StoreInventoryLine storeInventoryLine =
+                storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
         // Recompter une ligne après la clôture ferait diverger l'inventaire de l'historique qu'il
         // a produit, sans que le stock bouge : la ligne ne dirait plus ce qui a été appliqué.
-        refuserSiCloture(storeInventoryLine.getStoreInventory(),
-            "Cet inventaire est clôturé : ses lignes ne peuvent plus être comptées",
-            "inventoryClosedCannotBeCounted");
+        refuserSiCloture(
+                storeInventoryLine.getStoreInventory(),
+                "Cet inventaire est clôturé : ses lignes ne peuvent plus être comptées",
+                "inventoryClosedCannotBeCounted");
         // Verrou optimiste : la ligne a-t-elle été recomptée depuis la lecture du client ?
         // Version nulle côté client = pas de contrôle (appelants legacy).
         if (storeInventoryLineDTO.getVersion() != null
-            && storeInventoryLine.getVersion() != null
-            && !storeInventoryLineDTO.getVersion().equals(storeInventoryLine.getVersion())) {
-            throw new OptimisticLockException(
-                "Cette ligne a été comptée par un autre opérateur entre-temps");
+                && storeInventoryLine.getVersion() != null
+                && !storeInventoryLineDTO.getVersion().equals(storeInventoryLine.getVersion())) {
+            throw new OptimisticLockException("Cette ligne a été comptée par un autre opérateur entre-temps");
         }
         updateStoreInventoryLine(storeInventoryLineDTO, storeInventoryLine);
 
         storeInventoryLine = storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
-        int lotCount =
-            storeInventoryLine.getLots() != null ? storeInventoryLine.getLots().size() : 0;
+        int lotCount = storeInventoryLine.getLots() != null
+                ? storeInventoryLine.getLots().size()
+                : 0;
         return new StoreInventoryLineRecord(
-            storeInventoryLineDTO.getProduitId(),
-            storeInventoryLineDTO.getProduitCip(),
-            storeInventoryLineDTO.getProduitEan(),
-            storeInventoryLineDTO.getProduitLibelle(),
-            storeInventoryLine.getId(),
-            storeInventoryLine.getGap(),
-            storeInventoryLine.getQuantityOnHand(),
-            storeInventoryLine.getQuantityInit(),
-            storeInventoryLine.getUpdated(),
-            storeInventoryLine.getInventoryValueCost(),
-            storeInventoryLine.getLastUnitPrice(),
-            storeInventoryLine.getStorage() != null ? storeInventoryLine.getStorage().getId()
-                : null,
-            null,
-            lotCount, null
-        );
+                storeInventoryLineDTO.getProduitId(),
+                storeInventoryLineDTO.getProduitCip(),
+                storeInventoryLineDTO.getProduitEan(),
+                storeInventoryLineDTO.getProduitLibelle(),
+                storeInventoryLine.getId(),
+                storeInventoryLine.getGap(),
+                storeInventoryLine.getQuantityOnHand(),
+                storeInventoryLine.getQuantityInit(),
+                storeInventoryLine.getUpdated(),
+                storeInventoryLine.getInventoryValueCost(),
+                storeInventoryLine.getLastUnitPrice(),
+                storeInventoryLine.getStorage() != null
+                        ? storeInventoryLine.getStorage().getId()
+                        : null,
+                null,
+                lotCount,
+                null);
     }
 
     @Override
@@ -370,14 +357,10 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     private List<Predicate> predicates(
-        StoreInventoryFilterRecord storeInventoryFilterRecord,
-        CriteriaBuilder cb,
-        Root<StoreInventory> root
-    ) {
+            StoreInventoryFilterRecord storeInventoryFilterRecord, CriteriaBuilder cb, Root<StoreInventory> root) {
         List<Predicate> predicates = new ArrayList<>();
         if (!CollectionUtils.isEmpty(storeInventoryFilterRecord.inventoryCategories())) {
-            In<InventoryCategory> inventoryCategoryIn = cb.in(
-                root.get(StoreInventory_.inventoryCategory));
+            In<InventoryCategory> inventoryCategoryIn = cb.in(root.get(StoreInventory_.inventoryCategory));
             storeInventoryFilterRecord.inventoryCategories().forEach(inventoryCategoryIn::value);
             predicates.add(inventoryCategoryIn);
         }
@@ -388,23 +371,23 @@ public class InventaireServiceImpl implements InventaireService {
             predicates.add(inventoryStatutIn);
         }
         if (Objects.nonNull(storeInventoryFilterRecord.rayonId())) {
-            predicates.add(cb.equal(root.get(StoreInventory_.rayon).get(Rayon_.id),
-                storeInventoryFilterRecord.rayonId()));
+            predicates.add(
+                    cb.equal(root.get(StoreInventory_.rayon).get(Rayon_.id), storeInventoryFilterRecord.rayonId()));
         }
         if (Objects.nonNull(storeInventoryFilterRecord.storageId())) {
-            predicates.add(cb.equal(root.get(StoreInventory_.storage).get(Storage_.id),
-                storeInventoryFilterRecord.storageId()));
+            predicates.add(cb.equal(
+                    root.get(StoreInventory_.storage).get(Storage_.id), storeInventoryFilterRecord.storageId()));
         }
         if (Objects.nonNull(storeInventoryFilterRecord.userId())) {
-            predicates.add(cb.equal(root.get(StoreInventory_.user).get(AppUser_.id),
-                storeInventoryFilterRecord.userId()));
+            predicates.add(
+                    cb.equal(root.get(StoreInventory_.user).get(AppUser_.id), storeInventoryFilterRecord.userId()));
         }
 
         return predicates;
     }
 
     private List<StoreInventory> fetchInventories(
-        StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
+            StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<StoreInventory> cq = cb.createQuery(StoreInventory.class);
         Root<StoreInventory> root = cq.from(StoreInventory.class);
@@ -445,11 +428,11 @@ public class InventaireServiceImpl implements InventaireService {
     // @EventListener(ApplicationReadyEvent.class)
     public void clean() {
         List<IdProjection> ids = this.storeInventoryRepository.findByStatutEquals(
-            LocalDateTime.now().minusMonths(4));
+                LocalDateTime.now().minusMonths(4));
         if (!CollectionUtils.isEmpty(ids)) {
             ids.forEach(idProjection -> {
                 this.storeInventoryLineRepository.deleteAllByStoreInventoryId(
-                    idProjection.getId().longValue());
+                        idProjection.getId().longValue());
                 this.storeInventoryRepository.deleteById(idProjection.getId().longValue());
             });
         }

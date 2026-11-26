@@ -1,24 +1,16 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {FormeProduitService} from './forme-produit.service';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {IFormProduit} from '../../shared/model/form-produit.model';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  SelectableRowDirective,
-} from '../../shared/ui';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {NotificationService} from '../../shared/services/notification.service';
-import {ErrorService} from '../../shared/error.service';
-import {FormFormeProduitComponent} from './form-forme-produit/form-forme-produit.component';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { FormeProduitService } from './forme-produit.service';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { IFormProduit } from '../../shared/model/form-produit.model';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent, SelectableRowDirective } from '../../shared/ui';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ErrorService } from '../../shared/error.service';
+import { FormFormeProduitComponent } from './form-forme-produit/form-forme-produit.component';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { CardComponent } from 'app/shared/ui';
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
   selector: 'app-forme-produit',
@@ -122,7 +114,6 @@ export class FormeProduitComponent implements OnInit {
   private confirm(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
-
         this.entityService.delete(id).subscribe({
           next: () => this.loadPage(0),
           error: err => this.onErreurSuppression(err),

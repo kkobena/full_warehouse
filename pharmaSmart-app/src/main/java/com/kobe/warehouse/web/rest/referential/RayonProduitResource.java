@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.RayonProduitService;
 import com.kobe.warehouse.service.dto.CloneRayonProduitsDTO;
 import com.kobe.warehouse.service.dto.RayonProduitBatchMoveDTO;
@@ -24,11 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rayon", "catalogue" })
+@RequiresNavAccess({"rayon", "catalogue"})
 public class RayonProduitResource {
 
     private static final String ENTITY_NAME = "rayonProduit";
@@ -66,17 +66,18 @@ public class RayonProduitResource {
 
     @PostMapping("/rayon-produits/clone-from-rayon")
     public ResponseEntity<ResponseDTO> cloneFromRayon(@RequestBody CloneRayonProduitsDTO dto) {
-        log.debug("REST request to clone rayon produits from rayon {} to {}", dto.sourceRayonId(), dto.targetRayonIds());
+        log.debug(
+                "REST request to clone rayon produits from rayon {} to {}", dto.sourceRayonId(), dto.targetRayonIds());
         return ResponseEntity.ok(rayonProduitService.cloneToRayons(dto));
     }
 
     @PostMapping("/rayon-produits/import")
     public ResponseEntity<ResponseDTO> importCsv(
-        @RequestPart("importcsv") MultipartFile file,
-        @RequestParam("storageId") Integer storageId
-    ) throws IOException {
+            @RequestPart("importcsv") MultipartFile file, @RequestParam("storageId") Integer storageId)
+            throws IOException {
         log.debug("REST request to import RayonProduit CSV for storageId : {}", storageId);
-        return ResponseUtil.wrapOrNotFound(Optional.of(rayonProduitService.importFromCsv(file.getInputStream(), storageId)));
+        return ResponseUtil.wrapOrNotFound(
+                Optional.of(rayonProduitService.importFromCsv(file.getInputStream(), storageId)));
     }
 
     @DeleteMapping("/rayon-produits/{id}")
@@ -84,7 +85,7 @@ public class RayonProduitResource {
         log.debug("REST request to delete rayonProduit : {}", id);
         rayonProduitService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

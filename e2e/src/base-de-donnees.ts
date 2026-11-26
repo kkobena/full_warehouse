@@ -16,7 +16,11 @@ function psql(args: string[], entree?: string): string {
 
 /** Valeur unique d'une requête de lecture, pour les vérifications de fin de parcours. */
 export function lire(requete: string): string {
-  return psql(['-At', '-c', `SET search_path = ${SCHEMA}, public; ${requete}`]).split('\n').pop() ?? '';
+  return (
+    psql(['-At', '-c', `SET search_path = ${SCHEMA}, public; ${requete}`])
+      .split('\n')
+      .pop() ?? ''
+  );
 }
 
 /** Rejoue un script du dépôt (chemin depuis la racine) dans la base de l'application. */

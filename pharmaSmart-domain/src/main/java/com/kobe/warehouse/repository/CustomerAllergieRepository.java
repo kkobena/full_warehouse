@@ -17,17 +17,14 @@ public interface CustomerAllergieRepository extends JpaRepository<CustomerAllerg
      * pas décomposée : on la rapproche alors par son libellé, sans quoi une allergie à l'amoxicilline
      * laisserait passer « AMOXICILLINE/ACIDE CLAVULANIQUE ».
      */
-    @Query(
-        """
+    @Query("""
             SELECT a, d.libelle FROM CustomerAllergie a JOIN a.dci ad, ProduitDci pd JOIN pd.dci d
             WHERE a.customerId = :customerId
               AND pd.produit.id = :produitId
               AND (d.id = ad.id OR (d.statut = :composee AND UPPER(d.libelle) LIKE CONCAT('%', UPPER(ad.libelle), '%')))
-            """
-    )
+            """)
     List<Object[]> findAllergiesMisesEnCause(
-        @Param("customerId") Integer customerId,
-        @Param("produitId") Integer produitId,
-        @Param("composee") StatutDci composee
-    );
+            @Param("customerId") Integer customerId,
+            @Param("produitId") Integer produitId,
+            @Param("composee") StatutDci composee);
 }

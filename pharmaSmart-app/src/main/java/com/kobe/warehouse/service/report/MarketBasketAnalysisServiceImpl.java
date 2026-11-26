@@ -24,16 +24,12 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
     private EntityManager entityManager;
 
     @Override
-    @Cacheable(value = "marketBasketCache", key = "#startDate + '-' + #endDate + '-' + #minSupport + '-' + #minConfidence + '-' + #limit")
+    @Cacheable(
+            value = "marketBasketCache",
+            key = "#startDate + '-' + #endDate + '-' + #minSupport + '-' + #minConfidence + '-' + #limit")
     public List<ProductAssociationDTO> getProductAssociations(
-        LocalDate startDate,
-        LocalDate endDate,
-        BigDecimal minSupport,
-        BigDecimal minConfidence,
-        Integer limit
-    ) {
-        String sql =
-            """
+            LocalDate startDate, LocalDate endDate, BigDecimal minSupport, BigDecimal minConfidence, Integer limit) {
+        String sql = """
             WITH sales_products AS (
                 SELECT DISTINCT
                     s.id as sale_id,
@@ -94,18 +90,17 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = entityManager
-            .createNativeQuery(sql)
-            .setMaxResults(limit)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .setParameter("minSupport", minSupport)
-            .setParameter("minConfidence", minConfidence)
-            .getResultList();
+                .createNativeQuery(sql)
+                .setMaxResults(limit)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .setParameter("minSupport", minSupport)
+                .setParameter("minConfidence", minConfidence)
+                .getResultList();
 
         List<ProductAssociationDTO> associations = new ArrayList<>();
         for (Object[] row : results) {
-            associations.add(
-                ProductAssociationDTO.create(
+            associations.add(ProductAssociationDTO.create(
                     ((Number) row[0]).longValue(),
                     (String) row[1],
                     (String) row[2],
@@ -115,9 +110,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                     ((Number) row[6]).longValue(),
                     ((Number) row[7]).longValue(),
                     ((Number) row[8]).longValue(),
-                    ((Number) row[9]).longValue()
-                )
-            );
+                    ((Number) row[9]).longValue()));
         }
 
         return associations;
@@ -125,9 +118,9 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
 
     @Override
     @Cacheable(value = "marketBasketCache", key = "'product-' + #productId + '-' + #startDate + '-' + #endDate")
-    public List<ProductAssociationDTO> getAssociationsForProduct(Long productId, LocalDate startDate, LocalDate endDate, Integer limit) {
-        String sql =
-            """
+    public List<ProductAssociationDTO> getAssociationsForProduct(
+            Long productId, LocalDate startDate, LocalDate endDate, Integer limit) {
+        String sql = """
             WITH target_product_sales AS (
                 SELECT DISTINCT s.id as sale_id
                 FROM sales s
@@ -195,17 +188,16 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = entityManager
-            .createNativeQuery(sql)
-            .setMaxResults(limit)
-            .setParameter("productId", productId)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getResultList();
+                .createNativeQuery(sql)
+                .setMaxResults(limit)
+                .setParameter("productId", productId)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
 
         List<ProductAssociationDTO> associations = new ArrayList<>();
         for (Object[] row : results) {
-            associations.add(
-                ProductAssociationDTO.create(
+            associations.add(ProductAssociationDTO.create(
                     ((Number) row[0]).longValue(),
                     (String) row[1],
                     (String) row[2],
@@ -215,9 +207,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                     ((Number) row[6]).longValue(),
                     ((Number) row[7]).longValue(),
                     ((Number) row[8]).longValue(),
-                    ((Number) row[9]).longValue()
-                )
-            );
+                    ((Number) row[9]).longValue()));
         }
 
         return associations;
@@ -227,8 +217,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
     @Cacheable(value = "marketBasketCache", key = "'summary-' + #startDate + '-' + #endDate")
     public MarketBasketSummaryDTO getMarketBasketSummary(LocalDate startDate, LocalDate endDate) {
         // Get total transactions
-        String transactionsSql =
-            """
+        String transactionsSql = """
             SELECT COUNT(DISTINCT s.id)
             FROM sales s
             WHERE s.statut = 'CLOSED'
@@ -237,15 +226,14 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             """;
 
         Long totalTransactions = ((Number) entityManager
-                .createNativeQuery(transactionsSql)
-                .setParameter("startDate", startDate)
-                .setParameter("endDate", endDate)
-                .getSingleResult())
-            .longValue();
+                        .createNativeQuery(transactionsSql)
+                        .setParameter("startDate", startDate)
+                        .setParameter("endDate", endDate)
+                        .getSingleResult())
+                .longValue();
 
         // Get total unique products sold
-        String productsSql =
-            """
+        String productsSql = """
             SELECT COUNT(DISTINCT sl.produit_id)
             FROM sales s
             INNER JOIN sales_line sl ON s.id = sl.sales_id
@@ -255,15 +243,14 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             """;
 
         Long totalProducts = ((Number) entityManager
-                .createNativeQuery(productsSql)
-                .setParameter("startDate", startDate)
-                .setParameter("endDate", endDate)
-                .getSingleResult())
-            .longValue();
+                        .createNativeQuery(productsSql)
+                        .setParameter("startDate", startDate)
+                        .setParameter("endDate", endDate)
+                        .getSingleResult())
+                .longValue();
 
         // Get average basket size
-        String basketSizeSql =
-            """
+        String basketSizeSql = """
             SELECT AVG(items_per_sale)
             FROM (
                 SELECT COUNT(DISTINCT sl.produit_id) as items_per_sale
@@ -281,47 +268,48 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
         // La requête n'est par ailleurs exécutée qu'une fois : elle l'était deux fois, une pour
         // tester la valeur et une pour la lire.
         Number moyenneBrute = (Number) entityManager
-            .createNativeQuery(basketSizeSql)
-            .setParameter("startDate", startDate)
-            .setParameter("endDate", endDate)
-            .getSingleResult();
+                .createNativeQuery(basketSizeSql)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getSingleResult();
 
         BigDecimal averageBasketSize = moyenneBrute == null
-            ? BigDecimal.ZERO
-            : BigDecimal.valueOf(moyenneBrute.doubleValue()).setScale(2, RoundingMode.HALF_UP);
+                ? BigDecimal.ZERO
+                : BigDecimal.valueOf(moyenneBrute.doubleValue()).setScale(2, RoundingMode.HALF_UP);
 
         // Get top associations with default thresholds
-        List<ProductAssociationDTO> topAssociations = getProductAssociations(
-            startDate,
-            endDate,
-            BigDecimal.valueOf(0.5),
-            BigDecimal.valueOf(5.0),
-            100
-        );
+        List<ProductAssociationDTO> topAssociations =
+                getProductAssociations(startDate, endDate, BigDecimal.valueOf(0.5), BigDecimal.valueOf(5.0), 100);
 
         Long totalAssociations = (long) topAssociations.size();
 
         BigDecimal maxConfidence = topAssociations.isEmpty()
-            ? BigDecimal.ZERO
-            : topAssociations.stream().map(ProductAssociationDTO::confidence).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+                ? BigDecimal.ZERO
+                : topAssociations.stream()
+                        .map(ProductAssociationDTO::confidence)
+                        .max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
 
         BigDecimal maxLift = topAssociations.isEmpty()
-            ? BigDecimal.ZERO
-            : topAssociations.stream().map(ProductAssociationDTO::lift).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
+                ? BigDecimal.ZERO
+                : topAssociations.stream()
+                        .map(ProductAssociationDTO::lift)
+                        .max(BigDecimal::compareTo)
+                        .orElse(BigDecimal.ZERO);
 
         String mostFrequentPair = topAssociations.isEmpty()
-            ? "Aucune"
-            : topAssociations.getFirst().productAName() + " + " + topAssociations.getFirst().productBName();
+                ? "Aucune"
+                : topAssociations.getFirst().productAName() + " + "
+                        + topAssociations.getFirst().productBName();
 
         return new MarketBasketSummaryDTO(
-            totalTransactions,
-            totalProducts,
-            totalAssociations,
-            averageBasketSize,
-            maxConfidence,
-            maxLift,
-            mostFrequentPair
-        );
+                totalTransactions,
+                totalProducts,
+                totalAssociations,
+                averageBasketSize,
+                maxConfidence,
+                maxLift,
+                mostFrequentPair);
     }
 
     @Override

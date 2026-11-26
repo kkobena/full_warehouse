@@ -306,19 +306,18 @@ public class TableauPharmacienDTO {
     }
 
     public TableauPharmacienDTO(
-        LocalDate mvtDate,
-        Long numberCount,
-        Object discount,
-        Long montantTtc,
-        Long montantPaye,
-        Long montantReel,
-        Double montantHt,
-        Long montantAchat,
-        Integer montantDiffere,
-        Long amountToBeTakenIntoAccount,
-        Long partTiersPayant,
-        Long partAssure
-    ) {
+            LocalDate mvtDate,
+            Long numberCount,
+            Object discount,
+            Long montantTtc,
+            Long montantPaye,
+            Long montantReel,
+            Double montantHt,
+            Long montantAchat,
+            Integer montantDiffere,
+            Long amountToBeTakenIntoAccount,
+            Long partTiersPayant,
+            Long partAssure) {
         this.mvtDate = mvtDate;
         this.nombreVente = numberCount;
         this.montantRemise = getDiscountAsInteger(discount);
@@ -327,7 +326,8 @@ public class TableauPharmacienDTO {
         this.montantHt = isNull(montantHt) ? null : montantHt.longValue();
         this.montantNet = montantTtc - this.montantRemise;
         this.montantAchat = montantAchat;
-        this.montantCredit = Objects.requireNonNullElse(partTiersPayant, 0L) + Objects.requireNonNullElse(montantDiffere, 0);
+        this.montantCredit =
+                Objects.requireNonNullElse(partTiersPayant, 0L) + Objects.requireNonNullElse(montantDiffere, 0);
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         this.partAssure = partAssure;
         this.montantReel = montantReel;

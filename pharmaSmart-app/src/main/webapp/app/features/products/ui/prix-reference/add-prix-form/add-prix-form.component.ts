@@ -1,36 +1,52 @@
-import {signal, viewChild, AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { PrixReference } from "../model/prix-reference.model";
-import { PrixReferenceService } from "../prix-reference.service";
-import { Observable } from "rxjs";
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent, SwitchComponent } from "app/shared/ui";
-import { finalize } from "rxjs/operators";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../../../shared/services/notification.service";
-import { IProduit, ITiersPayant } from "../../../../../shared/model";
-import { ErrorService } from "../../../../../shared/error.service";
-import { TiersPayantService } from "../../../../../entities/tiers-payant/tierspayant.service";
-import { ProduitService } from "../../../../../entities/produit/produit.service";
-import { formatNumber } from "../../../../../shared/utils/format-utils";
+import { signal, viewChild, AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PrixReference } from '../model/prix-reference.model';
+import { PrixReferenceService } from '../prix-reference.service';
+import { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import {
+  ButtonComponent,
+  CardComponent,
+  InputNumberComponent,
+  SelectComponent,
+  SelectSearchComponent,
+  SwitchComponent,
+} from 'app/shared/ui';
+import { finalize } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbConfirmDialogService } from '../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { IProduit, ITiersPayant } from '../../../../../shared/model';
+import { ErrorService } from '../../../../../shared/error.service';
+import { TiersPayantService } from '../../../../../entities/tiers-payant/tierspayant.service';
+import { ProduitService } from '../../../../../entities/produit/produit.service';
+import { formatNumber } from '../../../../../shared/utils/format-utils';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 const PriceTypes = {
-  REFERENCE: "REFERENCE",
-  POURCENTAGE: "POURCENTAGE",
-  MIXED_REFERENCE_POURCENTAGE: "MIXED_REFERENCE_POURCENTAGE"
+  REFERENCE: 'REFERENCE',
+  POURCENTAGE: 'POURCENTAGE',
+  MIXED_REFERENCE_POURCENTAGE: 'MIXED_REFERENCE_POURCENTAGE',
 } as const;
 
 type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
-  selector: "app-add-prix-form",
-  imports: [DeviseDirective, ButtonComponent, ReactiveFormsModule, SelectComponent, SelectSearchComponent, InputNumberComponent, SwitchComponent, CardComponent],
-  templateUrl: "./add-prix-form.component.html",
+  selector: 'app-add-prix-form',
+  imports: [
+    DeviseDirective,
+    ButtonComponent,
+    ReactiveFormsModule,
+    SelectComponent,
+    SelectSearchComponent,
+    InputNumberComponent,
+    SwitchComponent,
+    CardComponent,
+  ],
+  templateUrl: './add-prix-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["add-prix-form.scss"]
+  styleUrls: ['add-prix-form.scss'],
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
   // Component Inputs
@@ -53,10 +69,10 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   protected pricesType: { code: PriceType; libelle: string }[] = [
     {
       code: PriceTypes.REFERENCE,
-      libelle: "Prix de référence assurance"
+      libelle: 'Prix de référence assurance',
     },
     { code: PriceTypes.POURCENTAGE, libelle: "Pourcentage appliqué par l'assureur" },
-    { code: PriceTypes.MIXED_REFERENCE_POURCENTAGE, libelle: "Pourcentage appliqué au prix de référence" }
+    { code: PriceTypes.MIXED_REFERENCE_POURCENTAGE, libelle: 'Pourcentage appliqué au prix de référence' },
   ];
 
   // Form definition
@@ -68,12 +84,12 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
     produitId: new FormControl<number | null>(null),
     type: new FormControl<PriceType | null>(PriceTypes.REFERENCE, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     enabled: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   // Injected services
@@ -114,7 +130,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
 
   protected save(): void {
     if (this.editForm.invalid) {
-      this.notificationService.error("Formulaire invalide", "Erreur");
+      this.notificationService.error('Formulaire invalide', 'Erreur');
       return;
     }
 
@@ -123,11 +139,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
     if (prixReference.type !== PriceTypes.POURCENTAGE && prixReference.price > this.produit?.regularUnitPrice) {
       const message = `Le prix que vous avez saisi  <span class="fs-4 fw-semibold text-danger"> (${formatNumber(prixReference.price)})</span> est supérieur au prix de vente au public <span class="fs-4 fw-semibold text-success">(${formatNumber(this.produit?.regularUnitPrice)})</span>. Voulez-vous continuer ?`;
 
-      this.confirmDialog.onConfirm(
-        () => this.onConfirmSave(prixReference),
-        "Confirmation",
-        message
-      );
+      this.confirmDialog.onConfirm(() => this.onConfirmSave(prixReference), 'Confirmation', message);
     } else {
       this.onConfirmSave(prixReference);
     }
@@ -145,48 +157,48 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       tiersPayantId: entity.tiersPayantId,
       price: entity.price,
       produitId: entity.produitId,
-      enabled: entity.enabled
+      enabled: entity.enabled,
     });
   }
 
   private createFromForm(): PrixReference {
     return {
       ...new PrixReference(),
-      ...this.editForm.getRawValue()
+      ...this.editForm.getRawValue(),
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err)
+      error: (err: any) => this.onSaveError(err),
     });
   }
 
   private onSaveSuccess(): void {
-    this.activeModal.close("saved");
+    this.activeModal.close('saved');
   }
 
   private onSaveError(err: HttpErrorResponse): void {
-    this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+    this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
   }
 
   protected get shouldShowRateControl(): boolean {
-    const type = this.editForm.get("type")?.value;
+    const type = this.editForm.get('type')?.value;
     return type === PriceTypes.POURCENTAGE || type === PriceTypes.MIXED_REFERENCE_POURCENTAGE;
   }
 
   protected get shouldShowPriceControl(): boolean {
-    const type = this.editForm.get("type")?.value;
+    const type = this.editForm.get('type')?.value;
     return type !== PriceTypes.POURCENTAGE;
   }
 
   private loadInitialData(): void {
     if (this.isFromProduit && this.tiersPayantsVente?.length) {
-      const proposes = this.tiersPayantsVente.map(tp => ({id: tp.tiersPayantId, fullName: tp.tiersPayantFullName ?? tp.tiersPayantName}));
+      const proposes = this.tiersPayantsVente.map(tp => ({ id: tp.tiersPayantId, fullName: tp.tiersPayantFullName ?? tp.tiersPayantName }));
       this.tiersPayants.set(proposes as never[]);
       if (proposes.length === 1) {
-        this.editForm.get("tiersPayantId")?.setValue(proposes[0].id ?? null);
+        this.editForm.get('tiersPayantId')?.setValue(proposes[0].id ?? null);
       }
     } else if (this.isFromProduit) {
       this.getTiersPayants();
@@ -197,33 +209,33 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
 
   private setupConditionalValidators(): void {
     if (this.isFromProduit) {
-      this.editForm.get("tiersPayantId")?.setValidators([Validators.required]);
-      this.editForm.get("produitId")?.setValue(this.produit?.id ?? null);
+      this.editForm.get('tiersPayantId')?.setValidators([Validators.required]);
+      this.editForm.get('produitId')?.setValue(this.produit?.id ?? null);
     } else {
-      this.editForm.get("produitId")?.setValidators([Validators.required]);
-      this.editForm.get("tiersPayantId")?.setValue(this.tiersPayant?.id ?? null);
+      this.editForm.get('produitId')?.setValidators([Validators.required]);
+      this.editForm.get('tiersPayantId')?.setValue(this.tiersPayant?.id ?? null);
     }
     this.editForm.updateValueAndValidity();
   }
 
   private subscribeToTypeChanges(): void {
     this.editForm
-      .get("type")
+      .get('type')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         this.updateValidatorsBasedOnType(value);
       });
     this.editForm
-      .get("tiersPayantId")
+      .get('tiersPayantId')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        this.updateValidatorsBasedOnType(this.editForm.get("type").value);
+        this.updateValidatorsBasedOnType(this.editForm.get('type').value);
       });
   }
 
   private updateValidatorsBasedOnType(type: PriceType | null): void {
-    const priceControl = this.editForm.get("price");
-    const rateControl = this.editForm.get("rate");
+    const priceControl = this.editForm.get('price');
+    const rateControl = this.editForm.get('rate');
 
     /* if (!priceControl || !rateControl) {
        return;
@@ -248,13 +260,13 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        sort: ["fullName,asc"]
+        sort: ['fullName,asc'],
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants.set(res.body || []);
         },
-        error: (err: HttpErrorResponse) => this.onSaveError(err)
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
       });
   }
 
@@ -263,13 +275,13 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 99999,
-        sort: ["libelle,asc"]
+        sort: ['libelle,asc'],
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => {
           this.produits.set(res.body || []);
         },
-        error: (err: HttpErrorResponse) => this.onSaveError(err)
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
       });
   }
 }

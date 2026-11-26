@@ -2,7 +2,6 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,10 +31,9 @@ public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, In
           AND (:excludeRetourBonId IS NULL OR r.retourBon.id <> :excludeRetourBonId)
         """)
     int sumQtyMvtByLotId(
-        @Param("lotId") Integer lotId,
-        @Param("excludeRetourBonId") Integer excludeRetourBonId,
-        @Param("excludedStatut") RetourStatut excludedStatut
-    );
+            @Param("lotId") Integer lotId,
+            @Param("excludeRetourBonId") Integer excludeRetourBonId,
+            @Param("excludedStatut") RetourStatut excludedStatut);
 
     @Query("""
         SELECT COALESCE(SUM(r.qtyMvt), 0)
@@ -47,11 +45,10 @@ public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, In
           AND (:excludeRetourBonId IS NULL OR r.retourBon.id <> :excludeRetourBonId)
         """)
     int sumQtyMvtByOrderLineId(
-        @Param("orderLineId") Integer orderLineId,
-        @Param("orderDate") LocalDate orderDate,
-        @Param("excludeRetourBonId") Integer excludeRetourBonId,
-        @Param("excludedStatut") RetourStatut excludedStatut
-    );
+            @Param("orderLineId") Integer orderLineId,
+            @Param("orderDate") LocalDate orderDate,
+            @Param("excludeRetourBonId") Integer excludeRetourBonId,
+            @Param("excludedStatut") RetourStatut excludedStatut);
 
     /**
      * Somme de toutes les quantités retournées pour une ligne de commande,
@@ -67,8 +64,7 @@ public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, In
           AND (:excludeRetourBonId IS NULL OR r.retourBon.id <> :excludeRetourBonId)
         """)
     int sumAllReturnedQtyByOrderLineId(
-        @Param("orderLineId") Integer orderLineId,
-        @Param("orderDate") LocalDate orderDate,
-        @Param("excludeRetourBonId") Integer excludeRetourBonId
-    );
+            @Param("orderLineId") Integer orderLineId,
+            @Param("orderDate") LocalDate orderDate,
+            @Param("excludeRetourBonId") Integer excludeRetourBonId);
 }

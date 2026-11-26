@@ -86,4 +86,3 @@ public interface NavItemService {
      */
     Set<String> findExecutableActionCodes(Set<String> roles);
 }
-

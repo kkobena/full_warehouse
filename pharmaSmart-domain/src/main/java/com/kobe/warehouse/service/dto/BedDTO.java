@@ -38,36 +38,102 @@ public class BedDTO {
         }
     }
 
-    public Integer getId() { return id; }
-    public BedDTO setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public LocalDate getOrderDate() { return orderDate; }
-    public BedDTO setOrderDate(LocalDate orderDate) { this.orderDate = orderDate; return this; }
+    public BedDTO setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public String getReceiptReference() { return receiptReference; }
-    public BedDTO setReceiptReference(String receiptReference) { this.receiptReference = receiptReference; return this; }
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
 
-    public MotifBed getMotifBed() { return motifBed; }
-    public BedDTO setMotifBed(MotifBed motifBed) { this.motifBed = motifBed; return this; }
+    public BedDTO setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+        return this;
+    }
 
-    public String getCommentaireBed() { return commentaireBed; }
-    public BedDTO setCommentaireBed(String commentaireBed) { this.commentaireBed = commentaireBed; return this; }
+    public String getReceiptReference() {
+        return receiptReference;
+    }
 
-    public Integer getFournisseurId() { return fournisseurId; }
-    public BedDTO setFournisseurId(Integer fournisseurId) { this.fournisseurId = fournisseurId; return this; }
+    public BedDTO setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
+        return this;
+    }
 
-    public String getFournisseurLibelle() { return fournisseurLibelle; }
-    public BedDTO setFournisseurLibelle(String fournisseurLibelle) { this.fournisseurLibelle = fournisseurLibelle; return this; }
+    public MotifBed getMotifBed() {
+        return motifBed;
+    }
 
-    public OrderStatut getOrderStatus() { return orderStatus; }
-    public BedDTO setOrderStatus(OrderStatut orderStatus) { this.orderStatus = orderStatus; return this; }
+    public BedDTO setMotifBed(MotifBed motifBed) {
+        this.motifBed = motifBed;
+        return this;
+    }
 
-    public List<BedLigneDTO> getLignes() { return lignes; }
-    public BedDTO setLignes(List<BedLigneDTO> lignes) { this.lignes = lignes; return this; }
+    public String getCommentaireBed() {
+        return commentaireBed;
+    }
 
-    public int getGrossAmount() { return grossAmount; }
-    public BedDTO setGrossAmount(int grossAmount) { this.grossAmount = grossAmount; return this; }
+    public BedDTO setCommentaireBed(String commentaireBed) {
+        this.commentaireBed = commentaireBed;
+        return this;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public BedDTO setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public BedDTO setFournisseurId(Integer fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
+
+    public String getFournisseurLibelle() {
+        return fournisseurLibelle;
+    }
+
+    public BedDTO setFournisseurLibelle(String fournisseurLibelle) {
+        this.fournisseurLibelle = fournisseurLibelle;
+        return this;
+    }
+
+    public OrderStatut getOrderStatus() {
+        return orderStatus;
+    }
+
+    public BedDTO setOrderStatus(OrderStatut orderStatus) {
+        this.orderStatus = orderStatus;
+        return this;
+    }
+
+    public List<BedLigneDTO> getLignes() {
+        return lignes;
+    }
+
+    public BedDTO setLignes(List<BedLigneDTO> lignes) {
+        this.lignes = lignes;
+        return this;
+    }
+
+    public int getGrossAmount() {
+        return grossAmount;
+    }
+
+    public BedDTO setGrossAmount(int grossAmount) {
+        this.grossAmount = grossAmount;
+        return this;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public BedDTO setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 }

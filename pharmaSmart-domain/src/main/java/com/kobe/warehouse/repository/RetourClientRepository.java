@@ -1,12 +1,10 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.RetourClient;
-import com.kobe.warehouse.domain.enumeration.MotifRetourClient;
+import com.kobe.warehouse.domain.RetourClient_;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.kobe.warehouse.domain.RetourClient_;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,7 +14,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 @Repository
-public interface RetourClientRepository extends JpaRepository<RetourClient, Integer>, JpaSpecificationExecutor<RetourClient> {
+public interface RetourClientRepository
+        extends JpaRepository<RetourClient, Integer>, JpaSpecificationExecutor<RetourClient> {
 
     /**
      * Nombre de retours et montant total sur la periode, en une seule ligne.
@@ -26,10 +25,12 @@ public interface RetourClientRepository extends JpaRepository<RetourClient, Inte
      * quand l agregat n en produit qu une. Declarer {@code Object[]} faisait recevoir la liste
      * des lignes vue comme un tableau, dont le premier element etait la ligne elle-meme.
      */
-    @Query("SELECT COUNT(r), COALESCE(SUM(r.montantTotal), 0) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin")
+    @Query(
+            "SELECT COUNT(r), COALESCE(SUM(r.montantTotal), 0) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin")
     List<Object[]> statsGlobales(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
 
-    @Query("SELECT r.motif, COUNT(r) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin GROUP BY r.motif ORDER BY COUNT(r) DESC")
+    @Query(
+            "SELECT r.motif, COUNT(r) FROM RetourClient r WHERE r.createdAt >= :debut AND r.createdAt < :fin GROUP BY r.motif ORDER BY COUNT(r) DESC")
     List<Object[]> statsParMotif(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
 
     @Query("""
@@ -41,7 +42,8 @@ public interface RetourClientRepository extends JpaRepository<RetourClient, Inte
         HAVING COUNT(rc) > :seuil
         ORDER BY COUNT(rc) DESC
         """)
-    List<Object[]> produitsEnAlerte(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin, @Param("seuil") long seuil);
+    List<Object[]> produitsEnAlerte(
+            @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin, @Param("seuil") long seuil);
 
     @Query("""
         SELECT rc.customer.id, rc.customer.firstName, rc.customer.lastName, COUNT(rc)
@@ -51,21 +53,22 @@ public interface RetourClientRepository extends JpaRepository<RetourClient, Inte
         HAVING COUNT(rc) > :seuil
         ORDER BY COUNT(rc) DESC
         """)
-    List<Object[]> clientsEnAlerte(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin, @Param("seuil") long seuil);
+    List<Object[]> clientsEnAlerte(
+            @Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin, @Param("seuil") long seuil);
 
     static Specification<RetourClient> buildSpec(String search, LocalDate fromDate, LocalDate toDate) {
         Specification<RetourClient> spec = Specification.unrestricted();
         if (fromDate != null && toDate != null) {
-            spec = spec.and((root, query, cb) ->
-                cb.between(root.get(RetourClient_.createdAt),
-                    fromDate.atStartOfDay(), toDate.plusDays(1).atStartOfDay()));
+            spec = spec.and((root, query, cb) -> cb.between(
+                    root.get(RetourClient_.createdAt),
+                    fromDate.atStartOfDay(),
+                    toDate.plusDays(1).atStartOfDay()));
         }
         if (StringUtils.hasText(search)) {
             String term = "%" + search.toUpperCase() + "%";
             spec = spec.and((root, query, cb) -> cb.or(
-                cb.like(cb.upper(root.get(RetourClient_.reference)), term),
-                cb.like(cb.upper(root.get(RetourClient_.originalSaleRef)), term)
-            ));
+                    cb.like(cb.upper(root.get(RetourClient_.reference)), term),
+                    cb.like(cb.upper(root.get(RetourClient_.originalSaleRef)), term)));
         }
         return spec;
     }

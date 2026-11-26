@@ -1,20 +1,25 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked} from '@angular/core';
-import {DatePipe, DecimalPipe} from '@angular/common';
-import {forkJoin, map, Observable, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {IDossierSante, IProduitDelivre, ISituationCredit} from 'app/entities/customer/customer-fiche.model';
-import {ICustomer} from 'app/shared/model/customer.model';
-import {ProduitSearch} from 'app/shared/model';
-import {DATE_FORMAT_ISO_DATE, IS_ISO_DATE_PAST} from 'app/shared/util/warehouse-util';
-import {currencySymbol} from 'app/shared/utils/format-utils';
-import {BadgeComponent, ButtonComponent, DataTableComponent, OffcanvasComponent} from 'app/shared/ui';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {IAvoirClientDocument} from 'app/shared/model/avoir-client-document.model';
-import {ProductSearchService} from '../../data-access/services/product-search.service';
-import {ITraitementChronique} from 'app/entities/customer/customer-fiche.model';
-import {A_RELANCER, echeanceTraitement, libelleTraitement, SUIVI_TRAITEMENT} from 'app/entities/customer/traitements-chroniques/suivi-traitement';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { forkJoin, map, Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { IDossierSante, IProduitDelivre, ISituationCredit } from 'app/entities/customer/customer-fiche.model';
+import { ICustomer } from 'app/shared/model/customer.model';
+import { ProduitSearch } from 'app/shared/model';
+import { DATE_FORMAT_ISO_DATE, IS_ISO_DATE_PAST } from 'app/shared/util/warehouse-util';
+import { currencySymbol } from 'app/shared/utils/format-utils';
+import { BadgeComponent, ButtonComponent, DataTableComponent, OffcanvasComponent } from 'app/shared/ui';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
+import { ProductSearchService } from '../../data-access/services/product-search.service';
+import { ITraitementChronique } from 'app/entities/customer/customer-fiche.model';
+import {
+  A_RELANCER,
+  echeanceTraitement,
+  libelleTraitement,
+  SUIVI_TRAITEMENT,
+} from 'app/entities/customer/traitements-chroniques/suivi-traitement';
 
 interface FicheClient {
   customer: ICustomer | null;
@@ -129,7 +134,7 @@ export class FicheClientPanelComponent {
       traitements: this.lire(this.customerService.traitementsChroniques(id)).pipe(map(t => t ?? [])),
       produits: this.lire(
         this.customerService
-          .produitsDelivres(id, {fromDate: DATE_FORMAT_ISO_DATE(ilYaUnAn), toDate: DATE_FORMAT_ISO_DATE(aujourdhui), page: 0, size: 10})
+          .produitsDelivres(id, { fromDate: DATE_FORMAT_ISO_DATE(ilYaUnAn), toDate: DATE_FORMAT_ISO_DATE(aujourdhui), page: 0, size: 10 })
           .pipe(map(res => res.body ?? [])),
       ).pipe(map(p => p ?? [])),
     }).subscribe(fiche => {

@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -24,15 +26,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class SalesResource {
 
     private static final String ENTITY_NAME = "sales";
@@ -53,115 +53,103 @@ public class SalesResource {
     }
 
     @PostMapping("/sales/comptant")
-    public ResponseEntity<CashSaleDTO> createCashSale(@Valid @RequestBody CashSaleDTO cashSaleDTO,
-        HttpServletRequest request)
-        throws URISyntaxException {
+    public ResponseEntity<CashSaleDTO> createCashSale(
+            @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) throws URISyntaxException {
         if (cashSaleDTO.getId() != null) {
-            throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME,
-                "idexists");
+            throw new BadRequestAlertException("A new sales cannot already have an ID", ENTITY_NAME, "idexists");
         }
         cashSaleDTO.setCaisseNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
         cashSaleDTO.setCaisseEndNum(cashSaleDTO.getCaisseNum());
-        return ResponseEntity.accepted()
-            .body( saleService.createCashSale(cashSaleDTO));
+        return ResponseEntity.accepted().body(saleService.createCashSale(cashSaleDTO));
     }
 
     @PutMapping("/sales/comptant/save")
     public ResponseEntity<FinalyseSaleDTO> closeCashSale(
-        @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) {
+            @Valid @RequestBody CashSaleDTO cashSaleDTO, HttpServletRequest request) {
         cashSaleDTO.setCaisseEndNum(request.getRemoteAddr()).setPosteName(request.getRemoteHost());
 
-        return ResponseEntity.accepted()
-            .body( saleService.save(cashSaleDTO));
+        return ResponseEntity.accepted().body(saleService.save(cashSaleDTO));
     }
 
     @PostMapping("/sales/add-item/comptant")
     public ResponseEntity<SaleLineDTO> addItemComptant(@Valid @RequestBody SaleLineDTO saleLineDTO) {
-        return ResponseEntity.accepted()
-            .body(saleService.addOrUpdateSaleLine(saleLineDTO));
+        return ResponseEntity.accepted().body(saleService.addOrUpdateSaleLine(saleLineDTO));
     }
 
     @PutMapping("/sales/update-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
-        return ResponseEntity.accepted()
-            .body( saleService.updateItemQuantityRequested(saleLineDTO, true));
+    public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO)
+            throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, true));
     }
 
-
     @PutMapping("/sales/increment-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) {
-        return ResponseEntity.accepted()
-            .body(saleService.updateItemQuantityRequested(saleLineDTO, true));
+    public ResponseEntity<SaleLineDTO> incrementItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+        return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, true));
     }
 
     @PutMapping("/sales/set-item/quantity-requested")
-    public ResponseEntity<SaleLineDTO> setItemQtyRequested(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) {
+    public ResponseEntity<SaleLineDTO> setItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) {
         return ResponseEntity.accepted().body(saleService.updateItemQuantityRequested(saleLineDTO, false));
-
     }
 
     @PutMapping("/sales/update-item/price")
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO)
-        throws URISyntaxException {
-        return ResponseEntity.accepted()
-            .body(saleService.updateItemRegularPrice(saleLineDTO));
+            throws URISyntaxException {
+        return ResponseEntity.accepted().body(saleService.updateItemRegularPrice(saleLineDTO));
     }
 
     @PutMapping("/sales/update-item/quantity-sold")
-    public ResponseEntity<SaleLineDTO> updateItemQtySold(
-        @Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
+    public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO)
+            throws URISyntaxException {
         return ResponseEntity.accepted().body(saleService.updateItemQuantitySold(saleLineDTO));
     }
 
     @DeleteMapping("/sales/delete-item/{id}/{saleDate}")
-    public ResponseEntity<Void> deleteSaleItem(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSaleItem(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/sales/prevente/{id}/{saleDate}")
-    public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> deleteSalePrevente(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.deleteSalePrevente(new SaleId(id, saleDate));
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/sales/cancel/comptant/{id}/{saleDate}")
-    @RequiresNavAccess(value = { "ventes.journal.cancel", "pr-annuler-vente" }, action = NavAction.EXECUTE)
-    public ResponseEntity<Void> cancelCashSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        @RequestParam(required = false) String cancelComment) throws CashRegisterException {
+    @RequiresNavAccess(
+            value = {"ventes.journal.cancel", "pr-annuler-vente"},
+            action = NavAction.EXECUTE)
+    public ResponseEntity<Void> cancelCashSale(
+            @PathVariable("id") Long id,
+            @PathVariable("saleDate") LocalDate saleDate,
+            @RequestParam(required = false) String cancelComment)
+            throws CashRegisterException {
         saleService.cancelCashSale(new SaleId(id, saleDate), cancelComment);
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/sales/comptant/add-customer")
-    public ResponseEntity<Void> addCustommerToCashSale(
-        @Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+    public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
         saleService.setCustomer(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping("/sales/comptant/remove-customer/{id}/{saleDate}")
-    public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> removeCustommerToCashSale(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.removeCustomer(new SaleId(id, saleDate));
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/sales/comptant/authorize-action")
-    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
+    @RequiresNavAccess(
+            value = {"ventes", "nouvelle-vente", "nouvelle-prevente"},
+            action = NavAction.ACCESS)
     public ResponseEntity<Void> authorizeAction(
-        @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
-        HttpServletRequest request
-    ) {
+            @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite, HttpServletRequest request) {
         utilisationCleSecurite.setCaisse(request.getRemoteHost());
         saleService.authorizeAction(utilisationCleSecurite);
         return ResponseEntity.accepted().build();
@@ -174,8 +162,8 @@ public class SalesResource {
     }
 
     @DeleteMapping("/sales/comptant/remove-remise/{id}/{saleDate}")
-    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate) {
+    public ResponseEntity<Void> removeRemiseFromCashSale(
+            @PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         saleService.removeRemiseFromCashSale(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }
@@ -192,10 +180,9 @@ public class SalesResource {
         return ResponseEntity.accepted().build();
     }
 
-
     @PutMapping("/sales/comptant/transform")
-    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId,
-        @RequestParam(name = "version", required = false) Long version) {
+    public ResponseEntity<SaleId> transformToVenteEncour(
+            @Valid @RequestBody SaleId saleId, @RequestParam(name = "version", required = false) Long version) {
         return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId, version));
     }
 
@@ -204,5 +191,4 @@ public class SalesResource {
         saleService.cloneDevis(saleId);
         return ResponseEntity.accepted().build();
     }
-
 }

@@ -10,10 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DciRepository extends JpaRepository<Dci, Integer> {
     Page<Dci> findAllByCodeContainingIgnoreCaseOrLibelleContainingIgnoreCaseOrderByLibelleAsc(
-        String code,
-        String libelle,
-        Pageable pageable
-    );
+            String code, String libelle, Pageable pageable);
 
     Page<Dci> findAllByOrderByLibelleAsc(Pageable pageable);
 

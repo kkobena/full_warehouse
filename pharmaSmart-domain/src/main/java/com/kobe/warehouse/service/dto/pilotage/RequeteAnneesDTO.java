@@ -15,7 +15,13 @@ import java.util.List;
  * @param filtre restriction au format {@code AXE:cle} (une famille, un type de vente)
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record RequeteAnneesDTO(IndicateurPilotage indicateur, Integer annees, ModeAnnees mode, Boolean parJourOuvre, Boolean aDate, List<String> filtre) {
+public record RequeteAnneesDTO(
+        IndicateurPilotage indicateur,
+        Integer annees,
+        ModeAnnees mode,
+        Boolean parJourOuvre,
+        Boolean aDate,
+        List<String> filtre) {
     public RequeteAnneesDTO {
         indicateur = indicateur == null ? IndicateurPilotage.CA_TTC : indicateur;
         annees = annees == null ? 3 : annees;

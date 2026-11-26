@@ -7,15 +7,33 @@ const famille: Axe = { code: 'FAMILLE', libelle: 'Famille', sources: ['LIGNES'],
 const produit: Axe = { ...famille, code: 'PRODUIT', libelle: 'Produit', suivant: null };
 
 const analyse = (axe: Axe, avecReference = true): AnalysePilotage => ({
-  comparaison: { periode: { du: '2026-10-01', au: '2026-10-09' }, reference: avecReference ? { du: '2025-10-01', au: '2025-10-09' } : null, aDate: true },
+  comparaison: {
+    periode: { du: '2026-10-01', au: '2026-10-09' },
+    reference: avecReference ? { du: '2025-10-01', au: '2025-10-09' } : null,
+    aDate: true,
+  },
   source: 'LIGNES',
   indicateurs: [{ code: 'CA_TTC', libelle: 'CA TTC', definition: '', unite: 'MONTANT', sensFavorable: 'HAUSSE', droit: 'PAGE' }],
   indicateursIgnores: [],
   axe,
   axe2: null,
   total: [{ valeur: 100_000, valeurReference: 90_000, ecart: 10_000, ecartPct: 11.1 }],
-  elements: [{ cle: '12', libelle: 'Antalgiques', cellules: [{ valeur: 60_000, valeurReference: 50_000, ecart: 10_000, ecartPct: 20 }], part: 60, contribution: 100 }],
-  autres: { cle: null, libelle: 'Autres (3)', cellules: [{ valeur: 40_000, valeurReference: 40_000, ecart: 0, ecartPct: 0 }], part: 40, contribution: 0 },
+  elements: [
+    {
+      cle: '12',
+      libelle: 'Antalgiques',
+      cellules: [{ valeur: 60_000, valeurReference: 50_000, ecart: 10_000, ecartPct: 20 }],
+      part: 60,
+      contribution: 100,
+    },
+  ],
+  autres: {
+    cle: null,
+    libelle: 'Autres (3)',
+    cellules: [{ valeur: 40_000, valeurReference: 40_000, ecart: 0, ecartPct: 0 }],
+    part: 40,
+    contribution: 0,
+  },
   nombreElements: 4,
   croise: null,
 });

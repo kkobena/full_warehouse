@@ -16,20 +16,22 @@ public final class TuilesRapport {
     public static TuileRapportDTO lireTuile(SerieIndicateurDTO serie) {
         IndicateurPilotageDTO indicateur = serie.indicateur();
         return new TuileRapportDTO(
-            indicateur.libelle(),
-            FormatRapport.formaterValeur(serie.valeur(), indicateur.unite()),
-            FormatRapport.formaterVariation(serie.ecart(), serie.ecartPct(), indicateur.unite(), indicateur.sensFavorable()),
-            List.of()
-        );
+                indicateur.libelle(),
+                FormatRapport.formaterValeur(serie.valeur(), indicateur.unite()),
+                FormatRapport.formaterVariation(
+                        serie.ecart(), serie.ecartPct(), indicateur.unite(), indicateur.sensFavorable()),
+                List.of());
     }
 
     /** Mesure hors dictionnaire ; sans référence, pas de variation. */
-    public static TuileRapportDTO lireTuile(String libelle, CelluleAnalyseDTO cellule, UniteIndicateur unite, SensFavorable sens) {
+    public static TuileRapportDTO lireTuile(
+            String libelle, CelluleAnalyseDTO cellule, UniteIndicateur unite, SensFavorable sens) {
         return new TuileRapportDTO(
-            libelle,
-            FormatRapport.formaterValeur(cellule.valeur(), unite),
-            cellule.valeurReference() == null ? null : FormatRapport.formaterVariation(cellule.ecart(), cellule.ecartPct(), unite, sens),
-            List.of()
-        );
+                libelle,
+                FormatRapport.formaterValeur(cellule.valeur(), unite),
+                cellule.valeurReference() == null
+                        ? null
+                        : FormatRapport.formaterVariation(cellule.ecart(), cellule.ecartPct(), unite, sens),
+                List.of());
     }
 }

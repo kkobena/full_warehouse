@@ -1,30 +1,26 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal, input} from '@angular/core';
-import {RouterLink} from '@angular/router';
-import {ActivitySummaryService} from './activity-summary.service';
-import {ChiffreAffaire} from './model/chiffre-affaire.model';
-import {GroupeFournisseurAchat} from './model/groupe-fournisseur-achat.model';
-import {ReglementTiersPayant} from './model/reglement-tiers-payant.model';
-import {AchatTiersPayant} from './model/achat-tiers-payant.model';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../shared/util/warehouse-util';
-import {BlobDownloadService} from '../../../shared/services/blob-download.service';
-import {finalize} from 'rxjs/operators';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  ToolbarComponent
-} from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ActivitySummaryService } from './activity-summary.service';
+import { ChiffreAffaire } from './model/chiffre-affaire.model';
+import { GroupeFournisseurAchat } from './model/groupe-fournisseur-achat.model';
+import { ReglementTiersPayant } from './model/reglement-tiers-payant.model';
+import { AchatTiersPayant } from './model/achat-tiers-payant.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../shared/util/warehouse-util';
+import { BlobDownloadService } from '../../../shared/services/blob-download.service';
+import { finalize } from 'rxjs/operators';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
-import {DeviseDirective} from 'app/shared/utils/devise';
+import { DeviseDirective } from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-activity-summary',
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     RouterLink,
@@ -32,7 +28,7 @@ import {DeviseDirective} from 'app/shared/utils/devise';
     DataTableComponent,
     IconFieldComponent,
     ToolbarComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
   ],
   templateUrl: './activity-summary.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,7 +79,7 @@ export class ActivitySummaryComponent {
     this.loadingPdf.set(true);
     this.activitySummaryService
       .onPrintPdf(this.buildRequest())
-      .pipe(finalize(() => (this.loadingPdf.set(false))))
+      .pipe(finalize(() => this.loadingPdf.set(false)))
       .subscribe({
         next: blob => this.blobDownloadService.downloadPdf(blob, 'rapport-activite'),
         error: () => this.notificationService.error("Une erreur est survenue lors de l'export PDF"),

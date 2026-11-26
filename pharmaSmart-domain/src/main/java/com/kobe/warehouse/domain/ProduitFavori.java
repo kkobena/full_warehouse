@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 
 /** Produit épinglé à la grille de vente du comptoir d'un magasin ; {@code ordre} règle la place de sa tuile. */
 @Entity
-@Table(name = "produit_favori", uniqueConstraints = { @UniqueConstraint(columnNames = { "magasin_id", "produit_id" }) })
+@Table(
+        name = "produit_favori",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"magasin_id", "produit_id"})})
 public class ProduitFavori implements Serializable {
 
     @Serial

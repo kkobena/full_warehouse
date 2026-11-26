@@ -18,8 +18,8 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
-import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
@@ -70,12 +70,14 @@ abstract class AbstractStockIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new StockServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -86,15 +88,23 @@ abstract class AbstractStockIntegrationTest {
         lenient().when(services.storageService.getUser()).thenReturn(utilisateur);
         lenient().when(services.userService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
-        lenient().when(services.storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-        lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserMainStorage())
+                .thenReturn(rayon);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserReserveStorage())
+                .thenReturn(reserve);
         lenient().when(services.storageService.getOne(STORAGE_RAYON_ID)).thenReturn(rayon);
         lenient().when(services.storageService.getOne(STORAGE_RESERVE_ID)).thenReturn(reserve);
-        lenient().when(services.appConfigurationService.getNombreJourAlertPeremption()).thenReturn(90);
+        lenient()
+                .when(services.appConfigurationService.getNombreJourAlertPeremption())
+                .thenReturn(90);
         // Réglages de réception par défaut : pas de gestion de lot, aucun seuil de péremption,
         // aucun rangement automatique. Les tests qui éprouvent ces règles les rehaussent eux-mêmes.
         lenient().when(services.appConfigurationService.useLot()).thenReturn(Optional.of(false));
-        lenient().when(services.appConfigurationService.getReceptionMinExpiryDays()).thenReturn(0L);
+        lenient()
+                .when(services.appConfigurationService.getReceptionMinExpiryDays())
+                .thenReturn(0L);
         lenient().when(services.appConfigurationService.getPutawayMode()).thenReturn(PutawayMode.ALL_RAYON);
         lenient().when(services.appConfigurationService.getSeuilVariationPrix()).thenReturn(20);
     }
@@ -113,7 +123,9 @@ abstract class AbstractStockIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected Produit produit(String libelle) {
@@ -136,9 +148,9 @@ abstract class AbstractStockIntegrationTest {
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
         produit.setTva(tva(0));
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult()
-        );
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult());
         em.persist(produit);
         em.flush();
         return produit;
@@ -208,7 +220,8 @@ abstract class AbstractStockIntegrationTest {
     }
 
     /** Le lot et sa présence sur un emplacement — les deux faces de la même quantité. */
-    protected Lot lotSurEmplacement(Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
+    protected Lot lotSurEmplacement(
+            Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
         Lot lot = lot(produit, numLot, peremption, quantite);
         emplacement(lot, storage, quantite);
         return lot;
@@ -223,9 +236,9 @@ abstract class AbstractStockIntegrationTest {
 
     protected int quantiteSurEmplacement(Lot lot, Storage storage) {
         return services.lotStockLocationRepository
-            .findByLotIdAndStorageId(lot.getId(), storage.getId())
-            .map(LotStockLocation::getQty)
-            .orElse(-1);
+                .findByLotIdAndStorageId(lot.getId(), storage.getId())
+                .map(LotStockLocation::getQty)
+                .orElse(-1);
     }
 
     // ===== commandes et réceptions =====
@@ -252,7 +265,8 @@ abstract class AbstractStockIntegrationTest {
         return commande;
     }
 
-    protected OrderLine ligneDeCommande(Commande commande, FournisseurProduit fournisseurProduit, int demande, int recu) {
+    protected OrderLine ligneDeCommande(
+            Commande commande, FournisseurProduit fournisseurProduit, int demande, int recu) {
         OrderLine ligne = new OrderLine();
         ligne.setId(services.orderLineIdGeneratorService.getNextIdAsInt());
         ligne.setOrderDate(commande.getOrderDate());

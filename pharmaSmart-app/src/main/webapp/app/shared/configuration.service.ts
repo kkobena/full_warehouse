@@ -1,13 +1,13 @@
-import {inject, Injectable} from "@angular/core";
-import {HttpClient, HttpResponse} from "@angular/common/http";
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
-import {IConfiguration} from "./model/configuration.model";
-import {SERVER_API_URL} from "../app.constants";
-import {Observable} from "rxjs";
+import { IConfiguration } from './model/configuration.model';
+import { SERVER_API_URL } from '../app.constants';
+import { Observable } from 'rxjs';
 
-import {createRequestOption} from "./util/request-util";
-import {SessionStorageService} from "ngx-webstorage";
-import {IPoste} from "./model/poste.model";
+import { createRequestOption } from './util/request-util';
+import { SessionStorageService } from 'ngx-webstorage';
+import { IPoste } from './model/poste.model';
 
 export interface ModelReapproOption {
   value: string;
@@ -24,27 +24,27 @@ type EntityResponseType = HttpResponse<IConfiguration>;
 type EntityArrayResponseType = HttpResponse<IConfiguration[]>;
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
   private readonly sessionStorageService = inject(SessionStorageService);
-  private readonly resourceUrl = SERVER_API_URL + "api/app";
+  private readonly resourceUrl = SERVER_API_URL + 'api/app';
 
   find(id: string): Observable<EntityResponseType> {
-    return this.http.get<IConfiguration>(`${this.resourceUrl}/${id}`, {observe: "response"});
+    return this.http.get<IConfiguration>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http.get<IConfiguration[]>(this.resourceUrl, {
       params: options,
-      observe: "response"
+      observe: 'response',
     });
   }
 
   findStockConfig(): Observable<EntityResponseType> {
-    return this.http.get<IConfiguration>(`${this.resourceUrl}/param-gestion-stock`, {observe: "response"});
+    return this.http.get<IConfiguration>(`${this.resourceUrl}/param-gestion-stock`, { observe: 'response' });
   }
 
   storeParamByKey(key: string, value?: IConfiguration): void {
@@ -52,8 +52,7 @@ export class ConfigurationService {
   }
 
   getParamByKey(key: string): Observable<EntityResponseType> {
-    return this.find(key)
-
+    return this.find(key);
   }
 
   clearParam(key: string): void {
@@ -61,29 +60,25 @@ export class ConfigurationService {
   }
 
   update(app: IConfiguration): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl, app, {observe: "response"});
+    return this.http.put(this.resourceUrl, app, { observe: 'response' });
   }
-
 
   getCurrentPoste(): Observable<HttpResponse<IPoste>> {
     return this.fetchCurrentPoste();
-
   }
 
-
   fetchCurrentPoste(): Observable<HttpResponse<IPoste>> {
-    return this.http.get<IPoste>(`${SERVER_API_URL}api/postes/current`, {observe: "response"});
+    return this.http.get<IPoste>(`${SERVER_API_URL}api/postes/current`, { observe: 'response' });
   }
 
   getModelReappro(): Observable<HttpResponse<ModelReapproConfig>> {
-    return this.http.get<ModelReapproConfig>(`${this.resourceUrl}/model-reappro`, {observe: "response"});
+    return this.http.get<ModelReapproConfig>(`${this.resourceUrl}/model-reappro`, { observe: 'response' });
   }
 
   updateModelReappro(model: string): Observable<HttpResponse<void>> {
     return this.http.put<void>(`${this.resourceUrl}/model-reappro`, null, {
-      params: {model},
-      observe: "response"
+      params: { model },
+      observe: 'response',
     });
   }
-
 }

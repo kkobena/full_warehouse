@@ -41,8 +41,7 @@ scenario('RPT-33', async ({ etape, page }) => {
     // des deux ment, et rien à l'écran ne dit lequel.
     // Le sous-titre de la tuile rappelle le seuil (« score ≥ 70 ») : le retirer avant d'extraire
     // les chiffres, sans quoi le 70 se recolle au compteur.
-    const texteTuile = (await indicateur('Perf. excellente').innerText())
-      .replace(/score\s*≥\s*70/i, '');
+    const texteTuile = (await indicateur('Perf. excellente').innerText()).replace(/score\s*≥\s*70/i, '');
     const annonces = Number(texteTuile.replace(/[^\d]/g, ''));
     expect(nombreDeLignes, 'lignes filtrées vs compteur du bandeau').toBe(annonces);
   });

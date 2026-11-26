@@ -1,5 +1,13 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirJournalDuJour, payerEnEspeces, renseignerPrescripteurSiDemande } from '../../src/actions';
+import {
+  ajouterAuPanier,
+  assurerCaisseOuverte,
+  assurerPanierVide,
+  chercherProduit,
+  ouvrirJournalDuJour,
+  payerEnEspeces,
+  renseignerPrescripteurSiDemande,
+} from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**

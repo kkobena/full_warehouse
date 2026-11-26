@@ -17,17 +17,15 @@ public class SpaWebFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         // Request URI includes the contextPath if any, removed it.
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        if (
-            !path.startsWith("/api") &&
-            !path.startsWith("/api-user-account") &&
-            !path.startsWith("/management") &&
-            !path.startsWith("/v3/api-docs") &&
-            !path.contains(".") &&
-            path.matches("/(.*)")
-        ) {
+        if (!path.startsWith("/api")
+                && !path.startsWith("/api-user-account")
+                && !path.startsWith("/management")
+                && !path.startsWith("/v3/api-docs")
+                && !path.contains(".")
+                && path.matches("/(.*)")) {
             request.getRequestDispatcher("/index.html").forward(request, response);
             return;
         }

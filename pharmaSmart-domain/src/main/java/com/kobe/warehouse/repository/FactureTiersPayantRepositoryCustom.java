@@ -44,12 +44,11 @@ public interface FactureTiersPayantRepositoryCustom {
      * @return KPI agrégés, ou {@link Optional#empty()} si aucune donnée
      */
     Optional<FacturationKpiRow> getKpiData(
-        LocalDate fromDate,
-        LocalDate toDate,
-        Integer organismeId,
-        Integer groupeId,
-        TypeFacture typeFacture,
-        Boolean factureProvisoire,
-        int delaiReglementDefaut
-    );
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer organismeId,
+            Integer groupeId,
+            TypeFacture typeFacture,
+            Boolean factureProvisoire,
+            int delaiReglementDefaut);
 }

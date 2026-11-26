@@ -1,30 +1,20 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal
-} from "@angular/core";
-import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
-import {combineLatest, Subject} from "rxjs";
-import {debounceTime, distinctUntilChanged, startWith} from "rxjs/operators";
-import {FormsModule} from "@angular/forms";
-import {NgbActiveModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {SuggestionService} from "../../../../entities/commande/suggestion/suggestion.service";
-import {Suggestion} from "../../../../entities/commande/suggestion/model/suggestion.model";
-import {SuggestionLine} from "../../../../entities/commande/suggestion/model/suggestion-line.model";
-import {EtaProduitComponent} from "../../../../shared/eta-produit/eta-produit.component";
-import {CommandeService} from "../../../../entities/commande/commande.service";
-import {CommandeId} from "../../../../shared/model/abstract-commande.model";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../shared/error.service";
-import {IFournisseur} from "../../../../shared/model/fournisseur.model";
-import {CommonModule} from "@angular/common";
-import {
-  FournisseurSelectComponent
-} from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { SuggestionService } from '../../../../entities/commande/suggestion/suggestion.service';
+import { Suggestion } from '../../../../entities/commande/suggestion/model/suggestion.model';
+import { SuggestionLine } from '../../../../entities/commande/suggestion/model/suggestion-line.model';
+import { EtaProduitComponent } from '../../../../shared/eta-produit/eta-produit.component';
+import { CommandeService } from '../../../../entities/commande/commande.service';
+import { CommandeId } from '../../../../shared/model/abstract-commande.model';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { IFournisseur } from '../../../../shared/model/fournisseur.model';
+import { CommonModule } from '@angular/common';
+import { FournisseurSelectComponent } from '../../../partners/ui/fournisseur-select/fournisseur-select.component';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -34,12 +24,12 @@ import {
   IconFieldComponent,
   RowCheckboxComponent,
   RowTogglerDirective,
-} from "app/shared/ui";
+} from 'app/shared/ui';
 
 @Component({
-  selector: "app-import-suggestion-modal",
-  templateUrl: "./import-suggestion-modal.component.html",
-  styleUrls: ["./import-suggestion.scss"],
+  selector: 'app-import-suggestion-modal',
+  templateUrl: './import-suggestion-modal.component.html',
+  styleUrls: ['./import-suggestion.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -55,8 +45,7 @@ import {
     RowCheckboxComponent,
     RowTogglerDirective,
     CardComponent,
-
-  ]
+  ],
 })
 export class ImportSuggestionModalComponent implements OnInit {
   commandeId!: CommandeId;
@@ -65,7 +54,7 @@ export class ImportSuggestionModalComponent implements OnInit {
   /** Grossiste PRINCIPAL de la commande — c'est lui que portent les propositions. */
   commandeFournisseurPrincipalId: number | null | undefined = null;
 
-  protected readonly searchTerm = signal("");
+  protected readonly searchTerm = signal('');
   protected readonly selectedFournisseurIds = signal<number[]>([]);
   protected readonly detailSearchTerms = signal<Record<number, string>>({});
 
@@ -95,10 +84,8 @@ export class ImportSuggestionModalComponent implements OnInit {
   private readonly fournisseurIds$ = toObservable(this.selectedFournisseurIds);
 
   ngOnInit(): void {
-    combineLatest([
-      this.searchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith("")),
-      this.fournisseurIds$
-    ]).pipe(takeUntilDestroyed(this.destroyRef))
+    combineLatest([this.searchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith('')), this.fournisseurIds$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([search, ids]) => this.loadSuggestions(search, ids));
   }
 
@@ -115,13 +102,13 @@ export class ImportSuggestionModalComponent implements OnInit {
     this.importingId.set(suggestion.id);
     this.commandeService.importSuggestionIntoCommande(this.commandeId, suggestion.id).subscribe({
       next: () => {
-        this.notificationService.success("Suggestion importée avec succès", "Import");
+        this.notificationService.success('Suggestion importée avec succès', 'Import');
         this.activeModal.close(true);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
         this.importingId.set(null);
-      }
+      },
     });
   }
 
@@ -133,18 +120,18 @@ export class ImportSuggestionModalComponent implements OnInit {
     this.importingId.set(suggestion.id);
     this.commandeService.importSuggestionLinesIntoCommande(this.commandeId, suggestion.id, lineIds).subscribe({
       next: () => {
-        this.notificationService.success(`${lineIds.length} ligne(s) importée(s) avec succès`, "Import");
+        this.notificationService.success(`${lineIds.length} ligne(s) importée(s) avec succès`, 'Import');
         this.activeModal.close(true);
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
         this.importingId.set(null);
-      }
+      },
     });
   }
 
   protected onSelectionChange(suggestionId: number, lines: SuggestionLine[]): void {
-    this.selectedLines.update(prev => ({...prev, [suggestionId]: lines}));
+    this.selectedLines.update(prev => ({ ...prev, [suggestionId]: lines }));
   }
 
   protected isLineSelected(suggestionId: number, lineId: number): boolean {
@@ -160,15 +147,15 @@ export class ImportSuggestionModalComponent implements OnInit {
     if (this.linesCache()[id]) {
       return;
     }
-    this.loadingLines.update(prev => ({...prev, [id]: true}));
+    this.loadingLines.update(prev => ({ ...prev, [id]: true }));
     this.suggestionService.queryAllLines(id).subscribe({
       next: lines => {
-        this.linesCache.update(prev => ({...prev, [id]: lines}));
-        this.loadingLines.update(prev => ({...prev, [id]: false}));
+        this.linesCache.update(prev => ({ ...prev, [id]: lines }));
+        this.loadingLines.update(prev => ({ ...prev, [id]: false }));
       },
       error: () => {
-        this.loadingLines.update(prev => ({...prev, [id]: false}));
-      }
+        this.loadingLines.update(prev => ({ ...prev, [id]: false }));
+      },
     });
   }
 
@@ -178,14 +165,15 @@ export class ImportSuggestionModalComponent implements OnInit {
 
   protected filteredLinesOf(suggestion: Suggestion): SuggestionLine[] {
     const lines = this.linesCache()[suggestion.id] ?? [];
-    const term = (this.detailSearchTerms()[suggestion.id] ?? "").trim().toLowerCase();
+    const term = (this.detailSearchTerms()[suggestion.id] ?? '').trim().toLowerCase();
     if (!term) {
       return lines;
     }
-    return lines.filter(l =>
-      l.fournisseurProduitCip?.toLowerCase().includes(term) ||
-      l.fournisseurProduitLibelle?.toLowerCase().includes(term) ||
-      l.fournisseurProduitCodeEan?.toLowerCase().includes(term)
+    return lines.filter(
+      l =>
+        l.fournisseurProduitCip?.toLowerCase().includes(term) ||
+        l.fournisseurProduitLibelle?.toLowerCase().includes(term) ||
+        l.fournisseurProduitCodeEan?.toLowerCase().includes(term),
     );
   }
 
@@ -194,23 +182,23 @@ export class ImportSuggestionModalComponent implements OnInit {
   }
 
   protected onDetailSearch(suggestionId: number, value: string): void {
-    this.detailSearchTerms.update(prev => ({...prev, [suggestionId]: value}));
+    this.detailSearchTerms.update(prev => ({ ...prev, [suggestionId]: value }));
   }
 
   protected isLoadingLines(suggestion: Suggestion): boolean {
     return !!this.loadingLines()[suggestion.id];
   }
 
-  protected statutSeverity(statut: string): "success" | "info" | "warn" | "danger" | "secondary" {
+  protected statutSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
-      case "ACTIVE":
-        return "success";
-      case "PENDING":
-        return "info";
-      case "CLOSED":
-        return "secondary";
+      case 'ACTIVE':
+        return 'success';
+      case 'PENDING':
+        return 'info';
+      case 'CLOSED':
+        return 'secondary';
       default:
-        return "info";
+        return 'info';
     }
   }
 
@@ -231,21 +219,21 @@ export class ImportSuggestionModalComponent implements OnInit {
     return suggestion.fournisseurId !== principalCommande;
   }
 
-  private loadSuggestions(search = "", fournisseurIds: number[] = []): void {
+  private loadSuggestions(search = '', fournisseurIds: number[] = []): void {
     this.loading.set(true);
-    const params: any = {page: 0, size: 999, statut: ["GENEREE", "VALIDEE"]};
+    const params: any = { page: 0, size: 999, statut: ['GENEREE', 'VALIDEE'] };
     if (search) {
-      params["search"] = search;
+      params['search'] = search;
     }
     if (fournisseurIds.length > 0) {
-      params["fournisseurIds"] = fournisseurIds;
+      params['fournisseurIds'] = fournisseurIds;
     }
     this.suggestionService.query(params).subscribe({
       next: res => {
         this.suggestions.set(res.body ?? []);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => this.loading.set(false),
     });
   }
 }

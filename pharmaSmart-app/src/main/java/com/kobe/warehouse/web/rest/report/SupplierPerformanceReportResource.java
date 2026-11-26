@@ -1,11 +1,15 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
 import com.kobe.warehouse.service.report.pdf.SupplierPerformancePdfReportService;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,20 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rapport-partners.supplier-performance", "facturation.comptes-fournisseurs" })
+@RequiresNavAccess({"rapport-partners.supplier-performance", "facturation.comptes-fournisseurs"})
 public class SupplierPerformanceReportResource {
 
     private final SupplierPerformanceReportService supplierPerformanceReportService;
     private final SupplierPerformancePdfReportService supplierPerformancePdfReportService;
 
-    public SupplierPerformanceReportResource(SupplierPerformanceReportService supplierPerformanceReportService, SupplierPerformancePdfReportService supplierPerformancePdfReportService) {
+    public SupplierPerformanceReportResource(
+            SupplierPerformanceReportService supplierPerformanceReportService,
+            SupplierPerformancePdfReportService supplierPerformancePdfReportService) {
         this.supplierPerformanceReportService = supplierPerformanceReportService;
         this.supplierPerformancePdfReportService = supplierPerformancePdfReportService;
     }
@@ -68,8 +69,7 @@ public class SupplierPerformanceReportResource {
      */
     @GetMapping("/supplier-performance/top")
     public ResponseEntity<List<SupplierPerformanceDTO>> getTopSuppliersByVolume(
-        @RequestParam(defaultValue = "10") Integer limit
-    ) {
+            @RequestParam(defaultValue = "10") Integer limit) {
         List<SupplierPerformanceDTO> topSuppliers = supplierPerformanceReportService.getTopSuppliersByVolume(limit);
         return ResponseEntity.ok().body(topSuppliers);
     }
@@ -82,11 +82,11 @@ public class SupplierPerformanceReportResource {
      */
     @GetMapping("/supplier-performance/achats")
     public ResponseEntity<List<SupplierPurchaseDTO>> getTopSuppliersByPeriode(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-        @RequestParam(defaultValue = "10") Integer limit
-    ) {
-        return ResponseEntity.ok().body(supplierPerformanceReportService.getTopSuppliersByPeriode(fromDate, toDate, limit));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        return ResponseEntity.ok()
+                .body(supplierPerformanceReportService.getTopSuppliersByPeriode(fromDate, toDate, limit));
     }
 
     /**
@@ -97,9 +97,9 @@ public class SupplierPerformanceReportResource {
      */
     @GetMapping("/supplier-performance/score")
     public ResponseEntity<List<SupplierPerformanceDTO>> getSuppliersByPerformanceScore(
-        @RequestParam(defaultValue = "70") Double minScore
-    ) {
-        List<SupplierPerformanceDTO> suppliers = supplierPerformanceReportService.getSuppliersByPerformanceScore(minScore);
+            @RequestParam(defaultValue = "70") Double minScore) {
+        List<SupplierPerformanceDTO> suppliers =
+                supplierPerformanceReportService.getSuppliersByPerformanceScore(minScore);
         return ResponseEntity.ok().body(suppliers);
     }
 
@@ -139,7 +139,9 @@ public class SupplierPerformanceReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/supplier-performance/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-partners.supplier-performance", "facturation.comptes-fournisseurs" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"rapport-partners.supplier-performance", "facturation.comptes-fournisseurs"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportSupplierPerformanceToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=supplier-performance.pdf");

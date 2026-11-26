@@ -15,22 +15,18 @@ import java.util.List;
  * @param totalClients       Total number of clients
  */
 public record TiersPayantSummaryMobileDTO(
-    // Règlements reçus
-    List<ReglementTiersPayantMobileDTO> reglements,
-    long totalFacture,
-    long totalRegle,
-    long totalRestant,
+        // Règlements reçus
+        List<ReglementTiersPayantMobileDTO> reglements,
+        long totalFacture,
+        long totalRegle,
+        long totalRestant,
 
-    // Achats/Bons
-    List<AchatTiersPayantMobileDTO> achats,
-    int totalBons,
-    long totalMontantAchats,
-    int totalClients
-) {
+        // Achats/Bons
+        List<AchatTiersPayantMobileDTO> achats,
+        int totalBons,
+        long totalMontantAchats,
+        int totalClients) {
     public static TiersPayantSummaryMobileDTO empty() {
-        return new TiersPayantSummaryMobileDTO(
-            List.of(), 0, 0, 0,
-            List.of(), 0, 0, 0
-        );
+        return new TiersPayantSummaryMobileDTO(List.of(), 0, 0, 0, List.of(), 0, 0, 0);
     }
 }

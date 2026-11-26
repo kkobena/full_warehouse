@@ -52,12 +52,12 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             rafraichir(VUE);
 
             assertThat(services.topProductsReportService.getTopProductsByRevenue(LocalDate.now(), 10))
-                .extracting(TopProductDTO::libelle)
-                .containsExactly("CHER", "BON MARCHE");
+                    .extracting(TopProductDTO::libelle)
+                    .containsExactly("CHER", "BON MARCHE");
 
             assertThat(services.topProductsReportService.getTopProductsByQuantity(LocalDate.now(), 10))
-                .extracting(TopProductDTO::libelle)
-                .containsExactly("BON MARCHE", "CHER");
+                    .extracting(TopProductDTO::libelle)
+                    .containsExactly("BON MARCHE", "CHER");
         }
 
         @Test
@@ -68,8 +68,10 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("C", 1_000), 10, LocalDate.now());
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getTopProductsByRevenue(LocalDate.now(), 2)).hasSize(2);
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now())).hasSize(3);
+            assertThat(services.topProductsReportService.getTopProductsByRevenue(LocalDate.now(), 2))
+                    .hasSize(2);
+            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
+                    .hasSize(3);
         }
 
         @Test
@@ -80,7 +82,9 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 7, LocalDate.now());
             rafraichir(VUE);
 
-            TopProductDTO ligne = services.topProductsReportService.getAllProductsForMonth(LocalDate.now()).getFirst();
+            TopProductDTO ligne = services.topProductsReportService
+                    .getAllProductsForMonth(LocalDate.now())
+                    .getFirst();
 
             assertThat(ligne.qteVendue()).isEqualTo(10);
             assertThat(ligne.nbVentes()).isEqualTo(2);
@@ -95,8 +99,11 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("DOLIPRANE", 10_000), 4, LocalDate.now());
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()).getFirst().prixMoyen())
-                .isEqualByComparingTo("10000");
+            assertThat(services.topProductsReportService
+                            .getAllProductsForMonth(LocalDate.now())
+                            .getFirst()
+                            .prixMoyen())
+                    .isEqualByComparingTo("10000");
         }
     }
 
@@ -117,10 +124,11 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("DOLIPRANE", 10_000), 10, premierDuMois);
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(premierDuMois)).hasSize(1);
+            assertThat(services.topProductsReportService.getAllProductsForMonth(premierDuMois))
+                    .hasSize(1);
             assertThat(services.topProductsReportService.getAllProductsForMonth(premierDuMois.plusDays(15)))
-                .extracting(TopProductDTO::libelle)
-                .containsExactly("DOLIPRANE");
+                    .extracting(TopProductDTO::libelle)
+                    .containsExactly("DOLIPRANE");
         }
 
         @Test
@@ -130,8 +138,11 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("DOLIPRANE", 10_000), 10, LocalDate.now());
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()).getFirst().mois())
-                .isEqualTo(premierDuMois);
+            assertThat(services.topProductsReportService
+                            .getAllProductsForMonth(LocalDate.now())
+                            .getFirst()
+                            .mois())
+                    .isEqualTo(premierDuMois);
         }
 
         @Test
@@ -143,11 +154,11 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             rafraichir(VUE);
 
             assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
-                .extracting(TopProductDTO::libelle)
-                .containsExactly("CE MOIS");
+                    .extracting(TopProductDTO::libelle)
+                    .containsExactly("CE MOIS");
             assertThat(services.topProductsReportService.getAllProductsForMonth(moisPrecedent))
-                .extracting(TopProductDTO::libelle)
-                .containsExactly("MOIS DERNIER");
+                    .extracting(TopProductDTO::libelle)
+                    .containsExactly("MOIS DERNIER");
         }
 
         @Test
@@ -159,7 +170,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 30, LocalDate.now().withDayOfMonth(1).minusMonths(2));
             rafraichir(VUE);
 
-            List<TopProductDTO> evolution = services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 6);
+            List<TopProductDTO> evolution =
+                    services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 6);
 
             assertThat(evolution).extracting(TopProductDTO::qteVendue).containsExactly(10, 20, 30);
         }
@@ -172,7 +184,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produit, 10, LocalDate.now().withDayOfMonth(1));
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 24)).hasSize(1);
+            assertThat(services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 24))
+                    .hasSize(1);
         }
 
         @Test
@@ -181,7 +194,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             Produit produit = produitReference("DORMANT", 10_000);
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 6)).isEmpty();
+            assertThat(services.topProductsReportService.getProductMonthlyEvolution(produit.getId(), 6))
+                    .isEmpty();
         }
     }
 
@@ -197,7 +211,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("DOLIPRANE", 10_000), 100, LocalDate.now(), true, CategorieChiffreAffaire.CA);
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now())).isEmpty();
+            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
+                    .isEmpty();
         }
 
         @Test
@@ -206,7 +221,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(produitReference("DOLIPRANE", 10_000), 100, LocalDate.now(), false, CategorieChiffreAffaire.CA_DEPOT);
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now())).isEmpty();
+            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
+                    .isEmpty();
         }
 
         /** Le palmarès porte sur ce qui se vend, quel que soit le conditionnement. */
@@ -218,7 +234,8 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
             vendu(detail, 10, LocalDate.now());
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now())).hasSize(1);
+            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
+                    .hasSize(1);
         }
 
         @Test
@@ -226,8 +243,10 @@ class TopProductsReportServiceIntegrationTest extends AbstractReportIntegrationT
         void baseVierge() {
             rafraichir(VUE);
 
-            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now())).isEmpty();
-            assertThat(services.topProductsReportService.getTopProductsByRevenue(LocalDate.now(), 10)).isEmpty();
+            assertThat(services.topProductsReportService.getAllProductsForMonth(LocalDate.now()))
+                    .isEmpty();
+            assertThat(services.topProductsReportService.getTopProductsByRevenue(LocalDate.now(), 10))
+                    .isEmpty();
         }
     }
 

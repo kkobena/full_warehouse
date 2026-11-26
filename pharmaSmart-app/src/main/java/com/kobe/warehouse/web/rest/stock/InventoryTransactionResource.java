@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -16,13 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.InventoryTransaction}. */
 @RestController
 @RequestMapping("/api")
 @Transactional
-@RequiresNavAccess({ "catalogue", "ajustements", "inventaire" })
+@RequiresNavAccess({"catalogue", "ajustements", "inventaire"})
 public class InventoryTransactionResource {
 
     private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);
@@ -34,20 +34,15 @@ public class InventoryTransactionResource {
 
     @GetMapping("/inventory-transactions")
     public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
-        @RequestParam(name = "produitId", required = false) Integer produitId,
-        @RequestParam(name = "endDate", required = false) String endDate,
-        @RequestParam(name = "startDate", required = false) String startDate,
-        @RequestParam(name = "type", required = false) Integer type,
-        Pageable pageable
-    ) {
-        Page<InventoryTransactionDTO> page = inventoryTransactionService.getAllInventoryTransactions(
-            pageable,
-            produitId,
-            startDate,
-            endDate,
-            type
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(name = "produitId", required = false) Integer produitId,
+            @RequestParam(name = "endDate", required = false) String endDate,
+            @RequestParam(name = "startDate", required = false) String startDate,
+            @RequestParam(name = "type", required = false) Integer type,
+            Pageable pageable) {
+        Page<InventoryTransactionDTO> page =
+                inventoryTransactionService.getAllInventoryTransactions(pageable, produitId, startDate, endDate, type);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 

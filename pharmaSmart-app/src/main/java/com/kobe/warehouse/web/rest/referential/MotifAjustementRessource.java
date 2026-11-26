@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.repository.MotifAjustementRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -23,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -44,7 +44,8 @@ public class MotifAjustementRessource {
     @PostMapping("/motif-ajsutements")
     public ResponseEntity<Void> create(@Valid @RequestBody MotifAjustement entity) throws Exception {
         if (entity.getId() != null) {
-            throw new BadRequestAlertException("A new MotifAjustement cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException(
+                    "A new MotifAjustement cannot already have an ID", ENTITY_NAME, "idexists");
         }
         motifAjustementRepository.save(entity);
         return ResponseEntity.ok().build();
@@ -63,18 +64,19 @@ public class MotifAjustementRessource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         motifAjustementRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping(value = "/motif-ajsutements")
     @NavAccessExempt("lecture de référentiel, utilisée par les ajustements, l'inventaire et la vente")
     public ResponseEntity<List<MotifAjustement>> getAll(
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
-    ) {
-        Page<MotifAjustement> page = StringUtils.hasLength(search)? motifAjustementRepository.findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(search, pageable):motifAjustementRepository.findAllByOrderByLibelleAsc(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(value = "search", required = false) String search, Pageable pageable) {
+        Page<MotifAjustement> page = StringUtils.hasLength(search)
+                ? motifAjustementRepository.findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(search, pageable)
+                : motifAjustementRepository.findAllByOrderByLibelleAsc(pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

@@ -7,7 +7,8 @@ import java.util.List;
  * les toasts, l'écran d'activation et le {@code payload} des erreurs 402 : un utilisateur bloqué
  * doit toujours avoir un moyen de contact sous les yeux.
  */
-public record SupportContacts(String resellerName, List<String> phones, List<String> emails, String whatsapp, String website) {
+public record SupportContacts(
+        String resellerName, List<String> phones, List<String> emails, String whatsapp, String website) {
     public SupportContacts {
         phones = phones == null ? List.of() : List.copyOf(phones);
         emails = emails == null ? List.of() : List.copyOf(emails);

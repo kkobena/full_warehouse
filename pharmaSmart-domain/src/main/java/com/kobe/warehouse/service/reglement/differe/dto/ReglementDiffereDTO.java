@@ -6,16 +6,15 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDateTime;
 
 public record ReglementDiffereDTO(
-    Long id,
-    String firstName,
-    String lastName,
-    LocalDateTime mvtDate,
-    int expectedAmount,
-    int montantVerse,
-    int paidAmount,
-    String mode,
-    String libelleMode
-) {
+        Long id,
+        String firstName,
+        String lastName,
+        LocalDateTime mvtDate,
+        int expectedAmount,
+        int montantVerse,
+        int paidAmount,
+        String mode,
+        String libelleMode) {
     public String formattedPaidAmount() {
         return NumberUtil.formatToString(paidAmount);
     }

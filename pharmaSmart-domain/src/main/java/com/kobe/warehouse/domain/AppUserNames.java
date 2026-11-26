@@ -2,19 +2,16 @@ package com.kobe.warehouse.domain;
 
 import org.apache.commons.lang3.StringUtils;
 
-
 public final class AppUserNames {
 
-    private AppUserNames() {
-    }
+    private AppUserNames() {}
 
     public static String LastNameFirstName(AppUser user) {
         if (user == null) {
             return null;
         }
 
-        return StringUtils.trimToEmpty(user.getLastName()) + " " + StringUtils.trimToEmpty(
-            user.getFirstName());
+        return StringUtils.trimToEmpty(user.getLastName()) + " " + StringUtils.trimToEmpty(user.getFirstName());
     }
 
     public static String fullName(AppUser user) {
@@ -25,13 +22,10 @@ public final class AppUserNames {
         return fullName(user.getLastName(), user.getFirstName());
     }
 
-
     public static String fullName(String lastName, String firstName) {
 
         return shortName(lastName, firstName);
-
     }
-
 
     public static String shortName(AppUser user) {
         if (user == null) {

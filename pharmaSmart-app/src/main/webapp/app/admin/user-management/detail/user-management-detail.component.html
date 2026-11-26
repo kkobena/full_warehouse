@@ -4,11 +4,9 @@
       @if (user()) {
         <app-badge [label]="user()!.login" class="ml-2" severity="info"></app-badge>
         @if (user()!.activated) {
-          <app-badge class="ml-2" icon="pi pi-check-circle" label="Activé"
-                     severity="success"></app-badge>
+          <app-badge class="ml-2" icon="pi pi-check-circle" label="Activé" severity="success"></app-badge>
         } @else {
-          <app-badge class="ml-2" icon="pi pi-times-circle" label="Désactivé"
-                     severity="danger"></app-badge>
+          <app-badge class="ml-2" icon="pi pi-times-circle" label="Désactivé" severity="danger"></app-badge>
         }
       }
     </ng-container>
@@ -98,8 +96,7 @@
                 <i class="pi pi-calendar"></i>
                 <span>Créé le</span>
               </label>
-              <div class="detail-value">{{ user()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}
-              </div>
+              <div class="detail-value">{{ user()!.createdDate | date: 'dd/MM/yyyy HH:mm' }}</div>
             </div>
           </div>
           <div class="detail-row">
@@ -115,9 +112,7 @@
                 <i class="pi pi-calendar"></i>
                 <span>Modifié le</span>
               </label>
-              <div
-                class="detail-value">{{ user()!.lastModifiedDate | date : 'dd/MM/yyyy HH:mm' }}
-              </div>
+              <div class="detail-value">{{ user()!.lastModifiedDate | date: 'dd/MM/yyyy HH:mm' }}</div>
             </div>
           </div>
         </div>
@@ -133,7 +128,6 @@
           <div class="authorities-list">
             @if (user()) {
               <app-badge [label]="user()!.authority?.libelle" icon="pi pi-key"></app-badge>
-
             } @else {
               <span class="text-muted">Aucun rôle assigné</span>
             }

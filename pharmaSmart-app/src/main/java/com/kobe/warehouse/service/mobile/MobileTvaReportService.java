@@ -8,9 +8,6 @@ import com.kobe.warehouse.service.financiel_transaction.TaxeService;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for mobile TVA report.
@@ -69,10 +68,7 @@ public class MobileTvaReportService {
     }
 
     private MobileTvaReportDTO buildTvaReport(
-            LocalDate fromDate,
-            LocalDate toDate,
-            TaxeWrapperDTO wrapper,
-            boolean groupByDate) {
+            LocalDate fromDate, LocalDate toDate, TaxeWrapperDTO wrapper, boolean groupByDate) {
 
         String periodLabel = buildPeriodLabel(fromDate, toDate);
 
@@ -83,98 +79,98 @@ public class MobileTvaReportService {
         List<TvaChartDataDTO> chartData = buildChartData(breakdown, wrapper.getMontantTtc());
 
         return new MobileTvaReportDTO(
-            fromDate,
-            toDate,
-            periodLabel,
-            wrapper.getMontantHt(),
-            wrapper.getMontantTaxe(),
-            wrapper.getMontantTtc(),
-            wrapper.getMontantNet(),
-            wrapper.getMontantRemise(),
-            wrapper.getMontantAchat(),
-            wrapper.getMontantTvaUg(),
-            wrapper.getMontantTtcUg(),
-            wrapper.getMontantRemiseUg(),
-            wrapper.getAmountToBeTakenIntoAccount(),
-            breakdown,
-            chartData
-        );
+                fromDate,
+                toDate,
+                periodLabel,
+                wrapper.getMontantHt(),
+                wrapper.getMontantTaxe(),
+                wrapper.getMontantTtc(),
+                wrapper.getMontantNet(),
+                wrapper.getMontantRemise(),
+                wrapper.getMontantAchat(),
+                wrapper.getMontantTvaUg(),
+                wrapper.getMontantTtcUg(),
+                wrapper.getMontantRemiseUg(),
+                wrapper.getAmountToBeTakenIntoAccount(),
+                breakdown,
+                chartData);
     }
 
     private List<TvaRateBreakdownDTO> buildTvaBreakdown(List<TaxeDTO> taxes, boolean groupByDate) {
         if (groupByDate) {
             // Group by date and code
             return taxes.stream()
-                .sorted(Comparator.comparing(TaxeDTO::getMvtDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                    .thenComparing(TaxeDTO::getCodeTva, Comparator.nullsLast(Comparator.naturalOrder())))
-                .map(t -> new TvaRateBreakdownDTO(
-                    t.getCodeTva() != null ? t.getCodeTva() : 0,
-                    TvaRateBreakdownDTO.getRateName(t.getCodeTva() != null ? t.getCodeTva() : 0),
-                    t.getMontantHt() != null ? t.getMontantHt() : 0,
-                    t.getMontantTaxe() != null ? t.getMontantTaxe() : 0,
-                    t.getMontantTtc() != null ? t.getMontantTtc() : 0,
-                    t.getMontantAchat() != null ? t.getMontantAchat() : 0,
-                    t.getAmountToBeTakenIntoAccount() != null ? t.getAmountToBeTakenIntoAccount() : 0,
-                    t.getMvtDate()
-                ))
-                .toList();
+                    .sorted(Comparator.comparing(TaxeDTO::getMvtDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .thenComparing(TaxeDTO::getCodeTva, Comparator.nullsLast(Comparator.naturalOrder())))
+                    .map(t -> new TvaRateBreakdownDTO(
+                            t.getCodeTva() != null ? t.getCodeTva() : 0,
+                            TvaRateBreakdownDTO.getRateName(t.getCodeTva() != null ? t.getCodeTva() : 0),
+                            t.getMontantHt() != null ? t.getMontantHt() : 0,
+                            t.getMontantTaxe() != null ? t.getMontantTaxe() : 0,
+                            t.getMontantTtc() != null ? t.getMontantTtc() : 0,
+                            t.getMontantAchat() != null ? t.getMontantAchat() : 0,
+                            t.getAmountToBeTakenIntoAccount() != null ? t.getAmountToBeTakenIntoAccount() : 0,
+                            t.getMvtDate()))
+                    .toList();
         } else {
             // Group by code only
-            Map<Integer, List<TaxeDTO>> grouped = taxes.stream()
-                .collect(Collectors.groupingBy(t -> t.getCodeTva() != null ? t.getCodeTva() : 0));
+            Map<Integer, List<TaxeDTO>> grouped =
+                    taxes.stream().collect(Collectors.groupingBy(t -> t.getCodeTva() != null ? t.getCodeTva() : 0));
 
             return grouped.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> {
-                    int code = entry.getKey();
-                    List<TaxeDTO> items = entry.getValue();
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(entry -> {
+                        int code = entry.getKey();
+                        List<TaxeDTO> items = entry.getValue();
 
-                    long totalHt = items.stream().mapToLong(t -> t.getMontantHt() != null ? t.getMontantHt() : 0).sum();
-                    long totalTva = items.stream().mapToLong(t -> t.getMontantTaxe() != null ? t.getMontantTaxe() : 0).sum();
-                    long totalTtc = items.stream().mapToLong(t -> t.getMontantTtc() != null ? t.getMontantTtc() : 0).sum();
-                    long totalAchat = items.stream().mapToLong(t -> t.getMontantAchat() != null ? t.getMontantAchat() : 0).sum();
-                    long totalToAccount = items.stream().mapToLong(t -> t.getAmountToBeTakenIntoAccount() != null ? t.getAmountToBeTakenIntoAccount() : 0).sum();
+                        long totalHt = items.stream()
+                                .mapToLong(t -> t.getMontantHt() != null ? t.getMontantHt() : 0)
+                                .sum();
+                        long totalTva = items.stream()
+                                .mapToLong(t -> t.getMontantTaxe() != null ? t.getMontantTaxe() : 0)
+                                .sum();
+                        long totalTtc = items.stream()
+                                .mapToLong(t -> t.getMontantTtc() != null ? t.getMontantTtc() : 0)
+                                .sum();
+                        long totalAchat = items.stream()
+                                .mapToLong(t -> t.getMontantAchat() != null ? t.getMontantAchat() : 0)
+                                .sum();
+                        long totalToAccount = items.stream()
+                                .mapToLong(t -> t.getAmountToBeTakenIntoAccount() != null
+                                        ? t.getAmountToBeTakenIntoAccount()
+                                        : 0)
+                                .sum();
 
-                    return new TvaRateBreakdownDTO(
-                        code,
-                        TvaRateBreakdownDTO.getRateName(code),
-                        totalHt,
-                        totalTva,
-                        totalTtc,
-                        totalAchat,
-                        totalToAccount,
-                        null
-                    );
-                })
-                .toList();
+                        return new TvaRateBreakdownDTO(
+                                code,
+                                TvaRateBreakdownDTO.getRateName(code),
+                                totalHt,
+                                totalTva,
+                                totalTtc,
+                                totalAchat,
+                                totalToAccount,
+                                null);
+                    })
+                    .toList();
         }
     }
 
     private List<TvaChartDataDTO> buildChartData(List<TvaRateBreakdownDTO> breakdown, long totalTtc) {
         // Group by rate for chart (ignoring dates)
         Map<Integer, Long> grouped = breakdown.stream()
-            .collect(Collectors.groupingBy(
-                TvaRateBreakdownDTO::codeTva,
-                Collectors.summingLong(TvaRateBreakdownDTO::montantTtc)
-            ));
+                .collect(Collectors.groupingBy(
+                        TvaRateBreakdownDTO::codeTva, Collectors.summingLong(TvaRateBreakdownDTO::montantTtc)));
 
         List<TvaChartDataDTO> chartData = new ArrayList<>();
         int colorIndex = 0;
 
-        for (Map.Entry<Integer, Long> entry : grouped.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .toList()) {
+        for (Map.Entry<Integer, Long> entry :
+                grouped.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
 
-            double percent = totalTtc > 0
-                ? Math.round((entry.getValue() * 100.0 / totalTtc) * 10.0) / 10.0
-                : 0.0;
+            double percent = totalTtc > 0 ? Math.round((entry.getValue() * 100.0 / totalTtc) * 10.0) / 10.0 : 0.0;
 
             chartData.add(new TvaChartDataDTO(
-                entry.getKey() + "%",
-                entry.getValue(),
-                percent,
-                TvaChartDataDTO.getColor(colorIndex++)
-            ));
+                    entry.getKey() + "%", entry.getValue(), percent, TvaChartDataDTO.getColor(colorIndex++)));
         }
 
         return chartData;

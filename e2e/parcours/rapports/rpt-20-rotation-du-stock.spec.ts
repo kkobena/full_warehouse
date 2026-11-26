@@ -38,9 +38,7 @@ scenario('RPT-20', async ({ etape, page }) => {
     // L'export est déclenché pour de bon : son gabarit Thymeleaf manquait, et le serveur
     // répondait « Error resolving template [reports/stock-rotation/main] ». Un parcours qui
     // se contente de voir le bouton n'aurait rien remarqué.
-    const reponse = page.waitForResponse(
-      r => r.url().includes('/api/stock/rotation/export') && r.request().method() === 'GET',
-    );
+    const reponse = page.waitForResponse(r => r.url().includes('/api/stock/rotation/export') && r.request().method() === 'GET');
     await page.getByRole('button', { name: 'Exporter PDF' }).click();
     const pdf = await reponse;
     expect(pdf.status(), "L'export PDF de la rotation a échoué.").toBe(200);

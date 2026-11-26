@@ -26,14 +26,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(
-    name = "fournisseur_produit",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"produit_id", "fournisseur_id"}),
-        @UniqueConstraint(columnNames = {"code_cip", "fournisseur_id"}),
-    },
-    indexes = {@Index(columnList = "code_cip ASC", name = "code_cip_index"),
-        @Index(columnList = "code_ean", name = "code_ean_index")}
-)
+        name = "fournisseur_produit",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"produit_id", "fournisseur_id"}),
+            @UniqueConstraint(columnNames = {"code_cip", "fournisseur_id"}),
+        },
+        indexes = {
+            @Index(columnList = "code_cip ASC", name = "code_cip_index"),
+            @Index(columnList = "code_ean", name = "code_ean_index")
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class FournisseurProduit implements Serializable {
 
@@ -241,22 +242,19 @@ public class FournisseurProduit implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "FournisseurProduit{" +
-                "id=" +
-                getId() +
-                ", codeCip='" +
-                getCodeCip() +
-                "'" +
-                ", prixAchat=" +
-                getPrixAchat() +
-                ", prixUni=" +
-                getPrixUni() +
-                ", createdAt='" +
-                "'" +
-                ", principal='" +
-                "'" +
-                "}"
-        );
+        return ("FournisseurProduit{" + "id="
+                + getId()
+                + ", codeCip='"
+                + getCodeCip()
+                + "'"
+                + ", prixAchat="
+                + getPrixAchat()
+                + ", prixUni="
+                + getPrixUni()
+                + ", createdAt='"
+                + "'"
+                + ", principal='"
+                + "'"
+                + "}");
     }
 }

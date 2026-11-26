@@ -25,7 +25,8 @@ public class RegleAchatsQuiDerapent implements RegleAlerte {
     private final SeriesPilotageService seriesPilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleAchatsQuiDerapent(SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
+    public RegleAchatsQuiDerapent(
+            SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
         this.seriesPilotageService = seriesPilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -40,8 +41,12 @@ public class RegleAchatsQuiDerapent implements RegleAlerte {
         Double ventes = null;
         Double achats = null;
         for (SerieIndicateurDTO serie : seriesPilotageService
-            .calculerSeries(RequetesAlertes.lireDerniersJours(aujourdhui, JOURS, TypeComparaison.AUCUNE, List.of(IndicateurPilotage.CA_TTC, IndicateurPilotage.ACHATS_TTC)))
-            .series()) {
+                .calculerSeries(RequetesAlertes.lireDerniersJours(
+                        aujourdhui,
+                        JOURS,
+                        TypeComparaison.AUCUNE,
+                        List.of(IndicateurPilotage.CA_TTC, IndicateurPilotage.ACHATS_TTC)))
+                .series()) {
             if (IndicateurPilotage.CA_TTC.name().equals(serie.indicateur().code())) {
                 ventes = serie.valeur();
             } else {
@@ -55,14 +60,12 @@ public class RegleAchatsQuiDerapent implements RegleAlerte {
         if (ratio >= appConfigurationService.getAlerteRatioAchatsPilotage()) {
             return List.of();
         }
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "ACHATS_DERAPENT",
                 GraviteAlerte.MOYENNE,
                 "Les achats dérapent",
-                "Sur 30 jours, les ventes ne représentent que " + RequetesAlertes.formaterDecimal(ratio) + " fois les achats : le stock gonfle.",
-                "achats-stock"
-            )
-        );
+                "Sur 30 jours, les ventes ne représentent que " + RequetesAlertes.formaterDecimal(ratio)
+                        + " fois les achats : le stock gonfle.",
+                "achats-stock"));
     }
 }

@@ -58,13 +58,15 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
         new Color(0xb91c1c),
         new Color(0x0e7490),
     };
+
     private static final Color GRILLE = new Color(0xe5e7eb);
     private static final Font POLICE = new Font(Font.SANS_SERIF, Font.PLAIN, 10);
-    private static final float[] POINTILLE = { 6f, 4f };
-    private static final float[] TIRETS = { 2f, 3f };
+    private static final float[] POINTILLE = {6f, 4f};
+    private static final float[] TIRETS = {2f, 3f};
 
     @Override
-    public String dessinerCourbes(List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
+    public String dessinerCourbes(
+            List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
         LineAndShapeRenderer traceur = new LineAndShapeRenderer(true, true);
         for (int rang = 0; rang < series.size(); rang++) {
             StyleSerie style = series.get(rang).style();
@@ -77,13 +79,16 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
     }
 
     @Override
-    public String dessinerBarres(List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
+    public String dessinerBarres(
+            List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
         return encoder(habiller(tracerBarres(libelles, series, unite, new BarRenderer()), series.size() > 1), format);
     }
 
     @Override
-    public String dessinerBarresEmpilees(List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
-        return encoder(habiller(tracerBarres(libelles, series, unite, new StackedBarRenderer()), series.size() > 1), format);
+    public String dessinerBarresEmpilees(
+            List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, FormatGraphe format) {
+        return encoder(
+                habiller(tracerBarres(libelles, series, unite, new StackedBarRenderer()), series.size() > 1), format);
     }
 
     @Override
@@ -94,7 +99,8 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
         return encoder(habiller(trace, true), FormatGraphe.LARGE.getLargeur(), hauteur);
     }
 
-    private static CategoryPlot tracerBarres(List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, BarRenderer traceur) {
+    private static CategoryPlot tracerBarres(
+            List<String> libelles, List<SerieGraphiqueDTO> series, UniteIndicateur unite, BarRenderer traceur) {
         traceur.setBarPainter(new StandardBarPainter());
         traceur.setShadowVisible(false);
         traceur.setItemMargin(0.05);
@@ -105,17 +111,17 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
     }
 
     private static CategoryPlot tracer(
-        List<String> libelles,
-        List<SerieGraphiqueDTO> series,
-        UniteIndicateur unite,
-        AbstractCategoryItemRenderer traceur,
-        boolean depuisZero
-    ) {
+            List<String> libelles,
+            List<SerieGraphiqueDTO> series,
+            UniteIndicateur unite,
+            AbstractCategoryItemRenderer traceur,
+            boolean depuisZero) {
         DefaultCategoryDataset donnees = new DefaultCategoryDataset();
         double plusGrande = 0;
         for (SerieGraphiqueDTO serie : series) {
             for (int tranche = 0; tranche < libelles.size(); tranche++) {
-                Double valeur = tranche < serie.valeurs().size() ? serie.valeurs().get(tranche) : null;
+                Double valeur =
+                        tranche < serie.valeurs().size() ? serie.valeurs().get(tranche) : null;
                 donnees.addValue(valeur, serie.libelle(), libelles.get(tranche));
                 plusGrande = valeur == null ? plusGrande : Math.max(plusGrande, Math.abs(valeur));
             }
@@ -144,7 +150,8 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
     private static Stroke lireTrait(StyleSerie style) {
         return switch (style) {
             case REALISE, PALETTE, FANTOME -> new BasicStroke(2f);
-            case REFERENCE, PALETTE_POINTILLE -> new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, POINTILLE, 0f);
+            case REFERENCE, PALETTE_POINTILLE ->
+                new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, POINTILLE, 0f);
             case OBJECTIF -> new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1f, TIRETS, 0f);
         };
     }
@@ -173,7 +180,8 @@ public class GraphiquePilotageServiceImpl implements GraphiquePilotageService {
 
     private static String encoder(JFreeChart graphe, int largeur, int hauteur) {
         try {
-            byte[] png = ChartUtils.encodeAsPNG(graphe.createBufferedImage(largeur * ECHELLE, hauteur * ECHELLE, largeur, hauteur, null));
+            byte[] png = ChartUtils.encodeAsPNG(
+                    graphe.createBufferedImage(largeur * ECHELLE, hauteur * ECHELLE, largeur, hauteur, null));
             return "data:image/png;base64," + Base64.getEncoder().encodeToString(png);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

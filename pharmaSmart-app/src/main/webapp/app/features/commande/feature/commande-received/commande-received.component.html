@@ -1,22 +1,16 @@
 <div class="cr-wrapper">
   <!-- HEADER -->
   <div class="view-panel__header view-panel__header--detail">
-    <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left"
-                label="Retour à la liste"
-                size="small" />
+    <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour à la liste" size="small" />
     @if (currentCommande()) {
       <span class="view-panel__title">{{ currentCommande().fournisseur?.libelle }}</span>
       <span class="view-panel__meta">
-        <i class="pi pi-file"></i>&nbsp;{{
-          currentCommande().receiptReference ?? currentCommande().orderReference
-        }}
+        <i class="pi pi-file"></i>&nbsp;{{ currentCommande().receiptReference ?? currentCommande().orderReference }}
         &nbsp;·&nbsp;
-        {{ currentCommande().receiptDate | date:'dd/MM/yyyy' }}
+        {{ currentCommande().receiptDate | date: 'dd/MM/yyyy' }}
       </span>
     }
     <div class="cr-header-actions">
-
-
       <app-badge
         [label]="'Taux service : ' + tauxService + '%'"
         [severity]="tauxService >= 90 ? 'success' : tauxService >= 70 ? 'warn' : 'danger'"
@@ -33,12 +27,13 @@
         />
       }
       @if (lignesSansLot > 0) {
-        <app-badge [hidden]="true"
-                   [label]="lignesSansLot + ' lot(s) manquant(s)'"
-                   icon="pi pi-exclamation-triangle"
-                   ngbTooltip="Des lignes n'ont pas de numéro de lot renseigné"
-                   placement="bottom"
-                   severity="warn"
+        <app-badge
+          [hidden]="true"
+          [label]="lignesSansLot + ' lot(s) manquant(s)'"
+          icon="pi pi-exclamation-triangle"
+          ngbTooltip="Des lignes n'ont pas de numéro de lot renseigné"
+          placement="bottom"
+          severity="warn"
         />
       }
       <app-button
@@ -50,7 +45,6 @@
         severity="info"
         size="small"
       />
-
 
       <app-button
         (clicked)="onRapprocher()"
@@ -70,9 +64,7 @@
         severity="danger"
         size="small"
       />
-      <app-split-button [items]="exportbuttons()" icon="pi pi-file-export" label="Exporter"
-                        severity="warn"
-                        size="small" />
+      <app-split-button [items]="exportbuttons()" icon="pi pi-file-export" label="Exporter" severity="warn" size="small" />
     </div>
   </div>
 
@@ -85,7 +77,8 @@
           [(ngModel)]="search"
           class="form-control"
           placeholder="Taper pour rechercher"
-          type="text" />
+          type="text"
+        />
       </app-icon-field>
       <div>
         <label class="form-label small mb-0" for="ordre">Ordre</label>
@@ -104,7 +97,8 @@
         <app-select
           (ngModelChange)="selectedFilter.set($event)"
           (selectionChange)="onFilterCommandeLines()"
-          [clearable]="false" [items]="filtres()"
+          [clearable]="false"
+          [items]="filtres()"
           [ngModel]="selectedFilter()"
           [style]="{ 'min-width': '150px' }"
           bindLabel="label"
@@ -119,15 +113,16 @@
             <input
               #scanInputRef
               (keyup.enter)="onScanReception()"
-              (ngModelChange)="scanValue.set($event)" [ngModel]="scanValue()"
+              (ngModelChange)="scanValue.set($event)"
+              [ngModel]="scanValue()"
               autocomplete="off"
               class="form-control"
               placeholder="Scanner CIP / DataMatrix…"
-              type="text" />
+              type="text"
+            />
           </app-icon-field>
         } @else {
-          <span class="cr-serial-badge"
-                ngbTooltip="Douchette USB série active — lecture automatique" placement="bottom">
+          <span class="cr-serial-badge" ngbTooltip="Douchette USB série active — lecture automatique" placement="bottom">
             <i class="pi pi-wifi"></i>
           </span>
         }
@@ -148,22 +143,18 @@
                 <span
                   [ngbTooltip]="'FMD : numéro de série enregistré (' + (lastScanResult()!.serialNumber ?? '') + ')'"
                   class="cr-fmd-badge cr-fmd-badge--ok"
-                  placement="top">
+                  placement="top"
+                >
                   <i class="pi pi-shield"></i> FMD ✓
                 </span>
               }
               @if (lastScanResult()!.fmdStatus === 'DUPLICATE') {
-                <span [ngbTooltip]="lastScanResult()!.warningMessage ?? ''"
-                      class="cr-fmd-badge cr-fmd-badge--danger"
-                      placement="top">
+                <span [ngbTooltip]="lastScanResult()!.warningMessage ?? ''" class="cr-fmd-badge cr-fmd-badge--danger" placement="top">
                   <i class="pi pi-shield"></i> DOUBLON !
                 </span>
               }
-              @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType
-              === 'DATAMATRIX') {
-                <span class="cr-fmd-badge cr-fmd-badge--warn"
-                      ngbTooltip="DataMatrix sans numéro de série (AI 21 absent)"
-                      placement="top">
+              @if (lastScanResult()!.fmdStatus === 'ABSENT' && lastScanResult()!.barcodeType === 'DATAMATRIX') {
+                <span class="cr-fmd-badge cr-fmd-badge--warn" ngbTooltip="DataMatrix sans numéro de série (AI 21 absent)" placement="top">
                   <i class="pi pi-shield"></i> FMD ?
                 </span>
               }
@@ -197,13 +188,7 @@
           size="small"
         />
 
-        <app-button
-          (clicked)="onConfirmFinalize()"
-          icon="pi pi-check-circle"
-          label="Finaliser"
-          severity="primary"
-          size="small"
-        />
+        <app-button (clicked)="onConfirmFinalize()" icon="pi pi-check-circle" label="Finaliser" severity="primary" size="small" />
 
         <app-button
           (clicked)="onToutValider()"
@@ -230,7 +215,6 @@
 
   <!-- MAIN CONTENT -->
   <div class="cr-content">
-
     @if (viewMode() === 'sequential') {
       <app-reception-sequential
         (allLinesProcessed)="onSequentialAllDone()"
@@ -243,15 +227,11 @@
         [orderLines]="orderLines()"
         [showLotBtn]="showLotBtn()"
       />
-
     } @else {
       <!-- LEFT PANEL : concordance + résumé (toggle) -->
       @if (showLeftPanel()) {
         <div class="cr-panel-left">
-          <app-reception-concordance
-            [orderLines]="orderLines()"
-            [showLotInfo]="showLotBtn()"
-          />
+          <app-reception-concordance [orderLines]="orderLines()" [showLotInfo]="showLotBtn()" />
           <div class="reception-summary-card">
             <div class="summary-header">
               <i class="pi pi-info-circle"></i>
@@ -274,8 +254,7 @@
               }
               <div class="summary-row">
                 <span class="summary-key"><i class="pi pi-calendar"></i> Date BL</span>
-                <span
-                  class="summary-val">{{ currentCommande()?.receiptDate | date: 'dd/MM/yyyy' }}</span>
+                <span class="summary-val">{{ currentCommande()?.receiptDate | date: 'dd/MM/yyyy' }}</span>
               </div>
               <div class="summary-row highlight">
                 <span class="summary-key"><i class="pi pi-wallet"></i> Montant HT</span>
@@ -318,8 +297,7 @@
               <span class="cr-lot-progress ms-auto">
                 <i class="pi pi-box me-1"></i>
                 Lots&nbsp;:
-                <strong [class.text-success]="lignesSansLot === 0"
-                        [class.text-warning]="lignesSansLot > 0">
+                <strong [class.text-success]="lignesSansLot === 0" [class.text-warning]="lignesSansLot > 0">
                   {{ orderLines().length - lignesSansLot }} / {{ orderLines().length }}
                 </strong>
                 <span class="cr-lot-bar ms-2">
@@ -333,7 +311,7 @@
             }
           </div>
           <ag-grid-angular
-    [localeText]="localeFr"
+            [localeText]="localeFr"
             (cellClicked)="onCellClicked($event)"
             (cellValueChanged)="onCellValueChanged($event)"
             (gridReady)="onGridReady($event)"
@@ -355,22 +333,15 @@
           />
         }
       </div>
-
-    } <!-- fin @else mode grille -->
-
+    }
+    <!-- fin @else mode grille -->
   </div>
 </div>
 
 <jhi-spinner #spinner />
 
 <!-- Résolution manuelle d'un code que le catalogue ne connaît pas (marché ivoirien) -->
-<app-modal
-  #codeResolutionModal
-  header="Code non reconnu — désignez l'article"
-  icon="pi pi-question-circle"
-  size="lg"
-  [scrollable]="true"
->
+<app-modal #codeResolutionModal header="Code non reconnu — désignez l'article" icon="pi pi-question-circle" size="lg" [scrollable]="true">
   <app-code-resolution
     #codeResolutionForm
     [hint]="hintAResoudre()"
@@ -380,4 +351,3 @@
     (valide)="onCodeResolu($event)"
   />
 </app-modal>
-

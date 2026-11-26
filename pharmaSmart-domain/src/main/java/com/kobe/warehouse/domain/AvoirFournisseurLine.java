@@ -44,21 +44,57 @@ public class AvoirFournisseurLine implements Serializable {
     @Column(name = "commentaire", length = 150)
     private String commentaire;
 
-    public Integer getId() { return id; }
-    public AvoirFournisseurLine setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public AvoirFournisseur getAvoirFournisseur() { return avoirFournisseur; }
-    public AvoirFournisseurLine setAvoirFournisseur(AvoirFournisseur avoirFournisseur) { this.avoirFournisseur = avoirFournisseur; return this; }
+    public AvoirFournisseurLine setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public RetourBonItem getRetourBonItem() { return retourBonItem; }
-    public AvoirFournisseurLine setRetourBonItem(RetourBonItem retourBonItem) { this.retourBonItem = retourBonItem; return this; }
+    public AvoirFournisseur getAvoirFournisseur() {
+        return avoirFournisseur;
+    }
 
-    public Integer getQtyMvt() { return qtyMvt; }
-    public AvoirFournisseurLine setQtyMvt(Integer qtyMvt) { this.qtyMvt = qtyMvt; return this; }
+    public AvoirFournisseurLine setAvoirFournisseur(AvoirFournisseur avoirFournisseur) {
+        this.avoirFournisseur = avoirFournisseur;
+        return this;
+    }
 
-    public int getPrixAchat() { return prixAchat; }
-    public AvoirFournisseurLine setPrixAchat(int prixAchat) { this.prixAchat = prixAchat; return this; }
+    public RetourBonItem getRetourBonItem() {
+        return retourBonItem;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public AvoirFournisseurLine setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public AvoirFournisseurLine setRetourBonItem(RetourBonItem retourBonItem) {
+        this.retourBonItem = retourBonItem;
+        return this;
+    }
+
+    public Integer getQtyMvt() {
+        return qtyMvt;
+    }
+
+    public AvoirFournisseurLine setQtyMvt(Integer qtyMvt) {
+        this.qtyMvt = qtyMvt;
+        return this;
+    }
+
+    public int getPrixAchat() {
+        return prixAchat;
+    }
+
+    public AvoirFournisseurLine setPrixAchat(int prixAchat) {
+        this.prixAchat = prixAchat;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public AvoirFournisseurLine setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 }

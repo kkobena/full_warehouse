@@ -30,25 +30,30 @@ import org.springframework.util.CollectionUtils;
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentTransactionRepository
-    extends JpaRepository<PaymentTransaction, PaymentId>, JpaSpecificationExecutor<PaymentTransaction>, PaymentTransactionCustomRepository {
+        extends JpaRepository<PaymentTransaction, PaymentId>,
+                JpaSpecificationExecutor<PaymentTransaction>,
+                PaymentTransactionCustomRepository {
     @Query(
-        value = "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type  FROM PaymentTransaction p WHERE  p.transactionDate BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction"
-    )
-    List<MouvementCaisse> findMouvementsCaisse(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+            value =
+                    "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type  FROM PaymentTransaction p WHERE  p.transactionDate BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction")
+    List<MouvementCaisse> findMouvementsCaisse(
+            @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     @Query(
-        value = "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type,p.paymentMode.code AS modePaimentCode,p.paymentMode.libelle AS modePaimentLibelle   FROM PaymentTransaction p WHERE  p.transactionDate BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction,p.paymentMode.code,p.paymentMode.libelle"
-    )
+            value =
+                    "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type,p.paymentMode.code AS modePaimentCode,p.paymentMode.libelle AS modePaimentLibelle   FROM PaymentTransaction p WHERE  p.transactionDate BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction,p.paymentMode.code,p.paymentMode.libelle")
     List<MouvementCaisseGroupByMode> findMouvementsCaisseGroupBYModeReglement(
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate
-    );
+            @Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     default Specification<PaymentTransaction> filterByUserId(Long userId) {
         if (userId == null) {
             return null;
         }
-        return (root, query, cb) -> cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id), userId);
+        return (root, query, cb) -> cb.equal(
+                root.get(PaymentTransaction_.cashRegister)
+                        .get(CashRegister_.user)
+                        .get(AppUser_.id),
+                userId);
     }
 
     default Specification<PaymentTransaction> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -60,13 +65,13 @@ public interface PaymentTransactionRepository
     }
 
     default Specification<PaymentTransaction> filterByTypeFinancialTransaction(
-        EnumSet<TypeFinancialTransaction> typeFinancialTransactions
-    ) {
+            EnumSet<TypeFinancialTransaction> typeFinancialTransactions) {
         if (CollectionUtils.isEmpty(typeFinancialTransactions)) {
             return null;
         }
         return (root, _, cb) -> {
-            In<TypeFinancialTransaction> typeFinancialTransactionIn = cb.in(root.get(PaymentTransaction_.typeFinancialTransaction));
+            In<TypeFinancialTransaction> typeFinancialTransactionIn =
+                    cb.in(root.get(PaymentTransaction_.typeFinancialTransaction));
             typeFinancialTransactions.forEach(typeFinancialTransactionIn::value);
             return typeFinancialTransactionIn;
         };
@@ -77,18 +82,21 @@ public interface PaymentTransactionRepository
             return null;
         }
         return (root, _, cb) -> {
-            In<String> paymentModeIn = cb.in(root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code));
+            In<String> paymentModeIn =
+                    cb.in(root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code));
             paymentModes.forEach(paymentModeIn::value);
             return paymentModeIn;
         };
     }
 
-    default Specification<PaymentTransaction> filterByCategorieChiffreAffaire(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
+    default Specification<PaymentTransaction> filterByCategorieChiffreAffaire(
+            EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
         if (CollectionUtils.isEmpty(categorieChiffreAffaires)) {
             return null;
         }
         return (root, _, cb) -> {
-            In<CategorieChiffreAffaire> categorieChiffreAffaireIn = cb.in(root.get(PaymentTransaction_.categorieChiffreAffaire));
+            In<CategorieChiffreAffaire> categorieChiffreAffaireIn =
+                    cb.in(root.get(PaymentTransaction_.categorieChiffreAffaire));
             categorieChiffreAffaires.forEach(categorieChiffreAffaireIn::value);
             return categorieChiffreAffaireIn;
         };
@@ -98,6 +106,9 @@ public interface PaymentTransactionRepository
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id).in(caissierIds);
+        return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister)
+                .get(CashRegister_.user)
+                .get(AppUser_.id)
+                .in(caissierIds);
     }
 }

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.errors;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.license.LicenseViolationException;
 import jakarta.persistence.EntityNotFoundException;
@@ -9,6 +11,8 @@ import jakarta.persistence.PessimisticLockException;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.LockAcquisitionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,11 +29,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.nonNull;
-
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures. The
  * error response follows RFC7807 - Problem Details for HTTP APIs
@@ -37,7 +36,6 @@ import static java.util.Objects.nonNull;
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslator.class);
-
 
     /**
      * Verrou optimiste : une autre opération a écrit la même ligne entre-temps.
@@ -52,7 +50,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         if (concerneUneVente(ex)) {
             LOG.warn("Conflit de verrou optimiste (409) sur une vente : {}", ex.getMessage());
             detail = "Cette vente a été modifiée par une autre opération (autre poste ou double validation). "
-                + "Rechargez-la avant de continuer.";
+                    + "Rechargez-la avant de continuer.";
             pd.setErrorKey("sale.concurrent.modification");
         } else {
             LOG.warn("Conflit de verrou optimiste (409) : {}", ex.getMessage());
@@ -103,8 +101,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
                 return true;
             }
             // Échec au sein d'un lot JDBC : Hibernate ne nomme pas l'entité, seulement l'ordre SQL.
-            if (t instanceof StaleStateException && t.getMessage() != null
-                && t.getMessage().toLowerCase().contains("update sales ")) {
+            if (t instanceof StaleStateException
+                    && t.getMessage() != null
+                    && t.getMessage().toLowerCase().contains("update sales ")) {
                 return true;
             }
         }
@@ -170,8 +169,8 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         Custom pd = new Custom(HttpStatus.FORBIDDEN.value());
         // Le message d'une AccessDeniedException de Spring est technique : seul le nôtre est affiché.
         String detail = ex instanceof ForbiddenOperationException
-            ? ex.getMessage()
-            : "Accès refusé : vous n'avez pas le droit d'effectuer cette opération.";
+                ? ex.getMessage()
+                : "Accès refusé : vous n'avez pas le droit d'effectuer cette opération.";
         pd.setTitle("Accès refusé");
         pd.setDetail(detail);
         pd.setMessage(detail);
@@ -188,22 +187,15 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(pd.getStatus()).body(pd);
-
     }
-
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
-        Exception ex,
-        Object body,
-        HttpHeaders headers,
-        HttpStatusCode statusCode,
-        WebRequest request
-    ) {
+            Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
         if (body == null) {
             body = ex instanceof ErrorResponse errorResponse
-                ? requeteInvalide(ex, errorResponse, statusCode)
-                : wrapAndCustomizeProblem(ex, (NativeWebRequest) request);
+                    ? requeteInvalide(ex, errorResponse, statusCode)
+                    : wrapAndCustomizeProblem(ex, (NativeWebRequest) request);
         }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
     }
@@ -217,8 +209,8 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         LOG.warn("Requête invalide ({}) : {}", statusCode.value(), ex.getMessage());
         Custom pd = new Custom(statusCode.value());
         String detail = ex instanceof MissingServletRequestParameterException missing
-            ? "Paramètre obligatoire manquant : " + missing.getParameterName()
-            : errorResponse.getBody().getDetail();
+                ? "Paramètre obligatoire manquant : " + missing.getParameterName()
+                : errorResponse.getBody().getDetail();
         pd.setTitle(errorResponse.getBody().getTitle());
         pd.setDetail(detail);
         pd.setMessage(detail);

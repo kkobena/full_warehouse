@@ -15,12 +15,11 @@ import com.kobe.warehouse.domain.enumeration.CauseEcart;
  * @param existingComment   commentaire déjà renseigné
  */
 public record GapLineRecord(
-    Long lineId,
-    String produitLibelle,
-    Integer quantityInit,
-    Integer quantityOnHand,
-    Integer gap,
-    Integer valeurEcart,
-    CauseEcart existingCause,
-    String existingComment
-) {}
+        Long lineId,
+        String produitLibelle,
+        Integer quantityInit,
+        Integer quantityOnHand,
+        Integer gap,
+        Integer valeurEcart,
+        CauseEcart existingCause,
+        String existingComment) {}

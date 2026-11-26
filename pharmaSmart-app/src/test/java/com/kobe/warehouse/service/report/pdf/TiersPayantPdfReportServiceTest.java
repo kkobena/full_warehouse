@@ -35,18 +35,17 @@ class TiersPayantPdfReportServiceTest {
         when(tiersPayantReportService.getUnpaidInvoices(any(), any())).thenReturn(List.of());
 
         service = new TiersPayantPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            tiersPayantReportService
-        );
+                PdfReportTestSupport.storageService(),
+                PdfReportTestSupport.moteurDeGabarits(),
+                tiersPayantReportService);
     }
 
     @Test
     @DisplayName("le total des créances additionne les dettes de chaque tiers payant")
     void totalDesCreances() {
-        when(tiersPayantReportService.getCreancesSummary()).thenReturn(
-            List.of(creance("MUGEFCI", 3_000_000), creance("CNPS", 1_500_000), creance("ASACI", 500_000))
-        );
+        when(tiersPayantReportService.getCreancesSummary())
+                .thenReturn(
+                        List.of(creance("MUGEFCI", 3_000_000), creance("CNPS", 1_500_000), creance("ASACI", 500_000)));
 
         assertThat(modele().get("totalCreances")).isEqualTo(5_000_000);
     }
@@ -94,17 +93,16 @@ class TiersPayantPdfReportServiceTest {
 
     private static TiersPayantInvoiceDTO facture() {
         return new TiersPayantInvoiceDTO(
-            1L,
-            "2026_0001",
-            null,
-            "MUGEFCI",
-            null,
-            100_000,
-            0,
-            100_000,
-            TiersPayantInvoiceDTO.InvoiceStatus.UNPAID,
-            10,
-            TiersPayantInvoiceDTO.AgeCategory.LESS_THAN_30
-        );
+                1L,
+                "2026_0001",
+                null,
+                "MUGEFCI",
+                null,
+                100_000,
+                0,
+                100_000,
+                TiersPayantInvoiceDTO.InvoiceStatus.UNPAID,
+                10,
+                TiersPayantInvoiceDTO.AgeCategory.LESS_THAN_30);
     }
 }

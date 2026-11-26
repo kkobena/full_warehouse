@@ -9,17 +9,16 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.dto.mobile.DailyDigestDTO;
 import com.kobe.warehouse.service.dto.mobile.UserPerformanceDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service for sending push notifications to mobile devices.
@@ -39,12 +38,11 @@ public class MobilePushNotificationService {
     private final AppConfigurationService appConfigurationService;
 
     public MobilePushNotificationService(
-        FirebaseMessaging firebaseMessaging,
-        UserDeviceRepository userDeviceRepository,
-        UserRepository userRepository,
-        MobileReportService mobileReportService,
-        AppConfigurationService appConfigurationService
-    ) {
+            FirebaseMessaging firebaseMessaging,
+            UserDeviceRepository userDeviceRepository,
+            UserRepository userRepository,
+            MobileReportService mobileReportService,
+            AppConfigurationService appConfigurationService) {
         this.firebaseMessaging = firebaseMessaging;
         this.userDeviceRepository = userDeviceRepository;
         this.userRepository = userRepository;
@@ -66,9 +64,11 @@ public class MobilePushNotificationService {
         Map<String, String> data = new HashMap<>();
         data.put("type", "STOCK_RUPTURE");
         data.put("productId", productId.toString());
-        data.put("message", stockLevel == 0
-            ? productName + " - Stock épuisé"
-            : productName + " - Stock faible (" + stockLevel + " unités)");
+        data.put(
+                "message",
+                stockLevel == 0
+                        ? productName + " - Stock épuisé"
+                        : productName + " - Stock faible (" + stockLevel + " unités)");
 
         String title = stockLevel == 0 ? "🔴 Rupture de stock" : "🟠 Stock bas";
         String body = data.get("message");
@@ -123,13 +123,12 @@ public class MobilePushNotificationService {
 
         String title = "📊 Résumé quotidien";
         String body = String.format(
-            "CA: %,d %s (%+.1f%%) | %d ventes | %d alertes",
-            digest.getTotalCA(),
-            devise(),
-            digest.getVariation(),
-            digest.getTransactionCount(),
-            digest.getAlertsCount()
-        );
+                "CA: %,d %s (%+.1f%%) | %d ventes | %d alertes",
+                digest.getTotalCA(),
+                devise(),
+                digest.getVariation(),
+                digest.getTransactionCount(),
+                digest.getAlertsCount());
 
         sendToRole(AuthorityEnum.ROLE_ADMIN, title, body, data, AndroidConfig.Priority.NORMAL);
     }
@@ -149,13 +148,8 @@ public class MobilePushNotificationService {
 
                 String title = "💪 Votre performance du jour";
                 String body = String.format(
-                    "CA: %,d %s | %d ventes | Panier moyen: %,d %s",
-                    perf.getTotalCA(),
-                    devise(),
-                    perf.getSalesCount(),
-                    perf.getAverageBasket(),
-                    devise()
-                );
+                        "CA: %,d %s | %d ventes | Panier moyen: %,d %s",
+                        perf.getTotalCA(), devise(), perf.getSalesCount(), perf.getAverageBasket(), devise());
 
                 sendToUser(seller.getId(), title, body, data, AndroidConfig.Priority.NORMAL);
             }
@@ -174,11 +168,7 @@ public class MobilePushNotificationService {
         data.put("target", target.toString());
 
         String title = "🎯 Objectif atteint!";
-        String body = String.format(
-            "Bravo! L'objectif de CA quotidien a été dépassé (%,d %s)",
-            dailyCA,
-            devise()
-        );
+        String body = String.format("Bravo! L'objectif de CA quotidien a été dépassé (%,d %s)", dailyCA, devise());
 
         // Send to all users
         sendToAllUsers(title, body, data, AndroidConfig.Priority.HIGH);
@@ -199,11 +189,7 @@ public class MobilePushNotificationService {
 
         String title = "💰 Grosse vente!";
         String body = String.format(
-            "Vente de %,d %s enregistrée%s",
-            amount,
-            devise(),
-            customerName != null ? " pour " + customerName : ""
-        );
+                "Vente de %,d %s enregistrée%s", amount, devise(), customerName != null ? " pour " + customerName : "");
 
         // Send to managers
         sendToRole(AuthorityEnum.ROLE_ADMIN, title, body, data, AndroidConfig.Priority.NORMAL);
@@ -239,11 +225,7 @@ public class MobilePushNotificationService {
         data.put("daysOverdue", String.valueOf(daysOverdue));
 
         String title = "💳 Facture impayée";
-        String body = String.format(
-            "%s - Facture impayée depuis %d jours",
-            clientName,
-            daysOverdue
-        );
+        String body = String.format("%s - Facture impayée depuis %d jours", clientName, daysOverdue);
 
         // Send to managers
         sendToRole(AuthorityEnum.ROLE_ADMIN, title, body, data, AndroidConfig.Priority.NORMAL);
@@ -253,16 +235,8 @@ public class MobilePushNotificationService {
      * Send notification to all users with a specific role.
      */
     private void sendToRole(
-        AuthorityEnum role,
-        String title,
-        String body,
-        Map<String, String> data,
-        AndroidConfig.Priority priority
-    ) {
-        List<UserDevice> devices = userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(
-            role.name(),
-            true
-        );
+            AuthorityEnum role, String title, String body, Map<String, String> data, AndroidConfig.Priority priority) {
+        List<UserDevice> devices = userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(role.name(), true);
 
         log.debug("Sending notification to {} devices with role {}", devices.size(), role);
 
@@ -275,16 +249,8 @@ public class MobilePushNotificationService {
      * Send notification to a specific user.
      */
     private void sendToUser(
-        Integer userId,
-        String title,
-        String body,
-        Map<String, String> data,
-        AndroidConfig.Priority priority
-    ) {
-        List<UserDevice> devices = userDeviceRepository.findByUserIdAndNotificationsEnabled(
-            userId,
-            true
-        );
+            Integer userId, String title, String body, Map<String, String> data, AndroidConfig.Priority priority) {
+        List<UserDevice> devices = userDeviceRepository.findByUserIdAndNotificationsEnabled(userId, true);
 
         for (UserDevice device : devices) {
             sendNotification(device.getFcmToken(), title, body, data, priority);
@@ -294,12 +260,7 @@ public class MobilePushNotificationService {
     /**
      * Send notification to all users.
      */
-    private void sendToAllUsers(
-        String title,
-        String body,
-        Map<String, String> data,
-        AndroidConfig.Priority priority
-    ) {
+    private void sendToAllUsers(String title, String body, Map<String, String> data, AndroidConfig.Priority priority) {
         List<UserDevice> devices = userDeviceRepository.findByNotificationsEnabled(true);
 
         log.debug("Sending notification to {} devices (all users)", devices.size());
@@ -313,35 +274,26 @@ public class MobilePushNotificationService {
      * Send notification to a specific FCM token.
      */
     private void sendNotification(
-        String fcmToken,
-        String title,
-        String body,
-        Map<String, String> data,
-        AndroidConfig.Priority priority
-    ) {
+            String fcmToken, String title, String body, Map<String, String> data, AndroidConfig.Priority priority) {
         try {
             // Build Android config
             AndroidConfig androidConfig = AndroidConfig.builder()
-                .setPriority(priority)
-                .setNotification(AndroidNotification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .setChannelId(priority == AndroidConfig.Priority.HIGH
-                        ? "pharma_alerts"
-                        : "pharma_daily")
-                    .build())
-                .build();
+                    .setPriority(priority)
+                    .setNotification(AndroidNotification.builder()
+                            .setTitle(title)
+                            .setBody(body)
+                            .setChannelId(priority == AndroidConfig.Priority.HIGH ? "pharma_alerts" : "pharma_daily")
+                            .build())
+                    .build();
 
             // Build message
             Message message = Message.builder()
-                .setToken(fcmToken)
-                .setNotification(Notification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build())
-                .putAllData(data)
-                .setAndroidConfig(androidConfig)
-                .build();
+                    .setToken(fcmToken)
+                    .setNotification(
+                            Notification.builder().setTitle(title).setBody(body).build())
+                    .putAllData(data)
+                    .setAndroidConfig(androidConfig)
+                    .build();
 
             // Send
             String response = firebaseMessaging.send(message);
@@ -351,8 +303,8 @@ public class MobilePushNotificationService {
             log.error("Failed to send notification to token: {}", fcmToken, e);
 
             // If token is invalid, mark device for cleanup
-            if (e.getMessagingErrorCode() == MessagingErrorCode.INVALID_ARGUMENT ||
-                e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+            if (e.getMessagingErrorCode() == MessagingErrorCode.INVALID_ARGUMENT
+                    || e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
                 userDeviceRepository.deleteByFcmToken(fcmToken);
             }
         }

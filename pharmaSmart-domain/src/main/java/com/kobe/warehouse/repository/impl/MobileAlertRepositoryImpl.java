@@ -66,12 +66,11 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         List<StockRuptureProjection> projections = new ArrayList<>();
         for (Object[] row : results) {
             projections.add(new StockRuptureProjection(
-                ((Number) row[0]).longValue(),
-                (String) row[1],
-                (String) row[2],
-                ((Number) row[3]).intValue(),
-                ((Number) row[4]).intValue()
-            ));
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    (String) row[2],
+                    ((Number) row[3]).intValue(),
+                    ((Number) row[4]).intValue()));
         }
 
         return projections;
@@ -128,14 +127,13 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         List<ExpiryAlertProjection> projections = new ArrayList<>();
         for (Object[] row : results) {
             projections.add(new ExpiryAlertProjection(
-                ((Number) row[0]).longValue(),
-                ((Number) row[1]).longValue(),
-                (String) row[2],
-                (String) row[3],
-                LocalDate.parse( row[4].toString()),
-                ((Number) row[5]).intValue(),
-                ((Number) row[6]).intValue()
-            ));
+                    ((Number) row[0]).longValue(),
+                    ((Number) row[1]).longValue(),
+                    (String) row[2],
+                    (String) row[3],
+                    LocalDate.parse(row[4].toString()),
+                    ((Number) row[5]).intValue(),
+                    ((Number) row[6]).intValue()));
         }
 
         return projections;
@@ -225,14 +223,13 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         List<OverdueInvoiceProjection> projections = new ArrayList<>();
         for (Object[] row : results) {
             projections.add(new OverdueInvoiceProjection(
-                ((Number) row[0]).longValue(),
-                LocalDate.parse( row[1].toString()),
-                (String) row[2],
-                (String) row[3],
-                ((Number) row[4]).longValue(),
-                ((Number) row[5]).longValue(),
-                ((Number) row[6]).intValue()
-            ));
+                    ((Number) row[0]).longValue(),
+                    LocalDate.parse(row[1].toString()),
+                    (String) row[2],
+                    (String) row[3],
+                    ((Number) row[4]).longValue(),
+                    ((Number) row[5]).longValue(),
+                    ((Number) row[6]).intValue()));
         }
 
         return projections;

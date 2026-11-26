@@ -1,36 +1,44 @@
 package com.kobe.warehouse.web.rest.report;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.FinancesSummaryDTO;
 import com.kobe.warehouse.service.dto.dashboard.PerformanceVendeurDTO;
 import com.kobe.warehouse.service.dto.report.*;
 import com.kobe.warehouse.service.report.DashboardCAService;
-import java.time.LocalDate;
-import java.util.List;
-
 import com.kobe.warehouse.service.report.excel.DashboardCAPExcelCsvExportService;
 import com.kobe.warehouse.service.report.pdf.DashboardCAPdfExportService;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for Dashboard Chiffre d'Affaires (CA)
  */
 @RestController
 @RequestMapping("/api/dashboard-ca")
-@RequiresNavAccess({ "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" })
+@RequiresNavAccess({
+    "rapport-ventes.dashboard-ca",
+    "rapport-ventes.generics-substitution",
+    "rapport-ventes.remises-analysis",
+    "rapport-ventes.sales-by-staff",
+    "rapport-ventes.seasonality"
+})
 public class DashboardCAResource {
 
     private final DashboardCAService dashboardCAService;
     private final DashboardCAPdfExportService dashboardCAPdfExportService;
     private final DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService;
 
-    public DashboardCAResource(DashboardCAService dashboardCAService, DashboardCAPdfExportService dashboardCAPdfExportService, DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService) {
+    public DashboardCAResource(
+            DashboardCAService dashboardCAService,
+            DashboardCAPdfExportService dashboardCAPdfExportService,
+            DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService) {
         this.dashboardCAService = dashboardCAService;
         this.dashboardCAPdfExportService = dashboardCAPdfExportService;
         this.dashboardCAPExcelCsvExportService = dashboardCAPExcelCsvExportService;
@@ -45,9 +53,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/daily")
     public ResponseEntity<List<DailyCADTO>> getDailySummary(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<DailyCADTO> result = dashboardCAService.getDailySummary(startDate, endDate);
         return ResponseEntity.ok(result);
     }
@@ -73,10 +80,9 @@ public class DashboardCAResource {
      */
     @GetMapping("/evolution")
     public ResponseEntity<DashboardCAEvolutionDTO> getEvolutionData(
-        @RequestParam(defaultValue = "daily") String period,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam(defaultValue = "daily") String period,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         DashboardCAEvolutionDTO result = dashboardCAService.getEvolutionData(period, startDate, endDate);
         return ResponseEntity.ok(result);
     }
@@ -90,9 +96,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/payment-methods")
     public ResponseEntity<List<PaymentMethodCADTO>> getPaymentMethodDistribution(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<PaymentMethodCADTO> result = dashboardCAService.getPaymentMethodDistribution(startDate, endDate);
         return ResponseEntity.ok(result);
     }
@@ -106,9 +111,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/product-families")
     public ResponseEntity<List<ProductFamilyCADTO>> getProductFamilyDistribution(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<ProductFamilyCADTO> result = dashboardCAService.getProductFamilyDistribution(startDate, endDate);
         return ResponseEntity.ok(result);
     }
@@ -123,10 +127,9 @@ public class DashboardCAResource {
      */
     @GetMapping("/top-products")
     public ResponseEntity<List<TopProductDTO>> getTopProducts(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(defaultValue = "10") Integer limit
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "10") Integer limit) {
         List<TopProductDTO> result = dashboardCAService.getTopProducts(startDate, endDate, limit);
         return ResponseEntity.ok(result);
     }
@@ -139,13 +142,22 @@ public class DashboardCAResource {
      * @return PDF file
      */
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDashboardToPdf(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).body(dashboardCAPdfExportService.export(startDate, endDate));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(dashboardCAPdfExportService.export(startDate, endDate));
     }
 
     /**
@@ -156,20 +168,27 @@ public class DashboardCAResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailySummaryToExcel(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
             byte[] excelData = dashboardCAPExcelCsvExportService.exportDailySummaryToExcel(startDate, endDate);
             String filename = "dashboard_ca_" + startDate + "_" + endDate + ".xlsx";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -183,20 +202,26 @@ public class DashboardCAResource {
      * @return CSV file
      */
     @GetMapping(value = "/export/csv", produces = "text/csv")
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailySummaryToCsv(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
             byte[] csvData = dashboardCAPExcelCsvExportService.exportDailySummaryToCsv(startDate, endDate);
             String filename = "dashboard_ca_" + startDate + "_" + endDate + ".csv";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -209,21 +234,30 @@ public class DashboardCAResource {
      * @param endDate end date
      * @return Excel file (.xlsx)
      */
-    @GetMapping(value = "/export/top-products/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
+    @GetMapping(
+            value = "/export/top-products/excel",
+            produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTopProductsToExcel(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
             byte[] excelData = dashboardCAPExcelCsvExportService.exportTopProductsToExcel(startDate, endDate);
             String filename = "top_products_" + startDate + "_" + endDate + ".xlsx";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -237,20 +271,26 @@ public class DashboardCAResource {
      * @return CSV file
      */
     @GetMapping(value = "/export/top-products/csv", produces = "text/csv")
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTopProductsToCsv(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         try {
             byte[] csvData = dashboardCAPExcelCsvExportService.exportTopProductsToCsv(startDate, endDate);
             String filename = "top_products_" + startDate + "_" + endDate + ".csv";
 
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -271,9 +311,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/remises-analysis")
     public ResponseEntity<RemisesAnalysisKpiDTO> getRemisesKpi(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(dashboardCAService.getRemisesKpi(startDate, endDate));
     }
 
@@ -282,10 +321,9 @@ public class DashboardCAResource {
      */
     @GetMapping("/remises-analysis/top-products")
     public ResponseEntity<List<TopRemiseProduitDTO>> getRemisesTopProducts(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(defaultValue = "10") int limit
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntity.ok(dashboardCAService.getRemisesTopProducts(startDate, endDate, limit));
     }
 
@@ -294,9 +332,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/by-staff")
     public ResponseEntity<List<PerformanceVendeurDTO>> getSalesByStaff(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(dashboardCAService.getSalesByStaff(startDate, endDate));
     }
 
@@ -305,9 +342,8 @@ public class DashboardCAResource {
      */
     @GetMapping("/generics-substitution")
     public ResponseEntity<GenericsSubstitutionDTO> getGenericsSubstitution(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(dashboardCAService.getGenericsSubstitution(startDate, endDate));
     }
 
@@ -318,7 +354,15 @@ public class DashboardCAResource {
      */
     @PostMapping("/refresh")
     @LicenseExempt("Consultation : rafraîchissement de vues matérialisées, aucune donnée métier modifiée")
-    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.ACCESS)
+    @RequiresNavAccess(
+            value = {
+                "rapport-ventes.dashboard-ca",
+                "rapport-ventes.generics-substitution",
+                "rapport-ventes.remises-analysis",
+                "rapport-ventes.sales-by-staff",
+                "rapport-ventes.seasonality"
+            },
+            action = NavAction.ACCESS)
     public ResponseEntity<Void> refreshViews() {
         dashboardCAService.refreshViews();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

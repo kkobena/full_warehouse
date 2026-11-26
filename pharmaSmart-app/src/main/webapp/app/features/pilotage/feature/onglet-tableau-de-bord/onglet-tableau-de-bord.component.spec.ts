@@ -21,14 +21,39 @@ const REQUETE: RequetePilotage = {
 };
 
 const CA_TTC: SerieIndicateur = {
-  indicateur: { code: 'CA_TTC', libelle: 'CA TTC', definition: 'Ventes encaissées TTC', unite: 'MONTANT', sensFavorable: 'HAUSSE', droit: 'PAGE' },
+  indicateur: {
+    code: 'CA_TTC',
+    libelle: 'CA TTC',
+    definition: 'Ventes encaissées TTC',
+    unite: 'MONTANT',
+    sensFavorable: 'HAUSSE',
+    droit: 'PAGE',
+  },
   valeur: 1250.5,
   valeurReference: 1000,
   ecart: 250.5,
   ecartPct: 25.05,
-  points: [{ debut: '2026-10-01', fin: '2026-10-09', libelle: 'Oct. 2026 (au 9)', valeur: 1250.5, valeurReference: 1000, ecart: 250.5, ecartPct: 25.05, objectif: 1500 }],
+  points: [
+    {
+      debut: '2026-10-01',
+      fin: '2026-10-09',
+      libelle: 'Oct. 2026 (au 9)',
+      valeur: 1250.5,
+      valeurReference: 1000,
+      ecart: 250.5,
+      ecartPct: 25.05,
+      objectif: 1500,
+    },
+  ],
   objectif: 1500,
-  projection: { realiseADate: 1250.5, projection: 4300, objectif: 4650, atteinteProjetee: 92.5, tenu: false, methode: "D'après octobre 2025 : au même jour, 29 % du mois était fait." },
+  projection: {
+    realiseADate: 1250.5,
+    projection: 4300,
+    objectif: 4650,
+    atteinteProjetee: 92.5,
+    tenu: false,
+    methode: "D'après octobre 2025 : au même jour, 29 % du mois était fait.",
+  },
 };
 
 const SERIES: SeriesPilotage = {
@@ -50,8 +75,20 @@ const ECARTS: EcartsPilotage = {
 };
 
 const ALERTES: AlertePilotage[] = [
-  { code: 'CHUTE_ACTIVITE', gravite: 'HAUTE', titre: "Chute d'activité", detail: 'Le CA des 7 derniers jours atteint 85 %.', onglet: 'tableau-de-bord' },
-  { code: 'CREANCES', gravite: 'MOYENNE', titre: 'Un organisme tarde à payer', detail: 'MUGEF-CI (120 j).', onglet: 'tresorerie-tiers-payant' },
+  {
+    code: 'CHUTE_ACTIVITE',
+    gravite: 'HAUTE',
+    titre: "Chute d'activité",
+    detail: 'Le CA des 7 derniers jours atteint 85 %.',
+    onglet: 'tableau-de-bord',
+  },
+  {
+    code: 'CREANCES',
+    gravite: 'MOYENNE',
+    titre: 'Un organisme tarde à payer',
+    detail: 'MUGEF-CI (120 j).',
+    onglet: 'tresorerie-tiers-payant',
+  },
 ];
 
 describe('Onglet Tableau de bord du pilotage', () => {
@@ -66,7 +103,10 @@ describe('Onglet Tableau de bord du pilotage', () => {
     await TestBed.configureTestingModule({
       imports: [OngletTableauDeBordComponent],
       providers: [
-        { provide: PilotageApiService, useValue: { lireSeries: () => of(SERIES), lireEcarts: () => of(ECARTS), exporterSeries, listerAlertes: () => of(ALERTES) } },
+        {
+          provide: PilotageApiService,
+          useValue: { lireSeries: () => of(SERIES), lireEcarts: () => of(ECARTS), exporterSeries, listerAlertes: () => of(ALERTES) },
+        },
         { provide: BlobDownloadService, useValue: telechargement },
         { provide: AbilityService, useValue: { canSignal: () => droitExport } },
         provideRouter([]),
@@ -139,4 +179,3 @@ describe('Onglet Tableau de bord du pilotage', () => {
     droitExport.set(true);
   });
 });
-

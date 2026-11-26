@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.report.pdf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -47,10 +46,9 @@ class ComparativePdfReportServiceTest {
         when(comparativeReportService.getComparisonBySalesType(any(), any())).thenReturn(List.of(parType()));
 
         service = new ComparativePdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            comparativeReportService
-        );
+                PdfReportTestSupport.storageService(),
+                PdfReportTestSupport.moteurDeGabarits(),
+                comparativeReportService);
     }
 
     @Test
@@ -140,13 +138,13 @@ class ComparativePdfReportServiceTest {
     }
 
     private static List<String> libelles(Map<String, Object> modele) {
-        return ((List<?>) modele.get("comparisons")).stream().map(d -> ((ComparativeCADTO) d).periodLabel()).toList();
+        return ((List<?>) modele.get("comparisons"))
+                .stream().map(d -> ((ComparativeCADTO) d).periodLabel()).toList();
     }
 
     private static ComparativeCADTO periode(String libelle) {
         return new ComparativeCADTO(
-            LocalDate.of(2026, 1, 1), libelle, 100_000L, 90_000L, BigDecimal.TEN, BigDecimal.TEN, 10, 9, "MONTHLY"
-        );
+                LocalDate.of(2026, 1, 1), libelle, 100_000L, 90_000L, BigDecimal.TEN, BigDecimal.TEN, 10, 9, "MONTHLY");
     }
 
     private static ComparativeByTypeDTO parType() {
@@ -155,7 +153,17 @@ class ComparativePdfReportServiceTest {
 
     private static ComparativeSummaryDTO resume() {
         return new ComparativeSummaryDTO(
-            0L, 0L, BigDecimal.ZERO, 0L, 0L, BigDecimal.ZERO, "Janvier", 0L, "Février", 0L, BigDecimal.ZERO, BigDecimal.ZERO
-        );
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                0L,
+                0L,
+                BigDecimal.ZERO,
+                "Janvier",
+                0L,
+                "Février",
+                0L,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO);
     }
 }

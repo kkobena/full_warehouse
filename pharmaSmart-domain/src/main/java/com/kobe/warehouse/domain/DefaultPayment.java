@@ -7,7 +7,6 @@ import java.io.Serializable;
 /**
  * A DefaultPayment.
  */
-
 @Entity
 public class DefaultPayment extends PaymentTransaction implements Serializable {
 

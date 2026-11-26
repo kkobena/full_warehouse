@@ -1,7 +1,6 @@
 <div class="pharma-smart-content p-1">
   <!-- Modern Pharma Toolbar ---->
   <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Rapport d'activité">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <pharma-date-picker [(ngModel)]="fromDate" id="du" label="Du" />
@@ -251,7 +250,7 @@
   }
   <!-- TODO il placer les 2 premiers card sur une même ligne  -->
   @if (groupeFournisseurAchats() && groupeFournisseurAchats().length) {
-    <div class="row  p-2">
+    <div class="row p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
@@ -298,9 +297,10 @@
         </div>
       </div>
     </div>
-  }<!-- TODO voire pourquoi cette card ne s'affiche pas  -->
+  }
+  <!-- TODO voire pourquoi cette card ne s'affiche pas  -->
   @if (reglementTiersPayants() && reglementTiersPayants().length) {
-    <div class="row  p-2">
+    <div class="row p-2">
       <div class="card h-100 data-card">
         <div class="card-header">
           <h5 class="card-title">
@@ -318,7 +318,6 @@
               [rows]="10"
               [value]="reglementTiersPayants()"
               dataKey="libelle"
-
             >
               <ng-template #caption>
                 <div class="d-flex">
@@ -327,7 +326,9 @@
                       (input)="tbReglementTiersPayants.filterGlobal($event.target.value)"
                       [(ngModel)]="searchReglement"
                       class="form-control"
-                      placeholder="Filtrer" type="text" />
+                      placeholder="Filtrer"
+                      type="text"
+                    />
                   </app-icon-field>
                 </div>
               </ng-template>
@@ -396,7 +397,9 @@
                       (input)="tb.filterGlobal($event.target.value)"
                       [(ngModel)]="searchAchat"
                       class="form-control"
-                      placeholder="Filtrer" type="text" />
+                      placeholder="Filtrer"
+                      type="text"
+                    />
                   </app-icon-field>
                 </div>
               </ng-template>

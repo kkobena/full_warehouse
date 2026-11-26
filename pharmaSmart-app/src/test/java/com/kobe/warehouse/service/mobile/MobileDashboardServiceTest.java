@@ -110,9 +110,9 @@ class MobileDashboardServiceTest {
         @Test
         @DisplayName("les chiffres de la journée sont repris tels quels")
         void chiffresRepris() {
-            when(salesRepository.getDailySalesSummary(JOUR)).thenReturn(
-                new DailySalesSummaryProjection(1_000_000L, 42, 38, 23_809L, 900_000L, 100_000L, 400_000L, 40.0)
-            );
+            when(salesRepository.getDailySalesSummary(JOUR))
+                    .thenReturn(new DailySalesSummaryProjection(
+                            1_000_000L, 42, 38, 23_809L, 900_000L, 100_000L, 400_000L, 40.0));
 
             MobileDashboardDTO resultat = service.getDashboard(JOUR);
 
@@ -219,14 +219,15 @@ class MobileDashboardServiceTest {
         @Test
         @DisplayName("les alertes de l'officine sont reprises avec leur total")
         void alertesReprises() {
-            when(alertService.getAlertsSummary()).thenReturn(
-                List.of(alerte("STOCK_RUPTURE", 7), alerte("EXPIRY", 4), alerte("CASH_DISCREPANCY", 1))
-            );
+            when(alertService.getAlertsSummary())
+                    .thenReturn(
+                            List.of(alerte("STOCK_RUPTURE", 7), alerte("EXPIRY", 4), alerte("CASH_DISCREPANCY", 1)));
 
             MobileDashboardDTO resultat = service.getDashboard(JOUR);
 
-            assertThat(resultat.alerts()).extracting(MobileAlertDTO::type)
-                .containsExactly("STOCK_RUPTURE", "EXPIRY", "CASH_DISCREPANCY");
+            assertThat(resultat.alerts())
+                    .extracting(MobileAlertDTO::type)
+                    .containsExactly("STOCK_RUPTURE", "EXPIRY", "CASH_DISCREPANCY");
             assertThat(resultat.alertsCount()).isEqualTo(12);
         }
 
@@ -249,12 +250,10 @@ class MobileDashboardServiceTest {
         @Test
         @DisplayName("chaque produit du palmarès garde son rang et son code CIP")
         void palmares() {
-            when(salesRepository.getTopProducts(JOUR, 5)).thenReturn(
-                List.of(
-                    new TopProductProjection(1L, "DOLIPRANE", "CIP1", 500_000L, 120, 1),
-                    new TopProductProjection(2L, "EFFERALGAN", "CIP2", 300_000L, 80, 2)
-                )
-            );
+            when(salesRepository.getTopProducts(JOUR, 5))
+                    .thenReturn(List.of(
+                            new TopProductProjection(1L, "DOLIPRANE", "CIP1", 500_000L, 120, 1),
+                            new TopProductProjection(2L, "EFFERALGAN", "CIP2", 300_000L, 80, 2)));
 
             List<TopProductDTO> palmares = service.getDashboard(JOUR).topProducts();
 
@@ -270,13 +269,12 @@ class MobileDashboardServiceTest {
         @Test
         @DisplayName("chaque point de la courbe porte son jour de la semaine abrégé")
         void courbe() {
-            when(salesRepository.getCATrend(any(), any())).thenReturn(
-                // Le 9 mars 2026 est un lundi, le 10 un mardi.
-                List.of(
-                    new DailyCATrendProjection(LocalDate.of(2026, 3, 9), 800_000L, 30),
-                    new DailyCATrendProjection(LocalDate.of(2026, 3, 10), 1_000_000L, 42)
-                )
-            );
+            when(salesRepository.getCATrend(any(), any()))
+                    .thenReturn(
+                            // Le 9 mars 2026 est un lundi, le 10 un mardi.
+                            List.of(
+                                    new DailyCATrendProjection(LocalDate.of(2026, 3, 9), 800_000L, 30),
+                                    new DailyCATrendProjection(LocalDate.of(2026, 3, 10), 1_000_000L, 42)));
 
             List<DailyCASummaryDTO> courbe = service.getDashboard(JOUR).caTrend();
 

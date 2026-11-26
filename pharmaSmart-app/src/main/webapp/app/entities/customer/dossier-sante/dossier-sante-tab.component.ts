@@ -1,18 +1,28 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CommonModule} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {Subject} from 'rxjs';
-import {SERVER_API_URL} from 'app/app.constants';
-import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
-import {IDci} from 'app/features/dci/models/dci.model';
-import {BadgeComponent, ButtonComponent, DetailFieldComponent, DetailGridComponent, DetailSectionComponent, InputComponent, InputNumberComponent, SelectSearchComponent, SwitchComponent} from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {CustomerService} from '../customer.service';
-import {IAllergie, IDossierSante} from '../customer-fiche.model';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { SERVER_API_URL } from 'app/app.constants';
+import { ISO_TO_NGB_DATE, NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { IDci } from 'app/features/dci/models/dci.model';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  InputComponent,
+  InputNumberComponent,
+  SelectSearchComponent,
+  SwitchComponent,
+} from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { CustomerService } from '../customer.service';
+import { IAllergie, IDossierSante } from '../customer-fiche.model';
 
 /**
  * Onglet « Santé » de la fiche client (docs/PLAN-FICHE-CLIENT.md, lot 2) : allergies, pathologies,
@@ -45,8 +55,8 @@ import {IAllergie, IDossierSante} from '../customer-fiche.model';
     InputNumberComponent,
     SelectSearchComponent,
     SwitchComponent,
-    PharmaDatePickerComponent
-  ]
+    PharmaDatePickerComponent,
+  ],
 })
 export class DossierSanteTabComponent implements OnInit {
   readonly customerId = input.required<number>();
@@ -75,7 +85,7 @@ export class DossierSanteTabComponent implements OnInit {
     dateTerme: this.fb.control<NgbDateStruct | null>(null),
     allaitement: this.fb.control(false),
     poidsKg: this.fb.control<number | null>(null),
-    note: this.fb.control('')
+    note: this.fb.control(''),
   });
 
   ngOnInit(): void {
@@ -100,7 +110,7 @@ export class DossierSanteTabComponent implements OnInit {
       dateTerme: ISO_TO_NGB_DATE(d?.dateTerme),
       allaitement: d?.allaitement ?? false,
       poidsKg: d?.poidsKg ?? null,
-      note: d?.note ?? ''
+      note: d?.note ?? '',
     });
     this.editing.set(true);
   }
@@ -132,7 +142,7 @@ export class DossierSanteTabComponent implements OnInit {
 
   protected rechercherDci(search: string): void {
     this.http
-      .get<IDci[]>(`${SERVER_API_URL}api/dci`, {params: {page: 0, size: 20, search: search ?? ''}})
+      .get<IDci[]>(`${SERVER_API_URL}api/dci`, { params: { page: 0, size: 20, search: search ?? '' } })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(dcis => this.dcis.set(dcis));
   }
@@ -144,14 +154,14 @@ export class DossierSanteTabComponent implements OnInit {
         id: a.id ?? undefined,
         dciId: a.dci?.id ?? undefined,
         libelle: a.dci ? undefined : a.libelle || undefined,
-        reaction: a.reaction || undefined
+        reaction: a.reaction || undefined,
       })),
       pathologies: v.pathologies ?? [],
       grossesse: !!v.grossesse,
-      dateTerme: v.grossesse ? NGB_DATE_TO_ISO(v.dateTerme) ?? undefined : undefined,
+      dateTerme: v.grossesse ? (NGB_DATE_TO_ISO(v.dateTerme) ?? undefined) : undefined,
       allaitement: !!v.allaitement,
       poidsKg: v.poidsKg ?? undefined,
-      note: v.note || undefined
+      note: v.note || undefined,
     };
     this.saving.set(true);
     this.customerService
@@ -168,12 +178,12 @@ export class DossierSanteTabComponent implements OnInit {
         error: err => {
           this.saving.set(false);
           this.notificationService.error(err?.error?.message ?? "Erreur lors de l'enregistrement du dossier santé");
-        }
+        },
       });
   }
 
   private ligneAllergie(a: IAllergie): FormGroup {
-    const dci = a.dciId ? ({id: a.dciId, libelle: a.dciLibelle} as IDci) : null;
+    const dci = a.dciId ? ({ id: a.dciId, libelle: a.dciLibelle } as IDci) : null;
     if (dci && !this.dcis().some(d => d.id === dci.id)) {
       this.dcis.update(liste => [dci, ...liste]);
     }
@@ -181,9 +191,7 @@ export class DossierSanteTabComponent implements OnInit {
       id: this.fb.control<number | null>(a.id ?? null),
       dci: this.fb.control<IDci | null>(dci),
       libelle: this.fb.control(a.libelle ?? ''),
-      reaction: this.fb.control(a.reaction ?? '')
+      reaction: this.fb.control(a.reaction ?? ''),
     });
   }
-
-
 }

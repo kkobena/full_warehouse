@@ -1,13 +1,12 @@
-import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-
-import {IStockAlert, StockAlertType} from 'app/shared/model/report/stock-alert.model';
-import {StockAlertReportService} from '../services/stock-alert-report.service';
-import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
-import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import { IStockAlert, StockAlertType } from 'app/shared/model/report/stock-alert.model';
+import { StockAlertReportService } from '../services/stock-alert-report.service';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -15,7 +14,7 @@ import {
   KpiItemComponent,
   KpiStripComponent,
   MultiSelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 const ITEMS_PER_PAGE = 15;
@@ -33,7 +32,7 @@ const ITEMS_PER_PAGE = 15;
     MultiSelectComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
 })
 export default class StockAlertsComponent implements OnInit {
@@ -56,9 +55,9 @@ export default class StockAlertsComponent implements OnInit {
   readonly StockAlertType = StockAlertType;
 
   alertTypeOptions = [
-    {label: 'Rupture de stock', value: StockAlertType.RUPTURE},
-    {label: 'Alerte stock bas', value: StockAlertType.ALERTE},
-    {label: 'Proche péremption', value: StockAlertType.PEREMPTION},
+    { label: 'Rupture de stock', value: StockAlertType.RUPTURE },
+    { label: 'Alerte stock bas', value: StockAlertType.ALERTE },
+    { label: 'Proche péremption', value: StockAlertType.PEREMPTION },
   ];
 
   private readonly stockAlertService = inject(StockAlertReportService);
@@ -74,18 +73,16 @@ export default class StockAlertsComponent implements OnInit {
     const size = event?.rows ?? this.rowsPerPage;
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
-    this.stockAlertService
-      .getStockAlerts({page, size, sort: ['alertType,asc', 'libelle,asc'], types})
-      .subscribe({
-        next: (res: HttpResponse<IStockAlert[]>) => {
-          this.totalItems.set(Number(res.headers.get('X-Total-Count')));
-          this.alerts.set(res.body ?? []);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
-        },
-      });
+    this.stockAlertService.getStockAlerts({ page, size, sort: ['alertType,asc', 'libelle,asc'], types }).subscribe({
+      next: (res: HttpResponse<IStockAlert[]>) => {
+        this.totalItems.set(Number(res.headers.get('X-Total-Count')));
+        this.alerts.set(res.body ?? []);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
+    });
   }
 
   loadAlertCounts(): void {
@@ -103,16 +100,13 @@ export default class StockAlertsComponent implements OnInit {
   exportToPdf(): void {
     const types = this.selectedAlertTypes().length > 0 ? this.selectedAlertTypes() : undefined;
 
-    this.stockAlertService.exportStockAlertsToPdf(types)
-      .subscribe(resp => {
-        if (this.tauriPrinter.isRunningInTauri()) {
-          handleBlobForTauri(resp.body, `stock-alerts`);
-        } else {
-          window.open(URL.createObjectURL(resp.body));
-        }
-      });
-
-
+    this.stockAlertService.exportStockAlertsToPdf(types).subscribe(resp => {
+      if (this.tauriPrinter.isRunningInTauri()) {
+        handleBlobForTauri(resp.body, `stock-alerts`);
+      } else {
+        window.open(URL.createObjectURL(resp.body));
+      }
+    });
   }
 
   getAlertClass(alertType?: StockAlertType): string {

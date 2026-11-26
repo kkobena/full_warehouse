@@ -3,13 +3,13 @@ package com.kobe.warehouse.web.rest.declaration_ca;
 import com.kobe.warehouse.aop.license.RequiresFeature;
 import com.kobe.warehouse.license.Feature;
 import com.kobe.warehouse.service.declaration_ca.PonctionService;
-import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionAssietteDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionLigneDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParamDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionParametresDTO;
 import com.kobe.warehouse.service.declaration_ca.dto.PonctionSimulationDTO;
+import com.kobe.warehouse.web.rest.Utils;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 @RequestMapping("/api/declaration-ca/ponctions")
@@ -61,17 +60,15 @@ public class PonctionResource {
         return ResponseEntity.ok(ponctionService.annuler(id));
     }
 
-
     /**
      * L'assiette d'une période. {@code GET} et non {@code POST} : trois scalaires, aucune écriture,
      * et un résultat que le navigateur peut mettre en cache le temps d'un aller-retour.
      */
     @GetMapping("/assiette")
     public ResponseEntity<PonctionAssietteDTO> getAssiette(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
-        @RequestParam(required = false) BigDecimal plafondParVente
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin,
+            @RequestParam(required = false) BigDecimal plafondParVente) {
         return ResponseEntity.ok(ponctionService.assiette(dateDebut, dateFin, plafondParVente));
     }
 
@@ -88,9 +85,8 @@ public class PonctionResource {
      */
     @GetMapping
     public ResponseEntity<List<PonctionDTO>> getHistorique(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
         return ResponseEntity.ok(ponctionService.getHistorique(dateDebut, dateFin));
     }
 

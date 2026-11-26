@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DashboardLayoutAuthorityRepository
-    extends JpaRepository<DashboardLayoutAuthority, DashboardLayoutAuthorityId> {
+        extends JpaRepository<DashboardLayoutAuthority, DashboardLayoutAuthorityId> {
 
     /**
      * Layout par défaut pour un rôle donné.
@@ -28,7 +28,8 @@ public interface DashboardLayoutAuthorityRepository
     /**
      * Tous les layouts assignés à un rôle.
      */
-    @Query("SELECT dla FROM DashboardLayoutAuthority dla JOIN FETCH dla.layout WHERE dla.authority.name = :authorityName")
+    @Query(
+            "SELECT dla FROM DashboardLayoutAuthority dla JOIN FETCH dla.layout WHERE dla.authority.name = :authorityName")
     List<DashboardLayoutAuthority> findByAuthorityName(@Param("authorityName") String authorityName);
 
     /**

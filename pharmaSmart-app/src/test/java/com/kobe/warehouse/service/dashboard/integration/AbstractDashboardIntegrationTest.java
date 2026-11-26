@@ -94,12 +94,14 @@ public abstract class AbstractDashboardIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new DashboardServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -108,7 +110,8 @@ public abstract class AbstractDashboardIntegrationTest {
 
         // Le tableau de bord du préparateur ne lit que la caisse de l'utilisateur connecté :
         // sans contexte de sécurité, toutes ses tuiles reviendraient vides.
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(LOGIN, null, java.util.List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(LOGIN, null, java.util.List.of()));
     }
 
     @AfterEach
@@ -126,7 +129,9 @@ public abstract class AbstractDashboardIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected PaymentMode modePaiement(String code) {
@@ -153,7 +158,8 @@ public abstract class AbstractDashboardIntegrationTest {
         return caisse(fondDeCaisse, aujourdHui().atTime(8, 0), CashRegisterStatut.OPEN, null);
     }
 
-    protected CashRegister caisse(long fondDeCaisse, LocalDateTime ouverture, CashRegisterStatut statut, LocalDateTime fermeture) {
+    protected CashRegister caisse(
+            long fondDeCaisse, LocalDateTime ouverture, CashRegisterStatut statut, LocalDateTime fermeture) {
         CashFund fond = new CashFund();
         fond.setUser(utilisateur);
         fond.setAmount((int) fondDeCaisse);
@@ -182,7 +188,8 @@ public abstract class AbstractDashboardIntegrationTest {
      * Un encaissement rattaché à la caisse. Le {@code dtype} vaut {@code DefaultPayment} : c'est un
      * mouvement de caisse, donc jamais l'un des types que le tableau de bord exclut.
      */
-    protected DefaultPayment encaissement(CashRegister caisse, String codeMode, TypeFinancialTransaction type, int montant) {
+    protected DefaultPayment encaissement(
+            CashRegister caisse, String codeMode, TypeFinancialTransaction type, int montant) {
         DefaultPayment paiement = new DefaultPayment();
         paiement.setId(PAIEMENT_ID.incrementAndGet());
         paiement.setTransactionDate(LocalDate.now());
@@ -225,19 +232,19 @@ public abstract class AbstractDashboardIntegrationTest {
         return vente(caisse, NatureVente.CARNET, montant, 0, false, null, LocalDate.now());
     }
 
-    protected CashSale venteDifferee(CashRegister caisse, int montant, int resteADevoir, UninsuredCustomer client, LocalDate date) {
+    protected CashSale venteDifferee(
+            CashRegister caisse, int montant, int resteADevoir, UninsuredCustomer client, LocalDate date) {
         return vente(caisse, NatureVente.COMPTANT, montant, resteADevoir, true, client, date);
     }
 
     protected CashSale vente(
-        CashRegister caisse,
-        NatureVente nature,
-        int montant,
-        int resteADevoir,
-        boolean differe,
-        UninsuredCustomer client,
-        LocalDate date
-    ) {
+            CashRegister caisse,
+            NatureVente nature,
+            int montant,
+            int resteADevoir,
+            boolean differe,
+            UninsuredCustomer client,
+            LocalDate date) {
         CashSale vente = new CashSale();
         vente.setSaleDate(date);
         vente.setId(services.saleIdGeneratorService.nextId());
@@ -314,9 +321,9 @@ public abstract class AbstractDashboardIntegrationTest {
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
         produit.setTva(tva(0));
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult()
-        );
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult());
         em.persist(produit);
         em.flush();
         return produit;

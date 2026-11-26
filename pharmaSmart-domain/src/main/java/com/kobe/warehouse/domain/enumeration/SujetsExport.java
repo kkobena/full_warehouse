@@ -21,18 +21,17 @@ public final class SujetsExport {
      * fait sens à la lecture du code.
      */
     private static final List<SujetExport> VEDETTES = List.of(
-        RapportExport.RAPPORT_TVA,
-        RapportExport.DECLARATION_TVA,
-        RapportExport.TABLEAU_DE_BORD_CA,
-        RapportExport.PILOTAGE_TABLEAU_DE_BORD,
-        RapportExport.RECAPITULATIF_CAISSE,
-        RapportExport.RAPPORT_ACTIVITE,
-        RapportExport.PILOTAGE_ANALYSER,
-        RapportExport.PILOTAGE_ANNEES,
-        RapportExport.EXPORT_COMPTABLE,
-        RapportExport.BALANCE_CAISSE,
-        RapportExport.TABLEAU_PHARMACIEN
-    );
+            RapportExport.RAPPORT_TVA,
+            RapportExport.DECLARATION_TVA,
+            RapportExport.TABLEAU_DE_BORD_CA,
+            RapportExport.PILOTAGE_TABLEAU_DE_BORD,
+            RapportExport.RECAPITULATIF_CAISSE,
+            RapportExport.RAPPORT_ACTIVITE,
+            RapportExport.PILOTAGE_ANALYSER,
+            RapportExport.PILOTAGE_ANNEES,
+            RapportExport.EXPORT_COMPTABLE,
+            RapportExport.BALANCE_CAISSE,
+            RapportExport.TABLEAU_PHARMACIEN);
 
     private static final List<SujetExport> TOUS = rassembler();
     private static final Map<String, SujetExport> PAR_CODE = indexer();
@@ -54,7 +53,8 @@ public final class SujetsExport {
     }
 
     private static List<SujetExport> rassembler() {
-        // Un ensemble ordonné : une vedette n'apparaît pas deux fois, et nul besoin de la retirer de sa liste d'origine.
+        // Un ensemble ordonné : une vedette n'apparaît pas deux fois, et nul besoin de la retirer de sa liste
+        // d'origine.
         Set<SujetExport> sujets = new LinkedHashSet<>(VEDETTES);
         sujets.addAll(List.of(ExportDonnees.values()));
         sujets.addAll(List.of(RapportExport.values()));

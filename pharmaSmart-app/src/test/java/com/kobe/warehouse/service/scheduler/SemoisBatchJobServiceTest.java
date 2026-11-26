@@ -11,8 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.repository.MagasinRepository;
-import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -20,14 +18,15 @@ import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
+import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.scheduler.dto.SemoisEligibleItem;
-import com.kobe.warehouse.service.EtatProduitService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -101,20 +100,21 @@ class SemoisBatchJobServiceTest {
     @BeforeEach
     void setUp() {
         service = new SemoisBatchJobService(
-            produitRepository,
-            semoisConfigurationRepository,
-            suggestionRepository,
-            suggestionLineRepository,
-            orderLineRepository,
-            etatProduitService,
-            referenceService,
-            magasinRepository,
-            em
-        );
+                produitRepository,
+                semoisConfigurationRepository,
+                suggestionRepository,
+                suggestionLineRepository,
+                orderLineRepository,
+                etatProduitService,
+                referenceService,
+                magasinRepository,
+                em);
 
         magasin = mock(Magasin.class);
         lenient().when(magasin.getId()).thenReturn(MAGASIN_ID);
-        lenient().when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc()).thenReturn(List.of(magasin));
+        lenient()
+                .when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc())
+                .thenReturn(List.of(magasin));
         lenient().when(em.getReference(eq(Fournisseur.class), any())).thenReturn(mock(Fournisseur.class));
         lenient().when(em.getReference(eq(Magasin.class), any())).thenReturn(magasin);
         lenient().when(em.getReference(eq(FournisseurProduit.class), any())).thenReturn(mock(FournisseurProduit.class));
@@ -172,7 +172,7 @@ class SemoisBatchJobServiceTest {
             Magasin parapharmacie = mock(Magasin.class);
             lenient().when(parapharmacie.getId()).thenReturn(7);
             when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc())
-                .thenReturn(List.of(magasin, parapharmacie));
+                    .thenReturn(List.of(magasin, parapharmacie));
             Slice<SemoisEligibleItem> vide = new SliceImpl<>(List.of(), Pageable.unpaged(), false);
             when(produitRepository.findSemoisEligibleItemsSlice(any(), any())).thenReturn(vide);
 
@@ -221,7 +221,8 @@ class SemoisBatchJobServiceTest {
             assertThat(suggestion.getStatut()).isEqualTo(StatutSuggession.GENEREE);
             assertThat(suggestion.getSuggessionReference()).endsWith("001");
             assertThat(suggestion.getSuggestionLines()).hasSize(1);
-            assertThat(suggestion.getSuggestionLines().iterator().next().getQuantity()).isEqualTo(8);
+            assertThat(suggestion.getSuggestionLines().iterator().next().getQuantity())
+                    .isEqualTo(8);
         }
 
         @Test
@@ -242,7 +243,8 @@ class SemoisBatchJobServiceTest {
             pageDe(item(1, 100, 2L, 10));
             lignesExistantes();
             aucuneSuggestionExistante();
-            when(orderLineRepository.findPendingQtyByProduitIds(anySet())).thenReturn(List.<Object[]>of(new Object[] { 1, 8 }));
+            when(orderLineRepository.findPendingQtyByProduitIds(anySet()))
+                    .thenReturn(List.<Object[]>of(new Object[] {1, 8}));
 
             service.creerSuggestionBatch();
 
@@ -271,7 +273,12 @@ class SemoisBatchJobServiceTest {
 
             service.creerSuggestionBatch();
 
-            assertThat(suggestionEnregistree().getSuggestionLines().iterator().next().getQuantity()).isEqualTo(6);
+            assertThat(suggestionEnregistree()
+                            .getSuggestionLines()
+                            .iterator()
+                            .next()
+                            .getQuantity())
+                    .isEqualTo(6);
         }
     }
 
@@ -369,7 +376,16 @@ class SemoisBatchJobServiceTest {
         @DisplayName("Une exclusion encore active écarte le produit et retire sa ligne")
         void exclusionActive_produitEcarte() {
             SuggestionLine ligne = ligneExistante(100, false);
-            pageDe(projection(1, 100, 0L, 10, 10, COLIS_UNITAIRE, SANS_MINIMUM, LocalDateTime.now().minusDays(2), 30));
+            pageDe(projection(
+                    1,
+                    100,
+                    0L,
+                    10,
+                    10,
+                    COLIS_UNITAIRE,
+                    SANS_MINIMUM,
+                    LocalDateTime.now().minusDays(2),
+                    30));
             lignesExistantes(ligne);
             suggestionExistante();
 
@@ -383,7 +399,16 @@ class SemoisBatchJobServiceTest {
         @DisplayName("Une exclusion expirée laisse le produit revenir dans le batch")
         void exclusionExpiree_produitRepris() {
             SuggestionLine ligne = ligneExistante(100, false);
-            pageDe(projection(1, 100, 2L, 10, 10, COLIS_UNITAIRE, SANS_MINIMUM, LocalDateTime.now().minusDays(40), 30));
+            pageDe(projection(
+                    1,
+                    100,
+                    2L,
+                    10,
+                    10,
+                    COLIS_UNITAIRE,
+                    SANS_MINIMUM,
+                    LocalDateTime.now().minusDays(40),
+                    30));
             lignesExistantes(ligne);
             suggestionExistante();
 
@@ -421,41 +446,40 @@ class SemoisBatchJobServiceTest {
     }
 
     private SemoisEligibleItem projection(
-        Integer produitId,
-        Integer fpId,
-        long stock,
-        Integer objectif,
-        Integer seuilMini,
-        Integer qteColis,
-        Integer qteMinimaleCommande,
-        LocalDateTime exclusionDate,
-        Integer exclusionDureeJours
-    ) {
+            Integer produitId,
+            Integer fpId,
+            long stock,
+            Integer objectif,
+            Integer seuilMini,
+            Integer qteColis,
+            Integer qteMinimaleCommande,
+            LocalDateTime exclusionDate,
+            Integer exclusionDureeJours) {
         return new SemoisEligibleItem(
-            produitId,
-            fpId,
-            FOURNISSEUR_ID,
-            qteColis,
-            qteMinimaleCommande,
-            stock,
-            objectif,
-            seuilMini,
-            QTY_APPRO,
-            exclusionDate,
-            exclusionDureeJours
-        );
+                produitId,
+                fpId,
+                FOURNISSEUR_ID,
+                qteColis,
+                qteMinimaleCommande,
+                stock,
+                objectif,
+                seuilMini,
+                QTY_APPRO,
+                exclusionDate,
+                exclusionDureeJours);
     }
 
     /** Une seule page, sans suivante : le batch s'arrête après elle. */
     private void pageDe(SemoisEligibleItem... items) {
         Slice<SemoisEligibleItem> page = new SliceImpl<>(List.of(items), Pageable.unpaged(), false);
-        when(produitRepository.findSemoisEligibleItemsSlice(eq(MAGASIN_ID), any())).thenReturn(page);
+        when(produitRepository.findSemoisEligibleItemsSlice(eq(MAGASIN_ID), any()))
+                .thenReturn(page);
     }
 
     private void lignesExistantes(SuggestionLine... lignes) {
-        when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(eq(TypeSuggession.AUTO), anySet())).thenReturn(
-            List.of(lignes)
-        );
+        when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(
+                        eq(TypeSuggession.AUTO), anySet()))
+                .thenReturn(List.of(lignes));
     }
 
     private SuggestionLine ligneExistante(int fpId, boolean quantiteManuelle) {
@@ -468,13 +492,13 @@ class SemoisBatchJobServiceTest {
     }
 
     private void aucuneSuggestionExistante() {
-        when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), any(), any())).thenReturn(Optional.empty());
+        when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), any(), any()))
+                .thenReturn(Optional.empty());
     }
 
     private void suggestionExistante() {
-        when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), any(), any())).thenReturn(
-            Optional.of(mock(Suggestion.class))
-        );
+        when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), any(), any()))
+                .thenReturn(Optional.of(mock(Suggestion.class)));
     }
 
     private List<Suggestion> suggestionsEnregistrees() {

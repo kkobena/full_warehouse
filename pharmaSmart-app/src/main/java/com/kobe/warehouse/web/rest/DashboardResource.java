@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.DashboardAlertService;
 import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
@@ -14,12 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes.kpi", "rapport-ventes", "comptabilite" })
+@RequiresNavAccess({"ventes.kpi", "rapport-ventes", "comptabilite"})
 public class DashboardResource {
 
     private final DashboardService dashboardService;
@@ -46,12 +46,14 @@ public class DashboardResource {
     }
 
     @GetMapping("/dashboard/ca-by-mode-paiment")
-    public ResponseEntity<List<VenteModePaimentRecord>> getCaByModePaiment(@Valid VenteRecordParamDTO venteRecordParam) {
+    public ResponseEntity<List<VenteModePaimentRecord>> getCaByModePaiment(
+            @Valid VenteRecordParamDTO venteRecordParam) {
         return ResponseEntity.ok().body(dashboardService.getCaGroupingByPaimentMode(venteRecordParam));
     }
 
     @GetMapping("/dashboard/ca-by-periode")
-    public ResponseEntity<List<VentePeriodeRecord>> getCaGroupingByPeriode(@Valid VenteRecordParamDTO venteRecordParam) {
+    public ResponseEntity<List<VentePeriodeRecord>> getCaGroupingByPeriode(
+            @Valid VenteRecordParamDTO venteRecordParam) {
         return ResponseEntity.ok().body(dashboardService.getCaGroupingByPeriode(venteRecordParam));
     }
 

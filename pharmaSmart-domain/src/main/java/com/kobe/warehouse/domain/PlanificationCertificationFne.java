@@ -72,40 +72,83 @@ public class PlanificationCertificationFne implements Serializable {
         this.updated = LocalDateTime.now();
     }
 
-    public Integer getId() { return id; }
-    public PlanificationCertificationFne setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getLibelle() { return libelle; }
-    public PlanificationCertificationFne setLibelle(String libelle) { this.libelle = libelle; return this; }
+    public PlanificationCertificationFne setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalTime getHeureDeclenchement() { return heureDeclenchement; }
+    public String getLibelle() {
+        return libelle;
+    }
+
+    public PlanificationCertificationFne setLibelle(String libelle) {
+        this.libelle = libelle;
+        return this;
+    }
+
+    public LocalTime getHeureDeclenchement() {
+        return heureDeclenchement;
+    }
+
     public PlanificationCertificationFne setHeureDeclenchement(LocalTime heureDeclenchement) {
-        this.heureDeclenchement = heureDeclenchement; return this;
+        this.heureDeclenchement = heureDeclenchement;
+        return this;
     }
 
-    public boolean isActif() { return actif; }
-    public PlanificationCertificationFne setActif(boolean actif) { this.actif = actif; return this; }
+    public boolean isActif() {
+        return actif;
+    }
 
-    public LocalDateTime getProchaineExecution() { return prochaineExecution; }
+    public PlanificationCertificationFne setActif(boolean actif) {
+        this.actif = actif;
+        return this;
+    }
+
+    public LocalDateTime getProchaineExecution() {
+        return prochaineExecution;
+    }
+
     public PlanificationCertificationFne setProchaineExecution(LocalDateTime prochaineExecution) {
-        this.prochaineExecution = prochaineExecution; return this;
+        this.prochaineExecution = prochaineExecution;
+        return this;
     }
 
-    public LocalDateTime getDerniereExecution() { return derniereExecution; }
+    public LocalDateTime getDerniereExecution() {
+        return derniereExecution;
+    }
+
     public PlanificationCertificationFne setDerniereExecution(LocalDateTime derniereExecution) {
-        this.derniereExecution = derniereExecution; return this;
+        this.derniereExecution = derniereExecution;
+        return this;
     }
 
-    public ExecutionStatut getDernierStatut() { return dernierStatut; }
+    public ExecutionStatut getDernierStatut() {
+        return dernierStatut;
+    }
+
     public PlanificationCertificationFne setDernierStatut(ExecutionStatut dernierStatut) {
-        this.dernierStatut = dernierStatut; return this;
+        this.dernierStatut = dernierStatut;
+        return this;
     }
 
-    public String getDernierMessage() { return dernierMessage; }
+    public String getDernierMessage() {
+        return dernierMessage;
+    }
+
     public PlanificationCertificationFne setDernierMessage(String dernierMessage) {
-        this.dernierMessage = dernierMessage; return this;
+        this.dernierMessage = dernierMessage;
+        return this;
     }
 
-    public LocalDateTime getCreated() { return created; }
-    public LocalDateTime getUpdated() { return updated; }
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
 }

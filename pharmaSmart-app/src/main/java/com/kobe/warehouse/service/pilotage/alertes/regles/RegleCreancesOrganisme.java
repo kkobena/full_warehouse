@@ -24,7 +24,8 @@ public class RegleCreancesOrganisme implements RegleAlerte {
     private final TresoreriePilotageService tresoreriePilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleCreancesOrganisme(TresoreriePilotageService tresoreriePilotageService, AppConfigurationService appConfigurationService) {
+    public RegleCreancesOrganisme(
+            TresoreriePilotageService tresoreriePilotageService, AppConfigurationService appConfigurationService) {
         this.tresoreriePilotageService = tresoreriePilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -39,7 +40,9 @@ public class RegleCreancesOrganisme implements RegleAlerte {
         double seuil = appConfigurationService.getAlerteDsoOrganismePilotage();
         List<String> organismes = new ArrayList<>();
         int nombre = 0;
-        for (OrganismeTresorerieDTO organisme : tresoreriePilotageService.analyserTiersPayant(RequetesAlertes.lireMoisADate(aujourdhui, List.of()), aujourdhui).organismes()) {
+        for (OrganismeTresorerieDTO organisme : tresoreriePilotageService
+                .analyserTiersPayant(RequetesAlertes.lireMoisADate(aujourdhui, List.of()), aujourdhui)
+                .organismes()) {
             if (organisme.encours() > 0 && organisme.dso() != null && organisme.dso() > seuil) {
                 nombre++;
                 if (organismes.size() < ORGANISMES_CITES) {
@@ -51,14 +54,12 @@ public class RegleCreancesOrganisme implements RegleAlerte {
             return List.of();
         }
         String autres = nombre > organismes.size() ? " et " + (nombre - organismes.size()) + " autre(s)" : "";
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "CREANCES",
                 GraviteAlerte.MOYENNE,
                 nombre == 1 ? "Un organisme tarde à payer" : nombre + " organismes tardent à payer",
-                "Encours au-delà de " + Math.round(seuil) + " jours de chiffre : " + String.join(", ", organismes) + autres + ".",
-                "tresorerie-tiers-payant"
-            )
-        );
+                "Encours au-delà de " + Math.round(seuil) + " jours de chiffre : " + String.join(", ", organismes)
+                        + autres + ".",
+                "tresorerie-tiers-payant"));
     }
 }

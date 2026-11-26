@@ -4,11 +4,12 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import jakarta.persistence.EntityManagerFactory;
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.step.Step;
+import java.util.Map;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.database.JpaPagingItemReader;
 import org.springframework.batch.infrastructure.item.database.builder.JpaPagingItemReaderBuilder;
@@ -16,8 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.util.Map;
 
 /**
  * Job autonome de recalcul SEMOIS avec chunk-based processing.
@@ -41,51 +40,49 @@ public class SemoisCalculationJobConfig {
     private int chunkSize;
 
     @Bean
-    public Job semoisCalculationJob(
-        JobRepository jobRepository,
-        Step recalculateSemoisChunkStep
-    ) {
+    public Job semoisCalculationJob(JobRepository jobRepository, Step recalculateSemoisChunkStep) {
         return new JobBuilder("semoisCalculationJob", jobRepository)
-            .preventRestart()
-            .start(recalculateSemoisChunkStep)
-            .build();
+                .preventRestart()
+                .start(recalculateSemoisChunkStep)
+                .build();
     }
 
     @Bean
     public Step recalculateSemoisChunkStep(
-        JobRepository jobRepository,
-        PlatformTransactionManager txManager,
-        JpaPagingItemReader<Produit> semoisProduitReader,
-        SemoisItemProcessor semoisItemProcessor,
-        SemoisItemWriter semoisItemWriter
-    ) {
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            JpaPagingItemReader<Produit> semoisProduitReader,
+            SemoisItemProcessor semoisItemProcessor,
+            SemoisItemWriter semoisItemWriter) {
         return new StepBuilder("recalculateSemoisChunkStep", jobRepository)
-            .<Produit, Produit>chunk(chunkSize).transactionManager(txManager)
-            .reader(semoisProduitReader)
-            .processor(semoisItemProcessor)
-            .writer(semoisItemWriter)
-            .faultTolerant()
-                .skip(Exception.class).skipLimit(50)
-            .listener(new SemoisSkipListener())
-            .build();
+                .<Produit, Produit>chunk(chunkSize)
+                .transactionManager(txManager)
+                .reader(semoisProduitReader)
+                .processor(semoisItemProcessor)
+                .writer(semoisItemWriter)
+                .faultTolerant()
+                .skip(Exception.class)
+                .skipLimit(50)
+                .listener(new SemoisSkipListener())
+                .build();
     }
 
     @Bean
     @StepScope
     public JpaPagingItemReader<Produit> semoisProduitReader(EntityManagerFactory emf) {
         return new JpaPagingItemReaderBuilder<Produit>()
-            .name("semoisProduitReader")
-            .entityManagerFactory(emf)
-            .transacted(false)
-            .parameterValues(Map.of("status", Status.ENABLE,"typeProduit", TypeProduit.PACKAGE))
-            .queryString("""
+                .name("semoisProduitReader")
+                .entityManagerFactory(emf)
+                .transacted(false)
+                .parameterValues(Map.of("status", Status.ENABLE, "typeProduit", TypeProduit.PACKAGE))
+                .queryString("""
                 SELECT p FROM Produit p
                 JOIN FETCH p.fournisseurProduitPrincipal fp
                 WHERE p.status = :status
                   AND p.typeProduit = :typeProduit
                 ORDER BY p.id
                 """)
-            .pageSize(chunkSize)
-            .build();
+                .pageSize(chunkSize)
+                .build();
     }
 }

@@ -1,36 +1,22 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnDestroy,
-  OnInit,
-  signal
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {interval, Subscription, switchMap, takeWhile, tap} from 'rxjs';
-import {
-  AppSplitButtonItem,
-  BadgeComponent,
-  ButtonComponent,
-  DataTableComponent,
-} from '../../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { interval, Subscription, switchMap, takeWhile, tap } from 'rxjs';
+import { AppSplitButtonItem, BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../../shared/ui';
 import {
   IPharmamlCommandeResponse,
   IPharmaMlEnvoi,
   ISubstitutionProposee,
-  PharmaMlStatut
+  PharmaMlStatut,
 } from '../../../../../shared/model/pharmaml.model';
-import {CommandeId} from '../../../../../shared/model/abstract-commande.model';
-import {OrderStatut} from '../../../../../shared/model/enumerations/order-statut.model';
-import {EnvoiPharmamlComponent} from '../ui/envoi/envoi-pharmaml.component';
-import {ReponsePharmamlComponent} from '../ui/reponse/reponse-pharmaml.component';
-import {SubstitutionPharmamlComponent} from '../ui/substitution/substitution-pharmaml.component';
-import {PharmamlApiService} from '../../../data-access/pharmaml-api.service';
-import {NotificationService} from '../../../../../shared/services/notification.service';
-import {DispoComparaisonComponent} from '../ui/dispo-comparaison/dispo-comparaison.component';
-
+import { CommandeId } from '../../../../../shared/model/abstract-commande.model';
+import { OrderStatut } from '../../../../../shared/model/enumerations/order-statut.model';
+import { EnvoiPharmamlComponent } from '../ui/envoi/envoi-pharmaml.component';
+import { ReponsePharmamlComponent } from '../ui/reponse/reponse-pharmaml.component';
+import { SubstitutionPharmamlComponent } from '../ui/substitution/substitution-pharmaml.component';
+import { PharmamlApiService } from '../../../data-access/pharmaml-api.service';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { DispoComparaisonComponent } from '../ui/dispo-comparaison/dispo-comparaison.component';
 
 const POLL_INTERVAL_MS = 5000;
 const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 'ERROR'];
@@ -77,7 +63,7 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     const ref = this.modal.open(EnvoiPharmamlComponent, {
       size: 'xl',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     const instance = ref.componentInstance as EnvoiPharmamlComponent;
     instance.commandeId = this.commandeId();
@@ -86,15 +72,18 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
       (result: IPharmamlCommandeResponse) => {
         this.lastResult.set(result);
         if (result.reliquatCommandeId != null) {
-          this.notificationService.info(`Une commande reliquat a été créée automatiquement (réf. interne #${result.reliquatCommandeId})`, 'Reliquat créé');
-
+          this.notificationService.info(
+            `Une commande reliquat a été créée automatiquement (réf. interne #${result.reliquatCommandeId})`,
+            'Reliquat créé',
+          );
         } else {
-          result.success ? this.notificationService.success(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi réussi') : this.notificationService.warning(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi partiel');
+          result.success
+            ? this.notificationService.success(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi réussi')
+            : this.notificationService.warning(`${result.successCount} / ${result.totalProduit} produits acceptés`, 'Envoi partiel');
         }
         this.loadHistorique();
       },
-      () => {
-      },
+      () => {},
     );
   }
 
@@ -102,27 +91,28 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     const ref = this.modal.open(SubstitutionPharmamlComponent, {
       size: 'xl',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     const instance = ref.componentInstance as SubstitutionPharmamlComponent;
     instance.commandeId = this.commandeId();
-    ref.result.then(() => this.loadSubstitutions(), () => this.loadSubstitutions());
+    ref.result.then(
+      () => this.loadSubstitutions(),
+      () => this.loadSubstitutions(),
+    );
   }
 
   openReponse(): void {
     const ref = this.modal.open(ReponsePharmamlComponent, {
       size: 'xl',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     const instance = ref.componentInstance as ReponsePharmamlComponent;
     instance.commandeRef = this.commandeRef();
     instance.orderId = this.commandeId().id.toString();
     ref.result.then(
-      () => {
-      },
-      () => {
-      },
+      () => {},
+      () => {},
     );
   }
 
@@ -130,19 +120,17 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     this.showHistorique.update(v => !v);
   }
 
-
   ouvrirComparaison(): void {
     const ref = this.modal.open(DispoComparaisonComponent, {
       size: 'xl',
       backdrop: 'static',
       centered: true,
-      scrollable: true
+      scrollable: true,
     });
     const instance = ref.componentInstance as DispoComparaisonComponent;
     instance.commandeId = this.commandeId();
     instance.header = `Comparaison disponibilité multi-grossistes — commande ${this.commandeRef()}`;
   }
-
 
   statutSeverity(statut: PharmaMlStatut): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
@@ -175,28 +163,22 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
         return 'En attente';
       default:
         return '';
-
     }
   }
 
-  private readonly utilsMenuItems = (): AppSplitButtonItem[] =>
-
-    [
-      {
-        label: 'Comparer multi-grossistes',
-        icon: 'pi pi-chart-bar',
-        command: () => this.ouvrirComparaison()
-      }
-    ]
-  ;
-
+  private readonly utilsMenuItems = (): AppSplitButtonItem[] => [
+    {
+      label: 'Comparer multi-grossistes',
+      icon: 'pi pi-chart-bar',
+      command: () => this.ouvrirComparaison(),
+    },
+  ];
 
   private loadSubstitutions(): void {
     const id = this.commandeId();
     this.api.substitutions(id.id, id.orderDate).subscribe({
       next: res => this.substitutionsEnAttente.set(res.body ?? []),
-      error() {
-      },
+      error() {},
     });
   }
 

@@ -10,27 +10,27 @@ import {
   output,
   signal,
   untracked,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbModal, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbPopover, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
-  ButtonComponent,
-  CheckboxComponent,
-  DataTableComponent,
-  EditableCellComponent,
-  IconFieldComponent
-} from '../../../../shared/ui';
-import {IClientTiersPayant, IProduit, IRemise, ISalesLine} from '../../../../shared/model';
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {AddPrixFormComponent} from '../../../products/ui/prix-reference/add-prix-form/add-prix-form.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
-import {PanierFocusService} from '../../data-access/services/panier-focus.service';
-import {ProduitSignaux, ProduitSignauxApiService} from '../../data-access/services/produit-signaux-api.service';
+  NgbModal,
+  NgbDropdown,
+  NgbDropdownItem,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbPopover,
+  NgbTooltip,
+} from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CheckboxComponent, DataTableComponent, EditableCellComponent, IconFieldComponent } from '../../../../shared/ui';
+import { IClientTiersPayant, IProduit, IRemise, ISalesLine } from '../../../../shared/model';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { AddPrixFormComponent } from '../../../products/ui/prix-reference/add-prix-form/add-prix-form.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { PanierFocusService } from '../../data-access/services/panier-focus.service';
+import { ProduitSignaux, ProduitSignauxApiService } from '../../data-access/services/produit-signaux-api.service';
 import {
   formaterDatePeremption,
   formaterMoisPeremption,
@@ -95,7 +95,6 @@ export interface DetailTiersPayantLigne {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductListComponent {
-
   // Inputs
   salesLines = input.required<ISalesLine[]>();
   isEditable = input(true);
@@ -133,9 +132,7 @@ export class ProductListComponent {
   protected readonly lignesAffichees = computed(() => {
     const terme = this.filterValue().trim().toLowerCase();
     const lignes = this.salesLines();
-    return terme
-      ? lignes.filter(l => (l.produitLibelle ?? '').toLowerCase().includes(terme))
-      : lignes;
+    return terme ? lignes.filter(l => (l.produitLibelle ?? '').toLowerCase().includes(terme)) : lignes;
   });
   selectedRemise = signal<IRemise | null>(null);
   isEditMode = signal(false);
@@ -190,7 +187,7 @@ export class ProductListComponent {
     const qty = Number(newQty);
     if (qty > 0) {
       this.annoncerDemande(line, qty);
-      this.quantityRequestedChanged.emit({line, newQty: qty});
+      this.quantityRequestedChanged.emit({ line, newQty: qty });
       return true;
     }
     return false;
@@ -207,7 +204,7 @@ export class ProductListComponent {
         );
         return false;
       }
-      this.quantityChanged.emit({line, newQty: qty});
+      this.quantityChanged.emit({ line, newQty: qty });
       return true;
     }
     return false;
@@ -216,7 +213,7 @@ export class ProductListComponent {
   onPriceChange(line: ISalesLine, newPrice: string): boolean {
     const price = Number(newPrice);
     if (price > 0) {
-      this.priceChanged.emit({line, newPrice: price});
+      this.priceChanged.emit({ line, newPrice: price });
       return true;
     }
     return false;
@@ -225,7 +222,7 @@ export class ProductListComponent {
   onRemoveLine(line: ISalesLine): void {
     // Utiliser le modal de confirmation
     this.confirmDialog.onConfirm(
-      () => this.authorizationRequired.emit({line, action: 'delete'}),
+      () => this.authorizationRequired.emit({ line, action: 'delete' }),
       'Supprimer Produit',
       `Voulez-vous supprimer ${line.produitLibelle || 'ce produit'} ?`,
       undefined,
@@ -272,7 +269,10 @@ export class ProductListComponent {
     }
     const cible = event.target as HTMLElement;
     const enEdition =
-      cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible instanceof HTMLSelectElement || cible.isContentEditable;
+      cible instanceof HTMLInputElement ||
+      cible instanceof HTMLTextAreaElement ||
+      cible instanceof HTMLSelectElement ||
+      cible.isContentEditable;
 
     if (enEdition) {
       if (event.ctrlKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp') && cible.dataset['col']) {
@@ -282,7 +282,7 @@ export class ProductListComponent {
       return;
     }
     // Hors champ : seules la grille et ses lignes pilotent le clavier (pas les boutons, menus, popovers).
-    if (!cible.matches('tr[data-line-id], .product-list-container') ) {
+    if (!cible.matches('tr[data-line-id], .product-list-container')) {
       return;
     }
 
@@ -332,7 +332,6 @@ export class ProductListComponent {
     }
   }
 
-
   /** Tarif négocié (prix de référence ou taux) du produit de la ligne, pour les tiers payants de la vente. */
   protected ajouterPrixNegocie(line: ISalesLine): void {
     showCommonModal(
@@ -340,7 +339,12 @@ export class ProductListComponent {
       AddPrixFormComponent,
       {
         isFromProduit: true,
-        produit: {id: line.produitId, libelle: line.produitLibelle, codeCip: line.code, regularUnitPrice: line.regularUnitPrice} as IProduit,
+        produit: {
+          id: line.produitId,
+          libelle: line.produitLibelle,
+          codeCip: line.code,
+          regularUnitPrice: line.regularUnitPrice,
+        } as IProduit,
         tiersPayantsVente: this.tiersPayants(),
         entity: null,
       },
@@ -350,7 +354,7 @@ export class ProductListComponent {
   }
 
   protected basculerNonRembourse(line: ISalesLine, nonRembourse: boolean): void {
-    this.nonRembourseChanged.emit({line, nonRembourse});
+    this.nonRembourseChanged.emit({ line, nonRembourse });
   }
 
   /** Sous-titre des lots prélevés : les deux premiers, puis « +N » ; le détail complet est dans l'infobulle. */
@@ -364,7 +368,7 @@ export class ProductListComponent {
     const lots = (line.lots ?? []).map(lot => {
       const date = lot.expiryDate ?? null;
       const urgence = !date ? null : joursAvant(date) < 0 ? ('perime' as const) : limite && date <= limite ? ('proche' as const) : null;
-      return {numLot: lot.numLot, quantity: lot.quantity, mois: date ? formaterMoisPeremption(date) : null, urgence, date};
+      return { numLot: lot.numLot, quantity: lot.quantity, mois: date ? formaterMoisPeremption(date) : null, urgence, date };
     });
     return {
       visibles: lots.slice(0, 2),
@@ -402,9 +406,9 @@ export class ProductListComponent {
 
   private corrigerQuantite(line: ISalesLine, quantite: number): void {
     this.panierFocus.demanderMaintien();
-    this.programmerCible({lineId: line.id});
+    this.programmerCible({ lineId: line.id });
     this.annoncerDemande(line, quantite);
-    this.quantityRequestedChanged.emit({line, newQty: quantite});
+    this.quantityRequestedChanged.emit({ line, newQty: quantite });
   }
 
   private ligneSelectionnee(): ISalesLine | undefined {
@@ -439,13 +443,13 @@ export class ProductListComponent {
     }
     const ligne = lignes[index];
     if (!this.valeurChangee(ligne, colonne, champ.value)) {
-      this.retrouverCible({lineId: voisine.id, colonne});
+      this.retrouverCible({ lineId: voisine.id, colonne });
       return;
     }
     // La validation peut être refusée (valeur invalide) : on ne bouge alors pas, l'erreur est affichée.
     this.panierFocus.demanderMaintien();
     if (this.validerColonne(ligne, colonne, champ.value)) {
-      this.programmerCible({lineId: voisine.id, colonne});
+      this.programmerCible({ lineId: voisine.id, colonne });
     } else {
       this.panierFocus.consommer();
     }
@@ -532,7 +536,7 @@ export class ProductListComponent {
 
   private annoncerDemande(line: ISalesLine, quantite: number): void {
     if (line.id != null) {
-      this.demandeEnAttente = {lineId: line.id, quantite};
+      this.demandeEnAttente = { lineId: line.id, quantite };
     }
   }
 

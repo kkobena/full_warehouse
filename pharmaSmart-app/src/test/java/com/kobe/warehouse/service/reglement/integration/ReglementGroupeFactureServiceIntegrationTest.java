@@ -44,7 +44,8 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(premiere, seconde));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementGroupeFactureService.doReglement(parametre(factureGroupe, 100_000));
+        ResponseReglementDTO reponse =
+                services.reglementGroupeFactureService.doReglement(parametre(factureGroupe, 100_000));
         viderLeCache();
 
         InvoicePayment porteur = em.find(InvoicePayment.class, reponse.id());
@@ -52,14 +53,17 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
         assertEquals(100_000, porteur.getPaidAmount());
         assertEquals(100_000, porteur.getMontantVerse());
         assertEquals(
-            2,
-            compter("SELECT count(*) FROM payment_transaction WHERE parent_id = " + reponse.id().getId()),
-            "un paiement fils par facture fille"
-        );
+                2,
+                compter("SELECT count(*) FROM payment_transaction WHERE parent_id = "
+                        + reponse.id().getId()),
+                "un paiement fils par facture fille");
 
         FactureTiersPayant premiereRelue = em.find(FactureTiersPayant.class, premiere.getId());
         assertEquals(30_000, premiereRelue.getMontantRegle());
-        assertEquals(InvoiceStatut.PAID, premiereRelue.getStatut(), "la fille soldée change de statut, pas seulement de montant");
+        assertEquals(
+                InvoiceStatut.PAID,
+                premiereRelue.getStatut(),
+                "la fille soldée change de statut, pas seulement de montant");
         FactureTiersPayant secondeRelue = em.find(FactureTiersPayant.class, seconde.getId());
         assertEquals(70_000, secondeRelue.getMontantRegle());
         assertEquals(InvoiceStatut.PAID, secondeRelue.getStatut());
@@ -81,20 +85,23 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(fille));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementGroupeFactureService.doReglement(parametre(factureGroupe, 20_000));
+        ResponseReglementDTO reponse =
+                services.reglementGroupeFactureService.doReglement(parametre(factureGroupe, 20_000));
         viderLeCache();
 
-        assertEquals(ThirdPartySaleStatut.PAID, em.find(ThirdPartySaleLine.class, premier.getId()).getStatut());
-        assertEquals(ThirdPartySaleStatut.PAID, em.find(ThirdPartySaleLine.class, second.getId()).getStatut());
         assertEquals(
-            2,
-            compter(
-                "SELECT count(*) FROM invoice_payment_item i JOIN payment_transaction p ON p.id = i.invoice_payment_id" +
-                " AND p.transaction_date = i.invoice_payment_transaction_date WHERE p.parent_id = " +
-                reponse.id().getId()
-            ),
-            "les détails sont portés par les paiements fils, pas par le porteur"
-        );
+                ThirdPartySaleStatut.PAID,
+                em.find(ThirdPartySaleLine.class, premier.getId()).getStatut());
+        assertEquals(
+                ThirdPartySaleStatut.PAID,
+                em.find(ThirdPartySaleLine.class, second.getId()).getStatut());
+        assertEquals(
+                2,
+                compter(
+                        "SELECT count(*) FROM invoice_payment_item i JOIN payment_transaction p ON p.id = i.invoice_payment_id"
+                                + " AND p.transaction_date = i.invoice_payment_transaction_date WHERE p.parent_id = "
+                                + reponse.id().getId()),
+                "les détails sont portés par les paiements fils, pas par le porteur");
         assertNotNull(em.find(InvoicePayment.class, reponse.id()).getTransactionNumber());
     }
 
@@ -134,7 +141,9 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
 
         assertThrows(PaymentAmountException.class, () -> services.reglementGroupeFactureService.doReglement(param));
         assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"));
-        assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, fille.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.NOT_PAID,
+                em.find(FactureTiersPayant.class, fille.getId()).getStatut());
     }
 
     /** FAC-48 : le rapprochement envoie FACTURE_TOTAL même pour un groupe ; le registre doit le rerouter. */
@@ -147,12 +156,17 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
         viderLeCache();
 
         ReglementParam param = parametre(factureGroupe, 40_000).setMode(ModeEditionReglement.FACTURE_TOTAL);
-        ResponseReglementDTO reponse = services.reglementRegistry.getService(param).doReglement(param);
+        ResponseReglementDTO reponse =
+                services.reglementRegistry.getService(param).doReglement(param);
         viderLeCache();
 
         assertTrue(reponse.total());
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, factureGroupe.getId()).getStatut());
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, fille.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, factureGroupe.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, fille.getId()).getStatut());
         assertTrue(em.find(InvoicePayment.class, reponse.id()).isGrouped(), "réglé comme un groupe");
     }
 
@@ -174,11 +188,11 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
 
     private ReglementParam parametre(FactureTiersPayant factureGroupe, int montant) {
         return new ReglementParam()
-            .setId(factureGroupe.getId())
-            .setMode(ModeEditionReglement.GROUPE_TOTAL)
-            .setModePaimentCode(ModePaimentCode.VIREMENT)
-            .setAmount(montant)
-            .setTotalAmount(montant)
-            .setMontantFacture(montant);
+                .setId(factureGroupe.getId())
+                .setMode(ModeEditionReglement.GROUPE_TOTAL)
+                .setModePaimentCode(ModePaimentCode.VIREMENT)
+                .setAmount(montant)
+                .setTotalAmount(montant)
+                .setMontantFacture(montant);
     }
 }

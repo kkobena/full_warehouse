@@ -49,14 +49,13 @@ public class ImportationVenteService {
     private String legacyUrl;
 
     public ImportationVenteService(
-        TransactionTemplate transactionTemplate,
-        RestTemplate restTemplate,
-        SaleService saleService,
-        CashSaleRepository cashSaleRepository,
-        SalesLineRepository salesLineRepository,
-        SalePaymentRepository paymentRepository,
-        SalesLineService salesLineService
-    ) {
+            TransactionTemplate transactionTemplate,
+            RestTemplate restTemplate,
+            SaleService saleService,
+            CashSaleRepository cashSaleRepository,
+            SalesLineRepository salesLineRepository,
+            SalePaymentRepository paymentRepository,
+            SalesLineService salesLineService) {
         this.transactionTemplate = transactionTemplate;
         this.restTemplate = restTemplate;
 
@@ -69,10 +68,8 @@ public class ImportationVenteService {
 
     private MaxAndMinDate findMaxAndMinDate() {
         try {
-            ResponseEntity<MaxAndMinDate> maxAndMinDateResponseEntity = restTemplate.getForEntity(
-                legacyUrl + "/api/v1//whareouse-maxmin",
-                MaxAndMinDate.class
-            );
+            ResponseEntity<MaxAndMinDate> maxAndMinDateResponseEntity =
+                    restTemplate.getForEntity(legacyUrl + "/api/v1//whareouse-maxmin", MaxAndMinDate.class);
             return maxAndMinDateResponseEntity.getBody();
         } catch (Exception e) {
             log.debug(" {}", e);
@@ -86,10 +83,11 @@ public class ImportationVenteService {
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(legacyUrl + "/api/v1//whareouse-vno")
-                .queryParam("dtStart", date)
-                .queryParam("dtEnd", date);
+                    .queryParam("dtStart", date)
+                    .queryParam("dtEnd", date);
             HttpEntity<?> entity = new HttpEntity<>(headers);
-            HttpEntity<SaleDTO[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, SaleDTO[].class);
+            HttpEntity<SaleDTO[]> response =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, SaleDTO[].class);
 
             return Arrays.asList(response.getBody());
         } catch (Exception e) {
@@ -123,29 +121,28 @@ public class ImportationVenteService {
                         List<SaleDTO> datas = findFromLegacy(min.toString());
                         min = min.plusDays(1);
                         for (SaleDTO d : datas) {
-                            transactionTemplate.execute(
-                                new TransactionCallbackWithoutResult() {
-                                    @Override
-                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                        try {
-                                            CashSaleDTO dto = (CashSaleDTO) d;
-                                            CashSale cashSale = saleService.fromDTOOldCashSale(dto);
-                                            cashSaleRepository.save(cashSale);
-                                            for (SaleLineDTO i : dto.getSalesLines()) {
-                                                SalesLine item = salesLineService.buildSaleLineFromDTO(i);
-                                                item.setSales(cashSale);
-                                                salesLineRepository.save(item);
-                                            }
-                                            if (!dto.getPayments().isEmpty()) {
-                                                SalePayment payment = saleService.buildPaymentFromDTO(dto.getPayments().get(0), cashSale);
-                                                paymentRepository.save(payment);
-                                            }
-                                        } catch (Exception e) {
-                                            log.debug(" {}", e);
+                            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                                @Override
+                                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                    try {
+                                        CashSaleDTO dto = (CashSaleDTO) d;
+                                        CashSale cashSale = saleService.fromDTOOldCashSale(dto);
+                                        cashSaleRepository.save(cashSale);
+                                        for (SaleLineDTO i : dto.getSalesLines()) {
+                                            SalesLine item = salesLineService.buildSaleLineFromDTO(i);
+                                            item.setSales(cashSale);
+                                            salesLineRepository.save(item);
                                         }
+                                        if (!dto.getPayments().isEmpty()) {
+                                            SalePayment payment = saleService.buildPaymentFromDTO(
+                                                    dto.getPayments().get(0), cashSale);
+                                            paymentRepository.save(payment);
+                                        }
+                                    } catch (Exception e) {
+                                        log.debug(" {}", e);
                                     }
                                 }
-                            );
+                            });
                         }
                         interval--;
                         TimeUnit.MILLISECONDS.sleep(300);

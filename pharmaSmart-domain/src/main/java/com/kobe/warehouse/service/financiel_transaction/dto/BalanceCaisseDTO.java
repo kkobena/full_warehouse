@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
@@ -54,21 +53,20 @@ public class BalanceCaisseDTO {
     private List<PaymentDTO> payments = new ArrayList<>();
 
     public BalanceCaisseDTO(
-        String typeSale,
-        Long numberCount,
-        Object discount,
-        Long montantTtc,
-        Long montantPaye,
-        Long montantReel,
-        Double montantHt,
-        String modePaiement,
-        String libelleModePaiement,
-        Long montantAchat,
-        Integer montantDiffere,
-        Long amountToBeTakenIntoAccount,
-        Long partTiersPayant,
-        Long partAssure
-    ) {
+            String typeSale,
+            Long numberCount,
+            Object discount,
+            Long montantTtc,
+            Long montantPaye,
+            Long montantReel,
+            Double montantHt,
+            String modePaiement,
+            String libelleModePaiement,
+            Long montantAchat,
+            Integer montantDiffere,
+            Long amountToBeTakenIntoAccount,
+            Long partTiersPayant,
+            Long partAssure) {
         this.typeSale = TypeVenteDTO.valueOf(typeSale);
         this.count = numberCount;
         this.montantDiscount = getDiscountAsInteger(discount);
@@ -88,12 +86,11 @@ public class BalanceCaisseDTO {
     }
 
     public BalanceCaisseDTO(
-        Long amount,
-        Long montantSansArrondi,
-        String modePaiement,
-        String libelleModePaiement,
-        TypeFinancialTransaction typeTransaction
-    ) {
+            Long amount,
+            Long montantSansArrondi,
+            String modePaiement,
+            String libelleModePaiement,
+            TypeFinancialTransaction typeTransaction) {
         this.montantPaye = amount;
         this.modePaiement = modePaiement;
         this.montantReel = montantSansArrondi;
@@ -323,9 +320,8 @@ public class BalanceCaisseDTO {
     }
 
     public Long getMontantNet() {
-        montantNet =
-            Objects.requireNonNullElse(montantTtc, 0L) -
-            (Objects.requireNonNullElse(montantDiscount, 0) - Objects.requireNonNullElse(montantRemiseUg, 0));
+        montantNet = Objects.requireNonNullElse(montantTtc, 0L)
+                - (Objects.requireNonNullElse(montantDiscount, 0) - Objects.requireNonNullElse(montantRemiseUg, 0));
         return montantNet;
     }
 

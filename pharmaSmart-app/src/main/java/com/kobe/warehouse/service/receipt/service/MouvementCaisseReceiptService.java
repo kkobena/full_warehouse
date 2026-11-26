@@ -40,7 +40,8 @@ public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterS
         List<HeaderFooterItem> headerItems = new ArrayList<>();
 
         headerItems.add(new HeaderFooterItem("OPERATEUR: " + paymentRecord.operateur(), 1, PLAIN_FONT));
-        headerItems.add(new HeaderFooterItem("TYPE: " + paymentRecord.typeFinancialTransaction().getValue(), 1, PLAIN_FONT));
+        headerItems.add(new HeaderFooterItem(
+                "TYPE: " + paymentRecord.typeFinancialTransaction().getValue(), 1, PLAIN_FONT));
         return headerItems;
     }
 
@@ -70,7 +71,8 @@ public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterS
 
             // Header items
             escPosPrintLine(out, "OPERATEUR: " + paymentRecord.operateur());
-            escPosPrintLine(out, "TYPE: " + paymentRecord.typeFinancialTransaction().getValue());
+            escPosPrintLine(
+                    out, "TYPE: " + paymentRecord.typeFinancialTransaction().getValue());
             escPosFeedLines(out, 1);
 
             // Separator line
@@ -79,15 +81,17 @@ public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterS
             // Payment amount section
             escPosSetBold(out, true);
             escPosPrintLine(out, String.format("%-28s %19s", "MODE", paymentRecord.modeReglement()));
-            escPosPrintLine(out, String.format("%-28s %19s", "MONTANT", NumberUtil.formatToString(paymentRecord.amount())));
+            escPosPrintLine(
+                    out, String.format("%-28s %19s", "MONTANT", NumberUtil.formatToString(paymentRecord.amount())));
             escPosSetBold(out, false);
             escPosFeedLines(out, 1);
 
             // Transaction details
             escPosPrintLine(
-                out,
-                String.format("%-28s %19s", "DATE", paymentRecord.mvtDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
-            );
+                    out,
+                    String.format(
+                            "%-28s %19s",
+                            "DATE", paymentRecord.mvtDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
             escPosPrintLine(out, String.format("%-28s %19s", "REFERENCE", paymentRecord.reference()));
             escPosFeedLines(out, 1);
 

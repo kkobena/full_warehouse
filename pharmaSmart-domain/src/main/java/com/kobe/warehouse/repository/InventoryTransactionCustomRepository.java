@@ -9,7 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 public interface InventoryTransactionCustomRepository {
-    Page<ProduitAuditingState> fetchProduitDailyTransaction(Specification<InventoryTransaction> specification, Pageable pageable);
+    Page<ProduitAuditingState> fetchProduitDailyTransaction(
+            Specification<InventoryTransaction> specification, Pageable pageable);
 
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(Specification<InventoryTransaction> specification);
 }

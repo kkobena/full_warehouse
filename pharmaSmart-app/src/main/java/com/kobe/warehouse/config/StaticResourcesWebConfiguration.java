@@ -9,20 +9,14 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@Profile({ ConfigConstants.SPRING_PROFILE_PRODUCTION })
+@Profile({ConfigConstants.SPRING_PROFILE_PRODUCTION})
 public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
 
-    protected static final String[] RESOURCE_LOCATIONS = { "classpath:/static/", "classpath:/static/content/", "classpath:/static/i18n/" };
+    protected static final String[] RESOURCE_LOCATIONS = {
+        "classpath:/static/", "classpath:/static/content/", "classpath:/static/i18n/"
+    };
     protected static final String[] RESOURCE_PATHS = {
-        "/*.js",
-        "/*.css",
-        "/*.svg",
-        "/*.png",
-        "*.ico",
-        "/content/**",
-        "/i18n/*",
-        "*.woff2",
-        "*.woff",
+        "/*.js", "/*.css", "/*.svg", "/*.png", "*.ico", "/content/**", "/i18n/*", "*.woff2", "*.woff",
     };
 
     private final LogProperties logProperties;
@@ -46,7 +40,8 @@ public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
     }
 
     protected CacheControl getCacheControl() {
-        return CacheControl.maxAge(getJHipsterHttpCacheProperty(), TimeUnit.DAYS).cachePublic();
+        return CacheControl.maxAge(getJHipsterHttpCacheProperty(), TimeUnit.DAYS)
+                .cachePublic();
     }
 
     private int getJHipsterHttpCacheProperty() {

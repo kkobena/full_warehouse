@@ -2,6 +2,9 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.GroupeTiersPayantService;
 import com.kobe.warehouse.service.dto.MassUpdateFactureConfigRequest;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -31,9 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link Categorie}.
@@ -41,7 +41,7 @@ import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 @RestController
 @RequestMapping("/api")
 @Transactional
-@RequiresNavAccess({ "tiers-payant.groupe-tiers-payant", "tiers-payant" })
+@RequiresNavAccess({"tiers-payant.groupe-tiers-payant", "tiers-payant"})
 public class GroupeTiersPayantResource {
 
     private static final String ENTITY_NAME = "GroupeTiersPayant";
@@ -56,33 +56,41 @@ public class GroupeTiersPayantResource {
     }
 
     @PostMapping("/groupe-tierspayants")
-    public ResponseEntity<GroupeTiersPayant> createGroupeTiersPayant(@Valid @RequestBody GroupeTiersPayant groupeTiersPayant)
-        throws URISyntaxException {
+    public ResponseEntity<GroupeTiersPayant> createGroupeTiersPayant(
+            @Valid @RequestBody GroupeTiersPayant groupeTiersPayant) throws URISyntaxException {
         log.debug("REST request to save Categorie : {}", groupeTiersPayant);
         if (groupeTiersPayant.getId() != null) {
-            throw new BadRequestAlertException("A new groupe tiers payant cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException(
+                    "A new groupe tiers payant cannot already have an ID", ENTITY_NAME, "idexists");
         }
         GroupeTiersPayant result = groupeTiersPayantService.create(groupeTiersPayant);
         return ResponseEntity.created(new URI("/api/groupe-tierspayants/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/groupe-tierspayants")
-    public ResponseEntity<GroupeTiersPayant> update(@Valid @RequestBody GroupeTiersPayant groupeTiersPayant) throws URISyntaxException {
+    public ResponseEntity<GroupeTiersPayant> update(@Valid @RequestBody GroupeTiersPayant groupeTiersPayant)
+            throws URISyntaxException {
         log.debug("REST request to update GroupeTiersPayant : {}", groupeTiersPayant);
         if (groupeTiersPayant.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         GroupeTiersPayant result = groupeTiersPayantService.update(groupeTiersPayant);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, groupeTiersPayant.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        groupeTiersPayant.getId().toString()))
+                .body(result);
     }
 
     @GetMapping("/groupe-tierspayants")
     @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance et la facturation")
-    public ResponseEntity<List<GroupeTiersPayant>> getAll(@RequestParam(value = "search", required = false) String search) {
+    public ResponseEntity<List<GroupeTiersPayant>> getAll(
+            @RequestParam(value = "search", required = false) String search) {
         log.debug("REST request to get a page of GroupeTiersPayant");
         List<GroupeTiersPayant> list = groupeTiersPayantService.list(search);
 
@@ -102,18 +110,21 @@ public class GroupeTiersPayantResource {
         log.debug("REST request to delete GroupeTiersPayant : {}", id);
         groupeTiersPayantService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/groupe-tierspayants/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file)
+            throws URISyntaxException, IOException {
         ResponseDTO responseDTO = groupeTiersPayantService.importation(file.getInputStream());
         return ResponseEntity.ok().body(responseDTO);
     }
 
     @PatchMapping("/groupe-tierspayants/mass-update-facture-config")
-    @RequiresNavAccess(value = { "tiers-payant.groupe-tiers-payant", "tiers-payant", "factures", "facturation.automatisation" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"tiers-payant.groupe-tiers-payant", "tiers-payant", "factures", "facturation.automatisation"},
+            action = NavAction.EDIT)
     public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
         groupeTiersPayantService.massUpdateFactureConfig(request);
         return ResponseEntity.noContent().build();

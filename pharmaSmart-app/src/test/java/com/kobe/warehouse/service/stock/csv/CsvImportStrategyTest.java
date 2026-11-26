@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -23,7 +22,9 @@ class CsvImportStrategyTest {
 
     /** Construit une ligne CSV reelle : les strategies lisent par index de colonne. */
     private static CSVRecord ligne(String csv) {
-        try (CSVParser parser = CSVParser.parse(new StringReader(csv), CSVFormat.DEFAULT.builder().setDelimiter(';').get())) {
+        try (CSVParser parser = CSVParser.parse(
+                new StringReader(csv),
+                CSVFormat.DEFAULT.builder().setDelimiter(';').get())) {
             return parser.getRecords().getFirst();
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -32,18 +33,16 @@ class CsvImportStrategyTest {
 
     static List<org.junit.jupiter.params.provider.Arguments> strategiesAvecEnTete() {
         return List.of(
-            org.junit.jupiter.params.provider.Arguments.of("LABOREX", CsvImportStrategy.LABOREX),
-            org.junit.jupiter.params.provider.Arguments.of("COPHARMED", CsvImportStrategy.COPHARMED),
-            org.junit.jupiter.params.provider.Arguments.of("CIP_QTE", CsvImportStrategy.CIP_QTE),
-            org.junit.jupiter.params.provider.Arguments.of("CIP_QTE_PA", CsvImportStrategy.CIP_QTE_PA)
-        );
+                org.junit.jupiter.params.provider.Arguments.of("LABOREX", CsvImportStrategy.LABOREX),
+                org.junit.jupiter.params.provider.Arguments.of("COPHARMED", CsvImportStrategy.COPHARMED),
+                org.junit.jupiter.params.provider.Arguments.of("CIP_QTE", CsvImportStrategy.CIP_QTE),
+                org.junit.jupiter.params.provider.Arguments.of("CIP_QTE_PA", CsvImportStrategy.CIP_QTE_PA));
     }
 
     static List<org.junit.jupiter.params.provider.Arguments> strategiesSansEnTete() {
         return List.of(
-            org.junit.jupiter.params.provider.Arguments.of("DPCI", CsvImportStrategy.DPCI),
-            org.junit.jupiter.params.provider.Arguments.of("TEDIS", CsvImportStrategy.TEDIS)
-        );
+                org.junit.jupiter.params.provider.Arguments.of("DPCI", CsvImportStrategy.DPCI),
+                org.junit.jupiter.params.provider.Arguments.of("TEDIS", CsvImportStrategy.TEDIS));
     }
 
     @ParameterizedTest(name = "{0} declare une ligne d en-tete")
@@ -78,7 +77,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait les colonnes de la ligne")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.LABOREX.extract(ligneValide(), 1).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.LABOREX.extract(ligneValide(), 1).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityRequested()).isEqualTo(8);
@@ -141,7 +141,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait les colonnes de la ligne")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.COPHARMED.extract(ligneValide(), 1).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.COPHARMED.extract(ligneValide(), 1).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityRequested()).isEqualTo(10);
@@ -191,7 +192,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait les colonnes de la ligne")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.DPCI.extract(ligneValide(), 0).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.DPCI.extract(ligneValide(), 0).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityRequested()).isEqualTo(10);
@@ -240,7 +242,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait le lot et la date de peremption")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.TEDIS.extract(ligneValide(), 0).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.TEDIS.extract(ligneValide(), 0).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityRequested()).isEqualTo(8);
@@ -255,8 +258,8 @@ class CsvImportStrategyTest {
         @DisplayName("tronque les montants decimaux vers l entier inferieur")
         void montantsDecimaux() {
             ParsedCsvRecord parsed = CsvImportStrategy.TEDIS
-                .extract(ligne("9;1234567;400.99;8.7;x;800.5;LOT-A;20270630"), 0)
-                .orElseThrow();
+                    .extract(ligne("9;1234567;400.99;8.7;x;800.5;LOT-A;20270630"), 0)
+                    .orElseThrow();
 
             assertThat(parsed.orderCostAmount()).isEqualTo(400);
             assertThat(parsed.quantityReceived()).isEqualTo(8);
@@ -287,7 +290,7 @@ class CsvImportStrategyTest {
             CSVRecord r = ligne("9;1234567;400;8;x;800;LOT-A;30/06/2027");
 
             assertThatThrownBy(() -> CsvImportStrategy.TEDIS.extract(r, 0))
-                .isInstanceOf(java.time.format.DateTimeParseException.class);
+                    .isInstanceOf(java.time.format.DateTimeParseException.class);
         }
     }
 
@@ -298,13 +301,15 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("ignore une premiere ligne dont la quantite n est pas numerique")
         void ignoreLEnTete() {
-            assertThat(CsvImportStrategy.CIP_QTE.extract(ligne("CIP;QUANTITE"), 0)).isEmpty();
+            assertThat(CsvImportStrategy.CIP_QTE.extract(ligne("CIP;QUANTITE"), 0))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("traite une premiere ligne numerique comme une donnee")
         void premiereLigneNumerique() {
-            ParsedCsvRecord parsed = CsvImportStrategy.CIP_QTE.extract(ligne("1234567;8"), 0).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.CIP_QTE.extract(ligne("1234567;8"), 0).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityReceived()).isEqualTo(8);
@@ -313,7 +318,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait code et quantite, tous les montants a zero")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.CIP_QTE.extract(ligne("1234567;8"), 1).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.CIP_QTE.extract(ligne("1234567;8"), 1).orElseThrow();
 
             assertThat(parsed.quantityRequested()).isEqualTo(8);
             assertThat(parsed.quantityReceived()).isEqualTo(8);
@@ -350,7 +356,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("ignore une premiere ligne dont la deuxieme colonne n est pas numerique")
         void ignoreLEnTete() {
-            assertThat(CsvImportStrategy.CIP_QTE_PA.extract(ligne("CIP;QUANTITE;x;RECU;PA"), 0)).isEmpty();
+            assertThat(CsvImportStrategy.CIP_QTE_PA.extract(ligne("CIP;QUANTITE;x;RECU;PA"), 0))
+                    .isEmpty();
         }
 
         @Test
@@ -362,7 +369,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("extrait le prix d achat")
         void extrait() {
-            ParsedCsvRecord parsed = CsvImportStrategy.CIP_QTE_PA.extract(ligneValide(), 1).orElseThrow();
+            ParsedCsvRecord parsed =
+                    CsvImportStrategy.CIP_QTE_PA.extract(ligneValide(), 1).orElseThrow();
 
             assertThat(parsed.codeProduit()).isEqualTo("1234567");
             assertThat(parsed.quantityRequested()).isEqualTo(8);
@@ -393,7 +401,8 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("expose toutes ses composantes")
         void composantes() {
-            ParsedCsvRecord record = new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
+            ParsedCsvRecord record =
+                    new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
 
             assertThat(record.codeProduit()).isEqualTo("1234567");
             assertThat(record.quantityRequested()).isEqualTo(10);
@@ -409,9 +418,12 @@ class CsvImportStrategyTest {
         @Test
         @DisplayName("egalite et empreinte de valeur")
         void egalite() {
-            ParsedCsvRecord a = new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
-            ParsedCsvRecord b = new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
-            ParsedCsvRecord c = new ParsedCsvRecord("7654321", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
+            ParsedCsvRecord a =
+                    new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
+            ParsedCsvRecord b =
+                    new ParsedCsvRecord("1234567", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
+            ParsedCsvRecord c =
+                    new ParsedCsvRecord("7654321", 10, 8, 400, 800, 2, 18, "LOT-A", LocalDate.of(2027, 6, 30));
 
             assertThat(a).isEqualTo(b).hasSameHashCodeAs(b).isNotEqualTo(c);
             assertThat(a.toString()).contains("1234567");

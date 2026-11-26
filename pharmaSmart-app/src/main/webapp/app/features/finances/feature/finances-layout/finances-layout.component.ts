@@ -11,7 +11,9 @@ import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.compo
 import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-finances-layout',
-  imports: [NavSidebarComponent, NavSectionLinkComponent, 
+  imports: [
+    NavSidebarComponent,
+    NavSectionLinkComponent,
     NgbNavModule,
     FinancesDashboardComponent,
     DeclarationTvaComponent,
@@ -26,16 +28,15 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
 export class FinancesLayoutComponent {
   active = signal<string>('dashboard');
 
-
   /** Menu replié : rend la largeur au contenu quand il en manque. */
   protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
 
-  protected readonly showDashboard          = this.ability.canSignal('display', 'finances.dashboard');
+  protected readonly showDashboard = this.ability.canSignal('display', 'finances.dashboard');
   protected readonly showComptesFournisseurs = this.ability.canSignal('display', 'finances.comptes-fournisseurs');
-  protected readonly showDeclarationTva     = this.ability.canSignal('display', 'finances.declaration-tva');
-  protected readonly showRemisesRfa         = this.ability.canSignal('display', 'finances.remises-rfa');
-  protected readonly showExport             = this.ability.canSignal('display', 'finances.export');
+  protected readonly showDeclarationTva = this.ability.canSignal('display', 'finances.declaration-tva');
+  protected readonly showRemisesRfa = this.ability.canSignal('display', 'finances.remises-rfa');
+  protected readonly showExport = this.ability.canSignal('display', 'finances.export');
 
   onNavigateToTab(tabId: string): void {
     this.active.set(tabId);

@@ -6,26 +6,25 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record MvtCaisseProjection(
-    Long id,
-    Long saleId,
-    Integer caisseId,
-    Long invoiceId,
-    boolean isCredit,
-    String type,
-    LocalDateTime createdAt,
-    Integer paidAmount,
-    TypeFinancialTransaction typeFinancialTransaction,
-    String paymentMode,
-    String paymentModeLibelle,
-    CategorieChiffreAffaire categorieChiffreAffaire,
-    LocalDate transactionDate,
-    Integer deliveryId,
-    String firstName,
-    String lastName,
-    Integer montant,
-    LocalDate saleDate,
-    String transactionNumber
-) {
+        Long id,
+        Long saleId,
+        Integer caisseId,
+        Long invoiceId,
+        boolean isCredit,
+        String type,
+        LocalDateTime createdAt,
+        Integer paidAmount,
+        TypeFinancialTransaction typeFinancialTransaction,
+        String paymentMode,
+        String paymentModeLibelle,
+        CategorieChiffreAffaire categorieChiffreAffaire,
+        LocalDate transactionDate,
+        Integer deliveryId,
+        String firstName,
+        String lastName,
+        Integer montant,
+        LocalDate saleDate,
+        String transactionNumber) {
     public PaymentType paymentType() {
         return PaymentType.valueOf(type);
     }

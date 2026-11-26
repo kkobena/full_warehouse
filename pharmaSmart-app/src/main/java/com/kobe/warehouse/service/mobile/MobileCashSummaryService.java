@@ -8,16 +8,13 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
 import com.kobe.warehouse.service.tiketz.service.TicketZService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for mobile cash summary (Ticket Z / Récapitulatif Caisse).
@@ -75,14 +72,8 @@ public class MobileCashSummaryService {
         }
 
         // Create TicketZ param
-        TicketZParam param = new TicketZParam(
-            userIds != null ? userIds : Set.of(),
-            onlyVente,
-            fromDate,
-            toDate,
-            fromTime,
-            toTime
-        );
+        TicketZParam param =
+                new TicketZParam(userIds != null ? userIds : Set.of(), onlyVente, fromDate, toDate, fromTime, toTime);
 
         // Get TicketZ data from existing service
         TicketZ ticketZ = ticketZService.getTicketZ(param);
@@ -92,19 +83,14 @@ public class MobileCashSummaryService {
     }
 
     private MobileCashSummaryDTO transformToMobileFormat(
-            TicketZ ticketZ,
-            LocalDate fromDate,
-            LocalDate toDate,
-            LocalTime fromTime,
-            LocalTime toTime) {
+            TicketZ ticketZ, LocalDate fromDate, LocalDate toDate, LocalTime fromTime, LocalTime toTime) {
 
         // Convert global summary
         List<SummaryItemDTO> globalSummary = transformSummaryItems(ticketZ.summaries());
 
         // Convert cashier recaps
-        List<CashierRecapDTO> cashierRecaps = ticketZ.datas().stream()
-            .map(this::transformCashierRecap)
-            .toList();
+        List<CashierRecapDTO> cashierRecaps =
+                ticketZ.datas().stream().map(this::transformCashierRecap).toList();
 
         // Calculate totals
         Totals totals = calculateTotals(ticketZ);
@@ -113,23 +99,23 @@ public class MobileCashSummaryService {
         String periodLabel = buildPeriodLabel(fromDate, toDate, fromTime, toTime);
 
         return MobileCashSummaryDTO.builder()
-            .fromDate(fromDate)
-            .toDate(toDate)
-            .fromTime(fromTime)
-            .toTime(toTime)
-            .periodLabel(periodLabel)
-            .globalSummary(globalSummary)
-            .cashierRecaps(cashierRecaps)
-            .totalTtc(totals.totalTtc)
-            .totalEspeces(totals.especes)
-            .totalCartes(totals.cartes)
-            .totalMobileMoney(totals.mobileMoney)
-            .totalCheques(totals.cheques)
-            .totalVirements(totals.virements)
-            .totalCredit(totals.credit)
-            .totalMobile(totals.totalMobile)
-            .cashierCount(cashierRecaps.size())
-            .build();
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .fromTime(fromTime)
+                .toTime(toTime)
+                .periodLabel(periodLabel)
+                .globalSummary(globalSummary)
+                .cashierRecaps(cashierRecaps)
+                .totalTtc(totals.totalTtc)
+                .totalEspeces(totals.especes)
+                .totalCartes(totals.cartes)
+                .totalMobileMoney(totals.mobileMoney)
+                .totalCheques(totals.cheques)
+                .totalVirements(totals.virements)
+                .totalCredit(totals.credit)
+                .totalMobile(totals.totalMobile)
+                .cashierCount(cashierRecaps.size())
+                .build();
     }
 
     private List<SummaryItemDTO> transformSummaryItems(List<TicketZData> items) {
@@ -137,31 +123,21 @@ public class MobileCashSummaryService {
             return List.of();
         }
         return items.stream()
-            .map(data -> {
-                String key = data.modePaimentCode() != null
-                    ? data.modePaimentCode().name()
-                    : data.libelle().toUpperCase().replace(" ", "_");
-                return new SummaryItemDTO(
-                    key,
-                    data.libelle(),
-                    data.value(),
-                    data.secondValue(),
-                    SummaryItemDTO.TYPE_AMOUNT
-                );
-            })
-            .toList();
+                .map(data -> {
+                    String key = data.modePaimentCode() != null
+                            ? data.modePaimentCode().name()
+                            : data.libelle().toUpperCase().replace(" ", "_");
+                    return new SummaryItemDTO(
+                            key, data.libelle(), data.value(), data.secondValue(), SummaryItemDTO.TYPE_AMOUNT);
+                })
+                .toList();
     }
 
     private CashierRecapDTO transformCashierRecap(TicketZRecap recap) {
         List<SummaryItemDTO> details = transformSummaryItems(recap.datas());
         List<SummaryItemDTO> summary = transformSummaryItems(recap.summary());
 
-        return CashierRecapDTO.of(
-            recap.userId(),
-            recap.userName(),
-            details,
-            summary
-        );
+        return CashierRecapDTO.of(recap.userId(), recap.userName(), details, summary);
     }
 
     private Totals calculateTotals(TicketZ ticketZ) {
@@ -191,13 +167,14 @@ public class MobileCashSummaryService {
         }
 
         // Calculate total TTC
-        totals.totalTtc = totals.especes + totals.cartes + totals.cheques +
-                          totals.virements + totals.mobileMoney + totals.credit;
+        totals.totalTtc =
+                totals.especes + totals.cartes + totals.cheques + totals.virements + totals.mobileMoney + totals.credit;
 
         return totals;
     }
 
-    private void categorizeAmountByCode(com.kobe.warehouse.domain.enumeration.ModePaimentCode code, long value, Totals totals) {
+    private void categorizeAmountByCode(
+            com.kobe.warehouse.domain.enumeration.ModePaimentCode code, long value, Totals totals) {
         if (code == null) {
             return;
         }
@@ -232,8 +209,10 @@ public class MobileCashSummaryService {
             totals.virements += value;
         } else if (label.contains(KEY_CREDIT)) {
             totals.credit += value;
-        } else if (label.contains(KEY_OM) || label.contains(KEY_MTN) ||
-                   label.contains(KEY_MOOV) || label.contains(KEY_WAVE)) {
+        } else if (label.contains(KEY_OM)
+                || label.contains(KEY_MTN)
+                || label.contains(KEY_MOOV)
+                || label.contains(KEY_WAVE)) {
             totals.mobileMoney += value;
         } else if (label.contains(KEY_MOBILE) && label.contains(KEY_TOTAL)) {
             totals.totalMobile = value;
@@ -260,8 +239,8 @@ public class MobileCashSummaryService {
 
         // Add time range if not full day
         if (fromTime != null && toTime != null) {
-            boolean isFullDay = fromTime.equals(LocalTime.MIN) &&
-                               (toTime.equals(LocalTime.MAX) || toTime.equals(LocalTime.of(23, 59, 59)));
+            boolean isFullDay = fromTime.equals(LocalTime.MIN)
+                    && (toTime.equals(LocalTime.MAX) || toTime.equals(LocalTime.of(23, 59, 59)));
             if (!isFullDay) {
                 sb.append(" (");
                 sb.append(fromTime.format(TIME_FORMATTER));

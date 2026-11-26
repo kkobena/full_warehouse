@@ -22,25 +22,24 @@ public class StoreInventoryLineExport {
     private Integer famillyId;
 
     public StoreInventoryLineExport(
-        Integer gap,
-        Integer inventoryValueCost,
-        Integer quantityInit,
-        Integer quantityOnHand,
-        String produitCip,
-        String produitEan,
-        String produitLibelle,
-        String rayonLibelle,
-        String storageLibelle,
-        Integer prixAchat,
-        Integer prixUni,
-        Integer lastUnitPrice,
-        Integer rayonId,
-        Integer storageId,
-        String rayonCode,
-        String famillyCode,
-        String famillyLibelle,
-        Integer famillyId
-    ) {
+            Integer gap,
+            Integer inventoryValueCost,
+            Integer quantityInit,
+            Integer quantityOnHand,
+            String produitCip,
+            String produitEan,
+            String produitLibelle,
+            String rayonLibelle,
+            String storageLibelle,
+            Integer prixAchat,
+            Integer prixUni,
+            Integer lastUnitPrice,
+            Integer rayonId,
+            Integer storageId,
+            String rayonCode,
+            String famillyCode,
+            String famillyLibelle,
+            Integer famillyId) {
         this.gap = gap;
         this.inventoryValueCost = inventoryValueCost;
         this.quantityInit = quantityInit;

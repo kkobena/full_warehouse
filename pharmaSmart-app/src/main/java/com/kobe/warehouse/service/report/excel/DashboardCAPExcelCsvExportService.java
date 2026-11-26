@@ -35,24 +35,22 @@ public class DashboardCAPExcelCsvExportService {
         "Crédit"
     };
 
-    private final String[] headersTop = {"Code CIP", "Libellé", "Nb Ventes", "Qté Vendue",
-        "CA Généré", "Prix Moyen"};
-
+    private final String[] headersTop = {"Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
 
     private final ReportExcelExportService excelExportService;
     private final CsvExportService csvExportService;
     private final DashboardCAService dashboardCAService;
 
-    public DashboardCAPExcelCsvExportService(ReportExcelExportService excelExportService,
-        CsvExportService csvExportService, DashboardCAService dashboardCAService) {
+    public DashboardCAPExcelCsvExportService(
+            ReportExcelExportService excelExportService,
+            CsvExportService csvExportService,
+            DashboardCAService dashboardCAService) {
         this.excelExportService = excelExportService;
         this.csvExportService = csvExportService;
         this.dashboardCAService = dashboardCAService;
     }
 
-
-    public byte[] exportDailySummaryToExcel(LocalDate startDate, LocalDate endDate)
-        throws Exception {
+    public byte[] exportDailySummaryToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
         List<DailyCADTO> data = dashboardCAService.getDailySummary(startDate, endDate);
 
         String title = buildReportTitle("Chiffre d'Affaires Journalier ", startDate, endDate);
@@ -73,12 +71,11 @@ public class DashboardCAPExcelCsvExportService {
         });
     }
 
-
     public byte[] exportDailySummaryToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
         List<DailyCADTO> data = dashboardCAService.getDailySummary(startDate, endDate);
 
         String title = buildReportTitle("Chiffre d'Affaires Journalier ", startDate, endDate);
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[]{
+        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
             dto.saleDate().toString(),
             String.valueOf(dto.nbTransactions()),
             String.valueOf(dto.caTotal()),
@@ -95,9 +92,7 @@ public class DashboardCAPExcelCsvExportService {
         return csvExportService.addUtf8Bom(csvData);
     }
 
-
-    public byte[] exportTopProductsToExcel(LocalDate startDate, LocalDate endDate)
-        throws Exception {
+    public byte[] exportTopProductsToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
         List<TopProductDTO> data = dashboardCAService.getTopProducts(startDate, endDate, 50);
 
         String title = buildReportTitle("Top Produits par CA ", startDate, endDate);
@@ -109,25 +104,23 @@ public class DashboardCAPExcelCsvExportService {
             row.createCell(3).setCellValue(dto.qteVendue() != null ? dto.qteVendue() : 0);
             row.createCell(4).setCellValue(dto.caGenere() != null ? dto.caGenere() : 0);
             row.createCell(5)
-                .setCellValue(dto.prixMoyen() != null ? dto.prixMoyen().doubleValue() : 0);
+                    .setCellValue(dto.prixMoyen() != null ? dto.prixMoyen().doubleValue() : 0);
         });
     }
-
 
     public byte[] exportTopProductsToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
         List<TopProductDTO> data = dashboardCAService.getTopProducts(startDate, endDate, 50);
 
         String title = buildReportTitle("Top Produits par CA ", startDate, endDate);
 
-        byte[] csvData = csvExportService.createCsvReport(title, headersTop, data,
-            dto -> new String[]{
-                dto.codeCip() != null ? dto.codeCip() : "",
-                dto.libelle() != null ? dto.libelle() : "",
-                String.valueOf(dto.nbVentes() != null ? dto.nbVentes() : 0),
-                String.valueOf(dto.qteVendue() != null ? dto.qteVendue() : 0),
-                String.valueOf(dto.caGenere() != null ? dto.caGenere() : 0),
-                String.valueOf(dto.prixMoyen() != null ? dto.prixMoyen() : BigDecimal.ZERO)
-            });
+        byte[] csvData = csvExportService.createCsvReport(title, headersTop, data, dto -> new String[] {
+            dto.codeCip() != null ? dto.codeCip() : "",
+            dto.libelle() != null ? dto.libelle() : "",
+            String.valueOf(dto.nbVentes() != null ? dto.nbVentes() : 0),
+            String.valueOf(dto.qteVendue() != null ? dto.qteVendue() : 0),
+            String.valueOf(dto.caGenere() != null ? dto.caGenere() : 0),
+            String.valueOf(dto.prixMoyen() != null ? dto.prixMoyen() : BigDecimal.ZERO)
+        });
 
         return csvExportService.addUtf8Bom(csvData);
     }

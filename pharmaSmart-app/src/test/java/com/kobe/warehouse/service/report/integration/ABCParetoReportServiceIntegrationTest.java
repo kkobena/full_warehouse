@@ -66,7 +66,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             vendu(detail, 10, LocalDate.now());
             viderLeCache();
 
-            assertThat(services.abcParetoReportService.getAllABCParetoAnalysis()).isEmpty();
+            assertThat(services.abcParetoReportService.getAllABCParetoAnalysis())
+                    .isEmpty();
         }
 
         /**
@@ -83,7 +84,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             vendu(produit, 50, LocalDate.now().minusMonths(13));
             viderLeCache();
 
-            ABCParetoDTO resultat = services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
+            ABCParetoDTO resultat =
+                    services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
 
             assertThat(resultat.caTotal()).isZero();
             assertThat(resultat.qteVendue()).isZero();
@@ -98,7 +100,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             vendu(produit, 50, LocalDate.now(), true, CategorieChiffreAffaire.CA);
             viderLeCache();
 
-            ABCParetoDTO resultat = services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
+            ABCParetoDTO resultat =
+                    services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
 
             assertThat(resultat.caTotal()).isZero();
             assertThat(resultat.classePareto()).isEqualTo(ClassePareto.D);
@@ -111,7 +114,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             vendu(produit, 50, LocalDate.now(), false, CategorieChiffreAffaire.CA_DEPOT);
             viderLeCache();
 
-            ABCParetoDTO resultat = services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
+            ABCParetoDTO resultat =
+                    services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
 
             assertThat(resultat.caTotal()).isZero();
             assertThat(resultat.classePareto()).isEqualTo(ClassePareto.D);
@@ -120,7 +124,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
         @Test
         @DisplayName("base vierge : aucune ligne, et une synthèse à zéro plutôt qu'une erreur")
         void baseVierge() {
-            assertThat(services.abcParetoReportService.getAllABCParetoAnalysis()).isEmpty();
+            assertThat(services.abcParetoReportService.getAllABCParetoAnalysis())
+                    .isEmpty();
             assertThat(services.abcParetoReportService.getABCParetoCount()).isZero();
 
             ABCParetoSummaryDTO synthese = services.abcParetoReportService.getABCParetoSummary();
@@ -171,14 +176,13 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             List<ABCParetoDTO> analyse = services.abcParetoReportService.getAllABCParetoAnalysis();
 
             assertThat(analyse)
-                .extracting(ABCParetoDTO::libelle, ABCParetoDTO::classePareto)
-                .containsExactly(
-                    tuple("P60", ClassePareto.A_PLUS),
-                    tuple("P20", ClassePareto.A),
-                    tuple("P15", ClassePareto.B),
-                    tuple("P04", ClassePareto.C),
-                    tuple("P01", ClassePareto.D)
-                );
+                    .extracting(ABCParetoDTO::libelle, ABCParetoDTO::classePareto)
+                    .containsExactly(
+                            tuple("P60", ClassePareto.A_PLUS),
+                            tuple("P20", ClassePareto.A),
+                            tuple("P15", ClassePareto.B),
+                            tuple("P04", ClassePareto.C),
+                            tuple("P01", ClassePareto.D));
         }
 
         @Test
@@ -215,7 +219,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             vendu(produit, 7, LocalDate.now().minusDays(1));
             viderLeCache();
 
-            ABCParetoDTO resultat = services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
+            ABCParetoDTO resultat =
+                    services.abcParetoReportService.getAllABCParetoAnalysis().getFirst();
 
             assertThat(resultat.qteVendue()).isEqualTo(10);
             assertThat(resultat.nbVentes()).isEqualTo(2);
@@ -228,7 +233,11 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             produitReference("DOLIPRANE", 10_000);
             viderLeCache();
 
-            assertThat(services.abcParetoReportService.getAllABCParetoAnalysis().getFirst().codeCip()).isNotBlank();
+            assertThat(services.abcParetoReportService
+                            .getAllABCParetoAnalysis()
+                            .getFirst()
+                            .codeCip())
+                    .isNotBlank();
         }
     }
 
@@ -245,11 +254,11 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             viderLeCache();
 
             assertThat(services.abcParetoReportService.getABCParetoByClass(ClassePareto.A_PLUS))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("P60");
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("P60");
             assertThat(services.abcParetoReportService.getABCParetoByClass(ClassePareto.B))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("P15");
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("P15");
         }
 
         /** Les produits sans vente rejoignent la classe D, aux côtés de la queue du classement. */
@@ -261,8 +270,10 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             produitReference("DORMANT B", 5_000);
             viderLeCache();
 
-            assertThat(services.abcParetoReportService.getABCParetoCountByClass(ClassePareto.D)).isEqualTo(3);
-            assertThat(services.abcParetoReportService.getABCParetoCountByClass(ClassePareto.A_PLUS)).isEqualTo(1);
+            assertThat(services.abcParetoReportService.getABCParetoCountByClass(ClassePareto.D))
+                    .isEqualTo(3);
+            assertThat(services.abcParetoReportService.getABCParetoCountByClass(ClassePareto.A_PLUS))
+                    .isEqualTo(1);
             assertThat(services.abcParetoReportService.getABCParetoCount()).isEqualTo(7);
         }
 
@@ -275,8 +286,8 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             viderLeCache();
 
             assertThat(services.abcParetoReportService.getTopRevenueContributors(2))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("GROS", "MOYEN");
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("GROS", "MOYEN");
         }
 
         @Test
@@ -288,11 +299,11 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             viderLeCache();
 
             assertThat(services.abcParetoReportService.getABCParetoPaginated(0, 2))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("GROS", "MOYEN");
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("GROS", "MOYEN");
             assertThat(services.abcParetoReportService.getABCParetoPaginated(1, 2))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("PETIT");
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("PETIT");
         }
 
         @Test
@@ -304,9 +315,10 @@ class ABCParetoReportServiceIntegrationTest extends AbstractReportIntegrationTes
             String famille = premiereFamille().getLibelle();
 
             assertThat(services.abcParetoReportService.getABCParetoByCategory(famille))
-                .extracting(ABCParetoDTO::libelle)
-                .containsExactly("DOLIPRANE");
-            assertThat(services.abcParetoReportService.getABCParetoByCategory("FAMILLE INEXISTANTE")).isEmpty();
+                    .extracting(ABCParetoDTO::libelle)
+                    .containsExactly("DOLIPRANE");
+            assertThat(services.abcParetoReportService.getABCParetoByCategory("FAMILLE INEXISTANTE"))
+                    .isEmpty();
         }
     }
 

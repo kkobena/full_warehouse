@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
-
 import java.time.LocalDateTime;
 
 public class ThirdPartySaleLineDTO {
@@ -33,8 +32,7 @@ public class ThirdPartySaleLineDTO {
     private String num;
     private short tauxVente;
 
-    public ThirdPartySaleLineDTO() {
-    }
+    public ThirdPartySaleLineDTO() {}
 
     public String getNum() {
         return num;
@@ -74,7 +72,6 @@ public class ThirdPartySaleLineDTO {
         this.priorite = clientTiersPayant.getPriorite();
         this.tauxVente = thirdPartySaleLine.getTauxVente();
         this.num = clientTiersPayant.getNum();
-
     }
 
     public static Builder builder() {
@@ -87,24 +84,24 @@ public class ThirdPartySaleLineDTO {
         AssuredCustomer assuredCustomer = clientTiersPayant.getAssuredCustomer();
         AssuranceSaleId assuranceSaleId = thirdPartySaleLine.getId();
         return new Builder()
-            .assuranceSaleId(assuranceSaleId)
-            .id(assuranceSaleId.getId())
-            .numBon(thirdPartySaleLine.getNumBon())
-            .montant(thirdPartySaleLine.getMontant())
-            .clientTiersPayantId(clientTiersPayant.getId())
-            .customerId(assuredCustomer.getId())
-            .tiersPayantId(tiersPayant.getId())
-            .customerFullName(String.format("%s %s", assuredCustomer.getFirstName(), assuredCustomer.getLastName()))
-            .tiersPayantFullName(tiersPayant.getFullName())
-            .name(tiersPayant.getName())
-            .created(thirdPartySaleLine.getCreated())
-            .updated(thirdPartySaleLine.getUpdated())
-            .effectiveUpdateDate(thirdPartySaleLine.getEffectiveUpdateDate())
-            .taux(thirdPartySaleLine.getTaux())
-            .tauxVente(thirdPartySaleLine.getTauxVente())
-            .num(clientTiersPayant.getNum())
-            .statut(thirdPartySaleLine.getStatut())
-            .priorite(clientTiersPayant.getPriorite());
+                .assuranceSaleId(assuranceSaleId)
+                .id(assuranceSaleId.getId())
+                .numBon(thirdPartySaleLine.getNumBon())
+                .montant(thirdPartySaleLine.getMontant())
+                .clientTiersPayantId(clientTiersPayant.getId())
+                .customerId(assuredCustomer.getId())
+                .tiersPayantId(tiersPayant.getId())
+                .customerFullName(String.format("%s %s", assuredCustomer.getFirstName(), assuredCustomer.getLastName()))
+                .tiersPayantFullName(tiersPayant.getFullName())
+                .name(tiersPayant.getName())
+                .created(thirdPartySaleLine.getCreated())
+                .updated(thirdPartySaleLine.getUpdated())
+                .effectiveUpdateDate(thirdPartySaleLine.getEffectiveUpdateDate())
+                .taux(thirdPartySaleLine.getTaux())
+                .tauxVente(thirdPartySaleLine.getTauxVente())
+                .num(clientTiersPayant.getNum())
+                .statut(thirdPartySaleLine.getStatut())
+                .priorite(clientTiersPayant.getPriorite());
     }
 
     public AssuranceSaleId getAssuranceSaleId() {
@@ -290,8 +287,7 @@ public class ThirdPartySaleLineDTO {
         private String num;
         private short tauxVente;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public Builder id(Long id) {
             this.id = id;

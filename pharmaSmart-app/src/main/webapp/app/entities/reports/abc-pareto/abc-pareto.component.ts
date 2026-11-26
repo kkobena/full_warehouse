@@ -1,31 +1,32 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { NgbProgressbar } from "@ng-bootstrap/ng-bootstrap";
+import { NgbProgressbar } from '@ng-bootstrap/ng-bootstrap';
 
-import { IABCPareto, IABCParetoSummary } from "app/shared/model/report";
-import { ClassePareto } from "app/shared/model/report/classe-pareto.enum";
-import { ABCParetoReportService } from "../services/abc-pareto-report.service";
-import { formatCurrency } from "app/shared/utils/format-utils";
-import { BlobDownloadService } from "../../../shared/services/blob-download.service";
+import { IABCPareto, IABCParetoSummary } from 'app/shared/model/report';
+import { ClassePareto } from 'app/shared/model/report/classe-pareto.enum';
+import { ABCParetoReportService } from '../services/abc-pareto-report.service';
+import { formatCurrency } from 'app/shared/utils/format-utils';
+import { BlobDownloadService } from '../../../shared/services/blob-download.service';
 import {
   BadgeComponent,
   DataTableComponent,
   IconFieldComponent,
   KpiItemComponent,
   KpiStripComponent,
-  OffcanvasComponent
+  OffcanvasComponent,
 } from '../../../shared/ui';
 
 import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
-  selector: "app-abc-pareto",
-  templateUrl: "./abc-pareto.component.html",
-  styleUrl: "./abc-pareto.component.scss",
+  selector: 'app-abc-pareto',
+  templateUrl: './abc-pareto.component.html',
+  styleUrl: './abc-pareto.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     NgbProgressbar,
@@ -34,8 +35,9 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
     IconFieldComponent,
     OffcanvasComponent,
     KpiStripComponent,
-    KpiItemComponent
-  , DevisePipe]
+    KpiItemComponent,
+    DevisePipe,
+  ],
 })
 export default class ABCParetoComponent implements OnInit {
   products = signal<IABCPareto[]>([]);
@@ -46,13 +48,13 @@ export default class ABCParetoComponent implements OnInit {
   helpDrawerVisible = signal<boolean>(false);
 
   familleOptions = signal<{ label: string; value: string }[]>([]);
-  classeParetoOptions = signal<{ label: string; value: ClassePareto | "" }[]>([
-    { label: "Toutes", value: "" },
-    { label: "A+ — Top 60% du CA", value: ClassePareto.A_PLUS },
-    { label: "A — 60-80% du CA", value: ClassePareto.A },
-    { label: "B — 80-95% du CA", value: ClassePareto.B },
-    { label: "C — 95-99% du CA", value: ClassePareto.C },
-    { label: "D — Sans ventes / >99%", value: ClassePareto.D }
+  classeParetoOptions = signal<{ label: string; value: ClassePareto | '' }[]>([
+    { label: 'Toutes', value: '' },
+    { label: 'A+ — Top 60% du CA', value: ClassePareto.A_PLUS },
+    { label: 'A — 60-80% du CA', value: ClassePareto.A },
+    { label: 'B — 80-95% du CA', value: ClassePareto.B },
+    { label: 'C — 95-99% du CA', value: ClassePareto.C },
+    { label: 'D — Sans ventes / >99%', value: ClassePareto.D },
   ]);
 
   ClassePareto = ClassePareto;
@@ -86,7 +88,7 @@ export default class ABCParetoComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -96,8 +98,8 @@ export default class ABCParetoComponent implements OnInit {
         this.summary.set(res.body ?? null);
       },
       error() {
-        console.error("Error loading summary");
-      }
+        console.error('Error loading summary');
+      },
     });
   }
 
@@ -120,92 +122,91 @@ export default class ABCParetoComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
   exportToPdf(): void {
-    this.abcParetoService.exportABCParetoToPdf()
-      .subscribe(resp => {
-        this.blobDownloadService.downloadPdf(resp.body, 'abc_pareto');
-      });
+    this.abcParetoService.exportABCParetoToPdf().subscribe(resp => {
+      this.blobDownloadService.downloadPdf(resp.body, 'abc_pareto');
+    });
   }
 
   getClasseParetoLabel(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
       case ClassePareto.A_PLUS:
-        return "A+";
+        return 'A+';
       case ClassePareto.A:
-        return "A";
+        return 'A';
       case ClassePareto.B:
-        return "B";
+        return 'B';
       case ClassePareto.C:
-        return "C";
+        return 'C';
       case ClassePareto.D:
-        return "D";
+        return 'D';
       default:
-        return "";
+        return '';
     }
   }
 
-  getClasseParetoSeverity(classePareto: ClassePareto | undefined): "success" | "info" | "warn" | "danger" | "secondary" {
+  getClasseParetoSeverity(classePareto: ClassePareto | undefined): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (classePareto) {
       case ClassePareto.A_PLUS:
-        return "danger";
+        return 'danger';
       case ClassePareto.A:
-        return "success";
+        return 'success';
       case ClassePareto.B:
-        return "info";
+        return 'info';
       case ClassePareto.C:
-        return "warn";
+        return 'warn';
       case ClassePareto.D:
-        return "secondary";
+        return 'secondary';
       default:
-        return "secondary";
+        return 'secondary';
     }
   }
 
   getClasseParetoDescription(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
       case ClassePareto.A_PLUS:
-        return "≤ 60% CA cumulé";
+        return '≤ 60% CA cumulé';
       case ClassePareto.A:
-        return "60-80% CA cumulé";
+        return '60-80% CA cumulé';
       case ClassePareto.B:
-        return "80-95% CA cumulé";
+        return '80-95% CA cumulé';
       case ClassePareto.C:
-        return "95-99% CA cumulé";
+        return '95-99% CA cumulé';
       case ClassePareto.D:
-        return "Sans ventes / >99%";
+        return 'Sans ventes / >99%';
       default:
-        return "";
+        return '';
     }
   }
 
   getClasseParetoClass(classePareto: ClassePareto | undefined): string {
     switch (classePareto) {
       case ClassePareto.A_PLUS:
-        return "pareto-badge pareto-a-plus";
+        return 'pareto-badge pareto-a-plus';
       case ClassePareto.A:
-        return "pareto-badge pareto-a";
+        return 'pareto-badge pareto-a';
       case ClassePareto.B:
-        return "pareto-badge pareto-b";
+        return 'pareto-badge pareto-b';
       case ClassePareto.C:
-        return "pareto-badge pareto-c";
+        return 'pareto-badge pareto-c';
       case ClassePareto.D:
-        return "pareto-badge pareto-d";
+        return 'pareto-badge pareto-d';
       default:
-        return "pareto-badge pareto-d";
+        return 'pareto-badge pareto-d';
     }
   }
 
   getCumulativePercentageColor(caCumulePct: number | undefined): string {
-    if (!caCumulePct) return "secondary";
-    if (caCumulePct <= 60) return "danger";
-    if (caCumulePct <= 80) return "success";
-    if (caCumulePct <= 95) return "info";
-    if (caCumulePct <= 99) return "warn";
-    return "secondary";
+    if (!caCumulePct) return 'secondary';
+    if (caCumulePct <= 60) return 'danger';
+    if (caCumulePct <= 80) return 'success';
+    if (caCumulePct <= 95) return 'info';
+    if (caCumulePct <= 99) return 'warn';
+    return 'secondary';
   }
 
   toggleHelpDrawer(): void {
@@ -214,9 +215,6 @@ export default class ABCParetoComponent implements OnInit {
 
   private extractFamilleOptions(products: IABCPareto[]): void {
     const familles = [...new Set(products.map(p => p.famille).filter(f => f))];
-    this.familleOptions.set([
-      { label: "Toutes les familles", value: "" },
-      ...familles.map(f => ({ label: f!, value: f! }))
-    ]);
+    this.familleOptions.set([{ label: 'Toutes les familles', value: '' }, ...familles.map(f => ({ label: f!, value: f! }))]);
   }
 }

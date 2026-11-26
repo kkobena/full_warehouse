@@ -7,15 +7,19 @@ import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class LigneInfoReponse {// voir comment un objet parent pour regrouper les propriete communes
+public class LigneInfoReponse { // voir comment un objet parent pour regrouper les propriete communes
     @XmlAttribute(name = "Num_Ligne")
     private Integer numLigne;
+
     @XmlAttribute(name = "Num_Ligne_Demande")
     private Integer numLigneDemande;
+
     @XmlAttribute(name = "Code_Produit")
     private String codeProduit;
+
     @XmlAttribute(name = "Type_Codification")
     private String typeCodification;
+
     @XmlAttribute(name = "Designation")
     private String designation;
 
@@ -41,8 +45,7 @@ public class LigneInfoReponse {// voir comment un objet parent pour regrouper le
         return nonDispo;
     }
 
-    public LigneInfoReponse setNonDispo(
-        NonDispo nonDispo) {
+    public LigneInfoReponse setNonDispo(NonDispo nonDispo) {
         this.nonDispo = nonDispo;
         return this;
     }
@@ -81,7 +84,6 @@ public class LigneInfoReponse {// voir comment un objet parent pour regrouper le
     public void setCodeProduit(String codeProduit) {
         this.codeProduit = codeProduit;
     }
-
 
     public String getDesignation() {
         return designation;

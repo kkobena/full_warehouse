@@ -23,10 +23,10 @@ import com.kobe.warehouse.service.customer.CustomerFicheService;
 import com.kobe.warehouse.service.customer.CustomerSyntheseDTO;
 import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import com.kobe.warehouse.service.customer.ProduitDelivreDTO;
-import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereService;
 import com.kobe.warehouse.service.dashboard.integration.AbstractDashboardIntegrationTest;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,13 +53,12 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
     @BeforeEach
     void preparer() {
         customers = new CustomerDataService(
-            IntegrationPostgresDatabase.bean(CustomerRepository.class),
-            IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class),
-            em,
-            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
-            IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class),
-            IntegrationPostgresDatabase.bean(SalesRepository.class)
-        );
+                IntegrationPostgresDatabase.bean(CustomerRepository.class),
+                IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class),
+                em,
+                IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+                IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class),
+                IntegrationPostgresDatabase.bean(SalesRepository.class));
         caisse = caisseOuverte(0);
         nom = unique("FICHE").toUpperCase();
     }
@@ -78,8 +77,16 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
 
         List<CustomerDTO> liste = rechercher("STANDARD", Status.ENABLE);
 
-        assertThat(liste).filteredOn(c -> c.getId().equals(debiteur.getId())).singleElement().extracting(CustomerDTO::getEncours).isEqualTo(5_000);
-        assertThat(liste).filteredOn(c -> c.getId().equals(aJour.getId())).singleElement().extracting(CustomerDTO::getEncours).isEqualTo(0);
+        assertThat(liste)
+                .filteredOn(c -> c.getId().equals(debiteur.getId()))
+                .singleElement()
+                .extracting(CustomerDTO::getEncours)
+                .isEqualTo(5_000);
+        assertThat(liste)
+                .filteredOn(c -> c.getId().equals(aJour.getId()))
+                .singleElement()
+                .extracting(CustomerDTO::getEncours)
+                .isEqualTo(0);
     }
 
     @Test
@@ -88,7 +95,10 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         UninsuredCustomer debiteur = client(nom, "Awa", "0700000003");
         venteDifferee(caisse, 10_000, 4_500, debiteur, LocalDate.now());
 
-        assertThat(rechercher("TOUT", Status.ENABLE)).singleElement().extracting(CustomerDTO::getEncours).isEqualTo(4_500);
+        assertThat(rechercher("TOUT", Status.ENABLE))
+                .singleElement()
+                .extracting(CustomerDTO::getEncours)
+                .isEqualTo(4_500);
     }
 
     @Test
@@ -99,8 +109,12 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         inactif.setStatus(Status.DISABLE);
         em.flush();
 
-        assertThat(rechercher("STANDARD", Status.ENABLE)).extracting(CustomerDTO::getFirstName).containsExactly("Actif");
-        assertThat(rechercher("STANDARD", Status.DISABLE)).extracting(CustomerDTO::getFirstName).containsExactly("Inactif");
+        assertThat(rechercher("STANDARD", Status.ENABLE))
+                .extracting(CustomerDTO::getFirstName)
+                .containsExactly("Actif");
+        assertThat(rechercher("STANDARD", Status.DISABLE))
+                .extracting(CustomerDTO::getFirstName)
+                .containsExactly("Inactif");
     }
 
     @Test
@@ -125,10 +139,10 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         venteDifferee(caisse, 3_000, 0, client, LocalDate.now());
 
         assertThatThrownBy(() -> standards().deleteCustomerById(client.getId()))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("1 vente(s)")
-            .extracting("errorKey")
-            .isEqualTo(HistoriqueClientService.ERROR_KEY);
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("1 vente(s)")
+                .extracting("errorKey")
+                .isEqualTo(HistoriqueClientService.ERROR_KEY);
     }
 
     @Test
@@ -151,13 +165,14 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         em.flush();
 
         assertThatThrownBy(() -> new HistoriqueClientService(em).verifierSuppression(principal.getId()))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo(HistoriqueClientService.ERROR_KEY);
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo(HistoriqueClientService.ERROR_KEY);
     }
 
     private UninsuredCustomerService standards() {
-        return new UninsuredCustomerService(IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class), new HistoriqueClientService(em));
+        return new UninsuredCustomerService(
+                IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class), new HistoriqueClientService(em));
     }
 
     private AssuredCustomer assure(String nom, TypeAssure type, AssuredCustomer principal) {
@@ -226,20 +241,32 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         ligneDeVente(annulee, amoxicilline, 5);
         em.flush();
 
-        List<ProduitDelivreDTO> produits = fiche()
-            .produitsDelivres(client.getId(), LocalDate.now().minusDays(1), LocalDate.now(), null, PageRequest.of(0, 20))
-            .getContent();
+        List<ProduitDelivreDTO> produits = fiche().produitsDelivres(
+                        client.getId(), LocalDate.now().minusDays(1), LocalDate.now(), null, PageRequest.of(0, 20))
+                .getContent();
 
         assertThat(produits).hasSize(2);
-        ProduitDelivreDTO paracetamol = produits.stream().filter(p -> p.produitId().equals(doliprane.getId())).findFirst().orElseThrow();
+        ProduitDelivreDTO paracetamol = produits.stream()
+                .filter(p -> p.produitId().equals(doliprane.getId()))
+                .findFirst()
+                .orElseThrow();
         assertThat(paracetamol.nombreDelivrances()).isEqualTo(2);
         assertThat(paracetamol.quantite()).isEqualTo(3);
-        ProduitDelivreDTO antibiotique = produits.stream().filter(p -> p.produitId().equals(amoxicilline.getId())).findFirst().orElseThrow();
+        ProduitDelivreDTO antibiotique = produits.stream()
+                .filter(p -> p.produitId().equals(amoxicilline.getId()))
+                .findFirst()
+                .orElseThrow();
         assertThat(antibiotique.quantite()).isEqualTo(1);
 
-        assertThat(
-            fiche().produitsDelivres(client.getId(), LocalDate.now().minusDays(1), LocalDate.now(), "amoxi", PageRequest.of(0, 20)).getContent()
-        ).extracting(ProduitDelivreDTO::produitId).containsExactly(amoxicilline.getId());
+        assertThat(fiche().produitsDelivres(
+                                client.getId(),
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now(),
+                                "amoxi",
+                                PageRequest.of(0, 20))
+                        .getContent())
+                .extracting(ProduitDelivreDTO::produitId)
+                .containsExactly(amoxicilline.getId());
     }
 
     @Test
@@ -250,15 +277,20 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
         em.flush();
         ReglementDiffereService differes = mock(ReglementDiffereService.class);
 
-        assertThat(new CustomerFicheService(em, IntegrationPostgresDatabase.bean(SalesRepository.class), differes).differes(client.getId())).isEmpty();
+        assertThat(new CustomerFicheService(em, IntegrationPostgresDatabase.bean(SalesRepository.class), differes)
+                        .differes(client.getId()))
+                .isEmpty();
         verifyNoInteractions(differes);
     }
 
     private CustomerFicheService fiche() {
-        return new CustomerFicheService(em, IntegrationPostgresDatabase.bean(SalesRepository.class), mock(ReglementDiffereService.class));
+        return new CustomerFicheService(
+                em, IntegrationPostgresDatabase.bean(SalesRepository.class), mock(ReglementDiffereService.class));
     }
 
     private List<CustomerDTO> rechercher(String categorie, Status statut) {
-        return customers.fetchAllCustomers(categorie, nom, statut, PageRequest.of(0, 20)).getContent();
+        return customers
+                .fetchAllCustomers(categorie, nom, statut, PageRequest.of(0, 20))
+                .getContent();
     }
 }

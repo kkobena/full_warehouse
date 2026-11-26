@@ -8,12 +8,11 @@ import java.util.List;
  * aujourd'hui, est l'encours de la fiche.
  */
 public record ReleveCompteDTO(
-    ClientDocumentDTO client,
-    LocalDate debut,
-    LocalDate fin,
-    long soldeInitial,
-    List<LigneReleveDTO> lignes,
-    long totalDebit,
-    long totalCredit,
-    long soldeFinal
-) {}
+        ClientDocumentDTO client,
+        LocalDate debut,
+        LocalDate fin,
+        long soldeInitial,
+        List<LigneReleveDTO> lignes,
+        long totalDebit,
+        long totalCredit,
+        long soldeFinal) {}

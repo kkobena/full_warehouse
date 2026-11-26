@@ -37,7 +37,9 @@
     font-weight: 600;
     font-size: 0.9rem;
 
-    i { font-size: 1.125rem; }
+    i {
+      font-size: 1.125rem;
+    }
   }
 
   // ── Controls row ──────────────────────────────────────────────────────
@@ -51,13 +53,15 @@
 
     // Generic select slot — any class ending in "-select-input"
     // (fournisseur-select-input, motif-select-input, storage-select-input…)
-    [class$="-select-input"] {
+    [class$='-select-input'] {
       flex: 1;
       min-width: 180px;
 
       ::ng-deep p-select,
       ::ng-deep .p-select,
-      ::ng-deep .p-select-label { width: 100%; }
+      ::ng-deep .p-select-label {
+        width: 100%;
+      }
     }
 
     .product-search-input {
@@ -66,7 +70,9 @@
 
       ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
-      ::ng-deep .p-autocomplete-input { width: 100%; }
+      ::ng-deep .p-autocomplete-input {
+        width: 100%;
+      }
     }
 
     .quantity-input-wrapper {
@@ -97,20 +103,34 @@
       border: 1px solid #e2e8f0;
       white-space: nowrap;
 
-      i { color: var(--pharma-chrome-head-icon, #{$header-color}); font-size: 0.9rem; }
-      strong { color: #1e293b; font-weight: 600; }
+      i {
+        color: var(--pharma-chrome-head-icon, #{$header-color});
+        font-size: 0.9rem;
+      }
+      strong {
+        color: #1e293b;
+        font-weight: 600;
+      }
 
       &.low-stock {
         background: #fff1f2;
         border-color: #fca5a5;
-        i, strong { color: #dc2626; }
+        i,
+        strong {
+          color: #dc2626;
+        }
       }
 
       &.price-display {
         background: rgba(40, 167, 69, 0.08);
         border-color: rgba(40, 167, 69, 0.25);
-        i { color: #28a745; }
-        strong { color: #28a745; font-size: 0.875rem; }
+        i {
+          color: #28a745;
+        }
+        strong {
+          color: #28a745;
+          font-size: 0.875rem;
+        }
       }
     }
 
@@ -128,15 +148,23 @@
   // ── Responsive ─────────────────────────────────────────────────────────
   @media (max-width: 768px) {
     .search-controls {
-      [class$="-select-input"],
+      [class$='-select-input'],
       .product-search-input,
-      .quantity-input-wrapper { flex: 1 1 100%; }
+      .quantity-input-wrapper {
+        flex: 1 1 100%;
+      }
     }
   }
 }
 
 // Keyframe déclarée une seule fois (hors du mixin pour éviter les doublons)
 @keyframes _ss-slide-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

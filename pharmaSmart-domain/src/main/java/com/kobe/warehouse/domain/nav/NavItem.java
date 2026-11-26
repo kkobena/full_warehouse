@@ -33,7 +33,9 @@ import org.hibernate.annotations.UpdateTimestamp;
  * Entité de navigation dynamique — indépendante de l'entité Menu existante.
  */
 @Entity
-@Table(name = "nav_item", uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }) })
+@Table(
+        name = "nav_item",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"code"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class NavItem implements Serializable {
 
@@ -268,4 +270,3 @@ public class NavItem implements Serializable {
         return "NavItem{id=" + id + ", code='" + code + "', libelle='" + libelle + "'}";
     }
 }
-

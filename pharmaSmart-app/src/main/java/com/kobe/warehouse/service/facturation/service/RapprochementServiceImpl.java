@@ -22,13 +22,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.io.IOException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +30,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -52,10 +51,9 @@ public class RapprochementServiceImpl implements RapprochementService {
     private EntityManager entityManager;
 
     public RapprochementServiceImpl(
-        AppConfigurationService appConfigurationService,
-        RapprochementPdfReportService rapprochementPdfReportService,
-        ReportExcelExportService excelExportService
-    ) {
+            AppConfigurationService appConfigurationService,
+            RapprochementPdfReportService rapprochementPdfReportService,
+            ReportExcelExportService excelExportService) {
         this.appConfigurationService = appConfigurationService;
         this.rapprochementPdfReportService = rapprochementPdfReportService;
         this.excelExportService = excelExportService;
@@ -67,19 +65,24 @@ public class RapprochementServiceImpl implements RapprochementService {
         List<FactureTiersPayant> factures = queryFactures(params);
 
         // Group by tiersPayant
-        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream()
-            .collect(Collectors.groupingBy(f -> {
-                if (f.getTiersPayant() != null) return f.getTiersPayant().getId();
-                return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
-            }));
+        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream().collect(Collectors.groupingBy(f -> {
+            if (f.getTiersPayant() != null) return f.getTiersPayant().getId();
+            return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
+        }));
 
         List<EtatRapprochementDto> result = new ArrayList<>();
         for (Map.Entry<Integer, List<FactureTiersPayant>> entry : grouped.entrySet()) {
             List<FactureTiersPayant> tpFactures = entry.getValue();
             FactureTiersPayant first = tpFactures.getFirst();
             TiersPayant tp = first.getTiersPayant();
-            String tpName = tp != null ? tp.getFullName() : (first.getGroupeTiersPayant() != null ? first.getGroupeTiersPayant().getName() : "");
-            int delai = tp != null && tp.getDelaiReglement() != null ? tp.getDelaiReglement() : appConfigurationService.getDelaiReglement();
+            String tpName = tp != null
+                    ? tp.getFullName()
+                    : (first.getGroupeTiersPayant() != null
+                            ? first.getGroupeTiersPayant().getName()
+                            : "");
+            int delai = tp != null && tp.getDelaiReglement() != null
+                    ? tp.getDelaiReglement()
+                    : appConfigurationService.getDelaiReglement();
 
             BigDecimal totalFacture = BigDecimal.ZERO;
             BigDecimal totalRegle = BigDecimal.ZERO;
@@ -94,20 +97,18 @@ public class RapprochementServiceImpl implements RapprochementService {
                 totalFacture = totalFacture.add(montantFacture);
                 totalRegle = totalRegle.add(montantRegle);
 
-
                 List<ReglementDto> reglements = buildPaymentsDtos(f);
 
                 lignes.add(new LigneRapprochementDto(
-                    f.getId().getId(),
-                    f.getNumFacture(),
-                    f.getInvoiceDate(),
-                    echeance,
-                    montantFacture,
-                    montantRegle,
-                    ecart,
-                    f.getStatut(),
-                    reglements
-                ));
+                        f.getId().getId(),
+                        f.getNumFacture(),
+                        f.getInvoiceDate(),
+                        echeance,
+                        montantFacture,
+                        montantRegle,
+                        ecart,
+                        f.getStatut(),
+                        reglements));
             }
 
             BigDecimal ecartTotal = totalFacture.subtract(totalRegle);
@@ -115,20 +116,14 @@ public class RapprochementServiceImpl implements RapprochementService {
             LocalDate finPeriode = params.endDate();
 
             result.add(new EtatRapprochementDto(
-                tpName,
-                debutPeriode,
-                finPeriode,
-                totalFacture,
-                totalRegle,
-                ecartTotal,
-                lignes
-            ));
+                    tpName, debutPeriode, finPeriode, totalFacture, totalRegle, ecartTotal, lignes));
         }
 
         int total = result.size();
         int fromIndex = (int) pageable.getOffset();
         int toIndex = Math.min(fromIndex + pageable.getPageSize(), total);
-        List<EtatRapprochementDto> pageContent = fromIndex >= total ? Collections.emptyList() : result.subList(fromIndex, toIndex);
+        List<EtatRapprochementDto> pageContent =
+                fromIndex >= total ? Collections.emptyList() : result.subList(fromIndex, toIndex);
         return new PageImpl<>(pageContent, pageable, total);
     }
 
@@ -153,7 +148,7 @@ public class RapprochementServiceImpl implements RapprochementService {
         List<String[]> rows = new ArrayList<>();
         for (EtatRapprochementDto etat : etats) {
             for (LigneRapprochementDto ligne : etat.lignes()) {
-                rows.add(new String[]{
+                rows.add(new String[] {
                     etat.tiersPayantName(),
                     ligne.numFacture(),
                     ligne.invoiceDate() != null ? ligne.invoiceDate().format(DATE_FMT) : "",
@@ -175,19 +170,21 @@ public class RapprochementServiceImpl implements RapprochementService {
 
     private List<EtatRapprochementDto> buildAllEtats(RapprochementParams params) {
         List<FactureTiersPayant> factures = queryFactures(params);
-        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream()
-            .collect(Collectors.groupingBy(f -> {
-                if (f.getTiersPayant() != null) return f.getTiersPayant().getId();
-                return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
-            }));
+        Map<Integer, List<FactureTiersPayant>> grouped = factures.stream().collect(Collectors.groupingBy(f -> {
+            if (f.getTiersPayant() != null) return f.getTiersPayant().getId();
+            return f.getGroupeTiersPayant() != null ? f.getGroupeTiersPayant().getId() : 0;
+        }));
 
         List<EtatRapprochementDto> result = new ArrayList<>();
         for (Map.Entry<Integer, List<FactureTiersPayant>> entry : grouped.entrySet()) {
             List<FactureTiersPayant> tpFactures = entry.getValue();
             FactureTiersPayant first = tpFactures.get(0);
             TiersPayant tp = first.getTiersPayant();
-            String tpName = tp != null ? tp.getFullName()
-                : (first.getGroupeTiersPayant() != null ? first.getGroupeTiersPayant().getName() : "");
+            String tpName = tp != null
+                    ? tp.getFullName()
+                    : (first.getGroupeTiersPayant() != null
+                            ? first.getGroupeTiersPayant().getName()
+                            : "");
             int delai = tp != null && tp.getDelaiReglement() != null ? tp.getDelaiReglement() : 30;
 
             BigDecimal totalFacture = BigDecimal.ZERO;
@@ -202,14 +199,24 @@ public class RapprochementServiceImpl implements RapprochementService {
                 totalFacture = totalFacture.add(montantFacture);
                 totalRegle = totalRegle.add(montantRegle);
                 lignes.add(new LigneRapprochementDto(
-                    f.getId().getId(), f.getNumFacture(), f.getInvoiceDate(), echeance,
-                    montantFacture, montantRegle, ecart, f.getStatut(), buildPaymentsDtos(f)
-                ));
+                        f.getId().getId(),
+                        f.getNumFacture(),
+                        f.getInvoiceDate(),
+                        echeance,
+                        montantFacture,
+                        montantRegle,
+                        ecart,
+                        f.getStatut(),
+                        buildPaymentsDtos(f)));
             }
             result.add(new EtatRapprochementDto(
-                tpName, params.startDate(), params.endDate(),
-                totalFacture, totalRegle, totalFacture.subtract(totalRegle), lignes
-            ));
+                    tpName,
+                    params.startDate(),
+                    params.endDate(),
+                    totalFacture,
+                    totalRegle,
+                    totalFacture.subtract(totalRegle),
+                    lignes));
         }
         return result;
     }
@@ -227,7 +234,8 @@ public class RapprochementServiceImpl implements RapprochementService {
             predicates.add(cb.between(root.get(FactureTiersPayant_.invoiceDate), params.startDate(), params.endDate()));
         }
         if (params.tiersPayantId() != null) {
-            predicates.add(cb.equal(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id), params.tiersPayantId()));
+            predicates.add(
+                    cb.equal(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id), params.tiersPayantId()));
         }
         if (!CollectionUtils.isEmpty(params.statuts())) {
             predicates.add(root.get(FactureTiersPayant_.statut).in(params.statuts()));
@@ -245,9 +253,12 @@ public class RapprochementServiceImpl implements RapprochementService {
         CriteriaQuery<InvoicePayment> cq = cb.createQuery(InvoicePayment.class);
         Root<InvoicePayment> root = cq.from(InvoicePayment.class);
         cq.where(
-            cb.equal(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.id), facture.getId().getId()),
-            cb.equal(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.invoiceDate), facture.getInvoiceDate())
-        );
+                cb.equal(
+                        root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.id),
+                        facture.getId().getId()),
+                cb.equal(
+                        root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.invoiceDate),
+                        facture.getInvoiceDate()));
         List<InvoicePayment> payments = entityManager.createQuery(cq).getResultList();
 
         return payments.stream().map(this::toReglementDto).collect(Collectors.toList());
@@ -258,13 +269,12 @@ public class RapprochementServiceImpl implements RapprochementService {
         Banque banque = p.getBanque();
         String banqueNom = banque != null ? banque.getNom() : null;
         return new ReglementDto(
-            p.getId().getId(),
-            p.getTransactionDate(),
-            p.getPaidAmount(),
-            p.getTransactionNumber(),
-            paymentMode,
-            banqueNom,
-            p.getCommentaire()
-        );
+                p.getId().getId(),
+                p.getTransactionDate(),
+                p.getPaidAmount(),
+                p.getTransactionNumber(),
+                paymentMode,
+                banqueNom,
+                p.getCommentaire());
     }
 }

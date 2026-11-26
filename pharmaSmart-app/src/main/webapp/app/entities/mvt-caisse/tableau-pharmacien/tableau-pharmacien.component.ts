@@ -1,45 +1,33 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  signal
-} from '@angular/core';
-import {TableauPharmacienService} from './tableau-pharmacien.service';
-import {HttpResponse} from '@angular/common/http';
-import {FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
-import {TableauPharmacien, TableauPharmacienWrapper} from './tableau-pharmacien.model';
-import {ChartComponent} from 'app/shared/chart/chart.component';
-import {IGroupeFournisseur} from '../../../shared/model/groupe-fournisseur.model';
-import {MvtParamServiceService} from '../mvt-param-service.service';
-import {MvtCaisseParams} from '../mvt-caisse-util';
-import {VerticalBarChart} from '../../../shared/model/vertical-bar-chart.model';
-import {FormsModule} from '@angular/forms';
-import {ChartColorsUtilsService} from '../../../shared/util/chart-colors-utils.service';
-import {saveAs} from 'file-saver';
-import {extractFileName} from '../../../shared/util/file-utils';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {finalize} from 'rxjs/operators';
-import {handleBlobForTauri} from '../../../shared/util/tauri-util';
-import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
-import {CommonModule} from "@angular/common";
-import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {
-  AppSplitButtonItem,
-  ButtonComponent,
-  SplitButtonComponent,
-  ToolbarComponent
-} from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { TableauPharmacienService } from './tableau-pharmacien.service';
+import { HttpResponse } from '@angular/common/http';
+import { FORMAT_ISO_DATE_TO_STRING_FR, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { TableauPharmacien, TableauPharmacienWrapper } from './tableau-pharmacien.model';
+import { ChartComponent } from 'app/shared/chart/chart.component';
+import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
+import { MvtParamServiceService } from '../mvt-param-service.service';
+import { MvtCaisseParams } from '../mvt-caisse-util';
+import { VerticalBarChart } from '../../../shared/model/vertical-bar-chart.model';
+import { FormsModule } from '@angular/forms';
+import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
+import { saveAs } from 'file-saver';
+import { extractFileName } from '../../../shared/util/file-utils';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { finalize } from 'rxjs/operators';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { CommonModule } from '@angular/common';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AppSplitButtonItem, ButtonComponent, SplitButtonComponent, ToolbarComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
-import {ModeCa, ModeCaService} from '../mode-ca';
+import { ModeCa, ModeCaService } from '../mode-ca';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-tableau-pharmacien',
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -75,8 +63,8 @@ export class TableauPharmacienComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly affichage = signal('table');
   protected typeAffichafes = [
-    {icon: 'pi pi-align-justify', value: 'table'},
-    {icon: 'pi pi-chart-bar', value: 'graphe'},
+    { icon: 'pi pi-align-justify', value: 'table' },
+    { icon: 'pi pi-chart-bar', value: 'graphe' },
   ];
   protected readonly tableauPharmacienWrapper = signal<TableauPharmacienWrapper | null>(null);
   protected readonly groupeFournisseurs = signal<IGroupeFournisseur[]>([]);
@@ -293,7 +281,7 @@ export class TableauPharmacienComponent implements OnInit {
       this.groupeFournisseurs().forEach((groupeGrossiste: any) => {
         const grossiste = data.grossistes.find((g: any) => g.id === groupeGrossiste.id);
         if (grossiste) {
-          gr.push({id: grossiste.id, montantAchatNet: grossiste.montantAchatNet});
+          gr.push({ id: grossiste.id, montantAchatNet: grossiste.montantAchatNet });
         }
       });
 

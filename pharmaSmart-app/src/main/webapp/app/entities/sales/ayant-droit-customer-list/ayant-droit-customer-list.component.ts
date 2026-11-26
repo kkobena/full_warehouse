@@ -1,24 +1,18 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 
-import { Customer, ICustomer } from "app/shared/model/customer.model";
-import { CustomerService } from "app/entities/customer/customer.service";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { CommonModule } from "@angular/common";
-import { ButtonComponent, CardComponent, ToolbarComponent } from "../../../shared/ui";
+import { Customer, ICustomer } from 'app/shared/model/customer.model';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { ButtonComponent, CardComponent, ToolbarComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-ayant-droit-customer-list",
-  templateUrl: "./ayant-droit-customer-list.component.html",
-  styleUrls: ["./ayant-droit-customer-list.component.scss"],
+  selector: 'app-ayant-droit-customer-list',
+  templateUrl: './ayant-droit-customer-list.component.html',
+  styleUrls: ['./ayant-droit-customer-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonComponent,
-    CardComponent,
-    ToolbarComponent
-  ]
+  imports: [CommonModule, FormsModule, ButtonComponent, CardComponent, ToolbarComponent],
 })
 export class AyantDroitCustomerListComponent implements OnInit {
   protected readonly customers = signal<ICustomer[]>([]);
@@ -44,7 +38,7 @@ export class AyantDroitCustomerListComponent implements OnInit {
   }
 
   loadCustomers(): void {
-    this.customerService.queryAyantDroits(this.assure.id).subscribe(res => (this.customers.set(res.body!)));
+    this.customerService.queryAyantDroits(this.assure.id).subscribe(res => this.customers.set(res.body!));
   }
 
   addAyantDroit(): void {

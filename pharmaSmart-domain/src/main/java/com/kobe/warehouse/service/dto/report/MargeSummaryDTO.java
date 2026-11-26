@@ -17,14 +17,12 @@ import java.math.BigDecimal;
  * @param caProduitsBonneMarge      CA réalisé par les produits à bonne marge
  */
 public record MargeSummaryDTO(
-    Integer totalProduits,
-    Long caTotalGlobal,
-    Long coutAchatGlobal,
-    Long margeBruteGlobale,
-    BigDecimal tauxMargeMoyen,
-    Integer nbProduitsMargeInsuffisante,
-    Long caProduitsFaibleMarge,
-    Integer nbProduitsMargeConfortable,
-    Long caProduitsBonneMarge
-) {}
-
+        Integer totalProduits,
+        Long caTotalGlobal,
+        Long coutAchatGlobal,
+        Long margeBruteGlobale,
+        BigDecimal tauxMargeMoyen,
+        Integer nbProduitsMargeInsuffisante,
+        Long caProduitsFaibleMarge,
+        Integer nbProduitsMargeConfortable,
+        Long caProduitsBonneMarge) {}

@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.stat.produit;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
@@ -34,12 +36,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/produits/stat")
-@RequiresNavAccess({ "catalogue", "ventes.kpi" })
+@RequiresNavAccess({"catalogue", "ventes.kpi"})
 public class ProductStatResource {
 
     private final ProductStatService productStatService;
@@ -49,9 +49,11 @@ public class ProductStatResource {
     }
 
     @GetMapping("/ca")
-    public ResponseEntity<List<ProductStatRecord>> fetchProductStat(@Valid ProduitRecordParamDTO produitRecordParam, Pageable pageable) {
+    public ResponseEntity<List<ProductStatRecord>> fetchProductStat(
+            @Valid ProduitRecordParamDTO produitRecordParam, Pageable pageable) {
         Page<ProductStatRecord> page = productStatService.fetchProductStat(produitRecordParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -61,185 +63,186 @@ public class ProductStatResource {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<ProduitAuditingState>> fetchTransactions(@Valid ProduitAuditingParam produitAuditingParam) {
+    public ResponseEntity<List<ProduitAuditingState>> fetchTransactions(
+            @Valid ProduitAuditingParam produitAuditingParam) {
         return ResponseEntity.ok().body(productStatService.fetchProduitDailyTransaction(produitAuditingParam));
     }
 
     @GetMapping("/transactions/sum")
-    public ResponseEntity<List<ProduitAuditingSum>> fetchTransactionsSum(@Valid ProduitAuditingParam produitAuditingParam) {
+    public ResponseEntity<List<ProduitAuditingSum>> fetchTransactionsSum(
+            @Valid ProduitAuditingParam produitAuditingParam) {
         return ResponseEntity.ok().body(productStatService.fetchProduitDailyTransactionSum(produitAuditingParam));
     }
 
     @PostMapping("/transactions/pdf")
     @LicenseExempt("Consultation : export PDF de l'historique produit, la traçabilité doit rester imprimable")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getTransactionsPdf(@RequestBody @Valid ProduitAuditingParam produitAuditingParam) {
         return Utils.printPDF(
-            this.productStatService.printToPdf(produitAuditingParam),
-            "mouvements_produit_" + produitAuditingParam.produitId() + ".pdf"
-        );
+                this.productStatService.printToPdf(produitAuditingParam),
+                "mouvements_produit_" + produitAuditingParam.produitId() + ".pdf");
     }
 
     @GetMapping("/transactions/excel")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTransactionsToExcel(@Valid ProduitAuditingParam produitAuditingParam) {
         byte[] data = this.productStatService.exportToExcel(produitAuditingParam);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentType(
+                MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "mouvements-produit.xlsx");
         return ResponseEntity.ok().headers(headers).body(data);
     }
 
     @GetMapping("/historique-vente")
     public ResponseEntity<List<HistoriqueProduitVente>> getProduitHistoriqueVente(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy,
+            Pageable pageable) {
         Page<HistoriqueProduitVente> page = productStatService.getHistoriqueVente(
-            getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy),
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy), pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     private ProduitHistoriqueParam getProduitHistoriqueParam(
-        Integer produitId,
-        LocalDate fromDate,
-        LocalDate toDate,
-        TemporalEnum groupBy
-    ) {
+            Integer produitId, LocalDate fromDate, LocalDate toDate, TemporalEnum groupBy) {
         return new ProduitHistoriqueParam(produitId, fromDate, toDate, groupBy);
     }
 
     @GetMapping("/historique-vente-mensuelle")
     public ResponseEntity<List<HistoriqueProduitVenteMensuelleWrapper>> getProduitHistoriqueVenteMensuelle(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy) {
         return ResponseEntity.ok()
-            .body(productStatService.getHistoriqueVenteMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
+                .body(productStatService.getHistoriqueVenteMensuelle(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
     }
 
     @GetMapping("/historique-achat-mensuelle")
     public ResponseEntity<List<HistoriqueProduitAchatMensuelleWrapper>> getProduitHistoriqueAchatMensuelle(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy) {
         return ResponseEntity.ok()
-            .body(productStatService.getHistoriqueAchatMensuelle(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
+                .body(productStatService.getHistoriqueAchatMensuelle(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
     }
 
     @GetMapping("/historique-achat")
     public ResponseEntity<List<HistoriqueProduitAchats>> getProduitHistoriqueAchat(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy,
+            Pageable pageable) {
         Page<HistoriqueProduitAchats> page = productStatService.getHistoriqueAchat(
-            getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy),
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy), pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/historique-vente-mensuelle-summary")
     public ResponseEntity<HistoriqueProduitVenteMensuelleSummary> getHistoriqueVenteMensuelleSummary(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "MONTHLY") TemporalEnum groupBy) {
         return ResponseEntity.ok()
-            .body(productStatService.getHistoriqueVenteMensuelleSummary(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
+                .body(productStatService.getHistoriqueVenteMensuelleSummary(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
     }
 
     @GetMapping("/historique-achat-summary")
     public ResponseEntity<HistoriqueProduitAchatsSummary> getHistoriqueAchatSummary(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy) {
         return ResponseEntity.ok()
-            .body(productStatService.getHistoriqueAchatSummary(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
+                .body(productStatService.getHistoriqueAchatSummary(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
     }
 
     @GetMapping("/historique-vente-summary")
     public ResponseEntity<HistoriqueProduitVenteSummary> getHistoriqueVenteSummary(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy) {
         return ResponseEntity.ok()
-            .body(productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
+                .body(productStatService.getHistoriqueVenteSummary(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
     }
 
     @GetMapping("/historique-vente/pdf")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportHistoriqueVenteToPdf(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy) {
         return Utils.printPDF(
-            this.productStatService.exportHistoriqueVenteToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            "historique_ventes_" + produitId + ".pdf"
-        );
+                this.productStatService.exportHistoriqueVenteToPdf(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
+                "historique_ventes_" + produitId + ".pdf");
     }
 
     @GetMapping("/historique-achat/pdf")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportHistoriqueAchatToPdf(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "DAILY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", defaultValue = "DAILY") TemporalEnum groupBy) {
         return Utils.printPDF(
-            this.productStatService.exportHistoriqueAchatToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            "historique_achats_" + produitId + ".pdf"
-        );
+                this.productStatService.exportHistoriqueAchatToPdf(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
+                "historique_achats_" + produitId + ".pdf");
     }
 
     @GetMapping("/historique-vente-mensuelle/pdf")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportHistoriqueVenteMensuelleToPdf(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy) {
         return Utils.printPDF(
-            this.productStatService.exportHistoriqueVenteMensuelleToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            "historique_ventes_mensuel_" + produitId + ".pdf"
-        );
+                this.productStatService.exportHistoriqueVenteMensuelleToPdf(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
+                "historique_ventes_mensuel_" + produitId + ".pdf");
     }
 
     @GetMapping("/historique-achat-mensuelle/pdf")
-    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"catalogue", "ventes.kpi"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportHistoriqueAchatMensuelToPdf(
-        @RequestParam(name = "produitId") Integer produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy
-    ) {
+            @RequestParam(name = "produitId") Integer produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate,
+            @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy) {
         return Utils.printPDF(
-            this.productStatService.exportHistoriqueAchatMensuelToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            "historique_achats_mensuel_" + produitId + ".pdf"
-        );
+                this.productStatService.exportHistoriqueAchatMensuelToPdf(
+                        getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
+                "historique_achats_mensuel_" + produitId + ".pdf");
     }
 }

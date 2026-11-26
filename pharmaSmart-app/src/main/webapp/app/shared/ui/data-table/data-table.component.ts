@@ -1,5 +1,17 @@
 import { NgTemplateOutlet } from '@angular/common';
-import {ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, computed, contentChild, input, linkedSignal, model, output, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  TemplateRef,
+  ViewEncapsulation,
+  computed,
+  contentChild,
+  input,
+  linkedSignal,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
 
@@ -163,7 +175,11 @@ export class DataTableComponent<T = Record<string, unknown>> implements AppTable
     return rows.filter(row => {
       const record = row as Record<string, unknown>;
       const keys = fields.length ? fields : Object.keys(record);
-      return keys.some(key => String(record[key] ?? '').toLowerCase().includes(term));
+      return keys.some(key =>
+        String(record[key] ?? '')
+          .toLowerCase()
+          .includes(term),
+      );
     });
   });
 

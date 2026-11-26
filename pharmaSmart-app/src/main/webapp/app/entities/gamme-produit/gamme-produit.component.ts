@@ -1,32 +1,22 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
-import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {GammeProduitService} from './gamme-produit.service';
+import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { GammeProduitService } from './gamme-produit.service';
 
-import {FormGammeComponent} from './form-gamme/form-gamme.component';
-import {IGammeProduit} from '../../shared/model/gamme-produit.model';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {IResponseDto} from '../../shared/util/response-dto';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  SelectableRowDirective,
-} from '../../shared/ui';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {NotificationService} from '../../shared/services/notification.service';
-import {ErrorService} from '../../shared/error.service';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {
-  FileUploadDialogComponent
-} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import {finalize} from 'rxjs/operators';
-import {SpinnerComponent} from '../../shared/spinner/spinner.component';
+import { FormGammeComponent } from './form-gamme/form-gamme.component';
+import { IGammeProduit } from '../../shared/model/gamme-produit.model';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent, SelectableRowDirective } from '../../shared/ui';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ErrorService } from '../../shared/error.service';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { finalize } from 'rxjs/operators';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { CardComponent } from 'app/shared/ui';
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
   selector: 'app-gamme-produit',

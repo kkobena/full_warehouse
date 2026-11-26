@@ -44,8 +44,7 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
         viderLeCache();
 
         List<ClientTiersPayant> comptes = services.thirdPartyClientManager.getClientTiersPayants(
-            Set.of(premier.getId(), second.getId(), 999_999)
-        );
+                Set.of(premier.getId(), second.getId(), 999_999));
 
         assertEquals(2, comptes.size(), "l'identifiant inconnu est simplement ignoré");
     }
@@ -57,7 +56,9 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
         viderLeCache();
 
         assertFalse(services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-LIBRE", compte.getId(), null));
-        assertFalse(services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse(null, compte.getId(), null), "pas de bon, pas de conflit");
+        assertFalse(
+                services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse(null, compte.getId(), null),
+                "pas de bon, pas de conflit");
         assertFalse(services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("", compte.getId(), null));
     }
 
@@ -72,9 +73,8 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
 
         assertTrue(services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-TPM-1", compte.getId(), null));
         assertFalse(
-            services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-TPM-1", autreCompte.getId(), null),
-            "le bon appartient au compte, pas au numéro seul"
-        );
+                services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-TPM-1", autreCompte.getId(), null),
+                "le bon appartient au compte, pas au numéro seul");
     }
 
     @Test
@@ -86,9 +86,8 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
         viderLeCache();
 
         assertFalse(
-            services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-TPM-2", compte.getId(), saleId),
-            "sinon rééditer une vente deviendrait impossible"
-        );
+                services.thirdPartyClientManager.checkIfNumBonIsAlReadyUse("BON-TPM-2", compte.getId(), saleId),
+                "sinon rééditer une vente deviendrait impossible");
     }
 
     @Test
@@ -106,7 +105,10 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
         assertEquals(1, relu.getConsommations().size(), "un seul cumul mensuel, pas une ligne par vente");
         assertEquals(10_000L, relu.getConsommations().iterator().next().getConsommation(), "2 × 50 % de 10 000");
         assertEquals(10_000, relu.getConsoMensuelle());
-        assertEquals(10_000L, organisme.getConsommations().iterator().next().getConsommation(), "l'organisme suit le même cumul");
+        assertEquals(
+                10_000L,
+                organisme.getConsommations().iterator().next().getConsommation(),
+                "l'organisme suit le même cumul");
     }
 
     @Test
@@ -117,14 +119,21 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
         ClientTiersPayant principal = compte(assure, "CNAM RETRAIT", 60, PrioriteTiersPayant.R0);
         ClientTiersPayant complementaire = compte(assure, "MUTUELLE RETRAIT", 30, PrioriteTiersPayant.R1);
         ThirdPartySaleDTO vente = services.thirdPartySaleService.createSale(venteDe(principal, produit, "BON-TPM-5"));
-        services.thirdPartyClientManager.addThirdPartySaleLineToSales(compteDto(complementaire, "BON-TPM-6"), vente.getSaleId());
+        services.thirdPartyClientManager.addThirdPartySaleLineToSales(
+                compteDto(complementaire, "BON-TPM-6"), vente.getSaleId());
         viderLeCache();
 
         services.thirdPartyClientManager.removeThirdPartySaleLineToSales(complementaire.getId(), vente.getSaleId());
         viderLeCache();
 
-        assertEquals(1, compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = " + vente.getSaleId().getId()));
-        assertEquals(6_000, em.find(com.kobe.warehouse.domain.ThirdPartySales.class, vente.getSaleId()).getPartTiersPayant());
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = "
+                        + vente.getSaleId().getId()));
+        assertEquals(
+                6_000,
+                em.find(com.kobe.warehouse.domain.ThirdPartySales.class, vente.getSaleId())
+                        .getPartTiersPayant());
     }
 
     @Test
@@ -148,7 +157,8 @@ class ThirdPartyClientManagerIntegrationTest extends AbstractSaleIntegrationTest
     private Long venteCloturee(ClientTiersPayant compte, Produit produit, String numBon) {
         ThirdPartySaleDTO cree = services.thirdPartySaleService.createSale(venteDe(compte, produit, numBon));
         viderLeCache();
-        int partAssure = em.find(com.kobe.warehouse.domain.ThirdPartySales.class, cree.getSaleId()).getPartAssure();
+        int partAssure = em.find(com.kobe.warehouse.domain.ThirdPartySales.class, cree.getSaleId())
+                .getPartAssure();
 
         ThirdPartySaleDTO cloture = new ThirdPartySaleDTO();
         cloture.setSaleId(cree.getSaleId());

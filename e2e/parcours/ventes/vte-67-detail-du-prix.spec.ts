@@ -24,7 +24,10 @@ scenario('VTE-67', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await page.locator('.dropdown-menu.show').getByRole('button', { name: /Détail du prix/ }).click();
+    await page
+      .locator('.dropdown-menu.show')
+      .getByRole('button', { name: /Détail du prix/ })
+      .click();
     const detail = page.locator('[aria-label="Détail du prix"]');
     await expect(detail).toContainText(produit);
     await expect(detail).toContainText('Prix public');

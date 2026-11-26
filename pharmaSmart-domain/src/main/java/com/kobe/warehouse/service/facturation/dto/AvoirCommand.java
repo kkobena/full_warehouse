@@ -5,12 +5,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record AvoirCommand(
-    Long factureId,
-    LocalDate factureDate,
-    Integer tiersPayantId,
-    BigDecimal montantAvoir,
-    BigDecimal montantTva,
-    BigDecimal montantHt,
-    String motif,
-    List<AvoirLineDto> lignes
-) {}
+        Long factureId,
+        LocalDate factureDate,
+        Integer tiersPayantId,
+        BigDecimal montantAvoir,
+        BigDecimal montantTva,
+        BigDecimal montantHt,
+        String motif,
+        List<AvoirLineDto> lignes) {}

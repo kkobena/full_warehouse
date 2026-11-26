@@ -36,19 +36,26 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
         Dci clavulanique = dci("ACIDE CLAVULANIQUE " + libelle);
         produit.remplacerDcis(List.of(amoxicilline, clavulanique));
         em.flush();
-        em.createNativeQuery("UPDATE produit_dci SET dosage_valeur = 500, dosage_unite = 'mg' WHERE produit_id = :id AND rang = 1")
-            .setParameter("id", produit.getId())
-            .executeUpdate();
-        em.createNativeQuery("UPDATE produit_dci SET dosage_valeur = 62.5, dosage_unite = 'mg' WHERE produit_id = :id AND rang = 2")
-            .setParameter("id", produit.getId())
-            .executeUpdate();
+        em.createNativeQuery(
+                        "UPDATE produit_dci SET dosage_valeur = 500, dosage_unite = 'mg' WHERE produit_id = :id AND rang = 1")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
+        em.createNativeQuery(
+                        "UPDATE produit_dci SET dosage_valeur = 62.5, dosage_unite = 'mg' WHERE produit_id = :id AND rang = 2")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
 
         JsonNode resultat = chercher(libelle);
 
         assertEquals(1, resultat.size());
         assertEquals("Comprimés " + libelle, resultat.get(0).get("forme").asText());
-        assertEquals("AMOXICILLINE " + libelle + " + ACIDE CLAVULANIQUE " + libelle, resultat.get(0).get("dci").asText());
-        assertEquals("500 mg + 62.5 mg", resultat.get(0).get("dosage").asText(), "zéros inutiles retirés, ordre des molécules respecté");
+        assertEquals(
+                "AMOXICILLINE " + libelle + " + ACIDE CLAVULANIQUE " + libelle,
+                resultat.get(0).get("dci").asText());
+        assertEquals(
+                "500 mg + 62.5 mg",
+                resultat.get(0).get("dosage").asText(),
+                "zéros inutiles retirés, ordre des molécules respecté");
         assertTrue(resultat.get(0).get("typegenerique").isNull());
     }
 
@@ -67,29 +74,33 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
     }
 
     @Test
-    @DisplayName("Le statut générique vient d'un rapprochement accepté d'office ou validé, jamais d'une simple proposition")
+    @DisplayName(
+            "Le statut générique vient d'un rapprochement accepté d'office ou validé, jamais d'une simple proposition")
     void statutGenerique() throws Exception {
         String libelle = unique("GENEPROD");
         Produit produit = produit(libelle);
         em.createNativeQuery(
-            "INSERT INTO ref_specialite (cis, libelle, commercialisee, type_generique) VALUES ('99100001', 'TEST GENERIQUE', TRUE, 'GENERIQUE')"
-        )
-            .executeUpdate();
+                        "INSERT INTO ref_specialite (cis, libelle, commercialisee, type_generique) VALUES ('99100001', 'TEST GENERIQUE', TRUE, 'GENERIQUE')")
+                .executeUpdate();
         em.createNativeQuery(
-            "INSERT INTO produit_ref_specialite (produit_id, cis, statut, score, decision) VALUES (:id, '99100001', 'A_VERIFIER', 50, 'EN_ATTENTE')"
-        )
-            .setParameter("id", produit.getId())
-            .executeUpdate();
+                        "INSERT INTO produit_ref_specialite (produit_id, cis, statut, score, decision) VALUES (:id, '99100001', 'A_VERIFIER', 50, 'EN_ATTENTE')")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
 
-        assertTrue(chercher(libelle).get(0).get("typegenerique").isNull(), "une proposition à relire n'oriente pas le comptoir");
+        assertTrue(
+                chercher(libelle).get(0).get("typegenerique").isNull(),
+                "une proposition à relire n'oriente pas le comptoir");
 
-        em.createNativeQuery("UPDATE produit_ref_specialite SET decision = 'AUTO' WHERE produit_id = :id").setParameter("id", produit.getId()).executeUpdate();
+        em.createNativeQuery("UPDATE produit_ref_specialite SET decision = 'AUTO' WHERE produit_id = :id")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
 
         assertEquals("GENERIQUE", chercher(libelle).get(0).get("typegenerique").asText());
     }
 
     @Test
-    @DisplayName("Le lot en stock le plus proche de sa péremption est indiqué avec sa date ; un lot lointain ou vide non")
+    @DisplayName(
+            "Le lot en stock le plus proche de sa péremption est indiqué avec sa date ; un lot lointain ou vide non")
     void peremptionProche() throws Exception {
         String libelle = unique("PEREPROD");
         Produit produit = produit(libelle);
@@ -106,7 +117,9 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
         insererLot(produit, "LOTPROCHE", 30, 2);
         JsonNode resultat = chercher(libelle).get(0);
         assertEquals("LOTPROCHE", resultat.get("peremptionlot").asText(), "le plus proche d'abord");
-        assertEquals(LocalDate.now().plusDays(30).toString(), resultat.get("peremptiondate").asText());
+        assertEquals(
+                LocalDate.now().plusDays(30).toString(),
+                resultat.get("peremptiondate").asText());
     }
 
     @Test
@@ -128,7 +141,9 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
     @DisplayName("Les signaux du panier portent le stock restant (rayon et réserve) et le seuil mini")
     void signauxStockFaible() {
         Produit produit = produitEnStock(unique("FAIBPROD"), 4);
-        em.createNativeQuery("UPDATE produit SET qty_seuil_mini = 5 WHERE id = :id").setParameter("id", produit.getId()).executeUpdate();
+        em.createNativeQuery("UPDATE produit SET qty_seuil_mini = 5 WHERE id = :id")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
         ProduitSignauxService service = new ProduitSignauxService();
         ReflectionTestUtils.setField(service, "em", em);
 
@@ -143,7 +158,9 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
     void statutLegal() throws Exception {
         String libelle = unique("STUPPROD");
         Produit produit = produit(libelle);
-        em.createNativeQuery("UPDATE produit SET statut_legal = 'STUPEFIANTS' WHERE id = :id").setParameter("id", produit.getId()).executeUpdate();
+        em.createNativeQuery("UPDATE produit SET statut_legal = 'STUPEFIANTS' WHERE id = :id")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
 
         assertEquals("STUPEFIANTS", chercher(libelle).get(0).get("statutlegal").asText());
     }
@@ -156,11 +173,10 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
         produit.setForme(forme("Gélules " + libelle));
         em.flush();
 
-        Object json = em
-            .createNativeQuery("SELECT CAST(search_produits_by_storage_json(:q, :storage, 5) AS text)")
-            .setParameter("q", libelle)
-            .setParameter("storage", STORAGE_RAYON_ID)
-            .getSingleResult();
+        Object json = em.createNativeQuery("SELECT CAST(search_produits_by_storage_json(:q, :storage, 5) AS text)")
+                .setParameter("q", libelle)
+                .setParameter("storage", STORAGE_RAYON_ID)
+                .getSingleResult();
 
         JsonNode resultat = JSON.readTree(json.toString());
         assertFalse(resultat.isEmpty());
@@ -168,24 +184,22 @@ class RechercheProduitIdentiteIntegrationTest extends AbstractStockIntegrationTe
     }
 
     private JsonNode chercher(String libelle) throws Exception {
-        Object json = em
-            .createNativeQuery("SELECT CAST(search_produits_json(:q, :magasin, 5) AS text)")
-            .setParameter("q", libelle)
-            .setParameter("magasin", MAGASIN_ID)
-            .getSingleResult();
+        Object json = em.createNativeQuery("SELECT CAST(search_produits_json(:q, :magasin, 5) AS text)")
+                .setParameter("q", libelle)
+                .setParameter("magasin", MAGASIN_ID)
+                .getSingleResult();
         return JSON.readTree(json.toString());
     }
 
     private void insererLot(Produit produit, String numero, int joursAvantPeremption, int quantite) {
         em.createNativeQuery(
-            "INSERT INTO lot (num_lot, produit_id, quantity, quantity_received_ug, created_date, expiry_date, current_quantity, statut, prixachat, prixunit) "
-                + "VALUES (:num, :id, 10, 0, now(), CURRENT_DATE + :jours, :qte, 'AVAILABLE', 0, 0)"
-        )
-            .setParameter("num", numero)
-            .setParameter("id", produit.getId())
-            .setParameter("jours", joursAvantPeremption)
-            .setParameter("qte", quantite)
-            .executeUpdate();
+                        "INSERT INTO lot (num_lot, produit_id, quantity, quantity_received_ug, created_date, expiry_date, current_quantity, statut, prixachat, prixunit) "
+                                + "VALUES (:num, :id, 10, 0, now(), CURRENT_DATE + :jours, :qte, 'AVAILABLE', 0, 0)")
+                .setParameter("num", numero)
+                .setParameter("id", produit.getId())
+                .setParameter("jours", joursAvantPeremption)
+                .setParameter("qte", quantite)
+                .executeUpdate();
     }
 
     private FormProduit forme(String libelle) {

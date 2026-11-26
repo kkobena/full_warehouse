@@ -34,9 +34,7 @@ export class CloneRayonProduitsFormComponent implements OnInit {
   protected loading = signal(false);
   protected saving = signal(false);
 
-  protected readonly hasSelection = computed(() =>
-    this.rows().some(r => r.selectedRayon != null),
-  );
+  protected readonly hasSelection = computed(() => this.rows().some(r => r.selectedRayon != null));
 
   private readonly modal = inject(NgbActiveModal);
   private readonly magasinService = inject(MagasinService);
@@ -53,36 +51,38 @@ export class CloneRayonProduitsFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading.set(true);
-    this.magasinService.findCurrentUserMagasin().then(magasin => {
-      this.storageService.fetchStorages({ magasinId: magasin.id }).subscribe({
-        next: res => {
-          const storages = (res.body ?? []).filter(s => s.id != null);
-          if (!storages.length) { this.loading.set(false); return; }
-          forkJoin<HttpResponse<IRayon[]>[]>(
-            storages.map(s => this.rayonApi.query({ storageId: s.id!, size: 500 })),
-          ).subscribe({
-            next: (results: HttpResponse<IRayon[]>[]) => {
-              this.rows.set(
-                storages.map((s, i): StorageRow => ({
-                  storage: s,
-                  rayons: (results[i].body ?? []).filter(r => r.code !== 'SANS'),
-                  selectedRayon: null,
-                })),
-              );
+    this.magasinService
+      .findCurrentUserMagasin()
+      .then(magasin => {
+        this.storageService.fetchStorages({ magasinId: magasin.id }).subscribe({
+          next: res => {
+            const storages = (res.body ?? []).filter(s => s.id != null);
+            if (!storages.length) {
               this.loading.set(false);
-            },
-            error: () => this.loading.set(false),
-          });
-        },
-        error: () => this.loading.set(false),
-      });
-    }).catch(() => this.loading.set(false));
+              return;
+            }
+            forkJoin<HttpResponse<IRayon[]>[]>(storages.map(s => this.rayonApi.query({ storageId: s.id!, size: 500 }))).subscribe({
+              next: (results: HttpResponse<IRayon[]>[]) => {
+                this.rows.set(
+                  storages.map((s, i): StorageRow => ({
+                    storage: s,
+                    rayons: (results[i].body ?? []).filter(r => r.code !== 'SANS'),
+                    selectedRayon: null,
+                  })),
+                );
+                this.loading.set(false);
+              },
+              error: () => this.loading.set(false),
+            });
+          },
+          error: () => this.loading.set(false),
+        });
+      })
+      .catch(() => this.loading.set(false));
   }
 
   protected onRayonSelect(storageId: number, rayon: IRayon | null): void {
-    this.rows.update(rows =>
-      rows.map(r => r.storage.id === storageId ? { ...r, selectedRayon: rayon } : r),
-    );
+    this.rows.update(rows => rows.map(r => (r.storage.id === storageId ? { ...r, selectedRayon: rayon } : r)));
   }
 
   protected confirm(): void {

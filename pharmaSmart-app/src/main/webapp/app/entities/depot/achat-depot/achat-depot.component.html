@@ -15,17 +15,14 @@
           placeholder="Sélectionner un dépôt"
         />
 
-        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                            [style]="{ 'max-width': '180px' }" id="fromDate" label="Du" />
+        <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate" label="Du" />
 
-        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                            [style]="{ 'max-width': '180px' }" id="toDate" label="Au" />
+        <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate" label="Au" />
       </div>
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
-        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                    severity="info" size="small" />
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
         <app-button
           [raised]="true"
           [routerLink]="['/sales-home', 'vente-depot']"
@@ -99,8 +96,7 @@
 
           <td>{{ sale.cassier?.abbrName }}</td>
           <td class="text-right">
-            <div container="body" ngbDropdown
-                 placement="bottom-end top-end bottom-start top-start">
+            <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
               <button
                 (click)="$event.stopPropagation()"
                 aria-label="Actions"
@@ -113,9 +109,7 @@
                 <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
               </button>
               <div ngbDropdownMenu>
-                <button (click)="printSale(sale)" ngbDropdownItem type="button">
-                  <i class="pi pi-print me-2"></i>Imprimer le ticket
-                </button>
+                <button (click)="printSale(sale)" ngbDropdownItem type="button"><i class="pi pi-print me-2"></i>Imprimer le ticket</button>
                 <div class="dropdown-divider"></div>
                 <button (click)="exportWithFormat('csv', sale)" ngbDropdownItem type="button">
                   <i class="pi pi-file me-2"></i>Exporter en CSV
@@ -188,17 +182,10 @@
                           <td>
                             <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                           </td>
-                          <td
-                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                          </td>
-                          <td
-                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                          </td>
-                          <td
-                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                          </td>
-                          <td class="pharma-total px-1"
-                              style="text-align: right; font-weight: bold">
+                          <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                          <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                          <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                          <td class="pharma-total px-1" style="text-align: right; font-weight: bold">
                             {{ saleLine.salesAmount | number }}
                           </td>
                         </tr>
@@ -217,5 +204,4 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
-
 </div>

@@ -26,9 +26,11 @@
             <input
               class="form-control"
               type="number"
-              [ngModel]="ligneQuantite()" (ngModelChange)="ligneQuantite.set($event)"
+              [ngModel]="ligneQuantite()"
+              (ngModelChange)="ligneQuantite.set($event)"
               min="1"
-              placeholder="Qté" />
+              placeholder="Qté"
+            />
             <span class="input-group-text addon-label">u.</span>
           </div>
         </div>
@@ -37,9 +39,11 @@
             <input
               class="form-control"
               type="number"
-              [ngModel]="lignePrixAchat()" (ngModelChange)="lignePrixAchat.set($event)"
+              [ngModel]="lignePrixAchat()"
+              (ngModelChange)="lignePrixAchat.set($event)"
               min="0"
-              placeholder="Prix achat" />
+              placeholder="Prix achat"
+            />
             <span class="input-group-text addon-label">F</span>
           </div>
         </div>
@@ -56,22 +60,16 @@
     </div>
   }
 
-  <app-data-table
-    class="p-datatable-sm mt-2"
-    [value]="bed().lignes ?? []"
-    dataKey="id"
-    [scrollable]="true"
-    scrollHeight="50vh"
-  >
+  <app-data-table class="p-datatable-sm mt-2" [value]="bed().lignes ?? []" dataKey="id" [scrollable]="true" scrollHeight="50vh">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th>Produit</th>
-        <th style="width:120px">CIP</th>
-        <th class="text-end" style="width:80px">Qté</th>
-        <th class="text-end" style="width:130px">Prix achat</th>
-        <th class="text-end" style="width:130px">Total</th>
+        <th style="width: 120px">CIP</th>
+        <th class="text-end" style="width: 80px">Qté</th>
+        <th class="text-end" style="width: 130px">Prix achat</th>
+        <th class="text-end" style="width: 130px">Total</th>
         @if (isBrouillon()) {
-          <th style="width:50px"></th>
+          <th style="width: 50px"></th>
         }
       </tr>
     </ng-template>
@@ -79,7 +77,9 @@
     <ng-template #body let-l>
       <tr>
         <td>{{ l.produitLibelle ?? '—' }}</td>
-        <td><span class="pharma-code">{{ l.codeCip ?? '—' }}</span></td>
+        <td>
+          <span class="pharma-code">{{ l.codeCip ?? '—' }}</span>
+        </td>
         <td class="text-end">{{ l.quantite }}</td>
         <td class="text-end">{{ l.prixAchat | devise }}</td>
         <td class="text-end pharma-total">{{ (l.quantite ?? 0) * (l.prixAchat ?? 0) | devise }}</td>
@@ -124,13 +124,7 @@
 
   @if (isBrouillon()) {
     <div class="bed-detail-actions">
-      <app-button
-        icon="pi pi-times"
-        label="Annuler"
-        severity="secondary"
-        size="small"
-        (clicked)="retour.emit()"
-      />
+      <app-button icon="pi pi-times" label="Annuler" severity="secondary" size="small" (clicked)="retour.emit()" />
       <app-button
         icon="pi pi-check-circle"
         label="Valider le BED"

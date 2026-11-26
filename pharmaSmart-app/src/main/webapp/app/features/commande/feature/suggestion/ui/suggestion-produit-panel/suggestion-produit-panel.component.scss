@@ -67,19 +67,30 @@
     color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
     font-weight: 500;
 
-    i { font-size: 0.75rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
+    i {
+      font-size: 0.75rem;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
+    }
   }
 
   .low-stock {
     color: $pharma-danger;
     font-weight: 700;
-    i { color: $pharma-danger; }
+    i {
+      color: $pharma-danger;
+    }
   }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .selection-toolbar {
@@ -213,9 +224,15 @@
     font-weight: 700;
     color: #fff;
 
-    &.ag-classe-A { background: #198754; }
-    &.ag-classe-B { background: #0d6efd; }
-    &.ag-classe-C { background: #6c757d; }
+    &.ag-classe-A {
+      background: #198754;
+    }
+    &.ag-classe-B {
+      background: #0d6efd;
+    }
+    &.ag-classe-C {
+      background: #6c757d;
+    }
   }
 
   .ag-source-badge {
@@ -317,4 +334,3 @@
     cursor: help;
   }
 }
-

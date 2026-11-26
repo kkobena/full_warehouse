@@ -27,7 +27,6 @@ scenario('ACH-14', async ({ etape, page }) => {
 
   etape.horsPortee(
     2,
-    'confirmer supprimerait une proposition du jeu de démonstration, dont dépendent ACH-11, ' +
-      'ACH-16, ACH-18 et ACH-21.',
+    'confirmer supprimerait une proposition du jeu de démonstration, dont dépendent ACH-11, ' + 'ACH-16, ACH-18 et ACH-21.',
   );
 });

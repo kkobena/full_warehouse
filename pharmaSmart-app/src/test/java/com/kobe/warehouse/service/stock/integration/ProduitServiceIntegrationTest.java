@@ -88,15 +88,16 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(1, compter("SELECT COUNT(*) FROM stock_produit WHERE produit_id = " + id));
         assertEquals(
-            STORAGE_RAYON_ID,
-            compter("SELECT storage_id FROM stock_produit WHERE produit_id = " + id),
-            "le stock est ouvert sur l'emplacement du rayon choisi"
-        );
+                STORAGE_RAYON_ID,
+                compter("SELECT storage_id FROM stock_produit WHERE produit_id = " + id),
+                "le stock est ouvert sur l'emplacement du rayon choisi");
         assertEquals(0, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = " + id));
 
         assertEquals(1, compter("SELECT COUNT(*) FROM rayon_produit WHERE produit_id = " + id));
         assertNotNull(cree.getFournisseurProduitPrincipal(), "la fiche pointe son fournisseur principal");
-        assertEquals(fournisseur.getId(), cree.getFournisseurProduitPrincipal().getFournisseur().getId());
+        assertEquals(
+                fournisseur.getId(),
+                cree.getFournisseurProduitPrincipal().getFournisseur().getId());
     }
 
     /**
@@ -111,17 +112,21 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         Fournisseur fournisseur = fournisseur();
         viderLeCache();
 
-        ProduitDTO fiche = fiche("AVEC RESERVE", fournisseur).setQtySeuilMini(15).setSeuilMini(30);
+        ProduitDTO fiche =
+                fiche("AVEC RESERVE", fournisseur).setQtySeuilMini(15).setSeuilMini(30);
         Long id = services.produitService.save(fiche);
         viderLeCache();
 
         assertEquals(2, compter("SELECT COUNT(*) FROM stock_produit WHERE produit_id = " + id));
         assertEquals(
-            15,
-            compter("SELECT seuil_mini FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(id, STORAGE_RESERVE_ID)),
-            "le seuil posé est celui du rayon : seuilMini n'est ici qu'un interrupteur"
-        );
-        assertEquals(0, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(id, STORAGE_RESERVE_ID)));
+                15,
+                compter("SELECT seuil_mini FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(id, STORAGE_RESERVE_ID)),
+                "le seuil posé est celui du rayon : seuilMini n'est ici qu'un interrupteur");
+        assertEquals(
+                0,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(id, STORAGE_RESERVE_ID)));
     }
 
     @Test
@@ -144,13 +149,11 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(2, compter("SELECT COUNT(*) FROM fournisseur_produit WHERE produit_id = " + id));
-        FournisseurProduit ajoute = services.fournisseurProduitRepository
-            .findAll()
-            .stream()
-            .filter(fp -> fp.getProduit().getId().equals(id.intValue()))
-            .filter(fp -> fp.getFournisseur().getId().equals(secondaire.getId()))
-            .findFirst()
-            .orElseThrow();
+        FournisseurProduit ajoute = services.fournisseurProduitRepository.findAll().stream()
+                .filter(fp -> fp.getProduit().getId().equals(id.intValue()))
+                .filter(fp -> fp.getFournisseur().getId().equals(secondaire.getId()))
+                .findFirst()
+                .orElseThrow();
         assertEquals(12, ajoute.getQteColis());
         assertEquals(5_500, ajoute.getPrixAchat());
     }
@@ -164,13 +167,13 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         ProduitDTO detail = new ProduitDTO()
-            .setLibelle("comprimé à l'unité")
-            .setProduitId(boiteId)
-            .setTypeProduit(TypeProduit.DETAIL)
-            .setCostAmount(300)
-            .setRegularUnitPrice(500)
-            .setDeconditionnable(false)
-            .setItemQty(30);
+                .setLibelle("comprimé à l'unité")
+                .setProduitId(boiteId)
+                .setTypeProduit(TypeProduit.DETAIL)
+                .setCostAmount(300)
+                .setRegularUnitPrice(500)
+                .setDeconditionnable(false)
+                .setItemQty(30);
 
         Long id = services.produitService.saveDetail(detail);
         viderLeCache();
@@ -183,12 +186,14 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(1, cree.getItemQty(), "le détail se vend à l'unité");
         assertEquals(tvaId, cree.getTva().getId(), "le détail hérite de la TVA de la boîte");
         assertEquals(
-            1,
-            compter("SELECT COUNT(*) FROM fournisseur_produit WHERE produit_id = " + id),
-            "le détail est référencé chez le fournisseur de la boîte"
-        );
+                1,
+                compter("SELECT COUNT(*) FROM fournisseur_produit WHERE produit_id = " + id),
+                "le détail est référencé chez le fournisseur de la boîte");
         assertEquals(1, compter("SELECT COUNT(*) FROM stock_produit WHERE produit_id = " + id));
-        assertEquals(30, compter("SELECT item_qty FROM produit WHERE id = " + boiteId), "le colisage saisi est reporté sur la boîte");
+        assertEquals(
+                30,
+                compter("SELECT item_qty FROM produit WHERE id = " + boiteId),
+                "le colisage saisi est reporté sur la boîte");
     }
 
     // ===== molécules (DCI) — PLAN-PRODUIT-DCI-N-N =====
@@ -198,14 +203,17 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
     void creationDUneAssociation() {
         Dci amoxicilline = dci("AMOXICILLINE");
         Dci clavulanique = dci("ACIDE CLAVULANIQUE");
-        ProduitDTO fiche = fiche("ASSOCIATION", fournisseur())
-            .setDcis(List.of(molecule(amoxicilline), molecule(clavulanique)));
+        ProduitDTO fiche =
+                fiche("ASSOCIATION", fournisseur()).setDcis(List.of(molecule(amoxicilline), molecule(clavulanique)));
 
         Long id = services.produitService.save(fiche);
         viderLeCache();
 
         assertEquals(List.of(amoxicilline.getId(), clavulanique.getId()), moleculesEnBase(id.intValue()));
-        assertEquals(amoxicilline.getId().longValue(), compter("SELECT dci_id FROM produit WHERE id = " + id), "dci_id suit la principale");
+        assertEquals(
+                amoxicilline.getId().longValue(),
+                compter("SELECT dci_id FROM produit WHERE id = " + id),
+                "dci_id suit la principale");
     }
 
     @Test
@@ -235,8 +243,10 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.produitService.update(ficheExistante(produit).setDcis(List.of(molecule(seconde), molecule(premiere))));
         viderLeCache();
 
-        assertEquals(List.of(seconde.getId(), premiere.getId()), moleculesEnBase(produit.getId()),
-            "l'inversion passe malgré l'unicité (produit, rang) grâce aux contraintes différées");
+        assertEquals(
+                List.of(seconde.getId(), premiere.getId()),
+                moleculesEnBase(produit.getId()),
+                "l'inversion passe malgré l'unicité (produit, rang) grâce aux contraintes différées");
         assertEquals(seconde.getId().longValue(), compter("SELECT dci_id FROM produit WHERE id = " + produit.getId()));
     }
 
@@ -268,13 +278,13 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         ProduitDTO detail = new ProduitDTO()
-            .setLibelle("unité association")
-            .setProduitId(boiteId)
-            .setTypeProduit(TypeProduit.DETAIL)
-            .setCostAmount(300)
-            .setRegularUnitPrice(500)
-            .setDeconditionnable(false)
-            .setItemQty(10);
+                .setLibelle("unité association")
+                .setProduitId(boiteId)
+                .setTypeProduit(TypeProduit.DETAIL)
+                .setCostAmount(300)
+                .setRegularUnitPrice(500)
+                .setDeconditionnable(false)
+                .setItemQty(10);
         Long id = services.produitService.saveDetail(detail);
         viderLeCache();
 
@@ -293,10 +303,10 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         String libelle = produit.getLibelle();
 
         ProduitDTO modification = ficheExistante(produit)
-            .setRayonId(nouveauRayon.getId())
-            .setStockReassort(25)
-            .setQtySeuilMini(8)
-            .setSeuilMini(30);
+                .setRayonId(nouveauRayon.getId())
+                .setStockReassort(25)
+                .setQtySeuilMini(8)
+                .setSeuilMini(30);
         modification.setStockMaxi(60);
         viderLeCache();
 
@@ -306,14 +316,16 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(25, compter("SELECT stock_reassort FROM stock_produit WHERE id = " + stockRayon.getId()));
         assertEquals(8, compter("SELECT seuil_mini FROM stock_produit WHERE id = " + stockRayon.getId()));
         assertEquals(60, compter("SELECT stock_maxi FROM stock_produit WHERE id = " + stockRayon.getId()));
-        assertEquals(30, compter("SELECT seuil_mini FROM stock_produit WHERE id = " + stockReserve.getId()), "la réserve reçoit son propre seuil");
+        assertEquals(
+                30,
+                compter("SELECT seuil_mini FROM stock_produit WHERE id = " + stockReserve.getId()),
+                "la réserve reçoit son propre seuil");
         assertEquals(60, compter("SELECT stock_maxi FROM stock_produit WHERE id = " + stockReserve.getId()));
 
         assertEquals(
-            nouveauRayon.getId().intValue(),
-            compter("SELECT rayon_id FROM rayon_produit WHERE produit_id = " + produit.getId()),
-            "le rayon de vente a bien été remplacé"
-        );
+                nouveauRayon.getId().intValue(),
+                compter("SELECT rayon_id FROM rayon_produit WHERE produit_id = " + produit.getId()),
+                "le rayon de vente a bien été remplacé");
         assertEquals(libelle, em.find(Produit.class, produit.getId()).getLibelle());
     }
 
@@ -330,16 +342,14 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(2, compter("SELECT COUNT(*) FROM stock_produit WHERE produit_id = " + produit.getId()));
         assertEquals(
-            0,
-            compter(
-                "SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(
-                        produit.getId(),
-                        STORAGE_RESERVE_ID
-                    )
-            ),
-            "la réserve s'ouvre à vide, sans prélever le rayon"
-        );
-        assertEquals(40, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(produit.getId(), STORAGE_RAYON_ID)));
+                0,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RESERVE_ID)),
+                "la réserve s'ouvre à vide, sans prélever le rayon");
+        assertEquals(
+                40,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RAYON_ID)));
     }
 
     @Test
@@ -369,10 +379,7 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         StockProduit credite = services.produitService.updateTotalStock(
-            services.produitRepository.findById(produit.getId()).orElseThrow(),
-            12,
-            3
-        );
+                services.produitRepository.findById(produit.getId()).orElseThrow(), 12, 3);
         viderLeCache();
 
         assertEquals(stockRayon.getId(), credite.getId(), "c'est le rayon du magasin connecté qui est crédité");
@@ -380,10 +387,10 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(3, compter("SELECT qty_ug FROM stock_produit WHERE id = " + stockRayon.getId()));
         assertEquals(52, compter("SELECT qty_virtual FROM stock_produit WHERE id = " + stockRayon.getId()));
         assertEquals(
-            10,
-            compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(produit.getId(), STORAGE_RESERVE_ID)),
-            "la réserve n'est pas touchée"
-        );
+                10,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RESERVE_ID)),
+                "la réserve n'est pas touchée");
     }
 
     @Test
@@ -411,8 +418,11 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(55, services.produitService.getProductTotalStock(produit.getId()));
-        assertEquals(50, services.produitService.produitTotalStock(services.produitRepository.findById(produit.getId()).orElseThrow()),
-            "produitTotalStock ignore les unités gratuites");
+        assertEquals(
+                50,
+                services.produitService.produitTotalStock(
+                        services.produitRepository.findById(produit.getId()).orElseThrow()),
+                "produitTotalStock ignore les unités gratuites");
     }
 
     @Test
@@ -431,7 +441,9 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(1, generiques.size());
         assertEquals(generique.getLibelle(), generiques.getFirst().getProduit().getLibelle());
         assertEquals(TypeSubstitut.GENERIQUE.name(), generiques.getFirst().getTypeSubstitut());
-        assertTrue(services.produitService.findGeneriques(generique.getId()).isEmpty(), "la relation n'est pas symétrique");
+        assertTrue(
+                services.produitService.findGeneriques(generique.getId()).isEmpty(),
+                "la relation n'est pas symétrique");
     }
 
     @Test
@@ -461,7 +473,8 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(ailleursDansLeLibelle, rayon, 10);
         viderLeCache();
 
-        List<ProduitSearch> resultats = services.produitService.searchProducts("ZYRTECO", MAGASIN_ID, PageRequest.of(0, 20));
+        List<ProduitSearch> resultats =
+                services.produitService.searchProducts("ZYRTECO", MAGASIN_ID, PageRequest.of(0, 20));
 
         assertEquals(1, resultats.size(), "la correspondance porte sur le début du libellé, pas n'importe où");
         ProduitSearch resultat = resultats.getFirst();
@@ -482,17 +495,24 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(produit, rayon, 8);
         viderLeCache();
 
-        assertEquals(1, services.produitService.searchProducts("34009312", MAGASIN_ID, PageRequest.of(0, 20)).size());
+        assertEquals(
+                1,
+                services.produitService
+                        .searchProducts("34009312", MAGASIN_ID, PageRequest.of(0, 20))
+                        .size());
         assertTrue(
-            services.produitService.searchProducts("0093123", MAGASIN_ID, PageRequest.of(0, 20)).isEmpty(),
-            "le code doit correspondre depuis son début"
-        );
+                services.produitService
+                        .searchProducts("0093123", MAGASIN_ID, PageRequest.of(0, 20))
+                        .isEmpty(),
+                "le code doit correspondre depuis son début");
     }
 
     @Test
     @DisplayName("Une recherche sans résultat rend une liste vide plutôt qu'une erreur")
     void rechercheSansResultat() {
-        assertTrue(services.produitService.searchProducts(unique("INTROUVABLE"), MAGASIN_ID, PageRequest.of(0, 20)).isEmpty());
+        assertTrue(services.produitService
+                .searchProducts(unique("INTROUVABLE"), MAGASIN_ID, PageRequest.of(0, 20))
+                .isEmpty());
     }
 
     @Test
@@ -507,10 +527,7 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         List<ProduitSearch> resultats = services.produitService.searchProducts(
-            "0103400931234567" + "17260101" + "10LOT42",
-            MAGASIN_ID,
-            PageRequest.of(0, 20)
-        );
+                "0103400931234567" + "17260101" + "10LOT42", MAGASIN_ID, PageRequest.of(0, 20));
 
         assertEquals(1, resultats.size(), "le code extrait du DataMatrix sert de terme de recherche");
         assertEquals(produit.getId(), resultats.getFirst().id());
@@ -528,17 +545,25 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(enReserve, reserve, 30);
         viderLeCache();
 
-        List<ProduitSearch> coteRayon = services.produitService.searchProductsByStorage(STORAGE_RAYON_ID, "XEN", PageRequest.of(0, 20));
-        List<ProduitSearch> coteReserve = services.produitService.searchProductsByStorage(STORAGE_RESERVE_ID, "XEN", PageRequest.of(0, 20));
+        List<ProduitSearch> coteRayon =
+                services.produitService.searchProductsByStorage(STORAGE_RAYON_ID, "XEN", PageRequest.of(0, 20));
+        List<ProduitSearch> coteReserve =
+                services.produitService.searchProductsByStorage(STORAGE_RESERVE_ID, "XEN", PageRequest.of(0, 20));
 
-        assertEquals(List.of(enRayon.getId()), coteRayon.stream().map(ProduitSearch::id).toList());
-        assertEquals(List.of(enReserve.getId()), coteReserve.stream().map(ProduitSearch::id).toList());
+        assertEquals(
+                List.of(enRayon.getId()),
+                coteRayon.stream().map(ProduitSearch::id).toList());
+        assertEquals(
+                List.of(enReserve.getId()),
+                coteReserve.stream().map(ProduitSearch::id).toList());
     }
 
     @Test
     @DisplayName("Sans emplacement, la recherche par emplacement ne consulte pas la base")
     void rechercheParEmplacementSansEmplacement() {
-        assertTrue(services.produitService.searchProductsByStorage(null, "XEN", PageRequest.of(0, 20)).isEmpty());
+        assertTrue(services.produitService
+                .searchProductsByStorage(null, "XEN", PageRequest.of(0, 20))
+                .isEmpty());
     }
 
     // ===== drapeaux et statut =====
@@ -611,17 +636,16 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(0, compter("SELECT COUNT(*) FROM rayon_produit WHERE produit_id = " + id));
         assertEquals(0, compter("SELECT COUNT(*) FROM stock_produit_snapshot WHERE produit_id = " + id));
         assertEquals(
-            0,
-            compter("SELECT COUNT(*) FROM substitut WHERE produit_id = %d OR substitut_id = %d".formatted(id, id)),
-            "les deux sens de la relation de substitution partent"
-        );
+                0,
+                compter("SELECT COUNT(*) FROM substitut WHERE produit_id = %d OR substitut_id = %d".formatted(id, id)),
+                "les deux sens de la relation de substitution partent");
 
-        assertEquals(1, compter("SELECT COUNT(*) FROM produit WHERE id = " + autre.getId()), "le produit voisin survit");
         assertEquals(
-            0,
-            compter("SELECT COUNT(*) FROM fournisseur_produit WHERE id = " + principal.getId()),
-            "le fournisseur principal a été détaché avant d'être effacé"
-        );
+                1, compter("SELECT COUNT(*) FROM produit WHERE id = " + autre.getId()), "le produit voisin survit");
+        assertEquals(
+                0,
+                compter("SELECT COUNT(*) FROM fournisseur_produit WHERE id = " + principal.getId()),
+                "le fournisseur principal a été détaché avant d'être effacé");
     }
 
     @Test
@@ -632,12 +656,12 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         ProduitDTO detailDto = new ProduitDTO()
-            .setLibelle("comprimé")
-            .setProduitId(boite.getId())
-            .setTypeProduit(TypeProduit.DETAIL)
-            .setCostAmount(300)
-            .setRegularUnitPrice(500)
-            .setDeconditionnable(false);
+                .setLibelle("comprimé")
+                .setProduitId(boite.getId())
+                .setTypeProduit(TypeProduit.DETAIL)
+                .setCostAmount(300)
+                .setRegularUnitPrice(500)
+                .setDeconditionnable(false);
         int detailId = services.produitService.saveDetail(detailDto).intValue();
         viderLeCache();
 
@@ -659,10 +683,8 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         int id = produit.getId();
         viderLeCache();
 
-        BadRequestAlertException erreur = assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitService.deleteProduit(id)
-        );
+        BadRequestAlertException erreur =
+                assertThrows(BadRequestAlertException.class, () -> services.produitService.deleteProduit(id));
         assertTrue(erreur.getMessage().contains("des commandes sont enregistrées"));
 
         viderLeCache();
@@ -673,10 +695,8 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
     @Test
     @DisplayName("Supprimer un produit introuvable est refusé")
     void suppressionDunProduitInconnu() {
-        BadRequestAlertException erreur = assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitService.deleteProduit(999_999)
-        );
+        BadRequestAlertException erreur =
+                assertThrows(BadRequestAlertException.class, () -> services.produitService.deleteProduit(999_999));
         assertTrue(erreur.getMessage().contains("Produit introuvable"));
     }
 
@@ -695,15 +715,15 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
     /** La fiche telle que l'écran de création la transmet. */
     private ProduitDTO fiche(String libelle, Fournisseur fournisseur) {
         ProduitDTO dto = new ProduitDTO()
-            .setLibelle(libelle)
-            .setCostAmount(6_000)
-            .setRegularUnitPrice(10_000)
-            .setDeconditionnable(false)
-            .setCodeCip(unique("CIP"))
-            .setFournisseurId(fournisseur.getId())
-            .setRayonId(RAYON_PRINCIPAL_ID)
-            .setQtyAppro(1)
-            .setQtySeuilMini(1);
+                .setLibelle(libelle)
+                .setCostAmount(6_000)
+                .setRegularUnitPrice(10_000)
+                .setDeconditionnable(false)
+                .setCodeCip(unique("CIP"))
+                .setFournisseurId(fournisseur.getId())
+                .setRayonId(RAYON_PRINCIPAL_ID)
+                .setQtyAppro(1)
+                .setQtySeuilMini(1);
         dto.setTvaId(TVA_ZERO_ID);
         dto.setFamilleId(premiereFamilleId());
         return dto;
@@ -723,24 +743,27 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
     }
 
     private List<Integer> moleculesEnBase(int produitId) {
-        return em.createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
-            .setParameter("id", produitId)
-            .getResultList();
+        return em.createNativeQuery(
+                        "SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+                .setParameter("id", produitId)
+                .getResultList();
     }
 
     /** La même fiche, rejouée sur un produit déjà en base : c'est ce que l'écran de modification poste. */
     private ProduitDTO ficheExistante(Produit produit) {
         ProduitDTO dto = new ProduitDTO()
-            .setId(produit.getId())
-            .setLibelle(produit.getLibelle())
-            .setCostAmount(produit.getCostAmount())
-            .setRegularUnitPrice(produit.getRegularUnitPrice())
-            .setDeconditionnable(false)
-            .setCodeCip(produit.getFournisseurProduitPrincipal().getCodeCip())
-            .setFournisseurId(produit.getFournisseurProduitPrincipal().getFournisseur().getId())
-            .setRayonId(RAYON_PRINCIPAL_ID)
-            .setQtyAppro(produit.getQtyAppro())
-            .setDateperemption(false);
+                .setId(produit.getId())
+                .setLibelle(produit.getLibelle())
+                .setCostAmount(produit.getCostAmount())
+                .setRegularUnitPrice(produit.getRegularUnitPrice())
+                .setDeconditionnable(false)
+                .setCodeCip(produit.getFournisseurProduitPrincipal().getCodeCip())
+                .setFournisseurId(produit.getFournisseurProduitPrincipal()
+                        .getFournisseur()
+                        .getId())
+                .setRayonId(RAYON_PRINCIPAL_ID)
+                .setQtyAppro(produit.getQtyAppro())
+                .setDateperemption(false);
         dto.setTvaId(produit.getTva().getId());
         dto.setFamilleId(produit.getFamille().getId());
         return dto;
@@ -831,16 +854,16 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
      * et effacée de même à la suppression du produit. Elle n'existe donc que dans ce test.
      */
     private void instantaneDeStock(Produit produit) {
-        em
-            .createNativeQuery(
-                "INSERT INTO stock_produit_snapshot (produit_id, storage_id, qty_stock, source_type) VALUES (:produit, :storage, 40, 'INITIAL')"
-            )
-            .setParameter("produit", produit.getId())
-            .setParameter("storage", STORAGE_RAYON_ID)
-            .executeUpdate();
+        em.createNativeQuery(
+                        "INSERT INTO stock_produit_snapshot (produit_id, storage_id, qty_stock, source_type) VALUES (:produit, :storage, 40, 'INITIAL')")
+                .setParameter("produit", produit.getId())
+                .setParameter("storage", STORAGE_RAYON_ID)
+                .executeUpdate();
     }
 
     private Integer premiereFamilleId() {
-        return ((Number) em.createNativeQuery("SELECT id FROM famille_produit ORDER BY id LIMIT 1").getSingleResult()).intValue();
+        return ((Number) em.createNativeQuery("SELECT id FROM famille_produit ORDER BY id LIMIT 1")
+                        .getSingleResult())
+                .intValue();
     }
 }

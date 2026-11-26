@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.ReconciliationFactureDTO;
-
 import java.time.LocalDate;
 
 public interface ReconciliationFournisseurService {
@@ -12,9 +11,5 @@ public interface ReconciliationFournisseurService {
     ReconciliationFactureDTO findByCommandeId(CommandeId commandeId);
 
     record ReconciliationCommand(
-        String factureReference,
-        LocalDate factureDate,
-        Integer factureMontantHT,
-        Integer factureTVA
-    ) {}
+            String factureReference, LocalDate factureDate, Integer factureMontantHT, Integer factureTVA) {}
 }

@@ -140,7 +140,8 @@ public enum PerformancePeriod {
 
         LocalDate memeAvancement = switch (this) {
             case WEEK -> debutReference.plusDays(ChronoUnit.DAYS.between(getStartDate(referenceDate), referenceDate));
-            case MONTH -> debutReference.withDayOfMonth(Math.min(referenceDate.getDayOfMonth(), debutReference.lengthOfMonth()));
+            case MONTH ->
+                debutReference.withDayOfMonth(Math.min(referenceDate.getDayOfMonth(), debutReference.lengthOfMonth()));
             case YEAR -> referenceDate.withYear(debutReference.getYear());
         };
 
@@ -162,7 +163,8 @@ public enum PerformancePeriod {
             case "WEEK" -> WEEK;
             case "MONTH" -> MONTH;
             case "YEAR" -> YEAR;
-            default -> throw new IllegalArgumentException("Invalid period: " + period + ". Expected: WEEK, MONTH, or YEAR");
+            default ->
+                throw new IllegalArgumentException("Invalid period: " + period + ". Expected: WEEK, MONTH, or YEAR");
         };
     }
 }

@@ -15,13 +15,6 @@ import com.kobe.warehouse.service.facturation.dto.AvoirCommand;
 import com.kobe.warehouse.service.facturation.dto.AvoirDto;
 import com.kobe.warehouse.service.facturation.dto.AvoirLineDto;
 import com.kobe.warehouse.service.facturation.dto.AvoirSearchParams;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -31,6 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -43,12 +42,11 @@ public class AvoirServiceImpl implements AvoirService {
     private final AvoirExcelService avoirExcelService;
 
     public AvoirServiceImpl(
-        AvoirTiersPayantRepository avoirRepository,
-        FactureTiersPayantRepository factureTiersPayantRepository,
-        StorageService storageService,
-        AvoirPdfService avoirPdfService,
-        AvoirExcelService avoirExcelService
-    ) {
+            AvoirTiersPayantRepository avoirRepository,
+            FactureTiersPayantRepository factureTiersPayantRepository,
+            StorageService storageService,
+            AvoirPdfService avoirPdfService,
+            AvoirExcelService avoirExcelService) {
         this.avoirRepository = avoirRepository;
         this.factureTiersPayantRepository = factureTiersPayantRepository;
         this.storageService = storageService;
@@ -58,8 +56,8 @@ public class AvoirServiceImpl implements AvoirService {
 
     @Override
     public AvoirDto creerAvoir(AvoirCommand command) {
-        FactureTiersPayant factureTiersPayant = factureTiersPayantRepository
-            .getReferenceById(new FactureItemId(command.factureId(), command.factureDate()));
+        FactureTiersPayant factureTiersPayant = factureTiersPayantRepository.getReferenceById(
+                new FactureItemId(command.factureId(), command.factureDate()));
 
         int annee = Year.now().getValue();
         int nextNum = avoirRepository.findMaxNumeroAvoir(annee) + 1;
@@ -78,16 +76,16 @@ public class AvoirServiceImpl implements AvoirService {
 
         if (!CollectionUtils.isEmpty(command.lignes())) {
             List<AvoirLine> lines = command.lignes().stream()
-                .map(dto -> {
-                    AvoirLine line = new AvoirLine();
-                    line.setAvoir(avoir);
-                    line.setSaleLineId(dto.saleLineId());
-                    line.setSaleLineDate(dto.saleLineDate());
-                    line.setMontantAvoir(dto.montantAvoir() != null ? dto.montantAvoir() : BigDecimal.ZERO);
-                    line.setMotifRejet(dto.motifRejet());
-                    return line;
-                })
-                .collect(Collectors.toList());
+                    .map(dto -> {
+                        AvoirLine line = new AvoirLine();
+                        line.setAvoir(avoir);
+                        line.setSaleLineId(dto.saleLineId());
+                        line.setSaleLineDate(dto.saleLineDate());
+                        line.setMontantAvoir(dto.montantAvoir() != null ? dto.montantAvoir() : BigDecimal.ZERO);
+                        line.setMotifRejet(dto.motifRejet());
+                        return line;
+                    })
+                    .collect(Collectors.toList());
             avoir.setLignes(lines);
         }
 
@@ -99,7 +97,7 @@ public class AvoirServiceImpl implements AvoirService {
         AvoirTiersPayant avoir = avoirRepository.getReferenceById(avoirId);
         if (avoir.getStatut() != AvoirStatut.DRAFT) {
             throw new IllegalStateException(
-                "L'avoir doit être en statut DRAFT pour être émis. Statut actuel: " + avoir.getStatut());
+                    "L'avoir doit être en statut DRAFT pour être émis. Statut actuel: " + avoir.getStatut());
         }
         avoir.setStatut(AvoirStatut.EMIS);
         return toDto(avoirRepository.save(avoir));
@@ -122,14 +120,16 @@ public class AvoirServiceImpl implements AvoirService {
         AvoirTiersPayant avoir = avoirRepository.getReferenceById(avoirId);
         if (avoir.getStatut() != AvoirStatut.EMIS) {
             throw new IllegalStateException(
-                "L'avoir doit être en statut EMIS pour être imputé. Statut actuel: " + avoir.getStatut());
+                    "L'avoir doit être en statut EMIS pour être imputé. Statut actuel: " + avoir.getStatut());
         }
-        FactureTiersPayant factureCible = factureTiersPayantRepository.getReferenceById(
-            new FactureItemId(factureId, factureDate));
+        FactureTiersPayant factureCible =
+                factureTiersPayantRepository.getReferenceById(new FactureItemId(factureId, factureDate));
 
-        int montantAvoir = avoir.getMontantAvoir().setScale(0, RoundingMode.HALF_UP).intValue();
+        int montantAvoir =
+                avoir.getMontantAvoir().setScale(0, RoundingMode.HALF_UP).intValue();
         int montantRegle = Objects.requireNonNullElse(factureCible.getMontantRegle(), 0) + montantAvoir;
-        int montantFacture = factureCible.getMontantTtc().setScale(0, RoundingMode.HALF_UP).intValue();
+        int montantFacture =
+                factureCible.getMontantTtc().setScale(0, RoundingMode.HALF_UP).intValue();
 
         factureCible.setMontantRegle(montantRegle);
         factureCible.setStatut(montantRegle < montantFacture ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
@@ -160,13 +160,15 @@ public class AvoirServiceImpl implements AvoirService {
     @Override
     @Transactional(readOnly = true)
     public Page<AvoirDto> findAll(AvoirSearchParams params, Pageable pageable) {
-        List<AvoirStatut> statuts = !CollectionUtils.isEmpty(params.statuts())
-            ? params.statuts()
-            : List.of(AvoirStatut.values());
+        List<AvoirStatut> statuts =
+                !CollectionUtils.isEmpty(params.statuts()) ? params.statuts() : List.of(AvoirStatut.values());
 
-        LocalDate start = params.startDate() != null ? params.startDate() : LocalDate.now().minusMonths(6);
+        LocalDate start = params.startDate() != null
+                ? params.startDate()
+                : LocalDate.now().minusMonths(6);
         LocalDate end = params.endDate() != null ? params.endDate() : LocalDate.now();
-        String numAvoir = StringUtils.hasText(params.numAvoir()) ? "%" + params.numAvoir().toLowerCase() + "%" : null;
+        String numAvoir =
+                StringUtils.hasText(params.numAvoir()) ? "%" + params.numAvoir().toLowerCase() + "%" : null;
 
         Page<AvoirTiersPayant> page;
         if (params.tiersPayantId() != null) {
@@ -200,30 +202,33 @@ public class AvoirServiceImpl implements AvoirService {
     private AvoirDto toDto(AvoirTiersPayant avoir) {
         FactureTiersPayant factureTiersPayant = avoir.getFactureTiersPayant();
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
-        GroupeTiersPayant groupeTiersPayant = Objects.isNull(tiersPayant)
-            ? factureTiersPayant.getGroupeTiersPayant()
-            : null;
+        GroupeTiersPayant groupeTiersPayant =
+                Objects.isNull(tiersPayant) ? factureTiersPayant.getGroupeTiersPayant() : null;
         List<AvoirLineDto> lineDtos = avoir.getLignes() != null
-            ? avoir.getLignes().stream()
-                .map(l -> new AvoirLineDto(l.getId(), l.getSaleLineId(), l.getSaleLineDate(), l.getMontantAvoir(), l.getMotifRejet()))
-                .collect(Collectors.toList())
-            : Collections.emptyList();
+                ? avoir.getLignes().stream()
+                        .map(l -> new AvoirLineDto(
+                                l.getId(),
+                                l.getSaleLineId(),
+                                l.getSaleLineDate(),
+                                l.getMontantAvoir(),
+                                l.getMotifRejet()))
+                        .collect(Collectors.toList())
+                : Collections.emptyList();
         FactureItemId factureItemId = factureTiersPayant.getId();
         return new AvoirDto(
-            avoir.getId(),
-            avoir.getNumAvoir(),
-            factureItemId.getId(),
-            factureItemId.getInvoiceDate(),
-            factureTiersPayant.getNumFacture(),
-            avoir.getMontantAvoir(),
-            avoir.getMontantTva(),
-            avoir.getMontantHt(),
-            avoir.getMotif(),
-            avoir.getAvoirDate(),
-            avoir.getStatut(),
-            tiersPayant != null ? tiersPayant.getId() : groupeTiersPayant.getId(),
-            tiersPayant != null ? tiersPayant.getFullName() : groupeTiersPayant.getName(),
-            lineDtos
-        );
+                avoir.getId(),
+                avoir.getNumAvoir(),
+                factureItemId.getId(),
+                factureItemId.getInvoiceDate(),
+                factureTiersPayant.getNumFacture(),
+                avoir.getMontantAvoir(),
+                avoir.getMontantTva(),
+                avoir.getMontantHt(),
+                avoir.getMotif(),
+                avoir.getAvoirDate(),
+                avoir.getStatut(),
+                tiersPayant != null ? tiersPayant.getId() : groupeTiersPayant.getId(),
+                tiersPayant != null ? tiersPayant.getFullName() : groupeTiersPayant.getName(),
+                lineDtos);
     }
 }

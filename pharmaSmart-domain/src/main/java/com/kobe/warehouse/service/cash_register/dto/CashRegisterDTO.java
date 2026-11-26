@@ -33,6 +33,7 @@ public class CashRegisterDTO {
     private long estimateAmount;
     /** Magasin où la caisse a été ouverte. La colonne n'a de sens qu'en supervision. */
     private String magasin;
+
     private long cashAmount;
     private long mobileAmount;
     private Integer gap;
@@ -48,7 +49,9 @@ public class CashRegisterDTO {
         this.created = cashRegister.getCreated();
         this.updated = cashRegister.getUpdated();
         this.statut = cashRegister.getStatut();
-        this.magasin = cashRegister.getMagasin() == null ? null : cashRegister.getMagasin().getName();
+        this.magasin = cashRegister.getMagasin() == null
+                ? null
+                : cashRegister.getMagasin().getName();
         if (Objects.nonNull(cashRegister.getCanceledAmount())) {
             this.canceledAmount = cashRegister.getCanceledAmount();
         }
@@ -65,26 +68,27 @@ public class CashRegisterDTO {
         Ticketing ticket = cashRegister.getTicketing();
         if (Objects.nonNull(ticket)) {
             this.ticketing = new TicketingDTO(
-                ticket.getId(),
-                cashRegister.getId(),
-                ticket.getNumberOf10Thousand(),
-                ticket.getNumberOf5Thousand(),
-                ticket.getNumberOf2Thousand(),
-                ticket.getNumberOf1Thousand(),
-                ticket.getNumberOf500Hundred(),
-                ticket.getNumberOf200Hundred(),
-                ticket.getNumberOf100Hundred(),
-                ticket.getNumberOf50(),
-                ticket.getNumberOf25(),
-                ticket.getNumberOf10(),
-                ticket.getNumberOf5(),
-                ticket.getNumberOf1(),
-                ticket.getOtherAmount(),
-                ticket.getTotalAmount()
-            );
+                    ticket.getId(),
+                    cashRegister.getId(),
+                    ticket.getNumberOf10Thousand(),
+                    ticket.getNumberOf5Thousand(),
+                    ticket.getNumberOf2Thousand(),
+                    ticket.getNumberOf1Thousand(),
+                    ticket.getNumberOf500Hundred(),
+                    ticket.getNumberOf200Hundred(),
+                    ticket.getNumberOf100Hundred(),
+                    ticket.getNumberOf50(),
+                    ticket.getNumberOf25(),
+                    ticket.getNumberOf10(),
+                    ticket.getNumberOf5(),
+                    ticket.getNumberOf1(),
+                    ticket.getOtherAmount(),
+                    ticket.getTotalAmount());
             this.gap = (int) (ticket.getTotalAmount() - this.estimateAmount);
         }
-        this.cashRegisterItems = cashRegister.getCashRegisterItems().stream().map(CashRegisterItemDTO::new).toList();
+        this.cashRegisterItems = cashRegister.getCashRegisterItems().stream()
+                .map(CashRegisterItemDTO::new)
+                .toList();
     }
 
     public List<CashRegisterItemDTO> getCashRegisterItems() {
@@ -259,22 +263,20 @@ public class CashRegisterDTO {
      * écart apparent de 10 000, et c'est cet écart que le pharmacien cherche à expliquer.
      */
     private void buildItems(CashRegister cashRegister) {
-        cashRegister
-            .getCashRegisterItems()
-            .forEach(cashRegisterItem -> {
-                PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
-                this.cashRegisterItems.add(new CashRegisterItemDTO(cashRegisterItem));
-                long amount = signe(cashRegisterItem.getTypeFinancialTransaction()) *
-                    Objects.requireNonNullElse(cashRegisterItem.getAmount(), 0L);
-                this.estimateAmount += amount;
-                PaymentGroup paymentGroup = paymentMode.getGroup();
-                if (paymentGroup == PaymentGroup.MOBILE) {
-                    this.mobileAmount += amount;
-                }
-                if (paymentGroup == PaymentGroup.CASH) {
-                    this.cashAmount += amount;
-                }
-            });
+        cashRegister.getCashRegisterItems().forEach(cashRegisterItem -> {
+            PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
+            this.cashRegisterItems.add(new CashRegisterItemDTO(cashRegisterItem));
+            long amount = signe(cashRegisterItem.getTypeFinancialTransaction())
+                    * Objects.requireNonNullElse(cashRegisterItem.getAmount(), 0L);
+            this.estimateAmount += amount;
+            PaymentGroup paymentGroup = paymentMode.getGroup();
+            if (paymentGroup == PaymentGroup.MOBILE) {
+                this.mobileAmount += amount;
+            }
+            if (paymentGroup == PaymentGroup.CASH) {
+                this.cashAmount += amount;
+            }
+        });
     }
 
     /** Une dépense retranche, tout le reste ajoute. Un type absent est traité comme une recette. */

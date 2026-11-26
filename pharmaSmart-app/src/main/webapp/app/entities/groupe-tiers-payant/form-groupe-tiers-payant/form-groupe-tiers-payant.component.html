@@ -124,16 +124,12 @@
 
           @if (editForm.get('periodiciteFactureDefinitive')?.value) {
             <div class="form-field form-field-full">
-              <label for="inclureAutoDefinitiveGroupe">Inclure dans la facturation automatique
-                définitive</label>
+              <label for="inclureAutoDefinitiveGroupe">Inclure dans la facturation automatique définitive</label>
               <div class="d-flex align-items-center gap-2">
-                <app-switch formControlName="inclureFacturationAutoDefinitive"
-                            inputId="inclureAutoDefinitiveGroupe" />
+                <app-switch formControlName="inclureFacturationAutoDefinitive" inputId="inclureAutoDefinitiveGroupe" />
                 <span class="text-muted small">
                   @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
-                    Inclus — génération {{
-                      editForm.get('periodiciteFactureDefinitive')?.value | lowercase
-                    }}
+                    Inclus — génération {{ editForm.get('periodiciteFactureDefinitive')?.value | lowercase }}
                   } @else {
                     Exclu de la génération automatique définitive
                   }
@@ -159,16 +155,12 @@
 
           @if (editForm.get('periodiciteFactureProvisoire')?.value) {
             <div class="form-field form-field-full">
-              <label for="inclureAutoProvisioreGroupe">Inclure dans la facturation automatique
-                provisoire</label>
+              <label for="inclureAutoProvisioreGroupe">Inclure dans la facturation automatique provisoire</label>
               <div class="d-flex align-items-center gap-2">
-                <app-switch formControlName="inclureFacturationAutoProvisoire"
-                            inputId="inclureAutoProvisioreGroupe" />
+                <app-switch formControlName="inclureFacturationAutoProvisoire" inputId="inclureAutoProvisioreGroupe" />
                 <span class="text-muted small">
                   @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
-                    Inclus — génération {{
-                      editForm.get('periodiciteFactureProvisoire')?.value | lowercase
-                    }}
+                    Inclus — génération {{ editForm.get('periodiciteFactureProvisoire')?.value | lowercase }}
                   } @else {
                     Exclu de la génération automatique provisoire
                   }
@@ -180,8 +172,7 @@
           <!-- Adresse -->
           <div class="form-field form-field-full">
             <label for="field_adresse">Adresse</label>
-            <input autocomplete="off" class="form-control" formControlName="adresse"
-                   id="field_adresse" type="text" />
+            <input autocomplete="off" class="form-control" formControlName="adresse" id="field_adresse" type="text" />
           </div>
 
           <!-- Téléphone fixe -->
@@ -202,8 +193,7 @@
   </div>
 
   <div class="form-actions-compact">
-    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
-                severity="secondary" />
+    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
     <app-button
       [disabled]="editForm.invalid || isSaving()"
       [loading]="isSaving()"
@@ -214,4 +204,3 @@
     />
   </div>
 </form>
-

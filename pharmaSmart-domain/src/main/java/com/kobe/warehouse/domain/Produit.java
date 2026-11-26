@@ -24,10 +24,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -37,21 +33,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * not an ignored comment
  */
-
 @Entity
 @Table(
-    name = "produit",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
-    indexes = {
-        @Index(columnList = "libelle", name = "libelle_index"),
-        @Index(columnList = "code_ean_labo", name = "code_ean_labo_index"),
-        @Index(columnList = "status", name = "status_index"),
-    }
-)
+        name = "produit",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
+        indexes = {
+            @Index(columnList = "libelle", name = "libelle_index"),
+            @Index(columnList = "code_ean_labo", name = "code_ean_labo_index"),
+            @Index(columnList = "status", name = "status_index"),
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Produit implements Serializable {
 
@@ -65,6 +62,7 @@ public class Produit implements Serializable {
     @NotNull
     @Column(name = "libelle", nullable = false)
     private String libelle;
+
     @Column(name = "nom_commercial")
     private String nomCommercial;
 
@@ -101,17 +99,18 @@ public class Produit implements Serializable {
     private Integer qtySeuilMini = 1;
 
     @Column(name = "check_expiry_date", columnDefinition = "boolean default false")
-    private Boolean checkExpiryDate = false;//TODO: to remove
+    private Boolean checkExpiryDate = false; // TODO: to remove
 
     @Column(name = "gestion_lot", columnDefinition = "boolean default true")
     private Boolean gestionLot = true;
-    //Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits numériques, etc.)
+    // Implémenter un "Bon d'Entrée Diverse" (BED) pour les produits sans gestion de stock (ex: services, produits
+    // numériques, etc.)
 
     @Column(name = "thermosensible", columnDefinition = "boolean default false")
     private Boolean thermosensible = false;
+
     @Column(name = "remisable", columnDefinition = "boolean default false")
     private Boolean remisable = false;
-
 
     @Column(name = "chiffre", columnDefinition = "boolean default true")
     private Boolean chiffre = true;
@@ -130,8 +129,10 @@ public class Produit implements Serializable {
     @Column(name = "item_regular_unit_price", nullable = false)
     private Integer itemRegularUnitPrice = 0;
 
-
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "produit",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
@@ -146,23 +147,24 @@ public class Produit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Produit parent;
 
-
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "parent",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "produit",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE})
     private Set<StockProduit> stockProduits = new HashSet<>();
-
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Tva tva;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Laboratoire laboratoire;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
@@ -171,14 +173,11 @@ public class Produit implements Serializable {
     private String codeEanLaboratoire;
 
     @NotNull
-
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private FamilleProduit famille;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     private GammeProduit gamme;
-
 
     /** Transition : alignée sur la molécule principale de {@link #produitDcis}, écrite par {@link #remplacerDcis}. */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -220,35 +219,39 @@ public class Produit implements Serializable {
     @Column(name = "est_produit_garde", columnDefinition = "boolean default false")
     private Boolean estProduitGarde = false;
 
-
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "produit",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
-
 
     @OneToOne
     @JoinColumn(name = "fournisseur_produit_principal_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduitPrincipal;
 
-
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "produit",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Tableau tableau;
 
-
     /*
     seuil minimun du detail en point de vente pour declencher un deconditionnement
      */
     @Min(value = 0)
-    @Column(name = "seuil_decond", comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
+    @Column(
+            name = "seuil_decond",
+            comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
     private Integer seuilDeconditionnement = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "code_remise", length = 6, comment = "Code de remise qui seront mappés sur les grilles de remises")
-    private CodeRemise codeRemise = CodeRemise.CODE_0; //Code de remise qui seront mappés sur les grilles de remises
+    private CodeRemise codeRemise = CodeRemise.CODE_0; // Code de remise qui seront mappés sur les grilles de remises
 
     public CodeRemise getCodeRemise() {
         return codeRemise;
@@ -259,7 +262,6 @@ public class Produit implements Serializable {
         return this;
     }
 
-
     public @Min(value = 0) Integer getSeuilDeconditionnement() {
         return seuilDeconditionnement;
     }
@@ -267,7 +269,6 @@ public class Produit implements Serializable {
     public void setSeuilDeconditionnement(@Min(value = 0) Integer seuilDeconditionnement) {
         this.seuilDeconditionnement = seuilDeconditionnement;
     }
-
 
     public ClasseCriticite getClasseCriticite() {
         return classeCriticite;
@@ -287,7 +288,6 @@ public class Produit implements Serializable {
      */
     public ClasseCriticite getEffectiveClasseCriticite() {
         return Objects.requireNonNullElse(classeCriticite, ClasseCriticite.B);
-
     }
 
     public String getNomCommercial() {
@@ -357,7 +357,10 @@ public class Produit implements Serializable {
 
     /** Molécules du produit, principale en tête. */
     public List<Dci> getDcis() {
-        return produitDcis.stream().sorted(Comparator.comparingInt(ProduitDci::getRang)).map(ProduitDci::getDci).toList();
+        return produitDcis.stream()
+                .sorted(Comparator.comparingInt(ProduitDci::getRang))
+                .map(ProduitDci::getDci)
+                .toList();
     }
 
     /**
@@ -378,9 +381,11 @@ public class Produit implements Serializable {
             Dci cible = cibles.get(rang - 1);
             int rangCible = rang;
             produitDcis.stream()
-                .filter(lien -> Objects.equals(lien.getDci().getId(), cible.getId()))
-                .findFirst()
-                .ifPresentOrElse(lien -> lien.setRang(rangCible), () -> produitDcis.add(new ProduitDci(this, cible, rangCible)));
+                    .filter(lien -> Objects.equals(lien.getDci().getId(), cible.getId()))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            lien -> lien.setRang(rangCible),
+                            () -> produitDcis.add(new ProduitDci(this, cible, rangCible)));
         }
         produitDcis.sort(Comparator.comparingInt(ProduitDci::getRang));
         this.dci = cibles.isEmpty() ? null : cibles.getFirst();
@@ -628,7 +633,6 @@ public class Produit implements Serializable {
         this.fournisseurProduitPrincipal = fournisseurProduitPrincipal;
         return this;
     }
-
 
     public Set<RayonProduit> getRayonProduits() {
         return rayonProduits;

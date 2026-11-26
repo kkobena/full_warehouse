@@ -33,7 +33,8 @@ import { BackendManagerService } from '../services/backend-manager.service';
               class="form-control"
               id="apiServerUrl"
               name="apiServerUrl"
-              [ngModel]="apiServerUrl()" (ngModelChange)="apiServerUrl.set($event)"
+              [ngModel]="apiServerUrl()"
+              (ngModelChange)="apiServerUrl.set($event)"
               placeholder="http://192.168.1.100:8080"
               required
               pattern="http?://.+"
@@ -42,7 +43,12 @@ import { BackendManagerService } from '../services/backend-manager.service';
           </div>
 
           <div class="d-flex gap-2 mb-3">
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="testConnection()" [disabled]="testing() || !apiServerUrl()">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              (click)="testConnection()"
+              [disabled]="testing() || !apiServerUrl()"
+            >
               <i class="bi" [ngClass]="testing() ? 'bi-hourglass-split' : 'bi-wifi'"></i>
               {{ testing() ? 'Test en cours...' : 'Tester la connexion' }}
             </button>

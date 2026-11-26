@@ -62,10 +62,10 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(8_000, vente.getPartTiersPayant(), "80 % pris en charge");
         assertEquals(2_000, vente.getPartAssure());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = " + cree.getSaleId().getId()),
-            "la ligne tiers-payant vit dans sa propre table partitionnée"
-        );
+                1,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = "
+                        + cree.getSaleId().getId()),
+                "la ligne tiers-payant vit dans sa propre table partitionnée");
     }
 
     @Test
@@ -88,11 +88,15 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant complementaire = compte(assure, "MUTUELLE 2", 20, PrioriteTiersPayant.R1);
 
         ThirdPartySaleDTO cree = services.thirdPartySaleService.createSale(venteDe(principal, produit, 1, "BON-003"));
-        services.thirdPartySaleService.addThirdPartySaleLineToSales(compteDto(complementaire, "BON-004"), cree.getSaleId());
+        services.thirdPartySaleService.addThirdPartySaleLineToSales(
+                compteDto(complementaire, "BON-004"), cree.getSaleId());
         viderLeCache();
 
         ThirdPartySales vente = em.find(ThirdPartySales.class, cree.getSaleId());
-        assertEquals(2, compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                2,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = "
+                        + cree.getSaleId().getId()));
         assertEquals(8_000, vente.getPartTiersPayant(), "60 % + 20 %");
         assertEquals(2_000, vente.getPartAssure());
     }
@@ -105,13 +109,17 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant principal = compte(assure, "CNAM 3", 60, PrioriteTiersPayant.R0);
         ClientTiersPayant complementaire = compte(assure, "MUTUELLE 3", 20, PrioriteTiersPayant.R1);
         ThirdPartySaleDTO cree = services.thirdPartySaleService.createSale(venteDe(principal, produit, 1, "BON-005"));
-        services.thirdPartySaleService.addThirdPartySaleLineToSales(compteDto(complementaire, "BON-006"), cree.getSaleId());
+        services.thirdPartySaleService.addThirdPartySaleLineToSales(
+                compteDto(complementaire, "BON-006"), cree.getSaleId());
 
         services.thirdPartySaleService.removeThirdPartySaleLineToSales(complementaire.getId(), cree.getSaleId());
         viderLeCache();
 
         ThirdPartySales vente = em.find(ThirdPartySales.class, cree.getSaleId());
-        assertEquals(1, compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE sale_id = "
+                        + cree.getSaleId().getId()));
         assertEquals(6_000, vente.getPartTiersPayant());
         assertEquals(4_000, vente.getPartAssure());
     }
@@ -169,9 +177,8 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant relu = em.find(ClientTiersPayant.class, compte.getId());
         assertFalse(relu.getConsommations().isEmpty(), "la consommation mensuelle est écrite en jsonb");
         assertTrue(
-            relu.getConsommations().stream().anyMatch(c -> c.getConsommation() == 8_000L),
-            "elle porte la part prise en charge : " + relu.getConsommations()
-        );
+                relu.getConsommations().stream().anyMatch(c -> c.getConsommation() == 8_000L),
+                "elle porte la part prise en charge : " + relu.getConsommations());
     }
 
     @Test
@@ -209,19 +216,22 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         CashSale comptant = venteComptantEnBase(produit, 2);
         viderLeCache();
 
-        SaleId assuranceId = services.thirdPartySaleService.changeCashSaleToThirdPartySale(comptant.getId(), NatureVente.ASSURANCE);
+        SaleId assuranceId =
+                services.thirdPartySaleService.changeCashSaleToThirdPartySale(comptant.getId(), NatureVente.ASSURANCE);
         viderLeCache();
 
         assertEquals(
-            "ThirdPartySales",
-            em.createNativeQuery("SELECT dtype FROM sales WHERE id = " + assuranceId.getId()).getSingleResult()
-        );
-        assertEquals(0, compter("SELECT count(*) FROM sales WHERE id = " + comptant.getId().getId()));
+                "ThirdPartySales",
+                em.createNativeQuery("SELECT dtype FROM sales WHERE id = " + assuranceId.getId())
+                        .getSingleResult());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM sales_line WHERE sales_id = " + assuranceId.getId()),
-            "la ligne a suivi la vente sur son nouvel identifiant"
-        );
+                0,
+                compter("SELECT count(*) FROM sales WHERE id = "
+                        + comptant.getId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = " + assuranceId.getId()),
+                "la ligne a suivi la vente sur son nouvel identifiant");
     }
 
     @Test
@@ -235,8 +245,14 @@ class ThirdPartySaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.thirdPartySaleService.deleteSalePrevente(cree.getSaleId());
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM sales WHERE id = " + cree.getSaleId().getId()));
-        assertEquals(0, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales WHERE id = "
+                        + cree.getSaleId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()));
     }
 
     @Test

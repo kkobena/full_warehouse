@@ -1,7 +1,12 @@
-import {ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input, TemplateRef } from '@angular/core';
 import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgMultiLabelTemplateDirective, NgOptgroupTemplateDirective, NgOptionTemplateDirective, NgSelectComponent } from '@ng-select/ng-select';
+import {
+  NgMultiLabelTemplateDirective,
+  NgOptgroupTemplateDirective,
+  NgOptionTemplateDirective,
+  NgSelectComponent,
+} from '@ng-select/ng-select';
 
 import { SelectBase } from './select.base';
 
@@ -72,8 +77,15 @@ import { SelectBase } from './select.base';
       <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
         @for (item of items.slice(0, maxLabels()); track $index) {
           <div class="ng-value" [title]="libelle(item)">
-            <span class="ng-value-icon left" role="button" tabindex="0" [attr.aria-label]="'Retirer ' + libelle(item)"
-                  (click)="clear(item)" (keydown.enter)="clear(item)">×</span>
+            <span
+              class="ng-value-icon left"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Retirer ' + libelle(item)"
+              (click)="clear(item)"
+              (keydown.enter)="clear(item)"
+              >×</span
+            >
             <span class="ng-value-label">{{ libelle(item) }}</span>
           </div>
         }
@@ -83,18 +95,12 @@ import { SelectBase } from './select.base';
       </ng-template>
       @if (optionTemplate()) {
         <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
-          <ng-container
-            [ngTemplateOutlet]="optionTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: item, item, index, search }"
-          />
+          <ng-container [ngTemplateOutlet]="optionTemplate()!" [ngTemplateOutletContext]="{ $implicit: item, item, index, search }" />
         </ng-template>
       }
       @if (groupTemplate()) {
         <ng-template ng-optgroup-tmp let-item="item">
-          <ng-container
-            [ngTemplateOutlet]="groupTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: item, item }"
-          />
+          <ng-container [ngTemplateOutlet]="groupTemplate()!" [ngTemplateOutletContext]="{ $implicit: item, item }" />
         </ng-template>
       }
     </ng-select>

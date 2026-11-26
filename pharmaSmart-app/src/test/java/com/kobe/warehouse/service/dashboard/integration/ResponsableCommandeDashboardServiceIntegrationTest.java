@@ -118,7 +118,10 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             lot(produit, LocalDate.now().plusDays(20), 10);
             viderLeCache();
 
-            assertThat(services.responsableCommandeDashboardService.getPeremptions().unMois()).isEqualTo(1);
+            assertThat(services.responsableCommandeDashboardService
+                            .getPeremptions()
+                            .unMois())
+                    .isEqualTo(1);
         }
 
         @Test
@@ -157,7 +160,10 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             lot(produit, LocalDate.now().plusMonths(4), 2);
             viderLeCache();
 
-            assertThat(services.responsableCommandeDashboardService.getPeremptions().valeurTotale()).isEqualTo(50_000L);
+            assertThat(services.responsableCommandeDashboardService
+                            .getPeremptions()
+                            .valeurTotale())
+                    .isEqualTo(50_000L);
         }
 
         @Test
@@ -267,7 +273,8 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             referencement(auDessus, fournisseur("DPCI " + unique("")));
             viderLeCache();
 
-            List<SuggestionReapproDTO> suggestions = services.responsableCommandeDashboardService.getSuggestionsReappro();
+            List<SuggestionReapproDTO> suggestions =
+                    services.responsableCommandeDashboardService.getSuggestionsReappro();
 
             assertThat(suggestions).hasSize(1);
             assertThat(suggestions.getFirst().produitLibelle()).startsWith("SOUS SEUIL");
@@ -283,7 +290,9 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             referencement(produit, laborex);
             viderLeCache();
 
-            SuggestionReapproDTO suggestion = services.responsableCommandeDashboardService.getSuggestionsReappro().getFirst();
+            SuggestionReapproDTO suggestion = services.responsableCommandeDashboardService
+                    .getSuggestionsReappro()
+                    .getFirst();
 
             assertThat(suggestion.fournisseurId()).isEqualTo(laborex.getId().longValue());
             assertThat(suggestion.fournisseurName()).startsWith("LABOREX");
@@ -299,7 +308,9 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             referencement(produit, fournisseur("LABOREX " + unique("")));
             viderLeCache();
 
-            SuggestionReapproDTO suggestion = services.responsableCommandeDashboardService.getSuggestionsReappro().getFirst();
+            SuggestionReapproDTO suggestion = services.responsableCommandeDashboardService
+                    .getSuggestionsReappro()
+                    .getFirst();
 
             assertThat(suggestion.consommationMoyenne()).isZero();
             assertThat(suggestion.quantiteSuggeree()).isEqualTo(40);
@@ -319,15 +330,19 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
             referencement(entame, laborex);
             viderLeCache();
 
-            List<SuggestionReapproDTO> suggestions = services.responsableCommandeDashboardService.getSuggestionsReappro();
+            List<SuggestionReapproDTO> suggestions =
+                    services.responsableCommandeDashboardService.getSuggestionsReappro();
 
-            assertThat(suggestions).extracting(SuggestionReapproDTO::stockActuel).containsExactly(1, 10);
+            assertThat(suggestions)
+                    .extracting(SuggestionReapproDTO::stockActuel)
+                    .containsExactly(1, 10);
         }
 
         @Test
         @DisplayName("base vierge : aucune suggestion")
         void baseVierge() {
-            assertThat(services.responsableCommandeDashboardService.getSuggestionsReappro()).isEmpty();
+            assertThat(services.responsableCommandeDashboardService.getSuggestionsReappro())
+                    .isEmpty();
         }
     }
 
@@ -346,7 +361,16 @@ class ResponsableCommandeDashboardServiceIntegrationTest extends AbstractDashboa
     }
 
     private void venduLe(Produit produit, int quantite, LocalDate date) {
-        ligneDeVente(vente(caisseOuverte(0L), com.kobe.warehouse.domain.enumeration.NatureVente.COMPTANT, 0, 0, false, null, date),
-            produit, quantite);
+        ligneDeVente(
+                vente(
+                        caisseOuverte(0L),
+                        com.kobe.warehouse.domain.enumeration.NatureVente.COMPTANT,
+                        0,
+                        0,
+                        false,
+                        null,
+                        date),
+                produit,
+                quantite);
     }
 }

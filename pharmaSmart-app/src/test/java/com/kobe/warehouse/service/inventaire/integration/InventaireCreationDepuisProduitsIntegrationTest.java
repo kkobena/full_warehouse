@@ -35,9 +35,10 @@ class InventaireCreationDepuisProduitsIntegrationTest extends AbstractInventaire
         viderLeCache();
 
         assertEquals(2, cree);
-        assertEquals(2L, compter(
-            "SELECT count(*) FROM store_inventory_line WHERE produit_id IN ("
-                + premier.getId() + ", " + second.getId() + ")"));
+        assertEquals(
+                2L,
+                compter("SELECT count(*) FROM store_inventory_line WHERE produit_id IN (" + premier.getId() + ", "
+                        + second.getId() + ")"));
     }
 
     /**
@@ -55,7 +56,9 @@ class InventaireCreationDepuisProduitsIntegrationTest extends AbstractInventaire
 
         StoreInventoryLine ligne = ligneDe(produit);
         assertNotNull(ligne.getStorage(), "storage_id est NOT NULL en base");
-        assertEquals(ligne.getStoreInventory().getStorage().getId(), ligne.getStorage().getId());
+        assertEquals(
+                ligne.getStoreInventory().getStorage().getId(),
+                ligne.getStorage().getId());
     }
 
     /**
@@ -79,22 +82,22 @@ class InventaireCreationDepuisProduitsIntegrationTest extends AbstractInventaire
     // ===== utilitaires =====
 
     private int creerDepuis(Set<Integer> produitIds) {
-        return services.inventaireService.createInventoryFromFrom(
-            new CreateInventoryFromProduitIds(
+        return services.inventaireService.createInventoryFromFrom(new CreateInventoryFromProduitIds(
                 produitIds,
-                new StoreInventoryRecord(null, rayon.getId(), null,
-                    InventoryCategory.MAGASIN.name(), null, "Inventaire depuis sélection")
-            )
-        );
+                new StoreInventoryRecord(
+                        null,
+                        rayon.getId(),
+                        null,
+                        InventoryCategory.MAGASIN.name(),
+                        null,
+                        "Inventaire depuis sélection")));
     }
 
     private StoreInventoryLine ligneDe(Produit produit) {
-        List<StoreInventoryLine> lignes = em
-            .createQuery(
-                "SELECT l FROM StoreInventoryLine l WHERE l.produit.id = :id",
-                StoreInventoryLine.class)
-            .setParameter("id", produit.getId())
-            .getResultList();
+        List<StoreInventoryLine> lignes = em.createQuery(
+                        "SELECT l FROM StoreInventoryLine l WHERE l.produit.id = :id", StoreInventoryLine.class)
+                .setParameter("id", produit.getId())
+                .getResultList();
         assertEquals(1, lignes.size(), "une ligne et une seule pour ce produit");
         return lignes.getFirst();
     }

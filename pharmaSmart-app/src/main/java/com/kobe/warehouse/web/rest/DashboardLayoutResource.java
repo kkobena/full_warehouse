@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.DashboardLayoutService;
 import com.kobe.warehouse.service.dto.DashboardLayoutDTO;
 import jakarta.validation.Valid;
@@ -7,14 +8,14 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing Dashboard Layouts
  */
 @RestController
 @RequestMapping("/api/dashboard-layouts")
-@NavAccessExempt("layouts personnels de chaque utilisateur, chargés à la connexion ; droits sur les widgets et les layouts système vérifiés par DashboardLayoutServiceImpl")
+@NavAccessExempt(
+        "layouts personnels de chaque utilisateur, chargés à la connexion ; droits sur les widgets et les layouts système vérifiés par DashboardLayoutServiceImpl")
 public class DashboardLayoutResource {
 
     private final DashboardLayoutService dashboardLayoutService;
@@ -27,7 +28,8 @@ public class DashboardLayoutResource {
      * POST /api/dashboard-layouts : Create a new dashboard layout
      */
     @PostMapping("")
-    public ResponseEntity<DashboardLayoutDTO> createDashboardLayout(@Valid @RequestBody DashboardLayoutDTO dashboardLayoutDTO) {
+    public ResponseEntity<DashboardLayoutDTO> createDashboardLayout(
+            @Valid @RequestBody DashboardLayoutDTO dashboardLayoutDTO) {
         DashboardLayoutDTO result = dashboardLayoutService.save(dashboardLayoutDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -37,9 +39,7 @@ public class DashboardLayoutResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<DashboardLayoutDTO> updateDashboardLayout(
-        @PathVariable Integer id,
-        @Valid @RequestBody DashboardLayoutDTO dashboardLayoutDTO
-    ) {
+            @PathVariable Integer id, @Valid @RequestBody DashboardLayoutDTO dashboardLayoutDTO) {
         dashboardLayoutDTO.setId(id);
         DashboardLayoutDTO result = dashboardLayoutService.update(dashboardLayoutDTO);
         return ResponseEntity.ok(result);
@@ -68,7 +68,10 @@ public class DashboardLayoutResource {
      */
     @GetMapping("/{id}")
     public ResponseEntity<DashboardLayoutDTO> getLayout(@PathVariable Integer id) {
-        return dashboardLayoutService.findOne(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return dashboardLayoutService
+                .findOne(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -76,9 +79,10 @@ public class DashboardLayoutResource {
      */
     @GetMapping("/default")
     public ResponseEntity<DashboardLayoutDTO> getDefaultLayout() {
-        return dashboardLayoutService.findDefaultForCurrentUser()
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.noContent().build());
+        return dashboardLayoutService
+                .findDefaultForCurrentUser()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
     }
 
     /**
@@ -95,9 +99,10 @@ public class DashboardLayoutResource {
      */
     @GetMapping("/resolved")
     public ResponseEntity<DashboardLayoutDTO> getResolvedLayout() {
-        return dashboardLayoutService.resolveForCurrentUser()
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.noContent().build());
+        return dashboardLayoutService
+                .resolveForCurrentUser()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
     }
 
     /**
@@ -113,9 +118,7 @@ public class DashboardLayoutResource {
      */
     @PutMapping("/{id}/set-default-for-role")
     public ResponseEntity<DashboardLayoutDTO> setAsDefaultForAuthority(
-        @PathVariable Integer id,
-        @RequestParam String authorityName
-    ) {
+            @PathVariable Integer id, @RequestParam String authorityName) {
         return ResponseEntity.ok(dashboardLayoutService.setAsDefaultForAuthority(id, authorityName));
     }
 

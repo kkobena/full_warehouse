@@ -1,9 +1,9 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.Suggestion;
@@ -22,14 +22,6 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -38,6 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Repository
 @Transactional(readOnly = true)
@@ -89,7 +88,8 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
     private EntityManager entityManager;
 
     @Override
-    public Page<SuggestionProjection> getAllSuggestion(Specification<Suggestion> specification, Pageable pageable, String searchTerm) {
+    public Page<SuggestionProjection> getAllSuggestion(
+            Specification<Suggestion> specification, Pageable pageable, String searchTerm) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<SuggestionProjection> query = cb.createQuery(SuggestionProjection.class);
         Root<Suggestion> root = query.from(Suggestion.class);
@@ -98,53 +98,46 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
         // Sous-requête corrélée : nombre de lignes
         Subquery<Long> countSub = query.subquery(Long.class);
         Root<SuggestionLine> slCount = countSub.from(SuggestionLine.class);
-        countSub.select(cb.count(slCount))
-            .where(cb.equal(slCount.get(SuggestionLine_.suggestion), root));
+        countSub.select(cb.count(slCount)).where(cb.equal(slCount.get(SuggestionLine_.suggestion), root));
 
         // Sous-requête corrélée : montant estimé achat = SUM(quantité * prixAchat)
         Subquery<Long> montantAchatSub = query.subquery(Long.class);
         Root<SuggestionLine> slMontant = montantAchatSub.from(SuggestionLine.class);
         Join<SuggestionLine, FournisseurProduit> fpMontant = slMontant.join(SuggestionLine_.fournisseurProduit);
-        montantAchatSub.select(
-            cb.coalesce(
-                cb.sum(cb.prod(
-                    cb.toLong(slMontant.get(SuggestionLine_.quantity)),
-                    cb.toLong(fpMontant.get(FournisseurProduit_.prixAchat))
-                )),
-                0L
-            )
-        ).where(cb.equal(slMontant.get(SuggestionLine_.suggestion), root));
+        montantAchatSub
+                .select(cb.coalesce(
+                        cb.sum(cb.prod(
+                                cb.toLong(slMontant.get(SuggestionLine_.quantity)),
+                                cb.toLong(fpMontant.get(FournisseurProduit_.prixAchat)))),
+                        0L))
+                .where(cb.equal(slMontant.get(SuggestionLine_.suggestion), root));
 
         // Sous-requête corrélée : montant estimé vente = SUM(quantité * prixUni)
         Subquery<Long> montantVenteSub = query.subquery(Long.class);
         Root<SuggestionLine> slVente = montantVenteSub.from(SuggestionLine.class);
         Join<SuggestionLine, FournisseurProduit> fpVente = slVente.join(SuggestionLine_.fournisseurProduit);
-        montantVenteSub.select(
-            cb.coalesce(
-                cb.sum(cb.prod(
-                    cb.toLong(slVente.get(SuggestionLine_.quantity)),
-                    cb.toLong(fpVente.get(FournisseurProduit_.prixUni))
-                )),
-                0L
-            )
-        ).where(cb.equal(slVente.get(SuggestionLine_.suggestion), root));
+        montantVenteSub
+                .select(cb.coalesce(
+                        cb.sum(cb.prod(
+                                cb.toLong(slVente.get(SuggestionLine_.quantity)),
+                                cb.toLong(fpVente.get(FournisseurProduit_.prixUni)))),
+                        0L))
+                .where(cb.equal(slVente.get(SuggestionLine_.suggestion), root));
 
-        query.select(
-            cb.construct(
-                SuggestionProjection.class,
-                root.get(Suggestion_.id),
-                root.get(Suggestion_.suggessionReference),
-                root.get(Suggestion_.createdAt),
-                root.get(Suggestion_.updatedAt),
-                root.get(Suggestion_.typeSuggession),
-                root.get(Suggestion_.statut),
-                fournisseurJoin.get(Fournisseur_.id),
-                fournisseurJoin.get(Fournisseur_.libelle),
-                countSub,
-                montantAchatSub,
-                montantVenteSub
-            )
-        ).orderBy(cb.desc(root.get(Suggestion_.updatedAt)));
+        query.select(cb.construct(
+                        SuggestionProjection.class,
+                        root.get(Suggestion_.id),
+                        root.get(Suggestion_.suggessionReference),
+                        root.get(Suggestion_.createdAt),
+                        root.get(Suggestion_.updatedAt),
+                        root.get(Suggestion_.typeSuggession),
+                        root.get(Suggestion_.statut),
+                        fournisseurJoin.get(Fournisseur_.id),
+                        fournisseurJoin.get(Fournisseur_.libelle),
+                        countSub,
+                        montantAchatSub,
+                        montantVenteSub))
+                .orderBy(cb.desc(root.get(Suggestion_.updatedAt)));
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(specification.toPredicate(root, query, cb));
@@ -162,28 +155,28 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
         return new PageImpl<>(results, pageable, count(specification, searchTerm));
     }
 
-    private <T> Predicate buildSearchPredicate(CriteriaBuilder cb, CriteriaQuery<T> query, Root<Suggestion> root, String searchTerm) {
+    private <T> Predicate buildSearchPredicate(
+            CriteriaBuilder cb, CriteriaQuery<T> query, Root<Suggestion> root, String searchTerm) {
         String pattern = "%" + searchTerm.toUpperCase() + "%";
         Subquery<Integer> existsSub = query.subquery(Integer.class);
         Root<SuggestionLine> slRoot = existsSub.from(SuggestionLine.class);
         Join<SuggestionLine, FournisseurProduit> fpJoin = slRoot.join(SuggestionLine_.fournisseurProduit);
         Join<FournisseurProduit, Produit> produitJoin = fpJoin.join(FournisseurProduit_.produit);
-        existsSub.select(slRoot.get(SuggestionLine_.id))
-            .where(cb.and(
-                cb.equal(slRoot.get(SuggestionLine_.suggestion), root),
-                cb.or(
-                    cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeCip)), pattern),
-                    cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeEan)), pattern),
-                    cb.like(cb.upper(produitJoin.get(Produit_.libelle)), pattern),
-                    cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), pattern)
-                )
-            ));
+        existsSub
+                .select(slRoot.get(SuggestionLine_.id))
+                .where(cb.and(
+                        cb.equal(slRoot.get(SuggestionLine_.suggestion), root),
+                        cb.or(
+                                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeCip)), pattern),
+                                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeEan)), pattern),
+                                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), pattern),
+                                cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), pattern))));
         return cb.exists(existsSub);
     }
 
-
     @Override
-    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm) {
+    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(
+            Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm) {
         boolean hasStatut = statut != null && !statut.isEmpty();
         boolean hasFournisseurs = fournisseurIds != null && !fournisseurIds.isEmpty();
         boolean hasSearch = StringUtils.hasLength(searchTerm);
@@ -223,17 +216,17 @@ public class SuggestionCustomRepositoryImpl implements SuggestionCustomRepositor
 
     private FournisseurSuggestionSummaryDTO toFournisseurSuggestionSummaryDTO(Object[] row) {
         return new FournisseurSuggestionSummaryDTO(
-            toInt(row[0]),             // suggestionId
-            toInt(row[1]),             // fournisseurId
-            (String) row[2],           // libelle
-            (String) row[3],           // statut
-            toLong(row[4]).intValue(), // nbProduits
-            0,                         // nbUrgents (calculé côté frontend)
-            toLong(row[5]),            // montantEstime (achat)
-            toLong(row[6]),            // montantEstimeVente
-            (String) row[7],           // source
-            toLocalDateTime(row[8])    // updatedAt
-        );
+                toInt(row[0]), // suggestionId
+                toInt(row[1]), // fournisseurId
+                (String) row[2], // libelle
+                (String) row[3], // statut
+                toLong(row[4]).intValue(), // nbProduits
+                0, // nbUrgents (calculé côté frontend)
+                toLong(row[5]), // montantEstime (achat)
+                toLong(row[6]), // montantEstimeVente
+                (String) row[7], // source
+                toLocalDateTime(row[8]) // updatedAt
+                );
     }
 
     private static LocalDateTime toLocalDateTime(Object val) {

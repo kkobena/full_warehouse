@@ -24,31 +24,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReglementFactureModeAllService extends AbstractReglementService {
 
     public ReglementFactureModeAllService(
-        CashRegisterService cashRegisterService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        UserService userService,
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService,
-        ReferenceService referenceService
-    ) {
+            CashRegisterService cashRegisterService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            UserService userService,
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            BanqueRepository banqueRepository,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            InvoicePaymentItemService invoicePaymentItemService,
+            ReferenceService referenceService) {
         super(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
     }
 
     @Override
-    public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
+    public ResponseReglementDTO doReglement(ReglementParam reglementParam)
+            throws CashRegisterException, PaymentAmountException {
         FactureTiersPayant factureTiersPayant = verrouillerFacture(reglementParam.getId());
         refuserSiSoldee(resteDu(factureTiersPayant));
 
@@ -58,7 +57,9 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
             montantPaye += itemAmount;
-            invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
+            invoicePayment
+                    .getInvoicePaymentItems()
+                    .add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
         }
 
@@ -83,7 +84,9 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
             montantFacture += thirdParty.getMontant();
             montantPaye += itemAmount;
-            invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
+            invoicePayment
+                    .getInvoicePaymentItems()
+                    .add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
         }
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);

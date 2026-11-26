@@ -32,6 +32,8 @@ export class ChromeThemeService {
     applyChrome(name, this.document.documentElement);
     try {
       localStorage.setItem(CHROME_STORAGE_KEY, name);
-    } catch { /* silently ignore storage errors */ }
+    } catch {
+      /* silently ignore storage errors */
+    }
   }
 }

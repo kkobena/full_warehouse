@@ -1,8 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.OctroiRemise;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.domain.enumeration.OctroiRemise;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

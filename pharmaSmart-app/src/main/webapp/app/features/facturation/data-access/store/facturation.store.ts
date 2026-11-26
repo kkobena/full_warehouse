@@ -112,13 +112,8 @@ export const FacturationStore = signalStore(
     },
     updateFactureInList(updated: IFacture): void {
       patchState(store, {
-        factures: store.factures().map(f =>
-          f.factureItemId?.id === updated.factureItemId?.id ? updated : f,
-        ),
-        selectedFacture:
-          store.selectedFacture()?.factureItemId?.id === updated.factureItemId?.id
-            ? updated
-            : store.selectedFacture(),
+        factures: store.factures().map(f => (f.factureItemId?.id === updated.factureItemId?.id ? updated : f)),
+        selectedFacture: store.selectedFacture()?.factureItemId?.id === updated.factureItemId?.id ? updated : store.selectedFacture(),
         // Un règlement change le montant réglé et le reste dû : la bannière ment tant
         // qu'elle n'a pas été rechargée.
         kpiDirty: store.kpiDirty() + 1,
@@ -127,10 +122,7 @@ export const FacturationStore = signalStore(
     removeFactureFromList(factureId: number): void {
       patchState(store, {
         factures: store.factures().filter(f => f.factureItemId?.id !== factureId),
-        selectedFacture:
-          store.selectedFacture()?.factureItemId?.id === factureId
-            ? null
-            : store.selectedFacture(),
+        selectedFacture: store.selectedFacture()?.factureItemId?.id === factureId ? null : store.selectedFacture(),
         totalItems: store.totalItems() - 1,
         kpiDirty: store.kpiDirty() + 1,
       });

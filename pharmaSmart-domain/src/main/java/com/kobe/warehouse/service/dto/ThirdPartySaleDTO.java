@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Poste;
 import com.kobe.warehouse.domain.RemiseClient;
@@ -203,10 +203,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
             }
 
             thirdPartySaleLineDTOS.add(new ThirdPartySaleLineDTO(thirdPartySaleLine));
-            clientTiersPayantDTOS.add(
-                new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant()).setNumBon(
-                    thirdPartySaleLine.getNumBon())
-            );
+            clientTiersPayantDTOS.add(new ClientTiersPayantDTO(thirdPartySaleLine.getClientTiersPayant())
+                    .setNumBon(thirdPartySaleLine.getNumBon()));
         });
         if (StringUtils.isEmpty(this.numBon) && !thirdPartySaleLineDTOS.isEmpty()) {
             this.numBon = thirdPartySaleLines.getFirst().getNumBon();
@@ -255,8 +253,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
         return thirdPartySaleLines;
     }
 
-    public ThirdPartySaleDTO setThirdPartySaleLines(
-        List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
+    public ThirdPartySaleDTO setThirdPartySaleLines(List<ThirdPartySaleLineDTO> thirdPartySaleLines) {
         this.thirdPartySaleLines = thirdPartySaleLines;
         return this;
     }
@@ -371,8 +368,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
         private boolean hasPriceOption;
         private String num;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         Builder(ThirdPartySaleDTO existing) {
             // SaleDTO fields
@@ -849,7 +845,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
             dto.setCanceled(canceled);
             dto.setMagasin(magasin);
             // ThirdPartySaleDTO fields
-            // Sans assuré (vente transformée, client pas encore choisi), il n'y a pas d'ayant droit à distinguer de lui.
+            // Sans assuré (vente transformée, client pas encore choisi), il n'y a pas d'ayant droit à distinguer de
+            // lui.
             if (customer == null || !Objects.equals(customer.getId(), ayantDroitId)) {
                 dto.setAyantDroitId(ayantDroitId);
                 dto.setAyantDroit(ayantDroit);

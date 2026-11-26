@@ -1,5 +1,6 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ title }}
+  <h4 class="modal-title">
+    {{ title }}
     @if (libelleCategorie) {
       <app-badge [label]="libelleCategorie" severity="info" class="ms-2 align-middle" data-testid="categorie-tiers-payant" />
     }
@@ -80,68 +81,76 @@
 
       <!-- Section 2: Informations Générales -->
       @if (!modeExpress) {
-      <app-card [variant]="'form'" [withHeader]="true">
-        <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-info-circle"></i>
-          <span>Informations Générales</span>
-        </div>
-
-        <div class="form-grid-compact">
-          <!-- Email -->
-          <div class="form-field form-field-full">
-            <label for="email">Email</label>
-            <input
-              [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
-              autocomplete="off"
-              class="form-control"
-              formControlName="email"
-              id="email"
-              type="email"
-            />
-            @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
-              @if (editForm.get('email')?.errors?.email) {
-                <small class="form-text text-danger">Adresse email invalide</small>
-              }
-            }
+        <app-card [variant]="'form'" [withHeader]="true">
+          <div ngProjectAs="[cardHeader]" class="section-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Informations Générales</span>
           </div>
 
-          <!-- Identifiant contribuable -->
-          <div class="form-field form-field-full">
-            <label for="ncc">Identifiant contribuable</label>
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="ncc"
-                   id="ncc" />
-            <small class="form-text text-muted">Numéro de compte contribuable : identifiant fiscal unique de l'organisme (lettres et chiffres).</small>
-          </div>
-
-          <!-- Groupe tiers-payant : assurances seulement -->
-          @if (categorie === 'ASSURANCE') {
+          <div class="form-grid-compact">
+            <!-- Email -->
             <div class="form-field form-field-full">
-              <label for="groupeTiersPayantId">Groupe tiers-payant</label>
-              <app-select-search
-                (searched)="rechercherGroupes($event)"
-                [typeahead]="saisieGroupe$"
-                [openWhenEmpty]="true"
-                appendTo="body"
-                [clearable]="false"
-                [items]="groupeTiersPayants()"
-                bindLabel="name"
-                bindValue="id"
-                formControlName="groupeTiersPayantId"
-                inputId="groupeTiersPayantId"
-                placeholder="Taper pour rechercher un groupe"
+              <label for="email">Email</label>
+              <input
+                [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
+                autocomplete="off"
+                class="form-control"
+                formControlName="email"
+                id="email"
+                type="email"
               />
+              @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+                @if (editForm.get('email')?.errors?.email) {
+                  <small class="form-text text-danger">Adresse email invalide</small>
+                }
+              }
             </div>
-          }
 
-          <!-- Code organisme -->
-          <div class="form-field form-field-full">
-            <label for="codeOrganisme">Code organisme</label>
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                   formControlName="codeOrganisme" id="codeOrganisme" />
-            <small class="form-text text-muted">Code attribué à l'organisme (lettres et chiffres), distinct de l'identifiant contribuable.</small>
+            <!-- Identifiant contribuable -->
+            <div class="form-field form-field-full">
+              <label for="ncc">Identifiant contribuable</label>
+              <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="ncc" id="ncc" />
+              <small class="form-text text-muted"
+                >Numéro de compte contribuable : identifiant fiscal unique de l'organisme (lettres et chiffres).</small
+              >
+            </div>
+
+            <!-- Groupe tiers-payant : assurances seulement -->
+            @if (categorie === 'ASSURANCE') {
+              <div class="form-field form-field-full">
+                <label for="groupeTiersPayantId">Groupe tiers-payant</label>
+                <app-select-search
+                  (searched)="rechercherGroupes($event)"
+                  [typeahead]="saisieGroupe$"
+                  [openWhenEmpty]="true"
+                  appendTo="body"
+                  [clearable]="false"
+                  [items]="groupeTiersPayants()"
+                  bindLabel="name"
+                  bindValue="id"
+                  formControlName="groupeTiersPayantId"
+                  inputId="groupeTiersPayantId"
+                  placeholder="Taper pour rechercher un groupe"
+                />
+              </div>
+            }
+
+            <!-- Code organisme -->
+            <div class="form-field form-field-full">
+              <label for="codeOrganisme">Code organisme</label>
+              <input
+                [appKeyFilter]="'alphanum'"
+                autocomplete="off"
+                class="form-control"
+                formControlName="codeOrganisme"
+                id="codeOrganisme"
+              />
+              <small class="form-text text-muted"
+                >Code attribué à l'organisme (lettres et chiffres), distinct de l'identifiant contribuable.</small
+              >
+            </div>
           </div>
-        </div>
-      </app-card>
+        </app-card>
       }
     </div>
 
@@ -153,204 +162,193 @@
     }
 
     @if (!modeExpress) {
-    <!-- Three Column Layout: Paramètres de Facturation, Plafonds et Remises, and Plafonds Clients -->
-    <!-- « Plafonds Clients » n'existe que pour ASSURANCE : sans elle, les deux autres sections se partagent la largeur. -->
-    <div [class.deux-colonnes]="categorie !== 'ASSURANCE'" class="card-grid-3col mt-2">
-      <!-- Section 3: Paramètres de Facturation -->
-      <app-card [variant]="'form'" [withHeader]="true">
-        <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-file-edit"></i>
-          <span>Paramètres de Facturation</span>
-        </div>
-
-        <div class="form-grid-compact">
-          <!-- Délai de règlement -->
-          <div class="form-field form-field-full">
-            <label for="delaiReglement">Délai de règlement (jours)</label>
-            <app-input-number [min]="0" suffix=" jours" formControlName="delaiReglement" inputId="delaiReglement" />
-          </div>
-
-          <!-- Nombre maxi de bordereau -->
-          <div class="form-field form-field-full">
-            <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
-            <app-input-number [min]="1" formControlName="nbreBordereaux" inputId="nbreBordereaux" />
-          </div>
-
-          <!-- Montant maxi par facture -->
-          <div class="form-field form-field-full">
-            <label for="montantMaxParFcture">Montant maxi par facture</label>
-            <app-input-number [min]="0" [suffix]="devise" formControlName="montantMaxParFcture" inputId="montantMaxParFcture" />
-          </div>
-
-          <!-- Modèle de facture -->
-          <div class="form-field form-field-full">
-            <label for="modelFacture">Modèle de facture</label>
-            <app-select
-              appendTo="body"
-              [clearable]="false"
-              [items]="modelFacture()"
-              bindLabel="value"
-              bindValue="key"
-              formControlName="modelFacture"
-              inputId="modelFacture"
-              placeholder="Sélectionner un modèle"
-            />
-          </div>
-
-          @if (categorie !== 'DEPOT') {
-            <!-- Exclure du CA -->
-            <div class="form-field form-field-full">
-              <label for="toBeExclude">Exclure du CA</label>
-              <app-switch formControlName="toBeExclude" inputId="toBeExclude" />
-            </div>
-
-            <!-- Périodicité facturation définitive -->
-            <div class="form-field form-field-full">
-              <label for="periodiciteDefinitiveTP">Périodicité facturation définitive</label>
-              <app-select
-                appendTo="body"
-                [clearable]="true"
-                [items]="periodicitesOptions"
-                bindLabel="label"
-                bindValue="value"
-                formControlName="periodiciteFactureDefinitive"
-                inputId="periodiciteDefinitiveTP"
-                placeholder="Non définie"
-              />
-            </div>
-
-            @if (editForm.get('periodiciteFactureDefinitive')?.value) {
-              <div class="form-field form-field-full">
-                <label for="inclureAutoDefinitiveTP">Inclure dans la facturation automatique
-                  définitive</label>
-                <div class="d-flex align-items-center gap-2">
-                  <app-switch formControlName="inclureFacturationAutoDefinitive"
-                              inputId="inclureAutoDefinitiveTP" />
-                  <span class="text-muted small">
-                    @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
-                      Inclus — génération {{
-                        editForm.get('periodiciteFactureDefinitive')?.value | lowercase
-                      }}
-                    } @else {
-                      Exclu de la génération automatique définitive
-                    }
-                  </span>
-                </div>
-              </div>
-            }
-
-            <!-- Périodicité facturation provisoire -->
-            <div class="form-field form-field-full">
-              <label for="periodiciteProvisioreTP">Périodicité facturation provisoire</label>
-              <app-select
-                appendTo="body"
-                [clearable]="true"
-                [items]="periodicitesOptions"
-                bindLabel="label"
-                bindValue="value"
-                formControlName="periodiciteFactureProvisoire"
-                inputId="periodiciteProvisioreTP"
-                placeholder="Non définie"
-              />
-            </div>
-
-            @if (editForm.get('periodiciteFactureProvisoire')?.value) {
-              <div class="form-field form-field-full">
-                <label for="inclureAutoProvisioreTP">Inclure dans la facturation automatique
-                  provisoire</label>
-                <div class="d-flex align-items-center gap-2">
-                  <app-switch formControlName="inclureFacturationAutoProvisoire"
-                              inputId="inclureAutoProvisioreTP" />
-                  <span class="text-muted small">
-                    @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
-                      Inclus — génération {{
-                        editForm.get('periodiciteFactureProvisoire')?.value | lowercase
-                      }}
-                    } @else {
-                      Exclu de la génération automatique provisoire
-                    }
-                  </span>
-                </div>
-              </div>
-            }
-          }
-        </div>
-      </app-card>
-
-      <!-- Section 4: Plafonds et Remises -->
-      <app-card [variant]="'form'" [withHeader]="true">
-        <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-calculator"></i>
-          <span>Plafonds et Remises</span>
-        </div>
-
-        <div class="form-grid-compact">
-
-
-          @if (categorie !== 'DEPOT') {
-            <!-- Taux de couverture par défaut : suggéré à la saisie d'un assuré, jamais imposé -->
-            <div class="form-field form-field-full">
-              <label for="tauxCouvertureDefaut">Taux de couverture par défaut</label>
-              <app-input-number [min]="0" [max]="100" suffix=" %" formControlName="tauxCouvertureDefaut"
-                                inputId="tauxCouvertureDefaut" />
-              <small class="form-text text-muted">Proposé à la création d'un assuré de cet organisme ; modifiable pour un cas particulier.</small>
-              @if (editForm.get('tauxCouvertureDefaut')?.invalid) {
-                <small class="form-text text-danger">Le taux doit être entre 0 et 100</small>
-              }
-            </div>
-          }
-
-          <!-- Plafond consommation -->
-          <div class="form-field form-field-full">
-            <label for="plafondConso">Plafond consommation</label>
-            <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConso" inputId="plafondConso" />
-          </div>
-
-          <!-- Plafond absolu -->
-          <div class="form-field form-field-full">
-            <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
-            <app-switch formControlName="plafondAbsolu" inputId="plafondAbsolu" />
-          </div>
-        </div>
-      </app-card>
-
-      <!-- Section 5: Plafonds Clients (only for ASSURANCE) -->
-      @if (categorie === 'ASSURANCE') {
+      <!-- Three Column Layout: Paramètres de Facturation, Plafonds et Remises, and Plafonds Clients -->
+      <!-- « Plafonds Clients » n'existe que pour ASSURANCE : sans elle, les deux autres sections se partagent la largeur. -->
+      <div [class.deux-colonnes]="categorie !== 'ASSURANCE'" class="card-grid-3col mt-2">
+        <!-- Section 3: Paramètres de Facturation -->
         <app-card [variant]="'form'" [withHeader]="true">
           <div ngProjectAs="[cardHeader]" class="section-header">
-            <i class="pi pi-users"></i>
-            <span>Plafonds Clients</span>
+            <i class="pi pi-file-edit"></i>
+            <span>Paramètres de Facturation</span>
           </div>
 
           <div class="form-grid-compact">
-            <!-- Plafond de vente des clients -->
+            <!-- Délai de règlement -->
             <div class="form-field form-field-full">
-              <label for="plafondJournalierClient">Plafond de vente des clients</label>
-              <app-input-number [min]="0" [suffix]="devise" formControlName="plafondJournalierClient"
-                                inputId="plafondJournalierClient" />
+              <label for="delaiReglement">Délai de règlement (jours)</label>
+              <app-input-number [min]="0" suffix=" jours" formControlName="delaiReglement" inputId="delaiReglement" />
             </div>
 
-            <!-- Plafond consommation des clients -->
+            <!-- Nombre maxi de bordereau -->
             <div class="form-field form-field-full">
-              <label for="plafondConsoClient">Plafond consommation des clients</label>
-              <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConsoClient" inputId="plafondConsoClient" />
+              <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
+              <app-input-number [min]="1" formControlName="nbreBordereaux" inputId="nbreBordereaux" />
             </div>
 
-            <!-- Plafond absolu client -->
+            <!-- Montant maxi par facture -->
             <div class="form-field form-field-full">
-              <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
-              <app-switch formControlName="plafondAbsoluClient" inputId="plafondAbsoluClient" />
+              <label for="montantMaxParFcture">Montant maxi par facture</label>
+              <app-input-number [min]="0" [suffix]="devise" formControlName="montantMaxParFcture" inputId="montantMaxParFcture" />
+            </div>
+
+            <!-- Modèle de facture -->
+            <div class="form-field form-field-full">
+              <label for="modelFacture">Modèle de facture</label>
+              <app-select
+                appendTo="body"
+                [clearable]="false"
+                [items]="modelFacture()"
+                bindLabel="value"
+                bindValue="key"
+                formControlName="modelFacture"
+                inputId="modelFacture"
+                placeholder="Sélectionner un modèle"
+              />
+            </div>
+
+            @if (categorie !== 'DEPOT') {
+              <!-- Exclure du CA -->
+              <div class="form-field form-field-full">
+                <label for="toBeExclude">Exclure du CA</label>
+                <app-switch formControlName="toBeExclude" inputId="toBeExclude" />
+              </div>
+
+              <!-- Périodicité facturation définitive -->
+              <div class="form-field form-field-full">
+                <label for="periodiciteDefinitiveTP">Périodicité facturation définitive</label>
+                <app-select
+                  appendTo="body"
+                  [clearable]="true"
+                  [items]="periodicitesOptions"
+                  bindLabel="label"
+                  bindValue="value"
+                  formControlName="periodiciteFactureDefinitive"
+                  inputId="periodiciteDefinitiveTP"
+                  placeholder="Non définie"
+                />
+              </div>
+
+              @if (editForm.get('periodiciteFactureDefinitive')?.value) {
+                <div class="form-field form-field-full">
+                  <label for="inclureAutoDefinitiveTP">Inclure dans la facturation automatique définitive</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <app-switch formControlName="inclureFacturationAutoDefinitive" inputId="inclureAutoDefinitiveTP" />
+                    <span class="text-muted small">
+                      @if (editForm.get('inclureFacturationAutoDefinitive')?.value) {
+                        Inclus — génération {{ editForm.get('periodiciteFactureDefinitive')?.value | lowercase }}
+                      } @else {
+                        Exclu de la génération automatique définitive
+                      }
+                    </span>
+                  </div>
+                </div>
+              }
+
+              <!-- Périodicité facturation provisoire -->
+              <div class="form-field form-field-full">
+                <label for="periodiciteProvisioreTP">Périodicité facturation provisoire</label>
+                <app-select
+                  appendTo="body"
+                  [clearable]="true"
+                  [items]="periodicitesOptions"
+                  bindLabel="label"
+                  bindValue="value"
+                  formControlName="periodiciteFactureProvisoire"
+                  inputId="periodiciteProvisioreTP"
+                  placeholder="Non définie"
+                />
+              </div>
+
+              @if (editForm.get('periodiciteFactureProvisoire')?.value) {
+                <div class="form-field form-field-full">
+                  <label for="inclureAutoProvisioreTP">Inclure dans la facturation automatique provisoire</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <app-switch formControlName="inclureFacturationAutoProvisoire" inputId="inclureAutoProvisioreTP" />
+                    <span class="text-muted small">
+                      @if (editForm.get('inclureFacturationAutoProvisoire')?.value) {
+                        Inclus — génération {{ editForm.get('periodiciteFactureProvisoire')?.value | lowercase }}
+                      } @else {
+                        Exclu de la génération automatique provisoire
+                      }
+                    </span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </app-card>
+
+        <!-- Section 4: Plafonds et Remises -->
+        <app-card [variant]="'form'" [withHeader]="true">
+          <div ngProjectAs="[cardHeader]" class="section-header">
+            <i class="pi pi-calculator"></i>
+            <span>Plafonds et Remises</span>
+          </div>
+
+          <div class="form-grid-compact">
+            @if (categorie !== 'DEPOT') {
+              <!-- Taux de couverture par défaut : suggéré à la saisie d'un assuré, jamais imposé -->
+              <div class="form-field form-field-full">
+                <label for="tauxCouvertureDefaut">Taux de couverture par défaut</label>
+                <app-input-number [min]="0" [max]="100" suffix=" %" formControlName="tauxCouvertureDefaut" inputId="tauxCouvertureDefaut" />
+                <small class="form-text text-muted"
+                  >Proposé à la création d'un assuré de cet organisme ; modifiable pour un cas particulier.</small
+                >
+                @if (editForm.get('tauxCouvertureDefaut')?.invalid) {
+                  <small class="form-text text-danger">Le taux doit être entre 0 et 100</small>
+                }
+              </div>
+            }
+
+            <!-- Plafond consommation -->
+            <div class="form-field form-field-full">
+              <label for="plafondConso">Plafond consommation</label>
+              <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConso" inputId="plafondConso" />
+            </div>
+
+            <!-- Plafond absolu -->
+            <div class="form-field form-field-full">
+              <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
+              <app-switch formControlName="plafondAbsolu" inputId="plafondAbsolu" />
             </div>
           </div>
         </app-card>
-      }
-    </div>
+
+        <!-- Section 5: Plafonds Clients (only for ASSURANCE) -->
+        @if (categorie === 'ASSURANCE') {
+          <app-card [variant]="'form'" [withHeader]="true">
+            <div ngProjectAs="[cardHeader]" class="section-header">
+              <i class="pi pi-users"></i>
+              <span>Plafonds Clients</span>
+            </div>
+
+            <div class="form-grid-compact">
+              <!-- Plafond de vente des clients -->
+              <div class="form-field form-field-full">
+                <label for="plafondJournalierClient">Plafond de vente des clients</label>
+                <app-input-number [min]="0" [suffix]="devise" formControlName="plafondJournalierClient" inputId="plafondJournalierClient" />
+              </div>
+
+              <!-- Plafond consommation des clients -->
+              <div class="form-field form-field-full">
+                <label for="plafondConsoClient">Plafond consommation des clients</label>
+                <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConsoClient" inputId="plafondConsoClient" />
+              </div>
+
+              <!-- Plafond absolu client -->
+              <div class="form-field form-field-full">
+                <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
+                <app-switch formControlName="plafondAbsoluClient" inputId="plafondAbsoluClient" />
+              </div>
+            </div>
+          </app-card>
+        }
+      </div>
     }
   </div>
 
   <div class="form-actions-compact">
-    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
-                severity="secondary" />
+    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
     <app-button
       [disabled]="editForm.invalid || isSaving() || !isValid"
       [loading]="isSaving()"

@@ -169,7 +169,7 @@ export class DataGridComponent<T = Record<string, unknown>> {
 
   readonly rows = input.required<readonly T[]>();
   readonly columns = input.required<readonly AppDataGridColumn<T>[]>();
-  readonly rowKey = input.required<keyof T & string | ((row: T) => PropertyKey)>();
+  readonly rowKey = input.required<(keyof T & string) | ((row: T) => PropertyKey)>();
 
   readonly ariaLabel = input('Grille de données');
   readonly loading = input(false);
@@ -269,12 +269,16 @@ export class DataGridComponent<T = Record<string, unknown>> {
     }
 
     const explicitFields = this.quickFilterFields();
-    const filterColumns = this.visibleColumns().filter(column => explicitFields.length === 0 || (column.field && explicitFields.includes(column.field)));
+    const filterColumns = this.visibleColumns().filter(
+      column => explicitFields.length === 0 || (column.field && explicitFields.includes(column.field)),
+    );
 
     return this.rows().filter((row, rowIndex) =>
       filterColumns.some(column => {
         const context = this.rowContext(row, rowIndex);
-        return String(this.readValue(column, context) ?? '').toLocaleLowerCase('fr').includes(term);
+        return String(this.readValue(column, context) ?? '')
+          .toLocaleLowerCase('fr')
+          .includes(term);
       }),
     );
   });
@@ -304,8 +308,8 @@ export class DataGridComponent<T = Record<string, unknown>> {
     const active = this.activeCell();
     return Boolean(
       active &&
-        this.visibleColumns().some(column => column.id === active.columnId) &&
-        this.displayedRows().some(row => this.keyOf(row) === active.rowKey),
+      this.visibleColumns().some(column => column.id === active.columnId) &&
+      this.displayedRows().some(row => this.keyOf(row) === active.rowKey),
     );
   });
 
@@ -431,26 +435,14 @@ export class DataGridComponent<T = Record<string, unknown>> {
     return sort.order === 1 ? 'ascending' : 'descending';
   }
 
-  protected onCellClick(
-    event: MouseEvent,
-    row: T,
-    rowIndex: number,
-    column: AppDataGridColumn<T>,
-    columnIndex: number,
-  ): void {
+  protected onCellClick(event: MouseEvent, row: T, rowIndex: number, column: AppDataGridColumn<T>, columnIndex: number): void {
     this.cellClicked.emit({ row, rowKey: this.keyOf(row), rowIndex, column, originalEvent: event });
     if (this.singleClickEdit()) {
       this.startCellEdit(event, row, rowIndex, column, columnIndex, 'click');
     }
   }
 
-  protected onCellDoubleClick(
-    event: MouseEvent,
-    row: T,
-    rowIndex: number,
-    column: AppDataGridColumn<T>,
-    columnIndex: number,
-  ): void {
+  protected onCellDoubleClick(event: MouseEvent, row: T, rowIndex: number, column: AppDataGridColumn<T>, columnIndex: number): void {
     if (!this.singleClickEdit()) {
       this.startCellEdit(event, row, rowIndex, column, columnIndex, 'double-click');
     }
@@ -518,11 +510,7 @@ export class DataGridComponent<T = Record<string, unknown>> {
     }
   }
 
-  protected navigateCell(
-    event: KeyboardEvent,
-    rowIndex: number,
-    columnIndex: number,
-  ): void {
+  protected navigateCell(event: KeyboardEvent, rowIndex: number, columnIndex: number): void {
     const eventTarget = event.target as HTMLElement;
     if (eventTarget !== event.currentTarget && eventTarget.closest('button, input, select, textarea, a, [contenteditable="true"]')) {
       return;
@@ -886,7 +874,9 @@ export class DataGridComponent<T = Record<string, unknown>> {
     this.focusCellAt(table, editing.rowIndex, editing.columnIndex);
   }
 
-  private parseEditorValue(column: AppDataGridColumn<T>): { readonly valid: true; readonly value: unknown } | { readonly valid: false; readonly error: string } {
+  private parseEditorValue(
+    column: AppDataGridColumn<T>,
+  ): { readonly valid: true; readonly value: unknown } | { readonly valid: false; readonly error: string } {
     const rawValue = this.editorValue();
     let value: unknown = rawValue;
     if (this.editorType(column) === 'number') {
@@ -915,9 +905,7 @@ export class DataGridComponent<T = Record<string, unknown>> {
       return;
     }
     this.activeCell.set({ rowKey: this.keyOf(row), columnId: column.id });
-    table
-      ?.querySelector<HTMLElement>(`[data-grid-row="${rowIndex}"][data-grid-column="${columnIndex}"]`)
-      ?.focus({ preventScroll: false });
+    table?.querySelector<HTMLElement>(`[data-grid-row="${rowIndex}"][data-grid-column="${columnIndex}"]`)?.focus({ preventScroll: false });
   }
 
   private collapseDetail(row: T): void {

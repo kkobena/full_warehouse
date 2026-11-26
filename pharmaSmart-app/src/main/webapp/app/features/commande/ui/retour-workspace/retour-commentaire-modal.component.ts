@@ -14,13 +14,7 @@ import { ButtonComponent } from 'app/shared/ui';
     </div>
     <div class="modal-body">
       <label class="form-label" for="commentaire">Commentaire (optionnel)</label>
-      <input
-        id="commentaire"
-        [(ngModel)]="commentaire"
-        placeholder="Commentaire…"
-        class="form-control w-100"
-        (keydown.enter)="confirm()"
-      />
+      <input id="commentaire" [(ngModel)]="commentaire" placeholder="Commentaire…" class="form-control w-100" (keydown.enter)="confirm()" />
     </div>
     <div class="modal-footer">
       <app-button (clicked)="dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" />

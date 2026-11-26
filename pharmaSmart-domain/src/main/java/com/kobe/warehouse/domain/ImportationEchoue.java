@@ -30,7 +30,10 @@ public class ImportationEchoue implements Serializable {
 
     private Integer objectId;
 
-    @OneToMany(mappedBy = "importationEchoue", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    @OneToMany(
+            mappedBy = "importationEchoue",
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<ImportationEchoueLigne> importationEchoueLignes = new ArrayList<>();
 
     @Column(name = "is_commande", nullable = false)

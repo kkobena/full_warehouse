@@ -1,7 +1,5 @@
 <div class="reglement-workspace">
-
   @if (dossierFactureProjectionSignal()) {
-
     <!-- Formulaire inline -->
     <div class="reglement-form-wrapper">
       <app-reglement-form
@@ -33,7 +31,7 @@
         [selection]="factureDossierSelectionnes()"
         [globalFilterFields]="['bonNumber', 'customerFullName', 'matricule', 'numFacture', 'organismeName']"
         [paginator]="true"
-        [rowsPerPageOptions]="[5,10, 20, 30, 50,100]"
+        [rowsPerPageOptions]="[5, 10, 20, 30, 50, 100]"
         [rows]="5"
         [scrollable]="true"
         scrollHeight="flex"
@@ -51,10 +49,13 @@
               {{ mode() === 'GROUPE' ? 'Factures groupées' : 'Dossiers' }}
             </span>
             <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input pSize="small"
-                     (input)="factureDossierTable.filterGlobal($event.target['value'])"
-                     placeholder="Filtrer..."
-                     type="text" class="form-control" />
+              <input
+                pSize="small"
+                (input)="factureDossierTable.filterGlobal($event.target['value'])"
+                placeholder="Filtrer..."
+                type="text"
+                class="form-control"
+              />
             </app-icon-field>
           </div>
         </ng-template>
@@ -89,27 +90,33 @@
         <ng-template #body let-item>
           <tr [class.row-partial-paid]="item.montantPaye > 0">
             @if (mode() === 'GROUPE') {
-              <td><span class="pharma-entity-name">{{ item.organismeName }}</span></td>
+              <td>
+                <span class="pharma-entity-name">{{ item.organismeName }}</span>
+              </td>
               <td>
                 <span class="pharma-date-range">
                   Du {{ item.debutPeriode | date: 'dd/MM/yy' }} au {{ item.finPeriode | date: 'dd/MM/yy' }}
                 </span>
               </td>
-              <td><span class="pharma-code">{{ item.numFacture }}</span></td>
-              <td class="text-end"><span class="pharma-qty-value">{{ item.itemsCount | number }}</span></td>
-              <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
-              <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
+              <td>
+                <span class="pharma-code">{{ item.numFacture }}</span>
+              </td>
+              <td class="text-end">
+                <span class="pharma-qty-value">{{ item.itemsCount | number }}</span>
+              </td>
+              <td class="text-end">
+                <span class="pharma-price">{{ item.montantTotal | number }}</span>
+              </td>
+              <td class="text-end">
+                <span class="pharma-price">{{ item.montantPaye | number }}</span>
+              </td>
               @if (editableIds().has(item.id)) {
                 <!--
                   Remplace p-celleditor : la bascule affichage/saisie était portée par
                   pEditableColumn. Un identifiant de ligne en cours d'édition suffit,
                   l'écran étant le seul usage de ce motif dans l'application.
                 -->
-                <td
-                  (click)="startEdit(item)"
-                  class="text-end editable-cell"
-                  style="width: 110px; max-width: 110px; overflow: hidden"
-                >
+                <td (click)="startEdit(item)" class="text-end editable-cell" style="width: 110px; max-width: 110px; overflow: hidden">
                   @if (editingId() === item.id) {
                     <input
                       (blur)="stopEdit()"
@@ -130,15 +137,27 @@
                   }
                 </td>
               } @else {
-                <td class="text-end"><span class="pharma-price">{{ item.montantVerse | number }}</span></td>
+                <td class="text-end">
+                  <span class="pharma-price">{{ item.montantVerse | number }}</span>
+                </td>
               }
             } @else {
-              <td><span class="pharma-code">{{ item.bonNumber }}</span></td>
-              <td><span class="pharma-entity-name">{{ item.customerFullName }}</span></td>
-              <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
+              <td>
+                <span class="pharma-code">{{ item.bonNumber }}</span>
+              </td>
+              <td>
+                <span class="pharma-entity-name">{{ item.customerFullName }}</span>
+              </td>
+              <td>
+                <span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span>
+              </td>
               <td>{{ item.saleDate | date: 'dd/MM/yyyy' }}</td>
-              <td class="text-end"><span class="pharma-price">{{ item.montantTotal | number }}</span></td>
-              <td class="text-end"><span class="pharma-price">{{ item.montantPaye | number }}</span></td>
+              <td class="text-end">
+                <span class="pharma-price">{{ item.montantTotal | number }}</span>
+              </td>
+              <td class="text-end">
+                <span class="pharma-price">{{ item.montantPaye | number }}</span>
+              </td>
               <td class="text-end">
                 <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
               </td>
@@ -160,12 +179,10 @@
         </ng-template>
       </app-data-table>
     </div>
-
   } @else {
     <div class="no-facture-placeholder">
       <i class="pi pi-file-edit"></i>
       <span>Aucune facture chargée</span>
     </div>
   }
-
 </div>

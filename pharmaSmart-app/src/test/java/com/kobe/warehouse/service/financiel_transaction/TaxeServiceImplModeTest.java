@@ -1,8 +1,6 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -63,22 +61,18 @@ class TaxeServiceImplModeTest {
     @BeforeEach
     void setUp() throws Exception {
         service = new TaxeServiceImpl(
-            tvaReportService,
-            declarationTvaPdfReportService,
-            salesRepository,
-            appConfigurationService,
-            objectMapper,
-            modeResolver
-        );
+                tvaReportService,
+                declarationTvaPdfReportService,
+                salesRepository,
+                appConfigurationService,
+                objectMapper,
+                modeResolver);
         when(modeResolver.resoudre(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(salesRepository.fetchSalesTvaReport(any(), any(), any(), any(), org.mockito.ArgumentMatchers.anyBoolean(), anyString()))
-            .thenReturn("[]");
+        when(salesRepository.fetchSalesTvaReport(
+                        any(), any(), any(), any(), org.mockito.ArgumentMatchers.anyBoolean(), anyString()))
+                .thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
     }
-
-
-
-
 
     @Test
     @DisplayName("Un mode DECLARE non souscrit est ramené au chiffre réel avant d'atteindre le SQL")
@@ -105,12 +99,12 @@ class TaxeServiceImplModeTest {
 
     private MvtParam param() {
         return new MvtParam(
-            LocalDate.of(2026, 1, 1),
-            LocalDate.of(2026, 1, 31),
-            Set.of(CategorieChiffreAffaire.CA),
-            null,
-            null,
-            "codeTva"
-        ).build();
+                        LocalDate.of(2026, 1, 1),
+                        LocalDate.of(2026, 1, 31),
+                        Set.of(CategorieChiffreAffaire.CA),
+                        null,
+                        null,
+                        "codeTva")
+                .build();
     }
 }

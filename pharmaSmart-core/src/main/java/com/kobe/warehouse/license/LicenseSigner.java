@@ -42,7 +42,9 @@ public final class LicenseSigner {
 
     /** Décode une clé privée Ed25519 au format PEM (PKCS#8). */
     public static PrivateKey parsePrivateKey(String pem) throws GeneralSecurityException {
-        String base64 = pem.replaceAll("-----BEGIN (.*)-----", "").replaceAll("-----END (.*)-----", "").replaceAll("\\s", "");
+        String base64 = pem.replaceAll("-----BEGIN (.*)-----", "")
+                .replaceAll("-----END (.*)-----", "")
+                .replaceAll("\\s", "");
         byte[] der = Base64.getDecoder().decode(base64);
         return KeyFactory.getInstance(ALGORITHM).generatePrivate(new PKCS8EncodedKeySpec(der));
     }
@@ -62,7 +64,8 @@ public final class LicenseSigner {
 
     /** Encode une clé au format PEM, en lignes de 64 caractères. */
     public static String toPem(String label, byte[] der) {
-        String body = Base64.getMimeEncoder(64, System.lineSeparator().getBytes(StandardCharsets.US_ASCII)).encodeToString(der);
+        String body = Base64.getMimeEncoder(64, System.lineSeparator().getBytes(StandardCharsets.US_ASCII))
+                .encodeToString(der);
         return "-----BEGIN %s-----%n%s%n-----END %s-----%n".formatted(label, body, label);
     }
 }

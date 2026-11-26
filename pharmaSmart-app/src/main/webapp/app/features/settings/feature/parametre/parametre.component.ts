@@ -5,13 +5,7 @@ import { showCommonModal } from '../../../../entities/sales/selling-home/sale-he
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormParamettreComponent } from './form-paramettre/form-paramettre.component';
 import { Router } from '@angular/router';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  ToolbarComponent,
-} from '../../../../shared/ui';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from '../../../../shared/ui';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { CardComponent } from 'app/shared/ui';
 

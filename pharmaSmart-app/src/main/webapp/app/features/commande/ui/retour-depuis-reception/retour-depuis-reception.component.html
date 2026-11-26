@@ -1,69 +1,62 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-replay me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-replay me-2"></i>{{ header }}</h5>
   <button (click)="onCancel()" aria-label="Fermer" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body rdr-body">
-
   @if (retourLines().length === 0) {
     <div class="pharma-empty-content py-4">
       <i class="pi pi-inbox"></i>
       <p>Aucun article reçu sur cette commande</p>
     </div>
   } @else {
-
     <!-- Barre de sélection rapide -->
     <div class="rdr-toolbar">
-      <app-button (clicked)="onSelectAll()" [text]="true" icon="pi pi-check-square"
-                  label="Tout sélectionner" severity="secondary" size="small" />
-      <app-button (clicked)="onReset()" [text]="true" icon="pi pi-times"
-                  label="Réinitialiser" severity="secondary" size="small" />
+      <app-button
+        (clicked)="onSelectAll()"
+        [text]="true"
+        icon="pi pi-check-square"
+        label="Tout sélectionner"
+        severity="secondary"
+        size="small"
+      />
+      <app-button (clicked)="onReset()" [text]="true" icon="pi pi-times" label="Réinitialiser" severity="secondary" size="small" />
       <span class="rdr-summary ms-auto">
         @if (hasSelection) {
-          <span class="badge bg-primary">{{ totalLignes }} ligne(s) — {{ totalUnites }}
-            unité(s)</span>
+          <span class="badge bg-primary">{{ totalLignes }} ligne(s) — {{ totalUnites }} unité(s)</span>
         }
       </span>
     </div>
 
     <!-- Tableau -->
-    <app-data-table
-      [showGridlines]="true"
-      [value]="retourLines()"
-      class="p-datatable-sm"
-      scrollHeight="45vh"
-    >
+    <app-data-table [showGridlines]="true" [value]="retourLines()" class="p-datatable-sm" scrollHeight="45vh">
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width:110px">Code</th>
+          <th style="width: 110px">Code</th>
           <th>Désignation</th>
-          <th class="text-end" style="width:100px">Qté reçue</th>
-          <th class="text-end" style="width:150px">Qté à retourner</th>
-          <th style="width:200px">Motif *</th>
+          <th class="text-end" style="width: 100px">Qté reçue</th>
+          <th class="text-end" style="width: 150px">Qté à retourner</th>
+          <th style="width: 200px">Motif *</th>
         </tr>
       </ng-template>
       <ng-template #body let-row>
         <tr [class.rdr-row--selected]="row.qtyRetour > 0">
-          <td><span class="pharma-code">{{ row.orderLine.produitCip }}</span></td>
+          <td>
+            <span class="pharma-code">{{ row.orderLine.produitCip }}</span>
+          </td>
           <td>{{ row.orderLine.produitLibelle }}</td>
-          <td class="text-end"><span class="pharma-qty-value">{{ row.maxQty }}</span></td>
           <td class="text-end">
-            <app-input-number
-              [(ngModel)]="row.qtyRetour"
-              [max]="row.maxQty"
-              [min]="0"
-              [showButtons]="true"
-              style="width: 100px"
-            />
+            <span class="pharma-qty-value">{{ row.maxQty }}</span>
+          </td>
+          <td class="text-end">
+            <app-input-number [(ngModel)]="row.qtyRetour" [max]="row.maxQty" [min]="0" [showButtons]="true" style="width: 100px" />
           </td>
           <td>
             <app-select
               [(ngModel)]="row.motifRetourId"
               [disabled]="row.qtyRetour === 0"
               [items]="motifs()"
-              [style]="{width: '100%'}"
+              [style]="{ width: '100%' }"
               bindLabel="libelle"
               bindValue="id"
               placeholder="Motif"
@@ -85,14 +78,11 @@
         ></textarea>
       </div>
     }
-
   }
-
 </div>
 
 <div class="modal-footer">
-  <app-button (clicked)="onCancel()" [text]="true" label="Annuler" severity="secondary"
-              size="small" />
+  <app-button (clicked)="onCancel()" [text]="true" label="Annuler" severity="secondary" size="small" />
   <app-button
     (clicked)="onSubmit()"
     [disabled]="!canSave || saving()"

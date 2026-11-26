@@ -11,12 +11,11 @@ package com.kobe.warehouse.service.dto.pilotage.rapport;
  * @param croise {@code null} hors affichage croisé ; vide sans second axe
  */
 public record AnalyserRapportDTO(
-    String reglage,
-    String chemin,
-    String noteIgnores,
-    String titreGraphe,
-    String graphe,
-    TableauRapportDTO croise,
-    String titreDetail,
-    TableauRapportDTO detail
-) {}
+        String reglage,
+        String chemin,
+        String noteIgnores,
+        String titreGraphe,
+        String graphe,
+        TableauRapportDTO croise,
+        String titreDetail,
+        TableauRapportDTO detail) {}

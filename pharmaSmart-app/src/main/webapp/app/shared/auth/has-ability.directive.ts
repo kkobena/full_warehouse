@@ -24,9 +24,9 @@ export interface AbilityCheck {
 export class HasAbilityDirective {
   public check = input<AbilityCheck>({ action: 'access', subject: '' }, { alias: 'appHasAbility' });
 
-  private readonly templateRef      = inject(TemplateRef<any>);
+  private readonly templateRef = inject(TemplateRef<any>);
   private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly abilityService   = inject(AbilityService);
+  private readonly abilityService = inject(AbilityService);
 
   constructor() {
     const hasPermission = computed(() => {
@@ -42,4 +42,3 @@ export class HasAbilityDirective {
     });
   }
 }
-

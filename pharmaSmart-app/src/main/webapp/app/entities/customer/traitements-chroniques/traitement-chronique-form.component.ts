@@ -92,9 +92,7 @@ export class TraitementChroniqueFormComponent implements OnInit {
   }
 
   protected rechercherProduit(search: string): void {
-    this.produitService
-      .queryLite({ page: 0, size: 20, search: search ?? '' })
-      .subscribe(res => this.produits.set(res.body ?? []));
+    this.produitService.queryLite({ page: 0, size: 20, search: search ?? '' }).subscribe(res => this.produits.set(res.body ?? []));
   }
 
   protected enregistrer(): void {

@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.StatutLigneFournisseurAP;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.ap.AccountsPayableService;
 import com.kobe.warehouse.service.dto.CompteFournisseurAPDTO;
 import com.kobe.warehouse.service.dto.FournisseurAPSummaryDTO;
@@ -26,8 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/supplier-performance")
@@ -42,9 +42,8 @@ public class AccountsPayableResource {
 
     @GetMapping("/ap")
     public ResponseEntity<List<CompteFournisseurAPDTO>> getComptes(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
         return ResponseEntity.ok(accountsPayableService.getComptes(fromDate, toDate));
     }
 
@@ -55,29 +54,24 @@ public class AccountsPayableResource {
 
     @GetMapping("/{fournisseurId}/ap/lignes")
     public ResponseEntity<List<LigneFournisseurAPDTO>> getLignes(
-        @PathVariable Integer fournisseurId,
-        @RequestParam(required = false) StatutLigneFournisseurAP statut,
-        @PageableDefault(size = 10, sort = "dateCommande") Pageable pageable
-    ) {
+            @PathVariable Integer fournisseurId,
+            @RequestParam(required = false) StatutLigneFournisseurAP statut,
+            @PageableDefault(size = 10, sort = "dateCommande") Pageable pageable) {
         Page<LigneFournisseurAPDTO> page = accountsPayableService.getLignes(fournisseurId, statut, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/{fournisseurId}/ap/commandes/{commandeId}/reglements")
     public ResponseEntity<List<ReglementBLDTO>> getReglementsBl(
-        @PathVariable Integer fournisseurId,
-        @PathVariable Integer commandeId
-    ) {
+            @PathVariable Integer fournisseurId, @PathVariable Integer commandeId) {
         return ResponseEntity.ok(accountsPayableService.getReglementsBl(fournisseurId, commandeId));
     }
 
     @PostMapping("/{fournisseurId}/ap/reglement")
     public ResponseEntity<Void> enregistrerReglement(
-        @PathVariable Integer fournisseurId,
-        @Valid @RequestBody ReglementFournisseurAPCommand command
-    ) {
+            @PathVariable Integer fournisseurId, @Valid @RequestBody ReglementFournisseurAPCommand command) {
         accountsPayableService.enregistrerReglement(fournisseurId, command);
         return ResponseEntity.ok().build();
     }
@@ -85,13 +79,11 @@ public class AccountsPayableResource {
     @GetMapping(value = "/ap/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @RequiresNavAccess(value = "facturation.comptes-fournisseurs", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportComptesAsPdf(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=comptes-fournisseurs.pdf");
-        return ResponseEntity.ok().headers(headers)
-            .body(accountsPayableService.exportComptesAsPdf(fromDate, toDate));
+        return ResponseEntity.ok().headers(headers).body(accountsPayableService.exportComptesAsPdf(fromDate, toDate));
     }
 
     @GetMapping(value = "/{fournisseurId}/ap/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
@@ -99,7 +91,6 @@ public class AccountsPayableResource {
     public ResponseEntity<byte[]> exportFournisseurAsPdf(@PathVariable Integer fournisseurId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=compte-fournisseur.pdf");
-        return ResponseEntity.ok().headers(headers)
-            .body(accountsPayableService.exportFournisseurAsPdf(fournisseurId));
+        return ResponseEntity.ok().headers(headers).body(accountsPayableService.exportFournisseurAsPdf(fournisseurId));
     }
 }

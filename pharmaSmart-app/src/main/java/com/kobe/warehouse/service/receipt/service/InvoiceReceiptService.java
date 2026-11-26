@@ -61,25 +61,30 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
 
             // Summary section
             escPosSetBold(out, false);
-            escPosPrintLine(out, String.format("%-37s %10s", NOMBRE_DOSSIER, invoicePaymentReceipt.getInvoicePaymentItemsCount()));
+            escPosPrintLine(
+                    out,
+                    String.format("%-37s %10s", NOMBRE_DOSSIER, invoicePaymentReceipt.getInvoicePaymentItemsCount()));
 
             escPosSetBold(out, true);
-            escPosPrintLine(out, String.format("%-37s %10s", MONTANT_ATTENDU, invoicePaymentReceipt.getMontantAttendu()));
+            escPosPrintLine(
+                    out, String.format("%-37s %10s", MONTANT_ATTENDU, invoicePaymentReceipt.getMontantAttendu()));
             escPosSetBold(out, false);
             escPosFeedLines(out, 1);
 
             // Payment section
             escPosSetBold(out, true);
             escPosPrintLine(
-                out,
-                String.format("%-37s %10s", invoicePaymentReceipt.getPaymentMode(), invoicePaymentReceipt.getPaidAmount())
-            );
+                    out,
+                    String.format(
+                            "%-37s %10s",
+                            invoicePaymentReceipt.getPaymentMode(), invoicePaymentReceipt.getPaidAmount()));
             escPosSetBold(out, false);
 
             // Remaining amount (if any)
             if (StringUtils.hasLength(invoicePaymentReceipt.getMontantRestant())) {
                 escPosSetBold(out, true);
-                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER, invoicePaymentReceipt.getMontantRestant()));
+                escPosPrintLine(
+                        out, String.format("%-37s %10s", RESTE_A_PAYER, invoicePaymentReceipt.getMontantRestant()));
                 escPosSetBold(out, false);
             }
             escPosFeedLines(out, 1);

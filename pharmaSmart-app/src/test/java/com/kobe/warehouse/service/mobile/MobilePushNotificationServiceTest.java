@@ -56,19 +56,14 @@ class MobilePushNotificationServiceTest {
     private final AppConfigurationService appConfigurationService = mock(AppConfigurationService.class);
 
     private final MobilePushNotificationService service = new MobilePushNotificationService(
-        firebaseMessaging,
-        userDeviceRepository,
-        userRepository,
-        mobileReportService,
-        appConfigurationService
-    );
+            firebaseMessaging, userDeviceRepository, userRepository, mobileReportService, appConfigurationService);
 
     @BeforeEach
     void unSeulAppareil() throws Exception {
         when(userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(anyString(), any()))
-            .thenReturn(List.of(appareil("jeton-admin")));
+                .thenReturn(List.of(appareil("jeton-admin")));
         when(userDeviceRepository.findByUserIdAndNotificationsEnabled(anyInt(), any()))
-            .thenReturn(List.of(appareil("jeton-vendeur")));
+                .thenReturn(List.of(appareil("jeton-vendeur")));
         when(userDeviceRepository.findByNotificationsEnabled(any())).thenReturn(List.of(appareil("jeton-admin")));
         when(userRepository.findByAuthority(any())).thenReturn(List.of());
         when(appConfigurationService.getDevise()).thenReturn("FCFA");
@@ -86,7 +81,8 @@ class MobilePushNotificationServiceTest {
         void alerteAuxTitulaires() throws Exception {
             service.sendStockAlert(42L, "DOLIPRANE", 0);
 
-            verify(userDeviceRepository).findByUserAuthorityAndNotificationsEnabled(AuthorityEnum.ROLE_ADMIN.name(), true);
+            verify(userDeviceRepository)
+                    .findByUserAuthorityAndNotificationsEnabled(AuthorityEnum.ROLE_ADMIN.name(), true);
             verify(firebaseMessaging).send(any(Message.class));
         }
 
@@ -103,7 +99,7 @@ class MobilePushNotificationServiceTest {
         @DisplayName("chaque appareil enregistré reçoit sa copie")
         void unEnvoiParAppareil() throws Exception {
             when(userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(anyString(), any()))
-                .thenReturn(List.of(appareil("jeton-1"), appareil("jeton-2"), appareil("jeton-3")));
+                    .thenReturn(List.of(appareil("jeton-1"), appareil("jeton-2"), appareil("jeton-3")));
 
             service.sendStockAlert(42L, "DOLIPRANE", 0);
 
@@ -115,7 +111,7 @@ class MobilePushNotificationServiceTest {
         @DisplayName("aucun appareil enregistré n'envoie rien")
         void aucunAppareil() throws Exception {
             when(userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(anyString(), any()))
-                .thenReturn(List.of());
+                    .thenReturn(List.of());
 
             service.sendStockAlert(42L, "DOLIPRANE", 0);
 
@@ -168,7 +164,9 @@ class MobilePushNotificationServiceTest {
         void impaye() throws Exception {
             service.sendInvoiceOverdueAlert(77L, "CNAM", 120);
 
-            assertThat(dernierMessage()).contains("INVOICE_OVERDUE").contains("CNAM - Facture impayée depuis 120 jours");
+            assertThat(dernierMessage())
+                    .contains("INVOICE_OVERDUE")
+                    .contains("CNAM - Facture impayée depuis 120 jours");
         }
 
         /** La devise est configurable : une officine hors zone franc ne doit pas lire « FCFA ». */
@@ -211,7 +209,9 @@ class MobilePushNotificationServiceTest {
         void venteSansClient() throws Exception {
             service.sendHighValueSaleNotification(1L, 800_000L, null);
 
-            assertThat(dernierMessage()).containsPattern("Vente de 800.000 FCFA enregistrée").doesNotContain("pour ");
+            assertThat(dernierMessage())
+                    .containsPattern("Vente de 800.000 FCFA enregistrée")
+                    .doesNotContain("pour ");
         }
     }
 
@@ -223,9 +223,8 @@ class MobilePushNotificationServiceTest {
 
         @BeforeEach
         void officineActive() {
-            when(mobileReportService.generateDailyDigest(any())).thenReturn(
-                new DailyDigestDTO(1_200_000L, 20.0, 42, 3, 1_000_000L, 20.0, 38, 28_571L)
-            );
+            when(mobileReportService.generateDailyDigest(any()))
+                    .thenReturn(new DailyDigestDTO(1_200_000L, 20.0, 42, 3, 1_000_000L, 20.0, 38, 28_571L));
         }
 
         @Test
@@ -234,8 +233,8 @@ class MobilePushNotificationServiceTest {
             service.sendDailyDigest();
 
             assertThat(dernierMessage())
-                .contains("DAILY_DIGEST")
-                .containsPattern("CA: 1.200.000 FCFA \\(\\+20[.,]0%\\) \\| 42 ventes \\| 3 alertes");
+                    .contains("DAILY_DIGEST")
+                    .containsPattern("CA: 1.200.000 FCFA \\(\\+20[.,]0%\\) \\| 42 ventes \\| 3 alertes");
         }
 
         @Test
@@ -247,7 +246,8 @@ class MobilePushNotificationServiceTest {
             service.sendDailyDigest();
 
             verify(userDeviceRepository).findByUserIdAndNotificationsEnabled(7, true);
-            assertThat(dernierMessage()).containsPattern("CA: 600.000 FCFA \\| 25 ventes \\| Panier moyen: 24.000 FCFA");
+            assertThat(dernierMessage())
+                    .containsPattern("CA: 600.000 FCFA \\| 25 ventes \\| Panier moyen: 24.000 FCFA");
         }
 
         /** Un vendeur qui n'a rien vendu n'a pas besoin qu'on le lui rappelle le soir. */
@@ -315,7 +315,7 @@ class MobilePushNotificationServiceTest {
         @DisplayName("un appareil en échec n'empêche pas les autres de recevoir")
         void echecIsole() throws Exception {
             when(userDeviceRepository.findByUserAuthorityAndNotificationsEnabled(anyString(), any()))
-                .thenReturn(List.of(appareil("jeton-1"), appareil("jeton-2"), appareil("jeton-3")));
+                    .thenReturn(List.of(appareil("jeton-1"), appareil("jeton-2"), appareil("jeton-3")));
             FirebaseMessagingException echec = echec(MessagingErrorCode.UNREGISTERED);
             when(firebaseMessaging.send(any(Message.class))).thenThrow(echec).thenReturn("message-id");
 

@@ -1,7 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-chart-line me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-chart-line me-2"></i>{{ header }}</h5>
   <button type="button" class="btn-close" (click)="close()"></button>
 </div>
 
@@ -38,12 +36,12 @@
             <td class="text-right ph-amount">{{ h.oldPrixAchat | number }}</td>
             <td class="text-right ph-amount">{{ h.newPrixAchat | number }}</td>
             <td class="text-center">
-              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixAchat, h.newPrixAchat) }"/>
+              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixAchat, h.newPrixAchat) }" />
             </td>
             <td class="text-right ph-amount">{{ h.oldPrixUni | number }}</td>
             <td class="text-right ph-amount">{{ h.newPrixUni | number }}</td>
             <td class="text-center">
-              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixUni, h.newPrixUni) }"/>
+              <ng-container *ngTemplateOutlet="variationTag; context: { pct: variationPct(h.oldPrixUni, h.newPrixUni) }" />
             </td>
             <td class="ph-ref">{{ h.receiptReference ?? '—' }}</td>
             <td class="ph-user">{{ h.changedBy ?? '—' }}</td>
@@ -59,7 +57,7 @@
         <app-badge
           [label]="(pct > 0 ? '+' : '') + pct + '%'"
           [severity]="pct > 0 ? 'danger' : 'success'"
-          [ngbTooltip]="pct > 0 ? 'Hausse de ' + pct + '%' : 'Baisse de ' + (-pct) + '%'"
+          [ngbTooltip]="pct > 0 ? 'Hausse de ' + pct + '%' : 'Baisse de ' + -pct + '%'"
           placement="top"
         />
       }

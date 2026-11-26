@@ -36,8 +36,14 @@ scenario('REF-62', async ({ etape, page }) => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, `SIROP DOUBLON ${suffixe}`, cible);
     await expect(lignes).toHaveCount(2);
-    await lignes.nth(0).getByRole('checkbox', { name: /^Sélectionner/ }).check();
-    await lignes.nth(1).getByRole('checkbox', { name: /^Sélectionner/ }).check();
+    await lignes
+      .nth(0)
+      .getByRole('checkbox', { name: /^Sélectionner/ })
+      .check();
+    await lignes
+      .nth(1)
+      .getByRole('checkbox', { name: /^Sélectionner/ })
+      .check();
     await expect(page.locator('.bulk-action-bar')).toContainText('2 produit(s) sélectionné(s)');
   });
 

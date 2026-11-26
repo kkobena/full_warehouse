@@ -7,17 +7,16 @@ import java.util.List;
 
 /** Dossier de sécurité d'un client (fiche client, lot 2). */
 public record DossierSanteDTO(
-    List<Allergie> allergies,
-    List<String> pathologies,
-    boolean grossesse,
-    LocalDate dateTerme,
-    boolean allaitement,
-    BigDecimal poidsKg,
-    LocalDate datePesee,
-    String note,
-    LocalDateTime updatedAt,
-    String updatedBy
-) {
+        List<Allergie> allergies,
+        List<String> pathologies,
+        boolean grossesse,
+        LocalDate dateTerme,
+        boolean allaitement,
+        BigDecimal poidsKg,
+        LocalDate datePesee,
+        String note,
+        LocalDateTime updatedAt,
+        String updatedBy) {
     /** Allergie à une molécule ({@code dciId}) ou, à défaut, à un libellé libre. */
     public record Allergie(Integer id, Integer dciId, String dciLibelle, String libelle, String reaction) {}
 

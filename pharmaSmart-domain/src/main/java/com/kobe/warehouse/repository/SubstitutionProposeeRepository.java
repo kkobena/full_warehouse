@@ -11,13 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface SubstitutionProposeeRepository extends JpaRepository<SubstitutionProposee, Integer> {
 
     List<SubstitutionProposee> findByCommandeIdAndCommandeOrderDateOrderByCreatedAtDesc(
-        Integer commandeId,
-        LocalDate commandeDate
-    );
+            Integer commandeId, LocalDate commandeDate);
 
     List<SubstitutionProposee> findByCommandeIdAndCommandeOrderDateAndStatutOrderByCreatedAtDesc(
-        Integer commandeId,
-        LocalDate commandeDate,
-        SubstitutionStatut statut
-    );
+            Integer commandeId, LocalDate commandeDate, SubstitutionStatut statut);
 }

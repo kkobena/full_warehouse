@@ -37,7 +37,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.SetJoin;
-import jakarta.persistence.metamodel.SetAttribute;
 import jakarta.persistence.metamodel.SingularAttribute;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -118,7 +117,8 @@ class CustomizedAjustRepositoryTest {
         when(criteriaQuery.from(any(Class.class))).thenReturn(root);
         when(criteriaQuery.select(any(Selection.class))).thenReturn(criteriaQuery);
         when(criteriaQuery.distinct(org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(criteriaQuery);
-        when(criteriaQuery.orderBy(any(jakarta.persistence.criteria.Order[].class))).thenReturn(criteriaQuery);
+        when(criteriaQuery.orderBy(any(jakarta.persistence.criteria.Order[].class)))
+                .thenReturn(criteriaQuery);
         when(criteriaQuery.where(nullable(Predicate.class))).thenReturn(criteriaQuery);
         when(root.get(nullable(SingularAttribute.class))).thenReturn(path);
         when(root.join(nullable(SingularAttribute.class))).thenReturn(join);
@@ -132,10 +132,13 @@ class CustomizedAjustRepositoryTest {
         when(cb.equal(nullable(Expression.class), any(Object.class))).thenReturn(predicate);
         when(cb.like(nullable(Expression.class), anyString())).thenReturn(predicate);
         when(cb.upper(nullable(Expression.class))).thenReturn(path);
-        when(cb.between(nullable(Expression.class), any(Comparable.class), any(Comparable.class))).thenReturn(predicate);
+        when(cb.between(nullable(Expression.class), any(Comparable.class), any(Comparable.class)))
+                .thenReturn(predicate);
         when(cb.countDistinct(nullable(Expression.class))).thenReturn(path);
-        when(cb.desc(nullable(Expression.class))).thenReturn(org.mockito.Mockito.mock(jakarta.persistence.criteria.Order.class));
-        when(cb.function(anyString(), any(Class.class), any(Expression[].class))).thenReturn(path);
+        when(cb.desc(nullable(Expression.class)))
+                .thenReturn(org.mockito.Mockito.mock(jakarta.persistence.criteria.Order.class));
+        when(cb.function(anyString(), any(Class.class), any(Expression[].class)))
+                .thenReturn(path);
         when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
         when(em.createQuery(anyString(), any(Class.class))).thenReturn(typedQuery);
         when(typedQuery.setFirstResult(anyInt())).thenReturn(typedQuery);
@@ -192,13 +195,7 @@ class CustomizedAjustRepositoryTest {
 
     private static AjustementFilterRecord filtre(String search, Long userId, AjustType type) {
         return new AjustementFilterRecord(
-            LocalDate.of(2026, 4, 1),
-            LocalDate.of(2026, 4, 30),
-            userId,
-            search,
-            AjustementStatut.PENDING,
-            type
-        );
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), userId, search, AjustementStatut.PENDING, type);
     }
 
     @Nested
@@ -222,7 +219,10 @@ class CustomizedAjustRepositoryTest {
         void comptageNul() {
             when(typedQuery.getSingleResult()).thenReturn(null);
 
-            assertThat(repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20)).getTotalElements()).isZero();
+            assertThat(repository
+                            .loadAll(filtre(null, null, null), PageRequest.of(0, 20))
+                            .getTotalElements())
+                    .isZero();
         }
 
         @Test
@@ -259,8 +259,8 @@ class CustomizedAjustRepositoryTest {
             Ajust ajust = ajust(AjustementStatut.PENDING);
             when(typedQuery.getSingleResult()).thenReturn(1L);
             when(typedQuery.getResultList())
-                .thenReturn(List.of(ajust))
-                .thenReturn(List.of(ajustement(ajust, "DOLIPRANE 1000MG", "1234567")));
+                    .thenReturn(List.of(ajust))
+                    .thenReturn(List.of(ajustement(ajust, "DOLIPRANE 1000MG", "1234567")));
 
             Page<AjustDTO> page = repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20));
 
@@ -275,7 +275,9 @@ class CustomizedAjustRepositoryTest {
         void detailEnErreur() {
             Ajust ajust = ajust(AjustementStatut.PENDING);
             when(typedQuery.getSingleResult()).thenReturn(1L);
-            when(typedQuery.getResultList()).thenReturn(List.of(ajust)).thenThrow(new IllegalStateException("session fermee"));
+            when(typedQuery.getResultList())
+                    .thenReturn(List.of(ajust))
+                    .thenThrow(new IllegalStateException("session fermee"));
 
             Page<AjustDTO> page = repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20));
 
@@ -300,7 +302,8 @@ class CustomizedAjustRepositoryTest {
         void rechercheLibre() {
             repository.loadAll(filtre("DOLI", null, null), PageRequest.of(0, 20));
 
-            verify(cb, org.mockito.Mockito.times(4)).like(nullable(Expression.class), org.mockito.ArgumentMatchers.eq("DOLI%"));
+            verify(cb, org.mockito.Mockito.times(4))
+                    .like(nullable(Expression.class), org.mockito.ArgumentMatchers.eq("DOLI%"));
             verify(cb).or(any(Predicate[].class));
         }
 
@@ -325,7 +328,8 @@ class CustomizedAjustRepositoryTest {
         void filtreSurLeStatut() {
             repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20));
 
-            verify(cb, atLeastOnce()).equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustementStatut.PENDING));
+            verify(cb, atLeastOnce())
+                    .equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustementStatut.PENDING));
         }
 
         @Test
@@ -333,7 +337,8 @@ class CustomizedAjustRepositoryTest {
         void filtreSurLeType() {
             repository.loadAll(filtre(null, null, AjustType.AJUSTEMENT_OUT), PageRequest.of(0, 20));
 
-            verify(cb, atLeastOnce()).equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustType.AJUSTEMENT_OUT));
+            verify(cb, atLeastOnce())
+                    .equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustType.AJUSTEMENT_OUT));
         }
 
         @Test
@@ -341,7 +346,8 @@ class CustomizedAjustRepositoryTest {
         void sansType() {
             repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20));
 
-            verify(cb, never()).equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustType.AJUSTEMENT_OUT));
+            verify(cb, never())
+                    .equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(AjustType.AJUSTEMENT_OUT));
         }
 
         @Test
@@ -349,11 +355,11 @@ class CustomizedAjustRepositoryTest {
         void bornesDePeriode() {
             repository.loadAll(filtre(null, null, null), PageRequest.of(0, 20));
 
-            verify(cb, atLeastOnce()).between(
-                nullable(Expression.class),
-                org.mockito.ArgumentMatchers.eq(java.sql.Date.valueOf(LocalDate.of(2026, 4, 1))),
-                org.mockito.ArgumentMatchers.eq(java.sql.Date.valueOf(LocalDate.of(2026, 4, 30)))
-            );
+            verify(cb, atLeastOnce())
+                    .between(
+                            nullable(Expression.class),
+                            org.mockito.ArgumentMatchers.eq(java.sql.Date.valueOf(LocalDate.of(2026, 4, 1))),
+                            org.mockito.ArgumentMatchers.eq(java.sql.Date.valueOf(LocalDate.of(2026, 4, 30))));
         }
     }
 
@@ -366,7 +372,7 @@ class CustomizedAjustRepositoryTest {
         void exporte() {
             Ajust ajust = ajust(AjustementStatut.CLOSED);
             when(em.find(Ajust.class, AJUST_ID)).thenReturn(ajust);
-            when(ajustementReportService.export(ajust)).thenReturn(new byte[] { 7 });
+            when(ajustementReportService.export(ajust)).thenReturn(new byte[] {7});
 
             assertThat(repository.exportToPdf(AJUST_ID)).containsExactly(7);
         }
@@ -399,8 +405,8 @@ class CustomizedAjustRepositoryTest {
             assertThat(resultat).isPresent();
             assertThat(resultat.orElseThrow().getId()).isEqualTo(AJUST_ID);
             assertThat(resultat.orElseThrow().getAjustements())
-                .extracting(AjustementDTO::getCodeCip)
-                .containsExactly("1234567", "7654321");
+                    .extracting(AjustementDTO::getCodeCip)
+                    .containsExactly("1234567", "7654321");
         }
 
         @Test
@@ -408,9 +414,11 @@ class CustomizedAjustRepositoryTest {
         void ajustementSansLigne() {
             when(em.find(Ajust.class, AJUST_ID)).thenReturn(ajust(AjustementStatut.PENDING));
 
-            assertThat(repository.getOneById(AJUST_ID)).get().extracting(AjustDTO::getAjustements).asInstanceOf(
-                org.assertj.core.api.InstanceOfAssertFactories.LIST
-            ).isEmpty();
+            assertThat(repository.getOneById(AJUST_ID))
+                    .get()
+                    .extracting(AjustDTO::getAjustements)
+                    .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.LIST)
+                    .isEmpty();
         }
     }
 }

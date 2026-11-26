@@ -29,7 +29,9 @@
 
     .caisse-etat-icon {
       font-size: 1.5rem;
-      i { font-size: 1.5rem; }
+      i {
+        font-size: 1.5rem;
+      }
     }
 
     .caisse-etat-text {
@@ -37,7 +39,10 @@
       flex-direction: column;
       gap: 0.15rem;
 
-      strong { font-size: 1rem; color: #1e293b; }
+      strong {
+        font-size: 1rem;
+        color: #1e293b;
+      }
 
       .caisse-depuis {
         font-size: 0.8rem;
@@ -90,7 +95,9 @@
     border-bottom: 1px solid #f1f5f9;
     transition: background 0.15s ease;
 
-    &:hover { background: #f8fafc; }
+    &:hover {
+      background: #f8fafc;
+    }
 
     .encaissement-mode {
       display: flex;
@@ -144,16 +151,25 @@
     border-bottom: 1px solid #f1f5f9;
     transition: background 0.15s ease;
 
-    &:hover { background: #fafafa; }
-    &:last-child { border-bottom: none; }
+    &:hover {
+      background: #fafafa;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
 
     .differe-info {
       display: flex;
       flex-direction: column;
       gap: 0.15rem;
 
-      .differe-client { font-size: 0.9rem; color: #1e293b; }
-      .differe-tel { font-size: 0.8rem; }
+      .differe-client {
+        font-size: 0.9rem;
+        color: #1e293b;
+      }
+      .differe-tel {
+        font-size: 0.8rem;
+      }
     }
 
     .differe-meta {
@@ -162,7 +178,9 @@
       align-items: flex-end;
       gap: 0.25rem;
 
-      .differe-montant { font-size: 0.9rem; }
+      .differe-montant {
+        font-size: 0.9rem;
+      }
     }
   }
 }
@@ -177,8 +195,12 @@
     border-bottom: 1px solid #f1f5f9;
     transition: background 0.15s ease;
 
-    &:hover { background: #f8fafc; }
-    &:last-child { border-bottom: none; }
+    &:hover {
+      background: #f8fafc;
+    }
+    &:last-child {
+      border-bottom: none;
+    }
 
     .livraison-fournisseur {
       display: flex;

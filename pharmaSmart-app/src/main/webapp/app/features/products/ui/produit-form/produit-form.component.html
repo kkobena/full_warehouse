@@ -1,14 +1,10 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <div class="produit-form-container">
-
       <!-- En-tête toolbar -->
-      <app-toolbar [title]="(editForm.get('id')?.value ? 'Modifier' : 'Nouveau') + ' Produit'"
-                   icon="pi pi-box">
+      <app-toolbar [title]="(editForm.get('id')?.value ? 'Modifier' : 'Nouveau') + ' Produit'" icon="pi pi-box">
         <ng-container ngProjectAs="[toolbarActions]">
-          <app-button (clicked)="previousState()" [severity]="'secondary'" [text]="true"
-                      icon="pi pi-arrow-left"
-                      label="Retour" />
+          <app-button (clicked)="previousState()" [severity]="'secondary'" [text]="true" icon="pi pi-arrow-left" label="Retour" />
         </ng-container>
       </app-toolbar>
 
@@ -21,25 +17,23 @@
         <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
           <input formControlName="id" type="hidden" />
 
-
           <app-nav-tabs [nav]="nav">
-            <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
-                 class="nav pharma-nav-tabs" ngbNav>
-
+            <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()" class="nav pharma-nav-tabs" ngbNav>
               <!-- ── ONGLET 1 : ESSENTIEL ──────────────────────────────── -->
               <ng-container ngbNavItem="essentiel">
                 <a class="pharma-nav-tab-link" ngbNavLink>
                   <i class="pi pi-star-fill"></i>
                   <span>Essentiel</span>
-                  @if (isTabInvalid(
-                    ['codeCip', 'fournisseurId', 'libelle', 'costAmount', 'regularUnitPrice',
-                      'tvaId', 'familleId', 'rayonId'])) {
+                  @if (
+                    isTabInvalid(['codeCip', 'fournisseurId', 'libelle', 'costAmount', 'regularUnitPrice', 'tvaId', 'familleId', 'rayonId'])
+                  ) {
                     <span class="tab-badge-error">!</span>
                   }
                 </a>
                 <ng-template ngbNavContent>
                   <div class="tab-panel">
-                    <app-card [variant]="'form'">   <!-- Section 1 : Identifiants clés -->
+                    <app-card [variant]="'form'">
+                      <!-- Section 1 : Identifiants clés -->
                       <div class="form-section-title">
                         <span class="section-number">1</span>
                         <span>Identifiants</span>
@@ -47,27 +41,31 @@
                       <div class="form-grid cols-2">
                         <div class="form-field">
                           <label for="f_codeCip">Code CIP <span class="required">*</span></label>
-                          <input [appKeyFilter]="'int'"
-                                 [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched"
-                                 autocomplete="off"
-                                 class="form-control w-full" formControlName="codeCip"
-                                 id="f_codeCip" />
-                          @if (editForm.get('codeCip')?.invalid && editForm.get(
-                            'codeCip')?.touched) {
+                          <input
+                            [appKeyFilter]="'int'"
+                            [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="codeCip"
+                            id="f_codeCip"
+                          />
+                          @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
                         <div class="form-field">
-                          <label for="f_fournisseur">Fournisseur principal <span
-                            class="required">*</span></label>
-                          <app-select-search [items]="fournisseurs()" [virtualScroll]="true"
-                                             appendTo="body"
-                                             bindLabel="libelle"
-                                             bindValue="id" formControlName="fournisseurId"
-                                             inputId="f_fournisseur"
-                                             placeholder="Sélectionner un fournisseur" />
-                          @if (editForm.get('fournisseurId')?.invalid && editForm.get(
-                            'fournisseurId')?.touched) {
+                          <label for="f_fournisseur">Fournisseur principal <span class="required">*</span></label>
+                          <app-select-search
+                            [items]="fournisseurs()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="fournisseurId"
+                            inputId="f_fournisseur"
+                            placeholder="Sélectionner un fournisseur"
+                          />
+                          @if (editForm.get('fournisseurId')?.invalid && editForm.get('fournisseurId')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
@@ -80,25 +78,29 @@
                       </div>
                       <div class="form-grid cols-2">
                         <div class="form-field">
-                          <label for="f_libelle">Dénomination officielle <span
-                            class="required">*</span></label>
+                          <label for="f_libelle">Dénomination officielle <span class="required">*</span></label>
                           <input
                             [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched"
-                            autocomplete="off" class="form-control w-full"
-                            formControlName="libelle" id="f_libelle"
-                            placeholder="Ex : Amoxicilline 500 mg gélules" />
-                          @if (editForm.get('libelle')?.invalid && editForm.get(
-                            'libelle')?.touched) {
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="libelle"
+                            id="f_libelle"
+                            placeholder="Ex : Amoxicilline 500 mg gélules"
+                          />
+                          @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
                         <div class="form-field">
                           <label for="f_nomCommercial">Nom commercial</label>
-                          <input autocomplete="off" class="form-control w-full"
-                                 formControlName="nomCommercial"
-                                 id="f_nomCommercial" placeholder="Ex : Clamoxyl" />
-                          <small class="field-hint">Nom de marque distinct de la dénomination
-                            officielle</small>
+                          <input
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="nomCommercial"
+                            id="f_nomCommercial"
+                            placeholder="Ex : Clamoxyl"
+                          />
+                          <small class="field-hint">Nom de marque distinct de la dénomination officielle</small>
                         </div>
                       </div>
 
@@ -108,52 +110,63 @@
                         <span>Prix &amp; TVA</span>
                       </div>
                       @if (!isPriceValid) {
-                        <div class="alert alert-warning d-flex align-items-center mb-3"
-                             role="alert">
+                        <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
                           <i class="pi pi-exclamation-triangle me-2"></i>
                           Le prix d'achat doit être inférieur au prix de vente.
                         </div>
                       }
                       <div class="form-grid cols-3">
                         <div class="form-field">
-                          <label for="f_costAmount">Prix d'achat HT <span
-                            class="required">*</span></label>
+                          <label for="f_costAmount">Prix d'achat HT <span class="required">*</span></label>
                           <div class="input-currency">
-                            <input [appKeyFilter]="'int'"
-                                   [class.ng-invalid]="!isPriceValid || (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched)"
-                                   autocomplete="off"
-                                   class="form-control w-full" formControlName="costAmount"
-                                   id="f_costAmount"
-                                   placeholder="" />
+                            <input
+                              [appKeyFilter]="'int'"
+                              [class.ng-invalid]="
+                                !isPriceValid || (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched)
+                              "
+                              autocomplete="off"
+                              class="form-control w-full"
+                              formControlName="costAmount"
+                              id="f_costAmount"
+                              placeholder=""
+                            />
                             <span appDevise class="currency-symbol"></span>
                           </div>
-                          @if (editForm.get('costAmount')?.invalid && editForm.get(
-                            'costAmount')?.touched) {
+                          @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
                         <div class="form-field">
-                          <label for="f_regularUnitPrice">Prix de vente TTC <span
-                            class="required">*</span></label>
+                          <label for="f_regularUnitPrice">Prix de vente TTC <span class="required">*</span></label>
                           <div class="input-currency">
-                            <input [appKeyFilter]="'int'"
-                                   [class.ng-invalid]="!isPriceValid || (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched)"
-                                   autocomplete="off"
-                                   class="form-control w-full" formControlName="regularUnitPrice"
-                                   id="f_regularUnitPrice"
-                                   placeholder="" />
+                            <input
+                              [appKeyFilter]="'int'"
+                              [class.ng-invalid]="
+                                !isPriceValid || (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched)
+                              "
+                              autocomplete="off"
+                              class="form-control w-full"
+                              formControlName="regularUnitPrice"
+                              id="f_regularUnitPrice"
+                              placeholder=""
+                            />
                             <span appDevise class="currency-symbol"></span>
                           </div>
-                          @if (editForm.get('regularUnitPrice')?.invalid && editForm.get(
-                            'regularUnitPrice')?.touched) {
+                          @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
                         <div class="form-field">
                           <label for="f_tva">TVA <span class="required">*</span></label>
-                          <app-select [items]="tvas()" appendTo="body" bindLabel="tva"
-                                      bindValue="id" formControlName="tvaId"
-                                      inputId="f_tva" placeholder="Sélectionner" />
+                          <app-select
+                            [items]="tvas()"
+                            appendTo="body"
+                            bindLabel="tva"
+                            bindValue="id"
+                            formControlName="tvaId"
+                            inputId="f_tva"
+                            placeholder="Sélectionner"
+                          />
                           @if (editForm.get('tvaId')?.invalid && editForm.get('tvaId')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
@@ -167,30 +180,34 @@
                       </div>
                       <div class="form-grid cols-2">
                         <div class="form-field">
-                          <label for="f_famille">Famille thérapeutique <span
-                            class="required">*</span></label>
-                          <app-select-search [items]="familleProduits()" [virtualScroll]="true"
-                                             appendTo="body"
-                                             bindLabel="libelle"
-                                             bindValue="id" formControlName="familleId"
-                                             inputId="f_famille"
-                                             placeholder="Sélectionner une famille" />
-                          @if (editForm.get('familleId')?.invalid && editForm.get(
-                            'familleId')?.touched) {
+                          <label for="f_famille">Famille thérapeutique <span class="required">*</span></label>
+                          <app-select-search
+                            [items]="familleProduits()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="familleId"
+                            inputId="f_famille"
+                            placeholder="Sélectionner une famille"
+                          />
+                          @if (editForm.get('familleId')?.invalid && editForm.get('familleId')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
                         <div class="form-field">
-                          <label for="f_rayon">Rayon / Emplacement <span
-                            class="required">*</span></label>
-                          <app-select-search [items]="rayons()" [virtualScroll]="true"
-                                             appendTo="body"
-                                             bindLabel="libelle"
-                                             bindValue="id" formControlName="rayonId"
-                                             inputId="f_rayon"
-                                             placeholder="Sélectionner un rayon" />
-                          @if (editForm.get('rayonId')?.invalid && editForm.get(
-                            'rayonId')?.touched) {
+                          <label for="f_rayon">Rayon / Emplacement <span class="required">*</span></label>
+                          <app-select-search
+                            [items]="rayons()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="rayonId"
+                            inputId="f_rayon"
+                            placeholder="Sélectionner un rayon"
+                          />
+                          @if (editForm.get('rayonId')?.invalid && editForm.get('rayonId')?.touched) {
                             <small class="text-danger">Obligatoire</small>
                           }
                         </div>
@@ -203,55 +220,60 @@
                         <span class="section-badge-optional">optionnel</span>
                       </div>
                       <div class="decond-toggle-row">
-                        <app-switch #swDecond formControlName="deconditionnable"
-                                    inputId="f_decond" />
+                        <app-switch #swDecond formControlName="deconditionnable" inputId="f_decond" />
                         <label for="f_decond">Produit vendable à l'unité (déconditionnement)</label>
                       </div>
                       @if (isDeconditionnable) {
                         @if (!isItemPriceValid) {
-                          <div class="alert alert-warning d-flex align-items-center mb-2 mt-2"
-                               role="alert">
+                          <div class="alert alert-warning d-flex align-items-center mb-2 mt-2" role="alert">
                             <i class="pi pi-exclamation-triangle me-2"></i>
                             Le prix d'achat unitaire doit être inférieur au prix de vente unitaire.
                           </div>
                         }
                         <div class="form-grid cols-3 decond-fields">
                           <div class="form-field">
-                            <label for="f_itemQty">Unités / conditionnement <span
-                              class="required">*</span></label>
-                            <input [appKeyFilter]="'int'" autocomplete="off"
-                                   class="form-control w-full"
-                                   formControlName="itemQty" id="f_itemQty"
-                                   placeholder="Ex : 16" />
-                            <small class="field-hint">Les prix unitaires sont calculés
-                              automatiquement</small>
+                            <label for="f_itemQty">Unités / conditionnement <span class="required">*</span></label>
+                            <input
+                              [appKeyFilter]="'int'"
+                              autocomplete="off"
+                              class="form-control w-full"
+                              formControlName="itemQty"
+                              id="f_itemQty"
+                              placeholder="Ex : 16"
+                            />
+                            <small class="field-hint">Les prix unitaires sont calculés automatiquement</small>
                           </div>
                           <div class="form-field">
-                            <label for="f_itemCostAmount">PA unitaire <span
-                              class="required">*</span></label>
+                            <label for="f_itemCostAmount">PA unitaire <span class="required">*</span></label>
                             <div class="input-currency">
-                              <input [appKeyFilter]="'int'" [class.ng-invalid]="!isItemPriceValid"
-                                     autocomplete="off"
-                                     class="form-control w-full" formControlName="itemCostAmount"
-                                     id="f_itemCostAmount" />
+                              <input
+                                [appKeyFilter]="'int'"
+                                [class.ng-invalid]="!isItemPriceValid"
+                                autocomplete="off"
+                                class="form-control w-full"
+                                formControlName="itemCostAmount"
+                                id="f_itemCostAmount"
+                              />
                               <span appDevise class="currency-symbol"></span>
                             </div>
                           </div>
                           <div class="form-field">
-                            <label for="f_itemRegularUnitPrice">PV unitaire <span
-                              class="required">*</span></label>
+                            <label for="f_itemRegularUnitPrice">PV unitaire <span class="required">*</span></label>
                             <div class="input-currency">
-                              <input [appKeyFilter]="'int'" [class.ng-invalid]="!isItemPriceValid"
-                                     autocomplete="off"
-                                     class="form-control w-full"
-                                     formControlName="itemRegularUnitPrice"
-                                     id="f_itemRegularUnitPrice" />
+                              <input
+                                [appKeyFilter]="'int'"
+                                [class.ng-invalid]="!isItemPriceValid"
+                                autocomplete="off"
+                                class="form-control w-full"
+                                formControlName="itemRegularUnitPrice"
+                                id="f_itemRegularUnitPrice"
+                              />
                               <span appDevise class="currency-symbol"></span>
                             </div>
                           </div>
                         </div>
-                      }</app-card>
-
+                      }
+                    </app-card>
                   </div>
                 </ng-template>
               </ng-container>
@@ -272,10 +294,7 @@
                   <div class="tab-panel tab-panel-relation">
                     <app-card [variant]="'form'">
                       @if (isEditMode) {
-                        <app-produit-fournisseurs-tab
-                          (refreshRequested)="onFournisseurRefresh()"
-                          [produit]="currentProduit()!"
-                        />
+                        <app-produit-fournisseurs-tab (refreshRequested)="onFournisseurRefresh()" [produit]="currentProduit()!" />
                       } @else {
                         <app-produit-fournisseurs-creation
                           [formArray]="fournisseursSupplementaires"
@@ -288,14 +307,12 @@
                         />
                       }
                     </app-card>
-
                   </div>
                 </ng-template>
               </ng-container>
 
               <!-- ── ONGLET 3 : RÉGLEMENTATION ──────────────────────────── -->
-              <ng-container [disabled]="!isEditMode && !isEssentielValid"
-                            ngbNavItem="reglementation">
+              <ng-container [disabled]="!isEditMode && !isEssentielValid" ngbNavItem="reglementation">
                 <a class="pharma-nav-tab-link" ngbNavLink>
                   <i class="pi pi-shield"></i>
                   <span>Réglementation</span>
@@ -313,12 +330,15 @@
                       <div class="form-grid cols-1">
                         <div class="form-field">
                           <label for="f_statutLegal">Liste réglementaire</label>
-                          <app-select-search [items]="statutLegalOptions"
-                                             [optionTemplate]="statutLegalItemTpl"
-                                             appendTo="body" bindLabel="label"
-                                             bindValue="value"
-                                             formControlName="statutLegal"
-                                             inputId="f_statutLegal" />
+                          <app-select-search
+                            [items]="statutLegalOptions"
+                            [optionTemplate]="statutLegalItemTpl"
+                            appendTo="body"
+                            bindLabel="label"
+                            bindValue="value"
+                            formControlName="statutLegal"
+                            inputId="f_statutLegal"
+                          />
                           <ng-template #statutLegalItemTpl let-opt>
                             <div class="statut-option">
                               <strong>{{ opt.label }}</strong>
@@ -335,71 +355,61 @@
                         <div class="bool-card">
                           <div class="bool-card-header">
                             <app-switch formControlName="gestionLot" inputId="f_gestionLot" />
-                            <label for="f_gestionLot"><i class="pi pi-receipt"></i> Gestion par lot
-                              &amp; péremption</label>
+                            <label for="f_gestionLot"><i class="pi pi-receipt"></i> Gestion par lot &amp; péremption</label>
                           </div>
-                          <p class="bool-card-desc">Traçabilité numéro lot + date expiration
-                            obligatoire à la réception</p>
+                          <p class="bool-card-desc">Traçabilité numéro lot + date expiration obligatoire à la réception</p>
                         </div>
                         <div class="bool-card">
                           <div class="bool-card-header">
-                            <app-switch formControlName="thermosensible"
-                                        inputId="f_thermosensible" />
-                            <label for="f_thermosensible"><i class="pi pi-sun"></i> Thermosensible
-                              (chaîne du froid)</label>
+                            <app-switch formControlName="thermosensible" inputId="f_thermosensible" />
+                            <label for="f_thermosensible"><i class="pi pi-sun"></i> Thermosensible (chaîne du froid)</label>
                           </div>
-                          <p class="bool-card-desc">Stockage et transport à température contrôlée
-                            requis</p>
+                          <p class="bool-card-desc">Stockage et transport à température contrôlée requis</p>
                         </div>
                         <div [class.bool-card-active]="isRemisable" class="bool-card">
                           <div class="bool-card-header">
                             <app-switch formControlName="remisable" inputId="f_remisable" />
-                            <label for="f_remisable"><i class="pi pi-percentage"></i> Produit
-                              remisable</label>
+                            <label for="f_remisable"><i class="pi pi-percentage"></i> Produit remisable</label>
                           </div>
-                          <p class="bool-card-desc">Ce produit peut bénéficier d'un code de remise
-                            fournisseur</p>
+                          <p class="bool-card-desc">Ce produit peut bénéficier d'un code de remise fournisseur</p>
                           @if (isRemisable) {
                             <div class="bool-card-sub">
                               <label for="f_remiseCode">Code de remise</label>
-                              <app-select [clearable]="true" [items]="remisesCodes()"
-                                          appendTo="body"
-                                          bindLabel="value" bindValue="value"
-                                          formControlName="remiseCode" inputId="f_remiseCode"
-                                          placeholder="Sélectionner un code" />
+                              <app-select
+                                [clearable]="true"
+                                [items]="remisesCodes()"
+                                appendTo="body"
+                                bindLabel="value"
+                                bindValue="value"
+                                formControlName="remiseCode"
+                                inputId="f_remiseCode"
+                                placeholder="Sélectionner un code"
+                              />
                             </div>
                           }
                         </div>
                         <div class="bool-card">
                           <div class="bool-card-header">
-                            <app-switch formControlName="estMedicamentEssentiel"
-                                        inputId="f_medEssentiel" />
-                            <label for="f_medEssentiel"><i class="pi pi-heart"></i> Médicament
-                              essentiel (OMS / LGO)</label>
+                            <app-switch formControlName="estMedicamentEssentiel" inputId="f_medEssentiel" />
+                            <label for="f_medEssentiel"><i class="pi pi-heart"></i> Médicament essentiel (OMS / LGO)</label>
                           </div>
-                          <p class="bool-card-desc">Protégé contre la descente en dessous de la
-                            classe
-                            B</p>
+                          <p class="bool-card-desc">Protégé contre la descente en dessous de la classe B</p>
                         </div>
                         <div class="bool-card">
                           <div class="bool-card-header">
                             <app-switch formControlName="estProduitGarde" inputId="f_garde" />
-                            <label for="f_garde"><i class="pi pi-clock"></i> Produit de garde
-                              officine</label>
+                            <label for="f_garde"><i class="pi pi-clock"></i> Produit de garde officine</label>
                           </div>
-                          <p class="bool-card-desc">Classé automatiquement en priorité maximale —
-                            toujours en stock</p>
+                          <p class="bool-card-desc">Classé automatiquement en priorité maximale — toujours en stock</p>
                         </div>
                       </div>
                     </app-card>
-
                   </div>
                 </ng-template>
               </ng-container>
 
               <!-- ── ONGLET 4 : APPROVISIONNEMENT ──────────────────────── -->
-              <ng-container [disabled]="!isEditMode && !isEssentielValid"
-                            ngbNavItem="approvisionnement">
+              <ng-container [disabled]="!isEditMode && !isEssentielValid" ngbNavItem="approvisionnement">
                 <a class="pharma-nav-tab-link" ngbNavLink>
                   <i class="pi pi-chart-bar"></i>
                   <span>Approvisionnement</span>
@@ -416,18 +426,20 @@
                       </div>
 
                       <div class="criticite-section">
-                        <div class="form-field" style="flex:1">
+                        <div class="form-field" style="flex: 1">
                           <label for="f_criticite">Niveau de priorité</label>
-                          <app-select-search [items]="classeCriticiteOptions"
-                                             [optionTemplate]="criticiteItemTpl"
-                                             appendTo="body" bindLabel="label"
-                                             bindValue="value"
-                                             formControlName="classeCriticite"
-                                             inputId="f_criticite" />
+                          <app-select-search
+                            [items]="classeCriticiteOptions"
+                            [optionTemplate]="criticiteItemTpl"
+                            appendTo="body"
+                            bindLabel="label"
+                            bindValue="value"
+                            formControlName="classeCriticite"
+                            inputId="f_criticite"
+                          />
                           <ng-template #criticiteItemTpl let-opt>
                             <div class="criticite-option">
-                            <span [ngClass]="'badge-' + opt.badge"
-                                  class="criticite-badge">{{ opt.value }}</span>
+                              <span [ngClass]="'badge-' + opt.badge" class="criticite-badge">{{ opt.value }}</span>
                               <div>
                                 <strong>{{ opt.label }}</strong>
                                 <small>{{ opt.description }}</small>
@@ -436,12 +448,10 @@
                           </ng-template>
                         </div>
                         <div class="bool-switch-inline">
-                          <app-switch formControlName="isClassificationOverridden"
-                                      inputId="f_override" />
+                          <app-switch formControlName="isClassificationOverridden" inputId="f_override" />
                           <div>
                             <label for="f_override">Verrouiller cette classe</label>
-                            <small class="field-hint d-block">Ne sera pas modifiée par le calcul
-                              automatique</small>
+                            <small class="field-hint d-block">Ne sera pas modifiée par le calcul automatique</small>
                           </div>
                         </div>
                       </div>
@@ -451,52 +461,72 @@
                       </div>
                       <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
                         <i class="pi pi-info-circle me-2"></i>
-                        Ces valeurs sont calculées automatiquement. Saisissez-les manuellement en
-                        l'absence de calcul automatique.
+                        Ces valeurs sont calculées automatiquement. Saisissez-les manuellement en l'absence de calcul automatique.
                       </div>
                       <div class="form-grid cols-3">
                         <div class="form-field">
                           <label for="f_qtyAppro">Qté de réappro suggérée</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="qtyAppro" id="f_qtyAppro" placeholder="Auto" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="qtyAppro"
+                            id="f_qtyAppro"
+                            placeholder="Auto"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_qtySeuilMini">Seuil mini (alerte rupture)</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="qtySeuilMini" id="f_qtySeuilMini"
-                                 placeholder="Auto" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="qtySeuilMini"
+                            id="f_qtySeuilMini"
+                            placeholder="Auto"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_stockMaxi">Stock maxi rayon</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="stockMaxi" id="f_stockMaxi" placeholder="0" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="stockMaxi"
+                            id="f_stockMaxi"
+                            placeholder="0"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_stockReassort">Qté réassort réserve → rayon</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="stockReassort" id="f_stockReassort"
-                                 placeholder="0" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="stockReassort"
+                            id="f_stockReassort"
+                            placeholder="0"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_seuilMini">Seuil mini stock réserve</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="seuilMini" id="f_seuilMini" placeholder="0" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="seuilMini"
+                            id="f_seuilMini"
+                            placeholder="0"
+                          />
                         </div>
                       </div>
                     </app-card>
-
                   </div>
                 </ng-template>
               </ng-container>
 
               <!-- ── ONGLET 5 : CLASSIFICATION ─────────────────────────── -->
-              <ng-container [disabled]="!isEditMode && !isEssentielValid"
-                            ngbNavItem="classification">
+              <ng-container [disabled]="!isEditMode && !isEssentielValid" ngbNavItem="classification">
                 <a class="pharma-nav-tab-link" ngbNavLink>
                   <i class="pi pi-sitemap"></i>
                   <span>Classification</span>
@@ -510,55 +540,89 @@
                       <div class="form-grid cols-2">
                         <div class="form-field full-width">
                           <label for="f_codeEanLabo">Code EAN Laboratoire</label>
-                          <input [appKeyFilter]="'int'" autocomplete="off"
-                                 class="form-control w-full"
-                                 formControlName="codeEanLaboratoire"
-                                 id="f_codeEanLabo"
-                                 placeholder="Code EAN attribué par le fabricant" />
+                          <input
+                            [appKeyFilter]="'int'"
+                            autocomplete="off"
+                            class="form-control w-full"
+                            formControlName="codeEanLaboratoire"
+                            id="f_codeEanLabo"
+                            placeholder="Code EAN attribué par le fabricant"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_labo">Laboratoire fabricant</label>
-                          <app-select-search [clearable]="true" [items]="laboratoires()"
-                                             [virtualScroll]="true"
-                                             appendTo="body"
-                                             bindLabel="libelle" bindValue="id"
-                                             formControlName="laboratoireId"
-                                             inputId="f_labo"
-                                             placeholder="Sélectionner un laboratoire" />
+                          <app-select-search
+                            [clearable]="true"
+                            [items]="laboratoires()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="laboratoireId"
+                            inputId="f_labo"
+                            placeholder="Sélectionner un laboratoire"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_forme">Forme galénique</label>
-                          <app-select [clearable]="true" [items]="formeProduits()"
-                                      [virtualScroll]="true" appendTo="body"
-                                      bindLabel="libelle" bindValue="id" formControlName="formeId"
-                                      inputId="f_forme" placeholder="Comprimé, gélule, sirop..." />
+                          <app-select
+                            [clearable]="true"
+                            [items]="formeProduits()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="formeId"
+                            inputId="f_forme"
+                            placeholder="Comprimé, gélule, sirop..."
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_gamme">Gamme</label>
-                          <app-select [clearable]="true" [items]="gammes()" [virtualScroll]="true"
-                                      appendTo="body"
-                                      bindLabel="libelle" bindValue="id" formControlName="gammeId"
-                                      inputId="f_gamme" placeholder="Sélectionner une gamme" />
+                          <app-select
+                            [clearable]="true"
+                            [items]="gammes()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="gammeId"
+                            inputId="f_gamme"
+                            placeholder="Sélectionner une gamme"
+                          />
                         </div>
                         <div class="form-field">
                           <label for="f_dci">DCI — molécules (la première choisie est la principale)</label>
                           @if (referentiel(); as ref) {
                             @if (ref.decision === 'AUTO' && ref.dciPoseeAutomatiquement) {
                               <div class="mb-1" data-testid="badge-dci-auto">
-                                <app-badge icon="pi pi-bolt" label="DCI posée automatiquement" severity="info"
-                                           [ngbTooltip]="'Rapprochée du référentiel médicament : ' + (ref.specialite?.libelle ?? '') + '. Retirez la DCI ci-dessous si elle est erronée : le rapprochement sera rejeté et ne sera plus réappliqué.'" />
+                                <app-badge
+                                  icon="pi pi-bolt"
+                                  label="DCI posée automatiquement"
+                                  severity="info"
+                                  [ngbTooltip]="
+                                    'Rapprochée du référentiel médicament : ' +
+                                    (ref.specialite?.libelle ?? '') +
+                                    '. Retirez la DCI ci-dessous si elle est erronée : le rapprochement sera rejeté et ne sera plus réappliqué.'
+                                  "
+                                />
                               </div>
                             }
                           }
-                          <app-multi-select [clearable]="true" [items]="dcis()"
-                                            [virtualScroll]="true" appendTo="body"
-                                            bindLabel="libelle" bindValue="id"
-                                            formControlName="dciIds"
-                                            inputId="f_dci" placeholder="Ex : Amoxicilline, Acide clavulanique" />
+                          <app-multi-select
+                            [clearable]="true"
+                            [items]="dcis()"
+                            [virtualScroll]="true"
+                            appendTo="body"
+                            bindLabel="libelle"
+                            bindValue="id"
+                            formControlName="dciIds"
+                            inputId="f_dci"
+                            placeholder="Ex : Amoxicilline, Acide clavulanique"
+                          />
                         </div>
                       </div>
                     </app-card>
-
                   </div>
                 </ng-template>
               </ng-container>
@@ -577,98 +641,113 @@
                 </a>
                 <ng-template ngbNavContent>
                   <div class="tab-panel tab-panel-relation">
-                    <app-card [variant]="'form'"> @if (isEditMode) {
-                      <div class="d-flex justify-content-end mb-2">
-                        <app-button (clicked)="onAddPrix()" [outlined]="true" icon="pi pi-plus"
-                                    label="Ajouter un tarif" severity="primary" size="small" />
-                      </div>
-                      <app-data-table [loading]="isLoadingPrix()" [stripedRows]="true"
-                                      [value]="prixReferences()">
-                        <ng-template #header>
-                          <tr class="pharma-table-head">
-                            <th>Tiers payant</th>
-                            <th>Option de prix</th>
-                            <th class="text-end">Prix référence</th>
-                            <th class="text-end">Taux (%)</th>
-                            <th class="text-center">Actif</th>
-                            <th style="width:120px"></th>
-                          </tr>
-                        </ng-template>
-                        <ng-template #body let-prix>
-                          <tr>
-                            <td>{{ prix.tiersPayantName }}</td>
-                            <td>{{ prix.typeLibelle }}</td>
-                            <td class="text-end">@if (prix.price) {
-                              {{ prix.price }} <span appDevise></span>
-                            }</td>
-                            <td class="text-end">@if (prix.rate) {
-                              {{ prix.rate }}%
-                            }</td>
-                            <td class="text-center">
-                              <span [class.bg-secondary]="!prix.enabled"
-                                    [class.bg-success]="prix.enabled"
-                                    class="badge">
-                                {{ prix.enabled ? 'Actif' : 'Inactif' }}
-                              </span>
-                            </td>
-                            <td class="text-end">
-                              <div class="row-actions">
-                                <app-button (clicked)="onEditPrix(prix)" [text]="true"
-                                            icon="pi pi-pencil"
-                                            ngbTooltip="Modifier" severity="secondary"
-                                            size="small" />
-                                <app-button (clicked)="onTogglePrix(prix)"
-                                            [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
-                                            [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
-                                            [severity]="prix.enabled ? 'contrast' : 'info'"
-                                            [text]="true"
-                                            size="small" />
-                                <app-button (clicked)="onDeletePrix(prix)" [text]="true"
-                                            icon="pi pi-trash"
-                                            ngbTooltip="Supprimer" severity="danger"
-                                            size="small" />
-                              </div>
-                            </td>
-                          </tr>
-                        </ng-template>
-                        <ng-template #emptymessage>
-                          <tr>
-                            <td colspan="6">
-                              <div class="pharma-empty-content text-center py-4">
-                                <i class="pi pi-building fs-2 text-muted d-block mb-2"></i>
-                                <p class="mb-1">Aucun tarif assurance configuré</p>
-                                <small class="text-muted">Cliquez sur "Ajouter un tarif" pour en
-                                  créer un</small>
-                              </div>
-                            </td>
-                          </tr>
-                        </ng-template>
-                      </app-data-table>
-                    } @else {
-                      <app-produit-prix-creation
-                        [formArray]="prixReferenceCreationArray"
-                        [tiersPayants]="tiersPayants()"
-                      />
-                    }</app-card>
-
+                    <app-card [variant]="'form'">
+                      @if (isEditMode) {
+                        <div class="d-flex justify-content-end mb-2">
+                          <app-button
+                            (clicked)="onAddPrix()"
+                            [outlined]="true"
+                            icon="pi pi-plus"
+                            label="Ajouter un tarif"
+                            severity="primary"
+                            size="small"
+                          />
+                        </div>
+                        <app-data-table [loading]="isLoadingPrix()" [stripedRows]="true" [value]="prixReferences()">
+                          <ng-template #header>
+                            <tr class="pharma-table-head">
+                              <th>Tiers payant</th>
+                              <th>Option de prix</th>
+                              <th class="text-end">Prix référence</th>
+                              <th class="text-end">Taux (%)</th>
+                              <th class="text-center">Actif</th>
+                              <th style="width: 120px"></th>
+                            </tr>
+                          </ng-template>
+                          <ng-template #body let-prix>
+                            <tr>
+                              <td>{{ prix.tiersPayantName }}</td>
+                              <td>{{ prix.typeLibelle }}</td>
+                              <td class="text-end">
+                                @if (prix.price) {
+                                  {{ prix.price }} <span appDevise></span>
+                                }
+                              </td>
+                              <td class="text-end">
+                                @if (prix.rate) {
+                                  {{ prix.rate }}%
+                                }
+                              </td>
+                              <td class="text-center">
+                                <span [class.bg-secondary]="!prix.enabled" [class.bg-success]="prix.enabled" class="badge">
+                                  {{ prix.enabled ? 'Actif' : 'Inactif' }}
+                                </span>
+                              </td>
+                              <td class="text-end">
+                                <div class="row-actions">
+                                  <app-button
+                                    (clicked)="onEditPrix(prix)"
+                                    [text]="true"
+                                    icon="pi pi-pencil"
+                                    ngbTooltip="Modifier"
+                                    severity="secondary"
+                                    size="small"
+                                  />
+                                  <app-button
+                                    (clicked)="onTogglePrix(prix)"
+                                    [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                                    [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                                    [severity]="prix.enabled ? 'contrast' : 'info'"
+                                    [text]="true"
+                                    size="small"
+                                  />
+                                  <app-button
+                                    (clicked)="onDeletePrix(prix)"
+                                    [text]="true"
+                                    icon="pi pi-trash"
+                                    ngbTooltip="Supprimer"
+                                    severity="danger"
+                                    size="small"
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          </ng-template>
+                          <ng-template #emptymessage>
+                            <tr>
+                              <td colspan="6">
+                                <div class="pharma-empty-content text-center py-4">
+                                  <i class="pi pi-building fs-2 text-muted d-block mb-2"></i>
+                                  <p class="mb-1">Aucun tarif assurance configuré</p>
+                                  <small class="text-muted">Cliquez sur "Ajouter un tarif" pour en créer un</small>
+                                </div>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </app-data-table>
+                      } @else {
+                        <app-produit-prix-creation [formArray]="prixReferenceCreationArray" [tiersPayants]="tiersPayants()" />
+                      }
+                    </app-card>
                   </div>
                 </ng-template>
               </ng-container>
-
-            </div><!-- /pharma-nav-tabs -->
-
-          </app-nav-tabs><!-- /app-nav-tabs -->
+            </div>
+            <!-- /pharma-nav-tabs --> </app-nav-tabs
+          ><!-- /app-nav-tabs -->
 
           <!-- Barre d'actions sticky -->
           <div class="form-actions-compact">
-            <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler"
-                        severity="secondary" type="button" />
-            <app-button [disabled]="editForm.invalid || isSaving() || !isPriceValid"
-                        [loading]="isSaving()" icon="pi pi-check" label="Enregistrer"
-                        severity="primary"
-                        type="submit" />
+            <app-button (clicked)="previousState()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+            <app-button
+              [disabled]="editForm.invalid || isSaving() || !isPriceValid"
+              [loading]="isSaving()"
+              icon="pi pi-check"
+              label="Enregistrer"
+              severity="primary"
+              type="submit"
+            />
           </div>
-
         </form>
       }
     </div>

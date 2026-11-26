@@ -1,8 +1,6 @@
 <div class="pharma-smart-content">
-
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar"
-               title="Récapitulatif mensuel">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar" title="Récapitulatif mensuel">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-float-label inputId="recap-type" label="">
@@ -53,21 +51,13 @@
             inputId="recap-tp"
           />
         </app-float-label>
-
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
-          <app-button
-            (clicked)="onSearch()"
-            [loading]="loading()"
-            [raised]="true"
-            icon="pi pi-search"
-            label="Rechercher"
-            severity="info"
-          />
+          <app-button (clicked)="onSearch()" [loading]="loading()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
           <app-button
             (clicked)="onExportExcel()"
             [loading]="loadingExport()"
@@ -92,18 +82,13 @@
   <!-- KPI globaux -->
   <app-recapitulatif-kpi-banner [kpi]="kpi()" [loading]="loading()" />
 
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
-          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
     <!-- Hint premier usage -->
-    <app-hint [visible]="!panelOpen()" storageKey="recapitulatif">
-      Cliquez sur une ligne pour afficher le détail .
-    </app-hint>
+    <app-hint [visible]="!panelOpen()" storageKey="recapitulatif"> Cliquez sur une ligne pour afficher le détail . </app-hint>
     <!-- Split master/detail -->
     <div [class.panel-open]="panelOpen()" class="split-container">
-
       <!-- Colonne maître : liste des organismes -->
       <div class="list-column">
-
         <app-data-table
           [loading]="loading()"
           [paginator]="true"
@@ -141,28 +126,30 @@
             <tr
               (click)="onRowSelect(row)"
               [class.ligne-selected]="selectedRow()?.tiersPayantId === row.tiersPayantId"
-              style="cursor:pointer"
+              style="cursor: pointer"
             >
               <td>
                 <span class="fw-semibold">{{ row.tiersPayantName }}</span>
               </td>
               @if (!panelOpen()) {
                 <td class="text-muted small">{{ row.tiersPayantName }}</td>
-                <td class="text-muted small">{{ row.periode  | date: 'MM/yyyy' }}</td>
-                <td class="text-end">{{ (row.soldePrecedent ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-muted small">{{ row.periode | date: 'MM/yyyy' }}</td>
+                <td class="text-end">{{ row.soldePrecedent ?? 0 | number: '1.0-0' }}</td>
               }
-              <td class="text-end fw-bold">{{ (row.totalFacture ?? 0) | number:'1.0-0' }}</td>
-              <td class="text-end text-success">{{ (row.totalRegle ?? 0) | number:'1.0-0' }}</td>
-              <td class="text-end text-danger">{{ (row.soldeActuel ?? 0) | number:'1.0-0' }}</td>
+              <td class="text-end fw-bold">{{ row.totalFacture ?? 0 | number: '1.0-0' }}</td>
+              <td class="text-end text-success">{{ row.totalRegle ?? 0 | number: '1.0-0' }}</td>
+              <td class="text-end text-danger">{{ row.soldeActuel ?? 0 | number: '1.0-0' }}</td>
               @if (!panelOpen()) {
-                <td class="text-end">{{ (row.soldeCumule ?? 0) | number:'1.0-0' }}</td>
+                <td class="text-end">{{ row.soldeCumule ?? 0 | number: '1.0-0' }}</td>
                 <td class="text-end">{{ row.nombreFactures ?? 0 }}</td>
               }
               <td class="text-end">
                 @if ((row.totalFacture ?? 0) > 0) {
-                  <span [class.text-danger]="detailTauxRecouvrement(row) < 50"
-                        [class.text-success]="detailTauxRecouvrement(row) >= 80"
-                        [class.text-warning]="detailTauxRecouvrement(row) >= 50 && detailTauxRecouvrement(row) < 80">
+                  <span
+                    [class.text-danger]="detailTauxRecouvrement(row) < 50"
+                    [class.text-success]="detailTauxRecouvrement(row) >= 80"
+                    [class.text-warning]="detailTauxRecouvrement(row) >= 50 && detailTauxRecouvrement(row) < 80"
+                  >
                     {{ detailTauxRecouvrement(row) }} %
                   </span>
                 } @else {
@@ -181,10 +168,7 @@
                     severity="secondary"
                     size="small"
                   />
-
-
                 </div>
-
               </td>
             </tr>
           </ng-template>
@@ -196,13 +180,13 @@
                   <span>Total</span>
                 </td>
                 <td class="text-end">
-                  <span class="pharma-footer-value">{{ totalFacture | number:'1.0-0' }}</span>
+                  <span class="pharma-footer-value">{{ totalFacture | number: '1.0-0' }}</span>
                 </td>
                 <td class="text-end text-success">
-                  <span class="pharma-footer-total">{{ totalRegle | number:'1.0-0' }}</span>
+                  <span class="pharma-footer-total">{{ totalRegle | number: '1.0-0' }}</span>
                 </td>
-                <td class="text-end text-danger"><span
-                  class="pharma-footer-value text-danger">{{ totalRestant | number:'1.0-0' }}</span>
+                <td class="text-end text-danger">
+                  <span class="pharma-footer-value text-danger">{{ totalRestant | number: '1.0-0' }}</span>
                 </td>
                 @if (!panelOpen()) {
                   <td class="text-end">—</td>
@@ -210,7 +194,6 @@
                 }
                 <td class="text-end">
                   <span class="pharma-footer-total">{{ tauxGlobal }} %</span>
-
                 </td>
                 <td></td>
               </tr>
@@ -231,56 +214,47 @@
         <div class="detail-column">
           <div class="panel-header">
             <div class="panel-title-block">
-              <div class="panel-libelle">
-                <i class="pi pi-building me-1"></i>{{ selectedRow()?.tiersPayantName }}
-              </div>
+              <div class="panel-libelle"><i class="pi pi-building me-1"></i>{{ selectedRow()?.tiersPayantName }}</div>
               <div class="panel-meta">
-                <span
-                  class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode | date: 'MM/yyyy' }}</span>
-                <span class="pharma-badge pharma-badge-primary">Facturé : {{
-                    (selectedRow()?.totalFacture ?? 0) | number:'1.0-0'
-                  }}</span>
-                <span class="pharma-badge pharma-badge-success">Réglé : {{
-                    (selectedRow()?.totalRegle ?? 0) | number:'1.0-0'
-                  }}</span>
+                <span class="pharma-badge pharma-badge-secondary">{{ selectedRow()?.periode | date: 'MM/yyyy' }}</span>
+                <span class="pharma-badge pharma-badge-primary">Facturé : {{ selectedRow()?.totalFacture ?? 0 | number: '1.0-0' }}</span>
+                <span class="pharma-badge pharma-badge-success">Réglé : {{ selectedRow()?.totalRegle ?? 0 | number: '1.0-0' }}</span>
                 @if ((selectedRow()?.soldeActuel ?? 0) > 0) {
-                  <span class="pharma-badge pharma-badge-danger">Restant : {{
-                      (selectedRow()?.soldeActuel ?? 0) | number:'1.0-0'
-                    }}</span>
+                  <span class="pharma-badge pharma-badge-danger">Restant : {{ selectedRow()?.soldeActuel ?? 0 | number: '1.0-0' }}</span>
                 }
-                <span [class.pharma-badge-danger]="detailTauxRecouvrement(selectedRow()!) < 50"
-                      [class.pharma-badge-success]="detailTauxRecouvrement(selectedRow()!) >= 80"
-                      [class.pharma-badge-warning]="detailTauxRecouvrement(selectedRow()!) >= 50 && detailTauxRecouvrement(selectedRow()!) < 80"
-                      class="pharma-badge">
+                <span
+                  [class.pharma-badge-danger]="detailTauxRecouvrement(selectedRow()!) < 50"
+                  [class.pharma-badge-success]="detailTauxRecouvrement(selectedRow()!) >= 80"
+                  [class.pharma-badge-warning]="detailTauxRecouvrement(selectedRow()!) >= 50 && detailTauxRecouvrement(selectedRow()!) < 80"
+                  class="pharma-badge"
+                >
                   Taux : {{ detailTauxRecouvrement(selectedRow()!) }} %
                 </span>
               </div>
             </div>
             <div class="panel-actions">
-              <app-button
-                (clicked)="closePanel()"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-times"
-                size="small"
-                title="Fermer"
-              />
+              <app-button (clicked)="closePanel()" [rounded]="true" [text]="true" icon="pi pi-times" size="small" title="Fermer" />
             </div>
           </div>
 
           <div class="recap-detail-body">
             <app-detail-grid>
-              <app-detail-section header="Factures" icon="pi pi-file-invoice" [accent]="'blue'" [width]="'full'"
-                                  [layout]="'block'" [count]="detailLignes(selectedRow()!).length"
-                                  storageKey="recapitulatif.detail.factures">
-                <app-detail-field label="Report solde précédent" [value]="selectedRow()?.soldePrecedent ?? 0"
-                                  format="montant" [tone]="(selectedRow()?.soldePrecedent ?? 0) > 0 ? 'warning' : 'none'" />
-                <app-data-table
-                  [scrollable]="true"
-                  [size]="'small'"
-                  [value]="detailLignes(selectedRow()!)"
-                  scrollHeight="flex"
-                >
+              <app-detail-section
+                header="Factures"
+                icon="pi pi-file-invoice"
+                [accent]="'blue'"
+                [width]="'full'"
+                [layout]="'block'"
+                [count]="detailLignes(selectedRow()!).length"
+                storageKey="recapitulatif.detail.factures"
+              >
+                <app-detail-field
+                  label="Report solde précédent"
+                  [value]="selectedRow()?.soldePrecedent ?? 0"
+                  format="montant"
+                  [tone]="(selectedRow()?.soldePrecedent ?? 0) > 0 ? 'warning' : 'none'"
+                />
+                <app-data-table [scrollable]="true" [size]="'small'" [value]="detailLignes(selectedRow()!)" scrollHeight="flex">
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>N° Facture</th>
@@ -297,12 +271,9 @@
                       <td class="fw-semibold small">{{ ligne.numFacture }}</td>
                       <td class="small">{{ ligne.invoiceDate | date: 'dd/MM/yyyy' }}</td>
                       <td class="small">{{ ligne.echeance | date: 'dd/MM/yyyy' }}</td>
-                      <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
-                      <td class="text-end text-success">{{
-                          (ligne.montantRegle ?? 0) | number:'1.0-0'
-                        }}
-                      </td>
-                      <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>
+                      <td class="text-end">{{ ligne.montantNet ?? 0 | number: '1.0-0' }}</td>
+                      <td class="text-end text-success">{{ ligne.montantRegle ?? 0 | number: '1.0-0' }}</td>
+                      <td class="text-end text-danger">{{ ligne.restantDu ?? 0 | number: '1.0-0' }}</td>
                       <td>
                         <span class="badge {{ statutClass(ligne.statut) }}">
                           {{ statutLabel(ligne.statut) }}
@@ -323,8 +294,6 @@
           </div>
         </div>
       }
-
     </div>
   </app-card>
-
 </div>

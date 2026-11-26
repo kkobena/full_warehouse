@@ -99,14 +99,13 @@ class CommandeDataServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new CommandeDataServiceImpl(
-            commandeRepository,
-            exportationCsvService,
-            commandeReportService,
-            customizedCommandeService,
-            orderLineRepository,
-            new ObjectMapper(),
-            pharmaMlEnvoiRepository
-        );
+                commandeRepository,
+                exportationCsvService,
+                commandeReportService,
+                customizedCommandeService,
+                orderLineRepository,
+                new ObjectMapper(),
+                pharmaMlEnvoiRepository);
         ReflectionTestUtils.setField(service, "em", em);
         when(em.createNativeQuery(anyString())).thenReturn(nativeQuery);
         when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
@@ -123,7 +122,8 @@ class CommandeDataServiceImplTest {
         return produit;
     }
 
-    private static OrderLine orderLine(int id, String libelle, String codeCip, int prixAchat, int orderCostAmount, boolean provisoire) {
+    private static OrderLine orderLine(
+            int id, String libelle, String codeCip, int prixAchat, int orderCostAmount, boolean provisoire) {
         FournisseurProduit fp = new FournisseurProduit();
         fp.setId(id + 1000);
         fp.setCodeCip(codeCip);
@@ -178,11 +178,11 @@ class CommandeDataServiceImplTest {
 
     private static CommandeFilterDTO filtre(String search, FilterCommaneEnCours filter, Sort sort) {
         return new CommandeFilterDTO()
-            .setCommandeId(12)
-            .setOrderDate(ORDER_DATE)
-            .setSearch(search)
-            .setFilterCommaneEnCours(filter)
-            .setOrderBy(sort);
+                .setCommandeId(12)
+                .setOrderDate(ORDER_DATE)
+                .setSearch(search)
+                .setFilterCommaneEnCours(filter)
+                .setOrderBy(sort);
     }
 
     private void referenceCommande(Commande commande) {
@@ -199,9 +199,8 @@ class CommandeDataServiceImplTest {
         @DisplayName("mappe la commande et renseigne la couverture de stock des lignes connues")
         void couvertureRenseignee() {
             referenceCommande(commande(troisLignes()));
-            when(nativeQuery.getResultList()).thenReturn(
-                List.<Object[]>of(new Object[] { 1, 12 }, new Object[] { 2, null })
-            );
+            when(nativeQuery.getResultList())
+                    .thenReturn(List.<Object[]>of(new Object[] {1, 12}, new Object[] {2, null}));
 
             CommandeDTO dto = service.findOneById(COMMANDE_ID);
 
@@ -210,15 +209,15 @@ class CommandeDataServiceImplTest {
             assertThat(dto.getTotalProduits()).isEqualTo(3);
             assertThat(dto.getFournisseur().getId()).isEqualTo(3);
             assertThat(dto.getOrderLines())
-                .filteredOn(l -> l.getProduitId() == 1)
-                .singleElement()
-                .extracting(OrderLineDTO::getCouvertureStockJours)
-                .isEqualTo(12);
+                    .filteredOn(l -> l.getProduitId() == 1)
+                    .singleElement()
+                    .extracting(OrderLineDTO::getCouvertureStockJours)
+                    .isEqualTo(12);
             assertThat(dto.getOrderLines())
-                .filteredOn(l -> l.getProduitId() == 2)
-                .singleElement()
-                .extracting(OrderLineDTO::getCouvertureStockJours)
-                .isNull();
+                    .filteredOn(l -> l.getProduitId() == 2)
+                    .singleElement()
+                    .extracting(OrderLineDTO::getCouvertureStockJours)
+                    .isNull();
             verify(em).createNativeQuery(anyString());
         }
 
@@ -247,8 +246,8 @@ class CommandeDataServiceImplTest {
 
             assertThat(dto).isPresent();
             assertThat(dto.get().getOrderLines())
-                .extracting(OrderLineDTO::getProduitLibelle)
-                .containsExactly("ASPIRINE 500MG", "DOLIPRANE 1000MG", "PARACETAMOL 500MG");
+                    .extracting(OrderLineDTO::getProduitLibelle)
+                    .containsExactly("ASPIRINE 500MG", "DOLIPRANE 1000MG", "PARACETAMOL 500MG");
             assertThat(dto.get().getFournisseur().getLibelle()).isEqualTo("LABOREX");
         }
 
@@ -266,7 +265,7 @@ class CommandeDataServiceImplTest {
         @DisplayName("exportCommandeToPdf delegue au service de rapport")
         void exportPdf() {
             referenceCommande(commande(troisLignes()));
-            when(commandeReportService.export(any(CommandeDTO.class))).thenReturn(new byte[] { 1, 2, 3 });
+            when(commandeReportService.export(any(CommandeDTO.class))).thenReturn(new byte[] {1, 2, 3});
 
             assertThat(service.exportCommandeToPdf(COMMANDE_ID)).containsExactly(1, 2, 3);
         }
@@ -292,7 +291,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("recherche par code CIP")
         void rechercheParCip() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre("2222222", FilterCommaneEnCours.ALL, Sort.PRODUIT_CIP));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre("2222222", FilterCommaneEnCours.ALL, Sort.PRODUIT_CIP));
 
             assertThat(lignes).extracting(OrderLineDTO::getProduitCip).containsExactly("2222222");
         }
@@ -300,7 +300,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("recherche croisee avec le filtre des prix differents du tarif fournisseur")
         void rechercheEtPrixDifferent() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre("aspi", FilterCommaneEnCours.NOT_EQUAL, Sort.UPDATE));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre("aspi", FilterCommaneEnCours.NOT_EQUAL, Sort.UPDATE));
 
             assertThat(lignes).extracting(OrderLineDTO::getProduitLibelle).containsExactly("ASPIRINE 500MG");
         }
@@ -308,7 +309,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("recherche croisee avec le filtre des codes provisoires")
         void rechercheEtCodeProvisoire() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre("para", FilterCommaneEnCours.PROVISOL_CIP, Sort.PRODUIT_LIBELLE));
+            List<OrderLineDTO> lignes = service.filterCommandeLines(
+                    filtre("para", FilterCommaneEnCours.PROVISOL_CIP, Sort.PRODUIT_LIBELLE));
 
             assertThat(lignes).extracting(OrderLineDTO::getProduitLibelle).containsExactly("PARACETAMOL 500MG");
         }
@@ -316,7 +318,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("une recherche sans correspondance ne renvoie rien")
         void aucuneCorrespondance() {
-            assertThat(service.filterCommandeLines(filtre("INTROUVABLE", null, Sort.PRODUIT_LIBELLE))).isEmpty();
+            assertThat(service.filterCommandeLines(filtre("INTROUVABLE", null, Sort.PRODUIT_LIBELLE)))
+                    .isEmpty();
         }
     }
 
@@ -331,14 +334,15 @@ class CommandeDataServiceImplTest {
 
         @ParameterizedTest(name = "search=[{0}] renvoie toutes les lignes")
         @NullSource
-        @ValueSource(strings = { "" })
+        @ValueSource(strings = {""})
         @DisplayName("sans recherche ni filtre, toutes les lignes sont renvoyees")
         void toutesLesLignes(String search) {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre(search, FilterCommaneEnCours.ALL, Sort.PRODUIT_LIBELLE));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre(search, FilterCommaneEnCours.ALL, Sort.PRODUIT_LIBELLE));
 
             assertThat(lignes)
-                .extracting(OrderLineDTO::getProduitLibelle)
-                .containsExactly("ASPIRINE 500MG", "DOLIPRANE 1000MG", "PARACETAMOL 500MG");
+                    .extracting(OrderLineDTO::getProduitLibelle)
+                    .containsExactly("ASPIRINE 500MG", "DOLIPRANE 1000MG", "PARACETAMOL 500MG");
         }
 
         @Test
@@ -352,7 +356,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("filtre NOT_EQUAL : seules les lignes dont le prix differe du tarif fournisseur")
         void prixDifferent() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre(null, FilterCommaneEnCours.NOT_EQUAL, Sort.PRODUIT_LIBELLE));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre(null, FilterCommaneEnCours.NOT_EQUAL, Sort.PRODUIT_LIBELLE));
 
             assertThat(lignes).extracting(OrderLineDTO::getProduitLibelle).containsExactly("ASPIRINE 500MG");
         }
@@ -360,7 +365,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("filtre PROVISOL_CIP : seules les lignes a code provisoire")
         void codeProvisoire() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre(null, FilterCommaneEnCours.PROVISOL_CIP, Sort.PRODUIT_LIBELLE));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre(null, FilterCommaneEnCours.PROVISOL_CIP, Sort.PRODUIT_LIBELLE));
 
             assertThat(lignes).extracting(OrderLineDTO::getProduitLibelle).containsExactly("PARACETAMOL 500MG");
         }
@@ -368,11 +374,12 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("tri UPDATE : la ligne modifiee le plus recemment vient en tete")
         void triParDateDeMiseAJour() {
-            List<OrderLineDTO> lignes = service.filterCommandeLines(filtre(null, FilterCommaneEnCours.ALL, Sort.UPDATE));
+            List<OrderLineDTO> lignes =
+                    service.filterCommandeLines(filtre(null, FilterCommaneEnCours.ALL, Sort.UPDATE));
 
             assertThat(lignes)
-                .extracting(OrderLineDTO::getProduitLibelle)
-                .containsExactly("PARACETAMOL 500MG", "ASPIRINE 500MG", "DOLIPRANE 1000MG");
+                    .extracting(OrderLineDTO::getProduitLibelle)
+                    .containsExactly("PARACETAMOL 500MG", "ASPIRINE 500MG", "DOLIPRANE 1000MG");
         }
     }
 
@@ -393,7 +400,10 @@ class CommandeDataServiceImplTest {
             var page = service.fetchCommandes(filtre, pageable);
 
             assertThat(page.getTotalElements()).isEqualTo(4L);
-            assertThat(page.getContent()).singleElement().extracting(CommandeLiteDTO::getItemSize).isEqualTo(3);
+            assertThat(page.getContent())
+                    .singleElement()
+                    .extracting(CommandeLiteDTO::getItemSize)
+                    .isEqualTo(3);
         }
 
         @Test
@@ -415,12 +425,14 @@ class CommandeDataServiceImplTest {
         void filterCommandeLinesPagine() {
             Pageable pageable = PageRequest.of(0, 2);
             when(orderLineRepository.findByCommandeIdAndCommandeOrderDate(eq(12), eq(ORDER_DATE), eq(pageable)))
-                .thenReturn(new PageImpl<>(troisLignes().subList(0, 2), pageable, 3L));
+                    .thenReturn(new PageImpl<>(troisLignes().subList(0, 2), pageable, 3L));
 
             var page = service.filterCommandeLines(COMMANDE_ID, pageable);
 
             assertThat(page.getTotalElements()).isEqualTo(3L);
-            assertThat(page.getContent()).extracting(OrderLineDTO::getProduitLibelle).containsExactly("DOLIPRANE 1000MG", "ASPIRINE 500MG");
+            assertThat(page.getContent())
+                    .extracting(OrderLineDTO::getProduitLibelle)
+                    .containsExactly("DOLIPRANE 1000MG", "ASPIRINE 500MG");
         }
     }
 
@@ -442,13 +454,9 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("groupement mensuel : appelle la requete mensuelle")
         void mensuel() {
-            when(
-                commandeRepository.fetchTableauPharmacienReportMensuel(
-                    LocalDate.of(2026, 1, 1),
-                    LocalDate.of(2026, 1, 31),
-                    OrderStatut.CLOSED.name()
-                )
-            ).thenReturn(JSON);
+            when(commandeRepository.fetchTableauPharmacienReportMensuel(
+                            LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), OrderStatut.CLOSED.name()))
+                    .thenReturn(JSON);
 
             List<AchatDTO> achats = service.fetchReportTableauPharmacienData(param("month"));
 
@@ -456,25 +464,29 @@ class CommandeDataServiceImplTest {
                 assertThat(a.getMontantNet()).isEqualTo(1000L);
                 assertThat(a.getGroupeGrossiste()).isEqualTo("LABOREX");
             });
-            verify(commandeRepository, org.mockito.Mockito.never()).fetchTableauPharmacienReport(any(), any(), anyString());
+            verify(commandeRepository, org.mockito.Mockito.never())
+                    .fetchTableauPharmacienReport(any(), any(), anyString());
         }
 
         @ParameterizedTest(name = "groupeBy=[{0}]")
         @NullSource
-        @ValueSource(strings = { "day", "week" })
+        @ValueSource(strings = {"day", "week"})
         @DisplayName("tout autre groupement passe par la requete detaillee")
         void detaille(String groupeBy) {
-            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString())).thenReturn(JSON);
+            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString()))
+                    .thenReturn(JSON);
 
-            assertThat(service.fetchReportTableauPharmacienData(param(groupeBy))).hasSize(1);
+            assertThat(service.fetchReportTableauPharmacienData(param(groupeBy)))
+                    .hasSize(1);
         }
 
         @ParameterizedTest(name = "resultat=[{0}]")
         @NullSource
-        @ValueSource(strings = { "" })
+        @ValueSource(strings = {""})
         @DisplayName("un resultat vide donne une liste vide")
         void resultatVide(String json) {
-            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString())).thenReturn(json);
+            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString()))
+                    .thenReturn(json);
 
             assertThat(service.fetchReportTableauPharmacienData(param("day"))).isEmpty();
         }
@@ -482,7 +494,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("un JSON illisible est journalise et donne une liste vide")
         void jsonIllisible() {
-            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString())).thenReturn("{ceci n'est pas du json");
+            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString()))
+                    .thenReturn("{ceci n'est pas du json");
 
             assertThat(service.fetchReportTableauPharmacienData(param("day"))).isEmpty();
         }
@@ -490,7 +503,8 @@ class CommandeDataServiceImplTest {
         @Test
         @DisplayName("une erreur du depot est absorbee")
         void erreurDepot() {
-            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString())).thenThrow(new IllegalStateException("boom"));
+            when(commandeRepository.fetchTableauPharmacienReport(any(), any(), anyString()))
+                    .thenThrow(new IllegalStateException("boom"));
 
             assertThat(service.fetchReportTableauPharmacienData(param("day"))).isEmpty();
         }
@@ -515,10 +529,10 @@ class CommandeDataServiceImplTest {
             fournisseur.setId(3);
             fournisseur.setLibelle("LABOREX");
             PharmaMlEnvoi envoi = new PharmaMlEnvoi()
-                .setCommande(commande)
-                .setFournisseur(fournisseur)
-                .setStatut(PharmaMlStatut.PENDING)
-                .setDerniereTentative(derniereTentative);
+                    .setCommande(commande)
+                    .setFournisseur(fournisseur)
+                    .setStatut(PharmaMlStatut.PENDING)
+                    .setDerniereTentative(derniereTentative);
             ReflectionTestUtils.setField(envoi, "id", id);
             return envoi;
         }
@@ -541,9 +555,11 @@ class CommandeDataServiceImplTest {
         @DisplayName("separe les brouillons des commandes reellement envoyees")
         void separerBrouillonsEtEnvoyees() {
             Commande brouillon = commandeDashboard(1, ORDER_DATE, OrderStatut.REQUESTED);
-            Commande envoyee = commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 7);
+            Commande envoyee =
+                    commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 7);
             stubFindAll(List.of(brouillon, envoyee), List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
@@ -557,10 +573,13 @@ class CommandeDataServiceImplTest {
         @DisplayName("signale les commandes dont le delai annonce est depasse")
         void signalerLesRetards() {
             // Partie il y a 10 jours pour un delai annonce de 3 : 7 jours de retard.
-            Commande enRetard = commandeEnvoyee(1, ORDER_DATE, LocalDateTime.now().minusDays(10), 3);
-            Commande dansLesTemps = commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 3);
+            Commande enRetard =
+                    commandeEnvoyee(1, ORDER_DATE, LocalDateTime.now().minusDays(10), 3);
+            Commande dansLesTemps =
+                    commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 3);
             stubFindAll(List.of(enRetard, dansLesTemps), List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
@@ -575,7 +594,8 @@ class CommandeDataServiceImplTest {
             Commande vieuxBrouillon = commandeDashboard(1, ORDER_DATE.minusMonths(6), OrderStatut.REQUESTED);
             vieuxBrouillon.getFournisseur().setDelaiLivraisonJours(2);
             stubFindAll(List.of(vieuxBrouillon), List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
@@ -593,7 +613,8 @@ class CommandeDataServiceImplTest {
                 retards.add(commandeEnvoyee(i, ORDER_DATE, LocalDateTime.now().minusDays(10 + i), 3));
             }
             stubFindAll(retards, List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
@@ -601,7 +622,7 @@ class CommandeDataServiceImplTest {
             assertThat(dashboard.commandesEnRetard()).hasSize(20);
             // Les plus en retard d'abord : la relance commence par celles-la.
             assertThat(dashboard.commandesEnRetard().getFirst().joursDeRetard())
-                .isGreaterThan(dashboard.commandesEnRetard().getLast().joursDeRetard());
+                    .isGreaterThan(dashboard.commandesEnRetard().getLast().joursDeRetard());
         }
 
         @Test
@@ -612,9 +633,8 @@ class CommandeDataServiceImplTest {
             Commande c3 = commandeDashboard(3, ORDER_DATE, OrderStatut.RECEIVED);
             stubFindAll(List.of(c1, c2), List.of(c3));
             LocalDateTime tentative = LocalDateTime.of(2026, 4, 19, 10, 0);
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(
-                List.of(envoi(7, c1, tentative), envoi(8, c2, null))
-            );
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of(envoi(7, c1, tentative), envoi(8, c2, null)));
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
@@ -623,12 +643,17 @@ class CommandeDataServiceImplTest {
             assertThat(dashboard.totalPharmamlPending()).isEqualTo(2L);
             // tri par date de commande decroissante
             assertThat(dashboard.commandesRequested()).extracting(r -> r.id()).containsExactly(2, 1);
-            assertThat(dashboard.commandesRequested().getFirst().reliquatDeCommandeId()).isEqualTo(99);
-            assertThat(dashboard.commandesRequested().getFirst().orderDate()).isEqualTo(ORDER_DATE.plusDays(1).toString());
+            assertThat(dashboard.commandesRequested().getFirst().reliquatDeCommandeId())
+                    .isEqualTo(99);
+            assertThat(dashboard.commandesRequested().getFirst().orderDate())
+                    .isEqualTo(ORDER_DATE.plusDays(1).toString());
             assertThat(dashboard.commandesRequested().getFirst().orderStatus()).isEqualTo("REQUESTED");
-            assertThat(dashboard.commandesRequested().getFirst().fournisseurLibelle()).isEqualTo("LABOREX");
+            assertThat(dashboard.commandesRequested().getFirst().fournisseurLibelle())
+                    .isEqualTo("LABOREX");
             assertThat(dashboard.commandesRequested().getFirst().grossAmount()).isEqualTo(150_000);
-            assertThat(dashboard.commandesReceived()).extracting(r -> r.orderReference()).containsExactly("CMD-3");
+            assertThat(dashboard.commandesReceived())
+                    .extracting(r -> r.orderReference())
+                    .containsExactly("CMD-3");
             assertThat(dashboard.envoisPending()).hasSize(2);
             assertThat(dashboard.envoisPending().getFirst().createdAt()).isEqualTo(tentative);
             assertThat(dashboard.envoisPending().getFirst().commandeId()).isEqualTo(1);
@@ -642,23 +667,29 @@ class CommandeDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void specifications() {
             stubFindAll(List.of(), List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             service.getDashboard();
 
             ArgumentCaptor<Specification<Commande>> captor = ArgumentCaptor.forClass(Specification.class);
             verify(commandeRepository, org.mockito.Mockito.times(2)).findAll(captor.capture());
 
-            jakarta.persistence.criteria.Root<Commande> root = org.mockito.Mockito.mock(jakarta.persistence.criteria.Root.class);
-            jakarta.persistence.criteria.CriteriaQuery<?> query = org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaQuery.class);
-            jakarta.persistence.criteria.CriteriaBuilder cb = org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaBuilder.class);
-            jakarta.persistence.criteria.Predicate predicat = org.mockito.Mockito.mock(jakarta.persistence.criteria.Predicate.class);
+            jakarta.persistence.criteria.Root<Commande> root =
+                    org.mockito.Mockito.mock(jakarta.persistence.criteria.Root.class);
+            jakarta.persistence.criteria.CriteriaQuery<?> query =
+                    org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaQuery.class);
+            jakarta.persistence.criteria.CriteriaBuilder cb =
+                    org.mockito.Mockito.mock(jakarta.persistence.criteria.CriteriaBuilder.class);
+            jakarta.persistence.criteria.Predicate predicat =
+                    org.mockito.Mockito.mock(jakarta.persistence.criteria.Predicate.class);
             when(cb.equal(any(), any(Object.class))).thenReturn(predicat);
             when(cb.isNull(any())).thenReturn(predicat);
             when(cb.and(any(jakarta.persistence.criteria.Predicate[].class))).thenReturn(predicat);
 
             for (Specification<Commande> specification : captor.getAllValues()) {
-                assertThat(specification.toPredicate((jakarta.persistence.criteria.Root<Commande>) root, query, cb)).isSameAs(predicat);
+                assertThat(specification.toPredicate((jakarta.persistence.criteria.Root<Commande>) root, query, cb))
+                        .isSameAs(predicat);
             }
             // deux egalites (statut + type) et un isNull par specification
             verify(cb, org.mockito.Mockito.times(4)).equal(any(), any(Object.class));
@@ -671,12 +702,14 @@ class CommandeDataServiceImplTest {
             Commande c1 = commandeDashboard(1, ORDER_DATE, OrderStatut.REQUESTED);
             c1.setGrossAmount(null);
             stubFindAll(List.of(c1), List.of());
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(List.of());
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 
             assertThat(dashboard.commandesRequested().getFirst().grossAmount()).isZero();
-            assertThat(dashboard.commandesRequested().getFirst().reliquatDeCommandeId()).isNull();
+            assertThat(dashboard.commandesRequested().getFirst().reliquatDeCommandeId())
+                    .isNull();
             assertThat(dashboard.envoisPending()).isEmpty();
         }
 
@@ -692,7 +725,8 @@ class CommandeDataServiceImplTest {
             for (int i = 0; i < 60; i++) {
                 envois.add(envoi(i + 1, requested.getFirst(), null));
             }
-            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(envois);
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING))
+                    .thenReturn(envois);
 
             CommandeDashboardDTO dashboard = service.getDashboard();
 

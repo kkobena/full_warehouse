@@ -48,7 +48,8 @@ public class RetourClientReceiptService extends ReglementAbstractReceiptService 
             escPosFeedLines(out, 1);
 
             escPosPrintLine(out, "REF: " + retourDTO.reference());
-            escPosPrintLine(out, "DATE: " + retourDTO.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            escPosPrintLine(
+                    out, "DATE: " + retourDTO.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
             if (retourDTO.customerName() != null) {
                 escPosPrintLine(out, "CLIENT: " + retourDTO.customerName());
             }
@@ -67,20 +68,27 @@ public class RetourClientReceiptService extends ReglementAbstractReceiptService 
             escPosPrintSeparator(out, 48);
 
             for (RetourClientLineDTO line : retourDTO.lines()) {
-                escPosPrintLine(out, String.format("%-25s %5d %17s",
-                    truncateString(line.produitLibelle(), 24),
-                    line.quantite(),
-                    NumberUtil.formatToString(line.montant())
-                ));
+                escPosPrintLine(
+                        out,
+                        String.format(
+                                "%-25s %5d %17s",
+                                truncateString(line.produitLibelle(), 24),
+                                line.quantite(),
+                                NumberUtil.formatToString(line.montant())));
             }
 
             escPosPrintSeparator(out, 48);
 
             if (retourDTO.montantTpTotal() > 0) {
-                escPosPrintLine(out, String.format("%-32s %16s", "PART MUTUELLE", NumberUtil.formatToString(retourDTO.montantTpTotal())));
+                escPosPrintLine(
+                        out,
+                        String.format(
+                                "%-32s %16s", "PART MUTUELLE", NumberUtil.formatToString(retourDTO.montantTpTotal())));
             }
             escPosSetBold(out, true);
-            escPosPrintLine(out, String.format("%-32s %16s", "A REMBOURSER", NumberUtil.formatToString(retourDTO.montantTotal())));
+            escPosPrintLine(
+                    out,
+                    String.format("%-32s %16s", "A REMBOURSER", NumberUtil.formatToString(retourDTO.montantTotal())));
             escPosSetBold(out, false);
 
             if (retourDTO.modeReglement() != null) {
@@ -111,5 +119,4 @@ public class RetourClientReceiptService extends ReglementAbstractReceiptService 
         this.retourDTO = retourDTO;
         return generateEscPosReceipt(true);
     }
-
 }

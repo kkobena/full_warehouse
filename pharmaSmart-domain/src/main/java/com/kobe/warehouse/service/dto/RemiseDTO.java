@@ -7,12 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = RemiseClientDTO.class, name = "remiseClient"),
-        @JsonSubTypes.Type(value = RemiseProduitDTO.class, name = "remiseProduit"),
-    }
-)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = RemiseClientDTO.class, name = "remiseClient"),
+    @JsonSubTypes.Type(value = RemiseProduitDTO.class, name = "remiseProduit"),
+})
 public class RemiseDTO implements Serializable {
 
     @Serial
@@ -26,8 +24,7 @@ public class RemiseDTO implements Serializable {
     protected String typeLibelle;
     protected String displayName;
 
-    protected boolean enable = true;//pour la creation et la modification
-
+    protected boolean enable = true; // pour la creation et la modification
 
     public RemiseDTO() {}
 
@@ -37,7 +34,6 @@ public class RemiseDTO implements Serializable {
 
         displayName = remise.getValeur();
         this.enable = remise.isEnable();
-
     }
 
     public boolean isEnable() {

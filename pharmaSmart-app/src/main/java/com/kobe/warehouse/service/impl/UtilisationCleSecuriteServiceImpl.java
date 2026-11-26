@@ -25,11 +25,10 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
 
     // private Function<String, String> passwordEncoder = (password) -> password;
     public UtilisationCleSecuriteServiceImpl(
-        UtilisationCleSecuriteRepository utilisationCleSecuriteRepository,
-         NavItemRepository navItemRepository,
-        UserService userService,
-        LogsService logService
-    ) {
+            UtilisationCleSecuriteRepository utilisationCleSecuriteRepository,
+            NavItemRepository navItemRepository,
+            UserService userService,
+            LogsService logService) {
         this.navItemRepository = navItemRepository;
         this.utilisationCleSecuriteRepository = utilisationCleSecuriteRepository;
         this.userService = userService;
@@ -46,40 +45,39 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
     public void save(AppUser owner, UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) {
         AppUser connectedUser = this.userService.getUser();
         UtilisationCleSecurite utilisationCleSecurite = new UtilisationCleSecurite()
-            .setCleSecuriteOwner(owner)
-            .setConnectedUser(connectedUser)
-            .setCaisse(utilisationCleSecuriteDTO.getCaisse())
-            .setNavItem(this.navItemRepository.findByCode(utilisationCleSecuriteDTO.getPrivilege()))
-            .setEntityId(utilisationCleSecuriteDTO.getEntityId())
-            .setCommentaire(utilisationCleSecuriteDTO.getCommentaire())
-            .setEntityName(utilisationCleSecuriteDTO.getEntityName());
+                .setCleSecuriteOwner(owner)
+                .setConnectedUser(connectedUser)
+                .setCaisse(utilisationCleSecuriteDTO.getCaisse())
+                .setNavItem(this.navItemRepository.findByCode(utilisationCleSecuriteDTO.getPrivilege()))
+                .setEntityId(utilisationCleSecuriteDTO.getEntityId())
+                .setCommentaire(utilisationCleSecuriteDTO.getCommentaire())
+                .setEntityName(utilisationCleSecuriteDTO.getEntityName());
         utilisationCleSecurite = this.utilisationCleSecuriteRepository.save(utilisationCleSecurite);
         this.logService.create(
                 TransactionType.ACTIVATION_PRIVILEGE,
                 utilisationCleSecuriteDTO.getCommentaire(),
-                utilisationCleSecurite.getId().toString()
-            );
+                utilisationCleSecurite.getId().toString());
     }
 
     @Override
-    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO, Object action) throws PrivilegeException {
-        this.userService.getUserByPwdOrSecurityKey(utilisationCleSecuriteDTO.getActionAuthorityKey()).ifPresentOrElse(
-                user -> {
-                    if (
-                        user
-                            .getAuthorities()
-                            .stream()
-                            .anyMatch(role -> this.hasPrivilege(utilisationCleSecuriteDTO.getPrivilege(), role.getName()))
-                    ) {
-                        utilisationCleSecuriteDTO.setEntityName(action.getClass().getName());
-                        this.save(user, utilisationCleSecuriteDTO);
-                    } else {
-                        throw new PrivilegeException();
-                    }
-                },
-                () -> {
-                    throw new PrivilegeException();
-                }
-            );
+    public void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO, Object action)
+            throws PrivilegeException {
+        this.userService
+                .getUserByPwdOrSecurityKey(utilisationCleSecuriteDTO.getActionAuthorityKey())
+                .ifPresentOrElse(
+                        user -> {
+                            if (user.getAuthorities().stream()
+                                    .anyMatch(role -> this.hasPrivilege(
+                                            utilisationCleSecuriteDTO.getPrivilege(), role.getName()))) {
+                                utilisationCleSecuriteDTO.setEntityName(
+                                        action.getClass().getName());
+                                this.save(user, utilisationCleSecuriteDTO);
+                            } else {
+                                throw new PrivilegeException();
+                            }
+                        },
+                        () -> {
+                            throw new PrivilegeException();
+                        });
     }
 }

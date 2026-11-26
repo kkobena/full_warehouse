@@ -41,8 +41,10 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ProduitRepository
-    extends JpaRepository<Produit, Integer>, JpaSpecificationExecutor<Produit>,
-    SpecificationBuilder, ProduitCustomRepository {
+        extends JpaRepository<Produit, Integer>,
+                JpaSpecificationExecutor<Produit>,
+                SpecificationBuilder,
+                ProduitCustomRepository {
 
     /** Nombre de produits portant une substance active, seule ou en association — garde-fou avant suppression. */
     @Query("SELECT COUNT(DISTINCT pd.produit.id) FROM ProduitDci pd WHERE pd.dci.id = :dciId")
@@ -76,44 +78,46 @@ public interface ProduitRepository
      * <p>Volontairement non paginé : une molécule compte quelques dizaines de présentations au
      * plus, et la pagination cohabite mal avec un {@code JOIN FETCH}.
      */
-    @Query(
-        """
+    @Query("""
         SELECT p FROM Produit p
         LEFT JOIN FETCH p.famille
         LEFT JOIN FETCH p.fournisseurProduitPrincipal
         WHERE EXISTS (SELECT 1 FROM ProduitDci pd WHERE pd.produit = p AND pd.dci.id = :dciId)
         ORDER BY p.libelle
-        """
-    )
+        """)
     List<Produit> findAllByDciIdForDetail(@Param("dciId") Integer dciId);
 
-    @Query(value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
+    @Query(
+            value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)",
+            nativeQuery = true)
     List<Object[]> getTopQty80PercentProducts(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("caList") String caList,
-        @Param("statutList") String statutList
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("caList") String caList,
+            @Param("statutList") String statutList);
 
-    @Query(value = "SELECT * FROM gettopamount80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
+    @Query(
+            value = "SELECT * FROM gettopamount80percentproducts(:startDate, :endDate, :caList, :statutList)",
+            nativeQuery = true)
     List<Object[]> getTopAmount80PercentProducts(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("caList") String caList,
-        @Param("statutList") String statutList
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("caList") String caList,
+            @Param("statutList") String statutList);
 
     @Query(value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)", nativeQuery = true)
-    String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin,
-        @Param("limitResult") Integer limitResult);
+    String searchProduitsJson(
+            @Param("qtext") String qtext, @Param("magasin") Integer magasin, @Param("limitResult") Integer limitResult);
 
     /** Mêmes résultats que {@link #searchProduitsJson}, pour des identifiants ({@code "{3,5,8}"}) ; l'ordre reçu est conservé. */
     @Query(value = "SELECT search_produits_by_ids_json(CAST(:ids AS integer[]), :magasin)", nativeQuery = true)
     String searchProduitsByIdsJson(@Param("ids") String ids, @Param("magasin") Integer magasin);
 
     @Query(value = "SELECT search_produits_by_storage_json(:qtext, :storageId, :limitResult)", nativeQuery = true)
-    String searchProductsByStorage(@Param("qtext") String qtext,
-        @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);
+    String searchProductsByStorage(
+            @Param("qtext") String qtext,
+            @Param("storageId") Integer storageId,
+            @Param("limitResult") Integer limitResult);
 
     /** Produits portant cet EAN laboratoire. La colonne n'a qu'un index non unique. */
     List<Produit> findAllByCodeEanLaboratoire(String codeEanLaboratoire);
@@ -127,9 +131,9 @@ public interface ProduitRepository
     Optional<Produit> findOneByLibelle(String libelle);
 
     @Query(
-        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean_labo AS codeEan FROM produit p   JOIN fournisseur_produit  o ON p.fournisseur_produit_principal_id = o.id WHERE o.produit_id =?1 ",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean_labo AS codeEan FROM produit p   JOIN fournisseur_produit  o ON p.fournisseur_produit_principal_id = o.id WHERE o.produit_id =?1 ",
+            nativeQuery = true)
     HistoriqueProduitInfo findHistoriqueProduitInfo(Integer produitId);
 
     default Specification<Produit> filterByStock() {
@@ -161,11 +165,10 @@ public interface ProduitRepository
             Join<Produit, FournisseurProduit> produitJoin = root.join(Produit_.fournisseurProduits);
             var seatchT = "%" + searhTerm.toUpperCase() + "%";
             return cb.or(
-                cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeCip)), seatchT),
-                cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeEan)), seatchT),
-                cb.like(cb.upper(root.get(Produit_.libelle)), seatchT),
-                cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), seatchT)
-            );
+                    cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeCip)), seatchT),
+                    cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeEan)), seatchT),
+                    cb.like(cb.upper(root.get(Produit_.libelle)), seatchT),
+                    cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), seatchT));
         };
     }
 
@@ -176,8 +179,7 @@ public interface ProduitRepository
         return (root, _, cb) -> {
             Join<Produit, FournisseurProduit> produitJoin = root.join(Produit_.fournisseurProduits);
 
-            return cb.equal(produitJoin.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id),
-                fournisseurId);
+            return cb.equal(produitJoin.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId);
         };
     }
 
@@ -187,8 +189,7 @@ public interface ProduitRepository
         }
 
         return (root, query, cb) -> {
-            Join<Produit, RayonProduit> rayonJoin = root.join(
-                Produit_.rayonProduits); // collection join
+            Join<Produit, RayonProduit> rayonJoin = root.join(Produit_.rayonProduits); // collection join
 
             return cb.equal(rayonJoin.get(RayonProduit_.rayon).get(Rayon_.id), rayonId);
         };
@@ -198,8 +199,7 @@ public interface ProduitRepository
         if (isNull(familleProduitId)) {
             return null;
         }
-        return (root, _, cb) -> cb.equal(root.get(Produit_.famille).get(FamilleProduit_.id),
-            familleProduitId);
+        return (root, _, cb) -> cb.equal(root.get(Produit_.famille).get(FamilleProduit_.id), familleProduitId);
     }
 
     default Specification<Produit> buildCombinedSpecification(LotFilterParam param) {
@@ -215,8 +215,7 @@ public interface ProduitRepository
     }
 
     default Specification<Produit> specialisationCritereRecherche(String queryString) {
-        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)),
-            queryString.toUpperCase());
+        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)), queryString.toUpperCase());
     }
 
     default Specification<Produit> specialisationTypeProduit(TypeProduit typeProduit) {
@@ -239,7 +238,8 @@ public interface ProduitRepository
     /**
      * Compte les produits actifs non-DETAIL (pour dimensionner le batch SEMOIS).
      */
-    @Query("SELECT COUNT(p) FROM Produit p WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL")
+    @Query(
+            "SELECT COUNT(p) FROM Produit p WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL")
     long countActiveNonDetail();
 
     /**
@@ -252,8 +252,7 @@ public interface ProduitRepository
         LEFT JOIN FETCH f.parent
         WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
           AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
-        """,
-        countQuery = """
+        """, countQuery = """
             SELECT COUNT(p) FROM Produit p
             WHERE p.status = com.kobe.warehouse.domain.enumeration.Status.ENABLE
               AND p.typeProduit <> com.kobe.warehouse.domain.enumeration.TypeProduit.DETAIL
@@ -290,6 +289,5 @@ public interface ProduitRepository
                  sc.stockObjectifCalcule, p.qtySeuilMini, p.qtyAppro,
                  sc.exclusionDate, sc.exclusionDureeJours
         """)
-    Slice<SemoisEligibleItem> findSemoisEligibleItemsSlice(
-        @Param("magasinId") Integer magasinId, Pageable pageable);
+    Slice<SemoisEligibleItem> findSemoisEligibleItemsSlice(@Param("magasinId") Integer magasinId, Pageable pageable);
 }

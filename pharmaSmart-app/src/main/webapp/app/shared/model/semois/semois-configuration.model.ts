@@ -41,8 +41,8 @@ export interface ISemoisExclusion {
   produitLibelle: string;
   exclusionDureeJours: number;
   exclusionMotif?: string;
-  exclusionDate: string;       // ISO datetime
-  exclusionDateFin: string;    // ISO datetime
+  exclusionDate: string; // ISO datetime
+  exclusionDateFin: string; // ISO datetime
   exclActif: boolean;
 }
 

@@ -1,6 +1,6 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import {SkeletonComponent} from '../skeleton/skeleton.component';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 /**
  * Accent coloré porté par la barre verticale à gauche de l'item.
@@ -70,6 +70,6 @@ export class KpiStripComponent {
   }
 
   protected skeletonSlots(): number[] {
-    return Array.from({length: this.skeletonCount()}, (_, i) => i);
+    return Array.from({ length: this.skeletonCount() }, (_, i) => i);
   }
 }

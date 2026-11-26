@@ -10,27 +10,22 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {take} from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { take } from 'rxjs/operators';
 
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {fournirInfobullesEnHaut} from '../../shared/infobulles-en-haut';
-import {HauteurEcranVenteDirective} from '../../shared/hauteur-ecran-vente.directive';
-import {ButtonComponent, OffcanvasComponent, SelectSearchComponent} from '../../../../shared/ui';
-import {NgxSpinnerComponent, NgxSpinnerService} from 'ngx-spinner';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { fournirInfobullesEnHaut } from '../../shared/infobulles-en-haut';
+import { HauteurEcranVenteDirective } from '../../shared/hauteur-ecran-vente.directive';
+import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
+import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 
-import {VenteDepotFacade} from '../../data-access/facades/vente-depot.facade';
-import {RemiseCacheService} from '../../data-access/services/remise-cache.service';
-import {AuthorizationService} from '../../data-access/services/authorization.service';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {
-  ProductListComponent,
-  ProductSearchSectionComponent,
-  SaleActionsComponent,
-  SaleSummaryComponent
-} from '../../ui';
+import { VenteDepotFacade } from '../../data-access/facades/vente-depot.facade';
+import { RemiseCacheService } from '../../data-access/services/remise-cache.service';
+import { AuthorizationService } from '../../data-access/services/authorization.service';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { ProductListComponent, ProductSearchSectionComponent, SaleActionsComponent, SaleSummaryComponent } from '../../ui';
 import {
   createDeconditionnementHandling,
   createForceStockHandling,
@@ -39,22 +34,20 @@ import {
   ProductSearchHost,
 } from '../../shared/mixins';
 
-import {AccountService} from '../../../../core/auth/account.service';
-import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
+import { AccountService } from '../../../../core/auth/account.service';
+import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
-import {
-  NgbConfirmDialogService
-} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
-import {FinalyseSale, SaleId} from '../../../../shared/model/sales.model';
-import {IMagasin, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
-import {SaleLineId} from '../../../../shared/model/sales-line.model';
-import {IUser} from '../../../../core/user/user.model';
-import {ErrorService} from '../../../../shared/error.service';
-import {SalesHelpPanelComponent} from '../../ui/sales-help-panel/sales-help-panel.component';
-import {SalesHelpService} from '../../data-access/services/sales-help.service';
+import { FinalyseSale, SaleId } from '../../../../shared/model/sales.model';
+import { IMagasin, IRemise, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import { SaleLineId } from '../../../../shared/model/sales-line.model';
+import { IUser } from '../../../../core/user/user.model';
+import { ErrorService } from '../../../../shared/error.service';
+import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
+import { SalesHelpService } from '../../data-access/services/sales-help.service';
 
 @Component({
   selector: 'app-vente-depot',
@@ -62,7 +55,9 @@ import {SalesHelpService} from '../../data-access/services/sales-help.service';
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
   providers: [fournirInfobullesEnHaut()],
-  imports: [SalesHelpPanelComponent, OffcanvasComponent,
+  imports: [
+    SalesHelpPanelComponent,
+    OffcanvasComponent,
     HauteurEcranVenteDirective,
     CommonModule,
     FormsModule,
@@ -137,7 +132,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   private forceStockHandling = createForceStockHandling({
     facade: this.facade as any,
     authorizationService: this.authorizationService,
-    config: {saleType: 'COMPTANT'},
+    config: { saleType: 'COMPTANT' },
     currentSale: this.facade.currentSale,
     loading: this.facade.loading,
     lastError: this.facade.lastError,
@@ -161,12 +156,11 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     },
   });
   private keyboardShortcuts = createKeyboardShortcuts(
-    {saleType: 'COMPTANT'},
+    { saleType: 'COMPTANT' },
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
-      focusCustomer() {
-      },
+      focusCustomer() {},
       addProduct: () => {
         const product = this.facade.selectedProduct();
         if (product) {
@@ -175,8 +169,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
       },
       clearProduct: () => this.productHandling.resetProductSelection(),
       finalizeSale: () => this.save(),
-      putOnStandby() {
-      },
+      putOnStandby() {},
       cancelSale: () => this.onCancel(),
       printReceipt: () => {
         const sale = this.facade.currentSale();
@@ -217,7 +210,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
 
     // Initialise le caissier
     const account = this.accountService.trackCurrentAccount();
-    this.userCaissier = {...account()} as IUser;
+    this.userCaissier = { ...account() } as IUser;
     this.facade.setCashier(this.userCaissier);
     this.userSeller.set(this.userCaissier ?? undefined);
     this.facade.setSeller(this.userCaissier ?? null);
@@ -298,22 +291,20 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   }
 
   protected onSaveKeyDown(shouldSave: boolean): void {
-
     if (shouldSave && (this.facade.currentSale()?.salesLines?.length ?? 0) > 0) {
       this.confirmDialog.onConfirm(
         () => {
           this.save();
         },
         'Finaliser la vente',
-        'Voulez-vous vraiment finaliser la vente ?', null,
-        () => this.productSearchComponent()?.getFocus()
+        'Voulez-vous vraiment finaliser la vente ?',
+        null,
+        () => this.productSearchComponent()?.getFocus(),
       );
-
     }
   }
 
   protected addQuantity(qte: number): void {
-
     if (!this.facade.selectedDepot()) {
       this.notificationService.warning('Veuillez sélectionner un dépôt', 'Dépôt requis');
       this.focusDepotBox();
@@ -378,11 +369,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     }
   }
 
-
-  protected onAuthorizationRequired(event: {
-    line: ISalesLine;
-    action: 'delete' | 'discount'
-  }): void {
+  protected onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
     const saleId = this.facade.currentSale()?.id;
     if (event.action === 'delete') {
       this.facade.removeItemFromSale(event.line.saleLineId as SaleLineId);

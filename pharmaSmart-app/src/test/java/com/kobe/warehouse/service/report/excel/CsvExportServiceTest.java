@@ -65,10 +65,10 @@ class CsvExportServiceTest {
         @DisplayName("chaque donnée occupe sa propre ligne")
         void uneLigneParDonnee() throws IOException {
             String csv = csv(
-                "Alertes",
-                entetes("Code", "Libellé"),
-                List.<String[]>of(ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN"), ligne("CIP3", "ZOVIRAX"))
-            );
+                    "Alertes",
+                    entetes("Code", "Libellé"),
+                    List.<String[]>of(
+                            ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN"), ligne("CIP3", "ZOVIRAX")));
 
             assertThat(lignes(csv)).hasSize(6); // titre, date, en-têtes et trois données
         }
@@ -77,7 +77,10 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("un point-virgule dans une valeur est protégé")
         void separateurDansUneValeur() throws IOException {
-            String csv = csv("Alertes", entetes("Code", "Libellé"), List.<String[]>of(ligne("CIP1", "DOLIPRANE 1000 mg; boîte de 8")));
+            String csv = csv(
+                    "Alertes",
+                    entetes("Code", "Libellé"),
+                    List.<String[]>of(ligne("CIP1", "DOLIPRANE 1000 mg; boîte de 8")));
 
             assertThat(csv).contains("\"DOLIPRANE 1000 mg; boîte de 8\"");
             assertThat(lignes(csv)).hasSize(4); // titre, date, en-têtes et une donnée
@@ -86,7 +89,8 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("un guillemet dans une valeur est protégé")
         void guillemetDansUneValeur() throws IOException {
-            String csv = csv("Alertes", entetes("Code", "Libellé"), List.<String[]>of(ligne("CIP1", "SIROP \"ENFANT\"")));
+            String csv =
+                    csv("Alertes", entetes("Code", "Libellé"), List.<String[]>of(ligne("CIP1", "SIROP \"ENFANT\"")));
 
             assertThat(lignes(csv)).hasSize(4); // titre, date, en-têtes et une donnée
             assertThat(csv).contains("\"\"ENFANT\"\"");
@@ -108,7 +112,10 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("le titre du rapport ouvre le fichier")
         void titreEnTete() throws IOException {
-            String csv = csv("Alertes Stock - RUPTURE", entetes("Code", "Libellé"), List.<String[]>of(ligne("CIP1", "DOLIPRANE")));
+            String csv = csv(
+                    "Alertes Stock - RUPTURE",
+                    entetes("Code", "Libellé"),
+                    List.<String[]>of(ligne("CIP1", "DOLIPRANE")));
 
             assertThat(csv).contains("Alertes Stock - RUPTURE");
         }
@@ -116,7 +123,8 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("le fichier est encodé en UTF-8")
         void encodageUtf8() throws IOException {
-            byte[] octets = service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
+            byte[] octets =
+                    service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
 
             assertThat(new String(octets, StandardCharsets.UTF_8)).contains("Périmé");
         }
@@ -135,7 +143,8 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("la marque UTF-8 précède le contenu")
         void marquePrecedeLeContenu() throws IOException {
-            byte[] sansMarque = service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
+            byte[] sansMarque =
+                    service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
 
             byte[] avecMarque = service.addUtf8Bom(sansMarque);
 
@@ -146,7 +155,8 @@ class CsvExportServiceTest {
         @Test
         @DisplayName("le contenu reste intact derrière la marque")
         void contenuIntact() throws IOException {
-            byte[] sansMarque = service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
+            byte[] sansMarque =
+                    service.createCsvReport("Alertes", entetes("Libellé"), List.<String[]>of(ligne("Périmé")), r -> r);
 
             byte[] avecMarque = service.addUtf8Bom(sansMarque);
 
@@ -173,10 +183,9 @@ class CsvExportServiceTest {
         @DisplayName("des lignes déjà formées sont écrites telles quelles")
         void lignesDejaFormees() throws IOException {
             byte[] octets = service.createSimpleCsvReport(
-                "Alertes",
-                entetes("Code", "Libellé"),
-                List.<String[]>of(ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN"))
-            );
+                    "Alertes",
+                    entetes("Code", "Libellé"),
+                    List.<String[]>of(ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN")));
 
             String csv = new String(octets, StandardCharsets.UTF_8);
 
@@ -201,5 +210,4 @@ class CsvExportServiceTest {
     private static List<String> lignes(String csv) {
         return csv.lines().filter(l -> !l.isBlank()).toList();
     }
-
 }

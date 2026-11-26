@@ -5,17 +5,9 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { createRequestOptions } from '../../../../shared/util/request-util';
 
-export type MotifRetourClient =
-  | 'ERREUR_DISPENSATION'
-  | 'PRODUIT_DEFECTUEUX'
-  | 'ERREUR_QUANTITE'
-  | 'INSATISFACTION'
-  | 'AUTRE';
+export type MotifRetourClient = 'ERREUR_DISPENSATION' | 'PRODUIT_DEFECTUEUX' | 'ERREUR_QUANTITE' | 'INSATISFACTION' | 'AUTRE';
 
-export type ModeReglementRetour =
-  | 'REMBOURSEMENT_ESPECES'
-  | 'REMBOURSEMENT_CB'
-  | 'AVOIR_CLIENT';
+export type ModeReglementRetour = 'REMBOURSEMENT_ESPECES' | 'REMBOURSEMENT_CB' | 'AVOIR_CLIENT';
 
 export type StatutLegal = 'SANS_LISTE' | 'LISTE_I' | 'LISTE_II' | 'STUPEFIANTS' | 'PSO';
 

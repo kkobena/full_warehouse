@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.facturation.dto;
 
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
-
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -17,12 +16,11 @@ import java.util.Set;
  *                          toute autre valeur les factures individuelles.
  */
 public record InvoiceSearchParams(
-    LocalDate startDate,
-    LocalDate endDate,
-    Set<Integer> groupIds,
-    Set<Integer> tiersPayantIds,
-    Boolean factureProvisoire,
-    Set<InvoiceStatut> statuts,
-    String search,
-    TypeFacture typeFacture
-) {}
+        LocalDate startDate,
+        LocalDate endDate,
+        Set<Integer> groupIds,
+        Set<Integer> tiersPayantIds,
+        Boolean factureProvisoire,
+        Set<InvoiceStatut> statuts,
+        String search,
+        TypeFacture typeFacture) {}

@@ -34,10 +34,8 @@ public interface PosteDeviceService {
      */
     void activate(Long deviceId);
 
-
     /**
      * Supprime un périphérique configuré.
      */
     void delete(Long deviceId);
 }
-

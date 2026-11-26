@@ -43,7 +43,9 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             caisse(50_000L, aujourdHuiA(8, 0), null);
             viderLeCache();
 
-            DailyCashRegisterReportDTO etat = services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst();
+            DailyCashRegisterReportDTO etat = services.cashRegisterReportService
+                    .getDailyReport(LocalDate.now())
+                    .getFirst();
 
             assertThat(etat.caisseLibelle()).startsWith("Caisse ");
             assertThat(etat.userName()).isEqualTo("System System");
@@ -64,7 +66,9 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             caisse(50_000L, ouverture, fermeture);
             viderLeCache();
 
-            DailyCashRegisterReportDTO etat = services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst();
+            DailyCashRegisterReportDTO etat = services.cashRegisterReportService
+                    .getDailyReport(LocalDate.now())
+                    .getFirst();
 
             assertThat(etat.openingDate()).isEqualTo(ouverture);
             assertThat(etat.closingDate()).isEqualTo(fermeture);
@@ -76,7 +80,11 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             caisse(50_000L, aujourdHuiA(8, 0), null);
             viderLeCache();
 
-            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst().isClosed()).isFalse();
+            assertThat(services.cashRegisterReportService
+                            .getDailyReport(LocalDate.now())
+                            .getFirst()
+                            .isClosed())
+                    .isFalse();
         }
 
         /**
@@ -95,7 +103,9 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             venteDuJour(30_000);
             viderLeCache();
 
-            DailyCashRegisterReportDTO etat = services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst();
+            DailyCashRegisterReportDTO etat = services.cashRegisterReportService
+                    .getDailyReport(LocalDate.now())
+                    .getFirst();
 
             assertThat(etat.totalSales()).isEqualTo(100_000);
             assertThat(etat.numberOfTransactions()).isEqualTo(3);
@@ -108,8 +118,11 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             encaissement(caisse, "CASH", 100_000);
             viderLeCache();
 
-            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst().expectedBalance())
-                .isEqualTo(150_000);
+            assertThat(services.cashRegisterReportService
+                            .getDailyReport(LocalDate.now())
+                            .getFirst()
+                            .expectedBalance())
+                    .isEqualTo(150_000);
         }
 
         /** L'écart n'a de sens qu'une fois la caisse comptée : tant qu'elle est ouverte, il vaut zéro. */
@@ -120,7 +133,11 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             encaissement(ouverte, "CASH", 100_000);
             viderLeCache();
 
-            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now()).getFirst().discrepancy()).isZero();
+            assertThat(services.cashRegisterReportService
+                            .getDailyReport(LocalDate.now())
+                            .getFirst()
+                            .discrepancy())
+                    .isZero();
         }
 
         @Test
@@ -132,19 +149,17 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             viderLeCache();
 
             List<DailyCashRegisterReportDTO.PaymentModeBreakdown> ventilation = services.cashRegisterReportService
-                .getDailyReport(LocalDate.now())
-                .getFirst()
-                .paymentModeBreakdowns();
+                    .getDailyReport(LocalDate.now())
+                    .getFirst()
+                    .paymentModeBreakdowns();
 
             assertThat(ventilation)
-                .extracting(
-                    DailyCashRegisterReportDTO.PaymentModeBreakdown::modePaiement,
-                    DailyCashRegisterReportDTO.PaymentModeBreakdown::amount
-                )
-                .containsExactly(
-                    org.assertj.core.groups.Tuple.tuple("ESPECE", 100_000),
-                    org.assertj.core.groups.Tuple.tuple("ORANGE", 40_000)
-                );
+                    .extracting(
+                            DailyCashRegisterReportDTO.PaymentModeBreakdown::modePaiement,
+                            DailyCashRegisterReportDTO.PaymentModeBreakdown::amount)
+                    .containsExactly(
+                            org.assertj.core.groups.Tuple.tuple("ESPECE", 100_000),
+                            org.assertj.core.groups.Tuple.tuple("ORANGE", 40_000));
         }
 
         @Test
@@ -153,13 +168,15 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             caisse(50_000L, LocalDate.now().minusDays(1).atTime(8, 0), null);
             viderLeCache();
 
-            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now())).isEmpty();
+            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now()))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("base vierge : aucun état de caisse")
         void baseVierge() {
-            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now())).isEmpty();
+            assertThat(services.cashRegisterReportService.getDailyReport(LocalDate.now()))
+                    .isEmpty();
         }
     }
 
@@ -178,19 +195,19 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             viderLeCache();
 
             List<DailyCashRegisterReportDTO> synthese = services.cashRegisterReportService.getCashRegisterSummary(
-                LocalDate.now().minusDays(2),
-                LocalDate.now()
-            );
+                    LocalDate.now().minusDays(2), LocalDate.now());
 
-            assertThat(synthese).extracting(DailyCashRegisterReportDTO::openingBalance).containsExactly(10_000, 20_000, 30_000);
+            assertThat(synthese)
+                    .extracting(DailyCashRegisterReportDTO::openingBalance)
+                    .containsExactly(10_000, 20_000, 30_000);
         }
 
         @Test
         @DisplayName("une période sans caisse rend une synthèse vide")
         void periodeSansCaisse() {
-            assertThat(
-                services.cashRegisterReportService.getCashRegisterSummary(LocalDate.now().minusDays(7), LocalDate.now())
-            ).isEmpty();
+            assertThat(services.cashRegisterReportService.getCashRegisterSummary(
+                            LocalDate.now().minusDays(7), LocalDate.now()))
+                    .isEmpty();
         }
     }
 
@@ -209,12 +226,8 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             venteDuJour(20_000);
             viderLeCache();
 
-            List<CashMovementDTO> mouvements = services.cashRegisterReportService.getCashMovements(
-                LocalDate.now(),
-                LocalDate.now(),
-                null,
-                null
-            );
+            List<CashMovementDTO> mouvements =
+                    services.cashRegisterReportService.getCashMovements(LocalDate.now(), LocalDate.now(), null, null);
 
             assertThat(mouvements).hasSize(2);
             assertThat(mouvements).extracting(CashMovementDTO::movementType).containsOnly("VENTE");
@@ -232,8 +245,8 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             viderLeCache();
 
             CashMovementDTO mouvement = services.cashRegisterReportService
-                .getCashMovements(LocalDate.now(), LocalDate.now(), null, null)
-                .getFirst();
+                    .getCashMovements(LocalDate.now(), LocalDate.now(), null, null)
+                    .getFirst();
 
             assertThat(mouvement.saleNumber()).isNotBlank();
             assertThat(mouvement.customerName()).isEqualTo("Jean KOUASSI");
@@ -247,9 +260,11 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             venteDuJour(25_000);
             viderLeCache();
 
-            assertThat(
-                services.cashRegisterReportService.getCashMovements(LocalDate.now(), LocalDate.now(), null, null).getFirst().customerName()
-            ).isEqualTo("Client comptant");
+            assertThat(services.cashRegisterReportService
+                            .getCashMovements(LocalDate.now(), LocalDate.now(), null, null)
+                            .getFirst()
+                            .customerName())
+                    .isEqualTo("Client comptant");
         }
 
         @Test
@@ -259,15 +274,15 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             venteDuJour(25_000);
             viderLeCache();
 
-            assertThat(
-                services.cashRegisterReportService.getCashMovements(
-                    LocalDate.now(),
-                    LocalDate.now(),
-                    utilisateur.getId().longValue(),
-                    null
-                )
-            ).hasSize(1);
-            assertThat(services.cashRegisterReportService.getCashMovements(LocalDate.now(), LocalDate.now(), 999_999L, null)).isEmpty();
+            assertThat(services.cashRegisterReportService.getCashMovements(
+                            LocalDate.now(),
+                            LocalDate.now(),
+                            utilisateur.getId().longValue(),
+                            null))
+                    .hasSize(1);
+            assertThat(services.cashRegisterReportService.getCashMovements(
+                            LocalDate.now(), LocalDate.now(), 999_999L, null))
+                    .isEmpty();
         }
 
         @Test
@@ -277,15 +292,17 @@ class CashRegisterReportServiceIntegrationTest extends AbstractReportIntegration
             vente(LocalDate.now().minusDays(10), 25_000);
             viderLeCache();
 
-            assertThat(services.cashRegisterReportService.getCashMovements(LocalDate.now(), LocalDate.now(), null, null)).isEmpty();
+            assertThat(services.cashRegisterReportService.getCashMovements(
+                            LocalDate.now(), LocalDate.now(), null, null))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("base vierge : aucun mouvement")
         void baseVierge() {
-            assertThat(
-                services.cashRegisterReportService.getCashMovements(LocalDate.now().minusDays(7), LocalDate.now(), null, null)
-            ).isEmpty();
+            assertThat(services.cashRegisterReportService.getCashMovements(
+                            LocalDate.now().minusDays(7), LocalDate.now(), null, null))
+                    .isEmpty();
         }
     }
 

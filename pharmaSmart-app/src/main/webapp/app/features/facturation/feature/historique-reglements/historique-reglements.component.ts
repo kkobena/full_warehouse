@@ -1,34 +1,26 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input, signal } from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {finalize} from "rxjs/operators";
-import {HttpResponse} from "@angular/common/http";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgbDateStruct, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from "../../../../shared/util/warehouse-util";
-import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
-import {
-  NgbConfirmDialogService
-} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../shared/error.service";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
 
-import {IGroupeTiersPayant} from "../../../../shared/model/groupe-tierspayant.model";
-import {ITiersPayant} from "../../../../shared/model";
-import {TiersPayantService} from "../../../../entities/tiers-payant/tierspayant.service";
-import {
-  GroupeTiersPayantService
-} from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
-import {ReglementService} from "../../../../entities/reglement/reglement.service";
-import {InvoicePaymentParam, Reglement} from "../../../../entities/reglement/model/reglement.model";
-import {
-  DetailSingleReglementComponent
-} from "../../../../entities/reglement/detail-single-reglement/detail-single-reglement.component";
-import {
-  DetailGroupReglementComponent
-} from "../../../../entities/reglement/detail-group-reglement/detail-group-reglement.component";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import { IGroupeTiersPayant } from '../../../../shared/model/groupe-tierspayant.model';
+import { ITiersPayant } from '../../../../shared/model';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
+import { GroupeTiersPayantService } from '../../../../entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { ReglementService } from '../../../../entities/reglement/reglement.service';
+import { InvoicePaymentParam, Reglement } from '../../../../entities/reglement/model/reglement.model';
+import { DetailSingleReglementComponent } from '../../../../entities/reglement/detail-single-reglement/detail-single-reglement.component';
+import { DetailGroupReglementComponent } from '../../../../entities/reglement/detail-group-reglement/detail-group-reglement.component';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { CardComponent } from 'app/shared/ui';
 import {
   ButtonComponent,
@@ -39,15 +31,14 @@ import {
   RowCheckboxComponent,
   SelectSearchComponent,
   SwitchComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
-import {
-  PharmaDatePickerComponent
-} from "../../../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: "app-historique-reglements",
-  imports: [CardComponent, 
+  selector: 'app-historique-reglements',
+  imports: [
+    CardComponent,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -60,11 +51,11 @@ import {
     SwitchComponent,
     ToolbarComponent,
     PharmaDatePickerComponent,
-    NgbTooltip
+    NgbTooltip,
   ],
-  templateUrl: "./historique-reglements.component.html",
+  templateUrl: './historique-reglements.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./historique-reglements.component.scss"
+  styleUrl: './historique-reglements.component.scss',
 })
 export class HistoriqueReglementsComponent implements OnInit {
   /**
@@ -105,7 +96,7 @@ export class HistoriqueReglementsComponent implements OnInit {
   constructor() {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
@@ -119,14 +110,18 @@ export class HistoriqueReglementsComponent implements OnInit {
   onView(item: Reglement): void {
     if (this.factureGroup) {
       const ref = this.modalService.open(DetailGroupReglementComponent, {
-        backdrop: "static", size: "xl", centered: true,
-        modalDialogClass: "facture-modal-dialog"
+        backdrop: 'static',
+        size: 'xl',
+        centered: true,
+        modalDialogClass: 'facture-modal-dialog',
       });
       ref.componentInstance.reglement = item;
     } else {
       const ref = this.modalService.open(DetailSingleReglementComponent, {
-        backdrop: "static", size: "xl", centered: true,
-        modalDialogClass: "facture-modal-dialog"
+        backdrop: 'static',
+        size: 'xl',
+        centered: true,
+        modalDialogClass: 'facture-modal-dialog',
       });
       ref.componentInstance.reglement = item;
     }
@@ -141,9 +136,8 @@ export class HistoriqueReglementsComponent implements OnInit {
           next: async (data: ArrayBuffer) => {
             try {
               await this.tauriPrinterService.printEscPosFromBuffer(data);
-            } catch {
-            }
-          }
+            } catch {}
+          },
         });
     } else {
       this.reglementService.printReceipt(item.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
@@ -158,12 +152,11 @@ export class HistoriqueReglementsComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => this.fetchData(),
-            error: err =>
-              this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression")
+            error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression'),
           });
       },
-      "SUPPRESSION DE RÈGLEMENT",
-      "Voulez-vous supprimer ce règlement ?"
+      'SUPPRESSION DE RÈGLEMENT',
+      'Voulez-vous supprimer ce règlement ?',
     );
   }
 
@@ -171,19 +164,18 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => {
         this.reglementService
-          .deleteAll({ids: this.selectedDatas().map(e => e.id.id)})
+          .deleteAll({ ids: this.selectedDatas().map(e => e.id.id) })
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
               this.selectedDatas.set([]);
               this.fetchData();
             },
-            error: err =>
-              this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression")
+            error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression'),
           });
       },
-      "SUPPRESSION DE RÈGLEMENTS",
-      "Voulez-vous supprimer ces règlements ?"
+      'SUPPRESSION DE RÈGLEMENTS',
+      'Voulez-vous supprimer ces règlements ?',
     );
   }
 
@@ -192,13 +184,12 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.reglementService
       .onPrintPdf(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingPdf.set(false))),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => this.loadingPdf.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: blob => this.downloadDocumentService.downloadPdf(blob, "reglements-factures"),
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Export PDF")
+        next: blob => this.downloadDocumentService.downloadPdf(blob, 'reglements-factures'),
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Export PDF'),
       });
   }
 
@@ -207,28 +198,27 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.reglementService
       .exportExcel(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingExcel.set(false))),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => this.loadingExcel.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: blob => this.downloadDocumentService.downloadExcel(blob, "reglements-factures"),
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Export Excel")
+        next: blob => this.downloadDocumentService.downloadExcel(blob, 'reglements-factures'),
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Export Excel'),
       });
   }
 
   searchTiersPayant(query: string): void {
     this.tiersPayantService
-      .query({page: 0, search: query, size: 10})
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants.set(res.body ?? [])));
+      .subscribe((res: HttpResponse<ITiersPayant[]>) => this.tiersPayants.set(res.body ?? []));
   }
 
   searchGroupeTiersPayant(query: string): void {
     this.groupeTiersPayantService
-      .query({page: 0, search: query, size: 10})
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => (this.groupeTiersPayants.set(res.body ?? [])));
+      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => this.groupeTiersPayants.set(res.body ?? []));
   }
 
   getTotalByGroupe(organismeId: number): number {
@@ -242,27 +232,24 @@ export class HistoriqueReglementsComponent implements OnInit {
     this.reglementService
       .query(this.buildParams())
       .pipe(
-        finalize(() => (this.loadingBtn.set(false))),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => this.loadingBtn.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (res: HttpResponse<Reglement[]>) => {
           this.datas.set(res.body ?? []);
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement")
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement'),
       });
   }
 
   private buildParams(): InvoicePaymentParam {
     return {
       search: this.search,
-      organismeId: this.factureGroup
-        ? this.selectedGroupeTiersPayant?.id
-        : this.selectedTiersPayant?.id,
+      organismeId: this.factureGroup ? this.selectedGroupeTiersPayant?.id : this.selectedTiersPayant?.id,
       fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate),
-      grouped: this.factureGroup
+      grouped: this.factureGroup,
     };
   }
 }

@@ -86,11 +86,7 @@
 </div>
 
 <!-- ── Tableau de ventilation ────────────────────────────────────────────── -->
-<app-data-table
-  [loading]="loading()"
-  [value]="groups()"
-  class="p-datatable-sm val-table"
->
+<app-data-table [loading]="loading()" [value]="groups()" class="p-datatable-sm val-table">
   <ng-template #header>
     <tr class="pharma-table-head">
       <th>Groupe</th>

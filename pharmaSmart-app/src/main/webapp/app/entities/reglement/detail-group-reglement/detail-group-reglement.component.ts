@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ReglementService} from '../reglement.service';
-import {InvoicePaymentItem, Reglement} from '../model/reglement.model';
-import {HttpResponse} from '@angular/common/http';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {CommonModule} from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ReglementService } from '../reglement.service';
+import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
+import { HttpResponse } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import {
   ButtonComponent,
   CardComponent,
@@ -12,7 +12,7 @@ import {
   IconFieldComponent,
   KpiItemComponent,
   KpiStripComponent,
-  SelectableRowDirective
+  SelectableRowDirective,
 } from '../../../shared/ui';
 
 @Component({
@@ -27,7 +27,7 @@ import {
     IconFieldComponent,
     KpiItemComponent,
     KpiStripComponent,
-    SelectableRowDirective
+    SelectableRowDirective,
   ],
   templateUrl: './detail-group-reglement.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -45,7 +45,9 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(10), 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID);
             viderLeCache();
 
-            TiersPayantInvoiceDTO impayee = services.tiersPayantReportService.getUnpaidInvoices(null, null).getFirst();
+            TiersPayantInvoiceDTO impayee = services.tiersPayantReportService
+                    .getUnpaidInvoices(null, null)
+                    .getFirst();
 
             assertThat(impayee.tiersPayantLibelle()).startsWith("MUGEFCI");
             assertThat(impayee.montantFacture()).isEqualTo(500_000);
@@ -61,7 +63,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(10), 500_000, 500_000, InvoiceStatut.PAID);
             viderLeCache();
 
-            assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null)).isEmpty();
+            assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null))
+                    .isEmpty();
         }
 
         /**
@@ -80,13 +83,12 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null))
-                .extracting(TiersPayantInvoiceDTO::ageCategory)
-                .containsExactly(
-                    AgeCategory.LESS_THAN_30,
-                    AgeCategory.BETWEEN_30_60,
-                    AgeCategory.BETWEEN_60_90,
-                    AgeCategory.MORE_THAN_90
-                );
+                    .extracting(TiersPayantInvoiceDTO::ageCategory)
+                    .containsExactly(
+                            AgeCategory.LESS_THAN_30,
+                            AgeCategory.BETWEEN_30_60,
+                            AgeCategory.BETWEEN_60_90,
+                            AgeCategory.MORE_THAN_90);
         }
 
         @Test
@@ -96,7 +98,11 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(45), 100_000, 0, InvoiceStatut.NOT_PAID);
             viderLeCache();
 
-            assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null).getFirst().daysSinceInvoice()).isEqualTo(45);
+            assertThat(services.tiersPayantReportService
+                            .getUnpaidInvoices(null, null)
+                            .getFirst()
+                            .daysSinceInvoice())
+                    .isEqualTo(45);
         }
 
         @Test
@@ -108,8 +114,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null))
-                .extracting(TiersPayantInvoiceDTO::montantFacture)
-                .containsExactly(200_000, 100_000);
+                    .extracting(TiersPayantInvoiceDTO::montantFacture)
+                    .containsExactly(200_000, 100_000);
         }
 
         @Test
@@ -121,11 +127,11 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, AgeCategory.MORE_THAN_90))
-                .extracting(TiersPayantInvoiceDTO::montantFacture)
-                .containsExactly(900_000);
+                    .extracting(TiersPayantInvoiceDTO::montantFacture)
+                    .containsExactly(900_000);
             assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, AgeCategory.LESS_THAN_30))
-                .extracting(TiersPayantInvoiceDTO::montantFacture)
-                .containsExactly(100_000);
+                    .extracting(TiersPayantInvoiceDTO::montantFacture)
+                    .containsExactly(100_000);
         }
 
         @Test
@@ -137,14 +143,15 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getUnpaidInvoices(groupe.getId(), null))
-                .extracting(TiersPayantInvoiceDTO::montantFacture)
-                .containsExactly(100_000);
+                    .extracting(TiersPayantInvoiceDTO::montantFacture)
+                    .containsExactly(100_000);
         }
 
         @Test
         @DisplayName("base vierge : aucune créance")
         void baseVierge() {
-            assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null)).isEmpty();
+            assertThat(services.tiersPayantReportService.getUnpaidInvoices(null, null))
+                    .isEmpty();
         }
     }
 
@@ -164,7 +171,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(120), 400_000, 0, InvoiceStatut.NOT_PAID);
             viderLeCache();
 
-            TiersPayantCreancesSummaryDTO synthese = services.tiersPayantReportService.getCreancesSummary().getFirst();
+            TiersPayantCreancesSummaryDTO synthese =
+                    services.tiersPayantReportService.getCreancesSummary().getFirst();
 
             assertThat(synthese.nombreFactures()).isEqualTo(4);
             assertThat(synthese.montantEncours()).isEqualTo(1_000_000);
@@ -172,12 +180,11 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             assertThat(synthese.montantEntre30Et60Jours()).isEqualTo(200_000);
             assertThat(synthese.montantEntre60Et90Jours()).isEqualTo(300_000);
             assertThat(synthese.montantPlusDe90Jours()).isEqualTo(400_000);
-            assertThat(synthese.montantEncours()).isEqualTo(
-                synthese.montantMoinsDe30Jours() +
-                synthese.montantEntre30Et60Jours() +
-                synthese.montantEntre60Et90Jours() +
-                synthese.montantPlusDe90Jours()
-            );
+            assertThat(synthese.montantEncours())
+                    .isEqualTo(synthese.montantMoinsDe30Jours()
+                            + synthese.montantEntre30Et60Jours()
+                            + synthese.montantEntre60Et90Jours()
+                            + synthese.montantPlusDe90Jours());
         }
 
         /**
@@ -191,7 +198,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(10), 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID);
             viderLeCache();
 
-            TiersPayantCreancesSummaryDTO synthese = services.tiersPayantReportService.getCreancesSummary().getFirst();
+            TiersPayantCreancesSummaryDTO synthese =
+                    services.tiersPayantReportService.getCreancesSummary().getFirst();
 
             assertThat(synthese.montantMoinsDe30Jours()).isEqualTo(300_000);
             assertThat(synthese.montantMoinsDe30Jours()).isNotNegative();
@@ -223,7 +231,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(10), 100_000, 0, InvoiceStatut.NOT_PAID);
             viderLeCache();
 
-            TiersPayantCreancesSummaryDTO synthese = services.tiersPayantReportService.getCreancesSummary().getFirst();
+            TiersPayantCreancesSummaryDTO synthese =
+                    services.tiersPayantReportService.getCreancesSummary().getFirst();
 
             assertThat(synthese.groupeTiersPayantId()).isNull();
             assertThat(synthese.groupeTiersPayantLibelle()).isEqualTo(mutuelle.getName());
@@ -237,8 +246,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getCreancesSummary())
-                .extracting(TiersPayantCreancesSummaryDTO::montantEncours)
-                .containsExactly(900_000, 100_000);
+                    .extracting(TiersPayantCreancesSummaryDTO::montantEncours)
+                    .containsExactly(900_000, 100_000);
         }
 
         @Test
@@ -272,11 +281,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(10), 300_000, 0, InvoiceStatut.NOT_PAID);
             viderLeCache();
 
-            List<TiersPayantInvoiceDTO> historique = services.tiersPayantReportService.getPaymentHistory(
-                null,
-                ilYA(30),
-                LocalDate.now()
-            );
+            List<TiersPayantInvoiceDTO> historique =
+                    services.tiersPayantReportService.getPaymentHistory(null, ilYA(30), LocalDate.now());
 
             assertThat(historique).hasSize(1);
             assertThat(historique.getFirst().montantFacture()).isEqualTo(500_000);
@@ -290,7 +296,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             facture(mutuelle, ilYA(200), 500_000, 500_000, InvoiceStatut.PAID);
             viderLeCache();
 
-            assertThat(services.tiersPayantReportService.getPaymentHistory(null, ilYA(30), LocalDate.now())).isEmpty();
+            assertThat(services.tiersPayantReportService.getPaymentHistory(null, ilYA(30), LocalDate.now()))
+                    .isEmpty();
         }
 
         @Test
@@ -302,14 +309,15 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getPaymentHistory(groupe.getId(), ilYA(30), LocalDate.now()))
-                .extracting(TiersPayantInvoiceDTO::montantFacture)
-                .containsExactly(100_000);
+                    .extracting(TiersPayantInvoiceDTO::montantFacture)
+                    .containsExactly(100_000);
         }
 
         @Test
         @DisplayName("base vierge : aucun règlement")
         void baseVierge() {
-            assertThat(services.tiersPayantReportService.getPaymentHistory(null, ilYA(30), LocalDate.now())).isEmpty();
+            assertThat(services.tiersPayantReportService.getPaymentHistory(null, ilYA(30), LocalDate.now()))
+                    .isEmpty();
         }
     }
 

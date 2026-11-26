@@ -39,9 +39,7 @@ export const licenseWriteGuard: CanActivateFn = (): Observable<boolean | UrlTree
     }
     notification.error(info.message, 'Licence non valide');
 
-
-    const canReachLicenseScreen =
-      accountService.hasAnyAuthority(Authority.ADMIN) || ability.can('access', 'gestion-licence');
+    const canReachLicenseScreen = accountService.hasAnyAuthority(Authority.ADMIN) || ability.can('access', 'gestion-licence');
     return canReachLicenseScreen ? router.createUrlTree(['/licence']) : router.createUrlTree(['/']);
   };
 

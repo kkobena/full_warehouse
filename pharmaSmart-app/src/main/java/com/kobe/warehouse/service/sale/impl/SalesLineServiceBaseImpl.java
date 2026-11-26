@@ -18,11 +18,10 @@ import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base implementation for SalesLineService.
@@ -33,39 +32,38 @@ import java.util.Set;
 public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
 
     public SalesLineServiceBaseImpl(
-        ProduitRepository produitRepository,
-        SalesLineRepository salesLineRepository,
-        StockProduitRepository stockProduitRepository,
-        LotService lotService,
-        InventoryTransactionService inventoryTransactionService,
-        SaleLineIdGeneratorService saleLineIdGeneratorService,
-        StockUpdateService stockUpdateService,
-        StorageService storageService,
-        RepartitionStockService repartitionStockService,
-        LotStockLocationService lotStockLocationService,
-        AvoirClientDocumentService avoirClientDocumentService,
-        DataMatrixParserService dataMatrixParserService,
-        AjustementService ajustementService
-    ) {
+            ProduitRepository produitRepository,
+            SalesLineRepository salesLineRepository,
+            StockProduitRepository stockProduitRepository,
+            LotService lotService,
+            InventoryTransactionService inventoryTransactionService,
+            SaleLineIdGeneratorService saleLineIdGeneratorService,
+            StockUpdateService stockUpdateService,
+            StorageService storageService,
+            RepartitionStockService repartitionStockService,
+            LotStockLocationService lotStockLocationService,
+            AvoirClientDocumentService avoirClientDocumentService,
+            DataMatrixParserService dataMatrixParserService,
+            AjustementService ajustementService) {
         super(
-            produitRepository,
-            salesLineRepository,
-            stockProduitRepository,
-            lotService,
-            inventoryTransactionService,
-            saleLineIdGeneratorService,
-            stockUpdateService,
-            storageService,
-            repartitionStockService,
-            lotStockLocationService,
-            avoirClientDocumentService,
-            dataMatrixParserService,
-            ajustementService
-        );
+                produitRepository,
+                salesLineRepository,
+                stockProduitRepository,
+                lotService,
+                inventoryTransactionService,
+                saleLineIdGeneratorService,
+                stockUpdateService,
+                storageService,
+                repartitionStockService,
+                lotStockLocationService,
+                avoirClientDocumentService,
+                dataMatrixParserService,
+                ajustementService);
     }
 
     @Override
-    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId) throws StockException, DeconditionnementStockOut {
+    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId)
+            throws StockException, DeconditionnementStockOut {
         return super.setCommonSaleLine(dto, stockageId);
     }
 
@@ -76,10 +74,12 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
 
     @Override
     public List<SalesLine> createSaleLinesFromDTO(CashSale cashSale, List<SaleLineDTO> saleLines, Integer stockageId) {
-        return saleLines.stream().map(saleLineDTO -> {
-            SalesLine salesLine = super.setCommonSaleLine(saleLineDTO, stockageId);
-            salesLine.setSales(cashSale);
-            return salesLine;
-        }).toList();
+        return saleLines.stream()
+                .map(saleLineDTO -> {
+                    SalesLine salesLine = super.setCommonSaleLine(saleLineDTO, stockageId);
+                    salesLine.setSales(cashSale);
+                    return salesLine;
+                })
+                .toList();
     }
 }

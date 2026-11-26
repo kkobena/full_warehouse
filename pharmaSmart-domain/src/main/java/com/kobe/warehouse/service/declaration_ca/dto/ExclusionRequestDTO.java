@@ -14,4 +14,5 @@ import java.util.Set;
  * @param ids entités visées
  * @param exclure état cible commun à toutes
  */
-public record ExclusionRequestDTO(@NotEmpty Set<Integer> ids, @NotNull Boolean exclure) {}
+public record ExclusionRequestDTO(
+        @NotEmpty Set<Integer> ids, @NotNull Boolean exclure) {}

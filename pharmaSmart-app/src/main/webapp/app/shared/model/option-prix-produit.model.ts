@@ -11,8 +11,7 @@ export interface IOptionPrixProduit {
 }
 
 export const OPTION_PRIX_TYPE_OPTIONS = [
-  { value: 'REFERENCE', label: 'Prix de référence', description: 'Montant fixe accordé par l\'assurance' },
+  { value: 'REFERENCE', label: 'Prix de référence', description: "Montant fixe accordé par l'assurance" },
   { value: 'POURCENTAGE', label: 'Pourcentage', description: 'Taux appliqué sur le prix de vente' },
   { value: 'MIXED_REFERENCE_POURCENTAGE', label: 'Mixte', description: 'Taux appliqué sur un prix de référence' },
 ];
-

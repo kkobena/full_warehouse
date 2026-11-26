@@ -1,33 +1,22 @@
 package com.kobe.warehouse.service.stock.dto;
 
-
-
 public class StockDepotExportDTO {
-
 
     private Integer produitId;
 
-
     private String code;
-
 
     private String produitLibelle;
 
-
     private String codeEan;
-
 
     private Integer quantitySold;
 
-
     private Integer quantityRequested;
-
 
     private Integer regularUnitPrice;
 
-
     private Integer taxValue;
-
 
     private Integer costAmount;
 
@@ -106,16 +95,15 @@ public class StockDepotExportDTO {
     public StockDepotExportDTO() {}
 
     public StockDepotExportDTO(
-        Integer produitId,
-        String code,
-        String produitLibelle,
-        String codeEan,
-        Integer quantitySold,
-        Integer quantityRequested,
-        Integer regularUnitPrice,
-        Integer taxValue,
-        Integer costAmount
-    ) {
+            Integer produitId,
+            String code,
+            String produitLibelle,
+            String codeEan,
+            Integer quantitySold,
+            Integer quantityRequested,
+            Integer regularUnitPrice,
+            Integer taxValue,
+            Integer costAmount) {
         this.produitId = produitId;
         this.code = code;
         this.produitLibelle = produitLibelle;

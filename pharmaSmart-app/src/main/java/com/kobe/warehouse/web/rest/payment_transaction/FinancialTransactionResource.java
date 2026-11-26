@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.payment_transaction;
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.enumeration.Order;
@@ -35,12 +37,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse" })
+@RequiresNavAccess({"mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse"})
 public class FinancialTransactionResource {
 
     private final FinancialTransactionService financialTransactionService;
@@ -51,9 +51,10 @@ public class FinancialTransactionResource {
 
     @PostMapping("/payment-transactions")
     public ResponseEntity<PaymentId> createEvent(@Valid @RequestBody FinancialTransactionDTO financialTransaction)
-        throws URISyntaxException {
+            throws URISyntaxException {
         if (financialTransaction.getId() != null) {
-            throw new BadRequestAlertException("A new financialTransaction cannot already have an ID", "financialTransaction", "idexists");
+            throw new BadRequestAlertException(
+                    "A new financialTransaction cannot already have an ID", "financialTransaction", "idexists");
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(financialTransactionService.create(financialTransaction));
@@ -61,21 +62,21 @@ public class FinancialTransactionResource {
 
     @GetMapping("/payment-transactions/mvt-caisses")
     public ResponseEntity<List<MvtCaisseDTO>> getAllMvtTransactions(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "userId", required = false) Long userId,
-        @RequestParam(value = "typeFinancialTransactions", required = false) Set<TypeFinancialTransaction> typeFinancialTransactions,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
-        @RequestParam(value = "order", required = false) Order order,
-        @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
-        @RequestParam(value = "toTime", required = false) LocalTime toTime,
-        Pageable pageable
-    ) {
-        Page<MvtCaisseDTO> page =
-            this.financialTransactionService.findAll(
-                    new TransactionFilterDTO(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "typeFinancialTransactions", required = false)
+                    Set<TypeFinancialTransaction> typeFinancialTransactions,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
+            @RequestParam(value = "order", required = false) Order order,
+            @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
+            @RequestParam(value = "toTime", required = false) LocalTime toTime,
+            Pageable pageable) {
+        Page<MvtCaisseDTO> page = this.financialTransactionService.findAll(
+                new TransactionFilterDTO(
                         fromDate,
                         toDate,
                         userId,
@@ -85,30 +86,32 @@ public class FinancialTransactionResource {
                         paymentModes,
                         order,
                         fromTime,
-                        toTime
-                    ),
-                    pageable
-                );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                        toTime),
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/payment-transactions/pdf")
-    @RequiresNavAccess(value = { "mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "userId", required = false) Long userId,
-        @RequestParam(value = "typeFinancialTransactions", required = false) Set<TypeFinancialTransaction> typeFinancialTransactions,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
-        @RequestParam(value = "order", required = false) Order order,
-        @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
-        @RequestParam(value = "toTime", required = false) LocalTime toTime
-    ) {
-        return Utils.printPDF(this.financialTransactionService.exportToPdf(
-                    new TransactionFilterDTO(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "typeFinancialTransactions", required = false)
+                    Set<TypeFinancialTransaction> typeFinancialTransactions,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
+            @RequestParam(value = "order", required = false) Order order,
+            @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
+            @RequestParam(value = "toTime", required = false) LocalTime toTime) {
+        return Utils.printPDF(
+                this.financialTransactionService.exportToPdf(new TransactionFilterDTO(
                         fromDate,
                         toDate,
                         userId,
@@ -118,26 +121,25 @@ public class FinancialTransactionResource {
                         paymentModes,
                         order,
                         fromTime,
-                        toTime
-                    )
-                ), "mvt-caisse.pdf");
+                        toTime)),
+                "mvt-caisse.pdf");
     }
 
     @GetMapping("/payment-transactions")
     public ResponseEntity<List<FinancialTransactionDTO>> fetchAllFinancialTransactions(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "userId", required = false) Long userId,
-        @RequestParam(value = "typeFinancialTransaction", required = false) TypeFinancialTransaction typeFinancialTransaction,
-        @RequestParam(value = "categorieChiffreAffaire", required = false) CategorieChiffreAffaire categorieChiffreAffaire,
-        @RequestParam(value = "paymentMode", required = false) String paymentMode,
-        @RequestParam(value = "organismeId", required = false) String organismeId,
-        Pageable pageable
-    ) {
-        Page<FinancialTransactionDTO> page =
-            this.financialTransactionService.findAll(
-                    new FinancielTransactionFilterDTO(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "typeFinancialTransaction", required = false)
+                    TypeFinancialTransaction typeFinancialTransaction,
+            @RequestParam(value = "categorieChiffreAffaire", required = false)
+                    CategorieChiffreAffaire categorieChiffreAffaire,
+            @RequestParam(value = "paymentMode", required = false) String paymentMode,
+            @RequestParam(value = "organismeId", required = false) String organismeId,
+            Pageable pageable) {
+        Page<FinancialTransactionDTO> page = this.financialTransactionService.findAll(
+                new FinancielTransactionFilterDTO(
                         fromDate,
                         toDate,
                         userId,
@@ -145,11 +147,10 @@ public class FinancialTransactionResource {
                         typeFinancialTransaction,
                         categorieChiffreAffaire,
                         paymentMode,
-                        organismeId
-                    ),
-                    pageable
-                );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                        organismeId),
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -160,63 +161,56 @@ public class FinancialTransactionResource {
 
     @GetMapping("/payment-transactions/mvt-caisses/sum")
     public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "userId", required = false) Long userId,
-        @RequestParam(value = "typeFinancialTransactions", required = false) Set<TypeFinancialTransaction> typeFinancialTransactions,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
-        @RequestParam(value = "order", required = false) Order order,
-        @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
-        @RequestParam(value = "toTime", required = false) LocalTime toTime
-    ) {
-        return ResponseEntity.ok(
-            financialTransactionService.getMvtCaisseSum(
-                new TransactionFilterDTO(
-                    fromDate,
-                    toDate,
-                    userId,
-                    search,
-                    typeFinancialTransactions,
-                    categorieChiffreAffaires,
-                    paymentModes,
-                    order,
-                    fromTime,
-                    toTime
-                )
-            )
-        );
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "typeFinancialTransactions", required = false)
+                    Set<TypeFinancialTransaction> typeFinancialTransactions,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "paymentModes", required = false) Set<String> paymentModes,
+            @RequestParam(value = "order", required = false) Order order,
+            @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
+            @RequestParam(value = "toTime", required = false) LocalTime toTime) {
+        return ResponseEntity.ok(financialTransactionService.getMvtCaisseSum(new TransactionFilterDTO(
+                fromDate,
+                toDate,
+                userId,
+                search,
+                typeFinancialTransactions,
+                categorieChiffreAffaires,
+                paymentModes,
+                order,
+                fromTime,
+                toTime)));
     }
 
     @GetMapping("/payment-transactions/{id}/{transactionDate}")
     public ResponseEntity<FinancialTransactionDTO> getOne(
-        @PathVariable("id") Long id,
-        @PathVariable("transactionDate") LocalDate transactionDate
-    ) {
-        return ResponseUtil.wrapOrNotFound(this.financialTransactionService.findById(new PaymentId(id, transactionDate)));
+            @PathVariable("id") Long id, @PathVariable("transactionDate") LocalDate transactionDate) {
+        return ResponseUtil.wrapOrNotFound(
+                this.financialTransactionService.findById(new PaymentId(id, transactionDate)));
     }
 
     @GetMapping("/payment-transactions/print-receipt/{id}/{transactionDate}")
     public ResponseEntity<Void> printReceipt(
-        @PathVariable( "id") long id,
-        @PathVariable( "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable("id") long id, @PathVariable("transactionDate") LocalDate transactionDate) {
         this.financialTransactionService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/payment-transactions/print-tauri/{id}/{transactionDate}")
     public ResponseEntity<byte[]> getReceiptForTauri(
-        @PathVariable(name = "id") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable(name = "id") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
         try {
-            byte[] escPosData = financialTransactionService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            byte[] escPosData = financialTransactionService.generateEscPosReceiptForTauri(
+                    new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
-                .body(escPosData);
+                    .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                    .body(escPosData);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }

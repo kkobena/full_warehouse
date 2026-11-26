@@ -1,13 +1,12 @@
 package com.kobe.warehouse.service.dto.report;
 
 public record GenericsSubstitutionDTO(
-    long totalProduits,
-    long produitsGeneriques,
-    long princepsAvecGenerique,
-    long caTotal,
-    long caGeneriques,
-    long caPrincepsAvecGenerique
-) {
+        long totalProduits,
+        long produitsGeneriques,
+        long princepsAvecGenerique,
+        long caTotal,
+        long caGeneriques,
+        long caPrincepsAvecGenerique) {
     public double tauxGeneriques() {
         return totalProduits > 0 ? (produitsGeneriques * 100.0) / totalProduits : 0.0;
     }

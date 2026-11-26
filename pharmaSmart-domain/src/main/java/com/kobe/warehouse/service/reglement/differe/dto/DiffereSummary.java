@@ -16,6 +16,7 @@ public record DiffereSummary(Long saleAmount, Long paidAmount, Long rest) {
         }
         return NumberUtil.formatToString(saleAmount);
     }
+
     public String paidAmountToString() {
         if (paidAmount == null) {
             return null;

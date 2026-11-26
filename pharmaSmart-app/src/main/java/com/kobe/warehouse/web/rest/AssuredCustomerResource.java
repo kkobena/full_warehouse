@@ -1,14 +1,20 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.ControleAssureDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,38 +31,37 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.service.dto.ControleAssureDTO;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
-
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" })
-public class AssuredCustomerResource  {
+@RequiresNavAccess({"customer", "ventes", "nouvelle-vente", "nouvelle-prevente"})
+public class AssuredCustomerResource {
     private final AssuredCustomerService assuredCustomerService;
     private final CustomerDataService customerDataService;
+
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
+
     private static final String ENTITY_NAME = "customer";
-    public AssuredCustomerResource(AssuredCustomerService assuredCustomerService, CustomerDataService customerDataService) {
+
+    public AssuredCustomerResource(
+            AssuredCustomerService assuredCustomerService, CustomerDataService customerDataService) {
         this.assuredCustomerService = assuredCustomerService;
         this.customerDataService = customerDataService;
     }
 
-
     @PostMapping("/customers/assured")
-    public ResponseEntity<AssuredCustomerDTO> createCustomer(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
+    public ResponseEntity<AssuredCustomerDTO> createCustomer(@Valid @RequestBody AssuredCustomerDTO customer)
+            throws URISyntaxException {
 
         if (customer.getId() != null) {
             throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.createFromDto(customer));
+        AssuredCustomerDTO result =
+                assuredCustomerService.mappEntityToDto(assuredCustomerService.createFromDto(customer));
         return ResponseEntity.created(new URI("/api/customers/assured/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/customers/assured")
@@ -65,24 +70,27 @@ public class AssuredCustomerResource  {
         if (customer.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.updateFromDto(customer));
+        AssuredCustomerDTO result =
+                assuredCustomerService.mappEntityToDto(assuredCustomerService.updateFromDto(customer));
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, customer.getId().toString()))
+                .body(result);
     }
 
     @PostMapping("/customers/ayant-droit")
-    public ResponseEntity<AssuredCustomerDTO> createAyantDroit(@Valid @RequestBody AssuredCustomerDTO customer) throws URISyntaxException {
+    public ResponseEntity<AssuredCustomerDTO> createAyantDroit(@Valid @RequestBody AssuredCustomerDTO customer)
+            throws URISyntaxException {
 
         if (customer.getId() != null) {
             throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
         }
         AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
-            assuredCustomerService.createAyantDroitFromDto(customer)
-        );
+                assuredCustomerService.createAyantDroitFromDto(customer));
         return ResponseEntity.created(new URI("/api/customers/ayant-droit/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/customers/ayant-droit")
@@ -92,11 +100,11 @@ public class AssuredCustomerResource  {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         AssuredCustomerDTO result = assuredCustomerService.mappAyantDroitEntityToDto(
-            assuredCustomerService.updateAyantDroitFromDto(customer)
-        );
+                assuredCustomerService.updateAyantDroitFromDto(customer));
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, customer.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, customer.getId().toString()))
+                .body(result);
     }
 
     @DeleteMapping("/customers/assured/{id}")
@@ -105,35 +113,43 @@ public class AssuredCustomerResource  {
 
         assuredCustomerService.deleteCustomerById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/customers/assured/tiers-payants")
     public ResponseEntity<AssuredCustomerDTO> addTiersPayant(@Valid @RequestBody ClientTiersPayantDTO clientTiersPayant)
-        throws URISyntaxException {
+            throws URISyntaxException {
 
         if (clientTiersPayant.getId() != null) {
             throw new BadRequestAlertException("A new customer cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.addTiersPayant(clientTiersPayant));
+        AssuredCustomerDTO result =
+                assuredCustomerService.mappEntityToDto(assuredCustomerService.addTiersPayant(clientTiersPayant));
 
         return ResponseEntity.created(new URI("/api/customers/assured/tiers-payants/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/customers/assured/tiers-payants")
-    public ResponseEntity<AssuredCustomerDTO> updateTiersPayant(@Valid @RequestBody ClientTiersPayantDTO clientTiersPayant) {
+    public ResponseEntity<AssuredCustomerDTO> updateTiersPayant(
+            @Valid @RequestBody ClientTiersPayantDTO clientTiersPayant) {
 
         if (clientTiersPayant.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        AssuredCustomerDTO result = assuredCustomerService.mappEntityToDto(assuredCustomerService.updateTiersPayant(clientTiersPayant));
+        AssuredCustomerDTO result =
+                assuredCustomerService.mappEntityToDto(assuredCustomerService.updateTiersPayant(clientTiersPayant));
 
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, clientTiersPayant.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        clientTiersPayant.getId().toString()))
+                .body(result);
     }
 
     @DeleteMapping("/customers/assured/tiers-payants/{id}")
@@ -141,19 +157,20 @@ public class AssuredCustomerResource  {
 
         assuredCustomerService.deleteTiersPayant(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping("/customers/assured")
-    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
+    @NavAccessExempt(
+            "lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "typeTiersPayant", required = false) TiersPayantCategorie typeTiersPayant,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "typeTiersPayant", required = false) TiersPayantCategorie typeTiersPayant,
+            Pageable pageable) {
         Page<AssuredCustomerDTO> page = assuredCustomerService.fetch(search, typeTiersPayant, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
     /**
@@ -162,23 +179,25 @@ public class AssuredCustomerResource  {
      */
     @GetMapping("/customers/assured/controle")
     public ResponseEntity<ControleAssureDTO> controlerAssure(
-        @RequestParam(value = "tiersPayantId", required = false) Integer tiersPayantId,
-        @RequestParam(value = "num", required = false) String num,
-        @RequestParam(value = "firstName", required = false) String firstName,
-        @RequestParam(value = "lastName", required = false) String lastName,
-        @RequestParam(value = "excludeId", required = false) Integer excludeId
-    ) {
-        return ResponseEntity.ok(assuredCustomerService.controlerAssure(tiersPayantId, num, firstName, lastName, excludeId));
+            @RequestParam(value = "tiersPayantId", required = false) Integer tiersPayantId,
+            @RequestParam(value = "num", required = false) String num,
+            @RequestParam(value = "firstName", required = false) String firstName,
+            @RequestParam(value = "lastName", required = false) String lastName,
+            @RequestParam(value = "excludeId", required = false) Integer excludeId) {
+        return ResponseEntity.ok(
+                assuredCustomerService.controlerAssure(tiersPayantId, num, firstName, lastName, excludeId));
     }
 
     @GetMapping("/customers/tiers-payants/{id}")
-    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
+    @NavAccessExempt(
+            "lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
     }
 
     @GetMapping("/customers/ayant-droits/{id}")
-    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
+    @NavAccessExempt(
+            "lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
     }

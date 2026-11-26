@@ -9,11 +9,7 @@ import java.util.List;
  * @param lignes        Liste des lignes à commander avec leur quantité souhaitée
  * @param fournisseurId Fournisseur cible (optionnel — si null, utilise le fournisseur de la suggestion)
  */
-public record CommanderSelectionDTO(
-    Integer suggestionId,
-    List<LigneSelection> lignes,
-    Integer fournisseurId
-) {
+public record CommanderSelectionDTO(Integer suggestionId, List<LigneSelection> lignes, Integer fournisseurId) {
 
     /**
      * @param suggestionLineId ID de la SuggestionLine

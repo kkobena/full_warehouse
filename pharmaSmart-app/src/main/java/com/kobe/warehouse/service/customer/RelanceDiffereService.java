@@ -38,14 +38,13 @@ public class RelanceDiffereService {
     private final ConsentementService consentementService;
 
     public RelanceDiffereService(
-        CustomerRepository customerRepository,
-        SalesRepository salesRepository,
-        RelanceDiffereRepository relanceRepository,
-        SmsService smsService,
-        AppConfigurationService appConfigurationService,
-        DerogationAuthorizer derogationAuthorizer,
-        ConsentementService consentementService
-    ) {
+            CustomerRepository customerRepository,
+            SalesRepository salesRepository,
+            RelanceDiffereRepository relanceRepository,
+            SmsService smsService,
+            AppConfigurationService appConfigurationService,
+            DerogationAuthorizer derogationAuthorizer,
+            ConsentementService consentementService) {
         this.consentementService = consentementService;
         this.customerRepository = customerRepository;
         this.salesRepository = salesRepository;
@@ -56,9 +55,12 @@ public class RelanceDiffereService {
     }
 
     public RelanceDiffereDTO relancer(Integer customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
+        Customer customer = customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
         if (!StringUtils.hasText(customer.getPhone())) {
-            throw new GenericError("Le client n'a pas de numéro de téléphone : relance impossible.", "relanceSansTelephone");
+            throw new GenericError(
+                    "Le client n'a pas de numéro de téléphone : relance impossible.", "relanceSansTelephone");
         }
         if (consentementService.estRefuse(customerId, CanalConsentement.SMS)) {
             throw new GenericError("Le client a refusé les SMS : relance impossible.", "relanceSmsRefuse");
@@ -69,37 +71,43 @@ public class RelanceDiffereService {
             throw new GenericError("Le client n'a aucune vente différée à régler.", "relanceSansEncours");
         }
         AppUser utilisateur = derogationAuthorizer.utilisateurCourant();
-        String message =
-            "Bonjour %s, %s vous rappelle un solde de %s %s à régler. Merci de votre visite.".formatted(
-                    customer.getFirstName(),
-                    utilisateur.getMagasin().getName(),
-                    montantPourSms(montant),
-                    appConfigurationService.getDevise()
-                );
+        String message = "Bonjour %s, %s vous rappelle un solde de %s %s à régler. Merci de votre visite."
+                .formatted(
+                        customer.getFirstName(),
+                        utilisateur.getMagasin().getName(),
+                        montantPourSms(montant),
+                        appConfigurationService.getDevise());
         smsService.sendSms(customer.getPhone(), message);
-        RelanceDiffere relance = relanceRepository.save(
-            new RelanceDiffere().setCustomerId(customerId).setTelephone(customer.getPhone()).setMontant(montant).setMessage(message).setUser(utilisateur)
-        );
+        RelanceDiffere relance = relanceRepository.save(new RelanceDiffere()
+                .setCustomerId(customerId)
+                .setTelephone(customer.getPhone())
+                .setMontant(montant)
+                .setMessage(message)
+                .setUser(utilisateur));
         return toDto(relance);
     }
 
     /** Espace ordinaire comme séparateur de milliers : l'espace fine du format français sort de l'alphabet SMS. */
     private static String montantPourSms(int montant) {
-        return NumberFormat.getIntegerInstance(Locale.FRANCE).format(montant).replace(' ', ' ').replace(' ', ' ');
+        return NumberFormat.getIntegerInstance(Locale.FRANCE)
+                .format(montant)
+                .replace(' ', ' ')
+                .replace(' ', ' ');
     }
 
     @Transactional(readOnly = true)
     public List<RelanceDiffereDTO> historique(Integer customerId) {
-        return relanceRepository.findTop10ByCustomerIdOrderByCreatedAtDesc(customerId).stream().map(RelanceDiffereService::toDto).toList();
+        return relanceRepository.findTop10ByCustomerIdOrderByCreatedAtDesc(customerId).stream()
+                .map(RelanceDiffereService::toDto)
+                .toList();
     }
 
     private static RelanceDiffereDTO toDto(RelanceDiffere r) {
         return new RelanceDiffereDTO(
-            r.getCreatedAt(),
-            r.getTelephone(),
-            r.getMontant(),
-            r.getMessage(),
-            r.getUser().getFirstName() + " " + r.getUser().getLastName()
-        );
+                r.getCreatedAt(),
+                r.getTelephone(),
+                r.getMontant(),
+                r.getMessage(),
+                r.getUser().getFirstName() + " " + r.getUser().getLastName());
     }
 }

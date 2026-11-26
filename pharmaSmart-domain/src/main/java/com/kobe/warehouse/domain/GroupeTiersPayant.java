@@ -12,15 +12,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 @Entity
-@Table(name = "groupe_tiers_payant", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
+@Table(
+        name = "groupe_tiers_payant",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GroupeTiersPayant implements Serializable {
 
@@ -71,8 +72,7 @@ public class GroupeTiersPayant implements Serializable {
     @Column(name = "inclure_facturation_auto_provisoire", nullable = false)
     private boolean inclureFacturationAutoProvisoire = true;
 
-    public GroupeTiersPayant() {
-    }
+    public GroupeTiersPayant() {}
 
     public Integer getId() {
         return id;

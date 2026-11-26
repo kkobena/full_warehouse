@@ -46,7 +46,8 @@ class ClientsEquipePilotageServiceImplTest {
 
     private static final PeriodeDTO SEPTEMBRE = new PeriodeDTO(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30));
     private static final PeriodeDTO SEPTEMBRE_N1 = new PeriodeDTO(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 30));
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(SEPTEMBRE.du(), SEPTEMBRE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, false, null, null);
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            SEPTEMBRE.du(), SEPTEMBRE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, false, null, null);
 
     @Mock
     private PeriodeComparaisonService periodeComparaisonService;
@@ -62,52 +63,70 @@ class ClientsEquipePilotageServiceImplTest {
 
     @BeforeEach
     void comparerSeptembreN1() {
-        when(periodeComparaisonService.comparer(any(), any())).thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, SEPTEMBRE_N1, false));
+        when(periodeComparaisonService.comparer(any(), any()))
+                .thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, SEPTEMBRE_N1, false));
     }
 
     @Test
     @DisplayName("part du CA avec un client identifié, CA moyen par client, clients qui reculent le plus")
     void clients() {
-        when(repository.lireClientele(eq(SEPTEMBRE.du()), any(), any(), any())).thenReturn(new ClienteleDTO(50L, 200_000L, 80_000L));
-        when(repository.lireClientele(eq(SEPTEMBRE_N1.du()), any(), any(), any())).thenReturn(new ClienteleDTO(40L, 150_000L, 75_000L));
-        when(repository.sommerCaParClient(eq(SEPTEMBRE.du()), any(), any(), any())).thenReturn(List.of(new ComptageDTO("1", "Awa", 2L, 0L, 1_000L)));
-        when(repository.sommerCaParClient(eq(SEPTEMBRE_N1.du()), any(), any(), any())).thenReturn(
-            List.of(new ComptageDTO("1", "Awa", 3L, 0L, 4_000L), new ComptageDTO("2", "Koffi", 1L, 0L, 6_000L), new ComptageDTO("3", "Yao", 1L, 0L, 500L))
-        );
+        when(repository.lireClientele(eq(SEPTEMBRE.du()), any(), any(), any()))
+                .thenReturn(new ClienteleDTO(50L, 200_000L, 80_000L));
+        when(repository.lireClientele(eq(SEPTEMBRE_N1.du()), any(), any(), any()))
+                .thenReturn(new ClienteleDTO(40L, 150_000L, 75_000L));
+        when(repository.sommerCaParClient(eq(SEPTEMBRE.du()), any(), any(), any()))
+                .thenReturn(List.of(new ComptageDTO("1", "Awa", 2L, 0L, 1_000L)));
+        when(repository.sommerCaParClient(eq(SEPTEMBRE_N1.du()), any(), any(), any()))
+                .thenReturn(List.of(
+                        new ComptageDTO("1", "Awa", 3L, 0L, 4_000L),
+                        new ComptageDTO("2", "Koffi", 1L, 0L, 6_000L),
+                        new ComptageDTO("3", "Yao", 1L, 0L, 500L)));
 
         ClientsPilotageDTO clients = service.analyserClients(REQUETE);
 
         assertThat(clients.partCaIdentifie().valeur()).isCloseTo(40.0, within(1e-9));
         assertThat(clients.partCaIdentifie().ecart()).isCloseTo(-10.0, within(1e-9));
         assertThat(clients.caMoyenParClient().valeur()).isCloseTo(1_600.0, within(1e-9));
-        assertThat(clients.enBaisse()).extracting(ContributionDTO::libelle, ContributionDTO::ecart).containsExactly(
-            tuple("Koffi", -6_000L),
-            tuple("Awa", -3_000L),
-            tuple("Yao", -500L)
-        );
+        assertThat(clients.enBaisse())
+                .extracting(ContributionDTO::libelle, ContributionDTO::ecart)
+                .containsExactly(tuple("Koffi", -6_000L), tuple("Awa", -3_000L), tuple("Yao", -500L));
     }
 
     @Test
-    @DisplayName("équipe : articles par vente des lignes rapportés aux ventes des en-têtes, ordonnance, annulations, ligne d'équipe")
+    @DisplayName(
+            "équipe : articles par vente des lignes rapportés aux ventes des en-têtes, ordonnance, annulations, ligne d'équipe")
     void equipe() {
         MesuresComparees awaEntetes = entetes("7", "Awa", 10, 20_000, 1_000);
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.ENTETES), any(), eq(AxeAnalyse.VENDEUR), isNull(), anyList(), any())).thenReturn(
-            new Ventilation(List.of(awaEntetes), awaEntetes)
-        );
-        MesuresComparees awaLignes = new MesuresComparees(new MembreAnalyseDTO("7", "Awa"), null, lignes(25, 18_000, 13_500), MesuresPilotage.AUCUNE);
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.LIGNES), any(), eq(AxeAnalyse.VENDEUR), isNull(), anyList(), any())).thenReturn(
-            new Ventilation(List.of(awaLignes), awaLignes)
-        );
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.ENTETES), any(), eq(AxeAnalyse.VENDEUR), eq(AxeAnalyse.TYPE_PRESCRIPTION), anyList(), any())).thenReturn(
-            new Ventilation(
-                List.of(
-                    new MesuresComparees(new MembreAnalyseDTO("7", "Awa"), new MembreAnalyseDTO("PRESCRIPTION", "Ordonnance"), entetes("7", "Awa", 4, 9_000, 0).periode(), MesuresPilotage.AUCUNE),
-                    new MesuresComparees(new MembreAnalyseDTO("7", "Awa"), new MembreAnalyseDTO("CONSEIL", "Conseil"), entetes("7", "Awa", 6, 11_000, 0).periode(), MesuresPilotage.AUCUNE)
-                ),
-                MesuresComparees.AUCUNES
-            )
-        );
-        when(repository.compterAnnulationsParVendeur(eq(SEPTEMBRE.du()), any(), any())).thenReturn(List.of(new ComptageDTO("7", "", 2L, 0L, 3_000L)));
+        when(ventilateurPilotage.comparer(
+                        eq(SourceAnalyse.ENTETES), any(), eq(AxeAnalyse.VENDEUR), isNull(), anyList(), any()))
+                .thenReturn(new Ventilation(List.of(awaEntetes), awaEntetes));
+        MesuresComparees awaLignes = new MesuresComparees(
+                new MembreAnalyseDTO("7", "Awa"), null, lignes(25, 18_000, 13_500), MesuresPilotage.AUCUNE);
+        when(ventilateurPilotage.comparer(
+                        eq(SourceAnalyse.LIGNES), any(), eq(AxeAnalyse.VENDEUR), isNull(), anyList(), any()))
+                .thenReturn(new Ventilation(List.of(awaLignes), awaLignes));
+        when(ventilateurPilotage.comparer(
+                        eq(SourceAnalyse.ENTETES),
+                        any(),
+                        eq(AxeAnalyse.VENDEUR),
+                        eq(AxeAnalyse.TYPE_PRESCRIPTION),
+                        anyList(),
+                        any()))
+                .thenReturn(new Ventilation(
+                        List.of(
+                                new MesuresComparees(
+                                        new MembreAnalyseDTO("7", "Awa"),
+                                        new MembreAnalyseDTO("PRESCRIPTION", "Ordonnance"),
+                                        entetes("7", "Awa", 4, 9_000, 0).periode(),
+                                        MesuresPilotage.AUCUNE),
+                                new MesuresComparees(
+                                        new MembreAnalyseDTO("7", "Awa"),
+                                        new MembreAnalyseDTO("CONSEIL", "Conseil"),
+                                        entetes("7", "Awa", 6, 11_000, 0).periode(),
+                                        MesuresPilotage.AUCUNE)),
+                        MesuresComparees.AUCUNES));
+        when(repository.compterAnnulationsParVendeur(eq(SEPTEMBRE.du()), any(), any()))
+                .thenReturn(List.of(new ComptageDTO("7", "", 2L, 0L, 3_000L)));
         when(repository.compterAvoirsParVendeur(any(), any())).thenReturn(List.of());
 
         EquipePilotageDTO equipe = service.analyserEquipe(REQUETE);
@@ -123,7 +142,11 @@ class ClientsEquipePilotageServiceImplTest {
     }
 
     private static MesuresComparees entetes(String cle, String libelle, long ventes, long ca, long remises) {
-        return new MesuresComparees(new MembreAnalyseDTO(cle, libelle), null, new MesuresPilotage(ventes, 0, ca, ca, remises, 0, 0, 0, 0, 0, 0, 0, 0), MesuresPilotage.AUCUNE);
+        return new MesuresComparees(
+                new MembreAnalyseDTO(cle, libelle),
+                null,
+                new MesuresPilotage(ventes, 0, ca, ca, remises, 0, 0, 0, 0, 0, 0, 0, 0),
+                MesuresPilotage.AUCUNE);
     }
 
     private static MesuresPilotage lignes(long quantite, long caHt, long coutHt) {

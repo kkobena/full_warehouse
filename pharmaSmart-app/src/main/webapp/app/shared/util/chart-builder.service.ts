@@ -38,12 +38,14 @@ export class ChartBuilderService {
     return {
       data: {
         labels,
-        datasets: [{
-          type: 'bar',
-          label,
-          backgroundColor: color ?? this.colors.colors()[0],
-          data,
-        }],
+        datasets: [
+          {
+            type: 'bar',
+            label,
+            backgroundColor: color ?? this.colors.colors()[0],
+            data,
+          },
+        ],
       },
       options: this.scaleOptions(),
     };
@@ -74,11 +76,13 @@ export class ChartBuilderService {
     return {
       data: {
         labels,
-        datasets: [{
-          data,
-          backgroundColor: this.colors.colors(),
-          hoverBackgroundColor: this.colors.hoverColors(),
-        }],
+        datasets: [
+          {
+            data,
+            backgroundColor: this.colors.colors(),
+            hoverBackgroundColor: this.colors.hoverColors(),
+          },
+        ],
       },
       options: this.pieOptions(),
     };
@@ -99,13 +103,7 @@ export class ChartBuilderService {
    * @param barLabel    Label du dataset barre (ex: "Quantité")
    * @param lineLabel   Label du dataset ligne (ex: "% cumulé")
    */
-  paretoConfig(
-    labels: string[],
-    quantities: number[],
-    cumPct: number[],
-    barLabel = 'Quantité',
-    lineLabel = '% cumulé',
-  ): ChartConfig {
+  paretoConfig(labels: string[], quantities: number[], cumPct: number[], barLabel = 'Quantité', lineLabel = '% cumulé'): ChartConfig {
     const palette = this.colors.colors();
     return {
       data: {
@@ -145,11 +143,11 @@ export class ChartBuilderService {
       scales: {
         y: {
           ticks: { color: this.colors.textColorSecondary() },
-          grid:  { color: this.colors.surfaceBorder() },
+          grid: { color: this.colors.surfaceBorder() },
         },
         x: {
           ticks: { color: this.colors.textColorSecondary() },
-          grid:  { color: this.colors.surfaceBorder() },
+          grid: { color: this.colors.surfaceBorder() },
         },
       },
     };

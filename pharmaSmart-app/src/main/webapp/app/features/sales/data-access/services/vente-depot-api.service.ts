@@ -6,7 +6,7 @@ import { SERVER_API_URL } from '../../../../app.constants';
 import { createRequestOptions } from '../../../../shared/util/request-util';
 import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
-import {map} from "rxjs/operators";
+import { map } from 'rxjs/operators';
 
 /**
  * Service HTTP dédié aux ventes dépôt (/api/vente-depot/*)
@@ -94,14 +94,14 @@ export class VenteDepotApiService {
     return this.http.get<SaleId>(`${this.resourceUrl}/change-depot`, { params: options, observe: 'response' });
   }
   incrementItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/increment-item/quantity-requested`, salesLine, {observe: 'response'}).pipe(
-      map(res => res.body!),
-    );
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/increment-item/quantity-requested`, salesLine, { observe: 'response' })
+      .pipe(map(res => res.body!));
   }
   setItemQtyRequested(salesLine: ISalesLine): Observable<ISalesLine> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/set-item/quantity-requested`, salesLine, {observe: 'response'}).pipe(
-      map(res => res.body!),
-    );
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/set-item/quantity-requested`, salesLine, { observe: 'response' })
+      .pipe(map(res => res.body!));
   }
   printInvoice(id: SaleId): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
@@ -109,8 +109,7 @@ export class VenteDepotApiService {
 
   deletePrevente(saleId: SaleId): Observable<void> {
     return this.http
-      .delete<void>(`${this.resourceUrl}/prevente/${saleId.id}/${saleId.saleDate}`, {observe: 'response'})
+      .delete<void>(`${this.resourceUrl}/prevente/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
       .pipe(map((): void => undefined));
   }
-
 }

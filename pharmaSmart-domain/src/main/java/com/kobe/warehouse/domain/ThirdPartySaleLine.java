@@ -18,10 +18,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -29,14 +25,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @IdClass(AssuranceSaleId.class)
 @Table(
-    name = "third_party_sale_line",
-    indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")},
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})}
-)
+        name = "third_party_sale_line",
+        indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})})
 public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Serializable, Cloneable {
 
     @Serial
@@ -51,12 +49,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "sale_id", referencedColumnName = "id"),
-            @JoinColumn(name = "sale_sale_date", referencedColumnName = "sale_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "sale_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sale_sale_date", referencedColumnName = "sale_date"),
+    })
     private ThirdPartySales sale;
 
     @Column(name = "num_bon", length = 50)
@@ -91,6 +87,7 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     @NotNull
     @Column(name = "taux", nullable = false)
     private short taux;
+
     @NotNull
     @Column(name = "taux_vente", nullable = false)
     private short tauxVente;
@@ -103,12 +100,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     private List<RepartitionTiersPayantParTva> repartitions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id"),
-            @JoinColumn(name = "invoice_date", referencedColumnName = "invoice_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id"),
+        @JoinColumn(name = "invoice_date", referencedColumnName = "invoice_date"),
+    })
     private FactureTiersPayant factureTiersPayant;
 
     @Transient

@@ -50,25 +50,18 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
 
     /** Mêmes tuiles que l'écran : un indicateur principal, puis celui qui l'éclaire. */
     private static final IndicateurPilotage[][] TUILES = {
-        { CA_TTC, CA_NET },
-        { NB_VENTES, FREQUENTATION },
-        { PANIER_MOYEN, ARTICLES_PAR_VENTE },
-        { MARGE_BRUTE, TAUX_MARGE },
-        { REMISES, TAUX_REMISE },
-        { ACHATS_TTC, RATIO_VENTES_ACHATS },
-        { PART_TIERS_PAYANT },
-        { ENCAISSEMENTS },
+        {CA_TTC, CA_NET},
+        {NB_VENTES, FREQUENTATION},
+        {PANIER_MOYEN, ARTICLES_PAR_VENTE},
+        {MARGE_BRUTE, TAUX_MARGE},
+        {REMISES, TAUX_REMISE},
+        {ACHATS_TTC, RATIO_VENTES_ACHATS},
+        {PART_TIERS_PAYANT},
+        {ENCAISSEMENTS},
     };
-    private static final List<IndicateurPilotage> COLONNES = List.of(
-        CA_TTC,
-        MARGE_BRUTE,
-        TAUX_MARGE,
-        REMISES,
-        ACHATS_TTC,
-        NB_VENTES,
-        PANIER_MOYEN,
-        PART_TIERS_PAYANT
-    );
+
+    private static final List<IndicateurPilotage> COLONNES =
+            List.of(CA_TTC, MARGE_BRUTE, TAUX_MARGE, REMISES, ACHATS_TTC, NB_VENTES, PANIER_MOYEN, PART_TIERS_PAYANT);
 
     private final SeriesPilotageService seriesPilotageService;
     private final EcartsPilotageService ecartsPilotageService;
@@ -76,11 +69,10 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
     private final RapportCourbesService rapportCourbesService;
 
     public RapportTableauDeBordServiceImpl(
-        SeriesPilotageService seriesPilotageService,
-        EcartsPilotageService ecartsPilotageService,
-        AlertesPilotageService alertesPilotageService,
-        RapportCourbesService rapportCourbesService
-    ) {
+            SeriesPilotageService seriesPilotageService,
+            EcartsPilotageService ecartsPilotageService,
+            AlertesPilotageService alertesPilotageService,
+            RapportCourbesService rapportCourbesService) {
         this.seriesPilotageService = seriesPilotageService;
         this.ecartsPilotageService = ecartsPilotageService;
         this.alertesPilotageService = alertesPilotageService;
@@ -96,23 +88,28 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
         }
         boolean contreObjectif = requete.comparaison() == TypeComparaison.OBJECTIF;
         EcartsPilotageDTO ecarts = ecartsPilotageService.expliquerEcarts(requete, CONTRIBUTIONS);
-        List<SerieIndicateurDTO> colonnes = COLONNES.stream().map(parIndicateur::get).filter(Objects::nonNull).toList();
+        List<SerieIndicateurDTO> colonnes = COLONNES.stream()
+                .map(parIndicateur::get)
+                .filter(Objects::nonNull)
+                .toList();
         return new TableauDeBordRapportDTO(
-            libellerContexte(series.comparaison(), contreObjectif),
-            alertesPilotageService.listerAlertes(LocalDate.now()),
-            construireTuiles(parIndicateur, contreObjectif),
-            "Chiffre d'affaires TTC — " + HorizonCourbe.libellerHorizon(requete.granularite()),
-            rapportCourbesService.dessinerHistorique(requete, CA_TTC, contreObjectif, FormatGraphe.NORMAL),
-            ecarts.effetFrequentation() == null ? null : FormatRapport.formaterEcart("Écart de CA", ecarts.ca() - ecarts.caReference()),
-            lireEffets(ecarts),
-            lireContributions(ecarts.hausses()),
-            lireContributions(ecarts.baisses()),
-            new TableauRapportDTO(
-                "Période",
-                colonnes.stream().map(serie -> serie.indicateur().libelle()).toList(),
-                construireLignes(colonnes, parIndicateur.get(CA_TTC))
-            )
-        );
+                libellerContexte(series.comparaison(), contreObjectif),
+                alertesPilotageService.listerAlertes(LocalDate.now()),
+                construireTuiles(parIndicateur, contreObjectif),
+                "Chiffre d'affaires TTC — " + HorizonCourbe.libellerHorizon(requete.granularite()),
+                rapportCourbesService.dessinerHistorique(requete, CA_TTC, contreObjectif, FormatGraphe.NORMAL),
+                ecarts.effetFrequentation() == null
+                        ? null
+                        : FormatRapport.formaterEcart("Écart de CA", ecarts.ca() - ecarts.caReference()),
+                lireEffets(ecarts),
+                lireContributions(ecarts.hausses()),
+                lireContributions(ecarts.baisses()),
+                new TableauRapportDTO(
+                        "Période",
+                        colonnes.stream()
+                                .map(serie -> serie.indicateur().libelle())
+                                .toList(),
+                        construireLignes(colonnes, parIndicateur.get(CA_TTC))));
     }
 
     private static List<IndicateurPilotage> lireIndicateurs() {
@@ -129,14 +126,17 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
         if (contreObjectif) {
             return periode + " comparé aux objectifs (un mois entamé compte au prorata de ses jours).";
         }
-        return comparaison.reference() == null ? periode : periode + " comparé à " + libellerPeriode(comparaison.reference());
+        return comparaison.reference() == null
+                ? periode
+                : periode + " comparé à " + libellerPeriode(comparaison.reference());
     }
 
     private static String libellerPeriode(PeriodeDTO periode) {
         return "du " + periode.du().format(JOUR) + " au " + periode.au().format(JOUR);
     }
 
-    private static List<TuileRapportDTO> construireTuiles(Map<IndicateurPilotage, SerieIndicateurDTO> parIndicateur, boolean contreObjectif) {
+    private static List<TuileRapportDTO> construireTuiles(
+            Map<IndicateurPilotage, SerieIndicateurDTO> parIndicateur, boolean contreObjectif) {
         List<TuileRapportDTO> tuiles = new ArrayList<>(TUILES.length);
         for (IndicateurPilotage[] tuile : TUILES) {
             SerieIndicateurDTO principal = parIndicateur.get(tuile[0]);
@@ -148,12 +148,15 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
         return tuiles;
     }
 
-    private static TuileRapportDTO construireTuile(SerieIndicateurDTO principal, SerieIndicateurDTO secondaire, boolean contreObjectif) {
+    private static TuileRapportDTO construireTuile(
+            SerieIndicateurDTO principal, SerieIndicateurDTO secondaire, boolean contreObjectif) {
         IndicateurPilotageDTO indicateur = principal.indicateur();
         UniteIndicateur unite = indicateur.unite();
         List<String> complements = new ArrayList<>(3);
         if (secondaire != null) {
-            complements.add(secondaire.indicateur().libelle() + " : " + FormatRapport.formaterValeur(secondaire.valeur(), secondaire.indicateur().unite()));
+            complements.add(secondaire.indicateur().libelle() + " : "
+                    + FormatRapport.formaterValeur(
+                            secondaire.valeur(), secondaire.indicateur().unite()));
         }
         if (principal.objectif() != null && !contreObjectif) {
             complements.add("Objectif : " + FormatRapport.formaterValeur(principal.objectif(), unite));
@@ -163,11 +166,11 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
             complements.add(libellerProjection(projection, unite));
         }
         return new TuileRapportDTO(
-            indicateur.libelle(),
-            FormatRapport.formaterValeur(principal.valeur(), unite),
-            FormatRapport.formaterVariation(principal.ecart(), principal.ecartPct(), unite, indicateur.sensFavorable()),
-            complements
-        );
+                indicateur.libelle(),
+                FormatRapport.formaterValeur(principal.valeur(), unite),
+                FormatRapport.formaterVariation(
+                        principal.ecart(), principal.ecartPct(), unite, indicateur.sensFavorable()),
+                complements);
     }
 
     private static String libellerProjection(ProjectionObjectifDTO projection, UniteIndicateur unite) {
@@ -175,7 +178,8 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
         if (projection.atteinteProjetee() == null) {
             return texte;
         }
-        return texte + " (" + FormatRapport.formaterValeur(projection.atteinteProjetee(), UniteIndicateur.POURCENTAGE) + " de l'objectif)";
+        return texte + " (" + FormatRapport.formaterValeur(projection.atteinteProjetee(), UniteIndicateur.POURCENTAGE)
+                + " de l'objectif)";
     }
 
     private static List<MontantRapportDTO> lireEffets(EcartsPilotageDTO ecarts) {
@@ -183,17 +187,18 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
             return List.of();
         }
         return List.of(
-            FormatRapport.formaterEcart("Fréquentation (nombre de ventes)", ecarts.effetFrequentation()),
-            FormatRapport.formaterEcart("Articles par vente", Objects.requireNonNullElse(ecarts.effetArticles(), 0L)),
-            FormatRapport.formaterEcart("Prix moyen d'un article", Objects.requireNonNullElse(ecarts.effetPrix(), 0L))
-        );
+                FormatRapport.formaterEcart("Fréquentation (nombre de ventes)", ecarts.effetFrequentation()),
+                FormatRapport.formaterEcart(
+                        "Articles par vente", Objects.requireNonNullElse(ecarts.effetArticles(), 0L)),
+                FormatRapport.formaterEcart(
+                        "Prix moyen d'un article", Objects.requireNonNullElse(ecarts.effetPrix(), 0L)));
     }
 
     private static List<MontantRapportDTO> lireContributions(List<ContributionDTO> contributions) {
-        return contributions
-            .stream()
-            .map(contribution -> FormatRapport.formaterEcart(contribution.libelle() + " (" + contribution.libelleAxe() + ")", contribution.ecart()))
-            .toList();
+        return contributions.stream()
+                .map(contribution -> FormatRapport.formaterEcart(
+                        contribution.libelle() + " (" + contribution.libelleAxe() + ")", contribution.ecart()))
+                .toList();
     }
 
     /** De la tranche la plus récente à la plus ancienne, comme à l'écran. */
@@ -220,8 +225,8 @@ public class RapportTableauDeBordServiceImpl implements RapportTableauDeBordServ
         PointSerieDTO point = serie.points().get(rang);
         IndicateurPilotageDTO indicateur = serie.indicateur();
         return new CelluleRapportDTO(
-            FormatRapport.formaterValeur(point.valeur(), indicateur.unite()),
-            FormatRapport.formaterVariation(point.ecart(), point.ecartPct(), indicateur.unite(), indicateur.sensFavorable())
-        );
+                FormatRapport.formaterValeur(point.valeur(), indicateur.unite()),
+                FormatRapport.formaterVariation(
+                        point.ecart(), point.ecartPct(), indicateur.unite(), indicateur.sensFavorable()));
     }
 }

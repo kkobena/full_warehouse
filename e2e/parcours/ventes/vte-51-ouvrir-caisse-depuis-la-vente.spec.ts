@@ -22,7 +22,7 @@ scenario('VTE-51', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await assurerPanierVide(page);
-  await page.goto('/sales-home');
+    await page.goto('/sales-home');
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '1');
     await expect(lignes.first()).toContainText(produit);

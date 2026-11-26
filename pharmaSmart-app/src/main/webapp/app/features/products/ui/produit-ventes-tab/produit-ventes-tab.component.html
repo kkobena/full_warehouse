@@ -33,7 +33,6 @@
       }
     </div>
 
-
     <!-- ── Raccourcis de période ─────────────────────────────── -->
     <div class="mvt-period-shortcuts">
       <span class="shortcuts-label">Période :</span>
@@ -66,13 +65,7 @@
           label="{{ 'warehouseApp.labels.au' | translate }}"
         />
       </div>
-      <app-button
-        (clicked)="load()"
-        icon="pi pi-search"
-        label="Actualiser"
-        severity="info"
-        size="small"
-      />
+      <app-button (clicked)="load()" icon="pi pi-search" label="Actualiser" severity="info" size="small" />
     </div>
 
     <!-- ── Graphique ventes ───────────────────────────────────── -->
@@ -134,18 +127,24 @@
         @if (summary()) {
           <tr class="pharma-table-footer">
             <td colspan="3"><span class="pharma-footer-label">Totaux</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantTtc | number }}</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantTva | number }}</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantHt | number }}</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantRemise | number }}</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantNet | number }}</span></td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.quantite | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantTtc | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantTva | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantHt | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantRemise | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantNet | number }}</span>
+            </td>
             <td></td>
           </tr>
         }

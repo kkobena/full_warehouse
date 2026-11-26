@@ -1,13 +1,11 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface FournisseurProduitRepository extends JpaRepository<FournisseurProduit, Integer> {
@@ -21,12 +19,8 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.fournisseur.id = ?2")
     long countFournisseurProduitByCodeCipAndFournisseurId(String codeCip, Integer produitFournisseurId);
 
-
-
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.produit.id <> ?2")
     long countByCodeCipAndProduitId(String codeCip, Integer produitId);
-
-
 
     @Query("""
         SELECT o FROM FournisseurProduit o
@@ -35,7 +29,6 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
                OR o.fournisseur.id = (SELECT f.parent.id FROM Fournisseur f WHERE f.id = ?2 AND f.parent IS NOT NULL))
         """)
     Optional<FournisseurProduit> findOneByProduitIdAndFournisseurId(Integer produitId, Integer fournisseurId);
-
 
     List<FournisseurProduit> findByCodeCipContainingOrCodeEanContaining(String codeCip, String codeEan);
 

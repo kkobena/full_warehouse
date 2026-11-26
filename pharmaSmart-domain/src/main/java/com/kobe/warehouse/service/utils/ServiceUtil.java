@@ -3,8 +3,6 @@ package com.kobe.warehouse.service.utils;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.SecureRandom;
@@ -12,9 +10,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import org.springframework.util.StringUtils;
 
 public class ServiceUtil {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     public static PaymentMode getPaymentMode(String code) {
         PaymentMode paymentMode = new PaymentMode();
         paymentMode.setCode(code);
@@ -51,7 +51,9 @@ public class ServiceUtil {
 
     /** Variante entière : le montant HT est arrondi au franc le plus proche. */
     public static long htFromTtc(long ttc, int tauxTva) {
-        return htFromTtc(BigDecimal.valueOf(ttc), tauxTva).setScale(0, RoundingMode.HALF_UP).longValue();
+        return htFromTtc(BigDecimal.valueOf(ttc), tauxTva)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValue();
     }
 
     public static int arrondiTauxCouverture(int taux) {
@@ -59,19 +61,19 @@ public class ServiceUtil {
         int arrondi = Math.round(taux / 5f) * 5;
 
         return Math.min(100, arrondi);
-
     }
+
     public static double calculHt(int ttc, int tva) {
         return htFromTtc(BigDecimal.valueOf(ttc), tva).doubleValue();
     }
+
     public static boolean isPaymentMode(String modePayment) {
-        return (
-            ModePaimentCode.MTN.name().equalsIgnoreCase(modePayment) ||
-            ModePaimentCode.MOOV.name().equalsIgnoreCase(modePayment) ||
-            ModePaimentCode.OM.name().equalsIgnoreCase(modePayment) ||
-            ModePaimentCode.WAVE.name().equalsIgnoreCase(modePayment)
-        );
+        return (ModePaimentCode.MTN.name().equalsIgnoreCase(modePayment)
+                || ModePaimentCode.MOOV.name().equalsIgnoreCase(modePayment)
+                || ModePaimentCode.OM.name().equalsIgnoreCase(modePayment)
+                || ModePaimentCode.WAVE.name().equalsIgnoreCase(modePayment));
     }
+
     public static String buildCodeCip(String initialCodeCip) {
 
         // If null or empty → generate 8-digit numeric code
@@ -116,7 +118,6 @@ public class ServiceUtil {
         return arrondirAuMultipleDe5(montantVerse);
     }
 
-
     /**
      * Arrondit {@code valeur} au multiple de 5 le plus proche (0, 5, 10, 15, …).
      *
@@ -146,7 +147,6 @@ public class ServiceUtil {
         int days = p.getDays();
         String libelle;
 
-
         if (datePeremption.isBefore(toDate)) {
             Period diff = Period.between(datePeremption, toDate);
 
@@ -162,6 +162,10 @@ public class ServiceUtil {
             String txtDays = days > 0 ? days + " jour(s)" : "";
             libelle = "Périme dans " + txtYears + txtMonths + txtDays;
         }
-        return new PeremptionStatut(libelle,  ChronoUnit.DAYS.between(toDate,datePeremption) , ChronoUnit.MONTHS.between(toDate,datePeremption), years);
+        return new PeremptionStatut(
+                libelle,
+                ChronoUnit.DAYS.between(toDate, datePeremption),
+                ChronoUnit.MONTHS.between(toDate, datePeremption),
+                years);
     }
 }

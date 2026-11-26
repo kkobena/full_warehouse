@@ -18,10 +18,10 @@ import { IDeliveryItem } from 'app/shared/model/delivery-item';
 import { finalize } from 'rxjs/operators';
 import { LotSelection, LotSelectionDialogComponent } from '../lot-selection-dialog.component';
 import { InlineLotSelection, InlineLotSelectionComponent } from '../inline-lot-selection.component';
-import { RetourBonService } from "../../../../../../entities/commande/retour_fournisseur/retour-bon.service";
-import { DeliveryService } from "../../../../../../entities/commande/delevery/delivery.service";
-import { ICommande } from "../../../../../../shared/model/commande.model";
-import { ConfigurationService } from "../../../../../../shared/configuration.service";
+import { RetourBonService } from '../../../../../../entities/commande/retour_fournisseur/retour-bon.service';
+import { DeliveryService } from '../../../../../../entities/commande/delevery/delivery.service';
+import { ICommande } from '../../../../../../shared/model/commande.model';
+import { ConfigurationService } from '../../../../../../shared/configuration.service';
 
 @Component({
   selector: 'app-supplier-returns',
@@ -113,7 +113,10 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   }
 
   private computeDelayWarning(orderDate: string | null | undefined): void {
-    if (!orderDate) { this.delayWarning.set(false); return; }
+    if (!orderDate) {
+      this.delayWarning.set(false);
+      return;
+    }
     const order = new Date(orderDate);
     const today = new Date();
     const diffDays = Math.floor((today.getTime() - order.getTime()) / 86_400_000);
@@ -460,21 +463,17 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
     const isEdit = this.isEditMode();
     const editId = this.editRetourBonId();
-    const request$ = isEdit && editId
-      ? this.retourBonService.update(editId, retourBon)
-      : this.retourBonService.create(retourBon);
+    const request$ = isEdit && editId ? this.retourBonService.update(editId, retourBon) : this.retourBonService.create(retourBon);
 
     request$.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => {
-        this.notificationService.success(
-          isEdit ? 'Retour fournisseur modifié avec succès' : 'Retour fournisseur créé avec succès'
-        );
+        this.notificationService.success(isEdit ? 'Retour fournisseur modifié avec succès' : 'Retour fournisseur créé avec succès');
         this.reset();
         setTimeout(() => this.navigateToList(), 1500);
       },
       error: () => {
         this.notificationService.error(
-          isEdit ? 'Erreur lors de la modification du retour fournisseur' : 'Erreur lors de la création du retour fournisseur'
+          isEdit ? 'Erreur lors de la modification du retour fournisseur' : 'Erreur lors de la création du retour fournisseur',
         );
       },
     });

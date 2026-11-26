@@ -39,8 +39,8 @@ export function injectTableRows(options?: TableRowsOptions): Signal<number> {
     fromEvent(window, 'resize').pipe(
       startWith(null),
       map(() => compute(overhead, rowHeight, min, max)),
-      distinctUntilChanged()
+      distinctUntilChanged(),
     ),
-    { initialValue: compute(overhead, rowHeight, min, max) }
+    { initialValue: compute(overhead, rowHeight, min, max) },
   );
 }

@@ -447,32 +447,29 @@ public class Fournisseur implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "Fournisseur{" +
-                "id=" +
-                getId() +
-                ", libelle='" +
-                getLibelle() +
-                "'" +
-                ", numFaxe='" +
-                getNumFaxe() +
-                "'" +
-                ", addressePostal='" +
-                getAddressePostal() +
-                "'" +
-                ", phone='" +
-                getPhone() +
-                "'" +
-                ", mobile='" +
-                getMobile() +
-                "'" +
-                ", site='" +
-                getSite() +
-                "'" +
-                ", code='" +
-                getCode() +
-                "'" +
-                "}"
-        );
+        return ("Fournisseur{" + "id="
+                + getId()
+                + ", libelle='"
+                + getLibelle()
+                + "'"
+                + ", numFaxe='"
+                + getNumFaxe()
+                + "'"
+                + ", addressePostal='"
+                + getAddressePostal()
+                + "'"
+                + ", phone='"
+                + getPhone()
+                + "'"
+                + ", mobile='"
+                + getMobile()
+                + "'"
+                + ", site='"
+                + getSite()
+                + "'"
+                + ", code='"
+                + getCode()
+                + "'"
+                + "}");
     }
 }

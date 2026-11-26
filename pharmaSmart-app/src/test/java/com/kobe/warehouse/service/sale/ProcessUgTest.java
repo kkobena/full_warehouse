@@ -38,20 +38,19 @@ class ProcessUgTest {
     private final StockProduitRepository stockProduitRepository = mock(StockProduitRepository.class);
 
     private final SalesLineService service = new SalesLineServiceBaseImpl(
-        mock(ProduitRepository.class),
-        mock(SalesLineRepository.class),
-        stockProduitRepository,
-        mock(LotService.class),
-        mock(InventoryTransactionService.class),
-        mock(SaleLineIdGeneratorService.class),
-        mock(StockUpdateService.class),
-        mock(StorageService.class),
-        mock(RepartitionStockService.class),
-        mock(LotStockLocationService.class),
-        mock(AvoirClientDocumentService.class),
-        mock(DataMatrixParserService.class),
-        mock(com.kobe.warehouse.service.AjustementService.class)
-    );
+            mock(ProduitRepository.class),
+            mock(SalesLineRepository.class),
+            stockProduitRepository,
+            mock(LotService.class),
+            mock(InventoryTransactionService.class),
+            mock(SaleLineIdGeneratorService.class),
+            mock(StockUpdateService.class),
+            mock(StorageService.class),
+            mock(RepartitionStockService.class),
+            mock(LotStockLocationService.class),
+            mock(AvoirClientDocumentService.class),
+            mock(DataMatrixParserService.class),
+            mock(com.kobe.warehouse.service.AjustementService.class));
 
     @Test
     @DisplayName("on ne consomme jamais plus d'UG qu'il n'y en a en stock")
@@ -119,7 +118,8 @@ class ProcessUgTest {
     private void stockAvecUg(int qtyUg) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setQtyUG(qtyUg);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), anyInt())).thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), anyInt()))
+                .thenReturn(stockProduit);
     }
 
     private static SalesLine ligneVendue(int quantiteVendue) {

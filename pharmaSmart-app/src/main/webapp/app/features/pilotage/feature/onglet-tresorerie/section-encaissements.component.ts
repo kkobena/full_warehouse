@@ -14,7 +14,15 @@ import { elargirAuxTreizeTranches, libellerHorizon } from '../../data-access/hor
 /** Encaissements & caisse : par mode de paiement, dans le temps (empilés), par caissier. */
 @Component({
   selector: 'app-section-encaissements',
-  imports: [AideComponent, CardComponent, DataTableComponent, TuilesCellulesComponent, BarresComponent, VariationComponent, ValeurIndicateurPipe],
+  imports: [
+    AideComponent,
+    CardComponent,
+    DataTableComponent,
+    TuilesCellulesComponent,
+    BarresComponent,
+    VariationComponent,
+    ValeurIndicateurPipe,
+  ],
   templateUrl: './section-encaissements.component.html',
   styleUrl: '../../ui/section-onglet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +32,10 @@ export class SectionEncaissementsComponent {
 
   private readonly api = inject(PilotageApiService);
 
-  protected readonly encaissements = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.lireEncaissements(params) });
+  protected readonly encaissements = rxResource({
+    params: () => this.requete(),
+    stream: ({ params }) => this.api.lireEncaissements(params),
+  });
 
   /** Le total, puis les trois premiers modes. */
   protected readonly tuiles = computed<TuileCellule[]>(() => {
@@ -33,7 +44,13 @@ export class SectionEncaissementsComponent {
       return [];
     }
     return [
-      { libelle: 'Encaissé', definition: 'Règlements de ventes, de différés et de factures tiers payant.', unite: 'MONTANT', sens: 'HAUSSE', cellule: encaissements.total },
+      {
+        libelle: 'Encaissé',
+        definition: 'Règlements de ventes, de différés et de factures tiers payant.',
+        unite: 'MONTANT',
+        sens: 'HAUSSE',
+        cellule: encaissements.total,
+      },
       ...encaissements.modes.slice(0, 3).map(mode => ({
         libelle: `dont ${mode.libelle}`,
         definition: `Encaissé par ${mode.libelle}.`,
@@ -52,5 +69,4 @@ export class SectionEncaissementsComponent {
   protected readonly libelles = computed(() => this.historique.value()?.tranches ?? []);
   protected readonly series = computed<SerieBarres[]>(() => this.historique.value()?.series ?? []);
   protected readonly horizon = computed(() => libellerHorizon(this.requete().granularite));
-
 }

@@ -292,7 +292,9 @@ $normal-color-light: lighten($pharma-primary, 38%);
 
 .sales-sidebar {
   width: 240px;
-  transition: width 0.3s ease, min-width 0.3s ease;
+  transition:
+    width 0.3s ease,
+    min-width 0.3s ease;
   position: relative;
 
   &.collapsed {
@@ -346,7 +348,6 @@ $normal-color-light: lighten($pharma-primary, 38%);
   i {
     font-size: 1.25rem;
   }
-
 
   .sidebar-toggle-btn {
     margin-left: auto;
@@ -477,7 +478,7 @@ $normal-color-light: lighten($pharma-primary, 38%);
 
     .sale-tab-content {
       .sale-tab-subtitle {
-        color: rgba(255, 255, 255, 0.80);
+        color: rgba(255, 255, 255, 0.8);
       }
     }
 
@@ -509,7 +510,6 @@ $normal-color-light: lighten($pharma-primary, 38%);
   min-height: 0;
   min-width: 0;
   overflow: visible;
-
 }
 
 /* ========================================
@@ -778,7 +778,6 @@ $normal-color-light: lighten($pharma-primary, 38%);
     }
   }
 }
-
 
 // Le sélecteur de vendeur est posé sur le fond teinté du bandeau : la bordure de champ du thème (#7c8ba1) n'y fait que
 // 2,9:1 ; assombrie de 30 %, elle passe les 3:1 exigés pour un contrôle.
@@ -1064,7 +1063,8 @@ $normal-color-light: lighten($pharma-primary, 38%);
 }
 
 @keyframes wifi-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -1262,7 +1262,6 @@ $normal-color-light: lighten($pharma-primary, 38%);
   }
 }
 
-
 // ============================================
 // STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)
 // Jetons `--comptoir-*` : content/scss/_comptoir-styles.scss. `actuel` ne déclare aucun jeton ET n'est
@@ -1397,7 +1396,6 @@ $normal-color-light: lighten($pharma-primary, 38%);
     }
   }
 }
-
 
 // En-têtes (tableaux, bandeaux, onglets) de l'espace de vente : sous un thème de couleur autre que « actuel », ils gardent la
 // teinte du type de vente en cours (comptant, assurance, carnet) au lieu de celle du thème, donc plus marquée que le reste de

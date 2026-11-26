@@ -27,13 +27,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(
-    name = "classification_criticite_log",
-    indexes = {
-        @Index(name = "idx_classif_log_produit", columnList = "produit_id"),
-        @Index(name = "idx_classif_log_date", columnList = "created_at"),
-        @Index(name = "idx_classif_log_type", columnList = "classification_type")
-    }
-)
+        name = "classification_criticite_log",
+        indexes = {
+            @Index(name = "idx_classif_log_produit", columnList = "produit_id"),
+            @Index(name = "idx_classif_log_date", columnList = "created_at"),
+            @Index(name = "idx_classif_log_type", columnList = "classification_type")
+        })
 public class ClassificationCriticiteLog implements Serializable {
 
     @Serial
@@ -258,13 +257,12 @@ public class ClassificationCriticiteLog implements Serializable {
 
     @Override
     public String toString() {
-        return "ClassificationCriticiteLog{" +
-            "id=" + id +
-            ", ancienneClasse=" + ancienneClasse +
-            ", nouvelleClasse=" + nouvelleClasse +
-            ", scoreTotal=" + scoreTotal +
-            ", classificationType=" + classificationType +
-            ", createdAt=" + createdAt +
-            '}';
+        return "ClassificationCriticiteLog{" + "id="
+                + id + ", ancienneClasse="
+                + ancienneClasse + ", nouvelleClasse="
+                + nouvelleClasse + ", scoreTotal="
+                + scoreTotal + ", classificationType="
+                + classificationType + ", createdAt="
+                + createdAt + '}';
     }
 }

@@ -40,10 +40,9 @@ public class ComparaisonAnneesServiceImpl implements ComparaisonAnneesService {
     private final CroiseurAnnees croiseurAnnees;
 
     public ComparaisonAnneesServiceImpl(
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        LecteurFiltrePilotage lecteurFiltrePilotage,
-        CroiseurAnnees croiseurAnnees
-    ) {
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            LecteurFiltrePilotage lecteurFiltrePilotage,
+            CroiseurAnnees croiseurAnnees) {
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.lecteurFiltrePilotage = lecteurFiltrePilotage;
         this.croiseurAnnees = croiseurAnnees;
@@ -56,55 +55,69 @@ public class ComparaisonAnneesServiceImpl implements ComparaisonAnneesService {
         }
         IndicateurPilotage indicateur = requete.indicateur();
         if (dictionnaireIndicateursService.filtrerAutorises(List.of(indicateur)).isEmpty()) {
-            throw new ForbiddenOperationException("Indicateur non autorisé : " + indicateur.getLibelle(), "pilotageIndicateurInterdit");
+            throw new ForbiddenOperationException(
+                    "Indicateur non autorisé : " + indicateur.getLibelle(), "pilotageIndicateurInterdit");
         }
         List<FiltreAnalyseDTO> filtres = requete.lireFiltres();
-        dictionnaireIndicateursService.verifierAxesAutorises(filtres.stream().map(FiltreAnalyseDTO::axe).toList());
+        dictionnaireIndicateursService.verifierAxesAutorises(
+                filtres.stream().map(FiltreAnalyseDTO::axe).toList());
 
         int derniere = aujourdhui.getYear();
-        List<Integer> annees = IntStream.rangeClosed(derniere - requete.annees() + 1, derniere).boxed().toList();
+        List<Integer> annees = IntStream.rangeClosed(derniere - requete.annees() + 1, derniere)
+                .boxed()
+                .toList();
         int anneeDeDepart = annees.getFirst() - 1;
         CalendrierMensuel calendrier = CalendrierMensuel.ranger(
-            anneeDeDepart,
-            lecteurFiltrePilotage.lire(new PeriodeDTO(LocalDate.of(anneeDeDepart, 1, 1), aujourdhui), Granularite.MOIS, filtres, indicateur)
-        );
+                anneeDeDepart,
+                lecteurFiltrePilotage.lire(
+                        new PeriodeDTO(LocalDate.of(anneeDeDepart, 1, 1), aujourdhui),
+                        Granularite.MOIS,
+                        filtres,
+                        indicateur));
         MesuresPilotage anneePrecedenteADate = lecteurFiltrePilotage
-            .lire(new PeriodeDTO(LocalDate.of(derniere - 1, 1, 1), aujourdhui.minusYears(1)), Granularite.ANNEE, filtres, indicateur)
-            .getFirst();
+                .lire(
+                        new PeriodeDTO(LocalDate.of(derniere - 1, 1, 1), aujourdhui.minusYears(1)),
+                        Granularite.ANNEE,
+                        filtres,
+                        indicateur)
+                .getFirst();
         LocalDate memeJourN1 = aujourdhui.minusYears(1);
         MesuresPilotage moisPrecedentADate = lecteurFiltrePilotage
-            .lire(new PeriodeDTO(memeJourN1.withDayOfMonth(1), memeJourN1), Granularite.ANNEE, filtres, indicateur)
-            .getFirst();
+                .lire(new PeriodeDTO(memeJourN1.withDayOfMonth(1), memeJourN1), Granularite.ANNEE, filtres, indicateur)
+                .getFirst();
         LectureAnnees lecture = new LectureAnnees(
-            indicateur,
-            requete.mode(),
-            requete.parJourOuvre() && indicateur.estAdditif(),
-            calendrier,
-            derniere,
-            anneePrecedenteADate,
-            aujourdhui.getMonthValue(),
-            moisPrecedentADate
-        );
+                indicateur,
+                requete.mode(),
+                requete.parJourOuvre() && indicateur.estAdditif(),
+                calendrier,
+                derniere,
+                anneePrecedenteADate,
+                aujourdhui.getMonthValue(),
+                moisPrecedentADate);
 
-        List<Integer> anneesCloses = annees.stream().filter(annee -> annee < derniere).toList();
+        List<Integer> anneesCloses =
+                annees.stream().filter(annee -> annee < derniere).toList();
         boolean additif = indicateur.estAdditif();
-        CroissanceAnnuelle croissance = additif ? CroissanceAnnuelle.calculer(anneesCloses, lecture) : CroissanceAnnuelle.AUCUNE;
-        boolean voitLaMarge = dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.RENTABILITE_REMISES);
+        CroissanceAnnuelle croissance =
+                additif ? CroissanceAnnuelle.calculer(anneesCloses, lecture) : CroissanceAnnuelle.AUCUNE;
+        boolean voitLaMarge =
+                dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.RENTABILITE_REMISES);
         return new ComparaisonAnneesDTO(
-            IndicateurPilotageDTO.fromIndicateur(indicateur),
-            requete.mode(),
-            lecture.parJourOuvre(),
-            aujourdhui,
-            annees.stream().map(lecture::comparer).toList(),
-            additif ? lecture.calculerSaisonnalite(anneesCloses) : List.of(),
-            croissance.taux(),
-            croissance.depuis(),
-            croissance.jusqua(),
-            lecture.trouverMoisMaximum(annees),
-            annees.stream().map(annee -> lecture.synthetiser(annee, voitLaMarge)).toList(),
-            croiseurAnnees.croiser(AxeAnalyse.FAMILLE, indicateur, annees, aujourdhui, requete.aDate(), filtres),
-            croiseurAnnees.croiser(AxeAnalyse.NATURE_VENTE, indicateur, annees, aujourdhui, requete.aDate(), filtres)
-        );
+                IndicateurPilotageDTO.fromIndicateur(indicateur),
+                requete.mode(),
+                lecture.parJourOuvre(),
+                aujourdhui,
+                annees.stream().map(lecture::comparer).toList(),
+                additif ? lecture.calculerSaisonnalite(anneesCloses) : List.of(),
+                croissance.taux(),
+                croissance.depuis(),
+                croissance.jusqua(),
+                lecture.trouverMoisMaximum(annees),
+                annees.stream()
+                        .map(annee -> lecture.synthetiser(annee, voitLaMarge))
+                        .toList(),
+                croiseurAnnees.croiser(AxeAnalyse.FAMILLE, indicateur, annees, aujourdhui, requete.aDate(), filtres),
+                croiseurAnnees.croiser(
+                        AxeAnalyse.NATURE_VENTE, indicateur, annees, aujourdhui, requete.aDate(), filtres));
     }
-
 }

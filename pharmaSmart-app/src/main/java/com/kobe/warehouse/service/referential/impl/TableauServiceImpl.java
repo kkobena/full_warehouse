@@ -4,10 +4,10 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.TableauRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.TableauDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.referential.TableauService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +23,8 @@ public class TableauServiceImpl implements TableauService {
     private final ProduitRepository produitRepository;
     private final LogsService logsService;
 
-    public TableauServiceImpl(TableauRepository tableauRepository, ProduitRepository produitRepository, LogsService logsService) {
+    public TableauServiceImpl(
+            TableauRepository tableauRepository, ProduitRepository produitRepository, LogsService logsService) {
         this.tableauRepository = tableauRepository;
         this.produitRepository = produitRepository;
         this.logsService = logsService;
@@ -32,13 +33,12 @@ public class TableauServiceImpl implements TableauService {
     @Override
     @Transactional
     public TableauDTO save(TableauDTO tableauDTO) {
-        return Optional.of(
-            this.tableauRepository.saveAndFlush(
-                    new Tableau().setId(tableauDTO.getId()).setCode(tableauDTO.getCode()).setValue(tableauDTO.getValue())
-                )
-        )
-            .map(TableauDTO::new)
-            .orElseThrow();
+        return Optional.of(this.tableauRepository.saveAndFlush(new Tableau()
+                        .setId(tableauDTO.getId())
+                        .setCode(tableauDTO.getCode())
+                        .setValue(tableauDTO.getValue())))
+                .map(TableauDTO::new)
+                .orElseThrow();
     }
 
     @Override
@@ -60,9 +60,8 @@ public class TableauServiceImpl implements TableauService {
         long rattaches = this.produitRepository.countByTableauId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "Le tableau est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "Le tableau est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
+                    "referentielUtilise");
         }
         this.tableauRepository.deleteById(id);
     }
@@ -79,10 +78,9 @@ public class TableauServiceImpl implements TableauService {
                 produit.setUpdatedAt(LocalDateTime.now());
                 this.produitRepository.save(produit);
                 logsService.create(
-                    TransactionType.UPDATE_PRODUCT,
-                    String.format("Modification du produit %s", produit.getLibelle()),
-                    produit.getId().toString()
-                );
+                        TransactionType.UPDATE_PRODUCT,
+                        String.format("Modification du produit %s", produit.getLibelle()),
+                        produit.getId().toString());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -99,10 +97,9 @@ public class TableauServiceImpl implements TableauService {
                 produit.setUpdatedAt(LocalDateTime.now());
                 this.produitRepository.save(produit);
                 logsService.create(
-                    TransactionType.UPDATE_PRODUCT,
-                    String.format("Modification du produit %s", produit.getLibelle()),
-                    produit.getId().toString()
-                );
+                        TransactionType.UPDATE_PRODUCT,
+                        String.format("Modification du produit %s", produit.getLibelle()),
+                        produit.getId().toString());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.RayonProduit;
-import com.kobe.warehouse.domain.enumeration.StorageType;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;

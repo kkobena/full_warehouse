@@ -84,9 +84,9 @@ public interface ProduitService {
 
     void update(Produit produit);
 
-    //TODO: methode à analyser , ça ne me semble pas être la bonne formule pour calculer le prix moyen pondéré à la réception d'une commande
-    default int calculPrixMoyenPondereReception(int oldStock, int oldPrixAchat, int newStock,
-        int newPrixAchat) {
+    // TODO: methode à analyser , ça ne me semble pas être la bonne formule pour calculer le prix moyen pondéré à la
+    // réception d'une commande
+    default int calculPrixMoyenPondereReception(int oldStock, int oldPrixAchat, int newStock, int newPrixAchat) {
 
         // return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / (oldStock + newStock);
         return ((oldStock * oldPrixAchat) + (newStock * newPrixAchat)) / newStock;
@@ -100,8 +100,7 @@ public interface ProduitService {
 
     List<ProduitSearch> searchProducts(String search, Integer magasinId, Pageable pageable);
 
-    List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search,
-        Pageable pageable);
+    List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search, Pageable pageable);
 
     /**
      * Les produits d'une liste d'identifiants au format de la recherche (stock du magasin compris), dans l'ordre reçu.
@@ -113,8 +112,7 @@ public interface ProduitService {
 
     void save(StockProduitDTO dto);
 
-    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria,
-        Integer fournisseurId);
+    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId);
 
     List<Produit> find(ProduitCriteria produitCriteria);
 

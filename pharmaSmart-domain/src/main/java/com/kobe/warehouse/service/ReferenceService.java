@@ -3,14 +3,13 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.domain.Reference;
 import com.kobe.warehouse.domain.enumeration.TypeReference;
 import com.kobe.warehouse.repository.ReferenceRepository;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -25,7 +24,7 @@ public class ReferenceService {
     public ReferenceService(ReferenceRepository referenceRepository) {
         this.referenceRepository = referenceRepository;
     }
-//PO comme prefix
+    // PO comme prefix
     public String buildNumCommande() {
         return buildReference(TypeReference.COMMANDE, this::formatWithDatePrefix);
     }
@@ -68,14 +67,15 @@ public class ReferenceService {
      */
     private String buildReference(TypeReference referenceType, Function<Reference, String> formatter) {
         LocalDate currentDate = LocalDate.now();
-        Optional<Reference> optionalReference = referenceRepository.findOneBymvtDateAndType(currentDate, referenceType.getValue());
+        Optional<Reference> optionalReference =
+                referenceRepository.findOneBymvtDateAndType(currentDate, referenceType.getValue());
 
         Reference reference = optionalReference
-            .map(ref -> {
-                ref.setNumberTransac(ref.getNumberTransac() + 1);
-                return ref;
-            })
-            .orElseGet(() -> createNewReference(referenceType.getValue(), currentDate));
+                .map(ref -> {
+                    ref.setNumberTransac(ref.getNumberTransac() + 1);
+                    return ref;
+                })
+                .orElseGet(() -> createNewReference(referenceType.getValue(), currentDate));
 
         reference.setNum(formatter.apply(reference));
         referenceRepository.save(reference);

@@ -19,7 +19,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
-public class GroupeFacturePdfExportServiceImpl extends AbstractStatistiqueReportService implements GroupeFacturePdfExportService {
+public class GroupeFacturePdfExportServiceImpl extends AbstractStatistiqueReportService
+        implements GroupeFacturePdfExportService {
 
     private final SpringTemplateEngine templateEngine;
     private final FacturationPdfExportService facturationPdfExportService;
@@ -27,11 +28,10 @@ public class GroupeFacturePdfExportServiceImpl extends AbstractStatistiqueReport
     private static final String TEMPLATE_FILE = Constant.FACTURATION_GROUPE_TEMPLATE_FILE;
 
     public GroupeFacturePdfExportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FacturationPdfExportService facturationPdfExportService
-    ) {
-        super( storageService);
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            FacturationPdfExportService facturationPdfExportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.facturationPdfExportService = facturationPdfExportService;
     }
@@ -81,7 +81,9 @@ public class GroupeFacturePdfExportServiceImpl extends AbstractStatistiqueReport
             throw new IllegalArgumentException("La liste des groupes de factures ne peut pas être vide");
         }
         super.getCommonParameters();
-        List<byte[]> allPdfBytes = groupeFactures.stream().flatMap(gf -> buildDocuments(gf).stream()).toList();
+        List<byte[]> allPdfBytes = groupeFactures.stream()
+                .flatMap(gf -> buildDocuments(gf).stream())
+                .toList();
         return mergePdfBytes(allPdfBytes);
     }
 

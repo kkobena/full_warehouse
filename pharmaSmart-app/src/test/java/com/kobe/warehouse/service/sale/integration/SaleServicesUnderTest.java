@@ -25,6 +25,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.repository.VenteDepotRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.PaymentService;
+import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
@@ -41,35 +42,34 @@ import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
-import com.kobe.warehouse.service.ReceiptPrinterService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
 import com.kobe.warehouse.service.sale.AvoirClientService;
 import com.kobe.warehouse.service.sale.RetourAvoirDashboardService;
 import com.kobe.warehouse.service.sale.RetourClientService;
-import com.kobe.warehouse.service.sale.SimplifiedSaleService;
-import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
-import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
+import com.kobe.warehouse.service.sale.SimplifiedSaleService;
+import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
+import com.kobe.warehouse.service.sale.ThirdPartyClientManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.impl.AssuredCustomerManagerImpl;
 import com.kobe.warehouse.service.sale.impl.AvoirClientDocumentServiceImpl;
 import com.kobe.warehouse.service.sale.impl.AvoirClientServiceImpl;
-import com.kobe.warehouse.service.sale.impl.RetourClientServiceImpl;
-import com.kobe.warehouse.service.sale.impl.SimplifiedSaleServiceImpl;
 import com.kobe.warehouse.service.sale.impl.ConsommationService;
+import com.kobe.warehouse.service.sale.impl.RetourClientServiceImpl;
 import com.kobe.warehouse.service.sale.impl.SaleDepotExtensionImpl;
 import com.kobe.warehouse.service.sale.impl.SaleLineServiceFactory;
 import com.kobe.warehouse.service.sale.impl.SaleServiceImpl;
 import com.kobe.warehouse.service.sale.impl.SalesLineServiceBaseImpl;
 import com.kobe.warehouse.service.sale.impl.SalesManagerImpl;
+import com.kobe.warehouse.service.sale.impl.SimplifiedSaleServiceImpl;
 import com.kobe.warehouse.service.sale.impl.StockUpdateService;
 import com.kobe.warehouse.service.sale.impl.ThirdPartyCalculationManagerImpl;
 import com.kobe.warehouse.service.sale.impl.ThirdPartyClientManagerImpl;
@@ -183,88 +183,93 @@ final class SaleServicesUnderTest {
         this.assuredCustomerRepository = IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class);
         this.salePaymentRepository = IntegrationPostgresDatabase.bean(SalePaymentRepository.class);
         this.avoirClientRepository = IntegrationPostgresDatabase.bean(AvoirClientRepository.class);
-        this.avoirClientUtilisationRepository = IntegrationPostgresDatabase.bean(AvoirClientUtilisationRepository.class);
+        this.avoirClientUtilisationRepository =
+                IntegrationPostgresDatabase.bean(AvoirClientUtilisationRepository.class);
         this.retourClientRepository = IntegrationPostgresDatabase.bean(RetourClientRepository.class);
 
         PaymentModeRepository paymentModeRepository = IntegrationPostgresDatabase.bean(PaymentModeRepository.class);
         PosteRepository posteRepository = IntegrationPostgresDatabase.bean(PosteRepository.class);
         RemiseRepository remiseRepository = IntegrationPostgresDatabase.bean(RemiseRepository.class);
-        UninsuredCustomerRepository uninsuredCustomerRepository = IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class);
+        UninsuredCustomerRepository uninsuredCustomerRepository =
+                IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class);
 
-        this.referenceService = new ReferenceService(IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.ReferenceRepository.class));
+        this.referenceService = new ReferenceService(
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.ReferenceRepository.class));
         this.saleIdGeneratorService = new SaleIdGeneratorService(entityManager);
         this.saleLineIdGeneratorService = new SaleLineIdGeneratorService(entityManager);
-        AssuranceItemIdGeneratorService assuranceItemIdGeneratorService = new AssuranceItemIdGeneratorService(entityManager);
+        AssuranceItemIdGeneratorService assuranceItemIdGeneratorService =
+                new AssuranceItemIdGeneratorService(entityManager);
         TransactionIdGeneratorService transactionIdGeneratorService = new TransactionIdGeneratorService(entityManager);
 
-        this.paymentService = new PaymentServiceImpl(salePaymentRepository, paymentModeRepository, transactionIdGeneratorService);
+        this.paymentService =
+                new PaymentServiceImpl(salePaymentRepository, paymentModeRepository, transactionIdGeneratorService);
 
-        this.stockUpdateService = new StockUpdateService(stockProduitRepository, logsService, suggestionReassortService);
+        this.stockUpdateService =
+                new StockUpdateService(stockProduitRepository, logsService, suggestionReassortService);
 
         // Réelle : la sortie de caisse d'un remboursement d'avoir est un mouvement écrit en base (DefaultPayment).
         // Seuls l'édition de reçu et l'état PDF, que l'écriture n'appelle pas, sont simulés.
-        this.financialTransactionService = new com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServiceImpl(
-            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.PaymentTransactionRepository.class),
-            userService,
-            salesRepository,
-            cashRegisterService,
-            entityManager,
-            mock(com.kobe.warehouse.service.financiel_transaction.MvtCaisseReportReportService.class),
-            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.DefaultTransactionRepository.class),
-            transactionIdGeneratorService,
-            mock(com.kobe.warehouse.service.receipt.service.MouvementCaisseReceiptService.class),
-            referenceService
-        );
+        this.financialTransactionService =
+                new com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServiceImpl(
+                        IntegrationPostgresDatabase.bean(
+                                com.kobe.warehouse.repository.PaymentTransactionRepository.class),
+                        userService,
+                        salesRepository,
+                        cashRegisterService,
+                        entityManager,
+                        mock(com.kobe.warehouse.service.financiel_transaction.MvtCaisseReportReportService.class),
+                        IntegrationPostgresDatabase.bean(
+                                com.kobe.warehouse.repository.DefaultTransactionRepository.class),
+                        transactionIdGeneratorService,
+                        mock(com.kobe.warehouse.service.receipt.service.MouvementCaisseReceiptService.class),
+                        referenceService);
 
         // L'avoir client est le premier effet de bord d'une vente servie en partie : on le garde
         // reel, c'est une ligne ecrite en base, pas un appel a verifier.
         this.avoirClientDocumentService = new AvoirClientDocumentServiceImpl(
-            avoirClientRepository,
-            salesLineRepository,
-            referenceService,
-            storageService,
-            stockProduitRepository,
-            avoirClientNotificationService,
-            appConfigurationService,
-            avoirClientUtilisationRepository,
-            lotService,
-            lotStockLocationService,
-            logsService,
-            cashRegisterService,
-            financialTransactionService,
-            paymentModeRepository
-        );
+                avoirClientRepository,
+                salesLineRepository,
+                referenceService,
+                storageService,
+                stockProduitRepository,
+                avoirClientNotificationService,
+                appConfigurationService,
+                avoirClientUtilisationRepository,
+                lotService,
+                lotStockLocationService,
+                logsService,
+                cashRegisterService,
+                financialTransactionService,
+                paymentModeRepository);
 
         // Réel : la régularisation d'un écart d'inventaire est un ajustement écrit en base.
         this.ajustementService = new com.kobe.warehouse.service.AjustementService(
-            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustementRepository.class),
-            produitRepository,
-            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustRepository.class),
-            storageService,
-            stockProduitRepository,
-            logsService,
-            inventoryTransactionService,
-            suggestionReassortService,
-            lotStockLocationService,
-            lotService,
-            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class)
-        );
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustementRepository.class),
+                produitRepository,
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustRepository.class),
+                storageService,
+                stockProduitRepository,
+                logsService,
+                inventoryTransactionService,
+                suggestionReassortService,
+                lotStockLocationService,
+                lotService,
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class));
 
         SalesLineServiceBaseImpl salesLineServiceBase = new SalesLineServiceBaseImpl(
-            produitRepository,
-            salesLineRepository,
-            stockProduitRepository,
-            lotService,
-            inventoryTransactionService,
-            saleLineIdGeneratorService,
-            this.stockUpdateService,
-            storageService,
-            repartitionStockService,
-            lotStockLocationService,
-            avoirClientDocumentService,
-            dataMatrixParserService,
-            ajustementService
-        );
+                produitRepository,
+                salesLineRepository,
+                stockProduitRepository,
+                lotService,
+                inventoryTransactionService,
+                saleLineIdGeneratorService,
+                this.stockUpdateService,
+                storageService,
+                repartitionStockService,
+                lotStockLocationService,
+                avoirClientDocumentService,
+                dataMatrixParserService,
+                ajustementService);
         this.salesLineService = salesLineServiceBase;
         SaleLineServiceFactory saleLineServiceFactory = new SaleLineServiceFactory(salesLineServiceBase);
 
@@ -276,168 +281,156 @@ final class SaleServicesUnderTest {
         ThirdPartySaleService thirdPartyProxy = lazy(ThirdPartySaleService.class, () -> this.thirdPartySaleService);
 
         this.salesManager = new SalesManagerImpl(
-            saleLineServiceFactory,
-            storageService,
-            customerDisplayService,
-            cashSaleRepository,
-            venteDepotRepository,
-            saleServiceProxy,
-            thirdPartyProxy,
-            saleAmountCalculator
-        );
+                saleLineServiceFactory,
+                storageService,
+                customerDisplayService,
+                cashSaleRepository,
+                venteDepotRepository,
+                saleServiceProxy,
+                thirdPartyProxy,
+                saleAmountCalculator);
 
         this.saleService = new SaleServiceImpl(
-            salesRepository,
-            userRepository,
-            uninsuredCustomerRepository,
-            paymentModeRepository,
-            storageService,
-            cashSaleRepository,
-            cashRegisterService,
-            saleLineServiceFactory,
-            saleAmountCalculator,
-            paymentService,
-            referenceService,
-            posteRepository,
-            utilisationCleSecuriteService,
-            remiseRepository,
-            customerDisplayService,
-            saleIdGeneratorService,
-            objectMapper,
-            salesManager,
-            appConfigurationService,
-            declarationCaService,
-            ponctionService
-        );
+                salesRepository,
+                userRepository,
+                uninsuredCustomerRepository,
+                paymentModeRepository,
+                storageService,
+                cashSaleRepository,
+                cashRegisterService,
+                saleLineServiceFactory,
+                saleAmountCalculator,
+                paymentService,
+                referenceService,
+                posteRepository,
+                utilisationCleSecuriteService,
+                remiseRepository,
+                customerDisplayService,
+                saleIdGeneratorService,
+                objectMapper,
+                salesManager,
+                appConfigurationService,
+                declarationCaService,
+                ponctionService);
 
-        ThirdPartySaleLineService thirdPartySaleLineService = new ThirdPartySaleLineService(
-            assuranceItemIdGeneratorService,
-            thirdPartySaleLineRepository
-        );
+        ThirdPartySaleLineService thirdPartySaleLineService =
+                new ThirdPartySaleLineService(assuranceItemIdGeneratorService, thirdPartySaleLineRepository);
         this.consommationService = new ConsommationService();
         ThirdPartyCalculationManagerImpl thirdPartyCalculationManager = new ThirdPartyCalculationManagerImpl(
-            new TiersPayantCalculationService(),
-            thirdPartySaleLineService,
-            saleLineServiceFactory,
-            thirdPartySaleRepository,
-            prixRererenceService,
-            saleAmountCalculator
-        );
+                new TiersPayantCalculationService(),
+                thirdPartySaleLineService,
+                saleLineServiceFactory,
+                thirdPartySaleRepository,
+                prixRererenceService,
+                saleAmountCalculator);
         ThirdPartyClientManagerImpl thirdPartyClientManager = new ThirdPartyClientManagerImpl(
-            thirdPartySaleLineService,
-            clientTiersPayantRepository,
-            tiersPayantRepository,
-            thirdPartySaleRepository,
-            consommationService,
-            storageService,
-            assuranceItemIdGeneratorService,
-            thirdPartyCalculationManager
-        );
+                thirdPartySaleLineService,
+                clientTiersPayantRepository,
+                tiersPayantRepository,
+                thirdPartySaleRepository,
+                consommationService,
+                storageService,
+                assuranceItemIdGeneratorService,
+                thirdPartyCalculationManager);
 
         this.thirdPartyCalculationManager = thirdPartyCalculationManager;
         this.thirdPartyClientManager = thirdPartyClientManager;
         this.assuredCustomerManager = new AssuredCustomerManagerImpl(assuredCustomerRepository);
 
         this.thirdPartySaleService = new ThirdPartySaleServiceImpl(
-            thirdPartySaleLineService,
-            clientTiersPayantRepository,
-            saleLineServiceFactory,
-            saleAmountCalculator,
-            storageService,
-            thirdPartySaleRepository,
-            assuredCustomerRepository,
-            userRepository,
-            paymentService,
-            referenceService,
-            cashRegisterService,
-            posteRepository,
-            cashSaleRepository,
-            utilisationCleSecuriteService,
-            remiseRepository,
-            customerDisplayService,
-            logsService,
-            saleIdGeneratorService,
-            objectMapper,
-            salesManager,
-            thirdPartyClientManager,
-            thirdPartyCalculationManager,
-            assuredCustomerManager,
-            appConfigurationService,
-            declarationCaService
-        );
+                thirdPartySaleLineService,
+                clientTiersPayantRepository,
+                saleLineServiceFactory,
+                saleAmountCalculator,
+                storageService,
+                thirdPartySaleRepository,
+                assuredCustomerRepository,
+                userRepository,
+                paymentService,
+                referenceService,
+                cashRegisterService,
+                posteRepository,
+                cashSaleRepository,
+                utilisationCleSecuriteService,
+                remiseRepository,
+                customerDisplayService,
+                logsService,
+                saleIdGeneratorService,
+                objectMapper,
+                salesManager,
+                thirdPartyClientManager,
+                thirdPartyCalculationManager,
+                assuredCustomerManager,
+                appConfigurationService,
+                declarationCaService);
 
         this.saleDepotExtensionService = new SaleDepotExtensionImpl(
-            remiseRepository,
-            referenceService,
-            storageService,
-            userRepository,
-            saleLineServiceFactory,
-            saleAmountCalculator,
-            cashRegisterService,
-            posteRepository,
-            customerDisplayService,
-            saleIdGeneratorService,
-            venteDepotRepository,
-            this.stockUpdateService,
-            inventoryTransactionService,
-            objectMapper,
-            salesManager,
-            appConfigurationService
-        );
+                remiseRepository,
+                referenceService,
+                storageService,
+                userRepository,
+                saleLineServiceFactory,
+                saleAmountCalculator,
+                cashRegisterService,
+                posteRepository,
+                customerDisplayService,
+                saleIdGeneratorService,
+                venteDepotRepository,
+                this.stockUpdateService,
+                inventoryTransactionService,
+                objectMapper,
+                salesManager,
+                appConfigurationService);
 
         this.simplifiedSaleService = new SimplifiedSaleServiceImpl(
-            paymentService,
-            cashSaleRepository,
-            referenceService,
-            storageService,
-            userRepository,
-            saleLineServiceFactory,
-            saleAmountCalculator,
-            cashRegisterService,
-            posteRepository,
-            customerDisplayService,
-            saleIdGeneratorService,
-            uninsuredCustomerRepository,
-            objectMapper,
-            appConfigurationService
-        );
+                paymentService,
+                cashSaleRepository,
+                referenceService,
+                storageService,
+                userRepository,
+                saleLineServiceFactory,
+                saleAmountCalculator,
+                cashRegisterService,
+                posteRepository,
+                customerDisplayService,
+                saleIdGeneratorService,
+                uninsuredCustomerRepository,
+                objectMapper,
+                appConfigurationService);
 
         this.avoirClientService = new AvoirClientServiceImpl(salesLineRepository);
 
         this.retourClientService = new RetourClientServiceImpl(
-            retourClientRepository,
-            salesRepository,
-            salesLineRepository,
-            stockProduitRepository,
-            avoirClientRepository,
-            referenceService,
-            storageService,
-            inventoryTransactionService,
-            appConfigurationService
-        );
+                retourClientRepository,
+                salesRepository,
+                salesLineRepository,
+                stockProduitRepository,
+                avoirClientRepository,
+                referenceService,
+                storageService,
+                inventoryTransactionService,
+                appConfigurationService);
 
-        this.retourAvoirDashboardService = new RetourAvoirDashboardService(retourClientRepository, avoirClientRepository);
+        this.retourAvoirDashboardService =
+                new RetourAvoirDashboardService(retourClientRepository, avoirClientRepository);
 
         this.saleDataService = new SaleDataService(
-            entityManager,
-            saleInvoiceReportService,
-            salesLineRepository,
-            thirdPartySaleLineRepository,
-            receiptPrinterService,
-            salesRepository,
-            storageService
-        );
+                entityManager,
+                saleInvoiceReportService,
+                salesLineRepository,
+                thirdPartySaleLineRepository,
+                receiptPrinterService,
+                salesRepository,
+                storageService);
     }
 
     private static <T> T lazy(Class<T> type, Supplier<T> supplier) {
-        return type.cast(
-            Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] { type }, (proxy, method, args) -> {
-                try {
-                    return method.invoke(supplier.get(), args);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            })
-        );
+        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, (proxy, method, args) -> {
+            try {
+                return method.invoke(supplier.get(), args);
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
+        }));
     }
 }

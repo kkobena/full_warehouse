@@ -6,7 +6,9 @@ public enum CategorieABC {
     C("Produits à faible rotation", 1.28);
 
     private final String value;
-    private final double z; //Le score Z est une mesure statistique qui indique combien d'écarts-types une valeur est éloignée de la moyenne. Il est utilisé pour évaluer la position d'une valeur par rapport à une distribution normale.
+    private final double
+            z; // Le score Z est une mesure statistique qui indique combien d'écarts-types une valeur est éloignée de la
+    // moyenne. Il est utilisé pour évaluer la position d'une valeur par rapport à une distribution normale.
 
     public String getValue() {
         return value;

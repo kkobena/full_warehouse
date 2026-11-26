@@ -1,39 +1,33 @@
 <div class="pharma-smart-content">
-
   @if (!editingBed()) {
-
     <!-- ─── Toolbar : titre + onglets ──────────────────────────────────────── -->
     <div class="pharma-toolbar su-parent-toolbar">
-
       <div class="pharma-toolbar-header">
         <i class="pi pi-file-plus"></i>
         <span class="su-title">Bons d'Entrée Diverses</span>
       </div>
 
-      <app-subtab-bar
-        ariaLabel="Bons d'entrée diverses"
-        [tabs]="onglets()"
-        [active]="activeTab()"
-        (activeChange)="setTab($any($event))"
-      />
+      <app-subtab-bar ariaLabel="Bons d'entrée diverses" [tabs]="onglets()" [active]="activeTab()" (activeChange)="setTab($any($event))" />
     </div>
 
     <!-- ─── Barre de filtres ─────────────────────────────────────────────── -->
     <div class="su-action-bar">
       <div class="su-action-bar__filters">
-
         <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
           <input
             (keyup.enter)="onSearch()"
-            (ngModelChange)="search.set($event)" [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            [ngModel]="search()"
             class="form-control"
             placeholder="Référence, libellé…"
-            type="text" />
+            type="text"
+          />
         </app-icon-field>
 
         <app-select
           (ngModelChange)="filterMotif.set($event)"
-          (selectionChange)="onSearch()" [clearable]="true"
+          (selectionChange)="onSearch()"
+          [clearable]="true"
           [items]="motifOptions"
           [ngModel]="filterMotif()"
           bindLabel="label"
@@ -43,7 +37,8 @@
 
         <pharma-date-picker
           (ngModelChange)="dtStart.set($event)"
-          (selectionChange)="onSearch()" [ngModel]="dtStart()"
+          (selectionChange)="onSearch()"
+          [ngModel]="dtStart()"
           class="lb-date"
           id="bedDtStart"
           label="Début"
@@ -51,22 +46,16 @@
 
         <pharma-date-picker
           (ngModelChange)="dtEnd.set($event)"
-          (selectionChange)="onSearch()" [ngModel]="dtEnd()"
+          (selectionChange)="onSearch()"
+          [ngModel]="dtEnd()"
           class="lb-date"
           id="bedDtEnd"
           label="Fin"
         />
-
       </div>
 
       <div class="su-action-bar__actions">
-        <app-button
-          (clicked)="onNouveauBed()"
-          icon="pi pi-plus"
-          label="Nouveau"
-          severity="primary"
-          size="small"
-        />
+        <app-button (clicked)="onNouveauBed()" icon="pi pi-plus" label="Nouveau" severity="primary" size="small" />
         <app-split-button
           [items]="importMenuItems"
           [outlined]="true"
@@ -75,23 +64,18 @@
           severity="warn"
           size="small"
         />
-        <app-button
-          (clicked)="onSearch()"
-          icon="pi pi-search"
-          label="Rechercher"
-          severity="info"
-          size="small"
-        />
+        <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
       </div>
     </div>
 
     <!-- Hint premier usage -->
-    <app-card>   <app-hint [visible]="activeTab() === 'BROUILLON'" storageKey="bed">
-    Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir
-    détail</strong> pour consulter un BED validé.
-  </app-hint>
+    <app-card>
+      <app-hint [visible]="activeTab() === 'BROUILLON'" storageKey="bed">
+        Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir détail</strong> pour consulter un BED
+        validé.
+      </app-hint>
 
-    <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
+      <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
 
       <app-data-table
         (onLazyLoad)="onPageChange($event)"
@@ -121,9 +105,13 @@
         </ng-template>
 
         <ng-template #body let-b>
-          <tr (click)="onEditer(b)" style="cursor:pointer">
-            <td><span class="pharma-code">{{ b.receiptReference ?? '—' }}</span></td>
-            <td><small>{{ b.orderDate | date:'dd/MM/yyyy' }}</small></td>
+          <tr (click)="onEditer(b)" style="cursor: pointer">
+            <td>
+              <span class="pharma-code">{{ b.receiptReference ?? '—' }}</span>
+            </td>
+            <td>
+              <small>{{ b.orderDate | date: 'dd/MM/yyyy' }}</small>
+            </td>
             <td>{{ b.motifLabel ?? '—' }}</td>
             <td>{{ b.fournisseurLibelle ?? '—' }}</td>
             <td class="text-center">
@@ -133,10 +121,7 @@
               <span class="pharma-price">{{ b.grossAmount | devise }}</span>
             </td>
             <td>
-              <app-badge
-                [label]="getStatutLabel(b.orderStatus)"
-                [severity]="getStatutSeverity(b.orderStatus)"
-              />
+              <app-badge [label]="getStatutLabel(b.orderStatus)" [severity]="getStatutSeverity(b.orderStatus)" />
             </td>
             <td (click)="$event.stopPropagation()" class="text-center">
               <div class="d-flex justify-content-center gap-1">
@@ -208,24 +193,17 @@
                   severity="primary"
                   size="small"
                 />
-
               </div>
             </td>
           </tr>
         </ng-template>
       </app-data-table>
-   </app-card>
-
-
+    </app-card>
   }
 
   @if (editingBed()) {
     <div class="bed-detail-body">
-      <app-bed-detail
-        (bedChange)="editingBed.set($event)"
-        (retour)="onRetour()"
-        [bed]="editingBed()!"
-      />
+      <app-bed-detail (bedChange)="editingBed.set($event)" (retour)="onRetour()" [bed]="editingBed()!" />
     </div>
   }
 </div>

@@ -4,11 +4,7 @@
 </div>
 
 <div class="modal-body">
-  <app-data-table
-    [loading]="loading()"
-    [value]="substitutions()"
-    class="p-datatable-sm w-100 "
-  >
+  <app-data-table [loading]="loading()" [value]="substitutions()" class="p-datatable-sm w-100">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th>Produit original</th>
@@ -25,34 +21,32 @@
     <ng-template #body let-sub>
       <tr>
         <td>{{ sub.designationOriginale }}</td>
-        <td><code>{{ sub.cipOriginal }}</code></td>
+        <td>
+          <code>{{ sub.cipOriginal }}</code>
+        </td>
         <td>
           {{ sub.designation ?? '—' }}
           @if (sub.substitutConnu) {
-            <span
-              class="badge bg-success ms-1"
-              ngbTooltip="Ce substitut est déjà enregistré dans votre référentiel local"
-              placement="top">
+            <span class="badge bg-success ms-1" ngbTooltip="Ce substitut est déjà enregistré dans votre référentiel local" placement="top">
               <i class="pi pi-check-circle"></i> connu
             </span>
           }
         </td>
-        <td><code>{{ sub.cipPropose }}</code></td>
+        <td>
+          <code>{{ sub.cipPropose }}</code>
+        </td>
         <td class="text-center">{{ sub.quantite }}</td>
         <td class="text-center">
           @if (sub.typeRemplacement) {
             @switch (sub.typeRemplacement) {
               @case ('EP') {
-                <app-badge label="EP" ngbTooltip="Équivalent Proposé — validation requise"
-                           severity="warn" />
+                <app-badge label="EP" ngbTooltip="Équivalent Proposé — validation requise" severity="warn" />
               }
               @case ('EL') {
-                <app-badge label="EL" ngbTooltip="Équivalent Livré — accepté automatiquement"
-                           severity="success" />
+                <app-badge label="EL" ngbTooltip="Équivalent Livré — accepté automatiquement" severity="success" />
               }
               @case ('RL') {
-                <app-badge label="RL" ngbTooltip="Remplaçant Livré — accepté automatiquement"
-                           severity="info" />
+                <app-badge label="RL" ngbTooltip="Remplaçant Livré — accepté automatiquement" severity="info" />
               }
               @default {
                 <app-badge [label]="sub.typeRemplacement" severity="secondary" />

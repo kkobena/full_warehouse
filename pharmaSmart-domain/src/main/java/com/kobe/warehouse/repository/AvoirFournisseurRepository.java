@@ -4,6 +4,8 @@ import com.kobe.warehouse.domain.AvoirFournisseur;
 import com.kobe.warehouse.domain.AvoirFournisseur_;
 import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,12 +14,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Repository
-public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisseur, Integer>, JpaSpecificationExecutor<AvoirFournisseur> {
-
+public interface AvoirFournisseurRepository
+        extends JpaRepository<AvoirFournisseur, Integer>, JpaSpecificationExecutor<AvoirFournisseur> {
 
     @Query("""
         SELECT a.fournisseur.id, a.fournisseur.libelle, SUM(a.montant)
@@ -33,7 +32,9 @@ public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisse
     }
 
     default Specification<AvoirFournisseur> hasFournisseurId(@NotNull Integer fournisseurId) {
-        return (root, query, cb) -> fournisseurId == null ? null : cb.equal(root.get(AvoirFournisseur_.fournisseur).get("id"), fournisseurId);
+        return (root, query, cb) -> fournisseurId == null
+                ? null
+                : cb.equal(root.get(AvoirFournisseur_.fournisseur).get("id"), fournisseurId);
     }
 
     default Specification<AvoirFournisseur> dateMtvBetween(LocalDateTime dtStart, LocalDateTime dtEnd) {
@@ -46,7 +47,6 @@ public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisse
                 return cb.lessThanOrEqualTo(root.get(AvoirFournisseur_.dateMtv), dtEnd);
             } else {
                 return null;
-
             }
         };
     }
@@ -56,17 +56,17 @@ public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisse
         return (root, query, cb) -> cb.like(root.get(AvoirFournisseur_.reference), reference + "%");
     }
 
-
-    @Query(
-        "SELECT a FROM AvoirFournisseur a " +
-        "JOIN FETCH a.fournisseur " +
-        "ORDER BY a.dateMtv DESC"
-    )
+    @Query("SELECT a FROM AvoirFournisseur a " + "JOIN FETCH a.fournisseur " + "ORDER BY a.dateMtv DESC")
     List<AvoirFournisseur> findAllWithFournisseur();
 
     long countByStatut(AvoirFournisseurStatut statut);
 
-    default Specification<AvoirFournisseur> buildSpecification(AvoirFournisseurStatut statut, String reference, Integer fournisseurId, LocalDateTime dtStart, LocalDateTime dtEnd) {
+    default Specification<AvoirFournisseur> buildSpecification(
+            AvoirFournisseurStatut statut,
+            String reference,
+            Integer fournisseurId,
+            LocalDateTime dtStart,
+            LocalDateTime dtEnd) {
 
         Specification<AvoirFournisseur> spec = Specification.unrestricted();
         if (statut != null) {
@@ -83,5 +83,4 @@ public interface AvoirFournisseurRepository extends JpaRepository<AvoirFournisse
         }
         return spec;
     }
-
 }

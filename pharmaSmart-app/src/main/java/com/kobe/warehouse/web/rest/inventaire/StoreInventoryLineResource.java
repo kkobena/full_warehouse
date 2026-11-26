@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.inventaire;
 
-import com.kobe.warehouse.service.inventaire.InventaireService;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.BatchSyncResultRecord;
@@ -9,6 +9,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLotLineRecord;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.inventaire.InventaireQueryService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireSyncService;
 import com.kobe.warehouse.service.inventaire.InventoryLotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -32,14 +33,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventoryLine}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "inventaire", "inventaire.en-cours", "inventaire.tournant" })
+@RequiresNavAccess({"inventaire", "inventaire.en-cours", "inventaire.tournant"})
 public class StoreInventoryLineResource {
 
     private static final String ENTITY_NAME = "storeInventoryLine";
@@ -50,11 +50,10 @@ public class StoreInventoryLineResource {
     private final InventoryLotService inventoryLotService;
 
     public StoreInventoryLineResource(
-        InventaireService inventaireService,
-        InventaireSyncService inventaireSyncService,
-        InventaireQueryService inventaireQueryService,
-        InventoryLotService inventoryLotService
-    ) {
+            InventaireService inventaireService,
+            InventaireSyncService inventaireSyncService,
+            InventaireQueryService inventaireQueryService,
+            InventoryLotService inventoryLotService) {
         this.inventaireService = inventaireService;
         this.inventaireSyncService = inventaireSyncService;
         this.inventaireQueryService = inventaireQueryService;
@@ -63,21 +62,20 @@ public class StoreInventoryLineResource {
 
     @PutMapping("/store-inventory-lines")
     public ResponseEntity<StoreInventoryLineRecord> updateStoreInventoryLine(
-        @Valid @RequestBody StoreInventoryLineDTO storeInventoryLine) {
+            @Valid @RequestBody StoreInventoryLineDTO storeInventoryLine) {
         log.debug("REST request to update StoreInventoryLine : {}", storeInventoryLine);
         if (storeInventoryLine.getProduitId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "produitId null");
         }
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(inventaireService.updateQuantityOnHand(storeInventoryLine)));
+                Optional.ofNullable(inventaireService.updateQuantityOnHand(storeInventoryLine)));
     }
 
     /**
      * Synchronisation batch (remplace N appels PUT unitaires).
      */
     @PutMapping("/store-inventory-lines/batch")
-    public ResponseEntity<BatchSyncResultRecord> batchSync(
-        @Valid @RequestBody List<StoreInventoryLineDTO> lines) {
+    public ResponseEntity<BatchSyncResultRecord> batchSync(@Valid @RequestBody List<StoreInventoryLineDTO> lines) {
         log.debug("REST request to batch-sync {} inventory lines", lines.size());
         return ResponseEntity.ok(inventaireSyncService.synchronize(lines));
     }
@@ -87,25 +85,22 @@ public class StoreInventoryLineResource {
      */
     @GetMapping("/store-inventory-lines/v2")
     public ResponseEntity<List<StoreInventoryLineRecord>> getInventoryLinesV2(
-        StoreInventoryLineFilterRecord filter,
-        Pageable pageable,
-        @RequestParam(value = "excludeIfClosed", defaultValue = "false") boolean excludeIfClosed
-    ) {
-        Page<StoreInventoryLineRecord> page = inventaireQueryService.getInventoryPage(filter,
-            pageable, excludeIfClosed);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            StoreInventoryLineFilterRecord filter,
+            Pageable pageable,
+            @RequestParam(value = "excludeIfClosed", defaultValue = "false") boolean excludeIfClosed) {
+        Page<StoreInventoryLineRecord> page =
+                inventaireQueryService.getInventoryPage(filter, pageable, excludeIfClosed);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/store-inventory-lines/lots")
     public ResponseEntity<List<StoreInventoryLotLineRecord>> getInventoryLotsPage(
-        StoreInventoryLineFilterRecord filter,
-        Pageable pageable
-    ) {
+            StoreInventoryLineFilterRecord filter, Pageable pageable) {
         Page<StoreInventoryLotLineRecord> page = inventoryLotService.findLotFlatPage(filter, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -116,31 +111,35 @@ public class StoreInventoryLineResource {
 
     @PostMapping("/store-inventory-lines/{lineId}/lots")
     public ResponseEntity<InventoryLotRecord> createInventoryLot(
-        @PathVariable Long lineId,
-        @RequestBody InventoryLotRecord record
-    ) {
-        InventoryLotRecord created = inventoryLotService.save(
-            new InventoryLotRecord(
-                null, lineId, record.lotId(), record.numLot(), record.expiryDate(),
-                record.quantityOnHand(), record.quantityInit(), record.gap(),
-                record.updated(), record.lastUnitPrice()
-            )
-        );
+            @PathVariable Long lineId, @RequestBody InventoryLotRecord record) {
+        InventoryLotRecord created = inventoryLotService.save(new InventoryLotRecord(
+                null,
+                lineId,
+                record.lotId(),
+                record.numLot(),
+                record.expiryDate(),
+                record.quantityOnHand(),
+                record.quantityInit(),
+                record.gap(),
+                record.updated(),
+                record.lastUnitPrice()));
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/store-inventory-lines/lots/{lotId}")
     public ResponseEntity<InventoryLotRecord> updateInventoryLot(
-        @PathVariable Long lotId,
-        @RequestBody InventoryLotRecord record
-    ) {
-        InventoryLotRecord updated = inventoryLotService.update(
-            new InventoryLotRecord(
-                lotId, record.storeInventoryLineId(), record.lotId(), record.numLot(),
-                record.expiryDate(), record.quantityOnHand(), record.quantityInit(),
-                record.gap(), record.updated(), record.lastUnitPrice()
-            )
-        );
+            @PathVariable Long lotId, @RequestBody InventoryLotRecord record) {
+        InventoryLotRecord updated = inventoryLotService.update(new InventoryLotRecord(
+                lotId,
+                record.storeInventoryLineId(),
+                record.lotId(),
+                record.numLot(),
+                record.expiryDate(),
+                record.quantityOnHand(),
+                record.quantityInit(),
+                record.gap(),
+                record.updated(),
+                record.lastUnitPrice()));
         return ResponseEntity.ok(updated);
     }
 

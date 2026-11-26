@@ -46,11 +46,10 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
     private final ZplEtiquetteService zplEtiquetteService;
 
     public EtiquetteUsageServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        OrdonnanceRepository ordonnanceRepository,
-        ZplEtiquetteService zplEtiquetteService
-    ) {
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            OrdonnanceRepository ordonnanceRepository,
+            ZplEtiquetteService zplEtiquetteService) {
         this.templateEngine = templateEngine;
         this.storageService = storageService;
         this.ordonnanceRepository = ordonnanceRepository;
@@ -64,30 +63,23 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
 
     @Override
     public String genererZplReglette(Produit produit, int qty, FormatEtiquette format, ResolutionEtiquette resolution) {
-        return zplEtiquetteService.rendreEtiquettes(construireReglettes(produit, qty), TypeEtiquette.REGLETTE, format, resolution);
+        return zplEtiquetteService.rendreEtiquettes(
+                construireReglettes(produit, qty), TypeEtiquette.REGLETTE, format, resolution);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public byte[] imprimerPosologie(Integer ordonnanceId, Integer ligneId, int qty, int startAt, FormatEtiquette format) {
+    public byte[] imprimerPosologie(
+            Integer ordonnanceId, Integer ligneId, int qty, int startAt, FormatEtiquette format) {
         return imprimer(construirePosologies(ordonnanceId, ligneId, qty), TypeEtiquette.POSOLOGIE, startAt, format);
     }
 
     @Override
     @Transactional(readOnly = true)
     public String genererZplPosologie(
-        Integer ordonnanceId,
-        Integer ligneId,
-        int qty,
-        FormatEtiquette format,
-        ResolutionEtiquette resolution
-    ) {
+            Integer ordonnanceId, Integer ligneId, int qty, FormatEtiquette format, ResolutionEtiquette resolution) {
         return zplEtiquetteService.rendreEtiquettes(
-            construirePosologies(ordonnanceId, ligneId, qty),
-            TypeEtiquette.POSOLOGIE,
-            format,
-            resolution
-        );
+                construirePosologies(ordonnanceId, ligneId, qty), TypeEtiquette.POSOLOGIE, format, resolution);
     }
 
     @Override
@@ -97,12 +89,9 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
 
     @Override
     public String genererZplPreparation(
-        EtiquettePreparationDTO saisie,
-        int qty,
-        FormatEtiquette format,
-        ResolutionEtiquette resolution
-    ) {
-        return zplEtiquetteService.rendreEtiquettes(construirePreparations(saisie, qty), TypeEtiquette.PREPARATION, format, resolution);
+            EtiquettePreparationDTO saisie, int qty, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return zplEtiquetteService.rendreEtiquettes(
+                construirePreparations(saisie, qty), TypeEtiquette.PREPARATION, format, resolution);
     }
 
     private byte[] imprimer(List<EtiquetteDTO> etiquettes, TypeEtiquette type, int startAt, FormatEtiquette format) {
@@ -119,7 +108,9 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
         contexte.setVariable(Constant.ETIQUETTES_TYPE, type);
         contexte.setVariable(Constant.ETIQUETES_BEGIN, depart);
         // Un rouleau n'a pas de planche : son gabarit fixe la page à la taille de l'étiquette.
-        String gabarit = format.isRouleau() ? Constant.ETIQUETES_ROULEAU_USAGE_TEMPLATE_FILE : Constant.ETIQUETES_USAGE_TEMPLATE_FILE;
+        String gabarit = format.isRouleau()
+                ? Constant.ETIQUETES_ROULEAU_USAGE_TEMPLATE_FILE
+                : Constant.ETIQUETES_USAGE_TEMPLATE_FILE;
         return EtiquettePdf.rendre(templateEngine.process(gabarit, contexte), listerCodesBarres(planche));
     }
 
@@ -137,19 +128,19 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
     private List<EtiquetteDTO> construireReglettes(Produit produit, int qty) {
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         EtiquetteDTO etiquette = new EtiquetteDTO()
-            .setCode(fournisseurProduit.getCodeCip())
-            .setLibelle(produit.getLibelle())
-            .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
-            .setMagasin(nommerMagasin())
-            .setDate(LocalDate.now().format(DATE_LISIBLE))
-            .setPrint(true);
+                .setCode(fournisseurProduit.getCodeCip())
+                .setLibelle(produit.getLibelle())
+                .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
+                .setMagasin(nommerMagasin())
+                .setDate(LocalDate.now().format(DATE_LISIBLE))
+                .setPrint(true);
         return repeter(etiquette, qty);
     }
 
     private List<EtiquetteDTO> construirePosologies(Integer ordonnanceId, Integer ligneId, int qty) {
         Ordonnance ordonnance = ordonnanceRepository
-            .findById(ordonnanceId)
-            .orElseThrow(() -> new IllegalArgumentException("Ordonnance introuvable : " + ordonnanceId));
+                .findById(ordonnanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Ordonnance introuvable : " + ordonnanceId));
         String patient = nommerPatient(ordonnance.getCustomer());
         String prescripteur = nommerPrescripteur(ordonnance.getPrescripteur());
         String magasin = nommerMagasin();
@@ -164,31 +155,33 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
         return etiquettes;
     }
 
-    private EtiquetteDTO construirePosologie(OrdonnanceLigne ligne, String patient, String prescripteur, String magasin, String date) {
+    private EtiquetteDTO construirePosologie(
+            OrdonnanceLigne ligne, String patient, String prescripteur, String magasin, String date) {
         return new EtiquetteDTO()
-            .setLibelle(nommerLigne(ligne))
-            .setPatient(patient)
-            .setPrescripteur(prescripteur)
-            .setPosologie(ligne.getPosologie())
-            .setDuree(ligne.getDureeJours() == null ? null : "Pendant " + ligne.getDureeJours() + " jours")
-            .setMagasin(magasin)
-            .setDate(date)
-            .setPrint(true);
+                .setLibelle(nommerLigne(ligne))
+                .setPatient(patient)
+                .setPrescripteur(prescripteur)
+                .setPosologie(ligne.getPosologie())
+                .setDuree(ligne.getDureeJours() == null ? null : "Pendant " + ligne.getDureeJours() + " jours")
+                .setMagasin(magasin)
+                .setDate(date)
+                .setPrint(true);
     }
 
     private List<EtiquetteDTO> construirePreparations(EtiquettePreparationDTO saisie, int qty) {
         LocalDate preparationLe = saisie.datePreparation() == null ? LocalDate.now() : saisie.datePreparation();
         EtiquetteDTO etiquette = new EtiquetteDTO()
-            .setLibelle(saisie.libelle())
-            .setComposition(saisie.composition())
-            .setPatient(saisie.patient())
-            .setPrescripteur(saisie.prescripteur())
-            .setPosologie(saisie.posologie())
-            .setMention(saisie.mention())
-            .setMagasin(nommerMagasin())
-            .setDate(preparationLe.format(DATE_LISIBLE))
-            .setExpiryDate(saisie.peremption() == null ? null : saisie.peremption().format(DATE_LISIBLE))
-            .setPrint(true);
+                .setLibelle(saisie.libelle())
+                .setComposition(saisie.composition())
+                .setPatient(saisie.patient())
+                .setPrescripteur(saisie.prescripteur())
+                .setPosologie(saisie.posologie())
+                .setMention(saisie.mention())
+                .setMagasin(nommerMagasin())
+                .setDate(preparationLe.format(DATE_LISIBLE))
+                .setExpiryDate(
+                        saisie.peremption() == null ? null : saisie.peremption().format(DATE_LISIBLE))
+                .setPrint(true);
         return repeter(etiquette, qty);
     }
 
@@ -212,14 +205,16 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
         if (customer == null) {
             return null;
         }
-        return (StringUtils.hasText(customer.getFirstName()) ? customer.getFirstName() + " " : "") + customer.getLastName();
+        return (StringUtils.hasText(customer.getFirstName()) ? customer.getFirstName() + " " : "")
+                + customer.getLastName();
     }
 
     private String nommerPrescripteur(Prescripteur prescripteur) {
         if (prescripteur == null) {
             return null;
         }
-        String nom = "Dr " + (StringUtils.hasText(prescripteur.getPrenom()) ? prescripteur.getPrenom() + " " : "") + prescripteur.getNom();
+        String nom = "Dr " + (StringUtils.hasText(prescripteur.getPrenom()) ? prescripteur.getPrenom() + " " : "")
+                + prescripteur.getNom();
         return StringUtils.hasText(prescripteur.getSpecialite()) ? nom + " — " + prescripteur.getSpecialite() : nom;
     }
 

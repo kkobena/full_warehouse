@@ -50,23 +50,21 @@ public class JwtService {
         Instant now = Instant.now();
 
         // Extract authorities as a list for the "authorities" claim
-        List<String> authorities = authentication
-            .getAuthorities()
-            .stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
+        List<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
         // Also create space-separated scope for backward compatibility
         String scope = String.join(" ", authorities);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuer("http://localhost:8080")
-            .issuedAt(now)
-            .expiresAt(now.plus(expirationHours, ChronoUnit.HOURS))
-            .subject(authentication.getName())
-            .claim("authorities", authorities) // List of authority strings
-            .claim("scope", scope) // Space-separated for backward compatibility
-            .build();
+                .issuer("http://localhost:8080")
+                .issuedAt(now)
+                .expiresAt(now.plus(expirationHours, ChronoUnit.HOURS))
+                .subject(authentication.getName())
+                .claim("authorities", authorities) // List of authority strings
+                .claim("scope", scope) // Space-separated for backward compatibility
+                .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
@@ -83,12 +81,12 @@ public class JwtService {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuer("http://localhost:8080")
-            .issuedAt(now)
-            .expiresAt(now.plus(expirationHours, ChronoUnit.HOURS))
-            .subject(authentication.getName())
-            .claim("token_type", "refresh")
-            .build();
+                .issuer("http://localhost:8080")
+                .issuedAt(now)
+                .expiresAt(now.plus(expirationHours, ChronoUnit.HOURS))
+                .subject(authentication.getName())
+                .claim("token_type", "refresh")
+                .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }

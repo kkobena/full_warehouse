@@ -1,13 +1,13 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { forkJoin } from "rxjs";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
-import { NgbNavModule } from "@ng-bootstrap/ng-bootstrap";
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { ITopProduct } from "app/shared/model/report/top-product.model";
-import { TopProductsReportService } from "../services/top-products-report.service";
-import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from "../../../shared/util/warehouse-util";
+import { ITopProduct } from 'app/shared/model/report/top-product.model';
+import { TopProductsReportService } from '../services/top-products-report.service';
+import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from '../../../shared/util/warehouse-util';
 import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 import {
   BadgeComponent,
@@ -18,7 +18,7 @@ import {
   MonthPickerComponent,
   NavTabsComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 interface ITopProductRanked extends ITopProduct {
@@ -26,11 +26,12 @@ interface ITopProductRanked extends ITopProduct {
 }
 
 @Component({
-  selector: "app-top-products",
-  templateUrl: "./top-products.component.html",
-  styleUrls: ["./top-products.component.scss"],
+  selector: 'app-top-products',
+  templateUrl: './top-products.component.html',
+  styleUrls: ['./top-products.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     NgbNavModule,
@@ -42,8 +43,9 @@ interface ITopProductRanked extends ITopProduct {
     SelectComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
-  , DevisePipe]
+    KpiItemComponent,
+    DevisePipe,
+  ],
 })
 export default class TopProductsComponent implements OnInit {
   /**
@@ -61,16 +63,15 @@ export default class TopProductsComponent implements OnInit {
   protected limit = signal<number>(20);
 
   protected limitOptions = [
-    { label: "Top 10", value: 10 },
-    { label: "Top 20", value: 20 },
-    { label: "Top 50", value: 50 },
-    { label: "Top 100", value: 100 }
+    { label: 'Top 10', value: 10 },
+    { label: 'Top 20', value: 20 },
+    { label: 'Top 50', value: 50 },
+    { label: 'Top 100', value: 100 },
   ];
 
   private readonly topProductsService = inject(TopProductsReportService);
 
   ngOnInit(): void {
-
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     this.selectedMonth.set(firstDayOfMonth);
@@ -91,7 +92,7 @@ export default class TopProductsComponent implements OnInit {
       currRevenue: this.topProductsService.getTopProductsByRevenue(monthStr, limit),
       prevRevenue: this.topProductsService.getTopProductsByRevenue(prevMonthStr, limit),
       currQty: this.topProductsService.getTopProductsByQuantity(monthStr, limit),
-      prevQty: this.topProductsService.getTopProductsByQuantity(prevMonthStr, limit)
+      prevQty: this.topProductsService.getTopProductsByQuantity(prevMonthStr, limit),
     }).subscribe({
       next: ({ currRevenue, prevRevenue, currQty, prevQty }) => {
         const prevRevenueRanks = this.buildRankMap(prevRevenue.body ?? []);
@@ -100,7 +101,7 @@ export default class TopProductsComponent implements OnInit {
         this.topProductsByQuantity.set(this.applyRankDeltas(currQty.body ?? [], prevQtyRanks));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
@@ -133,9 +134,7 @@ export default class TopProductsComponent implements OnInit {
   private applyRankDeltas(products: ITopProduct[], prevRanks: Map<number, number>): ITopProductRanked[] {
     return products.map((p, i) => ({
       ...p,
-      rankDelta: p.produitId != null && prevRanks.has(p.produitId)
-        ? prevRanks.get(p.produitId)! - (i + 1)
-        : null
+      rankDelta: p.produitId != null && prevRanks.has(p.produitId) ? prevRanks.get(p.produitId)! - (i + 1) : null,
     }));
   }
 
@@ -144,7 +143,7 @@ export default class TopProductsComponent implements OnInit {
   }
 
   getMonthLabel(): string {
-    if (!this.selectedMonth()) return "";
+    if (!this.selectedMonth()) return '';
     return retriveMonthLabel(this.selectedMonth());
   }
 }

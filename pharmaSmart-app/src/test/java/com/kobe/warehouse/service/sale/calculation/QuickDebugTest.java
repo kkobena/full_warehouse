@@ -3,12 +3,11 @@ package com.kobe.warehouse.service.sale.calculation;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.service.sale.calculation.dto.*;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class QuickDebugTest {
 
@@ -46,10 +45,8 @@ public class QuickDebugTest {
         System.out.println("Patient: " + result.getTotalPatientShare());
 
         for (TiersPayantLineOutput line : result.getTiersPayantLines()) {
-            System.out.printf("  TP%d: %s (taux: %d%%)%n",
-                line.getClientTiersPayantId(),
-                line.getMontant(),
-                line.getFinalTaux());
+            System.out.printf(
+                    "  TP%d: %s (taux: %d%%)%n", line.getClientTiersPayantId(), line.getMontant(), line.getFinalTaux());
         }
     }
 
@@ -85,15 +82,14 @@ public class QuickDebugTest {
         System.out.println("Patient: " + result.getTotalPatientShare());
 
         for (TiersPayantLineOutput line : result.getTiersPayantLines()) {
-            System.out.printf("  TP%d: %s%n",
-                line.getClientTiersPayantId(),
-                line.getMontant());
+            System.out.printf("  TP%d: %s%n", line.getClientTiersPayantId(), line.getMontant());
         }
 
         System.out.println("\nCalculations:");
         System.out.println("TP1 (30%): 3455 × 0.3 = " + new BigDecimal("3455").multiply(new BigDecimal("0.3")));
         System.out.println("TP2 (80%): 3455 × 0.8 = " + new BigDecimal("3455").multiply(new BigDecimal("0.8")));
-        System.out.println("Remaining after TP1: 3455 - 1036.5 = " + new BigDecimal("3455").subtract(new BigDecimal("1036.5")));
+        System.out.println(
+                "Remaining after TP1: 3455 - 1036.5 = " + new BigDecimal("3455").subtract(new BigDecimal("1036.5")));
     }
 
     @Test
@@ -131,9 +127,7 @@ public class QuickDebugTest {
 
         BigDecimal sum = BigDecimal.ZERO;
         for (TiersPayantLineOutput line : result.getTiersPayantLines()) {
-            System.out.printf("  TP%d: %s%n",
-                line.getClientTiersPayantId(),
-                line.getMontant());
+            System.out.printf("  TP%d: %s%n", line.getClientTiersPayantId(), line.getMontant());
             sum = sum.add(line.getMontant());
         }
         System.out.println("Sum of TPs: " + sum);

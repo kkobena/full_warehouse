@@ -134,9 +134,15 @@
   </div>
 
   <div class="modal-footer">
-    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary"
-              type="button"/>
-    <app-button [loading]="isSaving()" [disabled]="!isFormValid()" icon="pi pi-check" label="Transférer" [raised]="true"
-              severity="primary" type="submit"/>
+    <app-button (clicked)="cancel()" class="mr-1" icon="pi pi-times" label="Annuler" [raised]="true" severity="secondary" type="button" />
+    <app-button
+      [loading]="isSaving()"
+      [disabled]="!isFormValid()"
+      icon="pi pi-check"
+      label="Transférer"
+      [raised]="true"
+      severity="primary"
+      type="submit"
+    />
   </div>
 </form>

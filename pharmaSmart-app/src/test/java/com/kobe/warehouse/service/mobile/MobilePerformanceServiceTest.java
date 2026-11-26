@@ -50,9 +50,11 @@ class MobilePerformanceServiceTest {
 
     @BeforeEach
     void periodeVide() {
-        when(performanceRepository.getPeriodSummary(any(), any())).thenReturn(new PeriodSummaryProjection(0L, 0, 0, 0L));
+        when(performanceRepository.getPeriodSummary(any(), any()))
+                .thenReturn(new PeriodSummaryProjection(0L, 0, 0, 0L));
         when(performanceRepository.getPaymentMethodsSummary(any(), any())).thenReturn(List.of());
-        when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt())).thenReturn(List.of());
+        when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt()))
+                .thenReturn(List.of());
         when(performanceRepository.getDataPoints(any(), any(), any())).thenReturn(List.of());
     }
 
@@ -148,7 +150,7 @@ class MobilePerformanceServiceTest {
             service.getPerformance("YEAR", MERCREDI);
 
             verify(performanceRepository, org.mockito.Mockito.times(2))
-                .getPeriodSummary(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 11));
+                    .getPeriodSummary(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 11));
         }
 
         @Test
@@ -157,7 +159,7 @@ class MobilePerformanceServiceTest {
             service.getPerformance("YEAR", LocalDate.of(2026, 12, 31));
 
             verify(performanceRepository, org.mockito.Mockito.times(2))
-                .getPeriodSummary(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
+                    .getPeriodSummary(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
         }
 
         @Test
@@ -169,22 +171,23 @@ class MobilePerformanceServiceTest {
         @Test
         @DisplayName("la période se demande indifféremment par son nom ou par sa valeur")
         void parEnumeration() {
-            assertThat(service.getPerformance(PerformancePeriod.WEEK, MERCREDI).period()).isEqualTo("WEEK");
+            assertThat(service.getPerformance(PerformancePeriod.WEEK, MERCREDI).period())
+                    .isEqualTo("WEEK");
         }
 
         @Test
         @DisplayName("une période inconnue est refusée franchement")
         void periodeInconnue() {
             assertThatThrownBy(() -> service.getPerformance("TRIMESTRE", MERCREDI))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("TRIMESTRE");
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("TRIMESTRE");
         }
 
         @Test
         @DisplayName("une période absente est refusée franchement")
         void periodeAbsente() {
             assertThatThrownBy(() -> service.getPerformance((String) null, MERCREDI))
-                .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(IllegalArgumentException.class);
         }
     }
 
@@ -221,9 +224,9 @@ class MobilePerformanceServiceTest {
         @DisplayName("l'écart à l'an passé accompagne le chiffre de l'an passé")
         void ecartALAnPasse() {
             when(performanceRepository.getPeriodSummary(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31)))
-                .thenReturn(new PeriodSummaryProjection(1_200_000L, 1, 1, 0L));
+                    .thenReturn(new PeriodSummaryProjection(1_200_000L, 1, 1, 0L));
             when(performanceRepository.getPeriodSummary(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 11)))
-                .thenReturn(new PeriodSummaryProjection(1_000_000L, 1, 1, 0L));
+                    .thenReturn(new PeriodSummaryProjection(1_000_000L, 1, 1, 0L));
 
             MobilePerformanceDTO resultat = service.getPerformance("MONTH", MERCREDI);
 
@@ -241,7 +244,7 @@ class MobilePerformanceServiceTest {
         @DisplayName("sans historique annuel, aucune variation n'est rendue")
         void sansHistorique() {
             when(performanceRepository.getPeriodSummary(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31)))
-                .thenReturn(new PeriodSummaryProjection(500_000L, 1, 1, 0L));
+                    .thenReturn(new PeriodSummaryProjection(500_000L, 1, 1, 0L));
 
             MobilePerformanceDTO resultat = service.getPerformance("MONTH", MERCREDI);
 
@@ -265,7 +268,7 @@ class MobilePerformanceServiceTest {
         @DisplayName("sur une année, les deux comparaisons coïncident")
         void anneeLesDeuxCoincident() {
             when(performanceRepository.getPeriodSummary(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 11)))
-                .thenReturn(new PeriodSummaryProjection(800_000L, 1, 1, 0L));
+                    .thenReturn(new PeriodSummaryProjection(800_000L, 1, 1, 0L));
 
             MobilePerformanceDTO resultat = service.getPerformance("YEAR", MERCREDI);
 
@@ -297,14 +300,16 @@ class MobilePerformanceServiceTest {
         void panierMoyen() {
             donnePeriode(new PeriodSummaryProjection(1_000_000L, 40, 35, 0L));
 
-            assertThat(service.getPerformance("MONTH", MERCREDI).averageBasket()).isEqualTo(25_000L);
+            assertThat(service.getPerformance("MONTH", MERCREDI).averageBasket())
+                    .isEqualTo(25_000L);
         }
 
         /** Une période sans ticket ne doit pas faire diviser par zéro. */
         @Test
         @DisplayName("une période sans ticket rend un panier moyen nul")
         void panierMoyenSansTicket() {
-            assertThat(service.getPerformance("MONTH", MERCREDI).averageBasket()).isZero();
+            assertThat(service.getPerformance("MONTH", MERCREDI).averageBasket())
+                    .isZero();
         }
 
         @Test
@@ -312,13 +317,15 @@ class MobilePerformanceServiceTest {
         void tauxDeMarge() {
             donnePeriode(new PeriodSummaryProjection(3_000_000L, 1, 1, 1_000_000L));
 
-            assertThat(service.getPerformance("MONTH", MERCREDI).marginPercent()).isEqualTo(33.33);
+            assertThat(service.getPerformance("MONTH", MERCREDI).marginPercent())
+                    .isEqualTo(33.33);
         }
 
         @Test
         @DisplayName("une période sans chiffre d'affaires rend un taux de marge nul")
         void tauxDeMargeSansChiffreDAffaires() {
-            assertThat(service.getPerformance("MONTH", MERCREDI).marginPercent()).isZero();
+            assertThat(service.getPerformance("MONTH", MERCREDI).marginPercent())
+                    .isZero();
         }
 
         @Test
@@ -326,7 +333,7 @@ class MobilePerformanceServiceTest {
         void variation() {
             donnePeriode(new PeriodSummaryProjection(1_200_000L, 1, 1, 0L));
             when(performanceRepository.getPeriodSummary(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 11)))
-                .thenReturn(new PeriodSummaryProjection(1_000_000L, 1, 1, 0L));
+                    .thenReturn(new PeriodSummaryProjection(1_000_000L, 1, 1, 0L));
 
             MobilePerformanceDTO resultat = service.getPerformance("MONTH", MERCREDI);
 
@@ -339,14 +346,16 @@ class MobilePerformanceServiceTest {
         void periodePrecedenteVide() {
             donnePeriode(new PeriodSummaryProjection(500_000L, 1, 1, 0L));
 
-            assertThat(service.getPerformance("MONTH", MERCREDI).variationPercent()).isNull();
+            assertThat(service.getPerformance("MONTH", MERCREDI).variationPercent())
+                    .isNull();
         }
 
         /** Deux périodes sans activité se valent : la variation est nulle, non absente. */
         @Test
         @DisplayName("deux périodes vides donnent une variation de zéro")
         void deuxPeriodesVides() {
-            assertThat(service.getPerformance("MONTH", MERCREDI).variationPercent()).isEqualTo(0.0);
+            assertThat(service.getPerformance("MONTH", MERCREDI).variationPercent())
+                    .isEqualTo(0.0);
         }
     }
 
@@ -360,11 +369,11 @@ class MobilePerformanceServiceTest {
         @DisplayName("chaque mode porte sa part du chiffre d'affaires, arrondie au dixième")
         void partDuChiffreDAffaires() {
             donnePeriode(new PeriodSummaryProjection(1_000_000L, 40, 35, 0L));
-            when(performanceRepository.getPaymentMethodsSummary(any(), any())).thenReturn(
-                List.of(new PaymentMethodProjection("CASH", "Espèces", 750_000L, 30))
-            );
+            when(performanceRepository.getPaymentMethodsSummary(any(), any()))
+                    .thenReturn(List.of(new PaymentMethodProjection("CASH", "Espèces", 750_000L, 30)));
 
-            PaymentMethodSummaryDTO mode = service.getPerformance("MONTH", MERCREDI).paymentMethods().getFirst();
+            PaymentMethodSummaryDTO mode =
+                    service.getPerformance("MONTH", MERCREDI).paymentMethods().getFirst();
 
             assertThat(mode.code()).isEqualTo("CASH");
             assertThat(mode.label()).isEqualTo("Espèces");
@@ -381,41 +390,44 @@ class MobilePerformanceServiceTest {
         @Test
         @DisplayName("chaque mode reçoit la couleur de son groupe de règlement")
         void couleurParGroupe() {
-            when(performanceRepository.getPaymentMethodsSummary(any(), any())).thenReturn(
-                List.of(
-                    new PaymentMethodProjection("CASH", "Espèces", 1L, 1),
-                    new PaymentMethodProjection("CB", "Carte", 1L, 1),
-                    new PaymentMethodProjection("OM", "Orange Money", 1L, 1),
-                    new PaymentMethodProjection("WAVE", "Wave", 1L, 1),
-                    new PaymentMethodProjection("CH", "Chèque", 1L, 1),
-                    new PaymentMethodProjection("VIREMENT", "Virement", 1L, 1)
-                )
-            );
+            when(performanceRepository.getPaymentMethodsSummary(any(), any()))
+                    .thenReturn(List.of(
+                            new PaymentMethodProjection("CASH", "Espèces", 1L, 1),
+                            new PaymentMethodProjection("CB", "Carte", 1L, 1),
+                            new PaymentMethodProjection("OM", "Orange Money", 1L, 1),
+                            new PaymentMethodProjection("WAVE", "Wave", 1L, 1),
+                            new PaymentMethodProjection("CH", "Chèque", 1L, 1),
+                            new PaymentMethodProjection("VIREMENT", "Virement", 1L, 1)));
 
             assertThat(service.getPerformance("MONTH", MERCREDI).paymentMethods())
-                .extracting(PaymentMethodSummaryDTO::color)
-                .containsExactly("#28A745", "#007BFF", "#FFC107", "#FFC107", "#6C757D", "#17A2B8");
+                    .extracting(PaymentMethodSummaryDTO::color)
+                    .containsExactly("#28A745", "#007BFF", "#FFC107", "#FFC107", "#6C757D", "#17A2B8");
         }
 
         @Test
         @DisplayName("un code de règlement inconnu reçoit la couleur neutre")
         void codeInconnu() {
-            when(performanceRepository.getPaymentMethodsSummary(any(), any())).thenReturn(
-                List.of(new PaymentMethodProjection("TROC", "Troc", 1L, 1))
-            );
+            when(performanceRepository.getPaymentMethodsSummary(any(), any()))
+                    .thenReturn(List.of(new PaymentMethodProjection("TROC", "Troc", 1L, 1)));
 
-            assertThat(service.getPerformance("MONTH", MERCREDI).paymentMethods().getFirst().color())
-                .isEqualTo("#6C757D");
+            assertThat(service.getPerformance("MONTH", MERCREDI)
+                            .paymentMethods()
+                            .getFirst()
+                            .color())
+                    .isEqualTo("#6C757D");
         }
 
         @Test
         @DisplayName("une période sans chiffre d'affaires rend des parts nulles")
         void partsNulles() {
-            when(performanceRepository.getPaymentMethodsSummary(any(), any())).thenReturn(
-                List.of(new PaymentMethodProjection("CASH", "Espèces", 1_000L, 1))
-            );
+            when(performanceRepository.getPaymentMethodsSummary(any(), any()))
+                    .thenReturn(List.of(new PaymentMethodProjection("CASH", "Espèces", 1_000L, 1)));
 
-            assertThat(service.getPerformance("MONTH", MERCREDI).paymentMethods().getFirst().percent()).isZero();
+            assertThat(service.getPerformance("MONTH", MERCREDI)
+                            .paymentMethods()
+                            .getFirst()
+                            .percent())
+                    .isZero();
         }
     }
 
@@ -428,11 +440,12 @@ class MobilePerformanceServiceTest {
         @Test
         @DisplayName("le palmarès numérote ses lignes dans l'ordre reçu")
         void numerotation() {
-            when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt())).thenReturn(
-                List.of(produit("DOLIPRANE", 500_000L, 50.0, 12.345), produit("EFFERALGAN", 300_000L, 30.0, -8.0))
-            );
+            when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt()))
+                    .thenReturn(List.of(
+                            produit("DOLIPRANE", 500_000L, 50.0, 12.345), produit("EFFERALGAN", 300_000L, 30.0, -8.0)));
 
-            List<TopProductPerformanceDTO> palmares = service.getPerformance("MONTH", MERCREDI).topProducts();
+            List<TopProductPerformanceDTO> palmares =
+                    service.getPerformance("MONTH", MERCREDI).topProducts();
 
             assertThat(palmares).extracting(TopProductPerformanceDTO::rank).containsExactly(1, 2);
             assertThat(palmares.getFirst().productName()).isEqualTo("DOLIPRANE");
@@ -441,11 +454,11 @@ class MobilePerformanceServiceTest {
         @Test
         @DisplayName("part et variation du produit sont arrondies au dixième")
         void arrondisDuPalmares() {
-            when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt())).thenReturn(
-                List.of(produit("DOLIPRANE", 500_000L, 33.333, 12.345))
-            );
+            when(performanceRepository.getTopProducts(any(), any(), any(), any(), anyInt()))
+                    .thenReturn(List.of(produit("DOLIPRANE", 500_000L, 33.333, 12.345)));
 
-            TopProductPerformanceDTO produit = service.getPerformance("MONTH", MERCREDI).topProducts().getFirst();
+            TopProductPerformanceDTO produit =
+                    service.getPerformance("MONTH", MERCREDI).topProducts().getFirst();
 
             assertThat(produit.percentOfTotal()).isEqualTo(33.3);
             assertThat(produit.variationPercent()).isEqualTo(12.3);
@@ -456,13 +469,13 @@ class MobilePerformanceServiceTest {
         void dixProduits() {
             service.getPerformance("MONTH", MERCREDI);
 
-            verify(performanceRepository).getTopProducts(
-                LocalDate.of(2026, 3, 1),
-                LocalDate.of(2026, 3, 31),
-                LocalDate.of(2026, 2, 1),
-                LocalDate.of(2026, 2, 11),
-                10
-            );
+            verify(performanceRepository)
+                    .getTopProducts(
+                            LocalDate.of(2026, 3, 1),
+                            LocalDate.of(2026, 3, 31),
+                            LocalDate.of(2026, 2, 1),
+                            LocalDate.of(2026, 2, 11),
+                            10);
         }
 
         /** Semaine et mois se lisent au jour ; l'année, elle, se lit au mois. */
@@ -470,22 +483,29 @@ class MobilePerformanceServiceTest {
         @DisplayName("la courbe d'une semaine porte les jours, celle d'une année les mois")
         void libellesDeLaCourbe() {
             // Le 9 mars 2026 est un lundi.
-            when(performanceRepository.getDataPoints(any(), any(), any())).thenReturn(
-                List.of(new DataPointProjection(LocalDate.of(2026, 3, 9), 800_000L, 30, 200_000L))
-            );
+            when(performanceRepository.getDataPoints(any(), any(), any()))
+                    .thenReturn(List.of(new DataPointProjection(LocalDate.of(2026, 3, 9), 800_000L, 30, 200_000L)));
 
-            assertThat(service.getPerformance("WEEK", MERCREDI).dataPoints().getFirst().label()).startsWith("lun");
-            assertThat(service.getPerformance("YEAR", MERCREDI).dataPoints().getFirst().label()).startsWith("mars");
+            assertThat(service.getPerformance("WEEK", MERCREDI)
+                            .dataPoints()
+                            .getFirst()
+                            .label())
+                    .startsWith("lun");
+            assertThat(service.getPerformance("YEAR", MERCREDI)
+                            .dataPoints()
+                            .getFirst()
+                            .label())
+                    .startsWith("mars");
         }
 
         @Test
         @DisplayName("chaque point de la courbe porte son chiffre d'affaires et sa marge")
         void contenuDeLaCourbe() {
-            when(performanceRepository.getDataPoints(any(), any(), any())).thenReturn(
-                List.of(new DataPointProjection(LocalDate.of(2026, 3, 9), 800_000L, 30, 200_000L))
-            );
+            when(performanceRepository.getDataPoints(any(), any(), any()))
+                    .thenReturn(List.of(new DataPointProjection(LocalDate.of(2026, 3, 9), 800_000L, 30, 200_000L)));
 
-            PeriodDataPointDTO point = service.getPerformance("WEEK", MERCREDI).dataPoints().getFirst();
+            PeriodDataPointDTO point =
+                    service.getPerformance("WEEK", MERCREDI).dataPoints().getFirst();
 
             assertThat(point.date()).isEqualTo(LocalDate.of(2026, 3, 9));
             assertThat(point.caAmount()).isEqualTo(800_000L);
@@ -498,11 +518,8 @@ class MobilePerformanceServiceTest {
         void decoupageDeLaCourbe() {
             service.getPerformance("YEAR", MERCREDI);
 
-            verify(performanceRepository).getDataPoints(
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 12, 31),
-                PerformancePeriod.YEAR
-            );
+            verify(performanceRepository)
+                    .getDataPoints(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), PerformancePeriod.YEAR);
         }
 
         @Test
@@ -520,7 +537,8 @@ class MobilePerformanceServiceTest {
 
     /** Renseigne la période courante de mars sans toucher à celle de février. */
     private void donnePeriode(PeriodSummaryProjection resume) {
-        when(performanceRepository.getPeriodSummary(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31))).thenReturn(resume);
+        when(performanceRepository.getPeriodSummary(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31)))
+                .thenReturn(resume);
     }
 
     private static TopProductProjection produit(String libelle, long montant, double part, double variation) {

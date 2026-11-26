@@ -54,12 +54,15 @@ class AchatsStockPilotageIntegrationTest extends AbstractReportIntegrationTest {
         assertThat(achatsStock.sommerAchatsHtParJour(JOUR, JOUR)).isNotNull();
         assertThat(achatsStock.sommerAchatsParFamille(JOUR, JOUR)).isNotNull();
         long cout = achatsStock.sommerCoutVentesTtc(JOUR, JOUR, officine);
-        assertThat(achatsStock.sommerCoutVentesParFamille(JOUR, JOUR, officine)).extracting(MontantsFamilleDTO::montantTtc).contains(cout);
+        assertThat(achatsStock.sommerCoutVentesParFamille(JOUR, JOUR, officine))
+                .extracting(MontantsFamilleDTO::montantTtc)
+                .contains(cout);
         // Le produit du test est entré en stock après janvier : la photographie de janvier peut être vide.
         assertThat(achatsStock.sommerStockParMois(fin, fin)).isNotNull();
         assertThat(achatsStock.sommerStockParFamille(fin)).isNotNull();
         assertThat(achatsStock.sommerDormantsParFamille(fin, JOUR.plusDays(1))).isNotNull();
-        assertThat(achatsStock.listerDormants(fin, JOUR.plusDays(1), PageRequest.of(0, 5))).isNotNull();
+        assertThat(achatsStock.listerDormants(fin, JOUR.plusDays(1), PageRequest.of(0, 5)))
+                .isNotNull();
     }
 
     @Test
@@ -71,8 +74,10 @@ class AchatsStockPilotageIntegrationTest extends AbstractReportIntegrationTest {
         assertThat(ruptures.compterLignesCommandees(JOUR, JOUR)).isNotNegative();
         assertThat(ruptures.compterRuptures(debut, fin)).isNotNegative();
         assertThat(ruptures.sommerRupturesParFournisseur(debut, fin)).isNotNull();
-        assertThat(ruptures.sommerRupturesParProduit(debut, fin, PageRequest.of(0, 5))).isNotNull();
-        assertThat(ruptures.sommerVentesManqueesParProduit(debut, fin, PageRequest.of(0, 5))).isNotNull();
+        assertThat(ruptures.sommerRupturesParProduit(debut, fin, PageRequest.of(0, 5)))
+                .isNotNull();
+        assertThat(ruptures.sommerVentesManqueesParProduit(debut, fin, PageRequest.of(0, 5)))
+                .isNotNull();
         assertThat(ruptures.sommerVentesManquees(debut, fin).nombre()).isNotNegative();
         ComptageDTO quantites = ruptures.sommerQuantitesEnAvoir(JOUR, JOUR, CategorieChiffreAffaire.officine());
         assertThat(quantites.nombre()).isEqualTo(2);

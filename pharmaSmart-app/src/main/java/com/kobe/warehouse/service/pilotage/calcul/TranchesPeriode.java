@@ -15,7 +15,9 @@ public record TranchesPeriode(NavigableMap<LocalDate, MembreAnalyseDTO> parDebut
         List<PeriodeDTO> decoupage = DecoupagePeriode.decouper(periode, granularite);
         for (int rang = 0; rang < decoupage.size(); rang++) {
             PeriodeDTO tranche = decoupage.get(rang);
-            parDebut.put(tranche.du(), new MembreAnalyseDTO(String.valueOf(rang), LibellesPilotage.libellerTranche(tranche, granularite)));
+            parDebut.put(
+                    tranche.du(),
+                    new MembreAnalyseDTO(String.valueOf(rang), LibellesPilotage.libellerTranche(tranche, granularite)));
         }
         return new TranchesPeriode(parDebut);
     }

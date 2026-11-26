@@ -1,34 +1,27 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   BadgeComponent,
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent,
-  SelectComponent
-} from "app/shared/ui";
+  SelectComponent,
+} from 'app/shared/ui';
 
-import {ISemoisSuggestion, SemoisSuggestion} from 'app/shared/model/semois/semois-suggestion.model';
-import {
-  CLASSE_CRITICITE_INFO,
-  ClasseCriticite,
-  getClasseCriticiteInfo
-} from 'app/shared/model/semois/classe-criticite.model';
-import {SemoisService} from 'app/entities/semois/semois.service';
-import {SuggestionService} from 'app/entities/commande/suggestion/suggestion.service';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {IReapproDashboard} from 'app/shared/model/semois/semois-dashboard.model';
-import {
-  SemoisExclureProduitComponent
-} from './ui/semois-exclure-produit/semois-exclure-produit.component';
-import {
-  SemoisExclusionPanelComponent
-} from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
+import { ISemoisSuggestion, SemoisSuggestion } from 'app/shared/model/semois/semois-suggestion.model';
+import { CLASSE_CRITICITE_INFO, ClasseCriticite, getClasseCriticiteInfo } from 'app/shared/model/semois/classe-criticite.model';
+import { SemoisService } from 'app/entities/semois/semois.service';
+import { SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { IReapproDashboard } from 'app/shared/model/semois/semois-dashboard.model';
+import { SemoisExclureProduitComponent } from './ui/semois-exclure-produit/semois-exclure-produit.component';
+import { SemoisExclusionPanelComponent } from './ui/semois-exclusion-panel/semois-exclusion-panel.component';
 
 @Component({
   selector: 'app-semois-suggestions',
@@ -45,8 +38,8 @@ import {
     HeaderCheckboxComponent,
     RowCheckboxComponent,
     NgbTooltip,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class SemoisSuggestionsComponent implements OnInit {
   readonly suggestions = signal<ISemoisSuggestion[]>([]);
@@ -80,9 +73,9 @@ export class SemoisSuggestionsComponent implements OnInit {
   }));
   /** Options pour le filtre urgence — lexique métier */
   readonly urgenceOptions: { label: string; value: 'URGENT' | 'NORMAL' | 'OK' }[] = [
-    {label: 'Rupture', value: 'URGENT'},
-    {label: 'Sous seuil', value: 'NORMAL'},
-    {label: 'Suffisant', value: 'OK'},
+    { label: 'Rupture', value: 'URGENT' },
+    { label: 'Sous seuil', value: 'NORMAL' },
+    { label: 'Suffisant', value: 'OK' },
   ];
   /** Recalcul VMM en cours */
   readonly recalculEnCours = signal(false);
@@ -92,7 +85,6 @@ export class SemoisSuggestionsComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
   private readonly notificationService = inject(NotificationService);
   private readonly modalService = inject(NgbModal);
-
 
   ngOnInit(): void {
     this.loadMagasins();
@@ -123,25 +115,26 @@ export class SemoisSuggestionsComponent implements OnInit {
     this.isLoading.set(true);
     this.selectedSuggestions.set([]);
 
-    const req = {page: this.page(), size: this.itemsPerPage()};
+    const req = { page: this.page(), size: this.itemsPerPage() };
 
-    this.semoisService.getSuggestions(
-      req,
-      this.searchText() || undefined,
-      this.selectedClasse() ?? undefined,
-      this.selectedFournisseurId() ?? undefined,
-      this.selectedNiveauUrgence() ?? undefined,
-      this.selectedMagasinId() ?? undefined,
-    ).subscribe({
-      next: (res: HttpResponse<ISemoisSuggestion[]>) => {
-        this.suggestions.set(res.body ?? []);
-        this.totalItems.set(Number(res.headers.get('X-Total-Count') ?? 0));
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    this.semoisService
+      .getSuggestions(
+        req,
+        this.searchText() || undefined,
+        this.selectedClasse() ?? undefined,
+        this.selectedFournisseurId() ?? undefined,
+        this.selectedNiveauUrgence() ?? undefined,
+        this.selectedMagasinId() ?? undefined,
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISemoisSuggestion[]>) => {
+          this.suggestions.set(res.body ?? []);
+          this.totalItems.set(Number(res.headers.get('X-Total-Count') ?? 0));
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
-
 
   onPageChange(event: { first: number; rows: number }): void {
     this.page.set(Math.floor(event.first / event.rows));
@@ -191,7 +184,7 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   /** Ouvre le formulaire d'exclusion pour un produit. */
   ouvrirExclureProduit(suggestion: ISemoisSuggestion): void {
-    const ref = this.modalService.open(SemoisExclureProduitComponent, {size: 'lg', centered: true});
+    const ref = this.modalService.open(SemoisExclureProduitComponent, { size: 'lg', centered: true });
     ref.componentInstance.produitId = suggestion.produitId;
     ref.componentInstance.produitLibelle = suggestion.libelle;
 
@@ -260,7 +253,7 @@ export class SemoisSuggestionsComponent implements OnInit {
   getStockActuelClass(s: ISemoisSuggestion): string {
     if ((s.stockActuel ?? 0) < 0) {
       return 'text-danger fw-bold';
-    }   // stock négatif
+    } // stock négatif
     const m = this.toModel(s);
     if (m.estEnRupture()) {
       return 'text-danger fw-bold';
@@ -274,7 +267,7 @@ export class SemoisSuggestionsComponent implements OnInit {
   getCouvertureMois(s: ISemoisSuggestion): number {
     // couverture basée sur le stock effectif (≥ 0)
     const stockEffectif = Math.max(0, s.stockActuel ?? 0);
-    return (!s.vmm || s.vmm === 0) ? 0 : stockEffectif / s.vmm;
+    return !s.vmm || s.vmm === 0 ? 0 : stockEffectif / s.vmm;
   }
 
   getCouvertureClass(s: ISemoisSuggestion): string {
@@ -295,7 +288,7 @@ export class SemoisSuggestionsComponent implements OnInit {
   }
 
   getCouvertureCibleMois(s: ISemoisSuggestion): number {
-    return (!s.vmm || s.vmm === 0) ? 0 : (s.stockObjectif ?? 0) / s.vmm;
+    return !s.vmm || s.vmm === 0 ? 0 : (s.stockObjectif ?? 0) / s.vmm;
   }
 
   getCouvertureCibleClass(s: ISemoisSuggestion): string {
@@ -361,7 +354,7 @@ export class SemoisSuggestionsComponent implements OnInit {
       next: res => {
         const opts = (res.body ?? []).map(f => ({
           label: f.fournisseurLibelle,
-          value: f.fournisseurId
+          value: f.fournisseurId,
         }));
         this.fournisseurOptions.set(opts);
       },
@@ -378,9 +371,22 @@ export class SemoisSuggestionsComponent implements OnInit {
 
   private toModel(s: ISemoisSuggestion): SemoisSuggestion {
     return new SemoisSuggestion(
-      s.produitId, s.libelle, s.codeCip, s.fournisseurId, s.fournisseurLibelle,
-      s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel, s.detteClient,
-      s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul,
+      s.produitId,
+      s.libelle,
+      s.codeCip,
+      s.fournisseurId,
+      s.fournisseurLibelle,
+      s.classeCriticite,
+      s.vmm,
+      s.margeSecurite,
+      s.stockObjectif,
+      s.stockActuel,
+      s.detteClient,
+      s.quantiteACommander,
+      s.delaiLivraisonJours,
+      s.coefficientSecurite,
+      s.facteurSaisonnier,
+      s.dateDernierCalcul,
     );
   }
 }

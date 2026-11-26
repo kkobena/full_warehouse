@@ -16,7 +16,10 @@ const PRODUIT = 'AMOXICILLINE TEVA 1 g';
 test.beforeAll(() => {
   rejouer('scripts/essai-ordonnance/nettoyer.sql');
   // Garde : le parcours n'a de sens que sur un produit sur ordonnance.
-  expect(lire(`SELECT statut_legal <> 'SANS_LISTE' FROM produit WHERE libelle LIKE '${PRODUIT}%' ORDER BY id LIMIT 1`), `${PRODUIT} doit être sur ordonnance`).toBe('t');
+  expect(
+    lire(`SELECT statut_legal <> 'SANS_LISTE' FROM produit WHERE libelle LIKE '${PRODUIT}%' ORDER BY id LIMIT 1`),
+    `${PRODUIT} doit être sur ordonnance`,
+  ).toBe('t');
 });
 test.afterAll(() => rejouer('scripts/essai-ordonnance/nettoyer.sql'));
 
@@ -59,7 +62,9 @@ test('refus sans ordonnance ni prescripteur, puis prescripteur seul : la vente s
   await expect(modale).toBeHidden();
   await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
   expect(
-    Number(lire("SELECT count(*) FROM vente_prescripteur v JOIN prescripteur p ON p.id = v.prescripteur_id WHERE p.nom = 'ESSAI E2E Requis'")),
+    Number(
+      lire("SELECT count(*) FROM vente_prescripteur v JOIN prescripteur p ON p.id = v.prescripteur_id WHERE p.nom = 'ESSAI E2E Requis'"),
+    ),
   ).toBe(1);
 });
 

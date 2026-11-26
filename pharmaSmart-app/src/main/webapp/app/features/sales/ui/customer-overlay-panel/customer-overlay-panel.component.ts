@@ -5,7 +5,7 @@ import { ButtonComponent } from '../../../../shared/ui';
 import { CustomerSearchTableComponent } from '../customer-search-table/customer-search-table.component';
 import { ICustomer } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import { OrdonnanceBoutonComponent } from '../ordonnance-bouton/ordonnance-bouton.component';
 import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
 

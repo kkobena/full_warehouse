@@ -9,7 +9,6 @@
       <div class="form-field form-field-full">
         <span class="field-label">DCI</span>
 
-
         <app-select-search
           (ngModelChange)="dci.set($event)"
           (searched)="chercher($event)"
@@ -22,7 +21,6 @@
           inputId="dci-cible"
           placeholder="Taper pour rechercher"
         />
-
       </div>
 
       <div class="form-field form-field-full">
@@ -30,8 +28,8 @@
         <app-pill-selector (ngModelChange)="mode.set($event)" [items]="modes" [ngModel]="mode()" />
         <small class="form-text text-muted" data-aide-mode>
           @if (mode() === 'AJOUTER') {
-            La molécule s'ajoute à celles des produits — c'est ainsi qu'on décrit une association.
-            Un produit qui la porte déjà n'est pas modifié.
+            La molécule s'ajoute à celles des produits — c'est ainsi qu'on décrit une association. Un produit qui la porte déjà n'est pas
+            modifié.
           } @else {
             Les produits ne porteront plus que cette molécule : celles qu'ils avaient sont retirées.
           }
@@ -49,9 +47,7 @@
               <span class="pharma-badge pharma-badge-secondary">{{ produit.libelle }}</span>
             }
             @if (produits.length > apercu().length) {
-              <span class="text-muted small">
-                … et {{ produits.length - apercu().length }} autre(s)
-              </span>
+              <span class="text-muted small"> … et {{ produits.length - apercu().length }} autre(s) </span>
             }
           </div>
         </div>
@@ -61,14 +57,7 @@
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    [raised]="true"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-    type="button"
-  />
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
   <app-button
     (clicked)="valider()"
     [disabled]="!dci()"

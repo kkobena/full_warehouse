@@ -104,7 +104,9 @@ $section-border: #a78bfa;
   border-radius: 4px;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s, background 0.15s;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
   flex-shrink: 0;
 
   i {
@@ -165,7 +167,9 @@ $section-border: #a78bfa;
   border-radius: 5px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 
   i {
     font-size: 0.65rem;
@@ -295,7 +299,6 @@ $section-border: #a78bfa;
     color: #fff;
   }
 }
-
 
 // ── Ligne GROUP ───────────────────────────────────────────────────────────────
 :host ::ng-deep .row-group {
@@ -571,7 +574,9 @@ $section-border: #a78bfa;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.75rem;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .bulk-grant {

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
@@ -75,17 +75,16 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private final ReferenceService referenceService;
 
     public FinancialTransactionServiceImpl(
-        PaymentTransactionRepository paymentTransactionRepository,
-        UserService userService,
-        SalesRepository salesRepository,
-        CashRegisterService cashRegisterService,
-        EntityManager em,
-        MvtCaisseReportReportService mvtCaisseReportService,
-        DefaultTransactionRepository defaultTransactionRepository,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        MouvementCaisseReceiptService mouvementCaisseReceiptService,
-        ReferenceService referenceService
-    ) {
+            PaymentTransactionRepository paymentTransactionRepository,
+            UserService userService,
+            SalesRepository salesRepository,
+            CashRegisterService cashRegisterService,
+            EntityManager em,
+            MvtCaisseReportReportService mvtCaisseReportService,
+            DefaultTransactionRepository defaultTransactionRepository,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            MouvementCaisseReceiptService mouvementCaisseReceiptService,
+            ReferenceService referenceService) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;
         this.salesRepository = salesRepository;
@@ -100,11 +99,14 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
 
     @Override
     public PaymentId create(FinancialTransactionDTO financialTransactionDTO) {
-        return defaultTransactionRepository.save(fromDTO(financialTransactionDTO)).getId();
+        return defaultTransactionRepository
+                .save(fromDTO(financialTransactionDTO))
+                .getId();
     }
 
     @Override
-    public Page<FinancialTransactionDTO> findAll(FinancielTransactionFilterDTO financielTransactionFilter, Pageable pageable) {
+    public Page<FinancialTransactionDTO> findAll(
+            FinancielTransactionFilterDTO financielTransactionFilter, Pageable pageable) {
         long total = getCount(financielTransactionFilter);
         if (total == 0) {
             return Page.empty();
@@ -118,7 +120,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         TypedQuery<PaymentTransaction> q = em.createQuery(cq);
         q.setFirstResult((int) pageable.getOffset());
         q.setMaxResults(pageable.getPageSize());
-        List<FinancialTransactionDTO> paymentTransactions = q.getResultList().stream().map(this::toDTO).toList();
+        List<FinancialTransactionDTO> paymentTransactions =
+                q.getResultList().stream().map(this::toDTO).toList();
         return new PageImpl<>(paymentTransactions, pageable, total);
     }
 
@@ -139,14 +142,15 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
 
     @Override
     public byte[] exportToPdf(TransactionFilterDTO transactionFilter) {
-        List<MvtCaisseDTO> mvtCaisses = fetchAll(transactionFilter, Pageable.unpaged()).getContent();
+        List<MvtCaisseDTO> mvtCaisses =
+                fetchAll(transactionFilter, Pageable.unpaged()).getContent();
         MvtCaisseWrapper mvtCaisseWrapper = buildMvtCaisseWrapper(transactionFilter);
         Pair pair = buildPeriode(transactionFilter);
         return this.mvtCaisseReportService.exportToPdfBytes(
                 new ArrayList<>(mvtCaisses),
                 mvtCaisseWrapper,
-                new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
-            );
+                new ReportPeriode(
+                        ((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate()));
     }
 
     @Override
@@ -160,16 +164,16 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     private DefaultPaymentRecord buildPaymentRecord(PaymentId idReglement) {
-        DefaultPayment paymentTransaction = defaultTransactionRepository.findById(idReglement).orElseThrow();
+        DefaultPayment paymentTransaction =
+                defaultTransactionRepository.findById(idReglement).orElseThrow();
         AppUser user = paymentTransaction.getCashRegister().getUser();
         return new DefaultPaymentRecord(
-            AppUserNames.fullName(user),
-            paymentTransaction.getCreatedAt(),
-            paymentTransaction.getPaymentMode().getLibelle(),
-            paymentTransaction.getPaidAmount(),
-            paymentTransaction.getTransactionNumber(),
-            paymentTransaction.getTypeFinancialTransaction()
-        );
+                AppUserNames.fullName(user),
+                paymentTransaction.getCreatedAt(),
+                paymentTransaction.getPaymentMode().getLibelle(),
+                paymentTransaction.getPaidAmount(),
+                paymentTransaction.getTransactionNumber(),
+                paymentTransaction.getTypeFinancialTransaction());
     }
 
     private DefaultPayment fromDTO(FinancialTransactionDTO financialTransaction) {
@@ -198,9 +202,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         // Le sens se lit sur la categorie du type, non sur une liste de types reecrite a la main :
         // FONDS_CAISSE est une sortie de caisse que l'ancien switch oubliait, et le ticket Z
         // l'ajoutait au tiroir au lieu de l'en retirer.
-        paymentTransaction.setCredit(
-            financialTransaction.getTypeTransaction().getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE
-        );
+        paymentTransaction.setCredit(financialTransaction.getTypeTransaction().getCategorieTransaction()
+                == CategorieTransaction.SORTIE_CAISSE);
         return paymentTransaction;
     }
 
@@ -210,7 +213,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         // et la ligne est restee commentee, si bien que tout mouvement relu par l'ecran ou par
         // findById affichait un montant nul.
         financialTransactionDTO.setAmount(Objects.requireNonNullElse(paymentTransaction.getPaidAmount(), 0));
-        financialTransactionDTO.setId(paymentTransaction.getId() != null ? paymentTransaction.getId().getId() : null);
+        financialTransactionDTO.setId(
+                paymentTransaction.getId() != null ? paymentTransaction.getId().getId() : null);
         financialTransactionDTO.setPaymentMode(paymentTransaction.getPaymentMode());
         financialTransactionDTO.setTransactionDate(paymentTransaction.getTransactionDate());
         financialTransactionDTO.setTypeFinancialTransaction(paymentTransaction.getTypeFinancialTransaction());
@@ -236,33 +240,38 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         return v != null ? v : 0;
     }
 
-    private List<Predicate> predicate(CriteriaBuilder cb, Root<PaymentTransaction> root, FinancielTransactionFilterDTO transactionFilter) {
+    private List<Predicate> predicate(
+            CriteriaBuilder cb, Root<PaymentTransaction> root, FinancielTransactionFilterDTO transactionFilter) {
         List<Predicate> predicates = new ArrayList<>();
 
         if (!ObjectUtils.isEmpty(transactionFilter.typeFinancialTransaction())) {
-            predicates.add(cb.equal(root.get(PaymentTransaction_.typeFinancialTransaction), transactionFilter.typeFinancialTransaction()));
+            predicates.add(cb.equal(
+                    root.get(PaymentTransaction_.typeFinancialTransaction),
+                    transactionFilter.typeFinancialTransaction()));
         }
 
         if (Objects.nonNull(transactionFilter.userId())) {
-            predicates.add(
-                cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id), transactionFilter.userId())
-            );
+            predicates.add(cb.equal(
+                    root.get(PaymentTransaction_.cashRegister)
+                            .get(CashRegister_.user)
+                            .get(AppUser_.id),
+                    transactionFilter.userId()));
         }
         if (Objects.nonNull(transactionFilter.fromDate()) && Objects.nonNull(transactionFilter.toDate())) {
-            predicates.add(
-                cb.between(
+            predicates.add(cb.between(
                     root.get(PaymentTransaction_.createdAt),
                     LocalDateTime.of(transactionFilter.fromDate(), LocalTime.MIN),
-                    LocalDateTime.of(transactionFilter.toDate(), LocalTime.MAX)
-                )
-            );
+                    LocalDateTime.of(transactionFilter.toDate(), LocalTime.MAX)));
         }
 
         if (transactionFilter.categorieChiffreAffaire() != null) {
-            predicates.add(cb.equal(root.get(PaymentTransaction_.categorieChiffreAffaire), transactionFilter.categorieChiffreAffaire()));
+            predicates.add(cb.equal(
+                    root.get(PaymentTransaction_.categorieChiffreAffaire),
+                    transactionFilter.categorieChiffreAffaire()));
         }
         if (transactionFilter.paymentMode() != null) {
-            predicates.add(cb.equal(root.get(PaymentTransaction_.paymentMode).get("code"), transactionFilter.paymentMode()));
+            predicates.add(
+                    cb.equal(root.get(PaymentTransaction_.paymentMode).get("code"), transactionFilter.paymentMode()));
         }
 
         return predicates;
@@ -270,16 +279,18 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
 
     private Pair buildPeriode(TransactionFilterDTO financielTransactionFilter) {
         LocalDateTime fromDate = Objects.nonNull(financielTransactionFilter.fromDate())
-            ? LocalDateTime.of(financielTransactionFilter.fromDate(), LocalTime.MIN)
-            : LocalDate.now().atStartOfDay();
+                ? LocalDateTime.of(financielTransactionFilter.fromDate(), LocalTime.MIN)
+                : LocalDate.now().atStartOfDay();
         LocalDateTime toDate = Objects.nonNull(financielTransactionFilter.toDate())
-            ? LocalDateTime.of(financielTransactionFilter.toDate(), LocalTime.MAX)
-            : LocalDateTime.now();
+                ? LocalDateTime.of(financielTransactionFilter.toDate(), LocalTime.MAX)
+                : LocalDateTime.now();
         return new Pair(fromDate, toDate);
     }
 
     private Page<MvtCaisseDTO> fetchAll(TransactionFilterDTO transactionFilter, Pageable pageable) {
-        return paymentTransactionRepository.fetchAll(buildSpecification(transactionFilter), pageable).map(this::buildFrom);
+        return paymentTransactionRepository
+                .fetchAll(buildSpecification(transactionFilter), pageable)
+                .map(this::buildFrom);
     }
 
     private Specification<PaymentTransaction> buildSpecification(TransactionFilterDTO transactionFilter) {
@@ -291,27 +302,25 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         }
 
         if (!org.springframework.util.CollectionUtils.isEmpty(transactionFilter.paymentModes())) {
-            specification = specification.and(paymentTransactionRepository.filterByPaymentMode(transactionFilter.paymentModes()));
+            specification = specification.and(
+                    paymentTransactionRepository.filterByPaymentMode(transactionFilter.paymentModes()));
         }
         if (!org.springframework.util.CollectionUtils.isEmpty(transactionFilter.typeFinancialTransactions())) {
-            specification = specification.and(
-                paymentTransactionRepository.filterByTypeFinancialTransaction(EnumSet.copyOf(transactionFilter.typeFinancialTransactions()))
-            );
+            specification = specification.and(paymentTransactionRepository.filterByTypeFinancialTransaction(
+                    EnumSet.copyOf(transactionFilter.typeFinancialTransactions())));
         }
 
         if (org.springframework.util.CollectionUtils.isEmpty(transactionFilter.categorieChiffreAffaires())) {
-            specification = specification.and(
-                paymentTransactionRepository.filterByCategorieChiffreAffaire(EnumSet.of(CategorieChiffreAffaire.CA))
-            );
+            specification = specification.and(paymentTransactionRepository.filterByCategorieChiffreAffaire(
+                    EnumSet.of(CategorieChiffreAffaire.CA)));
         } else {
-            specification = specification.and(
-                paymentTransactionRepository.filterByCategorieChiffreAffaire(EnumSet.copyOf(transactionFilter.categorieChiffreAffaires()))
-            );
+            specification = specification.and(paymentTransactionRepository.filterByCategorieChiffreAffaire(
+                    EnumSet.copyOf(transactionFilter.categorieChiffreAffaires())));
         }
         return specification;
     }
 
-    //TODO voir comment implementer avec une fonction postgre jsonb
+    // TODO voir comment implementer avec une fonction postgre jsonb
     private MvtCaisseDTO buildFrom(MvtCaisseProjection mvtCaisseProjection) {
         MvtCaisseDTO mvtCaisseDTO = new MvtCaisseDTO();
         mvtCaisseDTO.setId(mvtCaisseProjection.id());
@@ -324,27 +333,27 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         // Le toUpperCase portait sur la chaine vide et non sur l'initiale : « a. KONE » au lieu de
         // « A. KONE ».
         mvtCaisseDTO.setUserFullName(
-            String.valueOf(mvtCaisseProjection.firstName().charAt(0)).toUpperCase() + ". " + mvtCaisseProjection.lastName()
-        );
+                String.valueOf(mvtCaisseProjection.firstName().charAt(0)).toUpperCase() + ". "
+                        + mvtCaisseProjection.lastName());
         switch (mvtCaisseProjection.paymentType()) {
             case SalePayment -> {
-                SaleInfo saleInfo = salesRepository.findSaleInfoById(mvtCaisseProjection.saleId(), mvtCaisseProjection.saleDate());
+                SaleInfo saleInfo =
+                        salesRepository.findSaleInfoById(mvtCaisseProjection.saleId(), mvtCaisseProjection.saleDate());
                 mvtCaisseDTO.setReference(saleInfo.getReference());
                 if (saleInfo.getCustomerFirstName() != null) {
                     mvtCaisseDTO.setOrganisme(saleInfo.getCustomerLastName() + " " + saleInfo.getCustomerFirstName());
                 }
             }
-            case InvoicePayment -> {} //TODO dans invoice
-            case DifferePayment -> {} //TODO dans differe
-            case AccountTransaction -> {} //TODO gestion des cautions
+            case InvoicePayment -> {} // TODO dans invoice
+            case DifferePayment -> {} // TODO dans differe
+            case AccountTransaction -> {} // TODO gestion des cautions
         }
         return mvtCaisseDTO;
     }
 
     private MvtCaisseWrapper buildMvtCaisseWrapper(TransactionFilterDTO transactionFilter) {
-        List<MvtCaisseSumProjection> mvtCaisseSumProjections = paymentTransactionRepository.fetchAllSum(
-            buildSpecification(transactionFilter)
-        );
+        List<MvtCaisseSumProjection> mvtCaisseSumProjections =
+                paymentTransactionRepository.fetchAllSum(buildSpecification(transactionFilter));
         MvtCaisseWrapper mvtCaisseWrapper = new MvtCaisseWrapper();
 
         BigDecimal totalPaymentAmount = BigDecimal.ZERO;
@@ -354,10 +363,11 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         List<com.kobe.warehouse.service.dto.records.Tuple> typeTransactionAmounts = new ArrayList<>();
         List<com.kobe.warehouse.service.dto.records.Tuple> modesPaiementAmounts = new ArrayList<>();
 
-        for (Entry<TransactionTypeAffichage, List<MvtCaisseSumProjection>> transactionTypeAffichageListEntry : mvtCaisseSumProjections
-            .stream()
-            .collect(Collectors.groupingBy(mvt -> mvt.typeTransaction().getTransactionTypeAffichage()))
-            .entrySet()) {
+        for (Entry<TransactionTypeAffichage, List<MvtCaisseSumProjection>> transactionTypeAffichageListEntry :
+                mvtCaisseSumProjections.stream()
+                        .collect(Collectors.groupingBy(
+                                mvt -> mvt.typeTransaction().getTransactionTypeAffichage()))
+                        .entrySet()) {
             TransactionTypeAffichage key = transactionTypeAffichageListEntry.getKey();
             List<MvtCaisseSumProjection> value = transactionTypeAffichageListEntry.getValue();
             BigDecimal typeAmount = new BigDecimal(0);
@@ -385,21 +395,16 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
             // ligne, a l'ecran comme dans le PDF. La cle reste le nom de l'enum, sur
             // laquelle les gabarits distinguent les sorties de caisse.
             typeTransactionAmounts.add(
-                new com.kobe.warehouse.service.dto.records.Tuple(key.name(), key.getValueCourt(), typeAmount)
-            );
+                    new com.kobe.warehouse.service.dto.records.Tuple(key.name(), key.getValueCourt(), typeAmount));
         }
-        mvtCaisseSumProjections
-            .stream()
-            .collect(Collectors.groupingBy(MvtCaisseSumProjection::codeModeReglement))
-            .forEach((k, v) -> {
-                modesPaiementAmounts.add(
-                    new com.kobe.warehouse.service.dto.records.Tuple(
-                        k,
-                        v.getFirst().libelleModeReglement(),
-                        v.stream().mapToLong(MvtCaisseSumProjection::amount).sum()
-                    )
-                );
-            });
+        mvtCaisseSumProjections.stream()
+                .collect(Collectors.groupingBy(MvtCaisseSumProjection::codeModeReglement))
+                .forEach((k, v) -> {
+                    modesPaiementAmounts.add(new com.kobe.warehouse.service.dto.records.Tuple(
+                            k,
+                            v.getFirst().libelleModeReglement(),
+                            v.stream().mapToLong(MvtCaisseSumProjection::amount).sum()));
+                });
         mvtCaisseWrapper.setCreditedAmount(creditedAmount);
         mvtCaisseWrapper.setDebitedAmount(debitedAmount);
         mvtCaisseWrapper.setTotalMobileAmount(totalMobileAmount);

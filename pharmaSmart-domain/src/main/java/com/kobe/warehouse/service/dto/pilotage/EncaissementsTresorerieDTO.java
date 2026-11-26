@@ -11,10 +11,9 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record EncaissementsTresorerieDTO(
-    ComparaisonPeriodesDTO comparaison,
-    CelluleAnalyseDTO total,
-    List<ModeEncaissementDTO> modes,
-    List<String> tranches,
-    List<SerieModeDTO> series,
-    List<CaissierEncaissementDTO> caissiers
-) {}
+        ComparaisonPeriodesDTO comparaison,
+        CelluleAnalyseDTO total,
+        List<ModeEncaissementDTO> modes,
+        List<String> tranches,
+        List<SerieModeDTO> series,
+        List<CaissierEncaissementDTO> caissiers) {}

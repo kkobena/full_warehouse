@@ -36,7 +36,6 @@
   }
 </app-kpi-strip>
 <app-card>
-
   <!-- ─── Panneau gauche : encours par fournisseur ─────────────────────── -->
   <div class="ae-left">
     <div class="ae-panel-header">
@@ -44,23 +43,29 @@
       <span>EN ATTENTE</span>
     </div>
 
-    <app-data-table [value]="encours()" [loading]="loadingEncours()" [rows]="15"
-                    [paginator]="encours().length > 15" [size]="'small'">
+    <app-data-table [value]="encours()" [loading]="loadingEncours()" [rows]="15" [paginator]="encours().length > 15" [size]="'small'">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Fournisseur</th>
           <th class="text-right">Montant</th>
-          <th style="width:3rem"></th>
+          <th style="width: 3rem"></th>
         </tr>
       </ng-template>
       <ng-template #body let-row>
         <tr [class.ae-row-selected]="selectedFournisseurId() === row.fournisseurId">
           <td class="pharma-product-name">{{ row.fournisseurLibelle }}</td>
-          <td class="text-right pharma-price">{{ row.montantEncours | number:'1.0-0' }}</td>
+          <td class="text-right pharma-price">{{ row.montantEncours | number: '1.0-0' }}</td>
           <td>
-            <app-button icon="pi pi-list" size="small" severity="info" [text]="true"
-                        ariaLabel="Voir les avoirs" ngbTooltip="Voir les avoirs" placement="left"
-                        (clicked)="selectFournisseur(row)" />
+            <app-button
+              icon="pi pi-list"
+              size="small"
+              severity="info"
+              [text]="true"
+              ariaLabel="Voir les avoirs"
+              ngbTooltip="Voir les avoirs"
+              placement="left"
+              (clicked)="selectFournisseur(row)"
+            />
           </td>
         </tr>
       </ng-template>
@@ -86,7 +91,8 @@
         <div class="ae-detail-filters">
           <app-select
             (selectionChange)="onDetailStatutChange()"
-            [ngModel]="detailStatut()" (ngModelChange)="detailStatut.set($event)"
+            [ngModel]="detailStatut()"
+            (ngModelChange)="detailStatut.set($event)"
             [clearable]="false"
             [items]="statutOptions"
             appendTo="body"
@@ -97,8 +103,7 @@
         </div>
       </div>
 
-      <app-data-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20"
-                      [paginator]="avoirs().length > 20" [size]="'small'">
+      <app-data-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20" [paginator]="avoirs().length > 20" [size]="'small'">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Référence avoir</th>
@@ -106,28 +111,53 @@
             <th>Date</th>
             <th>Statut</th>
             <th class="text-right">Montant (CFA)</th>
-            <th style="width:10rem">Actions</th>
+            <th style="width: 10rem">Actions</th>
           </tr>
         </ng-template>
         <ng-template #body let-avoir>
           <tr [ngClass]="getRowClass(avoir)">
-            <td><span class="pharma-code">{{ avoir.reference ?? '—' }}</span></td>
+            <td>
+              <span class="pharma-code">{{ avoir.reference ?? '—' }}</span>
+            </td>
             <td>{{ avoir.retourBonReference ?? '#' + avoir.retourBonId }}</td>
-            <td>{{ avoir.dateMtv | date:'dd/MM/yyyy' }}</td>
-            <td><span [ngClass]="getStatutBadgeClass(avoir.statut)">{{ getStatutLabel(avoir.statut) }}</span></td>
-            <td class="text-right pharma-price">{{ avoir.montant | number:'1.0-0' }}</td>
+            <td>{{ avoir.dateMtv | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <span [ngClass]="getStatutBadgeClass(avoir.statut)">{{ getStatutLabel(avoir.statut) }}</span>
+            </td>
+            <td class="text-right pharma-price">{{ avoir.montant | number: '1.0-0' }}</td>
             <td>
               @if (avoir.statut === 'EN_ATTENTE') {
                 <div class="pharma-action-buttons">
-                  <app-button icon="pi pi-check" size="small" severity="success" [text]="true"
-                              ariaLabel="Marquer remboursé" ngbTooltip="Marquer remboursé" placement="top"
-                              (clicked)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
-                  <app-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
-                              ariaLabel="Marquer imputé" ngbTooltip="Marquer imputé" placement="top"
-                              (clicked)="confirmUpdateStatut(avoir, 'IMPUTE')" />
-                  <app-button icon="pi pi-ban" size="small" severity="danger" [text]="true"
-                              ariaLabel="Annuler l'avoir" ngbTooltip="Annuler l'avoir" placement="top"
-                              (clicked)="confirmAnnuler(avoir)" />
+                  <app-button
+                    icon="pi pi-check"
+                    size="small"
+                    severity="success"
+                    [text]="true"
+                    ariaLabel="Marquer remboursé"
+                    ngbTooltip="Marquer remboursé"
+                    placement="top"
+                    (clicked)="confirmUpdateStatut(avoir, 'REMBOURSE')"
+                  />
+                  <app-button
+                    icon="pi pi-arrow-right-arrow-left"
+                    size="small"
+                    severity="info"
+                    [text]="true"
+                    ariaLabel="Marquer imputé"
+                    ngbTooltip="Marquer imputé"
+                    placement="top"
+                    (clicked)="confirmUpdateStatut(avoir, 'IMPUTE')"
+                  />
+                  <app-button
+                    icon="pi pi-ban"
+                    size="small"
+                    severity="danger"
+                    [text]="true"
+                    ariaLabel="Annuler l'avoir"
+                    ngbTooltip="Annuler l'avoir"
+                    placement="top"
+                    (clicked)="confirmAnnuler(avoir)"
+                  />
                 </div>
               }
             </td>
@@ -149,7 +179,9 @@
               <td colspan="4" class="text-right">
                 <span class="pharma-footer-label"><span>Total</span></span>
               </td>
-              <td class="text-right"><span class="pharma-footer-total">{{ getTotalAvoirsDetail() | number:'1.0-0' }}</span></td>
+              <td class="text-right">
+                <span class="pharma-footer-total">{{ getTotalAvoirsDetail() | number: '1.0-0' }}</span>
+              </td>
               <td></td>
             </tr>
           }
@@ -162,6 +194,4 @@
       </div>
     }
   </div>
-
 </app-card>
-

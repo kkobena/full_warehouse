@@ -1,24 +1,12 @@
-import {
-  afterNextRender,
-  Component,
-  ElementRef,
-  inject,
-  model,
-  output,
-  signal,
-  viewChild,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, IconFieldComponent} from '../../../../shared/ui';
-import {ICustomer} from '../../../../shared/model';
-import {CustomerSearchService} from '../../data-access/services/customer-search.service';
-import {
-  UninsuredCustomerFormComponent
-} from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
-import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
+import { afterNextRender, Component, ElementRef, inject, model, output, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, IconFieldComponent } from '../../../../shared/ui';
+import { ICustomer } from '../../../../shared/model';
+import { CustomerSearchService } from '../../data-access/services/customer-search.service';
+import { UninsuredCustomerFormComponent } from '../../../../entities/customer/uninsured-customer-form/uninsured-customer-form.component';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 
 /**
  * Composant de recherche et sélection de client réutilisable.
@@ -84,7 +72,7 @@ export class CustomerSearchTableComponent {
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      {title: "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT", entity: null},
+      { title: "FORMULAIRE D'AJOUT DE NOUVEAU CLIENT", entity: null },
       (newCustomer: ICustomer) => {
         if (newCustomer) {
           this.customerSelected.emit(newCustomer);

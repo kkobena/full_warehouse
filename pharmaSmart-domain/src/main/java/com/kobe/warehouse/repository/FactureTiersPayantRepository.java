@@ -14,29 +14,22 @@ import org.springframework.stereotype.Repository;
 public interface FactureTiersPayantRepository extends JpaRepository<FactureTiersPayant, FactureItemId> {
     List<FactureTiersPayant> findByStatutIn(List<InvoiceStatut> statuts);
 
-    List<FactureTiersPayant> findByGroupeTiersPayantIdAndStatutIn(Integer groupeTiersPayantId, List<InvoiceStatut> statuts);
+    List<FactureTiersPayant> findByGroupeTiersPayantIdAndStatutIn(
+            Integer groupeTiersPayantId, List<InvoiceStatut> statuts);
 
-    @Query(
-        "SELECT f FROM FactureTiersPayant f " +
-        "WHERE f.statut IN :statuts " +
-        "AND f.invoiceDate BETWEEN :startDate AND :endDate"
-    )
+    @Query("SELECT f FROM FactureTiersPayant f " + "WHERE f.statut IN :statuts "
+            + "AND f.invoiceDate BETWEEN :startDate AND :endDate")
     List<FactureTiersPayant> findByStatutInAndInvoiceDateBetween(
-        @Param("statuts") List<InvoiceStatut> statuts,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate
-    );
+            @Param("statuts") List<InvoiceStatut> statuts,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 
-    @Query(
-        "SELECT f FROM FactureTiersPayant f " +
-        "WHERE f.groupeTiersPayant.id = :groupeTiersPayantId " +
-        "AND f.statut IN :statuts " +
-        "AND f.invoiceDate BETWEEN :startDate AND :endDate"
-    )
+    @Query("SELECT f FROM FactureTiersPayant f " + "WHERE f.groupeTiersPayant.id = :groupeTiersPayantId "
+            + "AND f.statut IN :statuts "
+            + "AND f.invoiceDate BETWEEN :startDate AND :endDate")
     List<FactureTiersPayant> findByGroupeTiersPayantIdAndStatutInAndInvoiceDateBetween(
-        @Param("groupeTiersPayantId") Integer groupeTiersPayantId,
-        @Param("statuts") List<InvoiceStatut> statuts,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate
-    );
+            @Param("groupeTiersPayantId") Integer groupeTiersPayantId,
+            @Param("statuts") List<InvoiceStatut> statuts,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

@@ -35,7 +35,11 @@
 
   // Toolbar header (optional)
   .pharma-toolbar-header {
-    background: linear-gradient(135deg, var(--pharma-chrome-toolbar-a, var(--pharma-chrome-head-a)) 0%, var(--pharma-chrome-toolbar-b, var(--pharma-chrome-head-b)) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--pharma-chrome-toolbar-a, var(--pharma-chrome-head-a)) 0%,
+      var(--pharma-chrome-toolbar-b, var(--pharma-chrome-head-b)) 100%
+    );
     color: var(--pharma-chrome-head-fg);
     box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
     padding: 0.75rem 1rem;
@@ -345,7 +349,6 @@
 .pharma-toolbar-filters {
   padding-top: 0.25rem !important;
   padding-bottom: 0.25rem !important;
-
 }
 
 // ====================================
@@ -562,7 +565,6 @@
     .pharma-info-badge-label i {
       color: $pharma-info;
     }
-
   }
 }
 
@@ -670,7 +672,6 @@
       .pharma-info-badge {
         flex-shrink: 0 !important;
       }
-
     }
 
     // Scope actions to compact toolbar only
@@ -944,7 +945,6 @@
         margin: 0;
       }
     }
-
   }
 }
 
@@ -1015,4 +1015,3 @@
     overflow: visible !important;
   }
 }
-

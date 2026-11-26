@@ -124,5 +124,4 @@ export class VoSalesService {
   removeRemiseFromSale(id: SaleId): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
-
 }

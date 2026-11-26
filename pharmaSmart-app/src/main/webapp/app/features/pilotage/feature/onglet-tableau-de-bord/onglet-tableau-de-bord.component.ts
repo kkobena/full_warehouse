@@ -32,14 +32,34 @@ const TUILES: readonly Tuile[] = [
   { principal: 'ENCAISSEMENTS' },
 ];
 
-const COLONNES_DU_TABLEAU = ['CA_TTC', 'MARGE_BRUTE', 'TAUX_MARGE', 'REMISES', 'ACHATS_TTC', 'NB_VENTES', 'PANIER_MOYEN', 'PART_TIERS_PAYANT'];
+const COLONNES_DU_TABLEAU = [
+  'CA_TTC',
+  'MARGE_BRUTE',
+  'TAUX_MARGE',
+  'REMISES',
+  'ACHATS_TTC',
+  'NB_VENTES',
+  'PANIER_MOYEN',
+  'PART_TIERS_PAYANT',
+];
 
 const INDICATEURS = [...new Set([...TUILES.flatMap(t => [t.principal, t.secondaire ?? t.principal]), ...COLONNES_DU_TABLEAU])];
 
 /** Onglet d'ouverture du pilotage : comment va l'officine, et ce qui a bougé. */
 @Component({
   selector: 'app-onglet-tableau-de-bord',
-  imports: [AideComponent, BandeauAlertesComponent, ButtonComponent, KpiStripComponent, KpiItemComponent, CardComponent, DataTableComponent, CourbeIndicateurComponent, VariationComponent, ValeurIndicateurPipe],
+  imports: [
+    AideComponent,
+    BandeauAlertesComponent,
+    ButtonComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+    CardComponent,
+    DataTableComponent,
+    CourbeIndicateurComponent,
+    VariationComponent,
+    ValeurIndicateurPipe,
+  ],
   templateUrl: './onglet-tableau-de-bord.component.html',
   styleUrl: './onglet-tableau-de-bord.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,7 +80,9 @@ export class OngletTableauDeBordComponent {
   /** Les alertes valent pour aujourd'hui, quelle que soit la période de la barre. */
   protected readonly alertes = rxResource({ stream: () => this.api.listerAlertes() });
 
-  private readonly seriesParCode = computed(() => new Map((this.donnees.value()?.series.series ?? []).map(serie => [serie.indicateur.code, serie])));
+  private readonly seriesParCode = computed(
+    () => new Map((this.donnees.value()?.series.series ?? []).map(serie => [serie.indicateur.code, serie])),
+  );
 
   protected readonly tuiles = computed(() =>
     TUILES.filter(tuile => this.seriesParCode().has(tuile.principal)).map(tuile => ({
@@ -114,11 +136,14 @@ export class OngletTableauDeBordComponent {
   protected readonly serieCa = computed(() => this.historiqueCa.value()?.series[0]);
   protected readonly horizon = computed(() => libellerHorizon(this.requete().granularite));
 
-
   /** Le tableau tel qu'affiché, généré par le serveur avec des valeurs complètes. */
   protected exporter(): void {
     const requete = this.requete();
-    this.telechargement.downloadFromObservable(this.api.exporterSeries(requete, COLONNES_DU_TABLEAU), `pilotage-${requete.du}-${requete.au}`, 'csv');
+    this.telechargement.downloadFromObservable(
+      this.api.exporterSeries(requete, COLONNES_DU_TABLEAU),
+      `pilotage-${requete.du}-${requete.au}`,
+      'csv',
+    );
   }
 
   /** La fin de mois projetée : sur le CA, et sur tout indicateur qui a un objectif ; ailleurs, elle chargerait la tuile. */

@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.inventaire;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
@@ -17,6 +19,8 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,17 +41,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
-import java.util.Optional;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventory}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant" })
+@RequiresNavAccess({"inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant"})
 public class StoreInventoryResource {
 
     private static final String ENTITY_NAME = "storeInventory";
@@ -62,12 +61,11 @@ public class StoreInventoryResource {
     private String applicationName;
 
     public StoreInventoryResource(
-        InventaireService inventaireService,
-        InventaireCreationService inventaireCreationService,
-        InventaireProgressService inventaireProgressService,
-        InventaireImportService inventaireImportService,
-        InventoryCloseService inventoryCloseService
-    ) {
+            InventaireService inventaireService,
+            InventaireCreationService inventaireCreationService,
+            InventaireProgressService inventaireProgressService,
+            InventaireImportService inventaireImportService,
+            InventoryCloseService inventoryCloseService) {
         this.inventaireService = inventaireService;
         this.inventaireCreationService = inventaireCreationService;
         this.inventaireProgressService = inventaireProgressService;
@@ -88,13 +86,10 @@ public class StoreInventoryResource {
 
     @GetMapping("/store-inventories")
     public ResponseEntity<List<StoreInventoryDTO>> getAllStoreInventories(
-        StoreInventoryFilterRecord storeInventoryFilterRecord,
-        Pageable pageable
-    ) {
-        Page<StoreInventoryDTO> page = inventaireService.storeInventoryList(
-            storeInventoryFilterRecord, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable) {
+        Page<StoreInventoryDTO> page = inventaireService.storeInventoryList(storeInventoryFilterRecord, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -103,9 +98,8 @@ public class StoreInventoryResource {
         log.debug("REST request to delete StoreInventory : {}", id);
         inventaireService.remove(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-                id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping("/store-inventories/{id}")
@@ -116,26 +110,25 @@ public class StoreInventoryResource {
     }
 
     @PostMapping("/store-inventories")
-    public ResponseEntity<StoreInventoryDTO> create(
-        @Valid @RequestBody StoreInventoryRecord storeInventoryRecord) {
+    public ResponseEntity<StoreInventoryDTO> create(@Valid @RequestBody StoreInventoryRecord storeInventoryRecord) {
         log.debug("REST request to save storeInventory : {}", storeInventoryRecord);
         return ResponseEntity.ok().body(inventaireCreationService.create(storeInventoryRecord));
     }
 
     @GetMapping("/store-inventories/proccessing/{id}")
     public ResponseEntity<StoreInventoryDTO> getStoreInventoryProccessing(@PathVariable Long id) {
-        return ResponseUtil.wrapOrNotFound(inventaireService.getProccessingStoreInventory(
-            id));
+        return ResponseUtil.wrapOrNotFound(inventaireService.getProccessingStoreInventory(id));
     }
 
     @PostMapping(value = "/store-inventories/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @LicenseExempt("Consultation : export PDF d'inventaire, aucune donnée modifiée")
-    @RequiresNavAccess(value = { "inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getPdf(@RequestBody StoreInventoryExportRecord filterRecord) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventaire.pdf");
-        return ResponseEntity.ok().headers(headers)
-            .body(inventaireService.printToPdf(filterRecord));
+        return ResponseEntity.ok().headers(headers).body(inventaireService.printToPdf(filterRecord));
     }
 
     @GetMapping("/store-inventories/{id}/progress")
@@ -146,9 +139,7 @@ public class StoreInventoryResource {
 
     @PostMapping("/store-inventories/{id}/import")
     public ResponseEntity<ImportResultRecord> importCsv(
-        @PathVariable Long id,
-        @RequestParam("file") MultipartFile file
-    ) {
+            @PathVariable Long id, @RequestParam("file") MultipartFile file) {
         log.debug("REST request to import CSV for inventory : {}", id);
         return ResponseEntity.ok(inventaireImportService.importDetail(id, file));
     }

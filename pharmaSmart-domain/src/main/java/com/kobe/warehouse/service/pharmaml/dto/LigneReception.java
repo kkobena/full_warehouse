@@ -16,12 +16,30 @@ public class LigneReception {
     @XmlAttribute(name = "Quantite_Recue")
     private int quantiteRecue;
 
-    public String getCodeProduit() { return codeProduit; }
-    public LigneReception setCodeProduit(String codeProduit) { this.codeProduit = codeProduit; return this; }
+    public String getCodeProduit() {
+        return codeProduit;
+    }
 
-    public String getTypeCodification() { return typeCodification; }
-    public LigneReception setTypeCodification(String typeCodification) { this.typeCodification = typeCodification; return this; }
+    public LigneReception setCodeProduit(String codeProduit) {
+        this.codeProduit = codeProduit;
+        return this;
+    }
 
-    public int getQuantiteRecue() { return quantiteRecue; }
-    public LigneReception setQuantiteRecue(int quantiteRecue) { this.quantiteRecue = quantiteRecue; return this; }
+    public String getTypeCodification() {
+        return typeCodification;
+    }
+
+    public LigneReception setTypeCodification(String typeCodification) {
+        this.typeCodification = typeCodification;
+        return this;
+    }
+
+    public int getQuantiteRecue() {
+        return quantiteRecue;
+    }
+
+    public LigneReception setQuantiteRecue(int quantiteRecue) {
+        this.quantiteRecue = quantiteRecue;
+        return this;
+    }
 }

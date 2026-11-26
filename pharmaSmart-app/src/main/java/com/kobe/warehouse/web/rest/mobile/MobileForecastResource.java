@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.mobile;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.mobile.DailySalesDTO;
 import com.kobe.warehouse.service.dto.mobile.ForecastRequestDTO;
 import com.kobe.warehouse.service.mobile.MobileForecastService;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for mobile ML forecasting data.
@@ -57,9 +57,8 @@ public class MobileForecastResource {
      */
     @GetMapping("/history")
     public ResponseEntity<List<DailySalesDTO>> getForecastHistoryByDates(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         LOG.debug("REST request to get forecast history from {} to {}", startDate, endDate);
 
         List<DailySalesDTO> history = forecastService.getDailySalesHistory(startDate, endDate);
@@ -76,8 +75,7 @@ public class MobileForecastResource {
      */
     @GetMapping("/statistics")
     public ResponseEntity<MobileForecastService.SalesStatistics> getForecastStatistics(
-        @RequestParam(defaultValue = "30") int days
-    ) {
+            @RequestParam(defaultValue = "30") int days) {
         LOG.debug("REST request to get forecast statistics for {} days", days);
 
         MobileForecastService.SalesStatistics stats = forecastService.getSalesStatistics(days);

@@ -23,15 +23,15 @@ public class CertificationFneStatutService {
     private final HistoriqueCertificationFneRepository historiqueRepository;
 
     public CertificationFneStatutService(
-        PlanificationCertificationFneRepository planificationRepository,
-        HistoriqueCertificationFneRepository historiqueRepository
-    ) {
+            PlanificationCertificationFneRepository planificationRepository,
+            HistoriqueCertificationFneRepository historiqueRepository) {
         this.planificationRepository = planificationRepository;
         this.historiqueRepository = historiqueRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sauvegarderStatut(PlanificationCertificationFne plan, LocalDateTime debut, CertificationFneResult result) {
+    public void sauvegarderStatut(
+            PlanificationCertificationFne plan, LocalDateTime debut, CertificationFneResult result) {
         ExecutionStatut statut;
         String message = null;
 
@@ -59,9 +59,12 @@ public class CertificationFneStatutService {
     }
 
     private void enregistrerHistorique(
-        PlanificationCertificationFne plan, LocalDateTime debut,
-        ExecutionStatut statut, int nbOk, int nbKo, String message
-    ) {
+            PlanificationCertificationFne plan,
+            LocalDateTime debut,
+            ExecutionStatut statut,
+            int nbOk,
+            int nbKo,
+            String message) {
         HistoriqueCertificationFne h = new HistoriqueCertificationFne();
         h.setPlanificationId(plan.getId());
         h.setExecutionDebut(debut);
@@ -74,9 +77,7 @@ public class CertificationFneStatutService {
     }
 
     private void mettreAJourPlan(
-        PlanificationCertificationFne plan, LocalDateTime debut,
-        ExecutionStatut statut, String message
-    ) {
+            PlanificationCertificationFne plan, LocalDateTime debut, ExecutionStatut statut, String message) {
         plan.setDerniereExecution(debut);
         plan.setDernierStatut(statut);
         plan.setDernierMessage(message);
@@ -85,9 +86,7 @@ public class CertificationFneStatutService {
     }
 
     private LocalDateTime calculerProchaine(PlanificationCertificationFne plan) {
-        LocalTime heure = plan.getHeureDeclenchement() != null
-            ? plan.getHeureDeclenchement()
-            : LocalTime.of(2, 0);
+        LocalTime heure = plan.getHeureDeclenchement() != null ? plan.getHeureDeclenchement() : LocalTime.of(2, 0);
         return LocalDateTime.now().plusDays(1).toLocalDate().atTime(heure);
     }
 }

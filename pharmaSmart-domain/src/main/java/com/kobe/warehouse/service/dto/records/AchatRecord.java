@@ -8,6 +8,7 @@ public record AchatRecord(Long receiptAmount, Long discountAmount, Long taxAmoun
     public long ttcAmount() {
         return Objects.requireNonNullElse(receiptAmount, 0L) + Objects.requireNonNullElse(taxAmount, 0L);
     }
+
     @JsonProperty("netAmount")
     public long netAmount() {
         return Objects.requireNonNullElse(receiptAmount, 0L) - Objects.requireNonNullElse(discountAmount, 0L);

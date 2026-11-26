@@ -35,9 +35,13 @@ class DictionnaireIndicateursServiceImplTest {
     void filtreParDroit() {
         autoriser(Set.of(DroitPilotage.PAGE.getCode(), DroitPilotage.RENTABILITE_REMISES.getCode()));
 
-        List<String> codes = service.listerIndicateursAutorises().stream().map(IndicateurPilotageDTO::code).toList();
+        List<String> codes = service.listerIndicateursAutorises().stream()
+                .map(IndicateurPilotageDTO::code)
+                .toList();
 
-        assertThat(codes).contains("CA_TTC", "PANIER_MOYEN", "MARGE_BRUTE", "REMISES").doesNotContain("ACHATS_TTC", "PART_TIERS_PAYANT");
+        assertThat(codes)
+                .contains("CA_TTC", "PANIER_MOYEN", "MARGE_BRUTE", "REMISES")
+                .doesNotContain("ACHATS_TTC", "PART_TIERS_PAYANT");
         assertThat(codes.indexOf("CA_TTC")).isLessThan(codes.indexOf("MARGE_BRUTE"));
     }
 

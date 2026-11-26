@@ -8,7 +8,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class FacturationSchedulerJob {
@@ -19,16 +18,15 @@ public class FacturationSchedulerJob {
     private final PlanificationFacturationService planificationService;
 
     public FacturationSchedulerJob(
-        PlanificationFacturationRepository planificationRepository,
-        PlanificationFacturationService planificationService
-    ) {
+            PlanificationFacturationRepository planificationRepository,
+            PlanificationFacturationService planificationService) {
         this.planificationRepository = planificationRepository;
         this.planificationService = planificationService;
     }
 
     public void executerPlanificationsEnAttente() {
-        List<PlanificationFacturation> planifications = planificationRepository
-            .findByActifTrueAndProchaineExecutionBefore(LocalDateTime.now());
+        List<PlanificationFacturation> planifications =
+                planificationRepository.findByActifTrueAndProchaineExecutionBefore(LocalDateTime.now());
 
         if (planifications.isEmpty()) {
             return;

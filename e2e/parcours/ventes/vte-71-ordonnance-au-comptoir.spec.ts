@@ -66,7 +66,11 @@ scenario('VTE-71', async ({ etape, page }) => {
 
   await etape(3, async () => {
     // « Ajouter » présélectionne le produit prescrit par le circuit ordinaire de la vente.
-    await panneau.locator('tbody tr').filter({ hasText: 'AMOXICILLINE' }).getByRole('button', { name: /Ajouter/ }).click();
+    await panneau
+      .locator('tbody tr')
+      .filter({ hasText: 'AMOXICILLINE' })
+      .getByRole('button', { name: /Ajouter/ })
+      .click();
     await expect(panneau).toBeHidden();
     await expect(page.locator('#main-content')).toContainText(/Prix\s*:\s*[\d\s]*\d/);
     await ajouterAuPanier(page, '1');
@@ -81,7 +85,13 @@ scenario('VTE-71', async ({ etape, page }) => {
     await expect(panneau.locator('tbody tr').filter({ hasText: 'AMOXICILLINE' }).locator('td').nth(3)).toHaveText('4');
     await panneau.getByRole('button', { name: 'Fermer' }).click();
     // Le bouton du client annonce son ordonnance en cours.
-    await expect(page.locator('app-ordonnance-bouton').filter({ visible: true }).first().getByRole('button', { name: /1 en cours/ })).toBeVisible();
+    await expect(
+      page
+        .locator('app-ordonnance-bouton')
+        .filter({ visible: true })
+        .first()
+        .getByRole('button', { name: /1 en cours/ }),
+    ).toBeVisible();
   });
 
   await assurerPanierVide(page);

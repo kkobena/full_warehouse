@@ -1,7 +1,7 @@
-import {Injectable, signal} from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 /** Panneau ordonnance de la vente : ouvert depuis la carte client, lu par l'écran de vente actif. */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class OrdonnancePanelService {
   readonly visible = signal(false);
   readonly customerId = signal<number | null>(null);

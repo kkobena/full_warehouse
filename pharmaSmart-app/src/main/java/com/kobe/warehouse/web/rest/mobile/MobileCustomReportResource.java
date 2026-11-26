@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.mobile;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO;
 import com.kobe.warehouse.service.mobile.MobileCustomReportService;
 import jakarta.validation.Valid;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for mobile custom report generation.
@@ -20,7 +20,7 @@ import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
  */
 @RestController
 @RequestMapping("/api/mobile/custom-reports")
-@RequiresNavAccess({ "ventes.kpi", "rapport-ventes", "comptabilite" })
+@RequiresNavAccess({"ventes.kpi", "rapport-ventes", "comptabilite"})
 public class MobileCustomReportResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileCustomReportResource.class);
@@ -41,15 +41,11 @@ public class MobileCustomReportResource {
     @PostMapping("/generate")
     @LicenseExempt("Consultation : rapport calculé à la volée, POST uniquement pour porter les critères")
     public ResponseEntity<Map<String, CustomReportMetricDTO>> generateCustomReport(
-        @Valid @RequestBody CustomReportRequest request
-    ) {
+            @Valid @RequestBody CustomReportRequest request) {
         LOG.debug("REST request to generate custom report: {}", request);
 
-        Map<String, CustomReportMetricDTO> metrics = customReportService.generateMetrics(
-            request.metricCodes(),
-            request.startDate(),
-            request.endDate()
-        );
+        Map<String, CustomReportMetricDTO> metrics =
+                customReportService.generateMetrics(request.metricCodes(), request.startDate(), request.endDate());
 
         return ResponseEntity.ok(metrics);
     }
@@ -65,17 +61,16 @@ public class MobileCustomReportResource {
         LOG.debug("REST request to get available metrics");
 
         List<MetricInfo> metrics = List.of(
-            new MetricInfo("CA", "Chiffre d'affaires", "💰", "Revenus totaux"),
-            new MetricInfo("TRANSACTIONS", "Nombre de ventes", "🛒", "Total des transactions"),
-            new MetricInfo("AVERAGE_BASKET", "Panier moyen", "🛍️", "Montant moyen par vente"),
-            new MetricInfo("MARGIN", "Marge brute", "📊", "Bénéfice brut"),
-            new MetricInfo("TOP_PRODUCTS", "Top produits", "⭐", "Produits les plus vendus"),
-            new MetricInfo("PAYMENT_METHODS", "Modes de paiement", "💳", "Répartition des paiements"),
-            new MetricInfo("SALES_BY_CATEGORY", "Ventes par catégorie", "📦", "Distribution par catégorie"),
-            new MetricInfo("CUSTOMER_STATS", "Statistiques clients", "👥", "Métriques clients"),
-            new MetricInfo("ALERTS", "Alertes", "🔔", "Alertes actives"),
-            new MetricInfo("STOCK_STATUS", "État du stock", "📋", "Statut des stocks")
-        );
+                new MetricInfo("CA", "Chiffre d'affaires", "💰", "Revenus totaux"),
+                new MetricInfo("TRANSACTIONS", "Nombre de ventes", "🛒", "Total des transactions"),
+                new MetricInfo("AVERAGE_BASKET", "Panier moyen", "🛍️", "Montant moyen par vente"),
+                new MetricInfo("MARGIN", "Marge brute", "📊", "Bénéfice brut"),
+                new MetricInfo("TOP_PRODUCTS", "Top produits", "⭐", "Produits les plus vendus"),
+                new MetricInfo("PAYMENT_METHODS", "Modes de paiement", "💳", "Répartition des paiements"),
+                new MetricInfo("SALES_BY_CATEGORY", "Ventes par catégorie", "📦", "Distribution par catégorie"),
+                new MetricInfo("CUSTOMER_STATS", "Statistiques clients", "👥", "Métriques clients"),
+                new MetricInfo("ALERTS", "Alertes", "🔔", "Alertes actives"),
+                new MetricInfo("STOCK_STATUS", "État du stock", "📋", "Statut des stocks"));
 
         return ResponseEntity.ok(metrics);
     }
@@ -91,12 +86,11 @@ public class MobileCustomReportResource {
         LOG.debug("REST request to get available periods");
 
         List<PeriodOption> periods = List.of(
-            new PeriodOption("DAY", "Jour", 1),
-            new PeriodOption("WEEK", "Semaine", 7),
-            new PeriodOption("MONTH", "Mois", 30),
-            new PeriodOption("QUARTER", "Trimestre", 90),
-            new PeriodOption("YEAR", "Année", 365)
-        );
+                new PeriodOption("DAY", "Jour", 1),
+                new PeriodOption("WEEK", "Semaine", 7),
+                new PeriodOption("MONTH", "Mois", 30),
+                new PeriodOption("QUARTER", "Trimestre", 90),
+                new PeriodOption("YEAR", "Année", 365));
 
         return ResponseEntity.ok(periods);
     }
@@ -109,27 +103,17 @@ public class MobileCustomReportResource {
      * Custom report generation request
      */
     public record CustomReportRequest(
-        List<String> metricCodes,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {}
+            List<String> metricCodes,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {}
 
     /**
      * Metric information
      */
-    public record MetricInfo(
-        String code,
-        String displayName,
-        String icon,
-        String description
-    ) {}
+    public record MetricInfo(String code, String displayName, String icon, String description) {}
 
     /**
      * Period option
      */
-    public record PeriodOption(
-        String code,
-        String displayName,
-        int days
-    ) {}
+    public record PeriodOption(String code, String displayName, int days) {}
 }

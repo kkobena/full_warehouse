@@ -14,8 +14,10 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FamilleProduitRepository extends JpaRepository<FamilleProduit, Integer>, JpaSpecificationExecutor<FamilleProduit> {
-    Page<FamilleProduit> findAllByCodeOrLibelleContainingAllIgnoreCaseOrderByLibelleAsc(String code, String libelle, Pageable pageable);
+public interface FamilleProduitRepository
+        extends JpaRepository<FamilleProduit, Integer>, JpaSpecificationExecutor<FamilleProduit> {
+    Page<FamilleProduit> findAllByCodeOrLibelleContainingAllIgnoreCaseOrderByLibelleAsc(
+            String code, String libelle, Pageable pageable);
 
     Optional<FamilleProduit> findFirstByLibelleEquals(String libelle);
 

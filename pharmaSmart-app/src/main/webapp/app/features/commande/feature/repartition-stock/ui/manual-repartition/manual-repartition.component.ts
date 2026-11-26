@@ -1,4 +1,4 @@
-import {signal, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';

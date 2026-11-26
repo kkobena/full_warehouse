@@ -2,7 +2,9 @@
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/dashboard-common';
 
-.cursor-pointer { cursor: pointer; }
+.cursor-pointer {
+  cursor: pointer;
+}
 
 /* ── Quick Actions bar ──────────────────────────────────────────────────── */
 .quick-actions-bar {
@@ -34,4 +36,3 @@
   height: 8px !important;
   border-radius: 4px;
 }
-

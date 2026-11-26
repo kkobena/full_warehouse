@@ -32,8 +32,8 @@ import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -44,8 +44,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -55,19 +55,44 @@ import org.springframework.data.jpa.domain.Specification;
 @ExtendWith(MockitoExtension.class)
 class SimplifiedSaleServiceImplTest {
 
-    @Mock private PaymentService paymentService;
-    @Mock private CashSaleRepository repository;
-    @Mock private ReferenceService referenceService;
-    @Mock private StorageService storageService;
-    @Mock private UserRepository userRepository;
-    @Mock private SaleLineServiceFactory lineServiceFactory;
-    @Mock private CashRegisterService cashRegisterService;
-    @Mock private PosteRepository posteRepository;
-    @Mock private CustomerDisplayService customerDisplayService;
-    @Mock private SaleIdGeneratorService idGeneratorService;
-    @Mock private UninsuredCustomerRepository customerRepository;
-    @Mock private AppConfigurationService appConfigurationService;
-    @Mock private SalesLineService lineService;
+    @Mock
+    private PaymentService paymentService;
+
+    @Mock
+    private CashSaleRepository repository;
+
+    @Mock
+    private ReferenceService referenceService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SaleLineServiceFactory lineServiceFactory;
+
+    @Mock
+    private CashRegisterService cashRegisterService;
+
+    @Mock
+    private PosteRepository posteRepository;
+
+    @Mock
+    private CustomerDisplayService customerDisplayService;
+
+    @Mock
+    private SaleIdGeneratorService idGeneratorService;
+
+    @Mock
+    private UninsuredCustomerRepository customerRepository;
+
+    @Mock
+    private AppConfigurationService appConfigurationService;
+
+    @Mock
+    private SalesLineService lineService;
 
     private SimplifiedSaleServiceImpl service;
     private AppUser user;
@@ -89,10 +114,20 @@ class SimplifiedSaleServiceImplTest {
         lenient().when(posteRepository.findFirstByAddressOrName(any(), any())).thenReturn(Optional.empty());
 
         service = new SimplifiedSaleServiceImpl(
-            paymentService, repository, referenceService, storageService, userRepository,
-            lineServiceFactory, new SaleAmountCalculator(lineServiceFactory), cashRegisterService, posteRepository, customerDisplayService,
-            idGeneratorService, customerRepository, new ObjectMapper(), appConfigurationService
-        );
+                paymentService,
+                repository,
+                referenceService,
+                storageService,
+                userRepository,
+                lineServiceFactory,
+                new SaleAmountCalculator(lineServiceFactory),
+                cashRegisterService,
+                posteRepository,
+                customerDisplayService,
+                idGeneratorService,
+                customerRepository,
+                new ObjectMapper(),
+                appConfigurationService);
     }
 
     @Test
@@ -105,7 +140,7 @@ class SimplifiedSaleServiceImplTest {
         when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user)).thenReturn(register);
         when(customerRepository.getReferenceById(5)).thenReturn(customer);
         when(lineService.createSaleLinesFromDTO(any(CashSale.class), eq(dto.getSalesLines()), eq(9)))
-            .thenReturn(List.of(line));
+                .thenReturn(List.of(line));
         when(repository.save(any(CashSale.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         FinalyseSaleDTO result = service.createCashSale(dto);
@@ -131,7 +166,7 @@ class SimplifiedSaleServiceImplTest {
         when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user)).thenReturn(null);
         when(cashRegisterService.openCashRegister(user, user)).thenReturn(opened);
         when(lineService.createSaleLinesFromDTO(any(CashSale.class), eq(dto.getSalesLines()), eq(9)))
-            .thenReturn(List.of(line));
+                .thenReturn(List.of(line));
         when(repository.save(any(CashSale.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         FinalyseSaleDTO result = service.createCashSale(dto);
@@ -213,5 +248,3 @@ class SimplifiedSaleServiceImplTest {
         return line;
     }
 }
-
-

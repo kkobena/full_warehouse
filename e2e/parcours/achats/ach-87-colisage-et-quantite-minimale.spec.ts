@@ -35,8 +35,7 @@ scenario('ACH-87', async ({ etape, page }) => {
 
   const ligne = (produit: string) => page.locator('.ag-row').filter({ hasText: produit }).first();
   const quantite = (produit: string) => ligne(produit).locator('[col-id="quantityRequested"]');
-  const message = (motif: RegExp) =>
-    page.locator('[role="alert"], .toast, ngb-toast').filter({ hasText: motif }).first();
+  const message = (motif: RegExp) => page.locator('[role="alert"], .toast, ngb-toast').filter({ hasText: motif }).first();
 
   // Mise en scène : on se place dans une commande en attente déjà existante.
   await page.goto('/commande');
@@ -53,10 +52,18 @@ scenario('ACH-87', async ({ etape, page }) => {
   // Mise en scène, comme ACH-88 : un bon daté est VERROUILLÉ — sa barre d'ajout est neutralisée,
   // et aucune ligne n'y entre. On le ramène au brouillon plutôt que de miser sur l'état où le
   // jeu de démonstration l'a laissé : le tirage change à chaque rechargement.
-  if (await bon.getByText('ENVOYÉE').isVisible().catch(() => false)) {
+  if (
+    await bon
+      .getByText('ENVOYÉE')
+      .isVisible()
+      .catch(() => false)
+  ) {
     await bon.locator('app-commande-requested-actions button').first().click();
     await page.getByRole('button', { name: /Annuler l'envoi/ }).click();
-    await page.locator('.modal-content').getByRole('button', { name: /Oui|Confirmer/ }).click();
+    await page
+      .locator('.modal-content')
+      .getByRole('button', { name: /Oui|Confirmer/ })
+      .click();
     await expect(bon.getByText('BROUILLON')).toBeVisible();
   }
 
@@ -93,7 +100,11 @@ scenario('ACH-87', async ({ etape, page }) => {
 
   // ── Remise en état : les deux lignes ajoutées sont retirées. ────────────────────────────
   for (const produit of [produitColise, produitMinimum]) {
-    if (await ligne(produit).isVisible().catch(() => false)) {
+    if (
+      await ligne(produit)
+        .isVisible()
+        .catch(() => false)
+    ) {
       await ligne(produit).locator('.ag-selection-checkbox, input[type="checkbox"]').first().click();
       const supprimer = page.getByRole('button', { name: /Supprimer \(/ });
       if (await supprimer.isVisible().catch(() => false)) {

@@ -2,18 +2,15 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
-import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -21,7 +18,8 @@ import org.springframework.data.domain.Slice;
 public interface StockEntryDataService {
     Page<DeliveryReceiptDTO> fetchAllReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
-    List<DeliveryReceiptDTO> fetchAllDeliveryReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
+    List<DeliveryReceiptDTO> fetchAllDeliveryReceipts(
+            DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
     Optional<DeliveryReceiptDTO> findOneById(CommandeId id);
 
@@ -42,7 +40,8 @@ public interface StockEntryDataService {
 
     List<DeliveryReceiptItemProjection> findAllByCommandeIdAndCommandeOrderDate(CommandeId id);
 
-    Page<DeliveryReceiptDTO> fetchAllWithoutDetail(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
+    Page<DeliveryReceiptDTO> fetchAllWithoutDetail(
+            DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
     DeliveryTotalsDTO computeTotals(DeliveryReceiptFilterDTO filter);
 

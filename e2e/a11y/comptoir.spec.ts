@@ -59,7 +59,11 @@ for (const style of STYLES) {
       mkdirSync(DOSSIER, { recursive: true });
       writeFileSync(
         join(DOSSIER, `axe-${style}-${ecran.nom}.json`),
-        JSON.stringify(noeuds.map(n => ({ cible: n.target, resume: n.failureSummary })), null, 2),
+        JSON.stringify(
+          noeuds.map(n => ({ cible: n.target, resume: n.failureSummary })),
+          null,
+          2,
+        ),
       );
     });
   }

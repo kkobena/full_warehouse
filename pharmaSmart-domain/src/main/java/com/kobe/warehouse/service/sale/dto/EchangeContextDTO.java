@@ -8,10 +8,9 @@ import java.util.List;
  * et le crédit disponible.
  */
 public record EchangeContextDTO(
-    Integer customerId,
-    String customerName,
-    int montantCredit,
-    Integer retourId,
-    String retourReference,
-    List<String> avoirReferences
-) {}
+        Integer customerId,
+        String customerName,
+        int montantCredit,
+        Integer retourId,
+        String retourReference,
+        List<String> avoirReferences) {}

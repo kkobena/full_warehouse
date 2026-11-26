@@ -1,14 +1,19 @@
 <section aria-labelledby="titreHistorique">
   <h2 class="visually-hidden" id="titreHistorique">Historique des exports</h2>
   <p class="text-muted">
-    Les fichiers des modèles — exécutés d'un clic ou programmés la nuit. Un export demandé depuis le catalogue, lui, se
-    télécharge aussitôt et ne passe pas par ici.
+    Les fichiers des modèles — exécutés d'un clic ou programmés la nuit. Un export demandé depuis le catalogue, lui, se télécharge aussitôt
+    et ne passe pas par ici.
   </p>
   @if (enPreparation()) {
     <p aria-live="polite" class="text-muted">Un fichier est en préparation ; cette liste se met à jour toute seule.</p>
   }
-  <app-data-table [loading]="historique.isLoading() && !historique.value()" [stripedRows]="true" [value]="fichiers()" emptyMessage="Aucun export pour l'instant"
-                  size="small">
+  <app-data-table
+    [loading]="historique.isLoading() && !historique.value()"
+    [stripedRows]="true"
+    [value]="fichiers()"
+    emptyMessage="Aucun export pour l'instant"
+    size="small"
+  >
     <ng-template #header>
       <tr class="pharma-table-head">
         <th scope="col">Demandé le</th>
@@ -56,8 +61,15 @@
         <td>{{ fichier.expireLe ? (fichier.expireLe | date: 'dd/MM/yyyy') : '—' }}</td>
         <td>
           @if (fichier.statut === 'TERMINE') {
-            <app-button (clicked)="telecharger(fichier)" [ariaLabel]="'Télécharger ' + fichier.libelleExport" [iconOnly]="true" [text]="true" icon="pi pi-download"
-                        size="small" title="Télécharger" />
+            <app-button
+              (clicked)="telecharger(fichier)"
+              [ariaLabel]="'Télécharger ' + fichier.libelleExport"
+              [iconOnly]="true"
+              [text]="true"
+              icon="pi pi-download"
+              size="small"
+              title="Télécharger"
+            />
           }
         </td>
       </tr>
@@ -65,10 +77,24 @@
   </app-data-table>
   @if (pages() > 1) {
     <nav aria-label="Pages de l'historique" class="d-flex align-items-center gap-2 mt-2">
-      <app-button (clicked)="page.set(page() - 1)" [disabled]="page() === 0" [outlined]="true" icon="pi pi-angle-left" label="Plus récents" size="small" />
+      <app-button
+        (clicked)="page.set(page() - 1)"
+        [disabled]="page() === 0"
+        [outlined]="true"
+        icon="pi pi-angle-left"
+        label="Plus récents"
+        size="small"
+      />
       <span>Page {{ page() + 1 }} / {{ pages() }}</span>
-      <app-button (clicked)="page.set(page() + 1)" [disabled]="page() + 1 >= pages()" [outlined]="true" icon="pi pi-angle-right" iconPos="right" label="Plus anciens"
-                  size="small" />
+      <app-button
+        (clicked)="page.set(page() + 1)"
+        [disabled]="page() + 1 >= pages()"
+        [outlined]="true"
+        icon="pi pi-angle-right"
+        iconPos="right"
+        label="Plus anciens"
+        size="small"
+      />
     </nav>
   }
 </section>

@@ -49,75 +49,86 @@ class ExplicateurEcart {
     private final VentilateurPilotage ventilateurPilotage;
 
     ExplicateurEcart(
-        PeriodeComparaisonService periodeComparaisonService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        VentilateurPilotage ventilateurPilotage
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            VentilateurPilotage ventilateurPilotage) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.ventilateurPilotage = ventilateurPilotage;
     }
 
     ExplicationEcartDTO expliquer(RequetePilotageDTO requete, List<FiltreAnalyseDTO> filtres) {
-        Set<AxeAnalyse> axesFiltres = filtres.stream().map(FiltreAnalyseDTO::axe).collect(Collectors.toSet());
+        Set<AxeAnalyse> axesFiltres =
+                filtres.stream().map(FiltreAnalyseDTO::axe).collect(Collectors.toSet());
         dictionnaireIndicateursService.verifierAxesAutorises(axesFiltres);
-        IndicateurPilotage indicateur = dictionnaireIndicateursService
-            .filtrerAutorises(requete.indicateurs())
-            .stream()
-            .filter(IndicateurPilotage::estAdditif)
-            .findFirst()
-            .orElse(IndicateurPilotage.CA_TTC);
+        IndicateurPilotage indicateur = dictionnaireIndicateursService.filtrerAutorises(requete.indicateurs()).stream()
+                .filter(IndicateurPilotage::estAdditif)
+                .findFirst()
+                .orElse(IndicateurPilotage.CA_TTC);
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, LocalDate.now());
         if (comparaison.reference() == null) {
             throw new GenericError("Choisissez une comparaison pour expliquer un écart");
         }
-        SourceAnalyse source = choisirSource(axesFiltres, indicateur).orElseThrow(() ->
-            new GenericError(indicateur.getLibelle() + " ne se ventile pas sur ce chemin")
-        );
-        MesuresComparees perimetre = ventilateurPilotage.comparer(source, comparaison, null, null, filtres, Granularite.MOIS).total();
+        SourceAnalyse source = choisirSource(axesFiltres, indicateur)
+                .orElseThrow(() -> new GenericError(indicateur.getLibelle() + " ne se ventile pas sur ce chemin"));
+        MesuresComparees perimetre = ventilateurPilotage
+                .comparer(source, comparaison, null, null, filtres, Granularite.MOIS)
+                .total();
         CelluleAnalyseDTO total = Variations.cellule(indicateur, perimetre, true);
 
         Set<DroitPilotage> droits = dictionnaireIndicateursService.lireDroitsAccordes();
         List<AxeExpliqueDTO> axes = Arrays.stream(AxeAnalyse.values())
-            .filter(axe -> axe.estPropose() && axe.estLuEnBase() && !axesFiltres.contains(axe) && droits.contains(axe.getDroit()))
-            .map(axe -> expliquerPar(axe, indicateur, filtres, axesFiltres, comparaison))
-            .flatMap(Optional::stream)
-            .sorted(Comparator.comparingDouble(AxeExpliqueDTO::part).reversed())
-            .toList();
-        return new ExplicationEcartDTO(IndicateurPilotageDTO.fromIndicateur(indicateur), total.valeur(), total.valeurReference(), total.ecart(), axes);
+                .filter(axe -> axe.estPropose()
+                        && axe.estLuEnBase()
+                        && !axesFiltres.contains(axe)
+                        && droits.contains(axe.getDroit()))
+                .map(axe -> expliquerPar(axe, indicateur, filtres, axesFiltres, comparaison))
+                .flatMap(Optional::stream)
+                .sorted(Comparator.comparingDouble(AxeExpliqueDTO::part).reversed())
+                .toList();
+        return new ExplicationEcartDTO(
+                IndicateurPilotageDTO.fromIndicateur(indicateur),
+                total.valeur(),
+                total.valeurReference(),
+                total.ecart(),
+                axes);
     }
 
     private Optional<AxeExpliqueDTO> expliquerPar(
-        AxeAnalyse axe,
-        IndicateurPilotage indicateur,
-        List<FiltreAnalyseDTO> filtres,
-        Set<AxeAnalyse> axesFiltres,
-        ComparaisonPeriodesDTO comparaison
-    ) {
-        Optional<SourceAnalyse> source = choisirSource(Stream.concat(axesFiltres.stream(), Stream.of(axe)).toList(), indicateur);
+            AxeAnalyse axe,
+            IndicateurPilotage indicateur,
+            List<FiltreAnalyseDTO> filtres,
+            Set<AxeAnalyse> axesFiltres,
+            ComparaisonPeriodesDTO comparaison) {
+        Optional<SourceAnalyse> source = choisirSource(
+                Stream.concat(axesFiltres.stream(), Stream.of(axe)).toList(), indicateur);
         if (source.isEmpty()) {
             return Optional.empty();
         }
-        Ventilation ventilation = ventilateurPilotage.comparer(source.get(), comparaison, axe, null, filtres, Granularite.MOIS);
-        Double ecartTotal = Variations.cellule(indicateur, ventilation.total(), true).ecart();
+        Ventilation ventilation =
+                ventilateurPilotage.comparer(source.get(), comparaison, axe, null, filtres, Granularite.MOIS);
+        Double ecartTotal =
+                Variations.cellule(indicateur, ventilation.total(), true).ecart();
         if (ventilation.elements().size() < 2 || ecartTotal == null || ecartTotal == 0) {
             return Optional.empty();
         }
         double sens = Math.signum(ecartTotal);
-        List<ContributionDTO> principales = ventilation
-            .elements()
-            .stream()
-            .map(element -> element.versContribution(axe, indicateur))
-            .filter(contribution -> Math.signum(contribution.ecart()) == sens)
-            .sorted(Comparator.comparingLong((ContributionDTO contribution) -> Math.abs(contribution.ecart())).reversed())
-            .limit(PRINCIPALES)
-            .toList();
-        double concentre = principales.stream().mapToLong(ContributionDTO::ecart).sum();
+        List<ContributionDTO> principales = ventilation.elements().stream()
+                .map(element -> element.versContribution(axe, indicateur))
+                .filter(contribution -> Math.signum(contribution.ecart()) == sens)
+                .sorted(Comparator.comparingLong((ContributionDTO contribution) -> Math.abs(contribution.ecart()))
+                        .reversed())
+                .limit(PRINCIPALES)
+                .toList();
+        double concentre =
+                principales.stream().mapToLong(ContributionDTO::ecart).sum();
         double part = Math.min(CENT, concentre * CENT / ecartTotal);
-        return Optional.of(new AxeExpliqueDTO(AxeAnalyseDTO.fromAxe(axe), part, ventilation.elements().size(), principales));
+        return Optional.of(new AxeExpliqueDTO(
+                AxeAnalyseDTO.fromAxe(axe), part, ventilation.elements().size(), principales));
     }
 
     private static Optional<SourceAnalyse> choisirSource(Collection<AxeAnalyse> axes, IndicateurPilotage indicateur) {
-        return SourceAnalyse.choisir(axes, List.of(indicateur)).filter(source -> source.getIndicateurs().contains(indicateur));
+        return SourceAnalyse.choisir(axes, List.of(indicateur))
+                .filter(source -> source.getIndicateurs().contains(indicateur));
     }
 }

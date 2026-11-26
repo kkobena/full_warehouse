@@ -32,24 +32,59 @@ public class Commande {
     @XmlElement(name = "RETOUR", namespace = "urn:x-csrp:fr.csrp.protocole:message")
     private Retour retour;
 
-    public String getRefCdeClient() { return refCdeClient; }
-    public void setRefCdeClient(String refCdeClient) { this.refCdeClient = refCdeClient; }
+    public String getRefCdeClient() {
+        return refCdeClient;
+    }
 
-    public String getCommentaireGeneral() { return commentaireGeneral; }
-    public void setCommentaireGeneral(String commentaireGeneral) { this.commentaireGeneral = commentaireGeneral; }
+    public void setRefCdeClient(String refCdeClient) {
+        this.refCdeClient = refCdeClient;
+    }
 
-    public String getDateLivraison() { return dateLivraison; }
-    public void setDateLivraison(String dateLivraison) { this.dateLivraison = dateLivraison; }
+    public String getCommentaireGeneral() {
+        return commentaireGeneral;
+    }
 
-    public Normale getNormale() { return normale; }
-    public void setNormale(Normale normale) { this.normale = normale; }
+    public void setCommentaireGeneral(String commentaireGeneral) {
+        this.commentaireGeneral = commentaireGeneral;
+    }
 
-    public Exceptionnelle getExceptionnelle() { return exceptionnelle; }
-    public void setExceptionnelle(Exceptionnelle exceptionnelle) { this.exceptionnelle = exceptionnelle; }
+    public String getDateLivraison() {
+        return dateLivraison;
+    }
 
-    public AcqReception getAcqReception() { return acqReception; }
-    public void setAcqReception(AcqReception acqReception) { this.acqReception = acqReception; }
+    public void setDateLivraison(String dateLivraison) {
+        this.dateLivraison = dateLivraison;
+    }
 
-    public Retour getRetour() { return retour; }
-    public void setRetour(Retour retour) { this.retour = retour; }
+    public Normale getNormale() {
+        return normale;
+    }
+
+    public void setNormale(Normale normale) {
+        this.normale = normale;
+    }
+
+    public Exceptionnelle getExceptionnelle() {
+        return exceptionnelle;
+    }
+
+    public void setExceptionnelle(Exceptionnelle exceptionnelle) {
+        this.exceptionnelle = exceptionnelle;
+    }
+
+    public AcqReception getAcqReception() {
+        return acqReception;
+    }
+
+    public void setAcqReception(AcqReception acqReception) {
+        this.acqReception = acqReception;
+    }
+
+    public Retour getRetour() {
+        return retour;
+    }
+
+    public void setRetour(Retour retour) {
+        this.retour = retour;
+    }
 }

@@ -30,8 +30,7 @@ setup("ouvrir une session et l'enregistrer", async ({ page }) => {
   const erreur = page.locator('[data-cy="loginError"]');
   await expect(
     erreur,
-    `Connexion refusée pour « ${IDENTIFIANTS.utilisateur} ». ` +
-      'Renseigner E2E_USER / E2E_PASSWORD pour le jeu de démonstration.',
+    `Connexion refusée pour « ${IDENTIFIANTS.utilisateur} ». ` + 'Renseigner E2E_USER / E2E_PASSWORD pour le jeu de démonstration.',
   ).toBeHidden();
 
   // La session est établie quand l'application a quitté l'écran de connexion.

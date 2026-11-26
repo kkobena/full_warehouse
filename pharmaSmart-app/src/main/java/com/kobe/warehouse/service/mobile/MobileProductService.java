@@ -6,7 +6,6 @@ import com.kobe.warehouse.repository.MobileProductRepository.PriceInfoProjection
 import com.kobe.warehouse.repository.MobileProductRepository.ProductBasicInfoProjection;
 import com.kobe.warehouse.repository.MobileProductRepository.ProductSalesStatsProjection;
 import com.kobe.warehouse.repository.MobileProductRepository.StockInfoProjection;
-import com.kobe.warehouse.repository.MobileProductRepository.StorageStockProjection;
 import com.kobe.warehouse.service.dto.mobile.ExpiryStatus;
 import com.kobe.warehouse.service.dto.mobile.MobileProductQuickInfoDTO;
 import com.kobe.warehouse.service.dto.mobile.MobileProductQuickInfoDTO.LotInfo;
@@ -73,25 +72,24 @@ public class MobileProductService {
 
         // Get sales stats
         LocalDate today = LocalDate.now();
-        ProductSalesStatsProjection salesStatsProjection = productRepository.getSalesStats(
-            productId, today, today.minusDays(7), today.minusDays(30)
-        );
+        ProductSalesStatsProjection salesStatsProjection =
+                productRepository.getSalesStats(productId, today, today.minusDays(7), today.minusDays(30));
         SalesStats salesStats = mapSalesStats(salesStatsProjection);
 
         return MobileProductQuickInfoDTO.builder()
-            .id(basicInfo.id())
-            .name(basicInfo.name())
-            .codeCip(basicInfo.codeCip())
-            .codeEan(basicInfo.codeEan())
-            .stock(stockInfo)
-            .price(priceInfo)
-            .lots(lots)
-            .salesStats(salesStats)
-            .supplierName(basicInfo.supplierName())
-            .supplierId(basicInfo.supplierId())
-            .familyName(basicInfo.familyName())
-            .familyId(basicInfo.familyId())
-            .build();
+                .id(basicInfo.id())
+                .name(basicInfo.name())
+                .codeCip(basicInfo.codeCip())
+                .codeEan(basicInfo.codeEan())
+                .stock(stockInfo)
+                .price(priceInfo)
+                .lots(lots)
+                .salesStats(salesStats)
+                .supplierName(basicInfo.supplierName())
+                .supplierId(basicInfo.supplierId())
+                .familyName(basicInfo.familyName())
+                .familyId(basicInfo.familyId())
+                .build();
     }
 
     /**
@@ -129,27 +127,20 @@ public class MobileProductService {
 
         // Map storage stocks
         List<StorageStock> storageStocks = projection.storageStocks().stream()
-            .map(s -> new StorageStock(
-                s.storageId(),
-                s.storageName(),
-                s.storageType(),
-                s.qtyStock(),
-                s.qtyUg(),
-                s.total()
-            ))
-            .toList();
+                .map(s -> new StorageStock(
+                        s.storageId(), s.storageName(), s.storageType(), s.qtyStock(), s.qtyUg(), s.total()))
+                .toList();
 
         return new StockInfo(
-            projection.totalQuantity(),
-            projection.totalQtyStock(),
-            projection.totalQtyUg(),
-            projection.minThreshold(),
-            projection.maxThreshold(),
-            stockStatus.getCode(),
-            stockStatus.getColor(),
-            daysOfStock,
-            storageStocks
-        );
+                projection.totalQuantity(),
+                projection.totalQtyStock(),
+                projection.totalQtyUg(),
+                projection.minThreshold(),
+                projection.maxThreshold(),
+                stockStatus.getCode(),
+                stockStatus.getColor(),
+                daysOfStock,
+                storageStocks);
     }
 
     /**
@@ -157,11 +148,10 @@ public class MobileProductService {
      */
     private PriceInfo mapPriceInfo(PriceInfoProjection projection) {
         return new PriceInfo(
-            projection.purchasePrice(),
-            projection.sellingPrice(),
-            projection.marginPercent(),
-            projection.vatRate()
-        );
+                projection.purchasePrice(),
+                projection.sellingPrice(),
+                projection.marginPercent(),
+                projection.vatRate());
     }
 
     /**
@@ -169,20 +159,19 @@ public class MobileProductService {
      */
     private List<LotInfo> mapLotInfo(List<LotInfoProjection> projections) {
         return projections.stream()
-            .map(p -> {
-                // Determine expiry status using enum
-                ExpiryStatus expiryStatus = ExpiryStatus.fromDaysUntilExpiry(p.daysUntilExpiry());
+                .map(p -> {
+                    // Determine expiry status using enum
+                    ExpiryStatus expiryStatus = ExpiryStatus.fromDaysUntilExpiry(p.daysUntilExpiry());
 
-                return new LotInfo(
-                    p.lotId(),
-                    p.numLot(),
-                    p.expiryDate(),
-                    p.quantityReceived(),
-                    p.daysUntilExpiry(),
-                    expiryStatus.getCode()
-                );
-            })
-            .toList();
+                    return new LotInfo(
+                            p.lotId(),
+                            p.numLot(),
+                            p.expiryDate(),
+                            p.quantityReceived(),
+                            p.daysUntilExpiry(),
+                            expiryStatus.getCode());
+                })
+                .toList();
     }
 
     /**
@@ -190,14 +179,13 @@ public class MobileProductService {
      */
     private SalesStats mapSalesStats(ProductSalesStatsProjection projection) {
         return new SalesStats(
-            projection.todayQty(),
-            projection.todayAmount(),
-            projection.weekQty(),
-            projection.weekAmount(),
-            projection.monthQty(),
-            projection.monthAmount(),
-            projection.avgDailyQty()
-        );
+                projection.todayQty(),
+                projection.todayAmount(),
+                projection.weekQty(),
+                projection.weekAmount(),
+                projection.monthQty(),
+                projection.monthAmount(),
+                projection.avgDailyQty());
     }
 
     /**

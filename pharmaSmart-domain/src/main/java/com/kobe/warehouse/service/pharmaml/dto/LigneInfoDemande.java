@@ -12,9 +12,11 @@ public class LigneInfoDemande {
     @NotNull
     @XmlAttribute(name = "Code_Produit")
     private String codeProduit;
+
     @NotNull
     @XmlAttribute(name = "Type_Codification")
     private String typeCodification;
+
     @XmlAttribute(name = "Designation")
     private String designation;
 
@@ -23,11 +25,12 @@ public class LigneInfoDemande {
 
     @XmlAttribute(name = "Num_Ligne")
     private int numLigne;
-    @XmlTransient
-    private int prixAchat;//prix d'achat du produit en machine
-    @XmlTransient
-    private int prixVente;//prix de vente du produit en machine
 
+    @XmlTransient
+    private int prixAchat; // prix d'achat du produit en machine
+
+    @XmlTransient
+    private int prixVente; // prix de vente du produit en machine
 
     public String getDesignation() {
         return designation;

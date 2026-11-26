@@ -37,9 +37,7 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
         viderLeCache();
 
         ReconciliationFactureDTO rapprochement = services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-001", LocalDate.now(), 120_000, 21_600)
-        );
+                commande, new ReconciliationCommand("FA-2026-001", LocalDate.now(), 120_000, 21_600));
         viderLeCache();
 
         assertEquals(ReconciliationStatut.RECONCILIEE, rapprochement.getStatut());
@@ -55,15 +53,14 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
         viderLeCache();
 
         ReconciliationFactureDTO rapprochement = services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-002", LocalDate.now(), 115_000, 20_700)
-        );
+                commande, new ReconciliationCommand("FA-2026-002", LocalDate.now(), 115_000, 20_700));
         viderLeCache();
 
         assertEquals(ReconciliationStatut.ECART, rapprochement.getStatut());
         assertEquals(15_000, rapprochement.getEcartHT(), "le fournisseur facture 15 000 de plus que le BL");
         assertEquals(2_700, rapprochement.getEcartTVA());
-        assertEquals(100_000, rapprochement.getBlMontantHT(), "le montant du BL vient de la commande, pas de la saisie");
+        assertEquals(
+                100_000, rapprochement.getBlMontantHT(), "le montant du BL vient de la commande, pas de la saisie");
     }
 
     @Test
@@ -73,9 +70,7 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
         viderLeCache();
 
         ReconciliationFactureDTO rapprochement = services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-003", LocalDate.now(), 75_000, 13_500)
-        );
+                commande, new ReconciliationCommand("FA-2026-003", LocalDate.now(), 75_000, 13_500));
 
         assertEquals(-5_000, rapprochement.getEcartHT());
         assertEquals(-900, rapprochement.getEcartTVA());
@@ -89,9 +84,7 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
         viderLeCache();
 
         ReconciliationFactureDTO rapprochement = services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-004", LocalDate.now(), null, null)
-        );
+                commande, new ReconciliationCommand("FA-2026-004", LocalDate.now(), null, null));
 
         assertEquals(0, rapprochement.getFactureMontantHT());
         assertEquals(-50_000, rapprochement.getEcartHT());
@@ -103,25 +96,20 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
     void secondRapprochement() {
         CommandeId commande = bonDeLivraison(90_000, 16_200);
         services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-005", LocalDate.now(), 95_000, 16_200)
-        );
+                commande, new ReconciliationCommand("FA-2026-005", LocalDate.now(), 95_000, 16_200));
         viderLeCache();
 
         ReconciliationFactureDTO corrige = services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-005-BIS", LocalDate.now(), 90_000, 16_200)
-        );
+                commande, new ReconciliationCommand("FA-2026-005-BIS", LocalDate.now(), 90_000, 16_200));
         viderLeCache();
 
         assertEquals(ReconciliationStatut.RECONCILIEE, corrige.getStatut());
         assertEquals("FA-2026-005-BIS", corrige.getFactureReference());
         assertNotNull(corrige.getUpdatedAt(), "la correction date la mise à jour");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM reconciliation_facture_fournisseur"),
-            "la commande n'a qu'un rapprochement, il est réécrit"
-        );
+                1,
+                compter("SELECT count(*) FROM reconciliation_facture_fournisseur"),
+                "la commande n'a qu'un rapprochement, il est réécrit");
     }
 
     @Test
@@ -129,9 +117,7 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
     void relecture() {
         CommandeId commande = bonDeLivraison(60_000, 10_800);
         services.reconciliationFournisseurService.save(
-            commande,
-            new ReconciliationCommand("FA-2026-006", LocalDate.now(), 60_000, 10_800)
-        );
+                commande, new ReconciliationCommand("FA-2026-006", LocalDate.now(), 60_000, 10_800));
         viderLeCache();
 
         ReconciliationFactureDTO relu = services.reconciliationFournisseurService.findByCommandeId(commande);
@@ -155,8 +141,12 @@ class ReconciliationFournisseurServiceIntegrationTest extends AbstractStockInteg
         CommandeId inconnue = new CommandeId(-1, LocalDate.now());
         ReconciliationCommand commande = new ReconciliationCommand("FA-X", LocalDate.now(), 1_000, 180);
 
-        assertThrows(EntityNotFoundException.class, () -> services.reconciliationFournisseurService.save(inconnue, commande));
-        assertThrows(EntityNotFoundException.class, () -> services.reconciliationFournisseurService.findByCommandeId(inconnue));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> services.reconciliationFournisseurService.save(inconnue, commande));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> services.reconciliationFournisseurService.findByCommandeId(inconnue));
     }
 
     private CommandeId bonDeLivraison(int montantHt, int tva) {

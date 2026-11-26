@@ -3,14 +3,14 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
-import com.kobe.warehouse.service.dto.TvaEmbeded;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.TvaEmbeded;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Ticket des lignes non remboursées d'une vente assurance : une vente comptant fictive, réglée par le
@@ -74,11 +74,14 @@ public final class TicketNonRembourseBuilder {
             int ht = (int) Math.ceil(ligne.getSalesAmount() / (1 + taux / 100.0));
             parTaux.merge(taux, ligne.getSalesAmount() - ht, Integer::sum);
         }
-        return parTaux.entrySet().stream().map(e -> new TvaEmbeded().setTva(e.getKey()).setAmount(e.getValue())).toList();
+        return parTaux.entrySet().stream()
+                .map(e -> new TvaEmbeded().setTva(e.getKey()).setAmount(e.getValue()))
+                .toList();
     }
 
     private static boolean estEspeces(PaymentDTO reglement) {
-        return reglement.getPaymentMode() != null && ModePaimentCode.CASH.name().equals(reglement.getPaymentMode().getCode());
+        return reglement.getPaymentMode() != null
+                && ModePaimentCode.CASH.name().equals(reglement.getPaymentMode().getCode());
     }
 
     private static PaymentDTO copier(PaymentDTO source, int paye, int verse) {
@@ -90,7 +93,9 @@ public final class TicketNonRembourseBuilder {
     }
 
     static List<SaleLineDTO> listerLignesNonRemboursees(ThirdPartySaleDTO vente) {
-        return vente.getSalesLines().stream().filter(SaleLineDTO::isNonRembourse).toList();
+        return vente.getSalesLines().stream()
+                .filter(SaleLineDTO::isNonRembourse)
+                .toList();
     }
 
     public static Optional<CashSaleDTO> construire(ThirdPartySaleDTO vente) {

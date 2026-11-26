@@ -19,15 +19,14 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record VuePilotageDTO(
-    Long id,
-    @NotBlank @Size(max = 100) String libelle,
-    @NotEmpty @Size(max = 3) List<IndicateurPilotage> indicateurs,
-    @NotNull AxeAnalyse axe,
-    AxeAnalyse axe2,
-    int top,
-    @NotNull TriAnalyse tri,
-    @NotNull AffichageAnalyse affichage,
-    boolean livree,
-    boolean partagee,
-    boolean modifiable
-) {}
+        Long id,
+        @NotBlank @Size(max = 100) String libelle,
+        @NotEmpty @Size(max = 3) List<IndicateurPilotage> indicateurs,
+        @NotNull AxeAnalyse axe,
+        AxeAnalyse axe2,
+        int top,
+        @NotNull TriAnalyse tri,
+        @NotNull AffichageAnalyse affichage,
+        boolean livree,
+        boolean partagee,
+        boolean modifiable) {}

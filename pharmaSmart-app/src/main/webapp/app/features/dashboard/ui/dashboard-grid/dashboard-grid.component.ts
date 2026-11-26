@@ -181,7 +181,5 @@ export class DashboardGridItemDirective implements AfterViewInit, OnDestroy {
 }
 
 export function toPositions(nodes: GridStackNode[]): GridPosition[] {
-  return nodes
-    .filter(n => n.id != null)
-    .map(n => ({ id: String(n.id), x: n.x ?? 0, y: n.y ?? 0, w: n.w ?? 1, h: n.h ?? 1 }));
+  return nodes.filter(n => n.id != null).map(n => ({ id: String(n.id), x: n.x ?? 0, y: n.y ?? 0, w: n.w ?? 1, h: n.h ?? 1 }));
 }

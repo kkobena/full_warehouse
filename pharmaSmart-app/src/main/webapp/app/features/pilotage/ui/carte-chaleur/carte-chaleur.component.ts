@@ -16,7 +16,11 @@ const INTENSITE_MAX = 45;
   template: `
     <div class="carte-chaleur-defilement">
       <table class="carte-chaleur">
-        <caption class="visually-hidden">{{ legende() }}</caption>
+        <caption class="visually-hidden">
+          {{
+            legende()
+          }}
+        </caption>
         <thead>
           <tr>
             <th scope="col">{{ entete() }}</th>
@@ -30,7 +34,9 @@ const INTENSITE_MAX = 45;
             <tr>
               <th scope="row">{{ ligne.libelle }}</th>
               @for (cellule of ligne.cellules; track $index) {
-                <td [style.--intensite]="intensite(cellule.valeur) + '%'">{{ cellule.valeur ? (cellule.valeur | valeurIndicateur: unite()) : '' }}</td>
+                <td [style.--intensite]="intensite(cellule.valeur) + '%'">
+                  {{ cellule.valeur ? (cellule.valeur | valeurIndicateur: unite()) : '' }}
+                </td>
               }
             </tr>
           }

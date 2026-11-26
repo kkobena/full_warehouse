@@ -10,35 +10,29 @@ import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponen
 
 @Component({
   selector: 'app-situation-creances',
-  imports: [DeviseDirective, 
-    CommonModule,
-    ButtonComponent,
-    DataTableComponent,
-    KpiStripComponent,
-    KpiItemComponent
-  ],
+  imports: [DeviseDirective, CommonModule, ButtonComponent, DataTableComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './situation-creances.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./situation-creances.component.scss'],
 })
 export default class SituationCreancesComponent implements OnInit {
-  protected readonly summary     = signal<ITiersPayantCreancesSummary[]>([]);
-  protected readonly isLoading   = signal(false);
+  protected readonly summary = signal<ITiersPayantCreancesSummary[]>([]);
+  protected readonly isLoading = signal(false);
   protected readonly exportLoading = signal(false);
 
-  protected readonly totalCreances    = computed(() => this.summary().reduce((s, c) => s + (c.montantEncours ?? 0), 0));
-  protected readonly totalPlusDe90j   = computed(() => this.summary().reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0));
-  protected readonly totalNbFactures  = computed(() => this.summary().reduce((s, c) => s + (c.nombreFactures ?? 0), 0));
-  protected readonly pctRisque        = computed(() => {
+  protected readonly totalCreances = computed(() => this.summary().reduce((s, c) => s + (c.montantEncours ?? 0), 0));
+  protected readonly totalPlusDe90j = computed(() => this.summary().reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0));
+  protected readonly totalNbFactures = computed(() => this.summary().reduce((s, c) => s + (c.nombreFactures ?? 0), 0));
+  protected readonly pctRisque = computed(() => {
     const total = this.totalCreances();
     return total > 0 ? Math.round((this.totalPlusDe90j() / total) * 100) : 0;
   });
 
   protected readonly formatCurrency = formatCurrency;
-  protected readonly formatNumber   = formatNumber;
+  protected readonly formatNumber = formatNumber;
 
-  private readonly svc           = inject(TiersPayantReportService);
-  private readonly blobDownload  = inject(BlobDownloadService);
+  private readonly svc = inject(TiersPayantReportService);
+  private readonly blobDownload = inject(BlobDownloadService);
 
   ngOnInit(): void {
     this.load();

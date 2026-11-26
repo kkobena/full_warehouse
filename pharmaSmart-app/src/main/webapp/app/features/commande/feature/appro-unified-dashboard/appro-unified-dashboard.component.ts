@@ -1,25 +1,17 @@
-import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from "@angular/core";
-import {CommonModule, DatePipe} from "@angular/common";
-import {Router} from "@angular/router";
-import {HttpResponse} from "@angular/common/http";
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { HttpResponse } from '@angular/common/http';
 
-import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
-import {
-  CommandeService,
-  ICommandeDashboard,
-  ICommandeResumee
-} from "app/entities/commande/commande.service";
-import {SemoisService} from "app/entities/semois/semois.service";
-import {
-  BudgetCommande,
-  SemoisFraicheur,
-  SuggestionService
-} from "app/entities/commande/suggestion/suggestion.service";
-import {CommandCommonService} from "app/entities/commande/command-common.service";
-import {IReapproDashboard, ITopUrgentDTO} from "app/shared/model/semois/semois-dashboard.model";
-import {AlertBadgeService} from "app/shared/services/alert-badge.service";
-import {NotificationService} from "app/shared/services/notification.service";
+import { CommandeService, ICommandeDashboard, ICommandeResumee } from 'app/entities/commande/commande.service';
+import { SemoisService } from 'app/entities/semois/semois.service';
+import { BudgetCommande, SemoisFraicheur, SuggestionService } from 'app/entities/commande/suggestion/suggestion.service';
+import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import { IReapproDashboard, ITopUrgentDTO } from 'app/shared/model/semois/semois-dashboard.model';
+import { AlertBadgeService } from 'app/shared/services/alert-badge.service';
+import { NotificationService } from 'app/shared/services/notification.service';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -28,18 +20,24 @@ import {
   KpiStripComponent,
   SkeletonComponent,
   ToolbarComponent,
-} from "app/shared/ui";
+} from 'app/shared/ui';
 
 @Component({
-  selector: "app-appro-unified-dashboard",
-  templateUrl: "./appro-unified-dashboard.component.html",
-  styleUrls: ["./appro-unified-dashboard.component.scss"],
+  selector: 'app-appro-unified-dashboard',
+  templateUrl: './appro-unified-dashboard.component.html',
+  styleUrls: ['./appro-unified-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, CommonModule,
-    NgbTooltip, KpiStripComponent, KpiItemComponent,
-    BadgeComponent, ButtonComponent, DataTableComponent, SkeletonComponent, ToolbarComponent,
-
+    DatePipe,
+    CommonModule,
+    NgbTooltip,
+    KpiStripComponent,
+    KpiItemComponent,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    SkeletonComponent,
+    ToolbarComponent,
   ],
 })
 export class ApproUnifiedDashboardComponent implements OnInit {
@@ -75,31 +73,30 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   get semoisFraicheurLabel(): string {
     const f = this.semoisFraicheur();
     if (!f) {
-      return "VMM inconnue";
+      return 'VMM inconnue';
     }
     if (f.calculeRecent) {
-      return "VMM · À jour";
+      return 'VMM · À jour';
     }
     if (f.dernierCalcul) {
-      return `VMM · ${new Date(f.dernierCalcul).toLocaleDateString("fr-FR")}`;
+      return `VMM · ${new Date(f.dernierCalcul).toLocaleDateString('fr-FR')}`;
     }
-    return "VMM · Non initialisée";
+    return 'VMM · Non initialisée';
   }
 
-  get semoisFraicheurSeverity(): "success" | "warn" | "danger" | "secondary" {
+  get semoisFraicheurSeverity(): 'success' | 'warn' | 'danger' | 'secondary' {
     const f = this.semoisFraicheur();
     if (!f) {
-      return "secondary";
+      return 'secondary';
     }
     if (f.calculeRecent) {
-      return "success";
+      return 'success';
     }
     if (f.dernierCalcul) {
-      return "warn";
+      return 'warn';
     }
-    return "danger";
+    return 'danger';
   }
-
 
   peremptionCount(): number {
     return this.alertBadgeService.peremptionCount();
@@ -153,8 +150,8 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   }
 
   openCommande(row: ICommandeResumee): void {
-    const commandeId = {id: row.id, orderDate: row.orderDate};
-    if (row.orderStatus === "RECEIVED") {
+    const commandeId = { id: row.id, orderDate: row.orderDate };
+    if (row.orderStatus === 'RECEIVED') {
       this.commandCommonService.pendingOpenDeliveryId.set(commandeId);
       this.commandCommonService.navigateToBonsLivraison();
     } else {
@@ -186,17 +183,16 @@ export class ApproUnifiedDashboardComponent implements OnInit {
     this.recalculEnCours.set(true);
     this.suggestionService.recalculerSemois().subscribe({
       next: () => {
-        this.notificationService.success("Recalcul VMM déclenché — mise à jour dans quelques instants.", "VMM");
+        this.notificationService.success('Recalcul VMM déclenché — mise à jour dans quelques instants.', 'VMM');
         this.recalculEnCours.set(false);
         this.loadAll();
       },
       error: () => {
-        this.notificationService.error("Erreur lors du recalcul VMM", "VMM");
+        this.notificationService.error('Erreur lors du recalcul VMM', 'VMM');
         this.recalculEnCours.set(false);
       },
     });
   }
-
 
   navigateToReceptionEnAttente(): void {
     this.commandCommonService.navigateToBonsLivraison();
@@ -228,18 +224,18 @@ export class ApproUnifiedDashboardComponent implements OnInit {
   getCouvertureClass(produit: ITopUrgentDTO): string {
     const mois = this.getCouvertureMois(produit);
     if (mois < 0.5) {
-      return "text-danger fw-bold";
+      return 'text-danger fw-bold';
     }
     if (mois < 1.0) {
-      return "text-warning fw-semibold";
+      return 'text-warning fw-semibold';
     }
-    return "text-success";
+    return 'text-success';
   }
 
   // ─── Fraîcheur VMM ───────────────────────────────────────────────────────
 
-  getUrgenceSeverity(produit: ITopUrgentDTO): "danger" | "warn" {
-    return produit.stockActuel < produit.margeSecurite ? "danger" : "warn";
+  getUrgenceSeverity(produit: ITopUrgentDTO): 'danger' | 'warn' {
+    return produit.stockActuel < produit.margeSecurite ? 'danger' : 'warn';
   }
 
   private checkRefreshDone(): void {
@@ -247,7 +243,4 @@ export class ApproUnifiedDashboardComponent implements OnInit {
       this.lastRefresh.set(new Date());
     }
   }
-
-
 }
-

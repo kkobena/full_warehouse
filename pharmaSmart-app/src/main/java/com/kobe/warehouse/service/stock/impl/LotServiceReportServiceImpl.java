@@ -22,11 +22,8 @@ public class LotServiceReportServiceImpl extends CommonReportService implements 
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public LotServiceReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public LotServiceReportServiceImpl(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
@@ -62,7 +59,8 @@ public class LotServiceReportServiceImpl extends CommonReportService implements 
     }
 
     @Override
-    public ResponseEntity<byte[]> generatePdf(List<LotPerimeDTO> lotPerimes, LotPerimeValeurSum sum, LocalDate from, LocalDate to) {
+    public ResponseEntity<byte[]> generatePdf(
+            List<LotPerimeDTO> lotPerimes, LotPerimeValeurSum sum, LocalDate from, LocalDate to) {
         setTitle("Liste des produits périmés du ", buildPeriode(from, Objects.requireNonNullElse(to, LocalDate.now())));
         this.getParameters().put(Constant.ITEMS, lotPerimes);
         this.getParameters().put(Constant.REPORT_SUMMARY, sum);

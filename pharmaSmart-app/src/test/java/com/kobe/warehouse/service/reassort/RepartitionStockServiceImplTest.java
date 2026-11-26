@@ -106,13 +106,12 @@ class RepartitionStockServiceImplTest {
     @BeforeEach
     void init() {
         service = new RepartitionStockServiceImpl(
-            storageService,
-            repartitionStockProduitRepository,
-            stockProduitRepository,
-            repartitionStockPdfReportService,
-            inventoryTransactionService,
-            lotStockLocationService
-        );
+                storageService,
+                repartitionStockProduitRepository,
+                stockProduitRepository,
+                repartitionStockPdfReportService,
+                inventoryTransactionService,
+                lotStockLocationService);
         rayon = storage(RAYON_ID, "Stock rayon", StorageType.PRINCIPAL);
         reserve = storage(RESERVE_ID, "Stock réserve", StorageType.SAFETY_STOCK);
         operateur = new AppUser();
@@ -135,11 +134,10 @@ class RepartitionStockServiceImplTest {
             service.process(suggestion(TypeReassort.RAYON, StatutReassort.OPEN));
 
             verifyNoInteractions(
-                repartitionStockProduitRepository,
-                inventoryTransactionService,
-                lotStockLocationService,
-                stockProduitRepository
-            );
+                    repartitionStockProduitRepository,
+                    inventoryTransactionService,
+                    lotStockLocationService,
+                    stockProduitRepository);
         }
 
         @Test
@@ -254,8 +252,7 @@ class RepartitionStockServiceImplTest {
             StockProduit reserveServie = stock(201, avecReserve, reserve, 25);
 
             service.processReassortStockRayon(
-                new LinkedHashSet<>(List.of(ligne(rayonSansReserve, null, 5), ligne(rayonServi, null, 5)))
-            );
+                    new LinkedHashSet<>(List.of(ligne(rayonSansReserve, null, 5), ligne(rayonServi, null, 5))));
 
             verify(repartitionStockProduitRepository, times(1)).save(any(RepartitionStockProduit.class));
             assertEquals(3, rayonSansReserve.getQtyStock(), "le produit sans réserve est resté intact");
@@ -272,11 +269,13 @@ class RepartitionStockServiceImplTest {
         @BeforeEach
         void emplacementsParDefaut() {
             lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-            lenient().when(storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+            lenient()
+                    .when(storageService.getDefaultConnectedUserReserveStorage())
+                    .thenReturn(reserve);
             lenient().when(storageService.getUser()).thenReturn(operateur);
             lenient()
-                .when(stockProduitRepository.save(any(StockProduit.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .when(stockProduitRepository.save(any(StockProduit.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
         }
 
         @Test
@@ -431,13 +430,16 @@ class RepartitionStockServiceImplTest {
             Produit produit = produit(10);
             StockProduit stockRayon = stock(100, produit, rayon, 0);
             StockProduit stockReserve = stock(200, produit, reserve, 30);
-            when(stockProduitRepository.findOneByProduitIdAndStockageId(10, RAYON_ID)).thenReturn(stockRayon);
-            when(stockProduitRepository.findOneByProduitIdAndStockageId(10, RESERVE_ID)).thenReturn(stockReserve);
+            when(stockProduitRepository.findOneByProduitIdAndStockageId(10, RAYON_ID))
+                    .thenReturn(stockRayon);
+            when(stockProduitRepository.findOneByProduitIdAndStockageId(10, RESERVE_ID))
+                    .thenReturn(stockReserve);
 
             service.transfertImpliciteReserveVersRayon(10, RAYON_ID, RESERVE_ID, 6);
 
             RepartitionStockProduit trace = capturerLaTrace();
-            assertEquals(TypeRepartition.AUTO, trace.getTypeRepartition(), "le mouvement n'est pas le fait d'une saisie");
+            assertEquals(
+                    TypeRepartition.AUTO, trace.getTypeRepartition(), "le mouvement n'est pas le fait d'une saisie");
             assertSame(stockReserve, trace.getStockProduitSource());
             assertSame(stockRayon, trace.getStockProduitDestination());
             assertEquals(30, trace.getSourceInitStock());
@@ -476,11 +478,10 @@ class RepartitionStockServiceImplTest {
             service.autoPutawayRayonToReserve(stock(100, produit, rayon, 80), stock(200, produit, reserve, 5), 0);
 
             verifyNoInteractions(
-                repartitionStockProduitRepository,
-                inventoryTransactionService,
-                lotStockLocationService,
-                storageService
-            );
+                    repartitionStockProduitRepository,
+                    inventoryTransactionService,
+                    lotStockLocationService,
+                    storageService);
         }
     }
 
@@ -536,28 +537,25 @@ class RepartitionStockServiceImplTest {
         @DisplayName("Le type de répartition est transmis à la requête sous forme d'ordinal")
         void typeTransmisEnOrdinal() {
             RepartionSearchQueryDto recherche = new RepartionSearchQueryDto(
-                RAYON_ID,
-                1,
-                "DOLI",
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 1, 31),
-                TypeRepartition.AUTO,
-                100
-            );
-            Pageable page = PageRequest.of(0, 20);
-            Page<RepartitionStockProduitProjection> retour = new PageImpl<>(List.of(projection()));
-            when(
-                repartitionStockProduitRepository.findRepartitionStockProduits(
-                    1,
-                    TypeRepartition.AUTO.ordinal(),
                     RAYON_ID,
-                    100,
+                    1,
                     "DOLI",
                     LocalDate.of(2026, 1, 1),
                     LocalDate.of(2026, 1, 31),
-                    page
-                )
-            ).thenReturn(retour);
+                    TypeRepartition.AUTO,
+                    100);
+            Pageable page = PageRequest.of(0, 20);
+            Page<RepartitionStockProduitProjection> retour = new PageImpl<>(List.of(projection()));
+            when(repartitionStockProduitRepository.findRepartitionStockProduits(
+                            1,
+                            TypeRepartition.AUTO.ordinal(),
+                            RAYON_ID,
+                            100,
+                            "DOLI",
+                            LocalDate.of(2026, 1, 1),
+                            LocalDate.of(2026, 1, 31),
+                            page))
+                    .thenReturn(retour);
 
             Page<RepartitionStockProduitDto> resultat = service.fetchRepartitionStockProduits(recherche, page);
 
@@ -584,27 +582,11 @@ class RepartitionStockServiceImplTest {
         @DisplayName("Sans filtre de type, la requête reçoit un ordinal nul plutôt qu'une valeur par défaut")
         void sansFiltreDeType() {
             RepartionSearchQueryDto recherche = new RepartionSearchQueryDto(
-                null,
-                null,
-                null,
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 1, 31),
-                null,
-                null
-            );
+                    null, null, null, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), null, null);
             Pageable page = PageRequest.of(0, 20);
-            when(
-                repartitionStockProduitRepository.findRepartitionStockProduits(
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    LocalDate.of(2026, 1, 1),
-                    LocalDate.of(2026, 1, 31),
-                    page
-                )
-            ).thenReturn(Page.empty());
+            when(repartitionStockProduitRepository.findRepartitionStockProduits(
+                            null, null, null, null, null, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), page))
+                    .thenReturn(Page.empty());
 
             assertTrue(service.fetchRepartitionStockProduits(recherche, page).isEmpty());
         }
@@ -616,30 +598,16 @@ class RepartitionStockServiceImplTest {
             when(sansSource.getSrcStockId()).thenReturn(null);
             when(sansSource.getDestStockId()).thenReturn(200);
             RepartionSearchQueryDto recherche = new RepartionSearchQueryDto(
-                null,
-                null,
-                null,
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 1, 31),
-                null,
-                null
-            );
+                    null, null, null, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), null, null);
             Pageable page = PageRequest.of(0, 20);
             Page<RepartitionStockProduitProjection> retour = new PageImpl<>(List.of(sansSource));
-            when(
-                repartitionStockProduitRepository.findRepartitionStockProduits(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    eq(page)
-                )
-            ).thenReturn(retour);
+            when(repartitionStockProduitRepository.findRepartitionStockProduits(
+                            any(), any(), any(), any(), any(), any(), any(), eq(page)))
+                    .thenReturn(retour);
 
-            RepartitionStockProduitDto dto = service.fetchRepartitionStockProduits(recherche, page).getContent().getFirst();
+            RepartitionStockProduitDto dto = service.fetchRepartitionStockProduits(recherche, page)
+                    .getContent()
+                    .getFirst();
 
             assertNull(dto.getStockProduitSrc());
             assertEquals(200, dto.getStockProduitDest().getId());
@@ -649,28 +617,25 @@ class RepartitionStockServiceImplTest {
         @DisplayName("L'export reprend la même recherche sans pagination et passe la main au rapport PDF")
         void exportSansPagination() {
             RepartionSearchQueryDto recherche = new RepartionSearchQueryDto(
-                null,
-                null,
-                null,
-                LocalDate.of(2026, 1, 1),
-                LocalDate.of(2026, 1, 31),
-                TypeRepartition.MANUEL,
-                null
-            );
-            Page<RepartitionStockProduitProjection> retour = new PageImpl<>(List.of(projection()));
-            when(
-                repartitionStockProduitRepository.findRepartitionStockProduits(
-                    null,
-                    TypeRepartition.MANUEL.ordinal(),
                     null,
                     null,
                     null,
                     LocalDate.of(2026, 1, 1),
                     LocalDate.of(2026, 1, 31),
-                    Pageable.unpaged()
-                )
-            ).thenReturn(retour);
-            when(repartitionStockPdfReportService.export(any(), eq(recherche))).thenReturn(new byte[] { 1, 2, 3 });
+                    TypeRepartition.MANUEL,
+                    null);
+            Page<RepartitionStockProduitProjection> retour = new PageImpl<>(List.of(projection()));
+            when(repartitionStockProduitRepository.findRepartitionStockProduits(
+                            null,
+                            TypeRepartition.MANUEL.ordinal(),
+                            null,
+                            null,
+                            null,
+                            LocalDate.of(2026, 1, 1),
+                            LocalDate.of(2026, 1, 31),
+                            Pageable.unpaged()))
+                    .thenReturn(retour);
+            when(repartitionStockPdfReportService.export(any(), eq(recherche))).thenReturn(new byte[] {1, 2, 3});
 
             assertEquals(3, service.exportRepartitionStockProduits(recherche).length);
 
@@ -711,7 +676,8 @@ class RepartitionStockServiceImplTest {
         return stockAvecUg(id, produit, storage, quantite, 0);
     }
 
-    private static StockProduit stockAvecUg(int id, Produit produit, Storage storage, int quantite, int unitesGratuites) {
+    private static StockProduit stockAvecUg(
+            int id, Produit produit, Storage storage, int quantite, int unitesGratuites) {
         StockProduit stockProduit = new StockProduit();
         stockProduit.setId(id);
         stockProduit.setProduit(produit);

@@ -2,21 +2,22 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.OrderLineId;
-import com.kobe.warehouse.service.dto.CommandeDTO;
-import com.kobe.warehouse.service.dto.CommandeLiteDTO;
-import com.kobe.warehouse.service.dto.CommandeRapideDTO;
-import com.kobe.warehouse.service.dto.CommandeModel;
-import com.kobe.warehouse.service.dto.CommandeResponseDTO;
-import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
-import com.kobe.warehouse.service.dto.OrderLineDTO;
-import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.service.EnvoiCommandeService;
 import com.kobe.warehouse.service.ProduitDuService;
 import com.kobe.warehouse.service.ap.RemiseRfaService;
 import com.kobe.warehouse.service.dto.ClientsEnAttenteDTO;
+import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeLiteDTO;
+import com.kobe.warehouse.service.dto.CommandeModel;
+import com.kobe.warehouse.service.dto.CommandeRapideDTO;
+import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
+import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.ProduitDuNonCommandeDTO;
 import com.kobe.warehouse.service.dto.RemiseRfaFournisseurDTO;
-import com.kobe.warehouse.service.EnvoiCommandeService;
+import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
@@ -40,14 +41,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "commande", "depot.achat-depot" })
+@RequiresNavAccess({"commande", "depot.achat-depot"})
 public class CommandeResource {
 
     private static final String ENTITY_NAME = "commande";
@@ -61,11 +61,10 @@ public class CommandeResource {
     private String applicationName;
 
     public CommandeResource(
-        CommandService commandService,
-        EnvoiCommandeService envoiCommandeService,
-        RemiseRfaService remiseRfaService,
-        ProduitDuService produitDuService
-    ) {
+            CommandService commandService,
+            EnvoiCommandeService envoiCommandeService,
+            RemiseRfaService remiseRfaService,
+            ProduitDuService produitDuService) {
         this.commandService = commandService;
         this.envoiCommandeService = envoiCommandeService;
         this.remiseRfaService = remiseRfaService;
@@ -98,10 +97,7 @@ public class CommandeResource {
      */
     @PutMapping("/commandes/{id}/{orderDate}/envoi")
     public ResponseEntity<CommandeLiteDTO> marquerEnvoyee(
-        @PathVariable Integer id,
-        @PathVariable LocalDate orderDate,
-        @RequestParam CanalEnvoi canal
-    ) {
+            @PathVariable Integer id, @PathVariable LocalDate orderDate, @RequestParam CanalEnvoi canal) {
         return ResponseEntity.ok(envoiCommandeService.marquerEnvoyee(new CommandeId(id, orderDate), canal));
     }
 
@@ -127,123 +123,131 @@ public class CommandeResource {
     }
 
     @PostMapping("/commandes/rapide")
-    public ResponseEntity<CommandeLiteDTO> createCommandeRapide(@Valid @RequestBody CommandeRapideDTO dto) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> createCommandeRapide(@Valid @RequestBody CommandeRapideDTO dto)
+            throws URISyntaxException {
         CommandeLiteDTO commande = commandService.createCommandeRapide(dto);
         return ResponseEntity.created(new URI("/api/commandes/" + commande.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, commande.getId().toString()))
-            .body(commande);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, commande.getId().toString()))
+                .body(commande);
     }
 
     @PostMapping("/commandes")
-    public ResponseEntity<CommandeLiteDTO> createCommande(@Valid @RequestBody CommandeDTO commandeDTO) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> createCommande(@Valid @RequestBody CommandeDTO commandeDTO)
+            throws URISyntaxException {
         CommandeLiteDTO commande = commandService.createNewCommandeFromCommandeDTO(commandeDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + commande.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, commande.getId().toString()))
-            .body(commande);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, commande.getId().toString()))
+                .body(commande);
     }
 
     @PostMapping("/commandes/add-order-line")
-    public ResponseEntity<CommandeLiteDTO> addOrderLine(@Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> addOrderLine(@Valid @RequestBody OrderLineDTO orderLineDTO)
+            throws URISyntaxException {
         CommandeLiteDTO result = commandService.createOrUpdateOrderLine(orderLineDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/commandes/update-order-line-quantity-requested")
     public ResponseEntity<CommandeLiteDTO> updateQuantityRequested(@Valid @RequestBody OrderLineDTO orderLineDTO)
-        throws URISyntaxException {
+            throws URISyntaxException {
         CommandeLiteDTO result = commandService.updateQuantityRequested(orderLineDTO);
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/commandes/update-order-line-cost-amount")
-    public ResponseEntity<CommandeLiteDTO> updateOrderCostAmount(@Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> updateOrderCostAmount(@Valid @RequestBody OrderLineDTO orderLineDTO)
+            throws URISyntaxException {
         CommandeLiteDTO result = new CommandeLiteDTO(commandService.updateOrderCostAmount(orderLineDTO));
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/commandes/update-order-line-unit-price")
-    public ResponseEntity<CommandeLiteDTO> updateOrderUnitPrice(@Valid @RequestBody OrderLineDTO orderLineDTO) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> updateOrderUnitPrice(@Valid @RequestBody OrderLineDTO orderLineDTO)
+            throws URISyntaxException {
         CommandeLiteDTO result = new CommandeLiteDTO(commandService.updateOrderUnitPrice(orderLineDTO));
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/commandes/update-provisional-cip")
     public ResponseEntity<Void> updateCodeCip(@Valid @RequestBody OrderLineDTO orderLineDTO) {
         commandService.updateCodeCip(orderLineDTO);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, orderLineDTO.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName, true, ENTITY_NAME, orderLineDTO.getId().toString()))
+                .build();
     }
 
     @PutMapping("/commandes/delete/order-lines/{id}/{orderDate}")
     public ResponseEntity<Void> deleteOrderLinesByIds(
-        @PathVariable Integer id,
-        @PathVariable LocalDate orderDate,
-        @RequestBody List<OrderLineId> ids
-    ) {
+            @PathVariable Integer id, @PathVariable LocalDate orderDate, @RequestBody List<OrderLineId> ids) {
         commandService.deleteOrderLinesByIds(new CommandeId(id, orderDate), ids);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PutMapping("/commandes/fusionner")
     public ResponseEntity<Void> fusionner(@RequestBody List<CommandeId> ids) {
         commandService.fusionner(ids);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, ""))
+                .build();
     }
 
     @PutMapping("/commandes/delete-commandes")
     public ResponseEntity<Void> deleteSelectedCommandes(@RequestBody List<CommandeId> ids) {
         commandService.deleteAll(ids);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, ""))
+                .build();
     }
 
     @DeleteMapping("/commandes/order-line/{id}/{orderDate}")
     public ResponseEntity<Void> deleteOrderLineById(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
         commandService.deleteOrderLineById(new OrderLineId(id, orderDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @DeleteMapping("/commandes/{id}/{orderDate}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
         commandService.deleteById(new CommandeId(id, orderDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/commandes/verification-commande-en-cours/{id}/{orderDate}/{model}")
     public ResponseEntity<VerificationResponseCommandeDTO> importerReponseCommande(
-        @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate,
-        @PathVariable("model") CommandeModel model,
-        @RequestPart("commande") MultipartFile file
-    ) {
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(
-            new CommandeId(id, orderDate),
-            model,
-            file
-        );
+            @PathVariable("id") Integer id,
+            @PathVariable("orderDate") LocalDate orderDate,
+            @PathVariable("model") CommandeModel model,
+            @RequestPart("commande") MultipartFile file) {
+        VerificationResponseCommandeDTO verificationResponseCommandeDTO =
+                commandService.importerReponseCommande(new CommandeId(id, orderDate), model, file);
         return ResponseEntity.ok(verificationResponseCommandeDTO);
     }
 
     @PostMapping("/commandes/upload-new-commande/{fournisseurId}/{model}")
     public ResponseEntity<CommandeResponseDTO> uploadNewCommande(
-        @PathVariable("fournisseurId") Integer fournisseurId,
-        @PathVariable("model") CommandeModel commandeModel,
-        @RequestPart("commande") MultipartFile file
-    ) {
+            @PathVariable("fournisseurId") Integer fournisseurId,
+            @PathVariable("model") CommandeModel commandeModel,
+            @RequestPart("commande") MultipartFile file) {
         CommandeResponseDTO commandeResponseDTO = commandService.uploadNewCommande(fournisseurId, commandeModel, file);
         return ResponseEntity.ok(commandeResponseDTO);
     }
@@ -252,8 +256,8 @@ public class CommandeResource {
     public ResponseEntity<Void> rollback(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
         commandService.rollback(new CommandeId(id, orderDate));
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     /**
@@ -262,9 +266,7 @@ public class CommandeResource {
      */
     @GetMapping("/commandes/fournisseurs/{fournisseurId}/stats-service")
     public ResponseEntity<FournisseurStatsServiceDTO> getStatsService(
-        @PathVariable Integer fournisseurId,
-        @RequestParam(defaultValue = "30") int periodeJours
-    ) {
+            @PathVariable Integer fournisseurId, @RequestParam(defaultValue = "30") int periodeJours) {
         return ResponseEntity.ok(commandService.getStatsService(fournisseurId, periodeJours));
     }
 
@@ -286,33 +288,28 @@ public class CommandeResource {
      * dans une nouvelle commande REQUESTED avec le même fournisseur.
      */
     @PostMapping("/commandes/{id}/{orderDate}/reliquat")
-    public ResponseEntity<CommandeLiteDTO> createReliquat(
-        @PathVariable Integer id,
-        @PathVariable LocalDate orderDate
-    ) throws URISyntaxException {
+    public ResponseEntity<CommandeLiteDTO> createReliquat(@PathVariable Integer id, @PathVariable LocalDate orderDate)
+            throws URISyntaxException {
         CommandeLiteDTO result = commandService.createReliquat(new CommandeId(id, orderDate));
         return ResponseEntity.created(new URI("/api/commandes/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PostMapping("/commandes/{id}/{orderDate}/import-suggestion")
     public ResponseEntity<Void> importSuggestionIntoCommande(
-        @PathVariable Integer id,
-        @PathVariable LocalDate orderDate,
-        @RequestParam Integer suggestionId
-    ) {
+            @PathVariable Integer id, @PathVariable LocalDate orderDate, @RequestParam Integer suggestionId) {
         commandService.importSuggestionIntoCommande(new CommandeId(id, orderDate), suggestionId);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/commandes/{id}/{orderDate}/import-suggestion-lines")
     public ResponseEntity<Void> importSuggestionLinesIntoCommande(
-        @PathVariable Integer id,
-        @PathVariable LocalDate orderDate,
-        @RequestParam Integer suggestionId,
-        @RequestBody List<Integer> lineIds
-    ) {
+            @PathVariable Integer id,
+            @PathVariable LocalDate orderDate,
+            @RequestParam Integer suggestionId,
+            @RequestBody List<Integer> lineIds) {
         commandService.importSuggestionLinesIntoCommande(new CommandeId(id, orderDate), suggestionId, lineIds);
         return ResponseEntity.accepted().build();
     }

@@ -42,7 +42,8 @@ public final class DecoupagePeriode {
             case JOUR -> jour;
             case SEMAINE -> jour.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
             case MOIS -> jour.with(TemporalAdjusters.lastDayOfMonth());
-            case TRIMESTRE -> jour.with(IsoFields.DAY_OF_QUARTER, 1).plusMonths(3).minusDays(1);
+            case TRIMESTRE ->
+                jour.with(IsoFields.DAY_OF_QUARTER, 1).plusMonths(3).minusDays(1);
             case ANNEE -> jour.with(TemporalAdjusters.lastDayOfYear());
         };
     }

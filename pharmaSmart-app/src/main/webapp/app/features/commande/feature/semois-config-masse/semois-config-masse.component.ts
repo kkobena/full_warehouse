@@ -27,7 +27,17 @@ interface IPreviewClassificationItem {
   templateUrl: './semois-config-masse.component.html',
   styleUrls: ['./semois-config-masse.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, CommonModule, FormsModule, ButtonComponent, ToolbarComponent, NgbNavModule, NavTabsComponent, DataTableComponent, BadgeComponent],
+  imports: [
+    CardComponent,
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    ToolbarComponent,
+    NgbNavModule,
+    NavTabsComponent,
+    DataTableComponent,
+    BadgeComponent,
+  ],
 })
 export class SemoisConfigMasseComponent implements OnInit {
   activeTab = 'classification-abc';
@@ -131,26 +141,24 @@ export class SemoisConfigMasseComponent implements OnInit {
     let errors = 0;
 
     preview.forEach(item => {
-      this.semoisService
-        .initializeConfiguration({ produitId: item.produitId, classeCriticite: item.classeSemoisProposee })
-        .subscribe({
-          next: () => {
-            processed++;
-            if (processed + errors === preview.length) {
-              this.isProcessing.set(false);
-              alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
-              this.previewData.set(null);
-            }
-          },
-          error: () => {
-            errors++;
-            if (processed + errors === preview.length) {
-              this.isProcessing.set(false);
-              alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
-              this.previewData.set(null);
-            }
-          },
-        });
+      this.semoisService.initializeConfiguration({ produitId: item.produitId, classeCriticite: item.classeSemoisProposee }).subscribe({
+        next: () => {
+          processed++;
+          if (processed + errors === preview.length) {
+            this.isProcessing.set(false);
+            alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
+            this.previewData.set(null);
+          }
+        },
+        error: () => {
+          errors++;
+          if (processed + errors === preview.length) {
+            this.isProcessing.set(false);
+            alert(`Terminé !\n${processed} configurations créées.\n${errors} erreurs.`);
+            this.previewData.set(null);
+          }
+        },
+      });
     });
   }
 
@@ -160,7 +168,11 @@ export class SemoisConfigMasseComponent implements OnInit {
   }
 
   confirmInitAll(): void {
-    if (!confirm("Confirmer l'initialisation de tous les produits actifs sans configuration SEMOIS ?\n\nClasse par défaut : B (Rotation moyenne)")) {
+    if (
+      !confirm(
+        "Confirmer l'initialisation de tous les produits actifs sans configuration SEMOIS ?\n\nClasse par défaut : B (Rotation moyenne)",
+      )
+    ) {
       return;
     }
     this.isProcessing.set(true);
@@ -177,7 +189,11 @@ export class SemoisConfigMasseComponent implements OnInit {
   }
 
   confirmImportHistorique(): void {
-    if (!confirm(`Confirmer l'import de ${this.importNbMois} mois de données historiques ?\n\nCette opération peut prendre plusieurs minutes.`)) {
+    if (
+      !confirm(
+        `Confirmer l'import de ${this.importNbMois} mois de données historiques ?\n\nCette opération peut prendre plusieurs minutes.`,
+      )
+    ) {
       return;
     }
     this.isProcessing.set(true);
@@ -209,4 +225,3 @@ export class SemoisConfigMasseComponent implements OnInit {
     return getClasseCriticiteInfo(classe).severity;
   }
 }
-

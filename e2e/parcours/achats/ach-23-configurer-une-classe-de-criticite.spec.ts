@@ -31,9 +31,7 @@ scenario('ACH-23', async ({ etape, page }) => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
     await page.getByRole('button', { name: 'Classes produits' }).click();
-    await expect(page.locator('.modal-content:visible')).toContainText(
-      "Paramètres d'approvisionnement par classe",
-    );
+    await expect(page.locator('.modal-content:visible')).toContainText("Paramètres d'approvisionnement par classe");
   });
 
   await etape(2, async () => {

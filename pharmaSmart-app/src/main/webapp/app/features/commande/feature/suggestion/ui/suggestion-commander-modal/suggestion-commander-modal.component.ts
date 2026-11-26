@@ -1,43 +1,53 @@
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import type { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, SelectComponent } from "app/shared/ui";
-import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
-import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "app/shared/util/warehouse-util";
-import { SuggestionLigneEnrichie } from "../../data-access/suggestion-enrichie.model";
-import { TypeCommande } from "app/shared/model/pharmaml.model";
-import { CommanderModalResult } from "../../data-access/suggestion-commander.model";
-import { IFournisseur } from "app/shared/model/fournisseur.model";
-import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
-import { FournisseurApiService } from "../../../../../partners/data-access/services/fournisseur-api.service";
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SelectComponent } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from 'app/shared/util/warehouse-util';
+import { SuggestionLigneEnrichie } from '../../data-access/suggestion-enrichie.model';
+import { TypeCommande } from 'app/shared/model/pharmaml.model';
+import { CommanderModalResult } from '../../data-access/suggestion-commander.model';
+import { IFournisseur } from 'app/shared/model/fournisseur.model';
+import { FournisseurSelectComponent } from '../../../../../partners/ui/fournisseur-select/fournisseur-select.component';
+import { FournisseurApiService } from '../../../../../partners/data-access/services/fournisseur-api.service';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
-export { CommanderModalResult } from "../../data-access/suggestion-commander.model";
+export { CommanderModalResult } from '../../data-access/suggestion-commander.model';
 
 @Component({
-  selector: "app-suggestion-commander-modal",
-  templateUrl: "./suggestion-commander-modal.component.html",
-  styleUrls: ["./suggestion-commander-modal.scss"],
+  selector: 'app-suggestion-commander-modal',
+  templateUrl: './suggestion-commander-modal.component.html',
+  styleUrls: ['./suggestion-commander-modal.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule, FormsModule, ButtonComponent, SelectComponent, PharmaDatePickerComponent, DecimalPipe, FournisseurSelectComponent, DataTableComponent]
+  imports: [
+    DeviseDirective,
+    CommonModule,
+    FormsModule,
+    ButtonComponent,
+    SelectComponent,
+    PharmaDatePickerComponent,
+    DecimalPipe,
+    FournisseurSelectComponent,
+    DataTableComponent,
+  ],
 })
 export class SuggestionCommanderModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly fournisseurApi = inject(FournisseurApiService);
 
   // ─── Propriétés injectées via componentInstance ──────────────────────────
-  fournisseurLibelle = "";
+  fournisseurLibelle = '';
   /** ID du fournisseur principal de la suggestion. */
   fournisseurId?: number;
   lignes: SuggestionLigneEnrichie[] = [];
   budgetRestant?: number;
 
   // ─── Signals ─────────────────────────────────────────────────────────────
-  readonly modeCommande = signal<"INTERNE" | "PHARMAML">("INTERNE");
-  readonly pharmamlTypeCommande = signal<TypeCommande>("NORMALE");
-  readonly pharmamlCommentaire = signal("");
+  readonly modeCommande = signal<'INTERNE' | 'PHARMAML'>('INTERNE');
+  readonly pharmamlTypeCommande = signal<TypeCommande>('NORMALE');
+  readonly pharmamlCommentaire = signal('');
   readonly pharmamlDateLivraison = signal<NgbDateStruct | null>(null);
   readonly selectedFournisseur = signal<IFournisseur | null>(null);
   /** Agences du fournisseur principal (vide si fournisseur sans agences). */
@@ -51,15 +61,15 @@ export class SuggestionCommanderModalComponent implements OnInit {
   readonly minDate = TODAY_NGB_DATE();
 
   readonly typeCommandeOptions = [
-    { label: "Normale", value: "NORMALE" as TypeCommande },
-    { label: "Exceptionnelle", value: "EXCEPTIONNELLE" as TypeCommande }
+    { label: 'Normale', value: 'NORMALE' as TypeCommande },
+    { label: 'Exceptionnelle', value: 'EXCEPTIONNELLE' as TypeCommande },
   ];
 
   ngOnInit(): void {
     if (this.fournisseurId != null) {
       this.fournisseurApi.findAgences(this.fournisseurId).subscribe({
         next: list => this.agences.set(list),
-        error() {}
+        error() {},
       });
     }
   }
@@ -92,13 +102,13 @@ export class SuggestionCommanderModalComponent implements OnInit {
     const result: CommanderModalResult = {
       type: this.modeCommande(),
       fournisseurId: this.selectedFournisseur()?.id ?? this.fournisseurId,
-      fournisseurLibelle: this.selectedFournisseurLibelle
+      fournisseurLibelle: this.selectedFournisseurLibelle,
     };
-    if (this.modeCommande() === "PHARMAML") {
+    if (this.modeCommande() === 'PHARMAML') {
       result.pharmamlParams = {
         typeCommande: this.pharmamlTypeCommande(),
         commentaire: this.pharmamlCommentaire() || undefined,
-        dateLivraisonSouhaitee: NGB_DATE_TO_ISO(this.pharmamlDateLivraison()) ?? undefined
+        dateLivraisonSouhaitee: NGB_DATE_TO_ISO(this.pharmamlDateLivraison()) ?? undefined,
       };
     }
     this.activeModal.close(result);
@@ -107,5 +117,4 @@ export class SuggestionCommanderModalComponent implements OnInit {
   cancel(): void {
     this.activeModal.dismiss();
   }
-
 }

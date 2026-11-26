@@ -4,9 +4,7 @@ import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
-
 import java.time.LocalDate;
-
 import java.util.List;
 
 public interface SupplierPerformanceReportService {
@@ -70,5 +68,4 @@ public interface SupplierPerformanceReportService {
      * @return Evolution data for charting
      */
     SupplierEvolutionDTO getEvolution();
-
 }

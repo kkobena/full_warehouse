@@ -81,5 +81,4 @@ export class AjustementService {
   updateToolbarParam(param: {}): void {
     this.toolbarParam.set(param);
   }
-
 }

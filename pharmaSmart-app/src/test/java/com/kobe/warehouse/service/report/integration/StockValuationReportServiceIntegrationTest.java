@@ -50,7 +50,9 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("DOLIPRANE", 10); // achat 6 000, vente 10 000
             rafraichir(VUE);
 
-            StockValuationView ligne = services.stockValuationReportService.getStockValuation(null, null).getFirst();
+            StockValuationView ligne = services.stockValuationReportService
+                    .getStockValuation(null, null)
+                    .getFirst();
 
             assertThat(ligne.getStockQuantity()).isEqualTo(10);
             assertThat(ligne.getPurchasePrice()).isEqualTo(6_000);
@@ -71,7 +73,9 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("DOLIPRANE", 10);
             rafraichir(VUE);
 
-            StockValuationView ligne = services.stockValuationReportService.getStockValuation(null, null).getFirst();
+            StockValuationView ligne = services.stockValuationReportService
+                    .getStockValuation(null, null)
+                    .getFirst();
 
             assertThat(ligne.getMarginPercentage()).isEqualByComparingTo("40.00");
         }
@@ -82,7 +86,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("EN RUPTURE", 0);
             rafraichir(VUE);
 
-            assertThat(services.stockValuationReportService.getStockValuation(null, null)).isEmpty();
+            assertThat(services.stockValuationReportService.getStockValuation(null, null))
+                    .isEmpty();
         }
 
         @Test
@@ -93,7 +98,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             stock(detail, 5);
             rafraichir(VUE);
 
-            assertThat(services.stockValuationReportService.getStockValuation(null, null)).hasSize(1);
+            assertThat(services.stockValuationReportService.getStockValuation(null, null))
+                    .hasSize(1);
         }
 
         @Test
@@ -105,8 +111,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             rafraichir(VUE);
 
             assertThat(services.stockValuationReportService.getStockValuation(null, null))
-                .extracting(StockValuationView::getLibelle)
-                .containsExactly("GROS", "MOYEN", "PETIT");
+                    .extracting(StockValuationView::getLibelle)
+                    .containsExactly("GROS", "MOYEN", "PETIT");
         }
 
         @Test
@@ -117,9 +123,12 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("MOYEN", 10);
             rafraichir(VUE);
 
-            Page<StockValuationView> page = services.stockValuationReportService.getStockValuationPaginated(null, null, PageRequest.of(0, 2));
+            Page<StockValuationView> page =
+                    services.stockValuationReportService.getStockValuationPaginated(null, null, PageRequest.of(0, 2));
 
-            assertThat(page.getContent()).extracting(StockValuationView::getLibelle).containsExactly("GROS", "MOYEN");
+            assertThat(page.getContent())
+                    .extracting(StockValuationView::getLibelle)
+                    .containsExactly("GROS", "MOYEN");
             assertThat(page.getTotalElements()).isEqualTo(3);
         }
 
@@ -132,8 +141,10 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
 
             int familleId = premiereFamille().getId();
 
-            assertThat(services.stockValuationReportService.getStockValuation(familleId, null)).hasSize(1);
-            assertThat(services.stockValuationReportService.getStockValuation(999_999, null)).isEmpty();
+            assertThat(services.stockValuationReportService.getStockValuation(familleId, null))
+                    .hasSize(1);
+            assertThat(services.stockValuationReportService.getStockValuation(999_999, null))
+                    .isEmpty();
         }
 
         /** Zéro veut dire « pas de filtre » — c'est la valeur que l'écran envoie quand rien n'est choisi. */
@@ -143,7 +154,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("DOLIPRANE", 10);
             rafraichir(VUE);
 
-            assertThat(services.stockValuationReportService.getStockValuation(0, 0)).hasSize(1);
+            assertThat(services.stockValuationReportService.getStockValuation(0, 0))
+                    .hasSize(1);
         }
     }
 
@@ -163,7 +175,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             rangeAuRayon(enVitrine, "VITRINE");
             rafraichir(VUE_RAYON);
 
-            List<StockValuationView> lignes = services.stockValuationReportService.getStockValuation(null, comptoir.getId());
+            List<StockValuationView> lignes =
+                    services.stockValuationReportService.getStockValuation(null, comptoir.getId());
 
             assertThat(lignes).extracting(StockValuationView::getLibelle).containsExactly("AU COMPTOIR");
             assertThat(lignes.getFirst()).isInstanceOf(MvStockValuationByRayonView.class);
@@ -178,8 +191,10 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
 
             int familleId = premiereFamille().getId();
 
-            assertThat(services.stockValuationReportService.getStockValuation(familleId, comptoir.getId())).hasSize(1);
-            assertThat(services.stockValuationReportService.getStockValuation(999_999, comptoir.getId())).isEmpty();
+            assertThat(services.stockValuationReportService.getStockValuation(familleId, comptoir.getId()))
+                    .hasSize(1);
+            assertThat(services.stockValuationReportService.getStockValuation(999_999, comptoir.getId()))
+                    .isEmpty();
         }
 
         @Test
@@ -193,12 +208,11 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             rafraichir(VUE_RAYON);
 
             Page<StockValuationView> page = services.stockValuationReportService.getStockValuationPaginated(
-                null,
-                comptoir.getId(),
-                PageRequest.of(0, 1)
-            );
+                    null, comptoir.getId(), PageRequest.of(0, 1));
 
-            assertThat(page.getContent()).extracting(StockValuationView::getLibelle).containsExactly("GROS");
+            assertThat(page.getContent())
+                    .extracting(StockValuationView::getLibelle)
+                    .containsExactly("GROS");
             assertThat(page.getTotalElements()).isEqualTo(2);
         }
     }
@@ -234,8 +248,14 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
 
             int familleId = premiereFamille().getId();
 
-            assertThat(services.stockValuationReportService.getStockValuationSummary(familleId, 0).totalProducts()).isEqualTo(1);
-            assertThat(services.stockValuationReportService.getStockValuationSummary(999_999, 0).totalProducts()).isZero();
+            assertThat(services.stockValuationReportService
+                            .getStockValuationSummary(familleId, 0)
+                            .totalProducts())
+                    .isEqualTo(1);
+            assertThat(services.stockValuationReportService
+                            .getStockValuationSummary(999_999, 0)
+                            .totalProducts())
+                    .isZero();
         }
 
         @Test
@@ -246,7 +266,8 @@ class StockValuationReportServiceIntegrationTest extends AbstractReportIntegrati
             produitEnStock("AILLEURS", 50);
             rafraichir(VUE_RAYON);
 
-            StockValuationSummaryDTO synthese = services.stockValuationReportService.getStockValuationSummary(null, comptoir.getId());
+            StockValuationSummaryDTO synthese =
+                    services.stockValuationReportService.getStockValuationSummary(null, comptoir.getId());
 
             assertThat(synthese.totalProducts()).isEqualTo(1);
             assertThat(synthese.totalQuantity()).isEqualTo(10);

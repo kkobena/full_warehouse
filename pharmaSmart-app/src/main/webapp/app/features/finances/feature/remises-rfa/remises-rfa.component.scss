@@ -32,9 +32,15 @@
 
   /* Palier atteint, en vue, encore loin — les trois couleurs disent l'écart au palier,
      et non un simple état d'information. */
-  &.progress-ok    { background: #43ac6a; }
-  &.progress-close { background: #e99002; }
-  &.progress-low   { background: #6c757d; }
+  &.progress-ok {
+    background: #43ac6a;
+  }
+  &.progress-close {
+    background: #e99002;
+  }
+  &.progress-low {
+    background: #6c757d;
+  }
 }
 
 .progress-label {

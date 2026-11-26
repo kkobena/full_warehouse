@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, FormFieldComponent, InputComponent, SelectSearchComponent} from 'app/shared/ui';
-import {IPrescripteur} from 'app/shared/model/ordonnance.model';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {OrdonnanceApiService} from '../../data-access/services/ordonnance-api.service';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, FormFieldComponent, InputComponent, SelectSearchComponent } from 'app/shared/ui';
+import { IPrescripteur } from 'app/shared/model/ordonnance.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { OrdonnanceApiService } from '../../data-access/services/ordonnance-api.service';
 
 type Mode = 'liste' | 'edition' | 'fusion';
 
@@ -42,9 +42,33 @@ type Mode = 'liste' | 'edition' | 'fusion';
               <td>{{ p.specialite }}</td>
               <td>{{ p.numeroOrdre }}</td>
               <td class="text-end text-nowrap">
-                <app-button (clicked)="editer(p)" icon="pi pi-pencil" severity="primary" size="small" [text]="true" [iconOnly]="true" ariaLabel="Modifier ce prescripteur" />
-                <app-button (clicked)="preparerFusion(p)" icon="pi pi-clone" severity="info" size="small" [text]="true" [iconOnly]="true" ariaLabel="Fusionner ce prescripteur dans un autre" />
-                <app-button (clicked)="desactiver(p)" icon="pi pi-eye-slash" severity="secondary" size="small" [text]="true" [iconOnly]="true" ariaLabel="Désactiver ce prescripteur" />
+                <app-button
+                  (clicked)="editer(p)"
+                  icon="pi pi-pencil"
+                  severity="primary"
+                  size="small"
+                  [text]="true"
+                  [iconOnly]="true"
+                  ariaLabel="Modifier ce prescripteur"
+                />
+                <app-button
+                  (clicked)="preparerFusion(p)"
+                  icon="pi pi-clone"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [iconOnly]="true"
+                  ariaLabel="Fusionner ce prescripteur dans un autre"
+                />
+                <app-button
+                  (clicked)="desactiver(p)"
+                  icon="pi pi-eye-slash"
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  [iconOnly]="true"
+                  ariaLabel="Désactiver ce prescripteur"
+                />
               </td>
             </tr>
           </ng-template>
@@ -54,7 +78,9 @@ type Mode = 'liste' | 'edition' | 'fusion';
           <app-form-field label="Nom" fieldId="prNom" [required]="true"><app-input [(ngModel)]="p.nom" /></app-form-field>
           <app-form-field label="Prénom" fieldId="prPrenom"><app-input [(ngModel)]="p.prenom" /></app-form-field>
           <app-form-field label="Spécialité" fieldId="prSpecialite"><app-input [(ngModel)]="p.specialite" /></app-form-field>
-          <app-form-field label="N° d'ordre" fieldId="prOrdre" hint="Unique s'il est renseigné"><app-input [(ngModel)]="p.numeroOrdre" /></app-form-field>
+          <app-form-field label="N° d'ordre" fieldId="prOrdre" hint="Unique s'il est renseigné"
+            ><app-input [(ngModel)]="p.numeroOrdre"
+          /></app-form-field>
           <app-form-field label="Structure" fieldId="prStructure"><app-input [(ngModel)]="p.structure" /></app-form-field>
           <app-form-field label="Téléphone" fieldId="prTel"><app-input type="tel" [(ngModel)]="p.telephone" /></app-form-field>
         </div>
@@ -63,8 +89,14 @@ type Mode = 'liste' | 'edition' | 'fusion';
           Les ordonnances de <strong>{{ nomComplet(p) }}</strong> passent sur la fiche conservée ; cette fiche est ensuite désactivée.
         </p>
         <app-form-field label="Fiche à conserver" fieldId="prCible">
-          <app-select-search inputId="prCible" [items]="cibles()" bindLabel="libelle" bindValue="id" placeholder="Choisir la fiche à conserver"
-                             [(ngModel)]="cibleId" />
+          <app-select-search
+            inputId="prCible"
+            [items]="cibles()"
+            bindLabel="libelle"
+            bindValue="id"
+            placeholder="Choisir la fiche à conserver"
+            [(ngModel)]="cibleId"
+          />
         </app-form-field>
       }
       @if (erreur()) {
@@ -76,8 +108,14 @@ type Mode = 'liste' | 'edition' | 'fusion';
         <app-button (clicked)="fermer()" label="Fermer" severity="secondary" />
       } @else {
         <app-button (clicked)="retour()" label="Retour" severity="secondary" />
-        <app-button (clicked)="valider()" [loading]="enCours()" [disabled]="mode() === 'fusion' && !cibleId" icon="pi pi-check"
-                    [label]="mode() === 'fusion' ? 'Fusionner' : 'Enregistrer'" severity="primary" />
+        <app-button
+          (clicked)="valider()"
+          [loading]="enCours()"
+          [disabled]="mode() === 'fusion' && !cibleId"
+          icon="pi pi-check"
+          [label]="mode() === 'fusion' ? 'Fusionner' : 'Enregistrer'"
+          severity="primary"
+        />
       }
     </div>
   `,
@@ -91,7 +129,7 @@ export class PrescripteursModalComponent {
   protected readonly cibles = computed(() =>
     this.prescripteurs()
       .filter(p => p.id !== this.courant()?.id)
-      .map(p => ({id: p.id!, libelle: this.nomComplet(p)})),
+      .map(p => ({ id: p.id!, libelle: this.nomComplet(p) })),
   );
   protected terme = '';
   protected cibleId: number | null = null;
@@ -113,7 +151,7 @@ export class PrescripteursModalComponent {
   }
 
   protected editer(p: IPrescripteur): void {
-    this.courant.set({...p});
+    this.courant.set({ ...p });
     this.erreur.set('');
     this.mode.set('edition');
   }
@@ -151,7 +189,8 @@ export class PrescripteursModalComponent {
     }
     this.enCours.set(true);
     this.erreur.set('');
-    const action = this.mode() === 'fusion' ? this.api.fusionnerPrescripteur(p.id!, this.cibleId!) : this.api.modifierPrescripteur(p.id!, p);
+    const action =
+      this.mode() === 'fusion' ? this.api.fusionnerPrescripteur(p.id!, this.cibleId!) : this.api.modifierPrescripteur(p.id!, p);
     action.subscribe({
       next: () => {
         this.enCours.set(false);

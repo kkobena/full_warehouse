@@ -83,8 +83,7 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            retourDe(vente, ligne, 3, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false)
-        );
+                retourDe(vente, ligne, 3, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false));
         viderLeCache();
 
         assertFalse(resultat.partiel());
@@ -107,8 +106,7 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false)
-        );
+                retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false));
         viderLeCache();
 
         assertTrue(resultat.partiel(), "le retour est traité, mais avec une anomalie à signaler");
@@ -116,10 +114,10 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(5, stockRayon(produit), "la chaîne du froid est rompue : le rayon ne bouge pas");
         assertEquals(15_000, resultat.retour().montantTotal(), "le patient est remboursé malgré tout");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM retour_client_line WHERE retour_client_id = " + resultat.retour().id()),
-            "la ligne de reprise est bien enregistrée : seul le mouvement de stock n'a pas eu lieu"
-        );
+                1,
+                compter("SELECT count(*) FROM retour_client_line WHERE retour_client_id = "
+                        + resultat.retour().id()),
+                "la ligne de reprise est bien enregistrée : seul le mouvement de stock n'a pas eu lieu");
     }
 
     @Test
@@ -131,8 +129,7 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            retourDe(vente, ligne, 2, ModeReglementRetour.REMBOURSEMENT_ESPECES, false, false)
-        );
+                retourDe(vente, ligne, 2, ModeReglementRetour.REMBOURSEMENT_ESPECES, false, false));
         viderLeCache();
 
         assertEquals(1, resultat.lignesNonRestockees().size());
@@ -149,7 +146,8 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientRequest requete = retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false);
-        GenericError echec = assertThrows(GenericError.class, () -> services.retourClientService.validerRetour(requete));
+        GenericError echec =
+                assertThrows(GenericError.class, () -> services.retourClientService.validerRetour(requete));
 
         assertTrue(echec.getMessage().contains("Aucune ligne retournable"), echec.getMessage());
         assertEquals(0, compter("SELECT count(*) FROM retour_client"), "rien n'est écrit quand rien n'est reprenable");
@@ -163,33 +161,30 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         Produit ordinaire = produitEnStock("PARACETAMOL RET", 1_000, 600, 0, 10);
         CashSale vente = venteFermee(stupefiant, 1, 1);
         SalesLine ligneOrdinaire = ajouterLigne(vente, ordinaire, 2, 2);
-        SalesLine ligneStupefiant = vente
-            .getSalesLines()
-            .stream()
-            .filter(l -> l.getProduit().getId().equals(stupefiant.getId()))
-            .findFirst()
-            .orElseThrow();
+        SalesLine ligneStupefiant = vente.getSalesLines().stream()
+                .filter(l -> l.getProduit().getId().equals(stupefiant.getId()))
+                .findFirst()
+                .orElseThrow();
         viderLeCache();
 
-        RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            new RetourClientRequest(
+        RetourClientResultDTO resultat = services.retourClientService.validerRetour(new RetourClientRequest(
                 vente.getId().getId(),
                 vente.getSaleDate(),
                 MotifRetourClient.ERREUR_DISPENSATION,
                 ModeReglementRetour.REMBOURSEMENT_ESPECES,
                 null,
                 List.of(
-                    new RetourLineRequest(ligneStupefiant.getId().getId(), ligneStupefiant.getSaleDate(), 1, true, true, true),
-                    new RetourLineRequest(ligneOrdinaire.getId().getId(), ligneOrdinaire.getSaleDate(), 2, true, true, true)
-                ),
-                false
-            )
-        );
+                        new RetourLineRequest(
+                                ligneStupefiant.getId().getId(), ligneStupefiant.getSaleDate(), 1, true, true, true),
+                        new RetourLineRequest(
+                                ligneOrdinaire.getId().getId(), ligneOrdinaire.getSaleDate(), 2, true, true, true)),
+                false));
         viderLeCache();
 
         assertTrue(resultat.partiel());
         assertEquals(1, resultat.lignesRejetees().size());
-        assertEquals(StatutLegal.STUPEFIANTS, resultat.lignesRejetees().getFirst().statutLegal());
+        assertEquals(
+                StatutLegal.STUPEFIANTS, resultat.lignesRejetees().getFirst().statutLegal());
         assertEquals(1, resultat.retour().lines().size(), "seule la ligne ordinaire est reprise");
         assertEquals(12, stockRayon(ordinaire));
         assertEquals(5, stockRayon(stupefiant));
@@ -218,15 +213,13 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            retourDe(vente, ligne, 2, ModeReglementRetour.AVOIR_CLIENT, true, false)
-        );
+                retourDe(vente, ligne, 2, ModeReglementRetour.AVOIR_CLIENT, true, false));
         viderLeCache();
 
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM avoir_client WHERE customer_id = " + client.getId()),
-            "le crédit du patient est matérialisé par un avoir"
-        );
+                1,
+                compter("SELECT count(*) FROM avoir_client WHERE customer_id = " + client.getId()),
+                "le crédit du patient est matérialisé par un avoir");
         assertEquals(5_000, compter("SELECT montant FROM avoir_client WHERE customer_id = " + client.getId()));
         assertEquals(ModeReglementRetour.AVOIR_CLIENT, resultat.retour().modeReglement());
     }
@@ -242,8 +235,7 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         RetourClientResultDTO resultat = services.retourClientService.validerRetour(
-            retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, true)
-        );
+                retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, true));
 
         assertEquals(ModeReglementRetour.AVOIR_CLIENT, resultat.retour().modeReglement(), "l'échange impose l'avoir");
         assertNotNull(resultat.echangeContext());
@@ -260,24 +252,28 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         SalesLine ligne = vente.getSalesLines().iterator().next();
         viderLeCache();
         Integer avecEchange = services.retourClientService
-            .validerRetour(retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, true))
-            .retour()
-            .id();
+                .validerRetour(retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, true))
+                .retour()
+                .id();
 
         RetourClientDTO lie = services.retourClientService.lierVenteEchange(avecEchange, "VTE-REMPLACEMENT");
         viderLeCache();
 
         assertEquals("VTE-REMPLACEMENT", lie.echangeSaleRef());
-        assertEquals("VTE-REMPLACEMENT", em.find(com.kobe.warehouse.domain.RetourClient.class, avecEchange).getEchangeSaleRef());
+        assertEquals(
+                "VTE-REMPLACEMENT",
+                em.find(com.kobe.warehouse.domain.RetourClient.class, avecEchange)
+                        .getEchangeSaleRef());
 
         Produit autre = produitEnStock("SANS ECHANGE", 1_000, 600, 0, 10);
         CashSale venteSimple = venteFermee(autre, 1, 1);
         SalesLine ligneSimple = venteSimple.getSalesLines().iterator().next();
         viderLeCache();
         Integer sansEchange = services.retourClientService
-            .validerRetour(retourDe(venteSimple, ligneSimple, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false))
-            .retour()
-            .id();
+                .validerRetour(
+                        retourDe(venteSimple, ligneSimple, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false))
+                .retour()
+                .id();
 
         assertThrows(GenericError.class, () -> services.retourClientService.lierVenteEchange(sansEchange, "VTE-X"));
     }
@@ -290,18 +286,15 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
         SalesLine ligne = vente.getSalesLines().iterator().next();
         viderLeCache();
         Integer retourId = services.retourClientService
-            .validerRetour(retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false))
-            .retour()
-            .id();
+                .validerRetour(retourDe(vente, ligne, 1, ModeReglementRetour.REMBOURSEMENT_ESPECES, true, false))
+                .retour()
+                .id();
         viderLeCache();
 
-        var duJour = services.retourClientService.findAll(null, LocalDate.now(), LocalDate.now(), PageRequest.of(0, 20));
+        var duJour =
+                services.retourClientService.findAll(null, LocalDate.now(), LocalDate.now(), PageRequest.of(0, 20));
         var anneeDerniere = services.retourClientService.findAll(
-            null,
-            LocalDate.now().minusYears(1),
-            LocalDate.now().minusYears(1),
-            PageRequest.of(0, 20)
-        );
+                null, LocalDate.now().minusYears(1), LocalDate.now().minusYears(1), PageRequest.of(0, 20));
 
         assertEquals(1, duJour.getTotalElements());
         assertEquals(0, anneeDerniere.getTotalElements());
@@ -311,26 +304,26 @@ class RetourClientServiceIntegrationTest extends AbstractSaleIntegrationTest {
     // ===== outils =====
 
     private int stockRayon(Produit produit) {
-        StockProduit stock = services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
+        StockProduit stock =
+                services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
         return stock.getQtyStock();
     }
 
     private RetourClientRequest retourDe(
-        CashSale vente,
-        SalesLine ligne,
-        int quantite,
-        ModeReglementRetour mode,
-        boolean etatConforme,
-        boolean avecEchange
-    ) {
+            CashSale vente,
+            SalesLine ligne,
+            int quantite,
+            ModeReglementRetour mode,
+            boolean etatConforme,
+            boolean avecEchange) {
         return new RetourClientRequest(
-            vente.getId().getId(),
-            vente.getSaleDate(),
-            MotifRetourClient.ERREUR_DISPENSATION,
-            mode,
-            "retour au comptoir",
-            List.of(new RetourLineRequest(ligne.getId().getId(), ligne.getSaleDate(), quantite, etatConforme, true, true)),
-            avecEchange
-        );
+                vente.getId().getId(),
+                vente.getSaleDate(),
+                MotifRetourClient.ERREUR_DISPENSATION,
+                mode,
+                "retour au comptoir",
+                List.of(new RetourLineRequest(
+                        ligne.getId().getId(), ligne.getSaleDate(), quantite, etatConforme, true, true)),
+                avecEchange);
     }
 }

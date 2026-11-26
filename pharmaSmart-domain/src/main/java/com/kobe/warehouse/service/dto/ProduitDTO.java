@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-
 import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
@@ -8,13 +7,12 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutLegal;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.util.CollectionUtils;
 
 public class ProduitDTO {
 
@@ -97,16 +95,17 @@ public class ProduitDTO {
     private String dciCode;
     /** Molécules, principale en tête ; null en écriture = non transmis (ancien client). */
     private List<ProduitDciDTO> dcis;
+
     private String categorie;
     private ClasseCriticite classeCriticite;
     private Boolean estMedicamentEssentiel = false;
     private Boolean estProduitGarde = false;
-    private Boolean remisable ;
-    private Boolean gestionLot ;
-    private Boolean thermosensible ;
+    private Boolean remisable;
+    private Boolean gestionLot;
+    private Boolean thermosensible;
     private Integer couvertureStockJours;
     private StatutLegal statutLegal;
-    private Boolean isClassificationOverridden ;
+    private Boolean isClassificationOverridden;
     private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
     private ProduitDTO parent;
 
@@ -257,7 +256,6 @@ public class ProduitDTO {
         this.familleLibelle = familleLibelle;
         return this;
     }
-
 
     public ProduitDTO formeLibelle(String formeLibelle) {
         this.formeLibelle = formeLibelle;
@@ -790,7 +788,6 @@ public class ProduitDTO {
         return this;
     }
 
-
     public String getDisplayField() {
         return displayField;
     }
@@ -929,6 +926,7 @@ public class ProduitDTO {
     public Boolean getClassificationOverridden() {
         return isClassificationOverridden;
     }
+
     public boolean isOrdonnanceObligatoire() {
         return statutLegal != null && statutLegal.isOrdonnanceObligatoire();
     }

@@ -10,8 +10,8 @@
   <div class="alert alert-warning d-flex gap-2 py-2" role="alert">
     <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
     <div>
-      <strong>{{ produitLibelle }}</strong> sera exclu des suggestions SEMOIS et du panier
-      automatique pendant la durée choisie. Il sera réintégré automatiquement à l'expiration.
+      <strong>{{ produitLibelle }}</strong> sera exclu des suggestions SEMOIS et du panier automatique pendant la durée choisie. Il sera
+      réintégré automatiquement à l'expiration.
     </div>
   </div>
 
@@ -43,19 +43,6 @@
 </div>
 
 <div class="modal-footer">
-  <app-button
-    label="Annuler"
-    severity="secondary"
-    size="small"
-    (clicked)="cancel()"
-  />
-  <app-button
-    label="Exclure le produit"
-    icon="pi pi-ban"
-    severity="warn"
-    size="small"
-    [disabled]="!isValid"
-    (clicked)="confirm()"
-  />
+  <app-button label="Annuler" severity="secondary" size="small" (clicked)="cancel()" />
+  <app-button label="Exclure le produit" icon="pi pi-ban" severity="warn" size="small" [disabled]="!isValid" (clicked)="confirm()" />
 </div>
-

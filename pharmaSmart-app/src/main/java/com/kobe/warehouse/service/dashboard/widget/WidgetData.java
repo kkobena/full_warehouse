@@ -10,13 +10,11 @@ import java.util.Map;
  * courbe, en barres ou en tableau.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind")
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = WidgetData.Kpi.class, name = "KPI"),
-        @JsonSubTypes.Type(value = WidgetData.Series.class, name = "SERIES"),
-        @JsonSubTypes.Type(value = WidgetData.Table.class, name = "TABLE"),
-    }
-)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = WidgetData.Kpi.class, name = "KPI"),
+    @JsonSubTypes.Type(value = WidgetData.Series.class, name = "SERIES"),
+    @JsonSubTypes.Type(value = WidgetData.Table.class, name = "TABLE"),
+})
 public sealed interface WidgetData {
 
     /**
@@ -26,36 +24,32 @@ public sealed interface WidgetData {
      * complète {@code detail}). {@code objective} : objectif de la période ; affiché comme repère,
      * jamais comme seuil d'alerte.
      */
-    record Kpi(Number value, Number previousValue, String unit, String detail, String previousLabel,
-               List<Secondary> secondary, Number objective) implements WidgetData {
+    record Kpi(
+            Number value,
+            Number previousValue,
+            String unit,
+            String detail,
+            String previousLabel,
+            List<Secondary> secondary,
+            Number objective)
+            implements WidgetData {
 
         public Kpi(Number value, Number previousValue, String unit, String detail) {
             this(value, previousValue, unit, detail, null, null, null);
         }
 
-        public Kpi(Number value, Number previousValue, String unit, String detail,
-            String previousLabel) {
+        public Kpi(Number value, Number previousValue, String unit, String detail, String previousLabel) {
             this(value, previousValue, unit, detail, previousLabel, null, null);
         }
 
-        public record Secondary(String label, Number value, String unit) {
-
-        }
+        public record Secondary(String label, Number value, String unit) {}
     }
 
-    record Series(List<String> labels, List<SeriesItem> series, String footer) implements
-        WidgetData {
+    record Series(List<String> labels, List<SeriesItem> series, String footer) implements WidgetData {}
 
-    }
+    record SeriesItem(String name, List<? extends Number> values) {}
 
-    record SeriesItem(String name, List<? extends Number> values) {
-
-    }
-
-    record Table(List<Column> columns, List<Map<String, Object>> rows, String footer) implements
-        WidgetData {
-
-    }
+    record Table(List<Column> columns, List<Map<String, Object>> rows, String footer) implements WidgetData {}
 
     /**
      * {@code type} : string, number, amount, percent, date, datetime.

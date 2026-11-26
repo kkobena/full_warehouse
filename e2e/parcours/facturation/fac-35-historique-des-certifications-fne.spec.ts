@@ -16,7 +16,11 @@ scenario('FAC-35', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/facturation');
     await ouvrirOnglet(page, /Automatisation/);
-    await page.getByRole('tab').filter({ hasText: /Certification FNE/ }).first().click();
+    await page
+      .getByRole('tab')
+      .filter({ hasText: /Certification FNE/ })
+      .first()
+      .click();
     await expect(contenu).toContainText(/Historique des certifications/);
   });
 

@@ -25,9 +25,8 @@ public class NavAccessConfiguration implements WebMvcConfigurer {
     private final NavAccessMode mode;
 
     public NavAccessConfiguration(
-        NavAccessService navAccessService,
-        @Value("${pharma-smart.security.nav-access.mode:ENFORCE}") NavAccessMode mode
-    ) {
+            NavAccessService navAccessService,
+            @Value("${pharma-smart.security.nav-access.mode:ENFORCE}") NavAccessMode mode) {
         this.navAccessService = navAccessService;
         this.mode = mode;
         LOG.info("Contrôle des droits sur les endpoints : mode {}", mode);

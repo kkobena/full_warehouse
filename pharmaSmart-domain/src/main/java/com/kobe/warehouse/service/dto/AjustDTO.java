@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.AppUser;
-import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.AppUserNames;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,6 @@ public class AjustDTO {
         this.id = id;
         return this;
     }
-
 
     public String getCommentaire() {
         return commentaire;

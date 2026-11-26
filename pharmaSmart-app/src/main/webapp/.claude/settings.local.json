@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npm run webapp:build:*)"
-    ]
+    "allow": ["Bash(npm run webapp:build:*)"]
   }
 }

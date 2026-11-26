@@ -28,7 +28,8 @@ class ConsommationServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant compte = compte("CNAM CONSO A", 80, PrioriteTiersPayant.R0);
         LocalDateTime maintenant = LocalDateTime.now();
 
-        services.consommationService.updateConsommation(compte, 12_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
+        services.consommationService.updateConsommation(
+                compte, 12_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
 
         ClientTiersPayant relu = em.find(ClientTiersPayant.class, compte.getId());
@@ -46,14 +47,14 @@ class ConsommationServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant compte = compte("CNAM CONSO B", 80, PrioriteTiersPayant.R0);
         LocalDateTime maintenant = LocalDateTime.now();
 
-        services.consommationService.updateConsommation(compte, 5_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
+        services.consommationService.updateConsommation(
+                compte, 5_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
         services.consommationService.updateConsommation(
-            em.find(ClientTiersPayant.class, compte.getId()),
-            3_000,
-            maintenant,
-            c -> services.clientTiersPayantRepository.save(c)
-        );
+                em.find(ClientTiersPayant.class, compte.getId()),
+                3_000,
+                maintenant,
+                c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
 
         ClientTiersPayant relu = em.find(ClientTiersPayant.class, compte.getId());
@@ -68,14 +69,14 @@ class ConsommationServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ClientTiersPayant compte = compte("CNAM CONSO C", 80, PrioriteTiersPayant.R0);
         LocalDateTime maintenant = LocalDateTime.now();
 
-        services.consommationService.updateConsommation(compte, 4_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
+        services.consommationService.updateConsommation(
+                compte, 4_000, maintenant, c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
         services.consommationService.updateConsommation(
-            em.find(ClientTiersPayant.class, compte.getId()),
-            6_000,
-            maintenant.minusMonths(1),
-            c -> services.clientTiersPayantRepository.save(c)
-        );
+                em.find(ClientTiersPayant.class, compte.getId()),
+                6_000,
+                maintenant.minusMonths(1),
+                c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
 
         ClientTiersPayant relu = em.find(ClientTiersPayant.class, compte.getId());
@@ -90,12 +91,13 @@ class ConsommationServiceIntegrationTest extends AbstractSaleIntegrationTest {
     void montantNul() {
         ClientTiersPayant compte = compte("CNAM CONSO D", 80, PrioriteTiersPayant.R0);
 
-        services.consommationService.updateConsommation(compte, null, LocalDateTime.now(), c ->
-            services.clientTiersPayantRepository.save(c)
-        );
+        services.consommationService.updateConsommation(
+                compte, null, LocalDateTime.now(), c -> services.clientTiersPayantRepository.save(c));
         viderLeCache();
 
-        assertTrue(em.find(ClientTiersPayant.class, compte.getId()).getConsommations().isEmpty());
+        assertTrue(em.find(ClientTiersPayant.class, compte.getId())
+                .getConsommations()
+                .isEmpty());
     }
 
     @Test
@@ -104,7 +106,8 @@ class ConsommationServiceIntegrationTest extends AbstractSaleIntegrationTest {
         TiersPayant organisme = tiersPayant("CNAM CONSO ORG");
         LocalDateTime maintenant = LocalDateTime.now();
 
-        services.consommationService.updateConsommation(organisme, 20_000, maintenant, t -> services.tiersPayantRepository.save(t));
+        services.consommationService.updateConsommation(
+                organisme, 20_000, maintenant, t -> services.tiersPayantRepository.save(t));
         viderLeCache();
 
         TiersPayant relu = em.find(TiersPayant.class, organisme.getId());

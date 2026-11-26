@@ -35,11 +35,10 @@ public class EtiquettePreparationResource {
     @PostMapping("/preparation")
     @NavAccessExempt("impression d'étiquettes, comme les autres étiquettes de l'officine")
     public ResponseEntity<byte[]> preparation(
-        @Valid @RequestBody EtiquettePreparationDTO saisie,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt,
-        @RequestParam(required = false) FormatEtiquette format
-    ) {
+            @Valid @RequestBody EtiquettePreparationDTO saisie,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(defaultValue = "1") int startAt,
+            @RequestParam(required = false) FormatEtiquette format) {
         byte[] pdf = etiquetteUsageService.imprimerPreparation(saisie, qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -51,20 +50,16 @@ public class EtiquettePreparationResource {
     @PostMapping(value = "/preparation/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
     @NavAccessExempt("impression d'étiquettes, comme les autres étiquettes de l'officine")
     public ResponseEntity<String> preparationZpl(
-        @Valid @RequestBody EtiquettePreparationDTO saisie,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(required = false) FormatEtiquette format,
-        @RequestParam(required = false) ResolutionEtiquette resolution
-    ) {
+            @Valid @RequestBody EtiquettePreparationDTO saisie,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(required = false) FormatEtiquette format,
+            @RequestParam(required = false) ResolutionEtiquette resolution) {
         return ResponseEntity.ok()
-            .body(
-                etiquetteUsageService.genererZplPreparation(
-                    saisie,
-                    qty,
-                    formatOuDefaut(format),
-                    resolution == null ? ResolutionEtiquette.parDefaut() : resolution
-                )
-            );
+                .body(etiquetteUsageService.genererZplPreparation(
+                        saisie,
+                        qty,
+                        formatOuDefaut(format),
+                        resolution == null ? ResolutionEtiquette.parDefaut() : resolution));
     }
 
     private FormatEtiquette formatOuDefaut(FormatEtiquette format) {

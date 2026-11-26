@@ -1,18 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { CustomerDataTableComponent } from "./customer-data-table.component";
-import { ButtonComponent, CardComponent } from "../../../shared/ui";
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CustomerDataTableComponent } from './customer-data-table.component';
+import { ButtonComponent, CardComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-uninsured-customer-list",
+  selector: 'app-uninsured-customer-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./uninsured-customer-list.component.html",
-  styleUrls: ["../../common-modal.component.scss"],
-  imports: [
-    ButtonComponent,
-    CustomerDataTableComponent,
-    CardComponent
-  ]
+  templateUrl: './uninsured-customer-list.component.html',
+  styleUrls: ['../../common-modal.component.scss'],
+  imports: [ButtonComponent, CustomerDataTableComponent, CardComponent],
 })
 export class UninsuredCustomerListComponent {
   header: string = null;

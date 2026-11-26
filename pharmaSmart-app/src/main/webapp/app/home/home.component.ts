@@ -50,7 +50,8 @@ export default class HomeComponent implements OnInit, OnDestroy {
         // Remet loading à true pour afficher le skeleton pendant la résolution
         this.loading.set(true);
         // Charge (ou retourne depuis le cache signal) le layout résolu
-        this.dashboardResolver.init()
+        this.dashboardResolver
+          .init()
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             complete: () => {

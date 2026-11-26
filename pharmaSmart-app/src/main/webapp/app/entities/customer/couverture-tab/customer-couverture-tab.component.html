@@ -1,9 +1,23 @@
 <app-detail-grid>
-  <app-detail-section header="Tiers payants" icon="pi pi-shield" [accent]="'teal'" [width]="'full'"
-                      [layout]="'block'" [count]="tiersPayants().length" storageKey="customer.couverture.tiers-payants">
+  <app-detail-section
+    header="Tiers payants"
+    icon="pi pi-shield"
+    [accent]="'teal'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="tiersPayants().length"
+    storageKey="customer.couverture.tiers-payants"
+  >
     @if (canEdit() && peutAjouterTiersPayant()) {
-      <app-button ngProjectAs="[sectionActions]" (clicked)="addTiersPayant()" [outlined]="true" icon="pi pi-plus"
-                  label="Ajouter" severity="primary" size="small" />
+      <app-button
+        ngProjectAs="[sectionActions]"
+        (clicked)="addTiersPayant()"
+        [outlined]="true"
+        icon="pi pi-plus"
+        label="Ajouter"
+        severity="primary"
+        size="small"
+      />
     }
     @if (tiersPayants().length > 0) {
       <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small">
@@ -15,7 +29,9 @@
             <th>Rang</th>
             <th class="text-end">Taux</th>
             <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond conso. (organisme)</th>
-            <th class="text-end" title="Depuis la dernière facture définitive ; si le plafond est absolu, ce qui reste à régler">Consommation</th>
+            <th class="text-end" title="Depuis la dernière facture définitive ; si le plafond est absolu, ce qui reste à régler">
+              Consommation
+            </th>
             <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond vente (organisme)</th>
             <th>Statut</th>
             <th>Historique du taux</th>
@@ -43,9 +59,11 @@
             <td>{{ tp.categorie === 0 ? 'Principal' : 'Complémentaire ' + tp.categorie }}</td>
             <td class="text-end">{{ tp.taux }} %</td>
             <td class="text-end">{{ tp.plafondConso | number }}</td>
-            <td class="text-end"
-                [class.fw-bold]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso"
-                [class.text-danger]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso">
+            <td
+              class="text-end"
+              [class.fw-bold]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso"
+              [class.text-danger]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso"
+            >
               {{ tp.consommation ?? 0 | number }}
               @if (tp.plafondConso) {
                 <span class="text-muted small">/ {{ tp.plafondConso | number }}</span>
@@ -53,8 +71,10 @@
             </td>
             <td class="text-end">{{ tp.plafondJournalier | number }}</td>
             <td>
-              <app-badge [label]="tp.statut === 'ACTIF' ? 'Actif' : tp.statut"
-                        [severity]="tp.statut === 'ACTIF' ? 'success' : 'secondary'" />
+              <app-badge
+                [label]="tp.statut === 'ACTIF' ? 'Actif' : tp.statut"
+                [severity]="tp.statut === 'ACTIF' ? 'success' : 'secondary'"
+              />
             </td>
             <td class="small">
               @for (h of tp.tauxHistorique ?? []; track h.updatedAt; let premier = $first) {
@@ -65,11 +85,23 @@
             </td>
             @if (canEdit()) {
               <td class="text-end text-nowrap">
-                <app-button (clicked)="editTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-pencil"
-                            ngbTooltip="Modifier" severity="success" />
+                <app-button
+                  (clicked)="editTiersPayant(tp)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Modifier"
+                  severity="success"
+                />
                 @if (customer().typeTiersPayant === 'ASSURANCE' && tiersPayants().length > 1) {
-                  <app-button (clicked)="removeTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                              ngbTooltip="Supprimer" severity="danger" />
+                  <app-button
+                    (clicked)="removeTiersPayant(tp)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    severity="danger"
+                  />
                 }
               </td>
             }
@@ -81,11 +113,25 @@
     }
   </app-detail-section>
 
-  <app-detail-section header="Ayants droit" icon="pi pi-users" [accent]="'indigo'" [width]="'full'"
-                      [layout]="'block'" [count]="customer().ayantDroits?.length ?? 0" storageKey="customer.couverture.ayants-droit">
+  <app-detail-section
+    header="Ayants droit"
+    icon="pi pi-users"
+    [accent]="'indigo'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="customer().ayantDroits?.length ?? 0"
+    storageKey="customer.couverture.ayants-droit"
+  >
     @if (canEdit() && customer().typeTiersPayant === 'ASSURANCE') {
-      <app-button ngProjectAs="[sectionActions]" (clicked)="addAyantDroit()" [outlined]="true" icon="pi pi-plus"
-                  label="Ajouter" severity="primary" size="small" />
+      <app-button
+        ngProjectAs="[sectionActions]"
+        (clicked)="addAyantDroit()"
+        [outlined]="true"
+        icon="pi pi-plus"
+        label="Ajouter"
+        severity="primary"
+        size="small"
+      />
     }
     @if (customer().ayantDroits?.length) {
       <app-data-table [value]="customer().ayantDroits ?? []" [stripedRows]="true" size="small">
@@ -108,10 +154,22 @@
             <td>{{ ayantDroit.sexe }}</td>
             @if (canEdit()) {
               <td class="text-end text-nowrap">
-                <app-button (clicked)="editAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-pencil"
-                            ngbTooltip="Modifier" severity="success" />
-                <app-button (clicked)="removeAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                            ngbTooltip="Supprimer" severity="danger" />
+                <app-button
+                  (clicked)="editAyantDroit(ayantDroit)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Modifier"
+                  severity="success"
+                />
+                <app-button
+                  (clicked)="removeAyantDroit(ayantDroit)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
+                />
               </td>
             }
           </tr>
@@ -122,4 +180,3 @@
     }
   </app-detail-section>
 </app-detail-grid>
-

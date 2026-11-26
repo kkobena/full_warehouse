@@ -1,44 +1,24 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from "@angular/core";
-import {IProduit} from "../../../shared/model";
-import {
-  FournisseurProduit,
-  IFournisseurProduit
-} from "../../../shared/model/fournisseur-produit.model";
-import {ProduitService} from "../produit.service";
-import {ErrorService} from "../../../shared/error.service";
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { IProduit } from '../../../shared/model';
+import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
+import { ProduitService } from '../produit.service';
+import { ErrorService } from '../../../shared/error.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 
-import {IFournisseur} from "../../../shared/model/fournisseur.model";
-import {HttpErrorResponse, HttpResponse} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {CommonModule} from "@angular/common";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {finalize} from "rxjs/operators";
-import {
-  FournisseurApiService
-} from "../../../features/partners/data-access/services/fournisseur-api.service";
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  SelectComponent,
-  SwitchComponent
-} from "../../../shared/ui";
+import { IFournisseur } from '../../../shared/model/fournisseur.model';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { finalize } from 'rxjs/operators';
+import { FournisseurApiService } from '../../../features/partners/data-access/services/fournisseur-api.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SwitchComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-form-produit-fournisseur",
-  templateUrl: "./form-produit-fournisseur.component.html",
-  styleUrls: ["./form-produit.scss"],
+  selector: 'app-form-produit-fournisseur',
+  templateUrl: './form-produit-fournisseur.component.html',
+  styleUrls: ['./form-produit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -48,11 +28,11 @@ import {
     KeyFilterDirective,
     SelectComponent,
     SwitchComponent,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
-  header = "";
+  header = '';
   produit?: IProduit;
   entity?: IFournisseurProduit;
   protected fb = inject(UntypedFormBuilder);
@@ -68,13 +48,13 @@ export class FormProduitFournisseurComponent implements OnInit {
     fournisseurId: [null, [Validators.required]],
     principal: [false, [Validators.required]],
     qteColis: [1, [Validators.min(1)]],
-    qteMinimaleCommande: [0, [Validators.min(0)]]
+    qteMinimaleCommande: [0, [Validators.min(0)]],
   });
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly fournisseurService = inject(FournisseurApiService);
   private readonly notificationService = inject(NotificationService);
-  private fournisseurSelect = viewChild.required("fournisseurSelect", {read: ElementRef<HTMLElement>});
+  private fournisseurSelect = viewChild.required('fournisseurSelect', { read: ElementRef<HTMLElement> });
   private readonly activeModal = inject(NgbActiveModal);
 
   constructor() {
@@ -103,7 +83,7 @@ export class FormProduitFournisseurComponent implements OnInit {
 
     this.populate();
     if (this.entity && this.produit) {
-      this.editForm.get("principal").setValue(this.entity.id === this.produit.fournisseurProduit?.id);
+      this.editForm.get('principal').setValue(this.entity.id === this.produit.fournisseurProduit?.id);
     }
   }
 
@@ -117,7 +97,7 @@ export class FormProduitFournisseurComponent implements OnInit {
       produitId: this.produit.id,
       principal: this.produit.fournisseurProduit?.id === produitFournisseur.id,
       qteColis: produitFournisseur.qteColis ?? 1,
-      qteMinimaleCommande: produitFournisseur.qteMinimaleCommande ?? 0
+      qteMinimaleCommande: produitFournisseur.qteMinimaleCommande ?? 0,
     });
   }
 
@@ -129,7 +109,7 @@ export class FormProduitFournisseurComponent implements OnInit {
     this.fournisseurService
       .queryParents({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         if (this.entity) {
@@ -142,13 +122,13 @@ export class FormProduitFournisseurComponent implements OnInit {
 
   protected handlePrixAchatInput(event: any): void {
     const value = Number(event.target.value);
-    const unitPrice = Number(this.editForm.get(["prixUni"]).value);
+    const unitPrice = Number(this.editForm.get(['prixUni']).value);
     this.isValid.set(value < unitPrice);
   }
 
   protected handlePrixUnitaireInput(event: any): void {
     const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(["prixAchat"]).value);
+    const costAmount = Number(this.editForm.get(['prixAchat']).value);
     this.isValid.set(costAmount < value);
   }
 
@@ -157,16 +137,16 @@ export class FormProduitFournisseurComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
   private onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
     this.activeModal.close({
       ...produitFournisseur,
-      principal: this.editForm.get(["principal"]).value
+      principal: this.editForm.get(['principal']).value,
     });
   }
 
@@ -177,15 +157,15 @@ export class FormProduitFournisseurComponent implements OnInit {
   private createFrom(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
-      id: this.editForm.get(["id"]).value,
-      prixUni: this.editForm.get(["prixUni"]).value,
-      prixAchat: this.editForm.get(["prixAchat"]).value,
-      codeCip: this.editForm.get(["codeCip"]).value,
-      fournisseurId: this.editForm.get(["fournisseurId"]).value,
-      principal: this.editForm.get(["principal"]).value,
+      id: this.editForm.get(['id']).value,
+      prixUni: this.editForm.get(['prixUni']).value,
+      prixAchat: this.editForm.get(['prixAchat']).value,
+      codeCip: this.editForm.get(['codeCip']).value,
+      fournisseurId: this.editForm.get(['fournisseurId']).value,
+      principal: this.editForm.get(['principal']).value,
       produitId: this.produit.id,
-      qteColis: this.editForm.get(["qteColis"]).value ?? 1,
-      qteMinimaleCommande: this.editForm.get(["qteMinimaleCommande"]).value ?? 0
+      qteColis: this.editForm.get(['qteColis']).value ?? 1,
+      qteMinimaleCommande: this.editForm.get(['qteMinimaleCommande']).value ?? 0,
     };
   }
 }

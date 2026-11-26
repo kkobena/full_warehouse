@@ -36,10 +36,20 @@ describe('ModalDeplacableDirective', () => {
     fenetre = el.querySelector('.modal-dialog')!;
     entete = el.querySelector('.modal-header')!;
     // Fenêtre de 400×300 posée en (300, 200) : jsdom ne calcule aucune mise en page.
-    fenetre.getBoundingClientRect = () => ({ left: 300, right: 700, top: 200, bottom: 500, width: 400, height: 300, x: 300, y: 200, toJSON: () => ({}) });
+    fenetre.getBoundingClientRect = () => ({
+      left: 300,
+      right: 700,
+      top: 200,
+      bottom: 500,
+      width: 400,
+      height: 300,
+      x: 300,
+      y: 200,
+      toJSON: () => ({}),
+    });
   });
 
-  it('suit la souris tant que le bouton est enfoncé, puis s\'arrête', () => {
+  it("suit la souris tant que le bouton est enfoncé, puis s'arrête", () => {
     pointeur('pointerdown', 500, 220, entete);
     pointeur('pointermove', 560, 250);
     expect(fenetre.style.transform).toBe('translate(60px, 30px)');
@@ -53,7 +63,17 @@ describe('ModalDeplacableDirective', () => {
     pointeur('pointerdown', 500, 220, entete);
     pointeur('pointermove', 540, 240);
     pointeur('pointerup', 540, 240);
-    fenetre.getBoundingClientRect = () => ({ left: 340, right: 740, top: 220, bottom: 520, width: 400, height: 300, x: 340, y: 220, toJSON: () => ({}) });
+    fenetre.getBoundingClientRect = () => ({
+      left: 340,
+      right: 740,
+      top: 220,
+      bottom: 520,
+      width: 400,
+      height: 300,
+      x: 340,
+      y: 220,
+      toJSON: () => ({}),
+    });
 
     pointeur('pointerdown', 540, 240, entete);
     pointeur('pointermove', 550, 250);

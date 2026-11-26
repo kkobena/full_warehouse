@@ -11,13 +11,14 @@ import java.util.List;
  * @param libellesChemin libellés des étapes de descente, dans l'ordre de {@code analyse.filtre}, pour le fil imprimé
  */
 public record ReglageAnalyseRapportDTO(
-    List<IndicateurPilotage> indicateurs,
-    RequeteAnalyseDTO analyse,
-    AffichageAnalyse affichage,
-    List<String> libellesChemin
-) {
+        List<IndicateurPilotage> indicateurs,
+        RequeteAnalyseDTO analyse,
+        AffichageAnalyse affichage,
+        List<String> libellesChemin) {
     public ReglageAnalyseRapportDTO {
-        indicateurs = indicateurs == null || indicateurs.isEmpty() ? List.of(IndicateurPilotage.CA_TTC) : List.copyOf(indicateurs);
+        indicateurs = indicateurs == null || indicateurs.isEmpty()
+                ? List.of(IndicateurPilotage.CA_TTC)
+                : List.copyOf(indicateurs);
         analyse = analyse == null ? new RequeteAnalyseDTO(null, null, null, null, null) : analyse;
         affichage = affichage == null ? AffichageAnalyse.BARRES : affichage;
         libellesChemin = libellesChemin == null ? List.of() : List.copyOf(libellesChemin);

@@ -10,12 +10,11 @@ import java.util.List;
  * - partiel : true si au moins une ligne a été rejetée
  */
 public record RetourClientResultDTO(
-    RetourClientDTO retour,
-    List<RetourLigneRejeteeDTO> lignesRejetees,
-    List<RetourLigneRejeteeDTO> lignesNonRestockees,
-    boolean partiel,
-    EchangeContextDTO echangeContext
-) {
+        RetourClientDTO retour,
+        List<RetourLigneRejeteeDTO> lignesRejetees,
+        List<RetourLigneRejeteeDTO> lignesNonRestockees,
+        boolean partiel,
+        EchangeContextDTO echangeContext) {
     public static RetourClientResultDTO total(RetourClientDTO retour) {
         return new RetourClientResultDTO(retour, List.of(), List.of(), false, null);
     }
@@ -25,19 +24,17 @@ public record RetourClientResultDTO(
     }
 
     public static RetourClientResultDTO partiel(
-        RetourClientDTO retour,
-        List<RetourLigneRejeteeDTO> lignesRejetees,
-        List<RetourLigneRejeteeDTO> lignesNonRestockees
-    ) {
+            RetourClientDTO retour,
+            List<RetourLigneRejeteeDTO> lignesRejetees,
+            List<RetourLigneRejeteeDTO> lignesNonRestockees) {
         return new RetourClientResultDTO(retour, lignesRejetees, lignesNonRestockees, true, null);
     }
 
     public static RetourClientResultDTO partielAvecEchange(
-        RetourClientDTO retour,
-        List<RetourLigneRejeteeDTO> lignesRejetees,
-        List<RetourLigneRejeteeDTO> lignesNonRestockees,
-        EchangeContextDTO echangeContext
-    ) {
+            RetourClientDTO retour,
+            List<RetourLigneRejeteeDTO> lignesRejetees,
+            List<RetourLigneRejeteeDTO> lignesNonRestockees,
+            EchangeContextDTO echangeContext) {
         return new RetourClientResultDTO(retour, lignesRejetees, lignesNonRestockees, true, echangeContext);
     }
 }

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.DeconditionService;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -17,19 +18,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Decondition}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "catalogue", "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"catalogue", "ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class DeconditionResource {
 
     private final Logger log = LoggerFactory.getLogger(DeconditionResource.class);
     private final DeconditionService deconditionService;
-
 
     public DeconditionResource(DeconditionService deconditionService) {
         this.deconditionService = deconditionService;
@@ -60,8 +59,8 @@ public class DeconditionResource {
     public ResponseEntity<List<DeconditionDTO>> getAllDeconditions(Pageable pageable) {
         log.debug("REST request to get a page of Deconditions");
         Page<DeconditionDTO> page = deconditionService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

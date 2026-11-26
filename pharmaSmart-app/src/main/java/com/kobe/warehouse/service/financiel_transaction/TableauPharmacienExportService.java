@@ -37,7 +37,9 @@ public class TableauPharmacienExportService {
             return excelExportService.createExcelReport(EXCEL_SHEET_NAME, headers, data, (row, dto) -> {
                 int cellIndex = 0;
                 // Date
-                row.createCell(cellIndex++).setCellValue(dto.getMvtDate() != null ? dto.getMvtDate().format(DATE_FORMATTER) : "");
+                row.createCell(cellIndex++)
+                        .setCellValue(
+                                dto.getMvtDate() != null ? dto.getMvtDate().format(DATE_FORMATTER) : "");
                 // Sales data
                 row.createCell(cellIndex++).setCellValue(dto.getMontantComptant());
                 row.createCell(cellIndex++).setCellValue(dto.getMontantCredit());
@@ -47,12 +49,10 @@ public class TableauPharmacienExportService {
 
                 // Supplier group amounts
                 for (GroupeFournisseurDTO group : supplierGroups) {
-                    long amount = dto
-                        .getGroupAchats()
-                        .stream()
-                        .filter(f -> Objects.equals(f.getId(), group.getId()))
-                        .mapToLong(f -> f.getAchat().getMontantNet())
-                        .sum();
+                    long amount = dto.getGroupAchats().stream()
+                            .filter(f -> Objects.equals(f.getId(), group.getId()))
+                            .mapToLong(f -> f.getAchat().getMontantNet())
+                            .sum();
                     row.createCell(cellIndex++).setCellValue(amount);
                 }
 
@@ -72,8 +72,7 @@ public class TableauPharmacienExportService {
      */
     private String[] buildColumnHeaders(List<GroupeFournisseurDTO> supplierGroups) {
         List<String> headers = new ArrayList<>(
-            List.of(COL_DATE, COL_COMPTANT, COL_CREDIT, COL_REMISE, COL_MONTANT_NET, COL_NOMBRE_CLIENTS)
-        );
+                List.of(COL_DATE, COL_COMPTANT, COL_CREDIT, COL_REMISE, COL_MONTANT_NET, COL_NOMBRE_CLIENTS));
 
         // Add supplier group columns
         supplierGroups.forEach(group -> headers.add(group.getLibelle()));

@@ -83,6 +83,7 @@ abstract class AbstractMobileIntegrationTest {
      * Suffixe unique par fixture : codes, libellés et numéros de lot sont uniques en base.
      */
     private static final AtomicInteger COMPTEUR = new AtomicInteger();
+
     protected static EntityManager em;
     protected AppUser utilisateur;
     protected Magasin magasin;
@@ -97,7 +98,7 @@ abstract class AbstractMobileIntegrationTest {
     @BeforeAll
     static void demarrerLaBase() {
         em = SharedEntityManagerCreator.createSharedEntityManager(
-            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     /**
@@ -120,8 +121,8 @@ abstract class AbstractMobileIntegrationTest {
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager()
-            .getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
 
         utilisateur = em.find(AppUser.class, 1);
         magasin = em.find(Magasin.class, MAGASIN_ID);
@@ -143,12 +144,14 @@ abstract class AbstractMobileIntegrationTest {
 
     protected Tva tva(int taux) {
         return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
-            .setParameter("taux", taux).getSingleResult();
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
         return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
-            .setMaxResults(1).getSingleResult();
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     protected Produit produit(String libelle) {
@@ -227,8 +230,8 @@ abstract class AbstractMobileIntegrationTest {
         return venteFermee(date, montant, false, CategorieChiffreAffaire.CA, null);
     }
 
-    protected CashSale venteFermee(LocalDate date, int montant, boolean annulee,
-        CategorieChiffreAffaire categorie, Customer client) {
+    protected CashSale venteFermee(
+            LocalDate date, int montant, boolean annulee, CategorieChiffreAffaire categorie, Customer client) {
         CashSale vente = new CashSale();
         vente.setCustomer(client);
         vente.setSaleDate(date);
@@ -241,8 +244,7 @@ abstract class AbstractMobileIntegrationTest {
         vente.setTypePrescription(TypePrescription.PRESCRIPTION);
         vente.setCategorieChiffreAffaire(categorie);
         vente.setCanceled(annulee);
-        vente.setCreatedAt(
-            date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
+        vente.setCreatedAt(date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
         vente.setUpdatedAt(LocalDateTime.now());
         vente.setEffectiveUpdateDate(LocalDateTime.now());
         vente.setSalesAmount(montant);
@@ -313,8 +315,8 @@ abstract class AbstractMobileIntegrationTest {
      * <p>Le montant facturé n'est pas une colonne : c'est la somme des dossiers. Une facture sans
      * dossier vaut zéro et n'est jamais en retard de paiement.
      */
-    protected FactureTiersPayant factureAgee(TiersPayant tiersPayant, int anciennete, int montant,
-        int montantRegle, InvoiceStatut statut) {
+    protected FactureTiersPayant factureAgee(
+            TiersPayant tiersPayant, int anciennete, int montant, int montantRegle, InvoiceStatut statut) {
         LocalDate emission = LocalDate.now().minusDays(anciennete);
 
         AssuredCustomer assure = new AssuredCustomer();
@@ -365,8 +367,7 @@ abstract class AbstractMobileIntegrationTest {
 
         FactureTiersPayant facture = new FactureTiersPayant();
         facture.setId(factureIdGeneratorService.nextId());
-        facture.setNumFacture(
-            LocalDate.now().getYear() + "_" + String.format("%04d", COMPTEUR.incrementAndGet()));
+        facture.setNumFacture(LocalDate.now().getYear() + "_" + String.format("%04d", COMPTEUR.incrementAndGet()));
         facture.setInvoiceDate(emission);
         facture.setCreated(emission.atTime(LocalTime.of(10, 0)));
         facture.setUpdated(LocalDateTime.now());

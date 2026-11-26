@@ -16,4 +16,3 @@ public record Keys(List<Integer> ids, Boolean all) {
         return ids != null ? ids : List.of();
     }
 }
-

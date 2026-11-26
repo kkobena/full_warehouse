@@ -35,7 +35,18 @@ public final class OrganismeCreances {
     }
 
     public static OrganismeTresorerieDTO sansEncours(FactureOrganismeDTO factures) {
-        return new OrganismeTresorerieDTO(factures.cle(), factures.libelle(), factures.facture(), factures.regle(), taux(factures), 0, 0.0, null, 0, 0, null);
+        return new OrganismeTresorerieDTO(
+                factures.cle(),
+                factures.libelle(),
+                factures.facture(),
+                factures.regle(),
+                taux(factures),
+                0,
+                0.0,
+                null,
+                0,
+                0,
+                null);
     }
 
     public int delai() {
@@ -52,18 +63,17 @@ public final class OrganismeCreances {
 
     public OrganismeTresorerieDTO versLigne(String cle, FactureOrganismeDTO factures, long encoursTotal) {
         return new OrganismeTresorerieDTO(
-            cle,
-            libelle,
-            factures == null ? 0 : factures.facture(),
-            factures == null ? 0 : factures.regle(),
-            factures == null ? null : taux(factures),
-            encours,
-            encoursTotal == 0 ? null : encours * CENT / encoursTotal,
-            encours == 0 ? null : (int) Math.round(ageMontant / encours),
-            enRetard,
-            delai,
-            origine
-        );
+                cle,
+                libelle,
+                factures == null ? 0 : factures.facture(),
+                factures == null ? 0 : factures.regle(),
+                factures == null ? null : taux(factures),
+                encours,
+                encoursTotal == 0 ? null : encours * CENT / encoursTotal,
+                encours == 0 ? null : (int) Math.round(ageMontant / encours),
+                enRetard,
+                delai,
+                origine);
     }
 
     private static Double taux(FactureOrganismeDTO factures) {

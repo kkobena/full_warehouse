@@ -40,14 +40,11 @@ public class InventoryStockServiceImpl implements InventoryStockService {
     @Override
     public Map<Integer, Integer> buildStockMapByStorage(Integer storageId, Set<Integer> produitIds) {
         if (isEmpty(produitIds)) return Map.of();
-        return stockProduitRepository
-            .findAllByStorageIdAndProduitIdIn(storageId, produitIds)
-            .stream()
-            .collect(Collectors.toMap(
-                sp -> sp.getProduit().getId(),
-                sp -> sp.getQtyStock() + (sp.getQtyUG() != null ? sp.getQtyUG() : 0),
-                Integer::sum
-            ));
+        return stockProduitRepository.findAllByStorageIdAndProduitIdIn(storageId, produitIds).stream()
+                .collect(Collectors.toMap(
+                        sp -> sp.getProduit().getId(),
+                        sp -> sp.getQtyStock() + (sp.getQtyUG() != null ? sp.getQtyUG() : 0),
+                        Integer::sum));
     }
 
     // ── Batch agrégé par magasin (MAGASIN + types thématiques) ───────────────
@@ -55,13 +52,9 @@ public class InventoryStockServiceImpl implements InventoryStockService {
     @Override
     public Map<Integer, Integer> buildStockMapByMagasin(Integer magasinId, Set<Integer> produitIds) {
         if (isEmpty(produitIds)) return Map.of();
-        return stockProduitRepository
-            .findAggregatedStockByMagasinIdAndProduitIdIn(magasinId, produitIds)
-            .stream()
-            .collect(Collectors.toMap(
-                row -> (Integer) row[0],
-                row -> row[1] != null ? ((Number) row[1]).intValue() : 0
-            ));
+        return stockProduitRepository.findAggregatedStockByMagasinIdAndProduitIdIn(magasinId, produitIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0], row -> row[1] != null ? ((Number) row[1]).intValue() : 0));
     }
 
     // ── Unitaire par storage (fallback / compatibilité) ──────────────────────
@@ -77,8 +70,7 @@ public class InventoryStockServiceImpl implements InventoryStockService {
 
     @Override
     public int getStockByMagasin(Integer magasinId, Integer produitId) {
-        Integer total = stockProduitRepository
-            .findTotalQuantityByMagasinIdIdAndProduitId(magasinId, produitId);
+        Integer total = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(magasinId, produitId);
         return total != null ? total : 0;
     }
 

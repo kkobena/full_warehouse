@@ -72,24 +72,23 @@ public class MobileDashboardService {
         List<DailyCASummaryDTO> caTrend = mapCATrend(salesRepository.getCATrend(date.minusDays(6), date));
 
         return new MobileDashboardDTO(
-            dailySummary.caTotal(),
-            averageCA30j,
-            variationPercent,
-            trendVs30j,
-            dailySummary.transactionsCount(),
-            dailySummary.averageBasket(),
-            dailySummary.customersCount(),
-            dailySummary.amountCollected(),
-            dailySummary.amountCredit(),
-            dailySummary.marginAmount(),
-            dailySummary.marginPercent(),
-            alerts,
-            alerts.stream().mapToInt(MobileAlertDTO::count).sum(),
-            topProducts,
-            caTrend,
-            date,
-            LocalDateTime.now()
-        );
+                dailySummary.caTotal(),
+                averageCA30j,
+                variationPercent,
+                trendVs30j,
+                dailySummary.transactionsCount(),
+                dailySummary.averageBasket(),
+                dailySummary.customersCount(),
+                dailySummary.amountCollected(),
+                dailySummary.amountCredit(),
+                dailySummary.marginAmount(),
+                dailySummary.marginPercent(),
+                alerts,
+                alerts.stream().mapToInt(MobileAlertDTO::count).sum(),
+                topProducts,
+                caTrend,
+                date,
+                LocalDateTime.now());
     }
 
     /**
@@ -97,15 +96,9 @@ public class MobileDashboardService {
      */
     private List<TopProductDTO> mapTopProducts(List<TopProductProjection> projections) {
         return projections.stream()
-            .map(p -> new TopProductDTO(
-                p.productId(),
-                p.productName(),
-                p.codeCip(),
-                p.salesAmount(),
-                p.quantitySold(),
-                p.rank()
-            ))
-            .toList();
+                .map(p -> new TopProductDTO(
+                        p.productId(), p.productName(), p.codeCip(), p.salesAmount(), p.quantitySold(), p.rank()))
+                .toList();
     }
 
     /**
@@ -113,13 +106,9 @@ public class MobileDashboardService {
      */
     private List<DailyCASummaryDTO> mapCATrend(List<DailyCATrendProjection> projections) {
         return projections.stream()
-            .map(p -> new DailyCASummaryDTO(
-                p.date(),
-                getDayLabel(p.date().getDayOfWeek()),
-                p.caTotal(),
-                p.transactionsCount()
-            ))
-            .toList();
+                .map(p -> new DailyCASummaryDTO(
+                        p.date(), getDayLabel(p.date().getDayOfWeek()), p.caTotal(), p.transactionsCount()))
+                .toList();
     }
 
     /**

@@ -40,11 +40,10 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
     private final ObjectifPilotageRepository objectifPilotageRepository;
 
     public SeriesPilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        LecteurMesuresPilotage lecteurMesuresPilotage,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        ObjectifPilotageRepository objectifPilotageRepository
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            LecteurMesuresPilotage lecteurMesuresPilotage,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            ObjectifPilotageRepository objectifPilotageRepository) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.lecteurMesuresPilotage = lecteurMesuresPilotage;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
@@ -56,23 +55,25 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
         LocalDate aujourdhui = LocalDate.now();
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, aujourdhui);
         TranchesSerie periode = lireTranches(comparaison.periode(), requete);
-        TranchesSerie reference = comparaison.reference() == null ? TranchesSerie.AUCUNE : lireTranches(comparaison.reference(), requete);
+        TranchesSerie reference =
+                comparaison.reference() == null ? TranchesSerie.AUCUNE : lireTranches(comparaison.reference(), requete);
         ContexteSeries contexte = new ContexteSeries(
-            periode,
-            reference,
-            requete.granularite(),
-            lireObjectifs(comparaison.periode()),
-            requete.comparaison() == TypeComparaison.OBJECTIF,
-            estMoisEnCoursADate(comparaison.periode(), aujourdhui) ? lecteurMesuresPilotage.lireMemeMoisN1(aujourdhui) : List.of(),
-            aujourdhui
-        );
+                periode,
+                reference,
+                requete.granularite(),
+                lireObjectifs(comparaison.periode()),
+                requete.comparaison() == TypeComparaison.OBJECTIF,
+                estMoisEnCoursADate(comparaison.periode(), aujourdhui)
+                        ? lecteurMesuresPilotage.lireMemeMoisN1(aujourdhui)
+                        : List.of(),
+                aujourdhui);
 
-        List<SerieIndicateurDTO> series = dictionnaireIndicateursService
-            .filtrerAutorises(requete.indicateurs())
-            .stream()
-            .map(indicateur -> construireSerie(indicateur, contexte))
-            .toList();
-        return new SeriesPilotageDTO(comparaison, periode.total().joursOuvres(), reference.total().joursOuvres(), series);
+        List<SerieIndicateurDTO> series =
+                dictionnaireIndicateursService.filtrerAutorises(requete.indicateurs()).stream()
+                        .map(indicateur -> construireSerie(indicateur, contexte))
+                        .toList();
+        return new SeriesPilotageDTO(
+                comparaison, periode.total().joursOuvres(), reference.total().joursOuvres(), series);
     }
 
     private TranchesSerie lireTranches(PeriodeDTO periode, RequetePilotageDTO requete) {
@@ -87,7 +88,8 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
         if (!dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.OBJECTIFS)) {
             return ObjectifsPeriode.AUCUN;
         }
-        return ObjectifsPeriode.ranger(objectifPilotageRepository.findAllByAnneeBetween(periode.du().getYear(), periode.au().getYear()));
+        return ObjectifsPeriode.ranger(objectifPilotageRepository.findAllByAnneeBetween(
+                periode.du().getYear(), periode.au().getYear()));
     }
 
     private static boolean estMoisEnCoursADate(PeriodeDTO periode, LocalDate aujourdhui) {
@@ -98,20 +100,27 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
     private static SerieIndicateurDTO construireSerie(IndicateurPilotage indicateur, ContexteSeries contexte) {
         TranchesSerie periode = contexte.periode();
         Double valeur = CalculateurIndicateurs.calculer(indicateur, periode.total());
-        Double objectif = contexte.objectifs().lireObjectif(indicateur, new PeriodeDTO(periode.decoupage().getFirst().du(), periode.decoupage().getLast().au()));
+        Double objectif = contexte.objectifs()
+                .lireObjectif(
+                        indicateur,
+                        new PeriodeDTO(
+                                periode.decoupage().getFirst().du(),
+                                periode.decoupage().getLast().au()));
         Double valeurReference = contexte.contreObjectif()
-            ? objectif
-            : contexte.reference().estVide() ? null : CalculateurIndicateurs.calculer(indicateur, contexte.reference().total());
+                ? objectif
+                : contexte.reference().estVide()
+                        ? null
+                        : CalculateurIndicateurs.calculer(
+                                indicateur, contexte.reference().total());
         return new SerieIndicateurDTO(
-            IndicateurPilotageDTO.fromIndicateur(indicateur),
-            valeur,
-            valeurReference,
-            Variations.ecart(valeur, valeurReference),
-            Variations.ecartPct(indicateur, valeur, valeurReference),
-            construirePoints(indicateur, contexte),
-            objectif,
-            projeter(indicateur, contexte)
-        );
+                IndicateurPilotageDTO.fromIndicateur(indicateur),
+                valeur,
+                valeurReference,
+                Variations.ecart(valeur, valeurReference),
+                Variations.ecartPct(indicateur, valeur, valeurReference),
+                construirePoints(indicateur, contexte),
+                objectif,
+                projeter(indicateur, contexte));
     }
 
     private static ProjectionObjectifDTO projeter(IndicateurPilotage indicateur, ContexteSeries contexte) {
@@ -120,13 +129,12 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
             return null;
         }
         return SuiviObjectifs.projeter(
-            indicateur,
-            contexte.objectifs().lireObjectifDuMois(indicateur, contexte.aujourdhui()),
-            contexte.periode().total(),
-            moisN1.getFirst(),
-            moisN1.size() > 1 ? moisN1.get(1) : MesuresPilotage.AUCUNE,
-            contexte.aujourdhui()
-        );
+                indicateur,
+                contexte.objectifs().lireObjectifDuMois(indicateur, contexte.aujourdhui()),
+                contexte.periode().total(),
+                moisN1.getFirst(),
+                moisN1.size() > 1 ? moisN1.get(1) : MesuresPilotage.AUCUNE,
+                contexte.aujourdhui());
     }
 
     private static List<PointSerieDTO> construirePoints(IndicateurPilotage indicateur, ContexteSeries contexte) {
@@ -135,13 +143,16 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
         List<PointSerieDTO> points = new ArrayList<>(periode.decoupage().size());
         for (int rang = 0; rang < periode.decoupage().size(); rang++) {
             PeriodeDTO tranche = periode.decoupage().get(rang);
-            Double valeur = CalculateurIndicateurs.calculer(indicateur, periode.mesures().get(rang));
+            Double valeur = CalculateurIndicateurs.calculer(
+                    indicateur, periode.mesures().get(rang));
             Double objectif = contexte.objectifs().lireObjectif(indicateur, tranche);
             Double valeurReference = contexte.contreObjectif()
-                ? objectif
-                : rang < reference.mesures().size() ? CalculateurIndicateurs.calculer(indicateur, reference.mesures().get(rang)) : null;
-            points.add(
-                new PointSerieDTO(
+                    ? objectif
+                    : rang < reference.mesures().size()
+                            ? CalculateurIndicateurs.calculer(
+                                    indicateur, reference.mesures().get(rang))
+                            : null;
+            points.add(new PointSerieDTO(
                     tranche.du(),
                     tranche.au(),
                     LibellesPilotage.libellerTranche(tranche, contexte.granularite()),
@@ -149,9 +160,7 @@ public class SeriesPilotageServiceImpl implements SeriesPilotageService {
                     valeurReference,
                     Variations.ecart(valeur, valeurReference),
                     Variations.ecartPct(indicateur, valeur, valeurReference),
-                    objectif
-                )
-            );
+                    objectif));
         }
         return points;
     }

@@ -100,7 +100,11 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--pharma-chrome-login-fg, #fff) 0%, color-mix(in srgb, var(--pharma-chrome-login-fg, #fff) 80%, transparent) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--pharma-chrome-login-fg, #fff) 0%,
+        color-mix(in srgb, var(--pharma-chrome-login-fg, #fff) 80%, transparent) 100%
+      );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;

@@ -23,8 +23,7 @@ public interface PilotageRupturesRepository extends Repository<Rupture, Integer>
     @Query("SELECT count(r) FROM Rupture r WHERE r.dateMtv >= :debut AND r.dateMtv < :fin")
     long compterRuptures(LocalDateTime debut, LocalDateTime fin);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ComptageDTO(
             coalesce(cast(f.id AS String), ''), coalesce(f.libelle, 'Sans fournisseur'), count(r), coalesce(sum(r.qty), 0L), 0L)
         FROM Rupture r
@@ -32,24 +31,20 @@ public interface PilotageRupturesRepository extends Repository<Rupture, Integer>
         WHERE r.dateMtv >= :debut AND r.dateMtv < :fin
         GROUP BY f.id, f.libelle
         ORDER BY count(r) DESC
-        """
-    )
+        """)
     List<ComptageDTO> sommerRupturesParFournisseur(LocalDateTime debut, LocalDateTime fin);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ComptageDTO(cast(p.id AS String), p.libelle, count(r), coalesce(sum(r.qty), 0L), 0L)
         FROM Rupture r
         JOIN r.produit p
         WHERE r.dateMtv >= :debut AND r.dateMtv < :fin
         GROUP BY p.id, p.libelle
         ORDER BY count(r) DESC
-        """
-    )
+        """)
     List<ComptageDTO> sommerRupturesParProduit(LocalDateTime debut, LocalDateTime fin, Pageable page);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ComptageDTO(
             cast(p.id AS String), p.libelle, count(a), coalesce(sum(a.quantite), 0L), coalesce(sum(a.montant), 0L))
         FROM AvoirClient a
@@ -57,34 +52,28 @@ public interface PilotageRupturesRepository extends Repository<Rupture, Integer>
         WHERE a.createdAt >= :debut AND a.createdAt < :fin
         GROUP BY p.id, p.libelle
         ORDER BY coalesce(sum(a.montant), 0L) DESC
-        """
-    )
+        """)
     List<ComptageDTO> sommerVentesManqueesParProduit(LocalDateTime debut, LocalDateTime fin, Pageable page);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ComptageDTO(
             '', 'Total', count(a), coalesce(sum(a.quantite), 0L), coalesce(sum(a.montant), 0L))
         FROM AvoirClient a
         WHERE a.createdAt >= :debut AND a.createdAt < :fin
-        """
-    )
+        """)
     ComptageDTO sommerVentesManquees(LocalDateTime debut, LocalDateTime fin);
 
     /** Quantités en avoir et quantités demandées des ventes de la période : le taux de ventes manquées au comptoir. */
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.ComptageDTO(
             '', 'Total', coalesce(sum(l.quantiteDemandee), 0L), coalesce(sum(l.quantiteAvoir), 0L), 0L)
         FROM PilotageVenteLigneJour l
         WHERE l.jour BETWEEN :du AND :au
           AND l.categorieChiffreAffaire IN :categories
-        """
-    )
+        """)
     ComptageDTO sommerQuantitesEnAvoir(LocalDate du, LocalDate au, Set<CategorieChiffreAffaire> categories);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.PeremptionMoisDTO(
             year(l.expiryDate), month(l.expiryDate), coalesce(sum(l.currentQuantity), 0L),
             coalesce(sum(l.currentQuantity * coalesce(l.prixAchat, 0)), 0L))
@@ -93,7 +82,6 @@ public interface PilotageRupturesRepository extends Repository<Rupture, Integer>
           AND l.currentQuantity > 0
         GROUP BY year(l.expiryDate), month(l.expiryDate)
         ORDER BY year(l.expiryDate), month(l.expiryDate)
-        """
-    )
+        """)
     List<PeremptionMoisDTO> sommerPeremptionsParMois(LocalDate du, LocalDate au);
 }

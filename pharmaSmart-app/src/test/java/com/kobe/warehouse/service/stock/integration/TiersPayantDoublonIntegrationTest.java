@@ -31,11 +31,10 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
     @BeforeEach
     void creerLeService() {
         service = new TiersPayantServiceImpl(
-            IntegrationPostgresDatabase.bean(TiersPayantRepository.class),
-            services.storageService,
-            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
-            IntegrationPostgresDatabase.bean(ThirdPartySaleLineRepository.class)
-        );
+                IntegrationPostgresDatabase.bean(TiersPayantRepository.class),
+                services.storageService,
+                IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+                IntegrationPostgresDatabase.bean(ThirdPartySaleLineRepository.class));
     }
 
     @Test
@@ -45,8 +44,14 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
         TiersPayantDto sans = service.createFromDto(organisme("DEPOTX"));
         viderLeCache();
 
-        assertEquals(80, em.find(com.kobe.warehouse.domain.TiersPayant.class, avec.getId()).getTauxCouvertureDefaut());
-        assertNull(em.find(com.kobe.warehouse.domain.TiersPayant.class, sans.getId()).getTauxCouvertureDefaut(), "jamais 100 % supposé en silence");
+        assertEquals(
+                80,
+                em.find(com.kobe.warehouse.domain.TiersPayant.class, avec.getId())
+                        .getTauxCouvertureDefaut());
+        assertNull(
+                em.find(com.kobe.warehouse.domain.TiersPayant.class, sans.getId())
+                        .getTauxCouvertureDefaut(),
+                "jamais 100 % supposé en silence");
     }
 
     @Test
@@ -55,13 +60,12 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
         TiersPayantDto cree = service.createFromDto(organisme("BORNES"));
         em.flush();
 
-        assertThrows(
-            PersistenceException.class,
-            () -> {
-                em.createNativeQuery("UPDATE tiers_payant SET taux_couverture_defaut = 150 WHERE id = :id").setParameter("id", cree.getId()).executeUpdate();
-                em.flush();
-            }
-        );
+        assertThrows(PersistenceException.class, () -> {
+            em.createNativeQuery("UPDATE tiers_payant SET taux_couverture_defaut = 150 WHERE id = :id")
+                    .setParameter("id", cree.getId())
+                    .executeUpdate();
+            em.flush();
+        });
     }
 
     @Test
@@ -69,13 +73,16 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
     void doublonDeNcc() {
         service.createFromDto(organisme("PREMIER").setNcc("abc1234"));
 
-        GenericError erreur = assertThrows(GenericError.class, () -> service.createFromDto(organisme("TOUT AUTRE NOM").setNcc("ABC1234")));
+        GenericError erreur = assertThrows(
+                GenericError.class,
+                () -> service.createFromDto(organisme("TOUT AUTRE NOM").setNcc("ABC1234")));
 
         assertTrue(erreur.getMessage().contains("identifiant contribuable"));
     }
 
     @Test
-    @DisplayName("Modifier un organisme en gardant son propre NCC n'est pas un doublon ; lui donner celui d'un autre l'est")
+    @DisplayName(
+            "Modifier un organisme en gardant son propre NCC n'est pas un doublon ; lui donner celui d'un autre l'est")
     void modificationEtNcc() {
         TiersPayantDto premier = service.createFromDto(organisme("UN").setNcc("NCC1"));
         TiersPayantDto second = service.createFromDto(organisme("DEUX").setNcc("NCC2"));
@@ -97,9 +104,8 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
         TiersPayantDto existant = service.createFromDto(organisme("MUTUELLE"));
 
         GenericError erreur = assertThrows(
-            GenericError.class,
-            () -> service.createFromDto(organisme("AUTRE").setName(existant.getName()))
-        );
+                GenericError.class,
+                () -> service.createFromDto(organisme("AUTRE").setName(existant.getName())));
 
         assertFalse(erreur.getMessage().contains("orgasisme"));
         assertTrue(erreur.getMessage().contains("même nom"));
@@ -108,11 +114,11 @@ class TiersPayantDoublonIntegrationTest extends AbstractStockIntegrationTest {
     private TiersPayantDto organisme(String nom) {
         String unique = unique(nom);
         return new TiersPayantDto()
-            .setName(unique)
-            .setFullName("ORGANISME " + unique)
-            .setTelephone("0102030405")
-            .setCategorie(TiersPayantCategorie.ASSURANCE)
-            .setNbreBordereaux(1)
-            .setDelaiReglement(30);
+                .setName(unique)
+                .setFullName("ORGANISME " + unique)
+                .setTelephone("0102030405")
+                .setCategorie(TiersPayantCategorie.ASSURANCE)
+                .setNbreBordereaux(1)
+                .setDelaiReglement(30);
     }
 }

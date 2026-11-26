@@ -9,32 +9,24 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {DateNaissDirective} from '../../../shared/date-naiss.directive';
+import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import {CommonModule} from '@angular/common';
-import {Customer, ICustomer} from '../../../shared/model/customer.model';
-import {ITiersPayant} from '../../../shared/model';
-import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
-import {NgbActiveModal, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpResponse} from '@angular/common/http';
-import {showCommonModal} from '../../sales/selling-home/sale-helper';
-import {
-  FormTiersPayantComponent
-} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import {Observable, Subject} from 'rxjs';
-import {finalize, takeUntil} from 'rxjs/operators';
-import {ErrorService} from '../../../shared/error.service';
-import {CustomerService} from '../customer.service';
-import {PRODUIT_COMBO_MIN_LENGTH} from '../../../shared/constants/pagination.constants';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  RadioComponent,
-  SelectSearchComponent
-} from '../../../shared/ui';
+import { CommonModule } from '@angular/common';
+import { Customer, ICustomer } from '../../../shared/model/customer.model';
+import { ITiersPayant } from '../../../shared/model';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpResponse } from '@angular/common/http';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { ErrorService } from '../../../shared/error.service';
+import { CustomerService } from '../customer.service';
+import { PRODUIT_COMBO_MIN_LENGTH } from '../../../shared/constants/pagination.constants';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, RadioComponent, SelectSearchComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-carnet',
@@ -47,7 +39,7 @@ import {
     CardComponent,
     KeyFilterDirective,
     RadioComponent,
-    SelectSearchComponent
+    SelectSearchComponent,
   ],
   templateUrl: './customer-carnet.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -128,7 +120,7 @@ export class CustomerCarnetComponent implements OnInit, OnDestroy {
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants().push(resp);
-          this.editForm.patchValue({tiersPayantId: resp});
+          this.editForm.patchValue({ tiersPayantId: resp });
         }
       },
       'xl',
@@ -171,7 +163,7 @@ export class CustomerCarnetComponent implements OnInit, OnDestroy {
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants.set(res.body!);
         if (this.tiersPayants().length === 0) {
-          this.tiersPayants().push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
+          this.tiersPayants().push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
       });
   }
@@ -222,7 +214,7 @@ export class CustomerCarnetComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });

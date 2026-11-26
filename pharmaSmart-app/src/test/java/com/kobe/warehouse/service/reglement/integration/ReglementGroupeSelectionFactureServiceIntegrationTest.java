@@ -43,14 +43,14 @@ class ReglementGroupeSelectionFactureServiceIntegrationTest extends AbstractRegl
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(soldee, entamee));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementGroupeSelectionFactureService.doReglement(
-            parametre(factureGroupe, 70_000, 100_000).setLigneSelectionnes(
-                List.of(ligne(soldee, 40_000), ligne(entamee, 60_000))
-            )
-        );
+        ResponseReglementDTO reponse =
+                services.reglementGroupeSelectionFactureService.doReglement(parametre(factureGroupe, 70_000, 100_000)
+                        .setLigneSelectionnes(List.of(ligne(soldee, 40_000), ligne(entamee, 60_000))));
         viderLeCache();
 
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, soldee.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, soldee.getId()).getStatut());
         FactureTiersPayant relueEntamee = em.find(FactureTiersPayant.class, entamee.getId());
         assertEquals(30_000, relueEntamee.getMontantRegle(), "les 70 000 versés couvrent 40 000 puis 30 000");
         assertEquals(InvoiceStatut.PARTIALLY_PAID, relueEntamee.getStatut());
@@ -64,7 +64,10 @@ class ReglementGroupeSelectionFactureServiceIntegrationTest extends AbstractRegl
         assertTrue(porteur.isGrouped());
         assertEquals(100_000, porteur.getExpectedAmount());
         assertEquals(70_000, porteur.getPaidAmount());
-        assertEquals(2, compter("SELECT count(*) FROM payment_transaction WHERE parent_id = " + reponse.id().getId()));
+        assertEquals(
+                2,
+                compter("SELECT count(*) FROM payment_transaction WHERE parent_id = "
+                        + reponse.id().getId()));
     }
 
     @Test
@@ -78,23 +81,25 @@ class ReglementGroupeSelectionFactureServiceIntegrationTest extends AbstractRegl
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(servie, intacte));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementGroupeSelectionFactureService.doReglement(
-            parametre(factureGroupe, 20_000, 55_000).setLigneSelectionnes(
-                List.of(ligne(servie, 20_000), ligne(intacte, 35_000))
-            )
-        );
+        ResponseReglementDTO reponse =
+                services.reglementGroupeSelectionFactureService.doReglement(parametre(factureGroupe, 20_000, 55_000)
+                        .setLigneSelectionnes(List.of(ligne(servie, 20_000), ligne(intacte, 35_000))));
         viderLeCache();
 
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, servie.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, servie.getId()).getStatut());
         FactureTiersPayant relueIntacte = em.find(FactureTiersPayant.class, intacte.getId());
         assertEquals(0, relueIntacte.getMontantRegle());
         assertEquals(InvoiceStatut.NOT_PAID, relueIntacte.getStatut());
-        assertEquals(ThirdPartySaleStatut.ACTIF, em.find(ThirdPartySaleLine.class, dossierIntact.getId()).getStatut());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM payment_transaction WHERE parent_id = " + reponse.id().getId()),
-            "aucun paiement fils n'est créé pour la facture non servie"
-        );
+                ThirdPartySaleStatut.ACTIF,
+                em.find(ThirdPartySaleLine.class, dossierIntact.getId()).getStatut());
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE parent_id = "
+                        + reponse.id().getId()),
+                "aucun paiement fils n'est créé pour la facture non servie");
     }
 
     @Test
@@ -118,19 +123,19 @@ class ReglementGroupeSelectionFactureServiceIntegrationTest extends AbstractRegl
 
     private LigneSelectionnesDTO ligne(FactureTiersPayant facture, int montant) {
         return new LigneSelectionnesDTO()
-            .setId(facture.getId())
-            .setMontantVerse(montant)
-            .setMontantAttendu(montant)
-            .setMontantFacture(montant);
+                .setId(facture.getId())
+                .setMontantVerse(montant)
+                .setMontantAttendu(montant)
+                .setMontantFacture(montant);
     }
 
     private ReglementParam parametre(FactureTiersPayant factureGroupe, int montantVerse, int montantFacture) {
         return new ReglementParam()
-            .setId(factureGroupe.getId())
-            .setMode(ModeEditionReglement.GROUPE_PARTIEL)
-            .setModePaimentCode(ModePaimentCode.VIREMENT)
-            .setAmount(montantVerse)
-            .setTotalAmount(montantFacture)
-            .setMontantFacture(montantFacture);
+                .setId(factureGroupe.getId())
+                .setMode(ModeEditionReglement.GROUPE_PARTIEL)
+                .setModePaimentCode(ModePaimentCode.VIREMENT)
+                .setAmount(montantVerse)
+                .setTotalAmount(montantFacture)
+                .setMontantFacture(montantFacture);
     }
 }

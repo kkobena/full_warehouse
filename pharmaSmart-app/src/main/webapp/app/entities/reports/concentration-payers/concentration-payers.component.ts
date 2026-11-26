@@ -39,14 +39,7 @@ const CHART_BORDERS = [
   templateUrl: './concentration-payers.component.html',
   styleUrl: './concentration-payers.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
-    CommonModule,
-    FormsModule,
-    DataTableComponent,
-    SelectComponent,
-    KpiStripComponent,
-    KpiItemComponent
-  ],
+  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, SelectComponent, KpiStripComponent, KpiItemComponent],
 })
 export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
@@ -206,8 +199,7 @@ export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
           tooltip: {
             callbacks: {
               label(ctx) {
-                const total = (evo.series ?? []).reduce((s, serie) =>
-                  s + ((serie.caValues ?? [])[ctx.dataIndex] ?? 0), 0);
+                const total = (evo.series ?? []).reduce((s, serie) => s + ((serie.caValues ?? [])[ctx.dataIndex] ?? 0), 0);
                 const pct = total > 0 ? Math.round((ctx.parsed.y / total) * 100) : 0;
                 return `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()} (${pct}%)`;
               },

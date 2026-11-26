@@ -7,37 +7,45 @@ import {
   OnInit,
   Renderer2,
   RendererFactory2,
-  signal
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {Router, RouterOutlet} from "@angular/router";
-import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
-import {CommonModule} from "@angular/common";
-import {fromEvent} from "rxjs";
-import {filter} from "rxjs/operators";
-import dayjs from "dayjs/esm";
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, RouterOutlet } from '@angular/router';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
+import { fromEvent } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import dayjs from 'dayjs/esm';
 
-import {AccountService} from "app/core/auth/account.service";
-import {AppPageTitleStrategy} from "app/app-page-title-strategy";
-import "@angular/common/locales/global/fr";
-import {LayoutService} from "../../core/config/layout.service";
-import {BackendSplashComponent} from "app/shared/backend-splash/backend-splash.component";
-import {TitlebarComponent} from "app/shared/titlebar/titlebar.component";
-import {SetupWizardComponent} from "app/core/setup/setup-wizard.component";
-import {ToastHostComponent} from "app/shared/ui/toast-host/toast-host.component";
-import {LicenseBannerComponent} from "app/layouts/license-banner/license-banner.component";
-import {LicenseService} from "app/core/license/license.service";
-import {TauriPrinterService} from "../../shared/services/tauri-printer.service";
-import {PeremptionAlertService} from "../../shared/services/peremption-alert.service";
+import { AccountService } from 'app/core/auth/account.service';
+import { AppPageTitleStrategy } from 'app/app-page-title-strategy';
+import '@angular/common/locales/global/fr';
+import { LayoutService } from '../../core/config/layout.service';
+import { BackendSplashComponent } from 'app/shared/backend-splash/backend-splash.component';
+import { TitlebarComponent } from 'app/shared/titlebar/titlebar.component';
+import { SetupWizardComponent } from 'app/core/setup/setup-wizard.component';
+import { ToastHostComponent } from 'app/shared/ui/toast-host/toast-host.component';
+import { LicenseBannerComponent } from 'app/layouts/license-banner/license-banner.component';
+import { LicenseService } from 'app/core/license/license.service';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { PeremptionAlertService } from '../../shared/services/peremption-alert.service';
 
 @Component({
-  selector: "app-main",
-  templateUrl: "./main.component.html",
-  styleUrl: "./main.component.scss",
+  selector: 'app-main',
+  templateUrl: './main.component.html',
+  styleUrl: './main.component.scss',
   providers: [AppPageTitleStrategy],
-  imports: [RouterOutlet, CommonModule, BackendSplashComponent, TitlebarComponent, SetupWizardComponent, ToastHostComponent, LicenseBannerComponent],
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    BackendSplashComponent,
+    TitlebarComponent,
+    SetupWizardComponent,
+    ToastHostComponent,
+    LicenseBannerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {"[class.tauri-mode]": "isTauriMode()"}
+  host: { '[class.tauri-mode]': 'isTauriMode()' },
 })
 export default class MainComponent implements OnInit {
   readonly isTauriMode = signal(false);
@@ -54,21 +62,21 @@ export default class MainComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ALERT_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
   private readonly LICENSE_REFRESH_INTERVAL_MS = 60 * 60 * 1000; // 1 heure
-  private hautChrome = "";
+  private hautChrome = '';
 
   constructor() {
-    this.renderer = this.rootRenderer.createRenderer(document.querySelector("html"), null);
+    this.renderer = this.rootRenderer.createRenderer(document.querySelector('html'), null);
     this.isTauriMode.set(this.tauriPrinterService.isRunningInTauri());
 
     /** Alt+V → Nouvelle Vente  */
-    fromEvent<KeyboardEvent>(window, "keydown")
+    fromEvent<KeyboardEvent>(window, 'keydown')
       .pipe(
-        filter(e => e.altKey && e.key.toLowerCase() === "v"),
-        takeUntilDestroyed(inject(DestroyRef))
+        filter(e => e.altKey && e.key.toLowerCase() === 'v'),
+        takeUntilDestroyed(inject(DestroyRef)),
       )
       .subscribe(e => {
         e.preventDefault();
-        void this.router.navigate(["/sales-home"]);
+        void this.router.navigate(['/sales-home']);
       });
 
     afterNextRender(() => this.suivreHauteurChrome());
@@ -84,11 +92,11 @@ export default class MainComponent implements OnInit {
    */
   private suivreHauteurChrome(): void {
     const poser = (): void => {
-      const barre = document.querySelector(".sticky-navbar");
+      const barre = document.querySelector('.sticky-navbar');
       const bas = `${barre ? barre.getBoundingClientRect().bottom : 0}px`;
       if (bas !== this.hautChrome) {
         this.hautChrome = bas;
-        document.documentElement.style.setProperty("--pharma-haut-chrome", bas);
+        document.documentElement.style.setProperty('--pharma-haut-chrome', bas);
       }
     };
 
@@ -104,7 +112,7 @@ export default class MainComponent implements OnInit {
     this.translateService.onLangChange.subscribe((langChangeEvent: LangChangeEvent) => {
       this.appPageTitleStrategy.updateTitle(this.router.routerState.snapshot);
       dayjs.locale(langChangeEvent.lang);
-      this.renderer.setAttribute(document.querySelector("html"), "lang", langChangeEvent.lang);
+      this.renderer.setAttribute(document.querySelector('html'), 'lang', langChangeEvent.lang);
     });
 
     this.peremptionAlertService.fetchAlerts();

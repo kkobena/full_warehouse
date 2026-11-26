@@ -9,8 +9,7 @@ import java.util.Map;
  * nécessaire : la quantité du produit source n'a volontairement pas été reportée sur la cible.
  */
 public record ProduitMergeResultDTO(
-    Integer targetId,
-    List<Integer> mergedSourceIds,
-    Map<String, Integer> entityCounts,
-    List<StockConflictDTO> stockConflicts
-) {}
+        Integer targetId,
+        List<Integer> mergedSourceIds,
+        Map<String, Integer> entityCounts,
+        List<StockConflictDTO> stockConflicts) {}

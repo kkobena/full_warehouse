@@ -98,13 +98,21 @@ describe('NavigationService', () => {
         'chrome.assurance',
         'chrome.prevente-carnet',
       ]);
-      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.prevente-comptant']);
+      expect(
+        chromes()
+          .filter(c => c.faIcon)
+          .map(c => c.id),
+      ).toEqual(['chrome.prevente-comptant']);
       expect(chromes().every(c => !!c.swatch)).toBe(true);
 
       // Désigné par son identifiant : l'ajout d'une couleur ne doit pas déplacer ce test.
       chromes().find(c => c.id === 'chrome.assurance')!.click!();
 
-      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.assurance']);
+      expect(
+        chromes()
+          .filter(c => c.faIcon)
+          .map(c => c.id),
+      ).toEqual(['chrome.assurance']);
       expect(document.documentElement.getAttribute('data-chrome')).toBe('assurance');
     });
 

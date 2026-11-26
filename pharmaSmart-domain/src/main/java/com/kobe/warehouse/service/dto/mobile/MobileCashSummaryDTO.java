@@ -25,23 +25,22 @@ import java.util.List;
  * @param cashierCount   Number of cashiers with transactions
  */
 public record MobileCashSummaryDTO(
-    LocalDate fromDate,
-    LocalDate toDate,
-    LocalTime fromTime,
-    LocalTime toTime,
-    String periodLabel,
-    List<SummaryItemDTO> globalSummary,
-    List<CashierRecapDTO> cashierRecaps,
-    long totalTtc,
-    long totalEspeces,
-    long totalCartes,
-    long totalMobileMoney,
-    long totalCheques,
-    long totalVirements,
-    long totalCredit,
-    long totalMobile,
-    int cashierCount
-) {
+        LocalDate fromDate,
+        LocalDate toDate,
+        LocalTime fromTime,
+        LocalTime toTime,
+        String periodLabel,
+        List<SummaryItemDTO> globalSummary,
+        List<CashierRecapDTO> cashierRecaps,
+        long totalTtc,
+        long totalEspeces,
+        long totalCartes,
+        long totalMobileMoney,
+        long totalCheques,
+        long totalVirements,
+        long totalCredit,
+        long totalMobile,
+        int cashierCount) {
     /**
      * Builder for creating MobileCashSummaryDTO instances.
      */
@@ -149,11 +148,22 @@ public record MobileCashSummaryDTO(
 
         public MobileCashSummaryDTO build() {
             return new MobileCashSummaryDTO(
-                fromDate, toDate, fromTime, toTime, periodLabel,
-                globalSummary, cashierRecaps,
-                totalTtc, totalEspeces, totalCartes, totalMobileMoney,
-                totalCheques, totalVirements, totalCredit, totalMobile, cashierCount
-            );
+                    fromDate,
+                    toDate,
+                    fromTime,
+                    toTime,
+                    periodLabel,
+                    globalSummary,
+                    cashierRecaps,
+                    totalTtc,
+                    totalEspeces,
+                    totalCartes,
+                    totalMobileMoney,
+                    totalCheques,
+                    totalVirements,
+                    totalCredit,
+                    totalMobile,
+                    cashierCount);
         }
     }
 }

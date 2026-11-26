@@ -32,11 +32,10 @@ public class LimiteCreditService {
     private final DerogationAuthorizer derogationAuthorizer;
 
     public LimiteCreditService(
-        AppConfigurationService appConfigurationService,
-        SalesRepository salesRepository,
-        LimiteCreditDerogationRepository derogationRepository,
-        DerogationAuthorizer derogationAuthorizer
-    ) {
+            AppConfigurationService appConfigurationService,
+            SalesRepository salesRepository,
+            LimiteCreditDerogationRepository derogationRepository,
+            DerogationAuthorizer derogationAuthorizer) {
         this.appConfigurationService = appConfigurationService;
         this.salesRepository = salesRepository;
         this.derogationRepository = derogationRepository;
@@ -63,8 +62,10 @@ public class LimiteCreditService {
             return;
         }
         Integer customerId = vente.getCustomer().getId();
-        long encours = salesRepository.getDiffereSoldeHorsVente(customerId, vente.getId().getId(), vente.getSaleDate());
-        if (encours + restant <= limite || derogationRepository.existsBySaleIdAndSaleDate(vente.getId().getId(), vente.getSaleDate())) {
+        long encours = salesRepository.getDiffereSoldeHorsVente(
+                customerId, vente.getId().getId(), vente.getSaleDate());
+        if (encours + restant <= limite
+                || derogationRepository.existsBySaleIdAndSaleDate(vente.getId().getId(), vente.getSaleDate())) {
             return;
         }
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -75,10 +76,10 @@ public class LimiteCreditService {
         payload.put("encours", encours);
         payload.put("limite", limite);
         throw new GenericError(
-            "Limite de crédit dépassée : l'encours du client passerait à %d pour une limite de %d.".formatted(encours + restant, limite),
-            ERROR_KEY,
-            payload
-        );
+                "Limite de crédit dépassée : l'encours du client passerait à %d pour une limite de %d."
+                        .formatted(encours + restant, limite),
+                ERROR_KEY,
+                payload);
     }
 
     /** Autorise, pour une vente donnée, la vente à crédit au-delà de la limite. */
@@ -89,13 +90,11 @@ public class LimiteCreditService {
             throw new GenericError("Cette vente ne dépasse pas la limite de crédit.", "limiteCreditNonDepassee");
         }
         AppUser autorisePar = derogationAuthorizer.autoriser(
-            DROIT_DEROGATION,
-            demande.actionAuthorityKey(),
-            "la vente à crédit au-delà de la limite",
-            "limiteCredit"
-        );
-        derogationRepository.save(
-            new LimiteCreditDerogation()
+                DROIT_DEROGATION,
+                demande.actionAuthorityKey(),
+                "la vente à crédit au-delà de la limite",
+                "limiteCredit");
+        derogationRepository.save(new LimiteCreditDerogation()
                 .setCustomerId(customerId)
                 .setSaleId(demande.saleId())
                 .setSaleDate(demande.saleDate())
@@ -104,7 +103,6 @@ public class LimiteCreditService {
                 .setLimite(limite)
                 .setMotif(demande.motif().trim())
                 .setUser(derogationAuthorizer.utilisateurCourant())
-                .setAutorisePar(autorisePar)
-        );
+                .setAutorisePar(autorisePar));
     }
 }

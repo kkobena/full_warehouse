@@ -79,7 +79,7 @@ export class VenteDepotFacade {
 
   /** Observable émis après un rechargement de vente (pour force-stock cancel en mode editCell). */
   readonly saleReloadedSuccess$ = toObservable(this.store.lastEvent).pipe(
-    filter(e => e?.type === 'SALE_RELOADED' as any),
+    filter(e => e?.type === ('SALE_RELOADED' as any)),
     map((): void => undefined),
   );
 
@@ -233,9 +233,7 @@ export class VenteDepotFacade {
       return;
     }
     const updatedLine: ISalesLine = { ...line, quantitySold: newQty, saleCompositeId: currentSale.saleId };
-    this.handleSaleUpdate(
-      this.api.updateItemQtySold(updatedLine).pipe(switchMap(() => this.salesApi.findSale(currentSale.saleId))),
-    );
+    this.handleSaleUpdate(this.api.updateItemQtySold(updatedLine).pipe(switchMap(() => this.salesApi.findSale(currentSale.saleId))));
   }
 
   updateLinePrice(lineId: number, newPrice: number): void {
@@ -248,9 +246,7 @@ export class VenteDepotFacade {
       return;
     }
     const updatedLine: ISalesLine = { ...line, regularUnitPrice: newPrice, saleCompositeId: currentSale.saleId };
-    this.handleSaleUpdate(
-      this.api.updateItemPrice(updatedLine).pipe(switchMap(() => this.salesApi.findSale(currentSale.saleId))),
-    );
+    this.handleSaleUpdate(this.api.updateItemPrice(updatedLine).pipe(switchMap(() => this.salesApi.findSale(currentSale.saleId))));
   }
 
   updateRemise(remise?: IRemise): void {

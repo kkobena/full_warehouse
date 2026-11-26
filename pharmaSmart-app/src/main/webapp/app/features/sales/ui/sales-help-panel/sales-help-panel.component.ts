@@ -86,7 +86,10 @@ export class SalesHelpPanelComponent {
       return [{ touches: ['Entrée'], action: 'Dans le champ produit vide, panier rempli : passer au règlement' }];
     }
     return [
-      { touches: ['Entrée'], action: 'Dans le champ produit vide, panier rempli : si le montant à payer est 0, finaliser la vente (après confirmation)' },
+      {
+        touches: ['Entrée'],
+        action: 'Dans le champ produit vide, panier rempli : si le montant à payer est 0, finaliser la vente (après confirmation)',
+      },
       { touches: ['Entrée'], action: 'Dans le champ produit vide, panier rempli : sinon, passer au règlement' },
     ];
   }
@@ -130,10 +133,13 @@ export class SalesHelpPanelComponent {
             {
               titre: 'Menu des types de vente',
               icone: 'pi pi-bars',
-              note: "Avec une vente en cours, le changement de type demande une confirmation.",
+              note: 'Avec une vente en cours, le changement de type demande une confirmation.',
               lignes: [
                 { touches: ['Alt', '1'], action: 'Vente comptant' },
-                { touches: ['Alt', '2'], action: this.proforma() ? 'Vente assurance (indisponible en proforma)' : 'Vente assurance (si le droit est accordé)' },
+                {
+                  touches: ['Alt', '2'],
+                  action: this.proforma() ? 'Vente assurance (indisponible en proforma)' : 'Vente assurance (si le droit est accordé)',
+                },
                 { touches: ['Alt', '3'], action: 'Vente carnet (si le droit est accordé)' },
                 { touches: ['Entrée'], action: 'Ouvrir le type de vente choisi' },
               ],
@@ -180,7 +186,7 @@ export class SalesHelpPanelComponent {
               lignes: [
                 { touches: ['Alt', 'N'], action: 'Liste : nouvelle ordonnance' },
                 { touches: ['Alt', 'G'], action: 'Liste : gérer les prescripteurs' },
-                { touches: ['Alt', 'L'], action: "Saisie : ajouter la ligne en cours" },
+                { touches: ['Alt', 'L'], action: 'Saisie : ajouter la ligne en cours' },
                 { touches: ['Alt', 'E'], action: "Saisie : enregistrer l'ordonnance" },
                 { touches: ['Alt', 'R'], action: 'Saisie : revenir à la liste sans enregistrer' },
               ],

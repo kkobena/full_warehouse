@@ -45,7 +45,10 @@ scenario('CLI-10', async ({ etape, page }) => {
     await expect(lignes.first()).toContainText(client);
     // Le bouton d'ouverture de fiche n'a pas de nom accessible : on le désigne par son infobulle.
     await lignes.first().locator('app-button[ngbtooltip="Voir la fiche"] button').first().click();
-    await page.getByRole('tab', { name: /Avoirs/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Avoirs/ })
+      .first()
+      .click();
     // Un avoir ouvert laisse un solde : c'est ce que le client vient réclamer.
     await expect(contenu).toContainText('Solde disponible');
   });

@@ -1,19 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild, input} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, input } from '@angular/core';
 
-import {FormsModule} from '@angular/forms';
-import {HttpResponse} from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
 
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
-import {Chart, ChartConfiguration, registerables} from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import {
   ButtonComponent,
@@ -22,18 +14,14 @@ import {
   KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
-import {SupplierPerformanceReportService} from '../services/supplier-performance-report.service';
-import {
-  ISupplierEvolution,
-  ISupplierPerformance,
-  ISupplierPerformanceSummary
-} from 'app/shared/model/report';
+import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
+import { ISupplierEvolution, ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
 import { formatCurrency, formatDecimal, formatNumber, currencySymbol } from 'app/shared/utils/format-utils';
-import {TauriPrinterService} from '../../../shared/services/tauri-printer.service';
-import {handleBlobForTauri} from '../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
@@ -46,7 +34,19 @@ interface FilterOption {
 
 @Component({
   selector: 'app-supplier-performance',
-  imports: [PillSelectorComponent, DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
+  imports: [
+    PillSelectorComponent,
+    DeviseDirective,
+    FormsModule,
+    NgbTooltip,
+    ButtonComponent,
+    DataTableComponent,
+    OffcanvasComponent,
+    SelectComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-performance.component.scss',
@@ -78,12 +78,12 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   activeView = signal<'table' | 'evolution'>('table');
 
   filterOptions: FilterOption[] = [
-    {label: 'Tous les fournisseurs', value: 'all'},
-    {label: 'Top 10 par volume', value: 'top'},
-    {label: 'Performance excellente (≥ 70)', value: 'good'},
-    {label: 'Performance moyenne (50-70)', value: 'average'},
-    {label: 'Performance faible (< 50)', value: 'poor'},
-    {label: 'Problèmes de livraison', value: 'delivery-issues'},
+    { label: 'Tous les fournisseurs', value: 'all' },
+    { label: 'Top 10 par volume', value: 'top' },
+    { label: 'Performance excellente (≥ 70)', value: 'good' },
+    { label: 'Performance moyenne (50-70)', value: 'average' },
+    { label: 'Performance faible (< 50)', value: 'poor' },
+    { label: 'Problèmes de livraison', value: 'delivery-issues' },
   ];
 
   formatCurrency = formatCurrency;
@@ -303,7 +303,7 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {position: 'bottom', labels: {padding: 16}},
+          legend: { position: 'bottom', labels: { padding: 16 } },
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
@@ -311,8 +311,8 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           },
         },
         scales: {
-          y: {title: {display: true, text: `Montant (${currencySymbol()})`}},
-          x: {ticks: {maxRotation: 45}},
+          y: { title: { display: true, text: `Montant (${currencySymbol()})` } },
+          x: { ticks: { maxRotation: 45 } },
         },
       },
     };
@@ -361,7 +361,7 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {position: 'bottom', labels: {padding: 16}},
+          legend: { position: 'bottom', labels: { padding: 16 } },
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} jours`,
@@ -369,8 +369,8 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
           },
         },
         scales: {
-          y: {title: {display: true, text: 'Délai moyen (jours)'}, beginAtZero: true},
-          x: {ticks: {maxRotation: 45}},
+          y: { title: { display: true, text: 'Délai moyen (jours)' }, beginAtZero: true },
+          x: { ticks: { maxRotation: 45 } },
         },
       },
     };

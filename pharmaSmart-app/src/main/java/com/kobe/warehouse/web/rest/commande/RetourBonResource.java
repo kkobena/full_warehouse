@@ -2,14 +2,16 @@ package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.aop.license.LicenseExempt;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
 import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
 import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
-import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
+import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
 import com.kobe.warehouse.service.pharmaml.service.PharmaMlService;
 import com.kobe.warehouse.service.report.excel.RetourBonExcelCsvReportService;
@@ -44,15 +46,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.RetourBon}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" })
+@RequiresNavAccess({"commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions"})
 public class RetourBonResource {
 
     private static final String ENTITY_NAME = "retourBon";
@@ -65,11 +65,10 @@ public class RetourBonResource {
     private String applicationName;
 
     public RetourBonResource(
-        RetourBonService retourBonService,
-        RetourBonPdfReportService retourBonPdfReportService,
-        PharmaMlService pharmaMlService,
-        RetourBonExcelCsvReportService retourBonExcelCsvReportService
-    ) {
+            RetourBonService retourBonService,
+            RetourBonPdfReportService retourBonPdfReportService,
+            PharmaMlService pharmaMlService,
+            RetourBonExcelCsvReportService retourBonExcelCsvReportService) {
         this.retourBonService = retourBonService;
         this.pharmaMlService = pharmaMlService;
         this.retourBonExcelCsvReportService = retourBonExcelCsvReportService;
@@ -84,25 +83,24 @@ public class RetourBonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/retour-bons")
-    public ResponseEntity<RetourBonDTO> createRetourBon(@Valid @RequestBody RetourBonDTO retourBonDTO) throws URISyntaxException {
+    public ResponseEntity<RetourBonDTO> createRetourBon(@Valid @RequestBody RetourBonDTO retourBonDTO)
+            throws URISyntaxException {
         log.debug("REST request to save RetourBon : {}", retourBonDTO);
         if (retourBonDTO.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(
-                    HeaderUtil.createFailureAlert(
-                        applicationName,
-                        true,
-                        ENTITY_NAME,
-                        "idexists",
-                        "A new retour bon cannot already have an ID"
-                    )
-                )
-                .body(null);
+                    .headers(HeaderUtil.createFailureAlert(
+                            applicationName,
+                            true,
+                            ENTITY_NAME,
+                            "idexists",
+                            "A new retour bon cannot already have an ID"))
+                    .body(null);
         }
         RetourBonDTO result = retourBonService.create(retourBonDTO);
         return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -117,16 +115,24 @@ public class RetourBonResource {
      */
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
-        @RequestParam(required = false, name = "statut") RetourStatut statut,
-        @RequestParam(required = false, name = "excludeStatut") RetourStatut excludeStatut,
-        @RequestParam(required = false, name = "dtStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
-        @RequestParam(required = false, name = "dtEnd") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
-        @RequestParam(required = false, name = "search") String search,
-        Pageable pageable
-    ) {
-        log.debug("REST request to get a page of RetourBons: statut={}, excludeStatut={}, dtStart={}, dtEnd={}, search={}", statut, excludeStatut, dtStart, dtEnd, search);
+            @RequestParam(required = false, name = "statut") RetourStatut statut,
+            @RequestParam(required = false, name = "excludeStatut") RetourStatut excludeStatut,
+            @RequestParam(required = false, name = "dtStart") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate dtStart,
+            @RequestParam(required = false, name = "dtEnd") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate dtEnd,
+            @RequestParam(required = false, name = "search") String search,
+            Pageable pageable) {
+        log.debug(
+                "REST request to get a page of RetourBons: statut={}, excludeStatut={}, dtStart={}, dtEnd={}, search={}",
+                statut,
+                excludeStatut,
+                dtStart,
+                dtEnd,
+                search);
         Page<RetourBonDTO> page = retourBonService.findAll(statut, excludeStatut, dtStart, dtEnd, search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -137,15 +143,17 @@ public class RetourBonResource {
      * @return the PDF as byte array.
      */
     @GetMapping("/retour-bons/{id}/pdf")
-    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getRetourBonPdf(@PathVariable Integer id) {
         log.debug("REST request to generate PDF for RetourBon : {}", id);
 
         byte[] pdf = retourBonService.export(id);
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"retour-" + id + ".pdf\"")
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdf);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"retour-" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     /**
@@ -159,8 +167,8 @@ public class RetourBonResource {
         log.debug("REST request to mark RetourBon as PROCESSING : {}", id);
         RetourBonDTO result = retourBonService.markAsProcessing(id);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .body(result);
     }
 
     /**
@@ -171,13 +179,14 @@ public class RetourBonResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the updated entity.
      */
     @PutMapping("/retour-bons/{id}")
-    public ResponseEntity<RetourBonDTO> updateRetourBon(@PathVariable Integer id, @Valid @RequestBody RetourBonDTO retourBonDTO) {
+    public ResponseEntity<RetourBonDTO> updateRetourBon(
+            @PathVariable Integer id, @Valid @RequestBody RetourBonDTO retourBonDTO) {
         log.debug("REST request to update RetourBon : {}", id);
         retourBonDTO.setId(id);
         RetourBonDTO result = retourBonService.update(retourBonDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .body(result);
     }
 
     /**
@@ -191,8 +200,8 @@ public class RetourBonResource {
         log.debug("REST request to delete RetourBon : {}", id);
         retourBonService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     /**
@@ -218,9 +227,8 @@ public class RetourBonResource {
      */
     @GetMapping("/retour-bons/by-commande/{commandeId}/{orderDate}")
     public ResponseEntity<List<RetourBonDTO>> getRetourBonsByCommande(
-        @PathVariable Integer commandeId,
-        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate orderDate
-    ) {
+            @PathVariable Integer commandeId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate orderDate) {
         log.debug("REST request to get RetourBons by commande : {}, {}", commandeId, orderDate);
         List<RetourBonDTO> result = retourBonService.findAllByCommande(commandeId, orderDate);
         return ResponseEntity.ok().body(result);
@@ -237,8 +245,8 @@ public class RetourBonResource {
         log.debug("REST request to send RetourBon via EDI PharmaML : {}", id);
         pharmaMlService.envoiRetourBon(id);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     /**
@@ -262,8 +270,11 @@ public class RetourBonResource {
      * @return le {@link ResponseEntity} avec statut {@code 200 (OK)} et le résultat batch.
      */
     @PostMapping("/retour-bons/from-expired-lots")
-    public ResponseEntity<RetourBonBatchResultDTO> createFromExpiredLots(@Valid @RequestBody RetourBonFromLotsRequest request) {
-        log.debug("REST request to create RetourBons from expired lots batch: {} lots", request.getLots().size());
+    public ResponseEntity<RetourBonBatchResultDTO> createFromExpiredLots(
+            @Valid @RequestBody RetourBonFromLotsRequest request) {
+        log.debug(
+                "REST request to create RetourBons from expired lots batch: {} lots",
+                request.getLots().size());
         RetourBonBatchResultDTO result = retourBonService.createFromExpiredLots(request);
         return ResponseEntity.ok().body(result);
     }
@@ -278,12 +289,13 @@ public class RetourBonResource {
      */
     @PostMapping("/retour-bons/from-expired-lot")
     public ResponseEntity<RetourBonDTO> createFromExpiredLot(@Valid @RequestBody RetourBonFromLotRequest request)
-        throws URISyntaxException {
+            throws URISyntaxException {
         log.debug("REST request to create RetourBon from expired lot: {}", request);
         RetourBonDTO result = retourBonService.createFromExpiredLot(request);
         return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -297,28 +309,36 @@ public class RetourBonResource {
      * @return le fichier en bytes.
      */
     @GetMapping("/retour-bons/export")
-    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportRetourBons(
-        @RequestParam(defaultValue = "excel") String format,
-        @RequestParam(required = false) RetourStatut statut,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
-        @RequestParam(required = false) String search
-    ) {
-        log.debug("REST request to export RetourBons: format={}, statut={}, dtStart={}, dtEnd={}", format, statut, dtStart, dtEnd);
+            @RequestParam(defaultValue = "excel") String format,
+            @RequestParam(required = false) RetourStatut statut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
+            @RequestParam(required = false) String search) {
+        log.debug(
+                "REST request to export RetourBons: format={}, statut={}, dtStart={}, dtEnd={}",
+                format,
+                statut,
+                dtStart,
+                dtEnd);
         try {
             if ("csv".equalsIgnoreCase(format)) {
                 byte[] csv = retourBonExcelCsvReportService.exportToCsv(statut, dtStart, dtEnd, search);
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.csv\"")
-                    .header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
-                    .body(csv);
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.csv\"")
+                        .header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
+                        .body(csv);
             } else {
                 byte[] excel = retourBonExcelCsvReportService.exportToExcel(statut, dtStart, dtEnd, search);
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.xlsx\"")
-                    .header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    .body(excel);
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"retours-fournisseur.xlsx\"")
+                        .header(
+                                HttpHeaders.CONTENT_TYPE,
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                        .body(excel);
             }
         } catch (Exception e) {
             log.error("Error exporting RetourBons", e);
@@ -334,8 +354,8 @@ public class RetourBonResource {
         log.debug("REST request to close manually RetourBon : {}", id);
         RetourBonDTO result = retourBonService.closeManually(id);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .body(result);
     }
 
     /**
@@ -343,12 +363,16 @@ public class RetourBonResource {
      */
     @PostMapping("/retour-bons/retour-complet")
     public ResponseEntity<RetourBonDTO> createRetourComplet(@Valid @RequestBody RetourCompletCommandeRequest request)
-        throws URISyntaxException {
-        log.debug("REST request to create retour complet from commande: {}/{}", request.getCommandeId(), request.getCommandeOrderDate());
+            throws URISyntaxException {
+        log.debug(
+                "REST request to create retour complet from commande: {}/{}",
+                request.getCommandeId(),
+                request.getCommandeOrderDate());
         RetourBonDTO result = retourBonService.createRetourCompletFromCommande(request);
         return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -373,14 +397,16 @@ public class RetourBonResource {
      */
     @PostMapping("/retour-bons/export-groupe")
     @LicenseExempt("Consultation : export PDF groupé, aucune donnée modifiée")
-    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportGroupe(@RequestBody List<Integer> ids) {
         log.debug("REST request to export groupe PDF for RetourBons : {}", ids);
         byte[] pdf = retourBonService.exportGroupe(ids);
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"bordereau-groupe-retours.pdf\"")
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdf);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"bordereau-groupe-retours.pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     /**
@@ -390,11 +416,15 @@ public class RetourBonResource {
      */
     @PostMapping("/retour-bons/supplier-response")
     public ResponseEntity<AvoirFournisseurDTO> createSupplierResponse(@RequestBody AvoirFournisseurCommand command)
-        throws URISyntaxException {
+            throws URISyntaxException {
         log.debug("REST request to create avoir fournisseur from retour bon : {}", command.retourBonId());
         AvoirFournisseurDTO result = retourBonService.createSupplierResponse(command);
         return ResponseEntity.created(new URI("/api/avoirs-fournisseur/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "avoirFournisseur", result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName,
+                        true,
+                        "avoirFournisseur",
+                        result.getId().toString()))
+                .body(result);
     }
 }

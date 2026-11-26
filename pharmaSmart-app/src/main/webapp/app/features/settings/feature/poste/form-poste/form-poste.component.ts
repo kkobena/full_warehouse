@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   afterNextRender,
   Component,
@@ -10,45 +10,31 @@ import {
   signal,
   viewChild,
   ChangeDetectionStrategy,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { concat, EMPTY } from "rxjs";
-import { switchMap, toArray } from "rxjs/operators";
-import { PosteService } from "../poste.service";
-import { IPoste, Poste } from "../../../../../shared/model/poste.model";
-import { NgbActiveModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ErrorService } from "../../../../../shared/error.service";
-import { TauriDeviceDetectionService } from "../../../../../shared/services/tauri-device-detection.service";
-import { PosteDeviceService } from "../poste-device.service";
-import {
-  DeviceType,
-  IPosteDevice,
-  ISerialPortDetail,
-  ISystemInfo
-} from "../../../../../shared/model/poste-device.model";
-import { NotificationService } from "../../../../../shared/services/notification.service";
-import { CommonModule } from "@angular/common";
-import { BadgeComponent, ButtonComponent, CardComponent, SelectComponent } from "../../../../../shared/ui";
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { concat, EMPTY } from 'rxjs';
+import { switchMap, toArray } from 'rxjs/operators';
+import { PosteService } from '../poste.service';
+import { IPoste, Poste } from '../../../../../shared/model/poste.model';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../../../shared/error.service';
+import { TauriDeviceDetectionService } from '../../../../../shared/services/tauri-device-detection.service';
+import { PosteDeviceService } from '../poste-device.service';
+import { DeviceType, IPosteDevice, ISerialPortDetail, ISystemInfo } from '../../../../../shared/model/poste-device.model';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { CommonModule } from '@angular/common';
+import { BadgeComponent, ButtonComponent, CardComponent, SelectComponent } from '../../../../../shared/ui';
 
 @Component({
-  selector: "app-form-poste",
-  templateUrl: "./form-poste.component.html",
-  styleUrl: "./form-poste.component.scss",
+  selector: 'app-form-poste',
+  templateUrl: './form-poste.component.html',
+  styleUrl: './form-poste.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    CardComponent,
-    SelectComponent,
-    BadgeComponent,
-    NgbTooltip
-  ]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, SelectComponent, BadgeComponent, NgbTooltip],
 })
 export class FormPosteComponent implements OnInit, OnDestroy {
-  title = "";
+  title = '';
   entity: IPoste;
   protected fb = inject(UntypedFormBuilder);
   protected readonly isSaving = signal(false);
@@ -58,17 +44,17 @@ export class FormPosteComponent implements OnInit, OnDestroy {
     posteNumber: [null, [Validators.maxLength(20)]],
     address: [
       null,
-      [Validators.required, Validators.pattern(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)]
-    ]
+      [Validators.required, Validators.pattern(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)],
+    ],
   });
 
   // ── Détection automatique des ports série via Tauri ──
   protected readonly detectedPorts = signal<ISerialPortDetail[]>([]);
   protected readonly portsLoading = signal(false);
   protected readonly isTauri = signal(false);
-  protected readonly scannerTestResult = signal<"idle" | "waiting" | "ok" | "error">("idle");
-  protected readonly scannerErrorMessage = signal<string>("");
-  protected readonly displayTestResult = signal<"idle" | "waiting" | "ok" | "error">("idle");
+  protected readonly scannerTestResult = signal<'idle' | 'waiting' | 'ok' | 'error'>('idle');
+  protected readonly scannerErrorMessage = signal<string>('');
+  protected readonly displayTestResult = signal<'idle' | 'waiting' | 'ok' | 'error'>('idle');
   protected readonly portOptions = signal<{ label: string; value: string }[]>([]);
   protected readonly devices = signal<IPosteDevice[]>([]);
   protected readonly pendingDevices = signal<IPosteDevice[]>([]);
@@ -81,7 +67,7 @@ export class FormPosteComponent implements OnInit, OnDestroy {
   private scanTestCleanup: (() => void) | null = null;
   private readonly tauriDeviceService = inject(TauriDeviceDetectionService);
   private readonly posteDeviceService = inject(PosteDeviceService);
-  private nameInput = viewChild.required<ElementRef>("nameInput");
+  private nameInput = viewChild.required<ElementRef>('nameInput');
 
   constructor() {
     afterNextRender(() => {
@@ -115,25 +101,28 @@ export class FormPosteComponent implements OnInit, OnDestroy {
       // Mode édition — pas de devices à envoyer ici
       this.entityService.create(entity).subscribe({
         next: () => this.onSaveSuccess(),
-        error: err => this.onSaveError(err)
+        error: err => this.onSaveError(err),
       });
     } else {
       // Mode création — on crée le poste puis on envoie les devices en attente
-      this.entityService.create(entity).pipe(
-        switchMap(response => {
-          const createdPoste = response.body;
-          if (!createdPoste?.id || this.pendingDevices().length === 0) {
-            return EMPTY;
-          }
-          const deviceRequests = this.pendingDevices().map(d =>
-            this.posteDeviceService.create(createdPoste.id!, { ...d, posteId: createdPoste.id })
-          );
-          return concat(...deviceRequests).pipe(toArray());
-        })
-      ).subscribe({
-        next: () => this.onSaveSuccess(),
-        error: err => this.onSaveError(err)
-      });
+      this.entityService
+        .create(entity)
+        .pipe(
+          switchMap(response => {
+            const createdPoste = response.body;
+            if (!createdPoste?.id || this.pendingDevices().length === 0) {
+              return EMPTY;
+            }
+            const deviceRequests = this.pendingDevices().map(d =>
+              this.posteDeviceService.create(createdPoste.id!, { ...d, posteId: createdPoste.id }),
+            );
+            return concat(...deviceRequests).pipe(toArray());
+          }),
+        )
+        .subscribe({
+          next: () => this.onSaveSuccess(),
+          error: err => this.onSaveError(err),
+        });
     }
   }
 
@@ -151,8 +140,8 @@ export class FormPosteComponent implements OnInit, OnDestroy {
       this.portOptions.set(
         ports.map(p => ({
           label: this.buildPortLabel(p),
-          value: p.portName
-        }))
+          value: p.portName,
+        })),
       );
     } catch {
       // Tauri command failed
@@ -166,8 +155,8 @@ export class FormPosteComponent implements OnInit, OnDestroy {
     try {
       const info: ISystemInfo | null = await this.tauriDeviceService.getSystemInfo();
       if (info) {
-        const currentName = this.editForm.get("name")?.value;
-        const currentAddress = this.editForm.get("address")?.value;
+        const currentName = this.editForm.get('name')?.value;
+        const currentAddress = this.editForm.get('address')?.value;
         if (!currentName) {
           this.editForm.patchValue({ name: info.hostname });
         }
@@ -182,7 +171,6 @@ export class FormPosteComponent implements OnInit, OnDestroy {
 
   /** Construit un libellé descriptif pour un port série détecté */
   private buildPortLabel(port: ISerialPortDetail): string {
-
     const parts: string[] = [port.portName];
     // Afficher le chipset ou le fabricant entre crochets
     if (port.chipset) {
@@ -197,19 +185,19 @@ export class FormPosteComponent implements OnInit, OnDestroy {
     if (port.suggestedRole) {
       parts.push(`💡 ${this.roleLabel(port.suggestedRole)}`);
     }
-    return parts.join(" ");
+    return parts.join(' ');
   }
 
   /** Tester le scanner sur un port donné */
   protected async testScanner(portName: string, baudRate: number): Promise<void> {
     if (!portName || !this.isTauri()) return;
-    this.scannerTestResult.set("waiting");
-    this.scannerErrorMessage.set("");
+    this.scannerTestResult.set('waiting');
+    this.scannerErrorMessage.set('');
     // Annuler un test en cours si relancé
     this.scanTestCleanup?.();
     this.scanTestCleanup = null;
     try {
-      const { listen } = await import("@tauri-apps/api/event");
+      const { listen } = await import('@tauri-apps/api/event');
       // Enregistrer les listeners AVANT de démarrer le scanner pour éviter toute race condition
       let unlistenScan: (() => void) | null = null;
       let unlistenError: (() => void) | null = null;
@@ -226,25 +214,25 @@ export class FormPosteComponent implements OnInit, OnDestroy {
       };
       this.scanTestCleanup = cleanup;
       [unlistenScan, unlistenError] = await Promise.all([
-        listen<string>("scan-test", async () => {
+        listen<string>('scan-test', async () => {
           await cleanup();
-          this.scannerTestResult.set("ok");
+          this.scannerTestResult.set('ok');
         }),
-        listen<string>("scan-error", async event => {
+        listen<string>('scan-error', async event => {
           await cleanup();
-          this.scannerErrorMessage.set(event.payload ?? "Erreur port série");
-          this.scannerTestResult.set("error");
-        })
+          this.scannerErrorMessage.set(event.payload ?? 'Erreur port série');
+          this.scannerTestResult.set('error');
+        }),
       ]);
       timer = setTimeout(async () => {
         await cleanup();
-        this.scannerTestResult.set("error");
-        this.scannerErrorMessage.set("Aucun scan reçu dans les 5 secondes");
+        this.scannerTestResult.set('error');
+        this.scannerErrorMessage.set('Aucun scan reçu dans les 5 secondes');
       }, 5000);
-      await this.tauriDeviceService.startScannerListener(portName, baudRate, "scan-test");
+      await this.tauriDeviceService.startScannerListener(portName, baudRate, 'scan-test');
     } catch (e: any) {
-      this.scannerErrorMessage.set(e?.message ?? "Erreur de démarrage");
-      this.scannerTestResult.set("error");
+      this.scannerErrorMessage.set(e?.message ?? 'Erreur de démarrage');
+      this.scannerTestResult.set('error');
     }
   }
 
@@ -255,29 +243,29 @@ export class FormPosteComponent implements OnInit, OnDestroy {
   /** Tester l'afficheur client */
   protected async testDisplay(portName: string): Promise<void> {
     if (!portName || !this.isTauri()) return;
-    this.displayTestResult.set("waiting");
+    this.displayTestResult.set('waiting');
     try {
-      await this.tauriDeviceService.sendToDisplay(portName, "PHARMA-SMART", 9600);
-      this.displayTestResult.set("ok");
+      await this.tauriDeviceService.sendToDisplay(portName, 'PHARMA-SMART', 9600);
+      this.displayTestResult.set('ok');
     } catch {
-      this.displayTestResult.set("error");
+      this.displayTestResult.set('error');
     }
   }
 
   protected readonly deviceTypeOptions = [
-    { label: "Scanner", value: "SCANNER" },
-    { label: "Afficheur", value: "DISPLAY" },
-    { label: "Imprimante", value: "PRINTER" }
+    { label: 'Scanner', value: 'SCANNER' },
+    { label: 'Afficheur', value: 'DISPLAY' },
+    { label: 'Imprimante', value: 'PRINTER' },
   ];
 
   protected roleLabel(role: string): string {
     switch (role) {
-      case "scanner":
-        return "Scanner";
-      case "display":
-        return "Afficheur";
-      case "printer":
-        return "Imprimante";
+      case 'scanner':
+        return 'Scanner';
+      case 'display':
+        return 'Afficheur';
+      case 'printer':
+        return 'Imprimante';
       default:
         return role;
     }
@@ -285,7 +273,8 @@ export class FormPosteComponent implements OnInit, OnDestroy {
 
   protected activateDevice(device: IPosteDevice): void {
     if (device.id && this.entity?.id) {
-      this.posteDeviceService.activate(this.entity.id, device.id)
+      this.posteDeviceService
+        .activate(this.entity.id, device.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => this.loadDevices(this.entity.id!));
     }
@@ -294,7 +283,8 @@ export class FormPosteComponent implements OnInit, OnDestroy {
   protected deleteDevice(device: IPosteDevice): void {
     if (device.id && this.entity?.id) {
       // Mode édition — suppression backend
-      this.posteDeviceService.delete(this.entity.id, device.id)
+      this.posteDeviceService
+        .delete(this.entity.id, device.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => this.loadDevices(this.entity.id!));
     } else {
@@ -317,12 +307,13 @@ export class FormPosteComponent implements OnInit, OnDestroy {
       manufacturer: port.manufacturer ?? undefined,
       productName: port.product ?? undefined,
       serialNumber: port.serialNumber ?? undefined,
-      active: false
+      active: false,
     };
 
     if (this.entity?.id) {
       // Mode édition — envoi immédiat au backend
-      this.posteDeviceService.create(this.entity.id, newDevice)
+      this.posteDeviceService
+        .create(this.entity.id, newDevice)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => this.loadDevices(this.entity.id!));
     } else {
@@ -333,9 +324,12 @@ export class FormPosteComponent implements OnInit, OnDestroy {
   }
 
   private loadDevices(posteId: number): void {
-    this.posteDeviceService.fetchAll(posteId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      this.devices.set(res.body ?? []);
-    });
+    this.posteDeviceService
+      .fetchAll(posteId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        this.devices.set(res.body ?? []);
+      });
   }
 
   private updateForm(entity: IPoste): void {
@@ -343,10 +337,9 @@ export class FormPosteComponent implements OnInit, OnDestroy {
       id: entity.id,
       name: entity.name,
       posteNumber: entity.posteNumber,
-      address: entity.address
+      address: entity.address,
     });
   }
-
 
   private onSaveSuccess(): void {
     this.activeModal.close();
@@ -360,10 +353,10 @@ export class FormPosteComponent implements OnInit, OnDestroy {
   private createFromForm(): IPoste {
     return {
       ...new Poste(),
-      id: this.editForm.get(["id"]).value,
-      name: this.editForm.get(["name"]).value,
-      posteNumber: this.editForm.get(["posteNumber"]).value,
-      address: this.editForm.get(["address"]).value
+      id: this.editForm.get(['id']).value,
+      name: this.editForm.get(['name']).value,
+      posteNumber: this.editForm.get(['posteNumber']).value,
+      address: this.editForm.get(['address']).value,
     };
   }
 }

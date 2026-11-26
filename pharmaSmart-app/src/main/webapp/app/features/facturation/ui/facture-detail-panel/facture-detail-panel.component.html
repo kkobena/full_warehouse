@@ -85,11 +85,25 @@
           </a>
           <ng-template ngbNavContent>
             <app-detail-grid>
-              <app-detail-section header="Dossiers de la facture" icon="pi pi-list" [accent]="'blue'"
-                                  [width]="'full'" [layout]="'block'" [count]="factureItems().length"
-                                  [loading]="loadingItems()" [skeletonRows]="5" storageKey="facture.detail.dossiers">
-                <app-data-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
-                         [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [size]="'small'">
+              <app-detail-section
+                header="Dossiers de la facture"
+                icon="pi pi-list"
+                [accent]="'blue'"
+                [width]="'full'"
+                [layout]="'block'"
+                [count]="factureItems().length"
+                [loading]="loadingItems()"
+                [skeletonRows]="5"
+                storageKey="facture.detail.dossiers"
+              >
+                <app-data-table
+                  [stripedRows]="true"
+                  [value]="factureItems()"
+                  [paginator]="true"
+                  [rows]="10"
+                  [rowsPerPageOptions]="[10, 25, 50]"
+                  [size]="'small'"
+                >
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>N° Bon</th>
@@ -101,11 +115,21 @@
                   </ng-template>
                   <ng-template #body let-item>
                     <tr>
-                      <td><span class="pharma-code">{{ item.numBon }}</span></td>
-                      <td><span class="pharma-entity-name">{{ item.customer?.fullName }}</span></td>
-                      <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ item.montantVente | number }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ item.montantRegle | number }}</span></td>
+                      <td>
+                        <span class="pharma-code">{{ item.numBon }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-entity-name">{{ item.customer?.fullName }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-price">{{ item.montantVente | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-price">{{ item.montantRegle | number }}</span>
+                      </td>
                     </tr>
                   </ng-template>
                   <ng-template #emptymessage>
@@ -128,20 +152,24 @@
             </a>
             <ng-template ngbNavContent>
               <app-detail-grid>
-                <app-detail-section header="Régler" icon="pi pi-money-bill" [accent]="'success'"
-                                    [width]="'full'" [layout]="'block'"
-                                     storageKey="facture.regler">
-              <app-reglement-workspace
-                [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
-                [dossierFactureProjection]="dossierFactureProjection()"
-                [reglementFactureDossiers]="reglementDossiers()" />
-              </app-detail-section>
+                <app-detail-section
+                  header="Régler"
+                  icon="pi pi-money-bill"
+                  [accent]="'success'"
+                  [width]="'full'"
+                  [layout]="'block'"
+                  storageKey="facture.regler"
+                >
+                  <app-reglement-workspace
+                    [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
+                    [dossierFactureProjection]="dossierFactureProjection()"
+                    [reglementFactureDossiers]="reglementDossiers()"
+                  />
+                </app-detail-section>
               </app-detail-grid>
             </ng-template>
           </ng-container>
         }
-
-
 
         <!-- Onglet Versements -->
 
@@ -153,11 +181,18 @@
           <ng-template ngbNavContent>
             <!-- à deplacer dans un composant dedié -->
             <app-detail-grid>
-              <app-detail-section header="Versements" icon="pi pi-history" [accent]="'teal'"
-                                  [width]="'full'" [layout]="'block'" [count]="reglements().length"
-                                  [loading]="loadingReglements()" [skeletonRows]="5" storageKey="facture.versements">
-                <app-data-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
-                         [rows]="10" [size]="'small'">
+              <app-detail-section
+                header="Versements"
+                icon="pi pi-history"
+                [accent]="'teal'"
+                [width]="'full'"
+                [layout]="'block'"
+                [count]="reglements().length"
+                [loading]="loadingReglements()"
+                [skeletonRows]="5"
+                storageKey="facture.versements"
+              >
+                <app-data-table [stripedRows]="true" [value]="reglements()" [paginator]="true" [rows]="10" [size]="'small'">
                   <ng-template #header>
                     <tr class="pharma-table-head">
                       <th>Date</th>
@@ -170,9 +205,15 @@
                   <ng-template #body let-r>
                     <tr>
                       <td>{{ r.created }}</td>
-                      <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
-                      <td class="text-right"><span class="pharma-total">{{ r.paidAmount }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+                      <td>
+                        <span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-total">{{ r.paidAmount }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-price">{{ r.montantRestant }}</span>
+                      </td>
                       <td>{{ r.user }}</td>
                     </tr>
                   </ng-template>
@@ -199,7 +240,6 @@
           </ng-container>
         }
       </div>
-
     </app-nav-tabs>
   </div>
 }

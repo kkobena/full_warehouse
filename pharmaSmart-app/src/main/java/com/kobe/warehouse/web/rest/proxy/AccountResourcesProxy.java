@@ -20,34 +20,33 @@ public class AccountResourcesProxy {
     private final UserService userService;
     private final CustomerDisplayService customerDisplayService;
 
-    public AccountResourcesProxy(UserRepository userRepository, UserService userService, CustomerDisplayService customerDisplayService) {
+    public AccountResourcesProxy(
+            UserRepository userRepository, UserService userService, CustomerDisplayService customerDisplayService) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.customerDisplayService = customerDisplayService;
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
-        return (
-            StringUtils.isEmpty(password) ||
-            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
-            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
-        );
+        return (StringUtils.isEmpty(password)
+                || password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH
+                || password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH);
     }
 
     protected AdminUserDTO getAccount() {
         AdminUserDTO userDTO = userService
-            .getUserConnectedWithAuthorities()
-            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+                .getUserConnectedWithAuthorities()
+                .orElseThrow(() -> new AccountResourceException("User could not be found"));
         customerDisplayService.connectedUserMessage(userDTO.getLastName());
         return userDTO;
     }
 
     protected void saveAccount(AdminUserDTO userDTO) {
         String userLogin = SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+                .orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<AppUser> existingUser = org.springframework.util.StringUtils.hasText(userDTO.getEmail())
-            ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
-            : Optional.empty();
+                ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
+                : Optional.empty();
         if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
             throw new EmailAlreadyUsedException();
         }
@@ -56,12 +55,11 @@ public class AccountResourcesProxy {
             throw new AccountResourceException("User could not be found");
         }
         userService.updateUser(
-            userDTO.getFirstName(),
-            userDTO.getLastName(),
-            userDTO.getEmail(),
-            userDTO.getLangKey(),
-            userDTO.getImageUrl()
-        );
+                userDTO.getFirstName(),
+                userDTO.getLastName(),
+                userDTO.getEmail(),
+                userDTO.getLangKey(),
+                userDTO.getImageUrl());
     }
 
     protected void changePassword(PasswordChangeDTO passwordChangeDto) {
@@ -79,7 +77,8 @@ public class AccountResourcesProxy {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }
-        Optional<AppUser> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+        Optional<AppUser> user =
+                userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
         if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");

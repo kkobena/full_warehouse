@@ -2,28 +2,25 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
-
 import java.util.Comparator;
 import java.util.List;
 
 public class DeliveryReceiptDTO extends CommandeWrapperDTO {
 
-    private  Integer fournisseurId;
-    private  String fournisseurLibelle;
-
+    private Integer fournisseurId;
+    private String fournisseurLibelle;
 
     private final List<OrderLineDTO> orderLines;
-    private  int itemSize;
+    private int itemSize;
 
     public DeliveryReceiptDTO(Commande commande) {
-        this(commande, commande
-            .getOrderLines()
-            .stream()
-            .map(OrderLineDTO::new)
-            .sorted(Comparator.comparing(OrderLineDTO::getProduitLibelle))
-            .toList());
+        this(
+                commande,
+                commande.getOrderLines().stream()
+                        .map(OrderLineDTO::new)
+                        .sorted(Comparator.comparing(OrderLineDTO::getProduitLibelle))
+                        .toList());
     }
-
 
     public DeliveryReceiptDTO(Commande commande, List<OrderLineDTO> items) {
         super(commande);
@@ -32,7 +29,6 @@ public class DeliveryReceiptDTO extends CommandeWrapperDTO {
             fournisseurId = fournisseur.getId();
             fournisseurLibelle = fournisseur.getLibelle();
         }
-
 
         orderLines = items;
         itemSize = items.size();
@@ -61,7 +57,6 @@ public class DeliveryReceiptDTO extends CommandeWrapperDTO {
     public String getFournisseurLibelle() {
         return fournisseurLibelle;
     }
-
 
     public List<OrderLineDTO> getOrderLines() {
         return orderLines;

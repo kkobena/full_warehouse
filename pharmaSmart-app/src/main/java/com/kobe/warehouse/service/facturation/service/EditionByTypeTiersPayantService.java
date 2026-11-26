@@ -20,30 +20,28 @@ public class EditionByTypeTiersPayantService extends AbstractEditionFactureServi
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     public EditionByTypeTiersPayantService(
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationRepository facturationRepository,
-        AppConfigurationService appConfigurationService,
-        UserService userService,
-        FactureIdGeneratorService factureIdGeneratorService,
-        InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
-    ) {
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            FacturationRepository facturationRepository,
+            AppConfigurationService appConfigurationService,
+            UserService userService,
+            FactureIdGeneratorService factureIdGeneratorService,
+            InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService) {
         super(
-            thirdPartySaleLineRepository,
-            facturationRepository,
-            appConfigurationService,
-            userService,
-            factureIdGeneratorService,
-            invoiceGenerationCodeGeneratorService
-        );
+                thirdPartySaleLineRepository,
+                facturationRepository,
+                appConfigurationService,
+                userService,
+                factureIdGeneratorService,
+                invoiceGenerationCodeGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
     @Override
     protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.categorieTiersPayants())) {
-            return super
-                .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(editionSearchParams.categorieTiersPayants()));
+            return super.buildFetchSpecification(editionSearchParams)
+                    .and(this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(
+                            editionSearchParams.categorieTiersPayants()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

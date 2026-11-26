@@ -44,7 +44,8 @@ class EcartsPilotageServiceImplTest {
     private static final PeriodeDTO PERIODE = new PeriodeDTO(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 9));
     private static final PeriodeDTO REFERENCE = new PeriodeDTO(LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 9));
     private static final ComparaisonPeriodesDTO COMPARAISON = new ComparaisonPeriodesDTO(PERIODE, REFERENCE, true);
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
 
     @Mock
     private PeriodeComparaisonService periodeComparaisonService;
@@ -68,9 +69,8 @@ class EcartsPilotageServiceImplTest {
         when(lecteurMesuresPilotage.lireTotal(REFERENCE)).thenReturn(mesures(100, 200, 100_000));
         when(lecteurMesuresPilotage.lireTotal(PERIODE)).thenReturn(mesures(110, 275, 110_000));
         when(dictionnaireIndicateursService.lireDroitsAccordes()).thenReturn(EnumSet.allOf(DroitPilotage.class));
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.LIGNES), eq(COMPARAISON), any(), any(), any(), any())).thenReturn(
-            new Ventilation(List.of(), MesuresComparees.AUCUNES)
-        );
+        when(ventilateurPilotage.comparer(eq(SourceAnalyse.LIGNES), eq(COMPARAISON), any(), any(), any(), any()))
+                .thenReturn(new Ventilation(List.of(), MesuresComparees.AUCUNES));
     }
 
     @Test
@@ -81,7 +81,8 @@ class EcartsPilotageServiceImplTest {
         assertThat(ecarts.effetFrequentation()).isEqualTo(10_000);
         assertThat(ecarts.effetArticles()).isEqualTo(27_500);
         assertThat(ecarts.effetPrix()).isEqualTo(-27_500);
-        assertThat(ecarts.effetFrequentation() + ecarts.effetArticles() + ecarts.effetPrix()).isEqualTo(ecarts.ca() - ecarts.caReference());
+        assertThat(ecarts.effetFrequentation() + ecarts.effetArticles() + ecarts.effetPrix())
+                .isEqualTo(ecarts.ca() - ecarts.caReference());
     }
 
     @Test
@@ -97,19 +98,23 @@ class EcartsPilotageServiceImplTest {
     @Test
     @DisplayName("hausses et baisses : les plus forts écarts de chaque sens, toutes ventilations confondues")
     void contributionsClassees() {
-        when(ventilateurPilotage.comparer(eq(SourceAnalyse.LIGNES), eq(COMPARAISON), eq(AxeAnalyse.FAMILLE), any(), any(), any())).thenReturn(
-            new Ventilation(
-                List.of(element("1", "Antalgiques", 30_000, 40_000), element("2", "Dermatologie", 0, 8_000), element("3", "Vitamines", 5_000, 0)),
-                MesuresComparees.AUCUNES
-            )
-        );
+        when(ventilateurPilotage.comparer(
+                        eq(SourceAnalyse.LIGNES), eq(COMPARAISON), eq(AxeAnalyse.FAMILLE), any(), any(), any()))
+                .thenReturn(new Ventilation(
+                        List.of(
+                                element("1", "Antalgiques", 30_000, 40_000),
+                                element("2", "Dermatologie", 0, 8_000),
+                                element("3", "Vitamines", 5_000, 0)),
+                        MesuresComparees.AUCUNES));
 
         EcartsPilotageDTO ecarts = service.expliquerEcarts(REQUETE, 5);
 
-        assertThat(ecarts.hausses()).extracting(ContributionDTO::libelle, ContributionDTO::ecart).containsExactly(tuple("Vitamines", 5_000L));
+        assertThat(ecarts.hausses())
+                .extracting(ContributionDTO::libelle, ContributionDTO::ecart)
+                .containsExactly(tuple("Vitamines", 5_000L));
         assertThat(ecarts.baisses())
-            .extracting(ContributionDTO::libelle, ContributionDTO::ecart)
-            .containsExactly(tuple("Antalgiques", -10_000L), tuple("Dermatologie", -8_000L));
+                .extracting(ContributionDTO::libelle, ContributionDTO::ecart)
+                .containsExactly(tuple("Antalgiques", -10_000L), tuple("Dermatologie", -8_000L));
         assertThat(ecarts.hausses()).extracting(ContributionDTO::libelleAxe).containsExactly("Famille");
     }
 

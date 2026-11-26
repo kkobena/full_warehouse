@@ -1,20 +1,13 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild, signal } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {RemiseService} from '../remise.service';
-import {CodeRemise, GrilleRemise, IRemise, Remise} from '../../../shared/model/remise.model';
-import {Observable} from 'rxjs';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {ErrorService} from '../../../shared/error.service';
-import {ButtonComponent, CardComponent, SelectComponent} from '../../../shared/ui';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { RemiseService } from '../remise.service';
+import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
+import { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ErrorService } from '../../../shared/error.service';
+import { ButtonComponent, CardComponent, SelectComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-remise-produit-form-modal',
@@ -186,8 +179,8 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   }
 
   private addGrille(codeRemise: CodeRemise): void {
-    this.grilleVno.patchValue({code: codeRemise.codeVno});
-    this.grilleVo.patchValue({code: codeRemise.codeVo});
+    this.grilleVno.patchValue({ code: codeRemise.codeVno });
+    this.grilleVo.patchValue({ code: codeRemise.codeVo });
   }
 
   private buildGrilles(): GrilleRemise[] {

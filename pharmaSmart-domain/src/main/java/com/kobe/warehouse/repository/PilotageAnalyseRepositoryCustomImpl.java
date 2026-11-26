@@ -44,7 +44,8 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
     public List<MesuresVentileesDTO> ventiler(RequeteVentilationDTO requete) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
-        Class<?> agregat = requete.source() == SourceAnalyse.LIGNES ? PilotageVenteLigneJour.class : PilotageVenteJour.class;
+        Class<?> agregat =
+                requete.source() == SourceAnalyse.LIGNES ? PilotageVenteLigneJour.class : PilotageVenteJour.class;
         Root<?> racine = query.from(agregat);
         Dimensions dimensions = new Dimensions(cb, racine);
 
@@ -62,16 +63,19 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
         }
         selections.addAll(selectionnerMesures(cb, racine, requete.source()));
 
-        query.select(cb.tuple(selections)).where(filtrer(cb, racine, dimensions, requete)).groupBy(regroupements);
-        return em.createQuery(query).getResultList().stream().map(tuple -> lire(tuple, requete)).toList();
+        query.select(cb.tuple(selections))
+                .where(filtrer(cb, racine, dimensions, requete))
+                .groupBy(regroupements);
+        return em.createQuery(query).getResultList().stream()
+                .map(tuple -> lire(tuple, requete))
+                .toList();
     }
 
     private static List<Selection<?>> selectionnerMesures(CriteriaBuilder cb, Root<?> racine, SourceAnalyse source) {
         List<Selection<?>> mesures = new ArrayList<>(List.of(
-            cb.sum(racine.<Long>get("montantTtc")).alias("caTtc"),
-            cb.sum(racine.<Long>get("montantHt")).alias("caHt"),
-            cb.sum(racine.<Long>get("remise")).alias("remise")
-        ));
+                cb.sum(racine.<Long>get("montantTtc")).alias("caTtc"),
+                cb.sum(racine.<Long>get("montantHt")).alias("caHt"),
+                cb.sum(racine.<Long>get("remise")).alias("remise")));
         if (source == SourceAnalyse.LIGNES) {
             mesures.add(cb.sum(racine.<Long>get("coutHt")).alias("coutHt"));
             mesures.add(cb.sum(racine.<Long>get("quantiteServie")).alias("quantite"));
@@ -82,7 +86,8 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
         return mesures;
     }
 
-    private static Predicate[] filtrer(CriteriaBuilder cb, Root<?> racine, Dimensions dimensions, RequeteVentilationDTO requete) {
+    private static Predicate[] filtrer(
+            CriteriaBuilder cb, Root<?> racine, Dimensions dimensions, RequeteVentilationDTO requete) {
         List<Predicate> conditions = new ArrayList<>();
         conditions.add(cb.between(racine.get("jour"), requete.du(), requete.au()));
         conditions.add(racine.get("categorieChiffreAffaire").in(requete.categories()));
@@ -91,10 +96,9 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
         }
         for (FiltreAnalyseDTO filtre : requete.filtres()) {
             conditions.add(
-                filtre.axe() == AxeAnalyse.REMISE
-                    ? retenirTranches(cb, racine.get("tauxRemise"), filtre.cles())
-                    : retenir(cb, dimensions.lire(filtre.axe()).cle(), filtre.cles())
-            );
+                    filtre.axe() == AxeAnalyse.REMISE
+                            ? retenirTranches(cb, racine.get("tauxRemise"), filtre.cles())
+                            : retenir(cb, dimensions.lire(filtre.axe()).cle(), filtre.cles()));
         }
         return conditions.toArray(Predicate[]::new);
     }
@@ -108,32 +112,28 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
 
     /** Une tranche s'écrit {@code min-max} (taux inclus). */
     private static Predicate retenirTranches(CriteriaBuilder cb, Expression<Short> taux, List<String> tranches) {
-        return cb.or(
-            tranches
-                .stream()
+        return cb.or(tranches.stream()
                 .map(tranche -> tranche.split("-"))
                 .map(bornes -> cb.between(taux, Short.valueOf(bornes[0]), Short.valueOf(bornes[bornes.length - 1])))
-                .toArray(Predicate[]::new)
-        );
+                .toArray(Predicate[]::new));
     }
 
     private static MesuresVentileesDTO lire(Tuple tuple, RequeteVentilationDTO requete) {
         int nombreAxes = requete.axes().size();
         boolean lignes = requete.source() == SourceAnalyse.LIGNES;
         return new MesuresVentileesDTO(
-            nombreAxes > 0 ? tuple.get("cle0", String.class) : null,
-            nombreAxes > 0 ? tuple.get("libelle0", String.class) : null,
-            nombreAxes > 1 ? tuple.get("cle1", String.class) : null,
-            nombreAxes > 1 ? tuple.get("libelle1", String.class) : null,
-            requete.parJour() ? tuple.get("jour", LocalDate.class) : null,
-            lignes ? 0 : somme(tuple, "nbVentes"),
-            somme(tuple, "caTtc"),
-            somme(tuple, "caHt"),
-            somme(tuple, "remise"),
-            lignes ? somme(tuple, "coutHt") : 0,
-            lignes ? somme(tuple, "quantite") : 0,
-            lignes ? 0 : somme(tuple, "partTiersPayant")
-        );
+                nombreAxes > 0 ? tuple.get("cle0", String.class) : null,
+                nombreAxes > 0 ? tuple.get("libelle0", String.class) : null,
+                nombreAxes > 1 ? tuple.get("cle1", String.class) : null,
+                nombreAxes > 1 ? tuple.get("libelle1", String.class) : null,
+                requete.parJour() ? tuple.get("jour", LocalDate.class) : null,
+                lignes ? 0 : somme(tuple, "nbVentes"),
+                somme(tuple, "caTtc"),
+                somme(tuple, "caHt"),
+                somme(tuple, "remise"),
+                lignes ? somme(tuple, "coutHt") : 0,
+                lignes ? somme(tuple, "quantite") : 0,
+                lignes ? 0 : somme(tuple, "partTiersPayant"));
     }
 
     private static long somme(Tuple tuple, String alias) {
@@ -168,7 +168,10 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
                 case FORME -> referentiel(joindreProduit().join("forme", JoinType.LEFT));
                 case GAMME -> referentiel(joindreProduit().join("gamme", JoinType.LEFT));
                 case DCI -> referentiel(joindreProduit().join("dci", JoinType.LEFT));
-                case FOURNISSEUR -> referentiel(joindreProduit().join("fournisseurProduitPrincipal", JoinType.LEFT).join("fournisseur", JoinType.LEFT));
+                case FOURNISSEUR ->
+                    referentiel(joindreProduit()
+                            .join("fournisseurProduitPrincipal", JoinType.LEFT)
+                            .join("fournisseur", JoinType.LEFT));
                 case TVA -> {
                     Join<?, ?> tva = joindreProduit().join("tva", JoinType.LEFT);
                     yield new Dimension(texte(tva.get("id")), texte(tva.get("taux")));
@@ -180,7 +183,8 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
                 case OCTROI_REMISE -> code(racine.get("octroiRemise"));
                 case VENDEUR -> utilisateur("vendeurId");
                 case CAISSIER -> utilisateur("caissierId");
-                case JOUR_SEMAINE, PERIODE -> throw new IllegalArgumentException(axe + " se déduit du jour, il n'est pas lu en base");
+                case JOUR_SEMAINE, PERIODE ->
+                    throw new IllegalArgumentException(axe + " se déduit du jour, il n'est pas lu en base");
             };
         }
 
@@ -195,7 +199,9 @@ public class PilotageAnalyseRepositoryCustomImpl implements PilotageAnalyseRepos
         private Dimension utilisateur(String attribut) {
             Join<?, AppUser> utilisateur = racine.join(AppUser.class, JoinType.LEFT);
             utilisateur.on(cb.equal(utilisateur.get("id"), racine.get(attribut)));
-            return new Dimension(texte(utilisateur.get("id")), cb.concat(cb.concat(utilisateur.get("firstName"), " "), utilisateur.get("lastName")));
+            return new Dimension(
+                    texte(utilisateur.get("id")),
+                    cb.concat(cb.concat(utilisateur.get("firstName"), " "), utilisateur.get("lastName")));
         }
 
         private Dimension referentiel(From<?, ?> table) {

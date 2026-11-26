@@ -29,12 +29,32 @@ export class SectionDifferesComponent {
       return [];
     }
     return [
-      { libelle: 'Différés à recouvrer', definition: 'Reste dû des ventes différées, à date.', unite: 'MONTANT', sens: 'BAISSE', cellule: celluleSeule(differes.encours) },
-      { libelle: 'Avoirs émis', definition: 'Avoirs clients créés sur la période.', unite: 'MONTANT', sens: 'BAISSE', cellule: differes.avoirsEmis },
-      { libelle: 'Avoirs remboursés', definition: 'Avoirs clôturés par remboursement (espèces ou carte).', unite: 'MONTANT', sens: 'NEUTRE', cellule: differes.avoirsRembourses },
+      {
+        libelle: 'Différés à recouvrer',
+        definition: 'Reste dû des ventes différées, à date.',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: celluleSeule(differes.encours),
+      },
+      {
+        libelle: 'Avoirs émis',
+        definition: 'Avoirs clients créés sur la période.',
+        unite: 'MONTANT',
+        sens: 'BAISSE',
+        cellule: differes.avoirsEmis,
+      },
+      {
+        libelle: 'Avoirs remboursés',
+        definition: 'Avoirs clôturés par remboursement (espèces ou carte).',
+        unite: 'MONTANT',
+        sens: 'NEUTRE',
+        cellule: differes.avoirsRembourses,
+      },
     ];
   });
 
   protected readonly libelles = computed(() => (this.differes.value()?.vieillissement ?? []).map(t => t.libelle));
-  protected readonly series = computed<SerieBarres[]>(() => [{ libelle: 'Reste dû', valeurs: (this.differes.value()?.vieillissement ?? []).map(t => t.montant) }]);
+  protected readonly series = computed<SerieBarres[]>(() => [
+    { libelle: 'Reste dû', valeurs: (this.differes.value()?.vieillissement ?? []).map(t => t.montant) },
+  ]);
 }

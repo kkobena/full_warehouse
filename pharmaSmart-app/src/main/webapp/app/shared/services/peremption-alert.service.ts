@@ -41,19 +41,17 @@ export class PeremptionAlertService {
    * À appeler au démarrage + polling toutes les 15 min (main.component.ts).
    */
   fetchAlerts(): void {
-    this.http
-      .get<StockAlertCountMap>(this.config.getEndpointFor('api/stock/alerts/count'))
-      .subscribe({
-        next: data => {
-          this._peremptionCount.set(data['PEREMPTION'] ?? 0);
-          this._ruptureCount.set(data['RUPTURE'] ?? 0);
-          this._alerteCount.set(data['ALERTE'] ?? 0);
-        },
-        error: () => {
-          this._peremptionCount.set(0);
-          this._ruptureCount.set(0);
-          this._alerteCount.set(0);
-        },
-      });
+    this.http.get<StockAlertCountMap>(this.config.getEndpointFor('api/stock/alerts/count')).subscribe({
+      next: data => {
+        this._peremptionCount.set(data['PEREMPTION'] ?? 0);
+        this._ruptureCount.set(data['RUPTURE'] ?? 0);
+        this._alerteCount.set(data['ALERTE'] ?? 0);
+      },
+      error: () => {
+        this._peremptionCount.set(0);
+        this._ruptureCount.set(0);
+        this._alerteCount.set(0);
+      },
+    });
   }
 }

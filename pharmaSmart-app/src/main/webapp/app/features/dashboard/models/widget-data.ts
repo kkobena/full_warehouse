@@ -33,7 +33,10 @@ export function toTable(data: WidgetData, valueType: ColumnType = 'number'): Tab
   }
   return {
     kind: 'TABLE',
-    columns: [{ field: '_label', header: '', type: 'string' }, ...data.series.map((s, i) => ({ field: `s${i}`, header: s.name, type: valueType }))],
+    columns: [
+      { field: '_label', header: '', type: 'string' },
+      ...data.series.map((s, i) => ({ field: `s${i}`, header: s.name, type: valueType })),
+    ],
     rows: data.labels.map((label, row) => {
       const cells: Record<string, unknown> = { _label: label };
       data.series.forEach((s, i) => (cells[`s${i}`] = s.values[row]));
@@ -144,7 +147,9 @@ function formatDateTime(value: string): string {
     return value;
   }
   const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  return date.toDateString() === new Date().toDateString() ? time : `${date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} ${time}`;
+  return date.toDateString() === new Date().toDateString()
+    ? time
+    : `${date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} ${time}`;
 }
 
 function toNumber(value: unknown): number | null {

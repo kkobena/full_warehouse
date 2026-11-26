@@ -1,15 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
-
-export type AppButtonSeverity =
-  'primary'
-  | 'secondary'
-  | 'success'
-  | 'info'
-  | 'warn'
-  | 'danger'
-  | 'help'
-  | 'contrast';
+export type AppButtonSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
 
 export type AppButtonSize = 'small' | 'normal' | 'large';
 
@@ -44,7 +35,6 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
       [attr.aria-busy]="loading() ? 'true' : null"
       (click)="clicked.emit($event)"
     >
-
       @if (loading()) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
       } @else if (icon() && iconPos() === 'left') {
@@ -61,11 +51,9 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
     </button>
   `,
   styles: `
-
     :host([hidden]) {
       display: none !important;
     }
-
 
     .app-btn-icon-only {
       aspect-ratio: 1;
@@ -77,25 +65,21 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
     }
 
     .app-btn-normal {
-
       font-size: inherit;
-
 
       --bs-btn-padding-x: 0.625rem;
     }
 
-
     .app-btn-raised {
-      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 2px 2px 0 rgba(0, 0, 0, 0.14),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      box-shadow:
+        0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
     }
-
 
     .app-btn-text:hover:not(:disabled) {
       background-color: rgba(var(--bs-emphasis-color-rgb), 0.075);
     }
-
 
     :host-context(.input-group) {
       display: flex;
@@ -107,7 +91,6 @@ export type AppButtonSize = 'small' | 'normal' | 'large';
         border-bottom-left-radius: 0;
       }
     }
-
 
     :host-context(.btn-group) {
       &:not(:first-child) .btn {

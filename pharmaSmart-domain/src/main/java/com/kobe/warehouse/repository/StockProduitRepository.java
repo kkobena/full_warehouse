@@ -2,14 +2,13 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.StorageType;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Spring Data  repository for the StockProduit entity.
@@ -29,9 +28,10 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     StockProduit findOneByProduitIdAndStockageId(Integer produitId, Integer stockageId);
 
     @Query(
-        value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId "
-    )
-    Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
+            value =
+                    "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId ")
+    Integer findTotalQuantityByMagasinIdIdAndProduitId(
+            @Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
 
     /**
      * Stock d'un produit qui couvre réellement la demande, pour le calcul de réapprovisionnement :
@@ -46,18 +46,16 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
      * @param types issus de {@link com.kobe.warehouse.domain.enumeration.StorageType#listerTypesCouvrantLaDemande()}
      */
     @Query(
-        value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG) FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId AND sp.storage.storageType IN :types"
-    )
+            value =
+                    "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG) FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId AND sp.storage.storageType IN :types")
     Integer findTotalQuantityCouvrantLaDemande(
-        @Param("magasinId") Integer magasinId,
-        @Param("produitId") Integer produitId,
-        @Param("types") Collection<StorageType> types
-    );
-
+            @Param("magasinId") Integer magasinId,
+            @Param("produitId") Integer produitId,
+            @Param("types") Collection<StorageType> types);
 
     @Query(
-        value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.id =:storageId "
-    )
+            value =
+                    "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.id =:storageId ")
     Integer findPointVenteStock(@Param("produitId") Integer produitId, @Param("storageId") Integer storageId);
 
     interface EcartStockProjection {
@@ -73,8 +71,7 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     }
 
     /** Produits dont le stock du magasin est plus négatif que la somme des avoirs ouverts. */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT p.id AS produitId, p.libelle AS libelle, fp.code_cip AS codeCip,
                    s.stock AS stock, COALESCE(a.due, 0) AS quantiteDue
             FROM (SELECT sp.produit_id, SUM(sp.qty_stock + sp.qty_ug) AS stock
@@ -90,26 +87,22 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
                        GROUP BY produit_id) a ON a.produit_id = s.produit_id
             WHERE s.stock + COALESCE(a.due, 0) < 0
             ORDER BY s.stock + COALESCE(a.due, 0), p.libelle
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<EcartStockProjection> findEcartsARegulariser(@Param("magasinId") Integer magasinId);
 
     @Query(
-        value = "SELECT COALESCE(SUM(sp.qtyStock + sp.qtyUG), 0) FROM StockProduit sp WHERE sp.produit.id = :produitId AND sp.storage.id = :reserveStorageId"
-    )
+            value =
+                    "SELECT COALESCE(SUM(sp.qtyStock + sp.qtyUG), 0) FROM StockProduit sp WHERE sp.produit.id = :produitId AND sp.storage.id = :reserveStorageId")
     int findReserveStock(@Param("produitId") Integer produitId, @Param("reserveStorageId") Integer reserveStorageId);
-
 
     /**
      * Chargement en masse par storage précis (rayon ou réserve).
      * Usage : inventaires RAYON, STORAGE.
      */
-    @Query("SELECT sp FROM StockProduit sp JOIN FETCH sp.produit WHERE sp.storage.id = :storageId AND sp.produit.id IN :produitIds")
+    @Query(
+            "SELECT sp FROM StockProduit sp JOIN FETCH sp.produit WHERE sp.storage.id = :storageId AND sp.produit.id IN :produitIds")
     List<StockProduit> findAllByStorageIdAndProduitIdIn(
-        @Param("storageId") Integer storageId,
-        @Param("produitIds") Collection<Integer> produitIds
-    );
+            @Param("storageId") Integer storageId, @Param("produitIds") Collection<Integer> produitIds);
 
     /**
      * Chargement en masse agrégé par magasin (rayon + réserve confondus).
@@ -124,9 +117,7 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
         GROUP BY sp.produit.id
         """)
     List<Object[]> findAggregatedStockByMagasinIdAndProduitIdIn(
-        @Param("magasinId") Integer magasinId,
-        @Param("produitIds") Collection<Integer> produitIds
-    );
+            @Param("magasinId") Integer magasinId, @Param("produitIds") Collection<Integer> produitIds);
 
     /**
      * Axe 2 SEMOIS — Chargement en masse par liste de produits et magasin.
@@ -140,9 +131,7 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
           AND s.magasin.id = :magasinId
         """)
     List<StockProduit> findAllByProduitIdInAndMagasinId(
-        @Param("produitIds") Collection<Integer> produitIds,
-        @Param("magasinId") Integer magasinId
-    );
+            @Param("produitIds") Collection<Integer> produitIds, @Param("magasinId") Integer magasinId);
 
     /**
      * Search stock produits by storage and product criteria
@@ -164,9 +153,7 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
         ORDER BY p.libelle
         """)
     List<StockProduit> searchStockProduitsForRepartition(
-        @Param("storageId") Integer storageId,
-        @Param("magasinId") Integer magasinId,
-        @Param("searchTerm") String searchTerm
-    );
-
+            @Param("storageId") Integer storageId,
+            @Param("magasinId") Integer magasinId,
+            @Param("searchTerm") String searchTerm);
 }

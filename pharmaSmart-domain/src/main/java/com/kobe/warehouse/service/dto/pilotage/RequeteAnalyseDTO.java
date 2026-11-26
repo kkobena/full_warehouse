@@ -21,12 +21,12 @@ public record RequeteAnalyseDTO(AxeAnalyse axe, AxeAnalyse axe2, Integer top, Tr
     }
 
     public List<FiltreAnalyseDTO> lireFiltres() {
-        return filtre
-            .stream()
-            .map(f -> {
-                int separateur = f.indexOf(':');
-                return new FiltreAnalyseDTO(AxeAnalyse.valueOf(f.substring(0, separateur)), List.of(f.substring(separateur + 1)));
-            })
-            .toList();
+        return filtre.stream()
+                .map(f -> {
+                    int separateur = f.indexOf(':');
+                    return new FiltreAnalyseDTO(
+                            AxeAnalyse.valueOf(f.substring(0, separateur)), List.of(f.substring(separateur + 1)));
+                })
+                .toList();
     }
 }

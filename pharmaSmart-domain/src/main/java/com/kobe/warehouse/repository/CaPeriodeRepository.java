@@ -22,8 +22,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CaPeriodeRepository extends JpaRepository<SalesLine, SaleLineId> {
     /** Ce que la période a réellement encaissé, avant tout retraitement. */
-    @Query(
-        """
+    @Query("""
         select coalesce(sum(cast(sl.quantityRequested * sl.regularUnitPrice as Long)), 0L)
         from SalesLine sl
         join sl.sales s
@@ -36,17 +35,14 @@ public interface CaPeriodeRepository extends JpaRepository<SalesLine, SaleLineId
           and s.categorieChiffreAffaire = com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire.CA
           and s.magasin.id = :magasinId
           and sl.toIgnore = false
-        """
-    )
+        """)
     long caReel(
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("magasinId") Integer magasinId
-    );
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("magasinId") Integer magasinId);
 
     /** Ce qu'il en reste une fois retirées les unités gratuites, les rayons et les tiers-payants exclus. */
-    @Query(
-        """
+    @Query("""
         select coalesce(sum(cast(coalesce(sl.amountToBeTakenIntoAccount, 0) as Long)), 0L)
         from SalesLine sl
         join sl.sales s
@@ -59,11 +55,9 @@ public interface CaPeriodeRepository extends JpaRepository<SalesLine, SaleLineId
           and s.categorieChiffreAffaire = com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire.CA
           and s.magasin.id = :magasinId
           and sl.toIgnore = false
-        """
-    )
+        """)
     long caApresExclusions(
-        @Param("dateDebut") LocalDate dateDebut,
-        @Param("dateFin") LocalDate dateFin,
-        @Param("magasinId") Integer magasinId
-    );
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("magasinId") Integer magasinId);
 }

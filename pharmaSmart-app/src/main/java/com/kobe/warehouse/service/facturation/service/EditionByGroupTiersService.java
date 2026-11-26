@@ -32,21 +32,19 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
     private final FactureIdGeneratorService factureIdGeneratorService;
 
     public EditionByGroupTiersService(
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationRepository facturationRepository,
-        AppConfigurationService appConfigurationService,
-        UserService userService,
-        FactureIdGeneratorService factureIdGeneratorService,
-        InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
-    ) {
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            FacturationRepository facturationRepository,
+            AppConfigurationService appConfigurationService,
+            UserService userService,
+            FactureIdGeneratorService factureIdGeneratorService,
+            InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService) {
         super(
-            thirdPartySaleLineRepository,
-            facturationRepository,
-            appConfigurationService,
-            userService,
-            factureIdGeneratorService,
-            invoiceGenerationCodeGeneratorService
-        );
+                thirdPartySaleLineRepository,
+                facturationRepository,
+                appConfigurationService,
+                userService,
+                factureIdGeneratorService,
+                invoiceGenerationCodeGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.userService = userService;
         this.factureIdGeneratorService = factureIdGeneratorService;
@@ -54,30 +52,25 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
 
     @Override
     public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
-        throws InvoiceEmptyDataException {
+            throws InvoiceEmptyDataException {
         commencerEdition();
         return buildAndSaveFacturesGroupe(editionSearchParams);
     }
 
     @Override
-    protected Specification<ThirdPartySaleLine> buildCriteria(
-        EditionSearchParams editionSearchParams) {
+    protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
-            return super
-                .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(
-                    editionSearchParams.ids()));
+            return super.buildFetchSpecification(editionSearchParams)
+                    .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
         } else if (!CollectionUtils.isEmpty(editionSearchParams.groupIds())) {
-            return super
-                .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(
-                    editionSearchParams.groupIds()));
+            return super.buildFetchSpecification(editionSearchParams)
+                    .and(this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }
 
-    private FactureEditionResponse buildAndSaveFacturesGroupe(
-        EditionSearchParams editionSearchParams) throws InvoiceEmptyDataException {
+    private FactureEditionResponse buildAndSaveFacturesGroupe(EditionSearchParams editionSearchParams)
+            throws InvoiceEmptyDataException {
         int generationCode = getGenerationCode();
         Map<GroupeTiersPayant, FactureTiersPayant> groupeTiersPayantFactureTiersPayantMap = new HashMap<>();
         var dateCreation = LocalDateTime.now();
@@ -88,57 +81,52 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
         if (CollectionUtils.isEmpty(thirdPartySaleLines)) {
             throw new InvoiceEmptyDataException();
         }
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(
-            thirdPartySaleLines);
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) -> {
             GroupeTiersPayant groupeTiersPayant = tiersPayant.getGroupeTiersPayant();
-            FactureTiersPayant factGroupe = groupeTiersPayantFactureTiersPayantMap.get(
-                groupeTiersPayant);
+            FactureTiersPayant factGroupe = groupeTiersPayantFactureTiersPayantMap.get(groupeTiersPayant);
             if (factGroupe == null) {
                 factGroupe = buildGroupeFacture(
-                    groupeTiersPayant,
+                        groupeTiersPayant,
+                        dateCreation,
+                        year,
+                        numero.incrementAndGet(),
+                        generationCode,
+                        editionSearchParams);
+                groupeTiersPayantFactureTiersPayantMap.put(groupeTiersPayant, factGroupe);
+            }
+            this.buildAndSaveFacture(
+                    factGroupe,
+                    tiersPayant,
+                    saleLines,
                     dateCreation,
                     year,
                     numero.incrementAndGet(),
                     generationCode,
-                    editionSearchParams
-                );
-                groupeTiersPayantFactureTiersPayantMap.put(groupeTiersPayant, factGroupe);
-            }
-            this.buildAndSaveFacture(
-                factGroupe,
-                tiersPayant,
-                saleLines,
-                dateCreation,
-                year,
-                numero.incrementAndGet(),
-                generationCode,
-                editionSearchParams
-            );
+                    editionSearchParams);
         });
 
         return new FactureEditionResponse(generationCode, true);
     }
 
     private FactureTiersPayant buildGroupeFacture(
-        GroupeTiersPayant groupeTiersPayant,
-        LocalDateTime dateCreation,
-        int year,
-        int lastFactureNumero,
-        int generationCode,
-        EditionSearchParams editionSearchParams
-    ) {
+            GroupeTiersPayant groupeTiersPayant,
+            LocalDateTime dateCreation,
+            int year,
+            int lastFactureNumero,
+            int generationCode,
+            EditionSearchParams editionSearchParams) {
         return new FactureTiersPayant()
-            .setId(this.factureIdGeneratorService.nextId())
-            .setCreated(dateCreation)
-            .setGenerationCode(generationCode)
-            .setUser(userService.getUser())
-            .setUpdated(dateCreation)
-            .setDebutPeriode(editionSearchParams.startDate())
-            .setFinPeriode(editionSearchParams.endDate())
-            .setFactureProvisoire(editionSearchParams.factureProvisoire())
-            .setOrigineGeneration(editionSearchParams.origineGeneration())
-            .setGroupeTiersPayant(groupeTiersPayant)
-            .setNumFacture(getFactureNumber(year, lastFactureNumero));
+                .setId(this.factureIdGeneratorService.nextId())
+                .setCreated(dateCreation)
+                .setGenerationCode(generationCode)
+                .setUser(userService.getUser())
+                .setUpdated(dateCreation)
+                .setDebutPeriode(editionSearchParams.startDate())
+                .setFinPeriode(editionSearchParams.endDate())
+                .setFactureProvisoire(editionSearchParams.factureProvisoire())
+                .setOrigineGeneration(editionSearchParams.origineGeneration())
+                .setGroupeTiersPayant(groupeTiersPayant)
+                .setNumFacture(getFactureNumber(year, lastFactureNumero));
     }
 }

@@ -33,49 +33,47 @@ class ProducteurRapportsPilotage {
 
     byte[] produire(RapportExport rapport, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
         return switch (rapport) {
-            case PILOTAGE_TABLEAU_DE_BORD -> exportPilotageService.exporterSeries(ecrireRequetePilotage(du, au, filtres));
-            case PILOTAGE_ANALYSER -> exportPilotageService.exporterAnalyse(
-                ecrireRequetePilotage(du, au, filtres),
-                ecrireRequeteAnalyse(filtres)
-            );
+            case PILOTAGE_TABLEAU_DE_BORD ->
+                exportPilotageService.exporterSeries(ecrireRequetePilotage(du, au, filtres));
+            case PILOTAGE_ANALYSER ->
+                exportPilotageService.exporterAnalyse(
+                        ecrireRequetePilotage(du, au, filtres), ecrireRequeteAnalyse(filtres));
             case PILOTAGE_ANNEES -> exportPilotageService.exporterAnnees(ecrireRequeteAnnees(filtres));
             default -> throw new IllegalArgumentException("Édition hors du pilotage : " + rapport);
         };
     }
 
-    private static RequetePilotageDTO ecrireRequetePilotage(LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    private static RequetePilotageDTO ecrireRequetePilotage(
+            LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
         return new RequetePilotageDTO(
-            du,
-            au,
-            ReglagesRapports.lireUnique(filtres, FiltreExport.COMPARAISON, TypeComparaison.class),
-            null,
-            null,
-            null,
-            null,
-            ReglagesRapports.lireUnique(filtres, FiltreExport.GRANULARITE, Granularite.class),
-            ReglagesRapports.lireListe(filtres, FiltreExport.INDICATEURS, IndicateurPilotage.class)
-        );
+                du,
+                au,
+                ReglagesRapports.lireUnique(filtres, FiltreExport.COMPARAISON, TypeComparaison.class),
+                null,
+                null,
+                null,
+                null,
+                ReglagesRapports.lireUnique(filtres, FiltreExport.GRANULARITE, Granularite.class),
+                ReglagesRapports.lireListe(filtres, FiltreExport.INDICATEURS, IndicateurPilotage.class));
     }
 
     /** Nombre d'éléments et tri comme à l'écran : sans choix, ses défauts — les vingt premiers, le reste en « autres ». */
     private static RequeteAnalyseDTO ecrireRequeteAnalyse(Map<FiltreExport, List<String>> filtres) {
         return new RequeteAnalyseDTO(
-            ReglagesRapports.lireUnique(filtres, FiltreExport.AXE_ANALYSE, AxeAnalyse.class),
-            null,
-            ReglagesRapports.lireEntier(filtres, FiltreExport.NOMBRE_ELEMENTS),
-            ReglagesRapports.lireUnique(filtres, FiltreExport.TRI_ANALYSE, TriAnalyse.class),
-            null
-        );
+                ReglagesRapports.lireUnique(filtres, FiltreExport.AXE_ANALYSE, AxeAnalyse.class),
+                null,
+                ReglagesRapports.lireEntier(filtres, FiltreExport.NOMBRE_ELEMENTS),
+                ReglagesRapports.lireUnique(filtres, FiltreExport.TRI_ANALYSE, TriAnalyse.class),
+                null);
     }
 
     private static RequeteAnneesDTO ecrireRequeteAnnees(Map<FiltreExport, List<String>> filtres) {
         return new RequeteAnneesDTO(
-            ReglagesRapports.lireUnique(filtres, FiltreExport.INDICATEUR_COMPARE, IndicateurPilotage.class),
-            ReglagesRapports.lireEntier(filtres, FiltreExport.NOMBRE_ANNEES),
-            ReglagesRapports.lireUnique(filtres, FiltreExport.MODE_ANNEES, ModeAnnees.class),
-            null,
-            null,
-            null
-        );
+                ReglagesRapports.lireUnique(filtres, FiltreExport.INDICATEUR_COMPARE, IndicateurPilotage.class),
+                ReglagesRapports.lireEntier(filtres, FiltreExport.NOMBRE_ANNEES),
+                ReglagesRapports.lireUnique(filtres, FiltreExport.MODE_ANNEES, ModeAnnees.class),
+                null,
+                null,
+                null);
     }
 }

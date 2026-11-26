@@ -9,14 +9,7 @@
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label for="dciLibelle">Libellé<span class="required">*</span></label>
-          <input
-            #libelleInput
-            [formField]="dciForm.libelle"
-            autocomplete="off"
-            class="form-control"
-            id="dciLibelle"
-            type="text"
-          />
+          <input #libelleInput [formField]="dciForm.libelle" autocomplete="off" class="form-control" id="dciLibelle" type="text" />
           @if (dciForm.libelle().touched() && dciForm.libelle().invalid()) {
             <div>
               @for (erreur of dciForm.libelle().errors(); track erreur.kind) {
@@ -36,9 +29,7 @@
             placeholder="Laisser vide pour générer depuis le libellé"
             type="text"
           />
-          <small class="form-text text-muted">
-            Facultatif. Sans code, il est dérivé du libellé et rendu unique.
-          </small>
+          <small class="form-text text-muted"> Facultatif. Sans code, il est dérivé du libellé et rendu unique. </small>
           @if (dciForm.code().touched() && dciForm.code().invalid()) {
             <div>
               @for (erreur of dciForm.code().errors(); track erreur.kind) {

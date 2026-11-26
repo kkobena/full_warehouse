@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.report.pdf;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.domain.enumeration.ClassePareto;
 import com.kobe.warehouse.service.dto.report.ABCParetoDTO;
@@ -12,16 +15,12 @@ import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.report.ABCParetoReportService;
 import com.kobe.warehouse.service.report.StockValuationReportService;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 /**
  * Quatre documents ne calculent rien : ils reprennent une liste et son résumé, y posent un titre, et
@@ -44,15 +43,13 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final ABCParetoReportService reportService = mock(ABCParetoReportService.class);
         private final ABCParetoPdfReportService service = new ABCParetoPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         @Test
         @DisplayName("le détail et le résumé de l'analyse accompagnent le document")
         void detailEtResume() {
-            when(reportService.getAllABCParetoAnalysis()).thenReturn(List.of(produit("DOLIPRANE"), produit("EFFERALGAN")));
+            when(reportService.getAllABCParetoAnalysis())
+                    .thenReturn(List.of(produit("DOLIPRANE"), produit("EFFERALGAN")));
             when(reportService.getABCParetoSummary()).thenReturn(resumeAbc());
 
             service.export();
@@ -77,16 +74,42 @@ class SyntheseSimplePdfReportServicesTest {
 
         private ABCParetoDTO produit(String libelle) {
             return new ABCParetoDTO(
-                1, libelle, "CIP", "MEDICAMENT", "A", 100_000, 10, 3, 2, 1_000_000L, 100_000L,
-                BigDecimal.TEN, BigDecimal.TEN, 1, ClassePareto.A
-            );
+                    1,
+                    libelle,
+                    "CIP",
+                    "MEDICAMENT",
+                    "A",
+                    100_000,
+                    10,
+                    3,
+                    2,
+                    1_000_000L,
+                    100_000L,
+                    BigDecimal.TEN,
+                    BigDecimal.TEN,
+                    1,
+                    ClassePareto.A);
         }
 
         private ABCParetoSummaryDTO resumeAbc() {
             return new ABCParetoSummaryDTO(
-                100, 10_000_000L, 5, 4_000_000L, BigDecimal.TEN, 10, 3_000_000L, BigDecimal.TEN,
-                30, 2_000_000L, BigDecimal.TEN, 40, 900_000L, BigDecimal.TEN, 15, 100_000L, BigDecimal.TEN
-            );
+                    100,
+                    10_000_000L,
+                    5,
+                    4_000_000L,
+                    BigDecimal.TEN,
+                    10,
+                    3_000_000L,
+                    BigDecimal.TEN,
+                    30,
+                    2_000_000L,
+                    BigDecimal.TEN,
+                    40,
+                    900_000L,
+                    BigDecimal.TEN,
+                    15,
+                    100_000L,
+                    BigDecimal.TEN);
         }
     }
 
@@ -97,9 +120,7 @@ class SyntheseSimplePdfReportServicesTest {
     class Rentabilite {
 
         private final ProfitabilityPdfReportService service = new ProfitabilityPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits()
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits());
 
         /**
          * Ce service reçoit ses données de l'appelant : il ne doit qu'en préserver l'intégralité.
@@ -128,9 +149,22 @@ class SyntheseSimplePdfReportServicesTest {
 
         private MargeDTO marge(String libelle) {
             return new MargeDTO(
-                1, libelle, "CIP", "MEDICAMENT", 3, 10, 100_000L, 60_000L, 40_000L, BigDecimal.TEN,
-                10_000, 6_000, 25, 6_000, 10_000, BigDecimal.TEN
-            );
+                    1,
+                    libelle,
+                    "CIP",
+                    "MEDICAMENT",
+                    3,
+                    10,
+                    100_000L,
+                    60_000L,
+                    40_000L,
+                    BigDecimal.TEN,
+                    10_000,
+                    6_000,
+                    25,
+                    6_000,
+                    10_000,
+                    BigDecimal.TEN);
         }
 
         private MargeSummaryDTO resumeMarge() {
@@ -146,15 +180,13 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final SupplierPerformanceReportService reportService = mock(SupplierPerformanceReportService.class);
         private final SupplierPerformancePdfReportService service = new SupplierPerformancePdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         @Test
         @DisplayName("le classement et son résumé accompagnent le document")
         void classementEtResume() {
-            when(reportService.getAllSupplierPerformance()).thenReturn(List.of(fournisseur("LABOREX"), fournisseur("DPCI")));
+            when(reportService.getAllSupplierPerformance())
+                    .thenReturn(List.of(fournisseur("LABOREX"), fournisseur("DPCI")));
             when(reportService.getSupplierPerformanceSummary()).thenReturn(resumeFournisseurs());
 
             service.export();
@@ -179,15 +211,25 @@ class SyntheseSimplePdfReportServicesTest {
 
         private SupplierPerformanceDTO fournisseur(String nom) {
             return new SupplierPerformanceDTO(
-                1, nom, "F1", "0100000000", "0700000000", 2, 10_000_000L, 24, 120_000_000L, 3, 1, 10,
-                BigDecimal.TEN, BigDecimal.TEN
-            );
+                    1,
+                    nom,
+                    "F1",
+                    "0100000000",
+                    "0700000000",
+                    2,
+                    10_000_000L,
+                    24,
+                    120_000_000L,
+                    3,
+                    1,
+                    10,
+                    BigDecimal.TEN,
+                    BigDecimal.TEN);
         }
 
         private SupplierPerformanceSummaryDTO resumeFournisseurs() {
             return new SupplierPerformanceSummaryDTO(
-                3, 120_000_000L, 10_000_000L, 24, 2, BigDecimal.TEN, BigDecimal.TEN, 1, 1, 1
-            );
+                    3, 120_000_000L, 10_000_000L, 24, 2, BigDecimal.TEN, BigDecimal.TEN, 1, 1, 1);
         }
     }
 
@@ -199,10 +241,7 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final StockValuationReportService reportService = mock(StockValuationReportService.class);
         private final StockValuationPdfReportService service = new StockValuationPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            reportService
-        );
+                PdfReportTestSupport.storageService(), PdfReportTestSupport.moteurDeGabarits(), reportService);
 
         /**
          * Sans filtre, c'est le résumé global qui accompagne le détail. Prendre le résumé filtré

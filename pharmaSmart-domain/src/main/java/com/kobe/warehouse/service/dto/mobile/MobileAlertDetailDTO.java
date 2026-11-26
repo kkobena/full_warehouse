@@ -1,33 +1,31 @@
 package com.kobe.warehouse.service.dto.mobile;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Detailed alert information for mobile alerts screen.
  */
 public record MobileAlertDetailDTO(
-    Long id,
-    String type,              // STOCK_RUPTURE, EXPIRY, CASH_DISCREPANCY, INVOICE_OVERDUE
-    String severity,          // CRITICAL, WARNING, INFO
-    String title,
-    String message,
-    String icon,
-    String color,
-    LocalDateTime createdAt,
-    boolean isRead,
-    boolean isResolved,
+        Long id,
+        String type, // STOCK_RUPTURE, EXPIRY, CASH_DISCREPANCY, INVOICE_OVERDUE
+        String severity, // CRITICAL, WARNING, INFO
+        String title,
+        String message,
+        String icon,
+        String color,
+        LocalDateTime createdAt,
+        boolean isRead,
+        boolean isResolved,
 
-    // Action metadata for deep linking
-    String actionType,        // VIEW_PRODUCT, VIEW_INVOICE, VIEW_CASH_REGISTER, CREATE_ORDER
-    Map<String, Object> actionData,
+        // Action metadata for deep linking
+        String actionType, // VIEW_PRODUCT, VIEW_INVOICE, VIEW_CASH_REGISTER, CREATE_ORDER
+        Map<String, Object> actionData,
 
-    // Related entity info
-    Long relatedEntityId,
-    String relatedEntityType,
-    String relatedEntityName
-) {
+        // Related entity info
+        Long relatedEntityId,
+        String relatedEntityType,
+        String relatedEntityName) {
     /**
      * Builder for creating alerts from different sources.
      */
@@ -129,10 +127,21 @@ public record MobileAlertDetailDTO(
 
         public MobileAlertDetailDTO build() {
             return new MobileAlertDetailDTO(
-                id, type, severity, title, message, icon, color,
-                createdAt, isRead, isResolved, actionType, actionData,
-                relatedEntityId, relatedEntityType, relatedEntityName
-            );
+                    id,
+                    type,
+                    severity,
+                    title,
+                    message,
+                    icon,
+                    color,
+                    createdAt,
+                    isRead,
+                    isResolved,
+                    actionType,
+                    actionData,
+                    relatedEntityId,
+                    relatedEntityType,
+                    relatedEntityName);
         }
     }
 }

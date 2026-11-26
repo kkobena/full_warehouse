@@ -110,9 +110,14 @@
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    opacity 0.15s;
 
-  &:hover { opacity: 0.85; }
+  &:hover {
+    opacity: 0.85;
+  }
 
   &--info {
     background: $pharma-info;
@@ -138,11 +143,26 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
 
-  &[data-severity='success']   { background: #d1fae5; color: #065f46; }
-  &[data-severity='warn']      { background: #fef3c7; color: #92400e; }
-  &[data-severity='info']      { background: #dbeafe; color: #1e40af; }
-  &[data-severity='danger']    { background: #fee2e2; color: #991b1b; }
-  &[data-severity='secondary'] { background: $gray-200; color: $gray-600; }
+  &[data-severity='success'] {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  &[data-severity='warn'] {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  &[data-severity='info'] {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  &[data-severity='danger'] {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  &[data-severity='secondary'] {
+    background: $gray-200;
+    color: $gray-600;
+  }
 }
 
 // ─── PAGINATION ───────────────────────────────────────────────────────────────

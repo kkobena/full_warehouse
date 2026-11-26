@@ -17,7 +17,13 @@ export interface SerieBarres {
 @Component({
   selector: 'app-barres',
   imports: [ChartComponent],
-  template: `<app-chart [ariaLabel]="description()" [data]="configuration().data" [options]="configuration().options" height="260" type="bar" />`,
+  template: `<app-chart
+    [ariaLabel]="description()"
+    [data]="configuration().data"
+    [options]="configuration().options"
+    height="260"
+    type="bar"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BarresComponent {

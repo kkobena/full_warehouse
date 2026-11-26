@@ -11,9 +11,9 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
@@ -39,9 +39,6 @@ class ReglementReportServiceImplTest {
     /** Gabarit minimal : Flying Saucer rend reellement, il lui faut du XHTML valide. */
     private static final String HTML = "<html><head><title>Releve</title></head><body><p>releve</p></body></html>";
 
-
-
-
     @Mock
     private SpringTemplateEngine templateEngine;
 
@@ -54,7 +51,7 @@ class ReglementReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new ReglementReportServiceImpl( templateEngine, storageService);
+        service = new ReglementReportServiceImpl(templateEngine, storageService);
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setFullName("PHARMACIE DU PLATEAU");
@@ -119,8 +116,11 @@ class ReglementReportServiceImplTest {
     void totauxPourUnOrganisme() throws Exception {
         service.printToPdf(wrapper("18/04/2026", paiement(1000, 2), paiement(500, 1)));
 
-        assertThat(service.getParameters()).containsKey(Constant.REGLEMENT_COUNT).containsKey(Constant.REGLEMENT_PAID_AMOUNT);
-        assertThat((String) service.getParameters().get(Constant.REGLEMENT_COUNT)).contains("3");
+        assertThat(service.getParameters())
+                .containsKey(Constant.REGLEMENT_COUNT)
+                .containsKey(Constant.REGLEMENT_PAID_AMOUNT);
+        assertThat((String) service.getParameters().get(Constant.REGLEMENT_COUNT))
+                .contains("3");
         assertThat(service.getParameters()).containsEntry(Constant.MAGASIN, magasin);
     }
 

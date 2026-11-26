@@ -1,5 +1,4 @@
 <app-detail-grid>
-
   <!-- Alerte péremption -->
   @if (alertePeremption() === 'critical') {
     <div class="peremption-alert peremption-critical">
@@ -21,21 +20,51 @@
     </div>
   }
 
-  <app-detail-section header="Indicateurs clés" icon="pi pi-chart-line" [accent]="'violet'" storageKey="produit.synthese.indicateurs"
-                      [loading]="loadingIndicateurs()" [skeletonRows]="6">
+  <app-detail-section
+    header="Indicateurs clés"
+    icon="pi pi-chart-line"
+    [accent]="'violet'"
+    storageKey="produit.synthese.indicateurs"
+    [loading]="loadingIndicateurs()"
+    [skeletonRows]="6"
+  >
     <app-detail-field label="Stock actuel" [value]="produit().totalQuantity ?? 0" format="nombre" unit="u" [tone]="stockTone()" />
     <app-detail-field label="Seuil mini" [value]="produit().seuilMini" format="nombre" unit="u" />
-    <app-detail-field label="Jours de stock" hint="Jours avant rupture estimés sur la CMM"
-                      [value]="couvertureJours()" format="nombre" unit="j" [tone]="joursStockTone()" />
-    <app-detail-field label="CMM" hint="Consommation mensuelle moyenne sur 12 mois"
-                      [value]="indicateurs()?.cmm" format="nombre" [decimals]="1" unit="u/m" />
-    <app-detail-field label="Rotation" hint="Nombre de rotations stock / an"
-                      [value]="rotationAnnuelle()" format="nombre" [decimals]="1" unit="×/an" />
+    <app-detail-field
+      label="Jours de stock"
+      hint="Jours avant rupture estimés sur la CMM"
+      [value]="couvertureJours()"
+      format="nombre"
+      unit="j"
+      [tone]="joursStockTone()"
+    />
+    <app-detail-field
+      label="CMM"
+      hint="Consommation mensuelle moyenne sur 12 mois"
+      [value]="indicateurs()?.cmm"
+      format="nombre"
+      [decimals]="1"
+      unit="u/m"
+    />
+    <app-detail-field
+      label="Rotation"
+      hint="Nombre de rotations stock / an"
+      [value]="rotationAnnuelle()"
+      format="nombre"
+      [decimals]="1"
+      unit="×/an"
+    />
     <app-detail-field label="Marge brute" [value]="tauxMarge()" format="nombre" unit="%" [tone]="'success'" />
   </app-detail-section>
 
-  <app-detail-section header="Chiffre d'affaires" icon="pi pi-wallet" [accent]="'amber'" storageKey="produit.synthese.ca"
-                      [loading]="loadingIndicateurs()" [skeletonRows]="4">
+  <app-detail-section
+    header="Chiffre d'affaires"
+    icon="pi pi-wallet"
+    [accent]="'amber'"
+    storageKey="produit.synthese.ca"
+    [loading]="loadingIndicateurs()"
+    [skeletonRows]="4"
+  >
     <app-detail-field label="CA 30 jours" [value]="indicateurs()?.ca30Jours" format="montant" />
     <app-detail-field label="CA 12 mois" [value]="indicateurs()?.ca12Mois" format="montant" />
     <app-detail-field label="Qté 12 mois" [value]="indicateurs()?.qteVendue12Mois" format="nombre" unit="u" />
@@ -48,8 +77,11 @@
       <app-detail-field label="Rang Pareto" [value]="'# ' + indicateurs()!.rang" />
     }
     @if (indicateurs()?.frequenceMois != null) {
-      <app-detail-field label="Fréquence" hint="Nombre de mois distincts avec au moins 1 vente"
-                        [value]="indicateurs()!.frequenceMois + ' mois/12'" />
+      <app-detail-field
+        label="Fréquence"
+        hint="Nombre de mois distincts avec au moins 1 vente"
+        [value]="indicateurs()!.frequenceMois + ' mois/12'"
+      />
     }
   </app-detail-section>
 
@@ -61,17 +93,29 @@
   </app-detail-section>
 
   <!-- Les valeurs sont des libellés (DCI, famille, rayon) : la carte prend toute la largeur. -->
-  <app-detail-section header="Identification" icon="pi pi-id-card" [width]="'wide'" [variant]="'muted'" [accent]="'success'" storageKey="produit.synthese.identification">
-    <app-detail-field label="DCI" hint="Dénomination commune internationale : la ou les molécules, principale en tête"
-                      [value]="produit().dciLibelle" />
+  <app-detail-section
+    header="Identification"
+    icon="pi pi-id-card"
+    [width]="'wide'"
+    [variant]="'muted'"
+    [accent]="'success'"
+    storageKey="produit.synthese.identification"
+  >
+    <app-detail-field
+      label="DCI"
+      hint="Dénomination commune internationale : la ou les molécules, principale en tête"
+      [value]="produit().dciLibelle"
+    />
     <app-detail-field label="Famille" [value]="produit().familleLibelle" />
     <app-detail-field label="Forme" [value]="produit().formeLibelle" />
     <app-detail-field label="Laboratoire" [value]="produit().laboratoireLibelle" />
     <app-detail-field label="Rayon" [value]="produit().rayonLibelle" />
     <app-detail-field label="Dernière vente" [value]="produit().lastDateOfSale" format="date" />
     <app-detail-field label="Dernière commande" [value]="produit().lastOrderDate" format="date" />
-    <app-detail-field label="Suivi des lots"
-                      hint="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit">
+    <app-detail-field
+      label="Suivi des lots"
+      hint="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
+    >
       <app-switch
         (ngModelChange)="onToggleGestionLot($event)"
         ariaLabel="Suivi des lots"
@@ -84,13 +128,16 @@
     </app-detail-field>
   </app-detail-section>
 
-  <app-detail-section header="Réglementation" icon="pi pi-shield" [width]="'wide'" [variant]="'muted'" [accent]="'slate'" storageKey="produit.synthese.reglementation">
+  <app-detail-section
+    header="Réglementation"
+    icon="pi pi-shield"
+    [width]="'wide'"
+    [variant]="'muted'"
+    [accent]="'slate'"
+    storageKey="produit.synthese.reglementation"
+  >
     <app-detail-field label="Statut légal">
-      <app-badge
-        [icon]="statutLegalTag().icon"
-        [label]="statutLegalTag().label"
-        [severity]="statutLegalTag().severity"
-      />
+      <app-badge [icon]="statutLegalTag().icon" [label]="statutLegalTag().label" [severity]="statutLegalTag().severity" />
     </app-detail-field>
     <app-detail-field label="Thermosensible" hint="Produit nécessitant une conservation au froid (chaîne du froid)">
       <app-switch
@@ -109,7 +156,11 @@
         ariaLabel="Médicament essentiel"
         [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
         [ngModel]="produit().estMedicamentEssentiel ?? false"
-        ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
+        ngbTooltip="{{
+          (produit().estMedicamentEssentiel ?? false)
+            ? 'Retirer de la liste des médicaments essentiels'
+            : 'Marquer comme médicament essentiel'
+        }}"
         container="body"
         placement="left"
       />
@@ -125,22 +176,34 @@
         placement="left"
       />
     </app-detail-field>
-    <app-detail-field label="Classification personnalisée"
-                      hint="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement">
+    <app-detail-field
+      label="Classification personnalisée"
+      hint="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
+    >
       <app-switch
         (ngModelChange)="onToggleClassificationOverridden($event)"
         ariaLabel="Classification personnalisée"
         [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
         [ngModel]="produit().isClassificationOverridden ?? false"
-        ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
+        ngbTooltip="{{
+          (produit().isClassificationOverridden ?? false)
+            ? 'Réactiver le calcul automatique de la classe ABC'
+            : 'Figer la classe ABC manuellement'
+        }}"
         container="body"
         placement="left"
       />
     </app-detail-field>
   </app-detail-section>
 
-  <app-detail-section header="Tarifs assurance" icon="pi pi-percentage" [width]="'full'" [accent]="'fuchsia'"
-                      [count]="prixReferences().length" storageKey="produit.synthese.tarifs">
+  <app-detail-section
+    header="Tarifs assurance"
+    icon="pi pi-percentage"
+    [width]="'full'"
+    [accent]="'fuchsia'"
+    [count]="prixReferences().length"
+    storageKey="produit.synthese.tarifs"
+  >
     <app-button
       ngProjectAs="[sectionActions]"
       (clicked)="onAddPrix()"
@@ -227,5 +290,4 @@
       </app-data-table>
     }
   </app-detail-section>
-
 </app-detail-grid>

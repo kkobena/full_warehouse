@@ -25,25 +25,39 @@
       </span>
       <span [class.stockless]="item.totalQuantity <= 0" class="product-name">
         {{ item.libelle }}
-        <app-produit-badges [peremptionDate]="item.peremptionDate" [peremptionLot]="item.peremptionLot" [statutLegal]="item.statutLegal" [typeGenerique]="item.typeGenerique" />
+        <app-produit-badges
+          [peremptionDate]="item.peremptionDate"
+          [peremptionLot]="item.peremptionLot"
+          [statutLegal]="item.statutLegal"
+          [typeGenerique]="item.typeGenerique"
+        />
         @if (item.dci || item.forme) {
           <small class="product-identite">
-            {{ item.dci }}@if (item.dosage) { {{ item.dosage }} }@if (item.forme) { · {{ item.forme }} }
+            {{ item.dci }}
+            @if (item.dosage) {
+              {{ item.dosage }}
+            }
+            @if (item.forme) {
+              · {{ item.forme }}
+            }
           </small>
         }
       </span>
       <span class="product-item-right">
-      <span
-        [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-        [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
-        [class.stock-out]="item.totalQuantity <= 0"
-        [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity"
-        class="stock-badge">
-          <i [class.pi-check-circle]="item.totalQuantity > 5"
-             [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
-             [class.pi-times-circle]="item.totalQuantity <= 0"
-             class="pi"></i>
-        {{ item.totalQuantity | number }}
+        <span
+          [class.stock-low]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+          [class.stock-ok]="item.totalQuantity > 0 && item.totalQuantity > 5"
+          [class.stock-out]="item.totalQuantity <= 0"
+          [title]="item.totalQuantity <= 0 ? 'Rupture de stock' : 'Stock disponible : ' + item.totalQuantity"
+          class="stock-badge"
+        >
+          <i
+            [class.pi-check-circle]="item.totalQuantity > 5"
+            [class.pi-exclamation-circle]="item.totalQuantity > 0 && item.totalQuantity <= 5"
+            [class.pi-times-circle]="item.totalQuantity <= 0"
+            class="pi"
+          ></i>
+          {{ item.totalQuantity | number }}
         </span>
         @if ((item.reserveQuantity || 0) > 0) {
           <span [title]="'Réserve : ' + item.reserveQuantity" class="reserve-badge">

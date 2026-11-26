@@ -30,6 +30,7 @@ public class ClientTiersPayantDTO {
     private java.time.LocalDate dateFinValidite;
     /** Consommation en cours face au plafond de l'organisme (cf. ConsommationPlafondService). */
     private long consommation;
+
     private TiersPayantDto tiersPayant;
     private TiersPayantCategorie typeTiersPayant;
     private String numBon;
@@ -56,18 +57,17 @@ public class ClientTiersPayantDTO {
         this.dateFinValidite = c.getDateFinValidite();
         this.consommation = c.getConsoMensuelle() == null ? 0L : c.getConsoMensuelle();
         if (c.getClientTiersPayantTauxHistoriques() != null) {
-            this.tauxHistorique = c
-                .getClientTiersPayantTauxHistoriques()
-                .stream()
-                .sorted(java.util.Comparator.comparing(ClientTiersPayantTauxHistorique::updatedAt).reversed())
-                .toList();
+            this.tauxHistorique = c.getClientTiersPayantTauxHistoriques().stream()
+                    .sorted(java.util.Comparator.comparing(ClientTiersPayantTauxHistorique::updatedAt)
+                            .reversed())
+                    .toList();
         }
         this.tiersPayantId = cTiersPayant.getId();
         this.typeTiersPayant = cTiersPayant.getCategorie();
         this.tiersPayant = new TiersPayantDto()
-            .setName(cTiersPayant.getName())
-            .setId(cTiersPayant.getId())
-            .setFullName(cTiersPayant.getFullName());
+                .setName(cTiersPayant.getName())
+                .setId(cTiersPayant.getId())
+                .setFullName(cTiersPayant.getFullName());
         this.customerId = c.getAssuredCustomer().getId();
     }
 

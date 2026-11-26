@@ -23,20 +23,14 @@ scenario('ACH-50', async ({ etape, page }) => {
     await expect(lignes.first()).toBeVisible();
     // Un retour encore modifiable se reconnaît à ce qu'il porte le crayon : les autres l'ont
     // perdu.
-    const modifiable = lignes
-      .filter({ has: page.locator('app-button[ngbtooltip="Modifier le retour"]') })
-      .first();
+    const modifiable = lignes.filter({ has: page.locator('app-button[ngbtooltip="Modifier le retour"]') }).first();
     await expect(modifiable).toBeVisible();
   });
 
   await etape(2, async () => {
-    const modifiable = lignes
-      .filter({ has: page.locator('app-button[ngbtooltip="Modifier le retour"]') })
-      .first();
+    const modifiable = lignes.filter({ has: page.locator('app-button[ngbtooltip="Modifier le retour"]') }).first();
     // La suppression est offerte au même moment et pour la même raison : rien n'est parti.
-    await expect(
-      modifiable.locator('app-button[ngbtooltip="Supprimer le retour"] button'),
-    ).toBeVisible();
+    await expect(modifiable.locator('app-button[ngbtooltip="Supprimer le retour"] button')).toBeVisible();
     await modifiable.locator('app-button[ngbtooltip="Modifier le retour"] button').click();
     // L'édition ouvre le même plan de travail que la création : chaque ligne, sa quantité
     // renvoyée et son motif — celui-ci obligatoire, comme l'astérisque le dit.

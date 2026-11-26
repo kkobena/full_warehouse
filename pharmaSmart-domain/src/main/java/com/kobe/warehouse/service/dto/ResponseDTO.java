@@ -134,20 +134,17 @@ public class ResponseDTO {
 
     @Override
     public String toString() {
-        return (
-            "ResponseDTO [message=" +
-            message +
-            ", errorCode=" +
-            errorCode +
-            ", success=" +
-            success +
-            ", totalSize=" +
-            totalSize +
-            ", size=" +
-            size +
-            ", data=" +
-            data +
-            "]"
-        );
+        return ("ResponseDTO [message=" + message
+                + ", errorCode="
+                + errorCode
+                + ", success="
+                + success
+                + ", totalSize="
+                + totalSize
+                + ", size="
+                + size
+                + ", data="
+                + data
+                + "]");
     }
 }

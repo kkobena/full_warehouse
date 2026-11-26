@@ -45,8 +45,7 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         FactureTiersPayant facture = factureAvecMontant(organisme, 120_000);
         viderLeCache();
 
-        AvoirDto cree = services.avoirService.creerAvoir(
-            new AvoirCommand(
+        AvoirDto cree = services.avoirService.creerAvoir(new AvoirCommand(
                 facture.getId().getId(),
                 facture.getId().getInvoiceDate(),
                 organisme.getId(),
@@ -54,17 +53,12 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
                 BigDecimal.valueOf(3_600),
                 BigDecimal.valueOf(16_400),
                 "bons rejetés",
-                List.of(
-                    new AvoirLineDto(
+                List.of(new AvoirLineDto(
                         null,
                         dossierRejete.getId().getId(),
                         dossierRejete.getId().getSaleDate(),
                         BigDecimal.valueOf(20_000),
-                        "hors nomenclature"
-                    )
-                )
-            )
-        );
+                        "hors nomenclature"))));
         viderLeCache();
 
         AvoirTiersPayant relu = em.find(AvoirTiersPayant.class, cree.id());
@@ -87,7 +81,9 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         AvoirDto second = services.avoirService.creerAvoir(commande(facture, 5_000));
         viderLeCache();
 
-        assertEquals("AV-" + Year.now().getValue() + "_0002", em.find(AvoirTiersPayant.class, second.id()).getNumAvoir());
+        assertEquals(
+                "AV-" + Year.now().getValue() + "_0002",
+                em.find(AvoirTiersPayant.class, second.id()).getNumAvoir());
     }
 
     @Test
@@ -96,8 +92,7 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         FactureTiersPayant facture = factureAvecMontant("SANS MONTANT", 50_000);
         viderLeCache();
 
-        AvoirDto cree = services.avoirService.creerAvoir(
-            new AvoirCommand(
+        AvoirDto cree = services.avoirService.creerAvoir(new AvoirCommand(
                 facture.getId().getId(),
                 facture.getId().getInvoiceDate(),
                 facture.getTiersPayant().getId(),
@@ -105,9 +100,7 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
                 null,
                 null,
                 "à chiffrer",
-                List.of()
-            )
-        );
+                List.of()));
         viderLeCache();
 
         AvoirTiersPayant relu = em.find(AvoirTiersPayant.class, cree.id());
@@ -125,7 +118,9 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         assertEquals(AvoirStatut.EMIS, emis.statut());
-        assertEquals(AvoirStatut.EMIS, em.find(AvoirTiersPayant.class, brouillon.id()).getStatut());
+        assertEquals(
+                AvoirStatut.EMIS,
+                em.find(AvoirTiersPayant.class, brouillon.id()).getStatut());
     }
 
     @Test
@@ -143,10 +138,12 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
     void imputationPartielle() {
         AvoirDto brouillon = avoirBrouillon("IMPUTATION", 100_000, 30_000);
         services.avoirService.emettre(brouillon.id());
-        FactureTiersPayant cible = em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
+        FactureTiersPayant cible =
+                em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
         viderLeCache();
 
-        services.avoirService.imputer(brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
+        services.avoirService.imputer(
+                brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
         viderLeCache();
 
         FactureTiersPayant relue = em.find(FactureTiersPayant.class, cible.getId());
@@ -163,13 +160,17 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
     void imputationTotale() {
         AvoirDto brouillon = avoirBrouillon("SOLDE", 50_000, 50_000);
         services.avoirService.emettre(brouillon.id());
-        FactureTiersPayant cible = em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
+        FactureTiersPayant cible =
+                em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
         viderLeCache();
 
-        services.avoirService.imputer(brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
+        services.avoirService.imputer(
+                brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
         viderLeCache();
 
-        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, cible.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PAID,
+                em.find(FactureTiersPayant.class, cible.getId()).getStatut());
     }
 
     @Test
@@ -183,25 +184,29 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         services.avoirService.emettre(brouillon.id());
         viderLeCache();
 
-        services.avoirService.imputer(brouillon.id(), autre.getId().getId(), autre.getId().getInvoiceDate());
+        services.avoirService.imputer(
+                brouillon.id(), autre.getId().getId(), autre.getId().getInvoiceDate());
         viderLeCache();
 
         assertEquals(25_000, em.find(FactureTiersPayant.class, autre.getId()).getMontantRegle());
-        assertEquals(0, em.find(FactureTiersPayant.class, origine.getId()).getMontantRegle(), "la facture d'origine n'est pas touchée");
+        assertEquals(
+                0,
+                em.find(FactureTiersPayant.class, origine.getId()).getMontantRegle(),
+                "la facture d'origine n'est pas touchée");
     }
 
     @Test
     @DisplayName("Un avoir encore en brouillon ne peut pas être imputé")
     void imputationDUnBrouillon() {
         AvoirDto brouillon = avoirBrouillon("BROUILLON", 60_000, 10_000);
-        FactureTiersPayant cible = em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
+        FactureTiersPayant cible =
+                em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
         var factureId = cible.getId();
         viderLeCache();
 
         assertThrows(
-            IllegalStateException.class,
-            () -> services.avoirService.imputer(brouillon.id(), factureId.getId(), factureId.getInvoiceDate())
-        );
+                IllegalStateException.class,
+                () -> services.avoirService.imputer(brouillon.id(), factureId.getId(), factureId.getInvoiceDate()));
         assertEquals(0, em.find(FactureTiersPayant.class, factureId).getMontantRegle(), "la facture reste intacte");
     }
 
@@ -228,7 +233,8 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         services.avoirService.annuler(brouillon.id(), "  ");
         viderLeCache();
 
-        assertEquals("bons rejetés", em.find(AvoirTiersPayant.class, brouillon.id()).getMotif());
+        assertEquals(
+                "bons rejetés", em.find(AvoirTiersPayant.class, brouillon.id()).getMotif());
     }
 
     @Test
@@ -236,8 +242,10 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
     void annulationDUnAvoirImpute() {
         AvoirDto brouillon = avoirBrouillon("IMPUTE ANNUL", 40_000, 10_000);
         services.avoirService.emettre(brouillon.id());
-        FactureTiersPayant cible = em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
-        services.avoirService.imputer(brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
+        FactureTiersPayant cible =
+                em.find(AvoirTiersPayant.class, brouillon.id()).getFactureTiersPayant();
+        services.avoirService.imputer(
+                brouillon.id(), cible.getId().getId(), cible.getId().getInvoiceDate());
         viderLeCache();
 
         assertThrows(IllegalStateException.class, () -> services.avoirService.annuler(brouillon.id(), "trop tard"));
@@ -267,11 +275,11 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         List<AvoirDto> emisDuVise = services.avoirService
-            .findAll(new AvoirSearchParams(vise.getId(), null, null, List.of(AvoirStatut.EMIS), null), page())
-            .getContent();
+                .findAll(new AvoirSearchParams(vise.getId(), null, null, List.of(AvoirStatut.EMIS), null), page())
+                .getContent();
         List<AvoirDto> tousDuVise = services.avoirService
-            .findAll(new AvoirSearchParams(vise.getId(), null, null, List.of(), null), page())
-            .getContent();
+                .findAll(new AvoirSearchParams(vise.getId(), null, null, List.of(), null), page())
+                .getContent();
 
         assertEquals(1, emisDuVise.size());
         assertEquals(emis.id(), emisDuVise.getFirst().id());
@@ -288,8 +296,11 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         List<AvoirDto> resultats = services.avoirService
-            .findAll(new AvoirSearchParams(null, null, null, List.of(), avoir.numAvoir().toLowerCase()), page())
-            .getContent();
+                .findAll(
+                        new AvoirSearchParams(
+                                null, null, null, List.of(), avoir.numAvoir().toLowerCase()),
+                        page())
+                .getContent();
 
         assertEquals(1, resultats.size());
         assertEquals(avoir.numAvoir(), resultats.getFirst().numAvoir());
@@ -304,11 +315,15 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         List<AvoirDto> resultats = services.avoirService
-            .findAll(
-                new AvoirSearchParams(null, LocalDate.now().minusMonths(3), LocalDate.now().minusMonths(2), List.of(), null),
-                page()
-            )
-            .getContent();
+                .findAll(
+                        new AvoirSearchParams(
+                                null,
+                                LocalDate.now().minusMonths(3),
+                                LocalDate.now().minusMonths(2),
+                                List.of(),
+                                null),
+                        page())
+                .getContent();
 
         assertTrue(resultats.isEmpty(), "l'avoir est daté d'aujourd'hui");
     }
@@ -333,20 +348,20 @@ class AvoirServiceIntegrationTest extends AbstractFacturationIntegrationTest {
 
     private AvoirCommand commande(FactureTiersPayant facture, int montant) {
         return new AvoirCommand(
-            facture.getId().getId(),
-            facture.getId().getInvoiceDate(),
-            facture.getTiersPayant().getId(),
-            BigDecimal.valueOf(montant),
-            BigDecimal.ZERO,
-            BigDecimal.valueOf(montant),
-            "bons rejetés",
-            List.of()
-        );
+                facture.getId().getId(),
+                facture.getId().getInvoiceDate(),
+                facture.getTiersPayant().getId(),
+                BigDecimal.valueOf(montant),
+                BigDecimal.ZERO,
+                BigDecimal.valueOf(montant),
+                "bons rejetés",
+                List.of());
     }
 
     private AvoirDto avoirBrouillon(String nomOrganisme, int montantFacture, int montantAvoir) {
         FactureTiersPayant facture = factureAvecMontant(nomOrganisme, montantFacture);
         viderLeCache();
-        return services.avoirService.creerAvoir(commande(em.find(FactureTiersPayant.class, facture.getId()), montantAvoir));
+        return services.avoirService.creerAvoir(
+                commande(em.find(FactureTiersPayant.class, facture.getId()), montantAvoir));
     }
 }

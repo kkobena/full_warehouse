@@ -2,9 +2,9 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Commande_;
-import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
+import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
@@ -17,14 +17,13 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -77,7 +76,9 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Commande> cq = cb.createQuery(Commande.class);
         Root<OrderLine> root = cq.from(OrderLine.class);
-        cq.select(root.get(OrderLine_.commande)).distinct(true).orderBy(cb.desc(root.get(OrderLine_.commande).get(Commande_.updatedAt)));
+        cq.select(root.get(OrderLine_.commande))
+                .distinct(true)
+                .orderBy(cb.desc(root.get(OrderLine_.commande).get(Commande_.updatedAt)));
         List<Predicate> predicates = predicatesFetchCommandesWithOrderLineCriteria(commandeFilterDTO, cb, root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Commande> q = em.createQuery(cq);
@@ -100,52 +101,63 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
     }
 
     private List<Predicate> predicatesFetchCommandesWithOrderLineCriteria(
-        CommandeFilterDTO commandeFilterDTO,
-        CriteriaBuilder cb,
-        Root<OrderLine> root
-    ) {
+            CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<OrderLine> root) {
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(root.get(OrderLine_.commande).get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
+        predicates.add(root.get(OrderLine_.commande)
+                .get(Commande_.type)
+                .in(
+                        commandeFilterDTO.getType() != null
+                                ? List.of(commandeFilterDTO.getType())
+                                : List.of(TypeDeliveryReceipt.ORDER)));
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getMagasinIds())) {
-            predicates.add(root.get(OrderLine_.commande).get(Commande_.magasin).get(Magasin_.id).in(commandeFilterDTO.getMagasinIds()));
+            predicates.add(root.get(OrderLine_.commande)
+                    .get(Commande_.magasin)
+                    .get(Magasin_.id)
+                    .in(commandeFilterDTO.getMagasinIds()));
         }
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
-            predicates.add(root.get(OrderLine_.commande).get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
+            predicates.add(
+                    root.get(OrderLine_.commande).get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
         }
 
         if (StringUtils.hasText(commandeFilterDTO.getSearchCommande())) {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
-            predicates.add(
-                cb.or(
+            predicates.add(cb.or(
                     cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.orderReference)), searchCommande),
-                    cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)
-                )
-            );
+                    cb.like(
+                            cb.upper(root.get(OrderLine_.commande)
+                                    .get(Commande_.fournisseur)
+                                    .get(Fournisseur_.libelle)),
+                            searchCommande)));
         }
         if (StringUtils.hasText(commandeFilterDTO.getSearch())) {
             String search = commandeFilterDTO.getSearch().toUpperCase() + "%";
 
-            predicates.add(
-                cb.or(
+            predicates.add(cb.or(
                     cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)), search),
                     cb.like(
-                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
-                        search
-                    ),
+                            cb.upper(root.get(OrderLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.libelle)),
+                            search),
                     cb.like(
-                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire)),
-                        search
-                    )
-                )
-            );
+                            cb.upper(root.get(OrderLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.codeEanLaboratoire)),
+                            search)));
         }
         return predicates;
     }
 
-    private List<Predicate> predicatesFetchCommandes(CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<Commande> root) {
+    private List<Predicate> predicatesFetchCommandes(
+            CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<Commande> root) {
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(root.get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
+        predicates.add(root.get(Commande_.type)
+                .in(
+                        commandeFilterDTO.getType() != null
+                                ? List.of(commandeFilterDTO.getType())
+                                : List.of(TypeDeliveryReceipt.ORDER)));
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getMagasinIds())) {
             predicates.add(root.get(Commande_.magasin).get(Magasin_.id).in(commandeFilterDTO.getMagasinIds()));
         }
@@ -155,12 +167,9 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
 
         if (StringUtils.hasText(commandeFilterDTO.getSearchCommande())) {
             String searchCommande = commandeFilterDTO.getSearchCommande().toUpperCase() + "%";
-            predicates.add(
-                cb.or(
+            predicates.add(cb.or(
                     cb.like(cb.upper(root.get(Commande_.orderReference)), searchCommande),
-                    cb.like(cb.upper(root.get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)
-                )
-            );
+                    cb.like(cb.upper(root.get(Commande_.fournisseur).get(Fournisseur_.libelle)), searchCommande)));
         }
 
         return predicates;

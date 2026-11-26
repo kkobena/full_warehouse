@@ -1,49 +1,20 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  input,
-  output,
-  signal
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from "@angular/forms";
-import {HttpResponse} from "@angular/common/http";
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
 
-import {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import {IPaymentMode} from "../../../../shared/model/payment-mode.model";
-import {ModePaymentService} from "../../../../entities/mode-payments/mode-payment.service";
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from "../../../../shared/util/warehouse-util";
+import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
+import { ModePaymentService } from '../../../../entities/mode-payments/mode-payment.service';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
 
-import {
-  IDossierFactureProjection,
-  IReglementParams,
-  ModeEditionReglement
-} from "../../data-access/models";
-import {
-  ButtonComponent,
-  CardComponent,
-  InputNumberComponent,
-  KeyFilterDirective,
-  SelectComponent,
-  SwitchComponent
-} from 'app/shared/ui';
-import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
+import { IDossierFactureProjection, IReglementParams, ModeEditionReglement } from '../../data-access/models';
+import { ButtonComponent, CardComponent, InputNumberComponent, KeyFilterDirective, SelectComponent, SwitchComponent } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: "app-reglement-form",
+  selector: 'app-reglement-form',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -53,16 +24,16 @@ import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-pick
     SelectComponent,
     SwitchComponent,
     PharmaDatePickerComponent,
-    CardComponent
+    CardComponent,
   ],
-  templateUrl: "./reglement-form.component.html",
+  templateUrl: './reglement-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./reglement-form.component.scss"
+  styleUrl: './reglement-form.component.scss',
 })
 export class ReglementFormComponent implements AfterViewInit {
-  readonly CASH = "CASH";
-  readonly CH = "CH";
-  readonly VIR = "VIREMENT";
+  readonly CASH = 'CASH';
+  readonly CH = 'CH';
+  readonly VIR = 'VIREMENT';
 
   readonly isSaving = input(false);
   readonly facture = input<IDossierFactureProjection | null>(null);
@@ -85,43 +56,42 @@ export class ReglementFormComponent implements AfterViewInit {
     return this.montantSaisi() >= (this.montantAPayer() ?? 0);
   });
 
-
   private readonly fb = inject(FormBuilder);
   readonly reglementForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     modePaimentCode: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     partialPayment: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     paymentDate: new FormControl<NgbDateStruct | null>(TODAY_NGB_DATE()),
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
-      beneficiaire: new FormControl<string | null>(null)
-    })
+      beneficiaire: new FormControl<string | null>(null),
+    }),
   });
   private readonly modeService = inject(ModePaymentService);
   private readonly destroyRef = inject(DestroyRef);
 
   get banqueInfo(): FormGroup {
-    return this.reglementForm.get("banqueInfo") as FormGroup;
+    return this.reglementForm.get('banqueInfo') as FormGroup;
   }
 
   get cashInput(): AbstractControl<number | null> {
-    return this.reglementForm.get("amount");
+    return this.reglementForm.get('amount');
   }
 
   get isGroup(): boolean {
@@ -129,7 +99,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   get isPartialPayment(): boolean {
-    return !this.reglementForm.get("partialPayment").value;
+    return !this.reglementForm.get('partialPayment').value;
   }
 
   get isCash(): boolean {
@@ -155,7 +125,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   private get modePaimentCode(): string {
-    return this.reglementForm.get("modePaimentCode").value;
+    return this.reglementForm.get('modePaimentCode').value;
   }
 
   private get initTotalAmount(): number {
@@ -174,7 +144,7 @@ export class ReglementFormComponent implements AfterViewInit {
   }
 
   private get montantVerse(): number {
-    return this.isCash ? (this.reglementForm.get("amount").value ?? 0) : 0;
+    return this.isCash ? (this.reglementForm.get('amount').value ?? 0) : 0;
   }
 
   private get montantPayer(): number {
@@ -193,40 +163,40 @@ export class ReglementFormComponent implements AfterViewInit {
           this.paymentModes.set(res.body);
           this.setDefaultModeReglement();
           // Initialize amount after payment modes are loaded (replaces setTimeout)
-          this.reglementForm.get("amount").setValue(this.initTotalAmount);
+          this.reglementForm.get('amount').setValue(this.initTotalAmount);
         }
       });
 
     this.reglementForm
-      .get("amount")
+      .get('amount')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.montantSaisi.set(value ?? 0));
 
     this.reglementForm
-      .get("partialPayment")
+      .get('partialPayment')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.partialPayment.emit(!value));
 
     this.reglementForm
-      .get("modePaimentCode")
+      .get('modePaimentCode')
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        this.reglementForm.get("amount").setValue(this.defaultInputAmountValue);
+        this.reglementForm.get('amount').setValue(this.defaultInputAmountValue);
         if (this.showBanqueInfo) {
-          this.banqueInfo.get("nom").setValidators([Validators.required]);
-          this.banqueInfo.get("nom").updateValueAndValidity();
+          this.banqueInfo.get('nom').setValidators([Validators.required]);
+          this.banqueInfo.get('nom').updateValueAndValidity();
           if (value === this.CH) {
-            this.banqueInfo.get("code").setValidators([Validators.required]);
+            this.banqueInfo.get('code').setValidators([Validators.required]);
           } else {
-            this.banqueInfo.get("code").clearValidators();
+            this.banqueInfo.get('code').clearValidators();
           }
-          this.banqueInfo.get("code").updateValueAndValidity();
+          this.banqueInfo.get('code').updateValueAndValidity();
         } else {
           this.banqueInfo.reset();
-          this.banqueInfo.get("nom").clearValidators();
-          this.banqueInfo.get("nom").updateValueAndValidity();
-          this.banqueInfo.get("code").clearValidators();
-          this.banqueInfo.get("code").updateValueAndValidity();
+          this.banqueInfo.get('nom').clearValidators();
+          this.banqueInfo.get('nom').updateValueAndValidity();
+          this.banqueInfo.get('code').clearValidators();
+          this.banqueInfo.get('code').updateValueAndValidity();
         }
       });
   }
@@ -234,7 +204,7 @@ export class ReglementFormComponent implements AfterViewInit {
   reset(): void {
     this.reglementForm.reset();
     this.setDefaultModeReglement();
-    this.reglementForm.get("partialPayment").setValue(true);
+    this.reglementForm.get('partialPayment').setValue(true);
   }
 
   protected save(): void {
@@ -244,24 +214,24 @@ export class ReglementFormComponent implements AfterViewInit {
   private setDefaultModeReglement(): void {
     const defaultMode = this.paymentModes().find(m => m.code === this.CH);
     if (defaultMode) {
-      this.reglementForm.get("modePaimentCode").setValue(defaultMode.code);
+      this.reglementForm.get('modePaimentCode').setValue(defaultMode.code);
     }
   }
 
   private buildParams(): IReglementParams {
-    const paymentDate = this.reglementForm.get("paymentDate").value;
-    const allMode = this.reglementForm.get("partialPayment").value;
+    const paymentDate = this.reglementForm.get('paymentDate').value;
+    const allMode = this.reglementForm.get('partialPayment').value;
     const f = this.facture();
     return {
-      amount: this.reglementForm.get("amount").value,
-      modePaimentCode: this.reglementForm.get("modePaimentCode").value,
+      amount: this.reglementForm.get('amount').value,
+      modePaimentCode: this.reglementForm.get('modePaimentCode').value,
       partialPayment: !allMode,
       banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
       amountToPaid: this.montantPayer,
       paymentDate: NGB_DATE_TO_ISO(paymentDate),
       totalAmount: this.initTotalAmount,
       id: f?.factureItemId,
-      montantFacture: f?.montantTotal
+      montantFacture: f?.montantTotal,
     };
   }
 }

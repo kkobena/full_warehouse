@@ -1,123 +1,115 @@
 <app-card>
-<!-- Hint premier usage -->
-<app-hint storageKey="planif-factures">
-  Cliquez sur une ligne pour afficher le détail .
-</app-hint>
+  <!-- Hint premier usage -->
+  <app-hint storageKey="planif-factures"> Cliquez sur une ligne pour afficher le détail . </app-hint>
 
-<div class="split-container" [class.panel-open]="selectedPlan()">
-  <!-- Master : liste des planifications -->
-  <div class="list-column">
-    <app-data-table
-      [value]="planifications()"
-      [loading]="state.loading()"
-      [scrollable]="true"
-      scrollHeight="calc(100vh - 310px)"
-      selectionMode="single"
-      [selection]="selectedPlan()"
-      (selectionChange)="onSelectionChange($event)"
-      [size]="'small'" class="planif-table"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Planification</th>
-          <th>Périodicité</th>
-          <th>Prochain déclenchement</th>
-          <th>Dernière exécution</th>
-          <th>Statut</th>
-          <th class="text-center">Actif</th>
-          <th style="width: 7rem"></th>
-        </tr>
-      </ng-template>
+  <div class="split-container" [class.panel-open]="selectedPlan()">
+    <!-- Master : liste des planifications -->
+    <div class="list-column">
+      <app-data-table
+        [value]="planifications()"
+        [loading]="state.loading()"
+        [scrollable]="true"
+        scrollHeight="calc(100vh - 310px)"
+        selectionMode="single"
+        [selection]="selectedPlan()"
+        (selectionChange)="onSelectionChange($event)"
+        [size]="'small'"
+        class="planif-table"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Planification</th>
+            <th>Périodicité</th>
+            <th>Prochain déclenchement</th>
+            <th>Dernière exécution</th>
+            <th>Statut</th>
+            <th class="text-center">Actif</th>
+            <th style="width: 7rem"></th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-plan>
-        <!-- `appSelectableRow` pose lui-même `ligne-selected` sur la ligne retenue. -->
-        <tr [appSelectableRow]="plan">
-          <td class="fw-semibold">{{ plan.libelle }}</td>
-          <td>
-            <span [class]="periodiciteBadgeClass()">{{ state.getPeriodiciteLabel(plan.periodicite) }}</span>
-          </td>
-          <td class="small">
-            @if (plan.actif && plan.prochaineExecution) {
-              {{ plan.prochaineExecution | date: 'dd/MM/yyyy HH:mm' }}
-            } @else if (!plan.actif) {
-              <span class="text-muted fst-italic">— désactivé</span>
-            } @else {
-
-              <span class="text-warning fst-italic">à calculer</span>
-            }
-          </td>
-          <td class="small text-muted">
-            {{ plan.derniereExecution ? (plan.derniereExecution | date: 'dd/MM/yy HH:mm') : 'Jamais' }}
-          </td>
-          <td>
-            @if (plan.dernierStatut) {
-              <span [class]="state.getStatutBadgeClass(plan.dernierStatut)">
-                {{
-                  plan.dernierStatut === 'SUCCESS'
-                    ? 'Succès'
-                    : plan.dernierStatut === 'ECHEC'
-                      ? 'Échec'
-                      : 'En cours'
-                }}
-              </span>
-            }
-          </td>
-          <td class="text-center" (click)="$event.stopPropagation()">
-            <app-switch #actifSwitch [ngModel]="plan.actif" (ngModelChange)="state.onToggleActif(plan, revertSwitch(actifSwitch, plan))" />
-          </td>
-          <td (click)="$event.stopPropagation()" class="text-end">
-            <div>
-              <div class="btn-group" role="group">
-                <app-button
-                  (clicked)="onSelectPlan(plan)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-eye"
-                  ngbTooltip="Voir détail"
-                  placement="left"
-                  severity="secondary"
-                  size="small"
-                />
-                @if (plan.actif){
+        <ng-template #body let-plan>
+          <!-- `appSelectableRow` pose lui-même `ligne-selected` sur la ligne retenue. -->
+          <tr [appSelectableRow]="plan">
+            <td class="fw-semibold">{{ plan.libelle }}</td>
+            <td>
+              <span [class]="periodiciteBadgeClass()">{{ state.getPeriodiciteLabel(plan.periodicite) }}</span>
+            </td>
+            <td class="small">
+              @if (plan.actif && plan.prochaineExecution) {
+                {{ plan.prochaineExecution | date: 'dd/MM/yyyy HH:mm' }}
+              } @else if (!plan.actif) {
+                <span class="text-muted fst-italic">— désactivé</span>
+              } @else {
+                <span class="text-warning fst-italic">à calculer</span>
+              }
+            </td>
+            <td class="small text-muted">
+              {{ plan.derniereExecution ? (plan.derniereExecution | date: 'dd/MM/yy HH:mm') : 'Jamais' }}
+            </td>
+            <td>
+              @if (plan.dernierStatut) {
+                <span [class]="state.getStatutBadgeClass(plan.dernierStatut)">
+                  {{ plan.dernierStatut === 'SUCCESS' ? 'Succès' : plan.dernierStatut === 'ECHEC' ? 'Échec' : 'En cours' }}
+                </span>
+              }
+            </td>
+            <td class="text-center" (click)="$event.stopPropagation()">
+              <app-switch
+                #actifSwitch
+                [ngModel]="plan.actif"
+                (ngModelChange)="state.onToggleActif(plan, revertSwitch(actifSwitch, plan))"
+              />
+            </td>
+            <td (click)="$event.stopPropagation()" class="text-end">
+              <div>
+                <div class="btn-group" role="group">
                   <app-button
-                    (clicked)="state.onExecuterMaintenant(plan)"
-                    icon="pi pi-play"
-                    [text]="true"
-                    size="small"
+                    (clicked)="onSelectPlan(plan)"
                     [rounded]="true"
-                    severity="success"
-                    ngbTooltip="Exécuter maintenant"
+                    [text]="true"
+                    icon="pi pi-eye"
+                    ngbTooltip="Voir détail"
                     placement="left"
+                    severity="secondary"
+                    size="small"
                   />
-                }
-
-
+                  @if (plan.actif) {
+                    <app-button
+                      (clicked)="state.onExecuterMaintenant(plan)"
+                      icon="pi pi-play"
+                      [text]="true"
+                      size="small"
+                      [rounded]="true"
+                      severity="success"
+                      ngbTooltip="Exécuter maintenant"
+                      placement="left"
+                    />
+                  }
+                </div>
               </div>
+            </td>
+          </tr>
+        </ng-template>
 
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="pi pi-inbox d-block fs-1 mb-2"></i>
+              @if (mode() === 'def') {
+                Aucune planification définitive
+              } @else {
+                Aucune planification provisoire
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
 
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="7" class="text-center text-muted py-5">
-            <i class="pi pi-inbox d-block fs-1 mb-2"></i>
-            @if (mode() === 'def') {
-              Aucune planification définitive
-            }@else {
-              Aucune planification provisoire
-            }
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+    @if (selectedPlan(); as plan) {
+      <app-planif-detail-panel [mode]="mode()" [plan]="plan" />
+    }
   </div>
-
-  @if (selectedPlan(); as plan) {
-    <app-planif-detail-panel [mode]="mode()" [plan]="plan" />
-  }
-</div>
-
 </app-card>

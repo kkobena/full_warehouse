@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.service.pharmaml.dto.CsrpEnveloppe;
 import com.kobe.warehouse.service.pharmaml.dto.InfoProduitDTO;
 import com.kobe.warehouse.service.pharmaml.dto.PharmamlCommandeResponse;
-
 import java.util.List;
 
 /**
@@ -26,12 +25,7 @@ public interface PharmaMlHttpClientService {
      * @return la réponse PharmaML parsée
      */
     PharmamlCommandeResponse sendCommandeWithRetry(
-        CsrpEnveloppe payload,
-        Commande commande,
-        Fournisseur fournisseur,
-        PharmaMlEnvoi envoi,
-        String fileName
-    );
+            CsrpEnveloppe payload, Commande commande, Fournisseur fournisseur, PharmaMlEnvoi envoi, String fileName);
 
     /**
      * Envoie un message simple (ACK, annulation, retour) et vérifie le code de retour HTTP.
@@ -83,4 +77,3 @@ public interface PharmaMlHttpClientService {
      */
     String generateFileName(String orderReference, String fournisseurLibelle);
 }
-

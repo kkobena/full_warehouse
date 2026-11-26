@@ -6,9 +6,7 @@
     </h4>
   </div>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <div class="modal-body">
   <app-card [variant]="'form'">
@@ -84,8 +82,7 @@
   </app-card>
 </div>
 <div class="modal-footer">
-  <app-button (clicked)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
-              severity="secondary" type="button" />
+  <app-button (clicked)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
   <app-button
     (clicked)="onSave()"
     [disabled]="selectedProduits.length === 0 || isSaving()"

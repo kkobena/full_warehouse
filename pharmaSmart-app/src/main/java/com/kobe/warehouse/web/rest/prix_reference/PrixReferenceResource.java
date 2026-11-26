@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.prix_reference;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import java.util.List;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/prix-reference")

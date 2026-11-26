@@ -42,7 +42,6 @@ import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import com.kobe.warehouse.service.stock.dto.TypeFilter;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -112,16 +111,15 @@ class LotServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new LotServiceImpl(
-            lotRepository,
-            lotStockLocationRepository,
-            appConfigurationService,
-            produitRepository,
-            lotServiceReportService,
-            orderLineService,
-            lotStockLocationService,
-            storageService,
-            retourBonRepository
-        );
+                lotRepository,
+                lotStockLocationRepository,
+                appConfigurationService,
+                produitRepository,
+                lotServiceReportService,
+                orderLineService,
+                lotStockLocationService,
+                storageService,
+                retourBonRepository);
         magasin = new Magasin();
         magasin.setId(1);
         principal = storage(2, "RAYON");
@@ -132,7 +130,8 @@ class LotServiceImplTest {
         when(lotRepository.save(any(Lot.class))).thenAnswer(inv -> inv.getArgument(0));
         Specification<Lot> spec = (r, q, cb) -> null;
         when(lotRepository.buildCombinedSpecification(any())).thenReturn(spec);
-        when(lotRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+        when(lotRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(Page.empty());
     }
 
     private Storage storage(int id, String name) {
@@ -170,21 +169,21 @@ class LotServiceImplTest {
 
     private static Lot lot(int id, String numLot, int quantity, int currentQuantity) {
         return new Lot()
-            .setId(id)
-            .setNumLot(numLot)
-            .setQuantity(quantity)
-            .setCurrentQuantity(currentQuantity)
-            .setFreeQty(0)
-            .setStatut(StatutLot.AVAILABLE);
+                .setId(id)
+                .setNumLot(numLot)
+                .setQuantity(quantity)
+                .setCurrentQuantity(currentQuantity)
+                .setFreeQty(0)
+                .setStatut(StatutLot.AVAILABLE);
     }
 
     private static LotDTO dto(String numLot, Integer quantityReceived, Integer freeQty) {
         return new LotDTO()
-            .setNumLot(numLot)
-            .setQuantityReceived(quantityReceived)
-            .setFreeQty(freeQty)
-            .setExpiryDate(LocalDate.of(2027, 6, 30))
-            .setReceiptItemId(ORDER_LINE_ID);
+                .setNumLot(numLot)
+                .setQuantityReceived(quantityReceived)
+                .setFreeQty(freeQty)
+                .setExpiryDate(LocalDate.of(2027, 6, 30))
+                .setReceiptItemId(ORDER_LINE_ID);
     }
 
     @Nested
@@ -213,8 +212,8 @@ class LotServiceImplTest {
             LotDTO lot = dto("L1", 10, 0);
 
             assertThatThrownBy(() -> service.addLot(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ligne de commande introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ligne de commande introuvable");
         }
 
         @Test
@@ -258,8 +257,8 @@ class LotServiceImplTest {
             LotDTO lot = dto("L1", 12, 0);
 
             assertThatThrownBy(() -> service.addLot(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("dépasserait la quantité reçue (10)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("dépasserait la quantité reçue (10)");
         }
 
         @Test
@@ -269,9 +268,9 @@ class LotServiceImplTest {
             LotDTO lot = dto("L1", 5, 0);
 
             assertThatThrownBy(() -> service.addLot(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("(13)")
-                .hasMessageContaining("(10)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("(13)")
+                    .hasMessageContaining("(10)");
         }
 
         @Test
@@ -360,7 +359,8 @@ class LotServiceImplTest {
         void batch() {
             orderLine(50, 0);
 
-            assertThat(service.addLotBatch(List.of(dto("L1", 10, 0), dto("L2", 5, 0)))).hasSize(2);
+            assertThat(service.addLotBatch(List.of(dto("L1", 10, 0), dto("L2", 5, 0))))
+                    .hasSize(2);
 
             verify(lotRepository, times(2)).saveAndFlush(any(Lot.class));
         }
@@ -386,7 +386,12 @@ class LotServiceImplTest {
         }
 
         private static LotDTO horsCommande(Integer produitId, String numLot, LocalDate expiry, Integer qty) {
-            return new LotDTO().setProduitId(produitId).setNumLot(numLot).setExpiryDate(expiry).setQuantityReceived(qty).setFreeQty(0);
+            return new LotDTO()
+                    .setProduitId(produitId)
+                    .setNumLot(numLot)
+                    .setExpiryDate(expiry)
+                    .setQuantityReceived(qty)
+                    .setFreeQty(0);
         }
 
         @Test
@@ -395,19 +400,19 @@ class LotServiceImplTest {
             LotDTO lot = horsCommande(null, "L1", LocalDate.of(2027, 6, 30), 5);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Le produitId est obligatoire");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Le produitId est obligatoire");
         }
 
         @ParameterizedTest(name = "refuse un numero de lot [{0}]")
         @NullAndEmptySource
-        @ValueSource(strings = { "   " })
+        @ValueSource(strings = {"   "})
         void sansNumeroDeLot(String numLot) {
             LotDTO lot = horsCommande(PRODUIT_ID, numLot, LocalDate.of(2027, 6, 30), 5);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Le numéro de lot est obligatoire");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Le numéro de lot est obligatoire");
         }
 
         @Test
@@ -416,8 +421,8 @@ class LotServiceImplTest {
             LotDTO lot = horsCommande(PRODUIT_ID, "L1", null, 5);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("La date de péremption est obligatoire");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("La date de péremption est obligatoire");
         }
 
         @Test
@@ -427,8 +432,8 @@ class LotServiceImplTest {
             LotDTO lot = horsCommande(PRODUIT_ID, "L1", LocalDate.of(2027, 6, 30), 5);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Produit introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Produit introuvable");
         }
 
         @Test
@@ -438,8 +443,8 @@ class LotServiceImplTest {
             LotDTO lot = horsCommande(PRODUIT_ID, "L1", LocalDate.of(2027, 6, 30), 0);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("La quantité doit être supérieure à 0");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("La quantité doit être supérieure à 0");
         }
 
         @Test
@@ -449,8 +454,8 @@ class LotServiceImplTest {
             LotDTO lot = horsCommande(PRODUIT_ID, "L1", LocalDate.of(2027, 6, 30), 5);
 
             assertThatThrownBy(() -> service.addLotSurProduit(lot))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("ne peut pas dépasser le stock disponible sur cet emplacement (3)");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("ne peut pas dépasser le stock disponible sur cet emplacement (3)");
         }
 
         @Test
@@ -513,7 +518,8 @@ class LotServiceImplTest {
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit));
             when(storageService.getOne(3)).thenReturn(reserve);
 
-            service.addLotSurProduit(horsCommande(PRODUIT_ID, "L1", LocalDate.of(2027, 6, 30), 5).setStorageId(3));
+            service.addLotSurProduit(
+                    horsCommande(PRODUIT_ID, "L1", LocalDate.of(2027, 6, 30), 5).setStorageId(3));
 
             verify(lotStockLocationService).credit(any(Lot.class), org.mockito.ArgumentMatchers.eq(reserve), anyInt());
             verify(storageService, never()).getDefaultConnectedUserMainStorage();
@@ -530,12 +536,12 @@ class LotServiceImplTest {
             Lot entity = lot(70, "L0", 4, 4);
             when(lotRepository.getReferenceById(70)).thenReturn(entity);
             LotDTO lot = new LotDTO()
-                .setId(70)
-                .setNumLot("L1")
-                .setQuantityReceived(8)
-                .setUgQuantityReceived(2)
-                .setExpiryDate(LocalDate.of(2027, 6, 30))
-                .setManufacturingDate(LocalDate.of(2026, 1, 15));
+                    .setId(70)
+                    .setNumLot("L1")
+                    .setQuantityReceived(8)
+                    .setUgQuantityReceived(2)
+                    .setExpiryDate(LocalDate.of(2027, 6, 30))
+                    .setManufacturingDate(LocalDate.of(2026, 1, 15));
 
             LotDTO resultat = service.editLot(lot);
 
@@ -553,7 +559,11 @@ class LotServiceImplTest {
             Lot entity = lot(70, "L0", 4, 4);
             when(lotRepository.getReferenceById(70)).thenReturn(entity);
 
-            service.editLot(new LotDTO().setId(70).setNumLot("L1").setQuantityReceived(8).setFreeQty(3));
+            service.editLot(new LotDTO()
+                    .setId(70)
+                    .setNumLot("L1")
+                    .setQuantityReceived(8)
+                    .setFreeQty(3));
 
             assertThat(entity.getFreeQty()).isEqualTo(3);
             assertThat(entity.getQuantity()).isEqualTo(11);
@@ -804,7 +814,7 @@ class LotServiceImplTest {
     class CreditSpecificLot {
 
         @ParameterizedTest(name = "une quantite de {0} ne touche a aucun lot")
-        @ValueSource(ints = { 0, -5 })
+        @ValueSource(ints = {0, -5})
         void quantiteNonPositive(int qty) {
             service.creditSpecificLot(lot(70, "L1", 10, 10), qty);
 
@@ -854,12 +864,16 @@ class LotServiceImplTest {
             line.setId(900);
             line.setOrderDate(LocalDate.of(2026, 4, 18));
             line.setFournisseurProduit(fp);
-            return lot(70, numLot, 10, 10).setExpiryDate(expiry).setOrderLine(line).setProduit(produit);
+            return lot(70, numLot, 10, 10)
+                    .setExpiryDate(expiry)
+                    .setOrderLine(line)
+                    .setProduit(produit);
         }
 
         @SuppressWarnings("unchecked")
         private void stubPage(Lot... lots) {
-            when(lotRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(lots)));
+            when(lotRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(lots)));
         }
 
         @Test
@@ -867,7 +881,9 @@ class LotServiceImplTest {
         void lotAvecCommandeMappe() {
             stubPage(lotAvecCommande("L1", LocalDate.of(2026, 5, 1)));
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getId()).isEqualTo(70);
             assertThat(dto.getNumLot()).isEqualTo("L1");
@@ -891,7 +907,11 @@ class LotServiceImplTest {
             lot.getProduit().getRayonProduits().clear();
             stubPage(lot);
 
-            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst().getRayonName()).isNull();
+            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                            .getContent()
+                            .getFirst()
+                            .getRayonName())
+                    .isNull();
         }
 
         @Test
@@ -902,9 +922,13 @@ class LotServiceImplTest {
             famille.setLibelle("ANTALGIQUES");
             produit.setFamille(famille);
             produit.setFournisseurProduitPrincipal(fournisseurProduit(produit));
-            stubPage(lot(70, "L1", 10, 10).setExpiryDate(LocalDate.of(2026, 5, 1)).setProduit(produit));
+            stubPage(lot(70, "L1", 10, 10)
+                    .setExpiryDate(LocalDate.of(2026, 5, 1))
+                    .setProduit(produit));
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getProduitName()).isEqualTo("DOLIPRANE 1000MG");
             assertThat(dto.getProduitCode()).isEqualTo("1234567");
@@ -917,9 +941,13 @@ class LotServiceImplTest {
             FamilleProduit famille = new FamilleProduit();
             famille.setLibelle("ANTALGIQUES");
             produit.setFamille(famille);
-            stubPage(lot(70, "L1", 10, 10).setExpiryDate(LocalDate.of(2026, 5, 1)).setProduit(produit));
+            stubPage(lot(70, "L1", 10, 10)
+                    .setExpiryDate(LocalDate.of(2026, 5, 1))
+                    .setProduit(produit));
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getProduitName()).isEqualTo("DOLIPRANE 1000MG");
             assertThat(dto.getFamilleProduitName()).isEqualTo("ANTALGIQUES");
@@ -929,10 +957,15 @@ class LotServiceImplTest {
         @Test
         @DisplayName("un lot hors commande sans famille laisse la famille vide")
         void horsCommandeSansFamille() {
-            stubPage(lot(70, "L1", 10, 10).setExpiryDate(LocalDate.of(2026, 5, 1)).setProduit(produit()));
+            stubPage(lot(70, "L1", 10, 10)
+                    .setExpiryDate(LocalDate.of(2026, 5, 1))
+                    .setProduit(produit()));
 
-            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst().getFamilleProduitName())
-                .isNull();
+            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                            .getContent()
+                            .getFirst()
+                            .getFamilleProduitName())
+                    .isNull();
         }
 
         @Test
@@ -940,7 +973,9 @@ class LotServiceImplTest {
         void lotOrphelin() {
             stubPage(lot(70, "L1", 10, 10).setExpiryDate(LocalDate.of(2026, 5, 1)));
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getId()).isEqualTo(70);
             assertThat(dto.getNumLot()).isEqualTo("L1");
@@ -954,8 +989,11 @@ class LotServiceImplTest {
         void lotOrphelinSansDate() {
             stubPage(lot(70, "L1", 10, 10));
 
-            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst().getDatePeremption())
-                .isNull();
+            assertThat(service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                            .getContent()
+                            .getFirst()
+                            .getDatePeremption())
+                    .isNull();
         }
 
         @Test
@@ -964,7 +1002,9 @@ class LotServiceImplTest {
             Lot lot = lotAvecCommande("L1", null);
             stubPage(lot);
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getDatePeremption()).isNull();
             assertThat(dto.getProduitName()).isEqualTo("DOLIPRANE 1000MG");
@@ -979,7 +1019,9 @@ class LotServiceImplTest {
             LotFilterParam param = new LotFilterParam();
             param.setStorageId(2);
 
-            LotPerimeDTO dto = service.findLotsPerimes(param, Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(param, Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getQuantity()).isEqualTo(4);
             assertThat(dto.getLocations()).hasSize(1);
@@ -994,7 +1036,11 @@ class LotServiceImplTest {
             LotFilterParam param = new LotFilterParam();
             param.setStorageId(2);
 
-            assertThat(service.findLotsPerimes(param, Pageable.unpaged()).getContent().getFirst().getQuantity()).isEqualTo(10);
+            assertThat(service.findLotsPerimes(param, Pageable.unpaged())
+                            .getContent()
+                            .getFirst()
+                            .getQuantity())
+                    .isEqualTo(10);
         }
 
         @Test
@@ -1005,7 +1051,9 @@ class LotServiceImplTest {
             partiellementVendu.setCurrentQuantity(3);
             stubPage(partiellementVendu);
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getQuantity()).isEqualTo(3);
         }
@@ -1015,9 +1063,11 @@ class LotServiceImplTest {
         void tousLesEmplacements() {
             stubPage(lotAvecCommande("L1", LocalDate.of(2026, 5, 1)));
             when(lotStockLocationRepository.findAvailableByLotId(70))
-                .thenReturn(List.of(new LotStockLocation(lot(70, "L1", 10, 10), principal, 6)));
+                    .thenReturn(List.of(new LotStockLocation(lot(70, "L1", 10, 10), principal, 6)));
 
-            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged())
+                    .getContent()
+                    .getFirst();
 
             assertThat(dto.getLocations()).hasSize(1);
             assertThat(dto.getLocations().getFirst().storageName()).isEqualTo("RAYON");
@@ -1157,7 +1207,8 @@ class LotServiceImplTest {
         @Test
         @DisplayName("findPerimeSum complete l agregat du nombre de retours en cours")
         void findPerimeSum() {
-            when(lotRepository.fetchPerimeSum(any())).thenReturn(new LotPerimeValeurSum(45000L, 90000L, 12, 3L, 5L, 0L));
+            when(lotRepository.fetchPerimeSum(any()))
+                    .thenReturn(new LotPerimeValeurSum(45000L, 90000L, 12, 3L, 5L, 0L));
             when(retourBonRepository.countByStatutNot(RetourStatut.CLOSED)).thenReturn(7L);
 
             LotPerimeValeurSum sum = service.findPerimeSum(new LotFilterParam());
@@ -1183,20 +1234,21 @@ class LotServiceImplTest {
         @DisplayName("generatePdf transmet la liste, la synthese et la periode au rapport")
         void generatePdf() {
             when(lotRepository.fetchPerimeSum(any())).thenReturn(new LotPerimeValeurSum(0L, 0L, 0, 0L, 0L, 0L));
-            ResponseEntity<byte[]> attendu = ResponseEntity.ok(new byte[] { 7 });
-            when(lotServiceReportService.generatePdf(any(), any(), any(), any())).thenReturn(attendu);
+            ResponseEntity<byte[]> attendu = ResponseEntity.ok(new byte[] {7});
+            when(lotServiceReportService.generatePdf(any(), any(), any(), any()))
+                    .thenReturn(attendu);
             LotFilterParam param = new LotFilterParam();
             param.setFromDate(LocalDate.of(2026, 4, 1));
             param.setToDate(LocalDate.of(2026, 4, 30));
 
             assertThat(service.generatePdf(param)).isSameAs(attendu);
 
-            verify(lotServiceReportService).generatePdf(
-                any(),
-                any(),
-                org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 1)),
-                org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 30))
-            );
+            verify(lotServiceReportService)
+                    .generatePdf(
+                            any(),
+                            any(),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 1)),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 30)));
         }
     }
 }

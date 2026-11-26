@@ -22,7 +22,8 @@ public class RegleErosionMarge implements RegleAlerte {
     private final SeriesPilotageService seriesPilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleErosionMarge(SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
+    public RegleErosionMarge(
+            SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
         this.seriesPilotageService = seriesPilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -35,21 +36,20 @@ public class RegleErosionMarge implements RegleAlerte {
     @Override
     public List<AlertePilotageDTO> evaluer(LocalDate aujourdhui) {
         List<SerieIndicateurDTO> series = seriesPilotageService
-            .calculerSeries(RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.TAUX_MARGE)))
-            .series();
-        if (series.isEmpty() || series.getFirst().ecart() == null || series.getFirst().ecart() >= -appConfigurationService.getAlerteErosionMargePilotage()) {
+                .calculerSeries(RequetesAlertes.lireMoisADate(aujourdhui, List.of(IndicateurPilotage.TAUX_MARGE)))
+                .series();
+        if (series.isEmpty()
+                || series.getFirst().ecart() == null
+                || series.getFirst().ecart() >= -appConfigurationService.getAlerteErosionMargePilotage()) {
             return List.of();
         }
         SerieIndicateurDTO taux = series.getFirst();
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "EROSION_MARGE",
                 GraviteAlerte.HAUTE,
                 "La marge s'érode",
-                "Taux de marge du mois à date : " + RequetesAlertes.formaterDecimal(taux.valeur()) + " %, soit " +
-                RequetesAlertes.formaterDecimal(-taux.ecart()) + " point(s) de moins que l'an dernier.",
-                "rentabilite-remises"
-            )
-        );
+                "Taux de marge du mois à date : " + RequetesAlertes.formaterDecimal(taux.valeur()) + " %, soit "
+                        + RequetesAlertes.formaterDecimal(-taux.ecart()) + " point(s) de moins que l'an dernier.",
+                "rentabilite-remises"));
     }
 }

@@ -1,47 +1,26 @@
-import {
-  afterNextRender,
-  signal,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-} from "@angular/core";
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {HttpResponse} from "@angular/common/http";
-import {finalize} from "rxjs/operators";
-import {MagasinService} from "app/features/magasin/data-access/services/magasin.service";
-import {StorageService} from "../../../../entities/storage/storage.service";
-import {Storage} from "../../../../entities/storage/storage.model";
-import {ErrorService} from "../../../../shared/error.service";
-import {RayonApiService} from "../../data-access/services/rayon-api.service";
-import {IRayon, TYPE_ZONE_OPTIONS} from "../../models/rayon.model";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  SelectComponent
-} from "../../../../shared/ui";
+import { afterNextRender, signal, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { StorageService } from '../../../../entities/storage/storage.service';
+import { Storage } from '../../../../entities/storage/storage.model';
+import { ErrorService } from '../../../../shared/error.service';
+import { RayonApiService } from '../../data-access/services/rayon-api.service';
+import { IRayon, TYPE_ZONE_OPTIONS } from '../../models/rayon.model';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from '../../../../shared/ui';
 
 @Component({
-  selector: "app-rayon-form",
-  templateUrl: "./rayon-form.component.html",
-  styleUrl: "./rayon-form.component.scss",
+  selector: 'app-rayon-form',
+  templateUrl: './rayon-form.component.html',
+  styleUrl: './rayon-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    KeyFilterDirective,
-    SelectComponent,
-    CardComponent
-  ]
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, KeyFilterDirective, SelectComponent, CardComponent],
 })
 export class RayonFormComponent implements OnInit {
-  header = "";
+  header = '';
   entity: IRayon | null = null;
 
   protected readonly storages = signal([]);
@@ -55,7 +34,7 @@ export class RayonFormComponent implements OnInit {
     storageId: [null, [Validators.required]],
     libelle: [null, [Validators.required]],
     typeZone: [null],
-    position: [null]
+    position: [null],
   });
   private readonly notificationService = inject(NotificationService);
   private readonly rayonApi = inject(RayonApiService);
@@ -63,7 +42,7 @@ export class RayonFormComponent implements OnInit {
   private readonly storageService = inject(StorageService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
-  private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
+  private readonly libelleInput = viewChild.required<ElementRef>('libelleInput');
 
   constructor() {
     afterNextRender(() => {
@@ -72,7 +51,7 @@ export class RayonFormComponent implements OnInit {
   }
 
   protected get isSansRayon(): boolean {
-    return this.entity?.code === "SANS";
+    return this.entity?.code === 'SANS';
   }
 
   ngOnInit(): void {
@@ -86,9 +65,9 @@ export class RayonFormComponent implements OnInit {
     this.isSaving.set(true);
     const rayon = this.buildFromForm();
     const call = rayon.id ? this.rayonApi.update(rayon) : this.rayonApi.create(rayon);
-    call.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    call.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (res: HttpResponse<IRayon>) => this.activeModal.close(res.body),
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err))
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err)),
     });
   }
 
@@ -98,17 +77,15 @@ export class RayonFormComponent implements OnInit {
 
   private loadStorages(): void {
     this.magasinService.findCurrentUserMagasin().then(magasin => {
-      this.storageService
-        .fetchStorages({magasinId: magasin.id})
-        .subscribe((res: HttpResponse<Storage[]>) => {
-          this.storages.set(res.body ?? []);
-          if (this.entity) {
-            this.patchForm(this.entity);
-          } else {
-            const principal = this.storages().find(s => s.type === "PRINCIPAL");
-            this.editForm.get("storageId")?.setValue(principal?.id ?? null);
-          }
-        });
+      this.storageService.fetchStorages({ magasinId: magasin.id }).subscribe((res: HttpResponse<Storage[]>) => {
+        this.storages.set(res.body ?? []);
+        if (this.entity) {
+          this.patchForm(this.entity);
+        } else {
+          const principal = this.storages().find(s => s.type === 'PRINCIPAL');
+          this.editForm.get('storageId')?.setValue(principal?.id ?? null);
+        }
+      });
     });
   }
 
@@ -119,21 +96,21 @@ export class RayonFormComponent implements OnInit {
       libelle: rayon.libelle,
       storageId: rayon.storageId,
       typeZone: rayon.typeZone ?? null,
-      position: rayon.position ?? null
+      position: rayon.position ?? null,
     });
-    if (rayon.code === "SANS") {
-      this.editForm.get("code")?.disable();
+    if (rayon.code === 'SANS') {
+      this.editForm.get('code')?.disable();
     }
   }
 
   private buildFromForm(): IRayon {
     return {
-      id: this.editForm.get("id")?.value ?? undefined,
-      code: this.editForm.get("code")?.value ?? this.entity?.code,
-      libelle: this.editForm.get("libelle")?.value,
-      storageId: this.editForm.get("storageId")?.value,
-      typeZone: this.editForm.get("typeZone")?.value ?? undefined,
-      position: this.editForm.get("position")?.value ?? undefined
+      id: this.editForm.get('id')?.value ?? undefined,
+      code: this.editForm.get('code')?.value ?? this.entity?.code,
+      libelle: this.editForm.get('libelle')?.value,
+      storageId: this.editForm.get('storageId')?.value,
+      typeZone: this.editForm.get('typeZone')?.value ?? undefined,
+      position: this.editForm.get('position')?.value ?? undefined,
     };
   }
 }

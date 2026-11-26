@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RefDciRepository extends JpaRepository<RefDci, Integer> {
     /** Molécules du référentiel reliées à ces DCI du catalogue. */
-    @Query("select new com.kobe.warehouse.service.dto.controle.MoleculeDTO(r.id, r.libelle) from RefDci r where r.dci.id in :dciIds")
+    @Query(
+            "select new com.kobe.warehouse.service.dto.controle.MoleculeDTO(r.id, r.libelle) from RefDci r where r.dci.id in :dciIds")
     List<MoleculeDTO> findByDciIds(@Param("dciIds") Collection<Integer> dciIds);
 }

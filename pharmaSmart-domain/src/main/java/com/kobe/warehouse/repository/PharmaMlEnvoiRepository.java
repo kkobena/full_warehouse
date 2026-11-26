@@ -12,14 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface PharmaMlEnvoiRepository extends JpaRepository<PharmaMlEnvoi, Integer> {
 
     List<PharmaMlEnvoi> findByCommandeIdAndCommandeOrderDateOrderByCreatedAtDesc(
-        Integer commandeId,
-        LocalDate commandeDate
-    );
+            Integer commandeId, LocalDate commandeDate);
 
     Optional<PharmaMlEnvoi> findTopByCommandeIdAndCommandeOrderDateOrderByCreatedAtDesc(
-        Integer commandeId,
-        LocalDate commandeDate
-    );
+            Integer commandeId, LocalDate commandeDate);
 
     List<PharmaMlEnvoi> findByStatutOrderByCreatedAtDesc(PharmaMlStatut statut);
 }

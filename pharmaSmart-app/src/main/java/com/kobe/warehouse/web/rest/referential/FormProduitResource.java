@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.FormProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.referential.FormProduitService;
@@ -27,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.FormProduit}.
@@ -59,15 +59,17 @@ public class FormProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/form-produits")
-    public ResponseEntity<FormProduitDTO> createFormProduit(@Valid @RequestBody FormProduitDTO formProduitDTO) throws URISyntaxException {
+    public ResponseEntity<FormProduitDTO> createFormProduit(@Valid @RequestBody FormProduitDTO formProduitDTO)
+            throws URISyntaxException {
         log.debug("REST request to save FormProduit : {}", formProduitDTO);
         if (formProduitDTO.getId() != null) {
             throw new BadRequestAlertException("A new formProduit cannot already have an ID", ENTITY_NAME, "idexists");
         }
         FormProduitDTO result = formProduitService.save(formProduitDTO);
         return ResponseEntity.created(new URI("/api/form-produits/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -81,15 +83,20 @@ public class FormProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/form-produits")
-    public ResponseEntity<FormProduitDTO> updateFormProduit(@Valid @RequestBody FormProduitDTO formProduitDTO) throws URISyntaxException {
+    public ResponseEntity<FormProduitDTO> updateFormProduit(@Valid @RequestBody FormProduitDTO formProduitDTO)
+            throws URISyntaxException {
         log.debug("REST request to update FormProduit : {}", formProduitDTO);
         if (formProduitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FormProduitDTO result = formProduitService.save(formProduitDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, formProduitDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        formProduitDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -104,7 +111,8 @@ public class FormProduitResource {
     public ResponseEntity<List<FormProduitDTO>> getAllFormProduits(Pageable pageable) {
         log.debug("REST request to get a page of FormProduits");
         Page<FormProduitDTO> page = formProduitService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -135,7 +143,7 @@ public class FormProduitResource {
 
         formProduitService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

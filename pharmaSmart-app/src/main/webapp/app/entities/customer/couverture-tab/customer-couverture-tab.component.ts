@@ -60,7 +60,11 @@ export class CustomerCouvertureTabComponent {
     showCommonModal(
       this.modalService,
       CustomerTiersPayantComponent,
-      { entity: tiersPayant, customer: this.customer(), title: `FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ${tiersPayant.tiersPayantName} ]` },
+      {
+        entity: tiersPayant,
+        customer: this.customer(),
+        title: `FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ${tiersPayant.tiersPayantName} ]`,
+      },
       (resp: ICustomer) => this.siEnregistre(resp),
       'xl',
     );
@@ -114,4 +118,3 @@ export class CustomerCouvertureTabComponent {
     });
   }
 }
-

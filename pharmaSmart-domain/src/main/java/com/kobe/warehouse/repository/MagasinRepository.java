@@ -16,8 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface MagasinRepository extends JpaRepository<Magasin, Integer>,
-    JpaSpecificationExecutor<Magasin> {
+public interface MagasinRepository extends JpaRepository<Magasin, Integer>, JpaSpecificationExecutor<Magasin> {
 
     boolean existsByTypeMagasin(TypeMagasin typeMagasin);
 
@@ -44,5 +43,4 @@ public interface MagasinRepository extends JpaRepository<Magasin, Integer>,
      * qu'aucun fournisseur n'attend.
      */
     List<Magasin> findByCommandeEnPropreTrueOrderByIdAsc();
-
 }

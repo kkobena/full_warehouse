@@ -11,196 +11,182 @@ import java.util.List;
  */
 public enum ExportDonnees implements SujetExport {
     VENTES(
-        RubriqueExport.DONNEES,
-        "Ventes",
-        "Une ligne par vente clôturée du CA de l'officine (annulées exclues).",
-        true,
-        List.of(
-            new ColonneExport("Date", DATE),
-            new ColonneExport("Horodatage", DATE_HEURE),
-            new ColonneExport("Numéro", TEXTE),
-            new ColonneExport("Type de vente", TEXTE),
-            new ColonneExport("Ordonnance / conseil", TEXTE),
-            new ColonneExport("Vendeur", TEXTE),
-            new ColonneExport("Caissier", TEXTE),
-            new ColonneExport("Montant TTC", MONTANT),
-            new ColonneExport("Montant HT", MONTANT),
-            new ColonneExport("Remise", MONTANT),
-            new ColonneExport("Net à payer", MONTANT)
-        ),
-        List.of(
-            FiltreExport.NATURE_VENTE,
-            FiltreExport.TYPE_PRESCRIPTION,
-            FiltreExport.VENDEUR,
-            FiltreExport.CAISSIER,
-            FiltreExport.MAGASIN
-        )
-    ),
+            RubriqueExport.DONNEES,
+            "Ventes",
+            "Une ligne par vente clôturée du CA de l'officine (annulées exclues).",
+            true,
+            List.of(
+                    new ColonneExport("Date", DATE),
+                    new ColonneExport("Horodatage", DATE_HEURE),
+                    new ColonneExport("Numéro", TEXTE),
+                    new ColonneExport("Type de vente", TEXTE),
+                    new ColonneExport("Ordonnance / conseil", TEXTE),
+                    new ColonneExport("Vendeur", TEXTE),
+                    new ColonneExport("Caissier", TEXTE),
+                    new ColonneExport("Montant TTC", MONTANT),
+                    new ColonneExport("Montant HT", MONTANT),
+                    new ColonneExport("Remise", MONTANT),
+                    new ColonneExport("Net à payer", MONTANT)),
+            List.of(
+                    FiltreExport.NATURE_VENTE,
+                    FiltreExport.TYPE_PRESCRIPTION,
+                    FiltreExport.VENDEUR,
+                    FiltreExport.CAISSIER,
+                    FiltreExport.MAGASIN)),
     LIGNES_VENTE(
-        RubriqueExport.DONNEES,
-        "Lignes de vente",
-        "Une ligne par produit vendu : quantités, prix, remise, coût d'achat.",
-        true,
-        List.of(
-            new ColonneExport("Date", DATE),
-            new ColonneExport("Vente", TEXTE),
-            new ColonneExport("CIP", TEXTE),
-            new ColonneExport("Produit", TEXTE),
-            new ColonneExport("Famille", TEXTE),
-            new ColonneExport("Quantité demandée", ENTIER),
-            new ColonneExport("Quantité servie", ENTIER),
-            new ColonneExport("Prix unitaire", MONTANT),
-            new ColonneExport("Montant TTC", MONTANT),
-            new ColonneExport("Remise", MONTANT),
-            new ColonneExport("Prix d'achat unitaire", MONTANT)
-        ),
-        List.of(
-            FiltreExport.FAMILLE,
-            FiltreExport.LABORATOIRE,
-            FiltreExport.FOURNISSEUR,
-            FiltreExport.NATURE_VENTE,
-            FiltreExport.TYPE_PRESCRIPTION,
-            FiltreExport.VENDEUR,
-            FiltreExport.MAGASIN
-        )
-    ),
+            RubriqueExport.DONNEES,
+            "Lignes de vente",
+            "Une ligne par produit vendu : quantités, prix, remise, coût d'achat.",
+            true,
+            List.of(
+                    new ColonneExport("Date", DATE),
+                    new ColonneExport("Vente", TEXTE),
+                    new ColonneExport("CIP", TEXTE),
+                    new ColonneExport("Produit", TEXTE),
+                    new ColonneExport("Famille", TEXTE),
+                    new ColonneExport("Quantité demandée", ENTIER),
+                    new ColonneExport("Quantité servie", ENTIER),
+                    new ColonneExport("Prix unitaire", MONTANT),
+                    new ColonneExport("Montant TTC", MONTANT),
+                    new ColonneExport("Remise", MONTANT),
+                    new ColonneExport("Prix d'achat unitaire", MONTANT)),
+            List.of(
+                    FiltreExport.FAMILLE,
+                    FiltreExport.LABORATOIRE,
+                    FiltreExport.FOURNISSEUR,
+                    FiltreExport.NATURE_VENTE,
+                    FiltreExport.TYPE_PRESCRIPTION,
+                    FiltreExport.VENDEUR,
+                    FiltreExport.MAGASIN)),
     ENCAISSEMENTS(
-        RubriqueExport.DONNEES,
-        "Encaissements et mouvements de caisse",
-        "Une ligne par règlement ou mouvement : type, mode de paiement, montant, caissier.",
-        true,
-        List.of(
-            new ColonneExport("Date", DATE),
-            new ColonneExport("Horodatage", DATE_HEURE),
-            new ColonneExport("Nature", TEXTE),
-            new ColonneExport("Type de transaction", TEXTE),
-            new ColonneExport("Mode de paiement", TEXTE),
-            new ColonneExport("Montant", MONTANT),
-            new ColonneExport("Caissier", TEXTE),
-            new ColonneExport("Référence", TEXTE)
-        ),
-        List.of(FiltreExport.MODE_PAIEMENT, FiltreExport.TYPE_TRANSACTION, FiltreExport.CAISSIER)
-    ),
+            RubriqueExport.DONNEES,
+            "Encaissements et mouvements de caisse",
+            "Une ligne par règlement ou mouvement : type, mode de paiement, montant, caissier.",
+            true,
+            List.of(
+                    new ColonneExport("Date", DATE),
+                    new ColonneExport("Horodatage", DATE_HEURE),
+                    new ColonneExport("Nature", TEXTE),
+                    new ColonneExport("Type de transaction", TEXTE),
+                    new ColonneExport("Mode de paiement", TEXTE),
+                    new ColonneExport("Montant", MONTANT),
+                    new ColonneExport("Caissier", TEXTE),
+                    new ColonneExport("Référence", TEXTE)),
+            List.of(FiltreExport.MODE_PAIEMENT, FiltreExport.TYPE_TRANSACTION, FiltreExport.CAISSIER)),
     ACHATS(
-        RubriqueExport.DONNEES,
-        "Achats reçus",
-        "Une ligne par produit reçu, datée à la réception : quantités, unités gratuites, prix d'achat.",
-        true,
-        List.of(
-            new ColonneExport("Date de réception", DATE),
-            new ColonneExport("Bon de livraison", TEXTE),
-            new ColonneExport("Fournisseur", TEXTE),
-            new ColonneExport("CIP", TEXTE),
-            new ColonneExport("Produit", TEXTE),
-            new ColonneExport("Quantité reçue", ENTIER),
-            new ColonneExport("Unités gratuites", ENTIER),
-            new ColonneExport("Prix d'achat unitaire", MONTANT),
-            new ColonneExport("Montant", MONTANT)
-        ),
-        List.of(FiltreExport.FOURNISSEUR, FiltreExport.FAMILLE, FiltreExport.LABORATOIRE)
-    ),
+            RubriqueExport.DONNEES,
+            "Achats reçus",
+            "Une ligne par produit reçu, datée à la réception : quantités, unités gratuites, prix d'achat.",
+            true,
+            List.of(
+                    new ColonneExport("Date de réception", DATE),
+                    new ColonneExport("Bon de livraison", TEXTE),
+                    new ColonneExport("Fournisseur", TEXTE),
+                    new ColonneExport("CIP", TEXTE),
+                    new ColonneExport("Produit", TEXTE),
+                    new ColonneExport("Quantité reçue", ENTIER),
+                    new ColonneExport("Unités gratuites", ENTIER),
+                    new ColonneExport("Prix d'achat unitaire", MONTANT),
+                    new ColonneExport("Montant", MONTANT)),
+            List.of(FiltreExport.FOURNISSEUR, FiltreExport.FAMILLE, FiltreExport.LABORATOIRE)),
     MOUVEMENTS_STOCK(
-        RubriqueExport.DONNEES,
-        "Mouvements de stock",
-        "Tous les mouvements tracés (ventes, entrées, ajustements, inventaires…), avec le stock avant et après.",
-        true,
-        List.of(
-            new ColonneExport("Date", DATE),
-            new ColonneExport("Horodatage", DATE_HEURE),
-            new ColonneExport("Mouvement", TEXTE),
-            new ColonneExport("Produit", TEXTE),
-            new ColonneExport("Quantité", ENTIER),
-            new ColonneExport("Stock avant", ENTIER),
-            new ColonneExport("Stock après", ENTIER),
-            new ColonneExport("Prix d'achat", MONTANT),
-            new ColonneExport("Prix de vente", MONTANT),
-            new ColonneExport("Utilisateur", TEXTE)
-        ),
-        List.of(
-            FiltreExport.TYPE_MOUVEMENT,
-            FiltreExport.UTILISATEUR,
-            FiltreExport.FAMILLE,
-            FiltreExport.LABORATOIRE,
-            FiltreExport.MAGASIN
-        )
-    ),
+            RubriqueExport.DONNEES,
+            "Mouvements de stock",
+            "Tous les mouvements tracés (ventes, entrées, ajustements, inventaires…), avec le stock avant et après.",
+            true,
+            List.of(
+                    new ColonneExport("Date", DATE),
+                    new ColonneExport("Horodatage", DATE_HEURE),
+                    new ColonneExport("Mouvement", TEXTE),
+                    new ColonneExport("Produit", TEXTE),
+                    new ColonneExport("Quantité", ENTIER),
+                    new ColonneExport("Stock avant", ENTIER),
+                    new ColonneExport("Stock après", ENTIER),
+                    new ColonneExport("Prix d'achat", MONTANT),
+                    new ColonneExport("Prix de vente", MONTANT),
+                    new ColonneExport("Utilisateur", TEXTE)),
+            List.of(
+                    FiltreExport.TYPE_MOUVEMENT,
+                    FiltreExport.UTILISATEUR,
+                    FiltreExport.FAMILLE,
+                    FiltreExport.LABORATOIRE,
+                    FiltreExport.MAGASIN)),
     PRODUITS(
-        RubriqueExport.DONNEES,
-        "Produits et prix",
-        "Le référentiel tel qu'il est aujourd'hui : classement, TVA, prix, stock.",
-        false,
-        List.of(
-            new ColonneExport("CIP", TEXTE),
-            new ColonneExport("Produit", TEXTE),
-            new ColonneExport("Famille", TEXTE),
-            new ColonneExport("Laboratoire", TEXTE),
-            new ColonneExport("TVA (%)", ENTIER),
-            new ColonneExport("Prix de vente", MONTANT),
-            new ColonneExport("Prix d'achat", MONTANT),
-            new ColonneExport("Stock", ENTIER)
-        ),
-        List.of(FiltreExport.FAMILLE, FiltreExport.LABORATOIRE, FiltreExport.FOURNISSEUR, FiltreExport.FORME, FiltreExport.GAMME)
-    ),
+            RubriqueExport.DONNEES,
+            "Produits et prix",
+            "Le référentiel tel qu'il est aujourd'hui : classement, TVA, prix, stock.",
+            false,
+            List.of(
+                    new ColonneExport("CIP", TEXTE),
+                    new ColonneExport("Produit", TEXTE),
+                    new ColonneExport("Famille", TEXTE),
+                    new ColonneExport("Laboratoire", TEXTE),
+                    new ColonneExport("TVA (%)", ENTIER),
+                    new ColonneExport("Prix de vente", MONTANT),
+                    new ColonneExport("Prix d'achat", MONTANT),
+                    new ColonneExport("Stock", ENTIER)),
+            List.of(
+                    FiltreExport.FAMILLE,
+                    FiltreExport.LABORATOIRE,
+                    FiltreExport.FOURNISSEUR,
+                    FiltreExport.FORME,
+                    FiltreExport.GAMME)),
     CLIENTS(
-        RubriqueExport.NOMINATIF,
-        "Clients",
-        "Coordonnées des clients : données personnelles, chaque export est tracé.",
-        false,
-        List.of(
-            new ColonneExport("Code", TEXTE),
-            new ColonneExport("Nom", TEXTE),
-            new ColonneExport("Prénom", TEXTE),
-            new ColonneExport("Téléphone", TEXTE),
-            new ColonneExport("E-mail", TEXTE),
-            new ColonneExport("Date de naissance", DATE),
-            new ColonneExport("Sexe", TEXTE),
-            new ColonneExport("Créé le", DATE_HEURE)
-        ),
-        List.of(FiltreExport.SEXE, FiltreExport.STATUT_CLIENT)
-    ),
+            RubriqueExport.NOMINATIF,
+            "Clients",
+            "Coordonnées des clients : données personnelles, chaque export est tracé.",
+            false,
+            List.of(
+                    new ColonneExport("Code", TEXTE),
+                    new ColonneExport("Nom", TEXTE),
+                    new ColonneExport("Prénom", TEXTE),
+                    new ColonneExport("Téléphone", TEXTE),
+                    new ColonneExport("E-mail", TEXTE),
+                    new ColonneExport("Date de naissance", DATE),
+                    new ColonneExport("Sexe", TEXTE),
+                    new ColonneExport("Créé le", DATE_HEURE)),
+            List.of(FiltreExport.SEXE, FiltreExport.STATUT_CLIENT)),
     VENTES_JOUR_PRODUIT(
-        RubriqueExport.BI,
-        "Ventes jour × produit",
-        "Fichier plat pour un tableau croisé (Excel, Power BI) : toutes les ventilations du pilotage, une ligne par jour et produit.",
-        true,
-        List.of(
-            new ColonneExport("Jour", DATE),
-            new ColonneExport("CIP", TEXTE),
-            new ColonneExport("Produit", TEXTE),
-            new ColonneExport("Famille", TEXTE),
-            new ColonneExport("Laboratoire", TEXTE),
-            new ColonneExport("Fournisseur principal", TEXTE),
-            new ColonneExport("Forme", TEXTE),
-            new ColonneExport("Gamme", TEXTE),
-            new ColonneExport("TVA (%)", ENTIER),
-            new ColonneExport("Type de vente", TEXTE),
-            new ColonneExport("Ordonnance / conseil", TEXTE),
-            new ColonneExport("Vendeur", TEXTE),
-            new ColonneExport("Magasin", TEXTE),
-            new ColonneExport("Taux de remise (%)", ENTIER),
-            new ColonneExport("Octroi de la remise", TEXTE),
-            new ColonneExport("Quantité servie", ENTIER),
-            new ColonneExport("CA TTC", MONTANT),
-            new ColonneExport("CA HT", MONTANT),
-            new ColonneExport("Remise", MONTANT),
-            new ColonneExport("Coût HT", MONTANT),
-            new ColonneExport("Marge HT", MONTANT)
-        ),
-        List.of(
-            FiltreExport.FAMILLE,
-            FiltreExport.LABORATOIRE,
-            FiltreExport.FOURNISSEUR,
-            FiltreExport.FORME,
-            FiltreExport.GAMME,
-            FiltreExport.NATURE_VENTE,
-            FiltreExport.TYPE_PRESCRIPTION,
-            FiltreExport.VENDEUR,
-            FiltreExport.MAGASIN
-        )
-    );
+            RubriqueExport.BI,
+            "Ventes jour × produit",
+            "Fichier plat pour un tableau croisé (Excel, Power BI) : toutes les ventilations du pilotage, une ligne par jour et produit.",
+            true,
+            List.of(
+                    new ColonneExport("Jour", DATE),
+                    new ColonneExport("CIP", TEXTE),
+                    new ColonneExport("Produit", TEXTE),
+                    new ColonneExport("Famille", TEXTE),
+                    new ColonneExport("Laboratoire", TEXTE),
+                    new ColonneExport("Fournisseur principal", TEXTE),
+                    new ColonneExport("Forme", TEXTE),
+                    new ColonneExport("Gamme", TEXTE),
+                    new ColonneExport("TVA (%)", ENTIER),
+                    new ColonneExport("Type de vente", TEXTE),
+                    new ColonneExport("Ordonnance / conseil", TEXTE),
+                    new ColonneExport("Vendeur", TEXTE),
+                    new ColonneExport("Magasin", TEXTE),
+                    new ColonneExport("Taux de remise (%)", ENTIER),
+                    new ColonneExport("Octroi de la remise", TEXTE),
+                    new ColonneExport("Quantité servie", ENTIER),
+                    new ColonneExport("CA TTC", MONTANT),
+                    new ColonneExport("CA HT", MONTANT),
+                    new ColonneExport("Remise", MONTANT),
+                    new ColonneExport("Coût HT", MONTANT),
+                    new ColonneExport("Marge HT", MONTANT)),
+            List.of(
+                    FiltreExport.FAMILLE,
+                    FiltreExport.LABORATOIRE,
+                    FiltreExport.FOURNISSEUR,
+                    FiltreExport.FORME,
+                    FiltreExport.GAMME,
+                    FiltreExport.NATURE_VENTE,
+                    FiltreExport.TYPE_PRESCRIPTION,
+                    FiltreExport.VENDEUR,
+                    FiltreExport.MAGASIN));
 
     /** Une ligne de données s'écrit dans n'importe lequel des trois formats. */
-    private static final List<FormatExport> TOUS_FORMATS = List.of(FormatExport.XLSX, FormatExport.CSV, FormatExport.PDF);
+    private static final List<FormatExport> TOUS_FORMATS =
+            List.of(FormatExport.XLSX, FormatExport.CSV, FormatExport.PDF);
 
     private final RubriqueExport rubrique;
     private final String libelle;
@@ -210,13 +196,12 @@ public enum ExportDonnees implements SujetExport {
     private final List<FiltreExport> filtres;
 
     ExportDonnees(
-        RubriqueExport rubrique,
-        String libelle,
-        String description,
-        boolean periodique,
-        List<ColonneExport> colonnes,
-        List<FiltreExport> filtres
-    ) {
+            RubriqueExport rubrique,
+            String libelle,
+            String description,
+            boolean periodique,
+            List<ColonneExport> colonnes,
+            List<FiltreExport> filtres) {
         this.rubrique = rubrique;
         this.libelle = libelle;
         this.description = description;

@@ -54,21 +54,22 @@ public class CompositeWidgets extends AbstractWidgets {
             Period period = WidgetPeriods.of(context);
             VenteRecordWrapper wrapper = dashboardService.getPeridiqueCa(period.toVenteParam());
             VenteRecord current = closed(wrapper);
-            VenteRecord previous = closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
+            VenteRecord previous =
+                    closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
             VenteRecord annulees = canceled(wrapper);
             int net = zeroIfNull(current.netAmount());
             double taux = net > 0 ? current.marge() * 100.0 / net : 0;
             return new WidgetData.Kpi(
-                net, zeroIfNull(previous.netAmount()), devise(),
-                "%d annulation(s) · %s".formatted(zeroIfNull(annulees.saleCount()), amount(annulees.netAmount())),
-                null,
-                List.of(
-                    new WidgetData.Kpi.Secondary("Marge brute", current.marge(), devise()),
-                    new WidgetData.Kpi.Secondary("Taux marge", taux, "%"),
-                    new WidgetData.Kpi.Secondary("Panier", current.panierMoyen(), devise())
-                ),
-                null
-            );
+                    net,
+                    zeroIfNull(previous.netAmount()),
+                    devise(),
+                    "%d annulation(s) · %s".formatted(zeroIfNull(annulees.saleCount()), amount(annulees.netAmount())),
+                    null,
+                    List.of(
+                            new WidgetData.Kpi.Secondary("Marge brute", current.marge(), devise()),
+                            new WidgetData.Kpi.Secondary("Taux marge", taux, "%"),
+                            new WidgetData.Kpi.Secondary("Panier", current.panierMoyen(), devise())),
+                    null);
         });
     }
 
@@ -77,8 +78,8 @@ public class CompositeWidgets extends AbstractWidgets {
      * Remplace stock-valorise et peremptions-valorisees séparés.
      */
     @Bean
-    WidgetDataProvider santeStockWidget(StockValuationReportService stockService,
-                                        ResponsableCommandeDashboardService commandeService) {
+    WidgetDataProvider santeStockWidget(
+            StockValuationReportService stockService, ResponsableCommandeDashboardService commandeService) {
         return WidgetDataProvider.of("sante-stock", (context, params) -> {
             StockValuationSummaryDTO stock = stockService.getStockValuationSummary();
             var peremptions = commandeService.getPeremptions();
@@ -86,23 +87,26 @@ public class CompositeWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(null, null, devise(), null);
             }
             int nbPeremptions = zeroIfNull(peremptions.unMois())
-                + zeroIfNull(peremptions.unATroisMois())
-                + zeroIfNull(peremptions.troisASixMois());
-            double tauxMarge = stock.averageMarginPercentage() == null ? 0
-                : stock.averageMarginPercentage().doubleValue();
+                    + zeroIfNull(peremptions.unATroisMois())
+                    + zeroIfNull(peremptions.troisASixMois());
+            double tauxMarge = stock.averageMarginPercentage() == null
+                    ? 0
+                    : stock.averageMarginPercentage().doubleValue();
             return new WidgetData.Kpi(
-                zeroIfNull(stock.totalPurchaseValue()),
-                null,
-                devise(),
-                String.format(Locale.FRANCE, "%d référence(s) · marge potentielle %.1f %%",
-                    zeroIfNull(stock.totalProducts()), tauxMarge),
-                null,
-                List.of(
-                    new WidgetData.Kpi.Secondary("Péremptions (6 mois)", zeroIfNull(peremptions.valeurTotale()), devise()),
-                    new WidgetData.Kpi.Secondary("Produits à risque", nbPeremptions, null)
-                ),
-                null
-            );
+                    zeroIfNull(stock.totalPurchaseValue()),
+                    null,
+                    devise(),
+                    String.format(
+                            Locale.FRANCE,
+                            "%d référence(s) · marge potentielle %.1f %%",
+                            zeroIfNull(stock.totalProducts()),
+                            tauxMarge),
+                    null,
+                    List.of(
+                            new WidgetData.Kpi.Secondary(
+                                    "Péremptions (6 mois)", zeroIfNull(peremptions.valeurTotale()), devise()),
+                            new WidgetData.Kpi.Secondary("Produits à risque", nbPeremptions, null)),
+                    null);
         });
     }
 
@@ -111,29 +115,33 @@ public class CompositeWidgets extends AbstractWidgets {
      * Remplace achats-periode, commandes-en-cours et qualite-fournisseurs séparés.
      */
     @Bean
-    WidgetDataProvider syntheseAchatsWidget(DashboardService dashboardService,
-                                             ResponsableCommandeDashboardService commandeService,
-                                             SupplierPerformanceReportService supplierService) {
+    WidgetDataProvider syntheseAchatsWidget(
+            DashboardService dashboardService,
+            ResponsableCommandeDashboardService commandeService,
+            SupplierPerformanceReportService supplierService) {
         return WidgetDataProvider.of("synthese-achats", (context, params) -> {
             Period period = WidgetPeriods.of(context);
             AchatRecord current = dashboardService.getAchatPeriode(achatParam(period));
             AchatRecord previous = dashboardService.getAchatPeriode(achatParam(period.previous()));
             var commandes = commandeService.getCommandesEnCours();
             SupplierPerformanceSummaryDTO qualite = supplierService.getSupplierPerformanceSummary();
-            double conformite = qualite == null || qualite.avgConformityRate() == null ? 0
-                : qualite.avgConformityRate().doubleValue();
+            double conformite = qualite == null || qualite.avgConformityRate() == null
+                    ? 0
+                    : qualite.avgConformityRate().doubleValue();
             return new WidgetData.Kpi(
-                receipt(current), receipt(previous), devise(),
-                current == null ? null
-                    : "%d réception(s) · %d commande(s) à réceptionner".formatted(
-                        zeroIfNull(current.achatCount()), zeroIfNull(commandes.aReceptionner())),
-                null,
-                List.of(
-                    new WidgetData.Kpi.Secondary("Commandes en cours", zeroIfNull(commandes.totalMontant()), devise()),
-                    new WidgetData.Kpi.Secondary("Qualité fournisseurs", conformite, "%")
-                ),
-                null
-            );
+                    receipt(current),
+                    receipt(previous),
+                    devise(),
+                    current == null
+                            ? null
+                            : "%d réception(s) · %d commande(s) à réceptionner"
+                                    .formatted(zeroIfNull(current.achatCount()), zeroIfNull(commandes.aReceptionner())),
+                    null,
+                    List.of(
+                            new WidgetData.Kpi.Secondary(
+                                    "Commandes en cours", zeroIfNull(commandes.totalMontant()), devise()),
+                            new WidgetData.Kpi.Secondary("Qualité fournisseurs", conformite, "%")),
+                    null);
         });
     }
 
@@ -142,29 +150,35 @@ public class CompositeWidgets extends AbstractWidgets {
      * Remplace differes-encours, marge-12-mois et donne un aperçu des créances TP.
      */
     @Bean
-    WidgetDataProvider bilanFinancesWidget(ReglementDiffereService differesService,
-                                            MargeReportService margeService,
-                                            TiersPayantReportService creancesService) {
+    WidgetDataProvider bilanFinancesWidget(
+            ReglementDiffereService differesService,
+            MargeReportService margeService,
+            TiersPayantReportService creancesService) {
         return WidgetDataProvider.of("bilan-finances", (context, params) -> {
             DiffereSummary differes = differesService.getDiffereSummary(null, Set.of(PaymentStatus.IMPAYE));
             MargeSummaryDTO marge = margeService.getMargeSummary(null, SEUIL_MARGE_BASSE, SEUIL_MARGE_HAUTE);
             long totalCreances = safe(creancesService.getCreancesSummary()).stream()
-                .mapToLong(c -> zeroIfNull(c.montantEncours())).sum();
+                    .mapToLong(c -> zeroIfNull(c.montantEncours()))
+                    .sum();
             long differesRest = differes == null ? 0L : zeroIfNull(differes.rest());
-            double tauxMarge = marge == null || marge.tauxMargeMoyen() == null ? 0
-                : marge.tauxMargeMoyen().doubleValue();
+            double tauxMarge = marge == null || marge.tauxMargeMoyen() == null
+                    ? 0
+                    : marge.tauxMargeMoyen().doubleValue();
             return new WidgetData.Kpi(
-                differesRest, null, devise(),
-                differes == null ? null
-                    : "accordé %s · remboursé %s".formatted(amount(differes.saleAmount()), amount(differes.paidAmount())),
-                null,
-                List.of(
-                    new WidgetData.Kpi.Secondary("Marge 12 mois", marge == null ? null : marge.margeBruteGlobale(), devise()),
-                    new WidgetData.Kpi.Secondary("Taux marge", tauxMarge, "%"),
-                    new WidgetData.Kpi.Secondary("Créances TP", totalCreances, devise())
-                ),
-                null
-            );
+                    differesRest,
+                    null,
+                    devise(),
+                    differes == null
+                            ? null
+                            : "accordé %s · remboursé %s"
+                                    .formatted(amount(differes.saleAmount()), amount(differes.paidAmount())),
+                    null,
+                    List.of(
+                            new WidgetData.Kpi.Secondary(
+                                    "Marge 12 mois", marge == null ? null : marge.margeBruteGlobale(), devise()),
+                            new WidgetData.Kpi.Secondary("Taux marge", tauxMarge, "%"),
+                            new WidgetData.Kpi.Secondary("Créances TP", totalCreances, devise())),
+                    null);
         });
     }
 

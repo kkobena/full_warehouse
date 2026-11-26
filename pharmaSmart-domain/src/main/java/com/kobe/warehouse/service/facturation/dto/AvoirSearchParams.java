@@ -5,9 +5,4 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record AvoirSearchParams(
-    Integer tiersPayantId,
-    LocalDate startDate,
-    LocalDate endDate,
-    List<AvoirStatut> statuts,
-    String numAvoir
-) {}
+        Integer tiersPayantId, LocalDate startDate, LocalDate endDate, List<AvoirStatut> statuts, String numAvoir) {}

@@ -7,10 +7,9 @@ import java.util.List;
  * Les lignes sont générées dynamiquement selon les modes de paiement utilisés.
  */
 public record SessionEncaissementsDTO(
-    List<EncaissementParModeDTO> lignes,
-    Long carnet,
-    Long differe,
-    Long totalEncaisse,
-    Long totalARecouvrer,
-    Integer nombreTransactions
-) {}
+        List<EncaissementParModeDTO> lignes,
+        Long carnet,
+        Long differe,
+        Long totalEncaisse,
+        Long totalARecouvrer,
+        Integer nombreTransactions) {}

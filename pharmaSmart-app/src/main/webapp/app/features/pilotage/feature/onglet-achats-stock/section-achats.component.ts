@@ -14,7 +14,15 @@ import { elargirAuxTreizeTranches, libellerHorizon } from '../../data-access/hor
 /** Achats reçus : tuiles, achats dans le temps, par fournisseur (délai, conformité), par famille. */
 @Component({
   selector: 'app-section-achats',
-  imports: [AideComponent, CardComponent, DataTableComponent, TuilesCellulesComponent, CourbeIndicateurComponent, VariationComponent, ValeurIndicateurPipe],
+  imports: [
+    AideComponent,
+    CardComponent,
+    DataTableComponent,
+    TuilesCellulesComponent,
+    CourbeIndicateurComponent,
+    VariationComponent,
+    ValeurIndicateurPipe,
+  ],
   templateUrl: './section-achats.component.html',
   styleUrl: '../../ui/section-onglet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,15 +44,32 @@ export class SectionAchatsComponent {
       return [];
     }
     return [
-      { libelle: 'Achats TTC', definition: 'Commandes reçues, datées à la réception.', unite: 'MONTANT', sens: 'NEUTRE', cellule: achats.achatsTtc },
+      {
+        libelle: 'Achats TTC',
+        definition: 'Commandes reçues, datées à la réception.',
+        unite: 'MONTANT',
+        sens: 'NEUTRE',
+        cellule: achats.achatsTtc,
+      },
       { libelle: 'Achats HT', definition: 'Achats TTC hors taxe.', unite: 'MONTANT', sens: 'NEUTRE', cellule: achats.achatsHt },
       { libelle: 'Bons reçus', definition: 'Nombre de commandes réceptionnées.', unite: 'NOMBRE', sens: 'NEUTRE', cellule: achats.nbBons },
-      { libelle: 'Délai de livraison', definition: 'Jours moyens entre la commande et la réception.', unite: 'JOURS', sens: 'BAISSE', cellule: achats.delaiMoyen },
-      { libelle: 'Conformité', definition: 'Quantités reçues / quantités commandées.', unite: 'POURCENTAGE', sens: 'HAUSSE', cellule: achats.conformite },
+      {
+        libelle: 'Délai de livraison',
+        definition: 'Jours moyens entre la commande et la réception.',
+        unite: 'JOURS',
+        sens: 'BAISSE',
+        cellule: achats.delaiMoyen,
+      },
+      {
+        libelle: 'Conformité',
+        definition: 'Quantités reçues / quantités commandées.',
+        unite: 'POURCENTAGE',
+        sens: 'HAUSSE',
+        cellule: achats.conformite,
+      },
     ];
   });
 
   protected readonly serieAchats = computed(() => this.serie.value()?.series[0]);
   protected readonly horizon = computed(() => libellerHorizon(this.requete().granularite));
-
 }

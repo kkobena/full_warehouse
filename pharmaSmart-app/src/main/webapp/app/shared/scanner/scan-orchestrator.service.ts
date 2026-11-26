@@ -101,9 +101,7 @@ export class ScanOrchestratorService {
    *  - Une connexion SERIAL a déjà réussi dans cette session
    *    (évite d'afficher le bouton si la douchette n'a jamais été en mode CDC)
    */
-  readonly canReconnect = computed(
-    () => this.tauriDevice.isTauriAvailable() && this.scannerMode() === 'HID' && this._hadSerial(),
-  );
+  readonly canReconnect = computed(() => this.tauriDevice.isTauriAvailable() && this.scannerMode() === 'HID' && this._hadSerial());
 
   private readonly _onScan$ = new Subject<string>();
   readonly onScan$: Observable<string> = this._onScan$.asObservable();
@@ -132,7 +130,7 @@ export class ScanOrchestratorService {
   private static readonly OPEN_FAILED_COOLDOWN_MS = 10_000;
   /** Cooldowns spécifiques pour ERROR_GEN_FAILURE (0x1F) — back-off long. */
   private static readonly GEN_FAILURE_COOLDOWNS_MS: readonly number[] = [
-    60_000,  // 1 min
+    60_000, // 1 min
     120_000, // 2 min
     300_000, // 5 min — cap filet de sécurité
   ];
@@ -234,7 +232,9 @@ export class ScanOrchestratorService {
         const { invoke } = await import('@tauri-apps/api/core');
         const stopArgs = this.currentPortName ? { portName: this.currentPortName } : { portName: '' };
         await invoke('stop_scanner_listener', stopArgs);
-      } catch { /* déjà fermé */ }
+      } catch {
+        /* déjà fermé */
+      }
     }
     this.status.set('IDLE');
   }
@@ -253,9 +253,7 @@ export class ScanOrchestratorService {
     if (!this.config) return;
     this.hidDestroyer$.next();
     this.config.hidEnable();
-    this.config.hidSource$
-      .pipe(takeUntil(this.hidDestroyer$))
-      .subscribe(code => this._onScan$.next(code));
+    this.config.hidSource$.pipe(takeUntil(this.hidDestroyer$)).subscribe(code => this._onScan$.next(code));
     this.status.set(targetStatus);
   }
 
@@ -279,7 +277,6 @@ export class ScanOrchestratorService {
   private async tryConnectCdc(): Promise<boolean> {
     if (this.destroyed) return false;
     try {
-
       const usbMode = await this.tauriDevice.detectScannerUsbMode();
       if (this.destroyed) return false;
 
@@ -303,7 +300,6 @@ export class ScanOrchestratorService {
       console.warn('[ScanOrchestrator] detect_scanner_usb_mode échoué, passage au fallback:', err);
     }
 
-
     // Filet si detect_scanner_usb_mode ne reconnaît pas le VID (ex: firmware
     // personnalisé, scanner générique, pilote virtuel COM).
     try {
@@ -313,8 +309,7 @@ export class ScanOrchestratorService {
       if (autoPort?.portName) {
         const label = autoPort.manufacturer ?? autoPort.portName;
         console.info(
-          `[ScanOrchestrator] Plug-and-play fallback : ${autoPort.portName} (${label})` +
-          ` — démarrage CDC sans enregistrement préalable`,
+          `[ScanOrchestrator] Plug-and-play fallback : ${autoPort.portName} (${label})` + ` — démarrage CDC sans enregistrement préalable`,
         );
         await ScanOrchestratorService.driverStabilizationDelay();
         if (this.destroyed) return false;
@@ -360,7 +355,11 @@ export class ScanOrchestratorService {
       try {
         await invoke('stop_scanner_listener', { portName: knownPort });
       } catch {
-        try { await invoke('stop_scanner_listener', { portName: '' }); } catch { /* ignoré */ }
+        try {
+          await invoke('stop_scanner_listener', { portName: '' });
+        } catch {
+          /* ignoré */
+        }
       }
 
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -397,10 +396,7 @@ export class ScanOrchestratorService {
       });
 
       this.unlistenRawByteDebug = await listen<number>('scan-raw-byte', ev => {
-        console.info(
-          `[ScanOrchestrator] Premier octet brut : 0x${ev.payload.toString(16)}` +
-          ` ('${String.fromCharCode(ev.payload)}')`,
-        );
+        console.info(`[ScanOrchestrator] Premier octet brut : 0x${ev.payload.toString(16)}` + ` ('${String.fromCharCode(ev.payload)}')`);
       });
 
       this.unlistenError = await listen<ScanErrorPayload>('scan-error', ev => {
@@ -408,8 +404,14 @@ export class ScanOrchestratorService {
 
         this.scanReady = false;
         this.stopAliveProbe();
-        this.unlistenScan?.(); this.unlistenError?.(); this.unlistenRawMode?.(); this.unlistenRawByteDebug?.();
-        this.unlistenScan = null; this.unlistenError = null; this.unlistenRawMode = null; this.unlistenRawByteDebug = null;
+        this.unlistenScan?.();
+        this.unlistenError?.();
+        this.unlistenRawMode?.();
+        this.unlistenRawByteDebug?.();
+        this.unlistenScan = null;
+        this.unlistenError = null;
+        this.unlistenRawMode = null;
+        this.unlistenRawByteDebug = null;
 
         if (code === 'OPEN_FAILED') {
           this.consecutiveOpenFailedCount++;
@@ -418,12 +420,13 @@ export class ScanOrchestratorService {
           // ── GEN_FAILURE : driver CDC pas encore prêt, attente WM_DEVICECHANGE ──────
           if (isGenFailure) {
             const attempt = this.consecutiveOpenFailedCount;
-            const cooldownMs = ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS[
-              Math.min(attempt - 1, ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS.length - 1)
-            ];
+            const cooldownMs =
+              ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS[
+                Math.min(attempt - 1, ScanOrchestratorService.GEN_FAILURE_COOLDOWNS_MS.length - 1)
+              ];
             console.warn(
               `[ScanOrchestrator] OPEN_FAILED #${attempt} sur ${errPort} ` +
-              `[GEN_FAILURE] — filet de sécurité dans ${cooldownMs / 1000} s`,
+                `[GEN_FAILURE] — filet de sécurité dans ${cooldownMs / 1000} s`,
             );
             this.status.set('RETRYING');
             this.scheduleRetry({ resetCount: false, delayMs: cooldownMs });
@@ -434,12 +437,12 @@ export class ScanOrchestratorService {
           const cooldownMs = ScanOrchestratorService.OPEN_FAILED_COOLDOWN_MS;
           console.warn(
             `[ScanOrchestrator] OPEN_FAILED #${this.consecutiveOpenFailedCount} sur ${errPort}` +
-            ` — ${this.currentBaudRate} bps — ${ev.payload.details} — retry dans ${cooldownMs / 1000} s`,
+              ` — ${this.currentBaudRate} bps — ${ev.payload.details} — retry dans ${cooldownMs / 1000} s`,
           );
           if (this.consecutiveOpenFailedCount === 2) {
             console.info(
               `[ScanOrchestrator] Diagnostic ${errPort} : (1) port non occupé ? ` +
-              `(2) baud rate correct (${this.currentBaudRate} bps) ? (3) câble OK ?`,
+                `(2) baud rate correct (${this.currentBaudRate} bps) ? (3) câble OK ?`,
             );
           }
           // Seuil atteint → abandon CDC, bascule HID (problème permanent confirmé)
@@ -447,15 +450,14 @@ export class ScanOrchestratorService {
             this.setupHid('HID');
             this.notification.warning(
               `Scanner ${errPort} : inaccessible après ${this.consecutiveOpenFailedCount} tentatives. ` +
-              `Port occupé, baud rate incorrect (${this.currentBaudRate} bps) ou câble défectueux. ` +
-              `Cliquez sur "Reconnecter" après vérification.`,
+                `Port occupé, baud rate incorrect (${this.currentBaudRate} bps) ou câble défectueux. ` +
+                `Cliquez sur "Reconnecter" après vérification.`,
               'Scanner',
             );
             return;
           }
           this.status.set('RETRYING');
           this.scheduleRetry({ resetCount: false, delayMs: cooldownMs });
-
         } else {
           // ── DISCONNECTED / PORT_DROPPED ───────────────────────────────────────────
           // Si onUsbRemoved() a déjà pris la main, ce handler n'est pas atteint
@@ -473,12 +475,13 @@ export class ScanOrchestratorService {
         }
       });
 
-      setTimeout(() => { this.scanReady = true; }, ScanOrchestratorService.UART_GRACE_PERIOD_MS);
+      setTimeout(() => {
+        this.scanReady = true;
+      }, ScanOrchestratorService.UART_GRACE_PERIOD_MS);
 
       this.hidDestroyer$.next();
       this.config.hidDisable();
       return true;
-
     } catch (err) {
       console.warn('[ScanOrchestrator] Échec démarrage CDC:', err);
       this.scanReady = false;
@@ -499,9 +502,7 @@ export class ScanOrchestratorService {
    * - `resetCount = false` : continue le backoff (OPEN_FAILED).
    * - `delayMs`            : délai fixe prioritaire sur le backoff calculé.
    */
-  private scheduleRetry(
-    { resetCount = false, delayMs }: { resetCount?: boolean; delayMs?: number } = {},
-  ): void {
+  private scheduleRetry({ resetCount = false, delayMs }: { resetCount?: boolean; delayMs?: number } = {}): void {
     if (this.status() === 'SERIAL' || this.status() === 'DETECTING') return;
     this.stopRetry();
     if (resetCount) this.cdcRetryCount = 0;
@@ -548,10 +549,7 @@ export class ScanOrchestratorService {
 
   private startAliveProbe(): void {
     this.stopAliveProbe();
-    this.aliveProbeTimer = setInterval(
-      () => this.checkPortAlive(),
-      ScanOrchestratorService.ALIVE_PROBE_INTERVAL_MS,
-    );
+    this.aliveProbeTimer = setInterval(() => this.checkPortAlive(), ScanOrchestratorService.ALIVE_PROBE_INTERVAL_MS);
   }
 
   private stopAliveProbe(): void {
@@ -577,8 +575,10 @@ export class ScanOrchestratorService {
   }
 
   private detachUsbDeviceListener(): void {
-    this.unlistenUsbArrived?.(); this.unlistenUsbArrived = null;
-    this.unlistenUsbRemoved?.(); this.unlistenUsbRemoved = null;
+    this.unlistenUsbArrived?.();
+    this.unlistenUsbArrived = null;
+    this.unlistenUsbRemoved?.();
+    this.unlistenUsbRemoved = null;
   }
 
   /**
@@ -593,7 +593,7 @@ export class ScanOrchestratorService {
 
     console.info(
       '[ScanOrchestrator] WM_DEVICECHANGE/DBT_DEVICEARRIVAL — reconnexion dans ' +
-      `${ScanOrchestratorService.USB_ARRIVED_REOPEN_DELAY_MS / 1000} s`,
+        `${ScanOrchestratorService.USB_ARRIVED_REOPEN_DELAY_MS / 1000} s`,
     );
     this.stopRetry();
     this.consecutiveOpenFailedCount = 0;
@@ -614,20 +614,25 @@ export class ScanOrchestratorService {
   private onUsbRemoved(): void {
     if (this.destroyed || this.status() !== 'SERIAL') return;
     console.info('[ScanOrchestrator] WM_DEVICECHANGE/DBT_DEVICEREMOVECOMPLETE — attente rebranchement');
-    this.notification.info(
-      `Scanner ${this.currentPortName} débranché — reconnexion automatique à l'insertion`,
-      'Scanner',
-    );
+    this.notification.info(`Scanner ${this.currentPortName} débranché — reconnexion automatique à l'insertion`, 'Scanner');
 
     this.stopAliveProbe();
     this.scanReady = false;
-    this.unlistenScan?.(); this.unlistenError?.(); this.unlistenRawMode?.(); this.unlistenRawByteDebug?.();
-    this.unlistenScan = null; this.unlistenError = null; this.unlistenRawMode = null; this.unlistenRawByteDebug = null;
+    this.unlistenScan?.();
+    this.unlistenError?.();
+    this.unlistenRawMode?.();
+    this.unlistenRawByteDebug?.();
+    this.unlistenScan = null;
+    this.unlistenError = null;
+    this.unlistenRawMode = null;
+    this.unlistenRawByteDebug = null;
 
     const port = this.currentPortName;
     if (port) {
       void import('@tauri-apps/api/core').then(({ invoke }) =>
-        invoke('stop_scanner_listener', { portName: port }).catch(() => { /* idempotent */ }),
+        invoke('stop_scanner_listener', { portName: port }).catch(() => {
+          /* idempotent */
+        }),
       );
     }
 
@@ -734,10 +739,14 @@ export class ScanOrchestratorService {
   private formatScanErrorMessage(payload: ScanErrorPayload): string {
     const { code, portName, details } = payload;
     switch (code) {
-      case 'PORT_DROPPED':   return `Scanner ${portName} : port disparu`;
-      case 'OPEN_FAILED':    return `Scanner ${portName} : ouverture impossible (${details})`;
-      case 'DISCONNECTED':   return `Scanner ${portName} : déconnexion (${details})`;
-      default:               return `Scanner ${portName} déconnecté`;
+      case 'PORT_DROPPED':
+        return `Scanner ${portName} : port disparu`;
+      case 'OPEN_FAILED':
+        return `Scanner ${portName} : ouverture impossible (${details})`;
+      case 'DISCONNECTED':
+        return `Scanner ${portName} : déconnexion (${details})`;
+      default:
+        return `Scanner ${portName} déconnecté`;
     }
   }
 }

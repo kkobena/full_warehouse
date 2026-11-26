@@ -48,5 +48,7 @@ public class VentePrescripteur implements Serializable {
     }
 
     @Embeddable
-    public record Id(@Column(name = "sales_id") Long salesId, @Column(name = "sales_date") LocalDate salesDate) implements Serializable {}
+    public record Id(
+            @Column(name = "sales_id") Long salesId,
+            @Column(name = "sales_date") LocalDate salesDate) implements Serializable {}
 }

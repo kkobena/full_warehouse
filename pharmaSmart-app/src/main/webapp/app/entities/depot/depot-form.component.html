@@ -1,12 +1,10 @@
 <div class="container-fluid">
   <div class="pharma-smart-content">
     <div class="depot-form-container">
-      <app-toolbar [title]="(isEditMode() ? 'Modifier' : 'Nouveau') + ' Dépôt'"
-                   icon="pi pi-building">
+      <app-toolbar [title]="(isEditMode() ? 'Modifier' : 'Nouveau') + ' Dépôt'" icon="pi pi-building">
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
-            <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour"
-                        severity="secondary" />
+            <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
           </div>
         </ng-container>
       </app-toolbar>
@@ -79,13 +77,11 @@
             <div class="form-grid-compact">
               <div class="form-field">
                 <label for="managerLastName">Nom du Gérant</label>
-                <input class="form-control" formControlName="managerLastName" id="managerLastName"
-                       type="text" />
+                <input class="form-control" formControlName="managerLastName" id="managerLastName" type="text" />
               </div>
               <div class="form-field">
                 <label for="managerFirstName">Prénom(s) du Gérant</label>
-                <input class="form-control" formControlName="managerFirstName" id="managerFirstName"
-                       type="text" />
+                <input class="form-control" formControlName="managerFirstName" id="managerFirstName" type="text" />
               </div>
 
               <!-- Phone -->
@@ -112,8 +108,7 @@
               <!-- Address (Full Width) -->
               <div class="form-field form-field-full">
                 <label for="address">Adresse</label>
-                <textarea class="form-control" formControlName="address" id="address"
-                          rows="2"></textarea>
+                <textarea class="form-control" formControlName="address" id="address" rows="2"></textarea>
               </div>
             </div>
           </app-card>
@@ -137,8 +132,7 @@
               <!-- Compte Contribuable -->
               <div class="form-field">
                 <label for="compteContribuable">Compte Contribuable</label>
-                <input class="form-control" formControlName="compteContribuable"
-                       id="compteContribuable" />
+                <input class="form-control" formControlName="compteContribuable" id="compteContribuable" />
               </div>
 
               <!-- Num Comptable -->
@@ -156,8 +150,7 @@
               <!-- Registre Imposition -->
               <div class="form-field form-field-2col">
                 <label for="registreImposition">Registre d'Imposition</label>
-                <input class="form-control" formControlName="registreImposition"
-                       id="registreImposition" />
+                <input class="form-control" formControlName="registreImposition" id="registreImposition" />
               </div>
             </div>
           </app-card>
@@ -173,8 +166,7 @@
               <!-- Welcome Message -->
               <div class="form-field">
                 <label for="welcomeMessage">Message de Bienvenue</label>
-                <textarea class="form-control" formControlName="welcomeMessage" id="welcomeMessage"
-                          rows="2"></textarea>
+                <textarea class="form-control" formControlName="welcomeMessage" id="welcomeMessage" rows="2"></textarea>
               </div>
 
               <!-- Note -->
@@ -187,8 +179,7 @@
         </div>
 
         <div class="form-actions-compact">
-          <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
-                      severity="secondary" type="button" />
+          <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
           <app-button
             [disabled]="depotForm.invalid || isSaving()"
             [label]="isEditMode() ? 'Mettre à jour' : 'Créer'"

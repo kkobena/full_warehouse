@@ -1,22 +1,22 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
-import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.AuthorityRepository;
+import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.RandomUtil;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
-import com.kobe.warehouse.service.dto.UserDTO;
 import com.kobe.warehouse.service.dto.AuthParams;
+import com.kobe.warehouse.service.dto.UserDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,13 +59,12 @@ public class UserService {
     private final CashRegisterRepository cashRegisterRepository;
 
     public UserService(
-        UserRepository userRepository,
-        PasswordEncoder passwordEncoder,
-        PersistentTokenRepository persistentTokenRepository,
-        AuthorityRepository authorityRepository,
-        MagasinRepository magasinRepository,
-        CashRegisterRepository cashRegisterRepository
-    ) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            PersistentTokenRepository persistentTokenRepository,
+            AuthorityRepository authorityRepository,
+            MagasinRepository magasinRepository,
+            CashRegisterRepository cashRegisterRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.persistentTokenRepository = persistentTokenRepository;
@@ -76,39 +75,37 @@ public class UserService {
 
     public Optional<AppUser> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
-        return userRepository
-            .findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
+        return userRepository.findOneByActivationKey(key).map(user -> {
+            // activate given user for the registration key.
+            user.setActivated(true);
+            user.setActivationKey(null);
+            log.debug("Activated user: {}", user);
+            return user;
+        });
     }
 
     public Optional<AppUser> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
         return userRepository
-            .findOneByResetKey(key)
-            .filter(user -> user.getResetDate().isAfter(LocalDateTime.now().minusDays(1)))
-            .map(user -> {
-                user.setPassword(passwordEncoder.encode(newPassword));
-                user.setResetKey(null);
-                user.setResetDate(null);
-                return user;
-            });
+                .findOneByResetKey(key)
+                .filter(user -> user.getResetDate().isAfter(LocalDateTime.now().minusDays(1)))
+                .map(user -> {
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    user.setResetKey(null);
+                    user.setResetDate(null);
+                    return user;
+                });
     }
 
     public Optional<AppUser> requestPasswordReset(String mail) {
         return userRepository
-            .findOneByEmailIgnoreCase(mail)
-            .filter(AppUser::isActivated)
-            .map(user -> {
-                user.setResetKey(RandomUtil.generateResetKey());
-                user.setResetDate(LocalDateTime.now());
-                return user;
-            });
+                .findOneByEmailIgnoreCase(mail)
+                .filter(AppUser::isActivated)
+                .map(user -> {
+                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetDate(LocalDateTime.now());
+                    return user;
+                });
     }
 
     /**
@@ -136,10 +133,9 @@ public class UserService {
     private Magasin refuserUnDepot(Magasin magasin) {
         if (magasin.getTypeMagasin() == TypeMagasin.DEPOT) {
             throw new BadRequestAlertException(
-                "Aucun utilisateur ne s'affecte à un dépôt : " + magasin.getName() + " n'a ni caisse ni saisie",
-                "user",
-                "affectation.depot"
-            );
+                    "Aucun utilisateur ne s'affecte à un dépôt : " + magasin.getName() + " n'a ni caisse ni saisie",
+                    "user",
+                    "affectation.depot");
         }
         return magasin;
     }
@@ -151,8 +147,9 @@ public class UserService {
             return duCreateur;
         }
         Magasin cible = magasinRepository
-            .findById(demande)
-            .orElseThrow(() -> new BadRequestAlertException("Magasin " + demande + " inconnu", "user", "affectation.magasin.inconnu"));
+                .findById(demande)
+                .orElseThrow(() -> new BadRequestAlertException(
+                        "Magasin " + demande + " inconnu", "user", "affectation.magasin.inconnu"));
         Magasin remontee = cible.getParent();
         for (int profondeur = 0; remontee != null && profondeur < PROFONDEUR_MAX; profondeur++) {
             if (remontee.getId().equals(duCreateur.getId())) {
@@ -161,16 +158,15 @@ public class UserService {
             remontee = remontee.getParent();
         }
         throw new BadRequestAlertException(
-            "Le magasin " + cible.getName() + " n'est pas rattaché à " + duCreateur.getName(),
-            "user",
-            "affectation.hors.portee"
-        );
+                "Le magasin " + cible.getName() + " n'est pas rattaché à " + duCreateur.getName(),
+                "user",
+                "affectation.hors.portee");
     }
 
     private AppUser utilisateurCourant() {
         return userRepository
-            .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow())
-            .orElseThrow(() -> new RuntimeException("Current user not found"));
+                .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow())
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
     }
 
     /**
@@ -202,10 +198,10 @@ public class UserService {
     private void refuserUneCaisseOuverte(AppUser utilisateur) {
         if (cashRegisterRepository.existsByUserIdAndStatut(utilisateur.getId(), CashRegisterStatut.OPEN)) {
             throw new BadRequestAlertException(
-                "Caisse ouverte : " + utilisateur.getLogin() + " doit faire son billetage avant de changer de magasin",
-                "user",
-                "affectation.caisse.ouverte"
-            );
+                    "Caisse ouverte : " + utilisateur.getLogin()
+                            + " doit faire son billetage avant de changer de magasin",
+                    "user",
+                    "affectation.caisse.ouverte");
         }
     }
 
@@ -226,13 +222,11 @@ public class UserService {
         user.setResetDate(LocalDateTime.now());
         user.setActivated(true);
         if (userDTO.getAuthorities() != null) {
-            Set<Authority> authorities = userDTO
-                .getAuthorities()
-                .stream()
-                .map(authorityRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            Set<Authority> authorities = userDTO.getAuthorities().stream()
+                    .map(authorityRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
             user.setAuthorities(authorities);
         }
         if (StringUtils.hasText(userDTO.getActionAuthorityKey())) {
@@ -251,41 +245,37 @@ public class UserService {
      */
     public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
         return Optional.of(userRepository.findById(userDTO.getId()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(user -> {
-                user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
-                if (userDTO.getEmail() != null) {
-                    user.setEmail(userDTO.getEmail().toLowerCase());
-                }
-                user.setImageUrl(userDTO.getImageUrl());
-                user.setMagasin(resoudreLaReaffectation(userDTO, user));
-                if (userDTO.isActivated() != null) {
-                    user.setActivated(userDTO.isActivated());
-                }
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
-                userDTO
-                    .getAuthorities()
-                    .stream()
-                    .map(authorityRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .forEach(managedAuthorities::add);
-                return userRepository.save(user);
-            })
-            .map(AdminUserDTO::new);
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(user -> {
+                    user.setLogin(userDTO.getLogin().toLowerCase());
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+                    if (userDTO.getEmail() != null) {
+                        user.setEmail(userDTO.getEmail().toLowerCase());
+                    }
+                    user.setImageUrl(userDTO.getImageUrl());
+                    user.setMagasin(resoudreLaReaffectation(userDTO, user));
+                    if (userDTO.isActivated() != null) {
+                        user.setActivated(userDTO.isActivated());
+                    }
+                    Set<Authority> managedAuthorities = user.getAuthorities();
+                    managedAuthorities.clear();
+                    userDTO.getAuthorities().stream()
+                            .map(authorityRepository::findById)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .forEach(managedAuthorities::add);
+                    return userRepository.save(user);
+                })
+                .map(AdminUserDTO::new);
     }
 
     public void deleteUser(String login) {
-        userRepository
-            .findOneByLogin(login)
-            .ifPresent(user -> {
-                userRepository.delete(user);
-                log.debug("Deleted User: {}", user);
-            });
+        userRepository.findOneByLogin(login).ifPresent(user -> {
+            userRepository.delete(user);
+            log.debug("Deleted User: {}", user);
+        });
     }
 
     /**
@@ -299,44 +289,49 @@ public class UserService {
      */
     public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
         SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                if (email != null) {
-                    user.setEmail(email.toLowerCase());
-                }
-                user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
-                log.debug("Changed Information for User: {}", user);
-            });
+                .flatMap(userRepository::findOneByLogin)
+                .ifPresent(user -> {
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    if (email != null) {
+                        user.setEmail(email.toLowerCase());
+                    }
+                    user.setLangKey(langKey);
+                    user.setImageUrl(imageUrl);
+                    log.debug("Changed Information for User: {}", user);
+                });
     }
 
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
         SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                String currentEncryptedPassword = user.getPassword();
-                if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
-                    throw new BadRequestAlertException("Le mot de passe n'est pas correct", "user", "invalidpassword");
-                }
-                String encryptedPassword = passwordEncoder.encode(newPassword);
-                user.setPassword(encryptedPassword);
-                log.debug("Changed password for User: {}", user);
-            });
+                .flatMap(userRepository::findOneByLogin)
+                .ifPresent(user -> {
+                    String currentEncryptedPassword = user.getPassword();
+                    if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
+                        throw new BadRequestAlertException(
+                                "Le mot de passe n'est pas correct", "user", "invalidpassword");
+                    }
+                    String encryptedPassword = passwordEncoder.encode(newPassword);
+                    user.setPassword(encryptedPassword);
+                    log.debug("Changed password for User: {}", user);
+                });
     }
 
     @Transactional(readOnly = true)
     public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
         // Spécification d'ADMINISTRATION : elle inclut les comptes désactivés, seul moyen de
         // les retrouver — et de les réactiver.
-        return userRepository.findAll(userRepository.findAdminSpecialisation(), pageable).map(AdminUserDTO::new);
+        return userRepository
+                .findAll(userRepository.findAdminSpecialisation(), pageable)
+                .map(AdminUserDTO::new);
     }
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-        return userRepository.findAll(userRepository.findspecialisation(), pageable).map(UserDTO::new);
+        return userRepository
+                .findAll(userRepository.findspecialisation(), pageable)
+                .map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -358,17 +353,13 @@ public class UserService {
     @Scheduled(cron = "0 0 0 * * ?")
     public void removeOldPersistentTokens() {
         LocalDate now = LocalDate.now();
-        persistentTokenRepository
-            .findByTokenDateBefore(now.minusMonths(1))
-            .forEach(token -> {
-                log.debug("Deleting token {}", token.getSeries());
-                AppUser user = token.getUser();
-                user.getPersistentTokens().remove(token);
-                persistentTokenRepository.delete(token);
-            });
+        persistentTokenRepository.findByTokenDateBefore(now.minusMonths(1)).forEach(token -> {
+            log.debug("Deleting token {}", token.getSeries());
+            AppUser user = token.getUser();
+            user.getPersistentTokens().remove(token);
+            persistentTokenRepository.delete(token);
+        });
     }
-
-
 
     /**
      * Gets a list of all the authorities.
@@ -381,27 +372,23 @@ public class UserService {
     }
 
     @Cacheable(
-        value = EntityConstant.CURRENT_USER_CACHE,
-        key = "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('anonymous')"
-    )
+            value = EntityConstant.CURRENT_USER_CACHE,
+            key = "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('anonymous')")
     public AppUser getUser() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(userRepository::findOneByLogin)
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
     public Optional<AdminUserDTO> getUserConnectedWithAuthorities() {
         return SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneWithAuthoritiesByLogin)
-            .map(user ->
-                new AdminUserDTO(
-                    user,
-                    user
-                        .getAuthorities()
-                        .stream()
-                        .map(authority -> authorityRepository.findOneByName(authority.getName()))
-                        .collect(Collectors.toSet())
-                )
-            );
+                .flatMap(userRepository::findOneWithAuthoritiesByLogin)
+                .map(user -> new AdminUserDTO(
+                        user,
+                        user.getAuthorities().stream()
+                                .map(authority -> authorityRepository.findOneByName(authority.getName()))
+                                .collect(Collectors.toSet())));
     }
 
     public Optional<AppUser> getUserByPwdOrSecurityKey(String input) {
@@ -411,18 +398,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<AdminUserDTO> getUsers(AuthParams authParams) {
         return userRepository
-            .findOneWithAuthoritiesByLogin(authParams.username())
-            .filter(e -> passwordEncoder.matches(authParams.password(), e.getPassword()))
-            .map(user ->
-                new AdminUserDTO(
-                    user,
-                    user
-                        .getAuthorities()
-                        .stream()
-                        .map(authority -> authorityRepository.findOneByName(authority.getName()))
-                        .collect(Collectors.toSet())
-                )
-            )
-            .filter(e -> e.getAuthorities().stream().anyMatch(SecurityUtils::hasMobileAccess));
+                .findOneWithAuthoritiesByLogin(authParams.username())
+                .filter(e -> passwordEncoder.matches(authParams.password(), e.getPassword()))
+                .map(user -> new AdminUserDTO(
+                        user,
+                        user.getAuthorities().stream()
+                                .map(authority -> authorityRepository.findOneByName(authority.getName()))
+                                .collect(Collectors.toSet())))
+                .filter(e -> e.getAuthorities().stream().anyMatch(SecurityUtils::hasMobileAccess));
     }
 }

@@ -27,12 +27,11 @@ class ProducteurRapportsPartenaires {
     private final RapprochementService rapprochementService;
 
     ProducteurRapportsPartenaires(
-        AccountsPayableService accountsPayableService,
-        SupplierPerformancePdfReportService supplierPerformancePdfReportService,
-        TiersPayantPdfReportService tiersPayantPdfReportService,
-        RecapitulatifMensuelService recapitulatifMensuelService,
-        RapprochementService rapprochementService
-    ) {
+            AccountsPayableService accountsPayableService,
+            SupplierPerformancePdfReportService supplierPerformancePdfReportService,
+            TiersPayantPdfReportService tiersPayantPdfReportService,
+            RecapitulatifMensuelService recapitulatifMensuelService,
+            RapprochementService rapprochementService) {
         this.accountsPayableService = accountsPayableService;
         this.supplierPerformancePdfReportService = supplierPerformancePdfReportService;
         this.tiersPayantPdfReportService = tiersPayantPdfReportService;
@@ -40,30 +39,35 @@ class ProducteurRapportsPartenaires {
         this.rapprochementService = rapprochementService;
     }
 
-    byte[] produire(RapportExport rapport, FormatExport format, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    byte[] produire(
+            RapportExport rapport,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres) {
         return switch (rapport) {
             case COMPTES_FOURNISSEURS -> accountsPayableService.exportComptesAsPdf(du, au);
             case PERFORMANCE_FOURNISSEURS -> supplierPerformancePdfReportService.export();
             case CREANCES_TIERS_PAYANTS -> tiersPayantPdfReportService.export();
             case RECAPITULATIF_FACTURES -> produireRecapitulatif(format, du, filtres);
             // Aucun tiers payant ni statut imposé : l'état porte sur toutes les factures de la période.
-            case RAPPROCHEMENT_TIERS_PAYANTS -> format == FormatExport.XLSX
-                ? rapprochementService.exportExcel(new RapprochementParams(null, du, au, null))
-                : rapprochementService.exportPdf(new RapprochementParams(null, du, au, null));
+            case RAPPROCHEMENT_TIERS_PAYANTS ->
+                format == FormatExport.XLSX
+                        ? rapprochementService.exportExcel(new RapprochementParams(null, du, au, null))
+                        : rapprochementService.exportPdf(new RapprochementParams(null, du, au, null));
             default -> throw new IllegalArgumentException("Édition hors des éditions partenaires : " + rapport);
         };
     }
     /** Le récapitulatif est mensuel : c'est le mois du début de la période qui le désigne. */
     private byte[] produireRecapitulatif(FormatExport format, LocalDate du, Map<FiltreExport, List<String>> filtres) {
         RecapitulatifMensuelParams params = new RecapitulatifMensuelParams(
-            du.getYear(),
-            du.getMonthValue(),
-            null,
-            null,
-            ReglagesRapports.lireUnique(filtres, FiltreExport.TYPE_FACTURE, TypeFacture.class)
-        );
+                du.getYear(),
+                du.getMonthValue(),
+                null,
+                null,
+                ReglagesRapports.lireUnique(filtres, FiltreExport.TYPE_FACTURE, TypeFacture.class));
         return format == FormatExport.XLSX
-            ? recapitulatifMensuelService.exportExcel(params)
-            : recapitulatifMensuelService.exportPdf(params);
+                ? recapitulatifMensuelService.exportExcel(params)
+                : recapitulatifMensuelService.exportPdf(params);
     }
 }

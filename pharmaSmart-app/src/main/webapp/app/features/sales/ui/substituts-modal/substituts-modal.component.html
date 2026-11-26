@@ -7,7 +7,8 @@
   <p class="mb-3">
     À la place de <strong>{{ origine.libelle }}</strong>
     @if (origine.quantite != null) {
-      (<strong>{{ origine.quantite }}</strong> demandé<span>{{ origine.quantite > 1 ? 's' : '' }}</span>)
+      (<strong>{{ origine.quantite }}</strong> demandé<span>{{ origine.quantite > 1 ? 's' : '' }}</span
+      >)
     }
     :
   </p>
@@ -36,12 +37,14 @@
                     [peremptionDate]="proposition.produit.peremptionDate"
                     [peremptionLot]="proposition.produit.peremptionLot"
                     [statutLegal]="proposition.produit.statutLegal"
-                    [typeGenerique]="proposition.produit.typeGenerique" />
+                    [typeGenerique]="proposition.produit.typeGenerique"
+                  />
                 </div>
                 <div class="proposition-detail">
                   <app-badge
                     [label]="proposition.typeSubstitutLibelle"
-                    [severity]="proposition.typeSubstitut === 'GENERIQUE' ? 'success' : 'warn'" />
+                    [severity]="proposition.typeSubstitut === 'GENERIQUE' ? 'success' : 'warn'"
+                  />
                   @if (proposition.typeSubstitut === 'THERAPEUTIQUE') {
                     <span class="avis">À valider par le pharmacien</span>
                   }
@@ -74,7 +77,8 @@
                 [ariaLabel]="'Choisir ' + proposition.produit.libelle"
                 icon="pi pi-check"
                 label="Choisir"
-                severity="primary" />
+                severity="primary"
+              />
             </li>
           }
         </ul>

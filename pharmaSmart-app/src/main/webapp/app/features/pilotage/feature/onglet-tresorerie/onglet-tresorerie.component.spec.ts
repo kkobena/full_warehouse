@@ -2,7 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { PilotageApiService } from '../../data-access/pilotage-api.service';
-import { CelluleAnalyse, EncaissementsTresorerie, OrganismeTresorerie, RequetePilotage, TiersPayantTresorerie } from '../../models/pilotage.model';
+import {
+  CelluleAnalyse,
+  EncaissementsTresorerie,
+  OrganismeTresorerie,
+  RequetePilotage,
+  TiersPayantTresorerie,
+} from '../../models/pilotage.model';
 import { SectionEncaissementsComponent } from './section-encaissements.component';
 import { SectionTiersPayantComponent } from './section-tiers-payant.component';
 

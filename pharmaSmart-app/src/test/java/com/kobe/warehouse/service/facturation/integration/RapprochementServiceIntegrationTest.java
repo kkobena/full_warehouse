@@ -46,10 +46,15 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         factureReglee(tiersPayant("MUGEF RAPPRO"), 30_000, 0);
         viderLeCache();
 
-        List<EtatRapprochementDto> etats = services.rapprochementService.getEtatRapprochement(params(null), page()).getContent();
+        List<EtatRapprochementDto> etats = services.rapprochementService
+                .getEtatRapprochement(params(null), page())
+                .getContent();
 
         assertEquals(2, etats.size(), "un organisme, un état");
-        EtatRapprochementDto etat = etats.stream().filter(e -> e.tiersPayantName().equals("CNAM RAPPRO")).findFirst().orElseThrow();
+        EtatRapprochementDto etat = etats.stream()
+                .filter(e -> e.tiersPayantName().equals("CNAM RAPPRO"))
+                .findFirst()
+                .orElseThrow();
         assertEquals(0, BigDecimal.valueOf(160_000).compareTo(etat.totalFacture()));
         assertEquals(0, BigDecimal.valueOf(100_000).compareTo(etat.totalRegle()));
         assertEquals(0, BigDecimal.valueOf(60_000).compareTo(etat.ecartTotal()), "ce qui reste à recouvrer");
@@ -64,11 +69,11 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         LigneRapprochementDto ligne = services.rapprochementService
-            .getEtatRapprochement(params(null), page())
-            .getContent()
-            .getFirst()
-            .lignes()
-            .getFirst();
+                .getEtatRapprochement(params(null), page())
+                .getContent()
+                .getFirst()
+                .lignes()
+                .getFirst();
 
         assertEquals(0, BigDecimal.valueOf(80_000).compareTo(ligne.montantFacture()));
         assertEquals(0, BigDecimal.valueOf(30_000).compareTo(ligne.montantRegle()));
@@ -85,11 +90,11 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         LigneRapprochementDto ligne = services.rapprochementService
-            .getEtatRapprochement(params(null), page())
-            .getContent()
-            .getFirst()
-            .lignes()
-            .getFirst();
+                .getEtatRapprochement(params(null), page())
+                .getContent()
+                .getFirst()
+                .lignes()
+                .getFirst();
 
         assertEquals(LocalDate.now().plusDays(45), ligne.echeance());
     }
@@ -104,11 +109,11 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         LigneRapprochementDto ligne = services.rapprochementService
-            .getEtatRapprochement(params(null), page())
-            .getContent()
-            .getFirst()
-            .lignes()
-            .getFirst();
+                .getEtatRapprochement(params(null), page())
+                .getContent()
+                .getFirst()
+                .lignes()
+                .getFirst();
 
         assertEquals(LocalDate.now().plusDays(30), ligne.echeance());
     }
@@ -123,14 +128,16 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         LigneRapprochementDto ligne = services.rapprochementService
-            .getEtatRapprochement(params(null), page())
-            .getContent()
-            .getFirst()
-            .lignes()
-            .getFirst();
+                .getEtatRapprochement(params(null), page())
+                .getContent()
+                .getFirst()
+                .lignes()
+                .getFirst();
 
         assertEquals(2, ligne.reglements().size());
-        assertEquals(70_000, ligne.reglements().stream().mapToInt(r -> r.paidAmount()).sum());
+        assertEquals(
+                70_000,
+                ligne.reglements().stream().mapToInt(r -> r.paidAmount()).sum());
         assertTrue(ligne.reglements().stream().allMatch(r -> r.paymentMode().equals(ModePaimentCode.VIREMENT.name())));
         assertTrue(ligne.reglements().stream().anyMatch(r -> "ACOMPTE 1".equals(r.commentaire())));
         assertTrue(ligne.reglements().stream().allMatch(r -> "SGBCI".equals(r.banque())));
@@ -145,8 +152,8 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         List<EtatRapprochementDto> etats = services.rapprochementService
-            .getEtatRapprochement(params(vise.getId()), page())
-            .getContent();
+                .getEtatRapprochement(params(vise.getId()), page())
+                .getContent();
 
         assertEquals(1, etats.size());
         assertEquals("VISE RAPPRO", etats.getFirst().tiersPayantName());
@@ -161,11 +168,14 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         List<EtatRapprochementDto> etats = services.rapprochementService
-            .getEtatRapprochement(
-                new RapprochementParams(null, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), Set.of(InvoiceStatut.PAID)),
-                page()
-            )
-            .getContent();
+                .getEtatRapprochement(
+                        new RapprochementParams(
+                                null,
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now().plusDays(1),
+                                Set.of(InvoiceStatut.PAID)),
+                        page())
+                .getContent();
 
         assertEquals(1, etats.getFirst().lignes().size());
         assertEquals(InvoiceStatut.PAID, etats.getFirst().lignes().getFirst().statut());
@@ -179,11 +189,14 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         viderLeCache();
 
         List<EtatRapprochementDto> etats = services.rapprochementService
-            .getEtatRapprochement(
-                new RapprochementParams(null, LocalDate.now().minusMonths(6), LocalDate.now().minusMonths(5), Set.of()),
-                page()
-            )
-            .getContent();
+                .getEtatRapprochement(
+                        new RapprochementParams(
+                                null,
+                                LocalDate.now().minusMonths(6),
+                                LocalDate.now().minusMonths(5),
+                                Set.of()),
+                        page())
+                .getContent();
 
         assertTrue(etats.isEmpty());
     }
@@ -196,7 +209,9 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         factureReglee(organisme, 50_000, 0).setFactureProvisoire(true);
         viderLeCache();
 
-        List<EtatRapprochementDto> etats = services.rapprochementService.getEtatRapprochement(params(organisme.getId()), page()).getContent();
+        List<EtatRapprochementDto> etats = services.rapprochementService
+                .getEtatRapprochement(params(organisme.getId()), page())
+                .getContent();
 
         assertEquals(1, etats.size());
         assertEquals(1, etats.getFirst().lignes().size(), "seule la facture définitive est une créance");
@@ -249,7 +264,8 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
     }
 
     private RapprochementParams params(Integer tiersPayantId) {
-        return new RapprochementParams(tiersPayantId, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), Set.of());
+        return new RapprochementParams(
+                tiersPayantId, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), Set.of());
     }
 
     private FactureTiersPayant factureReglee(TiersPayant organisme, int montantNet, int montantRegle) {
@@ -257,7 +273,10 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
         facture.setMontantTtc(BigDecimal.valueOf(montantNet));
         facture.setMontantNet(BigDecimal.valueOf(montantNet));
         facture.setMontantRegle(montantRegle);
-        facture.setStatut(montantRegle == 0 ? InvoiceStatut.NOT_PAID : montantRegle < montantNet ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
+        facture.setStatut(
+                montantRegle == 0
+                        ? InvoiceStatut.NOT_PAID
+                        : montantRegle < montantNet ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
         em.flush();
         return facture;
     }

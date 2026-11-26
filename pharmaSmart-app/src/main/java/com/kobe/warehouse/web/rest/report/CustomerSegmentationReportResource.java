@@ -1,11 +1,12 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.CustomerSegmentationDTO;
 import com.kobe.warehouse.service.report.CustomerSegmentationReportService;
+import com.kobe.warehouse.service.report.pdf.CustomerSegmentationPdfReportService;
 import java.util.List;
 import java.util.Map;
-
-import com.kobe.warehouse.service.report.pdf.CustomerSegmentationPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
@@ -25,7 +24,9 @@ public class CustomerSegmentationReportResource {
     private final CustomerSegmentationReportService customerSegmentationReportService;
     private final CustomerSegmentationPdfReportService customerSegmentationPdfReportService;
 
-    public CustomerSegmentationReportResource(CustomerSegmentationReportService customerSegmentationReportService, CustomerSegmentationPdfReportService customerSegmentationPdfReportService) {
+    public CustomerSegmentationReportResource(
+            CustomerSegmentationReportService customerSegmentationReportService,
+            CustomerSegmentationPdfReportService customerSegmentationPdfReportService) {
         this.customerSegmentationReportService = customerSegmentationReportService;
         this.customerSegmentationPdfReportService = customerSegmentationPdfReportService;
     }
@@ -49,9 +50,9 @@ public class CustomerSegmentationReportResource {
      */
     @GetMapping("/customers/segmentation/classification")
     public ResponseEntity<List<CustomerSegmentationDTO>> getCustomersByClassification(
-        @RequestParam CustomerSegmentationDTO.CustomerClassification classification
-    ) {
-        List<CustomerSegmentationDTO> segmentations = customerSegmentationReportService.getCustomersByClassification(classification);
+            @RequestParam CustomerSegmentationDTO.CustomerClassification classification) {
+        List<CustomerSegmentationDTO> segmentations =
+                customerSegmentationReportService.getCustomersByClassification(classification);
         return ResponseEntity.ok().body(segmentations);
     }
 
@@ -83,9 +84,10 @@ public class CustomerSegmentationReportResource {
      * @return Map of classification to count
      */
     @GetMapping("/customers/segmentation/count")
-    public ResponseEntity<Map<CustomerSegmentationDTO.CustomerClassification, Long>> getCustomerCountByClassification() {
+    public ResponseEntity<Map<CustomerSegmentationDTO.CustomerClassification, Long>>
+            getCustomerCountByClassification() {
         Map<CustomerSegmentationDTO.CustomerClassification, Long> counts =
-            customerSegmentationReportService.getCustomerCountByClassification();
+                customerSegmentationReportService.getCustomerCountByClassification();
         return ResponseEntity.ok().body(counts);
     }
 

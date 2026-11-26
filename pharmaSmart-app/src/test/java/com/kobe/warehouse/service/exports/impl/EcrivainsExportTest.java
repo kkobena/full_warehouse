@@ -24,22 +24,24 @@ import org.junit.jupiter.api.Test;
 class EcrivainsExportTest {
 
     private static final List<ColonneExport> COLONNES = List.of(
-        new ColonneExport("Date", DATE),
-        new ColonneExport("Produit", TEXTE),
-        new ColonneExport("Quantité", ENTIER),
-        new ColonneExport("Prix", DECIMAL),
-        new ColonneExport("Créée le", DATE_HEURE)
-    );
+            new ColonneExport("Date", DATE),
+            new ColonneExport("Produit", TEXTE),
+            new ColonneExport("Quantité", ENTIER),
+            new ColonneExport("Prix", DECIMAL),
+            new ColonneExport("Créée le", DATE_HEURE));
     private static final String TITRE = "Lignes de vente — du 01/10/2026 au 09/10/2026";
-    private static final Object[] LIGNE = { LocalDate.of(2026, 10, 9), "Doliprane \"1000\"; boîte", 3, 1250.5, LocalDateTime.of(2026, 10, 9, 14, 5) };
+    private static final Object[] LIGNE = {
+        LocalDate.of(2026, 10, 9), "Doliprane \"1000\"; boîte", 3, 1250.5, LocalDateTime.of(2026, 10, 9, 14, 5)
+    };
 
     @Test
     @DisplayName("CSV : BOM, « ; », guillemets doublés, virgule décimale, dates à la française, vide pour null")
     void csv() throws Exception {
         ByteArrayOutputStream sortie = new ByteArrayOutputStream();
-        try (EcrivainExport ecrivain = new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.CSV, COLONNES, TITRE, sortie)) {
+        try (EcrivainExport ecrivain =
+                new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.CSV, COLONNES, TITRE, sortie)) {
             ecrivain.ecrire(LIGNE);
-            ecrivain.ecrire(new Object[] { null, "Sans date", null, null, null });
+            ecrivain.ecrire(new Object[] {null, "Sans date", null, null, null});
         }
         String contenu = sortie.toString(StandardCharsets.UTF_8);
 
@@ -52,14 +54,16 @@ class EcrivainsExportTest {
     @DisplayName("XLSX : en-tête, nombres et dates en vraies cellules")
     void xlsx() throws Exception {
         ByteArrayOutputStream sortie = new ByteArrayOutputStream();
-        try (EcrivainExport ecrivain = new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.XLSX, COLONNES, TITRE, sortie)) {
+        try (EcrivainExport ecrivain =
+                new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.XLSX, COLONNES, TITRE, sortie)) {
             ecrivain.ecrire(LIGNE);
         }
 
         try (XSSFWorkbook classeur = new XSSFWorkbook(new ByteArrayInputStream(sortie.toByteArray()))) {
             Sheet feuille = classeur.getSheetAt(0);
             assertThat(feuille.getRow(0).getCell(1).getStringCellValue()).isEqualTo("Produit");
-            assertThat(feuille.getRow(1).getCell(0).getLocalDateTimeCellValue().toLocalDate()).isEqualTo(LocalDate.of(2026, 10, 9));
+            assertThat(feuille.getRow(1).getCell(0).getLocalDateTimeCellValue().toLocalDate())
+                    .isEqualTo(LocalDate.of(2026, 10, 9));
             assertThat(feuille.getRow(1).getCell(2).getNumericCellValue()).isEqualTo(3);
             assertThat(feuille.getRow(1).getCell(3).getNumericCellValue()).isEqualTo(1250.5);
         }
@@ -69,13 +73,16 @@ class EcrivainsExportTest {
     @DisplayName("PDF : un document lisible, titré, qui garde son en-tête même sans ligne")
     void pdf() throws Exception {
         ByteArrayOutputStream avecLignes = new ByteArrayOutputStream();
-        try (EcrivainExport ecrivain = new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.PDF, COLONNES, TITRE, avecLignes)) {
+        try (EcrivainExport ecrivain =
+                new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.PDF, COLONNES, TITRE, avecLignes)) {
             for (int rang = 0; rang < 250; rang++) {
                 ecrivain.ecrire(LIGNE);
             }
         }
         ByteArrayOutputStream sansLigne = new ByteArrayOutputStream();
-        new FabriqueEcrivainsExportImpl().ouvrir(FormatExport.PDF, COLONNES, TITRE, sansLigne).close();
+        new FabriqueEcrivainsExportImpl()
+                .ouvrir(FormatExport.PDF, COLONNES, TITRE, sansLigne)
+                .close();
 
         assertThat(lire(avecLignes)).contains("Lignes de vente", "Doliprane", "09/10/2026");
         assertThat(lire(sansLigne)).contains("Produit", "Quantité", "Aucune ligne");

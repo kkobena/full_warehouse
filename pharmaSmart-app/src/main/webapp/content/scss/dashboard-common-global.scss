@@ -110,11 +110,14 @@ $gray-border: #e2e8f0;
 }
 
 @keyframes pulse-danger {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 2px 8px rgba($danger-red, 0.3);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba($danger-red, 0.15), 0 2px 8px rgba($danger-red, 0.4);
+    box-shadow:
+      0 0 0 6px rgba($danger-red, 0.15),
+      0 2px 8px rgba($danger-red, 0.4);
     transform: scale(1.03);
   }
 }
@@ -481,8 +484,12 @@ $gray-border: #e2e8f0;
     transition: all 0.2s ease;
     white-space: nowrap;
 
-    i { font-size: 0.75rem; }
-    .pill-label { font-size: 0.78rem; }
+    i {
+      font-size: 0.75rem;
+    }
+    .pill-label {
+      font-size: 0.78rem;
+    }
 
     &:hover:not(.active) {
       background: var(--pharma-chrome-pill-hover-bg);
@@ -506,11 +513,15 @@ $gray-border: #e2e8f0;
   align-items: center;
   gap: 0.25rem;
   white-space: nowrap;
-  i { font-size: 0.7rem; }
+  i {
+    font-size: 0.7rem;
+  }
 }
 
 @media (max-width: 576px) {
-  .dashboard-periode-selector .periode-pill .pill-label { display: none; }
+  .dashboard-periode-selector .periode-pill .pill-label {
+    display: none;
+  }
 }
 
 // ─── KPI Variation N-1 (P1) ──────────────────────────────────────
@@ -524,16 +535,39 @@ $gray-border: #e2e8f0;
   padding: 0.15rem 0.5rem;
   border-radius: 12px;
 
-  &.kpi-up   { color: $success-green; background: rgba($success-green, 0.1); }
-  &.kpi-down { color: $danger-red;    background: rgba($danger-red, 0.1);    }
+  &.kpi-up {
+    color: $success-green;
+    background: rgba($success-green, 0.1);
+  }
+  &.kpi-down {
+    color: $danger-red;
+    background: rgba($danger-red, 0.1);
+  }
 
-  i { font-size: 0.65rem; }
+  i {
+    font-size: 0.65rem;
+  }
 }
 
 // ─── Rangs top 3 (P3 + P4) ───────────────────────────────────────
-.rank-gold   { color: #f59e0b; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
-.rank-silver { color: #6b7280; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
-.rank-bronze { color: #b45309; font-weight: 700; font-size: 0.8rem; min-width: 22px; }
+.rank-gold {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 0.8rem;
+  min-width: 22px;
+}
+.rank-silver {
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 0.8rem;
+  min-width: 22px;
+}
+.rank-bronze {
+  color: #b45309;
+  font-weight: 700;
+  font-size: 0.8rem;
+  min-width: 22px;
+}
 
 // ─── Empty message (P4) ──────────────────────────────────────────
 .pharma-empty-message {
@@ -547,8 +581,13 @@ $gray-border: #e2e8f0;
   align-items: center;
   color: $text-secondary;
 
-  i { font-size: 2rem; opacity: 0.5; }
-  p { font-size: 0.875rem; }
+  i {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
+  p {
+    font-size: 0.875rem;
+  }
 }
 
 // ─── Score bar (P3 / P5) ─────────────────────────────────────────
@@ -563,12 +602,22 @@ $gray-border: #e2e8f0;
     border-radius: 3px;
     flex: 1;
     transition: width 0.4s ease;
-    &.score-good { background: $success-green; }
-    &.score-avg  { background: $warning-orange; }
-    &.score-bad  { background: $danger-red; }
+    &.score-good {
+      background: $success-green;
+    }
+    &.score-avg {
+      background: $warning-orange;
+    }
+    &.score-bad {
+      background: $danger-red;
+    }
   }
 
-  .score-label { font-size: 0.7rem; font-weight: 600; min-width: 22px; }
+  .score-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 22px;
+  }
 }
 
 // ─── Animation delays for col-xl-2 KPI cards ─────────────────────
@@ -624,4 +673,3 @@ $gray-border: #e2e8f0;
 .text-secondary {
   color: $text-secondary !important;
 }
-

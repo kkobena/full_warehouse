@@ -7,8 +7,7 @@ import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
 import java.util.List;
 
 public record ChiffreAffaireDTO(
-    List<Recette> recettes,
-    ChiffreAffaireRecord chiffreAffaire,
-    ChiffreAffaireAchat achats,
-    List<MouvementCaisse> mouvementCaisses
-) {}
+        List<Recette> recettes,
+        ChiffreAffaireRecord chiffreAffaire,
+        ChiffreAffaireAchat achats,
+        List<MouvementCaisse> mouvementCaisses) {}

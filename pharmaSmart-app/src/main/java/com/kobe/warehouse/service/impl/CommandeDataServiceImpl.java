@@ -2,11 +2,10 @@ package com.kobe.warehouse.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kobe.warehouse.domain.Fournisseur;
-import java.time.LocalDate;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -34,6 +33,7 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,35 +63,32 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     private final OrderLineRepository orderLineRepository;
     private final ObjectMapper objectMapper;
     private final PharmaMlEnvoiRepository pharmaMlEnvoiRepository;
-    private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
-        StringUtils.isEmpty(s) ||
-            (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase())
-                ||
-                orderLine.getFournisseurProduit().getCodeCip().contains(s));
-    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip = (orderLine, _) -> orderLine.getProvisionalCode();
-    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) ->
-        orderLine.getOrderCostAmount().compareTo(orderLine.getFournisseurProduit().getPrixAchat())
+    private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) -> StringUtils.isEmpty(s)
+            || (orderLine.getFournisseurProduit().getProduit().getLibelle().contains(s.toUpperCase())
+                    || orderLine.getFournisseurProduit().getCodeCip().contains(s));
+    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterCip =
+            (orderLine, _) -> orderLine.getProvisionalCode();
+    private final BiPredicate<OrderLine, FilterCommaneEnCours> searchFilterPrix = (orderLine, _) -> orderLine
+                    .getOrderCostAmount()
+                    .compareTo(orderLine.getFournisseurProduit().getPrixAchat())
             != 0;
-    private final Comparator<OrderLineDTO> comparingByProduitLibelle = Comparator.comparing(
-        OrderLineDTO::getProduitLibelle);
-    private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(
-        OrderLineDTO::getProduitCip);
-    private final Comparator<OrderLineDTO> comparingByDateUpdated = Comparator.comparing(
-        OrderLineDTO::getUpdatedAt,
-        Comparator.reverseOrder()
-    );
+    private final Comparator<OrderLineDTO> comparingByProduitLibelle =
+            Comparator.comparing(OrderLineDTO::getProduitLibelle);
+    private final Comparator<OrderLineDTO> comparingByProduitCip = Comparator.comparing(OrderLineDTO::getProduitCip);
+    private final Comparator<OrderLineDTO> comparingByDateUpdated =
+            Comparator.comparing(OrderLineDTO::getUpdatedAt, Comparator.reverseOrder());
+
     @PersistenceContext
     private EntityManager em;
 
     public CommandeDataServiceImpl(
-        CommandeRepository commandeRepository,
-        ExportationCsvService exportationCsvService,
-        CommandeReportReportService commandeReportService,
-        CustomizedCommandeService customizedCommandeService,
-        OrderLineRepository orderLineRepository,
-        ObjectMapper objectMapper,
-        PharmaMlEnvoiRepository pharmaMlEnvoiRepository
-    ) {
+            CommandeRepository commandeRepository,
+            ExportationCsvService exportationCsvService,
+            CommandeReportReportService commandeReportService,
+            CustomizedCommandeService customizedCommandeService,
+            OrderLineRepository orderLineRepository,
+            ObjectMapper objectMapper,
+            PharmaMlEnvoiRepository pharmaMlEnvoiRepository) {
         this.commandeRepository = commandeRepository;
         this.exportationCsvService = exportationCsvService;
         this.commandeReportService = commandeReportService;
@@ -119,8 +116,9 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         List<Integer> ids = lines.stream().map(OrderLineDTO::getProduitId).toList();
         @SuppressWarnings("unchecked")
         List<Object[]> rows = em.createNativeQuery(
-            "SELECT vsr.produit_id, vsr.couverture_stock_jours FROM v_stock_rotation vsr WHERE vsr.produit_id IN :ids"
-        ).setParameter("ids", ids).getResultList();
+                        "SELECT vsr.produit_id, vsr.couverture_stock_jours FROM v_stock_rotation vsr WHERE vsr.produit_id IN :ids")
+                .setParameter("ids", ids)
+                .getResultList();
         Map<Integer, Integer> map = new HashMap<>();
         for (Object[] row : rows) {
             if (row[1] != null) {
@@ -147,92 +145,82 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(),
-            commandeFilter.getOrderDate())).getOrderLines();
+        List<OrderLine> orderLines = findId(
+                        new CommandeId(commandeFilter.getCommandeId(), commandeFilter.getOrderDate()))
+                .getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
             if (commandeFilter.getFilterCommaneEnCours() != null
-                && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
+                    && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
                 switch (commandeFilter.getFilterCommaneEnCours()) {
                     case NOT_EQUAL:
-                        return orderLines
-                            .stream()
-                            .filter(orderLine -> searchFilterPrix.test(orderLine,
-                                commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine,
-                                commandeFilter.getSearch()))
-                            .map(OrderLineDTO::new)
-                            .sorted(getSort(commandeFilter.getOrderBy()))
-                            .toList();
+                        return orderLines.stream()
+                                .filter(orderLine ->
+                                        searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                                .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+                                .map(OrderLineDTO::new)
+                                .sorted(getSort(commandeFilter.getOrderBy()))
+                                .toList();
                     case PROVISOL_CIP:
-                        return orderLines
-                            .stream()
-                            .filter(orderLine -> searchFilterCip.test(orderLine,
-                                commandeFilter.getFilterCommaneEnCours()))
-                            .filter(orderLine -> searchPredicate.test(orderLine,
-                                commandeFilter.getSearch()))
-                            .map(OrderLineDTO::new)
-                            .sorted(getSort(commandeFilter.getOrderBy()))
-                            .toList();
+                        return orderLines.stream()
+                                .filter(orderLine ->
+                                        searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                                .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+                                .map(OrderLineDTO::new)
+                                .sorted(getSort(commandeFilter.getOrderBy()))
+                                .toList();
                 }
             }
-            return orderLines
-                .stream()
-                .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+            return orderLines.stream()
+                    .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
+                    .map(OrderLineDTO::new)
+                    .sorted(getSort(commandeFilter.getOrderBy()))
+                    .toList();
+        }
+        if (commandeFilter.getFilterCommaneEnCours() != null
+                && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
+            switch (commandeFilter.getFilterCommaneEnCours()) {
+                case NOT_EQUAL:
+                    return orderLines.stream()
+                            .filter(orderLine ->
+                                    searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                            .map(OrderLineDTO::new)
+                            .sorted(getSort(commandeFilter.getOrderBy()))
+                            .toList();
+                case PROVISOL_CIP:
+                    return orderLines.stream()
+                            .filter(orderLine ->
+                                    searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
+                            .map(OrderLineDTO::new)
+                            .sorted(getSort(commandeFilter.getOrderBy()))
+                            .toList();
+            }
+        }
+        return orderLines.stream()
                 .map(OrderLineDTO::new)
                 .sorted(getSort(commandeFilter.getOrderBy()))
                 .toList();
-        }
-        if (commandeFilter.getFilterCommaneEnCours() != null
-            && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
-            switch (commandeFilter.getFilterCommaneEnCours()) {
-                case NOT_EQUAL:
-                    return orderLines
-                        .stream()
-                        .filter(orderLine -> searchFilterPrix.test(orderLine,
-                            commandeFilter.getFilterCommaneEnCours()))
-                        .map(OrderLineDTO::new)
-                        .sorted(getSort(commandeFilter.getOrderBy()))
-                        .toList();
-                case PROVISOL_CIP:
-                    return orderLines
-                        .stream()
-                        .filter(orderLine -> searchFilterCip.test(orderLine,
-                            commandeFilter.getFilterCommaneEnCours()))
-                        .map(OrderLineDTO::new)
-                        .sorted(getSort(commandeFilter.getOrderBy()))
-                        .toList();
-            }
-        }
-        return orderLines.stream().map(OrderLineDTO::new)
-            .sorted(getSort(commandeFilter.getOrderBy())).toList();
     }
 
     @Override
-    public Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO,
-        Pageable pageable) {
+    public Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable) {
         long count = customizedCommandeService.countfetchCommandes(commandeFilterDTO);
         if (count == 0) {
             new PageImpl<>(Collections.emptyList(), pageable, count);
         }
         return new PageImpl<>(
-            customizedCommandeService
-                .fetchCommandes(commandeFilterDTO, pageable)
-                .stream()
-                .map(commande -> new CommandeLiteDTO(commande,
-                    orderLineRepository.countByCommande((commande))))
-                .toList(),
-            pageable,
-            count
-        );
+                customizedCommandeService.fetchCommandes(commandeFilterDTO, pageable).stream()
+                        .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommande((commande))))
+                        .toList(),
+                pageable,
+                count);
     }
 
     @Override
     public Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable) {
         return orderLineRepository
-            .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(),
-                pageable)
-            .map(OrderLineDTO::new);
+                .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(), pageable)
+                .map(OrderLineDTO::new);
     }
 
     @Override
@@ -241,22 +229,15 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             String jsonResult;
             if ("month".equals(mvtParam.getGroupeBy())) {
                 jsonResult = commandeRepository.fetchTableauPharmacienReportMensuel(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    OrderStatut.CLOSED.name()
-                );
+                        mvtParam.getFromDate(), mvtParam.getToDate(), OrderStatut.CLOSED.name());
             } else {
                 jsonResult = commandeRepository.fetchTableauPharmacienReport(
-                    mvtParam.getFromDate(),
-                    mvtParam.getToDate(),
-                    OrderStatut.CLOSED.name()
-                );
+                        mvtParam.getFromDate(), mvtParam.getToDate(), OrderStatut.CLOSED.name());
             }
             if (StringUtils.isEmpty(jsonResult)) {
                 return new ArrayList<>();
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);
             return new ArrayList<>();
@@ -265,99 +246,91 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public CommandeDashboardDTO getDashboard() {
-        List<Commande> allRequested = commandeRepository.findAll(
-            (root, query, cb) -> cb.and(
+        List<Commande> allRequested = commandeRepository.findAll((root, query, cb) -> cb.and(
                 cb.equal(root.get(Commande_.orderStatus), OrderStatut.REQUESTED),
                 cb.isNull(root.get(Commande_.motifBed)),
-                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER)
-            )
-        );
-        List<Commande> allReceived = commandeRepository.findAll(
-            (root, query, cb) -> cb.and(
+                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER)));
+        List<Commande> allReceived = commandeRepository.findAll((root, query, cb) -> cb.and(
                 cb.equal(root.get(Commande_.orderStatus), OrderStatut.RECEIVED),
                 cb.isNull(root.get(Commande_.motifBed)),
-                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER))
-        );
-        List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(
-            PharmaMlStatut.PENDING);
+                cb.equal(root.get(Commande_.type), TypeDeliveryReceipt.ORDER)));
+        List<PharmaMlEnvoi> envoisPending =
+                pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING);
 
         // Un seul passage sur les bons en attente : on y lit à la fois leur résumé, leur état
         // d'envoi et leur retard éventuel.
         List<CommandeResumeeDTO> resumesRequested = allRequested.stream()
-            .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
-            .map(this::toResumee)
-            .toList();
-        long totalBrouillons = resumesRequested.stream().filter(r -> r.dateEnvoi() == null).count();
+                .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
+                .map(this::toResumee)
+                .toList();
+        long totalBrouillons =
+                resumesRequested.stream().filter(r -> r.dateEnvoi() == null).count();
         // Le compteur porte sur TOUS les retards, la liste n'en montre que les vingt premiers :
         // tronquer avant de compter ferait plafonner l'alerte a vingt et masquerait l'ampleur.
         List<CommandeResumeeDTO> tousLesRetards = resumesRequested.stream()
-            .filter(r -> r.joursDeRetard() > 0)
-            .sorted(Comparator.comparingLong(CommandeResumeeDTO::joursDeRetard).reversed())
-            .toList();
+                .filter(r -> r.joursDeRetard() > 0)
+                .sorted(Comparator.comparingLong(CommandeResumeeDTO::joursDeRetard)
+                        .reversed())
+                .toList();
         List<CommandeResumeeDTO> enRetard = tousLesRetards.stream().limit(20).toList();
 
-        List<CommandeResumeeDTO> requestedDTOs = resumesRequested.stream().limit(20).toList();
+        List<CommandeResumeeDTO> requestedDTOs =
+                resumesRequested.stream().limit(20).toList();
 
         List<CommandeResumeeDTO> receivedDTOs = allReceived.stream()
-            .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
-            .limit(20)
-            .map(this::toResumee)
-            .toList();
+                .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
+                .limit(20)
+                .map(this::toResumee)
+                .toList();
 
-        List<PharmaMlEnvoiResumeeDTO> envoisDTOs = envoisPending.stream()
-            .limit(50)
-            .map(this::toEnvoiResumee)
-            .toList();
+        List<PharmaMlEnvoiResumeeDTO> envoisDTOs =
+                envoisPending.stream().limit(50).map(this::toEnvoiResumee).toList();
 
         return new CommandeDashboardDTO(
-            allRequested.size(),
-            allReceived.size(),
-            envoisPending.size(),
-            totalBrouillons,
-            allRequested.size() - totalBrouillons,
-            tousLesRetards.size(),
-            requestedDTOs,
-            receivedDTOs,
-            envoisDTOs,
-            enRetard
-        );
+                allRequested.size(),
+                allReceived.size(),
+                envoisPending.size(),
+                totalBrouillons,
+                allRequested.size() - totalBrouillons,
+                tousLesRetards.size(),
+                requestedDTOs,
+                receivedDTOs,
+                envoisDTOs,
+                enRetard);
     }
 
     private CommandeResumeeDTO toResumee(Commande c) {
         return new CommandeResumeeDTO(
-            c.getId().getId(),
-            c.getId().getOrderDate().toString(),
-            c.getOrderReference(),
-            c.getFournisseur().getLibelle(),
-            c.getGrossAmount() != null ? c.getGrossAmount() : 0,
-            c.getOrderStatus().name(),
-            c.getReliquatDeCommandeId(),
-            c.getDateEnvoi() != null ? c.getDateEnvoi().toString() : null,
-            lireJoursDeRetard(c)
-        );
+                c.getId().getId(),
+                c.getId().getOrderDate().toString(),
+                c.getOrderReference(),
+                c.getFournisseur().getLibelle(),
+                c.getGrossAmount() != null ? c.getGrossAmount() : 0,
+                c.getOrderStatus().name(),
+                c.getReliquatDeCommandeId(),
+                c.getDateEnvoi() != null ? c.getDateEnvoi().toString() : null,
+                lireJoursDeRetard(c));
     }
 
     /** Le délai annoncé est celui de l'agence, à défaut celui de son grossiste. */
     private long lireJoursDeRetard(Commande commande) {
         Fournisseur fournisseur = commande.getFournisseur();
         return commande.joursDeRetard(
-            LocalDate.now(),
-            fournisseur != null ? fournisseur.delaiLivraisonEffectif() : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT
-        );
+                LocalDate.now(),
+                fournisseur != null ? fournisseur.delaiLivraisonEffectif() : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT);
     }
 
     private PharmaMlEnvoiResumeeDTO toEnvoiResumee(PharmaMlEnvoi e) {
         Commande c = e.getCommande();
         CommandeId commandeId = c.getId();
         return new PharmaMlEnvoiResumeeDTO(
-            e.getId(),
-            commandeId.getId(),
-            commandeId.getOrderDate().toString(),
-            c.getOrderReference(),
-            e.getFournisseur().getLibelle(),
-            e.getStatut().name(),
-            e.getDerniereTentative() != null ? e.getDerniereTentative() : e.getCreatedAt()
-        );
+                e.getId(),
+                commandeId.getId(),
+                commandeId.getOrderDate().toString(),
+                c.getOrderReference(),
+                e.getFournisseur().getLibelle(),
+                e.getStatut().name(),
+                e.getDerniereTentative() != null ? e.getDerniereTentative() : e.getCreatedAt());
     }
 
     private Comparator<OrderLineDTO> getSort(Sort sort) {

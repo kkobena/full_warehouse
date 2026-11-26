@@ -8,9 +8,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface ProductToDestroyReportService {
     ResponseEntity<byte[]> generatePdf(
-        List<ProductToDestroyDTO> productToDestroys,
-        ProductToDestroySumDTO sum,
-        LocalDate from,
-        LocalDate to
-    );
+            List<ProductToDestroyDTO> productToDestroys, ProductToDestroySumDTO sum, LocalDate from, LocalDate to);
 }

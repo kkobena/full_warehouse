@@ -49,15 +49,35 @@ public class DashboardLayoutAuthority implements Serializable {
         this.id = new DashboardLayoutAuthorityId(layout.getId(), authority.getName());
     }
 
-    public DashboardLayoutAuthorityId getId() { return id; }
-    public void setId(DashboardLayoutAuthorityId id) { this.id = id; }
+    public DashboardLayoutAuthorityId getId() {
+        return id;
+    }
 
-    public DashboardLayout getLayout() { return layout; }
-    public void setLayout(DashboardLayout layout) { this.layout = layout; }
+    public void setId(DashboardLayoutAuthorityId id) {
+        this.id = id;
+    }
 
-    public Authority getAuthority() { return authority; }
-    public void setAuthority(Authority authority) { this.authority = authority; }
+    public DashboardLayout getLayout() {
+        return layout;
+    }
 
-    public Boolean getIsDefault() { return isDefault; }
-    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault; }
+    public void setLayout(DashboardLayout layout) {
+        this.layout = layout;
+    }
+
+    public Authority getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
+    }
+
+    public Boolean getIsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

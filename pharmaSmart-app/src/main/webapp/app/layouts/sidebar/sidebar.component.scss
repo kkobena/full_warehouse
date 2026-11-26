@@ -11,8 +11,9 @@
   color: var(--pharma-nav-fg);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease,
-  transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease;
   z-index: 1050;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -115,7 +116,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
 
       .user-role {
         font-size: 0.8rem;
@@ -377,4 +377,3 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 1049; // juste en dessous de la sidebar (1050)
 }
-

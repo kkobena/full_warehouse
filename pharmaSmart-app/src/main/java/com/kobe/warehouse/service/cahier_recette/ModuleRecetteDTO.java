@@ -6,9 +6,4 @@ import java.util.List;
 /** Miroir Java de l'interface TS ModuleRecette (cahier-recette.model.ts). */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ModuleRecetteDTO(
-        String id,
-        String nom,
-        String icone,
-        String description,
-        List<FonctionnaliteRecetteDTO> fonctionnalites
-) {}
+        String id, String nom, String icone, String description, List<FonctionnaliteRecetteDTO> fonctionnalites) {}

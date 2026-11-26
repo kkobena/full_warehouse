@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
@@ -96,7 +96,8 @@ public class StoreInventoryDTO implements Serializable {
         }
         target.description = source.getDescription();
         if (Objects.isNull(source.getDescription())) {
-            target.description = "Inventaire du " + source.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            target.description =
+                    "Inventaire du " + source.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         }
     }
 
@@ -205,7 +206,8 @@ public class StoreInventoryDTO implements Serializable {
         }
 
         public Builder storeInventoryLines(List<StoreInventoryLineDTO> storeInventoryLines) {
-            this.dto.storeInventoryLines = Objects.nonNull(storeInventoryLines) ? storeInventoryLines : new ArrayList<>();
+            this.dto.storeInventoryLines =
+                    Objects.nonNull(storeInventoryLines) ? storeInventoryLines : new ArrayList<>();
             return this;
         }
 

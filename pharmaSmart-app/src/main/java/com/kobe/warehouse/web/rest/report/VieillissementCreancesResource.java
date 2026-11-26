@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.DsoOrganismeDTO;
 import com.kobe.warehouse.service.dto.report.EncoursMensuelDTO;
 import com.kobe.warehouse.service.dto.report.VieillissementGlobalDTO;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/vieillissement-creances")
@@ -34,11 +34,10 @@ public class VieillissementCreancesResource {
     }
 
     @GetMapping("/dso-organisme")
-    public ResponseEntity<List<DsoOrganismeDTO>> getDsoByOrganisme(
-        @PageableDefault(size = 15) Pageable pageable) {
+    public ResponseEntity<List<DsoOrganismeDTO>> getDsoByOrganisme(@PageableDefault(size = 15) Pageable pageable) {
         Page<DsoOrganismeDTO> page = service.getDsoByOrganisme(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 

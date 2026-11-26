@@ -122,19 +122,18 @@ class CommandServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new CommandServiceImpl(
-            commandeRepository,
-            storageService,
-            orderLineService,
-            referenceService,
-            exportationCsvService,
-            importationEchoueService,
-            commandeIdGeneratorService,
-            suggestionReassortService,
-            suggestionRepository,
-            suggestionLineRepository,
-            fournisseurProduitRepository,
-            new ColisageServiceImpl()
-        );
+                commandeRepository,
+                storageService,
+                orderLineService,
+                referenceService,
+                exportationCsvService,
+                importationEchoueService,
+                commandeIdGeneratorService,
+                suggestionReassortService,
+                suggestionRepository,
+                suggestionLineRepository,
+                fournisseurProduitRepository,
+                new ColisageServiceImpl());
         AppUser user = new AppUser();
         user.setId(1);
         user.setFirstName("Awa");
@@ -279,7 +278,8 @@ class CommandServiceImplTest {
             referenceCommande(commande);
             OrderLine ligne = orderLine(900, fournisseurProduit(1, "1111111"), 4, 0);
             OrderLineDTO dto = dto();
-            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(orderLineService.buildOrderLineFromOrderLineDTO(dto)).thenReturn(ligne);
 
             CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto);
@@ -300,7 +300,8 @@ class CommandServiceImplTest {
             commande.setGrossAmount(2400);
             commande.setFinalAmount(4800);
             referenceCommande(commande);
-            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.of(existante));
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(existante));
 
             service.createOrUpdateOrderLine(dto());
 
@@ -386,8 +387,8 @@ class CommandServiceImplTest {
             when(orderLineService.findOneById(any())).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.updateOrderLineQuantityReceived(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ligne de commande introuvable");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ligne de commande introuvable");
         }
 
         @Test
@@ -553,11 +554,15 @@ class CommandServiceImplTest {
         void csvProduitReconnu() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             OrderLine ligne = orderLine(900, fp, 5, 5);
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.produitTotalStockWithQantitUg(fp.getProduit())).thenReturn(12);
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(ligne);
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.produitTotalStockWithQantitUg(fp.getProduit()))
+                    .thenReturn(12);
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(ligne);
 
-            CommandeResponseDTO reponse = service.uploadNewCommande(FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "1111111;5\n"));
+            CommandeResponseDTO reponse =
+                    service.uploadNewCommande(FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "1111111;5\n"));
 
             assertThat(reponse.getSuccesCount()).isEqualTo(1);
             assertThat(reponse.getFailureCount()).isZero();
@@ -579,30 +584,35 @@ class CommandServiceImplTest {
         void csvProduitEnDoublon() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             OrderLine ligne = orderLine(900, fp, 5, 5);
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(ligne);
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(ligne);
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.CIP_QTE,
-                fichier("cmd.csv", "1111111;5\n1111111;3\n")
-            );
+                    FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "1111111;5\n1111111;3\n"));
 
             assertThat(reponse.getSuccesCount()).isEqualTo(2);
             assertThat(ligne.getQuantityReceived()).isEqualTo(8);
             assertThat(ligne.getQuantityRequested()).isEqualTo(8);
-            verify(orderLineService, org.mockito.Mockito.times(1)).createOrderLine(any(Commande.class), any(OrderLineDTO.class));
+            verify(orderLineService, org.mockito.Mockito.times(1))
+                    .createOrderLine(any(Commande.class), any(OrderLineDTO.class));
         }
 
         @Test
         @DisplayName("CSV : un produit inconnu est reporte en echec et le CSV des ruptures accompagne la reponse")
         void csvProduitInconnu() {
-            when(orderLineService.getFournisseurProduitByCriteria(anyString(), anyInt())).thenReturn(Optional.empty());
+            when(orderLineService.getFournisseurProduitByCriteria(anyString(), anyInt()))
+                    .thenReturn(Optional.empty());
 
-            CommandeResponseDTO reponse = service.uploadNewCommande(FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "9999999;5\n"));
+            CommandeResponseDTO reponse =
+                    service.uploadNewCommande(FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "9999999;5\n"));
 
             assertThat(reponse.getFailureCount()).isEqualTo(1);
-            assertThat(reponse.getItems()).singleElement().extracting(OrderItem::getProduitCip).isEqualTo("9999999");
+            assertThat(reponse.getItems())
+                    .singleElement()
+                    .extracting(OrderItem::getProduitCip)
+                    .isEqualTo("9999999");
             verify(exportationCsvService).exporterRuptures(any(), eq(CommandeModel.CIP_QTE));
             verify(importationEchoueService).save(eq(77), eq(true), any());
         }
@@ -612,14 +622,13 @@ class CommandServiceImplTest {
         void txtProduitReconnu() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             OrderLine ligne = orderLine(900, fp, 5, 5);
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(ligne);
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(ligne);
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.CIP_QTE,
-                fichier("cmd.txt", "1111111\tX\t450\t5\tY\t900\n")
-            );
+                    FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.txt", "1111111\tX\t450\t5\tY\t900\n"));
 
             assertThat(reponse.getSuccesCount()).isEqualTo(1);
             assertThat(reponse.getTotalItemCount()).isEqualTo(1);
@@ -634,14 +643,15 @@ class CommandServiceImplTest {
         void txtProduitEnDoublon() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             OrderLine ligne = orderLine(900, fp, 5, 5);
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(ligne);
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(ligne);
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.CIP_QTE,
-                fichier("cmd.txt", "1111111\tX\t450\t5\tY\t900\n1111111\tX\t450\t2\tY\t900\n")
-            );
+                    FOURNISSEUR_ID,
+                    CommandeModel.CIP_QTE,
+                    fichier("cmd.txt", "1111111\tX\t450\t5\tY\t900\n1111111\tX\t450\t2\tY\t900\n"));
 
             assertThat(reponse.getSuccesCount()).isEqualTo(2);
             assertThat(ligne.getQuantityReceived()).isEqualTo(7);
@@ -650,13 +660,11 @@ class CommandServiceImplTest {
         @Test
         @DisplayName("TXT : un produit inconnu est reporte en echec")
         void txtProduitInconnu() {
-            when(orderLineService.getFournisseurProduitByCriteria(anyString(), anyInt())).thenReturn(Optional.empty());
+            when(orderLineService.getFournisseurProduitByCriteria(anyString(), anyInt()))
+                    .thenReturn(Optional.empty());
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.CIP_QTE,
-                fichier("cmd.txt", "9999999\tX\t450\t5\tY\t900\n")
-            );
+                    FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.txt", "9999999\tX\t450\t5\tY\t900\n"));
 
             assertThat(reponse.getItems()).singleElement().satisfies(item -> {
                 assertThat(item.getProduitCip()).isEqualTo("9999999");
@@ -673,22 +681,21 @@ class CommandServiceImplTest {
             MultipartFile fichier = fichier("cmd.pdf", "peu importe");
 
             assertThatThrownBy(() -> service.uploadNewCommande(FOURNISSEUR_ID, CommandeModel.LABOREX, fichier))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("LABOREX");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("LABOREX");
         }
 
         @Test
         @DisplayName("CSV : la ligne d'en-tete non numerique est ignoree")
         void csvAvecEntete() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(orderLine(900, fp, 5, 5));
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(orderLine(900, fp, 5, 5));
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.CIP_QTE,
-                fichier("cmd.csv", "CIP;QUANTITE\n1111111;5\n")
-            );
+                    FOURNISSEUR_ID, CommandeModel.CIP_QTE, fichier("cmd.csv", "CIP;QUANTITE\n1111111;5\n"));
 
             assertThat(reponse.getSuccesCount()).isEqualTo(1);
             assertThat(reponse.getTotalItemCount()).isEqualTo(1);
@@ -699,14 +706,13 @@ class CommandServiceImplTest {
         void csvFormatTedis() {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             OrderLine ligne = orderLine(900, fp, 5, 5);
-            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class))).thenReturn(ligne);
+            when(orderLineService.getFournisseurProduitByCriteria("1111111", FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.createOrderLine(any(Commande.class), any(OrderLineDTO.class)))
+                    .thenReturn(ligne);
 
             CommandeResponseDTO reponse = service.uploadNewCommande(
-                FOURNISSEUR_ID,
-                CommandeModel.TEDIS,
-                fichier("cmd.csv", "1;1111111;450;5;x;900;LOT-A;20271231\n")
-            );
+                    FOURNISSEUR_ID, CommandeModel.TEDIS, fichier("cmd.csv", "1;1111111;450;5;x;900;LOT-A;20271231\n"));
 
             // TEDIS n'a pas d'en-tete : la ligne unique est comptee telle quelle
             assertThat(reponse.getTotalItemCount()).isEqualTo(1);
@@ -767,7 +773,8 @@ class CommandServiceImplTest {
         }
 
         private MultipartFile excel(Object[][] rows) throws IOException {
-            try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            try (XSSFWorkbook workbook = new XSSFWorkbook();
+                    ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 Sheet sheet = workbook.createSheet("reponse");
                 for (int r = 0; r < rows.length; r++) {
                     Row row = sheet.createRow(r);
@@ -785,11 +792,10 @@ class CommandServiceImplTest {
                 }
                 workbook.write(out);
                 return new MockMultipartFile(
-                    "file",
-                    "reponse.xlsx",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    out.toByteArray()
-                );
+                        "file",
+                        "reponse.xlsx",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        out.toByteArray());
             }
         }
 
@@ -800,7 +806,8 @@ class CommandServiceImplTest {
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;7\n"));
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;7\n"));
 
             assertThat(reponse.isAllLinesInRupture()).isFalse();
             assertThat(reponse.getExtraItems()).isEmpty();
@@ -826,11 +833,8 @@ class CommandServiceImplTest {
             commande.setOrderAmount(11200);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.CIP_QTE,
-                csv("1111111;7\n2222222;0\n")
-            );
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;7\n2222222;0\n"));
 
             assertThat(reponse.getItems()).hasSize(2);
             assertThat(commande.getOrderLines()).containsExactly(servie);
@@ -846,7 +850,8 @@ class CommandServiceImplTest {
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;0\n"));
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;0\n"));
 
             assertThat(reponse.isAllLinesInRupture()).isTrue();
             assertThat(commande.getOrderLines()).containsExactly(ligne);
@@ -860,7 +865,8 @@ class CommandServiceImplTest {
             Commande commande = commande(12, orderLine(900, fournisseurProduit(1, "1111111"), 10, 0));
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("8888888;3\n"));
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("8888888;3\n"));
 
             assertThat(reponse.getItems()).isEmpty();
             assertThat(reponse.getExtraItems()).singleElement().satisfies(item -> {
@@ -876,10 +882,7 @@ class CommandServiceImplTest {
             referenceCommande(commande);
 
             VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.CIP_QTE,
-                csv("1111111;7\nligne;cassee\n")
-            );
+                    COMMANDE_ID, CommandeModel.CIP_QTE, csv("1111111;7\nligne;cassee\n"));
 
             assertThat(reponse.getItems()).hasSize(1);
         }
@@ -891,11 +894,8 @@ class CommandServiceImplTest {
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.CIP_QTE,
-                csv("EAN-FP-1;7\n")
-            );
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("EAN-FP-1;7\n"));
 
             assertThat(reponse.getItems()).hasSize(1);
         }
@@ -906,8 +906,8 @@ class CommandServiceImplTest {
             MultipartFile sansNom = new MockMultipartFile("file", "", "text/csv", new byte[0]);
 
             assertThatThrownBy(() -> service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, sansNom))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("nom du fichier");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("nom du fichier");
         }
 
         @Test
@@ -918,10 +918,10 @@ class CommandServiceImplTest {
             referenceCommande(commande);
 
             VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.LABOREX,
-                csv("ETAB;FACT;LIGNE;CIP;LIB;QTE;UG;RECU;PA;PV;BL;TVA\nE1;F1;1;1111111;DOLIPRANE;10;2;7;450;900;BL-1;18\n")
-            );
+                    COMMANDE_ID,
+                    CommandeModel.LABOREX,
+                    csv(
+                            "ETAB;FACT;LIGNE;CIP;LIB;QTE;UG;RECU;PA;PV;BL;TVA\nE1;F1;1;1111111;DOLIPRANE;10;2;7;450;900;BL-1;18\n"));
 
             assertThat(reponse.getItems()).hasSize(1);
             assertThat(ligne.getOrderCostAmount()).isEqualTo(450);
@@ -936,7 +936,8 @@ class CommandServiceImplTest {
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("EAN10;7\n"));
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, csv("EAN10;7\n"));
 
             assertThat(reponse.getItems()).hasSize(1);
             assertThat(reponse.getExtraItems()).isEmpty();
@@ -949,8 +950,8 @@ class CommandServiceImplTest {
             when(sansNom.getOriginalFilename()).thenReturn(null);
 
             assertThatThrownBy(() -> service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, sansNom))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("nom du fichier");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("nom du fichier");
         }
 
         @Test
@@ -961,7 +962,8 @@ class CommandServiceImplTest {
             when(enErreur.getOriginalFilename()).thenReturn("reponse.csv");
             when(enErreur.getInputStream()).thenThrow(new IOException("flux coupe"));
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, enErreur);
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, enErreur);
 
             assertThat(reponse.getItems()).isNull();
             assertThat(reponse.isAllLinesInRupture()).isFalse();
@@ -975,7 +977,8 @@ class CommandServiceImplTest {
             when(enErreur.getOriginalFilename()).thenReturn("reponse.xlsx");
             when(enErreur.getInputStream()).thenThrow(new IOException("flux coupe"));
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, enErreur);
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, enErreur);
 
             assertThat(reponse.getItems()).isNull();
         }
@@ -986,7 +989,8 @@ class CommandServiceImplTest {
             OrderLine ligne = orderLine(900, fournisseurProduit(1, "1111111"), 10, 0);
             referenceCommande(commande(12, ligne));
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            try (XSSFWorkbook workbook = new XSSFWorkbook();
+                    ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 Sheet sheet = workbook.createSheet("reponse");
                 // ligne 0 : pas de cellule en colonne 0 du tout
                 sheet.createRow(0).createCell(1).setCellValue(5d);
@@ -995,9 +999,11 @@ class CommandServiceImplTest {
                 row1.createCell(0).setCellValue(true);
                 row1.createCell(1).setCellValue(5d);
                 workbook.write(out);
-                MultipartFile fichier = new MockMultipartFile("file", "reponse.xlsx", "application/vnd.ms-excel", out.toByteArray());
+                MultipartFile fichier =
+                        new MockMultipartFile("file", "reponse.xlsx", "application/vnd.ms-excel", out.toByteArray());
 
-                VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, fichier);
+                VerificationResponseCommandeDTO reponse =
+                        service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, fichier);
 
                 assertThat(reponse.getItems()).isEmpty();
                 assertThat(reponse.getExtraItems()).isEmpty();
@@ -1013,12 +1019,12 @@ class CommandServiceImplTest {
             referenceCommande(commande);
 
             VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.CIP_QTE,
-                excel(new Object[][] { { "1111111", 7 } })
-            );
+                    COMMANDE_ID, CommandeModel.CIP_QTE, excel(new Object[][] {{"1111111", 7}}));
 
-            assertThat(reponse.getItems()).singleElement().extracting(VerificationResponseCommandeDTO.Item::getQuantitePriseEnCompte).isEqualTo(7);
+            assertThat(reponse.getItems())
+                    .singleElement()
+                    .extracting(VerificationResponseCommandeDTO.Item::getQuantitePriseEnCompte)
+                    .isEqualTo(7);
             verify(orderLineService).updateOrderLineQuantityReceived(ligne, 7);
         }
 
@@ -1028,14 +1034,11 @@ class CommandServiceImplTest {
             OrderLine ligne = orderLine(900, fournisseurProduit(1, "1111111"), 10, 0);
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
-            Object[] entete = { "a", "b", "c", "CIP", "e", "f", "g", "QTE" };
-            Object[] donnee = { "a", "b", "c", "1111111", "e", "f", "g", 7 };
+            Object[] entete = {"a", "b", "c", "CIP", "e", "f", "g", "QTE"};
+            Object[] donnee = {"a", "b", "c", "1111111", "e", "f", "g", 7};
 
             VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.LABOREX,
-                excel(new Object[][] { entete, donnee })
-            );
+                    COMMANDE_ID, CommandeModel.LABOREX, excel(new Object[][] {entete, donnee}));
 
             assertThat(reponse.getItems()).hasSize(1);
             assertThat(reponse.getExtraItems()).isEmpty();
@@ -1048,20 +1051,18 @@ class CommandServiceImplTest {
             Commande commande = commande(12, ligne);
             referenceCommande(commande);
 
-            VerificationResponseCommandeDTO reponse = service.importerReponseCommande(
-                COMMANDE_ID,
-                CommandeModel.CIP_QTE,
-                excel(
-                    new Object[][] {
-                        { "", 5 }, // code vide
-                        { "1111111", null }, // pas de cellule quantite
-                        { "1111111", "pas un nombre" }, // quantite illisible
-                        { 1111111L, 7 } // code numerique
-                    }
-                )
-            );
+            VerificationResponseCommandeDTO reponse =
+                    service.importerReponseCommande(COMMANDE_ID, CommandeModel.CIP_QTE, excel(new Object[][] {
+                        {"", 5}, // code vide
+                        {"1111111", null}, // pas de cellule quantite
+                        {"1111111", "pas un nombre"}, // quantite illisible
+                        {1111111L, 7} // code numerique
+                    }));
 
-            assertThat(reponse.getExtraItems()).singleElement().extracting(VerificationResponseCommandeDTO.Item::getCodeCip).isEqualTo("1111111.0");
+            assertThat(reponse.getExtraItems())
+                    .singleElement()
+                    .extracting(VerificationResponseCommandeDTO.Item::getCodeCip)
+                    .isEqualTo("1111111.0");
         }
     }
 
@@ -1132,10 +1133,11 @@ class CommandServiceImplTest {
             when(orderLineService.buildOrderLine(ligne1, FOURNISSEUR_ID)).thenReturn(orderLine);
 
             CommandeId id = service.createCommandeFromSelection(
-                suggestion,
-                List.of(new CommanderSelectionDTO.LigneSelection(1, 9), new CommanderSelectionDTO.LigneSelection(2, 0)),
-                null
-            );
+                    suggestion,
+                    List.of(
+                            new CommanderSelectionDTO.LigneSelection(1, 9),
+                            new CommanderSelectionDTO.LigneSelection(2, 0)),
+                    null);
 
             assertThat(id.getId()).isEqualTo(77);
             assertThat(orderLine.getQuantityRequested()).isEqualTo(9);
@@ -1154,7 +1156,8 @@ class CommandServiceImplTest {
             SuggestionLine ligne = suggestionLine(1, 6, fp);
             when(orderLineService.buildOrderLine(ligne, FOURNISSEUR_ID)).thenReturn(orderLine(900, fp, 6, 0));
 
-            service.createCommandeFromSelection(suggestion(ligne), List.of(new CommanderSelectionDTO.LigneSelection(1, 3)), 9);
+            service.createCommandeFromSelection(
+                    suggestion(ligne), List.of(new CommanderSelectionDTO.LigneSelection(1, 3)), 9);
 
             ArgumentCaptor<Commande> captor = ArgumentCaptor.forClass(Commande.class);
             verify(commandeRepository).save(captor.capture());
@@ -1213,8 +1216,8 @@ class CommandServiceImplTest {
             referenceCommande(commande);
 
             assertThatThrownBy(() -> service.importSuggestionIntoCommande(COMMANDE_ID, 50))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("CLOSED");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("CLOSED");
         }
     }
 
@@ -1235,10 +1238,13 @@ class CommandServiceImplTest {
             FournisseurProduit fp = fournisseurProduit(1, "1111111");
             fp.getProduit().getStockProduits().add(stock(15));
             OrderLine ligne = orderLine(900, fp, 6, 0);
-            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(10, FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(ligne);
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(10, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp)))
+                    .thenReturn(ligne);
 
-            service.createCommandeFromSemoisLines(FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
+            service.createCommandeFromSemoisLines(
+                    FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
 
             ArgumentCaptor<Commande> captor = ArgumentCaptor.forClass(Commande.class);
             verify(commandeRepository).save(captor.capture());
@@ -1256,9 +1262,11 @@ class CommandServiceImplTest {
         @Test
         @DisplayName("ne cree rien quand aucun produit fournisseur n'est trouve")
         void aucuneLigneValide() {
-            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(anyInt(), anyInt())).thenReturn(Optional.empty());
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(anyInt(), anyInt()))
+                    .thenReturn(Optional.empty());
 
-            service.createCommandeFromSemoisLines(FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
+            service.createCommandeFromSemoisLines(
+                    FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
 
             verify(commandeRepository, never()).save(any(Commande.class));
         }
@@ -1307,7 +1315,8 @@ class CommandServiceImplTest {
         @Test
         @DisplayName("arrondit le taux et le delai a une decimale")
         void statsRenseignees() {
-            when(commandeRepository.fetchStatsService(eq(FOURNISSEUR_ID), any(LocalDate.class))).thenReturn(new Object[] { 92.47, 3.26 });
+            when(commandeRepository.fetchStatsService(eq(FOURNISSEUR_ID), any(LocalDate.class)))
+                    .thenReturn(new Object[] {92.47, 3.26});
 
             FournisseurStatsServiceDTO stats = service.getStatsService(FOURNISSEUR_ID, 30);
 
@@ -1319,23 +1328,28 @@ class CommandServiceImplTest {
         @Test
         @DisplayName("renvoie des statistiques nulles quand la requete ne remonte rien")
         void statsAbsentes() {
-            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class))).thenReturn(null);
+            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class)))
+                    .thenReturn(null);
 
-            assertThat(service.getStatsService(FOURNISSEUR_ID, 60)).isEqualTo(new FournisseurStatsServiceDTO(0.0, 0.0, 60));
+            assertThat(service.getStatsService(FOURNISSEUR_ID, 60))
+                    .isEqualTo(new FournisseurStatsServiceDTO(0.0, 0.0, 60));
         }
 
         @Test
         @DisplayName("renvoie des statistiques nulles quand la ligne est incomplete")
         void statsIncompletes() {
-            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class))).thenReturn(new Object[] { 92.4 });
+            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class)))
+                    .thenReturn(new Object[] {92.4});
 
-            assertThat(service.getStatsService(FOURNISSEUR_ID, 90).tauxService()).isZero();
+            assertThat(service.getStatsService(FOURNISSEUR_ID, 90).tauxService())
+                    .isZero();
         }
 
         @Test
         @DisplayName("renvoie des statistiques nulles quand le taux est absent")
         void tauxAbsent() {
-            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class))).thenReturn(new Object[] { null, 3.0 });
+            when(commandeRepository.fetchStatsService(anyInt(), any(LocalDate.class)))
+                    .thenReturn(new Object[] {null, 3.0});
 
             assertThat(service.getStatsService(FOURNISSEUR_ID, 90).delaiMoyen()).isZero();
         }
@@ -1357,8 +1371,10 @@ class CommandServiceImplTest {
             referenceCommande(source);
             OrderLine nouvelle1 = orderLine(910, fp, 6, 0);
             OrderLine nouvelle2 = orderLine(911, jamaisRecue.getFournisseurProduit(), 7, 0);
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(nouvelle1);
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(jamaisRecue.getFournisseurProduit()))).thenReturn(nouvelle2);
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp)))
+                    .thenReturn(nouvelle1);
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(jamaisRecue.getFournisseurProduit())))
+                    .thenReturn(nouvelle2);
 
             CommandeLiteDTO reliquat = service.createReliquat(COMMANDE_ID);
 
@@ -1373,9 +1389,14 @@ class CommandServiceImplTest {
             assertThat(commande.getOrderAmount()).isEqualTo(10400);
             assertThat(commande.getFinalAmount()).isEqualTo(10400);
             ArgumentCaptor<OrderLineDTO> dtoCaptor = ArgumentCaptor.forClass(OrderLineDTO.class);
-            verify(orderLineService, org.mockito.Mockito.times(2)).buildOrderLine(dtoCaptor.capture(), any(FournisseurProduit.class));
-            assertThat(dtoCaptor.getAllValues()).extracting(OrderLineDTO::getQuantityRequested).containsExactly(6, 7);
-            assertThat(dtoCaptor.getAllValues()).extracting(OrderLineDTO::getTotalQuantity).containsExactly(5, 5);
+            verify(orderLineService, org.mockito.Mockito.times(2))
+                    .buildOrderLine(dtoCaptor.capture(), any(FournisseurProduit.class));
+            assertThat(dtoCaptor.getAllValues())
+                    .extracting(OrderLineDTO::getQuantityRequested)
+                    .containsExactly(6, 7);
+            assertThat(dtoCaptor.getAllValues())
+                    .extracting(OrderLineDTO::getTotalQuantity)
+                    .containsExactly(5, 5);
         }
 
         @Test
@@ -1385,8 +1406,8 @@ class CommandServiceImplTest {
             referenceCommande(source);
 
             assertThatThrownBy(() -> service.createReliquat(COMMANDE_ID))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Aucune ligne partielle");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Aucune ligne partielle");
         }
 
         @Test
@@ -1396,7 +1417,8 @@ class CommandServiceImplTest {
             OrderLine partielle = orderLine(900, fp, 10, 4);
             partielle.setInitStock(null);
             referenceCommande(commande(12, partielle));
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(orderLine(910, fp, 6, 0));
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp)))
+                    .thenReturn(orderLine(910, fp, 6, 0));
 
             service.createReliquat(COMMANDE_ID);
 
@@ -1428,7 +1450,10 @@ class CommandServiceImplTest {
             CommandeDTO commandeDTO = new CommandeDTO();
             commandeDTO.setCommandeId(COMMANDE_ID);
             commandeDTO.setFournisseurId(FOURNISSEUR_ID);
-            return new OrderLineDTO().setProduitId(10).setQuantityRequested(quantite).setCommande(commandeDTO);
+            return new OrderLineDTO()
+                    .setProduitId(10)
+                    .setQuantityRequested(quantite)
+                    .setCommande(commandeDTO);
         }
 
         private StockProduit stockDe(int quantite) {
@@ -1446,7 +1471,8 @@ class CommandServiceImplTest {
             FournisseurProduit fp = fournisseurProduitColise(12, 0);
             OrderLine ligne = orderLine(900, fp, 7, 0);
             OrderLineDTO dto = dto(7);
-            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(orderLineService.buildOrderLineFromOrderLineDTO(dto)).thenReturn(ligne);
 
             CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto);
@@ -1471,7 +1497,8 @@ class CommandServiceImplTest {
             commande.setGrossAmount(2400);
             commande.setFinalAmount(4800);
             referenceCommande(commande);
-            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.of(existante));
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(existante));
 
             CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto(4));
 
@@ -1488,7 +1515,8 @@ class CommandServiceImplTest {
             referenceCommande(commande);
             OrderLine ligne = orderLine(900, fournisseurProduitColise(12, 0), 24, 0);
             OrderLineDTO dto = dto(24);
-            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID))
+                    .thenReturn(Optional.empty());
             when(orderLineService.buildOrderLineFromOrderLineDTO(dto)).thenReturn(ligne);
 
             CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto);
@@ -1503,10 +1531,13 @@ class CommandServiceImplTest {
             FournisseurProduit fp = fournisseurProduitColise(12, 0);
             fp.getProduit().getStockProduits().add(stockDe(15));
             OrderLine ligne = orderLine(900, fp, 6, 0);
-            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(10, FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(ligne);
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(10, FOURNISSEUR_ID))
+                    .thenReturn(Optional.of(fp));
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp)))
+                    .thenReturn(ligne);
 
-            service.createCommandeFromSemoisLines(FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
+            service.createCommandeFromSemoisLines(
+                    FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
 
             assertThat(ligne.getQuantityRequested()).isEqualTo(12);
             ArgumentCaptor<Commande> captor = ArgumentCaptor.forClass(Commande.class);
@@ -1526,7 +1557,8 @@ class CommandServiceImplTest {
             OrderLine partielle = orderLine(900, fp, 10, 4);
             referenceCommande(commande(12, partielle));
             OrderLine nouvelle = orderLine(910, fp, 6, 0);
-            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(nouvelle);
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp)))
+                    .thenReturn(nouvelle);
 
             service.createReliquat(COMMANDE_ID);
 
@@ -1545,11 +1577,10 @@ class CommandServiceImplTest {
             Commande commande = commande(12);
             referenceCommande(commande);
             MultipartFile fichier = new MockMultipartFile(
-                "file",
-                "reponse.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                excelVide()
-            );
+                    "file",
+                    "reponse.xlsx",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    excelVide());
 
             VerificationResponseCommandeDTO reponse = service.importerReponseCommande(COMMANDE_ID, model, fichier);
 
@@ -1557,7 +1588,8 @@ class CommandServiceImplTest {
         }
 
         private byte[] excelVide() throws IOException {
-            try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            try (XSSFWorkbook workbook = new XSSFWorkbook();
+                    ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 workbook.createSheet("vide");
                 workbook.write(out);
                 return out.toByteArray();

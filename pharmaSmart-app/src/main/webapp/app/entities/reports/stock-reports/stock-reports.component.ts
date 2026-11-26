@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {CommonModule} from '@angular/common';
-import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { CommonModule } from '@angular/common';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import StockAlertsComponent from '../stock-alerts/stock-alerts.component';
 import StockValuationComponent from '../stock-valuation/stock-valuation.component';
-import RecapProduitVenduComponent from "../recap-produit-vendu/recap-produit-vendu.component";
+import RecapProduitVenduComponent from '../recap-produit-vendu/recap-produit-vendu.component';
 import StockABCComponent from '../stock-abc/stock-abc.component';
 // Phase 6
 import DemarqueComponent from '../demarque/demarque.component';
@@ -15,7 +15,9 @@ import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.compo
 import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-stock-reports',
-  imports: [NavSidebarComponent, NavSectionLinkComponent, 
+  imports: [
+    NavSidebarComponent,
+    NavSectionLinkComponent,
     CommonModule,
     NgbNavModule,
     StockAlertsComponent,
@@ -32,7 +34,6 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
 export default class StockReportsComponent implements OnInit {
   active = signal<string>('stock-alerts');
 
-
   /** Menu replié : ces rapports affichent de larges tableaux et graphiques. */
   protected readonly menuReplie = signal(false);
   private readonly ability = inject(AbilityService);
@@ -42,7 +43,6 @@ export default class StockReportsComponent implements OnInit {
   protected readonly showRecapProduit = this.ability.canSignal('display', 'rapport-stock.recap-produit-vendu');
   protected readonly showStockAbc = this.ability.canSignal('display', 'rapport-stock.stock-abc');
   protected readonly showDemarque = this.ability.canSignal('display', 'rapport-stock.demarque');
-
 
   ngOnInit(): void {
     if (this.active() === 'stock-alerts' && !this.showStockAlerts()) {

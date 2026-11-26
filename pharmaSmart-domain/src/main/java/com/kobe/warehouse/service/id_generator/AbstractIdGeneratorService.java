@@ -15,12 +15,10 @@ public abstract class AbstractIdGeneratorService {
     protected abstract String getSequenceName();
 
     public Number getNextId() {
-        return (
-            (Number) entityManager
+        return ((Number) entityManager
                 .createNativeQuery("SELECT nextval(:seqName)")
                 .setParameter("seqName", getSequenceName())
-                .getSingleResult()
-        );
+                .getSingleResult());
     }
 
     public long nextId() {

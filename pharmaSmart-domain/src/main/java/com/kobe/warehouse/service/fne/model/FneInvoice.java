@@ -1,28 +1,32 @@
 package com.kobe.warehouse.service.fne.model;
 
-import jakarta.validation.constraints.NotNull;
-
-import java.util.List;
-
 import static java.util.Objects.isNull;
+
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 public class FneInvoice {
 
     private List<FneInvoiceItem> items;
+
     @NotNull
     private String clientNcc;
+
     @NotNull
     private String clientCompanyName;
+
     private String clientPhone;
     private String clientEmail;
+
     @NotNull
     private String pointOfSale;
+
     @NotNull
     private String establishment;
+
     private String commercialMessage;
     private String footer;
     private String template;
-
 
     public String getClientCompanyName() {
         return clientCompanyName;
@@ -118,7 +122,6 @@ public class FneInvoice {
         return template;
     }
 }
-
 
 /*
 fneUrl=http://54.247.95.108/ws/external/invoices/sign

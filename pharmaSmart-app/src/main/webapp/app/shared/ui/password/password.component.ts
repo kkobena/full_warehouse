@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, forwardRef, input, signal} from '@angular/core';
-import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, input, signal } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
+import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
 
 /**
  * Champ mot de passe du Design System — remplace `p-password`.
@@ -12,14 +12,15 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
  */
 @Component({
   selector: 'app-password',
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => PasswordComponent),
-    multi: true
-  }],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PasswordComponent),
+      multi: true,
+    },
+  ],
   template: `
-    <div class="input-group" [class.input-group-sm]="size() === 'small'"
-         [class.input-group-lg]="size() === 'large'">
+    <div class="input-group" [class.input-group-sm]="size() === 'small'" [class.input-group-lg]="size() === 'large'">
       <input
         autocomplete="off"
         [type]="revealed() ? 'text' : 'password'"

@@ -9,13 +9,12 @@ import com.kobe.warehouse.service.report.StockAlertReportService;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,11 +29,10 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
     private final DashboardDTOMapper mapper;
 
     public ResponsableCommandeDashboardServiceImpl(
-        StockAlertReportService stockAlertReportService,
-        ABCParetoReportService abcParetoReportService,
-        SupplierPerformanceReportService supplierPerformanceReportService,
-        DashboardDTOMapper mapper
-    ) {
+            StockAlertReportService stockAlertReportService,
+            ABCParetoReportService abcParetoReportService,
+            SupplierPerformanceReportService supplierPerformanceReportService,
+            DashboardDTOMapper mapper) {
         this.stockAlertReportService = stockAlertReportService;
         this.abcParetoReportService = abcParetoReportService;
         this.supplierPerformanceReportService = supplierPerformanceReportService;
@@ -44,19 +42,19 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
     @Override
     public ResponsableCommandeDashboardDTO getDashboardData() {
         return new ResponsableCommandeDashboardDTO(
-            getStockAlerts(),
-            getCommandesEnCours(),
-            getPeremptions(),
-            getRotationStock(),
-            getSuggestionsReappro(),
-            getAnalyseABC(),
-            getPerformanceFournisseurs(5)
-        );
+                getStockAlerts(),
+                getCommandesEnCours(),
+                getPeremptions(),
+                getRotationStock(),
+                getSuggestionsReappro(),
+                getAnalyseABC(),
+                getPerformanceFournisseurs(5));
     }
 
     @Override
     public StockAlertsDTO getStockAlerts() {
-        List<StockAlertDTO> stockAlerts = stockAlertReportService.getStockAlerts(null, Pageable.unpaged()).getContent();
+        List<StockAlertDTO> stockAlerts =
+                stockAlertReportService.getStockAlerts(null, Pageable.unpaged()).getContent();
         return mapper.toStockAlertsDTO(stockAlerts);
     }
 
@@ -81,9 +79,12 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
             WHERE c.order_status IN ('REQUESTED', 'RECEIVED')
         """;
 
-        Integer enAttente = ((Number) entityManager.createNativeQuery(queryEnAttente).getSingleResult()).intValue();
-        Integer aReceptionner = ((Number) entityManager.createNativeQuery(queryAReceptionner).getSingleResult()).intValue();
-        Long totalMontant = ((Number) entityManager.createNativeQuery(queryMontantTotal).getSingleResult()).longValue();
+        Integer enAttente =
+                ((Number) entityManager.createNativeQuery(queryEnAttente).getSingleResult()).intValue();
+        Integer aReceptionner =
+                ((Number) entityManager.createNativeQuery(queryAReceptionner).getSingleResult()).intValue();
+        Long totalMontant =
+                ((Number) entityManager.createNativeQuery(queryMontantTotal).getSingleResult()).longValue();
 
         return new CommandesEnCoursDTO(enAttente, aReceptionner, totalMontant);
     }
@@ -109,19 +110,19 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
               AND l.expiry_date <= :sixMoisPlus
         """;
 
-        Object[] result = (Object[]) entityManager.createNativeQuery(query)
-            .setParameter("now", now)
-            .setParameter("unMoisPlus", unMoisPlus)
-            .setParameter("troisMoisPlus", troisMoisPlus)
-            .setParameter("sixMoisPlus", sixMoisPlus)
-            .getSingleResult();
+        Object[] result = (Object[]) entityManager
+                .createNativeQuery(query)
+                .setParameter("now", now)
+                .setParameter("unMoisPlus", unMoisPlus)
+                .setParameter("troisMoisPlus", troisMoisPlus)
+                .setParameter("sixMoisPlus", sixMoisPlus)
+                .getSingleResult();
 
         return new PeremptionsDTO(
-            ((Number) result[0]).intValue(),
-            ((Number) result[1]).intValue(),
-            ((Number) result[2]).intValue(),
-            ((Number) result[3]).longValue()
-        );
+                ((Number) result[0]).intValue(),
+                ((Number) result[1]).intValue(),
+                ((Number) result[2]).intValue(),
+                ((Number) result[3]).longValue());
     }
 
     @Override
@@ -186,17 +187,14 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
             ) AS lent_products
         """;
 
-        Double rotationMoyenne = ((Number) entityManager.createNativeQuery(queryRotation)
-            .getSingleResult()).doubleValue();
+        Double rotationMoyenne =
+                ((Number) entityManager.createNativeQuery(queryRotation).getSingleResult()).doubleValue();
 
-        Integer rapide = ((Number) entityManager.createNativeQuery(queryRapide)
-            .getSingleResult()).intValue();
+        Integer rapide = ((Number) entityManager.createNativeQuery(queryRapide).getSingleResult()).intValue();
 
-        Integer normal = ((Number) entityManager.createNativeQuery(queryNormal)
-            .getSingleResult()).intValue();
+        Integer normal = ((Number) entityManager.createNativeQuery(queryNormal).getSingleResult()).intValue();
 
-        Integer lent = ((Number) entityManager.createNativeQuery(queryLent)
-            .getSingleResult()).intValue();
+        Integer lent = ((Number) entityManager.createNativeQuery(queryLent).getSingleResult()).intValue();
 
         return new RotationStockDTO(rotationMoyenne != null ? rotationMoyenne : 0.0, rapide, normal, lent);
     }
@@ -237,17 +235,17 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
         List<SuggestionReapproDTO> suggestions = new ArrayList<>();
         for (Object[] row : results) {
             suggestions.add(new SuggestionReapproDTO(
-                ((Number) row[0]).longValue(),    // produitId
-                (String) row[1],                   // produitLibelle
-                (String) row[2],                   // codeCip
-                ((Number) row[3]).intValue(),      // stockActuel
-                ((Number) row[4]).intValue(),      // consommationMoyenne
-                ((Number) row[5]).intValue(),      // quantiteSuggeree
-                row[6] != null ? ((Number) row[6]).longValue() : null,  // fournisseurId
-                (String) row[7],                   // fournisseurName
-                ((Number) row[8]).intValue(),      // delaiLivraison
-                ((Number) row[9]).longValue()      // prixUnitaire
-            ));
+                    ((Number) row[0]).longValue(), // produitId
+                    (String) row[1], // produitLibelle
+                    (String) row[2], // codeCip
+                    ((Number) row[3]).intValue(), // stockActuel
+                    ((Number) row[4]).intValue(), // consommationMoyenne
+                    ((Number) row[5]).intValue(), // quantiteSuggeree
+                    row[6] != null ? ((Number) row[6]).longValue() : null, // fournisseurId
+                    (String) row[7], // fournisseurName
+                    ((Number) row[8]).intValue(), // delaiLivraison
+                    ((Number) row[9]).longValue() // prixUnitaire
+                    ));
         }
 
         return suggestions;
@@ -261,7 +259,6 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
     @Override
     public List<PerformanceFournisseurDTO> getPerformanceFournisseurs(Integer top) {
         return mapper.toPerformanceFournisseurDTOList(
-            supplierPerformanceReportService.getTopSuppliersByVolume(top != null ? top : 5)
-        );
+                supplierPerformanceReportService.getTopSuppliersByVolume(top != null ? top : 5));
     }
 }

@@ -7,24 +7,23 @@ import java.math.BigDecimal;
  * Provides overall profitability metrics and BCG distribution
  */
 public record ProfitabilitySummaryDTO(
-    Integer totalProduits,
-    Long caTotalGlobal,
-    Long coutAchatGlobal,
-    Long margeBruteGlobale,
-    BigDecimal tauxMargeMoyen,
-    // BCG counts
-    Integer nbStars,
-    Integer nbCashCows,
-    Integer nbQuestionMarks,
-    Integer nbDogs,
-    // BCG revenue
-    Long caStars,
-    Long caCashCows,
-    Long caQuestionMarks,
-    Long caDogs,
-    // BCG margins
-    Long margeStars,
-    Long margeCashCows,
-    Long margeQuestionMarks,
-    Long margeDogs
-) {}
+        Integer totalProduits,
+        Long caTotalGlobal,
+        Long coutAchatGlobal,
+        Long margeBruteGlobale,
+        BigDecimal tauxMargeMoyen,
+        // BCG counts
+        Integer nbStars,
+        Integer nbCashCows,
+        Integer nbQuestionMarks,
+        Integer nbDogs,
+        // BCG revenue
+        Long caStars,
+        Long caCashCows,
+        Long caQuestionMarks,
+        Long caDogs,
+        // BCG margins
+        Long margeStars,
+        Long margeCashCows,
+        Long margeQuestionMarks,
+        Long margeDogs) {}

@@ -43,13 +43,21 @@
     }
 
     &.stat-gap {
-      i { color: #dc3545; }
-      strong { color: #dc3545; }
+      i {
+        color: #dc3545;
+      }
+      strong {
+        color: #dc3545;
+      }
     }
 
     &.stat-complete {
-      i { color: #28a745; }
-      strong { color: #28a745; }
+      i {
+        color: #28a745;
+      }
+      strong {
+        color: #28a745;
+      }
     }
   }
 

@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.reglement;
 
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
@@ -29,12 +31,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/differes")
-@RequiresNavAccess({ "differes", "differes.differes", "differes.historique" })
+@RequiresNavAccess({"differes", "differes.differes", "differes.historique"})
 public class DiffereResource {
 
     private final ReglementDiffereService reglementDiffereService;
@@ -45,16 +45,16 @@ public class DiffereResource {
 
     @GetMapping("/customers")
     public ResponseEntity<List<ClientDiffere>> getClients() {
-        return ResponseEntity.ok().body(reglementDiffereService.getClientDiffere().getContent());
+        return ResponseEntity.ok()
+                .body(reglementDiffereService.getClientDiffere().getContent());
     }
 
     @GetMapping
     public ResponseEntity<List<DiffereDTO>> getAllDifferes(
-        @RequestParam(name = "customerId", required = false) Integer customerId,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "customerId", required = false) Integer customerId, Pageable pageable) {
         Page<DiffereDTO> page = reglementDiffereService.getDiffere(customerId, Set.of(PaymentStatus.IMPAYE), pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -66,54 +66,58 @@ public class DiffereResource {
 
     @GetMapping("/print-receipt/{id}/{transactionDate}")
     public ResponseEntity<Void> printReceipt(
-        @PathVariable(name = "id") Long id,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable(name = "id") Long id, @PathVariable(name = "transactionDate") LocalDate transactionDate) {
         this.reglementDiffereService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/print-tauri/{id}/{transactionDate}")
     public ResponseEntity<byte[]> getReceiptForTauri(
-        @PathVariable(name = "id") long idReglement,
-        @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
+            @PathVariable(name = "id") long idReglement,
+            @PathVariable(name = "transactionDate") LocalDate transactionDate) {
         try {
-            byte[] escPosData = reglementDiffereService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            byte[] escPosData =
+                    reglementDiffereService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
-                .body(escPosData);
+                    .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                    .body(escPosData);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/pdf")
-    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"differes", "differes.differes", "differes.historique"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportList(@RequestParam(name = "customerId", required = false) Integer customerId) {
-        return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), "differes.pdf");
+        return Utils.printPDF(
+                reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), "differes.pdf");
     }
 
     @GetMapping("/reglements/pdf")
-    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"differes", "differes.differes", "differes.historique"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> printReglementToPdf(
-        @RequestParam(name = "customerId", required = false) Integer customerId,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate
-    ) {
-        return Utils.printPDF(reglementDiffereService.printReglementToPdf(customerId, fromDate, toDate), "reglements_differes.pdf");
+            @RequestParam(name = "customerId", required = false) Integer customerId,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate) {
+        return Utils.printPDF(
+                reglementDiffereService.printReglementToPdf(customerId, fromDate, toDate), "reglements_differes.pdf");
     }
 
     @GetMapping("/reglements")
     public ResponseEntity<List<ReglementDiffereWrapperDTO>> getReglementsDifferes(
-        @RequestParam(name = "customerId", required = false) Integer customerId,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        Pageable pageable
-    ) {
-        Page<ReglementDiffereWrapperDTO> page = reglementDiffereService.getReglementsDifferes(customerId, fromDate, toDate, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(name = "customerId", required = false) Integer customerId,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate,
+            Pageable pageable) {
+        Page<ReglementDiffereWrapperDTO> page =
+                reglementDiffereService.getReglementsDifferes(customerId, fromDate, toDate, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -124,27 +128,29 @@ public class DiffereResource {
 
     @GetMapping("/reglements/summary")
     public ResponseEntity<DifferePaymentSummaryDTO> getReglementDiffereSummary(
-        @RequestParam(name = "customerId", required = false) Integer customerId,
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate
-    ) {
+            @RequestParam(name = "customerId", required = false) Integer customerId,
+            @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) LocalDate toDate) {
         return ResponseEntity.ok().body(reglementDiffereService.getDifferePaymentSummary(customerId, fromDate, toDate));
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<DiffereSummary> getDiffereSummary(@RequestParam(name = "customerId", required = false) Integer customerId) {
-        return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
+    public ResponseEntity<DiffereSummary> getDiffereSummary(
+            @RequestParam(name = "customerId", required = false) Integer customerId) {
+        return ResponseEntity.ok()
+                .body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
     }
 
     @GetMapping("/export")
-    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"differes", "differes.differes", "differes.historique"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDifferesToExcel(
-        @RequestParam(name = "customerId", required = false) Integer customerId
-    ) {
-        String fileName = "differes_" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
+            @RequestParam(name = "customerId", required = false) Integer customerId) {
+        String fileName = "differes_"
+                + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm"))
+                + ".xlsx";
         return Utils.exportExcel(
-            reglementDiffereService.exportDifferesToExcel(customerId, Set.of(PaymentStatus.IMPAYE)),
-            fileName
-        );
+                reglementDiffereService.exportDifferesToExcel(customerId, Set.of(PaymentStatus.IMPAYE)), fileName);
     }
 }

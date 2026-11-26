@@ -7,5 +7,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface LotServiceReportService {
-    ResponseEntity<byte[]> generatePdf(List<LotPerimeDTO> lotPerimes, LotPerimeValeurSum sum, LocalDate from, LocalDate to);
+    ResponseEntity<byte[]> generatePdf(
+            List<LotPerimeDTO> lotPerimes, LotPerimeValeurSum sum, LocalDate from, LocalDate to);
 }

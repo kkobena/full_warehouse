@@ -1,19 +1,19 @@
-import { Component, computed, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { ICellRendererAngularComp } from "ag-grid-angular";
-import { ICellRendererParams } from "ag-grid-community";
-import { IOrderLine } from "../../../../../shared/model/order-line.model";
-import { ILot } from "../../../../../shared/model/lot.model";
-import { LotService } from "../../../../../entities/commande/lot/lot.service";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent } from "app/shared/ui";
-import { NotificationService } from "../../../../../shared/services/notification.service";
-import { NgbConfirmDialogService } from "../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ErrorService } from "../../../../../shared/error.service";
+import { Component, computed, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { ICellRendererParams } from 'ag-grid-community';
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
+import { ILot } from '../../../../../shared/model/lot.model';
+import { LotService } from '../../../../../entities/commande/lot/lot.service';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from 'app/shared/ui';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ErrorService } from '../../../../../shared/error.service';
 
 @Component({
-  selector: "app-lot-inline-editor",
+  selector: 'app-lot-inline-editor',
   imports: [CommonModule, FormsModule, ButtonComponent, NgbTooltip],
   template: `
     <div class="lie-wrap">
@@ -30,26 +30,33 @@ import { ErrorService } from "../../../../../shared/error.service";
             <span class="lie-badge lie-badge--ok"><i class="pi pi-check me-1"></i>Complets</span>
           }
         </div>
-        <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                  ngbTooltip="Fermer" placement="left" (clicked)="onClose()" />
+        <app-button
+          icon="pi pi-times"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          severity="secondary"
+          ngbTooltip="Fermer"
+          placement="left"
+          (clicked)="onClose()"
+        />
       </div>
 
       <!-- Body -->
       <div class="lie-body">
-
         <!-- Liste des lots existants -->
         @if (lots().length > 0) {
           <table class="lie-table">
             <thead>
-            <tr>
-              <th>N° Lot</th>
-              <th>Date péremption</th>
-              <th class="lie-col-r text-end">Qté</th>
-              @if (showUg()) {
-                <th class="lie-col-r text-end">UG</th>
-              }
-              <th class="lie-col-act text-end"></th>
-            </tr>
+              <tr>
+                <th>N° Lot</th>
+                <th>Date péremption</th>
+                <th class="lie-col-r text-end">Qté</th>
+                @if (showUg()) {
+                  <th class="lie-col-r text-end">UG</th>
+                }
+                <th class="lie-col-act text-end"></th>
+              </tr>
             </thead>
             <tbody>
               @for (lot of lots(); track lot.id) {
@@ -57,72 +64,122 @@ import { ErrorService } from "../../../../../shared/error.service";
                   <!-- Ligne en mode édition -->
                   <tr class="lie-row-editing">
                     <td>
-                      <input [ngModel]="editNumLot()" (ngModelChange)="editNumLot.set($event)" placeholder="N° lot"
-                             class="lie-field lie-field--numlot"
-                             (keydown.tab)="$event.stopPropagation()"
-                             (keydown.enter)="onSaveEdit()"
-                             (keydown.escape)="onCancelEdit()" />
+                      <input
+                        [ngModel]="editNumLot()"
+                        (ngModelChange)="editNumLot.set($event)"
+                        placeholder="N° lot"
+                        class="lie-field lie-field--numlot"
+                        (keydown.tab)="$event.stopPropagation()"
+                        (keydown.enter)="onSaveEdit()"
+                        (keydown.escape)="onCancelEdit()"
+                      />
                     </td>
                     <td>
-                      <input [ngModel]="editExpiry()" (ngModelChange)="editExpiry.set($event)" placeholder="jj/MM/AAAA" maxlength="10"
-                             class="lie-field lie-field--expiry"
-                             placeholder="MM/AAAA" maxlength="7"
-                             [class.lie-expiry-soon]="editExpiryWarning() === 'soon'"
-                             [class.lie-expiry-critical]="editExpiryWarning() === 'critical'"
-                             (ngModelChange)="onEditExpiryInput($event)"
-                             (keydown.tab)="$event.stopPropagation()"
-                             (keydown.enter)="onSaveEdit()"
-                             (keydown.escape)="onCancelEdit()" />
+                      <input
+                        [ngModel]="editExpiry()"
+                        (ngModelChange)="editExpiry.set($event)"
+                        placeholder="jj/MM/AAAA"
+                        maxlength="10"
+                        class="lie-field lie-field--expiry"
+                        placeholder="MM/AAAA"
+                        maxlength="7"
+                        [class.lie-expiry-soon]="editExpiryWarning() === 'soon'"
+                        [class.lie-expiry-critical]="editExpiryWarning() === 'critical'"
+                        (ngModelChange)="onEditExpiryInput($event)"
+                        (keydown.tab)="$event.stopPropagation()"
+                        (keydown.enter)="onSaveEdit()"
+                        (keydown.escape)="onCancelEdit()"
+                      />
                     </td>
                     <td>
-                      <input type="number" [ngModel]="editQty()" (ngModelChange)="editQty.set($event)"
-                             [min]="1" [max]="editMaxQty()"
-                             class="lie-field lie-field--qty"
-                             (ngModelChange)="onEditQtyInput($event)"
-                             (keydown.tab)="$event.stopPropagation()"
-                             (keydown.enter)="onSaveEdit()"
-                             (keydown.escape)="onCancelEdit()" />
+                      <input
+                        type="number"
+                        [ngModel]="editQty()"
+                        (ngModelChange)="editQty.set($event)"
+                        [min]="1"
+                        [max]="editMaxQty()"
+                        class="lie-field lie-field--qty"
+                        (ngModelChange)="onEditQtyInput($event)"
+                        (keydown.tab)="$event.stopPropagation()"
+                        (keydown.enter)="onSaveEdit()"
+                        (keydown.escape)="onCancelEdit()"
+                      />
                     </td>
                     @if (showUg()) {
                       <td>
-                        <input type="number" [ngModel]="editUg()" (ngModelChange)="editUg.set($event)"
-                               [min]="0" [max]="editMaxUg()"
-                               class="lie-field lie-field--ug"
-                               (ngModelChange)="onEditUgInput($event)"
-                               (keydown.tab)="$event.stopPropagation()"
-                               (keydown.enter)="onSaveEdit()"
-                               (keydown.escape)="onCancelEdit()" />
+                        <input
+                          type="number"
+                          [ngModel]="editUg()"
+                          (ngModelChange)="editUg.set($event)"
+                          [min]="0"
+                          [max]="editMaxUg()"
+                          class="lie-field lie-field--ug"
+                          (ngModelChange)="onEditUgInput($event)"
+                          (keydown.tab)="$event.stopPropagation()"
+                          (keydown.enter)="onSaveEdit()"
+                          (keydown.escape)="onCancelEdit()"
+                        />
                       </td>
                     }
                     <td class="lie-col-act">
-                      <app-button icon="pi pi-check" [text]="true" [rounded]="true" size="small" severity="success"
-                                ngbTooltip="Enregistrer" placement="top"
-                                [loading]="saving()" [disabled]="!canSaveEdit()"
-                                (clicked)="onSaveEdit()" />
-                      <app-button icon="pi pi-times" [text]="true" [rounded]="true" size="small" severity="secondary"
-                                ngbTooltip="Annuler" placement="top"
-                                (clicked)="onCancelEdit()" />
+                      <app-button
+                        icon="pi pi-check"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        severity="success"
+                        ngbTooltip="Enregistrer"
+                        placement="top"
+                        [loading]="saving()"
+                        [disabled]="!canSaveEdit()"
+                        (clicked)="onSaveEdit()"
+                      />
+                      <app-button
+                        icon="pi pi-times"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        severity="secondary"
+                        ngbTooltip="Annuler"
+                        placement="top"
+                        (clicked)="onCancelEdit()"
+                      />
                     </td>
                   </tr>
                 } @else {
                   <!-- Ligne normale -->
                   <tr>
-                    <td><code class="lie-code">{{ lot.numLot }}</code></td>
-                    <td [class.lie-expiry-soon]="isExpirySoon(lot)"
-                        [class.lie-expiry-critical]="isExpiryCritical(lot)">
-                      {{ lot.expiryDate | date:'dd/MM/yyyy' }}
+                    <td>
+                      <code class="lie-code">{{ lot.numLot }}</code>
+                    </td>
+                    <td [class.lie-expiry-soon]="isExpirySoon(lot)" [class.lie-expiry-critical]="isExpiryCritical(lot)">
+                      {{ lot.expiryDate | date: 'dd/MM/yyyy' }}
                     </td>
                     <td class="lie-col-r">{{ lot.quantityReceived }}</td>
                     @if (showUg()) {
                       <td class="lie-col-r">{{ lot.ugQuantityReceived ?? 0 }}</td>
                     }
                     <td class="lie-col-act">
-                      <app-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small" severity="info"
-                                ngbTooltip="Modifier ce lot" placement="top"
-                                (clicked)="onStartEdit(lot)" />
-                      <app-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger"
-                                ngbTooltip="Supprimer ce lot" placement="top"
-                                (clicked)="onConfirmDelete(lot)" />
+                      <app-button
+                        icon="pi pi-pencil"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        severity="info"
+                        ngbTooltip="Modifier ce lot"
+                        placement="top"
+                        (clicked)="onStartEdit(lot)"
+                      />
+                      <app-button
+                        icon="pi pi-trash"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        severity="danger"
+                        ngbTooltip="Supprimer ce lot"
+                        placement="top"
+                        (clicked)="onConfirmDelete(lot)"
+                      />
                     </td>
                   </tr>
                 }
@@ -134,194 +191,229 @@ import { ErrorService } from "../../../../../shared/error.service";
         <!-- Formulaire d'ajout — visible uniquement si la quantité n'est pas couverte et pas en cours d'édition -->
         @if ((remainingQty() > 0 || isUgOnlyMode()) && !editingLot()) {
           <div class="lie-draft">
-            <input #numLotInput [ngModel]="draftNumLot()" (ngModelChange)="draftNumLot.set($event)" placeholder="N° lot"
-                   class="lie-field lie-field--numlot"
-                   (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input [ngModel]="draftExpiry()" (ngModelChange)="draftExpiry.set($event)" placeholder="MM/AAAA" maxlength="7"
-                   class="lie-field lie-field--expiry"
-                   [class.lie-expiry-soon]="expiryWarning() === 'soon'"
-                   [class.lie-expiry-critical]="expiryWarning() === 'critical'"
-                   (ngModelChange)="onExpiryInput($event)"
-                   (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
-            <input type="number" [ngModel]="draftQty()" (ngModelChange)="draftQty.set($event)"
-                   [min]="isUgOnlyMode() ? 0 : 1" [max]="remainingQty()"
-                   [disabled]="isUgOnlyMode()"
-                   placeholder="Qté" class="lie-field lie-field--qty"
-                   (ngModelChange)="onQtyInput($event)"
-                   (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
+            <input
+              #numLotInput
+              [ngModel]="draftNumLot()"
+              (ngModelChange)="draftNumLot.set($event)"
+              placeholder="N° lot"
+              class="lie-field lie-field--numlot"
+              (keydown.tab)="$event.stopPropagation()"
+              (keydown.enter)="onSaveDraft()"
+            />
+            <input
+              [ngModel]="draftExpiry()"
+              (ngModelChange)="draftExpiry.set($event)"
+              placeholder="MM/AAAA"
+              maxlength="7"
+              class="lie-field lie-field--expiry"
+              [class.lie-expiry-soon]="expiryWarning() === 'soon'"
+              [class.lie-expiry-critical]="expiryWarning() === 'critical'"
+              (ngModelChange)="onExpiryInput($event)"
+              (keydown.tab)="$event.stopPropagation()"
+              (keydown.enter)="onSaveDraft()"
+            />
+            <input
+              type="number"
+              [ngModel]="draftQty()"
+              (ngModelChange)="draftQty.set($event)"
+              [min]="isUgOnlyMode() ? 0 : 1"
+              [max]="remainingQty()"
+              [disabled]="isUgOnlyMode()"
+              placeholder="Qté"
+              class="lie-field lie-field--qty"
+              (ngModelChange)="onQtyInput($event)"
+              (keydown.tab)="$event.stopPropagation()"
+              (keydown.enter)="onSaveDraft()"
+            />
             @if (showUg()) {
-              <input type="number" [ngModel]="draftUg()" (ngModelChange)="draftUg.set($event)" [min]="0" [max]="remainingUg()"
-                     placeholder="UG" class="lie-field lie-field--ug"
-                     (ngModelChange)="onUgInput($event)"
-                     (keydown.tab)="$event.stopPropagation()" (keydown.enter)="onSaveDraft()" />
+              <input
+                type="number"
+                [ngModel]="draftUg()"
+                (ngModelChange)="draftUg.set($event)"
+                [min]="0"
+                [max]="remainingUg()"
+                placeholder="UG"
+                class="lie-field lie-field--ug"
+                (ngModelChange)="onUgInput($event)"
+                (keydown.tab)="$event.stopPropagation()"
+                (keydown.enter)="onSaveDraft()"
+              />
             }
-            <app-button icon="pi pi-check" label="Ajouter" size="small" severity="success"
-                      [loading]="saving()" [disabled]="!canSave()" (clicked)="onSaveDraft()" />
+            <app-button
+              icon="pi pi-check"
+              label="Ajouter"
+              size="small"
+              severity="success"
+              [loading]="saving()"
+              [disabled]="!canSave()"
+              (clicked)="onSaveDraft()"
+            />
           </div>
         }
-
       </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`
-    :host {
-      display: block;
-      height: 100%;
-      background: #f0f9ff;
-      border-top: 2px solid #7dd3fc;
-      padding: 4px 10px 4px 16px;
-      box-sizing: border-box;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+        background: #f0f9ff;
+        border-top: 2px solid #7dd3fc;
+        padding: 4px 10px 4px 16px;
+        box-sizing: border-box;
+      }
 
-    .lie-wrap {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      gap: 4px;
-    }
+      .lie-wrap {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 4px;
+      }
 
-    .lie-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2px 0 4px;
-      border-bottom: 1px solid #bae6fd;
-      flex-shrink: 0;
-
-      &__info {
+      .lie-header {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #0369a1;
-      }
-    }
+        justify-content: space-between;
+        padding: 2px 0 4px;
+        border-bottom: 1px solid #bae6fd;
+        flex-shrink: 0;
 
-    .lie-produit {
-      font-size: 0.79rem;
-    }
-
-    .lie-badge {
-      font-size: 0.68rem;
-      padding: 1px 7px;
-      border-radius: 10px;
-
-      &--warn {
-        background: #fef3c7;
-        color: #b45309;
-        font-weight: 700;
+        &__info {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #0369a1;
+        }
       }
 
-      &--ok {
-        background: #d1fae5;
-        color: #065f46;
+      .lie-produit {
+        font-size: 0.79rem;
       }
-    }
 
-    .lie-body {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-height: 0;
-    }
+      .lie-badge {
+        font-size: 0.68rem;
+        padding: 1px 7px;
+        border-radius: 10px;
 
-    .lie-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.77rem;
+        &--warn {
+          background: #fef3c7;
+          color: #b45309;
+          font-weight: 700;
+        }
 
-      th {
-        background: #e0f2fe;
-        padding: 3px 6px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 0.71rem;
-        color: #0369a1;
+        &--ok {
+          background: #d1fae5;
+          color: #065f46;
+        }
+      }
+
+      .lie-body {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-height: 0;
+      }
+
+      .lie-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.77rem;
+
+        th {
+          background: #e0f2fe;
+          padding: 3px 6px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 0.71rem;
+          color: #0369a1;
+          white-space: nowrap;
+        }
+
+        td {
+          padding: 2px 4px;
+          border-bottom: 1px solid #f0f9ff;
+          font-size: 0.77rem;
+          vertical-align: middle;
+        }
+
+        tr:last-child td {
+          border-bottom: none;
+        }
+      }
+
+      .lie-row-editing {
+        background: #fffbeb;
+      }
+
+      .lie-col-r {
+        text-align: right;
+      }
+
+      .lie-col-act {
+        text-align: right;
+        padding: 0;
         white-space: nowrap;
       }
 
-      td {
-        padding: 2px 4px;
-        border-bottom: 1px solid #f0f9ff;
+      .lie-code {
+        font-family: monospace;
         font-size: 0.77rem;
-        vertical-align: middle;
+        color: #0f172a;
       }
 
-      tr:last-child td {
-        border-bottom: none;
-      }
-    }
-
-    .lie-row-editing {
-      background: #fffbeb;
-    }
-
-    .lie-col-r {
-      text-align: right;
-    }
-
-    .lie-col-act {
-      text-align: right;
-      padding: 0;
-      white-space: nowrap;
-    }
-
-    .lie-code {
-      font-family: monospace;
-      font-size: 0.77rem;
-      color: #0f172a;
-    }
-
-    .lie-expiry-soon {
-      color: #b45309;
-      font-weight: 600;
-    }
-
-    .lie-expiry-critical {
-      color: #dc2626;
-      font-weight: 700;
-    }
-
-    .lie-draft {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 0;
-      border-top: 1px dashed #93c5fd;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-
-    .lie-field {
-      height: 28px;
-      font-size: 0.77rem;
-      padding: 0 6px;
-      border-radius: 4px;
-
-      &--numlot {
-        width: 110px;
+      .lie-expiry-soon {
+        color: #b45309;
+        font-weight: 600;
       }
 
-      &--expiry {
-        width: 108px;
+      .lie-expiry-critical {
+        color: #dc2626;
+        font-weight: 700;
       }
 
-      &--qty {
-        width: 58px;
+      .lie-draft {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 0;
+        border-top: 1px dashed #93c5fd;
+        flex-shrink: 0;
+        flex-wrap: wrap;
       }
 
-      &--ug {
-        width: 52px;
+      .lie-field {
+        height: 28px;
+        font-size: 0.77rem;
+        padding: 0 6px;
+        border-radius: 4px;
+
+        &--numlot {
+          width: 110px;
+        }
+
+        &--expiry {
+          width: 108px;
+        }
+
+        &--qty {
+          width: 58px;
+        }
+
+        &--ug {
+          width: 52px;
+        }
       }
-    }
-  `]
+    `,
+  ],
 })
 export class LotInlineEditorComponent implements ICellRendererAngularComp {
-  private readonly numLotInput = viewChild<ElementRef<HTMLInputElement>>("numLotInput");
+  private readonly numLotInput = viewChild<ElementRef<HTMLInputElement>>('numLotInput');
 
   private readonly lotService = inject(LotService);
   private readonly notify = inject(NotificationService);
@@ -332,18 +424,18 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   protected readonly lots = signal<ILot[]>([]);
   protected readonly saving = signal(false);
   protected readonly editingLot = signal<ILot | null>(null);
-  protected readonly expiryWarning = signal<"none" | "soon" | "critical">("none");
-  protected readonly editExpiryWarning = signal<"none" | "soon" | "critical">("none");
+  protected readonly expiryWarning = signal<'none' | 'soon' | 'critical'>('none');
+  protected readonly editExpiryWarning = signal<'none' | 'soon' | 'critical'>('none');
 
   // Draft fields (new lot)
-  protected readonly draftNumLot = signal("");
-  protected readonly draftExpiry = signal("");
+  protected readonly draftNumLot = signal('');
+  protected readonly draftExpiry = signal('');
   protected readonly draftQty = signal<number | null>(null);
   protected readonly draftUg = signal<number | null>(null);
 
   // Edit fields (existing lot)
-  protected readonly editNumLot = signal("");
-  protected readonly editExpiry = signal("");
+  protected readonly editNumLot = signal('');
+  protected readonly editExpiry = signal('');
   protected readonly editQty = signal<number | null>(null);
   protected readonly editUg = signal<number | null>(null);
 
@@ -433,66 +525,70 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
     const qty = this.draftQty()!;
     const max = this.remainingQty();
     if (qty > max) {
-      this.notify.error(`Quantité (${qty}) dépasse le restant (${max})`, "Lot");
+      this.notify.error(`Quantité (${qty}) dépasse le restant (${max})`, 'Lot');
       return;
     }
 
     const ug = this.draftUg() ?? 0;
     const maxUg = this.remainingUg();
     if (ug > maxUg) {
-      this.notify.error(`UG (${ug}) dépasse le restant UG (${maxUg})`, "Lot");
+      this.notify.error(`UG (${ug}) dépasse le restant UG (${maxUg})`, 'Lot');
       return;
     }
 
     const expiryDate = this.formatExpiry(this.draftExpiry());
     if (!expiryDate) {
-      this.notify.error("Format date invalide. Utilisez jj/MM/AAAA (ex: 01/06/2026)", "Lot");
+      this.notify.error('Format date invalide. Utilisez jj/MM/AAAA (ex: 01/06/2026)', 'Lot');
       return;
     }
     if (this.lots().some(l => l.numLot === this.draftNumLot())) {
-      this.notify.error(`Le lot "${this.draftNumLot()}" est déjà enregistré pour cette ligne`, "Lot doublon");
+      this.notify.error(`Le lot "${this.draftNumLot()}" est déjà enregistré pour cette ligne`, 'Lot doublon');
       return;
     }
 
     this.saving.set(true);
-    this.lotService.addLot({
-      numLot: this.draftNumLot(), expiryDate,
-      quantityReceived: qty, ugQuantityReceived: ug,
-      receiptItemId: line.orderLineId
-    }).subscribe({
-      next: res => {
-        const saved = res.body!;
-        const updated = [...this.lots(), saved];
-        this.lots.set(updated);
-        this.draftNumLot.set("");
-        this.draftExpiry.set("");
-        this.expiryWarning.set("none");
-        this.saving.set(false);
-        const rem = this.remainingQty();
-        const remUg = this.remainingUg();
-        if (rem <= 0 && remUg > 0) {
-          this.draftQty.set(0);
-          this.draftUg.set(remUg);
-        } else {
-          this.draftQty.set(rem > 0 ? rem : null);
-          this.draftUg.set(null);
-        }
-        this.params.context.componentParent.onLotSaved(line, updated);
-        if (rem <= 0 && remUg <= 0) setTimeout(() => this.params.context.componentParent.onCollapseRow(line), 600);
-      },
-      error: err => {
-        this.saving.set(false);
-        this.notify.error(this.errorService.getErrorMessage(err) ?? "Erreur lors de l'enregistrement", "Lot");
-      }
-    });
+    this.lotService
+      .addLot({
+        numLot: this.draftNumLot(),
+        expiryDate,
+        quantityReceived: qty,
+        ugQuantityReceived: ug,
+        receiptItemId: line.orderLineId,
+      })
+      .subscribe({
+        next: res => {
+          const saved = res.body!;
+          const updated = [...this.lots(), saved];
+          this.lots.set(updated);
+          this.draftNumLot.set('');
+          this.draftExpiry.set('');
+          this.expiryWarning.set('none');
+          this.saving.set(false);
+          const rem = this.remainingQty();
+          const remUg = this.remainingUg();
+          if (rem <= 0 && remUg > 0) {
+            this.draftQty.set(0);
+            this.draftUg.set(remUg);
+          } else {
+            this.draftQty.set(rem > 0 ? rem : null);
+            this.draftUg.set(null);
+          }
+          this.params.context.componentParent.onLotSaved(line, updated);
+          if (rem <= 0 && remUg <= 0) setTimeout(() => this.params.context.componentParent.onCollapseRow(line), 600);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.notify.error(this.errorService.getErrorMessage(err) ?? "Erreur lors de l'enregistrement", 'Lot');
+        },
+      });
   }
 
   // ── Édition inline ──────────────────────────────────────────────────────────
 
   protected onStartEdit(lot: ILot): void {
     this.editingLot.set(lot);
-    this.editNumLot.set(lot.numLot ?? "");
-    this.editExpiry.set(lot.expiryDate ? this.isoToDisplay(lot.expiryDate) : "");
+    this.editNumLot.set(lot.numLot ?? '');
+    this.editExpiry.set(lot.expiryDate ? this.isoToDisplay(lot.expiryDate) : '');
     this.editQty.set(lot.quantityReceived ?? null);
     this.editUg.set(lot.ugQuantityReceived ?? null);
     this.editExpiryWarning.set(this.calcWarning(this.editExpiry()));
@@ -523,41 +619,45 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
 
     const qty = this.editQty()!;
     if (qty > this.editMaxQty()) {
-      this.notify.error(`Quantité (${qty}) dépasse le maximum autorisé (${this.editMaxQty()})`, "Lot");
+      this.notify.error(`Quantité (${qty}) dépasse le maximum autorisé (${this.editMaxQty()})`, 'Lot');
       return;
     }
 
     const ug = this.editUg() ?? 0;
     if (ug > this.editMaxUg()) {
-      this.notify.error(`UG (${ug}) dépasse le maximum autorisé (${this.editMaxUg()})`, "Lot");
+      this.notify.error(`UG (${ug}) dépasse le maximum autorisé (${this.editMaxUg()})`, 'Lot');
       return;
     }
 
     const expiryDate = this.formatExpiry(this.editExpiry());
     if (!expiryDate) {
-      this.notify.error("Format date invalide. Utilisez jj/MM/AAAA", "Lot");
+      this.notify.error('Format date invalide. Utilisez jj/MM/AAAA', 'Lot');
       return;
     }
 
     this.saving.set(true);
-    this.lotService.editLot({
-      ...editing,
-      numLot: this.editNumLot(), expiryDate,
-      quantityReceived: qty, ugQuantityReceived: ug
-    }).subscribe({
-      next: res => {
-        const saved = res.body!;
-        const updated = this.lots().map(l => l.id === saved.id ? saved : l);
-        this.lots.set(updated);
-        this.editingLot.set(null);
-        this.saving.set(false);
-        this.params.context.componentParent.onLotSaved(this.line()!, updated);
-      },
-      error: err => {
-        this.saving.set(false);
-        this.notify.error(this.errorService.getErrorMessage(err) ?? "Erreur lors de l'enregistrement", "Lot");
-      }
-    });
+    this.lotService
+      .editLot({
+        ...editing,
+        numLot: this.editNumLot(),
+        expiryDate,
+        quantityReceived: qty,
+        ugQuantityReceived: ug,
+      })
+      .subscribe({
+        next: res => {
+          const saved = res.body!;
+          const updated = this.lots().map(l => (l.id === saved.id ? saved : l));
+          this.lots.set(updated);
+          this.editingLot.set(null);
+          this.saving.set(false);
+          this.params.context.componentParent.onLotSaved(this.line()!, updated);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.notify.error(this.errorService.getErrorMessage(err) ?? "Erreur lors de l'enregistrement", 'Lot');
+        },
+      });
   }
 
   // ── Suppression ─────────────────────────────────────────────────────────────
@@ -565,9 +665,9 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
   protected onConfirmDelete(lot: ILot): void {
     this.confirmDialog.onConfirm(
       () => this.doDeleteLot(lot),
-      "Suppression de lot",
+      'Suppression de lot',
       `Supprimer le lot <strong>${lot.numLot}</strong> (qté&nbsp;: ${lot.quantityReceived}) ?`,
-      "pi pi-trash"
+      'pi pi-trash',
     );
   }
 
@@ -580,7 +680,7 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
         const rem = this.remainingQty();
         this.draftQty.set(rem > 0 ? rem : 1);
         this.params.context.componentParent.onLotSaved(this.line()!, updated);
-      }
+      },
     });
   }
 
@@ -604,16 +704,16 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
 
   // Format pharmaceutique standard : MM/AAAA (imprimé sur l'emballage, directive 2001/83/CE)
   private autoFormat(value: string): string {
-    const d = value.replace(/\D/g, "").slice(0, 6);
+    const d = value.replace(/\D/g, '').slice(0, 6);
     if (d.length <= 2) return d;
     return `${d.slice(0, 2)}/${d.slice(2)}`;
   }
 
-  private calcWarning(value: string): "none" | "soon" | "critical" {
+  private calcWarning(value: string): 'none' | 'soon' | 'critical' {
     const parsed = this.parseExpiry(value);
-    if (!parsed) return "none";
+    if (!parsed) return 'none';
     const months = (parsed.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44);
-    return months < 3 ? "critical" : months < 6 ? "soon" : "none";
+    return months < 3 ? 'critical' : months < 6 ? 'soon' : 'none';
   }
 
   private isoToDisplay(iso: string): string {
@@ -641,6 +741,6 @@ export class LotInlineEditorComponent implements ICellRendererAngularComp {
     const yr = parseInt(m[2], 10);
     if (mo < 1 || mo > 12 || yr < 2000) return null;
     const lastDay = new Date(yr, mo, 0).getDate();
-    return `${yr}-${String(mo).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    return `${yr}-${String(mo).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   }
 }

@@ -1,17 +1,13 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, SelectComponent} from '../../../../../../shared/ui';
-import {CommandeId} from '../../../../../../shared/model/abstract-commande.model';
-import {
-  ILigneRetour,
-  IVerificationItem,
-  MotifRetour
-} from '../../../../../../shared/model/pharmaml.model';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SelectComponent } from '../../../../../../shared/ui';
+import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
+import { ILigneRetour, IVerificationItem, MotifRetour } from '../../../../../../shared/model/pharmaml.model';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
 
 interface LigneRetourRow extends IVerificationItem {
   selected: boolean;
@@ -20,11 +16,11 @@ interface LigneRetourRow extends IVerificationItem {
 }
 
 const MOTIFS: { value: MotifRetour; label: string }[] = [
-  {value: 'AVARIE', label: 'Avarie'},
-  {value: 'NON_CONFORME', label: 'Non conforme'},
-  {value: 'PERIME', label: 'Périmé'},
-  {value: 'ERREUR_LIVRAISON', label: 'Erreur de livraison'},
-  {value: 'EXCEDENT', label: 'Excédent'},
+  { value: 'AVARIE', label: 'Avarie' },
+  { value: 'NON_CONFORME', label: 'Non conforme' },
+  { value: 'PERIME', label: 'Périmé' },
+  { value: 'ERREUR_LIVRAISON', label: 'Erreur de livraison' },
+  { value: 'EXCEDENT', label: 'Excédent' },
 ];
 
 @Component({
@@ -39,15 +35,11 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
     </div>
     <div class="modal-body">
       @if (loading()) {
-        <div class="text-center py-3">
-          <i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes reçues...
-        </div>
+        <div class="text-center py-3"><i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes reçues...</div>
       } @else if (lignes().length === 0) {
         <div class="alert alert-info">Aucune ligne reçue trouvée pour cette commande.</div>
       } @else {
-        <p class="text-muted mb-3">
-          Sélectionnez les produits à retourner, précisez la quantité et le motif pour chaque ligne.
-        </p>
+        <p class="text-muted mb-3">Sélectionnez les produits à retourner, précisez la quantité et le motif pour chaque ligne.</p>
         <app-data-table [value]="lignes()" class="p-datatable-sm ">
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -65,7 +57,9 @@ const MOTIFS: { value: MotifRetour; label: string }[] = [
               </td>
               <td>
                 <div class="fw-medium">{{ row.produitLibelle }}</div>
-                <small class="text-muted"><code>{{ row.codeCip || row.codeEan }}</code></small>
+                <small class="text-muted"
+                  ><code>{{ row.codeCip || row.codeEan }}</code></small
+                >
               </td>
               <td class="text-center">{{ row.quantitePriseEnCompte }}</td>
               <td class="text-center">
@@ -137,10 +131,9 @@ export class RetourPharmamlComponent implements OnInit {
         );
         this.loading.set(false);
       },
-      error: (err) => {
+      error: err => {
         this.loading.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
-
       },
     });
   }
@@ -169,7 +162,7 @@ export class RetourPharmamlComponent implements OnInit {
         this.sending.set(false);
         this.activeModal.close('retourne');
       },
-      error: (err) => {
+      error: err => {
         this.sending.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },

@@ -21,12 +21,12 @@ public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout
      * (sans propriétaire, livrés par migration pour l'accueil par rôle) n'y figurent pas.
      */
     @Query(
-        "SELECT dl FROM DashboardLayout dl WHERE dl.user = :user OR (dl.scope = 'PUBLIC' AND dl.user IS NOT NULL) ORDER BY dl.updatedAt DESC"
-    )
+            "SELECT dl FROM DashboardLayout dl WHERE dl.user = :user OR (dl.scope = 'PUBLIC' AND dl.user IS NOT NULL) ORDER BY dl.updatedAt DESC")
     List<DashboardLayout> findByUserOrPublic(@Param("user") AppUser user);
 
     /** Layouts publics créés par des utilisateurs, hors layouts système. */
-    @Query("SELECT dl FROM DashboardLayout dl WHERE dl.scope = 'PUBLIC' AND dl.user IS NOT NULL ORDER BY dl.updatedAt DESC")
+    @Query(
+            "SELECT dl FROM DashboardLayout dl WHERE dl.scope = 'PUBLIC' AND dl.user IS NOT NULL ORDER BY dl.updatedAt DESC")
     List<DashboardLayout> findPublicUserLayouts();
 
     /** Tous les layouts marqués par défaut de l'utilisateur, quelle que soit leur portée. */
@@ -51,5 +51,4 @@ public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout
      * Find by user and name
      */
     Optional<DashboardLayout> findByUserAndName(AppUser user, String name);
-
 }

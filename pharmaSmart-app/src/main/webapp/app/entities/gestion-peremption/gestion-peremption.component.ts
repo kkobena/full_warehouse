@@ -1,21 +1,23 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
-import { AbilityService } from "app/core/auth/ability.service";
-import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase } from "@ng-bootstrap/ng-bootstrap";
-import { TranslatePipe } from "@ngx-translate/core";
-import { LotPerimesComponent } from "./lot-perimes/lot-perimes.component";
-import { LotADetruireComponent } from "./lot-a-detruire/lot-a-detruire.component";
-import { LotService } from "../commande/lot/lot.service";
-import { ProductToDestroyService } from "./product-to-destroy.service";
-import { LotFilterParam } from "./model/lot-perimes";
-import { ProductToDestroyFilter } from "./model/product-to-destroy";
-import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase } from '@ng-bootstrap/ng-bootstrap';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LotPerimesComponent } from './lot-perimes/lot-perimes.component';
+import { LotADetruireComponent } from './lot-a-detruire/lot-a-detruire.component';
+import { LotService } from '../commande/lot/lot.service';
+import { ProductToDestroyService } from './product-to-destroy.service';
+import { LotFilterParam } from './model/lot-perimes';
+import { ProductToDestroyFilter } from './model/product-to-destroy';
+import { CommonModule } from '@angular/common';
 
-import { NavSidebarComponent } from "app/shared/ui/nav-sidebar/nav-sidebar.component";
-import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-link.component";
+import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
+import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 
 @Component({
-  selector: "app-gestion-peremption",
-  imports: [NavSidebarComponent, NavSectionLinkComponent,
+  selector: 'app-gestion-peremption',
+  imports: [
+    NavSidebarComponent,
+    NavSectionLinkComponent,
     NgbNav,
     NgbNavContent,
     NgbNavItem,
@@ -24,14 +26,14 @@ import { NavSectionLinkComponent } from "app/shared/ui/nav-sidebar/nav-section-l
     TranslatePipe,
     LotPerimesComponent,
     LotADetruireComponent,
-    CommonModule
+    CommonModule,
   ],
-  templateUrl: "./gestion-peremption.component.html",
+  templateUrl: './gestion-peremption.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./gestion-peremption.scss"]
+  styleUrls: ['./gestion-peremption.scss'],
 })
 export class GestionPeremptionComponent implements OnInit {
-  protected active = "lot-perimes";
+  protected active = 'lot-perimes';
 
   /** Menu replié : rend la largeur au contenu quand il en manque. */
   protected readonly menuReplie = signal(false);
@@ -41,8 +43,8 @@ export class GestionPeremptionComponent implements OnInit {
 
   private readonly ability = inject(AbilityService);
 
-  protected readonly showLotPerimes = this.ability.canSignal("display", "peremptions.lot-perimes");
-  protected readonly showLotADetruire = this.ability.canSignal("display", "peremptions.lot-a-detruire");
+  protected readonly showLotPerimes = this.ability.canSignal('display', 'peremptions.lot-perimes');
+  protected readonly showLotADetruire = this.ability.canSignal('display', 'peremptions.lot-a-detruire');
   private readonly lotService = inject(LotService);
   private readonly productToDestroyService = inject(ProductToDestroyService);
 
@@ -62,7 +64,7 @@ export class GestionPeremptionComponent implements OnInit {
       },
       error: () => {
         this.lotPerimesCount.set(0);
-      }
+      },
     });
     this.productToDestroyService.getSum({ destroyed: false, editing: false } as ProductToDestroyFilter).subscribe({
       next: res => {
@@ -70,7 +72,7 @@ export class GestionPeremptionComponent implements OnInit {
       },
       error: () => {
         this.lotADetruireCount.set(0);
-      }
+      },
     });
   }
 }

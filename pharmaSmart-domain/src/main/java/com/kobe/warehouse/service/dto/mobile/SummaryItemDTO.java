@@ -9,13 +9,7 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param secondValue Secondary value (if applicable)
  * @param type     Item type (AMOUNT, COUNT, PERCENT)
  */
-public record SummaryItemDTO(
-    String key,
-    String libelle,
-    long value,
-    long secondValue,
-    String type
-) {
+public record SummaryItemDTO(String key, String libelle, long value, long secondValue, String type) {
     public static final String TYPE_AMOUNT = "AMOUNT";
     public static final String TYPE_COUNT = "COUNT";
     public static final String TYPE_PERCENT = "PERCENT";

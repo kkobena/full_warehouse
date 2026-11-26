@@ -32,10 +32,9 @@ public class SecurityConfiguration {
     private final Environment environment;
 
     public SecurityConfiguration(
-        LogProperties logProperties,
-        JwtAuthenticationConverter jwtAuthenticationConverter,
-        Environment environment
-    ) {
+            LogProperties logProperties,
+            JwtAuthenticationConverter jwtAuthenticationConverter,
+            Environment environment) {
         this.logProperties = logProperties;
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
         this.environment = environment;
@@ -53,94 +52,76 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            .cors(withDefaults())
-            // Disable CSRF for stateless JWT authentication
-            .csrf(AbstractHttpConfigurer::disable)
-            // Stateless session management (no server-side sessions)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Security headers
-            .headers(headers ->
-                headers
-                    .contentSecurityPolicy(csp -> csp.policyDirectives(logProperties.getSecurity().getContentSecurityPolicy()))
-                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                    .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                    .permissionsPolicyHeader(permissions ->
-                        permissions.policy(
-                            "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"
-                        )
-                    )
-            )
-            // Apply to all requests
-            .securityMatcher(request -> true)
-            // Authorization rules
-            .authorizeHttpRequests(authz ->
-                authz
-                    // Public endpoints
-                    .requestMatchers(
-                        PathRequest.toStaticResources().atCommonLocations(),
-                        request -> request.getRequestURI().matches(".*\\.(js|txt|json|map|css|ttf|woff2|eot|woff|ico|png|svg|webapp)$"),
-                        request -> request.getRequestURI().startsWith("/app/"),
-                        request -> request.getRequestURI().startsWith("/i18n/"),
-                        request -> request.getRequestURI().startsWith("/content/"),
-                        request -> request.getRequestURI().startsWith("/api/auth/"), // JWT login endpoint
-                        request -> request.getRequestURI().equals("/api/register"),
-                        request -> request.getRequestURI().equals("/api/activate"),
-                        request -> request.getRequestURI().equals("/api/account/reset-password/init"),
-                        request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
-                        // Relais de mise à jour des postes clients : l'updater interroge cet
-                        // endpoint au démarrage du poste, avant toute session, et n'a aucun jeton à
-                        // présenter. En lecture seule, sur le LAN de l'officine, et l'intégrité de
-                        // ce qui est téléchargé repose sur la signature minisign, pas sur l'accès.
-                        request -> request.getRequestURI().startsWith("/api/updates/"),
-                        request -> request.getRequestURI().equals("/management/health"),
-                        request -> request.getRequestURI().startsWith("/management/health/"),
-                        request -> request.getRequestURI().equals("/management/info"),
-                        request -> request.getRequestURI().equals("/index.html"),
-                        request -> request.getRequestURI().equals("/")
-                    )
-                    .permitAll()
-                    // La description de l'API en donne la carte complète : publique en dev
-                    // seulement, réservée à l'administrateur ailleurs.
-                    .requestMatchers(
-                        request -> request.getRequestURI().startsWith("/swagger-ui/"),
-                        request -> request.getRequestURI().startsWith("/v3/api-docs")
-                    )
-                    .access((authentication, context) ->
-                        new AuthorizationDecision(
-                            environment.matchesProfiles("dev") ||
-                            authentication
-                                .get()
-                                .getAuthorities()
-                                .stream()
-                                .anyMatch(a -> AuthoritiesConstants.ADMIN.equals(a.getAuthority()))
-                        )
-                    )
-                    // Admin-only endpoints (excluding public health/info endpoints)
-                    .requestMatchers(
-                        request -> request.getRequestURI().startsWith("/api/admin/"),
-                        request -> {
+        http.cors(withDefaults())
+                // Disable CSRF for stateless JWT authentication
+                .csrf(AbstractHttpConfigurer::disable)
+                // Stateless session management (no server-side sessions)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Security headers
+                .headers(
+                        headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives(
+                                        logProperties.getSecurity().getContentSecurityPolicy()))
+                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                                .referrerPolicy(referrer -> referrer.policy(
+                                        ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                                .permissionsPolicyHeader(
+                                        permissions -> permissions.policy(
+                                                "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()")))
+                // Apply to all requests
+                .securityMatcher(request -> true)
+                // Authorization rules
+                .authorizeHttpRequests(authz -> authz
+                        // Public endpoints
+                        .requestMatchers(
+                                PathRequest.toStaticResources().atCommonLocations(),
+                                request -> request.getRequestURI()
+                                        .matches(".*\\.(js|txt|json|map|css|ttf|woff2|eot|woff|ico|png|svg|webapp)$"),
+                                request -> request.getRequestURI().startsWith("/app/"),
+                                request -> request.getRequestURI().startsWith("/i18n/"),
+                                request -> request.getRequestURI().startsWith("/content/"),
+                                request -> request.getRequestURI().startsWith("/api/auth/"), // JWT login endpoint
+                                request -> request.getRequestURI().equals("/api/register"),
+                                request -> request.getRequestURI().equals("/api/activate"),
+                                request -> request.getRequestURI().equals("/api/account/reset-password/init"),
+                                request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
+                                // Relais de mise à jour des postes clients : l'updater interroge cet
+                                // endpoint au démarrage du poste, avant toute session, et n'a aucun jeton à
+                                // présenter. En lecture seule, sur le LAN de l'officine, et l'intégrité de
+                                // ce qui est téléchargé repose sur la signature minisign, pas sur l'accès.
+                                request -> request.getRequestURI().startsWith("/api/updates/"),
+                                request -> request.getRequestURI().equals("/management/health"),
+                                request -> request.getRequestURI().startsWith("/management/health/"),
+                                request -> request.getRequestURI().equals("/management/info"),
+                                request -> request.getRequestURI().equals("/index.html"),
+                                request -> request.getRequestURI().equals("/"))
+                        .permitAll()
+                        // La description de l'API en donne la carte complète : publique en dev
+                        // seulement, réservée à l'administrateur ailleurs.
+                        .requestMatchers(
+                                request -> request.getRequestURI().startsWith("/swagger-ui/"),
+                                request -> request.getRequestURI().startsWith("/v3/api-docs"))
+                        .access((authentication, context) ->
+                                new AuthorizationDecision(environment.matchesProfiles("dev")
+                                        || authentication.get().getAuthorities().stream()
+                                                .anyMatch(a -> AuthoritiesConstants.ADMIN.equals(a.getAuthority()))))
+                        // Admin-only endpoints (excluding public health/info endpoints)
+                        .requestMatchers(request -> request.getRequestURI().startsWith("/api/admin/"), request -> {
                             String uri = request.getRequestURI();
-                            return (
-                                uri.startsWith("/management/") &&
-                                !uri.equals("/management/health") &&
-                                !uri.startsWith("/management/health/")
-                            );
-                        }
-                    )
-                    .hasAuthority(AuthoritiesConstants.ADMIN)
-                    // All other /api/** endpoints require authentication
-                    .requestMatchers(request -> request.getRequestURI().startsWith("/api/"))
-                    .authenticated()
-            )
-            // Return 401 Unauthorized for unauthenticated API requests
-            .exceptionHandling(exceptionHandling ->
-                exceptionHandling.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), request ->
-                    request.getRequestURI().startsWith("/api/")
-                )
-            )
-            // OAuth2 Resource Server: Validate JWT tokens
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
+                            return (uri.startsWith("/management/")
+                                    && !uri.equals("/management/health")
+                                    && !uri.startsWith("/management/health/"));
+                        })
+                        .hasAuthority(AuthoritiesConstants.ADMIN)
+                        // All other /api/** endpoints require authentication
+                        .requestMatchers(request -> request.getRequestURI().startsWith("/api/"))
+                        .authenticated())
+                // Return 401 Unauthorized for unauthenticated API requests
+                .exceptionHandling(exceptionHandling -> exceptionHandling.defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        request -> request.getRequestURI().startsWith("/api/")))
+                // OAuth2 Resource Server: Validate JWT tokens
+                .oauth2ResourceServer(
+                        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();
     }
 }

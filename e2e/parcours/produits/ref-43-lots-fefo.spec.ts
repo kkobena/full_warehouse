@@ -42,8 +42,9 @@ scenario('REF-43', async ({ etape, page }) => {
     // L'ordre ne dit rien des quantités. Les lots ne peuvent pas porter plus que le stock du
     // produit : s'ils le dépassaient, FEFO allouerait des unités qui n'existent pas. L'égalité
     // n'est pas exigible — tout le stock n'est pas tracé par lot — mais le dépassement, si.
-    const quantites = (await onglet.locator('.fefo-row:not(.fefo-head) .fefo-qty').allInnerTexts())
-      .map(q => Number(q.replace(/[^\d-]/g, '')));
+    const quantites = (await onglet.locator('.fefo-row:not(.fefo-head) .fefo-qty').allInnerTexts()).map(q =>
+      Number(q.replace(/[^\d-]/g, '')),
+    );
     const sommeDesLots = quantites.reduce((a, b) => a + b, 0);
     // Le total n'a plus de zone propre dans l'onglet : on le lit dans l'en-tête du produit
     // (« Stock 19 u »), qui reste affiché au-dessus des onglets.
@@ -51,7 +52,6 @@ scenario('REF-43', async ({ etape, page }) => {
     const stockTotal = Number(/Stock\s+([\d\s]+)\s*u\b/.exec(entete)?.[1]?.replace(/\s/g, '') ?? NaN);
 
     expect(sommeDesLots, 'des lots sans quantité ne seraient pas des lots').toBeGreaterThan(0);
-    expect(sommeDesLots, 'les lots ne peuvent excéder le stock du produit')
-      .toBeLessThanOrEqual(stockTotal);
+    expect(sommeDesLots, 'les lots ne peuvent excéder le stock du produit').toBeLessThanOrEqual(stockTotal);
   });
 });

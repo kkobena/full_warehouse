@@ -168,6 +168,7 @@ public class LicenseState implements Serializable {
 
     @Override
     public String toString() {
-        return "LicenseState{licenseId='" + licenseId + "', expiresAt=" + expiresAt + ", activatedAt=" + activatedAt + '}';
+        return "LicenseState{licenseId='" + licenseId + "', expiresAt=" + expiresAt + ", activatedAt=" + activatedAt
+                + '}';
     }
 }

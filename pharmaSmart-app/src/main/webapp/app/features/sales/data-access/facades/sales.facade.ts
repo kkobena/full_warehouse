@@ -87,9 +87,7 @@ export class SalesFacade {
   // ============================================
 
   /** Shared observable of all store events (skips initial null) */
-  private readonly lastEvent$ = toObservable(this.store.lastEvent).pipe(
-    filter((e): e is SaleEvent => e !== null),
-  );
+  private readonly lastEvent$ = toObservable(this.store.lastEvent).pipe(filter((e): e is SaleEvent => e !== null));
 
   /** Helper: filter lastEvent$ by type and map to void */
   private eventOf(type: SaleEvent['type']) {

@@ -14,6 +14,7 @@ public class MvStockValuationByRayonView extends StockValuationView {
 
     @Column(name = "rayon")
     private String rayon;
+
     @Column(name = "rayon_id")
     private Integer rayonId;
 

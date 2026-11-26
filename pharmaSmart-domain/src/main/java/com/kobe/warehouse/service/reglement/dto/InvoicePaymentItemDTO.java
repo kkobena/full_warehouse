@@ -31,7 +31,8 @@ public class InvoicePaymentItemDTO {
         AssuredCustomer assuredCustomer = clientTiersPayant.getAssuredCustomer();
         this.customer = assuredCustomer.getFirstName() + " " + assuredCustomer.getLastName();
         this.customerMatricule = clientTiersPayant.getNum();
-        this.montantRestant = NumberUtil.formatToString(invoicePaymentItem.getAmount() - invoicePaymentItem.getPaidAmount());
+        this.montantRestant =
+                NumberUtil.formatToString(invoicePaymentItem.getAmount() - invoicePaymentItem.getPaidAmount());
     }
 
     public String getMontantRestant() {

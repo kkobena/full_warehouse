@@ -1,5 +1,10 @@
 package com.kobe.warehouse.service.stock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -8,6 +13,9 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.Constant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,15 +27,6 @@ import org.mockito.quality.Strictness;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("DeliveryReceiptReportReportService")
@@ -36,14 +35,14 @@ class DeliveryReceiptReportReportServiceTest {
     /**
      * Gabarit minimal : Flying Saucer rend reellement, il lui faut du XHTML valide.
      */
-    private static final String HTML = "<html><head><title>BL</title></head><body><p>bon de livraison</p></body></html>";
+    private static final String HTML =
+            "<html><head><title>BL</title></head><body><p>bon de livraison</p></body></html>";
 
     @Mock
     private SpringTemplateEngine templateEngine;
 
     @Mock
     private StorageService storageService;
-
 
     private DeliveryReceiptReportReportService service;
 
@@ -115,11 +114,11 @@ class DeliveryReceiptReportReportServiceTest {
         service.export(commande);
 
         assertThat(service.getParameters())
-            .containsEntry(Constant.MAGASIN, magasin)
-            .containsEntry(Constant.ENTITY, commande)
-            .containsEntry(Constant.ITEM_SIZE, 3)
-            .containsEntry(Constant.IS_LAST_PAGE, true)
-            .containsEntry(Constant.PAGE_COUNT, "1/1");
+                .containsEntry(Constant.MAGASIN, magasin)
+                .containsEntry(Constant.ENTITY, commande)
+                .containsEntry(Constant.ITEM_SIZE, 3)
+                .containsEntry(Constant.IS_LAST_PAGE, true)
+                .containsEntry(Constant.PAGE_COUNT, "1/1");
         // La devise n'est plus posee ici : elle vient de la configuration, via le contexte commun.
         assertThat(service.getParameters()).doesNotContainKey(Constant.DEVISE);
     }
@@ -130,8 +129,8 @@ class DeliveryReceiptReportReportServiceTest {
         service.export(commande(lignes(1)));
 
         assertThat((String) service.getParameters().get(Constant.FOOTER))
-            .contains("RC N° RC-001")
-            .contains("Tel: 0102030405");
+                .contains("RC N° RC-001")
+                .contains("Tel: 0102030405");
     }
 
     @Test
@@ -142,8 +141,8 @@ class DeliveryReceiptReportReportServiceTest {
         service.export(commande);
 
         assertThat(commande.getOrderLines())
-            .extracting(l -> l.getFournisseurProduit().getCodeCip())
-            .containsExactly("1111111", "5555555", "9999999");
+                .extracting(l -> l.getFournisseurProduit().getCodeCip())
+                .containsExactly("1111111", "5555555", "9999999");
     }
 
     @Test

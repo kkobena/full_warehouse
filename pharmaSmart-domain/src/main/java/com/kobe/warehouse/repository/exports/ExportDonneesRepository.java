@@ -17,5 +17,6 @@ public interface ExportDonneesRepository {
      * @param au fin de la période, ignorée par un export sans période
      * @param filtres valeurs retenues par filtre, en texte ; les filtres que l'export n'annonce pas sont ignorés
      */
-    Stream<Object[]> lireLignes(ExportDonnees export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres);
+    Stream<Object[]> lireLignes(
+            ExportDonnees export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres);
 }

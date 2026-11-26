@@ -1,10 +1,10 @@
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, ChangeDetectionStrategy, input } from '@angular/core';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { catchError, finalize, switchMap, tap } from "rxjs/operators";
-import { forkJoin, of, Subject } from "rxjs";
-import { FormsModule } from "@angular/forms";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppPillOption,
   ButtonComponent,
@@ -12,35 +12,36 @@ import {
   MultiSelectComponent,
   PillSelectorComponent,
   SelectComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+  ToolbarComponent,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 
-import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
-import { INVOICES_STATUT } from "../../../../shared/constants/data-constants";
-import { CodeValue } from "../../../../shared/code-value";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ITiersPayant } from "../../../../shared/model";
-import { IGroupeTiersPayant } from "../../../../shared/model/groupe-tierspayant.model";
-import { TiersPayantService } from "../../../../entities/tiers-payant/tierspayant.service";
-import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-payant/groupe-tierspayant.service";
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
+import { INVOICES_STATUT } from '../../../../shared/constants/data-constants';
+import { CodeValue } from '../../../../shared/code-value';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ITiersPayant } from '../../../../shared/model';
+import { IGroupeTiersPayant } from '../../../../shared/model/groupe-tierspayant.model';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
+import { GroupeTiersPayantService } from '../../../../entities/groupe-tiers-payant/groupe-tierspayant.service';
 
-import { AbilityService } from "app/core/auth/ability.service";
-import { FacturationStore } from "../../data-access/store/facturation.store";
-import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { IFacture, IFactureKpiParams, IInvoiceSearchParams, TypeFacture } from "../../data-access/models";
-import { FactureKpiBannerComponent } from "../../ui/facture-kpi-banner/facture-kpi-banner.component";
-import { FactureListComponent } from "../../ui/facture-list/facture-list.component";
-import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
-import { TranslateService } from "@ngx-translate/core";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { AbilityService } from 'app/core/auth/ability.service';
+import { FacturationStore } from '../../data-access/store/facturation.store';
+import { FactureApiService } from '../../data-access/services/facture-api.service';
+import { IFacture, IFactureKpiParams, IInvoiceSearchParams, TypeFacture } from '../../data-access/models';
+import { FactureKpiBannerComponent } from '../../ui/facture-kpi-banner/facture-kpi-banner.component';
+import { FactureListComponent } from '../../ui/facture-list/facture-list.component';
+import { FactureDetailPanelComponent } from '../../ui/facture-detail-panel/facture-detail-panel.component';
+import { TranslateService } from '@ngx-translate/core';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({
-  selector: "app-facturation-home",
-  imports: [CardComponent,
+  selector: 'app-facturation-home',
+  imports: [
+    CardComponent,
     HintComponent,
     FormsModule,
     ButtonComponent,
@@ -52,11 +53,11 @@ import { CardComponent } from 'app/shared/ui';
     ToolbarComponent,
     FactureKpiBannerComponent,
     FactureListComponent,
-    FactureDetailPanelComponent
+    FactureDetailPanelComponent,
   ],
-  templateUrl: "./facturation-home.component.html",
+  templateUrl: './facturation-home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./facturation-home.component.scss"
+  styleUrl: './facturation-home.component.scss',
 })
 export class FacturationHomeComponent implements OnInit {
   /**
@@ -75,8 +76,8 @@ export class FacturationHomeComponent implements OnInit {
 
   private readonly ability = inject(AbilityService);
   protected readonly canExecute = this.ability.canSignal('execute', 'factures');
-  protected readonly canDelete  = this.ability.canSignal('delete',  'factures');
-  protected readonly canExport  = this.ability.canSignal('export',  'factures');
+  protected readonly canDelete = this.ability.canSignal('delete', 'factures');
+  protected readonly canExport = this.ability.canSignal('export', 'factures');
 
   // Toolbar state
   protected readonly statutOptions: CodeValue[] = INVOICES_STATUT;
@@ -86,14 +87,14 @@ export class FacturationHomeComponent implements OnInit {
   protected typeFacture: TypeFacture = 'INDIVIDUAL';
   protected readonly typeFactureOptions: AppPillOption[] = [
     { label: 'Individuelles', value: 'INDIVIDUAL', icon: 'pi pi-file' },
-    { label: 'Groupées', value: 'GROUPED', icon: 'pi pi-copy' }
+    { label: 'Groupées', value: 'GROUPED', icon: 'pi pi-copy' },
   ];
 
   /** `null` = définitives ET provisoires : le paramètre n'est alors pas envoyé. */
   protected factureProvisoire: boolean | null = false;
   protected readonly factureProvisoireOptions: AppPillOption[] = [
     { label: 'Définitives', value: false },
-    { label: 'Provisoires', value: true }
+    { label: 'Provisoires', value: true },
   ];
 
   /** Le type pilote aussi le filtre affiché (tiers-payant ou groupe) et les indicateurs. */
@@ -103,7 +104,7 @@ export class FacturationHomeComponent implements OnInit {
   protected readonly deleteAllSpinner = signal(false);
   protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
-  protected search = "";
+  protected search = '';
   protected selectedStatut: string | null = null;
   protected readonly tiersPayants = signal<ITiersPayant[]>([]);
   protected readonly selectedTiersPayants = signal<ITiersPayant[]>([]);
@@ -113,7 +114,6 @@ export class FacturationHomeComponent implements OnInit {
 
   // Signal transmis à la liste pour déclencher la recherche
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
-
 
   private readonly kpiReload$ = new Subject<void>();
 
@@ -129,7 +129,7 @@ export class FacturationHomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    this.translate.use("fr");
+    this.translate.use('fr');
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
@@ -137,24 +137,19 @@ export class FacturationHomeComponent implements OnInit {
 
     this.kpiReload$
       .pipe(
-
         switchMap(() =>
           this.factureApiService.getKpi(this.buildKpiParams()).pipe(
             catchError((err: unknown) => {
               // Une erreur avalée en silence laissait la bannière vide sans rien dire — donc
               // indiscernable d'un appel qui n'aurait jamais eu lieu.
-              this.notificationService.error(
-                this.errorService.getErrorMessage(err),
-                "Indicateurs de facturation"
-              );
+              this.notificationService.error(this.errorService.getErrorMessage(err), 'Indicateurs de facturation');
               return of(null);
-            })
-          )
+            }),
+          ),
         ),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(res => this.store.setKpi(res?.body ?? null));
-
 
     let premierPassage = true;
     effect(() => {
@@ -195,14 +190,15 @@ export class FacturationHomeComponent implements OnInit {
     this.loadingExport.set(true);
     this.factureApiService
       .exportExcel(this.buildSearchParams())
-      .pipe(finalize(() => (this.loadingExport.set(false))), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loadingExport.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: blob => {
-          this.downloadDocumentService.downloadExcel(blob, "factures");
-
+          this.downloadDocumentService.downloadExcel(blob, 'factures');
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Export Excel")
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Export Excel'),
       });
   }
 
@@ -210,25 +206,23 @@ export class FacturationHomeComponent implements OnInit {
     const selected = this.store.selectedFactures();
     this.confirmDialog.onConfirm(
       () => this.deleteAll(selected),
-      "Suppression",
-      `Supprimer les ${selected.length} facture(s) sélectionnée(s) ?`
+      'Suppression',
+      `Supprimer les ${selected.length} facture(s) sélectionnée(s) ?`,
     );
   }
-
-
 
   searchTiersPayant(query: string): void {
     this.tiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayants.set(res.body ?? [])));
+      .subscribe(res => this.tiersPayants.set(res.body ?? []));
   }
 
   searchGroupTiersPayant(query: string): void {
     this.groupeTiersPayantService
       .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.groupeTiersPayants.set(res.body ?? [])));
+      .subscribe(res => this.groupeTiersPayants.set(res.body ?? []));
   }
 
   private deleteAll(selected: IFacture[]): void {
@@ -258,7 +252,7 @@ export class FacturationHomeComponent implements OnInit {
     // PAS de takeUntilDestroyed : on laisse les requêtes HTTP se terminer
     // naturellement pour éviter "message channel closed before a response was received"
     forkJoin(deletes$)
-      .pipe(finalize(() => (this.deleteAllSpinner.set(false))))
+      .pipe(finalize(() => this.deleteAllSpinner.set(false)))
       .subscribe({
         next: () => {
           this.store.clearSelection();
@@ -283,14 +277,12 @@ export class FacturationHomeComponent implements OnInit {
     const params: IFactureKpiParams = {
       fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate),
-      typeFacture: this.typeFacture
+      typeFacture: this.typeFacture,
     };
-
 
     if (this.factureProvisoire !== null) {
       params.factureProvisoire = this.factureProvisoire;
     }
-
 
     const tiersPayants = this.selectedTiersPayants();
     if (!this.factureGroupees && tiersPayants.length === 1) {
@@ -310,7 +302,7 @@ export class FacturationHomeComponent implements OnInit {
       search: this.search || undefined,
       typeFacture: this.typeFacture,
       groupIds: this.selectedGroupeTiersPayants().map(g => g.id),
-      tiersPayantIds: this.selectedTiersPayants().map(t => t.id)
+      tiersPayantIds: this.selectedTiersPayants().map(t => t.id),
     };
     // Omettre le paramètre plutôt que d'envoyer `null` : c'est son absence qui vaut
     // « définitives ET provisoires » côté serveur.

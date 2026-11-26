@@ -4,16 +4,13 @@
       <i class="pi pi-user-edit"></i>
       Modification client - Vente N° {{ sale.numberTransaction }}
     </h4>
-    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-            type="button">&times;
-    </button>
+    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
   </div>
 
   <div class="modal-body">
     <!-- Sale Info Summary -->
     <app-kpi-strip stripClass="mb-2">
-      <app-kpi-item [value]="sale.cassier?.abbrName" icon="pi pi-user" label="Caissier"
-      info="Caissier ayant encaissé cette vente." />
+      <app-kpi-item [value]="sale.cassier?.abbrName" icon="pi pi-user" label="Caissier" info="Caissier ayant encaissé cette vente." />
       <app-kpi-item
         [accent]="'primary'"
         [value]="sale.salesAmount | number"
@@ -24,12 +21,20 @@
         suffix=" F"
         valueClass="text-primary"
       />
-      <app-kpi-item [value]="sale.partTiersPayant | number" icon="pi pi-building" label="Part T.P"
-      info="Part prise en charge par les tiers payants de cette vente : ce qui leur sera facturé."
-                    suffix=" F" />
-      <app-kpi-item [value]="sale.partAssure | number" icon="pi pi-user-plus" label="Part Assuré"
-      info="Part restant à la charge du client, remises et plafonds déjà appliqués."
-                    suffix=" F" />
+      <app-kpi-item
+        [value]="sale.partTiersPayant | number"
+        icon="pi pi-building"
+        label="Part T.P"
+        info="Part prise en charge par les tiers payants de cette vente : ce qui leur sera facturé."
+        suffix=" F"
+      />
+      <app-kpi-item
+        [value]="sale.partAssure | number"
+        icon="pi pi-user-plus"
+        label="Part Assuré"
+        info="Part restant à la charge du client, remises et plafonds déjà appliqués."
+        suffix=" F"
+      />
     </app-kpi-strip>
 
     <!-- Customer Cards Section -->
@@ -54,28 +59,21 @@
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_num">Matricule <span class="required">*</span></label>
-              <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                     formControlName="num"
-                     id="field_num" type="text" />
+              <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="num" id="field_num" type="text" />
             </div>
             <div class="form-field-inline">
               <label for="field_phone">Tél.</label>
-              <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
-                     formControlName="phone"
-                     id="field_phone" type="text" />
+              <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="phone" id="field_phone" type="text" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-field-inline">
               <label for="field_lastName">Nom <span class="required">*</span></label>
-              <input autocomplete="off" class="form-control" formControlName="lastName"
-                     id="field_lastName"
-                     type="text" />
+              <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" type="text" />
             </div>
             <div class="form-field-inline">
               <label for="field_firstName">Prénom <span class="required">*</span></label>
-              <input autocomplete="off" class="form-control" formControlName="firstName"
-                     id="field_firstName" type="text" />
+              <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName" type="text" />
             </div>
           </div>
         </div>
@@ -102,21 +100,24 @@
             <div class="form-row">
               <div class="form-field-inline form-field-full">
                 <label for="field_ayantdroit_num">Matricule <span class="required">*</span></label>
-                <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                       formControlName="num" id="field_ayantdroit_num" type="text" />
+                <input
+                  [appKeyFilter]="'alphanum'"
+                  autocomplete="off"
+                  class="form-control"
+                  formControlName="num"
+                  id="field_ayantdroit_num"
+                  type="text"
+                />
               </div>
             </div>
             <div class="form-row">
               <div class="form-field-inline">
                 <label for="field_ayantdroit_lastName">Nom <span class="required">*</span></label>
-                <input autocomplete="off" class="form-control" formControlName="lastName"
-                       id="field_ayantdroit_lastName" type="text" />
+                <input autocomplete="off" class="form-control" formControlName="lastName" id="field_ayantdroit_lastName" type="text" />
               </div>
               <div class="form-field-inline">
-                <label for="field_ayantdroit_firstName">Prénom <span
-                  class="required">*</span></label>
-                <input autocomplete="off" class="form-control" formControlName="firstName"
-                       id="field_ayantdroit_firstName" type="text" />
+                <label for="field_ayantdroit_firstName">Prénom <span class="required">*</span></label>
+                <input autocomplete="off" class="form-control" formControlName="firstName" id="field_ayantdroit_firstName" type="text" />
               </div>
             </div>
           </div>
@@ -159,8 +160,7 @@
               </div>
               <div class="form-field-inline">
                 <label>N° Bon <span class="required">*</span></label>
-                <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                       formControlName="numBon" required type="text" />
+                <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="numBon" required type="text" />
               </div>
             </div>
           </app-card>
@@ -170,8 +170,7 @@
   </div>
 
   <div class="modal-footer">
-    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary"
-                type="button" />
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <app-button
       [disabled]="editForm.invalid || isSaving() || !hasFormChanged()"
       icon="pi pi-save"

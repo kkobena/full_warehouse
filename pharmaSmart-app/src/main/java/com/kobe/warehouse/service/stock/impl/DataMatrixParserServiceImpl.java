@@ -74,7 +74,8 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 
     // Identifiants de symbologie AIM : ]d2/]d1 DataMatrix, ]C1 Code 128 GS1, ]Q3 QR GS1, ]e0 DataBar
-    private static final Pattern GS1_PREFIX_PATTERN = Pattern.compile("^(\\]d2|\\]d1|\\]C1|\\]Q3|\\]e0)?(.*)$", Pattern.DOTALL);
+    private static final Pattern GS1_PREFIX_PATTERN =
+            Pattern.compile("^(\\]d2|\\]d1|\\]C1|\\]Q3|\\]e0)?(.*)$", Pattern.DOTALL);
 
     // FNC1 émis comme caractère imprimable par certains scanners (Datalogic)
     private static final char FNC1_IMPRIMABLE = 'è';
@@ -83,16 +84,16 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     // Les bornes (?<!\d) et (?!\d) évitent de découper une suite de chiffres plus longue.
     private static final Pattern GTIN_14_NU_PATTERN = Pattern.compile("(?<!\\d)(\\d{14})(?!\\d)");
     private static final Pattern EAN_13_NU_PATTERN = Pattern.compile("(?<!\\d)(\\d{13})(?!\\d)");
-    private static final Pattern DATE_AAAAMMJJ_PATTERN = Pattern.compile("(?<!\\d)(20\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
-    private static final Pattern DATE_AAMMJJ_PATTERN = Pattern.compile("(?<!\\d)(\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
+    private static final Pattern DATE_AAAAMMJJ_PATTERN =
+            Pattern.compile("(?<!\\d)(20\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
+    private static final Pattern DATE_AAMMJJ_PATTERN =
+            Pattern.compile("(?<!\\d)(\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
     // Le lot doit être étiqueté : deviner un lot dans une suite alphanumérique quelconque
     // reviendrait à inventer une traçabilité.
     // La barre oblique est exclue du lot : elle sépare les champs dans ces formats
     // (« LOT:ABC123/EXP:... »), l'inclure ferait avaler l'étiquette suivante.
     private static final Pattern LOT_ETIQUETE_PATTERN = Pattern.compile(
-        "(?:LOT|BATCH|CHARGE)\\s*[:=#]?\\s*([A-Za-z0-9][A-Za-z0-9.\\-]{2,19})",
-        Pattern.CASE_INSENSITIVE
-    );
+            "(?:LOT|BATCH|CHARGE)\\s*[:=#]?\\s*([A-Za-z0-9][A-Za-z0-9.\\-]{2,19})", Pattern.CASE_INSENSITIVE);
 
     @Override
     public Optional<DataMatrixInfo> parse(String barcodeData) {
@@ -112,7 +113,8 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             case GTIN_14 -> parseGtin14(code);
             case DATAMATRIX -> parseDataMatrix(code);
             // Code hors nomenclature connue : on tente d'y reconnaître des motifs (fabricants
-            // asiatiques et africains encodent parfois en texte libre), puis on remonte le code brut pour que l'utilisateur puisse le mémoriser.
+            // asiatiques et africains encodent parfois en texte libre), puis on remonte le code brut pour que
+            // l'utilisateur puisse le mémoriser.
             case UNKNOWN -> parseHeuristique(code).or(() -> parseCodeBrut(code));
         };
     }
@@ -157,9 +159,10 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
         }
         return switch (code.length()) {
             case 8 -> isValidEan8(code) ? BarcodeType.EAN_8 : BarcodeType.UNKNOWN;
-            case 13 -> code.startsWith(CIP_13_PREFIX)
-                ? BarcodeType.CIP_13
-                : isValidEan13(code) ? BarcodeType.EAN_13 : BarcodeType.UNKNOWN;
+            case 13 ->
+                code.startsWith(CIP_13_PREFIX)
+                        ? BarcodeType.CIP_13
+                        : isValidEan13(code) ? BarcodeType.EAN_13 : BarcodeType.UNKNOWN;
             // Quatorze chiffres : GTIN-14 issu d'un AI 01 sans en-tête, ou ITF-14 de carton.
             // Sans identifiant de symbologie la distinction est impossible ; on retient le
             // GTIN-14, l'ITF-14 étant rare au comptoir pharmaceutique.
@@ -202,8 +205,8 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
      */
     private Optional<DataMatrixInfo> parseEan8(String code) {
         return Optional.of(DataMatrixInfo.builder()
-            .ean13(code) // Store as ean13 field for consistency
-            .build());
+                .ean13(code) // Store as ean13 field for consistency
+                .build());
     }
 
     /**
@@ -225,18 +228,15 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
      */
     private Optional<DataMatrixInfo> parseCip7(String code) {
         return Optional.of(DataMatrixInfo.builder()
-            .cip13(code) // Store CIP-7 in cip13 field
-            .build());
+                .cip13(code) // Store CIP-7 in cip13 field
+                .build());
     }
 
     /**
      * Parses a CIP-13 code.
      */
     private Optional<DataMatrixInfo> parseCip13(String code) {
-        return Optional.of(DataMatrixInfo.builder()
-            .cip13(code)
-            .ean13(code)
-            .build());
+        return Optional.of(DataMatrixInfo.builder().cip13(code).ean13(code).build());
     }
 
     /**
@@ -352,7 +352,9 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             int jour = Integer.parseInt(valeur.substring(chiffresAnnee + 2));
             LocalDate premierDuMois = LocalDate.of(chiffresAnnee == 2 ? 2000 + annee : annee, mois, 1);
             // Comme pour l'AI 17, un jour à 00 désigne la fin du mois.
-            return jour == 0 ? premierDuMois.withDayOfMonth(premierDuMois.lengthOfMonth()) : premierDuMois.withDayOfMonth(jour);
+            return jour == 0
+                    ? premierDuMois.withDayOfMonth(premierDuMois.lengthOfMonth())
+                    : premierDuMois.withDayOfMonth(jour);
         } catch (DateTimeException | NumberFormatException e) {
             LOG.debug("Motif de date non exploitable : {}", valeur);
             return null;
@@ -458,16 +460,16 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
         String normalized = normalizeCode(code);
 
         // Check for common GS1 AI prefixes
-        return normalized.startsWith(AI_GTIN) ||
-            normalized.startsWith(AI_BATCH) ||
-            normalized.startsWith(AI_EXPIRY_DATE) ||
-            normalized.startsWith(AI_PRODUCTION_DATE) ||
-            normalized.startsWith(AI_SERIAL) ||
-            normalized.startsWith(AI_NHRN_GERMANY) ||
-            normalized.startsWith(AI_NHRN_FRANCE) ||
-            normalized.startsWith(AI_NHRN_SPAIN) ||
-            normalized.startsWith(AI_NHRN_BRAZIL) ||
-            normalized.startsWith(AI_NHRN_PORTUGAL);
+        return normalized.startsWith(AI_GTIN)
+                || normalized.startsWith(AI_BATCH)
+                || normalized.startsWith(AI_EXPIRY_DATE)
+                || normalized.startsWith(AI_PRODUCTION_DATE)
+                || normalized.startsWith(AI_SERIAL)
+                || normalized.startsWith(AI_NHRN_GERMANY)
+                || normalized.startsWith(AI_NHRN_FRANCE)
+                || normalized.startsWith(AI_NHRN_SPAIN)
+                || normalized.startsWith(AI_NHRN_BRAZIL)
+                || normalized.startsWith(AI_NHRN_PORTUGAL);
     }
 
     /**
@@ -495,10 +497,10 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
 
         // Toutes les notations textuelles du séparateur
         normalized = normalized
-            .replace("<GS>", GS_STRING)
-            .replace("{GS}", GS_STRING)
-            .replace("^029", GS_STRING) // échappement décimal Honeywell
-            .replace("%1D", GS_STRING); // URL-encodé, imports par fichier
+                .replace("<GS>", GS_STRING)
+                .replace("{GS}", GS_STRING)
+                .replace("^029", GS_STRING) // échappement décimal Honeywell
+                .replace("%1D", GS_STRING); // URL-encodé, imports par fichier
 
         // GS en tête : Code 128 GS1 émis sans identifiant de symbologie
         while (!normalized.isEmpty() && normalized.charAt(0) == GS_CHAR) {
@@ -542,11 +544,11 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             String ai3 = code.substring(0, 3);
             result = switch (ai3) {
                 case AI_NHRN_GERMANY,
-                    AI_NHRN_FRANCE,
-                    AI_NHRN_SPAIN,
-                    AI_NHRN_BRAZIL,
-                    AI_NHRN_PORTUGAL,
-                    AI_IDENTIFIANT_ADDITIONNEL -> parseVariableLength(code, ai3);
+                        AI_NHRN_FRANCE,
+                        AI_NHRN_SPAIN,
+                        AI_NHRN_BRAZIL,
+                        AI_NHRN_PORTUGAL,
+                        AI_IDENTIFIANT_ADDITIONNEL -> parseVariableLength(code, ai3);
                 default -> null;
             };
         }
@@ -638,7 +640,8 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
                     if (qty > 0) {
                         builder.scannedQty(qty);
                     }
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
                 yield true;
             }
             case AI_NHRN_FRANCE -> {

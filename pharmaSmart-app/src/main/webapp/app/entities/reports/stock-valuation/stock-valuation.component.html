@@ -1,5 +1,4 @@
 <app-toolbar [code]="navCode()" icon="pi pi-chart-bar" title="Valorisation du Stock">
-
   <ng-container ngProjectAs="[toolbarFilters]">
     <div class="pharma-toolbar-filters">
       <app-select
@@ -9,7 +8,6 @@
         [items]="familleProduitOptions()"
         appendTo="body"
         bindLabel="libelle"
-
         placeholder="Famille de Produit"
         size="large"
       />
@@ -28,13 +26,8 @@
 
   <ng-container ngProjectAs="[toolbarActions]">
     <div>
-
-      <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf"
-                  label="Exporter PDF"
-                  severity="warn" size="small" />
-      <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Rafraîchir"
-                  severity="info"
-                  size="small" />
+      <app-button (clicked)="exportToPdf()" class="mr-1" icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
+      <app-button (clicked)="loadData()" icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
     </div>
   </ng-container>
 </app-toolbar>
@@ -42,37 +35,51 @@
 <!-- KPI Strip -->
 @if (summary()) {
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" [value]="formatCurrency(summary()!.totalPurchaseValue)"
-                  icon="pi pi-shopping-cart"
-                  iconClass="text-primary" label="Valeur d'achat"
-                  info="Stock disponible des produits actifs du périmètre filtré, gratuités incluses, au prix d'achat du fournisseur principal. Un produit à stock nul n'est pas compté."
-                  valueClass="text-primary">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="formatCurrency(summary()!.totalPurchaseValue)"
+      icon="pi pi-shopping-cart"
+      iconClass="text-primary"
+      label="Valeur d'achat"
+      info="Stock disponible des produits actifs du périmètre filtré, gratuités incluses, au prix d'achat du fournisseur principal. Un produit à stock nul n'est pas compté."
+      valueClass="text-primary"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Coût total</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesValue)"
-                  icon="pi pi-money-bill"
-                  iconClass="text-success" label="Valeur de vente"
-                  info="Le même stock valorisé au prix de vente en vigueur : ce qu'il rapporterait écoulé en entier au tarif actuel."
-                  valueClass="text-success">
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="formatCurrency(summary()!.totalSalesValue)"
+      icon="pi pi-money-bill"
+      iconClass="text-success"
+      label="Valeur de vente"
+      info="Le même stock valorisé au prix de vente en vigueur : ce qu'il rapporterait écoulé en entier au tarif actuel."
+      valueClass="text-success"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Prix de vente</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPotentialMargin)"
-                  icon="pi pi-percentage"
-                  iconClass="text-warning"
-                  label="Marge potentielle"
-                  info="Valeur de vente moins valeur d'achat. Marge non réalisée : elle suppose tout le stock vendu, sans remise ni démarque."
-                  valueClass="text-warning">
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="formatCurrency(summary()!.totalPotentialMargin)"
+      icon="pi pi-percentage"
+      iconClass="text-warning"
+      label="Marge potentielle"
+      info="Valeur de vente moins valeur d'achat. Marge non réalisée : elle suppose tout le stock vendu, sans remise ni démarque."
+      valueClass="text-warning"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Gain possible</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" [value]="formatDecimal(summary()!.averageMarginPercentage)"
-                  icon="pi pi-chart-line"
-                  iconClass="text-danger"
-                  label="Marge moyenne"
-                  info="Moyenne des taux par référence, chaque produit comptant pour un, sans pondération par la valeur en stock. Chaque taux rapporte l'écart entre prix de vente et prix d'achat au prix de vente."
-                  valueClass="text-danger">
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="formatDecimal(summary()!.averageMarginPercentage)"
+      icon="pi pi-chart-line"
+      iconClass="text-danger"
+      label="Marge moyenne"
+      info="Moyenne des taux par référence, chaque produit comptant pour un, sans pondération par la valeur en stock. Chaque taux rapporte l'écart entre prix de vente et prix d'achat au prix de vente."
+      valueClass="text-danger"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ summary()!.totalProducts }} produits</ng-container>
     </app-kpi-item>
@@ -124,31 +131,23 @@
               <td>{{ valuation.categorie }}</td>
               <!--<td>{{ valuation.storageLocation }}</td>-->
               <td class="text-end pharma-qty-value">{{ valuation.stockQuantity || 0 }}</td>
-              <td class="text-end pharma-price">{{ valuation.purchasePrice | number }}
-              </td>
-              <td class="text-end pharma-price">{{ valuation.salesPrice | number }}
-              </td>
-              <td
-                class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number }}
-              </td>
-              <td
-                class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number }}
-              </td>
-              <td
-                class="text-end fw-bold text-success">{{ valuation.potentialMargin | number }}
-              </td>
+              <td class="text-end pharma-price">{{ valuation.purchasePrice | number }}</td>
+              <td class="text-end pharma-price">{{ valuation.salesPrice | number }}</td>
+              <td class="text-end fw-bold pharma-price">{{ valuation.totalPurchaseValue | number }}</td>
+              <td class="text-end fw-bold pharma-price">{{ valuation.totalSalesValue | number }}</td>
+              <td class="text-end fw-bold text-success">{{ valuation.potentialMargin | number }}</td>
               <td class="text-end">
-                    <span
-                      [class]="{
-                        'bg-success-subtle text-success': (valuation.marginPercentage || 0) >= 30,
-                        'bg-info-subtle text-info': (valuation.marginPercentage || 0) >= 20 && (valuation.marginPercentage || 0) < 30,
-                        'bg-warning-subtle text-warning': (valuation.marginPercentage || 0) >= 10 && (valuation.marginPercentage || 0) < 20,
-                        'bg-danger-subtle text-danger': (valuation.marginPercentage || 0) < 10,
-                      }"
-                      class="px-2 py-1 rounded fw-semibold"
-                    >
-                      {{ valuation.marginPercentage | number: '1.1-2' }}%
-                    </span>
+                <span
+                  [class]="{
+                    'bg-success-subtle text-success': (valuation.marginPercentage || 0) >= 30,
+                    'bg-info-subtle text-info': (valuation.marginPercentage || 0) >= 20 && (valuation.marginPercentage || 0) < 30,
+                    'bg-warning-subtle text-warning': (valuation.marginPercentage || 0) >= 10 && (valuation.marginPercentage || 0) < 20,
+                    'bg-danger-subtle text-danger': (valuation.marginPercentage || 0) < 10,
+                  }"
+                  class="px-2 py-1 rounded fw-semibold"
+                >
+                  {{ valuation.marginPercentage | number: '1.1-2' }}%
+                </span>
               </td>
             </tr>
           </ng-template>
@@ -165,4 +164,3 @@
     </div>
   </div>
 </div>
-

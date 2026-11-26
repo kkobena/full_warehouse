@@ -69,7 +69,13 @@ export class CustomerService {
   }
 
   /** Numéro de carte déjà utilisé pour cet organisme, et homonymes — avant tout enregistrement. */
-  controlerAssure(req: { tiersPayantId?: number; num?: string; firstName?: string; lastName?: string; excludeId?: number }): Observable<IControleAssure> {
+  controlerAssure(req: {
+    tiersPayantId?: number;
+    num?: string;
+    firstName?: string;
+    lastName?: string;
+    excludeId?: number;
+  }): Observable<IControleAssure> {
     return this.http.get<IControleAssure>(this.resourceUrl + '/assured/controle', { params: createRequestOptions(req) });
   }
 
@@ -168,7 +174,10 @@ export class CustomerService {
   /** Produits délivrés sur la période ; paginé (`X-Total-Count`). */
   produitsDelivres(customerId: number, req: any): Observable<HttpResponse<IProduitDelivre[]>> {
     const options = createRequestOption(req);
-    return this.http.get<IProduitDelivre[]>(`${this.resourceUrl}/${customerId}/produits-delivres`, { params: options, observe: 'response' });
+    return this.http.get<IProduitDelivre[]>(`${this.resourceUrl}/${customerId}/produits-delivres`, {
+      params: options,
+      observe: 'response',
+    });
   }
 
   /** Différés non soldés ; corps vide (204) si le client n'en a pas. */

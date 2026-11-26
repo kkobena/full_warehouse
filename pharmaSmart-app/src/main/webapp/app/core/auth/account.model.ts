@@ -1,4 +1,4 @@
-import {IAuthority} from "../../shared/model/authority.model";
+import { IAuthority } from '../../shared/model/authority.model';
 
 export class Account {
   constructor(
@@ -11,6 +11,5 @@ export class Account {
     public login: string,
     public imageUrl: string | null,
     public authority?: IAuthority | null,
-  ) {
-  }
+  ) {}
 }

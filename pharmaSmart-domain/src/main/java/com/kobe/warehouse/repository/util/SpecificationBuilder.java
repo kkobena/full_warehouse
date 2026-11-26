@@ -13,11 +13,10 @@ public class SpecificationBuilder<T> {
     }
 
     public SpecificationBuilder<T> with(
-        String[] leftHand,
-        String rightHand,
-        Condition.OperationType operation,
-        Condition.LogicalOperatorType operator
-    ) {
+            String[] leftHand,
+            String rightHand,
+            Condition.OperationType operation,
+            Condition.LogicalOperatorType operator) {
         conditions.add(new Condition(leftHand, rightHand, operation, operator));
         return this;
     }
@@ -34,8 +33,8 @@ public class SpecificationBuilder<T> {
         for (int i = 1; i < conditions.size(); i++) {
             if (!conditions.get(i - 1).getOperator().equals(Condition.LogicalOperatorType.END)) {
                 finalSpecification = conditions.get(i - 1).getOperator().equals(Condition.LogicalOperatorType.OR)
-                    ? finalSpecification.or(specifications.get(i))
-                    : finalSpecification.and(specifications.get(i));
+                        ? finalSpecification.or(specifications.get(i))
+                        : finalSpecification.and(specifications.get(i));
             }
         }
         return finalSpecification;

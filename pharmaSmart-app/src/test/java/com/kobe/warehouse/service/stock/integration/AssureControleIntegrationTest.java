@@ -38,12 +38,11 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
     @BeforeEach
     void preparer() {
         service = new AssuredCustomerServiceImpl(
-            IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class),
-            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
-            IntegrationPostgresDatabase.bean(ThirdPartySaleLineRepository.class),
-            mock(CustomerDataService.class),
-            mock(HistoriqueClientService.class)
-        );
+                IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class),
+                IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+                IntegrationPostgresDatabase.bean(ThirdPartySaleLineRepository.class),
+                mock(CustomerDataService.class),
+                mock(HistoriqueClientService.class));
         organisme = new TiersPayant();
         organisme.setName(unique("ORG"));
         organisme.setFullName("ORGANISME " + organisme.getName());
@@ -61,7 +60,8 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
         service.createFromDto(assure("KOUASSI", "Jean", "CARTE1"));
         viderLeCache();
 
-        GenericError erreur = assertThrows(GenericError.class, () -> service.createFromDto(assure("TRAORE", "Awa", "CARTE1")));
+        GenericError erreur =
+                assertThrows(GenericError.class, () -> service.createFromDto(assure("TRAORE", "Awa", "CARTE1")));
 
         assertTrue(erreur.getMessage().contains("CARTE1"));
         assertTrue(erreur.getMessage().contains("KOUASSI Jean"), "le message nomme le dossier en cause");
@@ -88,7 +88,8 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
         AssuredCustomer cree = service.createFromDto(assure("KOUASSI", "Jean", "CARTE3"));
         viderLeCache();
 
-        assertFalse(service.controlerAssure(organisme.getId(), "CARTE3", null, null, cree.getId()).numeroDejaUtilise());
+        assertFalse(service.controlerAssure(organisme.getId(), "CARTE3", null, null, cree.getId())
+                .numeroDejaUtilise());
     }
 
     @Test
@@ -97,7 +98,9 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
         service.createFromDto(assure("KOUASSI", "Jean", "CARTE4"));
         viderLeCache();
 
-        assertEquals(List.of("KOUASSI Jean"), service.controlerAssure(null, null, "kouassi", "JEAN", null).homonymes());
+        assertEquals(
+                List.of("KOUASSI Jean"),
+                service.controlerAssure(null, null, "kouassi", "JEAN", null).homonymes());
         service.createFromDto(assure("KOUASSI", "Jean", "CARTE5"));
     }
 
@@ -126,7 +129,8 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
 
         service.createFromDto(assure("KOUASSI", "Jean", "MAT3"));
         service.createFromDto(assure("TRAORE", "Awa", "MAT4"));
-        assertFalse(service.controlerAssure(organisme.getId(), "MAT9", "Kouassi", "Jean", null).dossierExistant());
+        assertFalse(service.controlerAssure(organisme.getId(), "MAT9", "Kouassi", "Jean", null)
+                .dossierExistant());
     }
 
     @Test
@@ -135,7 +139,8 @@ class AssureControleIntegrationTest extends AbstractStockIntegrationTest {
         AssuredCustomer cree = service.createFromDto(assure("KOUASSI", "Jean", "MAT5"));
         viderLeCache();
 
-        assertFalse(service.controlerAssure(organisme.getId(), "MAT5", "KOUASSI", "Jean", cree.getId()).dossierExistant());
+        assertFalse(service.controlerAssure(organisme.getId(), "MAT5", "KOUASSI", "Jean", cree.getId())
+                .dossierExistant());
     }
 
     @Test

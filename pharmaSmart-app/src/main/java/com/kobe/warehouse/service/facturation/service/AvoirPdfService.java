@@ -36,11 +36,10 @@ public class AvoirPdfService extends CommonReportService {
     private String currentHtml;
 
     public AvoirPdfService(
-        AvoirTiersPayantRepository avoirRepository,
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
-        super( storageService);
+            AvoirTiersPayantRepository avoirRepository,
+            StorageService storageService,
+            SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.avoirRepository = avoirRepository;
         this.templateEngine = templateEngine;
     }
@@ -54,6 +53,7 @@ public class AvoirPdfService extends CommonReportService {
     protected int getMaxiRowCount() {
         return 0;
     }
+
     @Override
     protected Map<String, Object> getParameters() {
         return this.variablesMap;
@@ -75,30 +75,28 @@ public class AvoirPdfService extends CommonReportService {
         return templateEngine.process(currentHtml, super.getContextVariables());
     }
 
-
-
     @Override
     protected String getTemplateAsHtml(Context context) {
         this.getParameters().forEach(context::setVariable);
-      //  return templateEngine.process("avoir/pdf/list-main", context);
+        //  return templateEngine.process("avoir/pdf/list-main", context);
         return templateEngine.process(currentHtml, context);
     }
+
     @Override
     protected String getGenerateFileName() {
         return "avoir";
     }
 
     public byte[] generatePdf(Long avoirId) {
-        currentHtml="avoir/pdf/main";
-        AvoirTiersPayant avoir = avoirRepository.findById(avoirId)
-            .orElseThrow(() -> new IllegalArgumentException("Avoir non trouvé: " + avoirId));
-
+        currentHtml = "avoir/pdf/main";
+        AvoirTiersPayant avoir = avoirRepository
+                .findById(avoirId)
+                .orElseThrow(() -> new IllegalArgumentException("Avoir non trouvé: " + avoirId));
 
         FactureTiersPayant facture = avoir.getFactureTiersPayant();
         TiersPayant tp = facture.getTiersPayant();
         GroupeTiersPayant gtp = Objects.isNull(tp) ? facture.getGroupeTiersPayant() : null;
         String tiersPayantName = tp != null ? tp.getFullName() : (gtp != null ? gtp.getName() : "—");
-
 
         getParameters().put("avoir", avoir);
         getParameters().put("tiersPayantName", tiersPayantName);
@@ -109,41 +107,48 @@ public class AvoirPdfService extends CommonReportService {
     }
 
     public byte[] generateListPdf(AvoirSearchParams params) {
-        currentHtml="avoir/pdf/list-main";
-        List<AvoirStatut> statuts = !CollectionUtils.isEmpty(params.statuts())
-            ? params.statuts()
-            : List.of(AvoirStatut.values());
-        LocalDate start = params.startDate() != null ? params.startDate() : LocalDate.now().minusMonths(6);
+        currentHtml = "avoir/pdf/list-main";
+        List<AvoirStatut> statuts =
+                !CollectionUtils.isEmpty(params.statuts()) ? params.statuts() : List.of(AvoirStatut.values());
+        LocalDate start = params.startDate() != null
+                ? params.startDate()
+                : LocalDate.now().minusMonths(6);
         LocalDate end = params.endDate() != null ? params.endDate() : LocalDate.now();
         String numAvoir = (params.numAvoir() != null && !params.numAvoir().isBlank())
-            ? "%" + params.numAvoir().toLowerCase() + "%"
-            : null;
+                ? "%" + params.numAvoir().toLowerCase() + "%"
+                : null;
 
         List<AvoirTiersPayant> avoirs;
         if (params.tiersPayantId() != null) {
-            avoirs = avoirRepository.searchByTiersPayant(params.tiersPayantId(), start, end, statuts, numAvoir, Pageable.unpaged()).getContent();
+            avoirs = avoirRepository
+                    .searchByTiersPayant(params.tiersPayantId(), start, end, statuts, numAvoir, Pageable.unpaged())
+                    .getContent();
         } else {
-            avoirs = avoirRepository.searchAll(start, end, statuts, numAvoir, Pageable.unpaged()).getContent();
+            avoirs = avoirRepository
+                    .searchAll(start, end, statuts, numAvoir, Pageable.unpaged())
+                    .getContent();
         }
 
         BigDecimal totalMontant = avoirs.stream()
-            .map(a -> a.getMontantAvoir() != null ? a.getMontantAvoir() : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(a -> a.getMontantAvoir() != null ? a.getMontantAvoir() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalTva = avoirs.stream()
-            .map(a -> a.getMontantTva() != null ? a.getMontantTva() : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(a -> a.getMontantTva() != null ? a.getMontantTva() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalHt = avoirs.stream()
-            .map(a -> a.getMontantHt() != null ? a.getMontantHt() : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(a -> a.getMontantHt() != null ? a.getMontantHt() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         String periode = "du " + start.format(DATE_FMT) + " au " + end.format(DATE_FMT);
 
-        List<AvoirListItem> items = avoirs.stream().map(a -> {
-            FactureTiersPayant f = a.getFactureTiersPayant();
-            TiersPayant tp = f.getTiersPayant();
-            GroupeTiersPayant gtp = Objects.isNull(tp) ? f.getGroupeTiersPayant() : null;
-            String tpName = tp != null ? tp.getFullName() : (gtp != null ? gtp.getName() : "—");
-            return new AvoirListItem(a, tpName);
-        }).toList();
+        List<AvoirListItem> items = avoirs.stream()
+                .map(a -> {
+                    FactureTiersPayant f = a.getFactureTiersPayant();
+                    TiersPayant tp = f.getTiersPayant();
+                    GroupeTiersPayant gtp = Objects.isNull(tp) ? f.getGroupeTiersPayant() : null;
+                    String tpName = tp != null ? tp.getFullName() : (gtp != null ? gtp.getName() : "—");
+                    return new AvoirListItem(a, tpName);
+                })
+                .toList();
 
         getParameters().put("avoirs", items);
         getParameters().put("periode", periode);
@@ -156,13 +161,36 @@ public class AvoirPdfService extends CommonReportService {
     }
 
     public record AvoirListItem(AvoirTiersPayant avoir, String tiersPayantName) {
-        public String getNumAvoir() { return avoir.getNumAvoir(); }
-        public FactureTiersPayant getFactureTiersPayant() { return avoir.getFactureTiersPayant(); }
-        public LocalDate getAvoirDate() { return avoir.getAvoirDate(); }
-        public BigDecimal getMontantAvoir() { return avoir.getMontantAvoir(); }
-        public BigDecimal getMontantTva() { return avoir.getMontantTva(); }
-        public BigDecimal getMontantHt() { return avoir.getMontantHt(); }
-        public AvoirStatut getStatut() { return avoir.getStatut(); }
-        public String getMotif() { return avoir.getMotif(); }
+        public String getNumAvoir() {
+            return avoir.getNumAvoir();
+        }
+
+        public FactureTiersPayant getFactureTiersPayant() {
+            return avoir.getFactureTiersPayant();
+        }
+
+        public LocalDate getAvoirDate() {
+            return avoir.getAvoirDate();
+        }
+
+        public BigDecimal getMontantAvoir() {
+            return avoir.getMontantAvoir();
+        }
+
+        public BigDecimal getMontantTva() {
+            return avoir.getMontantTva();
+        }
+
+        public BigDecimal getMontantHt() {
+            return avoir.getMontantHt();
+        }
+
+        public AvoirStatut getStatut() {
+            return avoir.getStatut();
+        }
+
+        public String getMotif() {
+            return avoir.getMotif();
+        }
     }
 }

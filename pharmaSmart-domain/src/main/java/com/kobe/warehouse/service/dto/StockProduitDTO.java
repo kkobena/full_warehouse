@@ -4,7 +4,6 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.StorageType;
-
 import java.time.LocalDateTime;
 
 public class StockProduitDTO {
@@ -65,8 +64,7 @@ public class StockProduitDTO {
         return this;
     }
 
-    public StockProduitDTO() {
-    }
+    public StockProduitDTO() {}
 
     public String getProduitLibelle() {
         return produitLibelle;

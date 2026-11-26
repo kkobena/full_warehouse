@@ -11,7 +11,16 @@ import { AideComponent } from '../../ui/aide/aide.component';
 /** Mois en cours (projection face à l'objectif) puis, pour un indicateur, objectif / réalisé / écart / atteinte mois par mois. */
 @Component({
   selector: 'app-suivi-objectifs',
-  imports: [AideComponent, FormsModule, CardComponent, DataTableComponent, KpiStripComponent, KpiItemComponent, PillSelectorComponent, ValeurIndicateurPipe],
+  imports: [
+    AideComponent,
+    FormsModule,
+    CardComponent,
+    DataTableComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+    PillSelectorComponent,
+    ValeurIndicateurPipe,
+  ],
   templateUrl: './suivi-objectifs.component.html',
   styleUrls: ['../../ui/section-onglet.scss', './objectifs.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,7 +35,9 @@ export class SuiviObjectifsComponent {
     (this.suivi()?.indicateurs ?? []).map(suivi => ({ label: suivi.indicateur.libelle, value: suivi.indicateur.code })),
   );
   protected readonly code = linkedSignal(() => this.suivi()?.indicateurs[0]?.indicateur.code ?? null);
-  protected readonly choisi = computed<SuiviIndicateur | null>(() => this.suivi()?.indicateurs.find(suivi => suivi.indicateur.code === this.code()) ?? null);
+  protected readonly choisi = computed<SuiviIndicateur | null>(
+    () => this.suivi()?.indicateurs.find(suivi => suivi.indicateur.code === this.code()) ?? null,
+  );
   protected readonly projections = computed(() => (this.suivi()?.indicateurs ?? []).filter(suivi => suivi.projection));
 
   /** « Au 10/10/2026, Chiffre d'affaires TTC projeté à 3,3 M pour un objectif de 5 M (67 %). » */

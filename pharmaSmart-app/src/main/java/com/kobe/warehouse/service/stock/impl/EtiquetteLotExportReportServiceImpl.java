@@ -55,11 +55,10 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
     private String templateFile = Constant.ETIQUETES_LOT_TEMPLATE_FILE;
 
     public EtiquetteLotExportReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        LotRepository lotRepository,
-        ZplEtiquetteService zplEtiquetteService
-    ) {
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            LotRepository lotRepository,
+            ZplEtiquetteService zplEtiquetteService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
@@ -115,18 +114,22 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
 
     @Override
     @Transactional(readOnly = true)
-    public String genererZplPourBon(List<OrderLine> orderLines, FormatEtiquette format, ResolutionEtiquette resolution) {
-        return zplEtiquetteService.rendreEtiquettes(construireEtiquettesDuBon(orderLines), TypeEtiquette.LOT, format, resolution);
+    public String genererZplPourBon(
+            List<OrderLine> orderLines, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return zplEtiquetteService.rendreEtiquettes(
+                construireEtiquettesDuBon(orderLines), TypeEtiquette.LOT, format, resolution);
     }
 
     @Override
     @Transactional(readOnly = true)
     public String genererZplPourLot(Integer lotId, int qty, FormatEtiquette format, ResolutionEtiquette resolution) {
-        return zplEtiquetteService.rendreEtiquettes(construireEtiquettesDuLot(lotId, qty), TypeEtiquette.LOT, format, resolution);
+        return zplEtiquetteService.rendreEtiquettes(
+                construireEtiquettesDuLot(lotId, qty), TypeEtiquette.LOT, format, resolution);
     }
 
     private List<EtiquetteDTO> construireEtiquettesDuBon(List<OrderLine> orderLines) {
-        String raisonSociale = storageService.getConnectedUserMagasin().getName().toUpperCase();
+        String raisonSociale =
+                storageService.getConnectedUserMagasin().getName().toUpperCase();
         String date = LocalDate.now().format(DATE_DU_JOUR);
         List<EtiquetteDTO> etiquettes = new ArrayList<>();
         for (OrderLine ligne : orderLines) {
@@ -153,15 +156,14 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
     }
 
     private List<EtiquetteDTO> construireEtiquettesDuLot(Integer lotId, int qty) {
-        Lot lot = lotRepository.findById(lotId).orElseThrow(() -> new IllegalArgumentException("Lot introuvable : " + lotId));
+        Lot lot = lotRepository
+                .findById(lotId)
+                .orElseThrow(() -> new IllegalArgumentException("Lot introuvable : " + lotId));
         Produit produit = lot.getProduit();
-        String raisonSociale = storageService.getConnectedUserMagasin().getName().toUpperCase();
+        String raisonSociale =
+                storageService.getConnectedUserMagasin().getName().toUpperCase();
         EtiquetteDTO etiquette = construireEtiquette(
-            produit.getFournisseurProduitPrincipal(),
-            lot,
-            LocalDate.now().format(DATE_DU_JOUR),
-            raisonSociale
-        );
+                produit.getFournisseurProduitPrincipal(), lot, LocalDate.now().format(DATE_DU_JOUR), raisonSociale);
         List<EtiquetteDTO> etiquettes = new ArrayList<>(Math.max(qty, 0));
         for (int i = 0; i < qty; i++) {
             etiquettes.add(etiquette);
@@ -178,16 +180,17 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
         return etiquettes;
     }
 
-    private EtiquetteDTO construireEtiquette(FournisseurProduit fournisseurProduit, Lot lot, String date, String raisonSociale) {
+    private EtiquetteDTO construireEtiquette(
+            FournisseurProduit fournisseurProduit, Lot lot, String date, String raisonSociale) {
         String code = fournisseurProduit.getCodeCip();
         EtiquetteDTO etiquette = new EtiquetteDTO()
-            .setCode(code)
-            .setLibelle(fournisseurProduit.getProduit().getLibelle())
-            .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
-            .setPrint(true)
-            .setDate(date)
-            .setMagasin(raisonSociale)
-            .setNumLot(lot.getNumLot());
+                .setCode(code)
+                .setLibelle(fournisseurProduit.getProduit().getLibelle())
+                .setPrix(String.format("%s CFA", NumberUtil.formatToString(fournisseurProduit.getPrixUni())))
+                .setPrint(true)
+                .setDate(date)
+                .setMagasin(raisonSociale)
+                .setNumLot(lot.getNumLot());
         if (lot.getExpiryDate() != null) {
             etiquette.setExpiryDate(lot.getExpiryDate().format(PEREMPTION_LISIBLE));
         }
@@ -199,7 +202,9 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
         Magasin magasin = storageService.getUser().getMagasin();
         this.items = etiquettes;
         // Un rouleau n'a pas de planche : son gabarit fixe la page a la taille de l'etiquette.
-        this.templateFile = format.isRouleau() ? Constant.ETIQUETES_ROULEAU_LOT_TEMPLATE_FILE : Constant.ETIQUETES_LOT_TEMPLATE_FILE;
+        this.templateFile = format.isRouleau()
+                ? Constant.ETIQUETES_ROULEAU_LOT_TEMPLATE_FILE
+                : Constant.ETIQUETES_LOT_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.ITEMS, ListUtils.partition(etiquettes, format.getColonnes()));
         getParameters().put(Constant.ETIQUETES_BEGIN, startAt);
@@ -207,9 +212,8 @@ public class EtiquetteLotExportReportServiceImpl extends CommonReportService imp
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             SharedContext sharedContext = renderer.getSharedContext();
-            EtiquetteBarcodeReplacedElement ref = new EtiquetteBarcodeReplacedElement(
-                new ITextReplacedElementFactory(renderer.getOutputDevice())
-            );
+            EtiquetteBarcodeReplacedElement ref =
+                    new EtiquetteBarcodeReplacedElement(new ITextReplacedElementFactory(renderer.getOutputDevice()));
             ref.setBarcodesData(listerCodesBarres(etiquettes));
             sharedContext.setReplacedElementFactory(ref);
             sharedContext.getTextRenderer().setSmoothingThreshold(0);

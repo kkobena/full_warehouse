@@ -104,9 +104,9 @@ export interface IProduit {
   // Champs réglementaires et pharmaceutiques
   thermosensible?: boolean;
   remisable?: boolean;
-  statutLegal?: string;        // StatutLegal enum: SANS_LISTE | LISTE_I | LISTE_II | STUPEFIANTS | PSO
+  statutLegal?: string; // StatutLegal enum: SANS_LISTE | LISTE_I | LISTE_II | STUPEFIANTS | PSO
   isClassificationOverridden?: boolean;
-  nomCommercial?: string;      // Nom commercial (à venir — migration V1.0.x)
+  nomCommercial?: string; // Nom commercial (à venir — migration V1.0.x)
   prixReference?: IPrixReferenceCreate[];
 }
 

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.facturation;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.HistoriquePlanificationDto;
 import com.kobe.warehouse.service.facturation.dto.PlanificationDto;
@@ -21,11 +22,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/planifications-facturation")
-@RequiresNavAccess({ "facturation.automatisation", "factures" })
+@RequiresNavAccess({"facturation.automatisation", "factures"})
 public class PlanificationFacturationResource {
 
     private final PlanificationFacturationService planificationService;
@@ -42,9 +42,8 @@ public class PlanificationFacturationResource {
     @PostMapping
     public ResponseEntity<PlanificationDto> create(@RequestBody PlanificationDto dto) {
         PlanificationDto result = planificationService.create(dto);
-        return ResponseEntity
-            .created(URI.create("/api/planifications-facturation/" + result.id()))
-            .body(result);
+        return ResponseEntity.created(URI.create("/api/planifications-facturation/" + result.id()))
+                .body(result);
     }
 
     @PutMapping("/{id}")
@@ -72,14 +71,10 @@ public class PlanificationFacturationResource {
     }
 
     @GetMapping("/{id}/historique")
-    public ResponseEntity<List<HistoriquePlanificationDto>> getHistorique(
-        @PathVariable Integer id,
-        Pageable pageable
-    ) {
+    public ResponseEntity<List<HistoriquePlanificationDto>> getHistorique(@PathVariable Integer id, Pageable pageable) {
         Page<HistoriquePlanificationDto> page = planificationService.getHistorique(id, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

@@ -1,13 +1,6 @@
 import { AppBadgeSeverity } from 'app/shared/ui/badge/badge.component';
 
-export type TypeZone =
-  | 'AMBIANT'
-  | 'FROID'
-  | 'OTC'
-  | 'ORDONNANCE'
-  | 'TOXIQUE'
-  | 'RESERVE'
-  | 'PARA';
+export type TypeZone = 'AMBIANT' | 'FROID' | 'OTC' | 'ORDONNANCE' | 'TOXIQUE' | 'RESERVE' | 'PARA';
 
 export interface IRayon {
   id?: number;

@@ -10,11 +10,10 @@ import java.time.LocalDate;
  * @param montantPonctionne ce qui est retiré, borné par les deux précédents
  */
 public record PonctionLigneDTO(
-    Long saleId,
-    LocalDate saleDate,
-    String numeroTransaction,
-    long montantVente,
-    long montantBase,
-    long montantPonctionne,
-    int rang
-) {}
+        Long saleId,
+        LocalDate saleDate,
+        String numeroTransaction,
+        long montantVente,
+        long montantBase,
+        long montantPonctionne,
+        int rang) {}

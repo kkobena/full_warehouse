@@ -18,13 +18,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "logs",
-    indexes = {
-        @Index(columnList = "transaction_type", name = "transaction_type_index"),
-        @Index(columnList = "created_at", name = "createdAt_index"),
-        @Index(columnList = "indentity_key", name = "indentityKey_index"),
-    }
-)
+        name = "logs",
+        indexes = {
+            @Index(columnList = "transaction_type", name = "transaction_type_index"),
+            @Index(columnList = "created_at", name = "createdAt_index"),
+            @Index(columnList = "indentity_key", name = "indentityKey_index"),
+        })
 public class Logs implements Serializable {
 
     @Serial

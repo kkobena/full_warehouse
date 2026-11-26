@@ -16,8 +16,8 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.*;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
@@ -33,16 +33,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SaleCommonServiceTest {
 
-    @Mock private ReferenceService referenceService;
-    @Mock private StorageService storageService;
-    @Mock private UserRepository userRepository;
-    @Mock private SaleLineServiceFactory saleLineServiceFactory;
-    @Mock private SalesLineService salesLineService;
-    @Mock private CashRegisterService cashRegisterService;
-    @Mock private PosteRepository posteRepository;
-    @Mock private CustomerDisplayService displayService;
-    @Mock private SaleIdGeneratorService idGeneratorService;
-    @Mock private AppConfigurationService configurationService;
+    @Mock
+    private ReferenceService referenceService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SaleLineServiceFactory saleLineServiceFactory;
+
+    @Mock
+    private SalesLineService salesLineService;
+
+    @Mock
+    private CashRegisterService cashRegisterService;
+
+    @Mock
+    private PosteRepository posteRepository;
+
+    @Mock
+    private CustomerDisplayService displayService;
+
+    @Mock
+    private SaleIdGeneratorService idGeneratorService;
+
+    @Mock
+    private AppConfigurationService configurationService;
 
     private TestableSaleCommonService service;
     private AppUser user;
@@ -59,9 +78,17 @@ class SaleCommonServiceTest {
         storage.setId(4);
         // Calculateur réel par-dessus la fabrique doublée : les vérifications sur getService
         // portent toujours, puisque c'est lui qui la sollicite désormais.
-        service = new TestableSaleCommonService(referenceService, storageService, userRepository,
-            new SaleAmountCalculator(saleLineServiceFactory), cashRegisterService, posteRepository, displayService,
-            idGeneratorService, new ObjectMapper(), configurationService);
+        service = new TestableSaleCommonService(
+                referenceService,
+                storageService,
+                userRepository,
+                new SaleAmountCalculator(saleLineServiceFactory),
+                cashRegisterService,
+                posteRepository,
+                displayService,
+                idGeneratorService,
+                new ObjectMapper(),
+                configurationService);
         lenient().when(storageService.getUser()).thenReturn(user);
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(storage);
         lenient().when(referenceService.buildNumSale()).thenReturn("001");
@@ -72,8 +99,8 @@ class SaleCommonServiceTest {
     @Test
     void rejectsCancellationAfterConfiguredDelay() {
         when(configurationService.getCancelSaleMaxDays()).thenReturn(5);
-        assertThrows(GenericError.class,
-            () -> service.checkDelay(LocalDate.now().minusDays(6)));
+        assertThrows(
+                GenericError.class, () -> service.checkDelay(LocalDate.now().minusDays(6)));
         service.checkDelay(LocalDate.now().minusDays(5));
     }
 
@@ -142,8 +169,7 @@ class SaleCommonServiceTest {
         assertThrows(SaleAlreadyCloseException.class, () -> service.prevalideSale(closed));
 
         CashRegister opened = new CashRegister();
-        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user))
-            .thenReturn(null, opened, null);
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user)).thenReturn(null, opened, null);
         when(cashRegisterService.openCashRegister(user, user)).thenReturn(opened);
         assertSame(opened, service.cashRegister());
         service.checkRegister();
@@ -218,16 +244,13 @@ class SaleCommonServiceTest {
     void validatesPreventeAndTransformationStates() {
         CashSale invalid = cashSale();
         invalid.setStatut(SalesStatut.ACTIVE);
-        assertThrows(GenericError.class,
-            () -> service.prevalidatePrevente(invalid, SalesStatut.PROCESSING));
+        assertThrows(GenericError.class, () -> service.prevalidatePrevente(invalid, SalesStatut.PROCESSING));
 
         CashSale devis = cashSale();
         devis.setStatut(SalesStatut.DEVIS);
-        assertThrows(SaleNotFoundCustomerException.class,
-            () -> service.prevalidatePrevente(devis, SalesStatut.ACTIVE));
+        assertThrows(SaleNotFoundCustomerException.class, () -> service.prevalidatePrevente(devis, SalesStatut.ACTIVE));
 
-        assertThrows(GenericError.class,
-            () -> service.prevalidateTransform(SalesStatut.ACTIVE, NatureVente.COMPTANT));
+        assertThrows(GenericError.class, () -> service.prevalidateTransform(SalesStatut.ACTIVE, NatureVente.COMPTANT));
         service.prevalidateTransform(SalesStatut.PROCESSING, NatureVente.CARNET);
     }
 
@@ -263,8 +286,7 @@ class SaleCommonServiceTest {
         sale.setSalesLines(Set.of(line(1, 100, 10, 0)));
         SaleDTO dto = saleDto(true, 100, 100);
         dto.setPayrollAmount(null);
-        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user))
-            .thenReturn(new CashRegister());
+        when(cashRegisterService.getLastOpiningUserCashRegisterByUser(user)).thenReturn(new CashRegister());
 
         assertThrows(PaymentAmountException.class, () -> service.save(sale, dto));
     }
@@ -341,24 +363,64 @@ class SaleCommonServiceTest {
     }
 
     private static final class TestableSaleCommonService extends SaleCommonService {
-        private TestableSaleCommonService(ReferenceService referenceService, StorageService storageService,
-            UserRepository userRepository, SaleAmountCalculator calculator,
-            CashRegisterService cashRegisterService, PosteRepository posteRepository,
-            CustomerDisplayService displayService, SaleIdGeneratorService idGenerator,
-            ObjectMapper objectMapper, AppConfigurationService configurationService) {
-            super(referenceService, storageService, userRepository, calculator, cashRegisterService,
-                posteRepository, displayService, idGenerator, objectMapper, configurationService);
+        private TestableSaleCommonService(
+                ReferenceService referenceService,
+                StorageService storageService,
+                UserRepository userRepository,
+                SaleAmountCalculator calculator,
+                CashRegisterService cashRegisterService,
+                PosteRepository posteRepository,
+                CustomerDisplayService displayService,
+                SaleIdGeneratorService idGenerator,
+                ObjectMapper objectMapper,
+                AppConfigurationService configurationService) {
+            super(
+                    referenceService,
+                    storageService,
+                    userRepository,
+                    calculator,
+                    cashRegisterService,
+                    posteRepository,
+                    displayService,
+                    idGenerator,
+                    objectMapper,
+                    configurationService);
         }
 
-        void checkDelay(LocalDate date) { checkCancellationDelay(date); }
-        void initialize(SaleDTO dto, Sales sale) { intSale(dto, sale); }
-        CashRegister cashRegister() { return getCashRegister(); }
-        void checkRegister() { checkOpenningCaisse(); }
-        void showChange(Integer value) { displayMonnaie(value); }
-        void origin(Sales original, Sales copy) { copyOrigin(original, copy); }
-        void finishCash(CashSale sale, CashSaleDTO dto) { finalizeSale(sale, dto); }
-        void prevalidatePrevente(Sales sale, SalesStatut status) { preValidatePrevente(sale, status); }
-        void prevalidateTransform(SalesStatut status, NatureVente nature) { preValidateTrasnform(status, nature); }
+        void checkDelay(LocalDate date) {
+            checkCancellationDelay(date);
+        }
+
+        void initialize(SaleDTO dto, Sales sale) {
+            intSale(dto, sale);
+        }
+
+        CashRegister cashRegister() {
+            return getCashRegister();
+        }
+
+        void checkRegister() {
+            checkOpenningCaisse();
+        }
+
+        void showChange(Integer value) {
+            displayMonnaie(value);
+        }
+
+        void origin(Sales original, Sales copy) {
+            copyOrigin(original, copy);
+        }
+
+        void finishCash(CashSale sale, CashSaleDTO dto) {
+            finalizeSale(sale, dto);
+        }
+
+        void prevalidatePrevente(Sales sale, SalesStatut status) {
+            preValidatePrevente(sale, status);
+        }
+
+        void prevalidateTransform(SalesStatut status, NatureVente nature) {
+            preValidateTrasnform(status, nature);
+        }
     }
 }
-

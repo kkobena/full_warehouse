@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +40,7 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.enumeration.Mois;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.pdf.SuggestionPdfReportService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -63,7 +63,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -132,20 +131,19 @@ class SuggestionProduitServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new SuggestionProduitServiceImpl(
-            suggestionRepository,
-            suggestionLineRepository,
-            fournisseurProduitRepository,
-            storageService,
-            referenceService,
-            appConfigurationService,
-            etatProduitService,
-            commandService,
-            csvExportService,
-            em,
-            suggestionPdfReportService,
-            produitRepository,
-            new ColisageServiceImpl()
-        );
+                suggestionRepository,
+                suggestionLineRepository,
+                fournisseurProduitRepository,
+                storageService,
+                referenceService,
+                appConfigurationService,
+                etatProduitService,
+                commandService,
+                csvExportService,
+                em,
+                suggestionPdfReportService,
+                produitRepository,
+                new ColisageServiceImpl());
 
         magasin = new Magasin();
         magasin.setId(1);
@@ -210,7 +208,8 @@ class SuggestionProduitServiceImplTest {
      * un {@code delete(DeleteSpecification)} en plus du {@code delete(T)} de {@code CrudRepository} :
      * javac ne sait plus resoudre {@code .delete(entity)} sur le mock. On elargit le type statique.
      */
-    private org.springframework.data.repository.CrudRepository<SuggestionLine, Integer> asCrud(SuggestionLineRepository repo) {
+    private org.springframework.data.repository.CrudRepository<SuggestionLine, Integer> asCrud(
+            SuggestionLineRepository repo) {
         return repo;
     }
 
@@ -282,9 +281,11 @@ class SuggestionProduitServiceImplTest {
         @DisplayName("transmet le terme de recherche au depot")
         void transmetLaRecherche() {
             Page<SuggestionProjection> expected = Page.empty();
-            when(suggestionRepository.getAllSuggestion(any(), any(), anyString())).thenReturn(expected);
+            when(suggestionRepository.getAllSuggestion(any(), any(), anyString()))
+                    .thenReturn(expected);
 
-            assertThat(service.getAllSuggestion("dolipra", null, null, null, PageRequest.of(0, 20))).isSameAs(expected);
+            assertThat(service.getAllSuggestion("dolipra", null, null, null, PageRequest.of(0, 20)))
+                    .isSameAs(expected);
         }
     }
 
@@ -324,37 +325,42 @@ class SuggestionProduitServiceImplTest {
         @DisplayName("getSuggestionsParFournisseur delegue au depot")
         void suggestionsParFournisseur() {
             List<FournisseurSuggestionSummaryDTO> expected = List.of();
-            when(suggestionRepository.getSuggestionsParFournisseur(any(), any(), any())).thenReturn(expected);
+            when(suggestionRepository.getSuggestionsParFournisseur(any(), any(), any()))
+                    .thenReturn(expected);
 
-            assertThat(service.getSuggestionsParFournisseur(Set.of(StatutSuggession.GENEREE), Set.of(3), "x")).isSameAs(expected);
+            assertThat(service.getSuggestionsParFournisseur(Set.of(StatutSuggession.GENEREE), Set.of(3), "x"))
+                    .isSameAs(expected);
         }
 
         @Test
         @DisplayName("getSuggestionLinesByIdWithConsommation resout magasin, retention et profondeur de conso")
         void lignesAvecConsommation() {
             Page<SuggestionLineDTO> expected = Page.empty();
-            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(any(), any(), any(), any(), any(), anyInt(), any()))
-                .thenReturn(expected);
+            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(
+                            any(), any(), any(), any(), any(), anyInt(), any()))
+                    .thenReturn(expected);
 
-            assertThat(service.getSuggestionLinesByIdWithConsommation(1, "s", "URGENT", PageRequest.of(0, 20))).isSameAs(expected);
+            assertThat(service.getSuggestionLinesByIdWithConsommation(1, "s", "URGENT", PageRequest.of(0, 20)))
+                    .isSameAs(expected);
 
-            verify(suggestionLineRepository).fetchSuggestionLinesWithConsommation(
-                org.mockito.ArgumentMatchers.eq(1),
-                org.mockito.ArgumentMatchers.eq("s"),
-                org.mockito.ArgumentMatchers.eq("URGENT"),
-                org.mockito.ArgumentMatchers.eq(2),
-                org.mockito.ArgumentMatchers.eq(LocalDate.now().minusDays(15)),
-                org.mockito.ArgumentMatchers.eq(6),
-                any(Pageable.class)
-            );
+            verify(suggestionLineRepository)
+                    .fetchSuggestionLinesWithConsommation(
+                            org.mockito.ArgumentMatchers.eq(1),
+                            org.mockito.ArgumentMatchers.eq("s"),
+                            org.mockito.ArgumentMatchers.eq("URGENT"),
+                            org.mockito.ArgumentMatchers.eq(2),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.now().minusDays(15)),
+                            org.mockito.ArgumentMatchers.eq(6),
+                            any(Pageable.class));
         }
 
         @Test
         @DisplayName("getAllSuggestionLines renvoie le contenu non pagine")
         void toutesLesLignes() {
             SuggestionLineDTO ligne = ligneDTO(1, 4);
-            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(any(), any(), any(), any(), any(), anyInt(), any()))
-                .thenReturn(new PageImpl<>(List.of(ligne)));
+            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(
+                            any(), any(), any(), any(), any(), anyInt(), any()))
+                    .thenReturn(new PageImpl<>(List.of(ligne)));
 
             assertThat(service.getAllSuggestionLines(1, null, null)).containsExactly(ligne);
         }
@@ -366,27 +372,26 @@ class SuggestionProduitServiceImplTest {
 
     private static SuggestionLineDTO ligneDTO(int id, int quantity, Map<Mois, Integer> conso) {
         return new SuggestionLineDTO(
-            id,
-            quantity,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            "PRODUIT " + id,
-            "CIP" + id,
-            "EAN" + id,
-            100 + id,
-            200 + id,
-            5,
-            null,
-            400,
-            800,
-            conso,
-            "NORMAL",
-            10,
-            "CLASSIQUE",
-            false,
-            1,
-            0
-        );
+                id,
+                quantity,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                "PRODUIT " + id,
+                "CIP" + id,
+                "EAN" + id,
+                100 + id,
+                200 + id,
+                5,
+                null,
+                400,
+                800,
+                conso,
+                "NORMAL",
+                10,
+                "CLASSIQUE",
+                false,
+                1,
+                0);
     }
 
     @Nested
@@ -414,8 +419,8 @@ class SuggestionProduitServiceImplTest {
             when(suggestionRepository.findAllById(Set.of(1, 2))).thenReturn(new java.util.ArrayList<>(List.of(s1, s2)));
 
             assertThatThrownBy(() -> service.fusionnerSuggestion(Set.of(1, 2)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("fournisseurs differents");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("fournisseurs differents");
         }
 
         @Test
@@ -428,7 +433,8 @@ class SuggestionProduitServiceImplTest {
             ancienne.setUpdatedAt(LocalDateTime.now().minusDays(1));
             SuggestionLine ligne = ligne(50, fournisseurProduit(10, produit(100, Status.ENABLE, 5), f), 4);
             ancienne.getSuggestionLines().add(ligne);
-            when(suggestionRepository.findAllById(Set.of(1, 2))).thenReturn(new java.util.ArrayList<>(List.of(ancienne, recente)));
+            when(suggestionRepository.findAllById(Set.of(1, 2)))
+                    .thenReturn(new java.util.ArrayList<>(List.of(ancienne, recente)));
 
             service.fusionnerSuggestion(Set.of(1, 2));
 
@@ -449,7 +455,8 @@ class SuggestionProduitServiceImplTest {
             Suggestion ancienne = suggestion(2, f);
             ancienne.setUpdatedAt(LocalDateTime.now().minusDays(1));
             ancienne.getSuggestionLines().add(ligne);
-            when(suggestionRepository.findAllById(Set.of(1, 2))).thenReturn(new java.util.ArrayList<>(List.of(recente, ancienne)));
+            when(suggestionRepository.findAllById(Set.of(1, 2)))
+                    .thenReturn(new java.util.ArrayList<>(List.of(recente, ancienne)));
 
             service.fusionnerSuggestion(Set.of(1, 2));
 
@@ -651,7 +658,8 @@ class SuggestionProduitServiceImplTest {
             Fournisseur f = fournisseur(3, "LABOREX");
             Suggestion s = suggestion(1, f);
             for (int i = 0; i < nbLignes; i++) {
-                s.getSuggestionLines().add(ligne(50 + i, fournisseurProduit(10 + i, produit(100 + i, Status.ENABLE, 5), f), 4));
+                s.getSuggestionLines()
+                        .add(ligne(50 + i, fournisseurProduit(10 + i, produit(100 + i, Status.ENABLE, 5), f), 4));
             }
             when(suggestionRepository.getReferenceById(1)).thenReturn(s);
             return s;
@@ -662,10 +670,12 @@ class SuggestionProduitServiceImplTest {
         void toutesLesLignesCommandees() {
             Suggestion s = suggestionAvecLignes(2);
             CommandeId commandeId = new CommandeId(12, LocalDate.now());
-            when(commandService.createCommandeFromSelection(any(), any(), any())).thenReturn(commandeId);
+            when(commandService.createCommandeFromSelection(any(), any(), any()))
+                    .thenReturn(commandeId);
             List<LigneSelection> lignes = List.of(new LigneSelection(50, 4), new LigneSelection(51, 4));
 
-            assertThat(service.commanderSelection(new CommanderSelectionDTO(1, lignes, 3))).isSameAs(commandeId);
+            assertThat(service.commanderSelection(new CommanderSelectionDTO(1, lignes, 3)))
+                    .isSameAs(commandeId);
 
             verify(suggestionRepository).delete(s);
             verify(suggestionRepository, never()).save(any());
@@ -675,7 +685,8 @@ class SuggestionProduitServiceImplTest {
         @DisplayName("conserve la suggestion quand des lignes restent a commander")
         void lignesRestantes() {
             Suggestion s = suggestionAvecLignes(3);
-            when(commandService.createCommandeFromSelection(any(), any(), any())).thenReturn(new CommandeId(12, LocalDate.now()));
+            when(commandService.createCommandeFromSelection(any(), any(), any()))
+                    .thenReturn(new CommandeId(12, LocalDate.now()));
 
             service.commanderSelection(new CommanderSelectionDTO(1, List.of(new LigneSelection(50, 4)), 3));
 
@@ -701,8 +712,9 @@ class SuggestionProduitServiceImplTest {
         private void stubBudget(String value) {
             com.kobe.warehouse.domain.AppConfiguration c = new com.kobe.warehouse.domain.AppConfiguration();
             c.setValue(value);
-            when(appConfigurationService.findOneById(com.kobe.warehouse.constant.EntityConstant.APP_BUDGET_MENSUEL_COMMANDE))
-                .thenReturn(value == null ? Optional.empty() : Optional.of(c));
+            when(appConfigurationService.findOneById(
+                            com.kobe.warehouse.constant.EntityConstant.APP_BUDGET_MENSUEL_COMMANDE))
+                    .thenReturn(value == null ? Optional.empty() : Optional.of(c));
         }
 
         @Test
@@ -783,7 +795,8 @@ class SuggestionProduitServiceImplTest {
             when(suggestionRepository.findById(1)).thenReturn(Optional.empty());
             SuggestionLineDTO dto = ligneDTO(null == null ? 0 : 0, 3);
 
-            assertThatThrownBy(() -> service.addSuggestionLine(1, dto)).isInstanceOf(java.util.NoSuchElementException.class);
+            assertThatThrownBy(() -> service.addSuggestionLine(1, dto))
+                    .isInstanceOf(java.util.NoSuchElementException.class);
         }
 
         @Test
@@ -793,7 +806,8 @@ class SuggestionProduitServiceImplTest {
             Suggestion s = suggestion(1, f);
             SuggestionLine existante = ligne(50, fournisseurProduit(10, produit(101, Status.ENABLE, 5), f), 4);
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101)).thenReturn(Optional.of(existante));
+            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101))
+                    .thenReturn(Optional.of(existante));
 
             service.addSuggestionLine(1, ligneDTO(1, 3));
 
@@ -809,8 +823,10 @@ class SuggestionProduitServiceImplTest {
             Suggestion s = suggestion(1, f);
             FournisseurProduit fp = fournisseurProduit(10, produit(101, Status.ENABLE, 5), f);
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101)).thenReturn(Optional.empty());
-            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(101, 3)).thenReturn(Optional.of(fp));
+            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101))
+                    .thenReturn(Optional.empty());
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(101, 3))
+                    .thenReturn(Optional.of(fp));
 
             service.addSuggestionLine(1, ligneDTO(1, 3));
 
@@ -828,11 +844,14 @@ class SuggestionProduitServiceImplTest {
             Fournisseur f = fournisseur(3, "LABOREX");
             Suggestion s = suggestion(1, f);
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101)).thenReturn(Optional.empty());
-            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(101, 3)).thenReturn(Optional.empty());
+            when(suggestionLineRepository.findBySuggestionIdAndFournisseurProduitProduitId(1, 101))
+                    .thenReturn(Optional.empty());
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(101, 3))
+                    .thenReturn(Optional.empty());
             SuggestionLineDTO dto = ligneDTO(1, 3);
 
-            assertThatThrownBy(() -> service.addSuggestionLine(1, dto)).isInstanceOf(java.util.NoSuchElementException.class);
+            assertThatThrownBy(() -> service.addSuggestionLine(1, dto))
+                    .isInstanceOf(java.util.NoSuchElementException.class);
         }
     }
 
@@ -859,7 +878,8 @@ class SuggestionProduitServiceImplTest {
             when(suggestionLineRepository.findById(1)).thenReturn(Optional.empty());
             SuggestionLineDTO dto = ligneDTO(1, 9);
 
-            assertThatThrownBy(() -> service.updateSuggestionLinQuantity(dto)).isInstanceOf(java.util.NoSuchElementException.class);
+            assertThatThrownBy(() -> service.updateSuggestionLinQuantity(dto))
+                    .isInstanceOf(java.util.NoSuchElementException.class);
         }
 
         @Test
@@ -924,7 +944,9 @@ class SuggestionProduitServiceImplTest {
         void csvSuggestionIntrouvable() {
             when(suggestionRepository.findById(1)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.exportToCsv(1)).isInstanceOf(GenericError.class).hasMessageContaining("non trouvée");
+            assertThatThrownBy(() -> service.exportToCsv(1))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("non trouvée");
         }
 
         @Test
@@ -932,24 +954,20 @@ class SuggestionProduitServiceImplTest {
         void csvSansConsommation() throws Exception {
             Suggestion s = suggestion(1, fournisseur(3, "LABOREX"));
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(any(), isNull(), isNull(), any(), any(), anyInt(), any()))
-                .thenReturn(new PageImpl<>(List.of(ligneDTO(1, 4))));
-            when(csvExportService.createSimpleCsvReport(anyString(), any(), any())).thenReturn(new byte[] { 1 });
-            when(csvExportService.addUtf8Bom(any())).thenReturn(new byte[] { 9 });
+            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(
+                            any(), isNull(), isNull(), any(), any(), anyInt(), any()))
+                    .thenReturn(new PageImpl<>(List.of(ligneDTO(1, 4))));
+            when(csvExportService.createSimpleCsvReport(anyString(), any(), any()))
+                    .thenReturn(new byte[] {1});
+            when(csvExportService.addUtf8Bom(any())).thenReturn(new byte[] {9});
 
             assertThat(service.exportToCsv(1)).containsExactly(9);
 
             ArgumentCaptor<String[]> headers = ArgumentCaptor.forClass(String[].class);
             verify(csvExportService).createSimpleCsvReport(anyString(), headers.capture(), any());
-            assertThat(headers.getValue()).containsExactly(
-                "Code CIP",
-                "Code EAN",
-                "Désignation",
-                "Stock",
-                "Qté suggérée",
-                "Prix achat",
-                "Prix vente"
-            );
+            assertThat(headers.getValue())
+                    .containsExactly(
+                            "Code CIP", "Code EAN", "Désignation", "Stock", "Qté suggérée", "Prix achat", "Prix vente");
         }
 
         @Test
@@ -960,10 +978,12 @@ class SuggestionProduitServiceImplTest {
             conso.put(Mois.JANVIER, 4);
             conso.put(Mois.FEVRIER, 7);
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(any(), isNull(), isNull(), any(), any(), anyInt(), any()))
-                .thenReturn(new PageImpl<>(List.of(ligneDTO(1, 4, conso), ligneDTO(2, 6))));
-            when(csvExportService.createSimpleCsvReport(anyString(), any(), any())).thenReturn(new byte[] { 1 });
-            when(csvExportService.addUtf8Bom(any())).thenReturn(new byte[] { 9 });
+            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(
+                            any(), isNull(), isNull(), any(), any(), anyInt(), any()))
+                    .thenReturn(new PageImpl<>(List.of(ligneDTO(1, 4, conso), ligneDTO(2, 6))));
+            when(csvExportService.createSimpleCsvReport(anyString(), any(), any()))
+                    .thenReturn(new byte[] {1});
+            when(csvExportService.addUtf8Bom(any())).thenReturn(new byte[] {9});
 
             service.exportToCsv(1);
 
@@ -983,7 +1003,9 @@ class SuggestionProduitServiceImplTest {
         void pdfSuggestionIntrouvable() {
             when(suggestionRepository.findById(1)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.exportToPdf(1)).isInstanceOf(GenericError.class).hasMessageContaining("non trouvée");
+            assertThatThrownBy(() -> service.exportToPdf(1))
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("non trouvée");
         }
 
         @Test
@@ -992,9 +1014,11 @@ class SuggestionProduitServiceImplTest {
             Suggestion s = suggestion(1, fournisseur(3, "LABOREX"));
             SuggestionLineDTO ligne = ligneDTO(1, 4);
             when(suggestionRepository.findById(1)).thenReturn(Optional.of(s));
-            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(any(), isNull(), isNull(), any(), any(), anyInt(), any()))
-                .thenReturn(new PageImpl<>(List.of(ligne)));
-            when(suggestionPdfReportService.export(anyString(), anyString(), any())).thenReturn(new byte[] { 7 });
+            when(suggestionLineRepository.fetchSuggestionLinesWithConsommation(
+                            any(), isNull(), isNull(), any(), any(), anyInt(), any()))
+                    .thenReturn(new PageImpl<>(List.of(ligne)));
+            when(suggestionPdfReportService.export(anyString(), anyString(), any()))
+                    .thenReturn(new byte[] {7});
 
             assertThat(service.exportToPdf(1)).containsExactly(7);
 
@@ -1015,7 +1039,8 @@ class SuggestionProduitServiceImplTest {
         @ParameterizedTest(name = "une liste vide ou nulle ne suggere rien")
         @NullAndEmptySource
         void listeVide(List<QauntiteProduitVendus> vendus) {
-            assertThat(service.suggestionQuantiteProduitVendus(vendus, Boolean.TRUE)).isZero();
+            assertThat(service.suggestionQuantiteProduitVendus(vendus, Boolean.TRUE))
+                    .isZero();
 
             verifyNoInteractions(suggestionRepository);
         }
@@ -1023,7 +1048,9 @@ class SuggestionProduitServiceImplTest {
         @Test
         @DisplayName("ecarte les produits sans identifiant")
         void produitSansIdentifiant() {
-            assertThat(service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(null, 3, 2, 5)), Boolean.TRUE)).isZero();
+            assertThat(service.suggestionQuantiteProduitVendus(
+                            List.of(new QauntiteProduitVendus(null, 3, 2, 5)), Boolean.TRUE))
+                    .isZero();
         }
 
         @Test
@@ -1031,7 +1058,9 @@ class SuggestionProduitServiceImplTest {
         void produitNonSuggerable() {
             when(etatProduitService.canSuggere(101)).thenReturn(false);
 
-            assertThat(service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE)).isZero();
+            assertThat(service.suggestionQuantiteProduitVendus(
+                            List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE))
+                    .isZero();
 
             verifyNoInteractions(produitRepository);
         }
@@ -1042,7 +1071,9 @@ class SuggestionProduitServiceImplTest {
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(produit(101, Status.ENABLE, 5)));
 
-            assertThat(service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE)).isZero();
+            assertThat(service.suggestionQuantiteProduitVendus(
+                            List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE))
+                    .isZero();
         }
 
         @Test
@@ -1052,11 +1083,13 @@ class SuggestionProduitServiceImplTest {
             Produit p = produitAvecPrincipal(101, f);
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(p));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any())).thenReturn(List.of());
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any()))
+                    .thenReturn(List.of());
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(TypeSuggession.AUTO, 3, 1))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
-            int count = service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE);
+            int count = service.suggestionQuantiteProduitVendus(
+                    List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE);
 
             assertThat(count).isEqualTo(1);
             @SuppressWarnings("unchecked")
@@ -1069,7 +1102,8 @@ class SuggestionProduitServiceImplTest {
             assertThat(saved.getLastUserEdit()).isSameAs(currentUser);
             assertThat(saved.getSuggessionReference()).endsWith("0001");
             assertThat(saved.getSuggestionLines()).hasSize(1);
-            assertThat(saved.getSuggestionLines().iterator().next().getQuantity()).isEqualTo(3);
+            assertThat(saved.getSuggestionLines().iterator().next().getQuantity())
+                    .isEqualTo(3);
         }
 
         @Test
@@ -1079,16 +1113,23 @@ class SuggestionProduitServiceImplTest {
             Produit p = produitAvecPrincipal(101, f);
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(p));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any())).thenReturn(List.of());
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any()))
+                    .thenReturn(List.of());
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), anyInt(), anyInt()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 3, 8, 5)), Boolean.FALSE);
 
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<Suggestion>> captor = ArgumentCaptor.forClass(List.class);
             verify(suggestionRepository).saveAll(captor.capture());
-            assertThat(captor.getValue().getFirst().getSuggestionLines().iterator().next().getQuantity()).isEqualTo(8);
+            assertThat(captor.getValue()
+                            .getFirst()
+                            .getSuggestionLines()
+                            .iterator()
+                            .next()
+                            .getQuantity())
+                    .isEqualTo(8);
         }
 
         @Test
@@ -1098,11 +1139,14 @@ class SuggestionProduitServiceImplTest {
             Produit p = produitAvecPrincipal(101, f);
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(p));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any())).thenReturn(List.of());
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any()))
+                    .thenReturn(List.of());
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), anyInt(), anyInt()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
-            assertThat(service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 0, 0, 5)), Boolean.TRUE)).isZero();
+            assertThat(service.suggestionQuantiteProduitVendus(
+                            List.of(new QauntiteProduitVendus(101, 0, 0, 5)), Boolean.TRUE))
+                    .isZero();
 
             verify(suggestionLineRepository).saveAll(List.of());
         }
@@ -1115,10 +1159,11 @@ class SuggestionProduitServiceImplTest {
             SuggestionLine existante = ligne(50, p.getFournisseurProduitPrincipal(), 4);
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(p));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, Set.of(1010)))
-                .thenReturn(List.of(existante));
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(
+                            TypeSuggession.AUTO, Set.of(1010)))
+                    .thenReturn(List.of(existante));
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), anyInt(), anyInt()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 9, 2, 5)), Boolean.TRUE);
 
@@ -1137,9 +1182,10 @@ class SuggestionProduitServiceImplTest {
             Suggestion existante = suggestion(1, f);
             when(etatProduitService.canSuggere(101)).thenReturn(true);
             when(produitRepository.findAllById(Set.of(101))).thenReturn(List.of(p));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any())).thenReturn(List.of());
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any()))
+                    .thenReturn(List.of());
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(TypeSuggession.AUTO, 3, 1))
-                .thenReturn(Optional.of(existante));
+                    .thenReturn(Optional.of(existante));
 
             service.suggestionQuantiteProduitVendus(List.of(new QauntiteProduitVendus(101, 3, 2, 5)), Boolean.TRUE);
 
@@ -1159,14 +1205,14 @@ class SuggestionProduitServiceImplTest {
             Produit p2 = produitAvecPrincipal(102, f2);
             when(etatProduitService.canSuggere(anyInt())).thenReturn(true);
             when(produitRepository.findAllById(any())).thenReturn(List.of(p1, p2));
-            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any())).thenReturn(List.of());
+            when(suggestionLineRepository.findAllByTypeSuggessionAndFournisseurProduitIdIn(any(), any()))
+                    .thenReturn(List.of());
             when(suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(any(), anyInt(), anyInt()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             int count = service.suggestionQuantiteProduitVendus(
-                List.of(new QauntiteProduitVendus(101, 3, 2, 5), new QauntiteProduitVendus(102, 4, 2, 5)),
-                Boolean.TRUE
-            );
+                    List.of(new QauntiteProduitVendus(101, 3, 2, 5), new QauntiteProduitVendus(102, 4, 2, 5)),
+                    Boolean.TRUE);
 
             assertThat(count).isEqualTo(2);
             @SuppressWarnings("unchecked")

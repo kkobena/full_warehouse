@@ -69,12 +69,14 @@ export class FormTransactionComponent implements OnInit {
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
-        this.paymentModes.set(res.body.map((paymentMode: IPaymentMode) => {
+        this.paymentModes.set(
+          res.body.map((paymentMode: IPaymentMode) => {
             return {
               libelle: paymentMode.libelle,
               code: paymentMode.code,
             };
-          }) || []);
+          }) || [],
+        );
       }
     });
     this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });

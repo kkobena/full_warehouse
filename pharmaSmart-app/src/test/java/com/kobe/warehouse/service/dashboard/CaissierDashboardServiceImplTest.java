@@ -19,8 +19,8 @@ import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dashboard.impl.CaissierDashboardServiceImpl;
-import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.DiffereARelancerDTO;
 import com.kobe.warehouse.service.dto.dashboard.EncaissementParModeDTO;
 import com.kobe.warehouse.service.dto.dashboard.LivraisonAttendueDTO;
@@ -83,11 +83,7 @@ class CaissierDashboardServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new CaissierDashboardServiceImpl(
-            cashRegisterRepository,
-            cashRegisterItemRepository,
-            salesRepository,
-            commandeRepository
-        );
+                cashRegisterRepository, cashRegisterItemRepository, salesRepository, commandeRepository);
         connecte(LOGIN);
     }
 
@@ -97,7 +93,8 @@ class CaissierDashboardServiceImplTest {
     }
 
     private static void connecte(String login) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(login, null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(login, null, List.of()));
     }
 
     private static void deconnecte() {
@@ -113,10 +110,11 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("caisse ouverte : les espèces théoriques sont le fonds plus les encaissements")
         void caisseOuverteAdditionneFondsEtEncaissements() {
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(ligneCaisse(50_000L, LocalDateTime.of(2026, 9, 18, 8, 5), CashRegisterStatut.OPEN, null))
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(eq(CAISSE_ID), anySet(), anySet())).thenReturn(275_000L);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            ligneCaisse(50_000L, LocalDateTime.of(2026, 9, 18, 8, 5), CashRegisterStatut.OPEN, null)));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(eq(CAISSE_ID), anySet(), anySet()))
+                    .thenReturn(275_000L);
 
             CaisseStatusDTO resultat = service.getCaisseStatus();
 
@@ -134,10 +132,14 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("caisse ouverte : aucune heure de fermeture n'est exposée")
         void caisseOuverteNExposePasDeFermeture() {
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(ligneCaisse(0L, LocalDateTime.now(), CashRegisterStatut.OPEN, LocalDateTime.now().minusDays(1)))
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet())).thenReturn(0L);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(ligneCaisse(
+                            0L,
+                            LocalDateTime.now(),
+                            CashRegisterStatut.OPEN,
+                            LocalDateTime.now().minusDays(1))));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet()))
+                    .thenReturn(0L);
 
             assertThat(service.getCaisseStatus().derniereFermeture()).isNull();
         }
@@ -145,10 +147,11 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("statut PENDING compte comme ouverte — la session n'est pas encore validée")
         void statutPendingResteOuverte() {
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(ligneCaisse(10_000L, LocalDateTime.of(2026, 9, 18, 9, 0), CashRegisterStatut.PENDING, null))
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet())).thenReturn(0L);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(ligneCaisse(
+                            10_000L, LocalDateTime.of(2026, 9, 18, 9, 0), CashRegisterStatut.PENDING, null)));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet()))
+                    .thenReturn(0L);
 
             assertThat(service.getCaisseStatus().etat()).isEqualTo("OUVERTE");
         }
@@ -157,10 +160,11 @@ class CaissierDashboardServiceImplTest {
         @DisplayName("caisse fermée dans la journée : l'heure de fermeture est exposée")
         void caisseFermeeExposeLHeureDeFermeture() {
             LocalDateTime fermeture = LocalDateTime.of(2026, 9, 18, 19, 30);
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(ligneCaisse(50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), CashRegisterStatut.CLOSED, fermeture))
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet())).thenReturn(100_000L);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(ligneCaisse(
+                            50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), CashRegisterStatut.CLOSED, fermeture)));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet()))
+                    .thenReturn(100_000L);
 
             CaisseStatusDTO resultat = service.getCaisseStatus();
 
@@ -207,10 +211,11 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("une somme d'espèces nulle est traitée comme zéro")
         void sommeNulleTraiteeCommeZero() {
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(ligneCaisse(50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), CashRegisterStatut.OPEN, null))
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet())).thenReturn(null);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            ligneCaisse(50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), CashRegisterStatut.OPEN, null)));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet()))
+                    .thenReturn(null);
 
             CaisseStatusDTO resultat = service.getCaisseStatus();
 
@@ -230,8 +235,9 @@ class CaissierDashboardServiceImplTest {
             verifyNoInteractions(cashRegisterRepository, cashRegisterItemRepository);
         }
 
-        private Object[] ligneCaisse(Long fonds, LocalDateTime ouverture, CashRegisterStatut statut, LocalDateTime fermeture) {
-            return new Object[] { CAISSE_ID, fonds, ouverture, statut.name(), fermeture };
+        private Object[] ligneCaisse(
+                Long fonds, LocalDateTime ouverture, CashRegisterStatut statut, LocalDateTime fermeture) {
+            return new Object[] {CAISSE_ID, fonds, ouverture, statut.name(), fermeture};
         }
     }
 
@@ -243,7 +249,9 @@ class CaissierDashboardServiceImplTest {
 
         @BeforeEach
         void caisseOuverte() {
-            lenient().when(cashRegisterRepository.findCurrentIdByUserLogin(LOGIN)).thenReturn(List.of(CAISSE_ID));
+            lenient()
+                    .when(cashRegisterRepository.findCurrentIdByUserLogin(LOGIN))
+                    .thenReturn(List.of(CAISSE_ID));
         }
 
         /**
@@ -254,14 +262,12 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("sépare ce qui est encaissé de ce qui reste à recouvrer, selon le groupe de paiement")
         void separeEncaisseEtARecouvrer() {
-            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet())).thenReturn(
-                List.of(
-                    mode("CASH", "ESPECE", PaymentGroup.CASH, 300_000L),
-                    mode("OM", "ORANGE", PaymentGroup.MOBILE, 50_000L),
-                    mode("CB", "CARTE BANCAIRE", PaymentGroup.CB, 25_000L),
-                    mode("CREDIT", "CREDIT", PaymentGroup.CREDIT, 40_000L)
-                )
-            );
+            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet()))
+                    .thenReturn(List.of(
+                            mode("CASH", "ESPECE", PaymentGroup.CASH, 300_000L),
+                            mode("OM", "ORANGE", PaymentGroup.MOBILE, 50_000L),
+                            mode("CB", "CARTE BANCAIRE", PaymentGroup.CB, 25_000L),
+                            mode("CREDIT", "CREDIT", PaymentGroup.CREDIT, 40_000L)));
             when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(List.of());
 
             SessionEncaissementsDTO resultat = service.getSessionEncaissements();
@@ -273,19 +279,20 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("une ligne par mode utilisé, dans l'ordre rendu par la requête")
         void uneLigneParMode() {
-            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet())).thenReturn(
-                List.of(mode("CASH", "ESPECE", PaymentGroup.CASH, 300_000L), mode("WAVE", "WAVE", PaymentGroup.MOBILE, 15_000L))
-            );
+            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet()))
+                    .thenReturn(List.of(
+                            mode("CASH", "ESPECE", PaymentGroup.CASH, 300_000L),
+                            mode("WAVE", "WAVE", PaymentGroup.MOBILE, 15_000L)));
             when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(List.of());
 
             SessionEncaissementsDTO resultat = service.getSessionEncaissements();
 
             assertThat(resultat.lignes())
-                .extracting(EncaissementParModeDTO::code, EncaissementParModeDTO::libelle, EncaissementParModeDTO::montant)
-                .containsExactly(
-                    tuple("CASH", "ESPECE", 300_000L),
-                    tuple("WAVE", "WAVE", 15_000L)
-                );
+                    .extracting(
+                            EncaissementParModeDTO::code,
+                            EncaissementParModeDTO::libelle,
+                            EncaissementParModeDTO::montant)
+                    .containsExactly(tuple("CASH", "ESPECE", 300_000L), tuple("WAVE", "WAVE", 15_000L));
         }
 
         /**
@@ -295,12 +302,12 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("carnet et différé s'ajoutent au reste à recouvrer")
         void carnetEtDiffereGonflentLeARecouvrer() {
-            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet())).thenReturn(
-                List.of(mode("CASH", "ESPECE", PaymentGroup.CASH, 100_000L), mode("CREDIT", "CREDIT", PaymentGroup.CREDIT, 10_000L))
-            );
-            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(
-                List.<Object[]>of(new Object[] { 30_000L, 20_000L, 17 })
-            );
+            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet()))
+                    .thenReturn(List.of(
+                            mode("CASH", "ESPECE", PaymentGroup.CASH, 100_000L),
+                            mode("CREDIT", "CREDIT", PaymentGroup.CREDIT, 10_000L)));
+            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID))
+                    .thenReturn(List.<Object[]>of(new Object[] {30_000L, 20_000L, 17}));
 
             SessionEncaissementsDTO resultat = service.getSessionEncaissements();
 
@@ -315,12 +322,12 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("accepte les sommes rendues en BigDecimal par Postgres")
         void accepteLesBigDecimal() {
-            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet())).thenReturn(
-                List.<Object[]>of(new Object[] { "CASH", "ESPECE", PaymentGroup.CASH.name(), BigDecimal.valueOf(123_456L) })
-            );
-            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(
-                List.<Object[]>of(new Object[] { BigDecimal.valueOf(1_000L), BigDecimal.valueOf(2_000L), BigDecimal.valueOf(3L) })
-            );
+            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet()))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {"CASH", "ESPECE", PaymentGroup.CASH.name(), BigDecimal.valueOf(123_456L)}));
+            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(List.<Object[]>of(new Object[] {
+                BigDecimal.valueOf(1_000L), BigDecimal.valueOf(2_000L), BigDecimal.valueOf(3L)
+            }));
 
             SessionEncaissementsDTO resultat = service.getSessionEncaissements();
 
@@ -355,7 +362,7 @@ class CaissierDashboardServiceImplTest {
         }
 
         private Object[] mode(String code, String libelle, PaymentGroup groupe, long montant) {
-            return new Object[] { code, libelle, groupe.name(), montant };
+            return new Object[] {code, libelle, groupe.name(), montant};
         }
     }
 
@@ -372,33 +379,27 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("classe chaque différé selon son ancienneté")
         void classeParAnciennete() {
-            when(salesRepository.findDifferesARelancer()).thenReturn(
-                List.of(
-                    differe(1L, "Kouassi Yao", 10_000L, 0),
-                    differe(2L, "Aya Traore", 5_000L, 3),
-                    differe(3L, "Bamba Sekou", 25_000L, 7),
-                    differe(4L, "Diaby Mariam", 40_000L, 8)
-                )
-            );
+            when(salesRepository.findDifferesARelancer())
+                    .thenReturn(List.of(
+                            differe(1L, "Kouassi Yao", 10_000L, 0),
+                            differe(2L, "Aya Traore", 5_000L, 3),
+                            differe(3L, "Bamba Sekou", 25_000L, 7),
+                            differe(4L, "Diaby Mariam", 40_000L, 8)));
 
             ResumeDifferesDTO resultat = service.getDifferesRelance();
 
             assertThat(resultat.differes())
-                .extracting(DiffereARelancerDTO::saleId, DiffereARelancerDTO::urgence)
-                .containsExactly(
-                    tuple(1L, "AUJOURD_HUI"),
-                    tuple(2L, "RETARD"),
-                    tuple(3L, "RETARD"),
-                    tuple(4L, "CRITIQUE")
-                );
+                    .extracting(DiffereARelancerDTO::saleId, DiffereARelancerDTO::urgence)
+                    .containsExactly(
+                            tuple(1L, "AUJOURD_HUI"), tuple(2L, "RETARD"), tuple(3L, "RETARD"), tuple(4L, "CRITIQUE"));
         }
 
         @Test
         @DisplayName("ne compte comme échéance du jour que les différés sans retard")
         void compteLesEcheancesDuJour() {
-            when(salesRepository.findDifferesARelancer()).thenReturn(
-                List.of(differe(1L, "A", 1_000L, 0), differe(2L, "B", 2_000L, 0), differe(3L, "C", 3_000L, 5))
-            );
+            when(salesRepository.findDifferesARelancer())
+                    .thenReturn(List.of(
+                            differe(1L, "A", 1_000L, 0), differe(2L, "B", 2_000L, 0), differe(3L, "C", 3_000L, 5)));
 
             ResumeDifferesDTO resultat = service.getDifferesRelance();
 
@@ -410,11 +411,11 @@ class CaissierDashboardServiceImplTest {
         @DisplayName("reporte le téléphone et l'échéance, dont dépend la relance")
         void reporteTelephoneEtEcheance() {
             LocalDate echeance = LocalDate.of(2026, 9, 11);
-            when(salesRepository.findDifferesARelancer()).thenReturn(
-                List.<Object[]>of(new Object[] { 9L, "Kone Ali", "0102030405", 12_500L, echeance, 7 })
-            );
+            when(salesRepository.findDifferesARelancer())
+                    .thenReturn(List.<Object[]>of(new Object[] {9L, "Kone Ali", "0102030405", 12_500L, echeance, 7}));
 
-            DiffereARelancerDTO differe = service.getDifferesRelance().differes().getFirst();
+            DiffereARelancerDTO differe =
+                    service.getDifferesRelance().differes().getFirst();
 
             assertThat(differe.clientNom()).isEqualTo("Kone Ali");
             assertThat(differe.clientTelephone()).isEqualTo("0102030405");
@@ -446,7 +447,9 @@ class CaissierDashboardServiceImplTest {
         }
 
         private Object[] differe(long saleId, String nom, long montant, int joursRetard) {
-            return new Object[] { saleId, nom, "0102030405", montant, LocalDate.now().minusDays(joursRetard), joursRetard };
+            return new Object[] {
+                saleId, nom, "0102030405", montant, LocalDate.now().minusDays(joursRetard), joursRetard
+            };
         }
     }
 
@@ -459,22 +462,17 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("reporte fournisseur et nombre de références de chaque commande attendue")
         void reporteLesLivraisons() {
-            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet())).thenReturn(
-                List.<Object[]>of(new Object[] { 101, "LABOREX", 27 }, new Object[] { 102, "DPCI", 4 })
-            );
+            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet()))
+                    .thenReturn(List.<Object[]>of(new Object[] {101, "LABOREX", 27}, new Object[] {102, "DPCI", 4}));
 
             List<LivraisonAttendueDTO> resultat = service.getLivraisonsJour();
 
             assertThat(resultat)
-                .extracting(
-                    LivraisonAttendueDTO::commandeId,
-                    LivraisonAttendueDTO::fournisseurNom,
-                    LivraisonAttendueDTO::nombreReferences
-                )
-                .containsExactly(
-                    tuple(101, "LABOREX", 27),
-                    tuple(102, "DPCI", 4)
-                );
+                    .extracting(
+                            LivraisonAttendueDTO::commandeId,
+                            LivraisonAttendueDTO::fournisseurNom,
+                            LivraisonAttendueDTO::nombreReferences)
+                    .containsExactly(tuple(101, "LABOREX", 27), tuple(102, "DPCI", 4));
         }
 
         /**
@@ -484,11 +482,11 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("accepte un compteur rendu en Long")
         void accepteUnCompteurLong() {
-            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet())).thenReturn(
-                List.<Object[]>of(new Object[] { 101, "LABOREX", 12L })
-            );
+            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet()))
+                    .thenReturn(List.<Object[]>of(new Object[] {101, "LABOREX", 12L}));
 
-            assertThat(service.getLivraisonsJour().getFirst().nombreReferences()).isEqualTo(12);
+            assertThat(service.getLivraisonsJour().getFirst().nombreReferences())
+                    .isEqualTo(12);
         }
 
         @Test
@@ -510,9 +508,9 @@ class CaissierDashboardServiceImplTest {
         @DisplayName("reporte reçu, montant, type et client de chaque vente")
         void reporteLesVentes() {
             LocalDateTime heure = LocalDateTime.of(2026, 9, 18, 11, 42);
-            when(salesRepository.findVentesRecentesByCaissier(LOGIN)).thenReturn(
-                List.<Object[]>of(new Object[] { 7L, "VNO000007", 18_500L, heure, "COMPTANT", "Kouassi Yao" })
-            );
+            when(salesRepository.findVentesRecentesByCaissier(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {7L, "VNO000007", 18_500L, heure, "COMPTANT", "Kouassi Yao"}));
 
             VenteRecenteDTO vente = service.getVentesRecentes(null).getFirst();
 
@@ -528,9 +526,9 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("le mode de paiement affiché reprend le type de vente")
         void modePaiementReprendLeType() {
-            when(salesRepository.findVentesRecentesByCaissier(LOGIN)).thenReturn(
-                List.<Object[]>of(new Object[] { 7L, "VNO000007", 1_000L, LocalDateTime.now(), "DIFFERE", null })
-            );
+            when(salesRepository.findVentesRecentesByCaissier(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {7L, "VNO000007", 1_000L, LocalDateTime.now(), "DIFFERE", null}));
 
             VenteRecenteDTO vente = service.getVentesRecentes(null).getFirst();
 
@@ -567,7 +565,8 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("moins de ventes que la limite : tout est rendu")
         void moinsDeVentesQueLaLimite() {
-            when(salesRepository.findVentesRecentesByCaissier(LOGIN)).thenReturn(vingtVentes().subList(0, 2));
+            when(salesRepository.findVentesRecentesByCaissier(LOGIN))
+                    .thenReturn(vingtVentes().subList(0, 2));
 
             assertThat(service.getVentesRecentes(8)).hasSize(2);
         }
@@ -583,10 +582,10 @@ class CaissierDashboardServiceImplTest {
 
         private List<Object[]> vingtVentes() {
             return IntStream.rangeClosed(1, 20)
-                .<Object[]>mapToObj(i ->
-                    new Object[] { (long) i, "VNO" + i, 1_000L * i, LocalDateTime.now().minusMinutes(i), "COMPTANT", null }
-                )
-                .toList();
+                    .<Object[]>mapToObj(i -> new Object[] {
+                        (long) i, "VNO" + i, 1_000L * i, LocalDateTime.now().minusMinutes(i), "COMPTANT", null
+                    })
+                    .toList();
         }
     }
 
@@ -603,26 +602,24 @@ class CaissierDashboardServiceImplTest {
         @Test
         @DisplayName("un seul appel rend les cinq blocs de l'écran")
         void rendLesCinqBlocs() {
-            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN)).thenReturn(
-                List.<Object[]>of(new Object[] { CAISSE_ID, 50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), "OPEN", null })
-            );
-            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet())).thenReturn(10_000L);
+            when(cashRegisterRepository.findCurrentByUserLogin(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {CAISSE_ID, 50_000L, LocalDateTime.of(2026, 9, 18, 8, 0), "OPEN", null}));
+            when(cashRegisterItemRepository.sumEncaissementsEspeces(anyInt(), anySet(), anySet()))
+                    .thenReturn(10_000L);
             when(cashRegisterRepository.findCurrentIdByUserLogin(LOGIN)).thenReturn(List.of(CAISSE_ID));
-            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet())).thenReturn(
-                List.<Object[]>of(new Object[] { "CASH", "ESPECE", PaymentGroup.CASH.name(), 10_000L })
-            );
-            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID)).thenReturn(
-                List.<Object[]>of(new Object[] { 0L, 0L, 1 })
-            );
-            when(salesRepository.findDifferesARelancer()).thenReturn(
-                List.<Object[]>of(new Object[] { 1L, "Kouassi", "0102030405", 5_000L, LocalDate.now(), 0 })
-            );
-            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet())).thenReturn(
-                List.<Object[]>of(new Object[] { 101, "LABOREX", 3 })
-            );
-            when(salesRepository.findVentesRecentesByCaissier(LOGIN)).thenReturn(
-                List.<Object[]>of(new Object[] { 1L, "VNO1", 10_000L, LocalDateTime.now(), "COMPTANT", null })
-            );
+            when(cashRegisterItemRepository.findEncaissementsParMode(eq(CAISSE_ID), anySet()))
+                    .thenReturn(List.<Object[]>of(new Object[] {"CASH", "ESPECE", PaymentGroup.CASH.name(), 10_000L}));
+            when(salesRepository.findSalesEncaissementsForCaisse(CAISSE_ID))
+                    .thenReturn(List.<Object[]>of(new Object[] {0L, 0L, 1}));
+            when(salesRepository.findDifferesARelancer())
+                    .thenReturn(
+                            List.<Object[]>of(new Object[] {1L, "Kouassi", "0102030405", 5_000L, LocalDate.now(), 0}));
+            when(commandeRepository.findLivraisonsAttenduesAujourdhui(anySet()))
+                    .thenReturn(List.<Object[]>of(new Object[] {101, "LABOREX", 3}));
+            when(salesRepository.findVentesRecentesByCaissier(LOGIN))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {1L, "VNO1", 10_000L, LocalDateTime.now(), "COMPTANT", null}));
 
             CaissierDashboardDTO resultat = service.getDashboardData();
 

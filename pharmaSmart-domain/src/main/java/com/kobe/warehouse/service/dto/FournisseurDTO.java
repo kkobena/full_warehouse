@@ -38,6 +38,7 @@ public class FournisseurDTO implements Serializable {
     private Long francoDePort;
     /** Franco réellement opposable : le sien, à défaut celui de son grossiste. */
     private Long francoEffectif;
+
     private String urlPharmaMl;
     private String codeOfficePharmaMl;
     private String codeRecepteurPharmaMl;
@@ -205,29 +206,69 @@ public class FournisseurDTO implements Serializable {
         this.email = email;
     }
 
-    public Integer getJoursCredit() { return joursCredit; }
-    public void setJoursCredit(Integer joursCredit) { this.joursCredit = joursCredit; }
+    public Integer getJoursCredit() {
+        return joursCredit;
+    }
 
-    public Integer getJoursCritique() { return joursCritique; }
-    public void setJoursCritique(Integer joursCritique) { this.joursCritique = joursCritique; }
+    public void setJoursCredit(Integer joursCredit) {
+        this.joursCredit = joursCredit;
+    }
 
-    public Long getPalierRfa() { return palierRfa; }
-    public void setPalierRfa(Long palierRfa) { this.palierRfa = palierRfa; }
+    public Integer getJoursCritique() {
+        return joursCritique;
+    }
 
-    public Integer getTauxRfa() { return tauxRfa; }
-    public void setTauxRfa(Integer tauxRfa) { this.tauxRfa = tauxRfa; }
+    public void setJoursCritique(Integer joursCritique) {
+        this.joursCritique = joursCritique;
+    }
 
-    public String getUrlPharmaMl() { return urlPharmaMl; }
-    public void setUrlPharmaMl(String urlPharmaMl) { this.urlPharmaMl = urlPharmaMl; }
+    public Long getPalierRfa() {
+        return palierRfa;
+    }
 
-    public String getCodeOfficePharmaMl() { return codeOfficePharmaMl; }
-    public void setCodeOfficePharmaMl(String codeOfficePharmaMl) { this.codeOfficePharmaMl = codeOfficePharmaMl; }
+    public void setPalierRfa(Long palierRfa) {
+        this.palierRfa = palierRfa;
+    }
 
-    public String getCodeRecepteurPharmaMl() { return codeRecepteurPharmaMl; }
-    public void setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) { this.codeRecepteurPharmaMl = codeRecepteurPharmaMl; }
+    public Integer getTauxRfa() {
+        return tauxRfa;
+    }
 
-    public String getIdRecepteurPharmaMl() { return idRecepteurPharmaMl; }
-    public void setIdRecepteurPharmaMl(String idRecepteurPharmaMl) { this.idRecepteurPharmaMl = idRecepteurPharmaMl; }
+    public void setTauxRfa(Integer tauxRfa) {
+        this.tauxRfa = tauxRfa;
+    }
+
+    public String getUrlPharmaMl() {
+        return urlPharmaMl;
+    }
+
+    public void setUrlPharmaMl(String urlPharmaMl) {
+        this.urlPharmaMl = urlPharmaMl;
+    }
+
+    public String getCodeOfficePharmaMl() {
+        return codeOfficePharmaMl;
+    }
+
+    public void setCodeOfficePharmaMl(String codeOfficePharmaMl) {
+        this.codeOfficePharmaMl = codeOfficePharmaMl;
+    }
+
+    public String getCodeRecepteurPharmaMl() {
+        return codeRecepteurPharmaMl;
+    }
+
+    public void setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) {
+        this.codeRecepteurPharmaMl = codeRecepteurPharmaMl;
+    }
+
+    public String getIdRecepteurPharmaMl() {
+        return idRecepteurPharmaMl;
+    }
+
+    public void setIdRecepteurPharmaMl(String idRecepteurPharmaMl) {
+        this.idRecepteurPharmaMl = idRecepteurPharmaMl;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -26,8 +26,10 @@ public class InventaireLineProcessor implements ItemProcessor<InventaireLigneRaw
         try {
             quantite = Integer.parseInt(raw.getQuantite().trim());
         } catch (NumberFormatException e) {
-            LOG.warn("[INVENTAIRE] Ligne ignorée : quantité invalide '{}' pour cip13={}",
-                raw.getQuantite(), raw.getCip13());
+            LOG.warn(
+                    "[INVENTAIRE] Ligne ignorée : quantité invalide '{}' pour cip13={}",
+                    raw.getQuantite(),
+                    raw.getCip13());
             return null;
         }
         LocalDate peremption = null;
@@ -35,8 +37,10 @@ public class InventaireLineProcessor implements ItemProcessor<InventaireLigneRaw
             try {
                 peremption = LocalDate.parse(raw.getPeremption().trim());
             } catch (DateTimeParseException e) {
-                LOG.warn("[INVENTAIRE] Date péremption invalide '{}' — ignorée pour cip13={}",
-                    raw.getPeremption(), raw.getCip13());
+                LOG.warn(
+                        "[INVENTAIRE] Date péremption invalide '{}' — ignorée pour cip13={}",
+                        raw.getPeremption(),
+                        raw.getCip13());
             }
         }
         return new InventaireLigneValidee(raw.getCip13().trim(), raw.getLot(), quantite, peremption);

@@ -23,9 +23,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  "include": [
-    "**/*.ts",
-    "../pharmaSmart-app/src/main/webapp/app/features/cahier-recette/cahier-recette.model.ts"
-  ],
+  "include": ["**/*.ts", "../pharmaSmart-app/src/main/webapp/app/features/cahier-recette/cahier-recette.model.ts"],
   "exclude": ["captures", ".auth"]
 }

@@ -354,23 +354,23 @@ public class Magasin implements Serializable {
     @Override
     public String toString() {
         return "Magasin{"
-            + "id="
-            + getId()
-            + ", name='"
-            + getName()
-            + "'"
-            + ", phone='"
-            + getPhone()
-            + "'"
-            + ", address='"
-            + getAddress()
-            + "'"
-            + ", note='"
-            + getNote()
-            + "'"
-            + ", registre='"
-            + getRegistre()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", name='"
+                + getName()
+                + "'"
+                + ", phone='"
+                + getPhone()
+                + "'"
+                + ", address='"
+                + getAddress()
+                + "'"
+                + ", note='"
+                + getNote()
+                + "'"
+                + ", registre='"
+                + getRegistre()
+                + "'"
+                + "}";
     }
 }

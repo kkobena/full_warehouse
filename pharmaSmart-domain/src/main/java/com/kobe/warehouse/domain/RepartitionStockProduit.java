@@ -13,21 +13,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "repartition_stock_produit",
-    indexes = {@Index(columnList = "type_repartition", name = "type_repartition_index")
-    }
-)
+@Table(
+        name = "repartition_stock_produit",
+        indexes = {@Index(columnList = "type_repartition", name = "type_repartition_index")})
 public class RepartitionStockProduit implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -66,6 +65,7 @@ public class RepartitionStockProduit implements Serializable {
     @NotNull
     @Column(name = "dest_final_stock", nullable = false)
     private Integer destFinalStock;
+
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type_repartition", nullable = false)

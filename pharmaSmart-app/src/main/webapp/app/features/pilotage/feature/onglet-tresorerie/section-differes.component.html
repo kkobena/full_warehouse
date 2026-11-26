@@ -10,7 +10,14 @@
         <app-barres [libelles]="libelles()" [series]="series()" description="Reste dû des ventes différées par ancienneté" />
       </app-card>
       <app-card header="Clients qui doivent le plus" icon="pi pi-users">
-        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="d.clients" emptyMessage="Aucun différé à recouvrer" size="small">
+        <app-data-table
+          [scrollable]="true"
+          scrollHeight="22rem"
+          [stripedRows]="true"
+          [value]="d.clients"
+          emptyMessage="Aucun différé à recouvrer"
+          size="small"
+        >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th scope="col">Client</th>

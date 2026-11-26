@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, DestroyRef, effect, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,7 +33,9 @@ import { CardComponent } from 'app/shared/ui';
   styleUrl: './avoirs-client-list.component.scss',
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, DeviseDirective, 
+  imports: [
+    CardComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -120,14 +122,15 @@ export class AvoirsClientListComponent implements OnInit {
     const pageToLoad = page ?? this.documentsPage();
     const statutFilter = statut !== undefined ? statut : this.statut();
     this.loading.set(true);
-    this.api.queryDocuments({
-      page: pageToLoad,
-      size: this.itemsPerPage(),
-      search: this.search() || null,
-      fromDate: this.ngbDateToIso(this.fromDate),
-      toDate: this.ngbDateToIso(this.toDate),
-      statut: statutFilter,
-    })
+    this.api
+      .queryDocuments({
+        page: pageToLoad,
+        size: this.itemsPerPage(),
+        search: this.search() || null,
+        fromDate: this.ngbDateToIso(this.fromDate),
+        toDate: this.ngbDateToIso(this.toDate),
+        statut: statutFilter,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
@@ -159,7 +162,7 @@ export class AvoirsClientListComponent implements OnInit {
   }
 
   protected modeClotureLabelOf(mode?: string): string {
-    return this.modeClotureOptions.find(o => o.value === mode)?.label ?? (mode ?? '—');
+    return this.modeClotureOptions.find(o => o.value === mode)?.label ?? mode ?? '—';
   }
 
   protected modeClotureIconOf(mode?: string): string {

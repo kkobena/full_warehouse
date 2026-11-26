@@ -1,18 +1,16 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.ClassificationCriticiteLog;
-import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.ClassificationType;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository pour ClassificationCriticiteLog.
@@ -54,7 +52,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
      * @return Page de logs
      */
     Page<ClassificationCriticiteLog> findByClassificationTypeOrderByCreatedAtDesc(
-        ClassificationType classificationType, Pageable pageable);
+            ClassificationType classificationType, Pageable pageable);
 
     /**
      * Trouve les logs dans une période donnée
@@ -70,9 +68,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.createdAt DESC
         """)
     Page<ClassificationCriticiteLog> findByPeriod(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
     /**
      * Compte le nombre de changements par nouvelle classe
@@ -88,8 +84,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.nouvelleClasse
         """)
     List<Object[]> countByNouvelleClasse(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
      * Compte le nombre de changements par type de transition (ex: B->A, C->B)
@@ -106,8 +101,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.ancienneClasse, l.nouvelleClasse
         """)
     List<Object[]> countByTransition(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
      * Trouve les produits ayant changé de classe dans une période (dernière classification uniquement)
@@ -124,8 +118,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.createdAt DESC
         """)
     List<ClassificationCriticiteLog> findChangementsInPeriod(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
      * Trouve les promotions (changement vers une classe supérieure)
@@ -148,9 +141,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.createdAt DESC
         """)
     Page<ClassificationCriticiteLog> findPromotionsInPeriod(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
     /**
      * Trouve les rétrogradations (changement vers une classe inférieure)
@@ -173,9 +164,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
         ORDER BY l.createdAt DESC
         """)
     Page<ClassificationCriticiteLog> findRetrogradationsInPeriod(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable);
+            @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
     /**
      * Compte le nombre total de changements dans une période
@@ -190,9 +179,7 @@ public interface ClassificationCriticiteLogRepository extends JpaRepository<Clas
           AND l.ancienneClasse IS NOT NULL
           AND l.ancienneClasse <> l.nouvelleClasse
         """)
-    long countChangementsInPeriod(
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate);
+    long countChangementsInPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     /**
      * Supprime les logs d'un produit (usage admin uniquement)

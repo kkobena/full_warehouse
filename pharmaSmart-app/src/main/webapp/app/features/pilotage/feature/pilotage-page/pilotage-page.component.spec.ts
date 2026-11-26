@@ -89,7 +89,10 @@ describe('PilotagePage — onglets', () => {
   });
 
   it('ouvre l’onglet demandé dans l’URL s’il est autorisé', () => {
-    monter(ONGLETS_PILOTAGE.map(o => o.code), 'objectifs');
+    monter(
+      ONGLETS_PILOTAGE.map(o => o.code),
+      'objectifs',
+    );
     expect(element.querySelector('.pharma-nav-tab-link.active')?.textContent).toContain('Objectifs');
   });
 

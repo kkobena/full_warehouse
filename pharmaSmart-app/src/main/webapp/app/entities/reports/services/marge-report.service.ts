@@ -44,13 +44,8 @@ export class MargeReportService {
   /**
    * Résumé global des marges avec seuils configurables.
    */
-  getMargeSummary(req?: {
-    familleProduitId?: number;
-    seuilBas?: number;
-    seuilHaut?: number;
-  }): Observable<HttpResponse<IMargeSummary>> {
+  getMargeSummary(req?: { familleProduitId?: number; seuilBas?: number; seuilHaut?: number }): Observable<HttpResponse<IMargeSummary>> {
     const params = createRequestOptions(req);
     return this.http.get<IMargeSummary>(`${this.resourceUrl}/summary`, { params, observe: 'response' });
   }
 }
-

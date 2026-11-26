@@ -20,10 +20,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
           <i class="pi pi-times"></i>
           <span>Non</span>
         </button>
-        <button type="button" class="confirm-btn confirm-btn-accept"
-                (click)="accept()"
-                (keydown.enter)="onEnterKey($event)"
-                ngbAutofocus>
+        <button type="button" class="confirm-btn confirm-btn-accept" (click)="accept()" (keydown.enter)="onEnterKey($event)" ngbAutofocus>
           <i class="pi pi-check"></i>
           <span>Oui</span>
         </button>
@@ -98,7 +95,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
       transition: all 0.2s ease;
       border: 1px solid;
 
-      i { font-size: 0.85rem; }
+      i {
+        font-size: 0.85rem;
+      }
 
       &:focus-visible {
         outline: 2px solid var(--pharma-chrome-dlg-accent);
@@ -151,7 +150,7 @@ export class NgbConfirmDialogContentComponent {
   private ready = false;
 
   constructor() {
-    setTimeout(() => this.ready = true, 200);
+    setTimeout(() => (this.ready = true), 200);
   }
 
   set message(value: string) {

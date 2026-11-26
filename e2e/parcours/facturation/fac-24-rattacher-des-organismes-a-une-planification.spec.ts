@@ -31,7 +31,11 @@ scenario('FAC-24', async ({ etape, page }) => {
     await lignes.first().locator('button:has(.pi-eye)').first().click();
     // Le sous-onglet voisin s'appelle « Groupes Tiers payants » : une correspondance par
     // sous-chaîne ouvre celui-là. On filtre donc sur le libellé ENTIER.
-    await page.getByRole('tab').filter({ hasText: /^Tiers payants$/ }).first().click();
+    await page
+      .getByRole('tab')
+      .filter({ hasText: /^Tiers payants$/ })
+      .first()
+      .click();
     await expect(contenu).toContainText('Tiers payant');
     await expect(contenu).toContainText('Catégorie');
   });

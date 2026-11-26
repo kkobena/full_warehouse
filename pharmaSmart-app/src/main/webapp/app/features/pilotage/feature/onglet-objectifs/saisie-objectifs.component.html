@@ -1,13 +1,16 @@
 <section aria-labelledby="objectifs-saisie" class="section-onglet">
   <h3 class="section-titre" id="objectifs-saisie">Saisie des objectifs {{ annee() }}</h3>
   @if (anneeClose()) {
-    <p class="section-note"><i aria-hidden="true" class="pi pi-lock"></i> Année close : ses objectifs se consultent mais ne se modifient plus.</p>
+    <p class="section-note">
+      <i aria-hidden="true" class="pi pi-lock"></i> Année close : ses objectifs se consultent mais ne se modifient plus.
+    </p>
   } @else {
     <p class="section-note">
-      « Proposer » reprend le même mois de l'année précédente, augmenté de la hausse choisie pour un montant ; un taux est repris tel
-      quel. Le taux de remise est un plafond : il est tenu tant qu'on reste dessous. Une case vide n'a pas d'objectif.
+      « Proposer » reprend le même mois de l'année précédente, augmenté de la hausse choisie pour un montant ; un taux est repris tel quel.
+      Le taux de remise est un plafond : il est tenu tant qu'on reste dessous. Une case vide n'a pas d'objectif.
       @if (moisClos()) {
-        Les mois clos (<i aria-hidden="true" class="pi pi-lock"></i>) ne se modifient plus : leur suivi s'est fait contre l'objectif d'alors.
+        Les mois clos (<i aria-hidden="true" class="pi pi-lock"></i>) ne se modifient plus : leur suivi s'est fait contre l'objectif
+        d'alors.
       }
     </p>
   }
@@ -17,7 +20,14 @@
   @if (!anneeClose()) {
     <div class="objectifs-actions">
       <label class="form-label mb-0" for="objectifs-hausse">Hausse proposée sur N-1</label>
-      <app-input-number [maxFractionDigits]="1" [ngModel]="hausse()" (ngModelChange)="hausse.set($event ?? 0)" inputId="objectifs-hausse" size="small" suffix=" %" />
+      <app-input-number
+        [maxFractionDigits]="1"
+        [ngModel]="hausse()"
+        (ngModelChange)="hausse.set($event ?? 0)"
+        inputId="objectifs-hausse"
+        size="small"
+        suffix=" %"
+      />
     </div>
   }
   @if (grille.value(); as g) {
@@ -26,13 +36,27 @@
         @if (!anneeClose()) {
           <div class="objectifs-actions" cardActions>
             <app-button (clicked)="proposer(ligne)" [outlined]="true" icon="pi pi-sparkles" label="Proposer" size="small" />
-            <app-button (clicked)="enregistrer(ligne)" [disabled]="!estModifiee(ligne)" [loading]="enCours() === ligne.indicateur.code" icon="pi pi-save"
-                        label="Enregistrer" size="small" />
+            <app-button
+              (clicked)="enregistrer(ligne)"
+              [disabled]="!estModifiee(ligne)"
+              [loading]="enCours() === ligne.indicateur.code"
+              icon="pi pi-save"
+              label="Enregistrer"
+              size="small"
+            />
           </div>
         }
         <div class="objectifs-grille">
           <table>
-            <caption class="visually-hidden">Objectifs mensuels {{ ligne.indicateur.libelle }} {{ annee() }}</caption>
+            <caption class="visually-hidden">
+              Objectifs mensuels
+              {{
+                ligne.indicateur.libelle
+              }}
+              {{
+                annee()
+              }}
+            </caption>
             <thead>
               <tr>
                 @for (mois of moisCourts; track mois; let rang = $index) {
@@ -49,10 +73,16 @@
               <tr>
                 @for (mois of moisCourts; track mois; let rang = $index) {
                   <td>
-                    <app-input-number [ariaLabel]="ligne.indicateur.libelle + ' — ' + mois + (estClos(rang) ? ' (clos)' : '')" [disabled]="estClos(rang)"
-                                      [maxFractionDigits]="compterDecimales(ligne)" [min]="0"
-                                      [ngModel]="lireBrouillon(ligne)[rang]" (ngModelChange)="modifier(ligne, rang, $event)" [suffix]="lireSuffixe(ligne)"
-                                      size="small" />
+                    <app-input-number
+                      [ariaLabel]="ligne.indicateur.libelle + ' — ' + mois + (estClos(rang) ? ' (clos)' : '')"
+                      [disabled]="estClos(rang)"
+                      [maxFractionDigits]="compterDecimales(ligne)"
+                      [min]="0"
+                      [ngModel]="lireBrouillon(ligne)[rang]"
+                      (ngModelChange)="modifier(ligne, rang, $event)"
+                      [suffix]="lireSuffixe(ligne)"
+                      size="small"
+                    />
                   </td>
                 }
               </tr>

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** Référentiel local des prescripteurs (docs/PLAN-EXTRACTION-ORDONNANCE-OCR.md, §13.3). */
 @RestController
 @RequestMapping("/api/prescripteurs")
-@RequiresNavAccess({ "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"customer", "ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class PrescripteurResource {
 
     private final PrescripteurService prescripteurService;
@@ -29,7 +29,8 @@ public class PrescripteurResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<PrescripteurDTO>> rechercher(@RequestParam(required = false) String q, @RequestParam(defaultValue = "10") int limite) {
+    public ResponseEntity<List<PrescripteurDTO>> rechercher(
+            @RequestParam(required = false) String q, @RequestParam(defaultValue = "10") int limite) {
         return ResponseEntity.ok(prescripteurService.rechercher(q, limite));
     }
 
@@ -37,7 +38,8 @@ public class PrescripteurResource {
     @PostMapping
     public ResponseEntity<PrescripteurDTO> creer(@Valid @RequestBody PrescripteurDTO dto) {
         PrescripteurDTO cree = prescripteurService.creer(dto);
-        return ResponseEntity.created(URI.create("/api/prescripteurs/" + cree.id())).body(cree);
+        return ResponseEntity.created(URI.create("/api/prescripteurs/" + cree.id()))
+                .body(cree);
     }
 
     @PutMapping("/{id}")

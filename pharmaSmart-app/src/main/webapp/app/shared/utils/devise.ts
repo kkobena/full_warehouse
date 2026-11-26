@@ -1,13 +1,13 @@
-import {Directive, ElementRef, inject, Pipe, PipeTransform} from '@angular/core';
+import { Directive, ElementRef, inject, Pipe, PipeTransform } from '@angular/core';
 
-import {currencySymbol, formatCurrencyWithUnit} from './format-utils';
+import { currencySymbol, formatCurrencyWithUnit } from './format-utils';
 
 /**
  * Écrit la devise de l'officine dans l'élément qui la porte.
  *
  * @example <span class="balance-item-currency" appDevise></span>
  */
-@Directive({selector: '[appDevise]'})
+@Directive({ selector: '[appDevise]' })
 export class DeviseDirective {
   constructor() {
     inject(ElementRef).nativeElement.textContent = currencySymbol();
@@ -21,7 +21,7 @@ export class DeviseDirective {
  * @example {{ '' | devise }}        → « FCFA »
  * @example {{ montant | devise }}   → « 1 234 FCFA »
  */
-@Pipe({name: 'devise'})
+@Pipe({ name: 'devise' })
 export class DevisePipe implements PipeTransform {
   transform(value?: number | string | null): string {
     if (value === null || value === undefined || value === '') {

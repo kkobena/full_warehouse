@@ -97,10 +97,9 @@ public class AdminUserDTO implements Serializable {
         this.magasinId = user.getMagasin() == null ? null : user.getMagasin().getId();
         Set<Authority> auths = user.getAuthorities();
         this.authorities = auths.stream().map(Authority::getName).collect(Collectors.toSet());
-        auths.stream().findFirst().ifPresent(
-            first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(),
-                Set.of()));
-
+        auths.stream()
+                .findFirst()
+                .ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
     }
 
     public AdminUserDTO(AppUser user, Set<Authority> authorities0) {
@@ -120,12 +119,11 @@ public class AdminUserDTO implements Serializable {
         this.abbrName = AppUserNames.shortName(user);
         this.magasinId = user.getMagasin() == null ? null : user.getMagasin().getId();
 
-        authorities0.stream().findFirst().ifPresent(
-            first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(),
-                Set.of()));
+        authorities0.stream()
+                .findFirst()
+                .ifPresent(first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(), Set.of()));
 
-        this.authorities = authorities0.stream().map(Authority::getName)
-            .collect(Collectors.toSet());
+        this.authorities = authorities0.stream().map(Authority::getName).collect(Collectors.toSet());
 
         for (String authority : this.authorities) {
             if (SecurityUtils.isAdmin(authority)) {
@@ -311,38 +309,38 @@ public class AdminUserDTO implements Serializable {
     @Override
     public String toString() {
         return "AdminUserDTO{"
-            + "login='"
-            + login
-            + '\''
-            + ", firstName='"
-            + firstName
-            + '\''
-            + ", lastName='"
-            + lastName
-            + '\''
-            + ", email='"
-            + email
-            + '\''
-            + ", imageUrl='"
-            + imageUrl
-            + '\''
-            + ", activated="
-            + activated
-            + ", langKey='"
-            + langKey
-            + '\''
-            + ", createdBy="
-            + createdBy
-            + ", createdDate="
-            + createdDate
-            + ", lastModifiedBy='"
-            + lastModifiedBy
-            + '\''
-            + ", lastModifiedDate="
-            + lastModifiedDate
-            + ", authorities="
-            + authorities
-            + "}";
+                + "login='"
+                + login
+                + '\''
+                + ", firstName='"
+                + firstName
+                + '\''
+                + ", lastName='"
+                + lastName
+                + '\''
+                + ", email='"
+                + email
+                + '\''
+                + ", imageUrl='"
+                + imageUrl
+                + '\''
+                + ", activated="
+                + activated
+                + ", langKey='"
+                + langKey
+                + '\''
+                + ", createdBy="
+                + createdBy
+                + ", createdDate="
+                + createdDate
+                + ", lastModifiedBy='"
+                + lastModifiedBy
+                + '\''
+                + ", lastModifiedDate="
+                + lastModifiedDate
+                + ", authorities="
+                + authorities
+                + "}";
     }
 
     public Integer getMagasinId() {

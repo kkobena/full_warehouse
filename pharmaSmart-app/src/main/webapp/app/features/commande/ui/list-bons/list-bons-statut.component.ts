@@ -9,7 +9,15 @@ type PrimeSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'con
   imports: [BadgeComponent],
   template: `<app-badge [label]="label()" [severity]="severity()" [icon]="icon()" [rounded]="true" />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`:host { display:flex; align-items:center; height:100% }`],
+  styles: [
+    `
+      :host {
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+    `,
+  ],
 })
 export class ListBonsStatutComponent {
   delivery = input<IDelivery | null>(null);

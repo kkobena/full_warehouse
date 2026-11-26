@@ -23,7 +23,9 @@ import java.time.LocalDateTime;
  * A Ajustement.
  */
 @Entity
-@Table(name = "ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "ajust_id", "stock_produit_id" }) })
+@Table(
+        name = "ajustement",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"ajust_id", "stock_produit_id"})})
 public class Ajustement implements Serializable {
 
     @Serial
@@ -123,8 +125,6 @@ public class Ajustement implements Serializable {
         this.stockAfter = stockAfter;
     }
 
-
-
     public @NotNull Ajust getAjust() {
         return ajust;
     }
@@ -189,14 +189,6 @@ public class Ajustement implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "Ajustement{"
-            + "id="
-            + getId()
-            + ", qtyMvt="
-            + getQtyMvt()
-            + ", dateMtv='"
-            + getDateMtv()
-            + "'"
-            + "}";
+        return "Ajustement{" + "id=" + getId() + ", qtyMvt=" + getQtyMvt() + ", dateMtv='" + getDateMtv() + "'" + "}";
     }
 }

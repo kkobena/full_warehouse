@@ -2,17 +2,16 @@ package com.kobe.warehouse.service.scheduler;
 
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service d'agrégation des ventes mensuelles pour la méthode SEMOIS.
@@ -35,9 +34,7 @@ public class VentesAgregeesService {
     @Value("${pharma-smart.semois.freeze-delay-days:7}")
     private int freezeDelayDays;
 
-    public VentesAgregeesService(
-        VentesMensuellesAgregeesRepository ventesAgregeesRepository
-    ) {
+    public VentesAgregeesService(VentesMensuellesAgregeesRepository ventesAgregeesRepository) {
         this.ventesAgregeesRepository = ventesAgregeesRepository;
     }
 
@@ -49,13 +46,14 @@ public class VentesAgregeesService {
     public void aggregateMonthlySalesDaily() {
         LOG.info(" Début agrégation quotidienne des ventes mensuelles SEMOIS");
 
-        boolean canContinue = getLastUpdateTime().map(lastUpdate ->
-            lastUpdate.toLocalDate().isBefore(LocalDate.now())
-        ).orElse(true);
+        boolean canContinue = getLastUpdateTime()
+                .map(lastUpdate -> lastUpdate.toLocalDate().isBefore(LocalDate.now()))
+                .orElse(true);
         YearMonth now = YearMonth.now();
         if (!canContinue) {
-            LOG.warn("Agrégation quotidienne SEMOIS annulée: déjà exécutée aujourd'hui à {}",
-                getLastUpdateTime().get());
+            LOG.warn(
+                    "Agrégation quotidienne SEMOIS annulée: déjà exécutée aujourd'hui à {}",
+                    getLastUpdateTime().get());
             return;
         }
 
@@ -72,8 +70,7 @@ public class VentesAgregeesService {
             if (daysSinceEnd <= freezeDelayDays) {
                 // Encore dans la fenêtre de correction
                 aggregateOrUpdateMonth(lastMonth, false);
-                LOG.info("Mois {} mis à jour (fenêtre stabilisation: J+{})",
-                    lastMonth, daysSinceEnd);
+                LOG.info("Mois {} mis à jour (fenêtre stabilisation: J+{})", lastMonth, daysSinceEnd);
             } else if (daysSinceEnd == freezeDelayDays + 1) {
                 // Dernier recalcul puis gel définitif
                 aggregateOrUpdateMonth(lastMonth, true);
@@ -131,8 +128,7 @@ public class VentesAgregeesService {
     public void unfreezeMonth(YearMonth mois, String reason) {
         int rows = ventesAgregeesRepository.unfreezeMonth(mois.toString());
 
-        LOG.warn("DÉGEL EXCEPTIONNEL mois {} : {} produits dégelés. Raison: {}",
-            mois, rows, reason);
+        LOG.warn("DÉGEL EXCEPTIONNEL mois {} : {} produits dégelés. Raison: {}", mois, rows, reason);
     }
 
     /**

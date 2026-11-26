@@ -26,17 +26,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MoleculesProduitService {
 
-    private static final List<DecisionRapprochement> DECISIONS_DE_CONFIANCE = List.of(DecisionRapprochement.AUTO, DecisionRapprochement.VALIDE);
+    private static final List<DecisionRapprochement> DECISIONS_DE_CONFIANCE =
+            List.of(DecisionRapprochement.AUTO, DecisionRapprochement.VALIDE);
 
     private final ProduitDciRepository produitDciRepository;
     private final ProduitRefSpecialiteRepository produitRefSpecialiteRepository;
     private final ProduitRepository produitRepository;
 
     public MoleculesProduitService(
-        ProduitDciRepository produitDciRepository,
-        ProduitRefSpecialiteRepository produitRefSpecialiteRepository,
-        ProduitRepository produitRepository
-    ) {
+            ProduitDciRepository produitDciRepository,
+            ProduitRefSpecialiteRepository produitRefSpecialiteRepository,
+            ProduitRepository produitRepository) {
         this.produitDciRepository = produitDciRepository;
         this.produitRefSpecialiteRepository = produitRefSpecialiteRepository;
         this.produitRepository = produitRepository;
@@ -48,25 +48,21 @@ public class MoleculesProduitService {
             return Map.of();
         }
         return Stream.concat(
-            produitDciRepository.findMolecules(produitIds).stream(),
-            produitRefSpecialiteRepository.findMoleculesRetenues(produitIds, DECISIONS_DE_CONFIANCE).stream()
-        )
-            .distinct()
-            .sorted(Comparator.comparing(MoleculeProduitDTO::produitId).thenComparing(MoleculeProduitDTO::libelle))
-            .collect(
-                Collectors.groupingBy(
-                    MoleculeProduitDTO::produitId,
-                    LinkedHashMap::new,
-                    Collectors.mapping(m -> new MoleculeDTO(m.refDciId(), m.libelle()), Collectors.toList())
-                )
-            );
+                        produitDciRepository.findMolecules(produitIds).stream(),
+                        produitRefSpecialiteRepository
+                                .findMoleculesRetenues(produitIds, DECISIONS_DE_CONFIANCE)
+                                .stream())
+                .distinct()
+                .sorted(Comparator.comparing(MoleculeProduitDTO::produitId).thenComparing(MoleculeProduitDTO::libelle))
+                .collect(Collectors.groupingBy(
+                        MoleculeProduitDTO::produitId,
+                        LinkedHashMap::new,
+                        Collectors.mapping(m -> new MoleculeDTO(m.refDciId(), m.libelle()), Collectors.toList())));
     }
 
     public Map<Integer, String> libelles(Collection<Integer> produitIds) {
-        return produitRepository
-            .findAllById(produitIds)
-            .stream()
-            .sorted(Comparator.comparing(Produit::getId))
-            .collect(Collectors.toMap(Produit::getId, Produit::getLibelle, (a, b) -> a, LinkedHashMap::new));
+        return produitRepository.findAllById(produitIds).stream()
+                .sorted(Comparator.comparing(Produit::getId))
+                .collect(Collectors.toMap(Produit::getId, Produit::getLibelle, (a, b) -> a, LinkedHashMap::new));
     }
 }

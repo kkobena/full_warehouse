@@ -7,12 +7,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.AuthorityRepository;
+import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
@@ -24,9 +24,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -56,17 +56,15 @@ class AffectationUtilisateurTest {
 
         cashRegisterRepository = mock(CashRegisterRepository.class);
         service = new UserService(
-            userRepository,
-            passwordEncoder,
-            mock(PersistentTokenRepository.class),
-            mock(AuthorityRepository.class),
-            magasinRepository,
-            cashRegisterRepository
-        );
+                userRepository,
+                passwordEncoder,
+                mock(PersistentTokenRepository.class),
+                mock(AuthorityRepository.class),
+                magasinRepository,
+                cashRegisterRepository);
 
         SecurityContextHolder.setContext(
-            new SecurityContextImpl(new UsernamePasswordAuthenticationToken("titulaire", "x"))
-        );
+                new SecurityContextImpl(new UsernamePasswordAuthenticationToken("titulaire", "x")));
         when(userRepository.save(any(AppUser.class))).thenAnswer(appel -> appel.getArgument(0));
     }
 
@@ -126,8 +124,8 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(9)).thenReturn(Optional.of(autre));
 
         assertThatThrownBy(() -> service.createUser(dto(9)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("n'est pas rattaché");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("n'est pas rattaché");
     }
 
     @Test
@@ -138,8 +136,8 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(404)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.createUser(dto(404)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("inconnu");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("inconnu");
     }
 
     /**
@@ -168,8 +166,8 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(5)).thenReturn(Optional.of(depot));
 
         assertThatThrownBy(() -> service.createUser(dto(5)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("ni caisse ni saisie");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("ni caisse ni saisie");
     }
 
     /**
@@ -183,8 +181,8 @@ class AffectationUtilisateurTest {
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(depot)));
 
         assertThatThrownBy(() -> service.createUser(dto(null)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("ni caisse ni saisie");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("ni caisse ni saisie");
     }
 
     // ===== la réaffectation d'un compte existant =====
@@ -198,7 +196,10 @@ class AffectationUtilisateurTest {
     void modificationSansMagasinNeDeplacePas() {
         AppUser existant = aReaffecter(magasin(7, TypeMagasin.UNITE_GESTION));
 
-        assertThat(service.updateUser(dtoDeModification(existant, null)).orElseThrow().getMagasinId()).isEqualTo(7);
+        assertThat(service.updateUser(dtoDeModification(existant, null))
+                        .orElseThrow()
+                        .getMagasinId())
+                .isEqualTo(7);
     }
 
     @Test
@@ -210,7 +211,10 @@ class AffectationUtilisateurTest {
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(officine)));
         when(magasinRepository.findById(7)).thenReturn(Optional.of(parapharmacie));
 
-        assertThat(service.updateUser(dtoDeModification(existant, 7)).orElseThrow().getMagasinId()).isEqualTo(7);
+        assertThat(service.updateUser(dtoDeModification(existant, 7))
+                        .orElseThrow()
+                        .getMagasinId())
+                .isEqualTo(7);
     }
 
     /**
@@ -229,11 +233,11 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(9)).thenReturn(Optional.of(etranger));
 
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 5)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("ni caisse ni saisie");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("ni caisse ni saisie");
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 9)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("n'est pas rattaché");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("n'est pas rattaché");
     }
 
     /**
@@ -249,11 +253,12 @@ class AffectationUtilisateurTest {
         AppUser existant = aReaffecter(officine);
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(officine)));
         when(magasinRepository.findById(7)).thenReturn(Optional.of(parapharmacie));
-        when(cashRegisterRepository.existsByUserIdAndStatut(42, CashRegisterStatut.OPEN)).thenReturn(true);
+        when(cashRegisterRepository.existsByUserIdAndStatut(42, CashRegisterStatut.OPEN))
+                .thenReturn(true);
 
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 7)))
-            .isInstanceOf(BadRequestAlertException.class)
-            .hasMessageContaining("billetage");
+                .isInstanceOf(BadRequestAlertException.class)
+                .hasMessageContaining("billetage");
     }
 
     /**
@@ -268,9 +273,13 @@ class AffectationUtilisateurTest {
         AppUser existant = aReaffecter(officine);
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(officine)));
         when(magasinRepository.findById(7)).thenReturn(Optional.of(parapharmacie));
-        when(cashRegisterRepository.existsByUserIdAndStatut(42, CashRegisterStatut.OPEN)).thenReturn(false);
+        when(cashRegisterRepository.existsByUserIdAndStatut(42, CashRegisterStatut.OPEN))
+                .thenReturn(false);
 
-        assertThat(service.updateUser(dtoDeModification(existant, 7)).orElseThrow().getMagasinId()).isEqualTo(7);
+        assertThat(service.updateUser(dtoDeModification(existant, 7))
+                        .orElseThrow()
+                        .getMagasinId())
+                .isEqualTo(7);
     }
 
     // ===== jeu d'essai =====

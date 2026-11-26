@@ -1,14 +1,8 @@
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  KpiItemComponent,
-  KpiStripComponent,
-  ToolbarComponent
-} from '../../../shared/ui';
+import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, ToolbarComponent } from '../../../shared/ui';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { forkJoin } from 'rxjs';
 
@@ -22,7 +16,18 @@ import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/fo
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-remises-analysis',
-  imports: [DeviseDirective, CommonModule, FormsModule, DataTableComponent, ChartComponent, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
+  imports: [
+    DeviseDirective,
+    CommonModule,
+    FormsModule,
+    DataTableComponent,
+    ChartComponent,
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
   templateUrl: './remises-analysis.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./remises-analysis.component.scss'],
@@ -36,17 +41,17 @@ export default class RemisesAnalysisComponent implements OnInit {
    */
   readonly navCode = input<string>('');
 
-  protected readonly kpi          = signal<IRemisesAnalysisKpi | null>(null);
-  protected readonly topProducts  = signal<ITopRemiseProduit[]>([]);
-  protected readonly isLoading    = signal(false);
+  protected readonly kpi = signal<IRemisesAnalysisKpi | null>(null);
+  protected readonly topProducts = signal<ITopRemiseProduit[]>([]);
+  protected readonly isLoading = signal(false);
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1));
-  protected toDate   = signal<Date | null>(new Date());
+  protected toDate = signal<Date | null>(new Date());
 
   // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
   // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
   protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
-  protected readonly toStruct   = computed(() => this.dateToStruct(this.toDate()));
+  protected readonly toStruct = computed(() => this.dateToStruct(this.toDate()));
 
   protected chartConfig = signal<ChartConfig | null>(null);
 
@@ -57,10 +62,10 @@ export default class RemisesAnalysisComponent implements OnInit {
   });
 
   protected readonly formatCurrency = formatCurrency;
-  protected readonly formatDecimal  = formatDecimal;
-  protected readonly formatNumber   = formatNumber;
+  protected readonly formatDecimal = formatDecimal;
+  protected readonly formatNumber = formatNumber;
 
-  private readonly svc          = inject(DashboardCAService);
+  private readonly svc = inject(DashboardCAService);
   private readonly chartBuilder = inject(ChartBuilderService);
 
   ngOnInit(): void {
@@ -69,12 +74,12 @@ export default class RemisesAnalysisComponent implements OnInit {
 
   protected load(): void {
     const startDate = DATE_FORMAT_ISO_DATE(this.fromDate()) ?? undefined;
-    const endDate   = DATE_FORMAT_ISO_DATE(this.toDate())   ?? undefined;
+    const endDate = DATE_FORMAT_ISO_DATE(this.toDate()) ?? undefined;
     if (!startDate || !endDate) return;
 
     this.isLoading.set(true);
     forkJoin({
-      kpi:     this.svc.getRemisesKpi(startDate, endDate),
+      kpi: this.svc.getRemisesKpi(startDate, endDate),
       topProds: this.svc.getRemisesTopProducts(startDate, endDate, 10),
     }).subscribe({
       next: ({ kpi, topProds }) => {
@@ -89,14 +94,17 @@ export default class RemisesAnalysisComponent implements OnInit {
   }
 
   private buildChart(data: ITopRemiseProduit[]): void {
-    if (!data.length) { this.chartConfig.set(null); return; }
+    if (!data.length) {
+      this.chartConfig.set(null);
+      return;
+    }
     const top5 = data.slice(0, 5);
     this.chartConfig.set(
       this.chartBuilder.barConfig(
         top5.map(p => p.libelle ?? ''),
         top5.map(p => p.montantRemise ?? 0),
         'Montant remisé',
-      )
+      ),
     );
   }
 

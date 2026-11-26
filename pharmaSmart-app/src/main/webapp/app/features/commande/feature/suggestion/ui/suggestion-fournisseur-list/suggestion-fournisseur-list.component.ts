@@ -1,22 +1,14 @@
-import {ChangeDetectionStrategy, Component, computed, input, output, signal} from "@angular/core";
-import {CommonModule, DecimalPipe} from "@angular/common";
-import {FournisseurSuggestionSummary} from "../../data-access/suggestion-enrichie.model";
-import {
-  DataTableComponent,
-  HeaderCheckboxComponent,
-  RowCheckboxComponent,
-  SortableHeaderDirective
-} from "app/shared/ui";
-import {
-  SuggestionFournisseurAction,
-  SuggestionFournisseurActionsComponent
-} from "./suggestion-fournisseur-actions.component";
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FournisseurSuggestionSummary } from '../../data-access/suggestion-enrichie.model';
+import { DataTableComponent, HeaderCheckboxComponent, RowCheckboxComponent, SortableHeaderDirective } from 'app/shared/ui';
+import { SuggestionFournisseurAction, SuggestionFournisseurActionsComponent } from './suggestion-fournisseur-actions.component';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-suggestion-fournisseur-list",
-  templateUrl: "./suggestion-fournisseur-list.component.html",
-  styleUrls: ["./suggestion-fournisseur-list.component.scss"],
+  selector: 'app-suggestion-fournisseur-list',
+  templateUrl: './suggestion-fournisseur-list.component.html',
+  styleUrls: ['./suggestion-fournisseur-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -25,19 +17,20 @@ import { DevisePipe } from 'app/shared/utils/devise';
     RowCheckboxComponent,
     SortableHeaderDirective,
     SuggestionFournisseurActionsComponent,
-   DevisePipe],
+    DevisePipe,
+  ],
 })
 export class SuggestionFournisseurListComponent {
   // ── Row styling ────────────────────────────────────────────────────────────
   private static readonly STATUT_STYLES: Record<string, Record<string, string>> = {
-    VALIDEE: {background: "#d1fae5", color: "#065f46"},
-    EN_ATTENTE_VALIDATION: {background: "#fef3c7", color: "#92400e"},
-    COMMANDEE: {background: "#dbeafe", color: "#1e40af"},
+    VALIDEE: { background: '#d1fae5', color: '#065f46' },
+    EN_ATTENTE_VALIDATION: { background: '#fef3c7', color: '#92400e' },
+    COMMANDEE: { background: '#dbeafe', color: '#1e40af' },
   };
   private static readonly STATUT_LABELS: Record<string, string> = {
-    VALIDEE: "Validée",
-    EN_ATTENTE_VALIDATION: "En attente",
-    COMMANDEE: "Commandée",
+    VALIDEE: 'Validée',
+    EN_ATTENTE_VALIDATION: 'En attente',
+    COMMANDEE: 'Commandée',
   };
   // ── Inputs / Outputs ───────────────────────────────────────────────────────
   fournisseurs = input<FournisseurSuggestionSummary[]>([]);
@@ -66,18 +59,14 @@ export class SuggestionFournisseurListComponent {
     return sel.every(f => f.fournisseurId === fId);
   });
   // ── Totaux ─────────────────────────────────────────────────────────────────
-  readonly totalMontant = computed(() =>
-    this.fournisseurs().reduce((s, f) => s + f.montantEstime, 0),
-  );
-  readonly totalUrgents = computed(() =>
-    this.fournisseurs().reduce((s, f) => s + f.nbUrgents, 0),
-  );
+  readonly totalMontant = computed(() => this.fournisseurs().reduce((s, f) => s + f.montantEstime, 0));
+  readonly totalUrgents = computed(() => this.fournisseurs().reduce((s, f) => s + f.nbUrgents, 0));
 
   getRowClass(f: FournisseurSuggestionSummary): Record<string, boolean> {
     const isActive = this.selected()?.suggestionId === f.suggestionId;
     return {
-      "row-active": isActive,
-      "row-urgent": f.nbUrgents > 0 && !isActive,
+      'row-active': isActive,
+      'row-urgent': f.nbUrgents > 0 && !isActive,
     };
   }
 
@@ -87,14 +76,14 @@ export class SuggestionFournisseurListComponent {
     }
     return (
       SuggestionFournisseurListComponent.STATUT_STYLES[statut] ?? {
-        background: "#f3f4f6",
-        color: "#4b5563",
+        background: '#f3f4f6',
+        color: '#4b5563',
       }
     );
   }
 
   getStatutLabel(statut: string | null | undefined): string {
-    return statut ? (SuggestionFournisseurListComponent.STATUT_LABELS[statut] ?? statut) : "";
+    return statut ? (SuggestionFournisseurListComponent.STATUT_LABELS[statut] ?? statut) : '';
   }
 
   onRowClick(f: FournisseurSuggestionSummary): void {

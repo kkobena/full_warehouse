@@ -1,35 +1,24 @@
 package com.kobe.warehouse.domain.enumeration;
 
 public enum StatutLegal {
+    SANS_LISTE("Médicament ou produit disponible sans ordonnance. "
+            + "Aucune restriction de dispensation, retour possible sous conditions."),
 
-    SANS_LISTE(
-        "Médicament ou produit disponible sans ordonnance. "
-            + "Aucune restriction de dispensation, retour possible sous conditions."
-    ),
-
-    LISTE_I(
-        "Substance vénéneuse de liste I (arrêté). "
+    LISTE_I("Substance vénéneuse de liste I (arrêté). "
             + "Ordonnance obligatoire, renouvelable sauf mention contraire. "
-            + "Retour client possible avec vérification de l'état du produit."
-    ),
+            + "Retour client possible avec vérification de l'état du produit."),
 
-    LISTE_II(
-        "Substance vénéneuse de liste II (arrêté). "
+    LISTE_II("Substance vénéneuse de liste II (arrêté). "
             + "Ordonnance obligatoire, non renouvelable par défaut. "
-            + "Retour client possible avec vérification de l'état du produit."
-    ),
+            + "Retour client possible avec vérification de l'état du produit."),
 
-    STUPEFIANTS(
-        "Stupéfiant soumis à ordonnance sécurisée (carnet à souche). "
+    STUPEFIANTS("Stupéfiant soumis à ordonnance sécurisée (carnet à souche). "
             + "Traçabilité lot obligatoire, quantité maximale délivrable réglementée. "
-            + "Retour client interdit — destruction réglementaire obligatoire."
-    ),
+            + "Retour client interdit — destruction réglementaire obligatoire."),
 
-    PSO(
-        "Prescription Sécurisée Obligatoire : psychotropes et autres substances "
+    PSO("Prescription Sécurisée Obligatoire : psychotropes et autres substances "
             + "à prescription sécurisée sans être classés stupéfiants. "
-            + "Ordonnance sécurisée obligatoire. Retour client interdit."
-    );
+            + "Ordonnance sécurisée obligatoire. Retour client interdit.");
 
     private final String description;
 

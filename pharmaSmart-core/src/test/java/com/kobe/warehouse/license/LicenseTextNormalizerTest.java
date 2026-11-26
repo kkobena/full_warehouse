@@ -13,21 +13,20 @@ import org.junit.jupiter.params.provider.CsvSource;
 class LicenseTextNormalizerTest {
 
     @ParameterizedTest
-    @CsvSource(
-        {
-            "'PHARMACIE DE LA PAIX', 'Pharmacie de la Paix'",
-            "'PHARMACIE DE LA PAIX', '  pharmacie   de la  paix  '",
-            "'PHARMACIE SAINTE THERESE', 'Pharmacie Sainte Thérèse'",
-            "'PHARMACIE COTE D IVOIRE', 'pharmacie côte d ivoire'",
-        }
-    )
+    @CsvSource({
+        "'PHARMACIE DE LA PAIX', 'Pharmacie de la Paix'",
+        "'PHARMACIE DE LA PAIX', '  pharmacie   de la  paix  '",
+        "'PHARMACIE SAINTE THERESE', 'Pharmacie Sainte Thérèse'",
+        "'PHARMACIE COTE D IVOIRE', 'pharmacie côte d ivoire'",
+    })
     void considereEquivalentesDesEcrituresDifferentesDuMemeNom(String licence, String officine) {
         assertThat(LicenseTextNormalizer.matches(licence, officine)).isTrue();
     }
 
     @Test
     void distingueDeuxOfficinesReellementDifferentes() {
-        assertThat(LicenseTextNormalizer.matches("PHARMACIE DE LA PAIX", "PHARMACIE DU PLATEAU")).isFalse();
+        assertThat(LicenseTextNormalizer.matches("PHARMACIE DE LA PAIX", "PHARMACIE DU PLATEAU"))
+                .isFalse();
     }
 
     @Test
@@ -41,7 +40,9 @@ class LicenseTextNormalizerTest {
         // taxId est nullable côté Magasin : son absence ne doit jamais bloquer une officine.
         assertThat(LicenseTextNormalizer.matchesIfBothPresent(null, "1234567A")).isTrue();
         assertThat(LicenseTextNormalizer.matchesIfBothPresent("1234567A", null)).isTrue();
-        assertThat(LicenseTextNormalizer.matchesIfBothPresent("1234567a", " 1234567A ")).isTrue();
-        assertThat(LicenseTextNormalizer.matchesIfBothPresent("1234567A", "7654321B")).isFalse();
+        assertThat(LicenseTextNormalizer.matchesIfBothPresent("1234567a", " 1234567A "))
+                .isTrue();
+        assertThat(LicenseTextNormalizer.matchesIfBothPresent("1234567A", "7654321B"))
+                .isFalse();
     }
 }

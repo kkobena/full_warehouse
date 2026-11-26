@@ -21,9 +21,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(
-    name = "nav_item_user_order",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "user_login", "nav_item_id" }) }
-)
+        name = "nav_item_user_order",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_login", "nav_item_id"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class NavItemUserOrder implements Serializable {
 
@@ -93,4 +92,3 @@ public class NavItemUserOrder implements Serializable {
         return 31;
     }
 }
-

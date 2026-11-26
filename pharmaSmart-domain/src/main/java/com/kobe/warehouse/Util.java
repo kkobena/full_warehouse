@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class Util {
 
     private static final Logger log = LoggerFactory.getLogger(Util.class);
@@ -37,7 +36,6 @@ public final class Util {
         }
         return Collections.emptyList();
     }
-
 
     public static boolean isValidPhoneNumber(String phoneNumberInput) {
         try {

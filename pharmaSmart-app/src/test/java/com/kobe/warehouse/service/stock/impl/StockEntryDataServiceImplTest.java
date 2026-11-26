@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.repository.CommandeRepository;
@@ -25,7 +26,6 @@ import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
-import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
 import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -129,13 +129,12 @@ class StockEntryDataServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new StockEntryDataServiceImpl(
-            em,
-            commandeRepository,
-            receiptReportService,
-            orderLineRepository,
-            etiquetteExportService,
-            etiquetteLotExportService
-        );
+                em,
+                commandeRepository,
+                receiptReportService,
+                orderLineRepository,
+                etiquetteExportService,
+                etiquetteLotExportService);
 
         when(em.getCriteriaBuilder()).thenReturn(cb);
         when(cb.createQuery(any(Class.class))).thenReturn(criteriaQuery);
@@ -143,7 +142,8 @@ class StockEntryDataServiceImplTest {
         when(criteriaQuery.from(any(Class.class))).thenReturn(root);
         when(criteriaQuery.select(any(Selection.class))).thenReturn(criteriaQuery);
         when(criteriaQuery.distinct(org.mockito.ArgumentMatchers.anyBoolean())).thenReturn(criteriaQuery);
-        when(criteriaQuery.orderBy(any(jakarta.persistence.criteria.Order[].class))).thenReturn(criteriaQuery);
+        when(criteriaQuery.orderBy(any(jakarta.persistence.criteria.Order[].class)))
+                .thenReturn(criteriaQuery);
         when(criteriaQuery.where(nullable(Predicate.class))).thenReturn(criteriaQuery);
         when(root.get(nullable(SingularAttribute.class))).thenReturn(path);
         when(path.get(nullable(SingularAttribute.class))).thenReturn(path);
@@ -153,12 +153,14 @@ class StockEntryDataServiceImplTest {
         when(cb.equal(nullable(Expression.class), any(Object.class))).thenReturn(predicate);
         when(cb.like(nullable(Expression.class), anyString())).thenReturn(predicate);
         when(cb.upper(nullable(Expression.class))).thenReturn(path);
-        when(cb.between(nullable(Expression.class), any(Comparable.class), any(Comparable.class))).thenReturn(predicate);
+        when(cb.between(nullable(Expression.class), any(Comparable.class), any(Comparable.class)))
+                .thenReturn(predicate);
         when(cb.countDistinct(nullable(Expression.class))).thenReturn(path);
         when(cb.count(nullable(Expression.class))).thenReturn(path);
         when(cb.sum(nullable(Expression.class))).thenReturn(path);
         when(cb.coalesce(nullable(Expression.class), any(Object.class))).thenReturn(path);
-        when(cb.desc(nullable(Expression.class))).thenReturn(org.mockito.Mockito.mock(jakarta.persistence.criteria.Order.class));
+        when(cb.desc(nullable(Expression.class)))
+                .thenReturn(org.mockito.Mockito.mock(jakarta.persistence.criteria.Order.class));
         when(cb.tuple(any(Selection[].class))).thenReturn(tupleSelection);
         when(cb.conjunction()).thenReturn(predicate);
         when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
@@ -173,7 +175,8 @@ class StockEntryDataServiceImplTest {
         Specification<Commande> spec = (r, q, builder) -> null;
         when(commandeRepository.byStatut(any())).thenReturn(spec);
         when(commandeRepository.hasOrderStatut(any())).thenReturn(spec);
-        when(commandeRepository.between(any(LocalDate.class), any(LocalDate.class))).thenReturn(spec);
+        when(commandeRepository.between(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(spec);
         when(commandeRepository.bySearchRef(anyString())).thenReturn(spec);
         when(commandeRepository.bySearchTerm(anyString())).thenReturn(spec);
         when(commandeRepository.byFournisseur(anyInt())).thenReturn(spec);
@@ -207,8 +210,8 @@ class StockEntryDataServiceImplTest {
 
     private static DeliveryReceiptFilterDTO filtre() {
         return new DeliveryReceiptFilterDTO()
-            .setFromDate(LocalDate.of(2026, 4, 1))
-            .setToDate(LocalDate.of(2026, 4, 30));
+                .setFromDate(LocalDate.of(2026, 4, 1))
+                .setToDate(LocalDate.of(2026, 4, 30));
     }
 
     @Nested
@@ -231,7 +234,8 @@ class StockEntryDataServiceImplTest {
         void compteNul() {
             when(typedQuery.getSingleResult()).thenReturn(null);
 
-            assertThat(service.fetchAllReceipts(filtre(), PageRequest.of(0, 20)).getTotalElements()).isZero();
+            assertThat(service.fetchAllReceipts(filtre(), PageRequest.of(0, 20)).getTotalElements())
+                    .isZero();
         }
 
         @Test
@@ -292,7 +296,8 @@ class StockEntryDataServiceImplTest {
 
             service.fetchAllDeliveryReceipts(filtre, PageRequest.of(0, 20));
 
-            verify(cb, atLeastOnce()).equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED));
+            verify(cb, atLeastOnce())
+                    .equal(nullable(Expression.class), org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED));
         }
 
         @Test
@@ -312,7 +317,7 @@ class StockEntryDataServiceImplTest {
         }
 
         @ParameterizedTest(name = "une recherche [{0}] n ajoute aucun predicat de texte")
-        @ValueSource(strings = { "" })
+        @ValueSource(strings = {""})
         void rechercheVideIgnoree(String search) {
             service.fetchAllDeliveryReceipts(filtre().setSearch(search).setSearchByRef(search), PageRequest.of(0, 20));
 
@@ -340,11 +345,11 @@ class StockEntryDataServiceImplTest {
         void borneLaPeriode() {
             service.fetchAllDeliveryReceipts(filtre(), PageRequest.of(0, 20));
 
-            verify(cb).between(
-                nullable(Expression.class),
-                org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 1)),
-                org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 30))
-            );
+            verify(cb)
+                    .between(
+                            nullable(Expression.class),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 1)),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.of(2026, 4, 30)));
         }
     }
 
@@ -365,7 +370,10 @@ class StockEntryDataServiceImplTest {
         void bonTrouve() {
             when(commandeRepository.findById(COMMANDE_ID)).thenReturn(Optional.of(commande(12)));
 
-            assertThat(service.findOneById(COMMANDE_ID)).get().extracting(DeliveryReceiptDTO::getReceiptReference).isEqualTo("BL-00012");
+            assertThat(service.findOneById(COMMANDE_ID))
+                    .get()
+                    .extracting(DeliveryReceiptDTO::getReceiptReference)
+                    .isEqualTo("BL-00012");
         }
 
         @Test
@@ -373,7 +381,7 @@ class StockEntryDataServiceImplTest {
         void exportPdf() {
             Commande commande = commande(12);
             when(commandeRepository.getReferenceById(COMMANDE_ID)).thenReturn(commande);
-            when(receiptReportService.export(commande)).thenReturn(new byte[] { 1, 2, 3 });
+            when(receiptReportService.export(commande)).thenReturn(new byte[] {1, 2, 3});
 
             assertThat(service.exportToPdf(COMMANDE_ID)).containsExactly(1, 2, 3);
         }
@@ -382,52 +390,62 @@ class StockEntryDataServiceImplTest {
         @DisplayName("printEtiquette passe les lignes du bon et le format au service d etiquettes")
         void printEtiquette() {
             List<OrderLine> lignes = List.of(new OrderLine());
-            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(lignes);
-            when(etiquetteExportService.export(lignes, 4, FormatEtiquette.A4_21_63X38)).thenReturn(new byte[] { 9 });
+            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
+                    .thenReturn(lignes);
+            when(etiquetteExportService.export(lignes, 4, FormatEtiquette.A4_21_63X38))
+                    .thenReturn(new byte[] {9});
 
-            assertThat(service.printEtiquette(COMMANDE_ID, 4, FormatEtiquette.A4_21_63X38)).containsExactly(9);
+            assertThat(service.printEtiquette(COMMANDE_ID, 4, FormatEtiquette.A4_21_63X38))
+                    .containsExactly(9);
         }
 
         @Test
         @DisplayName("printEtiquetteLot passe les lignes du bon au service du second type")
         void printEtiquetteLot() {
             List<OrderLine> lignes = List.of(new OrderLine());
-            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(lignes);
-            when(etiquetteLotExportService.exporterPourBon(lignes, 2, FormatEtiquette.parDefaut())).thenReturn(new byte[] { 7 });
+            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
+                    .thenReturn(lignes);
+            when(etiquetteLotExportService.exporterPourBon(lignes, 2, FormatEtiquette.parDefaut()))
+                    .thenReturn(new byte[] {7});
 
-            assertThat(service.printEtiquetteLot(COMMANDE_ID, 2, FormatEtiquette.parDefaut())).containsExactly(7);
+            assertThat(service.printEtiquetteLot(COMMANDE_ID, 2, FormatEtiquette.parDefaut()))
+                    .containsExactly(7);
         }
 
         @Test
         @DisplayName("fetchAllReceipts par terme cherche sur les douze derniers mois de bons clotures")
         void rechercheParTerme() {
             Slice<DeliveryReceiptProjection> slice = new SliceImpl<>(List.of());
-            when(commandeRepository.fetchAllReceipts(anyString(), any(LocalDate.class), any(OrderStatut.class), any(Pageable.class)))
-                .thenReturn(slice);
+            when(commandeRepository.fetchAllReceipts(
+                            anyString(), any(LocalDate.class), any(OrderStatut.class), any(Pageable.class)))
+                    .thenReturn(slice);
 
             assertThat(service.fetchAllReceipts("BL-2026")).isSameAs(slice);
 
-            verify(commandeRepository).fetchAllReceipts(
-                org.mockito.ArgumentMatchers.eq("BL-2026"),
-                org.mockito.ArgumentMatchers.eq(LocalDate.now().minusMonths(12)),
-                org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED),
-                any(Pageable.class)
-            );
+            verify(commandeRepository)
+                    .fetchAllReceipts(
+                            org.mockito.ArgumentMatchers.eq("BL-2026"),
+                            org.mockito.ArgumentMatchers.eq(LocalDate.now().minusMonths(12)),
+                            org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED),
+                            any(Pageable.class));
         }
 
         @Test
         @DisplayName("findAllByCommandeIdAndCommandeOrderDate delegue au depot des lignes")
         void detailDesLignes() {
             List<DeliveryReceiptItemProjection> items = List.of();
-            when(orderLineRepository.findDetailAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(items);
+            when(orderLineRepository.findDetailAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE))
+                    .thenReturn(items);
 
-            assertThat(service.findAllByCommandeIdAndCommandeOrderDate(COMMANDE_ID)).isSameAs(items);
+            assertThat(service.findAllByCommandeIdAndCommandeOrderDate(COMMANDE_ID))
+                    .isSameAs(items);
         }
 
         @Test
         @DisplayName("countByOrderStatusAndType ne compte que les commandes")
         void compteLesCommandes() {
-            when(commandeRepository.countByOrderStatusAndType(OrderStatut.REQUESTED, TypeDeliveryReceipt.ORDER)).thenReturn(6);
+            when(commandeRepository.countByOrderStatusAndType(OrderStatut.REQUESTED, TypeDeliveryReceipt.ORDER))
+                    .thenReturn(6);
 
             assertThat(service.countByOrderStatusAndType(OrderStatut.REQUESTED)).isEqualTo(6L);
         }
@@ -441,16 +459,19 @@ class StockEntryDataServiceImplTest {
         @DisplayName("renvoie une page vide quand rien ne correspond")
         @SuppressWarnings("unchecked")
         void aucunResultat() {
-            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
 
-            assertThat(service.fetchAllWithoutDetail(filtre(), PageRequest.of(0, 20))).isEmpty();
+            assertThat(service.fetchAllWithoutDetail(filtre(), PageRequest.of(0, 20)))
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("trie par date de mise a jour descendante")
         @SuppressWarnings("unchecked")
         void triParDateDeMiseAJour() {
-            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+            when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
 
             service.fetchAllWithoutDetail(filtre(), PageRequest.of(1, 25, Sort.by("orderReference")));
 
@@ -467,9 +488,9 @@ class StockEntryDataServiceImplTest {
         void compteLesLignes() {
             Commande commande = commande(12);
             when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(commande)));
+                    .thenReturn(new PageImpl<>(List.of(commande)));
             List<Object[]> rows = new ArrayList<>();
-            rows.add(new Object[] { 12, ORDER_DATE, 4L });
+            rows.add(new Object[] {12, ORDER_DATE, 4L});
             when(jpqlQuery.getResultList()).thenReturn(rows);
 
             Page<DeliveryReceiptDTO> page = service.fetchAllWithoutDetail(filtre(), PageRequest.of(0, 20));
@@ -483,10 +504,14 @@ class StockEntryDataServiceImplTest {
         @SuppressWarnings("unchecked")
         void bonSansComptage() {
             when(commandeRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(commande(12))));
+                    .thenReturn(new PageImpl<>(List.of(commande(12))));
             when(jpqlQuery.getResultList()).thenReturn(new ArrayList<Object[]>());
 
-            assertThat(service.fetchAllWithoutDetail(filtre(), PageRequest.of(0, 20)).getContent().getFirst().getItemSize()).isZero();
+            assertThat(service.fetchAllWithoutDetail(filtre(), PageRequest.of(0, 20))
+                            .getContent()
+                            .getFirst()
+                            .getItemSize())
+                    .isZero();
         }
     }
 

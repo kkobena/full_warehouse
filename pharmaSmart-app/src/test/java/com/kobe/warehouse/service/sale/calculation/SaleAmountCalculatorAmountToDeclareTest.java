@@ -88,7 +88,9 @@ class SaleAmountCalculatorAmountToDeclareTest {
     // ===== Utilitaires =====
 
     private int sommeDesLignes(Sales vente) {
-        return vente.getSalesLines().stream().mapToInt(SalesLine::getAmountToBeTakenIntoAccount).sum();
+        return vente.getSalesLines().stream()
+                .mapToInt(SalesLine::getAmountToBeTakenIntoAccount)
+                .sum();
     }
 
     private SalesLine ligneNumero(Sales vente, int index) {

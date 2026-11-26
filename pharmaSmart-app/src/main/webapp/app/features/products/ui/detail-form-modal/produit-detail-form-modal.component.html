@@ -8,97 +8,70 @@
 
 <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
   <div class="modal-body">
-  <app-card [variant]="'form'">
+    <app-card [variant]="'form'">
+      <!-- Produit parent info -->
+      <div class="df-produit-info mb-3">
+        <div class="df-produit-header">
+          <i class="pi pi-box"></i>
+          <span class="df-produit-libelle">{{ produit?.libelle }}</span>
+          @if (produit?.codeCip) {
+            <span class="df-cip-badge">{{ produit.codeCip }}</span>
+          }
+        </div>
+        <div class="df-prix-row">
+          <div class="df-prix-item">
+            <span class="df-prix-label">Prix achat boîte</span>
+            <span class="df-prix-value">{{ produit.costAmount ?? 0 | devise }}</span>
+          </div>
+          <div class="df-prix-item">
+            <span class="df-prix-label">Prix vente boîte</span>
+            <span class="df-prix-value df-pv">{{ produit.regularUnitPrice ?? 0 | devise }}</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- Produit parent info -->
-    <div class="df-produit-info mb-3">
-      <div class="df-produit-header">
-        <i class="pi pi-box"></i>
-        <span class="df-produit-libelle">{{ produit?.libelle }}</span>
-        @if (produit?.codeCip) {
-          <span class="df-cip-badge">{{ produit.codeCip }}</span>
+      <!-- Nombre d'unités -->
+      <div class="mb-3">
+        <label class="form-label df-label" for="itemQty"> Unités par conditionnement <span class="text-danger">*</span> </label>
+        <app-input-number #itemQty inputId="itemQty" formControlName="itemQty" [min]="2" [showButtons]="true" />
+        @if (editForm.get('itemQty')!.invalid && editForm.get('itemQty')!.touched) {
+          <small class="text-danger">
+            @if (editForm.get('itemQty')?.errors?.['required']) {
+              Ce champ est requis.
+            } @else if (editForm.get('itemQty')?.errors?.['min']) {
+              La valeur minimale est 2.
+            }
+          </small>
         }
       </div>
-      <div class="df-prix-row">
-        <div class="df-prix-item">
-          <span class="df-prix-label">Prix achat boîte</span>
-          <span class="df-prix-value">{{ produit.costAmount ?? 0 | devise }}</span>
+
+      <!-- Prix calculés -->
+      <div class="df-prices-row mb-3">
+        <div class="flex-grow-1">
+          <label class="form-label df-label" for="costAmount"> Prix achat unitaire <span class="text-danger">*</span> </label>
+          <app-input-number inputId="costAmount" formControlName="costAmount" [min]="0" />
+          @if (editForm.get('costAmount')!.invalid && editForm.get('costAmount')!.touched) {
+            <small class="text-danger">Ce champ est requis.</small>
+          }
         </div>
-        <div class="df-prix-item">
-          <span class="df-prix-label">Prix vente boîte</span>
-          <span class="df-prix-value df-pv">{{ produit.regularUnitPrice ?? 0 | devise }}</span>
+        <div class="flex-grow-1">
+          <label class="form-label df-label" for="regularUnitPrice"> Prix vente unitaire <span class="text-danger">*</span> </label>
+          <app-input-number inputId="regularUnitPrice" formControlName="regularUnitPrice" [min]="0" />
+          @if (editForm.get('regularUnitPrice')!.invalid && editForm.get('regularUnitPrice')!.touched) {
+            <small class="text-danger">Ce champ est requis.</small>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- Nombre d'unités -->
-    <div class="mb-3">
-      <label class="form-label df-label" for="itemQty">
-        Unités par conditionnement <span class="text-danger">*</span>
-      </label>
-      <app-input-number
-        #itemQty
-        inputId="itemQty"
-        formControlName="itemQty"
-        [min]="2"
-        [showButtons]="true"
-      />
-      @if (editForm.get('itemQty')!.invalid && editForm.get('itemQty')!.touched) {
-        <small class="text-danger">
-          @if (editForm.get('itemQty')?.errors?.['required']) { Ce champ est requis. }
-          @else if (editForm.get('itemQty')?.errors?.['min']) { La valeur minimale est 2. }
-        </small>
-      }
-    </div>
-
-    <!-- Prix calculés -->
-    <div class="df-prices-row mb-3">
-      <div class="flex-grow-1">
-        <label class="form-label df-label" for="costAmount">
-          Prix achat unitaire <span class="text-danger">*</span>
-        </label>
-        <app-input-number
-          inputId="costAmount"
-          formControlName="costAmount"
-          [min]="0"
-        />
-        @if (editForm.get('costAmount')!.invalid && editForm.get('costAmount')!.touched) {
+      <!-- Libellé -->
+      <div class="mb-3">
+        <label class="form-label df-label" for="libelle"> Libellé <span class="text-danger">*</span> </label>
+        <input id="libelle" formControlName="libelle" type="text" autocomplete="off" class="form-control w-100" />
+        @if (editForm.get('libelle')!.invalid && editForm.get('libelle')!.touched) {
           <small class="text-danger">Ce champ est requis.</small>
         }
       </div>
-      <div class="flex-grow-1">
-        <label class="form-label df-label" for="regularUnitPrice">
-          Prix vente unitaire <span class="text-danger">*</span>
-        </label>
-        <app-input-number
-          inputId="regularUnitPrice"
-          formControlName="regularUnitPrice"
-          [min]="0"
-        />
-        @if (editForm.get('regularUnitPrice')!.invalid && editForm.get('regularUnitPrice')!.touched) {
-          <small class="text-danger">Ce champ est requis.</small>
-        }
-      </div>
-    </div>
-
-    <!-- Libellé -->
-    <div class="mb-3">
-      <label class="form-label df-label" for="libelle">
-        Libellé <span class="text-danger">*</span>
-      </label>
-      <input
-        id="libelle"
-        formControlName="libelle"
-        type="text"
-        autocomplete="off"
-        class="form-control w-100"
-      />
-      @if (editForm.get('libelle')!.invalid && editForm.get('libelle')!.touched) {
-        <small class="text-danger">Ce champ est requis.</small>
-      }
-    </div>
-
-  </app-card>
+    </app-card>
   </div>
 
   <div class="modal-footer">
@@ -121,5 +94,3 @@
     />
   </div>
 </form>
-
-

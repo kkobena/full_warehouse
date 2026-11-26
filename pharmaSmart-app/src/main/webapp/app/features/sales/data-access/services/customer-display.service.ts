@@ -4,7 +4,7 @@ import { IUser } from '../../../../core/user/user.model';
 
 /**
  * Service pour gérer l'afficheur client POS
- * 
+ *
  * Affiche en temps réel:
  * - Message de bienvenue
  * - Utilisateur connecté
@@ -23,7 +23,7 @@ export class CustomerDisplayService {
    */
   initialize(storeName: string, user?: IUser): void {
     this.showWelcomeMessage(storeName);
-    
+
     if (user) {
       this.updateDisplayForUser(user);
     }

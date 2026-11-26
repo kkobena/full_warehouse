@@ -47,16 +47,15 @@ public abstract class AbstractReglementService implements ReglementService {
     private final ReferenceService referenceService;
 
     protected AbstractReglementService(
-        CashRegisterService cashRegisterService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        UserService userService,
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService,
-        ReferenceService referenceService
-    ) {
+            CashRegisterService cashRegisterService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            UserService userService,
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            BanqueRepository banqueRepository,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            InvoicePaymentItemService invoicePaymentItemService,
+            ReferenceService referenceService) {
         this.cashRegisterService = cashRegisterService;
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.userService = userService;
@@ -81,8 +80,9 @@ public abstract class AbstractReglementService implements ReglementService {
      * facture s'exécutent l'un après l'autre, et le second voit le reste dû laissé par le premier.
      */
     protected FactureTiersPayant verrouillerFacture(FactureItemId id) {
-        FactureTiersPayant facture = facturationRepository.verrouiller(id)
-            .orElseThrow(() -> new GenericError("Facture introuvable", "factureNotFound"));
+        FactureTiersPayant facture = facturationRepository
+                .verrouiller(id)
+                .orElseThrow(() -> new GenericError("Facture introuvable", "factureNotFound"));
         refuserSiProvisoire(facture);
         return facture;
     }
@@ -95,9 +95,8 @@ public abstract class AbstractReglementService implements ReglementService {
     protected static void refuserSiProvisoire(FactureTiersPayant facture) {
         if (facture.isFactureProvisoire()) {
             throw new GenericError(
-                "La facture " + facture.getNumFacture() + " est provisoire : seule la facture définitive se règle",
-                "factureProvisoire"
-            );
+                    "La facture " + facture.getNumFacture() + " est provisoire : seule la facture définitive se règle",
+                    "factureProvisoire");
         }
     }
 
@@ -109,15 +108,22 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected static int resteDu(ThirdPartySaleLine dossier) {
-        return Math.max(Objects.requireNonNullElse(dossier.getMontant(), 0) - Objects.requireNonNullElse(dossier.getMontantRegle(), 0), 0);
+        return Math.max(
+                Objects.requireNonNullElse(dossier.getMontant(), 0)
+                        - Objects.requireNonNullElse(dossier.getMontantRegle(), 0),
+                0);
     }
 
     protected static int resteDu(FactureTiersPayant facture) {
-        return facture.getFacturesDetails().stream().mapToInt(AbstractReglementService::resteDu).sum();
+        return facture.getFacturesDetails().stream()
+                .mapToInt(AbstractReglementService::resteDu)
+                .sum();
     }
 
     protected static int resteDuGroupe(FactureTiersPayant groupe) {
-        return groupe.getFactureTiersPayants().stream().mapToInt(AbstractReglementService::resteDu).sum();
+        return groupe.getFactureTiersPayants().stream()
+                .mapToInt(AbstractReglementService::resteDu)
+                .sum();
     }
 
     /**
@@ -142,7 +148,8 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected static void refuserSiRienRegle(int montantPaye) {
         if (montantPaye <= 0) {
-            throw new GenericError("Aucun montant à régler : les dossiers sélectionnés sont déjà soldés", "factureDejaReglee");
+            throw new GenericError(
+                    "Aucun montant à régler : les dossiers sélectionnés sont déjà soldés", "factureDejaReglee");
         }
     }
 
@@ -150,7 +157,8 @@ public abstract class AbstractReglementService implements ReglementService {
         return cashRegisterService.getCashRegister();
     }
 
-    protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
+    protected InvoicePaymentItem buildInvoicePaymentItem(
+            ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
         return this.invoicePaymentItemService.buildInvoicePaymentItem(thirdPartySaleLine, invoicePayment, amount);
     }
 
@@ -177,10 +185,9 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
         InvoicePayment invoice = getNew().setFactureTiersPayant(factureTiersPayant);
-        invoice
-            .setCashRegister(getCashRegister())
-            .setMontantVerse(reglementParam.getAmount())
-            .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
+        invoice.setCashRegister(getCashRegister())
+                .setMontantVerse(reglementParam.getAmount())
+                .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
         invoice.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
         invoice.setBanque(buildBanque(reglementParam.getBanqueInfo()));
         return invoice;
@@ -201,7 +208,8 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected void updateFactureTiersPayant(FactureTiersPayant factureTiersPayant, int paidAmount) {
-        factureTiersPayant.setMontantRegle(Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0) + paidAmount);
+        factureTiersPayant.setMontantRegle(
+                Objects.requireNonNullElse(factureTiersPayant.getMontantRegle(), 0) + paidAmount);
         factureTiersPayant.setUser(userService.getUser());
         factureTiersPayant.setUpdated(LocalDateTime.now());
     }
@@ -223,9 +231,10 @@ public abstract class AbstractReglementService implements ReglementService {
         if (Objects.isNull(banqueInfo)) {
             return null;
         }
-        return banqueRepository.save(
-            new Banque().setCode(banqueInfo.getCode()).setNom(banqueInfo.getNom()).setBeneficiaire(banqueInfo.getBeneficiaire())
-        );
+        return banqueRepository.save(new Banque()
+                .setCode(banqueInfo.getCode())
+                .setNom(banqueInfo.getNom())
+                .setBeneficiaire(banqueInfo.getBeneficiaire()));
     }
 
     protected void saveInvoicePayments(List<InvoicePayment> items) {

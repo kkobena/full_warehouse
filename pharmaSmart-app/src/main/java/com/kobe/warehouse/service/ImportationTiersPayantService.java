@@ -37,12 +37,11 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     private final TransactionTemplate transactionTemplate;
 
     public ImportationTiersPayantService(
-        StorageService storageService,
-        GroupeTiersPayantService groupeTiersPayantService,
-        TiersPayantRepository tiersPayantRepository,
-        ImportationRepository importationRepository,
-        TransactionTemplate transactionTemplate
-    ) {
+            StorageService storageService,
+            GroupeTiersPayantService groupeTiersPayantService,
+            TiersPayantRepository tiersPayantRepository,
+            ImportationRepository importationRepository,
+            TransactionTemplate transactionTemplate) {
         this.storageService = storageService;
         this.groupeTiersPayantService = groupeTiersPayantService;
         this.tiersPayantRepository = tiersPayantRepository;
@@ -78,29 +77,25 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     }
 
     private void updateImportation(final int errorSize, final int size) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
-                            ImportationType.TIERS_PAYANT
-                        );
-                        if (importation != null) {
-                            importation.setUpdated(LocalDateTime.now());
-                            importation.setSize(size);
-                            importation.setErrorSize(errorSize);
-                            importation.setImportationStatus(
-                                errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED
-                            );
-                            importationRepository.save(importation);
-                        }
-                    } catch (Exception e) {
-                        log.error("saveImportation ===>> {0}", e);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
+                            ImportationType.TIERS_PAYANT);
+                    if (importation != null) {
+                        importation.setUpdated(LocalDateTime.now());
+                        importation.setSize(size);
+                        importation.setErrorSize(errorSize);
+                        importation.setImportationStatus(
+                                errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
+                        importationRepository.save(importation);
                     }
+                } catch (Exception e) {
+                    log.error("saveImportation ===>> {0}", e);
                 }
             }
-        );
+        });
     }
 
     public Importation current(ImportationType importationType) {
@@ -108,26 +103,24 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     }
 
     private void processImportation(final TiersPayantDto p, AtomicInteger errorSize, AtomicInteger size, AppUser user) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        TiersPayant tiersPayant = entityFromDto(p);
-                        tiersPayant.setUser(user);
-                        GroupeTiersPayant groupeTiersPayant = groupeTiersPayantService
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    TiersPayant tiersPayant = entityFromDto(p);
+                    tiersPayant.setUser(user);
+                    GroupeTiersPayant groupeTiersPayant = groupeTiersPayantService
                             .getOneByName(p.getGroupeTiersPayantName())
                             .orElse(null);
-                        tiersPayant.setGroupeTiersPayant(groupeTiersPayant);
-                        tiersPayantRepository.save(tiersPayant);
-                        size.incrementAndGet();
-                    } catch (Exception e) {
-                        log.error("processImportation ===>> {0}", e);
-                        errorSize.incrementAndGet();
-                    }
+                    tiersPayant.setGroupeTiersPayant(groupeTiersPayant);
+                    tiersPayantRepository.save(tiersPayant);
+                    size.incrementAndGet();
+                } catch (Exception e) {
+                    log.error("processImportation ===>> {0}", e);
+                    errorSize.incrementAndGet();
                 }
             }
-        );
+        });
     }
 
     private Importation importation(AppUser user) {
@@ -140,17 +133,15 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     }
 
     private void saveImportation(Importation importation) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        importationRepository.save(importation);
-                    } catch (Exception e) {
-                        log.error("saveImportation ===>> {0}", e);
-                    }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    importationRepository.save(importation);
+                } catch (Exception e) {
+                    log.error("saveImportation ===>> {0}", e);
                 }
             }
-        );
+        });
     }
 }

@@ -13,13 +13,13 @@ public class CommandeEntryDTO extends CommandeWrapperDTO {
 
     public CommandeEntryDTO(Commande commande) {
         super(commande);
-        orderLines = commande
-            .getOrderLines()
-            .stream()
-            .map(OrderLineDTO::new)
-            .sorted(Comparator.comparing(OrderLineDTO::getProduitLibelle))
-            .collect(Collectors.toList());
-        fournisseur = Optional.ofNullable(commande.getFournisseur()).map(FournisseurDTO::new).orElse(null);
+        orderLines = commande.getOrderLines().stream()
+                .map(OrderLineDTO::new)
+                .sorted(Comparator.comparing(OrderLineDTO::getProduitLibelle))
+                .collect(Collectors.toList());
+        fournisseur = Optional.ofNullable(commande.getFournisseur())
+                .map(FournisseurDTO::new)
+                .orElse(null);
     }
 
     public FournisseurDTO getFournisseur() {

@@ -290,7 +290,9 @@ describe('Exports', () => {
       const modele = { frequence: 'WEEKLY', heure: '07:00:00', jour: 1 } as ExportModele;
 
       expect(fixture.componentInstance['libelleProgrammation'](modele)).toBe('Chaque lundi à 07:00');
-      expect(fixture.componentInstance['libelleProgrammation']({ ...modele, frequence: 'MONTHLY', jour: 5 })).toBe('Le 5 de chaque mois à 07:00');
+      expect(fixture.componentInstance['libelleProgrammation']({ ...modele, frequence: 'MONTHLY', jour: 5 })).toBe(
+        'Le 5 de chaque mois à 07:00',
+      );
     });
 
     it('le panneau n’envoie ni jour ni heure à un modèle non programmé, et pas de période à un export sans période', () => {
@@ -305,7 +307,9 @@ describe('Exports', () => {
       fixture.componentInstance['export'].set('PRODUITS');
       fixture.componentInstance['enregistrer']();
 
-      expect(envois[0]).toEqual(expect.objectContaining({ libelle: 'Référentiel du lundi', periode: null, frequence: null, heure: null, jour: null }));
+      expect(envois[0]).toEqual(
+        expect.objectContaining({ libelle: 'Référentiel du lundi', periode: null, frequence: null, heure: null, jour: null }),
+      );
     });
 
     it('le panneau refuse de programmer une édition et n’offre que ses formats', () => {

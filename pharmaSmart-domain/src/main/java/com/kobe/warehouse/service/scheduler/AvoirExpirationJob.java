@@ -23,8 +23,8 @@ public class AvoirExpirationJob {
 
     @Transactional
     public void expireAvoirsEchus() {
-        List<AvoirClient> expires = avoirClientRepository
-            .findByStatutAndDateExpirationLessThanEqual(AvoirClientStatut.OUVERT, LocalDate.now());
+        List<AvoirClient> expires = avoirClientRepository.findByStatutAndDateExpirationLessThanEqual(
+                AvoirClientStatut.OUVERT, LocalDate.now());
         if (expires.isEmpty()) {
             return;
         }

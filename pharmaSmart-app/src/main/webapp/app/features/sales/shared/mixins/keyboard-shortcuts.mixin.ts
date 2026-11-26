@@ -1,11 +1,7 @@
-import {inject} from '@angular/core';
-import {
-  KeyboardShortcut
-} from '../../../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
-import {
-  TauriKeyboardService
-} from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
-import {SalesHelpService} from '../../data-access/services/sales-help.service';
+import { inject } from '@angular/core';
+import { KeyboardShortcut } from '../../../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
+import { TauriKeyboardService } from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
+import { SalesHelpService } from '../../data-access/services/sales-help.service';
 
 // ============================================
 // Types
@@ -56,8 +52,7 @@ export interface KeyboardShortcutsMixin {
 
 function shouldHandleEvent(event: KeyboardEvent): boolean {
   const target = event.target as HTMLElement;
-  const isInInput =
-    target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.getAttribute('role') === 'combobox';
+  const isInInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.getAttribute('role') === 'combobox';
 
   // F-keys : TOUJOURS actives (standard POS - le caissier tape F9 même dans le champ produit)
   if (/^F\d{1,2}$/.test(event.key)) {
@@ -113,10 +108,7 @@ function shouldHandleEvent(event: KeyboardEvent): boolean {
  * }
  * ```
  */
-export function createKeyboardShortcuts(
-  config: KeyboardShortcutsConfig,
-  callbacks: SaleShortcutCallbacks,
-): KeyboardShortcutsMixin {
+export function createKeyboardShortcuts(config: KeyboardShortcutsConfig, callbacks: SaleShortcutCallbacks): KeyboardShortcutsMixin {
   const tauriService = inject(TauriKeyboardService);
   const aide = inject(SalesHelpService);
 

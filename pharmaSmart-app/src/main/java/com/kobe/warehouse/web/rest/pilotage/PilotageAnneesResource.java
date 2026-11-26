@@ -22,7 +22,8 @@ public class PilotageAnneesResource {
     private final ComparaisonAnneesService comparaisonAnneesService;
     private final ExportPilotageService exportPilotageService;
 
-    public PilotageAnneesResource(ComparaisonAnneesService comparaisonAnneesService, ExportPilotageService exportPilotageService) {
+    public PilotageAnneesResource(
+            ComparaisonAnneesService comparaisonAnneesService, ExportPilotageService exportPilotageService) {
         this.comparaisonAnneesService = comparaisonAnneesService;
         this.exportPilotageService = exportPilotageService;
     }
@@ -35,6 +36,8 @@ public class PilotageAnneesResource {
     @GetMapping("/annees/export")
     @RequiresNavAccess(value = "pilotage.comparer-annees", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exporterAnnees(RequeteAnneesDTO requete) {
-        return Utils.exportCsv(exportPilotageService.exporterAnnees(requete), "pilotage-annees-" + requete.indicateur().name().toLowerCase());
+        return Utils.exportCsv(
+                exportPilotageService.exporterAnnees(requete),
+                "pilotage-annees-" + requete.indicateur().name().toLowerCase());
     }
 }

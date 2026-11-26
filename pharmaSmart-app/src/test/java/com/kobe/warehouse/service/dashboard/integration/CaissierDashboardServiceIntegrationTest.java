@@ -9,14 +9,13 @@ import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.CaisseStatusDTO;
+import com.kobe.warehouse.service.dto.dashboard.CaissierDashboardDTO;
 import com.kobe.warehouse.service.dto.dashboard.DiffereARelancerDTO;
 import com.kobe.warehouse.service.dto.dashboard.EncaissementParModeDTO;
 import com.kobe.warehouse.service.dto.dashboard.LivraisonAttendueDTO;
 import com.kobe.warehouse.service.dto.dashboard.SessionEncaissementsDTO;
 import com.kobe.warehouse.service.dto.dashboard.VenteRecenteDTO;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -78,7 +77,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             encaissement(caisse, "CB", TypeFinancialTransaction.CASH_SALE, 70_000);
             viderLeCache();
 
-            assertThat(services.caissierDashboardService.getCaisseStatus().encaissementsEspeces()).isEqualTo(10_000L);
+            assertThat(services.caissierDashboardService.getCaisseStatus().encaissementsEspeces())
+                    .isEqualTo(10_000L);
         }
 
         /**
@@ -94,7 +94,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             encaissement(caisse, "CASH", TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 40_000);
             viderLeCache();
 
-            assertThat(services.caissierDashboardService.getCaisseStatus().encaissementsEspeces()).isEqualTo(80_000L);
+            assertThat(services.caissierDashboardService.getCaisseStatus().encaissementsEspeces())
+                    .isEqualTo(80_000L);
         }
 
         @Test
@@ -103,7 +104,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             caisse(0L, aujourdHui().atTime(8, 7), CashRegisterStatut.OPEN, null);
             viderLeCache();
 
-            assertThat(services.caissierDashboardService.getCaisseStatus().heureOuverture()).isEqualTo("08:07");
+            assertThat(services.caissierDashboardService.getCaisseStatus().heureOuverture())
+                    .isEqualTo("08:07");
         }
 
         @Test
@@ -159,7 +161,7 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             viderLeCache();
 
             SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("admin", null, List.of()));
+                    .setAuthentication(new UsernamePasswordAuthenticationToken("admin", null, List.of()));
 
             CaisseStatusDTO resultat = services.caissierDashboardService.getCaisseStatus();
 
@@ -186,7 +188,9 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             SessionEncaissementsDTO resultat = services.caissierDashboardService.getSessionEncaissements();
 
             // ordre_tri : CASH (1), OM (2), CB (6)
-            assertThat(resultat.lignes()).extracting(EncaissementParModeDTO::code).containsExactly("CASH", "OM", "CB");
+            assertThat(resultat.lignes())
+                    .extracting(EncaissementParModeDTO::code)
+                    .containsExactly("CASH", "OM", "CB");
             assertThat(resultat.totalEncaisse()).isEqualTo(210_000L);
         }
 
@@ -267,9 +271,12 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             venteDifferee(caisse, 30_000, 30_000, client, aujourdHui().minusDays(15));
             viderLeCache();
 
-            List<DiffereARelancerDTO> differes = services.caissierDashboardService.getDifferesRelance().differes();
+            List<DiffereARelancerDTO> differes =
+                    services.caissierDashboardService.getDifferesRelance().differes();
 
-            assertThat(differes).extracting(DiffereARelancerDTO::urgence).containsExactly("CRITIQUE", "RETARD", "AUJOURD_HUI");
+            assertThat(differes)
+                    .extracting(DiffereARelancerDTO::urgence)
+                    .containsExactly("CRITIQUE", "RETARD", "AUJOURD_HUI");
             assertThat(differes).extracting(DiffereARelancerDTO::joursRetard).containsExactly(15, 3, 0);
         }
 
@@ -280,7 +287,10 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             venteDifferee(caisse, 12_500, 12_500, client("Kone", "Ali", "0700112233"), aujourdHui());
             viderLeCache();
 
-            DiffereARelancerDTO differe = services.caissierDashboardService.getDifferesRelance().differes().getFirst();
+            DiffereARelancerDTO differe = services.caissierDashboardService
+                    .getDifferesRelance()
+                    .differes()
+                    .getFirst();
 
             assertThat(differe.clientNom()).isEqualTo("Ali Kone");
             assertThat(differe.clientTelephone()).isEqualTo("0700112233");
@@ -294,7 +304,10 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             venteDifferee(caisse, 5_000, 5_000, null, aujourdHui());
             viderLeCache();
 
-            DiffereARelancerDTO differe = services.caissierDashboardService.getDifferesRelance().differes().getFirst();
+            DiffereARelancerDTO differe = services.caissierDashboardService
+                    .getDifferesRelance()
+                    .differes()
+                    .getFirst();
 
             assertThat(differe.clientNom()).isEqualTo("Anonyme");
             assertThat(differe.clientTelephone()).isNull();
@@ -313,7 +326,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             venteDifferee(caisse, 20_000, 20_000, client, aujourdHui());
             viderLeCache();
 
-            assertThat(services.caissierDashboardService.getDifferesRelance().differes()).hasSize(1);
+            assertThat(services.caissierDashboardService.getDifferesRelance().differes())
+                    .hasSize(1);
         }
 
         @Test
@@ -323,7 +337,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             vente(caisse, NatureVente.COMPTANT, 10_000, 10_000, false, null, aujourdHui());
             viderLeCache();
 
-            assertThat(services.caissierDashboardService.getDifferesRelance().differes()).isEmpty();
+            assertThat(services.caissierDashboardService.getDifferesRelance().differes())
+                    .isEmpty();
         }
 
         @Test
@@ -389,7 +404,11 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             viderLeCache();
 
             assertThat(services.caissierDashboardService.getLivraisonsJour()).hasSize(1);
-            assertThat(services.caissierDashboardService.getLivraisonsJour().getFirst().nombreReferences()).isZero();
+            assertThat(services.caissierDashboardService
+                            .getLivraisonsJour()
+                            .getFirst()
+                            .nombreReferences())
+                    .isZero();
         }
     }
 
@@ -417,13 +436,20 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
         @DisplayName("une vente d'hier n'est pas une vente récente")
         void venteDHierExclue() {
             CashRegister caisse = caisseOuverte(0L);
-            vente(caisse, NatureVente.COMPTANT, 10_000, 0, false, null, aujourdHui().minusDays(1));
+            vente(
+                    caisse,
+                    NatureVente.COMPTANT,
+                    10_000,
+                    0,
+                    false,
+                    null,
+                    aujourdHui().minusDays(1));
             venteComptant(caisse, 20_000);
             viderLeCache();
 
             assertThat(services.caissierDashboardService.getVentesRecentes(8))
-                .extracting(VenteRecenteDTO::montant)
-                .containsExactly(20_000L);
+                    .extracting(VenteRecenteDTO::montant)
+                    .containsExactly(20_000L);
         }
 
         /** Un différé s'affiche comme tel, quelle que soit la nature de la vente qui l'a produit. */
@@ -434,7 +460,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             venteDifferee(caisse, 10_000, 10_000, client("Kouassi", "Yao", "0102030405"), aujourdHui());
             viderLeCache();
 
-            VenteRecenteDTO vente = services.caissierDashboardService.getVentesRecentes(8).getFirst();
+            VenteRecenteDTO vente =
+                    services.caissierDashboardService.getVentesRecentes(8).getFirst();
 
             assertThat(vente.typeVente()).isEqualTo("DIFFERE");
             assertThat(vente.clientNom()).isEqualTo("Yao Kouassi");
@@ -450,7 +477,8 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             viderLeCache();
 
             assertThat(services.caissierDashboardService.getVentesRecentes(2)).hasSize(2);
-            assertThat(services.caissierDashboardService.getVentesRecentes(null)).hasSize(5);
+            assertThat(services.caissierDashboardService.getVentesRecentes(null))
+                    .hasSize(5);
         }
 
         @Test
@@ -461,7 +489,7 @@ class CaissierDashboardServiceIntegrationTest extends AbstractDashboardIntegrati
             viderLeCache();
 
             SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("admin", null, List.of()));
+                    .setAuthentication(new UsernamePasswordAuthenticationToken("admin", null, List.of()));
 
             assertThat(services.caissierDashboardService.getVentesRecentes(8)).isEmpty();
         }

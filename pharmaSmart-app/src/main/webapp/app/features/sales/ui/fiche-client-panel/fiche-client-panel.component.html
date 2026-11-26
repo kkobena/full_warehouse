@@ -10,7 +10,11 @@
     <!-- Alertes : ce qu'il faut savoir avant de délivrer -->
     <div class="d-flex flex-column gap-1 mb-3">
       @for (allergie of f.sante?.allergies ?? []; track allergie.id) {
-        <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle" severity="danger" />
+        <app-badge
+          [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)"
+          icon="pi pi-exclamation-triangle"
+          severity="danger"
+        />
       }
       @if (grossesseEnCours()) {
         <app-badge label="Grossesse en cours" icon="pi pi-heart" severity="warn" />
@@ -19,17 +23,36 @@
         <app-badge label="Allaitement" icon="pi pi-heart" severity="warn" />
       }
       @for (tp of cartesExpirees(); track tp.id) {
-        <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
-                   icon="pi pi-exclamation-triangle" severity="danger" />
+        <app-badge
+          [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
+          icon="pi pi-exclamation-triangle"
+          severity="danger"
+        />
       }
       @if (f.credit && f.credit.encours > 0) {
-        <app-badge [label]="'Encours : ' + (f.credit.encours | number) + ' ' + devise + (f.credit.limite > 0 ? ' / limite ' + (f.credit.limite | number) : '')"
-                   icon="pi pi-credit-card" [severity]="creditDepasse() ? 'danger' : 'warn'" />
+        <app-badge
+          [label]="
+            'Encours : ' +
+            (f.credit.encours | number) +
+            ' ' +
+            devise +
+            (f.credit.limite > 0 ? ' / limite ' + (f.credit.limite | number) : '')
+          "
+          icon="pi pi-credit-card"
+          [severity]="creditDepasse() ? 'danger' : 'warn'"
+        />
       }
       @if (avoirsOuverts().length > 0) {
         <app-badge [label]="'Avoirs disponibles : ' + (soldeAvoirs() | number) + ' ' + devise" icon="pi pi-wallet" severity="success" />
       }
-      @if (!(f.sante?.allergies?.length) && !grossesseEnCours() && !f.sante?.allaitement && cartesExpirees().length === 0 && !(f.credit?.encours) && avoirsOuverts().length === 0) {
+      @if (
+        !f.sante?.allergies?.length &&
+        !grossesseEnCours() &&
+        !f.sante?.allaitement &&
+        cartesExpirees().length === 0 &&
+        !f.credit?.encours &&
+        avoirsOuverts().length === 0
+      ) {
         <span class="text-muted small">Aucune alerte.</span>
       }
     </div>
@@ -89,8 +112,15 @@
             </td>
             <td class="text-end">
               @if (t.produitId || t.dernierProduitId) {
-                <app-button (clicked)="renouveler(t)" icon="pi pi-replay" severity="primary" size="small" [text]="true"
-                            label="Re-délivrer" ariaLabel="Re-délivrer ce traitement" />
+                <app-button
+                  (clicked)="renouveler(t)"
+                  icon="pi pi-replay"
+                  severity="primary"
+                  size="small"
+                  [text]="true"
+                  label="Re-délivrer"
+                  ariaLabel="Re-délivrer ce traitement"
+                />
               }
             </td>
           </tr>
@@ -111,12 +141,21 @@
       </ng-template>
       <ng-template #body let-produit>
         <tr>
-          <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
+          <td>
+            <span class="pharma-product-name">{{ produit.libelle }}</span>
+          </td>
           <td>{{ produit.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
           <td class="text-end">{{ produit.quantite | number }}</td>
           <td class="text-end">
-            <app-button (clicked)="choisir(produit)" icon="pi pi-replay" severity="primary" size="small" [text]="true"
-                        label="Re-délivrer" ariaLabel="Re-délivrer ce produit" />
+            <app-button
+              (clicked)="choisir(produit)"
+              icon="pi pi-replay"
+              severity="primary"
+              size="small"
+              [text]="true"
+              label="Re-délivrer"
+              ariaLabel="Re-délivrer ce produit"
+            />
           </td>
         </tr>
       </ng-template>

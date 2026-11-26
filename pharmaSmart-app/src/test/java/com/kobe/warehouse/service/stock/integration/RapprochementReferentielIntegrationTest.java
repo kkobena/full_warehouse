@@ -42,12 +42,11 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
     @BeforeEach
     void creerLeService() {
         service = new RapprochementProduitService(
-            em,
-            IntegrationPostgresDatabase.bean(ProduitRefSpecialiteRepository.class),
-            IntegrationPostgresDatabase.bean(DciRepository.class),
-            IntegrationPostgresDatabase.bean(RefSpecialiteCompositionRepository.class),
-            IntegrationPostgresDatabase.bean(RefSpecialiteRcpRepository.class)
-        );
+                em,
+                IntegrationPostgresDatabase.bean(ProduitRefSpecialiteRepository.class),
+                IntegrationPostgresDatabase.bean(DciRepository.class),
+                IntegrationPostgresDatabase.bean(RefSpecialiteCompositionRepository.class),
+                IntegrationPostgresDatabase.bean(RefSpecialiteRcpRepository.class));
     }
 
     // ===== les règles =====
@@ -66,9 +65,14 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
         assertEquals(CIS_PRINCEPS, lireChamp(produit, "cis"));
         assertEquals("true", lireChamp(produit, "dci_posee"));
         assertEquals(List.of(dci.getId()), listerMolecules(produit));
-        assertEquals(dci.getId().longValue(), compter("SELECT dci_id FROM produit WHERE id = " + produit.getId()), "produit.dci_id alignée sur le rang 1");
+        assertEquals(
+                dci.getId().longValue(),
+                compter("SELECT dci_id FROM produit WHERE id = " + produit.getId()),
+                "produit.dci_id alignée sur le rang 1");
         assertEquals(500, compter("SELECT dosage_valeur FROM produit_dci WHERE produit_id = " + produit.getId()));
-        assertEquals(0, compter("SELECT COUNT(*) FROM produit_dci WHERE produit_id = " + produit.getId() + " AND rang <> 1"));
+        assertEquals(
+                0,
+                compter("SELECT COUNT(*) FROM produit_dci WHERE produit_id = " + produit.getId() + " AND rang <> 1"));
     }
 
     @Test
@@ -101,7 +105,10 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
 
         assertEquals("A_VERIFIER", lireChamp(produit, "statut"));
         assertEquals("EN_ATTENTE", lireChamp(produit, "decision"));
-        assertEquals(List.of(autre.getId()), listerMolecules(produit), "une DCI saisie par une personne n'est jamais écrasée");
+        assertEquals(
+                List.of(autre.getId()),
+                listerMolecules(produit),
+                "une DCI saisie par une personne n'est jamais écrasée");
     }
 
     @Test
@@ -147,8 +154,12 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
         service.rapprocherNouveauxProduits();
         assertEquals(List.of(dci.getId()), listerMolecules(produit));
 
-        em.createNativeQuery("DELETE FROM produit_dci WHERE produit_id = :id").setParameter("id", produit.getId()).executeUpdate();
-        em.createNativeQuery("UPDATE produit SET dci_id = NULL WHERE id = :id").setParameter("id", produit.getId()).executeUpdate();
+        em.createNativeQuery("DELETE FROM produit_dci WHERE produit_id = :id")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
+        em.createNativeQuery("UPDATE produit SET dci_id = NULL WHERE id = :id")
+                .setParameter("id", produit.getId())
+                .executeUpdate();
         assertEquals("REJETE", lireChamp(produit, "decision"));
         assertTrue(lireChamp(produit, "motif").contains("DCI dissociée"));
 
@@ -185,9 +196,10 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
         creerDciDuCatalogue();
         Produit valide = produit("TESTBRAND 500MG CPR B/210");
         service.rapprocherNouveauxProduits();
-        em.createNativeQuery("UPDATE produit_ref_specialite SET decision = 'VALIDE', statut = 'NON_TROUVE', cis = NULL WHERE produit_id = :id")
-            .setParameter("id", valide.getId())
-            .executeUpdate();
+        em.createNativeQuery(
+                        "UPDATE produit_ref_specialite SET decision = 'VALIDE', statut = 'NON_TROUVE', cis = NULL WHERE produit_id = :id")
+                .setParameter("id", valide.getId())
+                .executeUpdate();
 
         service.recalculerPropositions();
 
@@ -236,15 +248,15 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
     // ===== le service =====
 
     @Test
-    @DisplayName("La fiche donne spécialité, molécules, RCP et substituts du catalogue pour un rapprochement de confiance")
+    @DisplayName(
+            "La fiche donne spécialité, molécules, RCP et substituts du catalogue pour un rapprochement de confiance")
     void lireFiche() {
         poserLeReferentiel();
         creerDciDuCatalogue();
         em.createNativeQuery(
-            "INSERT INTO ref_specialite_rcp (cis, indications, posologie, contre_indications) VALUES (:cis, 'douleur', '1 comprimé', 'allergie connue')"
-        )
-            .setParameter("cis", CIS_PRINCEPS)
-            .executeUpdate();
+                        "INSERT INTO ref_specialite_rcp (cis, indications, posologie, contre_indications) VALUES (:cis, 'douleur', '1 comprimé', 'allergie connue')")
+                .setParameter("cis", CIS_PRINCEPS)
+                .executeUpdate();
         Produit princeps = produit("TESTBRAND 500MG CPR B/300");
         Produit generique = produit("TESTGENERIK 500MG CPR B/300");
         service.rapprocherNouveauxProduits();
@@ -258,7 +270,11 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
         assertEquals(TypeGenerique.PRINCEPS, fiche.specialite().typeGenerique());
         assertEquals(1, fiche.molecules().size());
         assertEquals("allergie connue", fiche.rcp().contreIndications());
-        assertEquals(List.of(generique.getId()), fiche.substituts().stream().map(ProduitReferentielDTO.Substitut::produitId).toList());
+        assertEquals(
+                List.of(generique.getId()),
+                fiche.substituts().stream()
+                        .map(ProduitReferentielDTO.Substitut::produitId)
+                        .toList());
         assertEquals(TypeGenerique.GENERIQUE, fiche.substituts().getFirst().typeGenerique());
     }
 
@@ -304,7 +320,8 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
         service.rejeter(produit.getId());
         em.flush();
         viderLeCache();
-        assertEquals(DecisionRapprochement.REJETE, service.lireFiche(produit.getId()).decision());
+        assertEquals(
+                DecisionRapprochement.REJETE, service.lireFiche(produit.getId()).decision());
         assertNull(service.lireFiche(produit.getId()).specialite());
     }
 
@@ -328,7 +345,8 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
 
     /** Une molécule, un princeps (TESTBRAND) et un générique (TESTGENERIK), 500 mg comprimé, dans un même groupe. */
     private void poserLeReferentiel() {
-        executer("INSERT INTO ref_groupe_generique (id, libelle) VALUES (99001, 'TESTMOLECULEA 500 mg - TESTBRAND 500 mg, comprimé')");
+        executer(
+                "INSERT INTO ref_groupe_generique (id, libelle) VALUES (99001, 'TESTMOLECULEA 500 mg - TESTBRAND 500 mg, comprimé')");
         executer("INSERT INTO ref_substance (code, libelle) VALUES ('T0001', '" + MOLECULE + "')");
         executer("INSERT INTO ref_dci (libelle) VALUES ('" + MOLECULE + "')");
         creerSpecialite(CIS_PRINCEPS, "TESTBRAND 500 mg, comprimé", "PRINCEPS");
@@ -337,13 +355,13 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
 
     private void creerSpecialite(String cis, String libelle, String type) {
         executer(
-            "INSERT INTO ref_specialite (cis, libelle, forme, commercialisee, groupe_generique_id, type_generique) VALUES ('" +
-            cis + "', '" + libelle + "', 'comprimé', TRUE, 99001, '" + type + "')"
-        );
+                "INSERT INTO ref_specialite (cis, libelle, forme, commercialisee, groupe_generique_id, type_generique) VALUES ('"
+                        + cis + "', '" + libelle + "', 'comprimé', TRUE, 99001, '" + type + "')");
         executer(
-            "INSERT INTO ref_specialite_composition (cis, substance_code, dci_id, nature, dosage_texte, dosage_valeur, dosage_unite, reference_dosage) " +
-            "SELECT '" + cis + "', 'T0001', id, 'FT', '500 mg', 500, 'mg', 'un comprimé' FROM ref_dci WHERE libelle = '" + MOLECULE + "'"
-        );
+                "INSERT INTO ref_specialite_composition (cis, substance_code, dci_id, nature, dosage_texte, dosage_valeur, dosage_unite, reference_dosage) "
+                        + "SELECT '" + cis
+                        + "', 'T0001', id, 'FT', '500 mg', 500, 'mg', 'un comprimé' FROM ref_dci WHERE libelle = '"
+                        + MOLECULE + "'");
     }
 
     /** La DCI du catalogue, reliée au référentiel. */
@@ -385,19 +403,19 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
 
     private String lireChamp(Produit produit, String colonne) {
         em.flush();
-        List<?> lignes = em
-            .createNativeQuery("SELECT " + colonne + " FROM produit_ref_specialite WHERE produit_id = :id")
-            .setParameter("id", produit.getId())
-            .getResultList();
+        List<?> lignes = em.createNativeQuery(
+                        "SELECT " + colonne + " FROM produit_ref_specialite WHERE produit_id = :id")
+                .setParameter("id", produit.getId())
+                .getResultList();
         Object valeur = lignes.isEmpty() ? null : lignes.getFirst();
         return valeur == null ? null : valeur.toString();
     }
 
     private List<Integer> listerMolecules(Produit produit) {
         em.flush();
-        return em
-            .createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
-            .setParameter("id", produit.getId())
-            .getResultList();
+        return em.createNativeQuery(
+                        "SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+                .setParameter("id", produit.getId())
+                .getResultList();
     }
 }

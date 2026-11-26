@@ -42,12 +42,10 @@ public class RetourBonItem implements Serializable {
 
     /** Ligne de commande source — nullable pour les retours "hors commande" */
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "orderline_id", referencedColumnName = "id"),
-            @JoinColumn(name = "orderline_order_date", referencedColumnName = "order_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "orderline_id", referencedColumnName = "id"),
+        @JoinColumn(name = "orderline_order_date", referencedColumnName = "order_date"),
+    })
     private OrderLine orderLine;
 
     @ManyToOne

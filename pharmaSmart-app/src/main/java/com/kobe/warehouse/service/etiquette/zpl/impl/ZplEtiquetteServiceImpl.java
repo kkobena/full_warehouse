@@ -80,11 +80,7 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
 
     @Override
     public String rendreEtiquettes(
-        List<EtiquetteDTO> etiquettes,
-        TypeEtiquette type,
-        FormatEtiquette format,
-        ResolutionEtiquette resolution
-    ) {
+            List<EtiquetteDTO> etiquettes, TypeEtiquette type, FormatEtiquette format, ResolutionEtiquette resolution) {
         StringBuilder flux = new StringBuilder();
         for (EtiquetteDTO etiquette : etiquettes) {
             // Les cases blanches d'une planche entamée n'ont pas d'équivalent en rouleau : les
@@ -96,7 +92,8 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
         return flux.toString();
     }
 
-    private void ecrireEtiquette(StringBuilder flux, EtiquetteDTO etiquette, TypeEtiquette type, FormatEtiquette format, int dpi) {
+    private void ecrireEtiquette(
+            StringBuilder flux, EtiquetteDTO etiquette, TypeEtiquette type, FormatEtiquette format, int dpi) {
         flux.append("^XA\n");
         // ^CI28 : UTF-8. Sans lui, un libellé accentué sort en caractères de remplacement.
         flux.append("^CI28\n");
@@ -163,7 +160,8 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
             y = ecrireLigne(flux, "Préparé le " + etiquette.getDate(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
         }
         if (StringUtils.hasText(etiquette.getExpiryDate())) {
-            y = ecrireLigne(flux, "À utiliser avant le " + etiquette.getExpiryDate(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
+            y = ecrireLigne(
+                    flux, "À utiliser avant le " + etiquette.getExpiryDate(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
         }
         y = ecrireLigne(flux, etiquette.getPrescripteur(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
         ecrireLigne(flux, etiquette.getMention(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
@@ -182,22 +180,21 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
         }
         double largeurMm = format.getLargeurMm() - 2 * MARGE_MM;
         int lignes = compterLignes(texte, largeurMm);
-        flux
-            .append("^FO")
-            .append(convertirEnDots(MARGE_MM, dpi))
-            .append(',')
-            .append(convertirEnDots(y, dpi))
-            .append("^A0N,")
-            .append(convertirEnDots(HAUTEUR_TEXTE_MM, dpi))
-            .append(',')
-            .append(convertirEnDots(HAUTEUR_TEXTE_MM, dpi))
-            .append("^FB")
-            .append(convertirEnDots(largeurMm, dpi))
-            .append(',')
-            .append(lignes)
-            .append(",0,L,0^FD")
-            .append(assainir(texte))
-            .append("^FS\n");
+        flux.append("^FO")
+                .append(convertirEnDots(MARGE_MM, dpi))
+                .append(',')
+                .append(convertirEnDots(y, dpi))
+                .append("^A0N,")
+                .append(convertirEnDots(HAUTEUR_TEXTE_MM, dpi))
+                .append(',')
+                .append(convertirEnDots(HAUTEUR_TEXTE_MM, dpi))
+                .append("^FB")
+                .append(convertirEnDots(largeurMm, dpi))
+                .append(',')
+                .append(lignes)
+                .append(",0,L,0^FD")
+                .append(assainir(texte))
+                .append("^FS\n");
         return y + lignes * (HAUTEUR_TEXTE_MM + INTERLIGNE_MM);
     }
 
@@ -215,35 +212,33 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
             return y;
         }
         int hauteurDots = convertirEnDots(hauteurMm, dpi);
-        flux
-            .append("^FO")
-            .append(convertirEnDots(x, dpi))
-            .append(',')
-            .append(convertirEnDots(y, dpi))
-            .append("^A0N,")
-            .append(hauteurDots)
-            .append(',')
-            .append(hauteurDots)
-            .append("^FD")
-            .append(assainir(texte))
-            .append("^FS\n");
+        flux.append("^FO")
+                .append(convertirEnDots(x, dpi))
+                .append(',')
+                .append(convertirEnDots(y, dpi))
+                .append("^A0N,")
+                .append(hauteurDots)
+                .append(',')
+                .append(hauteurDots)
+                .append("^FD")
+                .append(assainir(texte))
+                .append("^FS\n");
         return y + hauteurMm + INTERLIGNE_MM;
     }
 
     /** Symbole 2D à gauche, informations du lot à sa droite — la mise en page du gabarit PDF. */
     private void ecrireDataMatrix(StringBuilder flux, EtiquetteDTO etiquette, String donnee, double y, int dpi) {
-        flux
-            .append("^FO")
-            .append(convertirEnDots(MARGE_MM, dpi))
-            .append(',')
-            .append(convertirEnDots(y, dpi))
-            // ^BX : module, qualité 200 (ECC 200), puis le caractère d'échappement qui porte les
-            // FNC1 de la trame GS1, et le rapport 1 pour un symbole carré.
-            .append("^BXN,")
-            .append(Math.max(2, convertirEnDots(MODULE_DATAMATRIX_MM, dpi)))
-            .append(",200,,,,_,1^FD")
-            .append(donnee)
-            .append("^FS\n");
+        flux.append("^FO")
+                .append(convertirEnDots(MARGE_MM, dpi))
+                .append(',')
+                .append(convertirEnDots(y, dpi))
+                // ^BX : module, qualité 200 (ECC 200), puis le caractère d'échappement qui porte les
+                // FNC1 de la trame GS1, et le rapport 1 pour un symbole carré.
+                .append("^BXN,")
+                .append(Math.max(2, convertirEnDots(MODULE_DATAMATRIX_MM, dpi)))
+                .append(",200,,,,_,1^FD")
+                .append(donnee)
+                .append("^FS\n");
 
         double x = MARGE_MM + SYMBOLE_MM + ECART_SYMBOLE_TEXTE_MM;
         double ligne = y;
@@ -260,19 +255,18 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
     /** Code 39 pleine largeur, puis le code en clair et le prix — l'étiquette standard. */
     private void ecrireCode39(StringBuilder flux, EtiquetteDTO etiquette, FormatEtiquette format, double y, int dpi) {
         int moduleDots = moduleCode39EnDots(dpi);
-        flux
-            .append("^FO")
-            .append(convertirEnDots(MARGE_MM, dpi))
-            .append(',')
-            .append(convertirEnDots(y, dpi))
-            .append("^BY")
-            .append(moduleDots)
-            .append(",2.0^B3N,N,")
-            .append(convertirEnDots(format.getHauteurCodeBarresMm(), dpi))
-            // Pas de ligne d'interprétation : le code est écrit juste en dessous, à notre police.
-            .append(",N,N^FD")
-            .append(assainir(etiquette.getCode()))
-            .append("^FS\n");
+        flux.append("^FO")
+                .append(convertirEnDots(MARGE_MM, dpi))
+                .append(',')
+                .append(convertirEnDots(y, dpi))
+                .append("^BY")
+                .append(moduleDots)
+                .append(",2.0^B3N,N,")
+                .append(convertirEnDots(format.getHauteurCodeBarresMm(), dpi))
+                // Pas de ligne d'interprétation : le code est écrit juste en dessous, à notre police.
+                .append(",N,N^FD")
+                .append(assainir(etiquette.getCode()))
+                .append("^FS\n");
 
         double ligne = y + format.getHauteurCodeBarresMm() + INTERLIGNE_MM;
         ligne = ecrireLigne(flux, etiquette.getCode(), MARGE_MM, ligne, HAUTEUR_TEXTE_MM, dpi);

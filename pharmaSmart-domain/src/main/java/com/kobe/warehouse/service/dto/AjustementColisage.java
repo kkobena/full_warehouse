@@ -10,10 +10,9 @@ import com.kobe.warehouse.domain.enumeration.ContrainteColisage;
  * effectivement bougé.
  */
 public record AjustementColisage(
-    String produitLibelle,
-    int quantiteDemandee,
-    int quantiteRetenue,
-    int qteColis,
-    int qteMinimaleCommande,
-    ContrainteColisage contrainte
-) {}
+        String produitLibelle,
+        int quantiteDemandee,
+        int quantiteRetenue,
+        int qteColis,
+        int qteMinimaleCommande,
+        ContrainteColisage contrainte) {}

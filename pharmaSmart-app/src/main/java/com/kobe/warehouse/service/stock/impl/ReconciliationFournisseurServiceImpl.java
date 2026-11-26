@@ -24,8 +24,9 @@ public class ReconciliationFournisseurServiceImpl implements ReconciliationFourn
 
     @Override
     public ReconciliationFactureDTO save(CommandeId commandeId, ReconciliationCommand cmd) {
-        Commande commande = commandeRepository.findById(commandeId)
-            .orElseThrow(() -> new EntityNotFoundException("Commande introuvable : " + commandeId));
+        Commande commande = commandeRepository
+                .findById(commandeId)
+                .orElseThrow(() -> new EntityNotFoundException("Commande introuvable : " + commandeId));
 
         ReconciliationFactureFournisseur recon = commande.getReconciliation();
         if (recon == null) {
@@ -42,14 +43,15 @@ public class ReconciliationFournisseurServiceImpl implements ReconciliationFourn
         int ecartTVA = facTVA - blTVA;
 
         recon.setFactureReference(cmd.factureReference())
-            .setFactureDate(cmd.factureDate())
-            .setFactureMontantHT(facHT)
-            .setFactureTVA(facTVA)
-            .setBlMontantHT(blHT)
-            .setBlTVA(blTVA)
-            .setEcartHT(ecartHT)
-            .setEcartTVA(ecartTVA)
-            .setStatut(ecartHT == 0 && ecartTVA == 0 ? ReconciliationStatut.RECONCILIEE : ReconciliationStatut.ECART);
+                .setFactureDate(cmd.factureDate())
+                .setFactureMontantHT(facHT)
+                .setFactureTVA(facTVA)
+                .setBlMontantHT(blHT)
+                .setBlTVA(blTVA)
+                .setEcartHT(ecartHT)
+                .setEcartTVA(ecartTVA)
+                .setStatut(
+                        ecartHT == 0 && ecartTVA == 0 ? ReconciliationStatut.RECONCILIEE : ReconciliationStatut.ECART);
 
         commande.setReconciliation(recon);
         commandeRepository.save(commande);
@@ -59,8 +61,9 @@ public class ReconciliationFournisseurServiceImpl implements ReconciliationFourn
     @Override
     @Transactional(readOnly = true)
     public ReconciliationFactureDTO findByCommandeId(CommandeId commandeId) {
-        Commande commande = commandeRepository.findById(commandeId)
-            .orElseThrow(() -> new EntityNotFoundException("Commande introuvable : " + commandeId));
+        Commande commande = commandeRepository
+                .findById(commandeId)
+                .orElseThrow(() -> new EntityNotFoundException("Commande introuvable : " + commandeId));
         ReconciliationFactureFournisseur recon = commande.getReconciliation();
         return recon != null ? new ReconciliationFactureDTO(recon) : null;
     }

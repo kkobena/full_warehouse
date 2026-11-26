@@ -44,9 +44,9 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("chaque segment porte ses montants et son taux de marge")
         void montantsDuSegment() {
-            when(repository.findSnapshotBySegment(2026)).thenReturn(
-                List.<Object[]>of(new Object[] { "COMPTANT", 1_000_000L, 600_000L, 400_000L, "40.00", 250 })
-            );
+            when(repository.findSnapshotBySegment(2026))
+                    .thenReturn(
+                            List.<Object[]>of(new Object[] {"COMPTANT", 1_000_000L, 600_000L, 400_000L, "40.00", 250}));
 
             PnlSegmentDTO segment = service.getSnapshotBySegment(2026).getFirst();
 
@@ -62,45 +62,42 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("la nature de vente se traduit en libellé lisible")
         void libelleDuSegment() {
-            when(repository.findSnapshotBySegment(2026)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] { "COMPTANT", 1L, 0L, 1L, "1", 1 },
-                    new Object[] { "ASSURANCE", 1L, 0L, 1L, "1", 1 },
-                    new Object[] { "CARNET", 1L, 0L, 1L, "1", 1 }
-                )
-            );
+            when(repository.findSnapshotBySegment(2026))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {"COMPTANT", 1L, 0L, 1L, "1", 1},
+                            new Object[] {"ASSURANCE", 1L, 0L, 1L, "1", 1},
+                            new Object[] {"CARNET", 1L, 0L, 1L, "1", 1}));
 
             assertThat(service.getSnapshotBySegment(2026))
-                .extracting(PnlSegmentDTO::segmentLabel)
-                .containsExactly("Comptant", "Ordonnancée (tiers payant)", "Carnet");
+                    .extracting(PnlSegmentDTO::segmentLabel)
+                    .containsExactly("Comptant", "Ordonnancée (tiers payant)", "Carnet");
         }
 
         @Test
         @DisplayName("une nature inconnue s'affiche telle quelle plutôt que d'interrompre le rapport")
         void natureInconnue() {
-            when(repository.findSnapshotBySegment(2026)).thenReturn(
-                List.<Object[]>of(new Object[] { "TROC", 1L, 0L, 1L, "1", 1 })
-            );
+            when(repository.findSnapshotBySegment(2026))
+                    .thenReturn(List.<Object[]>of(new Object[] {"TROC", 1L, 0L, 1L, "1", 1}));
 
-            assertThat(service.getSnapshotBySegment(2026).getFirst().segmentLabel()).isEqualTo("TROC");
+            assertThat(service.getSnapshotBySegment(2026).getFirst().segmentLabel())
+                    .isEqualTo("TROC");
         }
 
         @Test
         @DisplayName("une nature absente se range dans « Autre »")
         void natureAbsente() {
-            when(repository.findSnapshotBySegment(2026)).thenReturn(
-                List.<Object[]>of(new Object[] { null, 1L, 0L, 1L, "1", 1 })
-            );
+            when(repository.findSnapshotBySegment(2026))
+                    .thenReturn(List.<Object[]>of(new Object[] {null, 1L, 0L, 1L, "1", 1}));
 
-            assertThat(service.getSnapshotBySegment(2026).getFirst().segmentLabel()).isEqualTo("Autre");
+            assertThat(service.getSnapshotBySegment(2026).getFirst().segmentLabel())
+                    .isEqualTo("Autre");
         }
 
         @Test
         @DisplayName("un montant non renseigné vaut zéro")
         void montantAbsent() {
-            when(repository.findSnapshotBySegment(2026)).thenReturn(
-                List.<Object[]>of(new Object[] { "COMPTANT", null, null, null, null, null })
-            );
+            when(repository.findSnapshotBySegment(2026))
+                    .thenReturn(List.<Object[]>of(new Object[] {"COMPTANT", null, null, null, null, null}));
 
             PnlSegmentDTO segment = service.getSnapshotBySegment(2026).getFirst();
 
@@ -127,9 +124,8 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("chaque famille porte ses montants et son taux de marge")
         void montantsDeLaFamille() {
-            when(repository.findSnapshotByFamille(2026)).thenReturn(
-                List.<Object[]>of(new Object[] { "ANTALGIQUES", 800_000L, 500_000L, 300_000L, "37.50" })
-            );
+            when(repository.findSnapshotByFamille(2026))
+                    .thenReturn(List.<Object[]>of(new Object[] {"ANTALGIQUES", 800_000L, 500_000L, 300_000L, "37.50"}));
 
             PnlFamilleDTO famille = service.getSnapshotByFamille(2026).getFirst();
 
@@ -143,16 +139,14 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("l'ordre rendu par la base est conservé")
         void ordreConserve() {
-            when(repository.findSnapshotByFamille(2026)).thenReturn(
-                List.<Object[]>of(
-                    new Object[] { "ANTALGIQUES", 800_000L, 0L, 0L, "0" },
-                    new Object[] { "ANTIBIOTIQUES", 500_000L, 0L, 0L, "0" }
-                )
-            );
+            when(repository.findSnapshotByFamille(2026))
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {"ANTALGIQUES", 800_000L, 0L, 0L, "0"},
+                            new Object[] {"ANTIBIOTIQUES", 500_000L, 0L, 0L, "0"}));
 
             assertThat(service.getSnapshotByFamille(2026))
-                .extracting(PnlFamilleDTO::famille)
-                .containsExactly("ANTALGIQUES", "ANTIBIOTIQUES");
+                    .extracting(PnlFamilleDTO::famille)
+                    .containsExactly("ANTALGIQUES", "ANTIBIOTIQUES");
         }
     }
 
@@ -165,14 +159,12 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("chaque mois donne un point de l'axe, sans doublon")
         void axeDesMois() {
-            when(repository.findEvolutionMonthlyByFamille()).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "ANTALGIQUES", "40.00"),
-                    mois(2026, 1, "ANTIBIOTIQUES", "30.00"),
-                    mois(2026, 2, "ANTALGIQUES", "42.00"),
-                    mois(2026, 2, "ANTIBIOTIQUES", "31.00")
-                )
-            );
+            when(repository.findEvolutionMonthlyByFamille())
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "ANTALGIQUES", "40.00"),
+                            mois(2026, 1, "ANTIBIOTIQUES", "30.00"),
+                            mois(2026, 2, "ANTALGIQUES", "42.00"),
+                            mois(2026, 2, "ANTIBIOTIQUES", "31.00")));
 
             assertThat(service.getEvolutionByFamille().labels()).containsExactly(libelle(2026, 1), libelle(2026, 2));
         }
@@ -185,16 +177,14 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("une famille absente un mois garde ses points alignés sur les bons mois")
         void familleAbsenteUnMois() {
-            when(repository.findEvolutionMonthlyByFamille()).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "ANTALGIQUES", "40.00"),
-                    mois(2026, 1, "ANTIBIOTIQUES", "30.00"),
-                    // Février : les antibiotiques n'ont rien vendu, ils n'ont pas de ligne.
-                    mois(2026, 2, "ANTALGIQUES", "42.00"),
-                    mois(2026, 3, "ANTALGIQUES", "44.00"),
-                    mois(2026, 3, "ANTIBIOTIQUES", "33.00")
-                )
-            );
+            when(repository.findEvolutionMonthlyByFamille())
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "ANTALGIQUES", "40.00"),
+                            mois(2026, 1, "ANTIBIOTIQUES", "30.00"),
+                            // Février : les antibiotiques n'ont rien vendu, ils n'ont pas de ligne.
+                            mois(2026, 2, "ANTALGIQUES", "42.00"),
+                            mois(2026, 3, "ANTALGIQUES", "44.00"),
+                            mois(2026, 3, "ANTIBIOTIQUES", "33.00")));
 
             PnlEvolutionDTO evolution = service.getEvolutionByFamille();
             PnlEvolutionSerieDTO antibiotiques = serie(evolution, "ANTIBIOTIQUES");
@@ -209,28 +199,26 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("toutes les séries ont autant de points que l'axe a de mois")
         void seriesDeMemeLongueur() {
-            when(repository.findEvolutionMonthlyByFamille()).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "ANTALGIQUES", "40.00"),
-                    mois(2026, 2, "ANTIBIOTIQUES", "30.00"),
-                    mois(2026, 3, "VITAMINES", "20.00")
-                )
-            );
+            when(repository.findEvolutionMonthlyByFamille())
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "ANTALGIQUES", "40.00"),
+                            mois(2026, 2, "ANTIBIOTIQUES", "30.00"),
+                            mois(2026, 3, "VITAMINES", "20.00")));
 
             PnlEvolutionDTO evolution = service.getEvolutionByFamille();
 
             assertThat(evolution.series())
-                .allSatisfy(serie -> assertThat(serie.tauxMargeValues()).hasSameSizeAs(evolution.labels()));
+                    .allSatisfy(serie -> assertThat(serie.tauxMargeValues()).hasSameSizeAs(evolution.labels()));
         }
 
         @Test
         @DisplayName("la série porte le nom de la famille et non celui d'un segment")
         void serieNommeeParFamille() {
-            when(repository.findEvolutionMonthlyByFamille()).thenReturn(
-                List.<Object[]>of(mois(2026, 1, "ANTALGIQUES", "40.00"))
-            );
+            when(repository.findEvolutionMonthlyByFamille())
+                    .thenReturn(List.<Object[]>of(mois(2026, 1, "ANTALGIQUES", "40.00")));
 
-            PnlEvolutionSerieDTO serie = service.getEvolutionByFamille().series().getFirst();
+            PnlEvolutionSerieDTO serie =
+                    service.getEvolutionByFamille().series().getFirst();
 
             assertThat(serie.famille()).isEqualTo("ANTALGIQUES");
             assertThat(serie.segment()).isNull();
@@ -239,12 +227,15 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("un taux non renseigné vaut zéro")
         void tauxAbsent() {
-            when(repository.findEvolutionMonthlyByFamille()).thenReturn(
-                List.<Object[]>of(mois(2026, 1, "ANTALGIQUES", null))
-            );
+            when(repository.findEvolutionMonthlyByFamille())
+                    .thenReturn(List.<Object[]>of(mois(2026, 1, "ANTALGIQUES", null)));
 
-            assertThat(service.getEvolutionByFamille().series().getFirst().tauxMargeValues().getFirst())
-                .isEqualByComparingTo(BigDecimal.ZERO);
+            assertThat(service.getEvolutionByFamille()
+                            .series()
+                            .getFirst()
+                            .tauxMargeValues()
+                            .getFirst())
+                    .isEqualByComparingTo(BigDecimal.ZERO);
         }
 
         @Test
@@ -266,25 +257,21 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("un segment absent un mois garde ses points alignés")
         void segmentAbsentUnMois() {
-            when(repository.findEvolutionMonthlyBySegment()).thenReturn(
-                List.<Object[]>of(
-                    mois(2026, 1, "COMPTANT", "40.00"),
-                    mois(2026, 1, "CARNET", "25.00"),
-                    // Février sans vente au carnet : aucune ligne pour ce segment.
-                    mois(2026, 2, "COMPTANT", "41.00"),
-                    mois(2026, 3, "COMPTANT", "42.00"),
-                    mois(2026, 3, "CARNET", "27.00")
-                )
-            );
+            when(repository.findEvolutionMonthlyBySegment())
+                    .thenReturn(List.<Object[]>of(
+                            mois(2026, 1, "COMPTANT", "40.00"),
+                            mois(2026, 1, "CARNET", "25.00"),
+                            // Février sans vente au carnet : aucune ligne pour ce segment.
+                            mois(2026, 2, "COMPTANT", "41.00"),
+                            mois(2026, 3, "COMPTANT", "42.00"),
+                            mois(2026, 3, "CARNET", "27.00")));
 
             PnlEvolutionDTO evolution = service.getEvolutionBySegment();
-            List<BigDecimal> carnet = evolution
-                .series()
-                .stream()
-                .filter(s -> "Carnet".equals(s.segment()))
-                .findFirst()
-                .orElseThrow()
-                .tauxMargeValues();
+            List<BigDecimal> carnet = evolution.series().stream()
+                    .filter(s -> "Carnet".equals(s.segment()))
+                    .findFirst()
+                    .orElseThrow()
+                    .tauxMargeValues();
 
             assertThat(carnet).hasSize(3);
             assertThat(carnet.get(1)).isEqualByComparingTo("0");
@@ -294,11 +281,11 @@ class PnlAnalytiqueServiceImplTest {
         @Test
         @DisplayName("la série porte le libellé du segment et non celui d'une famille")
         void serieNommeeParSegment() {
-            when(repository.findEvolutionMonthlyBySegment()).thenReturn(
-                List.<Object[]>of(mois(2026, 1, "ASSURANCE", "30.00"))
-            );
+            when(repository.findEvolutionMonthlyBySegment())
+                    .thenReturn(List.<Object[]>of(mois(2026, 1, "ASSURANCE", "30.00")));
 
-            PnlEvolutionSerieDTO serie = service.getEvolutionBySegment().series().getFirst();
+            PnlEvolutionSerieDTO serie =
+                    service.getEvolutionBySegment().series().getFirst();
 
             assertThat(serie.segment()).isEqualTo("Ordonnancée (tiers payant)");
             assertThat(serie.famille()).isNull();
@@ -308,16 +295,19 @@ class PnlAnalytiqueServiceImplTest {
     // ===== utilitaires =====
 
     private static Object[] mois(int annee, int mois, String serie, String taux) {
-        return new Object[] { annee, mois, serie, taux };
+        return new Object[] {annee, mois, serie, taux};
     }
 
     private static String libelle(int annee, int mois) {
         return YearMonth.of(annee, mois)
-            .atDay(1)
-            .format(java.time.format.DateTimeFormatter.ofPattern("MMM yyyy", java.util.Locale.FRENCH));
+                .atDay(1)
+                .format(java.time.format.DateTimeFormatter.ofPattern("MMM yyyy", java.util.Locale.FRENCH));
     }
 
     private static PnlEvolutionSerieDTO serie(PnlEvolutionDTO evolution, String famille) {
-        return evolution.series().stream().filter(s -> famille.equals(s.famille())).findFirst().orElseThrow();
+        return evolution.series().stream()
+                .filter(s -> famille.equals(s.famille()))
+                .findFirst()
+                .orElseThrow();
     }
 }

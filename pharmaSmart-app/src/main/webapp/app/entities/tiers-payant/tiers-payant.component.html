@@ -1,9 +1,8 @@
 @if (responseDialog()) {
   <div class="mb-2">
-    <span
-      [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
-        jsonFileUploadStatutProgress
-      }}</span>
+    <span [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
+      jsonFileUploadStatutProgress
+    }}</span>
     <ngb-progressbar [value]="jsonFileUploadProgress" />
   </div>
 }
@@ -11,7 +10,6 @@
 <div class="pharma-smart-content">
   <app-toolbar [code]="navCode()" icon="pi pi-shield" title="Liste des tiers payants">
     <ng-container ngProjectAs="[toolbarFilters]">
-
       <label for="typeFilter">Type</label>
       <app-select
         (selectionChange)="onSearch()"
@@ -24,25 +22,16 @@
         inputId="typeFilter"
       />
 
-
       <div class="pharma-search-input">
         <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input
-            (keyup.enter)="onSearch()"
-            [(ngModel)]="search"
-            class="form-control"
-            placeholder="Taper pour rechercher"
-            type="text"
-          />
+          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control" placeholder="Taper pour rechercher" type="text" />
         </app-icon-field>
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-button-group">
-        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                    severity="info" />
-
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
         <app-button
           (clicked)="openJsonImport()"

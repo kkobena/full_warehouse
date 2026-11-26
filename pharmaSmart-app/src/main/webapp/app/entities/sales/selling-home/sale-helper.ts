@@ -70,7 +70,6 @@ export function getNavChangeMessage(nextId: string, translate: TranslateService)
   }
 }
 
-
 export function showCommonModal<T>(
   modalService: NgbModal,
   component: new (...args: any[]) => T,

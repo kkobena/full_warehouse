@@ -6,11 +6,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ProduitAuditingParam(
-    @NotNull Integer produitId,
-    LocalDate fromDate,
-    LocalDate toDate,
-    Integer magasinId,
-    Integer storageId,
-    // Types de mouvement à filtrer (null ou vide = tous)
-    List<MouvementProduit> mouvementTypes
-) {}
+        @NotNull Integer produitId,
+        LocalDate fromDate,
+        LocalDate toDate,
+        Integer magasinId,
+        Integer storageId,
+        // Types de mouvement à filtrer (null ou vide = tous)
+        List<MouvementProduit> mouvementTypes) {}

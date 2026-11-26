@@ -20,10 +20,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -31,17 +27,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(
-    name = "facture_tiers_payant",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"num_facture", "invoice_date"})},
-    indexes = {
-        @Index(columnList = "generation_code", name = "generation_code_index"),
-        @Index(columnList = "num_facture", name = "num_facture_index"),
-        @Index(columnList = "invoice_date", name = "invoice_date_index"),
-    }
-)
+        name = "facture_tiers_payant",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"num_facture", "invoice_date"})},
+        indexes = {
+            @Index(columnList = "generation_code", name = "generation_code_index"),
+            @Index(columnList = "num_facture", name = "num_facture_index"),
+            @Index(columnList = "invoice_date", name = "invoice_date_index"),
+        })
 @IdClass(FactureItemId.class)
 public class FactureTiersPayant implements Persistable<FactureItemId>, Serializable {
 
@@ -90,16 +88,18 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @NotNull
     @Column(name = "montant_ttc", precision = 15, scale = 2, nullable = false)
     private BigDecimal montantTtc = BigDecimal.ZERO;
+
     @NotNull
     @Column(name = "montant_tva", precision = 15, scale = 2, nullable = false)
     private BigDecimal montantTva = BigDecimal.ZERO;
+
     @NotNull
     @Column(name = "montant_net", precision = 15, scale = 2, nullable = false)
     private BigDecimal montantNet = BigDecimal.ZERO;
+
     @NotNull
     @Column(name = "montant_ht", precision = 15, scale = 2, nullable = false)
     private BigDecimal montantHt = BigDecimal.ZERO;
-
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -119,16 +119,15 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     @OneToMany(mappedBy = "groupeFactureTiersPayant")
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
+
     @OneToMany(mappedBy = "factureTiersPayant")
     private List<InvoicePayment> invoicePayments = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id"),
-            @JoinColumn(name = "groupe_facture_tiers_payant_invoice_date", referencedColumnName = "invoice_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id"),
+        @JoinColumn(name = "groupe_facture_tiers_payant_invoice_date", referencedColumnName = "invoice_date"),
+    })
     private FactureTiersPayant groupeFactureTiersPayant;
 
     @OneToMany(mappedBy = "factureTiersPayant")

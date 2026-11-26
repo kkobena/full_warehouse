@@ -112,9 +112,7 @@ export class ProduitMergeModalComponent implements OnInit {
   private loadComparisonData(): void {
     this.loadingComparison.set(true);
     this.spinner().show();
-    const requests = this.produits.map(p =>
-      this.api.getIndicateurs(p.id!).pipe(catchError(() => of(null))),
-    );
+    const requests = this.produits.map(p => this.api.getIndicateurs(p.id!).pipe(catchError(() => of(null))));
 
     forkJoin(requests)
       .pipe(
@@ -200,18 +198,16 @@ export class ProduitMergeModalComponent implements OnInit {
     const lotResolutions = Array.from(this.lotResolutions(), ([lotId, action]) => ({ lotId, action }));
 
     this.isConfirming.set(true);
-    this.api
-      .confirmMerge({ targetId, sourceIds: this.sourceIds(), lotResolutions })
-      .subscribe({
-        next: result => {
-          this.isConfirming.set(false);
-          this.activeModal.close(result);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isConfirming.set(false);
-          this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
-        },
-      });
+    this.api.confirmMerge({ targetId, sourceIds: this.sourceIds(), lotResolutions }).subscribe({
+      next: result => {
+        this.isConfirming.set(false);
+        this.activeModal.close(result);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.isConfirming.set(false);
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
+      },
+    });
   }
 
   protected cancel(): void {

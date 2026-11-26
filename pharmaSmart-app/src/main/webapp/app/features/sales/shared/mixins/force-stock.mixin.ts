@@ -1,10 +1,7 @@
 import { NgZone, Signal, WritableSignal, effect, inject } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ISalesLine, ISales, MotifForcageStock, ProduitSearch } from '../../../../shared/model';
-import {
-  ChoixStockInsuffisant,
-  ForceStockChoiceModalComponent,
-} from "../../ui";
+import { ChoixStockInsuffisant, ForceStockChoiceModalComponent } from '../../ui';
 import { SubstitutionComptoirService } from '../../data-access/services/substitution-comptoir.service';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
@@ -114,15 +111,7 @@ export interface ForceStockHandlingContext {
  * ```
  */
 export function createForceStockHandling(context: ForceStockHandlingContext) {
-  const {
-    facade,
-    authorizationService,
-    currentSale,
-    loading,
-    lastError,
-    waitingForForceStockSuccess,
-    forceStockContext,
-  } = context;
+  const { facade, authorizationService, currentSale, loading, lastError, waitingForForceStockSuccess, forceStockContext } = context;
   const modalService = context.modalService ?? inject(NgbModal);
   const zone = context.zone ?? inject(NgZone);
   const substitution = context.substitution ?? inject(SubstitutionComptoirService);
@@ -169,7 +158,12 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
       return;
     }
     substitution
-      .choisir({ id: ligne.produitId, libelle: ligne.produitLibelle ?? '', prixUnitaire: ligne.regularUnitPrice, quantite: ligne.quantityRequested })
+      .choisir({
+        id: ligne.produitId,
+        libelle: ligne.produitLibelle ?? '',
+        prixUnitaire: ligne.regularUnitPrice,
+        quantite: ligne.quantityRequested,
+      })
       .subscribe(produit => {
         if (produit) {
           context.ajouterSubstitut?.(produit, ligne.quantityRequested ?? 1);

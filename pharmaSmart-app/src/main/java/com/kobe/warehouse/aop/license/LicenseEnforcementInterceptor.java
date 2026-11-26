@@ -56,16 +56,11 @@ public class LicenseEnforcementInterceptor implements HandlerInterceptor {
         licenseService.audit(LicenseAuditEventType.BLOCKED_WRITE, operation, null);
 
         throw new LicenseViolationException(
-            info.message(),
-            LicenseViolationException.ERROR_KEY_EXPIRED,
-            LicenseEnforcementAspect.payloadOf(info)
-        );
+                info.message(), LicenseViolationException.ERROR_KEY_EXPIRED, LicenseEnforcementAspect.payloadOf(info));
     }
 
     private boolean isExempt(HandlerMethod handlerMethod) {
-        return (
-            AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), LicenseExempt.class) ||
-            AnnotatedElementUtils.hasAnnotation(handlerMethod.getBeanType(), LicenseExempt.class)
-        );
+        return (AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), LicenseExempt.class)
+                || AnnotatedElementUtils.hasAnnotation(handlerMethod.getBeanType(), LicenseExempt.class));
     }
 }

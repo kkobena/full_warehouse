@@ -41,11 +41,11 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
 
     /** CA, marge (en valeur ou en taux) et taux de remise maximal. */
     static final List<IndicateurPilotage> INDICATEURS_OBJECTIFS = List.of(
-        IndicateurPilotage.CA_TTC,
-        IndicateurPilotage.MARGE_BRUTE,
-        IndicateurPilotage.TAUX_MARGE,
-        IndicateurPilotage.TAUX_REMISE
-    );
+            IndicateurPilotage.CA_TTC,
+            IndicateurPilotage.MARGE_BRUTE,
+            IndicateurPilotage.TAUX_MARGE,
+            IndicateurPilotage.TAUX_REMISE);
+
     private static final int MOIS_PAR_AN = 12;
     private static final double CENT = 100.0;
     private static final double DIXIEME = 10.0;
@@ -56,11 +56,10 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
     private final UserService userService;
 
     public ObjectifsPilotageServiceImpl(
-        ObjectifPilotageRepository objectifPilotageRepository,
-        LecteurMesuresPilotage lecteurMesuresPilotage,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        UserService userService
-    ) {
+            ObjectifPilotageRepository objectifPilotageRepository,
+            LecteurMesuresPilotage lecteurMesuresPilotage,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            UserService userService) {
         this.objectifPilotageRepository = objectifPilotageRepository;
         this.lecteurMesuresPilotage = lecteurMesuresPilotage;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
@@ -70,17 +69,13 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
     @Override
     public GrilleObjectifsDTO lireGrille(int annee, LocalDate aujourdhui) {
         ObjectifsAnnee objectifs = ObjectifsAnnee.ranger(objectifPilotageRepository.listerParAnnee(annee));
-        List<LigneObjectifsDTO> lignes = listerIndicateurs()
-            .stream()
-            .map(indicateur ->
-                new LigneObjectifsDTO(
-                    IndicateurPilotageDTO.fromIndicateur(indicateur),
-                    objectifs.lireMois(indicateur),
-                    objectifs.lireAuteur(indicateur),
-                    objectifs.lireDate(indicateur)
-                )
-            )
-            .toList();
+        List<LigneObjectifsDTO> lignes = listerIndicateurs().stream()
+                .map(indicateur -> new LigneObjectifsDTO(
+                        IndicateurPilotageDTO.fromIndicateur(indicateur),
+                        objectifs.lireMois(indicateur),
+                        objectifs.lireAuteur(indicateur),
+                        objectifs.lireDate(indicateur)))
+                .toList();
         return new GrilleObjectifsDTO(annee, compterMoisClos(annee, aujourdhui), lignes);
     }
 
@@ -89,7 +84,8 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
     public GrilleObjectifsDTO enregistrer(SaisieObjectifsDTO saisie, LocalDate aujourdhui) {
         verifierIndicateur(saisie.indicateur());
         Map<Integer, ObjectifPilotage> existants = new HashMap<>();
-        for (ObjectifPilotage objectif : objectifPilotageRepository.findAllByAnneeAndIndicateur(saisie.annee(), saisie.indicateur())) {
+        for (ObjectifPilotage objectif :
+                objectifPilotageRepository.findAllByAnneeAndIndicateur(saisie.annee(), saisie.indicateur())) {
             existants.put(objectif.getMois(), objectif);
         }
         verifierMoisClos(saisie, existants, compterMoisClos(saisie.annee(), aujourdhui));
@@ -104,9 +100,13 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
                 }
             } else if (existant == null || existant.getValeur() != valeur) {
                 ObjectifPilotage objectif = existant == null
-                    ? new ObjectifPilotage().setIndicateur(saisie.indicateur()).setAnnee(saisie.annee()).setMois(mois)
-                    : existant;
-                objectifPilotageRepository.save(objectif.setValeur(valeur).setModifiePar(auteur).setModifieLe(maintenant));
+                        ? new ObjectifPilotage()
+                                .setIndicateur(saisie.indicateur())
+                                .setAnnee(saisie.annee())
+                                .setMois(mois)
+                        : existant;
+                objectifPilotageRepository.save(
+                        objectif.setValeur(valeur).setModifiePar(auteur).setModifieLe(maintenant));
             }
         }
         return lireGrille(saisie.annee(), aujourdhui);
@@ -127,9 +127,8 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
             ObjectifPilotage existant = existants.get(mois);
             boolean change = existant == null ? valeur != null : valeur == null || existant.getValeur() != valeur;
             if (change) {
-                throw new GenericError(
-                    "Les objectifs d'un mois clos ne se modifient plus (" + Month.of(mois).getDisplayName(TextStyle.FULL, Locale.FRENCH) + " " + saisie.annee() + ")"
-                );
+                throw new GenericError("Les objectifs d'un mois clos ne se modifient plus ("
+                        + Month.of(mois).getDisplayName(TextStyle.FULL, Locale.FRENCH) + " " + saisie.annee() + ")");
             }
         }
     }
@@ -137,9 +136,11 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
     @Override
     public List<Double> proposer(int annee, IndicateurPilotage indicateur, double hausse) {
         verifierIndicateur(indicateur);
-        PeriodeDTO anneePrecedente = new PeriodeDTO(LocalDate.of(annee - 1, 1, 1), LocalDate.of(annee - 1, MOIS_PAR_AN, 31));
+        PeriodeDTO anneePrecedente =
+                new PeriodeDTO(LocalDate.of(annee - 1, 1, 1), LocalDate.of(annee - 1, MOIS_PAR_AN, 31));
         List<Double> proposition = new ArrayList<>(MOIS_PAR_AN);
-        for (MesuresPilotage mois : lecteurMesuresPilotage.lireParTranche(anneePrecedente, DecoupagePeriode.decouper(anneePrecedente, Granularite.MOIS))) {
+        for (MesuresPilotage mois : lecteurMesuresPilotage.lireParTranche(
+                anneePrecedente, DecoupagePeriode.decouper(anneePrecedente, Granularite.MOIS))) {
             proposition.add(proposerMois(indicateur, CalculateurIndicateurs.calculer(indicateur, mois), hausse));
         }
         return proposition;
@@ -156,35 +157,36 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
         List<SuiviIndicateurDTO> indicateurs = new ArrayList<>();
         for (IndicateurPilotage indicateur : listerIndicateurs()) {
             ProjectionObjectifDTO projection = anneeEnCours
-                ? SuiviObjectifs.projeter(
-                      indicateur,
-                      objectifs.lireObjectif(indicateur, aujourdhui.getMonthValue()),
-                      parMois.getLast(),
-                      moisN1.getFirst(),
-                      moisN1.size() > 1 ? moisN1.get(1) : MesuresPilotage.AUCUNE,
-                      aujourdhui
-                  )
-                : null;
-            indicateurs.add(suivreIndicateur(indicateur, objectifs, parMois, anneeEnCours ? aujourdhui.getMonthValue() : 0, projection));
+                    ? SuiviObjectifs.projeter(
+                            indicateur,
+                            objectifs.lireObjectif(indicateur, aujourdhui.getMonthValue()),
+                            parMois.getLast(),
+                            moisN1.getFirst(),
+                            moisN1.size() > 1 ? moisN1.get(1) : MesuresPilotage.AUCUNE,
+                            aujourdhui)
+                    : null;
+            indicateurs.add(suivreIndicateur(
+                    indicateur, objectifs, parMois, anneeEnCours ? aujourdhui.getMonthValue() : 0, projection));
         }
         return new SuiviObjectifsDTO(annee, jusquAu, indicateurs);
     }
 
     /** Les 12 mois, le cumul des mois clos (montants seulement) ; {@code moisEnCours} vaut 0 hors de l'année en cours. */
     private static SuiviIndicateurDTO suivreIndicateur(
-        IndicateurPilotage indicateur,
-        ObjectifsAnnee objectifs,
-        List<MesuresPilotage> parMois,
-        int moisEnCours,
-        ProjectionObjectifDTO projection
-    ) {
+            IndicateurPilotage indicateur,
+            ObjectifsAnnee objectifs,
+            List<MesuresPilotage> parMois,
+            int moisEnCours,
+            ProjectionObjectifDTO projection) {
         List<SuiviMoisDTO> mois = new ArrayList<>(MOIS_PAR_AN);
         double objectifCumule = 0;
         double realiseCumule = 0;
         int dernierMoisCumule = 0;
         for (int numero = 1; numero <= MOIS_PAR_AN; numero++) {
             Double objectif = objectifs.lireObjectif(indicateur, numero);
-            Double realise = numero <= parMois.size() ? CalculateurIndicateurs.calculer(indicateur, parMois.get(numero - 1)) : null;
+            Double realise = numero <= parMois.size()
+                    ? CalculateurIndicateurs.calculer(indicateur, parMois.get(numero - 1))
+                    : null;
             boolean enCours = numero == moisEnCours;
             mois.add(SuiviObjectifs.suivre(indicateur, numero, objectif, realise, enCours));
             if (objectif != null && realise != null && !enCours) {
@@ -194,8 +196,8 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
             }
         }
         SuiviMoisDTO cumul = indicateur.estAdditif() && dernierMoisCumule > 0
-            ? SuiviObjectifs.suivre(indicateur, dernierMoisCumule, objectifCumule, realiseCumule, false)
-            : null;
+                ? SuiviObjectifs.suivre(indicateur, dernierMoisCumule, objectifCumule, realiseCumule, false)
+                : null;
         return new SuiviIndicateurDTO(IndicateurPilotageDTO.fromIndicateur(indicateur), mois, cumul, projection);
     }
 
@@ -212,7 +214,9 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
         if (valeurN1 == null) {
             return null;
         }
-        return indicateur.estAdditif() ? (double) Math.round(valeurN1 * (1 + hausse / CENT)) : Math.round(valeurN1 * DIXIEME) / DIXIEME;
+        return indicateur.estAdditif()
+                ? (double) Math.round(valeurN1 * (1 + hausse / CENT))
+                : Math.round(valeurN1 * DIXIEME) / DIXIEME;
     }
 
     private List<IndicateurPilotage> listerIndicateurs() {
@@ -221,7 +225,9 @@ public class ObjectifsPilotageServiceImpl implements ObjectifsPilotageService {
 
     private void verifierIndicateur(IndicateurPilotage indicateur) {
         if (!listerIndicateurs().contains(indicateur)) {
-            throw new GenericError("Cet indicateur ne porte pas d'objectif, ou vous n'avez pas le droit de le voir.", "pilotageObjectifIndicateur");
+            throw new GenericError(
+                    "Cet indicateur ne porte pas d'objectif, ou vous n'avez pas le droit de le voir.",
+                    "pilotageObjectifIndicateur");
         }
     }
 }

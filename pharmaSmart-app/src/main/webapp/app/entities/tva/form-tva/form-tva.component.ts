@@ -1,28 +1,13 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ErrorService} from '../../../shared/error.service';
-import {NotificationService} from '../../../shared/services/notification.service';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, KeyFilterDirective} from '../../../shared/ui';
-import {TvaService} from '../tva.service';
-import {ITva, Tva} from '../../../shared/model/tva.model';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, KeyFilterDirective } from '../../../shared/ui';
+import { TvaService } from '../tva.service';
+import { ITva, Tva } from '../../../shared/model/tva.model';
 
 @Component({
   selector: 'app-form-tva',
@@ -54,8 +39,7 @@ export class FormTvaComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   protected cancel(): void {
     this.activeModal.dismiss();

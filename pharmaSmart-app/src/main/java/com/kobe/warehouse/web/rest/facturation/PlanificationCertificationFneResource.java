@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.facturation;
 
 import com.kobe.warehouse.domain.HistoriqueCertificationFne;
 import com.kobe.warehouse.domain.PlanificationCertificationFne;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.fne.service.PlanificationCertificationFneService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import java.util.Optional;
@@ -16,11 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/planification-certification-fne")
-@RequiresNavAccess({ "facturation.automatisation", "factures" })
+@RequiresNavAccess({"facturation.automatisation", "factures"})
 public class PlanificationCertificationFneResource {
 
     private final PlanificationCertificationFneService service;
@@ -32,7 +32,8 @@ public class PlanificationCertificationFneResource {
     @GetMapping("/first")
     public ResponseEntity<PlanificationCertificationFne> getFirst() {
         Optional<PlanificationCertificationFne> plan = service.findFirst();
-        return plan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+        return plan.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @PatchMapping("/{id}/toggle-actif")
@@ -49,13 +50,10 @@ public class PlanificationCertificationFneResource {
 
     @GetMapping("/{id}/historique")
     public ResponseEntity<java.util.List<HistoriqueCertificationFne>> getHistorique(
-        @PathVariable Integer id,
-        Pageable pageable
-    ) {
+            @PathVariable Integer id, Pageable pageable) {
         Page<HistoriqueCertificationFne> page = service.getHistorique(id, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

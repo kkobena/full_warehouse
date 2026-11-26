@@ -20,9 +20,9 @@ import com.kobe.warehouse.service.dto.enumeration.TypeFacture;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
+import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
-import com.kobe.warehouse.service.facturation.dto.FacturationKpiDto;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import java.math.BigDecimal;
@@ -57,7 +57,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         ThirdPartySaleLine dossier = dossier(compte, 25_000);
         viderLeCache();
 
-        List<DossierFactureDto> dossiers = services.editionDataService.getSales(parametres(), page()).getContent();
+        List<DossierFactureDto> dossiers =
+                services.editionDataService.getSales(parametres(), page()).getContent();
 
         assertEquals(1, dossiers.size());
         DossierFactureDto lu = dossiers.getFirst();
@@ -65,7 +66,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         assertEquals(25_000, lu.getMontantBon());
         assertEquals(25_000, lu.getMontantVente());
         assertNotNull(lu.getAssuredCustomer(), "l'assuré vient de la vente rattachée au dossier");
-        assertEquals(compte.getAssuredCustomer().getId(), lu.getAssuredCustomer().getId());
+        assertEquals(
+                compte.getAssuredCustomer().getId(), lu.getAssuredCustomer().getId());
     }
 
     @Test
@@ -78,7 +80,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         dossier(compte, 10_000);
         viderLeCache();
 
-        List<DossierFactureDto> dossiers = services.editionDataService.getSales(parametres(), page()).getContent();
+        List<DossierFactureDto> dossiers =
+                services.editionDataService.getSales(parametres(), page()).getContent();
 
         assertEquals(1, dossiers.size());
         assertEquals(10_000, dossiers.getFirst().getMontantBon());
@@ -93,8 +96,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         List<DossierFactureDto> dossiers = services.editionDataService
-            .getSales(parametres(Set.of(vise.getId()), Set.of()), page())
-            .getContent();
+                .getSales(parametres(Set.of(vise.getId()), Set.of()), page())
+                .getContent();
 
         assertEquals(1, dossiers.size());
         assertEquals(15_000, dossiers.getFirst().getMontantBon());
@@ -109,8 +112,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         List<DossierFactureDto> dossiers = services.editionDataService
-            .getSales(parametres(Set.of(), Set.of(groupe.getId())), page())
-            .getContent();
+                .getSales(parametres(Set.of(), Set.of(groupe.getId())), page())
+                .getContent();
 
         assertEquals(1, dossiers.size());
         assertEquals(12_000, dossiers.getFirst().getMontantBon());
@@ -123,7 +126,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         factureAvecMontant(organisme, 90_000, 30_000, InvoiceStatut.PARTIALLY_PAID);
         viderLeCache();
 
-        List<FactureDto> factures = services.editionDataService.getInvoicies(recherche(), page()).getContent();
+        List<FactureDto> factures =
+                services.editionDataService.getInvoicies(recherche(), page()).getContent();
 
         assertEquals(1, factures.size());
         FactureDto facture = factures.getFirst();
@@ -142,20 +146,18 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         List<FactureDto> payees = services.editionDataService
-            .getInvoicies(
-                new InvoiceSearchParams(
-                    LocalDate.now().minusDays(1),
-                    LocalDate.now().plusDays(1),
-                    Set.of(),
-                    Set.of(),
-                    null,
-                    Set.of(InvoiceStatut.PAID),
-                    null,
-                    TypeFacture.INDIVIDUAL
-                ),
-                page()
-            )
-            .getContent();
+                .getInvoicies(
+                        new InvoiceSearchParams(
+                                LocalDate.now().minusDays(1),
+                                LocalDate.now().plusDays(1),
+                                Set.of(),
+                                Set.of(),
+                                null,
+                                Set.of(InvoiceStatut.PAID),
+                                null,
+                                TypeFacture.INDIVIDUAL),
+                        page())
+                .getContent();
 
         assertEquals(1, payees.size());
         assertEquals(InvoiceStatut.PAID, payees.getFirst().getStatut());
@@ -171,12 +173,14 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         List<FactureDto> provisoires = services.editionDataService
-            .getInvoicies(rechercheAvecProvisoire(Boolean.TRUE), page())
-            .getContent();
+                .getInvoicies(rechercheAvecProvisoire(Boolean.TRUE), page())
+                .getContent();
         List<FactureDto> definitives = services.editionDataService
-            .getInvoicies(rechercheAvecProvisoire(Boolean.FALSE), page())
-            .getContent();
-        List<FactureDto> toutes = services.editionDataService.getInvoicies(rechercheAvecProvisoire(null), page()).getContent();
+                .getInvoicies(rechercheAvecProvisoire(Boolean.FALSE), page())
+                .getContent();
+        List<FactureDto> toutes = services.editionDataService
+                .getInvoicies(rechercheAvecProvisoire(null), page())
+                .getContent();
 
         assertEquals(1, provisoires.size());
         assertEquals(1, definitives.size());
@@ -193,14 +197,16 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         services.editionByGroupTiersService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.GROUP));
         viderLeCache();
 
-        List<FactureDto> groupees = services.editionDataService.getGroupInvoicies(recherche(), page()).getContent();
-        List<FactureDto> individuelles = services.editionDataService.getInvoicies(recherche(), page()).getContent();
+        List<FactureDto> groupees = services.editionDataService
+                .getGroupInvoicies(recherche(), page())
+                .getContent();
+        List<FactureDto> individuelles =
+                services.editionDataService.getInvoicies(recherche(), page()).getContent();
 
         assertEquals(1, groupees.size(), "une seule porteuse pour le groupe");
         assertTrue(
-            individuelles.isEmpty(),
-            "les filles d'un groupe sortent de la liste individuelle : elles se règlent par leur porteuse"
-        );
+                individuelles.isEmpty(),
+                "les filles d'un groupe sortent de la liste individuelle : elles se règlent par leur porteuse");
     }
 
     @Test
@@ -216,10 +222,16 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         services.editionDataService.deleteFacture(facture.getId());
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM facture_tiers_payant WHERE id = " + facture.getId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM facture_tiers_payant WHERE id = "
+                        + facture.getId().getId()));
         assertNull(em.find(ThirdPartySaleLine.class, premier.getId()).getFactureTiersPayant());
         assertNull(em.find(ThirdPartySaleLine.class, second.getId()).getFactureTiersPayant());
-        assertEquals(2, services.editionDataService.getSales(parametres(), page()).getTotalElements(), "les dossiers reviennent");
+        assertEquals(
+                2,
+                services.editionDataService.getSales(parametres(), page()).getTotalElements(),
+                "les dossiers reviennent");
     }
 
     @Test
@@ -229,25 +241,22 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         dossier(compte(tiersPayant("ADHERENT SUPPR 1", TiersPayantCategorie.ASSURANCE, groupe)), 30_000);
         dossier(compte(tiersPayant("ADHERENT SUPPR 2", TiersPayantCategorie.ASSURANCE, groupe)), 70_000);
         viderLeCache();
-        FactureEditionResponse edition = services.editionByGroupTiersService.createFactureEdition(
-            editionDeToutLeMois(ModeEditionEnum.GROUP)
-        );
+        FactureEditionResponse edition =
+                services.editionByGroupTiersService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.GROUP));
         viderLeCache();
-        FactureTiersPayant porteuse = facturesDe(edition.generationCode())
-            .stream()
-            .filter(f -> f.getGroupeTiersPayant() != null)
-            .findFirst()
-            .orElseThrow();
+        FactureTiersPayant porteuse = facturesDe(edition.generationCode()).stream()
+                .filter(f -> f.getGroupeTiersPayant() != null)
+                .findFirst()
+                .orElseThrow();
 
         services.editionDataService.deleteFacture(porteuse.getId());
         viderLeCache();
 
         assertEquals(0, compter("SELECT count(*) FROM facture_tiers_payant"), "la porteuse et ses deux filles");
         assertEquals(
-            0,
-            compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"),
-            "aucun dossier ne reste rattaché à une facture effacée"
-        );
+                0,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"),
+                "aucun dossier ne reste rattaché à une facture effacée");
     }
 
     @Test
@@ -263,19 +272,25 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         assertEquals(0, compter("SELECT count(*) FROM facture_tiers_payant"));
-        assertEquals(0, compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"));
+        assertEquals(
+                0, compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"));
     }
 
     @Test
     @DisplayName("Une facture réglée ne s'annule pas : ses règlements doivent l'être d'abord")
     void annulationDUneFactureRegleeRefusee() {
-        FactureTiersPayant facture = factureAvecMontant(tiersPayant("REGLEE"), 10_000, 4_000, InvoiceStatut.PARTIALLY_PAID);
+        FactureTiersPayant facture =
+                factureAvecMontant(tiersPayant("REGLEE"), 10_000, 4_000, InvoiceStatut.PARTIALLY_PAID);
         viderLeCache();
 
-        GenericError refus = assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
+        GenericError refus =
+                assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
 
         assertTrue(refus.getMessage().contains("a des règlements"));
-        assertEquals(1, compter("SELECT count(*) FROM facture_tiers_payant WHERE id = " + facture.getId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM facture_tiers_payant WHERE id = "
+                        + facture.getId().getId()));
     }
 
     @Test
@@ -287,7 +302,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         services.editionDataService.deleteFacture(facture.getId());
         viderLeCache();
 
-        GenericError refus = assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
+        GenericError refus =
+                assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
         assertTrue(refus.getMessage().contains("déjà été annulée"));
     }
 
@@ -297,15 +313,13 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         GroupeTiersPayant groupe = groupe("GROUPE LOT");
         dossier(compte(tiersPayant("ADHERENT LOT 1", TiersPayantCategorie.ASSURANCE, groupe)), 12_000);
         viderLeCache();
-        FactureEditionResponse edition = services.editionByGroupTiersService.createFactureEdition(
-            editionDeToutLeMois(ModeEditionEnum.GROUP)
-        );
+        FactureEditionResponse edition =
+                services.editionByGroupTiersService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.GROUP));
         viderLeCache();
-        FactureTiersPayant porteuse = facturesDe(edition.generationCode())
-            .stream()
-            .filter(f -> f.getGroupeTiersPayant() != null)
-            .findFirst()
-            .orElseThrow();
+        FactureTiersPayant porteuse = facturesDe(edition.generationCode()).stream()
+                .filter(f -> f.getGroupeTiersPayant() != null)
+                .findFirst()
+                .orElseThrow();
 
         services.editionDataService.deleteFacture(Set.of(porteuse.getId()));
         viderLeCache();
@@ -322,9 +336,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         GenericError refus = assertThrows(
-            GenericError.class,
-            () -> services.editionAllService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.ALL))
-        );
+                GenericError.class,
+                () -> services.editionAllService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.ALL)));
 
         assertTrue(refus.getMessage().contains(provisoire.getNumFacture()));
     }
@@ -334,7 +347,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
     void lectureDUneFacture() {
         TiersPayant organisme = tiersPayant("LECTURE");
         ClientTiersPayant compte = compte(organisme);
-        FactureTiersPayant facture = facture(organisme, false, List.of(dossier(compte, 20_000), dossier(compte, 5_000)));
+        FactureTiersPayant facture =
+                facture(organisme, false, List.of(dossier(compte, 20_000), dossier(compte, 5_000)));
         viderLeCache();
 
         var wrapper = services.editionDataService.getFacture(facture.getId());
@@ -356,12 +370,12 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
     void facturesDUneGeneration() throws Exception {
         dossier(compte(tiersPayant("GENERATION")), 15_000);
         viderLeCache();
-        FactureEditionResponse edition = services.editionAllService.createFactureEdition(
-            editionDeToutLeMois(ModeEditionEnum.ALL)
-        );
+        FactureEditionResponse edition =
+                services.editionAllService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.ALL));
         viderLeCache();
 
-        List<FactureTiersPayant> factures = services.editionDataService.getFactureTiersPayant(edition.generationCode(), false);
+        List<FactureTiersPayant> factures =
+                services.editionDataService.getFactureTiersPayant(edition.generationCode(), false);
 
         assertEquals(1, factures.size());
         assertEquals(edition.generationCode(), factures.getFirst().getGenerationCode());
@@ -377,13 +391,7 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         FacturationKpiDto kpi = services.editionDataService.getKpi(
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            null,
-            null,
-            TypeFacture.INDIVIDUAL,
-            null
-        );
+                LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), null, null, TypeFacture.INDIVIDUAL, null);
 
         assertEquals(160_000L, kpi.totalFacture());
         assertEquals(100_000L, kpi.totalRegle());
@@ -400,13 +408,12 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
         viderLeCache();
 
         FacturationKpiDto kpi = services.editionDataService.getKpi(
-            LocalDate.now().minusMonths(6),
-            LocalDate.now().minusMonths(5),
-            null,
-            null,
-            TypeFacture.INDIVIDUAL,
-            null
-        );
+                LocalDate.now().minusMonths(6),
+                LocalDate.now().minusMonths(5),
+                null,
+                null,
+                TypeFacture.INDIVIDUAL,
+                null);
 
         assertEquals(0L, kpi.totalFacture());
         assertEquals(0d, kpi.tauxRecouvrement(), 0.001d, "aucune division par zéro");
@@ -417,7 +424,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
     void detailDeReglement() {
         TiersPayant organisme = tiersPayant("DETAIL REGLEMENT");
         ClientTiersPayant compte = compte(organisme);
-        FactureTiersPayant facture = facture(organisme, false, List.of(dossier(compte, 20_000), dossier(compte, 8_000)));
+        FactureTiersPayant facture =
+                facture(organisme, false, List.of(dossier(compte, 20_000), dossier(compte, 8_000)));
         viderLeCache();
 
         var dossiers = services.editionDataService.findFactureReglementData(facture.getId(), page());
@@ -449,18 +457,17 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
 
     private EditionSearchParams parametres(Set<Integer> tiersPayantIds, Set<Integer> groupIds) {
         return new EditionSearchParams(
-            null,
-            ModeEditionEnum.ALL,
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            groupIds,
-            tiersPayantIds,
-            Set.of(),
-            true,
-            Set.of(),
-            false,
-            OrigineGeneration.MANUELLE
-        );
+                null,
+                ModeEditionEnum.ALL,
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                groupIds,
+                tiersPayantIds,
+                Set.of(),
+                true,
+                Set.of(),
+                false,
+                OrigineGeneration.MANUELLE);
     }
 
     private InvoiceSearchParams recherche() {
@@ -469,15 +476,14 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
 
     private InvoiceSearchParams rechercheAvecProvisoire(Boolean provisoire) {
         return new InvoiceSearchParams(
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            Set.of(),
-            Set.of(),
-            provisoire,
-            Set.of(),
-            null,
-            TypeFacture.INDIVIDUAL
-        );
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                Set.of(),
+                Set.of(),
+                provisoire,
+                Set.of(),
+                null,
+                TypeFacture.INDIVIDUAL);
     }
 
     /**
@@ -485,7 +491,8 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
      * et en somme les montants : une facture vide serait comptée mais jamais rendue, et son montant
      * viendrait de nulle part.
      */
-    private FactureTiersPayant factureAvecMontant(TiersPayant organisme, int montantNet, int montantRegle, InvoiceStatut statut) {
+    private FactureTiersPayant factureAvecMontant(
+            TiersPayant organisme, int montantNet, int montantRegle, InvoiceStatut statut) {
         FactureTiersPayant facture = facture(organisme, false, List.of(dossier(compte(organisme), montantNet)));
         facture.setMontantTtc(BigDecimal.valueOf(montantNet));
         facture.setMontantNet(BigDecimal.valueOf(montantNet));
@@ -497,17 +504,16 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
 
     private EditionSearchParams editionDeToutLeMois(ModeEditionEnum mode) {
         return new EditionSearchParams(
-            null,
-            mode,
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            Set.of(),
-            Set.of(),
-            Set.of(),
-            true,
-            Set.of(),
-            false,
-            OrigineGeneration.MANUELLE
-        );
+                null,
+                mode,
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                Set.of(),
+                Set.of(),
+                Set.of(),
+                true,
+                Set.of(),
+                false,
+                OrigineGeneration.MANUELLE);
     }
 }

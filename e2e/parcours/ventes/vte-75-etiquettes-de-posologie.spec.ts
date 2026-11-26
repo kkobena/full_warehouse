@@ -28,9 +28,7 @@ const PRESCRIPTEUR = 'ESSAI E2E POSOLOGIE';
 
 /** Retire l'ordonnance et le prescripteur d'essai. Les lignes suivent l'ordonnance (cascade). */
 function nettoyer(): void {
-  executer(
-    `DELETE FROM ordonnance WHERE prescripteur_id IN (SELECT id FROM prescripteur WHERE nom LIKE '${PRESCRIPTEUR}%')`,
-  );
+  executer(`DELETE FROM ordonnance WHERE prescripteur_id IN (SELECT id FROM prescripteur WHERE nom LIKE '${PRESCRIPTEUR}%')`);
   executer(`DELETE FROM prescripteur WHERE nom LIKE '${PRESCRIPTEUR}%'`);
 }
 

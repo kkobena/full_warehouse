@@ -1,33 +1,37 @@
-import {Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgbActiveModal, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {StorageService} from '../../../../entities/storage/storage.service';
-import {RayonService} from '../../../../entities/rayon/rayon.service';
-import {FamilleProduitService} from '../../../../entities/famille-produit/famille-produit.service';
-import {IStorage} from '../../../../shared/model/magasin.model';
-import {IRayon} from '../../../../shared/model/rayon.model';
-import {IFamilleProduit} from '../../../../shared/model/famille-produit.model';
-import {
-  INVENTORY_CATEGORIES,
-  InventoryCategoryInfo,
-  InventoryCategoryType,
-  StoreInventoryCreateRecord,
-} from '../../models';
-import {InventoryApiService} from '../../data-access/services/inventory-api.service';
-import {InventoryStore} from '../../data-access/store/inventory.store';
-import {NgxSpinnerService} from "ngx-spinner";
-import {NGB_DATE_TO_ISO} from '../../../../shared/util/warehouse-util';
-import {ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent} from '../../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../../shared/date-picker/pharma-date-picker.component';
-import {ErrorService} from '../../../../shared/error.service';
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { StorageService } from '../../../../entities/storage/storage.service';
+import { RayonService } from '../../../../entities/rayon/rayon.service';
+import { FamilleProduitService } from '../../../../entities/famille-produit/famille-produit.service';
+import { IStorage } from '../../../../shared/model/magasin.model';
+import { IRayon } from '../../../../shared/model/rayon.model';
+import { IFamilleProduit } from '../../../../shared/model/famille-produit.model';
+import { INVENTORY_CATEGORIES, InventoryCategoryInfo, InventoryCategoryType, StoreInventoryCreateRecord } from '../../models';
+import { InventoryApiService } from '../../data-access/services/inventory-api.service';
+import { InventoryStore } from '../../data-access/store/inventory.store';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { NGB_DATE_TO_ISO } from '../../../../shared/util/warehouse-util';
+import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent, SelectSearchComponent } from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { ErrorService } from '../../../../shared/error.service';
 
-const GROUP_LABELS: Record<string, string> = {scope: 'Périmètre', thematic: 'Thématique'};
+const GROUP_LABELS: Record<string, string> = { scope: 'Périmètre', thematic: 'Thématique' };
 
 @Component({
   selector: 'app-inventory-create-modal',
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, SelectSearchComponent, InputNumberComponent, PharmaDatePickerComponent, CardComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    SelectComponent,
+    SelectSearchComponent,
+    InputNumberComponent,
+    PharmaDatePickerComponent,
+    CardComponent,
+  ],
   templateUrl: './inventory-create-modal.component.html',
   styleUrl: './inventory-create-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +40,7 @@ export class InventoryCreateModalComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
   prefill?: { inventoryCategory?: InventoryCategoryType; storageId?: number; rayonId?: number };
   form!: FormGroup;
-  categories = INVENTORY_CATEGORIES.map(c => ({...c, groupLabel: GROUP_LABELS[c.group]}));
+  categories = INVENTORY_CATEGORIES.map(c => ({ ...c, groupLabel: GROUP_LABELS[c.group] }));
   storages = signal<IStorage[]>([]);
   rayons = signal<IRayon[]>([]);
   familles = signal<IFamilleProduit[]>([]);
@@ -49,12 +53,12 @@ export class InventoryCreateModalComponent implements OnInit {
    * La valeur envoyée est celle stockée en base — `A_PLUS`, jamais `A+`, qui n'est qu'un libellé.
    */
   readonly classesParetoOptions = [
-    {value: null, label: 'Toutes (A+ → D)'},
-    {value: 'A_PLUS', label: 'Classe A+ — 60 premiers % du CA'},
-    {value: 'A', label: 'Classe A — 60 à 80 % du CA'},
-    {value: 'B', label: 'Classe B — 80 à 95 % du CA'},
-    {value: 'C', label: 'Classe C — 95 à 99 % du CA'},
-    {value: 'D', label: 'Classe D — au-delà de 99 % et sans vente'},
+    { value: null, label: 'Toutes (A+ → D)' },
+    { value: 'A_PLUS', label: 'Classe A+ — 60 premiers % du CA' },
+    { value: 'A', label: 'Classe A — 60 à 80 % du CA' },
+    { value: 'B', label: 'Classe B — 80 à 95 % du CA' },
+    { value: 'C', label: 'Classe C — 95 à 99 % du CA' },
+    { value: 'D', label: 'Classe D — au-delà de 99 % et sans vente' },
   ];
   private readonly api = inject(InventoryApiService);
   private readonly errorService = inject(ErrorService);
@@ -71,16 +75,18 @@ export class InventoryCreateModalComponent implements OnInit {
     this.loadStorages();
     this.loadFamilles();
 
-    this.form.get('inventoryCategory')!.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('inventoryCategory')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((cat: InventoryCategoryType) => {
         const info = this.categories.find(c => c.value === cat) ?? null;
         this.selectedCategory.set(info);
         this.handleCategoryChange(info);
       });
 
-    this.form.get('storage')!.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('storage')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((storageId: number) => {
         if (storageId && this.selectedCategory()?.needsRayon) {
           this.loadRayons(storageId);
@@ -116,7 +122,8 @@ export class InventoryCreateModalComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
     this.spinner.show();
-    this.api.create(record)
+    this.api
+      .create(record)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: resp => {
@@ -128,8 +135,7 @@ export class InventoryCreateModalComponent implements OnInit {
         error: err => {
           this.spinner.hide();
           this.loading.set(false);
-          this.errorMessage.set(
-            this.errorService.getErrorMessage(err, "Erreur lors de la création de l'inventaire"));
+          this.errorMessage.set(this.errorService.getErrorMessage(err, "Erreur lors de la création de l'inventaire"));
         },
       });
   }
@@ -225,7 +231,7 @@ export class InventoryCreateModalComponent implements OnInit {
 
   private loadRayons(storageId: number): void {
     this.rayonService
-      .query({storageId, size: 9999})
+      .query({ storageId, size: 9999 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: resp => {
@@ -241,7 +247,7 @@ export class InventoryCreateModalComponent implements OnInit {
 
   private loadFamilles(): void {
     this.familleProduitService
-      .query({size: 9999})
+      .query({ size: 9999 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: resp => this.familles.set(resp.body ?? []),

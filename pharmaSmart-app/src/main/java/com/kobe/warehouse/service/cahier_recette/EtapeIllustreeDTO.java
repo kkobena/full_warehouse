@@ -8,7 +8,8 @@ package com.kobe.warehouse.service.cahier_recette;
  */
 public record EtapeIllustreeDTO(int numero, String texte, CaptureEcranDTO capture) {
     public boolean illustree() {
-        return capture != null && capture.fichier() != null && !capture.fichier().isBlank();
+        return capture != null
+                && capture.fichier() != null
+                && !capture.fichier().isBlank();
     }
 }
-

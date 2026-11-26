@@ -57,4 +57,3 @@ scenario('VTE-62', async ({ etape, page }) => {
   await abandon.getByRole('button', { name: 'Oui' }).click();
   await expect(contenu).toContainText(/Panier vide|Ajoutez des produits/i);
 });
-

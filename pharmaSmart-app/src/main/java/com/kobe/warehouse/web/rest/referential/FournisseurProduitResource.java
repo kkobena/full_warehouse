@@ -1,5 +1,8 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -19,9 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -43,7 +43,8 @@ public class FournisseurProduitResource {
     public ResponseEntity<FournisseurProduitDTO> create(@Valid @RequestBody FournisseurProduitDTO dto) {
         log.debug("REST request to save FournisseurProduitDTO : {}", dto);
         if (dto.getId() != null) {
-            throw new BadRequestAlertException("A new FournisseurProduit cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException(
+                    "A new FournisseurProduit cannot already have an ID", ENTITY_NAME, "idexists");
         }
         return ResponseEntity.ok().body(fournisseurProduitService.create(dto).orElse(null));
     }
@@ -62,12 +63,15 @@ public class FournisseurProduitResource {
         log.debug("REST request to delete FournisseurProduit : {}", id);
         fournisseurProduitService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PutMapping("/fournisseur-produits/{id}/{checked}/{prodduitId}")
-    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Integer id, @PathVariable("checked") boolean checked, @PathVariable("prodduitId") Integer prodduitId) {
+    public ResponseEntity<Void> updateDefaultFournisseur(
+            @PathVariable("id") Integer id,
+            @PathVariable("checked") boolean checked,
+            @PathVariable("prodduitId") Integer prodduitId) {
         fournisseurProduitService.updateDefaultFournisseur(id, checked, prodduitId);
         return ResponseEntity.accepted().build();
     }
@@ -85,11 +89,18 @@ public class FournisseurProduitResource {
     }
 
     @PutMapping("/fournisseur-produits/update-from-commande")
-    @RequiresNavAccess(value = { "commande", "catalogue" }, action = NavAction.EDIT)
-    public ResponseEntity<Void> updateProduitFournisseurFromCommande(@Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO) {
+    @RequiresNavAccess(
+            value = {"commande", "catalogue"},
+            action = NavAction.EDIT)
+    public ResponseEntity<Void> updateProduitFournisseurFromCommande(
+            @Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO) {
         fournisseurProduitService.updateProduitFournisseurFromCommande(fournisseurProduitDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, fournisseurProduitDTO.getId().toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        fournisseurProduitDTO.getId().toString()))
+                .build();
     }
 }

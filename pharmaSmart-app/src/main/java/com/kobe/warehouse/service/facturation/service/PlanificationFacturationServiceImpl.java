@@ -48,13 +48,12 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
     private final PlanificationStatutService statutService;
 
     public PlanificationFacturationServiceImpl(
-        PlanificationFacturationRepository planificationRepository,
-        HistoriquePlanificationRepository historiqueRepository,
-        FacturationServiceRegistry facturationServiceRegistry,
-        TiersPayantRepository tiersPayantRepository,
-        GroupeTiersPayantRepository groupeTiersPayantRepository,
-        PlanificationStatutService statutService
-    ) {
+            PlanificationFacturationRepository planificationRepository,
+            HistoriquePlanificationRepository historiqueRepository,
+            FacturationServiceRegistry facturationServiceRegistry,
+            TiersPayantRepository tiersPayantRepository,
+            GroupeTiersPayantRepository groupeTiersPayantRepository,
+            PlanificationStatutService statutService) {
         this.planificationRepository = planificationRepository;
         this.historiqueRepository = historiqueRepository;
         this.facturationServiceRegistry = facturationServiceRegistry;
@@ -68,9 +67,7 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
     @Override
     @Transactional(readOnly = true)
     public List<PlanificationDto> findAll() {
-        return planificationRepository.findAll().stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
+        return planificationRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -95,8 +92,9 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         boolean nouvelEtat = !entity.isActif();
         entity.setActif(nouvelEtat);
         // À l'activation, recalculer prochaineExecution si elle est nulle ou dans le passé
-        if (nouvelEtat && (entity.getProchaineExecution() == null
-                || entity.getProchaineExecution().isBefore(LocalDateTime.now()))) {
+        if (nouvelEtat
+                && (entity.getProchaineExecution() == null
+                        || entity.getProchaineExecution().isBefore(LocalDateTime.now()))) {
             entity.setProchaineExecution(calculerProchaine(entity));
         }
         planificationRepository.save(entity);
@@ -116,7 +114,8 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         try {
             LocalDate[] periode = buildPeriode(plan);
             FactureEditionResponse response = executeAutoGeneration(plan, periode[0], periode[1]);
-            enregistrerHistorique(plan, debut, LocalDateTime.now(), ExecutionStatut.SUCCESS, response.generationCode(), null);
+            enregistrerHistorique(
+                    plan, debut, LocalDateTime.now(), ExecutionStatut.SUCCESS, response.generationCode(), null);
             plan.setDernierePeriodeFin(periode[1]);
             plan.setDerniereExecution(debut);
             plan.setDernierStatut(ExecutionStatut.SUCCESS);
@@ -140,17 +139,16 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
     public Page<HistoriquePlanificationDto> getHistorique(Integer id, Pageable pageable) {
         Page<HistoriquePlanification> page = historiqueRepository.findByPlanificationId(id, pageable);
         List<HistoriquePlanificationDto> content = page.getContent().stream()
-            .map(h -> new HistoriquePlanificationDto(
-                h.getId(),
-                h.getPlanificationId(),
-                h.getExecutionDebut(),
-                h.getExecutionFin(),
-                h.getStatut(),
-                h.getGenerationCode(),
-                h.getNombreFactures(),
-                h.getMessage()
-            ))
-            .collect(Collectors.toList());
+                .map(h -> new HistoriquePlanificationDto(
+                        h.getId(),
+                        h.getPlanificationId(),
+                        h.getExecutionDebut(),
+                        h.getExecutionFin(),
+                        h.getStatut(),
+                        h.getGenerationCode(),
+                        h.getNombreFactures(),
+                        h.getMessage()))
+                .collect(Collectors.toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
     }
 
@@ -163,7 +161,8 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
             LocalDate[] periode = buildPeriode(plan);
             FactureEditionResponse response = executeAutoGeneration(plan, periode[0], periode[1]);
             // Bean séparé → proxy Spring → REQUIRES_NEW effectif
-            statutService.sauvegarderSuccess(plan, debut, periode[1], response.generationCode(), calculerProchaine(plan));
+            statutService.sauvegarderSuccess(
+                    plan, debut, periode[1], response.generationCode(), calculerProchaine(plan));
             log.info("Planification {} exécutée avec succès, code: {}", plan.getId(), response.generationCode());
         } catch (Exception e) {
             log.error("Erreur planification {}: {}", plan.getId(), e.getMessage(), e);
@@ -171,78 +170,91 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         }
     }
 
-
-
     /**
      * Priorité aux factures groupées : les groupes éligibles sont traités en premier
      * (EditionByGroupTiersService), puis les tiers payants non couverts par un groupe
      * qualifiant sont traités individuellement (EditionByTiersPayantService).
      */
     private FactureEditionResponse executeAutoGeneration(
-        PlanificationFacturation plan, LocalDate startDate, LocalDate endDate
-    ) {
+            PlanificationFacturation plan, LocalDate startDate, LocalDate endDate) {
         boolean provisoire = plan.isFactureProvisoire();
         Periodicite periodicite = plan.getPeriodicite();
 
-
         List<Integer> groupeIds = provisoire
-            ? groupeTiersPayantRepository.findIdsForAutoGenerationProvisoire(periodicite)
-            : groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(periodicite);
-
+                ? groupeTiersPayantRepository.findIdsForAutoGenerationProvisoire(periodicite)
+                : groupeTiersPayantRepository.findIdsForAutoGenerationDefinitive(periodicite);
 
         List<Integer> tpIds = groupeIds.isEmpty()
-            ? (provisoire
-                ? tiersPayantRepository.findAllIdsForAutoGenerationProvisoire(periodicite)
-                : tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(periodicite))
-            : (provisoire
-                ? tiersPayantRepository.findIdsNotInGroupsForAutoGenerationProvisoire(periodicite, new HashSet<>(groupeIds))
-                : tiersPayantRepository.findIdsNotInGroupsForAutoGenerationDefinitive(periodicite, new HashSet<>(groupeIds)));
+                ? (provisoire
+                        ? tiersPayantRepository.findAllIdsForAutoGenerationProvisoire(periodicite)
+                        : tiersPayantRepository.findAllIdsForAutoGenerationDefinitive(periodicite))
+                : (provisoire
+                        ? tiersPayantRepository.findIdsNotInGroupsForAutoGenerationProvisoire(
+                                periodicite, new HashSet<>(groupeIds))
+                        : tiersPayantRepository.findIdsNotInGroupsForAutoGenerationDefinitive(
+                                periodicite, new HashSet<>(groupeIds)));
 
         if (groupeIds.isEmpty() && tpIds.isEmpty()) {
-            log.warn("Planification {} : aucun organisme éligible (type={}, periodicite={})",
-                plan.getId(), provisoire ? "PROVISOIRE" : "DEFINITIVE", periodicite);
+            log.warn(
+                    "Planification {} : aucun organisme éligible (type={}, periodicite={})",
+                    plan.getId(),
+                    provisoire ? "PROVISOIRE" : "DEFINITIVE",
+                    periodicite);
             return new FactureEditionResponse(null, false);
         }
 
         Integer generationCode = null;
 
-
         if (!groupeIds.isEmpty()) {
-            log.info("Planification {} : {} groupe(s) en facturation groupée ({})",
-                plan.getId(), groupeIds.size(), provisoire ? "provisoire" : "définitive");
+            log.info(
+                    "Planification {} : {} groupe(s) en facturation groupée ({})",
+                    plan.getId(),
+                    groupeIds.size(),
+                    provisoire ? "provisoire" : "définitive");
             EditionSearchParams groupParams = new EditionSearchParams(
-                ModeEditionSort.TIERS_NAME_ASC, ModeEditionEnum.GROUP,
-                startDate, endDate,
-                new HashSet<>(groupeIds), Collections.emptySet(), Collections.emptySet(),
-                false, Collections.emptySet(),
-                provisoire, OrigineGeneration.AUTO
-            );
+                    ModeEditionSort.TIERS_NAME_ASC,
+                    ModeEditionEnum.GROUP,
+                    startDate,
+                    endDate,
+                    new HashSet<>(groupeIds),
+                    Collections.emptySet(),
+                    Collections.emptySet(),
+                    false,
+                    Collections.emptySet(),
+                    provisoire,
+                    OrigineGeneration.AUTO);
             generationCode = facturationServiceRegistry
-                .getService(ModeEditionEnum.GROUP)
-                .createFactureEdition(groupParams).generationCode();
+                    .getService(ModeEditionEnum.GROUP)
+                    .createFactureEdition(groupParams)
+                    .generationCode();
         }
 
-
         if (!tpIds.isEmpty()) {
-            log.info("Planification {} : {} tiers payant(s) individuels ({})",
-                plan.getId(), tpIds.size(), provisoire ? "provisoire" : "définitive");
+            log.info(
+                    "Planification {} : {} tiers payant(s) individuels ({})",
+                    plan.getId(),
+                    tpIds.size(),
+                    provisoire ? "provisoire" : "définitive");
             EditionSearchParams tpParams = new EditionSearchParams(
-                ModeEditionSort.TIERS_NAME_ASC, ModeEditionEnum.TIERS_PAYANT,
-                startDate, endDate,
-                Collections.emptySet(), new HashSet<>(tpIds), Collections.emptySet(),
-                false, Collections.emptySet(),
-                provisoire, OrigineGeneration.AUTO
-            );
+                    ModeEditionSort.TIERS_NAME_ASC,
+                    ModeEditionEnum.TIERS_PAYANT,
+                    startDate,
+                    endDate,
+                    Collections.emptySet(),
+                    new HashSet<>(tpIds),
+                    Collections.emptySet(),
+                    false,
+                    Collections.emptySet(),
+                    provisoire,
+                    OrigineGeneration.AUTO);
             FactureEditionResponse tpResponse = facturationServiceRegistry
-                .getService(ModeEditionEnum.TIERS_PAYANT)
-                .createFactureEdition(tpParams);
+                    .getService(ModeEditionEnum.TIERS_PAYANT)
+                    .createFactureEdition(tpParams);
             if (generationCode == null) generationCode = tpResponse.generationCode();
         }
 
         return new FactureEditionResponse(generationCode, generationCode != null);
     }
-
-
 
     /**
      * Détermine la période à facturer à partir de {@code dernierePeriodeFin}.
@@ -257,8 +269,8 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
             throw new IllegalStateException("dernierePeriodeFin non initialisée sur la planification " + plan.getId());
         }
         LocalDate debut = plan.getDernierePeriodeFin().plusDays(1);
-        LocalDate fin   = calculerFinPeriode(debut, plan.getPeriodicite());
-        return new LocalDate[]{debut, fin};
+        LocalDate fin = calculerFinPeriode(debut, plan.getPeriodicite());
+        return new LocalDate[] {debut, fin};
     }
 
     /**
@@ -272,11 +284,10 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
      */
     private LocalDate calculerFinPeriode(LocalDate debut, Periodicite periodicite) {
         return switch (periodicite) {
-            case MENSUEL      -> debut.with(TemporalAdjusters.lastDayOfMonth());
-            case BIMENSUEL    -> debut.plusMonths(2).minusDays(1);
-            case QUINZAINE    -> debut.getDayOfMonth() <= 15
-                                    ? debut.withDayOfMonth(15)
-                                    : debut.with(TemporalAdjusters.lastDayOfMonth());
+            case MENSUEL -> debut.with(TemporalAdjusters.lastDayOfMonth());
+            case BIMENSUEL -> debut.plusMonths(2).minusDays(1);
+            case QUINZAINE ->
+                debut.getDayOfMonth() <= 15 ? debut.withDayOfMonth(15) : debut.with(TemporalAdjusters.lastDayOfMonth());
             case HEBDOMADAIRE -> debut.with(DayOfWeek.SUNDAY);
         };
     }
@@ -289,24 +300,20 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         if (plan.getPeriodicite() == null || plan.getDernierePeriodeFin() == null) {
             return null;
         }
-        LocalTime heure = plan.getHeureDeclenchement() != null
-            ? plan.getHeureDeclenchement()
-            : LocalTime.of(8, 0);
+        LocalTime heure = plan.getHeureDeclenchement() != null ? plan.getHeureDeclenchement() : LocalTime.of(8, 0);
         LocalDate debutProchaine = plan.getDernierePeriodeFin().plusDays(1);
-        LocalDate finProchaine   = calculerFinPeriode(debutProchaine, plan.getPeriodicite());
+        LocalDate finProchaine = calculerFinPeriode(debutProchaine, plan.getPeriodicite());
         // Exécuter le 1er jour APRÈS la fin de la prochaine période
         return finProchaine.plusDays(1).atTime(heure);
     }
 
-
     private void enregistrerHistorique(
-        PlanificationFacturation plan,
-        LocalDateTime debut,
-        LocalDateTime fin,
-        ExecutionStatut statut,
-        Integer generationCode,
-        String message
-    ) {
+            PlanificationFacturation plan,
+            LocalDateTime debut,
+            LocalDateTime fin,
+            ExecutionStatut statut,
+            Integer generationCode,
+            String message) {
         HistoriquePlanification h = new HistoriquePlanification();
         h.setPlanificationId(plan.getId());
         h.setExecutionDebut(debut);
@@ -332,24 +339,21 @@ public class PlanificationFacturationServiceImpl implements PlanificationFactura
         long nombreOrganismes = 0L;
         if (entity.getPeriodicite() != null) {
             nombreOrganismes = entity.isFactureProvisoire()
-                ? tiersPayantRepository.countForAutoGenerationProvisoire(entity.getPeriodicite())
-                : tiersPayantRepository.countForAutoGenerationDefinitive(entity.getPeriodicite());
+                    ? tiersPayantRepository.countForAutoGenerationProvisoire(entity.getPeriodicite())
+                    : tiersPayantRepository.countForAutoGenerationDefinitive(entity.getPeriodicite());
         }
         return new PlanificationDto(
-            entity.getId(),
-            entity.getLibelle(),
-            entity.getPeriodicite(),
-            entity.getHeureDeclenchement(),
-            entity.isFactureProvisoire(),
-            entity.isActif(),
-            entity.getDernierePeriodeFin(),
-            entity.getProchaineExecution(),
-            entity.getDerniereExecution(),
-            entity.getDernierStatut(),
-            entity.getDernierMessage(),
-            nombreOrganismes
-        );
+                entity.getId(),
+                entity.getLibelle(),
+                entity.getPeriodicite(),
+                entity.getHeureDeclenchement(),
+                entity.isFactureProvisoire(),
+                entity.isActif(),
+                entity.getDernierePeriodeFin(),
+                entity.getProchaineExecution(),
+                entity.getDerniereExecution(),
+                entity.getDernierStatut(),
+                entity.getDernierMessage(),
+                nombreOrganismes);
     }
-
 }
-

@@ -4,15 +4,14 @@ import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.service.ProduitDuService;
 import com.kobe.warehouse.service.dto.ClientsEnAttenteDTO;
 import com.kobe.warehouse.service.dto.ProduitDuNonCommandeDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,8 +28,7 @@ public class ProduitDuServiceImpl implements ProduitDuService {
         List<Object[]> lignes = avoirClientRepository.lireProduitsDusNonCommandes();
         List<ProduitDuNonCommandeDTO> produits = new ArrayList<>(lignes.size());
         for (Object[] ligne : lignes) {
-            produits.add(
-                new ProduitDuNonCommandeDTO(
+            produits.add(new ProduitDuNonCommandeDTO(
                     (Integer) ligne[0],
                     (String) ligne[1],
                     (String) ligne[2],
@@ -38,9 +36,7 @@ public class ProduitDuServiceImpl implements ProduitDuService {
                     ((Number) ligne[4]).longValue(),
                     ((Number) ligne[5]).longValue(),
                     (LocalDateTime) ligne[6],
-                    ((Number) ligne[7]).intValue()
-                )
-            );
+                    ((Number) ligne[7]).intValue()));
         }
         return produits;
     }
@@ -55,14 +51,12 @@ public class ProduitDuServiceImpl implements ProduitDuService {
         for (Object[] ligne : lignes) {
             Integer produitId = (Integer) ligne[0];
             parProduit.put(
-                produitId,
-                new ClientsEnAttenteDTO(
                     produitId,
-                    ((Number) ligne[1]).longValue(),
-                    ((Number) ligne[2]).longValue(),
-                    ((Number) ligne[3]).longValue()
-                )
-            );
+                    new ClientsEnAttenteDTO(
+                            produitId,
+                            ((Number) ligne[1]).longValue(),
+                            ((Number) ligne[2]).longValue(),
+                            ((Number) ligne[3]).longValue()));
         }
         return parProduit;
     }

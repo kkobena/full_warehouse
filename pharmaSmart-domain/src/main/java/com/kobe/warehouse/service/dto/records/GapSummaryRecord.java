@@ -8,9 +8,4 @@ package com.kobe.warehouse.service.dto.records;
  * @param nbProduits    nombre de produits concernés
  * @param quantiteTotale quantité totale en écart pour cette cause
  */
-public record GapSummaryRecord(
-    String cause,
-    String causeLabel,
-    long nbProduits,
-    long quantiteTotale
-) {}
+public record GapSummaryRecord(String cause, String causeLabel, long nbProduits, long quantiteTotale) {}

@@ -1,6 +1,5 @@
 <div class="pharma-smart-content p-1">
   <app-toolbar [code]="navCode()" icon="pi pi-users" title="Performance des Fournisseurs">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-select
@@ -15,21 +14,24 @@
           placeholder="Filtre"
           size="large"
         />
-        <input [(ngModel)]="searchText" class="form-control"
-               placeholder="Rechercher..."
-               style="width: 250px" type="text" />
+        <input [(ngModel)]="searchText" class="form-control" placeholder="Rechercher..." style="width: 250px" type="text" />
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div>
-        <app-button (clicked)="toggleHelpDrawer()" [outlined]="true" class="mr-1"
-                    icon="pi pi-question-circle"
-                    label="Aide" severity="secondary" size="small" />
+        <app-button
+          (clicked)="toggleHelpDrawer()"
+          [outlined]="true"
+          class="mr-1"
+          icon="pi pi-question-circle"
+          label="Aide"
+          severity="secondary"
+          size="small"
+        />
         <!-- <app-button (clicked)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
                    label="Exporter PDF" severity="warn" size="small" />-->
-        <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
-                    severity="info" size="small" />
+        <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -40,51 +42,80 @@
   <!-- KPI Strip -->
   @if (summary() && activeView() === 'table') {
     <app-kpi-strip stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'primary'" [value]="formatNumber(summary()?.totalSuppliers)" icon="pi pi-users"
-                    iconClass="text-primary" label="Fournisseurs"
-                    info="Fournisseurs comptés comme actifs : ceux chez qui au moins une commande a été réceptionnée dans les douze derniers mois. Les autres sont absents de toute cette analyse."
-                    valueClass="text-primary">
+      <app-kpi-item
+        [accent]="'primary'"
+        [value]="formatNumber(summary()?.totalSuppliers)"
+        icon="pi pi-users"
+        iconClass="text-primary"
+        label="Fournisseurs"
+        info="Fournisseurs comptés comme actifs : ceux chez qui au moins une commande a été réceptionnée dans les douze derniers mois. Les autres sont absents de toute cette analyse."
+        valueClass="text-primary"
+      >
         <ng-container ngProjectAs="[kpiSub]">actifs</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast30Days)" icon="pi pi-calendar"
-                    iconClass="text-success"
-                    label="Achats 30 jours"
-                    info="Montant des commandes réceptionnées dont la date de commande tombe dans les trente derniers jours."
-                    valueClass="text-success">
+      <app-kpi-item
+        [accent]="'success'"
+        [value]="formatCurrency(summary()?.totalPurchaseAmountLast30Days)"
+        icon="pi pi-calendar"
+        iconClass="text-success"
+        label="Achats 30 jours"
+        info="Montant des commandes réceptionnées dont la date de commande tombe dans les trente derniers jours."
+        valueClass="text-success"
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-        <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast30Days) }}
+        <ng-container ngProjectAs="[kpiSub]"
+          >{{ formatNumber(summary()?.totalOrdersLast30Days) }}
           commandes
         </ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast12Months)" icon="pi pi-chart-line"
-                    iconClass="text-warning"
-                    label="Achats 12 mois"
-                    info="Même calcul sur un an. C'est ce volume qui pèse pour 40 % dans le score de performance."
-                    valueClass="text-warning">
+      <app-kpi-item
+        [accent]="'warning'"
+        [value]="formatCurrency(summary()?.totalPurchaseAmountLast12Months)"
+        icon="pi pi-chart-line"
+        iconClass="text-warning"
+        label="Achats 12 mois"
+        info="Même calcul sur un an. C'est ce volume qui pèse pour 40 % dans le score de performance."
+        valueClass="text-warning"
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-        <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast12Months) }}
+        <ng-container ngProjectAs="[kpiSub]"
+          >{{ formatNumber(summary()?.totalOrdersLast12Months) }}
           commandes
         </ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'danger'" [value]="formatDecimal(summary()?.avgDeliveryDays, 1)" icon="pi pi-truck"
-                    iconClass="text-danger" label="Délai moyen"
-                    info="Jours écoulés entre la date de commande et la date de réception. Le délai est d'abord moyenné par fournisseur, puis entre fournisseurs : un gros et un petit y pèsent pareil."
-                    valueClass="text-danger">
+      <app-kpi-item
+        [accent]="'danger'"
+        [value]="formatDecimal(summary()?.avgDeliveryDays, 1)"
+        icon="pi pi-truck"
+        iconClass="text-danger"
+        label="Délai moyen"
+        info="Jours écoulés entre la date de commande et la date de réception. Le délai est d'abord moyenné par fournisseur, puis entre fournisseurs : un gros et un petit y pèsent pareil."
+        valueClass="text-danger"
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small>jours</small></span>
         <ng-container ngProjectAs="[kpiSub]">livraison</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'primary'" [value]="formatDecimal(summary()?.avgConformityRate, 1)" icon="pi pi-check-circle"
-                    iconClass="text-primary" label="Conformité moy."
-                    info="Quantités reçues rapportées aux quantités commandées sur douze mois, par fournisseur, puis moyennées entre fournisseurs. 100 % signifie que tout le commandé a été livré."
-                    valueClass="text-primary">
+      <app-kpi-item
+        [accent]="'primary'"
+        [value]="formatDecimal(summary()?.avgConformityRate, 1)"
+        icon="pi pi-check-circle"
+        iconClass="text-primary"
+        label="Conformité moy."
+        info="Quantités reçues rapportées aux quantités commandées sur douze mois, par fournisseur, puis moyennées entre fournisseurs. 100 % signifie que tout le commandé a été livré."
+        valueClass="text-primary"
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
         <ng-container ngProjectAs="[kpiSub]">taux de qualité</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" [value]="formatNumber(summary()?.suppliersWithGoodPerformance)" icon="pi pi-star-fill"
-                    iconClass="text-success"
-                    label="Perf. excellente"
-                    info="Fournisseurs au score d'au moins 70 sur 100. Le score combine le volume d'achat sur douze mois (40 points), la rapidité de livraison face à un repère de 30 jours (30 points) et le taux de conformité (30 points)."
-                    valueClass="text-success">
+      <app-kpi-item
+        [accent]="'success'"
+        [value]="formatNumber(summary()?.suppliersWithGoodPerformance)"
+        icon="pi pi-star-fill"
+        iconClass="text-success"
+        label="Perf. excellente"
+        info="Fournisseurs au score d'au moins 70 sur 100. Le score combine le volume d'achat sur douze mois (40 points), la rapidité de livraison face à un repère de 30 jours (30 points) et le taux de conformité (30 points)."
+        valueClass="text-success"
+      >
         <ng-container ngProjectAs="[kpiSub]">score ≥ 70</ng-container>
       </app-kpi-item>
     </app-kpi-strip>
@@ -144,10 +175,7 @@
                     }
                   </td>
                   <td class="text-end">{{ formatCurrency(supplier.purchaseAmountLast30Days) }}</td>
-                  <td class="text-end fw-bold">{{
-                      formatCurrency(supplier.purchaseAmountLast12Months)
-                    }}
-                  </td>
+                  <td class="text-end fw-bold">{{ formatCurrency(supplier.purchaseAmountLast12Months) }}</td>
                   <td class="text-center">{{ formatNumber(supplier.nbOrdersLast30Days) }}</td>
                   <td class="text-center">{{ formatNumber(supplier.nbOrdersLast12Months) }}</td>
                   <td class="text-center">
@@ -204,7 +232,8 @@
         </div>
       </div>
     </div>
-  } <!-- end @if activeView === 'table' -->
+  }
+  <!-- end @if activeView === 'table' -->
 
   <!-- Evolution Charts -->
   @if (activeView() === 'evolution') {
@@ -226,7 +255,7 @@
               </h6>
             </div>
             <div class="card-body">
-              <div style="position: relative; height: 280px;">
+              <div style="position: relative; height: 280px">
                 <canvas #montantsChartCanvas></canvas>
               </div>
             </div>
@@ -243,7 +272,7 @@
               </h6>
             </div>
             <div class="card-body">
-              <div style="position: relative; height: 280px;">
+              <div style="position: relative; height: 280px">
                 <canvas #delaisChartCanvas></canvas>
               </div>
             </div>
@@ -261,22 +290,22 @@
             <div class="card-body p-0">
               <table class="table table-sm mb-0">
                 <thead class="table-light">
-                <tr>
-                  <th>Mois</th>
-                  <th class="text-end">Achats N</th>
-                  <th class="text-end">Achats N-1</th>
-                  <th class="text-end">Variation</th>
-                  <th class="text-center">Délai N</th>
-                  <th class="text-center">Délai N-1</th>
-                  <th class="text-center">Cdes N</th>
-                  <th class="text-center">Cdes N-1</th>
-                </tr>
+                  <tr>
+                    <th>Mois</th>
+                    <th class="text-end">Achats N</th>
+                    <th class="text-end">Achats N-1</th>
+                    <th class="text-end">Variation</th>
+                    <th class="text-center">Délai N</th>
+                    <th class="text-center">Délai N-1</th>
+                    <th class="text-center">Cdes N</th>
+                    <th class="text-center">Cdes N-1</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (label of evolution()!.labels; track label; let i = $index) {
                     @let montN = evolution()!.montantsN![i] ?? 0;
                     @let montN1 = evolution()!.montantsN1![i] ?? 0;
-                    @let varPct = montN1 > 0 ? ((montN - montN1) / montN1 * 100) : null;
+                    @let varPct = montN1 > 0 ? ((montN - montN1) / montN1) * 100 : null;
                     <tr>
                       <td class="fw-semibold small">{{ label }}</td>
                       <td class="text-end small">{{ formatCurrency(montN) }}</td>
@@ -291,14 +320,12 @@
                         }
                       </td>
                       <td class="text-center small">{{ evolution()!.delaisN![i] ?? 0 }}j</td>
-                      <td class="text-center small text-muted">{{ evolution()!.delaisN1![i] ?? 0 }}
+                      <td class="text-center small text-muted">
+                        {{ evolution()!.delaisN1![i] ?? 0 }}
                         j
                       </td>
                       <td class="text-center small">{{ evolution()!.nbCommandesN![i] ?? 0 }}</td>
-                      <td class="text-center small text-muted">{{
-                          evolution()!.nbCommandesN1![i] ?? 0
-                        }}
-                      </td>
+                      <td class="text-center small text-muted">{{ evolution()!.nbCommandesN1![i] ?? 0 }}</td>
                     </tr>
                   }
                 </tbody>
@@ -321,13 +348,10 @@
     <div class="p-3">
       <!-- Introduction -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Pourquoi évaluer
-          la performance des fournisseurs ?</h6>
+        <h6 class="text-primary fw-bold mb-2"><i class="pi pi-info-circle me-2"></i>Pourquoi évaluer la performance des fournisseurs ?</h6>
         <p class="text-sm text-muted">
-          L'évaluation des fournisseurs permet d'<strong>optimiser votre chaîne
-          d'approvisionnement</strong>, de
-          <strong>réduire les risques de rupture</strong>, d'<strong>améliorer la qualité des
-          produits reçus</strong> et de
+          L'évaluation des fournisseurs permet d'<strong>optimiser votre chaîne d'approvisionnement</strong>, de
+          <strong>réduire les risques de rupture</strong>, d'<strong>améliorer la qualité des produits reçus</strong> et de
           <strong>négocier de meilleures conditions</strong> avec vos partenaires stratégiques.
         </p>
       </div>
@@ -336,31 +360,23 @@
 
       <!-- Score de performance -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-star me-2"></i>Score de Performance
-          (sur 100)</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-star me-2"></i>Score de Performance (sur 100)</h6>
 
-        <p class="text-sm text-muted mb-3">Le score global prend en compte plusieurs critères
-          pondérés :</p>
+        <p class="text-sm text-muted mb-3">Le score global prend en compte plusieurs critères pondérés :</p>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
+        <div class="mb-3 p-3 rounded" style="background-color: #e8f5e9; border-left: 4px solid #4caf50">
           <p class="fw-bold mb-2">Performance Excellente (Score ≥ 70)</p>
-          <p class="text-sm mb-0">Fournisseurs fiables, respect des délais, bonne conformité. À
-            privilégier et fidéliser.</p>
+          <p class="text-sm mb-0">Fournisseurs fiables, respect des délais, bonne conformité. À privilégier et fidéliser.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #fff3e0; border-left: 4px solid #ff9800">
+        <div class="mb-3 p-3 rounded" style="background-color: #fff3e0; border-left: 4px solid #ff9800">
           <p class="fw-bold mb-2">Performance Moyenne (50 ≤ Score < 70)</p>
-          <p class="text-sm mb-0">Fournisseurs acceptables mais à surveiller. Possibilité
-            d'amélioration par négociation.</p>
+          <p class="text-sm mb-0">Fournisseurs acceptables mais à surveiller. Possibilité d'amélioration par négociation.</p>
         </div>
 
-        <div class="mb-3 p-3 rounded"
-             style="background-color: #ffebee; border-left: 4px solid #f44336">
+        <div class="mb-3 p-3 rounded" style="background-color: #ffebee; border-left: 4px solid #f44336">
           <p class="fw-bold mb-2">Performance Faible (Score < 50)</p>
-          <p class="text-sm mb-0">Problèmes récurrents. Envisager un plan d'action ou rechercher des
-            alternatives.</p>
+          <p class="text-sm mb-0">Problèmes récurrents. Envisager un plan d'action ou rechercher des alternatives.</p>
         </div>
 
         <div class="alert alert-info mt-3">
@@ -375,14 +391,12 @@
 
       <!-- Métriques clés -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les
-          métriques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-calculator me-2"></i>Comprendre les métriques</h6>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Délai Moyen de Livraison</p>
           <p class="text-sm text-muted mb-1">
-            <strong>Formule :</strong> Moyenne (Date réception - Date commande) sur les 12 derniers
-            mois<br />
+            <strong>Formule :</strong> Moyenne (Date réception - Date commande) sur les 12 derniers mois<br />
             <strong>Interprétation :</strong>
           </p>
           <ul class="text-sm text-muted mb-2 ps-3">
@@ -391,8 +405,7 @@
             <li>> 14 jours : Problématique (rouge)</li>
           </ul>
           <p class="text-sm text-muted mb-0">
-            <strong>Impact :</strong> Un délai long immobilise de la trésorerie et risque des
-            ruptures de stock.
+            <strong>Impact :</strong> Un délai long immobilise de la trésorerie et risque des ruptures de stock.
           </p>
         </div>
 
@@ -408,24 +421,21 @@
             <li>< 85% : Problèmes qualité (rouge)</li>
           </ul>
           <p class="text-sm text-muted mb-0">
-            <strong>Impact :</strong> Une faible conformité génère des retours, litiges et perte de
-            temps.
+            <strong>Impact :</strong> Une faible conformité génère des retours, litiges et perte de temps.
           </p>
         </div>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Volume d'Achats 12 Mois</p>
           <p class="text-sm text-muted mb-2">
-            Montant total des achats sur l'année écoulée. Permet d'identifier vos fournisseurs
-            stratégiques et votre pouvoir de négociation.
+            Montant total des achats sur l'année écoulée. Permet d'identifier vos fournisseurs stratégiques et votre pouvoir de négociation.
           </p>
         </div>
 
         <div class="mb-3">
           <p class="fw-semibold mb-1">Nombre de Commandes</p>
           <p class="text-sm text-muted mb-2">
-            Fréquence de commande. Un nombre élevé sur 30j indique une forte dépendance ou des
-            commandes fractionnées.
+            Fréquence de commande. Un nombre élevé sur 30j indique une forte dépendance ou des commandes fractionnées.
           </p>
         </div>
       </div>
@@ -434,15 +444,13 @@
 
       <!-- Exploitation -->
       <div class="mb-4">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter
-          ce rapport</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-lightbulb me-2"></i>Comment exploiter ce rapport</h6>
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Identifier les fournisseurs stratégiques</p>
             <p class="text-xs text-muted mb-0">
-              Utilisez le filtre "Top 10 par volume" pour identifier vos principaux fournisseurs.
-              Concentrez vos efforts de négociation et
+              Utilisez le filtre "Top 10 par volume" pour identifier vos principaux fournisseurs. Concentrez vos efforts de négociation et
               de relation sur ces partenaires clés.
             </p>
           </div>
@@ -452,8 +460,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Optimiser les délais de livraison</p>
             <p class="text-xs text-muted mb-0">
-              Pour les fournisseurs avec délais > 14 jours : négociez des délais plus courts,
-              commandez en plus grandes quantités pour
+              Pour les fournisseurs avec délais > 14 jours : négociez des délais plus courts, commandez en plus grandes quantités pour
               espacer les commandes, ou trouvez un fournisseur alternatif.
             </p>
           </div>
@@ -463,8 +470,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Améliorer la conformité</p>
             <p class="text-xs text-muted mb-0">
-              Pour les fournisseurs avec conformité < 95% : rencontre pour discuter des problèmes,
-              mise en place d'un plan d'action qualité,
+              Pour les fournisseurs avec conformité < 95% : rencontre pour discuter des problèmes, mise en place d'un plan d'action qualité,
               ou recherche d'alternatives si pas d'amélioration.
             </p>
           </div>
@@ -474,8 +480,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">✓ Diversifier les sources d'approvisionnement</p>
             <p class="text-xs text-muted mb-0">
-              Si un seul fournisseur concentre > 40% de vos achats, vous êtes en situation de
-              dépendance. Identifiez des fournisseurs
+              Si un seul fournisseur concentre > 40% de vos achats, vous êtes en situation de dépendance. Identifiez des fournisseurs
               alternatifs pour réduire le risque.
             </p>
           </div>
@@ -486,16 +491,13 @@
 
       <!-- Exemples pratiques -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples d'actions
-          concrètes</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-book me-2"></i>Exemples d'actions concrètes</h6>
 
         <div class="card mb-2" style="border-left: 3px solid #4caf50">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M <span
-              appDevise></span>/an</p>
+            <p class="fw-semibold text-sm mb-1">Cas 1 : Fournisseur score 85, volume 50M <span appDevise></span>/an</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise
-              de fidélité, proposez un contrat annuel
+              <strong>Action :</strong> Fournisseur stratégique et performant. Négociez une remise de fidélité, proposez un contrat annuel
               avec engagement de volumes pour sécuriser les approvisionnements.
             </p>
           </div>
@@ -505,8 +507,7 @@
           <div class="card-body p-2">
             <p class="fw-semibold text-sm mb-1">Cas 2 : Fournisseur délai 20j, conformité 75%</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Organisez une réunion pour expliquer les problèmes. Demandez
-              un plan d'action avec échéances. Si pas
+              <strong>Action :</strong> Organisez une réunion pour expliquer les problèmes. Demandez un plan d'action avec échéances. Si pas
               d'amélioration sous 3 mois, cherchez un remplaçant.
             </p>
           </div>
@@ -514,11 +515,9 @@
 
         <div class="card" style="border-left: 3px solid #2196f3">
           <div class="card-body p-2">
-            <p class="fw-semibold text-sm mb-1">Cas 3 : 15 commandes en 30j chez même
-              fournisseur</p>
+            <p class="fw-semibold text-sm mb-1">Cas 3 : 15 commandes en 30j chez même fournisseur</p>
             <p class="text-xs text-muted mb-0">
-              <strong>Action :</strong> Trop de commandes = perte de temps et coûts administratifs.
-              Regroupez vos commandes (1-2 par semaine
+              <strong>Action :</strong> Trop de commandes = perte de temps et coûts administratifs. Regroupez vos commandes (1-2 par semaine
               max) pour optimiser la logistique.
             </p>
           </div>
@@ -527,33 +526,26 @@
 
       <!-- Filtres utiles -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-filter me-2"></i>Utiliser les filtres
-          efficacement</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-filter me-2"></i>Utiliser les filtres efficacement</h6>
 
         <ul class="text-sm text-muted ps-3">
           <li><strong>Top 10 par volume :</strong> Identifiez vos fournisseurs stratégiques</li>
           <li><strong>Performance excellente :</strong> Fournisseurs à privilégier et fidéliser</li>
-          <li><strong>Performance faible :</strong> Fournisseurs nécessitant un plan d'action urgent
-          </li>
-          <li><strong>Problèmes de livraison :</strong> Fournisseurs avec délais > 14 jours à
-            surveiller
-          </li>
+          <li><strong>Performance faible :</strong> Fournisseurs nécessitant un plan d'action urgent</li>
+          <li><strong>Problèmes de livraison :</strong> Fournisseurs avec délais > 14 jours à surveiller</li>
         </ul>
       </div>
 
       <!-- Bonnes pratiques -->
       <div class="mb-3">
-        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Bonnes
-          pratiques</h6>
+        <h6 class="text-primary fw-bold mb-3"><i class="pi pi-check-circle me-2"></i>Bonnes pratiques</h6>
 
         <ul class="text-sm text-muted ps-3">
           <li>Révisez ce rapport trimestriellement pour suivre l'évolution des fournisseurs</li>
           <li>Organisez des réunions annuelles avec vos fournisseurs stratégiques (Top 10)</li>
           <li>Documentez les litiges et problèmes pour justifier vos décisions futures</li>
           <li>Maintenez au moins 2-3 fournisseurs par catégorie de produits pour la sécurité</li>
-          <li>Utilisez le score comme base de négociation : "Votre score est de X, améliorez Y pour
-            Z"
-          </li>
+          <li>Utilisez le score comme base de négociation : "Votre score est de X, améliorez Y pour Z"</li>
           <li>Partagez le rapport avec vos fournisseurs pour une relation transparente</li>
         </ul>
       </div>

@@ -37,30 +37,72 @@ public class RetourBonFromLotRequest {
      */
     private Integer fournisseurId;
 
-    public Integer getLotId() { return lotId; }
-    public RetourBonFromLotRequest setLotId(Integer lotId) { this.lotId = lotId; return this; }
+    public Integer getLotId() {
+        return lotId;
+    }
 
-    public Integer getMotifRetourId() { return motifRetourId; }
-    public RetourBonFromLotRequest setMotifRetourId(Integer motifRetourId) { this.motifRetourId = motifRetourId; return this; }
+    public RetourBonFromLotRequest setLotId(Integer lotId) {
+        this.lotId = lotId;
+        return this;
+    }
 
-    public Integer getQuantity() { return quantity; }
-    public RetourBonFromLotRequest setQuantity(Integer quantity) { this.quantity = quantity; return this; }
+    public Integer getMotifRetourId() {
+        return motifRetourId;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public RetourBonFromLotRequest setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public RetourBonFromLotRequest setMotifRetourId(Integer motifRetourId) {
+        this.motifRetourId = motifRetourId;
+        return this;
+    }
 
-    public Integer getCommandeId() { return commandeId; }
-    public RetourBonFromLotRequest setCommandeId(Integer commandeId) { this.commandeId = commandeId; return this; }
+    public Integer getQuantity() {
+        return quantity;
+    }
 
-    public LocalDate getCommandeOrderDate() { return commandeOrderDate; }
-    public RetourBonFromLotRequest setCommandeOrderDate(LocalDate commandeOrderDate) { this.commandeOrderDate = commandeOrderDate; return this; }
+    public RetourBonFromLotRequest setQuantity(Integer quantity) {
+        this.quantity = quantity;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public RetourBonFromLotRequest setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
+
+    public Integer getCommandeId() {
+        return commandeId;
+    }
+
+    public RetourBonFromLotRequest setCommandeId(Integer commandeId) {
+        this.commandeId = commandeId;
+        return this;
+    }
+
+    public LocalDate getCommandeOrderDate() {
+        return commandeOrderDate;
+    }
+
+    public RetourBonFromLotRequest setCommandeOrderDate(LocalDate commandeOrderDate) {
+        this.commandeOrderDate = commandeOrderDate;
+        return this;
+    }
 
     public boolean hasCommandeOverride() {
         return commandeId != null && commandeOrderDate != null;
     }
 
-    public Integer getFournisseurId() { return fournisseurId; }
-    public RetourBonFromLotRequest setFournisseurId(Integer fournisseurId) { this.fournisseurId = fournisseurId; return this; }
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public RetourBonFromLotRequest setFournisseurId(Integer fournisseurId) {
+        this.fournisseurId = fournisseurId;
+        return this;
+    }
 
     public boolean hasFournisseurOverride() {
         return fournisseurId != null;
@@ -68,8 +110,7 @@ public class RetourBonFromLotRequest {
 
     @Override
     public String toString() {
-        return "RetourBonFromLotRequest{lotId=" + lotId + ", motifRetourId=" + motifRetourId
-            + ", quantity=" + quantity + ", commandeOverride=" + (hasCommandeOverride() ? commandeId + "/" + commandeOrderDate : "none") + "}";
+        return "RetourBonFromLotRequest{lotId=" + lotId + ", motifRetourId=" + motifRetourId + ", quantity=" + quantity
+                + ", commandeOverride=" + (hasCommandeOverride() ? commandeId + "/" + commandeOrderDate : "none") + "}";
     }
 }
-

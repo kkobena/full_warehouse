@@ -98,10 +98,10 @@
           <!-- Devices configurés -->
           @if (devices().length > 0) {
             <div class="mb-3">
-              <h6 class="mb-2" style="font-size: 0.82rem; color: #6b7280;">Périphériques configurés</h6>
+              <h6 class="mb-2" style="font-size: 0.82rem; color: #6b7280">Périphériques configurés</h6>
               <div class="flex flex-column gap-2">
-                @for (device of devices(); track (device.id ?? (device.portName + '_' + device.deviceType))) {
-                  <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-ground);">
+                @for (device of devices(); track device.id ?? device.portName + '_' + device.deviceType) {
+                  <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-ground)">
                     <app-badge [label]="device.deviceType!" [severity]="device.active ? 'success' : 'secondary'" />
                     <span class="font-mono text-sm">{{ device.portName }}</span>
                     <span class="text-sm text-secondary">{{ device.label ?? device.productName ?? '' }}</span>
@@ -179,12 +179,10 @@
 
           <!-- Ports détectés (ajout de nouveaux devices) -->
           @if (detectedPorts().length > 0) {
-            <h6 class="mb-1 mt-2" style="font-size: 0.82rem; color: #6b7280;">
-              Ports disponibles ({{ detectedPorts().length }})
-            </h6>
+            <h6 class="mb-1 mt-2" style="font-size: 0.82rem; color: #6b7280">Ports disponibles ({{ detectedPorts().length }})</h6>
             <div class="flex flex-column gap-2">
               @for (port of detectedPorts(); track port.portName) {
-                <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-50);">
+                <div class="flex align-items-center gap-2 p-2 border-round" style="background: var(--surface-50)">
                   <span class="font-mono text-sm font-bold mr-2">{{ port.portName }}</span>
                   <span class="text-xs text-secondary">{{ port.product ?? port.manufacturer ?? '' }}</span>
                   @if (port.suggestedRole) {
@@ -210,16 +208,14 @@
 
           <!-- Guide si aucun port détecté -->
           @if (!portsLoading() && detectedPorts().length === 0) {
-            <div class="p-3 border-round" style="background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.15);">
-              <p class="mb-1" style="font-size: 0.82rem; font-weight: 600; color: #1e40af;">
+            <div class="p-3 border-round" style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.15)">
+              <p class="mb-1" style="font-size: 0.82rem; font-weight: 600; color: #1e40af">
                 <i class="pi pi-info-circle mr-1"></i>Aucun port série détecté
               </p>
-              <p class="mb-1 text-sm text-secondary">
-                Votre douchette est probablement en mode clavier (HID).
-              </p>
+              <p class="mb-1 text-sm text-secondary">Votre douchette est probablement en mode clavier (HID).</p>
               <p class="mb-0 text-sm text-secondary">
-                Pour activer le mode CDC : scannez l'étiquette <strong>"USB Virtual COM"</strong>
-                dans le manuel de votre douchette, puis cliquez <strong>Actualiser</strong>.
+                Pour activer le mode CDC : scannez l'étiquette <strong>"USB Virtual COM"</strong> dans le manuel de votre douchette, puis
+                cliquez <strong>Actualiser</strong>.
               </p>
             </div>
           }
@@ -233,4 +229,3 @@
     <app-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving()" />
   </div>
 </form>
-

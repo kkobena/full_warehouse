@@ -87,17 +87,19 @@ public class ConcentrationPayersRepository {
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findConcentration(LocalDate fromDate, LocalDate toDate, int topN) {
-        return entityManager.createNativeQuery(CONCENTRATION_SQL)
-            .setParameter("fromDate", fromDate)
-            .setParameter("toDate", toDate)
-            .setParameter("topN", topN)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(CONCENTRATION_SQL)
+                .setParameter("fromDate", fromDate)
+                .setParameter("toDate", toDate)
+                .setParameter("topN", topN)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     public List<Object[]> findEvolution(int topN) {
-        return entityManager.createNativeQuery(EVOLUTION_SQL)
-            .setParameter("topN", topN)
-            .getResultList();
+        return entityManager
+                .createNativeQuery(EVOLUTION_SQL)
+                .setParameter("topN", topN)
+                .getResultList();
     }
 }

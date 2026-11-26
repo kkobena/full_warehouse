@@ -87,9 +87,7 @@ export const AjustementStore = signalStore(
     }),
 
     hasLines: computed(() => store.lines().length > 0),
-    lotSelectionVisible: computed(() =>
-      store.gestionLot() && store.direction() === 'IN' && !!store.selectedProduit(),
-    ),
+    lotSelectionVisible: computed(() => store.gestionLot() && store.direction() === 'IN' && !!store.selectedProduit()),
   })),
 
   withMethods(store => ({

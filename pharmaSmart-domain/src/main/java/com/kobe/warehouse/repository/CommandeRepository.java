@@ -21,6 +21,12 @@ import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import jakarta.persistence.criteria.Join;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,83 +38,58 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 /**
  * Spring Data repository for the Commande entity.0
  */
 @SuppressWarnings("unused")
 @Repository
 public interface CommandeRepository
-    extends JpaRepository<Commande, CommandeId>, JpaSpecificationExecutor<Commande>, CustomCommandeRepository {
-    @Query(
-        "SELECT c FROM Commande c " +
-        "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.parent " +
-        "WHERE c.orderStatus IN :statuts " +
-        "AND c.paimentStatut != :paid " +
-        "ORDER BY c.orderDate ASC"
-    )
-    List<Commande> findUnpaidCommandesAp(
-        @Param("statuts") Set<OrderStatut> statuts,
-        @Param("paid") PaimentStatut paid
-    );
+        extends JpaRepository<Commande, CommandeId>, JpaSpecificationExecutor<Commande>, CustomCommandeRepository {
+    @Query("SELECT c FROM Commande c " + "JOIN FETCH c.fournisseur f "
+            + "LEFT JOIN FETCH f.parent "
+            + "WHERE c.orderStatus IN :statuts "
+            + "AND c.paimentStatut != :paid "
+            + "ORDER BY c.orderDate ASC")
+    List<Commande> findUnpaidCommandesAp(@Param("statuts") Set<OrderStatut> statuts, @Param("paid") PaimentStatut paid);
 
-    @Query(
-        "SELECT c FROM Commande c " +
-        "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.parent " +
-        "WHERE c.orderStatus IN :statuts " +
-        "AND c.paimentStatut != :paid " +
-        "AND f.id = :fournisseurId " +
-        "ORDER BY c.orderDate ASC"
-    )
+    @Query("SELECT c FROM Commande c " + "JOIN FETCH c.fournisseur f "
+            + "LEFT JOIN FETCH f.parent "
+            + "WHERE c.orderStatus IN :statuts "
+            + "AND c.paimentStatut != :paid "
+            + "AND f.id = :fournisseurId "
+            + "ORDER BY c.orderDate ASC")
     List<Commande> findUnpaidCommandesApByFournisseur(
-        @Param("statuts") Set<OrderStatut> statuts,
-        @Param("paid") PaimentStatut paid,
-        @Param("fournisseurId") Integer fournisseurId
-    );
+            @Param("statuts") Set<OrderStatut> statuts,
+            @Param("paid") PaimentStatut paid,
+            @Param("fournisseurId") Integer fournisseurId);
 
-    @Query(
-        "SELECT c FROM Commande c " +
-        "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.parent " +
-        "WHERE c.orderStatus IN :statuts " +
-        "AND c.paimentStatut != :paid " +
-        "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) " +
-        "AND (:toDate IS NULL OR c.receiptDate <= :toDate) " +
-        "ORDER BY c.receiptDate ASC"
-    )
+    @Query("SELECT c FROM Commande c " + "JOIN FETCH c.fournisseur f "
+            + "LEFT JOIN FETCH f.parent "
+            + "WHERE c.orderStatus IN :statuts "
+            + "AND c.paimentStatut != :paid "
+            + "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) "
+            + "AND (:toDate IS NULL OR c.receiptDate <= :toDate) "
+            + "ORDER BY c.receiptDate ASC")
     List<Commande> findUnpaidCommandesApByPeriod(
-        @Param("statuts") Set<OrderStatut> statuts,
-        @Param("paid") PaimentStatut paid,
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate
-    );
+            @Param("statuts") Set<OrderStatut> statuts,
+            @Param("paid") PaimentStatut paid,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate);
 
-    @Query(
-        "SELECT c FROM Commande c " +
-        "JOIN FETCH c.fournisseur f " +
-        "LEFT JOIN FETCH f.parent " +
-        "WHERE c.orderStatus IN :statuts " +
-        "AND c.paimentStatut != :paid " +
-        "AND f.id = :fournisseurId " +
-        "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) " +
-        "AND (:toDate IS NULL OR c.receiptDate <= :toDate) " +
-        "ORDER BY c.receiptDate ASC"
-    )
+    @Query("SELECT c FROM Commande c " + "JOIN FETCH c.fournisseur f "
+            + "LEFT JOIN FETCH f.parent "
+            + "WHERE c.orderStatus IN :statuts "
+            + "AND c.paimentStatut != :paid "
+            + "AND f.id = :fournisseurId "
+            + "AND (:fromDate IS NULL OR c.receiptDate >= :fromDate) "
+            + "AND (:toDate IS NULL OR c.receiptDate <= :toDate) "
+            + "ORDER BY c.receiptDate ASC")
     List<Commande> findUnpaidCommandesApByFournisseurAndPeriod(
-        @Param("statuts") Set<OrderStatut> statuts,
-        @Param("paid") PaimentStatut paid,
-        @Param("fournisseurId") Integer fournisseurId,
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate
-    );
+            @Param("statuts") Set<OrderStatut> statuts,
+            @Param("paid") PaimentStatut paid,
+            @Param("fournisseurId") Integer fournisseurId,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate);
 
     /**
      * Chiffre d'affaires de l'exercice par <b>groupe</b> de fournisseurs, avec le palier et le
@@ -133,27 +114,24 @@ public interface CommandeRepository
      * @param groupeId identifiant du grossiste principal, ou {@code null} pour tous
      * @return lignes [groupe_id, libelle, ca, palier, taux]
      */
-    @Query(
-        "SELECT COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), SUM(c.finalAmount), " +
-        "COALESCE(pf.palierRfa, f.palierRfa), " +
-        "COALESCE(pf.tauxRfa, f.tauxRfa) " +
-        "FROM Commande c " +
-        "JOIN c.fournisseur f " +
-        "LEFT JOIN f.parent pf " +
-        "WHERE c.orderStatus = :statut AND c.receiptDate >= :start AND c.receiptDate < :end " +
-        "AND (:groupeId IS NULL OR COALESCE(pf.id, f.id) = :groupeId) " +
-        "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), " +
-        "COALESCE(pf.palierRfa, f.palierRfa), COALESCE(pf.tauxRfa, f.tauxRfa) " +
-        "ORDER BY SUM(c.finalAmount) DESC"
-    )
+    @Query("SELECT COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), SUM(c.finalAmount), "
+            + "COALESCE(pf.palierRfa, f.palierRfa), "
+            + "COALESCE(pf.tauxRfa, f.tauxRfa) "
+            + "FROM Commande c "
+            + "JOIN c.fournisseur f "
+            + "LEFT JOIN f.parent pf "
+            + "WHERE c.orderStatus = :statut AND c.receiptDate >= :start AND c.receiptDate < :end "
+            + "AND (:groupeId IS NULL OR COALESCE(pf.id, f.id) = :groupeId) "
+            + "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), "
+            + "COALESCE(pf.palierRfa, f.palierRfa), COALESCE(pf.tauxRfa, f.tauxRfa) "
+            + "ORDER BY SUM(c.finalAmount) DESC")
     List<Object[]> sumCaByFournisseur(
-        @Param("statut") OrderStatut statut,
-        @Param("start") LocalDate start,
-        @Param("end") LocalDate end,
-        @Param("groupeId") Integer groupeId
-    );
+            @Param("statut") OrderStatut statut,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("groupeId") Integer groupeId);
 
-    int countByOrderStatusAndType(OrderStatut orderStatut,TypeDeliveryReceipt type);
+    int countByOrderStatusAndType(OrderStatut orderStatut, TypeDeliveryReceipt type);
 
     long countByTypeAndOrderDate(TypeDeliveryReceipt type, LocalDate orderDate);
 
@@ -171,57 +149,55 @@ public interface CommandeRepository
         }
         String like = searchRef.toUpperCase() + "%";
         return (root, query, cb) -> cb.or(
-            cb.like(cb.upper(root.get(Commande_.receiptReference)), like),
-            cb.like(cb.upper(root.get(Commande_.orderReference)), like)
-        );
+                cb.like(cb.upper(root.get(Commande_.receiptReference)), like),
+                cb.like(cb.upper(root.get(Commande_.orderReference)), like));
     }
-    @Query(
-        value = "SELECT COALESCE(pf.libelle, f.libelle) AS libelle, SUM(a.orderAmount) AS montantTtc, SUM(a.htAmount) AS montantHt, SUM(a.taxAmount) AS montantTva " +
-                "FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
-                "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :orderStatut " +
-                "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle) ",
-        countQuery = "SELECT COUNT(DISTINCT COALESCE(pf.id, f.id)) FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf " +
-                     "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :receiptStatut"
-    )
-    Page<GroupeFournisseurAchat> fetchAchats(
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate,
-        @Param("orderStatut") OrderStatut orderStatut,
-        Pageable pageable
-    );
 
     @Query(
-        value = "select SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:orderStatut"
-    )
+            value =
+                    "SELECT COALESCE(pf.libelle, f.libelle) AS libelle, SUM(a.orderAmount) AS montantTtc, SUM(a.htAmount) AS montantHt, SUM(a.taxAmount) AS montantTva "
+                            + "FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf "
+                            + "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :orderStatut "
+                            + "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle) ",
+            countQuery =
+                    "SELECT COUNT(DISTINCT COALESCE(pf.id, f.id)) FROM Commande a JOIN a.fournisseur f LEFT JOIN f.parent pf "
+                            + "WHERE a.orderDate BETWEEN :fromDate AND :toDate AND a.orderStatus = :receiptStatut")
+    Page<GroupeFournisseurAchat> fetchAchats(
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate,
+            @Param("orderStatut") OrderStatut orderStatut,
+            Pageable pageable);
+
+    @Query(
+            value =
+                    "select SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where a.orderDate  between :fromDate and :toDate AND a.orderStatus=:orderStatut")
     ChiffreAffaireAchat fetchAchats(
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate,
-        @Param("orderStatut") OrderStatut orderStatut
-    );
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate,
+            @Param("orderStatut") OrderStatut orderStatut);
 
     @Query(value = "SELECT tableau_pharmacien_commandes_report(:startDate, :endDate, :orderStatut)", nativeQuery = true)
     String fetchTableauPharmacienReport(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("orderStatut") String statuts
-    );
-
-    @Query(value = "SELECT tableau_pharmacien_commandes_mois_report(:startDate, :endDate, :orderStatut)", nativeQuery = true)
-    String fetchTableauPharmacienReportMensuel(
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("orderStatut") String statuts
-    );
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("orderStatut") String statuts);
 
     @Query(
-        value = "SELECT c.id AS id, c.orderDate AS orderDate, c.receiptReference AS receiptReference, c.receiptDate AS receiptDate, c.orderAmount AS orderAmount,c.finalAmount AS receiptAmount, f.libelle AS fournisseurLibelle FROM Commande c JOIN c.fournisseur f WHERE LOWER(c.receiptReference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND c.orderDate>=:orderDateLimit AND c.orderStatus=:orderStatus ORDER BY c.orderDate DESC"
-    )
+            value = "SELECT tableau_pharmacien_commandes_mois_report(:startDate, :endDate, :orderStatut)",
+            nativeQuery = true)
+    String fetchTableauPharmacienReportMensuel(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("orderStatut") String statuts);
+
+    @Query(
+            value =
+                    "SELECT c.id AS id, c.orderDate AS orderDate, c.receiptReference AS receiptReference, c.receiptDate AS receiptDate, c.orderAmount AS orderAmount,c.finalAmount AS receiptAmount, f.libelle AS fournisseurLibelle FROM Commande c JOIN c.fournisseur f WHERE LOWER(c.receiptReference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND c.orderDate>=:orderDateLimit AND c.orderStatus=:orderStatus ORDER BY c.orderDate DESC")
     Slice<DeliveryReceiptProjection> fetchAllReceipts(
-        @Param("searchTerm") String searchTerm,
-        @Param("orderDateLimit") LocalDate orderDateLimit,
-        @Param("orderStatus") OrderStatut orderStatut,
-        Pageable pageable
-    );
+            @Param("searchTerm") String searchTerm,
+            @Param("orderDateLimit") LocalDate orderDateLimit,
+            @Param("orderStatus") OrderStatut orderStatut,
+            Pageable pageable);
 
     Optional<Commande> findByOrderReference(String orderReference);
 
@@ -253,10 +229,7 @@ public interface CommandeRepository
           AND c.date_envoi     IS NOT NULL
           AND c.receipt_date   IS NOT NULL
         """, nativeQuery = true)
-    Object[] fetchStatsService(
-        @Param("fournisseurId") Integer fournisseurId,
-        @Param("fromDate") LocalDate fromDate
-    );
+    Object[] fetchStatsService(@Param("fournisseurId") Integer fournisseurId, @Param("fromDate") LocalDate fromDate);
 
     default Specification<Commande> hasOrderStatut(OrderStatut orderStatut) {
         return (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), orderStatut);
@@ -284,6 +257,7 @@ public interface CommandeRepository
             return cb.equal(fournisseurJoin.get(Fournisseur_.id), fournisseurId);
         };
     }
+
     default Specification<Commande> byUser(Integer userId) {
         return (root, query, cb) -> {
             Join<Commande, AppUser> appUserJoin = root.join(Commande_.user);
@@ -297,9 +271,8 @@ public interface CommandeRepository
         }
         String search = searchRef.toUpperCase() + "%";
         return (root, query, cb) -> cb.or(
-            cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
-            cb.like(cb.upper(root.get(Commande_.orderReference)), search)
-        );
+                cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
+                cb.like(cb.upper(root.get(Commande_.orderReference)), search));
     }
 
     /**
@@ -307,8 +280,7 @@ public interface CommandeRepository
      * Échéance = COALESCE(receipt_date, order_date) + COALESCE(f.jours_credit, pf.jours_credit, :defaultCreditDays).
      * Seules les commandes CLOSED et non PAID sont comptées.
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT COUNT(*)
             FROM commande c
             LEFT JOIN fournisseur f  ON f.id  = c.fournisseur_id
@@ -318,9 +290,7 @@ public interface CommandeRepository
               AND COALESCE(c.receipt_date, c.order_date)
                   + make_interval(days => COALESCE(f.jours_credit, pf.jours_credit, :defaultCreditDays))
                   < CURRENT_DATE
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     long countOverdueCommandesAp(@Param("defaultCreditDays") int defaultCreditDays);
 
     default Specification<Commande> bySearchTerm(String searchTerm) {
@@ -335,14 +305,13 @@ public interface CommandeRepository
             Join<FournisseurProduit, Produit> produitJoin = fpJoin.join(FournisseurProduit_.produit);
             Join<Commande, Fournisseur> fournisseurJoin = root.join(Commande_.fournisseur);
             return cb.or(
-                cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
-                cb.like(cb.upper(root.get(Commande_.orderReference)), search),
-                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeCip)), search),
-                cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeEan)), search),
-                cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), search),
-                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
-                cb.like(cb.upper(fournisseurJoin.get(Fournisseur_.libelle)), search)
-            );
+                    cb.like(cb.upper(root.get(Commande_.receiptReference)), search),
+                    cb.like(cb.upper(root.get(Commande_.orderReference)), search),
+                    cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeCip)), search),
+                    cb.like(cb.upper(fpJoin.get(FournisseurProduit_.codeEan)), search),
+                    cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), search),
+                    cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
+                    cb.like(cb.upper(fournisseurJoin.get(Fournisseur_.libelle)), search));
         };
     }
 
@@ -358,8 +327,7 @@ public interface CommandeRepository
      *
      * Retourne : [commande_id, fournisseur_nom, nombre_references]
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT
                 c.id          AS commande_id,
                 f.libelle     AS fournisseur_nom,
@@ -374,9 +342,6 @@ public interface CommandeRepository
               AND c.order_status    IN (:orderStatus)
             GROUP BY c.id, c.order_date, f.libelle
             ORDER BY c.id
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<Object[]> findLivraisonsAttenduesAujourdhui(@Param("orderStatus") Set<String> orderStatus);
-
 }

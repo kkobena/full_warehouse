@@ -7,7 +7,7 @@ import {
   HeaderCheckboxComponent,
   RowCheckboxComponent,
   SelectComponent,
-  SwitchComponent
+  SwitchComponent,
 } from '../../../../../shared/ui';
 
 import { ITiersPayant } from '../../../../../shared/model';
@@ -23,7 +23,7 @@ import { PlanificationStateService } from '../planification-state.service';
     HeaderCheckboxComponent,
     RowCheckboxComponent,
     SelectComponent,
-    SwitchComponent
+    SwitchComponent,
   ],
   templateUrl: './planif-subtab-tps.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,9 +35,7 @@ export class PlanifSubtabTpsComponent {
 
   protected readonly tps = computed(() => (this.mode() === 'def' ? this.state.tpsDef() : this.state.tpsProv()));
 
-  protected readonly loading = computed(() =>
-    this.mode() === 'def' ? this.state.loadingTpsDef() : this.state.loadingTpsProv(),
-  );
+  protected readonly loading = computed(() => (this.mode() === 'def' ? this.state.loadingTpsDef() : this.state.loadingTpsProv()));
 
   protected get filtrePeriodicite(): string | null {
     return this.mode() === 'def' ? this.state.filtrePeriodiciteTPsDef : this.state.filtrePeriodiciteTPsProv;
@@ -96,4 +94,3 @@ export class PlanifSubtabTpsComponent {
     else this.state.onToggleInclureTpProv(tp);
   }
 }
-

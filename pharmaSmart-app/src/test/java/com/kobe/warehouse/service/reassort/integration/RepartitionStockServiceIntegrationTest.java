@@ -53,14 +53,16 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         Lot lointain = lotSurEmplacement(produit, unique("LOT"), LocalDate.now().plusYears(2), rayon, 30);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
         viderLeCache();
 
         assertEquals(25, stockEnBase(produit, rayon));
         assertEquals(20, stockEnBase(produit, reserve));
         assertEquals(25, stockVirtuelEnBase(produit, rayon), "le stock virtuel suit le stock physique");
 
-        assertEquals(0, quantiteSurEmplacement(proche, rayon), "le lot le plus proche de la péremption part le premier");
+        assertEquals(
+                0, quantiteSurEmplacement(proche, rayon), "le lot le plus proche de la péremption part le premier");
         assertEquals(10, quantiteSurEmplacement(proche, reserve));
         assertEquals(25, quantiteSurEmplacement(lointain, rayon), "le solde est pris sur le lot suivant");
         assertEquals(5, quantiteSurEmplacement(lointain, reserve));
@@ -76,23 +78,15 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
 
         assertEquals(2, mouvementsJournalises(produit), "une sortie sur la source, une entrée sur la destination");
         assertEquals(
-            1,
-            compter(
-                "SELECT COUNT(*) FROM inventory_transaction WHERE produit_id = %d AND storage_id = %d AND quantity = -15".formatted(
-                        produit.getId(),
-                        STORAGE_RAYON_ID
-                    )
-            )
-        );
+                1,
+                compter(
+                        "SELECT COUNT(*) FROM inventory_transaction WHERE produit_id = %d AND storage_id = %d AND quantity = -15"
+                                .formatted(produit.getId(), STORAGE_RAYON_ID)));
         assertEquals(
-            1,
-            compter(
-                "SELECT COUNT(*) FROM inventory_transaction WHERE produit_id = %d AND storage_id = %d AND quantity = 15".formatted(
-                        produit.getId(),
-                        STORAGE_RESERVE_ID
-                    )
-            )
-        );
+                1,
+                compter(
+                        "SELECT COUNT(*) FROM inventory_transaction WHERE produit_id = %d AND storage_id = %d AND quantity = 15"
+                                .formatted(produit.getId(), STORAGE_RESERVE_ID)));
     }
 
     @Test
@@ -104,7 +98,8 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         Lot lot = lotSurEmplacement(produit, unique("LOT"), LocalDate.now().plusMonths(6), reserve, 40);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockReserve.getId(), stockRayon.getId(), 12, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockReserve.getId(), stockRayon.getId(), 12, null, false)));
         viderLeCache();
 
         assertEquals(14, stockEnBase(produit, rayon));
@@ -120,12 +115,13 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         StockProduit stockRayon = stock(produit, rayon, 40);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), null, 15, null, true)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), null, 15, null, true)));
         viderLeCache();
 
         StockProduit reserveCreee = services.stockProduitRepository
-            .findStockProduitByStorageIdAndProduitId(STORAGE_RESERVE_ID, produit.getId())
-            .orElseThrow();
+                .findStockProduitByStorageIdAndProduitId(STORAGE_RESERVE_ID, produit.getId())
+                .orElseThrow();
         assertEquals(15, reserveCreee.getQtyStock());
         assertEquals(StorageType.SAFETY_STOCK, reserveCreee.getStorage().getStorageType());
         assertEquals(25, stockEnBase(produit, rayon));
@@ -140,7 +136,8 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
 
         List<RepartionQueryDto> demandes = List.of(new RepartionQueryDto(stockRayon.getId(), 999_999, 15, null, false));
 
-        GenericError erreur = assertThrows(GenericError.class, () -> services.repartitionStockService.process(demandes));
+        GenericError erreur =
+                assertThrows(GenericError.class, () -> services.repartitionStockService.process(demandes));
         assertTrue(erreur.getMessage().contains("Cochez 'Créer la réserve'"));
         assertEquals(40, stockEnBase(produit, rayon), "le stock d'origine est intact");
     }
@@ -153,7 +150,8 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         StockProduit stockReserve = stock(produit, reserve, 0);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
         viderLeCache();
 
         assertEquals(15, stockEnBase(produit, rayon));
@@ -169,7 +167,8 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         StockProduit stockReserve = stock(produit, reserve, 0);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 10, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 10, null, false)));
         viderLeCache();
 
         assertEquals(10, stockEnBase(produit, rayon), "25 - 10 = 15 au total, dont 5 gratuites");
@@ -199,7 +198,9 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         assertEquals(20, quantiteSurEmplacement(lot, reserve));
         assertEquals(2, mouvementsJournalises(produit));
 
-        SuggestionReassort relue = services.suggestionReassortRepository.findById(suggestion.getId()).orElseThrow();
+        SuggestionReassort relue = services.suggestionReassortRepository
+                .findById(suggestion.getId())
+                .orElseThrow();
         assertEquals(StatutReassort.CLOSED, relue.getStatut());
         assertEquals(utilisateur.getId(), relue.getLastUserEdit().getId());
     }
@@ -216,11 +217,7 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         viderLeCache();
 
         services.repartitionStockService.transfertImpliciteReserveVersRayon(
-            produit.getId(),
-            STORAGE_RAYON_ID,
-            STORAGE_RESERVE_ID,
-            6
-        );
+                produit.getId(), STORAGE_RAYON_ID, STORAGE_RESERVE_ID, 6);
         viderLeCache();
 
         assertEquals(6, stockEnBase(produit, rayon));
@@ -230,8 +227,11 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
 
         RepartitionStockProduit trace = repartitionPour(produit);
         assertEquals(TypeRepartition.AUTO, trace.getTypeRepartition(), "le mouvement n'est pas le fait d'une saisie");
-        assertEquals(STORAGE_RESERVE_ID, trace.getStockProduitSource().getStorage().getId());
-        assertEquals(STORAGE_RAYON_ID, trace.getStockProduitDestination().getStorage().getId());
+        assertEquals(
+                STORAGE_RESERVE_ID, trace.getStockProduitSource().getStorage().getId());
+        assertEquals(
+                STORAGE_RAYON_ID,
+                trace.getStockProduitDestination().getStorage().getId());
     }
 
     @Test
@@ -245,10 +245,9 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         viderLeCache();
 
         services.repartitionStockService.autoPutawayRayonToReserve(
-            services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow(),
-            services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(),
-            30
-        );
+                services.stockProduitRepository.findById(stockRayon.getId()).orElseThrow(),
+                services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow(),
+                30);
         viderLeCache();
 
         assertEquals(50, stockEnBase(produit, rayon));
@@ -269,8 +268,7 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         viderLeCache();
 
         services.repartitionStockService.transferStockBetweenStorages(
-            services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow()
-        );
+                services.stockProduitRepository.findById(stockReserve.getId()).orElseThrow());
         viderLeCache();
 
         assertEquals(28, stockEnBase(produit, rayon));
@@ -289,15 +287,16 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         StockProduit stockReserve = stock(produit, reserve, 0);
         viderLeCache();
 
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
         viderLeCache();
 
         LocalDate veille = LocalDate.now().minusDays(1);
         LocalDate lendemain = LocalDate.now().plusDays(1);
         Page<RepartitionStockProduitDto> parType = services.repartitionStockService.fetchRepartitionStockProduits(
-            new RepartionSearchQueryDto(null, null, null, veille, lendemain, TypeRepartition.MANUEL, stockRayon.getId()),
-            PageRequest.of(0, 20)
-        );
+                new RepartionSearchQueryDto(
+                        null, null, null, veille, lendemain, TypeRepartition.MANUEL, stockRayon.getId()),
+                PageRequest.of(0, 20));
         assertEquals(1, parType.getTotalElements());
         RepartitionStockProduitDto dto = parType.getContent().getFirst();
         assertEquals(15, dto.getMvtQty());
@@ -312,35 +311,32 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         assertNotNull(dto.getCreated());
 
         assertTrue(
-            services.repartitionStockService
-                .fetchRepartitionStockProduits(
-                    new RepartionSearchQueryDto(null, null, null, veille, lendemain, TypeRepartition.AUTO, stockRayon.getId()),
-                    PageRequest.of(0, 20)
-                )
-                .isEmpty(),
-            "le mouvement manuel ne remonte pas sous le filtre automatique"
-        );
+                services.repartitionStockService
+                        .fetchRepartitionStockProduits(
+                                new RepartionSearchQueryDto(
+                                        null, null, null, veille, lendemain, TypeRepartition.AUTO, stockRayon.getId()),
+                                PageRequest.of(0, 20))
+                        .isEmpty(),
+                "le mouvement manuel ne remonte pas sous le filtre automatique");
 
         assertEquals(
-            1,
-            services.repartitionStockService
-                .fetchRepartitionStockProduits(
-                    new RepartionSearchQueryDto(STORAGE_RESERVE_ID, null, produit.getLibelle(), veille, lendemain, null, null),
-                    PageRequest.of(0, 20)
-                )
-                .getTotalElements(),
-            "le libellé du produit et l'emplacement de destination sont des filtres valides"
-        );
+                1,
+                services.repartitionStockService
+                        .fetchRepartitionStockProduits(
+                                new RepartionSearchQueryDto(
+                                        STORAGE_RESERVE_ID, null, produit.getLibelle(), veille, lendemain, null, null),
+                                PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "le libellé du produit et l'emplacement de destination sont des filtres valides");
 
         assertTrue(
-            services.repartitionStockService
-                .fetchRepartitionStockProduits(
-                    new RepartionSearchQueryDto(null, null, null, veille.minusDays(30), veille.minusDays(10), null, null),
-                    PageRequest.of(0, 20)
-                )
-                .isEmpty(),
-            "hors période, rien ne remonte"
-        );
+                services.repartitionStockService
+                        .fetchRepartitionStockProduits(
+                                new RepartionSearchQueryDto(
+                                        null, null, null, veille.minusDays(30), veille.minusDays(10), null, null),
+                                PageRequest.of(0, 20))
+                        .isEmpty(),
+                "hors période, rien ne remonte");
     }
 
     @Test
@@ -350,19 +346,20 @@ class RepartitionStockServiceIntegrationTest extends AbstractReassortIntegration
         StockProduit stockRayon = stock(produit, rayon, 60);
         StockProduit stockReserve = stock(produit, reserve, 0);
         viderLeCache();
-        services.repartitionStockService.process(List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
+        services.repartitionStockService.process(
+                List.of(new RepartionQueryDto(stockRayon.getId(), stockReserve.getId(), 15, null, false)));
         viderLeCache();
 
         RepartionSearchQueryDto recherche = new RepartionSearchQueryDto(
-            null,
-            null,
-            produit.getLibelle(),
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            null,
-            null
-        );
-        when(services.repartitionStockPdfReportService.export(anyList(), eq(recherche))).thenReturn(new byte[] { 1, 2, 3 });
+                null,
+                null,
+                produit.getLibelle(),
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                null,
+                null);
+        when(services.repartitionStockPdfReportService.export(anyList(), eq(recherche)))
+                .thenReturn(new byte[] {1, 2, 3});
 
         assertEquals(3, services.repartitionStockService.exportRepartitionStockProduits(recherche).length);
 

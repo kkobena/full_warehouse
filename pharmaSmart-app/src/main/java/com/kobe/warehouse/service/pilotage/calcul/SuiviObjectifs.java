@@ -16,8 +16,16 @@ public final class SuiviObjectifs {
 
     private SuiviObjectifs() {}
 
-    public static SuiviMoisDTO suivre(IndicateurPilotage indicateur, int mois, Double objectif, Double realise, boolean enCours) {
-        return new SuiviMoisDTO(mois, objectif, realise, Variations.ecart(realise, objectif), atteindre(realise, objectif), tenir(indicateur, realise, objectif), enCours);
+    public static SuiviMoisDTO suivre(
+            IndicateurPilotage indicateur, int mois, Double objectif, Double realise, boolean enCours) {
+        return new SuiviMoisDTO(
+                mois,
+                objectif,
+                realise,
+                Variations.ecart(realise, objectif),
+                atteindre(realise, objectif),
+                tenir(indicateur, realise, objectif),
+                enCours);
     }
 
     /**
@@ -25,13 +33,12 @@ public final class SuiviObjectifs {
      * rythme des jours écoulés. Un taux ne se projette pas : il vaut sa valeur à date.
      */
     public static ProjectionObjectifDTO projeter(
-        IndicateurPilotage indicateur,
-        Double objectif,
-        MesuresPilotage realise,
-        MesuresPilotage n1ADate,
-        MesuresPilotage n1Reste,
-        LocalDate aujourdhui
-    ) {
+            IndicateurPilotage indicateur,
+            Double objectif,
+            MesuresPilotage realise,
+            MesuresPilotage n1ADate,
+            MesuresPilotage n1Reste,
+            LocalDate aujourdhui) {
         Double realiseADate = CalculateurIndicateurs.calculer(indicateur, realise);
         Double projection;
         String methode;
@@ -44,13 +51,20 @@ public final class SuiviObjectifs {
             String moisN1 = aujourdhui.minusYears(1).format(MOIS_ANNEE);
             if (aDateN1 != null && aDateN1 > 0 && resteN1 != null) {
                 projection = realiseADate * (aDateN1 + resteN1) / aDateN1;
-                methode = "D'après " + moisN1 + " : au même jour, " + Math.round(aDateN1 * CENT / (aDateN1 + resteN1)) + " % du mois était fait.";
+                methode = "D'après " + moisN1 + " : au même jour, " + Math.round(aDateN1 * CENT / (aDateN1 + resteN1))
+                        + " % du mois était fait.";
             } else {
                 projection = realiseADate * aujourdhui.lengthOfMonth() / aujourdhui.getDayOfMonth();
                 methode = "Au rythme des jours écoulés : pas de ventes en " + moisN1 + " pour s'y référer.";
             }
         }
-        return new ProjectionObjectifDTO(realiseADate, projection, objectif, atteindre(projection, objectif), tenir(indicateur, projection, objectif), methode);
+        return new ProjectionObjectifDTO(
+                realiseADate,
+                projection,
+                objectif,
+                atteindre(projection, objectif),
+                tenir(indicateur, projection, objectif),
+                methode);
     }
 
     private static Double atteindre(Double realise, Double objectif) {

@@ -23,7 +23,8 @@ public class AchatStatServiceImpl implements AchatStatService {
     @Override
     public AchatRecord getAchatPeriode(AchatRecordParamDTO achatRecordParam) {
         Pair<LocalDate, LocalDate> periode = buildPeriode(achatRecordParam);
-        Specification<Commande> specification = Specification.where(commandeRepository.hasOrderStatut(OrderStatut.CLOSED));
+        Specification<Commande> specification =
+                Specification.where(commandeRepository.hasOrderStatut(OrderStatut.CLOSED));
         specification = specification.and(commandeRepository.between(periode.getLeft(), periode.getRight()));
         return commandeRepository.getAchatPeriode(specification);
     }

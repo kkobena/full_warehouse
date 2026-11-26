@@ -4,12 +4,13 @@
 </div>
 
 <div class="modal-body">
-  <app-card [variant]="'form'"> @if (currentRayonIsSans) {
-    <div class="raf-source-info">
-      <i class="pi pi-info-circle"></i>
-      Ce produit est sans emplacement — choisissez un stockage puis un rayon.
-    </div>
-  }
+  <app-card [variant]="'form'">
+    @if (currentRayonIsSans) {
+      <div class="raf-source-info">
+        <i class="pi pi-info-circle"></i>
+        Ce produit est sans emplacement — choisissez un stockage puis un rayon.
+      </div>
+    }
 
     <app-select-search
       (ngModelChange)="onStorageChange($event)"
@@ -35,13 +36,12 @@
           <input
             (input)="onSearchChange($any($event.target).value)"
             [value]="searchText()"
-            class="form-control "
+            class="form-control"
             placeholder="Rechercher un rayon..."
             type="text"
           />
         </app-icon-field>
       </div>
-
 
       @if (loading()) {
         <div class="raf-loading">
@@ -50,11 +50,7 @@
       } @else {
         <div class="raf-rayon-list">
           @for (rayon of filteredRayons(); track rayon.id) {
-            <div
-              (click)="selectRayon(rayon)"
-              [class.selected]="selectedRayon()?.id === rayon.id"
-              class="raf-rayon-item"
-            >
+            <div (click)="selectRayon(rayon)" [class.selected]="selectedRayon()?.id === rayon.id" class="raf-rayon-item">
               <span class="pharma-code">{{ rayon.code }}</span>
               <span class="raf-rayon-libelle">{{ rayon.libelle }}</span>
               @if (rayon.position) {
@@ -75,8 +71,8 @@
         <i class="pi pi-arrow-up"></i>
         Sélectionnez un stockage pour voir les rayons disponibles
       </div>
-    }</app-card>
-
+    }
+  </app-card>
 </div>
 
 <div class="modal-footer">
@@ -91,13 +87,6 @@
       size="small"
     />
   }
-  <app-button (clicked)="dismiss()" [outlined]="true" label="Annuler" severity="secondary"
-              size="small" />
-  <app-button
-    (clicked)="confirm()"
-    [disabled]="!selectedRayon()"
-    icon="pi pi-check"
-    label="Confirmer"
-    size="small"
-  />
+  <app-button (clicked)="dismiss()" [outlined]="true" label="Annuler" severity="secondary" size="small" />
+  <app-button (clicked)="confirm()" [disabled]="!selectedRayon()" icon="pi pi-check" label="Confirmer" size="small" />
 </div>

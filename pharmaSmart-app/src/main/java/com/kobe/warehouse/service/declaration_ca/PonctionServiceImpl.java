@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.declaration_ca;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.CaPonction;
 import com.kobe.warehouse.repository.CaPeriodeRepository;
 import com.kobe.warehouse.repository.CaPonctionDetailRepository;
@@ -67,15 +67,14 @@ public class PonctionServiceImpl implements PonctionService {
     private final CaPeriodeRepository caPeriodeRepository;
 
     public PonctionServiceImpl(
-        PonctionCalculator calculator,
-        StorageService storageService,
-        CaPonctionIdGeneratorService idGeneratorService,
-        PonctionReportService reportService,
-        CaPonctionRepository ponctionRepository,
-        AppConfigurationService appConfigurationService,
-        CaPonctionDetailRepository detailRepository,
-        CaPeriodeRepository caPeriodeRepository
-    ) {
+            PonctionCalculator calculator,
+            StorageService storageService,
+            CaPonctionIdGeneratorService idGeneratorService,
+            PonctionReportService reportService,
+            CaPonctionRepository ponctionRepository,
+            AppConfigurationService appConfigurationService,
+            CaPonctionDetailRepository detailRepository,
+            CaPeriodeRepository caPeriodeRepository) {
         this.calculator = calculator;
         this.storageService = storageService;
         this.idGeneratorService = idGeneratorService;
@@ -93,17 +92,11 @@ public class PonctionServiceImpl implements PonctionService {
         int magasinId = magasinId();
         BigDecimal plafond = plafondEffectif(param);
 
-        PonctionCalculator.Assiette assiette = calculator.calculerAssiette(
-            param.dateDebut(),
-            param.dateFin(),
-            magasinId,
-            plafond,
-            MODES_REGLEMENT
-        );
+        PonctionCalculator.Assiette assiette =
+                calculator.calculerAssiette(param.dateDebut(), param.dateFin(), magasinId, plafond, MODES_REGLEMENT);
 
         long caReel = caPeriodeRepository.caReel(param.dateDebut(), param.dateFin(), magasinId);
-        long caApresExclusions = caPeriodeRepository.caApresExclusions(param.dateDebut(),
-            param.dateFin(), magasinId);
+        long caApresExclusions = caPeriodeRepository.caApresExclusions(param.dateDebut(), param.dateFin(), magasinId);
         long objectifDemande = objectif(param, caApresExclusions);
 
         List<String> avertissements = new ArrayList<>();
@@ -117,20 +110,13 @@ public class PonctionServiceImpl implements PonctionService {
         // on le dit. Un montant fixe, lui, a été nommé : le ramener sans permission produirait une
         // ponction différente de celle qui a été demandée, et le refus reste la bonne réponse.
         long objectif = objectifDemande;
-        if (param.modeCalcul() == ModeCalculPonction.POURCENTAGE
-            && objectifDemande > assiette.montantPonctionnable()) {
+        if (param.modeCalcul() == ModeCalculPonction.POURCENTAGE && objectifDemande > assiette.montantPonctionnable()) {
             objectif = auMultipleDeCinq(assiette.montantPonctionnable());
-            avertissements.add(
-                String.format(
+            avertissements.add(String.format(
                     "Le taux demandé représente %d F, au-delà des %d F prélevables sur cette période : "
-                        +
-                        "l'objectif a été ramené au maximum. Le plafond par vente et la part de produits "
-                        +
-                        "exonérés bornent ce qui peut être prélevé.",
-                    objectifDemande,
-                    assiette.montantPonctionnable()
-                )
-            );
+                            + "l'objectif a été ramené au maximum. Le plafond par vente et la part de produits "
+                            + "exonérés bornent ce qui peut être prélevé.",
+                    objectifDemande, assiette.montantPonctionnable()));
         }
 
         boolean atteignable = objectif <= assiette.montantPonctionnable();
@@ -138,43 +124,39 @@ public class PonctionServiceImpl implements PonctionService {
             avertissements.add(messageObjectifInatteignable(objectif, assiette));
         }
         if (assiette.nombreVentes() == 0) {
-            avertissements.add(
-                "Aucune vente éligible sur cette période : ventes comptant, closes, non différées, "
-                    +
-                    "réglées en espèces, sans exclusion déjà appliquée et comportant des produits exonérés."
-            );
+            avertissements.add("Aucune vente éligible sur cette période : ventes comptant, closes, non différées, "
+                    + "réglées en espèces, sans exclusion déjà appliquée et comportant des produits exonérés.");
         }
-        chevauchement(param).ifPresent(periode ->
-            avertissements.add("Cette période chevauche une ponction déjà validée : " + periode)
-        );
+        chevauchement(param)
+                .ifPresent(periode ->
+                        avertissements.add("Cette période chevauche une ponction déjà validée : " + periode));
 
         List<PonctionLigneDTO> lignes = atteignable && objectif > 0
-            ? calculator.repartir(param.dateDebut(), param.dateFin(), magasinId, plafond,
-            MODES_REGLEMENT, objectif)
-            : List.of();
+                ? calculator.repartir(param.dateDebut(), param.dateFin(), magasinId, plafond, MODES_REGLEMENT, objectif)
+                : List.of();
 
-        long ponctionne = lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum();
+        long ponctionne =
+                lignes.stream().mapToLong(PonctionLigneDTO::montantPonctionne).sum();
 
         return new PonctionSimulationDTO(
-            param.dateDebut(),
-            param.dateFin(),
-            caReel,
-            caApresExclusions,
-            assiette.assietteTva0(),
-            objectif,
-            assiette.montantPonctionnable(),
-            ponctionne,
-            caApresExclusions - ponctionne,
-            assiette.nombreVentes(),
-            lignes.size(),
-            tauxMoyen(ponctionne, caApresExclusions),
-            tauxMax(lignes),
-            atteignable,
-            plafond,
-            appConfigurationService.getPonctionAnnulationMaxDays(),
-            lignes.stream().limit(TAILLE_APERCU).toList(),
-            avertissements
-        );
+                param.dateDebut(),
+                param.dateFin(),
+                caReel,
+                caApresExclusions,
+                assiette.assietteTva0(),
+                objectif,
+                assiette.montantPonctionnable(),
+                ponctionne,
+                caApresExclusions - ponctionne,
+                assiette.nombreVentes(),
+                lignes.size(),
+                tauxMoyen(ponctionne, caApresExclusions),
+                tauxMax(lignes),
+                atteignable,
+                plafond,
+                appConfigurationService.getPonctionAnnulationMaxDays(),
+                lignes.stream().limit(TAILLE_APERCU).toList(),
+                avertissements);
     }
 
     /**
@@ -192,8 +174,8 @@ public class PonctionServiceImpl implements PonctionService {
     public PonctionDTO valider(PonctionParamDTO param) {
         PonctionSimulationDTO simulation = simuler(param);
         if (!simulation.objectifAtteignable()) {
-            throw new GenericError(messageObjectifInatteignable(simulation.montantObjectif(),
-                simulation.montantPonctionnable()));
+            throw new GenericError(
+                    messageObjectifInatteignable(simulation.montantObjectif(), simulation.montantPonctionnable()));
         }
         if (simulation.montantPonctionne() <= 0) {
             throw new GenericError("Aucune vente ne peut être ponctionnée sur cette période.");
@@ -201,14 +183,13 @@ public class PonctionServiceImpl implements PonctionService {
 
         Integer id = insererPonction(param, simulation);
         calculator.enregistrerDetail(
-            id,
-            param.dateDebut(),
-            param.dateFin(),
-            magasinId(),
-            plafondEffectif(param),
-            MODES_REGLEMENT,
-            simulation.montantObjectif()
-        );
+                id,
+                param.dateDebut(),
+                param.dateFin(),
+                magasinId(),
+                plafondEffectif(param),
+                MODES_REGLEMENT,
+                simulation.montantObjectif());
         ponctionRepository.alignerEnTeteSurLeDetail(id);
         calculator.appliquer(id);
         return lire(id);
@@ -216,40 +197,36 @@ public class PonctionServiceImpl implements PonctionService {
 
     @Override
     @Transactional(readOnly = true)
-    public PonctionAssietteDTO assiette(LocalDate dateDebut, LocalDate dateFin,
-        BigDecimal plafondParVente) {
+    public PonctionAssietteDTO assiette(LocalDate dateDebut, LocalDate dateFin, BigDecimal plafondParVente) {
         if (dateFin.isBefore(dateDebut)) {
             throw new GenericError("La date de fin précède la date de début.");
         }
         int magasinId = magasinId();
         BigDecimal plafond =
-            plafondParVente == null ? appConfigurationService.getPonctionPlafondDefaut()
-                : plafondParVente;
+                plafondParVente == null ? appConfigurationService.getPonctionPlafondDefaut() : plafondParVente;
         if (plafond.signum() <= 0 || plafond.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new GenericError("Le plafond par vente doit être compris entre 0 et 100 %.");
         }
 
-        PonctionCalculator.Assiette assiette = calculator.calculerAssiette(dateDebut, dateFin,
-            magasinId, plafond, MODES_REGLEMENT);
+        PonctionCalculator.Assiette assiette =
+                calculator.calculerAssiette(dateDebut, dateFin, magasinId, plafond, MODES_REGLEMENT);
         return new PonctionAssietteDTO(
-            dateDebut,
-            dateFin,
-            caPeriodeRepository.caReel(dateDebut, dateFin, magasinId),
-            assiette.caEspece(),
-            assiette.assietteTva0(),
-            assiette.montantPonctionnable(),
-            assiette.nombreVentes(),
-            plafond
-        );
+                dateDebut,
+                dateFin,
+                caPeriodeRepository.caReel(dateDebut, dateFin, magasinId),
+                assiette.caEspece(),
+                assiette.assietteTva0(),
+                assiette.montantPonctionnable(),
+                assiette.nombreVentes(),
+                plafond);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PonctionParametresDTO getParametres() {
         return new PonctionParametresDTO(
-            appConfigurationService.getPonctionPlafondDefaut(),
-            appConfigurationService.getPonctionAnnulationMaxDays()
-        );
+                appConfigurationService.getPonctionPlafondDefaut(),
+                appConfigurationService.getPonctionAnnulationMaxDays());
     }
 
     @Override
@@ -258,17 +235,15 @@ public class PonctionServiceImpl implements PonctionService {
             return;
         }
         ponctionRepository
-            .findById(ponctionId)
-            .filter(ponction -> ponction.getStatut() == StatutPonction.VALIDEE)
-            .ifPresent(ponction -> {
-                calculator.annuler(ponctionId);
-                ponction
-                    .setStatut(StatutPonction.ANNULEE)
-                    .setCanceledAt(LocalDateTime.now())
-                    .setCommentaire(
-                        motifAnnulationAutomatique(ponction.getCommentaire(), saleId, saleDate));
-                ponctionRepository.save(ponction);
-            });
+                .findById(ponctionId)
+                .filter(ponction -> ponction.getStatut() == StatutPonction.VALIDEE)
+                .ifPresent(ponction -> {
+                    calculator.annuler(ponctionId);
+                    ponction.setStatut(StatutPonction.ANNULEE)
+                            .setCanceledAt(LocalDateTime.now())
+                            .setCommentaire(motifAnnulationAutomatique(ponction.getCommentaire(), saleId, saleDate));
+                    ponctionRepository.save(ponction);
+                });
     }
 
     /**
@@ -276,8 +251,7 @@ public class PonctionServiceImpl implements PonctionService {
      * auteur ni cause.
      */
     private String motifAnnulationAutomatique(String commentaire, Long saleId, LocalDate saleDate) {
-        String motif = "Annulée automatiquement : la vente %d du %s a été annulée.".formatted(
-            saleId, saleDate);
+        String motif = "Annulée automatiquement : la vente %d du %s a été annulée.".formatted(saleId, saleDate);
         return commentaire == null || commentaire.isBlank() ? motif : commentaire + " — " + motif;
     }
 
@@ -289,53 +263,42 @@ public class PonctionServiceImpl implements PonctionService {
         }
         int delai = appConfigurationService.getPonctionAnnulationMaxDays();
         long joursEcoules = ChronoUnit.DAYS.between(
-            Objects.requireNonNullElse(ponction.getValidatedAt(), ponction.getCreatedAt()),
-            LocalDateTime.now()
-        );
+                Objects.requireNonNullElse(ponction.getValidatedAt(), ponction.getCreatedAt()), LocalDateTime.now());
         if (joursEcoules > delai) {
-            throw new GenericError(
-                String.format(
+            throw new GenericError(String.format(
                     "Cette ponction date de %d jour(s) : elle n'est plus annulable. Le délai est de %d jour(s).",
-                    joursEcoules,
-                    delai
-                )
-            );
+                    joursEcoules, delai));
         }
         calculator.annuler(id);
-        ponction.setStatut(StatutPonction.ANNULEE).setCanceledAt(LocalDateTime.now())
-            .setCanceledBy(storageService.getUser());
+        ponction.setStatut(StatutPonction.ANNULEE)
+                .setCanceledAt(LocalDateTime.now())
+                .setCanceledBy(storageService.getUser());
         return versDto(ponctionRepository.save(ponction));
     }
-
 
     @Override
     @Transactional(readOnly = true)
     public List<PonctionDTO> getHistorique(LocalDate dateDebut, LocalDate dateFin) {
         Integer magasinId = magasinId();
         List<CaPonction> ponctions = (dateDebut == null || dateFin == null)
-            ? ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId)
-            : ponctionRepository.findHistoriqueSurPeriode(magasinId, dateDebut, dateFin);
+                ? ponctionRepository.findByMagasinIdOrderByDateDebutDesc(magasinId)
+                : ponctionRepository.findHistoriqueSurPeriode(magasinId, dateDebut, dateFin);
         return ponctions.stream().map(this::versDto).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PonctionLigneDTO> getDetail(Integer id) {
-        return detailRepository
-            .findByPonctionIdOrderByRang(id)
-            .stream()
-            .map(d ->
-                new PonctionLigneDTO(
-                    d.getSaleId(),
-                    d.getSaleDate(),
-                    d.getNumeroTransaction(),
-                    d.getMontantVente(),
-                    d.getMontantBase(),
-                    d.getMontantPonctionne(),
-                    d.getRang()
-                )
-            )
-            .toList();
+        return detailRepository.findByPonctionIdOrderByRang(id).stream()
+                .map(d -> new PonctionLigneDTO(
+                        d.getSaleId(),
+                        d.getSaleDate(),
+                        d.getNumeroTransaction(),
+                        d.getMontantVente(),
+                        d.getMontantBase(),
+                        d.getMontantPonctionne(),
+                        d.getRang()))
+                .toList();
     }
 
     @Override
@@ -357,38 +320,37 @@ public class PonctionServiceImpl implements PonctionService {
     private Integer insererPonction(PonctionParamDTO param, PonctionSimulationDTO simulation) {
         AppUser appUser = storageService.getUser();
         CaPonction entite = new CaPonction()
-            .setId(idGeneratorService.getNextIdAsInt())
-            .setMagasin(storageService.getDefaultConnectedUserMainStorage().getMagasin())
-            .setDateDebut(param.dateDebut())
-            .setDateFin(param.dateFin())
-            .setModeCalcul(param.modeCalcul())
-            .setValeurSaisie(param.valeur())
-            .setPlafondParVente(plafondEffectif(param))
-            .setStrategie(STRATEGIE_PAR_DEFAUT)
-            .setModesReglement(String.join(",", MODES_REGLEMENT))
-            .setTauxTvaEligibles(TAUX_TVA_ELIGIBLES)
-            .setCaReel(simulation.caReel())
-            .setCaApresExclusions(simulation.caApresExclusions())
-            .setCaAssietteTva0(simulation.caAssietteTva0())
-            .setMontantPonctionnable(simulation.montantPonctionnable())
-            .setMontantObjectif(simulation.montantObjectif())
-            // Les totaux définitifs sont déduits du détail juste après son écriture.
-            .setMontantPonctionne(0)
-            .setCaDeclare(simulation.caApresExclusions())
-            .setNombreVentes(0)
-            .setStatut(StatutPonction.VALIDEE)
-            .setCommentaire(param.commentaire())
-            .setCreatedBy(appUser)
-            .setCreatedAt(LocalDateTime.now())
-            .setValidatedBy(appUser)
-            .setValidatedAt(LocalDateTime.now());
+                .setId(idGeneratorService.getNextIdAsInt())
+                .setMagasin(storageService.getDefaultConnectedUserMainStorage().getMagasin())
+                .setDateDebut(param.dateDebut())
+                .setDateFin(param.dateFin())
+                .setModeCalcul(param.modeCalcul())
+                .setValeurSaisie(param.valeur())
+                .setPlafondParVente(plafondEffectif(param))
+                .setStrategie(STRATEGIE_PAR_DEFAUT)
+                .setModesReglement(String.join(",", MODES_REGLEMENT))
+                .setTauxTvaEligibles(TAUX_TVA_ELIGIBLES)
+                .setCaReel(simulation.caReel())
+                .setCaApresExclusions(simulation.caApresExclusions())
+                .setCaAssietteTva0(simulation.caAssietteTva0())
+                .setMontantPonctionnable(simulation.montantPonctionnable())
+                .setMontantObjectif(simulation.montantObjectif())
+                // Les totaux définitifs sont déduits du détail juste après son écriture.
+                .setMontantPonctionne(0)
+                .setCaDeclare(simulation.caApresExclusions())
+                .setNombreVentes(0)
+                .setStatut(StatutPonction.VALIDEE)
+                .setCommentaire(param.commentaire())
+                .setCreatedBy(appUser)
+                .setCreatedAt(LocalDateTime.now())
+                .setValidatedBy(appUser)
+                .setValidatedAt(LocalDateTime.now());
         try {
             return ponctionRepository.saveAndFlush(entite).getId();
         } catch (DataIntegrityViolationException e) {
             // C'est la contrainte d'exclusion qui parle : la période est déjà prise.
             throw new GenericError(
-                "Cette période chevauche une ponction déjà validée. Les périodes ne peuvent pas se recouvrir."
-            );
+                    "Cette période chevauche une ponction déjà validée. Les périodes ne peuvent pas se recouvrir.");
         }
     }
 
@@ -400,8 +362,8 @@ public class PonctionServiceImpl implements PonctionService {
 
     private CaPonction charger(Integer id) {
         return ponctionRepository
-            .findByIdAndMagasinId(id, magasinId())
-            .orElseThrow(() -> new GenericError("Ponction introuvable"));
+                .findByIdAndMagasinId(id, magasinId())
+                .orElseThrow(() -> new GenericError("Ponction introuvable"));
     }
 
     /**
@@ -412,25 +374,24 @@ public class PonctionServiceImpl implements PonctionService {
      */
     private PonctionDTO versDto(CaPonction p) {
         return new PonctionDTO(
-            p.getId(),
-            p.getDateDebut(),
-            p.getDateFin(),
-            p.getModeCalcul(),
-            p.getValeurSaisie(),
-            p.getPlafondParVente(),
-            p.getCaReel(),
-            p.getCaApresExclusions(),
-            p.getCaDeclare(),
-            p.getMontantObjectif(),
-            p.getMontantPonctionne(),
-            p.getNombreVentes(),
-            p.getStatut(),
-            p.getCommentaire(),
-            AppUserNames.fullName(p.getCreatedBy()),
-            p.getCreatedAt(),
-            p.getValidatedAt(),
-            p.getCanceledAt()
-        );
+                p.getId(),
+                p.getDateDebut(),
+                p.getDateFin(),
+                p.getModeCalcul(),
+                p.getValeurSaisie(),
+                p.getPlafondParVente(),
+                p.getCaReel(),
+                p.getCaApresExclusions(),
+                p.getCaDeclare(),
+                p.getMontantObjectif(),
+                p.getMontantPonctionne(),
+                p.getNombreVentes(),
+                p.getStatut(),
+                p.getCommentaire(),
+                AppUserNames.fullName(p.getCreatedBy()),
+                p.getCreatedAt(),
+                p.getValidatedAt(),
+                p.getCanceledAt());
     }
 
     /**
@@ -439,16 +400,14 @@ public class PonctionServiceImpl implements PonctionService {
      */
     private long objectif(PonctionParamDTO param, long caApresExclusions) {
         if (param.modeCalcul() == ModeCalculPonction.MONTANT_FIXE) {
-            return auMultipleDeCinq(param.valeur().setScale(0, RoundingMode.HALF_UP).longValue());
+            return auMultipleDeCinq(
+                    param.valeur().setScale(0, RoundingMode.HALF_UP).longValue());
         }
         // FLOOR et non HALF_UP : arrondir par excès prélèverait au-delà du taux annoncé.
-        return auMultipleDeCinq(
-            BigDecimal
-                .valueOf(caApresExclusions)
+        return auMultipleDeCinq(BigDecimal.valueOf(caApresExclusions)
                 .multiply(param.valeur())
                 .divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR)
-                .longValue()
-        );
+                .longValue());
     }
 
     /**
@@ -478,53 +437,40 @@ public class PonctionServiceImpl implements PonctionService {
      */
     private Optional<String> chevauchement(PonctionParamDTO param) {
         return ponctionRepository
-            .findChevauchantes(
-                magasinId(),
-                param.dateDebut(),
-                param.dateFin(),
-                List.of(StatutPonction.VALIDEE)
-            )
-            .stream()
-            .findFirst()
-            .map(p -> "du " + p.getDateDebut() + " au " + p.getDateFin());
+                .findChevauchantes(magasinId(), param.dateDebut(), param.dateFin(), List.of(StatutPonction.VALIDEE))
+                .stream()
+                .findFirst()
+                .map(p -> "du " + p.getDateDebut() + " au " + p.getDateFin());
     }
 
-    private String messageObjectifInatteignable(long objectif,
-        PonctionCalculator.Assiette assiette) {
+    private String messageObjectifInatteignable(long objectif, PonctionCalculator.Assiette assiette) {
         return messageObjectifInatteignable(objectif, assiette.montantPonctionnable());
     }
 
     private String messageObjectifInatteignable(long objectif, long ponctionnable) {
         return String.format(
-            "Objectif inatteignable : %d F demandés pour un maximum de %d F. " +
-                "Le plafond par vente et la part de produits exonérés bornent ce qui peut être prélevé.",
-            objectif,
-            ponctionnable
-        );
+                "Objectif inatteignable : %d F demandés pour un maximum de %d F. "
+                        + "Le plafond par vente et la part de produits exonérés bornent ce qui peut être prélevé.",
+                objectif, ponctionnable);
     }
 
     private BigDecimal tauxMoyen(long ponctionne, long caApresExclusions) {
         if (caApresExclusions <= 0) {
             return BigDecimal.ZERO;
         }
-        return BigDecimal
-            .valueOf(ponctionne)
-            .multiply(BigDecimal.valueOf(100))
-            .divide(BigDecimal.valueOf(caApresExclusions), 2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(ponctionne)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(caApresExclusions), 2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal tauxMax(List<PonctionLigneDTO> lignes) {
-        return lignes
-            .stream()
-            .filter(ligne -> ligne.montantVente() > 0)
-            .map(ligne ->
-                BigDecimal
-                    .valueOf(ligne.montantPonctionne())
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(ligne.montantVente()), 2, RoundingMode.HALF_UP)
-            )
-            .max(BigDecimal::compareTo)
-            .orElse(BigDecimal.ZERO);
+        return lignes.stream()
+                .filter(ligne -> ligne.montantVente() > 0)
+                .map(ligne -> BigDecimal.valueOf(ligne.montantPonctionne())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ligne.montantVente()), 2, RoundingMode.HALF_UP))
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
     }
 
     /**
@@ -537,5 +483,4 @@ public class PonctionServiceImpl implements PonctionService {
     private int magasinId() {
         return storageService.getDefaultConnectedUserMainStorage().getMagasin().getId();
     }
-
 }

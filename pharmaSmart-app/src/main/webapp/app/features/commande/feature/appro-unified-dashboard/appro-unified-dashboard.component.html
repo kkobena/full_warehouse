@@ -1,20 +1,19 @@
 <div class="pharma-smart-content p-1">
-  <app-toolbar [code]="navCode()" icon="pi pi-th-large"
-               title="Tableau de bord Approvisionnement">
+  <app-toolbar [code]="navCode()" icon="pi pi-th-large" title="Tableau de bord Approvisionnement">
     <ng-container ngProjectAs="[toolbarFilters]">
       @if (lastRefresh()) {
         <small class="text-muted">Mis à jour : {{ lastRefresh() | date: 'HH:mm:ss' }}</small>
       }
       @if (semoisFraicheur()) {
         <span class="ms-3">
-        <app-badge
-          [label]="semoisFraicheurLabel"
-          [severity]="semoisFraicheurSeverity"
-          icon="pi pi-clock"
-          ngbTooltip="Fraîcheur de la VMM (Vente Mensuelle Moyenne) — cliquer sur Recalculer VMM pour forcer un recalcul immédiat"
-          placement="bottom"
-        />
-      </span>
+          <app-badge
+            [label]="semoisFraicheurLabel"
+            [severity]="semoisFraicheurSeverity"
+            icon="pi pi-clock"
+            ngbTooltip="Fraîcheur de la VMM (Vente Mensuelle Moyenne) — cliquer sur Recalculer VMM pour forcer un recalcul immédiat"
+            placement="bottom"
+          />
+        </span>
       }
     </ng-container>
 
@@ -78,13 +77,11 @@
     </div>
   }
 
-
   <!-- ═══════════════════════════════════════════════════════════════════════════
        SECTION 2 — KPIs fusionnés (Commandes + SEMOIS)
   ════════════════════════════════════════════════════════════════════════════ -->
   @if (commandeDashboard(); as db) {
     <app-kpi-strip stripClass="mt-1 mb-2">
-
       <!-- ── Commandes en cours ── -->
       <app-kpi-item
         (click)="navigateToCommandeEnCours()"
@@ -180,7 +177,6 @@
           }
         </ng-container>
       </app-kpi-item>
-
     </app-kpi-strip>
   }
 
@@ -189,7 +185,6 @@
   ════════════════════════════════════════════════════════════════════════════ -->
   @if (semoisDashboard(); as sd) {
     <div class="row mt-2">
-
       <!-- Top produits urgents -->
       <div class="col-12 col-lg-8 mb-3">
         <div class="card h-100 data-card">
@@ -208,11 +203,7 @@
             />
           </div>
           <div class="card-body p-0">
-            <app-data-table
-              [rows]="7"
-              [value]="sd.topUrgents"
-              class="p-datatable-sm"
-            >
+            <app-data-table [rows]="7" [value]="sd.topUrgents" class="p-datatable-sm">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Produit</th>
@@ -237,12 +228,8 @@
                   <td [ngClass]="getCouvertureClass(produit)" class="text-end">
                     {{ produit.stockActuel | number }}
                   </td>
-                  <td [ngClass]="getCouvertureClass(produit)" class="text-end">
-                    {{ getCouvertureMois(produit) | number: '1.1-1' }} mois
-                  </td>
-                  <td
-                    class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}
-                  </td>
+                  <td [ngClass]="getCouvertureClass(produit)" class="text-end">{{ getCouvertureMois(produit) | number: '1.1-1' }} mois</td>
+                  <td class="text-end fw-bold pharma-price">{{ produit.quantiteACommander | number }}</td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
@@ -281,8 +268,7 @@
             <div class="mb-3">
               <div class="d-flex justify-content-between mb-1">
                 <span class="text-danger fw-semibold small">Produits à risque</span>
-                <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }}
-                  %</span>
+                <span class="text-danger fw-bold small">{{ getTauxRisque() | number: '1.0-1' }} %</span>
               </div>
               <div class="progress" style="height: 6px">
                 <div [style.width.%]="getTauxRisque()" class="progress-bar bg-danger"></div>
@@ -313,7 +299,6 @@
   ════════════════════════════════════════════════════════════════════════════ -->
   @if (commandeDashboard(); as db) {
     <div class="row mt-1">
-
       <!-- Commandes en cours -->
       <div class="col-12 col-lg-6 col-xl-6 col-md-12 mb-3">
         <div class="card h-100 data-card">
@@ -344,24 +329,26 @@
                   <td>
                     <span class="fw-medium small">{{ row.fournisseurLibelle }}</span>
                     @if (row.reliquatDeCommandeId != null) {
-                      <app-badge class="ms-1" label="RELIQUAT" severity="warn"
-                                 style="font-size:0.6rem" />
+                      <app-badge class="ms-1" label="RELIQUAT" severity="warn" style="font-size: 0.6rem" />
                     }
                   </td>
                   <td class="text-end pharma-price small">{{ row.grossAmount | number }}</td>
-                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
-                  </td>
+                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                   <td class="text-end">
-                    <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
-                                ngbTooltip="Ouvrir" severity="secondary"
-                                size="small" />
+                    <app-button
+                      (clicked)="openCommande(row)"
+                      [text]="true"
+                      icon="pi pi-arrow-right"
+                      ngbTooltip="Ouvrir"
+                      severity="secondary"
+                      size="small"
+                    />
                   </td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td class="text-center text-muted py-3 small" colspan="4">Aucune commande en cours
-                  </td>
+                  <td class="text-center text-muted py-3 small" colspan="4">Aucune commande en cours</td>
                 </tr>
               </ng-template>
             </app-data-table>
@@ -370,7 +357,7 @@
       </div>
 
       <!-- En attente de réception -->
-      <div class="col-12 col-lg-6 col-xl-6 col-md-12  mb-3">
+      <div class="col-12 col-lg-6 col-xl-6 col-md-12 mb-3">
         <div class="card h-100 data-card">
           <div class="card-header">
             <h5 class="card-title">
@@ -380,12 +367,7 @@
             <app-badge [label]="db.totalReceived.toString()" severity="warn" />
           </div>
           <div class="card-body p-0">
-            <app-data-table
-              [paginator]="db.commandesReceived.length > 6"
-              [rows]="6"
-              [value]="db.commandesReceived"
-              class="p-datatable-sm"
-            >
+            <app-data-table [paginator]="db.commandesReceived.length > 6" [rows]="6" [value]="db.commandesReceived" class="p-datatable-sm">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>Fournisseur</th>
@@ -398,29 +380,29 @@
                 <tr (click)="openCommande(row)" class="cursor-pointer pharma-row-hover">
                   <td class="small">{{ row.fournisseurLibelle }}</td>
                   <td class="text-muted small">{{ row.orderReference ?? '—' }}</td>
-                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}
-                  </td>
+                  <td class="text-center text-muted small">{{ row.orderDate | date: 'dd/MM/yyyy' }}</td>
                   <td class="text-end">
-                    <app-button (clicked)="openCommande(row)" [text]="true" icon="pi pi-arrow-right"
-                                ngbTooltip="Saisir la réception" placement="left"
-                                severity="secondary"
-                                size="small" />
+                    <app-button
+                      (clicked)="openCommande(row)"
+                      [text]="true"
+                      icon="pi pi-arrow-right"
+                      ngbTooltip="Saisir la réception"
+                      placement="left"
+                      severity="secondary"
+                      size="small"
+                    />
                   </td>
                 </tr>
               </ng-template>
               <ng-template #emptymessage>
                 <tr>
-                  <td class="text-center text-muted py-3 small" colspan="4">Aucune réception en
-                    attente
-                  </td>
+                  <td class="text-center text-muted py-3 small" colspan="4">Aucune réception en attente</td>
                 </tr>
               </ng-template>
             </app-data-table>
           </div>
         </div>
       </div>
-
     </div>
   }
-
 </div>

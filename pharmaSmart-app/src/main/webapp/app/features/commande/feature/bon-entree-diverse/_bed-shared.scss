@@ -48,7 +48,9 @@
     font-weight: 500;
   }
 
-  &--full { grid-column: 1 / -1; }
+  &--full {
+    grid-column: 1 / -1;
+  }
 }
 
 .bed-section-actions {

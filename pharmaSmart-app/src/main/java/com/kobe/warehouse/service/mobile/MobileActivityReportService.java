@@ -6,17 +6,16 @@ import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.mobile.*;
 import com.kobe.warehouse.service.dto.projection.*;
 import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for mobile activity report (Rapport d'Activité).
@@ -56,28 +55,25 @@ public class MobileActivityReportService {
         // Get mouvements caisse
         List<MouvementCaisse> mouvements = activitySummaryService.findMouvementsCaisse(fromDate, toDate);
 
-
-
         // Get achats fournisseurs (first 20)
-        Page<GroupeFournisseurAchat> achatsPage = activitySummaryService.fetchAchats(
-            fromDate, toDate, PageRequest.of(0, 20)
-        );
+        Page<GroupeFournisseurAchat> achatsPage =
+                activitySummaryService.fetchAchats(fromDate, toDate, PageRequest.of(0, 20));
 
         // Get tiers payants (first 20 each)
-        Page<ReglementTiersPayants> reglementsPage = activitySummaryService.findReglementTierspayant(
-            fromDate, toDate, null, PageRequest.of(0, 20)
-        );
-        Page<AchatTiersPayant> achatsTpPage = activitySummaryService.fetchAchatTiersPayant(
-            fromDate, toDate, null, PageRequest.of(0, 20)
-        );
+        Page<ReglementTiersPayants> reglementsPage =
+                activitySummaryService.findReglementTierspayant(fromDate, toDate, null, PageRequest.of(0, 20));
+        Page<AchatTiersPayant> achatsTpPage =
+                activitySummaryService.fetchAchatTiersPayant(fromDate, toDate, null, PageRequest.of(0, 20));
 
         return buildActivityReport(
-            fromDate, toDate,
-            caDTO, recettes, mouvements,
-            achatsPage.getContent(),
-            reglementsPage.getContent(),
-            achatsTpPage.getContent()
-        );
+                fromDate,
+                toDate,
+                caDTO,
+                recettes,
+                mouvements,
+                achatsPage.getContent(),
+                reglementsPage.getContent(),
+                achatsTpPage.getContent());
     }
 
     private MobileActivityReportDTO buildActivityReport(
@@ -95,7 +91,8 @@ public class MobileActivityReportService {
 
         // Build recettes
         List<RecetteMobileDTO> recettesMobile = buildRecettes(recettes);
-        long totalRecettes = recettesMobile.stream().mapToLong(RecetteMobileDTO::montant).sum();
+        long totalRecettes =
+                recettesMobile.stream().mapToLong(RecetteMobileDTO::montant).sum();
 
         // Build mouvements caisse
         List<MouvementCaisseMobileDTO> mouvementsMobile = buildMouvements(mouvements);
@@ -111,7 +108,9 @@ public class MobileActivityReportService {
 
         // Build achats fournisseurs
         List<GroupeFournisseurAchatMobileDTO> achatsMobile = buildAchats(achats);
-        long totalAchats = achatsMobile.stream().mapToLong(GroupeFournisseurAchatMobileDTO::montantTtc).sum();
+        long totalAchats = achatsMobile.stream()
+                .mapToLong(GroupeFournisseurAchatMobileDTO::montantTtc)
+                .sum();
 
         // Build tiers payants
         TiersPayantSummaryMobileDTO tiersPayants = buildTiersPayants(reglements, achatsTp);
@@ -120,19 +119,19 @@ public class MobileActivityReportService {
         String periodLabel = buildPeriodLabel(fromDate, toDate);
 
         return MobileActivityReportDTO.builder()
-            .fromDate(fromDate)
-            .toDate(toDate)
-            .periodLabel(periodLabel)
-            .chiffreAffaire(chiffreAffaire)
-            .recettes(recettesMobile)
-            .totalRecettes(totalRecettes)
-            .mouvementsCaisse(mouvementsMobile)
-            .totalEntrees(totalEntrees.get())
-            .totalSorties(totalSorties.get())
-            .achatsFournisseurs(achatsMobile)
-            .totalAchats(totalAchats)
-            .tiersPayants(tiersPayants)
-            .build();
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .periodLabel(periodLabel)
+                .chiffreAffaire(chiffreAffaire)
+                .recettes(recettesMobile)
+                .totalRecettes(totalRecettes)
+                .mouvementsCaisse(mouvementsMobile)
+                .totalEntrees(totalEntrees.get())
+                .totalSorties(totalSorties.get())
+                .achatsFournisseurs(achatsMobile)
+                .totalAchats(totalAchats)
+                .tiersPayants(tiersPayants)
+                .build();
     }
 
     private ChiffreAffaireMobileDTO buildChiffreAffaire(ChiffreAffaireDTO caDTO) {
@@ -146,18 +145,17 @@ public class MobileActivityReportService {
         double margePercent = montantTtc > 0 ? (marge * 100.0 / montantTtc) : 0.0;
 
         return new ChiffreAffaireMobileDTO(
-            montantTtc,
-            toLong(ca.montantTva()),
-            toLong(ca.montantHt()),
-            toLong(ca.montantRemise()),
-            toLong(ca.montantNet()),
-            toLong(ca.montantEspece()),
-            toLong(ca.montantAutreModePaiement()),
-            toLong(ca.montantCredit()),
-            toLong(ca.montantRegle()),
-            marge,
-            Math.round(margePercent * 10.0) / 10.0
-        );
+                montantTtc,
+                toLong(ca.montantTva()),
+                toLong(ca.montantHt()),
+                toLong(ca.montantRemise()),
+                toLong(ca.montantNet()),
+                toLong(ca.montantEspece()),
+                toLong(ca.montantAutreModePaiement()),
+                toLong(ca.montantCredit()),
+                toLong(ca.montantRegle()),
+                marge,
+                Math.round(margePercent * 10.0) / 10.0);
     }
 
     private List<RecetteMobileDTO> buildRecettes(List<Recette> recettes) {
@@ -165,23 +163,20 @@ public class MobileActivityReportService {
             return List.of();
         }
 
-        long total = recettes.stream()
-            .mapToLong(Recette::realAmount)
-            .sum();
+        long total = recettes.stream().mapToLong(Recette::realAmount).sum();
 
         return recettes.stream()
-            .map(r -> {
-                long montant = r.realAmount();
-                double percent = total > 0 ? (montant * 100.0 / total) : 0.0;
-                return new RecetteMobileDTO(
-                    r.code(),
-                    r.libelle(),
-                    montant,
-                    Math.round(percent * 10.0) / 10.0,
-                    RecetteMobileDTO.getColorForCode(r.code())
-                );
-            })
-            .toList();
+                .map(r -> {
+                    long montant = r.realAmount();
+                    double percent = total > 0 ? (montant * 100.0 / total) : 0.0;
+                    return new RecetteMobileDTO(
+                            r.code(),
+                            r.libelle(),
+                            montant,
+                            Math.round(percent * 10.0) / 10.0,
+                            RecetteMobileDTO.getColorForCode(r.code()));
+                })
+                .toList();
     }
 
     private List<MouvementCaisseMobileDTO> buildMouvements(List<MouvementCaisse> mouvements) {
@@ -190,15 +185,11 @@ public class MobileActivityReportService {
         }
 
         return mouvements.stream()
-            .map(m -> {
-                String type = determineMovementType(m.getType());
-                return new MouvementCaisseMobileDTO(
-                    m.getLibelle(),
-                    toLong(m.getMontant()),
-                    type
-                );
-            })
-            .toList();
+                .map(m -> {
+                    String type = determineMovementType(m.getType());
+                    return new MouvementCaisseMobileDTO(m.getLibelle(), toLong(m.getMontant()), type);
+                })
+                .toList();
     }
 
     private String determineMovementType(TypeFinancialTransaction type) {
@@ -217,28 +208,24 @@ public class MobileActivityReportService {
             return List.of();
         }
 
-        long total = achats.stream()
-            .mapToLong(a -> toLong(a.getMontantTtc()))
-            .sum();
+        long total = achats.stream().mapToLong(a -> toLong(a.getMontantTtc())).sum();
 
         return achats.stream()
-            .map(a -> {
-                long montantTtc = toLong(a.getMontantTtc());
-                double percent = total > 0 ? (montantTtc * 100.0 / total) : 0.0;
-                return new GroupeFournisseurAchatMobileDTO(
-                    a.getLibelle(),
-                    montantTtc,
-                    toLong(a.getMontantTva()),
-                    toLong(a.getMontantHt()),
-                    Math.round(percent * 10.0) / 10.0
-                );
-            })
-            .toList();
+                .map(a -> {
+                    long montantTtc = toLong(a.getMontantTtc());
+                    double percent = total > 0 ? (montantTtc * 100.0 / total) : 0.0;
+                    return new GroupeFournisseurAchatMobileDTO(
+                            a.getLibelle(),
+                            montantTtc,
+                            toLong(a.getMontantTva()),
+                            toLong(a.getMontantHt()),
+                            Math.round(percent * 10.0) / 10.0);
+                })
+                .toList();
     }
 
     private TiersPayantSummaryMobileDTO buildTiersPayants(
-            List<ReglementTiersPayants> reglements,
-            List<AchatTiersPayant> achats) {
+            List<ReglementTiersPayants> reglements, List<AchatTiersPayant> achats) {
 
         // Build reglements
         List<ReglementTiersPayantMobileDTO> reglementsMobile = new ArrayList<>();
@@ -252,13 +239,7 @@ public class MobileActivityReportService {
                 long restant = facture - regle;
 
                 reglementsMobile.add(new ReglementTiersPayantMobileDTO(
-                    r.libelle(),
-                    r.type() != null ? r.type().name() : "",
-                    r.numFacture(),
-                    facture,
-                    regle,
-                    restant
-                ));
+                        r.libelle(), r.type() != null ? r.type().name() : "", r.numFacture(), facture, regle, restant));
 
                 totalFacture += facture;
                 totalRegle += regle;
@@ -278,12 +259,7 @@ public class MobileActivityReportService {
                 int clients = a.clientCount() != null ? a.clientCount().intValue() : 0;
 
                 achatsMobile.add(new AchatTiersPayantMobileDTO(
-                    a.libelle(),
-                    a.categorie() != null ? a.categorie().name() : "",
-                    bons,
-                    montant,
-                    clients
-                ));
+                        a.libelle(), a.categorie() != null ? a.categorie().name() : "", bons, montant, clients));
 
                 totalBons += bons;
                 totalMontant += montant;
@@ -292,15 +268,14 @@ public class MobileActivityReportService {
         }
 
         return new TiersPayantSummaryMobileDTO(
-            reglementsMobile,
-            totalFacture,
-            totalRegle,
-            totalFacture - totalRegle,
-            achatsMobile,
-            totalBons,
-            totalMontant,
-            totalClients
-        );
+                reglementsMobile,
+                totalFacture,
+                totalRegle,
+                totalFacture - totalRegle,
+                achatsMobile,
+                totalBons,
+                totalMontant,
+                totalClients);
     }
 
     private String buildPeriodLabel(LocalDate fromDate, LocalDate toDate) {

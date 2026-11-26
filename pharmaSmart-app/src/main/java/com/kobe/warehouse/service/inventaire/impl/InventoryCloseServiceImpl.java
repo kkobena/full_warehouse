@@ -10,9 +10,9 @@ import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireService;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.inventaire.InventoryCloseService;
 import com.kobe.warehouse.service.inventaire.InventoryClosedEvent;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.Tuple;
@@ -33,13 +33,12 @@ public class InventoryCloseServiceImpl implements InventoryCloseService {
     private final ApplicationEventPublisher eventPublisher;
 
     public InventoryCloseServiceImpl(
-        StoreInventoryLineRepository storeInventoryLineRepository,
-        StoreInventoryRepository storeInventoryRepository,
-        HistoriqueInventaireService historiqueInventaireService,
-        AppConfigurationService appConfigurationService,
-        EntityManager em,
-        ApplicationEventPublisher eventPublisher
-    ) {
+            StoreInventoryLineRepository storeInventoryLineRepository,
+            StoreInventoryRepository storeInventoryRepository,
+            HistoriqueInventaireService historiqueInventaireService,
+            AppConfigurationService appConfigurationService,
+            EntityManager em,
+            ApplicationEventPublisher eventPublisher) {
         this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.storeInventoryRepository = storeInventoryRepository;
         this.historiqueInventaireService = historiqueInventaireService;
@@ -71,13 +70,12 @@ public class InventoryCloseServiceImpl implements InventoryCloseService {
         storeInventory = storeInventoryRepository.save(storeInventory);
         this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventory));
         eventPublisher.publishEvent(new InventoryClosedEvent(
-            storeInventory.getId(),
-            storeInventory.getInventoryCategory(),
-            storeInventory.getStorage().getStorageType(),
-            storeInventory.getStorage().getId(),
-            storeInventory.getStorage().getMagasin().getId(),
-            storeInventory.getUser().getId()
-        ));
+                storeInventory.getId(),
+                storeInventory.getInventoryCategory(),
+                storeInventory.getStorage().getStorageType(),
+                storeInventory.getStorage().getId(),
+                storeInventory.getStorage().getMagasin().getId(),
+                storeInventory.getUser().getId()));
         return new ItemsCountRecord(rowCount);
     }
 
@@ -92,21 +90,20 @@ public class InventoryCloseServiceImpl implements InventoryCloseService {
     private int closeItems(Long id) {
         boolean gestionLot = appConfigurationService.useGestionLotInventaire();
         var spq = em.createStoredProcedureQuery("proc_close_inventory_v2")
-            .registerStoredProcedureParameter("p_store_inventory_id", Long.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("p_gestion_lot", Boolean.class, ParameterMode.IN)
-            .registerStoredProcedureParameter("p_nombre_ligne", Integer.class, ParameterMode.INOUT)
-            .setParameter("p_store_inventory_id", id)
-            .setParameter("p_gestion_lot", gestionLot)
-            .setParameter("p_nombre_ligne", 0);
+                .registerStoredProcedureParameter("p_store_inventory_id", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("p_gestion_lot", Boolean.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("p_nombre_ligne", Integer.class, ParameterMode.INOUT)
+                .setParameter("p_store_inventory_id", id)
+                .setParameter("p_gestion_lot", gestionLot)
+                .setParameter("p_nombre_ligne", 0);
         spq.execute();
         return (Integer) spq.getOutputParameterValue("p_nombre_ligne");
     }
 
     private StoreInventorySummaryRecord fetchSummary(Long id) {
         return StoreInventoryLineFilterBuilder.buildSammary(
-            (Tuple) em.createNativeQuery(StoreInventoryLineFilterBuilder.SUMMARY_SQL, Tuple.class)
-                .setParameter(1, id)
-                .getSingleResult()
-        );
+                (Tuple) em.createNativeQuery(StoreInventoryLineFilterBuilder.SUMMARY_SQL, Tuple.class)
+                        .setParameter(1, id)
+                        .getSingleResult());
     }
 }

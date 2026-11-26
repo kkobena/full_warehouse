@@ -45,10 +45,30 @@
   color: var(--p-text-muted-color);
 }
 
-.kpi-draft  { border-left-color: var(--p-gray-400);   .kpi-count { color: var(--p-gray-600); } }
-.kpi-emis   { border-left-color: var(--p-blue-400);   .kpi-count { color: var(--p-blue-600); } }
-.kpi-impute { border-left-color: var(--p-green-400);  .kpi-count { color: var(--p-green-600); } }
-.kpi-annule { border-left-color: var(--p-red-400);    .kpi-count { color: var(--p-red-600); } }
+.kpi-draft {
+  border-left-color: var(--p-gray-400);
+  .kpi-count {
+    color: var(--p-gray-600);
+  }
+}
+.kpi-emis {
+  border-left-color: var(--p-blue-400);
+  .kpi-count {
+    color: var(--p-blue-600);
+  }
+}
+.kpi-impute {
+  border-left-color: var(--p-green-400);
+  .kpi-count {
+    color: var(--p-green-600);
+  }
+}
+.kpi-annule {
+  border-left-color: var(--p-red-400);
+  .kpi-count {
+    color: var(--p-red-600);
+  }
+}
 
 /* --- Table --- */
 .avoir-motif-cell {

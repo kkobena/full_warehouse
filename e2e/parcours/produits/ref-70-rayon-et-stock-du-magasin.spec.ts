@@ -141,9 +141,8 @@ scenario('REF-70', async ({ etape, page }) => {
     await champ.fill('');
     await champ.fill(premierMot);
     await champ.press('Enter');
-    await expect(
-      page.locator('app-produit-list'),
-      'une parapharmacie ne trouve pas les médicaments de l’officine',
-    ).not.toContainText(aEquivalents);
+    await expect(page.locator('app-produit-list'), 'une parapharmacie ne trouve pas les médicaments de l’officine').not.toContainText(
+      aEquivalents,
+    );
   });
 });

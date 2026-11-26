@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, output, signal} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {BadgeComponent, ButtonComponent, CardComponent, DataTableComponent} from "app/shared/ui";
-import {CommandeService} from "app/entities/commande/commande.service";
-import {IProduitDuNonCommande} from "app/shared/model/produit-du.model";
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, output, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from 'app/shared/ui';
+import { CommandeService } from 'app/entities/commande/commande.service';
+import { IProduitDuNonCommande } from 'app/shared/model/produit-du.model';
 
 /**
  * « Qu'ai-je promis que je n'ai pas encore commandé ? »
@@ -13,9 +13,9 @@ import {IProduitDuNonCommande} from "app/shared/model/produit-du.model";
  * mécanisme était réactif — il exploitait la réception — sans jamais déclencher la commande.
  */
 @Component({
-  selector: "app-produits-dus",
-  templateUrl: "./produits-dus.component.html",
-  styleUrls: ["./produits-dus.component.scss"],
+  selector: 'app-produits-dus',
+  templateUrl: './produits-dus.component.html',
+  styleUrls: ['./produits-dus.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, CardComponent, DataTableComponent, BadgeComponent, ButtonComponent, NgbTooltip],
 })
@@ -27,14 +27,10 @@ export class ProduitsDusComponent implements OnInit {
   protected readonly isLoading = signal(false);
 
   /** Unités promises, tous produits confondus. */
-  protected readonly totalDu = computed(() =>
-    this.produits().reduce((somme, p) => somme + p.quantiteDue, 0),
-  );
+  protected readonly totalDu = computed(() => this.produits().reduce((somme, p) => somme + p.quantiteDue, 0));
 
   /** Produits dont le stock couvre déjà le dû : servables au comptoir, sans rien commander. */
-  protected readonly servablesMaintenant = computed(
-    () => this.produits().filter(p => p.stockDisponible >= p.quantiteDue).length,
-  );
+  protected readonly servablesMaintenant = computed(() => this.produits().filter(p => p.stockDisponible >= p.quantiteDue).length);
 
   private readonly commandeService = inject(CommandeService);
 
@@ -74,11 +70,11 @@ export class ProduitsDusComponent implements OnInit {
     return produit.stockDisponible >= produit.quantiteDue;
   }
 
-  protected severiteAttente(produit: IProduitDuNonCommande): "danger" | "warn" | "secondary" {
+  protected severiteAttente(produit: IProduitDuNonCommande): 'danger' | 'warn' | 'secondary' {
     const jours = this.joursDAttente(produit);
     if (jours >= 14) {
-      return "danger";
+      return 'danger';
     }
-    return jours >= 7 ? "warn" : "secondary";
+    return jours >= 7 ? 'warn' : 'secondary';
   }
 }

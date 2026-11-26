@@ -1,14 +1,14 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from "../../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
-import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from "../../../../shared/util/warehouse-util";
-import { DeclarationTvaApiService } from "../../data-access/services/declaration-tva-api.service";
-import { IDeclarationTvaSummary } from "../../data-access/models";
-import { formatCurrency } from "app/shared/utils/format-utils";
-import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
+import { DeclarationTvaApiService } from '../../data-access/services/declaration-tva-api.service';
+import { IDeclarationTvaSummary } from '../../data-access/models';
+import { formatCurrency } from 'app/shared/utils/format-utils';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 interface TypeVenteOption {
@@ -17,19 +17,20 @@ interface TypeVenteOption {
 }
 
 @Component({
-  selector: "app-declaration-tva",
-  imports: [DeviseDirective, 
+  selector: 'app-declaration-tva',
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
     PharmaDatePickerComponent,
     DataTableComponent,
     ToolbarComponent,
-    SelectComponent
+    SelectComponent,
   ],
-  templateUrl: "./declaration-tva.component.html",
+  templateUrl: './declaration-tva.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./declaration-tva.component.scss"
+  styleUrl: './declaration-tva.component.scss',
 })
 export class DeclarationTvaComponent implements OnInit {
   /**
@@ -43,17 +44,17 @@ export class DeclarationTvaComponent implements OnInit {
 
   startDate = signal<NgbDateStruct>(this.defaultStartDate());
   endDate = signal<NgbDateStruct>(TODAY_NGB_DATE());
-  selectedType = signal<string>("");
+  selectedType = signal<string>('');
   summary = signal<IDeclarationTvaSummary | null>(null);
   isLoading = signal(false);
 
   formatCurrency = formatCurrency;
 
   typeOptions: TypeVenteOption[] = [
-    { label: "Toutes les ventes", value: "" },
-    { label: "Ventes comptant", value: "COMPTANT" },
-    { label: "Tiers payant", value: "ASSURANCE" },
-    { label: "Différés", value: "DIFFERE" }
+    { label: 'Toutes les ventes', value: '' },
+    { label: 'Ventes comptant', value: 'COMPTANT' },
+    { label: 'Tiers payant', value: 'ASSURANCE' },
+    { label: 'Différés', value: 'DIFFERE' },
   ];
 
   private readonly api = inject(DeclarationTvaApiService);
@@ -69,7 +70,7 @@ export class DeclarationTvaComponent implements OnInit {
       .getDeclaration({
         startDate: NGB_DATE_TO_ISO(this.startDate()),
         endDate: NGB_DATE_TO_ISO(this.endDate()),
-        typeTva: this.selectedType() || undefined
+        typeTva: this.selectedType() || undefined,
       })
       .subscribe({
         next: res => {
@@ -78,7 +79,7 @@ export class DeclarationTvaComponent implements OnInit {
         },
         error: () => {
           this.isLoading.set(false);
-        }
+        },
       });
   }
 
@@ -87,10 +88,10 @@ export class DeclarationTvaComponent implements OnInit {
       .exportToPdf({
         startDate: NGB_DATE_TO_ISO(this.startDate()),
         endDate: NGB_DATE_TO_ISO(this.endDate()),
-        typeTva: this.selectedType() || undefined
+        typeTva: this.selectedType() || undefined,
       })
       .subscribe(res => {
-        this.blobDownload.downloadPdf(res.body, "declaration-tva-");
+        this.blobDownload.downloadPdf(res.body, 'declaration-tva-');
       });
   }
 

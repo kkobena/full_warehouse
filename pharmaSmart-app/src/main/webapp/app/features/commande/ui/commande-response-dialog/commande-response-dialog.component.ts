@@ -1,4 +1,4 @@
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { BadgeComponent, ButtonComponent } from 'app/shared/ui';
@@ -27,10 +27,8 @@ export class CommandeResponseDialogComponent implements OnInit {
 
   ngOnInit(): void {
     const items = this.responseCommande?.items ?? [];
-    this.responseCommandeItem.set(items.filter(e => (e.quantitePriseEnCompte ?? 0 > 0)));
-    this.responseCommandeItemNonPrisEnCompte.set(
-      items.filter(e => (e.quantitePriseEnCompte ?? 0 < (e.quantite ?? 0)),
-    ));
+    this.responseCommandeItem.set(items.filter(e => e.quantitePriseEnCompte ?? 0 > 0));
+    this.responseCommandeItemNonPrisEnCompte.set(items.filter(e => e.quantitePriseEnCompte ?? 0 < (e.quantite ?? 0)));
     this.responseCommandeItemMoitieLivrer = items.filter(
       e => (e.quantitePriseEnCompte ?? 0) > 0 && (e.quantitePriseEnCompte ?? 0) < (e.quantite ?? 0),
     );

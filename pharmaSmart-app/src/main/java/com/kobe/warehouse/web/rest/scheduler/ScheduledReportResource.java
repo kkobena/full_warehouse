@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.scheduler;
 
 import com.kobe.warehouse.domain.ScheduledReport;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.scheduler.ScheduledReportService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -8,14 +9,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing scheduled reports
  */
 @RestController
 @RequestMapping("/api/scheduled-reports")
-@RequiresNavAccess({ "parametres", "rapports" })
+@RequiresNavAccess({"parametres", "rapports"})
 public class ScheduledReportResource {
 
     private final ScheduledReportService scheduledReportService;
@@ -47,9 +47,10 @@ public class ScheduledReportResource {
      */
     @PostMapping("")
     public ResponseEntity<ScheduledReport> createScheduledReport(@Valid @RequestBody ScheduledReport scheduledReport)
-        throws URISyntaxException {
+            throws URISyntaxException {
         ScheduledReport result = scheduledReportService.createScheduledReport(scheduledReport);
-        return ResponseEntity.created(new URI("/api/scheduled-reports/" + result.getId())).body(result);
+        return ResponseEntity.created(new URI("/api/scheduled-reports/" + result.getId()))
+                .body(result);
     }
 
     /**
@@ -57,9 +58,7 @@ public class ScheduledReportResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ScheduledReport> updateScheduledReport(
-        @PathVariable Integer id,
-        @Valid @RequestBody ScheduledReport scheduledReport
-    ) {
+            @PathVariable Integer id, @Valid @RequestBody ScheduledReport scheduledReport) {
         scheduledReport.setId(id);
         ScheduledReport result = scheduledReportService.updateScheduledReport(scheduledReport);
         return ResponseEntity.ok(result);
@@ -80,9 +79,9 @@ public class ScheduledReportResource {
     @PostMapping("/{id}/execute")
     public ResponseEntity<Void> executeScheduledReport(@PathVariable Integer id) throws Exception {
         ScheduledReport report = scheduledReportService.getAllScheduledReports().stream()
-            .filter(r -> r.getId().equals(id))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Scheduled report not found"));
+                .filter(r -> r.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Scheduled report not found"));
 
         scheduledReportService.executeReport(report);
         return ResponseEntity.ok().build();

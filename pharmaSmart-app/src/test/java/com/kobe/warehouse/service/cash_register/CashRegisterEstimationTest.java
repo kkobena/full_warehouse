@@ -38,9 +38,9 @@ class CashRegisterEstimationTest {
     @Test
     @DisplayName("un règlement fournisseur retranche du théorique")
     void unReglementFournisseurRetranche() {
-        CashRegisterDTO caisse = new CashRegisterDTO(
-            caisseAvec(ligne(TypeFinancialTransaction.CASH_SALE, 120_000L), ligne(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L))
-        );
+        CashRegisterDTO caisse = new CashRegisterDTO(caisseAvec(
+                ligne(TypeFinancialTransaction.CASH_SALE, 120_000L),
+                ligne(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L)));
 
         assertThat(caisse.getEstimateAmount()).isEqualTo(115_000L);
         assertThat(caisse.getCashAmount()).isEqualTo(115_000L);
@@ -49,9 +49,9 @@ class CashRegisterEstimationTest {
     @Test
     @DisplayName("une sortie de caisse retranche du théorique")
     void uneSortieDeCaisseRetranche() {
-        CashRegisterDTO caisse = new CashRegisterDTO(
-            caisseAvec(ligne(TypeFinancialTransaction.CASH_SALE, 120_000L), ligne(TypeFinancialTransaction.SORTIE_CAISSE, 5_000L))
-        );
+        CashRegisterDTO caisse = new CashRegisterDTO(caisseAvec(
+                ligne(TypeFinancialTransaction.CASH_SALE, 120_000L),
+                ligne(TypeFinancialTransaction.SORTIE_CAISSE, 5_000L)));
 
         assertThat(caisse.getEstimateAmount()).isEqualTo(115_000L);
     }
@@ -60,9 +60,9 @@ class CashRegisterEstimationTest {
     @Test
     @DisplayName("un règlement différé ajoute au théorique")
     void unReglementDiffereAjoute() {
-        CashRegisterDTO caisse = new CashRegisterDTO(
-            caisseAvec(ligne(TypeFinancialTransaction.CASH_SALE, 120_000L), ligne(TypeFinancialTransaction.REGLEMENT_DIFFERE, 5_000L))
-        );
+        CashRegisterDTO caisse = new CashRegisterDTO(caisseAvec(
+                ligne(TypeFinancialTransaction.CASH_SALE, 120_000L),
+                ligne(TypeFinancialTransaction.REGLEMENT_DIFFERE, 5_000L)));
 
         assertThat(caisse.getEstimateAmount()).isEqualTo(125_000L);
     }
@@ -81,8 +81,8 @@ class CashRegisterEstimationTest {
 
     private static CashRegisterItem ligne(TypeFinancialTransaction type, long montant) {
         return new CashRegisterItem()
-            .setTypeFinancialTransaction(type)
-            .setAmount(montant)
-            .setPaymentMode(new PaymentMode().code("CASH").group(PaymentGroup.CASH));
+                .setTypeFinancialTransaction(type)
+                .setAmount(montant)
+                .setPaymentMode(new PaymentMode().code("CASH").group(PaymentGroup.CASH));
     }
 }

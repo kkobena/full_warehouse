@@ -76,7 +76,11 @@ describe('InputNumberComponent', () => {
       expect(onChange).toHaveBeenLastCalledWith(expected);
     });
 
-    it.each([['', null], ['-', null], ['abc', null]])('interprète "%s" comme null', (raw, expected) => {
+    it.each([
+      ['', null],
+      ['-', null],
+      ['abc', null],
+    ])('interprète "%s" comme null', (raw, expected) => {
       const onChange = jest.fn();
       component.registerOnChange(onChange);
       type(raw);

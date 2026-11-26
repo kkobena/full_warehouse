@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.pharmaml.dto.DispoGrossisteResultDTO;
 import com.kobe.warehouse.service.pharmaml.dto.DispoMultiRequestDTO;
@@ -20,11 +21,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/pharmaml")
-@RequiresNavAccess({ "commande", "depot.achat-depot" })
+@RequiresNavAccess({"commande", "depot.achat-depot"})
 public class PharmaMlResource {
 
     private final PharmaMlService pharmaMlService;
@@ -34,8 +34,7 @@ public class PharmaMlResource {
     }
 
     @PostMapping("/envoi")
-    public ResponseEntity<PharmamlCommandeResponse> envoiCommande(
-        @RequestBody EnvoiParamsDTO params) {
+    public ResponseEntity<PharmamlCommandeResponse> envoiCommande(@RequestBody EnvoiParamsDTO params) {
         return ResponseEntity.ok(pharmaMlService.envoiPharmaCommande(params));
     }
 
@@ -47,15 +46,12 @@ public class PharmaMlResource {
 
     @GetMapping("/retour/{commandeRef}/{orderId}")
     public ResponseEntity<VerificationResponseCommandeDTO> lignesRetour(
-        @PathVariable String commandeRef,
-        @PathVariable String orderId
-    ) {
+            @PathVariable String commandeRef, @PathVariable String orderId) {
         return ResponseEntity.ok(pharmaMlService.lignesCommandeRetour(commandeRef, orderId));
     }
 
     @GetMapping("/rupture/{ruptureId}")
-    public ResponseEntity<VerificationResponseCommandeDTO> reponseRupture(
-        @PathVariable String ruptureId) {
+    public ResponseEntity<VerificationResponseCommandeDTO> reponseRupture(@PathVariable String ruptureId) {
         return ResponseEntity.ok(pharmaMlService.reponseRupture(ruptureId));
     }
 
@@ -66,11 +62,8 @@ public class PharmaMlResource {
 
     @GetMapping("/substitutions/{commandeId}/{orderDate}")
     public ResponseEntity<List<SubstitutionProposeeDTO>> substitutionsEnAttente(
-        @PathVariable Integer commandeId,
-        @PathVariable String orderDate
-    ) {
-        return ResponseEntity.ok(
-            pharmaMlService.getSubstitutionsEnAttente(commandeId, LocalDate.parse(orderDate)));
+            @PathVariable Integer commandeId, @PathVariable String orderDate) {
+        return ResponseEntity.ok(pharmaMlService.getSubstitutionsEnAttente(commandeId, LocalDate.parse(orderDate)));
     }
 
     @PutMapping("/substitution/{id}/accepter")
@@ -87,31 +80,22 @@ public class PharmaMlResource {
 
     @GetMapping("/historique/{commandeId}/{orderDate}")
     public ResponseEntity<List<PharmaMlEnvoiDTO>> historiqueEnvois(
-        @PathVariable Integer commandeId,
-        @PathVariable String orderDate
-    ) {
-        return ResponseEntity.ok(
-            pharmaMlService.getHistoriqueEnvois(commandeId, LocalDate.parse(orderDate)));
+            @PathVariable Integer commandeId, @PathVariable String orderDate) {
+        return ResponseEntity.ok(pharmaMlService.getHistoriqueEnvois(commandeId, LocalDate.parse(orderDate)));
     }
-
 
     @GetMapping("/disponibilite/{commandeId}/{orderDate}")
     public ResponseEntity<List<InfoProduitDTO>> demanderDisponibilite(
-        @PathVariable Integer commandeId,
-        @PathVariable String orderDate,
-        @RequestParam(required = false) Integer grossisteId
-    ) {
+            @PathVariable Integer commandeId,
+            @PathVariable String orderDate,
+            @RequestParam(required = false) Integer grossisteId) {
         return ResponseEntity.ok(
-            pharmaMlService.demanderDisponibilite(commandeId, LocalDate.parse(orderDate),
-                grossisteId));
+                pharmaMlService.demanderDisponibilite(commandeId, LocalDate.parse(orderDate), grossisteId));
     }
 
     @PostMapping("/disponibilite-multi")
     public ResponseEntity<List<DispoGrossisteResultDTO>> demanderDisponibiliteMulti(
-        @RequestBody DispoMultiRequestDTO request
-    ) {
+            @RequestBody DispoMultiRequestDTO request) {
         return ResponseEntity.ok(pharmaMlService.demanderDisponibiliteMulti(request));
     }
-
-
 }

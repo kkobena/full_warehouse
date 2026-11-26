@@ -7,17 +7,16 @@ import java.time.LocalDate;
  * Commonly used in pharmaceutical products for tracking batch/lot numbers and expiration dates.
  */
 public record DataMatrixInfo(
-    String gtin,
-    String cip13,
-    String ean13,
-    String batchNumber,
-    LocalDate expiryDate,
-    LocalDate manufacturingDate,
-    String serialNumber,
-    int scannedQty,
-    String rawCode,
-    boolean proposition
-) {
+        String gtin,
+        String cip13,
+        String ean13,
+        String batchNumber,
+        LocalDate expiryDate,
+        LocalDate manufacturingDate,
+        String serialNumber,
+        int scannedQty,
+        String rawCode,
+        boolean proposition) {
     public boolean hasProductCode() {
         return gtin != null || cip13 != null || ean13 != null || rawCode != null;
     }
@@ -126,17 +125,16 @@ public record DataMatrixInfo(
 
         public DataMatrixInfo build() {
             return new DataMatrixInfo(
-                gtin,
-                cip13,
-                ean13,
-                batchNumber,
-                expiryDate,
-                manufacturingDate,
-                serialNumber,
-                scannedQty,
-                rawCode,
-                proposition
-            );
+                    gtin,
+                    cip13,
+                    ean13,
+                    batchNumber,
+                    expiryDate,
+                    manufacturingDate,
+                    serialNumber,
+                    scannedQty,
+                    rawCode,
+                    proposition);
         }
     }
 }

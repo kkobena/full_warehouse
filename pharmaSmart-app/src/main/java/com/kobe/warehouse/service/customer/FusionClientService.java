@@ -70,26 +70,20 @@ public class FusionClientService {
     @Transactional(readOnly = true)
     public List<DoublonClientGroupeDTO> doublons() {
         @SuppressWarnings("unchecked")
-        List<Object[]> rows = em
-            .createNativeQuery(
-                "SELECT id, code, first_name, last_name, phone, dat_naiss, type_assure, dtype FROM customer WHERE status = 'ENABLE'"
-            )
-            .getResultList();
-        List<Fiche> fiches = rows
-            .stream()
-            .map(r ->
-                new Fiche(
-                    ((Number) r[0]).intValue(),
-                    (String) r[1],
-                    (String) r[2],
-                    (String) r[3],
-                    (String) r[4],
-                    r[5] instanceof Date d ? d.toLocalDate() : (LocalDate) r[5],
-                    (String) r[6],
-                    "AssuredCustomer".equals(r[7]) ? ASSURE : STANDARD
-                )
-            )
-            .toList();
+        List<Object[]> rows = em.createNativeQuery(
+                        "SELECT id, code, first_name, last_name, phone, dat_naiss, type_assure, dtype FROM customer WHERE status = 'ENABLE'")
+                .getResultList();
+        List<Fiche> fiches = rows.stream()
+                .map(r -> new Fiche(
+                        ((Number) r[0]).intValue(),
+                        (String) r[1],
+                        (String) r[2],
+                        (String) r[3],
+                        (String) r[4],
+                        r[5] instanceof Date d ? d.toLocalDate() : (LocalDate) r[5],
+                        (String) r[6],
+                        "AssuredCustomer".equals(r[7]) ? ASSURE : STANDARD))
+                .toList();
 
         Regroupement regroupement = new Regroupement(fiches.size());
         Map<String, Integer> premiers = new HashMap<>();
@@ -104,21 +98,22 @@ public class FusionClientService {
         }
         Map<Integer, List<Fiche>> groupes = new LinkedHashMap<>();
         for (int i = 0; i < fiches.size(); i++) {
-            groupes.computeIfAbsent(regroupement.racine(i), k -> new ArrayList<>()).add(fiches.get(i));
+            groupes.computeIfAbsent(regroupement.racine(i), k -> new ArrayList<>())
+                    .add(fiches.get(i));
         }
-        List<List<Fiche>> candidats = groupes.values().stream().filter(g -> g.size() > 1).toList();
-        Map<Integer, Object[]> activite = activite(candidats.stream().flatMap(List::stream).map(Fiche::id).toList());
+        List<List<Fiche>> candidats =
+                groupes.values().stream().filter(g -> g.size() > 1).toList();
+        Map<Integer, Object[]> activite =
+                activite(candidats.stream().flatMap(List::stream).map(Fiche::id).toList());
 
-        return candidats
-            .stream()
-            .map(g -> groupe(g, activite))
-            .sorted(
-                Comparator.comparingInt((DoublonClientGroupeDTO g) -> -g.criteres().size()).thenComparing(g ->
-                    g.clients().getFirst().lastName() + " " + g.clients().getFirst().firstName()
-                )
-            )
-            .limit(MAX_GROUPES)
-            .toList();
+        return candidats.stream()
+                .map(g -> groupe(g, activite))
+                .sorted(Comparator.comparingInt(
+                                (DoublonClientGroupeDTO g) -> -g.criteres().size())
+                        .thenComparing(g -> g.clients().getFirst().lastName() + " "
+                                + g.clients().getFirst().firstName()))
+                .limit(MAX_GROUPES)
+                .toList();
     }
 
     private static DoublonClientGroupeDTO groupe(List<Fiche> fiches, Map<Integer, Object[]> activite) {
@@ -132,25 +127,25 @@ public class FusionClientService {
         if (auMoinsDeux(fiches.stream().map(Fiche::datNaiss).toList())) {
             criteres.add("Même date de naissance");
         }
-        List<DoublonClientDTO> clients = fiches
-            .stream()
-            .map(f -> {
-                Object[] a = activite.get(f.id());
-                return new DoublonClientDTO(
-                    f.id(),
-                    f.code(),
-                    f.firstName(),
-                    f.lastName(),
-                    f.phone(),
-                    f.datNaiss(),
-                    f.typeAssure(),
-                    a == null ? 0 : ((Number) a[1]).longValue(),
-                    a == null ? null : a[2] instanceof Timestamp t ? t.toLocalDateTime() : (LocalDateTime) a[2]
-                );
-            })
-            // La fiche la plus utilisée en tête : c'est d'ordinaire celle à conserver.
-            .sorted(Comparator.comparingLong(DoublonClientDTO::nombreAchats).reversed())
-            .toList();
+        List<DoublonClientDTO> clients = fiches.stream()
+                .map(f -> {
+                    Object[] a = activite.get(f.id());
+                    return new DoublonClientDTO(
+                            f.id(),
+                            f.code(),
+                            f.firstName(),
+                            f.lastName(),
+                            f.phone(),
+                            f.datNaiss(),
+                            f.typeAssure(),
+                            a == null ? 0 : ((Number) a[1]).longValue(),
+                            a == null
+                                    ? null
+                                    : a[2] instanceof Timestamp t ? t.toLocalDateTime() : (LocalDateTime) a[2]);
+                })
+                // La fiche la plus utilisée en tête : c'est d'ordinaire celle à conserver.
+                .sorted(Comparator.comparingLong(DoublonClientDTO::nombreAchats).reversed())
+                .toList();
         return new DoublonClientGroupeDTO(fiches.getFirst().type(), criteres, clients);
     }
 
@@ -164,12 +159,10 @@ public class FusionClientService {
             return Map.of();
         }
         @SuppressWarnings("unchecked")
-        List<Object[]> rows = em
-            .createNativeQuery(
-                "SELECT customer_id, COUNT(*), MAX(updated_at) FROM sales WHERE customer_id IN (:ids) AND statut = 'CLOSED' AND NOT canceled GROUP BY customer_id"
-            )
-            .setParameter("ids", ids)
-            .getResultList();
+        List<Object[]> rows = em.createNativeQuery(
+                        "SELECT customer_id, COUNT(*), MAX(updated_at) FROM sales WHERE customer_id IN (:ids) AND statut = 'CLOSED' AND NOT canceled GROUP BY customer_id")
+                .setParameter("ids", ids)
+                .getResultList();
         return rows.stream().collect(Collectors.toMap(r -> ((Number) r[0]).intValue(), r -> r));
     }
 
@@ -185,23 +178,43 @@ public class FusionClientService {
         for (Customer source : sources) {
             Integer id = source.getId();
             counts.merge("ventes", compter("SELECT COUNT(s) FROM Sales s WHERE s.customer.id = :id", id), Integer::sum);
-            counts.merge("ventesAyantDroit", compter("SELECT COUNT(s) FROM ThirdPartySales s WHERE s.ayantDroit.id = :id", id), Integer::sum);
-            counts.merge("reglementsDifferes", compter("SELECT COUNT(p) FROM DifferePayment p WHERE p.differeCustomer.id = :id", id), Integer::sum);
-            counts.merge("avoirs", compter("SELECT COUNT(a) FROM AvoirClient a WHERE a.customer.id = :id", id), Integer::sum);
-            counts.merge("retours", compter("SELECT COUNT(r) FROM RetourClient r WHERE r.customer.id = :id", id), Integer::sum);
-            counts.merge("ayantsDroit", compter("SELECT COUNT(c) FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id", id), Integer::sum);
+            counts.merge(
+                    "ventesAyantDroit",
+                    compter("SELECT COUNT(s) FROM ThirdPartySales s WHERE s.ayantDroit.id = :id", id),
+                    Integer::sum);
+            counts.merge(
+                    "reglementsDifferes",
+                    compter("SELECT COUNT(p) FROM DifferePayment p WHERE p.differeCustomer.id = :id", id),
+                    Integer::sum);
+            counts.merge(
+                    "avoirs",
+                    compter("SELECT COUNT(a) FROM AvoirClient a WHERE a.customer.id = :id", id),
+                    Integer::sum);
+            counts.merge(
+                    "retours",
+                    compter("SELECT COUNT(r) FROM RetourClient r WHERE r.customer.id = :id", id),
+                    Integer::sum);
+            counts.merge(
+                    "ayantsDroit",
+                    compter("SELECT COUNT(c) FROM AssuredCustomer c WHERE c.assurePrincipal.id = :id", id),
+                    Integer::sum);
             counts.merge("tiersPayants", tiersPayants(id).size(), Integer::sum);
             counts.merge("allergies", allergies(id).size(), Integer::sum);
         }
-        if (!sources.isEmpty() && dossier(target.getId()).isPresent() && sources.stream().anyMatch(s -> dossier(s.getId()).isPresent())) {
+        if (!sources.isEmpty()
+                && dossier(target.getId()).isPresent()
+                && sources.stream().anyMatch(s -> dossier(s.getId()).isPresent())) {
             avertissements.add(
-                "Plusieurs fiches ont un dossier santé : pathologies et notes sont réunies, le reste vient du dossier le plus récent. À relire."
-            );
+                    "Plusieurs fiches ont un dossier santé : pathologies et notes sont réunies, le reste vient du dossier le plus récent. À relire.");
         }
-        if (target instanceof UninsuredCustomer && compteCarnet(target.getId()) != null && sources.stream().anyMatch(s -> compteCarnet(s.getId()) != null)) {
-            avertissements.add("Plusieurs fiches ont un compte carnet : les soldes sont additionnés sur celui de la fiche conservée.");
+        if (target instanceof UninsuredCustomer
+                && compteCarnet(target.getId()) != null
+                && sources.stream().anyMatch(s -> compteCarnet(s.getId()) != null)) {
+            avertissements.add(
+                    "Plusieurs fiches ont un compte carnet : les soldes sont additionnés sur celui de la fiche conservée.");
         }
-        return new FusionClientApercuDTO(targetId, sources.stream().map(Customer::getId).toList(), rejets, counts, avertissements);
+        return new FusionClientApercuDTO(
+                targetId, sources.stream().map(Customer::getId).toList(), rejets, counts, avertissements);
     }
 
     public FusionClientResultDTO fusionner(FusionClientRequestDTO request) {
@@ -229,50 +242,74 @@ public class FusionClientService {
         for (Customer source : sources) {
             Customer from = em.getReference(Customer.class, source.getId());
             Customer to = em.getReference(Customer.class, target.getId());
-            counts.merge("ventes", deplacer("UPDATE Sales s SET s.customer = :to WHERE s.customer = :from", from, to), Integer::sum);
             counts.merge(
-                "reglementsDifferes",
-                deplacer("UPDATE DifferePayment p SET p.differeCustomer = :to WHERE p.differeCustomer = :from", from, to),
-                Integer::sum
-            );
-            counts.merge("avoirs", deplacer("UPDATE AvoirClient a SET a.customer = :to WHERE a.customer = :from", from, to), Integer::sum);
-            counts.merge("retours", deplacer("UPDATE RetourClient r SET r.customer = :to WHERE r.customer = :from", from, to), Integer::sum);
+                    "ventes",
+                    deplacer("UPDATE Sales s SET s.customer = :to WHERE s.customer = :from", from, to),
+                    Integer::sum);
+            counts.merge(
+                    "reglementsDifferes",
+                    deplacer(
+                            "UPDATE DifferePayment p SET p.differeCustomer = :to WHERE p.differeCustomer = :from",
+                            from,
+                            to),
+                    Integer::sum);
+            counts.merge(
+                    "avoirs",
+                    deplacer("UPDATE AvoirClient a SET a.customer = :to WHERE a.customer = :from", from, to),
+                    Integer::sum);
+            counts.merge(
+                    "retours",
+                    deplacer("UPDATE RetourClient r SET r.customer = :to WHERE r.customer = :from", from, to),
+                    Integer::sum);
             if (source instanceof AssuredCustomer) {
                 AssuredCustomer assureFrom = em.getReference(AssuredCustomer.class, source.getId());
                 AssuredCustomer assureTo = em.getReference(AssuredCustomer.class, target.getId());
                 counts.merge(
-                    "ventesAyantDroit",
-                    deplacer("UPDATE ThirdPartySales s SET s.ayantDroit = :to WHERE s.ayantDroit = :from", assureFrom, assureTo),
-                    Integer::sum
-                );
+                        "ventesAyantDroit",
+                        deplacer(
+                                "UPDATE ThirdPartySales s SET s.ayantDroit = :to WHERE s.ayantDroit = :from",
+                                assureFrom,
+                                assureTo),
+                        Integer::sum);
                 counts.merge(
-                    "ayantsDroit",
-                    deplacer("UPDATE AssuredCustomer c SET c.assurePrincipal = :to WHERE c.assurePrincipal = :from", assureFrom, assureTo),
-                    Integer::sum
-                );
+                        "ayantsDroit",
+                        deplacer(
+                                "UPDATE AssuredCustomer c SET c.assurePrincipal = :to WHERE c.assurePrincipal = :from",
+                                assureFrom,
+                                assureTo),
+                        Integer::sum);
                 counts.merge("tiersPayants", fusionnerTiersPayants(target.getId(), source.getId()), Integer::sum);
             }
             // Traces : elles suivent le patient.
-            deplacer("UPDATE AlerteSanteDerogation d SET d.customerId = :to WHERE d.customerId = :from", source.getId(), target.getId());
-            deplacer("UPDATE LimiteCreditDerogation d SET d.customerId = :to WHERE d.customerId = :from", source.getId(), target.getId());
-            deplacer("UPDATE RelanceDiffere r SET r.customerId = :to WHERE r.customerId = :from", source.getId(), target.getId());
+            deplacer(
+                    "UPDATE AlerteSanteDerogation d SET d.customerId = :to WHERE d.customerId = :from",
+                    source.getId(),
+                    target.getId());
+            deplacer(
+                    "UPDATE LimiteCreditDerogation d SET d.customerId = :to WHERE d.customerId = :from",
+                    source.getId(),
+                    target.getId());
+            deplacer(
+                    "UPDATE RelanceDiffere r SET r.customerId = :to WHERE r.customerId = :from",
+                    source.getId(),
+                    target.getId());
         }
         em.flush();
         em.clear();
 
         List<Integer> mergedIds = sources.stream().map(Customer::getId).toList();
         logsService.create(
-            TransactionType.MERGE_CUSTOMER,
-            "Fusion des clients " + mergedIds + " dans le client " + target.getId() + " (" + target.getCode() + ") : " + counts,
-            target.getId().toString()
-        );
+                TransactionType.MERGE_CUSTOMER,
+                "Fusion des clients " + mergedIds + " dans le client " + target.getId() + " (" + target.getCode()
+                        + ") : " + counts,
+                target.getId().toString());
         return new FusionClientResultDTO(target.getId(), mergedIds, counts);
     }
 
     private Customer cible(Integer targetId) {
         Customer target = Optional.ofNullable(targetId)
-            .map(id -> em.find(Customer.class, id))
-            .orElseThrow(() -> new GenericError("Client à conserver introuvable", "customerNotFound"));
+                .map(id -> em.find(Customer.class, id))
+                .orElseThrow(() -> new GenericError("Client à conserver introuvable", "customerNotFound"));
         if (target.getStatus() != Status.ENABLE) {
             throw new GenericError("La fiche conservée doit être active", "fusionCibleInactive");
         }
@@ -281,10 +318,9 @@ public class FusionClientService {
 
     private List<Customer> sources(Customer target, List<Integer> sourceIds, Map<Integer, String> rejets) {
         List<Customer> sources = new ArrayList<>();
-        Set<Integer> organismes = tiersPayants(target.getId())
-            .stream()
-            .map(c -> c.getTiersPayant().getId())
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Integer> organismes = tiersPayants(target.getId()).stream()
+                .map(c -> c.getTiersPayant().getId())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         for (Integer id : new LinkedHashSet<>(sourceIds == null ? List.<Integer>of() : sourceIds)) {
             if (id == null || id.equals(target.getId())) {
                 continue;
@@ -301,7 +337,10 @@ public class FusionClientService {
                 Set<Integer> apres = new LinkedHashSet<>(organismes);
                 tiersPayants(id).forEach(c -> apres.add(c.getTiersPayant().getId()));
                 if (apres.size() > PrioriteTiersPayant.values().length) {
-                    rejets.put(id, libelle(source) + " : la fiche conservée aurait plus de " + PrioriteTiersPayant.values().length + " tiers payants");
+                    rejets.put(
+                            id,
+                            libelle(source) + " : la fiche conservée aurait plus de "
+                                    + PrioriteTiersPayant.values().length + " tiers payants");
                 } else {
                     organismes.addAll(apres);
                     sources.add(source);
@@ -369,9 +408,10 @@ public class FusionClientService {
             List<String> pathologies = new ArrayList<>(new LinkedHashSet<>(t.getPathologies()));
             s.getPathologies().stream().filter(p -> !pathologies.contains(p)).forEach(pathologies::add);
             t.setPathologies(pathologies);
-            t.setNote(
-                Arrays.stream(new String[] { t.getNote(), s.getNote() }).filter(StringUtils::hasText).distinct().collect(Collectors.joining("\n"))
-            );
+            t.setNote(Arrays.stream(new String[] {t.getNote(), s.getNote()})
+                    .filter(StringUtils::hasText)
+                    .distinct()
+                    .collect(Collectors.joining("\n")));
         }
         t.setUpdatedAt(LocalDateTime.now());
         em.remove(s);
@@ -391,7 +431,9 @@ public class FusionClientService {
 
     private static boolean memeAllergie(CustomerAllergie a, CustomerAllergie b) {
         if (a.getDci() != null || b.getDci() != null) {
-            return a.getDci() != null && b.getDci() != null && a.getDci().getId().equals(b.getDci().getId());
+            return a.getDci() != null
+                    && b.getDci() != null
+                    && a.getDci().getId().equals(b.getDci().getId());
         }
         return normaliser(a.getLibelle()).equals(normaliser(b.getLibelle()));
     }
@@ -411,7 +453,10 @@ public class FusionClientService {
             compteSource.setEnabled(false);
             em.flush();
             deplacer("UPDATE CashSale s SET s.account = :to WHERE s.account = :from", compteSource, compteCible);
-            deplacer("UPDATE AccountTransaction t SET t.account = :to WHERE t.account = :from", compteSource, compteCible);
+            deplacer(
+                    "UPDATE AccountTransaction t SET t.account = :to WHERE t.account = :from",
+                    compteSource,
+                    compteCible);
         }
         counts.merge("compteCarnet", 1, Integer::sum);
     }
@@ -423,37 +468,57 @@ public class FusionClientService {
      */
     private int fusionnerTiersPayants(Integer targetId, Integer sourceId) {
         List<ClientTiersPayant> cible = tiersPayants(targetId);
-        Set<PrioriteTiersPayant> prises = cible.stream().map(ClientTiersPayant::getPriorite).collect(Collectors.toCollection(() -> EnumSet.noneOf(PrioriteTiersPayant.class)));
+        Set<PrioriteTiersPayant> prises = cible.stream()
+                .map(ClientTiersPayant::getPriorite)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(PrioriteTiersPayant.class)));
         int n = 0;
         for (ClientTiersPayant ctp : tiersPayants(sourceId)) {
-            Optional<ClientTiersPayant> meme = cible.stream().filter(c -> c.getTiersPayant().getId().equals(ctp.getTiersPayant().getId())).findFirst();
+            Optional<ClientTiersPayant> meme = cible.stream()
+                    .filter(c -> c.getTiersPayant()
+                            .getId()
+                            .equals(ctp.getTiersPayant().getId()))
+                    .findFirst();
             if (meme.isPresent()) {
                 Integer garde = meme.get().getId();
-                deplacer("UPDATE ThirdPartySaleLine l SET l.clientTiersPayant = :to WHERE l.clientTiersPayant = :from", ctp, meme.get());
-                deplacer("UPDATE ReinitialisationConsommation r SET r.clientTiersPayantId = :to WHERE r.clientTiersPayantId = :from", ctp.getId(), garde);
+                deplacer(
+                        "UPDATE ThirdPartySaleLine l SET l.clientTiersPayant = :to WHERE l.clientTiersPayant = :from",
+                        ctp,
+                        meme.get());
+                deplacer(
+                        "UPDATE ReinitialisationConsommation r SET r.clientTiersPayantId = :to WHERE r.clientTiersPayantId = :from",
+                        ctp.getId(),
+                        garde);
                 ClientTiersPayant conserve = meme.get();
                 LocalDate fin = Stream.of(conserve.getDateFinValidite(), ctp.getDateFinValidite())
-                    .filter(Objects::nonNull)
-                    .max(Comparator.naturalOrder())
-                    .orElse(null);
-                em
-                    .createQuery("UPDATE ClientTiersPayant c SET c.consoMensuelle = :conso, c.dateFinValidite = :fin WHERE c.id = :id")
-                    .setParameter("conso", Objects.requireNonNullElse(conserve.getConsoMensuelle(), 0L) + Objects.requireNonNullElse(ctp.getConsoMensuelle(), 0L))
-                    .setParameter("fin", fin)
-                    .setParameter("id", garde)
-                    .executeUpdate();
-                em.createQuery("DELETE FROM ClientTiersPayant c WHERE c.id = :id").setParameter("id", ctp.getId()).executeUpdate();
+                        .filter(Objects::nonNull)
+                        .max(Comparator.naturalOrder())
+                        .orElse(null);
+                em.createQuery(
+                                "UPDATE ClientTiersPayant c SET c.consoMensuelle = :conso, c.dateFinValidite = :fin WHERE c.id = :id")
+                        .setParameter(
+                                "conso",
+                                Objects.requireNonNullElse(conserve.getConsoMensuelle(), 0L)
+                                        + Objects.requireNonNullElse(ctp.getConsoMensuelle(), 0L))
+                        .setParameter("fin", fin)
+                        .setParameter("id", garde)
+                        .executeUpdate();
+                em.createQuery("DELETE FROM ClientTiersPayant c WHERE c.id = :id")
+                        .setParameter("id", ctp.getId())
+                        .executeUpdate();
             } else {
                 PrioriteTiersPayant priorite = prises.contains(ctp.getPriorite())
-                    ? Arrays.stream(PrioriteTiersPayant.values()).filter(p -> !prises.contains(p)).findFirst().orElseThrow()
-                    : ctp.getPriorite();
+                        ? Arrays.stream(PrioriteTiersPayant.values())
+                                .filter(p -> !prises.contains(p))
+                                .findFirst()
+                                .orElseThrow()
+                        : ctp.getPriorite();
                 prises.add(priorite);
-                em
-                    .createQuery("UPDATE ClientTiersPayant c SET c.assuredCustomer = :to, c.priorite = :priorite WHERE c.id = :id")
-                    .setParameter("to", em.getReference(AssuredCustomer.class, targetId))
-                    .setParameter("priorite", priorite)
-                    .setParameter("id", ctp.getId())
-                    .executeUpdate();
+                em.createQuery(
+                                "UPDATE ClientTiersPayant c SET c.assuredCustomer = :to, c.priorite = :priorite WHERE c.id = :id")
+                        .setParameter("to", em.getReference(AssuredCustomer.class, targetId))
+                        .setParameter("priorite", priorite)
+                        .setParameter("id", ctp.getId())
+                        .executeUpdate();
             }
             n++;
         }
@@ -461,16 +526,18 @@ public class FusionClientService {
     }
 
     private List<ClientTiersPayant> tiersPayants(Integer customerId) {
-        return em
-            .createQuery("SELECT c FROM ClientTiersPayant c JOIN FETCH c.tiersPayant WHERE c.assuredCustomer.id = :id ORDER BY c.priorite", ClientTiersPayant.class)
-            .setParameter("id", customerId)
-            .getResultList();
+        return em.createQuery(
+                        "SELECT c FROM ClientTiersPayant c JOIN FETCH c.tiersPayant WHERE c.assuredCustomer.id = :id ORDER BY c.priorite",
+                        ClientTiersPayant.class)
+                .setParameter("id", customerId)
+                .getResultList();
     }
 
     private List<CustomerAllergie> allergies(Integer customerId) {
         return new ArrayList<>(
-            em.createQuery("SELECT a FROM CustomerAllergie a WHERE a.customerId = :id", CustomerAllergie.class).setParameter("id", customerId).getResultList()
-        );
+                em.createQuery("SELECT a FROM CustomerAllergie a WHERE a.customerId = :id", CustomerAllergie.class)
+                        .setParameter("id", customerId)
+                        .getResultList());
     }
 
     private Optional<CustomerDossierSante> dossier(Integer customerId) {
@@ -478,21 +545,28 @@ public class FusionClientService {
     }
 
     private CustomerAccount compteCarnet(Integer customerId) {
-        return em
-            .createQuery("SELECT a FROM CustomerAccount a WHERE a.customer.id = :id AND a.enabled = true", CustomerAccount.class)
-            .setParameter("id", customerId)
-            .setMaxResults(1)
-            .getResultStream()
-            .findFirst()
-            .orElse(null);
+        return em.createQuery(
+                        "SELECT a FROM CustomerAccount a WHERE a.customer.id = :id AND a.enabled = true",
+                        CustomerAccount.class)
+                .setParameter("id", customerId)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
     private int compter(String jpql, Integer id) {
-        return em.createQuery(jpql, Long.class).setParameter("id", id).getSingleResult().intValue();
+        return em.createQuery(jpql, Long.class)
+                .setParameter("id", id)
+                .getSingleResult()
+                .intValue();
     }
 
     private int deplacer(String jpql, Object from, Object to) {
-        return em.createQuery(jpql).setParameter("from", from).setParameter("to", to).executeUpdate();
+        return em.createQuery(jpql)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .executeUpdate();
     }
 
     static String normaliser(String valeur) {
@@ -500,24 +574,37 @@ public class FusionClientService {
             return "";
         }
         return Normalizer.normalize(valeur, Normalizer.Form.NFD)
-            .replaceAll("\\p{M}", "")
-            .toUpperCase(Locale.ROOT)
-            .replaceAll("[^A-Z0-9]+", " ")
-            .trim();
+                .replaceAll("\\p{M}", "")
+                .toUpperCase(Locale.ROOT)
+                .replaceAll("[^A-Z0-9]+", " ")
+                .trim();
     }
 
     /** Une fiche active, et les clés qui la rapprochent d'une autre. */
-    record Fiche(Integer id, String code, String firstName, String lastName, String phone, LocalDate datNaiss, String typeAssure, String type) {
+    record Fiche(
+            Integer id,
+            String code,
+            String firstName,
+            String lastName,
+            String phone,
+            LocalDate datNaiss,
+            String typeAssure,
+            String type) {
         /** Prénom et nom mêlés puis triés : « KOUASSI Awa » et « AWA Kouassi » se rejoignent. */
         String nom() {
-            String nom = Arrays.stream(normaliser(firstName + " " + lastName).split(" ")).filter(s -> !s.isEmpty()).sorted().collect(Collectors.joining(" "));
+            String nom = Arrays.stream(normaliser(firstName + " " + lastName).split(" "))
+                    .filter(s -> !s.isEmpty())
+                    .sorted()
+                    .collect(Collectors.joining(" "));
             return nom.isEmpty() ? null : nom;
         }
 
         /** Les huit derniers chiffres : l'indicatif du pays est saisi ou non selon les postes. */
         String telephone() {
             String chiffres = phone == null ? "" : phone.replaceAll("\\D", "");
-            return chiffres.length() < CHIFFRES_TELEPHONE ? null : chiffres.substring(chiffres.length() - CHIFFRES_TELEPHONE);
+            return chiffres.length() < CHIFFRES_TELEPHONE
+                    ? null
+                    : chiffres.substring(chiffres.length() - CHIFFRES_TELEPHONE);
         }
 
         List<String> cles() {

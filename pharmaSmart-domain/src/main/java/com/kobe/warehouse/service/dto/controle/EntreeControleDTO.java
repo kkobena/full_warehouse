@@ -8,13 +8,12 @@ import java.util.Set;
 
 /** Tout ce dont le moteur de contrôle a besoin : il ne va chercher aucune donnée lui-même. */
 public record EntreeControleDTO(
-    Map<Integer, String> panier,
-    Map<Integer, List<MoleculeDTO>> moleculesPanier,
-    List<TraitementEnCoursDTO> enCours,
-    Map<Integer, Set<Integer>> classesParDci,
-    Map<Integer, String> classes,
-    List<Interaction> interactions,
-    List<ContreIndication> contreIndications,
-    Map<Integer, String> sources,
-    ProfilPatientDTO profil
-) {}
+        Map<Integer, String> panier,
+        Map<Integer, List<MoleculeDTO>> moleculesPanier,
+        List<TraitementEnCoursDTO> enCours,
+        Map<Integer, Set<Integer>> classesParDci,
+        Map<Integer, String> classes,
+        List<Interaction> interactions,
+        List<ContreIndication> contreIndications,
+        Map<Integer, String> sources,
+        ProfilPatientDTO profil) {}

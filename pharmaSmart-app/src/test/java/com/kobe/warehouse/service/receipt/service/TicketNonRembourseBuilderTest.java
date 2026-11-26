@@ -46,8 +46,13 @@ class TicketNonRembourseBuilderTest {
 
         var repartition = TicketNonRembourseBuilder.repartirReglements(reglements, 500);
 
-        // 300 en carte + 200 en espèces pour les 500 non remboursés ; le reste (800, 1800 versés) reste sur le ticket assurance
-        assertEquals(List.of(200, 300), repartition.ticketNonRembourse().stream().map(PaymentDTO::getPaidAmount).toList());
+        // 300 en carte + 200 en espèces pour les 500 non remboursés ; le reste (800, 1800 versés) reste sur le ticket
+        // assurance
+        assertEquals(
+                List.of(200, 300),
+                repartition.ticketNonRembourse().stream()
+                        .map(PaymentDTO::getPaidAmount)
+                        .toList());
         assertEquals(1, repartition.ticketAssurance().size());
         assertEquals(800, repartition.ticketAssurance().getFirst().getPaidAmount());
         assertEquals(1800, repartition.ticketAssurance().getFirst().getMontantVerse());

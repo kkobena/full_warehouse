@@ -1,22 +1,20 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import {
-  AvoirApiService
-} from '../../../features/facturation/data-access/services/avoir-api.service';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {IAvoir} from "../../../features/facturation/data-access/models";
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {formatCurrency, formatDateFR, formatNumber} from 'app/shared/utils/format-utils';
+import { AvoirApiService } from '../../../features/facturation/data-access/services/avoir-api.service';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { IAvoir } from '../../../features/facturation/data-access/models';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { formatCurrency, formatDateFR, formatNumber } from 'app/shared/utils/format-utils';
 import {
   ButtonComponent,
   DataTableComponent,
   KpiItemComponent,
   KpiStripComponent,
   SortableHeaderDirective,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
@@ -32,7 +30,8 @@ interface AvoirStatutStat {
 
 @Component({
   selector: 'app-avoirs-analytics',
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,
@@ -41,7 +40,7 @@ interface AvoirStatutStat {
     SortableHeaderDirective,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
   templateUrl: './avoirs-analytics.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,13 +69,13 @@ export default class AvoirsAnalyticsComponent implements OnInit {
   protected readonly totalMontant = computed(() =>
     this.avoirs()
       .filter(a => a.statut === 'EMIS' || a.statut === 'IMPUTE')
-      .reduce((s, a) => s + (a.montantAvoir ?? 0), 0)
+      .reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
   );
 
   protected readonly montantImpute = computed(() =>
     this.avoirs()
       .filter(a => a.statut === 'IMPUTE')
-      .reduce((s, a) => s + (a.montantAvoir ?? 0), 0)
+      .reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
   );
 
   protected readonly tauxImputation = computed(() => {
@@ -93,28 +92,28 @@ export default class AvoirsAnalyticsComponent implements OnInit {
         label: 'Émis',
         count: byStatut('EMIS').length,
         montant: byStatut('EMIS').reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
-        badgeClass: 'bg-primary-subtle text-primary'
+        badgeClass: 'bg-primary-subtle text-primary',
       },
       {
         statut: 'IMPUTE',
         label: 'Imputés',
         count: byStatut('IMPUTE').length,
         montant: byStatut('IMPUTE').reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
-        badgeClass: 'bg-success-subtle text-success'
+        badgeClass: 'bg-success-subtle text-success',
       },
       {
         statut: 'DRAFT',
         label: 'Brouillons',
         count: byStatut('DRAFT').length,
         montant: byStatut('DRAFT').reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
-        badgeClass: 'bg-secondary-subtle text-secondary'
+        badgeClass: 'bg-secondary-subtle text-secondary',
       },
       {
         statut: 'ANNULE',
         label: 'Annulés',
         count: byStatut('ANNULE').length,
         montant: byStatut('ANNULE').reduce((s, a) => s + (a.montantAvoir ?? 0), 0),
-        badgeClass: 'bg-danger-subtle text-danger'
+        badgeClass: 'bg-danger-subtle text-danger',
       },
     ];
   });
@@ -131,18 +130,20 @@ export default class AvoirsAnalyticsComponent implements OnInit {
 
   protected load(): void {
     this.isLoading.set(true);
-    this.svc.query({
-      startDate: DATE_FORMAT_ISO_DATE(this.fromDate()),
-      endDate: DATE_FORMAT_ISO_DATE(this.toDate()),
-      size: 9999,
-      page: 0,
-    }).subscribe({
-      next: res => {
-        this.avoirs.set(res.body ?? []);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    this.svc
+      .query({
+        startDate: DATE_FORMAT_ISO_DATE(this.fromDate()),
+        endDate: DATE_FORMAT_ISO_DATE(this.toDate()),
+        size: 9999,
+        page: 0,
+      })
+      .subscribe({
+        next: res => {
+          this.avoirs.set(res.body ?? []);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
 
   protected statutLabel(statut?: string): string {

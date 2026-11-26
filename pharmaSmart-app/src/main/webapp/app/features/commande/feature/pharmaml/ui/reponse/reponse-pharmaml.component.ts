@@ -1,19 +1,11 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {
-  BadgeComponent,
-  ButtonComponent,
-  CardComponent,
-  DataTableComponent
-} from '../../../../../../shared/ui';
-import {PharmamlApiService} from '../../../../data-access/pharmaml-api.service';
-import {
-  IVerificationItem,
-  IVerificationResponse
-} from '../../../../../../shared/model/pharmaml.model';
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from '../../../../../../shared/ui';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { IVerificationItem, IVerificationResponse } from '../../../../../../shared/model/pharmaml.model';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
 
 @Component({
   selector: 'app-reponse-pharmaml',
@@ -51,7 +43,7 @@ export class ReponsePharmamlComponent implements OnInit {
         this.loading.set(false);
         this.response.set(res.body);
       },
-      error: (err) => {
+      error: err => {
         this.loading.set(false);
         this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },

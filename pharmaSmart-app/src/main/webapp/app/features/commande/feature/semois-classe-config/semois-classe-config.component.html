@@ -4,114 +4,104 @@
 </div>
 
 <div class="config-info">
-
-  Ces paramètres définissent les règles de réapprovisionnement par classe (A+, A, B, C, D).
-  Ils permettent de calculer la quantité à commander (stock objectif) et le stock de sécurité
-  basé sur la VMM (Vente Mensuelle Moyenne) de chaque produit.
-
+  Ces paramètres définissent les règles de réapprovisionnement par classe (A+, A, B, C, D). Ils permettent de calculer la quantité à
+  commander (stock objectif) et le stock de sécurité basé sur la VMM (Vente Mensuelle Moyenne) de chaque produit.
 </div>
 <div class="modal-body semois-classe-config">
-  <app-card>  @if (loading()) {
-    <div class="skeleton-wrapper">
-      @for (i of [1, 2, 3, 4, 5]; track i) {
-        <app-skeleton class="mb-2" height="3.5rem" />
-      }
-    </div>
-  } @else {
-    <app-data-table [value]="configs()" class="p-datatable-sm">
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Classe</th>
-          <th>Description</th>
-          <th>
-            Coeff. sécurité
-            <i
-              class="pi pi-info-circle ml-1"
-              ngbTooltip="Multiplicateur appliqué au VMM pour calculer la marge de sécurité. Plage : 0.1 – 2.0"
-              placement="auto"
-            ></i>
-          </th>
-          <th>
-            Mois d'historique
-            <i
-              class="pi pi-info-circle ml-1"
-              ngbTooltip="Nombre de mois pris en compte pour calculer la VMM pondérée"
-              placement="auto"
-            ></i>
-          </th>
-          <th>
-            Limite péremption
-            <i
-              class="pi pi-info-circle ml-1"
-              ngbTooltip="Si activé, le stock objectif est plafonné à 3× la VMM pour éviter les invendus périméables"
-              placement="auto"
-            ></i>
-          </th>
-          <th style="width: 80px"></th>
-        </tr>
-      </ng-template>
+  <app-card>
+    @if (loading()) {
+      <div class="skeleton-wrapper">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <app-skeleton class="mb-2" height="3.5rem" />
+        }
+      </div>
+    } @else {
+      <app-data-table [value]="configs()" class="p-datatable-sm">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Classe</th>
+            <th>Description</th>
+            <th>
+              Coeff. sécurité
+              <i
+                class="pi pi-info-circle ml-1"
+                ngbTooltip="Multiplicateur appliqué au VMM pour calculer la marge de sécurité. Plage : 0.1 – 2.0"
+                placement="auto"
+              ></i>
+            </th>
+            <th>
+              Mois d'historique
+              <i
+                class="pi pi-info-circle ml-1"
+                ngbTooltip="Nombre de mois pris en compte pour calculer la VMM pondérée"
+                placement="auto"
+              ></i>
+            </th>
+            <th>
+              Limite péremption
+              <i
+                class="pi pi-info-circle ml-1"
+                ngbTooltip="Si activé, le stock objectif est plafonné à 3× la VMM pour éviter les invendus périméables"
+                placement="auto"
+              ></i>
+            </th>
+            <th style="width: 80px"></th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-config>
-        <tr>
-          <td>
-            <app-badge
-              [label]="getClasseInfo(config.classeCriticite).label"
-              [severity]="getClasseInfo(config.classeCriticite).severity"
-            />
-          </td>
-          <td class="config-description">{{
-              getClasseInfo(config.classeCriticite).description
-            }}
-          </td>
-          <td>
-            <app-input-number
-              [(ngModel)]="config.coefficientSecurite"
-              [maxFractionDigits]="2"
-              [max]="2.0"
-              [minFractionDigits]="1"
-              [min]="0.1"
-              inputClass="w-auto"
-            />
-          </td>
-          <td>
-            <app-input-number
-              [(ngModel)]="config.nbMoisHistorique"
-              [max]="24"
-              [min]="3"
-              [showButtons]="true"
-              style="width: 130px; display: inline-block"
-            />
-          </td>
-          <td class="text-center">
-            <app-checkbox [(ngModel)]="config.limitePeremption" />
-          </td>
-          <td class="text-center">
-            <app-button
-              (clicked)="save(config)"
-              [loading]="isSaving(config.classeCriticite)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-check"
-              ngbTooltip="Enregistrer"
-              placement="left"
-            />
-          </td>
-        </tr>
-      </ng-template>
+        <ng-template #body let-config>
+          <tr>
+            <td>
+              <app-badge
+                [label]="getClasseInfo(config.classeCriticite).label"
+                [severity]="getClasseInfo(config.classeCriticite).severity"
+              />
+            </td>
+            <td class="config-description">{{ getClasseInfo(config.classeCriticite).description }}</td>
+            <td>
+              <app-input-number
+                [(ngModel)]="config.coefficientSecurite"
+                [maxFractionDigits]="2"
+                [max]="2.0"
+                [minFractionDigits]="1"
+                [min]="0.1"
+                inputClass="w-auto"
+              />
+            </td>
+            <td>
+              <app-input-number
+                [(ngModel)]="config.nbMoisHistorique"
+                [max]="24"
+                [min]="3"
+                [showButtons]="true"
+                style="width: 130px; display: inline-block"
+              />
+            </td>
+            <td class="text-center">
+              <app-checkbox [(ngModel)]="config.limitePeremption" />
+            </td>
+            <td class="text-center">
+              <app-button
+                (clicked)="save(config)"
+                [loading]="isSaving(config.classeCriticite)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-check"
+                ngbTooltip="Enregistrer"
+                placement="left"
+              />
+            </td>
+          </tr>
+        </ng-template>
 
-      <ng-template #emptymessage>
-        <tr>
-          <td class="text-center text-color-secondary py-4" colspan="6">Aucune configuration
-            trouvée
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-
-
-  }</app-card>
-
-
+        <ng-template #emptymessage>
+          <tr>
+            <td class="text-center text-color-secondary py-4" colspan="6">Aucune configuration trouvée</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+  </app-card>
 </div>
 
 <div class="modal-footer">
@@ -124,5 +114,4 @@
     severity="secondary"
     type="button"
   />
-
 </div>

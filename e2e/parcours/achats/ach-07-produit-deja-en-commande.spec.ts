@@ -31,9 +31,7 @@ scenario('ACH-07', async ({ etape, page }) => {
     const grille = page.locator('app-commande-requested');
     await expect(grille.locator('.ag-row').first()).toBeVisible();
     // Le libellé d'un produit de cette commande en cours : c'est lui qu'on retrouvera signalé.
-    produit = (await grille.locator('.ag-row').first().locator('[col-id="produitLibelle"]').innerText())
-      .replace(/\s+/g, ' ')
-      .trim();
+    produit = (await grille.locator('.ag-row').first().locator('[col-id="produitLibelle"]').innerText()).replace(/\s+/g, ' ').trim();
     expect(produit.length).toBeGreaterThan(0);
   });
 

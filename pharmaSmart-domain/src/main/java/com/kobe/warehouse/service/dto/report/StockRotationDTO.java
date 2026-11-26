@@ -8,19 +8,18 @@ import java.math.BigDecimal;
  * Uses ABC analysis with statistical Z-score for classification
  */
 public record StockRotationDTO(
-    Integer produitId,
-    String libelle,
-    String codeCip,
-    String categorie,
-    Integer stockQuantity,
-    Integer unitCost,
-    Long stockValue,
-    Integer caLast30Days,
-    Integer qtySoldLast30Days,
-    Integer nbSalesLast30Days,
-    Integer caLast12Months,
-    Integer qtySoldLast12Months,
-    BigDecimal rotationRateAnnual,
-    Integer avgDaysInStock,
-    CategorieABC categorieABC
-) {}
+        Integer produitId,
+        String libelle,
+        String codeCip,
+        String categorie,
+        Integer stockQuantity,
+        Integer unitCost,
+        Long stockValue,
+        Integer caLast30Days,
+        Integer qtySoldLast30Days,
+        Integer nbSalesLast30Days,
+        Integer caLast12Months,
+        Integer qtySoldLast12Months,
+        BigDecimal rotationRateAnnual,
+        Integer avgDaysInStock,
+        CategorieABC categorieABC) {}

@@ -9,103 +9,70 @@
 </div>
 
 <div class="modal-body">
-<app-card [variant]="'form'">
+  <app-card [variant]="'form'">
+    @if (errorMessage()) {
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="pi pi-times-circle"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
 
-  @if (errorMessage()) {
-    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
-      <i class="pi pi-times-circle"></i>
-      <span>{{ errorMessage() }}</span>
-    </div>
-  }
-
-  <!-- Grouper par -->
-  <div class="export-field">
-    <label class="export-label">Grouper par</label>
-    <app-select
-      [(ngModel)]="exportGroupBy"
-      [items]="groupByOptions"
-      bindLabel="label"
-      bindValue="value"
-      appendTo="body"
-    />
-  </div>
-
-  <!-- Filtre lignes -->
-  <div class="export-field">
-    <label class="export-label">Filtre lignes</label>
-    <app-select
-      [(ngModel)]="selectedFilter"
-      [items]="lineFilterOptions"
-      bindLabel="label"
-      bindValue="value"
-      appendTo="body"
-    />
-  </div>
-
-  <!-- Emplacement -->
-  @if (storages().length) {
+    <!-- Grouper par -->
     <div class="export-field">
-      <label class="export-label">Emplacement <span class="text-muted fw-normal">(optionnel)</span></label>
-      <app-select
-        [(ngModel)]="selectedStorageId"
-        (ngModelChange)="onStorageChange($event)"
-        [items]="storages()"
-        bindLabel="name"
-        bindValue="id"
-        [clearable]="true"
-        placeholder="Tous les emplacements"
-        appendTo="body"
-      />
+      <label class="export-label">Grouper par</label>
+      <app-select [(ngModel)]="exportGroupBy" [items]="groupByOptions" bindLabel="label" bindValue="value" appendTo="body" />
     </div>
-  }
 
-  <!-- Rayon (conditionnel) -->
-  @if (rayons().length) {
+    <!-- Filtre lignes -->
     <div class="export-field">
-      <label class="export-label">Rayon <span class="text-muted fw-normal">(optionnel)</span></label>
-      <app-select
-        [(ngModel)]="selectedRayonId"
-        [items]="rayons()"
-        bindLabel="libelle"
-        bindValue="id"
-        [clearable]="true"
-        placeholder="Tous les rayons"
-        appendTo="body"
-      />
+      <label class="export-label">Filtre lignes</label>
+      <app-select [(ngModel)]="selectedFilter" [items]="lineFilterOptions" bindLabel="label" bindValue="value" appendTo="body" />
     </div>
-  }
 
-  <!-- Recherche -->
-  <div class="export-field">
-    <label class="export-label">Recherche <span class="text-muted fw-normal">(optionnel)</span></label>
-    <input
-      type="text"
-      class="form-control w-100"
-      [(ngModel)]="search"
-      placeholder="Code CIP, libellé..."
-    />
-  </div>
+    <!-- Emplacement -->
+    @if (storages().length) {
+      <div class="export-field">
+        <label class="export-label">Emplacement <span class="text-muted fw-normal">(optionnel)</span></label>
+        <app-select
+          [(ngModel)]="selectedStorageId"
+          (ngModelChange)="onStorageChange($event)"
+          [items]="storages()"
+          bindLabel="name"
+          bindValue="id"
+          [clearable]="true"
+          placeholder="Tous les emplacements"
+          appendTo="body"
+        />
+      </div>
+    }
 
-</app-card>
+    <!-- Rayon (conditionnel) -->
+    @if (rayons().length) {
+      <div class="export-field">
+        <label class="export-label">Rayon <span class="text-muted fw-normal">(optionnel)</span></label>
+        <app-select
+          [(ngModel)]="selectedRayonId"
+          [items]="rayons()"
+          bindLabel="libelle"
+          bindValue="id"
+          [clearable]="true"
+          placeholder="Tous les rayons"
+          appendTo="body"
+        />
+      </div>
+    }
+
+    <!-- Recherche -->
+    <div class="export-field">
+      <label class="export-label">Recherche <span class="text-muted fw-normal">(optionnel)</span></label>
+      <input type="text" class="form-control w-100" [(ngModel)]="search" placeholder="Code CIP, libellé..." />
+    </div>
+  </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    [raised]="true"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-    type="button"
-  />
-  <app-button
-    (clicked)="skip()"
-    [raised]="true"
-    icon="pi pi-forward"
-    label="Continuer sans exporter"
-    severity="info"
-    type="button"
-  />
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+  <app-button (clicked)="skip()" [raised]="true" icon="pi pi-forward" label="Continuer sans exporter" severity="info" type="button" />
   <app-button
     (clicked)="export()"
     [loading]="exporting()"

@@ -45,8 +45,10 @@ import org.mockito.quality.Strictness;
 class MargePilotageServiceImplTest {
 
     private static final PeriodeDTO PERIODE = new PeriodeDTO(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 9));
-    private static final ComparaisonPeriodesDTO COMPARAISON = new ComparaisonPeriodesDTO(PERIODE, new PeriodeDTO(LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 9)), true);
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
+    private static final ComparaisonPeriodesDTO COMPARAISON = new ComparaisonPeriodesDTO(
+            PERIODE, new PeriodeDTO(LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 9)), true);
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            PERIODE.du(), PERIODE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, true, null, null);
 
     @Mock
     private PeriodeComparaisonService periodeComparaisonService;
@@ -69,23 +71,23 @@ class MargePilotageServiceImplTest {
     @BeforeEach
     void deuxFamilles() {
         when(periodeComparaisonService.comparer(any(), any())).thenReturn(COMPARAISON);
-        when(dictionnaireIndicateursService.lireDroitsAccordes()).thenReturn(EnumSet.of(DroitPilotage.RENTABILITE_REMISES));
+        when(dictionnaireIndicateursService.lireDroitsAccordes())
+                .thenReturn(EnumSet.of(DroitPilotage.RENTABILITE_REMISES));
         when(appConfigurationService.getSeuilFaibleMargePilotage()).thenReturn(15);
         // Antalgiques : 10 000 HT à 20 % (réf. 8 000 à 25 %) ; Dermatologie : 10 000 à 40 % (réf. 12 000 à 40 %).
         MesuresComparees antalgiques = element("1", "Antalgiques", 10_000, 2_000, 8_000, 2_000);
         MesuresComparees dermatologie = element("2", "Dermatologie", 10_000, 4_000, 12_000, 4_800);
-        when(ventilateurPilotage.comparer(any(), eq(COMPARAISON), eq(AxeAnalyse.FAMILLE), any(), anyList(), any())).thenReturn(
-            new Ventilation(List.of(antalgiques, dermatologie), antalgiques.plus(dermatologie))
-        );
-        when(ventilateurPilotage.comparer(any(), any(), eq(AxeAnalyse.PRODUIT), any(), anyList(), any())).thenReturn(
-            new Ventilation(
-                List.of(element("10", "Doliprane", 9_000, 900, 0, 0), element("11", "Crème", 500, 50, 0, 0), element("12", "Vitamine C", 3_000, 1_500, 0, 0)),
-                MesuresComparees.AUCUNES
-            )
-        );
-        when(pilotageVentesDetailRepository.listerVentesAMargeNegative(any(), any(), any(), any(), any())).thenReturn(
-            List.of(new VenteMargeDTO(5L, PERIODE.du(), "V5", "Awa Koné", 1_000.0, 1_200.0, -200.0))
-        );
+        when(ventilateurPilotage.comparer(any(), eq(COMPARAISON), eq(AxeAnalyse.FAMILLE), any(), anyList(), any()))
+                .thenReturn(new Ventilation(List.of(antalgiques, dermatologie), antalgiques.plus(dermatologie)));
+        when(ventilateurPilotage.comparer(any(), any(), eq(AxeAnalyse.PRODUIT), any(), anyList(), any()))
+                .thenReturn(new Ventilation(
+                        List.of(
+                                element("10", "Doliprane", 9_000, 900, 0, 0),
+                                element("11", "Crème", 500, 50, 0, 0),
+                                element("12", "Vitamine C", 3_000, 1_500, 0, 0)),
+                        MesuresComparees.AUCUNES));
+        when(pilotageVentesDetailRepository.listerVentesAMargeNegative(any(), any(), any(), any(), any()))
+                .thenReturn(List.of(new VenteMargeDTO(5L, PERIODE.du(), "V5", "Awa Koné", 1_000.0, 1_200.0, -200.0)));
     }
 
     @Test
@@ -93,7 +95,10 @@ class MargePilotageServiceImplTest {
     void decompositionsExactes() {
         MargeRentabiliteDTO marge = service.analyserMarge(REQUETE, AxeAnalyse.FAMILLE);
 
-        LigneMargeDTO antalgiques = marge.lignes().stream().filter(ligne -> ligne.libelle().equals("Antalgiques")).findFirst().orElseThrow();
+        LigneMargeDTO antalgiques = marge.lignes().stream()
+                .filter(ligne -> ligne.libelle().equals("Antalgiques"))
+                .findFirst()
+                .orElseThrow();
         assertThat(antalgiques.effetVolume() + antalgiques.effetTaux()).isEqualTo(2_000 - 2_000);
         assertThat(antalgiques.effetVolume()).isEqualTo(500);
         assertThat(antalgiques.ecartTaux()).isCloseTo(-5.0, within(1e-9));
@@ -110,17 +115,22 @@ class MargePilotageServiceImplTest {
         MargeRentabiliteDTO marge = service.analyserMarge(REQUETE, AxeAnalyse.FAMILLE);
 
         assertThat(marge.faiblesMarges()).extracting(LigneMargeDTO::libelle).containsExactly("Doliprane", "Crème");
-        assertThat(marge.ventesAMargeNegative()).extracting(VenteMargeDTO::vendeur).containsOnlyNulls();
+        assertThat(marge.ventesAMargeNegative())
+                .extracting(VenteMargeDTO::vendeur)
+                .containsOnlyNulls();
     }
 
     @Test
     @DisplayName("la marge ne se ventile pas par heure (en-têtes)")
     void axeRefuse() {
-        assertThatThrownBy(() -> service.analyserMarge(REQUETE, AxeAnalyse.HEURE)).isInstanceOf(GenericError.class);
+        assertThatThrownBy(() -> service.analyserMarge(REQUETE, AxeAnalyse.HEURE))
+                .isInstanceOf(GenericError.class);
     }
 
-    private static MesuresComparees element(String cle, String libelle, long caHt, long marge, long caHtReference, long margeReference) {
-        return new MesuresComparees(new MembreAnalyseDTO(cle, libelle), null, lignes(caHt, marge), lignes(caHtReference, margeReference));
+    private static MesuresComparees element(
+            String cle, String libelle, long caHt, long marge, long caHtReference, long margeReference) {
+        return new MesuresComparees(
+                new MembreAnalyseDTO(cle, libelle), null, lignes(caHt, marge), lignes(caHtReference, margeReference));
     }
 
     private static MesuresPilotage lignes(long caHt, long marge) {

@@ -31,11 +31,7 @@ export class NgbConfirmDialogService {
     );
   }
 
-  private openModal(
-    config: { header?: string; message?: string; icon?: string },
-    onAccept: () => void,
-    onReject: () => void,
-  ): void {
+  private openModal(config: { header?: string; message?: string; icon?: string }, onAccept: () => void, onReject: () => void): void {
     // Fermer uniquement le modal confirm précédent (pas les autres modals NgbModal)
     if (this.activeModalRef) {
       this.activeModalRef.dismiss('replaced');

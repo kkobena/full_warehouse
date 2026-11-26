@@ -61,10 +61,7 @@ scenario('ACH-91', async ({ etape, page }) => {
 
   // Le contrôle qui porte la règle. Il ne dépend d'aucun produit nommé : seul le fait de
   // retrancher la dette avant la comparaison rend cette égalité vraie.
-  expect(
-    Number(aCommander),
-    `${produit} : objectif ${objectif} − (stock ${stock} − dette ${dette}) doit donner ${attendu}`,
-  ).toBe(attendu);
+  expect(Number(aCommander), `${produit} : objectif ${objectif} − (stock ${stock} − dette ${dette}) doit donner ${attendu}`).toBe(attendu);
 
   await page.goto('/commande');
   await ouvrirOnglet(page, /Commandes & Réceptions/);
@@ -89,9 +86,7 @@ scenario('ACH-91', async ({ etape, page }) => {
    * la dette.
    */
   if (typeMagasin !== 'OFFICINE') {
-    const selecteurMagasin = page
-      .locator('ng-select')
-      .filter({ has: page.locator('.ng-placeholder', { hasText: 'Magasin' }) });
+    const selecteurMagasin = page.locator('ng-select').filter({ has: page.locator('.ng-placeholder', { hasText: 'Magasin' }) });
     await expect(selecteurMagasin, 'le sélecteur de magasin paraît dès qu’un second magasin commande').toBeVisible();
     await selecteurMagasin.click();
     await page.locator('.ng-option', { hasText: nomMagasin }).first().click();

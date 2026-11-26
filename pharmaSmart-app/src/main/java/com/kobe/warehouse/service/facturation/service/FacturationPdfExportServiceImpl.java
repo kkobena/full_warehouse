@@ -23,17 +23,15 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
-public class FacturationPdfExportServiceImpl extends AbstractStatistiqueReportService implements FacturationPdfExportService {
+public class FacturationPdfExportServiceImpl extends AbstractStatistiqueReportService
+        implements FacturationPdfExportService {
 
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
     private static final String TEMPLATE_FILE = Constant.FACTURATION_TEMPLATE_FILE;
 
-    public FacturationPdfExportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public FacturationPdfExportServiceImpl(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
@@ -77,7 +75,10 @@ public class FacturationPdfExportServiceImpl extends AbstractStatistiqueReportSe
         Tuple4 total = buildSummary(factureTiersPayant);
         getParameters().put(Constant.ENTITY, factureTiersPayant);
         getParameters().put(Constant.FACTURE_TOTAL, total);
-        getParameters().put(Constant.FACTURE_TOTAL_LETTERS, NumberUtil.getNumberToWords(total.e2()).toUpperCase());
+        getParameters()
+                .put(
+                        Constant.FACTURE_TOTAL_LETTERS,
+                        NumberUtil.getNumberToWords(total.e2()).toUpperCase());
         return super.exportReportToPdf();
     }
 
@@ -93,7 +94,8 @@ public class FacturationPdfExportServiceImpl extends AbstractStatistiqueReportSe
             throw new IllegalArgumentException("La liste des factures ne peut pas être vide");
         }
         super.getCommonParameters();
-        List<byte[]> pdfBytes = factureTiersPayants.stream().map(this::generatePdf).toList();
+        List<byte[]> pdfBytes =
+                factureTiersPayants.stream().map(this::generatePdf).toList();
         return mergePdfBytes(pdfBytes);
     }
 

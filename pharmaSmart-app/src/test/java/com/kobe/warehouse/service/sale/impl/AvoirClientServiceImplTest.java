@@ -31,14 +31,19 @@ class AvoirClientServiceImplTest {
 
     @Mock
     private SalesLineRepository repository;
+
     @Mock
     private Specification<SalesLine> baseSpec;
+
     @Mock
     private Specification<SalesLine> searchSpec;
+
     @Mock
     private Specification<SalesLine> dateSpec;
+
     @Mock
     private Specification<SalesLine> withSearchSpec;
+
     @Mock
     private Specification<SalesLine> finalSpec;
 
@@ -62,8 +67,8 @@ class AvoirClientServiceImplTest {
         when(withSearchSpec.and(dateSpec)).thenReturn(finalSpec);
         when(repository.findAll(finalSpec, pageable)).thenReturn(new PageImpl<>(List.of(line)));
 
-        AvoirClientDTO result = service.findAvoirs("PARA", from, to, pageable)
-            .getContent().getFirst();
+        AvoirClientDTO result =
+                service.findAvoirs("PARA", from, to, pageable).getContent().getFirst();
 
         assertEquals(100L, result.saleId());
         assertEquals(200L, result.salesLineId());
@@ -81,8 +86,8 @@ class AvoirClientServiceImplTest {
         when(repository.hasAvoir()).thenReturn(baseSpec);
         when(repository.findAll(baseSpec, pageable)).thenReturn(new PageImpl<>(List.of(line)));
 
-        AvoirClientDTO result = service.findAvoirs(" ", null, null, pageable)
-            .getContent().getFirst();
+        AvoirClientDTO result =
+                service.findAvoirs(" ", null, null, pageable).getContent().getFirst();
 
         assertNull(result.customerName());
         assertNull(result.salesLineId());
@@ -131,4 +136,3 @@ class AvoirClientServiceImplTest {
         return line;
     }
 }
-

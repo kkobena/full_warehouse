@@ -1,6 +1,6 @@
-import {computed} from '@angular/core';
-import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
-import {IStoreInventory} from '../../../../shared/model';
+import { computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { IStoreInventory } from '../../../../shared/model';
 import {
   IInventoryLine,
   IInventoryLotLine,
@@ -78,7 +78,7 @@ const initialState: InventoryState = {
 };
 
 export const InventoryStore = signalStore(
-  {providedIn: 'root'},
+  { providedIn: 'root' },
 
   withState(initialState),
 
@@ -90,28 +90,28 @@ export const InventoryStore = signalStore(
 
   withMethods(store => ({
     setInventories(inventories: IStoreInventory[], total: number): void {
-      patchState(store, {inventories, totalInventories: total});
+      patchState(store, { inventories, totalInventories: total });
     },
 
     setLoadingList(loadingList: boolean): void {
-      patchState(store, {loadingList});
+      patchState(store, { loadingList });
     },
 
     setCurrentInventory(currentInventory: IStoreInventory | null): void {
-      patchState(store, {currentInventory});
+      patchState(store, { currentInventory });
     },
 
     setLines(lines: IInventoryLine[], total: number): void {
-      patchState(store, {lines, totalLines: total});
+      patchState(store, { lines, totalLines: total });
     },
 
     setLotLines(lotLines: IInventoryLotLine[], total: number): void {
-      patchState(store, {lotLines, lotTotalLines: total});
+      patchState(store, { lotLines, lotTotalLines: total });
     },
 
     updateLine(updated: IInventoryLine): void {
-      const lines = store.lines().map(l => l.id === updated.id ? updated : l);
-      patchState(store, {lines});
+      const lines = store.lines().map(l => (l.id === updated.id ? updated : l));
+      patchState(store, { lines });
     },
 
     /**
@@ -120,50 +120,50 @@ export const InventoryStore = signalStore(
      * pour qu'elle soit reprise plutôt que tenue pour comptée.
      */
     markLineSaveFailed(lineId: number): void {
-      const lines = store.lines().map(l => l.id === lineId ? {...l, saveFailed: true} : l);
-      patchState(store, {lines});
+      const lines = store.lines().map(l => (l.id === lineId ? { ...l, saveFailed: true } : l));
+      patchState(store, { lines });
     },
 
     setLoadingLines(loadingLines: boolean): void {
-      patchState(store, {loadingLines});
+      patchState(store, { loadingLines });
     },
 
     addPendingEdit(lineId: number, quantityOnHand: number): void {
       const current = store.pendingEdits();
-      patchState(store, {pendingEdits: {...current, [lineId]: quantityOnHand}});
+      patchState(store, { pendingEdits: { ...current, [lineId]: quantityOnHand } });
     },
 
     clearPendingEdits(): void {
-      patchState(store, {pendingEdits: {}});
+      patchState(store, { pendingEdits: {} });
     },
 
     setProgress(progress: InventoryProgressRecord | null): void {
-      patchState(store, {progress});
+      patchState(store, { progress });
     },
 
     setBlindMode(blindMode: boolean): void {
-      patchState(store, {blindMode});
+      patchState(store, { blindMode });
     },
 
     setLastImportResult(lastImportResult: ImportResultRecord | null): void {
-      patchState(store, {lastImportResult});
+      patchState(store, { lastImportResult });
     },
 
     setIsImporting(isImporting: boolean): void {
-      patchState(store, {isImporting});
+      patchState(store, { isImporting });
     },
 
     setIsSavingBatch(isSavingBatch: boolean): void {
-      patchState(store, {isSavingBatch});
+      patchState(store, { isSavingBatch });
     },
 
     setError(error: string | null): void {
-      patchState(store, {error});
+      patchState(store, { error });
     },
 
     emitEvent(type: InventoryEventType, payload?: any): void {
       const nextSeq = store._eventSeq() + 1;
-      patchState(store, {lastEvent: {type, payload, seq: nextSeq}, _eventSeq: nextSeq});
+      patchState(store, { lastEvent: { type, payload, seq: nextSeq }, _eventSeq: nextSeq });
     },
 
     reset(): void {

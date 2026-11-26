@@ -1,5 +1,10 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -9,6 +14,8 @@ import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
 import com.kobe.warehouse.service.report.Constant;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,21 +27,12 @@ import org.mockito.quality.Strictness;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("ReglementDiffereReportServiceImpl")
 class ReglementDiffereReportServiceImplTest {
 
     private static final String HTML = "<html><head><title>Differes</title></head><body><p>differes</p></body></html>";
-
 
     @Mock
     private SpringTemplateEngine templateEngine;
@@ -88,7 +86,9 @@ class ReglementDiffereReportServiceImplTest {
         service.printListToPdf(differes, summary);
 
         assertThat((String) service.getParameters().get(Constant.REPORT_TITLE)).startsWith("LISTE DES DIFFERES  AU ");
-        assertThat(service.getParameters()).containsEntry(Constant.ITEMS, differes).containsEntry(Constant.REPORT_SUMMARY, summary);
+        assertThat(service.getParameters())
+                .containsEntry(Constant.ITEMS, differes)
+                .containsEntry(Constant.REPORT_SUMMARY, summary);
         assertThat(service.getParameters()).containsEntry(Constant.MAGASIN, magasin);
     }
 
@@ -96,10 +96,9 @@ class ReglementDiffereReportServiceImplTest {
     @DisplayName("la liste des reglements produit un PDF")
     void listeDesReglements() throws Exception {
         byte[] pdf = service.printReglementToPdf(
-            List.of(reglement()),
-            new DifferePaymentSummaryDTO(4000L, 6000L),
-            new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30))
-        );
+                List.of(reglement()),
+                new DifferePaymentSummaryDTO(4000L, 6000L),
+                new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)));
 
         assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
@@ -108,14 +107,13 @@ class ReglementDiffereReportServiceImplTest {
     @DisplayName("le titre des reglements borne la periode demandee")
     void titreDesReglements() throws Exception {
         service.printReglementToPdf(
-            List.of(reglement()),
-            new DifferePaymentSummaryDTO(4000L, 6000L),
-            new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30))
-        );
+                List.of(reglement()),
+                new DifferePaymentSummaryDTO(4000L, 6000L),
+                new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)));
 
         assertThat((String) service.getParameters().get(Constant.REPORT_TITLE))
-            .startsWith("LISTE DES REGLEMENTS DIFFERES PERIODE DU ")
-            .contains(" AU ");
+                .startsWith("LISTE DES REGLEMENTS DIFFERES PERIODE DU ")
+                .contains(" AU ");
     }
 
     @Test
@@ -125,10 +123,9 @@ class ReglementDiffereReportServiceImplTest {
         assertThat(service.getGenerateFileName()).isEqualTo("liste_des_differes");
 
         service.printReglementToPdf(
-            List.of(reglement()),
-            new DifferePaymentSummaryDTO(4000L, 6000L),
-            new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30))
-        );
+                List.of(reglement()),
+                new DifferePaymentSummaryDTO(4000L, 6000L),
+                new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)));
         assertThat(service.getGenerateFileName()).isEqualTo("liste_des_reglements_differes");
     }
 

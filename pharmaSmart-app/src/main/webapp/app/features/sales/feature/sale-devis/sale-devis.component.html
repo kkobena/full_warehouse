@@ -6,13 +6,16 @@
     <!-- Search Section -->
     <div class="search-section">
       <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
-        <input #searchInput
-               (keydown.enter)="onSearchCustomer()"
-               [ngModel]="search()" (ngModelChange)="search.set($event)"
-               autocomplete="off"
-               class="form-control search-input"
-               placeholder="Rechercher un client..."
-               type="text" />
+        <input
+          #searchInput
+          (keydown.enter)="onSearchCustomer()"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          autocomplete="off"
+          class="form-control search-input"
+          placeholder="Rechercher un client..."
+          type="text"
+        />
       </app-icon-field>
       <app-button
         (clicked)="onOpenCustomerList()"
@@ -21,7 +24,8 @@
         icon="pi pi-list"
         ngbTooltip="Liste des clients"
         severity="secondary"
-        size="small" />
+        size="small"
+      />
       <app-button
         (clicked)="onAddCustomer()"
         [rounded]="true"
@@ -29,7 +33,8 @@
         icon="pi pi-user-plus"
         ngbTooltip="Nouveau client"
         severity="primary"
-        size="small" />
+        size="small"
+      />
     </div>
 
     <!-- Customer Display - Style compact inline (comme customer-overlay-panel) -->
@@ -38,8 +43,16 @@
         <div class="customer-display-card">
           <!-- Action Buttons -->
           <div class="customer-action-btn">
-            <app-button (clicked)="ouvrirFicheClient()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
-                        icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" />
+            <app-button
+              (clicked)="ouvrirFicheClient()"
+              ariaLabel="Voir la fiche client"
+              ngbTooltip="Voir la fiche client (Alt+V)"
+              icon="pi pi-id-card"
+              severity="primary"
+              size="small"
+              [rounded]="true"
+              [text]="true"
+            />
             <app-button
               (clicked)="onOpenCustomerList()"
               [rounded]="true"
@@ -48,7 +61,8 @@
               ngbTooltip="Changer le client"
               severity="danger"
               size="small"
-              placement="top" />
+              placement="top"
+            />
             <app-button
               (clicked)="onEditCustomer()"
               [rounded]="true"
@@ -57,7 +71,8 @@
               ngbTooltip="Modifier le client"
               severity="info"
               size="small"
-              placement="top" />
+              placement="top"
+            />
           </div>
 
           <!-- Customer Information Display -->
@@ -65,8 +80,7 @@
             <div class="customer-info-row">
               <div class="info-item name-info">
                 <i class="pi pi-user"></i>
-                <span
-                  class="info-value">{{ selectedCustomer().firstName }} {{ selectedCustomer().lastName }}</span>
+                <span class="info-value">{{ selectedCustomer().firstName }} {{ selectedCustomer().lastName }}</span>
               </div>
 
               @if (selectedCustomer().phone) {
@@ -95,7 +109,8 @@
   [requiresCustomer]="true"
   [saleType]="'COMPTANT'"
   [selectedProduct]="selectedProduct()"
-  [showStock]="showStock()">
+  [showStock]="showStock()"
+>
 </app-product-search-section>
 
 <!-- Favoris du comptoir : un clic ajoute le produit au panier (quantité 1), comme un produit scanné -->
@@ -122,7 +137,8 @@
         [saleType]="'COMPTANT'"
         [salesLines]="salesLines()"
         [selectedLineId]="selectedLineId()"
-        [showRemiseSection]="true" />
+        [showRemiseSection]="true"
+      />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
@@ -137,7 +153,8 @@
             [netAmount]="currentSale()?.netAmount || 0"
             [saleType]="'COMPTANT'"
             [taxAmount]="currentSale()?.taxAmount || 0"
-            [totalAmount]="currentSale()?.salesAmount || 0" />
+            [totalAmount]="currentSale()?.salesAmount || 0"
+          />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
@@ -152,7 +169,8 @@
             [isPresale]="false"
             [isSaving]="isSaving()"
             [isSmallScreen]="isSmallScreen()"
-            [saleType]="'COMPTANT'" />
+            [saleType]="'COMPTANT'"
+          />
         </div>
       </div>
     </div>
@@ -170,6 +188,11 @@
 }
 
 <!-- Spinner global -->
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
-             color="#009688" name="sale-spinner"
-             size="medium" type="timer"></ngx-spinner>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="sale-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>

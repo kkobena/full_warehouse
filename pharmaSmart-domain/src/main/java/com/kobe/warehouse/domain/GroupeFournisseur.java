@@ -7,12 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.URL;
-
-import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * A GroupeFournisseur.
@@ -60,16 +59,16 @@ public class GroupeFournisseur implements Serializable {
     private Integer frequenceCommandeJours = 7;
 
     /*
-   utilser dans pharmaMl code grossiste RECEPTEUR(code)
-   DESTINATAIRE(code_societe)
-     */
+    utilser dans pharmaMl code grossiste RECEPTEUR(code)
+    DESTINATAIRE(code_societe)
+      */
 
     @Column(name = "code_recepteur_pharma_ml", length = 50)
     private String codeRecepteurPharmaMl;
 
     /*
-     Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
-     */
+    Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
+    */
 
     @Column(name = "code_office_pharma_ml", length = 50)
     private String codeOfficePharmaMl;
@@ -284,8 +283,6 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -306,25 +303,25 @@ public class GroupeFournisseur implements Serializable {
     @Override
     public String toString() {
         return "GroupeFournisseur{"
-            + "id="
-            + getId()
-            + ", libelle='"
-            + getLibelle()
-            + "'"
-            + ", addresspostale='"
-            + getAddresspostale()
-            + "'"
-            + ", numFaxe='"
-            + getNumFaxe()
-            + "'"
-            + ", email='"
-            + getEmail()
-            + "'"
-            + ", tel='"
-            + getTel()
-            + "'"
-            + ", odre="
-            + getOdre()
-            + "}";
+                + "id="
+                + getId()
+                + ", libelle='"
+                + getLibelle()
+                + "'"
+                + ", addresspostale='"
+                + getAddresspostale()
+                + "'"
+                + ", numFaxe='"
+                + getNumFaxe()
+                + "'"
+                + ", email='"
+                + getEmail()
+                + "'"
+                + ", tel='"
+                + getTel()
+                + "'"
+                + ", odre="
+                + getOdre()
+                + "}";
     }
 }

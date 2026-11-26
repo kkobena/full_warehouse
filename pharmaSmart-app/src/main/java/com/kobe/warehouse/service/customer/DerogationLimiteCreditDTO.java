@@ -11,9 +11,8 @@ import java.time.LocalDate;
  * {@code pr-depasser-limite-credit}, l'utilisateur fournit la clé d'un collègue qui le détient.
  */
 public record DerogationLimiteCreditDTO(
-    @NotNull Long saleId,
-    @NotNull LocalDate saleDate,
-    @NotNull @Positive Integer montant,
-    @NotBlank @Size(max = 255) String motif,
-    String actionAuthorityKey
-) {}
+        @NotNull Long saleId,
+        @NotNull LocalDate saleDate,
+        @NotNull @Positive Integer montant,
+        @NotBlank @Size(max = 255) String motif,
+        String actionAuthorityKey) {}

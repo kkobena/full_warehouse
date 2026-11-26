@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.reglement.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
@@ -64,7 +64,8 @@ public class InvoicePaymentDTO {
         } else {
             this.montantRestant = "0";
         }
-        var change0 = Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
+        var change0 =
+                Objects.requireNonNullElse(invoicePayment.getMontantVerse(), 0) - invoicePayment.getExpectedAmount();
         if (change0 > 0) {
             this.change = NumberUtil.formatToString(change0);
         } else {

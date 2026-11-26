@@ -1,32 +1,33 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
-import {AbilityService} from 'app/core/auth/ability.service';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { AbilityService } from 'app/core/auth/ability.service';
 
 import PnlAnalytiqueComponent from '../pnl-analytique/pnl-analytique.component';
-import VieillissementCreancesComponent
-  from '../vieillissement-creances/vieillissement-creances.component';
+import VieillissementCreancesComponent from '../vieillissement-creances/vieillissement-creances.component';
 import ConcentrationPayersComponent from '../concentration-payers/concentration-payers.component';
 import CashFlowBfrComponent from '../cash-flow-bfr/cash-flow-bfr.component';
-import ProfitabilityAnalysisComponent
-  from '../profitability-analysis/profitability-analysis.component';
+import ProfitabilityAnalysisComponent from '../profitability-analysis/profitability-analysis.component';
 import FinanceCreancesComponent from '../finance-creances/finance-creances.component';
 
 import SituationCreancesComponent from '../situation-creances/situation-creances.component';
-import VieillissementDifferesComponent
-  from '../vieillissement-differes/vieillissement-differes.component';
+import VieillissementDifferesComponent from '../vieillissement-differes/vieillissement-differes.component';
 import AvoirsAnalyticsComponent from '../avoirs-analytics/avoirs-analytics.component';
 import TauxRecouvrementTpComponent from '../taux-recouvrement-tp/taux-recouvrement-tp.component';
-import {SkeletonComponent} from 'app/shared/ui/skeleton/skeleton.component';
+import { SkeletonComponent } from 'app/shared/ui/skeleton/skeleton.component';
 
 import { NavSidebarComponent } from 'app/shared/ui/nav-sidebar/nav-sidebar.component';
 import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-link.component';
 @Component({
   selector: 'app-finance-reports',
-  imports: [NavSidebarComponent, NavSectionLinkComponent, CommonModule, NgbNavModule,
+  imports: [
+    NavSidebarComponent,
+    NavSectionLinkComponent,
+    CommonModule,
+    NgbNavModule,
     PnlAnalytiqueComponent,
-    VieillissementCreancesComponent,  // conservé — utilisé dans finance-creances
-    ConcentrationPayersComponent,     // conservé — utilisé dans finance-creances
+    VieillissementCreancesComponent, // conservé — utilisé dans finance-creances
+    ConcentrationPayersComponent, // conservé — utilisé dans finance-creances
     CashFlowBfrComponent,
     ProfitabilityAnalysisComponent,
     FinanceCreancesComponent,
@@ -42,7 +43,6 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
 })
 export default class FinanceReportsComponent implements OnInit {
   active = signal<string>('pnl-analytique');
-
 
   /** Menu replié : ces rapports affichent de larges tableaux et graphiques. */
   protected readonly menuReplie = signal(false);

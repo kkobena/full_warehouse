@@ -106,13 +106,27 @@ describe('MagasinFormComponent', () => {
     });
   });
 
-  it("modifier une unité de gestion la laisse unité de gestion, rattachée à son officine", () => {
+  it('modifier une unité de gestion la laisse unité de gestion, rattachée à son officine', () => {
     // L'ancien formulaire repartait d'une officine vierge : l'unité devenait une officine détachée.
-    ouvrir({ id: 5, typeMagasin: TypeMagasin.UNITE_GESTION, parentId: 1, commandeEnPropre: true, name: 'PARA', fullName: 'Para', phone: '01' });
+    ouvrir({
+      id: 5,
+      typeMagasin: TypeMagasin.UNITE_GESTION,
+      parentId: 1,
+      commandeEnPropre: true,
+      name: 'PARA',
+      fullName: 'Para',
+      phone: '01',
+    });
     saisir('field_note', 'Fermé le lundi');
     soumettre();
 
-    expect(emis[0]).toMatchObject({ id: 5, typeMagasin: TypeMagasin.UNITE_GESTION, parentId: 1, commandeEnPropre: true, note: 'Fermé le lundi' });
+    expect(emis[0]).toMatchObject({
+      id: 5,
+      typeMagasin: TypeMagasin.UNITE_GESTION,
+      parentId: 1,
+      commandeEnPropre: true,
+      note: 'Fermé le lundi',
+    });
   });
 
   it("modifier l'officine conserve son identité FNE et ce que le formulaire n'affiche pas", () => {

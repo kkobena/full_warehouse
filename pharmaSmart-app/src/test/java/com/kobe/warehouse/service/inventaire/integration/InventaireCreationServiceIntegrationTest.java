@@ -43,18 +43,18 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
     @Test
     @DisplayName("Un inventaire de famille ne prend que les produits de cette famille")
     void perimetreFamille() {
-        List<FamilleProduit> familles = em
-            .createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
-            .setMaxResults(2)
-            .getResultList();
+        List<FamilleProduit> familles = em.createQuery(
+                        "SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(2)
+                .getResultList();
         FamilleProduit visee = familles.get(0);
         FamilleProduit autre = familles.get(1);
         produit(unique("DANS LA FAMILLE"), 1_000, 600, visee);
         produit(unique("AILLEURS"), 1_000, 600, autre);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "FAMILLY", visee.getId(), "famille"));
+        StoreInventoryDTO inventaire =
+                creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "FAMILLY", visee.getId(), "famille"));
 
         assertEquals(1, lignesDe(inventaire.getId()));
     }
@@ -68,17 +68,17 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produit(unique("HORS RAYON"));
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, antibiotiques.getId(), "RAYON", null, "rayon"));
+        StoreInventoryDTO inventaire =
+                creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, antibiotiques.getId(), "RAYON", null, "rayon"));
 
         assertEquals(1, lignesDe(inventaire.getId()));
         assertEquals(
-            STORAGE_RESERVE_ID,
-            ((Number) em
-                    .createNativeQuery("SELECT storage_id FROM store_inventory WHERE id = " + inventaire.getId())
-                    .getSingleResult()).intValue(),
-            "l'emplacement de l'inventaire est déduit du rayon"
-        );
+                STORAGE_RESERVE_ID,
+                ((Number) em.createNativeQuery(
+                                        "SELECT storage_id FROM store_inventory WHERE id = " + inventaire.getId())
+                                .getSingleResult())
+                        .intValue(),
+                "l'emplacement de l'inventaire est déduit du rayon");
     }
 
     @Test
@@ -93,8 +93,10 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
 
         StoreInventoryDTO inventaire = creer(demande("STORAGE"));
 
-        assertEquals(1, lignesDe(inventaire.getId()),
-            "un même produit ne se compte qu'une fois, sous peine de violer l'unicité de la ligne");
+        assertEquals(
+                1,
+                lignesDe(inventaire.getId()),
+                "un même produit ne se compte qu'une fois, sous peine de violer l'unicité de la ligne");
     }
 
     @Test
@@ -109,8 +111,8 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
 
         StoreInventoryDTO inventaire = creer(demande("STORAGE"));
 
-        assertEquals(1, lignesDe(inventaire.getId()),
-            "ni le produit de la réserve, ni celui qu'aucun rayon ne réclame");
+        assertEquals(
+                1, lignesDe(inventaire.getId()), "ni le produit de la réserve, ni celui qu'aucun rayon ne réclame");
     }
 
     @Test
@@ -129,14 +131,14 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         assertEquals(1, lignesDe(inventaire.getId()), "un lot périmé à zéro n'est plus à retirer");
         assertEquals(1, lotsDe(inventaire.getId()), "le lot périmé est détaillé, même sans gestion de lot globale");
         assertEquals(
-            3,
-            em
-                .createQuery("SELECT il FROM InventoryLot il WHERE il.storeInventoryLine.storeInventory.id = :id", InventoryLot.class)
-                .setParameter("id", inventaire.getId())
-                .getSingleResult()
-                .getQuantityInit(),
-            "la quantité initiale du lot est figée à la création"
-        );
+                3,
+                em.createQuery(
+                                "SELECT il FROM InventoryLot il WHERE il.storeInventoryLine.storeInventory.id = :id",
+                                InventoryLot.class)
+                        .setParameter("id", inventaire.getId())
+                        .getSingleResult()
+                        .getQuantityInit(),
+                "la quantité initiale du lot est figée à la création");
     }
 
     @Test
@@ -150,9 +152,8 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         lot(dejaPerime, unique("LOT-HIER"), LocalDate.now().minusDays(1), 4);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "ALERTE_PEREMPTION", null, "alerte",
-                null, null, 60, null));
+        StoreInventoryDTO inventaire = creer(new StoreInventoryRecord(
+                null, STORAGE_RAYON_ID, null, "ALERTE_PEREMPTION", null, "alerte", null, null, 60, null));
 
         assertEquals(1, lignesDe(inventaire.getId()), "ni le lot déjà périmé ni celui à 120 jours");
         assertEquals(1, lotsDe(inventaire.getId()));
@@ -184,8 +185,10 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
 
         StoreInventoryDTO inventaire = creer(demande("SOUS_SEUIL"));
 
-        assertEquals(1, lignesDe(inventaire.getId()),
-            "le stock de réserve ne compense pas un rayon sous son seuil, et un produit sans seuil n'est pas concerné");
+        assertEquals(
+                1,
+                lignesDe(inventaire.getId()),
+                "le stock de réserve ne compense pas un rayon sous son seuil, et un produit sans seuil n'est pas concerné");
     }
 
     @Test
@@ -211,9 +214,17 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produitEnStock(unique("JAMAIS VENDU B"), 10);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "INVENDU", null, "invendus",
-                LocalDate.now().minusMonths(3), LocalDate.now(), null, null));
+        StoreInventoryDTO inventaire = creer(new StoreInventoryRecord(
+                null,
+                STORAGE_RAYON_ID,
+                null,
+                "INVENDU",
+                null,
+                "invendus",
+                LocalDate.now().minusMonths(3),
+                LocalDate.now(),
+                null,
+                null));
 
         assertEquals(2, lignesDe(inventaire.getId()));
     }
@@ -224,9 +235,17 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produitEnStock(unique("EN STOCK"), 10);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "VENDU", null, "vendus",
-                LocalDate.now().minusMonths(3), LocalDate.now(), null, null));
+        StoreInventoryDTO inventaire = creer(new StoreInventoryRecord(
+                null,
+                STORAGE_RAYON_ID,
+                null,
+                "VENDU",
+                null,
+                "vendus",
+                LocalDate.now().minusMonths(3),
+                LocalDate.now(),
+                null,
+                null));
 
         assertEquals(0, lignesDe(inventaire.getId()));
     }
@@ -235,14 +254,21 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
     @DisplayName("Une période de vente absente ou inversée est refusée avant toute écriture")
     void periodeDeVenteInvalide() {
         assertThrows(
-            IllegalArgumentException.class,
-            () -> creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "VENDU", null, "sans dates"))
-        );
+                IllegalArgumentException.class,
+                () -> creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "VENDU", null, "sans dates")));
         assertThrows(
-            IllegalArgumentException.class,
-            () -> creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "INVENDU", null, "dates inversées",
-                LocalDate.now(), LocalDate.now().minusDays(1), null, null))
-        );
+                IllegalArgumentException.class,
+                () -> creer(new StoreInventoryRecord(
+                        null,
+                        STORAGE_RAYON_ID,
+                        null,
+                        "INVENDU",
+                        null,
+                        "dates inversées",
+                        LocalDate.now(),
+                        LocalDate.now().minusDays(1),
+                        null,
+                        null)));
     }
 
     @Test
@@ -254,9 +280,19 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produitEnStock(unique("NON CHOISI"), 10);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "SELECTION_PRODUIT", null, "sélection",
-                null, null, null, null, null, List.of(premier.getId(), second.getId(), retire.getId())));
+        StoreInventoryDTO inventaire = creer(new StoreInventoryRecord(
+                null,
+                STORAGE_RAYON_ID,
+                null,
+                "SELECTION_PRODUIT",
+                null,
+                "sélection",
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(premier.getId(), second.getId(), retire.getId())));
 
         assertEquals(2, lignesDe(inventaire.getId()));
     }
@@ -265,9 +301,8 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
     @DisplayName("Une sélection vide est refusée")
     void selectionVide() {
         assertThrows(
-            IllegalArgumentException.class,
-            () -> creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "SELECTION_PRODUIT", null, "vide"))
-        );
+                IllegalArgumentException.class,
+                () -> creer(new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "SELECTION_PRODUIT", null, "vide")));
     }
 
     @Test
@@ -298,12 +333,23 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produitEnStock(unique("PROGRAMME"), 5);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, STORAGE_RAYON_ID, null, "MAGASIN", null, "tournant",
-                null, null, null, null, utilisateur.getId(), List.of()));
+        StoreInventoryDTO inventaire = creer(new StoreInventoryRecord(
+                null,
+                STORAGE_RAYON_ID,
+                null,
+                "MAGASIN",
+                null,
+                "tournant",
+                null,
+                null,
+                null,
+                null,
+                utilisateur.getId(),
+                List.of()));
 
         viderLeCache();
-        var relu = services.storeInventoryRepository.findById(inventaire.getId()).orElseThrow();
+        var relu =
+                services.storeInventoryRepository.findById(inventaire.getId()).orElseThrow();
         assertEquals(InventoryType.PROGRAMME, relu.getInventoryType());
         assertEquals(utilisateur.getId(), relu.getUser().getId());
     }
@@ -314,16 +360,16 @@ class InventaireCreationServiceIntegrationTest extends AbstractInventaireIntegra
         produitEnStock(unique("PAR DEFAUT"), 5);
         viderLeCache();
 
-        StoreInventoryDTO inventaire = creer(
-            new StoreInventoryRecord(null, null, null, "MAGASIN", null, "sans emplacement"));
+        StoreInventoryDTO inventaire =
+                creer(new StoreInventoryRecord(null, null, null, "MAGASIN", null, "sans emplacement"));
 
         assertTrue(lignesDe(inventaire.getId()) > 0);
         assertEquals(
-            STORAGE_RAYON_ID,
-            ((Number) em
-                    .createNativeQuery("SELECT storage_id FROM store_inventory WHERE id = " + inventaire.getId())
-                    .getSingleResult()).intValue()
-        );
+                STORAGE_RAYON_ID,
+                ((Number) em.createNativeQuery(
+                                        "SELECT storage_id FROM store_inventory WHERE id = " + inventaire.getId())
+                                .getSingleResult())
+                        .intValue());
     }
 
     // ===== outils =====

@@ -11,10 +11,9 @@ package com.kobe.warehouse.service.dto;
  * @param budgetIllimite     true si budgetMensuel == 0
  */
 public record BudgetCommandeDTO(
-    long budgetMensuel,
-    long montantEstime,
-    long montantCommande,
-    long budgetRestant,
-    boolean enDepassement,
-    boolean budgetIllimite
-) {}
+        long budgetMensuel,
+        long montantEstime,
+        long montantCommande,
+        long budgetRestant,
+        boolean enDepassement,
+        boolean budgetIllimite) {}

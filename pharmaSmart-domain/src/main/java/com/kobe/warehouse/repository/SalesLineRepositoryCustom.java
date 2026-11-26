@@ -8,5 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 public interface SalesLineRepositoryCustom {
-    Page<ProductStatRecord> fetchProductStat(Specification<SalesLine> specification, Long fournisseurId, OrderBy order, Pageable pageable);
+    Page<ProductStatRecord> fetchProductStat(
+            Specification<SalesLine> specification, Long fournisseurId, OrderBy order, Pageable pageable);
 }

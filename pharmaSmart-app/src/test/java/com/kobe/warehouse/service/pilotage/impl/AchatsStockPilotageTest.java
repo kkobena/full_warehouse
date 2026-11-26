@@ -53,7 +53,16 @@ class AchatsStockPilotageTest {
 
     private static final PeriodeDTO SEPTEMBRE = new PeriodeDTO(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30));
     private static final PeriodeDTO SEPTEMBRE_N1 = new PeriodeDTO(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 30));
-    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(SEPTEMBRE.du(), SEPTEMBRE.au(), TypeComparaison.MEME_PERIODE_N_1, null, null, null, false, Granularite.SEMAINE, null);
+    private static final RequetePilotageDTO REQUETE = new RequetePilotageDTO(
+            SEPTEMBRE.du(),
+            SEPTEMBRE.au(),
+            TypeComparaison.MEME_PERIODE_N_1,
+            null,
+            null,
+            null,
+            false,
+            Granularite.SEMAINE,
+            null);
 
     @Mock
     private PeriodeComparaisonService periodeComparaisonService;
@@ -72,7 +81,8 @@ class AchatsStockPilotageTest {
 
     @BeforeEach
     void comparerSeptembreN1() {
-        when(periodeComparaisonService.comparer(any(), any())).thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, SEPTEMBRE_N1, false));
+        when(periodeComparaisonService.comparer(any(), any()))
+                .thenReturn(new ComparaisonPeriodesDTO(SEPTEMBRE, SEPTEMBRE_N1, false));
     }
 
     @Nested
@@ -84,16 +94,19 @@ class AchatsStockPilotageTest {
         @BeforeEach
         void deuxFournisseurs() {
             service = new AchatsPilotageServiceImpl(periodeComparaisonService, achatsStock, mesures);
-            when(achatsStock.sommerAchatsParFournisseur(eq(SEPTEMBRE.du()), any(), anyList())).thenReturn(
-                List.of(new FournisseurAchatsDTO("1", "Copharmed", 60_000L, 3L, 100L, 90L), new FournisseurAchatsDTO("2", "Laborex", 40_000L, 1L, 50L, 50L))
-            );
-            when(achatsStock.sommerAchatsParFournisseur(eq(SEPTEMBRE_N1.du()), any(), anyList())).thenReturn(List.of(new FournisseurAchatsDTO("1", "Copharmed", 50_000L, 2L, 10L, 10L)));
+            when(achatsStock.sommerAchatsParFournisseur(eq(SEPTEMBRE.du()), any(), anyList()))
+                    .thenReturn(List.of(
+                            new FournisseurAchatsDTO("1", "Copharmed", 60_000L, 3L, 100L, 90L),
+                            new FournisseurAchatsDTO("2", "Laborex", 40_000L, 1L, 50L, 50L)));
+            when(achatsStock.sommerAchatsParFournisseur(eq(SEPTEMBRE_N1.du()), any(), anyList()))
+                    .thenReturn(List.of(new FournisseurAchatsDTO("1", "Copharmed", 50_000L, 2L, 10L, 10L)));
             // 3 bons à 2 jours, 1 bon à 6 jours : 3 jours en moyenne, chaque fournisseur pesant ses bons.
-            when(achatsStock.listerDelaisParFournisseur(eq(SEPTEMBRE.du()), any(), anyList())).thenReturn(
-                List.of(new DelaiFournisseurDTO("1", 2.0, 3L), new DelaiFournisseurDTO("2", 6.0, 1L))
-            );
-            when(achatsStock.sommerAchatsParFamille(eq(SEPTEMBRE.du()), any())).thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 90_000L, 100_000L)));
-            when(achatsStock.sommerAchatsParFamille(eq(SEPTEMBRE_N1.du()), any())).thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 45_000L, 50_000L)));
+            when(achatsStock.listerDelaisParFournisseur(eq(SEPTEMBRE.du()), any(), anyList()))
+                    .thenReturn(List.of(new DelaiFournisseurDTO("1", 2.0, 3L), new DelaiFournisseurDTO("2", 6.0, 1L)));
+            when(achatsStock.sommerAchatsParFamille(eq(SEPTEMBRE.du()), any()))
+                    .thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 90_000L, 100_000L)));
+            when(achatsStock.sommerAchatsParFamille(eq(SEPTEMBRE_N1.du()), any()))
+                    .thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 45_000L, 50_000L)));
         }
 
         @Test
@@ -107,22 +120,30 @@ class AchatsStockPilotageTest {
             assertThat(achats.delaiMoyen().valeur()).isCloseTo(3.0, within(1e-9));
             assertThat(achats.conformite().valeur()).isCloseTo(140 * 100.0 / 150, within(1e-9));
             assertThat(achats.fournisseurs())
-                .extracting(LigneAchatsDTO::libelle, LigneAchatsDTO::part, ligne -> ligne.montant().valeurReference())
-                .containsExactly(tuple("Copharmed", 60.0, 50_000.0), tuple("Laborex", 40.0, 0.0));
+                    .extracting(
+                            LigneAchatsDTO::libelle,
+                            LigneAchatsDTO::part,
+                            ligne -> ligne.montant().valeurReference())
+                    .containsExactly(tuple("Copharmed", 60.0, 50_000.0), tuple("Laborex", 40.0, 0.0));
         }
 
         @Test
         @DisplayName("achats et coût des ventes rangés dans les tranches")
         void achatsVentes() {
-            when(achatsStock.sommerAchatsHtParJour(any(), any())).thenReturn(
-                List.of(new MontantJourDTO(LocalDate.of(2026, 9, 2), 1_000L), new MontantJourDTO(LocalDate.of(2026, 9, 9), 500L))
-            );
-            when(mesures.listerLignesParJour(any(), any(), any())).thenReturn(List.of(new LignesJourDTO(LocalDate.of(2026, 9, 3), 2_000L, 1_800L, 700L, 4L)));
-            when(achatsStock.sommerCoutVentesParFamille(any(), any(), any())).thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 600L, 700L)));
+            when(achatsStock.sommerAchatsHtParJour(any(), any()))
+                    .thenReturn(List.of(
+                            new MontantJourDTO(LocalDate.of(2026, 9, 2), 1_000L),
+                            new MontantJourDTO(LocalDate.of(2026, 9, 9), 500L)));
+            when(mesures.listerLignesParJour(any(), any(), any()))
+                    .thenReturn(List.of(new LignesJourDTO(LocalDate.of(2026, 9, 3), 2_000L, 1_800L, 700L, 4L)));
+            when(achatsStock.sommerCoutVentesParFamille(any(), any(), any()))
+                    .thenReturn(List.of(new MontantsFamilleDTO("9", "Antalgiques", 600L, 700L)));
 
             AchatsVentesPilotageDTO achatsVentes = service.analyserAchatsVentes(REQUETE);
 
-            assertThat(achatsVentes.points().getFirst()).extracting(PointAchatsVentesDTO::achatsHt, PointAchatsVentesDTO::coutVentesHt).containsExactly(1_000L, 700L);
+            assertThat(achatsVentes.points().getFirst())
+                    .extracting(PointAchatsVentesDTO::achatsHt, PointAchatsVentesDTO::coutVentesHt)
+                    .containsExactly(1_000L, 700L);
             assertThat(achatsVentes.points().get(1).achatsHt()).isEqualTo(500);
             assertThat(achatsVentes.familles().getFirst().ecart()).isEqualTo(90_000 - 600);
         }
@@ -140,16 +161,21 @@ class AchatsStockPilotageTest {
         }
 
         @Test
-        @DisplayName("valeur fin de mois face à N-1 ; rotation et couverture sur le coût des ventes de 12 mois ; courbe")
+        @DisplayName(
+                "valeur fin de mois face à N-1 ; rotation et couverture sur le coût des ventes de 12 mois ; courbe")
         void stock() {
             LocalDate septembre = LocalDate.of(2026, 9, 30);
             when(configuration.getSeuilStockDormantPilotage()).thenReturn(90);
-            when(achatsStock.sommerStockParMois(any(), eq(septembre))).thenReturn(
-                List.of(new MoisStockDTO(LocalDate.of(2025, 9, 30), 80_000L), new MoisStockDTO(septembre, 100_000L))
-            );
-            when(achatsStock.sommerCoutVentesTtc(eq(LocalDate.of(2025, 10, 1)), eq(septembre), any())).thenReturn(730_000L);
-            when(achatsStock.sommerStockParFamille(septembre)).thenReturn(List.of(new StockFamilleDTO("9", "Antalgiques", 500L, 100_000L)));
-            when(achatsStock.sommerDormantsParFamille(eq(septembre), any())).thenReturn(List.of(new StockFamilleDTO("9", "Antalgiques", 4L, 12_000L)));
+            when(achatsStock.sommerStockParMois(any(), eq(septembre)))
+                    .thenReturn(List.of(
+                            new MoisStockDTO(LocalDate.of(2025, 9, 30), 80_000L),
+                            new MoisStockDTO(septembre, 100_000L)));
+            when(achatsStock.sommerCoutVentesTtc(eq(LocalDate.of(2025, 10, 1)), eq(septembre), any()))
+                    .thenReturn(730_000L);
+            when(achatsStock.sommerStockParFamille(septembre))
+                    .thenReturn(List.of(new StockFamilleDTO("9", "Antalgiques", 500L, 100_000L)));
+            when(achatsStock.sommerDormantsParFamille(eq(septembre), any()))
+                    .thenReturn(List.of(new StockFamilleDTO("9", "Antalgiques", 4L, 12_000L)));
 
             StockPilotageDTO stock = service.analyserStock(REQUETE);
 
@@ -160,7 +186,9 @@ class AchatsStockPilotageTest {
             assertThat(stock.nbDormants()).isEqualTo(4);
             assertThat(stock.valeurDormante()).isEqualTo(12_000);
             assertThat(stock.courbe()).hasSize(12);
-            assertThat(stock.courbe().getLast()).extracting(PointStockDTO::valeur, PointStockDTO::valeurN1).containsExactly(100_000L, 80_000L);
+            assertThat(stock.courbe().getLast())
+                    .extracting(PointStockDTO::valeur, PointStockDTO::valeurN1)
+                    .containsExactly(100_000L, 80_000L);
         }
 
         @Test
@@ -169,8 +197,10 @@ class AchatsStockPilotageTest {
             when(ruptures.compterLignesCommandees(any(), any())).thenReturn(200L);
             when(ruptures.compterRuptures(any(), any())).thenReturn(10L);
             when(ruptures.sommerVentesManquees(any(), any())).thenReturn(new ComptageDTO("", "Total", 3L, 5L, 7_500L));
-            when(ruptures.sommerQuantitesEnAvoir(any(), any(), any())).thenReturn(new ComptageDTO("", "Total", 1_000L, 20L, 0L));
-            when(ruptures.sommerPeremptionsParMois(any(), any())).thenReturn(List.of(new PeremptionMoisDTO(2026, 9, 2L, 3_000L)));
+            when(ruptures.sommerQuantitesEnAvoir(any(), any(), any()))
+                    .thenReturn(new ComptageDTO("", "Total", 1_000L, 20L, 0L));
+            when(ruptures.sommerPeremptionsParMois(any(), any()))
+                    .thenReturn(List.of(new PeremptionMoisDTO(2026, 9, 2L, 3_000L)));
 
             RupturesPilotageDTO resultat = service.analyserRuptures(REQUETE);
 

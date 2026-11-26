@@ -26,6 +26,7 @@ class ThirdPartySaleLineServiceTest {
 
     @Mock
     private AssuranceItemIdGeneratorService idGeneratorService;
+
     @Mock
     private ThirdPartySaleLineRepository repository;
 
@@ -58,13 +59,14 @@ class ThirdPartySaleLineServiceTest {
         ThirdPartySaleLine line = new ThirdPartySaleLine();
         List<ThirdPartySaleLine> lines = List.of(line);
         when(repository.findAllBySaleIdAndSaleSaleDate(15L, saleId.getSaleDate()))
-            .thenReturn(lines);
-        when(repository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(
-            8, 15L, saleId.getSaleDate())).thenReturn(Optional.of(line));
+                .thenReturn(lines);
+        when(repository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(8, 15L, saleId.getSaleDate()))
+                .thenReturn(Optional.of(line));
         when(repository.save(line)).thenReturn(line);
 
         assertSame(lines, service.findAllBySaleId(saleId));
-        assertSame(line, service.findFirstByClientTiersPayantIdAndSaleId(8, saleId).orElseThrow());
+        assertSame(
+                line, service.findFirstByClientTiersPayantIdAndSaleId(8, saleId).orElseThrow());
         assertSame(line, service.save(line));
         service.saveAll(lines);
         service.deleteAll(lines);
@@ -79,15 +81,17 @@ class ThirdPartySaleLineServiceTest {
     void compteNumeroBon_AvecEtSansVente_UtiliseUneFenetreDeTroisMois() {
         LocalDate dateMinAvant = LocalDate.now().minusMonths(3);
         when(repository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON", 4, SalesStatut.CLOSED, dateMinAvant)).thenReturn(2L);
+                        "BON", 4, SalesStatut.CLOSED, dateMinAvant))
+                .thenReturn(2L);
         when(repository.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
-            "BON", 10L, 4, SalesStatut.CLOSED, dateMinAvant)).thenReturn(1L);
+                        "BON", 10L, 4, SalesStatut.CLOSED, dateMinAvant))
+                .thenReturn(1L);
 
-        assertEquals(2L, service.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON", 4, SalesStatut.CLOSED));
-        assertEquals(1L, service.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
-            "BON", 10L, 4, SalesStatut.CLOSED));
+        assertEquals(2L, service.countThirdPartySaleLineByNumBonAndClientTiersPayantId("BON", 4, SalesStatut.CLOSED));
+        assertEquals(
+                1L,
+                service.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
+                        "BON", 10L, 4, SalesStatut.CLOSED));
         assertTrue(!LocalDate.now().minusMonths(3).isBefore(dateMinAvant));
     }
 }
-

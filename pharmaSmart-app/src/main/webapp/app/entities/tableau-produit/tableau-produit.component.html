@@ -38,13 +38,38 @@
                 </td>
 
                 <td style="text-align: center">
-                  <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                              ariaLabel="Editer" buttonClass="mr-2" icon="pi pi-pencil" ngbTooltip="Editer" severity="success" />
-                  <app-button [iconOnly]="true" [rounded]="true" [routerLink]="['/tableaux', elRow.id, 'associe']" [text]="true"
-                              ariaLabel="Associer des produits" buttonClass="mr-2" icon="pi pi-box"
-                              ngbTooltip="Associer des produits" severity="help" />
-                  <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+                  <app-button
+                    (clicked)="onEdit(elRow)"
+                    [iconOnly]="true"
+                    [rounded]="true"
+                    [text]="true"
+                    ariaLabel="Editer"
+                    buttonClass="mr-2"
+                    icon="pi pi-pencil"
+                    ngbTooltip="Editer"
+                    severity="success"
+                  />
+                  <app-button
+                    [iconOnly]="true"
+                    [rounded]="true"
+                    [routerLink]="['/tableaux', elRow.id, 'associe']"
+                    [text]="true"
+                    ariaLabel="Associer des produits"
+                    buttonClass="mr-2"
+                    icon="pi pi-box"
+                    ngbTooltip="Associer des produits"
+                    severity="help"
+                  />
+                  <app-button
+                    (clicked)="delete(elRow)"
+                    [iconOnly]="true"
+                    [rounded]="true"
+                    [text]="true"
+                    ariaLabel="Supprimer"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    severity="danger"
+                  />
                 </td>
               </tr>
             </ng-template>

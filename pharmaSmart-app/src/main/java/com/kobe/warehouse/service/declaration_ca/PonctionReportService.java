@@ -27,11 +27,8 @@ public class PonctionReportService extends CommonReportService {
 
     private List<PonctionLigneDTO> items;
 
-    public PonctionReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public PonctionReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
@@ -94,10 +91,9 @@ public class PonctionReportService extends CommonReportService {
         return "Justificatif de ponction du " + ponction.dateDebut() + " au " + ponction.dateFin();
     }
 
-
     private String baseDeCalcul(PonctionDTO ponction) {
         return ponction.modeCalcul() == ModeCalculPonction.POURCENTAGE
-            ? ponction.valeurSaisie() + " % du chiffre d'affaires après exclusions"
-            : ponction.valeurSaisie() + " F (montant fixe)";
+                ? ponction.valeurSaisie() + " % du chiffre d'affaires après exclusions"
+                : ponction.valeurSaisie() + " F (montant fixe)";
     }
 }

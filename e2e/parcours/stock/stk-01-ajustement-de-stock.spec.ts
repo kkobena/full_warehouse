@@ -23,7 +23,10 @@ scenario('STK-01', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await page.goto('/features-ajustement');
-    await page.getByRole('button', { name: /Nouvel? ajustement|Nouveau/ }).first().click();
+    await page
+      .getByRole('button', { name: /Nouvel? ajustement|Nouveau/ })
+      .first()
+      .click();
     await expect(ecran).toBeVisible();
   });
 
@@ -45,7 +48,10 @@ scenario('STK-01', async ({ etape, page }) => {
   });
 
   await etape(4, async () => {
-    await ecran.getByRole('button', { name: /Ajouter|^$/ }).last().click();
+    await ecran
+      .getByRole('button', { name: /Ajouter|^$/ })
+      .last()
+      .click();
     await expect(ecran.locator('tbody tr').first()).toContainText(produit);
   });
 

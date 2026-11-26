@@ -40,7 +40,8 @@ final class DashboardServicesUnderTest {
     // --- collaborateurs simulés ---
     final StockAlertReportService stockAlertReportService = mock(StockAlertReportService.class);
     final ABCParetoReportService abcParetoReportService = mock(ABCParetoReportService.class);
-    final SupplierPerformanceReportService supplierPerformanceReportService = mock(SupplierPerformanceReportService.class);
+    final SupplierPerformanceReportService supplierPerformanceReportService =
+            mock(SupplierPerformanceReportService.class);
 
     // --- repositories réels ---
     final CashRegisterRepository cashRegisterRepository;
@@ -70,18 +71,13 @@ final class DashboardServicesUnderTest {
         this.orderLineIdGeneratorService = new OrderLineIdGeneratorService(entityManager);
 
         this.caissierDashboardService = new CaissierDashboardServiceImpl(
-            cashRegisterRepository,
-            cashRegisterItemRepository,
-            salesRepository,
-            commandeRepository
-        );
+                cashRegisterRepository, cashRegisterItemRepository, salesRepository, commandeRepository);
 
         ResponsableCommandeDashboardServiceImpl responsable = new ResponsableCommandeDashboardServiceImpl(
-            stockAlertReportService,
-            abcParetoReportService,
-            supplierPerformanceReportService,
-            new DashboardDTOMapper()
-        );
+                stockAlertReportService,
+                abcParetoReportService,
+                supplierPerformanceReportService,
+                new DashboardDTOMapper());
         // L'EntityManager est injecté par @PersistenceContext en production ; hors conteneur Spring
         // il faut le poser soi-même, sans quoi toutes les tuiles en SQL natif tomberaient sur null.
         ReflectionTestUtils.setField(responsable, "entityManager", entityManager);

@@ -1,7 +1,7 @@
-const {pathsToModuleNameMapper} = require('ts-jest');
+const { pathsToModuleNameMapper } = require('ts-jest');
 
 const {
-  compilerOptions: {paths = {}, baseUrl = './'},
+  compilerOptions: { paths = {}, baseUrl = './' },
 } = require('./tsconfig.json');
 
 module.exports = {
@@ -25,14 +25,16 @@ module.exports = {
   setupFiles: ['jest-date-mock', '@angular/localize/init'],
   cacheDirectory: '<rootDir>/target/jest-cache',
   coverageDirectory: '<rootDir>/target/test-results/',
-  moduleNameMapper: pathsToModuleNameMapper(paths,
-    {prefix: `<rootDir>/${baseUrl}/`}),
+  moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: `<rootDir>/${baseUrl}/` }),
   reporters: [
     'default',
-    ['jest-junit', {
-      outputDirectory: '<rootDir>/target/test-results/',
-      outputName: 'TESTS-results-jest.xml'
-    }],
+    [
+      'jest-junit',
+      {
+        outputDirectory: '<rootDir>/target/test-results/',
+        outputName: 'TESTS-results-jest.xml',
+      },
+    ],
   ],
   testMatch: ['<rootDir>/pharmaSmart-app/src/main/webapp/app/**/@(*.)@(spec.ts)'],
   testEnvironmentOptions: {},

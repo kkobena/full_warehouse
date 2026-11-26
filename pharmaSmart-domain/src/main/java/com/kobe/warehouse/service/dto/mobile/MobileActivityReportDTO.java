@@ -21,29 +21,28 @@ import java.util.List;
  * @param tiersPayants       Third-party payer summary
  */
 public record MobileActivityReportDTO(
-    LocalDate fromDate,
-    LocalDate toDate,
-    String periodLabel,
+        LocalDate fromDate,
+        LocalDate toDate,
+        String periodLabel,
 
-    // Chiffre d'affaires
-    ChiffreAffaireMobileDTO chiffreAffaire,
+        // Chiffre d'affaires
+        ChiffreAffaireMobileDTO chiffreAffaire,
 
-    // Recettes par mode de paiement
-    List<RecetteMobileDTO> recettes,
-    long totalRecettes,
+        // Recettes par mode de paiement
+        List<RecetteMobileDTO> recettes,
+        long totalRecettes,
 
-    // Mouvements de caisse
-    List<MouvementCaisseMobileDTO> mouvementsCaisse,
-    long totalEntrees,
-    long totalSorties,
+        // Mouvements de caisse
+        List<MouvementCaisseMobileDTO> mouvementsCaisse,
+        long totalEntrees,
+        long totalSorties,
 
-    // Achats par groupe fournisseur
-    List<GroupeFournisseurAchatMobileDTO> achatsFournisseurs,
-    long totalAchats,
+        // Achats par groupe fournisseur
+        List<GroupeFournisseurAchatMobileDTO> achatsFournisseurs,
+        long totalAchats,
 
-    // Tiers payants
-    TiersPayantSummaryMobileDTO tiersPayants
-) {
+        // Tiers payants
+        TiersPayantSummaryMobileDTO tiersPayants) {
     public static Builder builder() {
         return new Builder();
     }
@@ -124,12 +123,18 @@ public record MobileActivityReportDTO(
 
         public MobileActivityReportDTO build() {
             return new MobileActivityReportDTO(
-                fromDate, toDate, periodLabel, chiffreAffaire,
-                recettes, totalRecettes,
-                mouvementsCaisse, totalEntrees, totalSorties,
-                achatsFournisseurs, totalAchats,
-                tiersPayants
-            );
+                    fromDate,
+                    toDate,
+                    periodLabel,
+                    chiffreAffaire,
+                    recettes,
+                    totalRecettes,
+                    mouvementsCaisse,
+                    totalEntrees,
+                    totalSorties,
+                    achatsFournisseurs,
+                    totalAchats,
+                    tiersPayants);
         }
     }
 }

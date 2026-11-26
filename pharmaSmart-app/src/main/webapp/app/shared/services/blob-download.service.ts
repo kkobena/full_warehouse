@@ -117,7 +117,7 @@ export class BlobDownloadService {
   downloadFromObservable(
     source$: Observable<HttpResponse<Blob>>,
     fileName: string,
-    format: DownloadFormat='pdf',
+    format: DownloadFormat = 'pdf',
     onStart?: () => void,
     onFinalize?: () => void,
     onError?: () => void,
@@ -138,7 +138,6 @@ export class BlobDownloadService {
     });
   }
 
-
   private dispatch(blob: Blob, fileName: string, format: DownloadFormat): void {
     if (this.tauriPrinterService.isRunningInTauri()) {
       handleBlobForTauri(blob, fileName, format);
@@ -156,7 +155,6 @@ export class BlobDownloadService {
   private openInNewTab(blob: Blob): void {
     const url = URL.createObjectURL(blob);
     window.open(url);
-
   }
 
   /** Déclenche un téléchargement de fichier via une balise <a> (Excel, CSV). */
@@ -169,4 +167,3 @@ export class BlobDownloadService {
     window.URL.revokeObjectURL(url);
   }
 }
-

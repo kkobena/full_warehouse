@@ -26,21 +26,17 @@ public class TableauPharmacienReportReportService extends CommonReportService {
     private String templateFile;
     private List<TableauPharmacienDTO> items;
 
-    public TableauPharmacienReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public TableauPharmacienReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
 
     private void prepareParameters(
-        TableauPharmacienWrapper tableauPharmacienWrapper,
-        List<GroupeFournisseurDTO> groupeFournisseurs,
-        ReportPeriode reportPeriode,
-        String groupeBy
-    ) {
+            TableauPharmacienWrapper tableauPharmacienWrapper,
+            List<GroupeFournisseurDTO> groupeFournisseurs,
+            ReportPeriode reportPeriode,
+            String groupeBy) {
         var colspan = 2 + groupeFournisseurs.size();
         this.items = tableauPharmacienWrapper.getTableauPharmaciens();
         Magasin magasin = storageService.getUser().getMagasin();
@@ -88,11 +84,10 @@ public class TableauPharmacienReportReportService extends CommonReportService {
     }
 
     public byte[] exportToPdf(
-        TableauPharmacienWrapper tableauPharmacienWrapper,
-        List<GroupeFournisseurDTO> groupeFournisseurs,
-        ReportPeriode reportPeriode,
-        String groupeBy
-    ) {
+            TableauPharmacienWrapper tableauPharmacienWrapper,
+            List<GroupeFournisseurDTO> groupeFournisseurs,
+            ReportPeriode reportPeriode,
+            String groupeBy) {
         prepareParameters(tableauPharmacienWrapper, groupeFournisseurs, reportPeriode, groupeBy);
         int itemSize = items.size();
         if (itemSize > Constant.PAGE_SIZE) {

@@ -1,8 +1,8 @@
-import {Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../../shared/ui';
-import {IOrderLine} from '../../../../shared/model/order-line.model';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../shared/ui';
+import { IOrderLine } from '../../../../shared/model/order-line.model';
 
 @Component({
   selector: 'app-commande-received-actions',
@@ -40,7 +40,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
           severity="info"
           icon="pi pi-box"
           ariaLabel="Gérer le lot"
-        ngbTooltip="Gérer le lot"
+          ngbTooltip="Gérer le lot"
           placement="top"
           size="small"
           (clicked)="onLot($event)"
@@ -52,7 +52,7 @@ import {IOrderLine} from '../../../../shared/model/order-line.model';
           severity="danger"
           icon="pi pi-trash"
           ariaLabel="Supprimer"
-        ngbTooltip="Supprimer"
+          ngbTooltip="Supprimer"
           placement="top"
           size="small"
           (clicked)="onDelete($event)"

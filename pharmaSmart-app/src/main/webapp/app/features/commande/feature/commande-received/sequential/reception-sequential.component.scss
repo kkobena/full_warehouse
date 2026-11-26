@@ -62,7 +62,10 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  strong { color: var(--pharma-chrome-tab, #{$pharma-primary}); font-size: 0.95rem; }
+  strong {
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
+    font-size: 0.95rem;
+  }
 }
 
 .rh-seq__nav-pct {
@@ -83,7 +86,10 @@
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  input { cursor: pointer; accent-color: var(--pharma-chrome-tab, #{$pharma-primary}); }
+  input {
+    cursor: pointer;
+    accent-color: var(--pharma-chrome-tab, #{$pharma-primary});
+  }
 }
 
 // ── AX-09 — Bandeau concordance compact ──────────────────────────────────────
@@ -102,7 +108,9 @@
   &--ok {
     background: #f0fdf4;
     border-bottom-color: #bbf7d0;
-    .rh-seq__nav-conc-total { color: #15803d; }
+    .rh-seq__nav-conc-total {
+      color: #15803d;
+    }
   }
 }
 
@@ -122,9 +130,21 @@
   font-weight: 700;
   white-space: nowrap;
 
-  &--warn   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-  &--danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-  &--lot    { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  &--warn {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  &--danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+  &--lot {
+    background: #ede9fe;
+    color: #5b21b6;
+    border: 1px solid #c4b5fd;
+  }
 }
 
 // ── Liste ─────────────────────────────────────────────────────────────────────
@@ -148,7 +168,9 @@
   text-align: left;
   transition: background 0.1s;
 
-  &:hover { background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 4%, transparent); }
+  &:hover {
+    background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 4%, transparent);
+  }
 
   &--active {
     background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 9%, transparent) !important;
@@ -156,10 +178,16 @@
     padding-left: calc(0.75rem - 3px);
   }
 
-  &--done .rh-seq__nav-lib { color: $gray-400; }
+  &--done .rh-seq__nav-lib {
+    color: $gray-400;
+  }
 }
 
-.rh-seq__nav-icon { flex-shrink: 0; font-size: 0.9rem; line-height: 1; }
+.rh-seq__nav-icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+}
 
 .rh-seq__nav-body {
   flex: 1 1 0;
@@ -201,9 +229,15 @@
   background: $gray-100;
   color: $gray-500;
   border: 1px solid $gray-200;
-  i { font-size: 0.6rem; }
+  i {
+    font-size: 0.6rem;
+  }
 
-  &--ok { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+  &--ok {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+  }
 }
 
 .rh-seq__nav-qty {
@@ -215,8 +249,13 @@
   min-width: 42px;
   text-align: right;
 
-  &--zero    { color: $gray-300; font-weight: 400; }
-  &--partial { color: #f59e0b; }
+  &--zero {
+    color: $gray-300;
+    font-weight: 400;
+  }
+  &--partial {
+    color: #f59e0b;
+  }
 }
 
 .rh-seq__nav-all-done {
@@ -229,7 +268,9 @@
   color: $pharma-success;
   font-size: 0.82rem;
   font-weight: 600;
-  i { font-size: 1.8rem; }
+  i {
+    font-size: 1.8rem;
+  }
 }
 
 // ── Footer nav ────────────────────────────────────────────────────────────────
@@ -250,7 +291,9 @@
     //font-weight: 700;
     //border-radius: 8px;
 
-    &:disabled { opacity: 0.35; }
+    &:disabled {
+      opacity: 0.35;
+    }
   }
 }
 
@@ -299,28 +342,54 @@
   font-size: 0.72rem;
   color: #475569;
 
-  i { font-size: 0.65rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
-  strong { color: $gray-900; }
+  i {
+    font-size: 0.65rem;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
+  }
+  strong {
+    color: $gray-900;
+  }
 
   &--pcb {
-    background: #fef3c7; border-color: #fde68a; color: #92400e;
-    i, strong { color: #92400e; }
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+    i,
+    strong {
+      color: #92400e;
+    }
   }
 
   &--pmp {
-    background: #ede9fe; border-color: #c4b5fd; color: #5b21b6;
-    i { color: #7c3aed; }
-    strong { color: #4c1d95; }
+    background: #ede9fe;
+    border-color: #c4b5fd;
+    color: #5b21b6;
+    i {
+      color: #7c3aed;
+    }
+    strong {
+      color: #4c1d95;
+    }
   }
 
   &--pa-diff {
-    background: #fee2e2; border-color: #fca5a5; color: #991b1b;
-    i, strong { color: #b91c1c; }
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+    i,
+    strong {
+      color: #b91c1c;
+    }
   }
 
   &--cold {
-    background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e;
-    i, strong { color: #0369a1; }
+    background: #e0f2fe;
+    border-color: #7dd3fc;
+    color: #0c4a6e;
+    i,
+    strong {
+      color: #0369a1;
+    }
   }
 }
 
@@ -335,10 +404,21 @@
   font-weight: 600;
   animation: rh-seq-fade 0.2s ease;
 
-  i { font-size: 0.9rem; flex-shrink: 0; }
+  i {
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
 
-  &--ok  { background: #f0fdf4; color: #15803d; border-bottom: 1px solid #bbf7d0; }
-  &--err { background: #fef2f2; color: #991b1b; border-bottom: 1px solid #fecaca; }
+  &--ok {
+    background: #f0fdf4;
+    color: #15803d;
+    border-bottom: 1px solid #bbf7d0;
+  }
+  &--err {
+    background: #fef2f2;
+    color: #991b1b;
+    border-bottom: 1px solid #fecaca;
+  }
 }
 
 .rh-seq__scan-chip {
@@ -350,14 +430,35 @@
   font-size: 0.68rem;
   font-weight: 700;
 
-  &--lot     { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; i { font-size: 0.65rem; } }
-  &--fmd-ok  { background: rgba(13,110,253,.08); color: #0d6efd; border: 1px solid rgba(13,110,253,.2); }
-  &--fmd-dup { background: rgba(220,53,69,.1); color: #dc3545; border: 1px solid rgba(220,53,69,.3); }
+  &--lot {
+    background: #ede9fe;
+    color: #5b21b6;
+    border: 1px solid #c4b5fd;
+    i {
+      font-size: 0.65rem;
+    }
+  }
+  &--fmd-ok {
+    background: rgba(13, 110, 253, 0.08);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+  }
+  &--fmd-dup {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+  }
 }
 
 @keyframes rh-seq-fade {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ── AX-23d — Bandeau CIP provisoire ──────────────────────────────────────────
@@ -466,7 +567,9 @@
   background: $gray-50;
   border: 1px solid $gray-200;
   gap: 0.75rem;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 
   &:focus-within {
     border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary});
@@ -475,8 +578,14 @@
     padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
   }
 
-  &--static { background: transparent; border-color: $gray-100; }
-  &--result { border-style: dashed; background: transparent; }
+  &--static {
+    background: transparent;
+    border-color: $gray-100;
+  }
+  &--result {
+    border-style: dashed;
+    background: transparent;
+  }
 }
 
 .rh-seq__row-label {
@@ -503,7 +612,9 @@
   -moz-appearance: textfield;
 
   &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
 
   &--secondary {
     font-size: 0.95rem !important;
@@ -517,9 +628,15 @@
   font-weight: 700;
   color: $gray-300;
 
-  &--muted { color: $gray-500; }
-  &--ok    { color: $pharma-success; }
-  &--warn  { color: #f59e0b; }
+  &--muted {
+    color: $gray-500;
+  }
+  &--ok {
+    color: $pharma-success;
+  }
+  &--warn {
+    color: #f59e0b;
+  }
 }
 
 // ── Alerte PCB ────────────────────────────────────────────────────────────────
@@ -534,7 +651,9 @@
   color: #c2410c;
   font-size: 0.78rem;
   font-weight: 600;
-  i { font-size: 0.85rem; }
+  i {
+    font-size: 0.85rem;
+  }
 }
 
 // ── Info lots en étape qty ────────────────────────────────────────────────────
@@ -548,8 +667,13 @@
   border: 1px solid #bfdbfe;
   color: #1e40af;
   font-size: 0.76rem;
-  i { flex-shrink: 0; margin-top: 1px; }
-  strong { font-weight: 700; }
+  i {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  strong {
+    font-weight: 700;
+  }
 }
 
 // ── PMP inchangé ─────────────────────────────────────────────────────────────
@@ -564,7 +688,9 @@
   color: #15803d;
   font-size: 0.78rem;
   font-weight: 600;
-  i { font-size: 0.8rem; }
+  i {
+    font-size: 0.8rem;
+  }
 }
 .rh-seq__pmp-stable-val {
   font-weight: 700;
@@ -583,7 +709,9 @@
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
-  &:hover { color: #1d4ed8; }
+  &:hover {
+    color: #1d4ed8;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -603,8 +731,13 @@
   font-size: 0.82rem;
   font-weight: 600;
 
-  i { font-size: 1rem; flex-shrink: 0; }
-  strong { font-weight: 700; }
+  i {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  strong {
+    font-weight: 700;
+  }
 
   &--complete {
     background: #d1fae5;
@@ -633,7 +766,9 @@
   font-weight: 700;
   white-space: nowrap;
 
-  i { font-size: 0.68rem; }
+  i {
+    font-size: 0.68rem;
+  }
 
   &--ug {
     background: #d1fae5;
@@ -660,23 +795,55 @@
   font-size: 0.8rem;
 }
 
-.rh-seq__lot-row-ok { flex-shrink: 0; font-size: 0.8rem; color: $pharma-success; }
-.rh-seq__lot-num    { font-weight: 700; color: #1e40af; flex-shrink: 0; }
-.rh-seq__lot-exp    { color: #3b82f6; font-size: 0.74rem; flex-shrink: 0; }
-.rh-seq__lot-qty    { font-weight: 600; color: #1e40af; margin-left: auto; flex-shrink: 0; }
-.rh-seq__lot-ug     {
-  font-size: 0.7rem; font-weight: 700;
-  padding: 1px 5px; border-radius: 6px;
-  background: #d1fae5; color: #065f46;
+.rh-seq__lot-row-ok {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: $pharma-success;
+}
+.rh-seq__lot-num {
+  font-weight: 700;
+  color: #1e40af;
+  flex-shrink: 0;
+}
+.rh-seq__lot-exp {
+  color: #3b82f6;
+  font-size: 0.74rem;
+  flex-shrink: 0;
+}
+.rh-seq__lot-qty {
+  font-weight: 600;
+  color: #1e40af;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.rh-seq__lot-ug {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: #d1fae5;
+  color: #065f46;
   flex-shrink: 0;
 }
 .rh-seq__lot-del {
-  flex-shrink: 0; background: none; border: none;
-  cursor: pointer; color: #93c5fd; padding: 2px;
-  border-radius: 4px; line-height: 1;
-  transition: color 0.1s, background 0.1s;
-  i { font-size: 0.72rem; }
-  &:hover { color: #dc3545; background: rgba(#dc3545, 0.08); }
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #93c5fd;
+  padding: 2px;
+  border-radius: 4px;
+  line-height: 1;
+  transition:
+    color 0.1s,
+    background 0.1s;
+  i {
+    font-size: 0.72rem;
+  }
+  &:hover {
+    color: #dc3545;
+    background: rgba(#dc3545, 0.08);
+  }
 }
 
 // ── Formulaire nouveau lot ────────────────────────────────────────────────────
@@ -700,9 +867,19 @@
     outline: none !important;
   }
 
-  &--num { width: 200px; text-align: left !important; font-family: monospace; }
-  &--exp { width: 110px; text-align: center; letter-spacing: 0.5px; }
-  &--qty { width: 90px; }
+  &--num {
+    width: 200px;
+    text-align: left !important;
+    font-family: monospace;
+  }
+  &--exp {
+    width: 110px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  &--qty {
+    width: 90px;
+  }
 }
 
 .rh-seq__expiry--critical {
@@ -734,10 +911,20 @@
   font-weight: 600;
   padding: 0.3rem 0.75rem;
   border-radius: 7px;
-  i { font-size: 0.8rem; }
+  i {
+    font-size: 0.8rem;
+  }
 
-  &--critical { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-  &--soon     { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  &--critical {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+  &--soon {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -772,12 +959,35 @@
   background: $gray-50;
   border: 1px solid $gray-200;
 
-  .rh-seq__row-value { font-weight: 700; }
-  .rh-seq__pmp-actuel { font-size: 0.75rem; color: $gray-400; margin-left: 0.4rem; font-weight: 400; }
+  .rh-seq__row-value {
+    font-weight: 700;
+  }
+  .rh-seq__pmp-actuel {
+    font-size: 0.75rem;
+    color: $gray-400;
+    margin-left: 0.4rem;
+    font-weight: 400;
+  }
 
-  &--up   { background: rgba(#dc3545, 0.05); border-color: rgba(#dc3545, 0.25); .rh-seq__row-value { color: #dc3545; } }
-  &--down { background: rgba(#16a34a, 0.05); border-color: rgba(#16a34a, 0.25); .rh-seq__row-value { color: #16a34a; } }
-  &--stable { .rh-seq__row-value { color: $gray-600; } }
+  &--up {
+    background: rgba(#dc3545, 0.05);
+    border-color: rgba(#dc3545, 0.25);
+    .rh-seq__row-value {
+      color: #dc3545;
+    }
+  }
+  &--down {
+    background: rgba(#16a34a, 0.05);
+    border-color: rgba(#16a34a, 0.25);
+    .rh-seq__row-value {
+      color: #16a34a;
+    }
+  }
+  &--stable {
+    .rh-seq__row-value {
+      color: $gray-600;
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -795,8 +1005,13 @@
   font-size: 0.78rem;
   color: var(--pharma-chrome-tab, #{$pharma-primary});
 
-  .rh-seq__batch-icon { font-size: 0.85rem; }
-  .rh-seq__batch-label { flex: 1; font-weight: 600; }
+  .rh-seq__batch-icon {
+    font-size: 0.85rem;
+  }
+  .rh-seq__batch-label {
+    flex: 1;
+    font-weight: 600;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -813,6 +1028,20 @@
   text-align: center;
 }
 
-.rh-seq__all-done-icon  { font-size: 3.5rem; color: $pharma-success; }
-.rh-seq__all-done-title { font-size: 1.15rem; font-weight: 700; color: $gray-800; margin: 0; }
-.rh-seq__all-done-hint  { font-size: 0.82rem; color: $gray-500; margin: 0; max-width: 380px; line-height: 1.5; }
+.rh-seq__all-done-icon {
+  font-size: 3.5rem;
+  color: $pharma-success;
+}
+.rh-seq__all-done-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: $gray-800;
+  margin: 0;
+}
+.rh-seq__all-done-hint {
+  font-size: 0.82rem;
+  color: $gray-500;
+  margin: 0;
+  max-width: 380px;
+  line-height: 1.5;
+}

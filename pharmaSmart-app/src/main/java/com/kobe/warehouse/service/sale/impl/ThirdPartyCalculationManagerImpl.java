@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
@@ -11,9 +13,9 @@ import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculationInput;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculationResult;
@@ -22,10 +24,6 @@ import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TvaRepartitionDto;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,8 +31,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Objects.isNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Implémentation du service de calcul des montants pour les ventes avec tiers-payants.
@@ -52,13 +51,12 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     private final SaleAmountCalculator saleAmountCalculator;
 
     public ThirdPartyCalculationManagerImpl(
-        TiersPayantCalculationService tiersPayantCalculationService,
-        ThirdPartySaleLineService thirdPartySaleLineService,
-        SaleLineServiceFactory saleLineServiceFactory,
-        ThirdPartySaleRepository thirdPartySaleRepository,
-        PrixRererenceService prixRererenceService,
-        SaleAmountCalculator saleAmountCalculator
-    ) {
+            TiersPayantCalculationService tiersPayantCalculationService,
+            ThirdPartySaleLineService thirdPartySaleLineService,
+            SaleLineServiceFactory saleLineServiceFactory,
+            ThirdPartySaleRepository thirdPartySaleRepository,
+            PrixRererenceService prixRererenceService,
+            SaleAmountCalculator saleAmountCalculator) {
         this.tiersPayantCalculationService = tiersPayantCalculationService;
         this.thirdPartySaleLineService = thirdPartySaleLineService;
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.ThirdPartySales);
@@ -69,32 +67,22 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
 
     @Override
     public String upddateThirdPartySaleAmounts(
-        ThirdPartySales thirdPartySales,
-        boolean isUpdate,
-        List<CompteTiersPayant> clientTiersPayants
-    ) {
+            ThirdPartySales thirdPartySales, boolean isUpdate, List<CompteTiersPayant> clientTiersPayants) {
         saleAmountCalculator.updateAmounts(thirdPartySales);
         return reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, isUpdate);
     }
 
     @Override
     public String reComputeAndApplyAmounts(
-        ThirdPartySales thirdPartySales,
-        List<CompteTiersPayant> clientTiersPayants,
-        boolean isUpdate
-    ) {
+            ThirdPartySales thirdPartySales, List<CompteTiersPayant> clientTiersPayants, boolean isUpdate) {
         if (CollectionUtils.isEmpty(clientTiersPayants)) {
-            clientTiersPayants = thirdPartySales
-                .getThirdPartySaleLines()
-                .stream()
-                .map(tp -> new CompteTiersPayant(tp.getClientTiersPayant(), tp.getNumBon(),
-                    tp.getTauxVente()))
-                .toList();
+            clientTiersPayants = thirdPartySales.getThirdPartySaleLines().stream()
+                    .map(tp -> new CompteTiersPayant(tp.getClientTiersPayant(), tp.getNumBon(), tp.getTauxVente()))
+                    .toList();
         }
 
-        CalculationResult output = tiersPayantCalculationService.calculate(
-            buildCalculationInput(thirdPartySales, clientTiersPayants)
-        );
+        CalculationResult output =
+                tiersPayantCalculationService.calculate(buildCalculationInput(thirdPartySales, clientTiersPayants));
         if (isNull(output)) {
             thirdPartySales.setPartTiersPayant(0);
             thirdPartySales.setMontantNonRembourse(0);
@@ -105,48 +93,46 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
 
         int totalPatientShare = output.getTotalPatientShare().intValue();
         thirdPartySales.setPartTiersPayant(output.getTotalTiersPayant().intValue());
-        thirdPartySales.setMontantNonRembourse(
-            thirdPartySales.getSalesLines().stream().filter(SalesLine::isNonRembourse).mapToInt(SalesLine::getSalesAmount).sum()
-        );
+        thirdPartySales.setMontantNonRembourse(thirdPartySales.getSalesLines().stream()
+                .filter(SalesLine::isNonRembourse)
+                .mapToInt(SalesLine::getSalesAmount)
+                .sum());
         thirdPartySales.setPartAssure(totalPatientShare);
         thirdPartySales.setAmountToBePaid(saleAmountCalculator.roundedAmount(totalPatientShare));
 
         // Apply results to ThirdPartySaleLine entities
         for (TiersPayantLineOutput lineResult : output.getTiersPayantLines()) {
-            findSaleLineByClientTiersPayantId(thirdPartySales, lineResult.getClientTiersPayantId()).ifPresent(saleLine -> {
-                saleLine.setMontant(lineResult.getMontant().intValue());
-                saleLine.setTaux((short) lineResult.getFinalTaux());
+            findSaleLineByClientTiersPayantId(thirdPartySales, lineResult.getClientTiersPayantId())
+                    .ifPresent(saleLine -> {
+                        saleLine.setMontant(lineResult.getMontant().intValue());
+                        saleLine.setTaux((short) lineResult.getFinalTaux());
 
-                // Save TVA repartitions
-                if (!CollectionUtils.isEmpty(lineResult.getRepartitions())) {
-                    List<RepartitionTiersPayantParTva> repartitions = lineResult
-                        .getRepartitions()
-                        .stream()
-                        .map(TvaRepartitionDto::toDomainRecord)
-                        .toList();
-                    saleLine.setRepartitions(repartitions);
-                }
+                        // Save TVA repartitions
+                        if (!CollectionUtils.isEmpty(lineResult.getRepartitions())) {
+                            List<RepartitionTiersPayantParTva> repartitions = lineResult.getRepartitions().stream()
+                                    .map(TvaRepartitionDto::toDomainRecord)
+                                    .toList();
+                            saleLine.setRepartitions(repartitions);
+                        }
 
-                if (isUpdate) {
-                    this.thirdPartySaleLineService.save(saleLine);
-                }
-            });
+                        if (isUpdate) {
+                            this.thirdPartySaleLineService.save(saleLine);
+                        }
+                    });
         }
 
         // Apply item-level results to SalesLine entities
         for (SalesLine saleLine : thirdPartySales.getSalesLines()) {
-            output
-                .getItemShares()
-                .stream()
-                .filter(s -> s.getSaleLineId().equals(saleLine.getId().getId()))
-                .findFirst()
-                .ifPresent(itemShare -> {
-                    saleLine.setCalculationBasePrice(itemShare.getCalculationBasePrice());
-                    saleLine.setRates(itemShare.getRates());
-                    if (isUpdate) {
-                        this.salesLineService.saveSalesLine(saleLine);
-                    }
-                });
+            output.getItemShares().stream()
+                    .filter(s -> s.getSaleLineId().equals(saleLine.getId().getId()))
+                    .findFirst()
+                    .ifPresent(itemShare -> {
+                        saleLine.setCalculationBasePrice(itemShare.getCalculationBasePrice());
+                        saleLine.setRates(itemShare.getRates());
+                        if (isUpdate) {
+                            this.salesLineService.saveSalesLine(saleLine);
+                        }
+                    });
         }
 
         thirdPartySales.setHasPriceOption(output.hasPriceOption());
@@ -198,42 +184,41 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
      * @param tiersPayantIds     l'ensemble des identifiants de tiers-payants (modifié par effet de bord)
      * @return la liste des inputs de tiers-payants
      */
-    private List<TiersPayantInput> buildTiersPayantInputs(List<CompteTiersPayant> clientTiersPayants, Set<Integer> tiersPayantIds) {
+    private List<TiersPayantInput> buildTiersPayantInputs(
+            List<CompteTiersPayant> clientTiersPayants, Set<Integer> tiersPayantIds) {
         if (CollectionUtils.isEmpty(clientTiersPayants)) {
             return Collections.emptyList();
         }
-        return clientTiersPayants
-            .stream()
-            .map(ctp -> {
-                ClientTiersPayant clientTiersPayant = ctp.clientTiersPayant();
-                TiersPayantInput ti = new TiersPayantInput();
-                TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
-                tiersPayantIds.add(tiersPayant.getId());
-                ti.setClientTiersPayantId(clientTiersPayant.getId());
-                ti.setTiersPayantId(tiersPayant.getId());
-                ti.setTiersPayantFullName(tiersPayant.getFullName());
-                short cmpTaux = (short) clientTiersPayant.getTaux();
-                if (ctp.tauxVente() > 0 && ctp.tauxVente() != cmpTaux) {
-                    cmpTaux = ctp.tauxVente();
-                }
-                ti.setTaux(cmpTaux / 100.0f);
-                ti.setPriorite(clientTiersPayant.getPriorite());
-                // Plafond CLIENT, et non plafond de l'organisme : il est comparé à la
-                // consommation du CONTRAT (ligne suivante), pas à celle de l'organisme.
-                // Confronter un cumul client à une enveloppe globale rendait le plafonnement
-                // inopérant — l'enveloppe se compte en dizaines de millions, la consommation
-                // d'un assuré en dizaines de milliers. `SaleDataService` alimente d'ailleurs
-                // le même champ depuis `getPlafondConsoClient()`.
-                Optional
-                    .ofNullable(tiersPayant.getPlafondConsoClient())
-                    .ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
-                Optional.ofNullable(clientTiersPayant.getConsoMensuelle()).ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
-                Optional
-                    .ofNullable(tiersPayant.getPlafondJournalierClient())
-                    .ifPresent(v -> ti.setPlafondJournalierClient(BigDecimal.valueOf(v)));
-                return ti;
-            })
-            .toList();
+        return clientTiersPayants.stream()
+                .map(ctp -> {
+                    ClientTiersPayant clientTiersPayant = ctp.clientTiersPayant();
+                    TiersPayantInput ti = new TiersPayantInput();
+                    TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
+                    tiersPayantIds.add(tiersPayant.getId());
+                    ti.setClientTiersPayantId(clientTiersPayant.getId());
+                    ti.setTiersPayantId(tiersPayant.getId());
+                    ti.setTiersPayantFullName(tiersPayant.getFullName());
+                    short cmpTaux = (short) clientTiersPayant.getTaux();
+                    if (ctp.tauxVente() > 0 && ctp.tauxVente() != cmpTaux) {
+                        cmpTaux = ctp.tauxVente();
+                    }
+                    ti.setTaux(cmpTaux / 100.0f);
+                    ti.setPriorite(clientTiersPayant.getPriorite());
+                    // Plafond CLIENT, et non plafond de l'organisme : il est comparé à la
+                    // consommation du CONTRAT (ligne suivante), pas à celle de l'organisme.
+                    // Confronter un cumul client à une enveloppe globale rendait le plafonnement
+                    // inopérant — l'enveloppe se compte en dizaines de millions, la consommation
+                    // d'un assuré en dizaines de milliers. `SaleDataService` alimente d'ailleurs
+                    // le même champ depuis `getPlafondConsoClient()`.
+                    Optional.ofNullable(tiersPayant.getPlafondConsoClient())
+                            .ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
+                    Optional.ofNullable(clientTiersPayant.getConsoMensuelle())
+                            .ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
+                    Optional.ofNullable(tiersPayant.getPlafondJournalierClient())
+                            .ifPresent(v -> ti.setPlafondJournalierClient(BigDecimal.valueOf(v)));
+                    return ti;
+                })
+                .toList();
     }
 
     /**
@@ -246,47 +231,46 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
      * @return la liste des inputs d'articles
      */
     private List<SaleItemInput> buildSaleItemInputs(
-        ThirdPartySales sale,
-        CalculationInput input,
-        Set<Integer> tiersPayantIds,
-        List<TiersPayantInput> tiersPayantInputs
-    ) {
-        return sale
-            .getSalesLines()
-            .stream()
-            .map(sl -> {
-                SaleItemInput si = new SaleItemInput();
-                Produit produit = sl.getProduit();
-                si.setSalesLineId(sl.getId().getId());
-                si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
-                si.setQuantity(sl.getQuantityRequested());
-                si.setNonRembourse(sl.isNonRembourse());
-                si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
+            ThirdPartySales sale,
+            CalculationInput input,
+            Set<Integer> tiersPayantIds,
+            List<TiersPayantInput> tiersPayantInputs) {
+        return sale.getSalesLines().stream()
+                .map(sl -> {
+                    SaleItemInput si = new SaleItemInput();
+                    Produit produit = sl.getProduit();
+                    si.setSalesLineId(sl.getId().getId());
+                    si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
+                    si.setQuantity(sl.getQuantityRequested());
+                    si.setNonRembourse(sl.isNonRembourse());
+                    si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
 
-                // Extract TVA rate from product
-                Tva tva = produit.getTva();
-                si.setTvaRate(tva.getTaux());
+                    // Extract TVA rate from product
+                    Tva tva = produit.getTva();
+                    si.setTvaRate(tva.getTaux());
 
-                input.setTotalSalesAmount(
-                    Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(si.getTotalSalesAmount())
-                );
+                    input.setTotalSalesAmount(Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO)
+                            .add(si.getTotalSalesAmount()));
 
-                // Add prix references for this product
-                this.prixRererenceService.findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds).forEach(prixRef ->
-                    tiersPayantInputs.forEach(cl -> {
-                        if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {
-                            TiersPayantPrixInput pi = new TiersPayantPrixInput();
-                            pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
-                            pi.setPrice(prixRef.getPrice());
-                            pi.setRate(prixRef.getRate());
-                            pi.setOptionPrixType(prixRef.getType());
-                            si.getPrixAssurances().add(pi);
-                        }
-                    })
-                );
-                return si;
-            })
-            .toList();
+                    // Add prix references for this product
+                    this.prixRererenceService
+                            .findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds)
+                            .forEach(prixRef -> tiersPayantInputs.forEach(cl -> {
+                                if (cl.getTiersPayantId()
+                                                .compareTo(
+                                                        prixRef.getTiersPayant().getId())
+                                        == 0) {
+                                    TiersPayantPrixInput pi = new TiersPayantPrixInput();
+                                    pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
+                                    pi.setPrice(prixRef.getPrice());
+                                    pi.setRate(prixRef.getRate());
+                                    pi.setOptionPrixType(prixRef.getType());
+                                    si.getPrixAssurances().add(pi);
+                                }
+                            }));
+                    return si;
+                })
+                .toList();
     }
 
     /**
@@ -296,11 +280,10 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
      * @param clientTiersPayantId l'identifiant du client tiers-payant
      * @return Optional contenant la ligne si trouvée
      */
-    private Optional<ThirdPartySaleLine> findSaleLineByClientTiersPayantId(ThirdPartySales sale, Integer clientTiersPayantId) {
-        return sale
-            .getThirdPartySaleLines()
-            .stream()
-            .filter(line -> line.getClientTiersPayant().getId().equals(clientTiersPayantId))
-            .findFirst();
+    private Optional<ThirdPartySaleLine> findSaleLineByClientTiersPayantId(
+            ThirdPartySales sale, Integer clientTiersPayantId) {
+        return sale.getThirdPartySaleLines().stream()
+                .filter(line -> line.getClientTiersPayant().getId().equals(clientTiersPayantId))
+                .findFirst();
     }
 }

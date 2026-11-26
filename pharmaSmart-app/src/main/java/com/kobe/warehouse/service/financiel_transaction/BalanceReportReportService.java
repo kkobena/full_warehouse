@@ -7,11 +7,9 @@ import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -27,17 +25,12 @@ public class BalanceReportReportService extends CommonReportService {
     private String templateFile;
     private List<BalanceCaisseDTO> items;
 
-    public BalanceReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public BalanceReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;
     }
-
-
 
     @Override
     protected List<BalanceCaisseDTO> getItems() {
@@ -69,7 +62,6 @@ public class BalanceReportReportService extends CommonReportService {
     protected String getGenerateFileName() {
         return "balance_vente";
     }
-
 
     public byte[] exportToPdfBytes(BalanceCaisseWrapper balanceCaisseWrapper, ReportPeriode reportPeriode) {
         this.items = balanceCaisseWrapper.getBalanceCaisses();

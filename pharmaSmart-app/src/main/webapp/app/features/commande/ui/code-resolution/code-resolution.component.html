@@ -32,8 +32,8 @@
     </div>
     @if (donnees.proposition) {
       <p class="cr-hint__note cr-hint__note--warn">
-        Ce code ne suit pas le standard GS1 : ces valeurs sont déduites de sa forme, pas lues.
-        Vérifiez-les sur la boîte — elles pré-rempliront le lot, sans le créer.
+        Ce code ne suit pas le standard GS1 : ces valeurs sont déduites de sa forme, pas lues. Vérifiez-les sur la boîte — elles
+        pré-rempliront le lot, sans le créer.
       </p>
     } @else {
       <p class="cr-hint__note">Ces valeurs seront reprises après confirmation : rien n'est perdu.</p>
@@ -75,11 +75,7 @@
   }
 </div>
 
-<app-checkbox
-  label="Mémoriser ce code pour cet article"
-  [ngModel]="memoriser()"
-  (ngModelChange)="memoriser.set($event)"
-/>
+<app-checkbox label="Mémoriser ce code pour cet article" [ngModel]="memoriser()" (ngModelChange)="memoriser.set($event)" />
 <p class="cr-memo-note">Mémorisé, ce code sera reconnu seul aux prochaines réceptions et au comptoir.</p>
 
 <div class="cr-actions">

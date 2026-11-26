@@ -47,11 +47,10 @@ public class RayonProduitService {
     private EntityManager entityManager;
 
     public RayonProduitService(
-        RayonProduitRepository rayonProduitRepository,
-        RayonRepository rayonRepository,
-        StockProduitRepository stockProduitRepository,
-        FournisseurProduitRepository fournisseurProduitRepository
-    ) {
+            RayonProduitRepository rayonProduitRepository,
+            RayonRepository rayonRepository,
+            StockProduitRepository stockProduitRepository,
+            FournisseurProduitRepository fournisseurProduitRepository) {
         this.rayonProduitRepository = rayonProduitRepository;
         this.rayonRepository = rayonRepository;
         this.stockProduitRepository = stockProduitRepository;
@@ -72,9 +71,7 @@ public class RayonProduitService {
         }
 
         Optional<RayonProduit> existing = rayonProduitRepository.findByProduitIdAndStorageId(
-            dto.getProduitId(),
-            targetRayon.getStorage().getId()
-        );
+                dto.getProduitId(), targetRayon.getStorage().getId());
 
         if (existing.isPresent()) {
             RayonProduit currentAffectation = existing.get();
@@ -83,10 +80,9 @@ public class RayonProduitService {
                 removeAndEvict(currentAffectation);
             } else {
                 throw new GenericError(
-                    "Le produit est déjà rattaché au rayon \"" + currentRayon.getLibelle() + "\"",
-                    "duplicateProduitStockage",
-                    Map.of("rayonCode", currentRayon.getCode(), "rayonLibelle", currentRayon.getLibelle())
-                );
+                        "Le produit est déjà rattaché au rayon \"" + currentRayon.getLibelle() + "\"",
+                        "duplicateProduitStockage",
+                        Map.of("rayonCode", currentRayon.getCode(), "rayonLibelle", currentRayon.getLibelle()));
             }
         }
 
@@ -103,8 +99,10 @@ public class RayonProduitService {
     public Optional<RayonProduitDTO> move(RayonProduitDTO dto) throws GenericError {
         Rayon targetRayon = rayonRepository.getReferenceById(dto.getRayonId());
 
-        rayonProduitRepository.findByProduitIdAndStorageId(dto.getProduitId(), targetRayon.getStorage().getId())
-            .ifPresent(this::removeAndEvict);
+        rayonProduitRepository
+                .findByProduitIdAndStorageId(
+                        dto.getProduitId(), targetRayon.getStorage().getId())
+                .ifPresent(this::removeAndEvict);
 
         RayonProduit rayonProduit = new RayonProduit();
         rayonProduit.setProduit(new Produit().id(dto.getProduitId()));
@@ -118,9 +116,8 @@ public class RayonProduitService {
     public void delete(Integer id) throws GenericError {
         RayonProduit rayonProduit = rayonProduitRepository.getReferenceById(id);
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
-            rayonProduit.getProduit().getId(),
-            rayonProduit.getRayon().getStorage().getId()
-        );
+                rayonProduit.getProduit().getId(),
+                rayonProduit.getRayon().getStorage().getId());
         if (stockProduit != null && (stockProduit.getQtyStock() > 0 || stockProduit.getQtyUG() > 0)) {
             throw new GenericError("Le produit est en stock dans ce rayon", "stockConflic");
         }
@@ -130,8 +127,10 @@ public class RayonProduitService {
     public void moveBatch(RayonProduitBatchMoveDTO dto) throws GenericError {
         Rayon targetRayon = rayonRepository.getReferenceById(dto.rayonId());
         for (Integer produitId : dto.produitIds()) {
-            rayonProduitRepository.findByProduitIdAndStorageId(produitId, targetRayon.getStorage().getId())
-                .ifPresent(this::removeAndEvict);
+            rayonProduitRepository
+                    .findByProduitIdAndStorageId(
+                            produitId, targetRayon.getStorage().getId())
+                    .ifPresent(this::removeAndEvict);
             RayonProduit rayonProduit = new RayonProduit();
             rayonProduit.setProduit(new Produit().id(produitId));
             rayonProduit.setRayon(targetRayon);
@@ -150,7 +149,8 @@ public class RayonProduitService {
 
             for (RayonProduit rp : sourceAssignments) {
                 Integer produitId = rp.getProduit().getId();
-                Optional<RayonProduit> existing = rayonProduitRepository.findByProduitIdAndStorageId(produitId, targetStorageId);
+                Optional<RayonProduit> existing =
+                        rayonProduitRepository.findByProduitIdAndStorageId(produitId, targetStorageId);
                 if (existing.isPresent()) {
                     if (SANS_RAYON_CODE.equals(existing.get().getRayon().getCode())) {
                         removeAndEvict(existing.get());
@@ -169,10 +169,10 @@ public class RayonProduitService {
 
         entityManager.flush();
         return new ResponseDTO()
-            .size(created)
-            .totalSize(created + skipped)
-            .success(true)
-            .message(created + " affectation(s) créées, " + skipped + " ignorée(s) (déjà affectées)");
+                .size(created)
+                .totalSize(created + skipped)
+                .success(true)
+                .message(created + " affectation(s) créées, " + skipped + " ignorée(s) (déjà affectées)");
     }
 
     public ResponseDTO importFromCsv(InputStream inputStream, Integer storageId) {
@@ -181,19 +181,32 @@ public class RayonProduitService {
         AtomicInteger skipped = new AtomicInteger(0);
         AtomicInteger lineIndex = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             for (CSVRecord record : records) {
                 if (lineIndex.getAndIncrement() == 0) continue;
-                if (record.size() < 2) { errors.incrementAndGet(); continue; }
+                if (record.size() < 2) {
+                    errors.incrementAndGet();
+                    continue;
+                }
                 String codeCip = record.get(0).trim();
                 String rayonCode = record.get(1).trim();
-                if (codeCip.isEmpty() || rayonCode.isEmpty()) { errors.incrementAndGet(); continue; }
+                if (codeCip.isEmpty() || rayonCode.isEmpty()) {
+                    errors.incrementAndGet();
+                    continue;
+                }
 
                 var fp = fournisseurProduitRepository.findFirstByCodeCip(codeCip);
-                if (fp.isEmpty()) { errors.incrementAndGet(); continue; }
+                if (fp.isEmpty()) {
+                    errors.incrementAndGet();
+                    continue;
+                }
 
                 var rayon = rayonRepository.findFirstByCodeAndStorageId(rayonCode, storageId);
-                if (rayon.isEmpty()) { errors.incrementAndGet(); continue; }
+                if (rayon.isEmpty()) {
+                    errors.incrementAndGet();
+                    continue;
+                }
 
                 Integer produitId = fp.get().getProduit().getId();
 
@@ -212,11 +225,12 @@ public class RayonProduitService {
         }
         int total = success.get() + errors.get() + skipped.get();
         return new ResponseDTO()
-            .size(success.get())
-            .totalSize(total)
-            .setErrorSize(errors.get())
-            .success(errors.get() == 0)
-            .message(success.get() + " affectation(s) créées, " + errors.get() + " erreur(s), " + skipped.get() + " ignorée(s)");
+                .size(success.get())
+                .totalSize(total)
+                .setErrorSize(errors.get())
+                .success(errors.get() == 0)
+                .message(success.get() + " affectation(s) créées, " + errors.get() + " erreur(s), " + skipped.get()
+                        + " ignorée(s)");
     }
 
     // Supprime un RayonProduit et évicte le Produit parent du cache L2 (entité + collection).
@@ -227,9 +241,9 @@ public class RayonProduitService {
         rayonProduitRepository.delete(rayonProduit);
         rayonProduitRepository.flush();
         org.hibernate.Cache cache = entityManager
-            .unwrap(org.hibernate.Session.class)
-            .getSessionFactory()
-            .getCache();
+                .unwrap(org.hibernate.Session.class)
+                .getSessionFactory()
+                .getCache();
         cache.evictEntityData(Produit.class, produitId);
         cache.evictCollectionData("com.kobe.warehouse.domain.Produit.rayonProduits", produitId);
     }

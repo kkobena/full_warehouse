@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-export type SalesManagementTab = 'journal' | 'en-cours' | 'presales' | 'devis' | 'annulations' | 'vente-depot' | 'avoirs' | 'kpi' | 'retour-client';
+export type SalesManagementTab =
+  'journal' | 'en-cours' | 'presales' | 'devis' | 'annulations' | 'vente-depot' | 'avoirs' | 'kpi' | 'retour-client';
 
 function todayNgb(): NgbDateStruct {
   const d = new Date();

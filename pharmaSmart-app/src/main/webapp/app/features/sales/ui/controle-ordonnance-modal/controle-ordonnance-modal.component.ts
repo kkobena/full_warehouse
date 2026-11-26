@@ -1,17 +1,17 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {IAlerteControle, NiveauControle} from 'app/entities/customer/customer-fiche.model';
-import {ButtonComponent, PasswordComponent} from '../../../../shared/ui';
-import {DROIT_FORCER_ALERTE_SANTE} from '../alerte-sante-modal/alerte-sante-modal.component';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { IAlerteControle, NiveauControle } from 'app/entities/customer/customer-fiche.model';
+import { ButtonComponent, PasswordComponent } from '../../../../shared/ui';
+import { DROIT_FORCER_ALERTE_SANTE } from '../alerte-sante-modal/alerte-sante-modal.component';
 
 const LIBELLES_NIVEAU: Record<NiveauControle, string> = {
   CI: 'Contre-indication',
   AD: 'Association déconseillée',
-  PE: 'Précaution d\'emploi',
-  APEC: 'À prendre en compte'
+  PE: "Précaution d'emploi",
+  APEC: 'À prendre en compte',
 };
 
 /**
@@ -29,10 +29,14 @@ const LIBELLES_NIVEAU: Record<NiveauControle, string> = {
       <h5 class="modal-title"><i class="pi pi-exclamation-triangle me-2"></i>Contrôle de l'ordonnance</h5>
     </div>
     <div class="modal-body">
-      <p class="mb-2"><strong>{{ produitLibelle }}</strong></p>
+      <p class="mb-2">
+        <strong>{{ produitLibelle }}</strong>
+      </p>
       @for (alerte of alertes; track alerte.message) {
         <div class="alert py-2" [class.alert-danger]="alerte.bloquant" [class.alert-warning]="!alerte.bloquant">
-          <div><span class="badge bg-dark me-2">{{ libelle(alerte.niveau) }}</span>{{ alerte.message }}</div>
+          <div>
+            <span class="badge bg-dark me-2">{{ libelle(alerte.niveau) }}</span>{{ alerte.message }}
+          </div>
           @if (alerte.conduite) {
             <div class="small mt-1"><strong>Conduite à tenir :</strong> {{ alerte.conduite }}</div>
           }
@@ -44,8 +48,13 @@ const LIBELLES_NIVEAU: Record<NiveauControle, string> = {
       <div class="small text-muted mb-3">{{ limite }} L'outil aide, il ne décide pas.</div>
       @if (exigeMotif()) {
         <label class="form-label" for="motifControle">Motif de la délivrance <span class="text-danger">*</span></label>
-        <textarea [(ngModel)]="motif" class="form-control mb-3" id="motifControle" rows="2"
-                  placeholder="Prescription maintenue par le médecin, associations surveillées…"></textarea>
+        <textarea
+          [(ngModel)]="motif"
+          class="form-control mb-3"
+          id="motifControle"
+          rows="2"
+          placeholder="Prescription maintenue par le médecin, associations surveillées…"
+        ></textarea>
         @if (!peutForcer) {
           <label class="form-label" for="cleControle">Clé de sécurité d'un pharmacien <span class="text-danger">*</span></label>
           <app-password [(ngModel)]="cle" autocomplete="off" inputId="cleControle" />
@@ -57,11 +66,15 @@ const LIBELLES_NIVEAU: Record<NiveauControle, string> = {
     </div>
     <div class="modal-footer">
       <app-button (clicked)="annuler()" icon="pi pi-times" label="Ne pas ajouter" severity="secondary" />
-      <app-button (clicked)="confirmer()" [disabled]="enCours()" icon="pi pi-check"
-                  [label]="exigeMotif() ? 'Ajouter malgré l\\'alerte' : 'J\\'ai pris connaissance'"
-                  [severity]="exigeMotif() ? 'danger' : 'primary'" />
+      <app-button
+        (clicked)="confirmer()"
+        [disabled]="enCours()"
+        icon="pi pi-check"
+        [label]="exigeMotif() ? 'Ajouter malgré l\\'alerte' : 'J\\'ai pris connaissance'"
+        [severity]="exigeMotif() ? 'danger' : 'primary'"
+      />
     </div>
-  `
+  `,
 })
 export class ControleOrdonnanceModalComponent {
   customerId!: number;
@@ -106,14 +119,14 @@ export class ControleOrdonnanceModalComponent {
       .prendreEnCompteControle(this.customerId, {
         produitIds: this.produitIds,
         motif: this.motif.trim() || undefined,
-        actionAuthorityKey: this.exigeMotif() && !this.peutForcer ? this.cle : undefined
+        actionAuthorityKey: this.exigeMotif() && !this.peutForcer ? this.cle : undefined,
       })
       .subscribe({
         next: () => this.activeModal.close(true),
         error: err => {
           this.enCours.set(false);
           this.erreur.set(err?.error?.message ?? "La prise en compte n'a pas pu être enregistrée.");
-        }
+        },
       });
   }
 }

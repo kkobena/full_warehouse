@@ -45,6 +45,7 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
     private static final int COL_QUANTITE_MODIFIEE_MANUEL = 18;
     /** S4.4 — Colisage */
     private static final int COL_QTE_COLIS = 19;
+
     private static final int COL_QTE_MINIMALE_COMMANDE = 20;
     private final EntityManager em;
 
@@ -52,22 +53,28 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         this.em = em;
     }
 
-
-
     @Override
     public Page<SuggestionLineDTO> fetchSuggestionLinesWithConsommation(
-        Integer suggestionId, String search, String niveauUrgence, Integer storageId, LocalDate dateRetention, int nthMois, Pageable pageable
-    ) {
+            Integer suggestionId,
+            String search,
+            String niveauUrgence,
+            Integer storageId,
+            LocalDate dateRetention,
+            int nthMois,
+            Pageable pageable) {
         return doFetch(suggestionId, search, niveauUrgence, storageId, dateRetention, pageable, nthMois);
     }
 
     // ─── orchestration ────────────────────────────────────────────────
 
     private Page<SuggestionLineDTO> doFetch(
-        Integer suggestionId, String search, String niveauUrgence, Integer storageId,
-        LocalDate dateRetention, Pageable pageable,
-        int nthMois
-    ) {
+            Integer suggestionId,
+            String search,
+            String niveauUrgence,
+            Integer storageId,
+            LocalDate dateRetention,
+            Pageable pageable,
+            int nthMois) {
         boolean hasSearch = StringUtils.hasLength(search);
         boolean hasUrgence = StringUtils.hasLength(niveauUrgence) && !"TOUS".equals(niveauUrgence);
         boolean unpaged = pageable.isUnpaged();
@@ -77,19 +84,36 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
 
         // COUNT inutile quand on récupère tout
         long total = unpaged
-            ? -1
-            : count(baseFrom + searchClause + urgenceClause, storageId, suggestionId, hasSearch, search, hasUrgence, niveauUrgence);
+                ? -1
+                : count(
+                        baseFrom + searchClause + urgenceClause,
+                        storageId,
+                        suggestionId,
+                        hasSearch,
+                        search,
+                        hasUrgence,
+                        niveauUrgence);
 
         if (!unpaged && total == 0) {
             return Page.empty(pageable);
         }
 
-        String dataSql = selectClause() + baseFrom + searchClause + urgenceClause
-            + (unpaged ? orderClause() : orderAndPagination());
+        String dataSql = selectClause()
+                + baseFrom
+                + searchClause
+                + urgenceClause
+                + (unpaged ? orderClause() : orderAndPagination());
 
         List<Object[]> rows = executeData(
-            dataSql, storageId, suggestionId, dateRetention, pageable, hasSearch, search, hasUrgence, niveauUrgence
-        );
+                dataSql,
+                storageId,
+                suggestionId,
+                dateRetention,
+                pageable,
+                hasSearch,
+                search,
+                hasUrgence,
+                niveauUrgence);
 
         if (unpaged && rows.isEmpty()) {
             return Page.empty(pageable);
@@ -98,19 +122,19 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         Map<Integer, Map<Mois, Integer>> consoParProduit = Collections.emptyMap();
         if (!rows.isEmpty()) {
             List<Integer> produitIds = rows.stream()
-                .map(row -> ((Number) row[COL_PRODUIT_ID]).intValue())
-                .distinct()
-                .toList();
+                    .map(row -> ((Number) row[COL_PRODUIT_ID]).intValue())
+                    .distinct()
+                    .toList();
             consoParProduit = fetchConsommationMensuelle(produitIds, nthMois);
         }
 
         Map<Integer, Map<Mois, Integer>> finalConsoParProduit = consoParProduit;
         List<SuggestionLineDTO> content = rows.stream()
-            .map(row -> {
-                Integer produitId = ((Number) row[COL_PRODUIT_ID]).intValue();
-                return toDto(row, finalConsoParProduit.get(produitId));
-            })
-            .toList();
+                .map(row -> {
+                    Integer produitId = ((Number) row[COL_PRODUIT_ID]).intValue();
+                    return toDto(row, finalConsoParProduit.get(produitId));
+                })
+                .toList();
 
         long resolvedTotal = unpaged ? content.size() : total;
         return new PageImpl<>(content, pageable, resolvedTotal);
@@ -137,9 +161,8 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
             ORDER BY mv.produit_id, mv.mois ASC
         """.formatted(nthMois);
 
-        List<Object[]> rows = em.createNativeQuery(sql)
-            .setParameter("produitIds", produitIds)
-            .getResultList();
+        List<Object[]> rows =
+                em.createNativeQuery(sql).setParameter("produitIds", produitIds).getResultList();
 
         Map<Integer, Map<Mois, Integer>> result = new HashMap<>();
         for (Object[] row : rows) {
@@ -292,14 +315,19 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         """;
     }
 
-
-
     // ─── query execution ──────────────────────────────────────────────
 
-    private long count(String whereClause, Integer storageId, Integer suggestionId, boolean hasSearch, String search, boolean hasUrgence, String niveauUrgence) {
+    private long count(
+            String whereClause,
+            Integer storageId,
+            Integer suggestionId,
+            boolean hasSearch,
+            String search,
+            boolean hasUrgence,
+            String niveauUrgence) {
         Query query = em.createNativeQuery("SELECT COUNT(*) " + whereClause)
-            .setParameter("storageId", storageId)
-            .setParameter("suggestionId", suggestionId);
+                .setParameter("storageId", storageId)
+                .setParameter("suggestionId", suggestionId);
         if (hasSearch) {
             query.setParameter("search", search.toUpperCase() + "%");
         }
@@ -311,16 +339,21 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
 
     @SuppressWarnings("unchecked")
     private List<Object[]> executeData(
-        String sql, Integer storageId, Integer suggestionId,
-        LocalDate dateRetention, Pageable pageable, boolean hasSearch, String search, boolean hasUrgence, String niveauUrgence
-    ) {
+            String sql,
+            Integer storageId,
+            Integer suggestionId,
+            LocalDate dateRetention,
+            Pageable pageable,
+            boolean hasSearch,
+            String search,
+            boolean hasUrgence,
+            String niveauUrgence) {
         Query query = em.createNativeQuery(sql)
-            .setParameter("storageId", storageId)
-            .setParameter("suggestionId", suggestionId)
-            .setParameter("dateRetention", dateRetention);
+                .setParameter("storageId", storageId)
+                .setParameter("suggestionId", suggestionId)
+                .setParameter("dateRetention", dateRetention);
         if (!pageable.isUnpaged()) {
-            query.setParameter("limit", pageable.getPageSize())
-                 .setParameter("offset", pageable.getOffset());
+            query.setParameter("limit", pageable.getPageSize()).setParameter("offset", pageable.getOffset());
         }
         if (hasSearch) {
             query.setParameter("search", search.toUpperCase() + "%");
@@ -340,15 +373,14 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         boolean entree = Boolean.TRUE.equals(row[COL_ENTREE]);
 
         EtatProduit etatProduit = new EtatProduit(
-            currentStock > 0,
-            currentStock == 0,
-            currentStock < 0,
-            suggestionCount > 0,
-            commandeCount > 0,
-            entree,
-            suggestionCount > 1,
-            commandeCount > 1
-        );
+                currentStock > 0,
+                currentStock == 0,
+                currentStock < 0,
+                suggestionCount > 0,
+                commandeCount > 0,
+                entree,
+                suggestionCount > 1,
+                commandeCount > 1);
 
         String niveauUrgence = row[COL_NIVEAU_URGENCE] instanceof String s ? s : "OK";
         Integer joursRestants = row[COL_JOURS_RESTANTS] instanceof Number n ? n.intValue() : null;
@@ -358,27 +390,26 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         Integer qteMinimaleCommande = row[COL_QTE_MINIMALE_COMMANDE] instanceof Number n ? n.intValue() : 0;
 
         return new SuggestionLineDTO(
-            intValue(row[COL_SL_ID]),
-            intValue(row[COL_SL_QUANTITY]),
-            toLocalDateTime(row[COL_SL_CREATED_AT]),
-            toLocalDateTime(row[COL_SL_UPDATED_AT]),
-            (String) row[COL_PRODUIT_LIBELLE],
-            (String) row[COL_FP_CODE_CIP],
-            (String) row[COL_FP_CODE_EAN],
-            intValue(row[COL_PRODUIT_ID]),
-            intValue(row[COL_FP_ID]),
-            currentStock,
-            etatProduit,
-            intValue(row[COL_PRIX_ACHAT]),
-            intValue(row[COL_PRIX_UNI]),
-            consommation,
-            niveauUrgence,
-            joursRestants,
-            sourceCalcul,
-            quantiteModifieeManuel,
-            qteColis,
-            qteMinimaleCommande
-        );
+                intValue(row[COL_SL_ID]),
+                intValue(row[COL_SL_QUANTITY]),
+                toLocalDateTime(row[COL_SL_CREATED_AT]),
+                toLocalDateTime(row[COL_SL_UPDATED_AT]),
+                (String) row[COL_PRODUIT_LIBELLE],
+                (String) row[COL_FP_CODE_CIP],
+                (String) row[COL_FP_CODE_EAN],
+                intValue(row[COL_PRODUIT_ID]),
+                intValue(row[COL_FP_ID]),
+                currentStock,
+                etatProduit,
+                intValue(row[COL_PRIX_ACHAT]),
+                intValue(row[COL_PRIX_UNI]),
+                consommation,
+                niveauUrgence,
+                joursRestants,
+                sourceCalcul,
+                quantiteModifieeManuel,
+                qteColis,
+                qteMinimaleCommande);
     }
 
     private static int intValue(Object value) {
@@ -395,4 +426,3 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
         return null;
     }
 }
-

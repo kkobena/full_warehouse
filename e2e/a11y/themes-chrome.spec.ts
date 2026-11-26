@@ -41,7 +41,10 @@ const ECRANS: Ecran[] = [
     nom: 'modale-famille',
     url: '/famille-produit',
     preparer: async page => {
-      await page.getByRole('button', { name: /Nouveau/ }).first().click();
+      await page
+        .getByRole('button', { name: /Nouveau/ })
+        .first()
+        .click();
       await page.locator('.modal-content').first().waitFor();
     },
   },
@@ -82,7 +85,10 @@ test('thèmes de couleur : aucun défaut de contraste introduit par un thème', 
     for (const ecran of ecrans) {
       const reference = new Set<string>();
       for (const theme of THEMES) {
-        const contexte = await browser.newContext({ storageState: join(RACINE, 'e2e', '.auth', 'session.json'), viewport: { width: 1920, height: 1080 } });
+        const contexte = await browser.newContext({
+          storageState: join(RACINE, 'e2e', '.auth', 'session.json'),
+          viewport: { width: 1920, height: 1080 },
+        });
         await contexte.addInitScript(
           ([d, t]) => {
             localStorage.setItem('pharmasmart_layout_mode', d);

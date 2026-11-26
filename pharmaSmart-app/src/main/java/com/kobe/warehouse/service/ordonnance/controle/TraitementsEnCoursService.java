@@ -35,12 +35,11 @@ public class TraitementsEnCoursService {
     private final int fenetreJours;
 
     public TraitementsEnCoursService(
-        SalesLineRepository salesLineRepository,
-        CustomerTraitementChroniqueRepository traitementChroniqueRepository,
-        RefDciRepository refDciRepository,
-        MoleculesProduitService moleculesProduitService,
-        @Value("${pharma.controle.fenetre-jours:90}") int fenetreJours
-    ) {
+            SalesLineRepository salesLineRepository,
+            CustomerTraitementChroniqueRepository traitementChroniqueRepository,
+            RefDciRepository refDciRepository,
+            MoleculesProduitService moleculesProduitService,
+            @Value("${pharma.controle.fenetre-jours:90}") int fenetreJours) {
         this.salesLineRepository = salesLineRepository;
         this.traitementChroniqueRepository = traitementChroniqueRepository;
         this.refDciRepository = refDciRepository;
@@ -50,12 +49,14 @@ public class TraitementsEnCoursService {
 
     public List<TraitementEnCoursDTO> enCours(Integer customerId) {
         Map<Integer, String> produits = new LinkedHashMap<>();
-        for (ProduitLibelleDTO achete : salesLineRepository.findProduitsAchetes(customerId, SalesStatut.CLOSED, LocalDate.now().minusDays(fenetreJours))) {
+        for (ProduitLibelleDTO achete : salesLineRepository.findProduitsAchetes(
+                customerId, SalesStatut.CLOSED, LocalDate.now().minusDays(fenetreJours))) {
             produits.put(achete.id(), achete.libelle());
         }
 
         Set<Integer> dciSeules = new LinkedHashSet<>();
-        for (TraitementChroniqueRefDTO chronique : traitementChroniqueRepository.findActifsNonEchus(customerId, LocalDate.now())) {
+        for (TraitementChroniqueRefDTO chronique :
+                traitementChroniqueRepository.findActifsNonEchus(customerId, LocalDate.now())) {
             if (chronique.produitId() != null) {
                 produits.putIfAbsent(chronique.produitId(), chronique.produitLibelle());
             } else if (chronique.dciId() != null) {
@@ -65,8 +66,9 @@ public class TraitementsEnCoursService {
 
         List<TraitementEnCoursDTO> resultat = new ArrayList<>();
         moleculesProduitService
-            .molecules(produits.keySet())
-            .forEach((produitId, molecules) -> molecules.forEach(m -> resultat.add(new TraitementEnCoursDTO(produitId, produits.get(produitId), m))));
+                .molecules(produits.keySet())
+                .forEach((produitId, molecules) -> molecules.forEach(
+                        m -> resultat.add(new TraitementEnCoursDTO(produitId, produits.get(produitId), m))));
         if (!dciSeules.isEmpty()) {
             for (MoleculeDTO molecule : refDciRepository.findByDciIds(dciSeules)) {
                 resultat.add(new TraitementEnCoursDTO(null, null, molecule));

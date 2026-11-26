@@ -1,4 +1,15 @@
-import { afterNextRender, signal, computed, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  afterNextRender,
+  signal,
+  computed,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { IDelivery } from 'app/shared/model/delevery.model';
 import { saveAs } from 'file-saver';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from 'app/shared/util/warehouse-util';
@@ -148,9 +159,10 @@ export class EtiquetteComponent implements OnDestroy, OnInit {
   /** Le flux part dans l'imprimante : rien a telecharger, rien a ouvrir. */
   private envoyerEnZpl(): void {
     const req = { ...(this.formatCode() ? { format: this.formatCode() } : {}), resolution: this.resolution() };
-    const requete = this.typeEtiquette() === 'LOT'
-      ? this.entityService.printEtiquetteLotZpl(this.entity.commandeId, req)
-      : this.entityService.printEtiquetteZpl(this.entity.commandeId, req);
+    const requete =
+      this.typeEtiquette() === 'LOT'
+        ? this.entityService.printEtiquetteLotZpl(this.entity.commandeId, req)
+        : this.entityService.printEtiquetteZpl(this.entity.commandeId, req);
     requete.pipe(takeUntil(this.destroy$)).subscribe({
       next: (zpl: string) => {
         this.tauriPrinterService
@@ -176,24 +188,23 @@ export class EtiquetteComponent implements OnDestroy, OnInit {
       return;
     }
     const req = { startAt: this.estRouleau() ? 1 : this.startAt, ...(this.formatCode() ? { format: this.formatCode() } : {}) };
-    const requete = this.typeEtiquette() === 'LOT'
-      ? this.entityService.printEtiquetteLot(this.entity.commandeId, req)
-      : this.entityService.printEtiquette(this.entity.commandeId, req);
-    requete
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (blob: Blob) => {
-          this.isSaving.set(false);
-          if (this.tauriPrinterService.isRunningInTauri()) {
-            handleBlobForTauri(blob, this.entity.receiptReference);
-          } else {
-            saveAs(blob, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
-          }
-          this.cancel();
-        },
-        error: () => {
-          this.isSaving.set(false);
-        },
-      });
+    const requete =
+      this.typeEtiquette() === 'LOT'
+        ? this.entityService.printEtiquetteLot(this.entity.commandeId, req)
+        : this.entityService.printEtiquette(this.entity.commandeId, req);
+    requete.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (blob: Blob) => {
+        this.isSaving.set(false);
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, this.entity.receiptReference);
+        } else {
+          saveAs(blob, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
+        }
+        this.cancel();
+      },
+      error: () => {
+        this.isSaving.set(false);
+      },
+    });
   }
 }

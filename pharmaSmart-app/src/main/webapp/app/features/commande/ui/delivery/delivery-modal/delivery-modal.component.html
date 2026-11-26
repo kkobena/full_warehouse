@@ -27,23 +27,16 @@
       </app-card>
     }
     <app-card [variant]="'form'">
-
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       <div class="row">
         <div class="col-md-6">
           <div class="form-field form-field-full">
             <label for="receiptDate">Date de livraison<span class="required">*</span></label>
-            <pharma-date-picker
-              [maxDate]="maxDate()"
-              formControlName="receiptDate"
-              id="receiptDate"
-            />
-            @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty
-              || editForm.get('receiptDate')!.touched)) {
+            <pharma-date-picker [maxDate]="maxDate()" formControlName="receiptDate" id="receiptDate" />
+            @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
               <div>
                 @if (editForm.get('receiptDate')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -52,15 +45,20 @@
         <div class="col-md-6">
           <div class="form-field form-field-full">
             <label for="receiptReference">Référence Bon<span class="required">*</span></label>
-            <input [appKeyFilter]="blockSpace" autocomplete="off" class="form-control"
-                   formControlName="receiptReference" name="receiptReference" />
-            @if (editForm.get('receiptReference')!.invalid &&
-            (editForm.get('receiptReference')!.dirty || editForm.get(
-              'receiptReference')!.touched)) {
+            <input
+              [appKeyFilter]="blockSpace"
+              autocomplete="off"
+              class="form-control"
+              formControlName="receiptReference"
+              name="receiptReference"
+            />
+            @if (
+              editForm.get('receiptReference')!.invalid &&
+              (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)
+            ) {
               <div>
                 @if (editForm.get('receiptReference')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -73,12 +71,12 @@
             <label for="receiptAmount">Montant HT<span class="required">*</span></label>
 
             <app-input-number formControlName="receiptAmount" name="receiptAmount" />
-            @if (editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty
-              || editForm.get('receiptAmount')!.touched)) {
+            @if (
+              editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)
+            ) {
               <div>
                 @if (editForm.get('receiptAmount')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -90,19 +88,16 @@
             <label for="taxAmount">Montant Taxe<span class="required">*</span></label>
 
             <app-input-number formControlName="taxAmount" name="taxAmount" />
-            @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty
-              || editForm.get('taxAmount')!.touched)) {
+            @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
               <div>
                 @if (editForm.get('taxAmount')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
           </div>
         </div>
       </div>
-
     </app-card>
   </div>
 
@@ -131,5 +126,4 @@
     </app-button>
   </div>
 </form>
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="small"
-             type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="small" type="timer"></ngx-spinner>

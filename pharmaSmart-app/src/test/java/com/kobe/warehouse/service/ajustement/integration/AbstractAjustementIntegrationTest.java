@@ -16,8 +16,8 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
-import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.AjustDTO;
@@ -71,12 +71,13 @@ abstract class AbstractAjustementIntegrationTest {
     @BeforeAll
     static void demarrerLaBase() {
         em = SharedEntityManagerCreator.createSharedEntityManager(
-            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new AjustementServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -86,13 +87,17 @@ abstract class AbstractAjustementIntegrationTest {
 
         lenient().when(services.storageService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
-        lenient().when(services.storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-        lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserMainStorage())
+                .thenReturn(rayon);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserReserveStorage())
+                .thenReturn(reserve);
         lenient().when(services.storageService.getOne(STORAGE_RAYON_ID)).thenReturn(rayon);
         lenient().when(services.storageService.getOne(STORAGE_RESERVE_ID)).thenReturn(reserve);
         lenient()
-            .when(services.storageService.getStorageByMagasinIdAndType(MAGASIN_ID, StorageType.PRINCIPAL))
-            .thenReturn(rayon);
+                .when(services.storageService.getStorageByMagasinIdAndType(MAGASIN_ID, StorageType.PRINCIPAL))
+                .thenReturn(rayon);
         lenient().when(services.appConfigurationService.useLot()).thenReturn(java.util.Optional.of(true));
     }
 
@@ -110,7 +115,9 @@ abstract class AbstractAjustementIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     /**
@@ -137,11 +144,9 @@ abstract class AbstractAjustementIntegrationTest {
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
         produit.setTva(tva(0));
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
                 .setMaxResults(1)
-                .getSingleResult()
-        );
+                .getSingleResult());
         em.persist(produit);
         em.flush();
 
@@ -197,7 +202,8 @@ abstract class AbstractAjustementIntegrationTest {
      * Un lot et sa présence sur un emplacement — les deux faces de la même quantité.
      * {@code peremption} décide de l'ordre FEFO du débit.
      */
-    protected Lot lotSurEmplacement(Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
+    protected Lot lotSurEmplacement(
+            Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
         Lot lot = lot(produit, numLot, peremption, quantite);
         em.persist(new LotStockLocation(lot, storage, quantite));
         em.flush();
@@ -279,10 +285,8 @@ abstract class AbstractAjustementIntegrationTest {
     }
 
     protected int stockEnBase(Produit produit, Storage storage) {
-        return (int) compter(
-            "SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-                .formatted(produit.getId(), storage.getId())
-        );
+        return (int) compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                .formatted(produit.getId(), storage.getId()));
     }
 
     protected int quantiteCourante(Lot lot) {
@@ -291,8 +295,8 @@ abstract class AbstractAjustementIntegrationTest {
 
     protected int quantiteSurEmplacement(Lot lot, Storage storage) {
         return services.lotStockLocationRepository
-            .findByLotIdAndStorageId(lot.getId(), storage.getId())
-            .map(LotStockLocation::getQty)
-            .orElse(-1);
+                .findByLotIdAndStorageId(lot.getId(), storage.getId())
+                .map(LotStockLocation::getQty)
+                .orElse(-1);
     }
 }

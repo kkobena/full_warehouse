@@ -6,12 +6,11 @@ package com.kobe.warehouse.service.dto;
  * alimenter le modal de confirmation côté frontend.
  */
 public record PutawayPreviewItemDTO(
-    Integer produitId,
-    String produitLibelle,
-    String codeCip,
-    int qtyRayon,
-    int stockMaxiRayon,
-    int qtyOverflow,
-    int qtyReserveActuelle,
-    String classePareto
-) {}
+        Integer produitId,
+        String produitLibelle,
+        String codeCip,
+        int qtyRayon,
+        int stockMaxiRayon,
+        int qtyOverflow,
+        int qtyReserveActuelle,
+        String classePareto) {}

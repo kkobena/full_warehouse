@@ -28,9 +28,7 @@ public class ClassificationItemProcessor implements ItemProcessor<Produit, Class
     private Map<Integer, ParetoScore> paretoMap;
 
     public ClassificationItemProcessor(
-        ClassificationBatchProcessor batchProcessor,
-        ClassificationCriticiteService classificationService
-    ) {
+            ClassificationBatchProcessor batchProcessor, ClassificationCriticiteService classificationService) {
         this.batchProcessor = batchProcessor;
         this.classificationService = classificationService;
     }
@@ -49,8 +47,8 @@ public class ClassificationItemProcessor implements ItemProcessor<Produit, Class
         }
 
         int ancienneteMois = produit.getCreatedAt() != null
-            ? (int) ChronoUnit.MONTHS.between(produit.getCreatedAt().toLocalDate(), LocalDate.now())
-            : Integer.MAX_VALUE;
+                ? (int) ChronoUnit.MONTHS.between(produit.getCreatedAt().toLocalDate(), LocalDate.now())
+                : Integer.MAX_VALUE;
         if (ancienneteMois < config.getNbMoisMinNouveauProduit()) {
             return null;
         }

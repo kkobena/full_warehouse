@@ -53,8 +53,9 @@ public class HistoriqueInventaire implements Serializable {
     public HistoriqueInventaire(StoreInventory storeInventory) {
         this.id = storeInventory.getId();
         this.description = Objects.isNull(storeInventory.getDescription())
-            ? "Inventaire du " + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:"))
-            : storeInventory.getDescription();
+                ? "Inventaire du "
+                        + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:"))
+                : storeInventory.getDescription();
         this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
         this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
         this.created = storeInventory.getCreatedAt();

@@ -11,14 +11,19 @@ public class SemoisSkipListener implements SkipListener<Produit, SemoisUpdateRes
 
     @Override
     public void onSkipInProcess(Produit produit, Throwable t) {
-        LOG.warn("[SEMOIS-SKIP] Produit id={} libelle={} ignoré en traitement : {}",
-            produit.getId(), produit.getLibelle(), t.getMessage());
+        LOG.warn(
+                "[SEMOIS-SKIP] Produit id={} libelle={} ignoré en traitement : {}",
+                produit.getId(),
+                produit.getLibelle(),
+                t.getMessage());
     }
 
     @Override
     public void onSkipInWrite(SemoisUpdateResult result, Throwable t) {
-        LOG.error("[SEMOIS-SKIP-WRITE] Écriture ignorée pour produit id={} : {}",
-            result.produit().getId(), t.getMessage());
+        LOG.error(
+                "[SEMOIS-SKIP-WRITE] Écriture ignorée pour produit id={} : {}",
+                result.produit().getId(),
+                t.getMessage());
     }
 
     @Override

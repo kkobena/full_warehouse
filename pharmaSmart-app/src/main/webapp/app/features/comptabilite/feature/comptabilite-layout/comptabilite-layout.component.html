@@ -1,14 +1,23 @@
-<app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                 [collapsible]="true" [nav]="nav"
-                 icon="pi pi-book" title="Comptabilité">
-  <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-       class="nav flex-column nav-pills" ngbNav orientation="vertical">
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  icon="pi pi-book"
+  title="Comptabilité"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
     @if (showBalance()) {
       <ng-container ngbNavItem="balance">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="comptabilite.balance"
-                                fallbackIcon="pi pi-calculator"
-                                fallbackLabel="Balance caisse" />
+          <app-nav-section-link code="comptabilite.balance" fallbackIcon="pi pi-calculator" fallbackLabel="Balance caisse" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -23,9 +32,7 @@
     @if (showTaxeReport()) {
       <ng-container ngbNavItem="taxe-report">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="comptabilite.taxe-report"
-                                fallbackIcon="pi pi-file-pdf"
-                                fallbackLabel="Rapport TVA" />
+          <app-nav-section-link code="comptabilite.taxe-report" fallbackIcon="pi pi-file-pdf" fallbackLabel="Rapport TVA" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -40,9 +47,7 @@
     @if (showTableauPharmacien()) {
       <ng-container ngbNavItem="tableau-pharmacien">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="comptabilite.tableau-pharmacien"
-                                fallbackIcon="pi pi-table"
-                                fallbackLabel="Tableau pharmacien" />
+          <app-nav-section-link code="comptabilite.tableau-pharmacien" fallbackIcon="pi pi-table" fallbackLabel="Tableau pharmacien" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -57,9 +62,11 @@
     @if (showRecapCaisse()) {
       <ng-container ngbNavItem="recapitulatif-caisse">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="comptabilite.recapitulatif-caisse"
-                                fallbackIcon="pi pi-chart-bar"
-                                fallbackLabel="Récapitulatif de caisse" />
+          <app-nav-section-link
+            code="comptabilite.recapitulatif-caisse"
+            fallbackIcon="pi pi-chart-bar"
+            fallbackLabel="Récapitulatif de caisse"
+          />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {
@@ -74,9 +81,7 @@
     @if (showRaportActivite()) {
       <ng-container ngbNavItem="raport-activite">
         <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="comptabilite.raport-activite"
-                                fallbackIcon="pi pi-chart-line"
-                                fallbackLabel="Rapport d'activité" />
+          <app-nav-section-link code="comptabilite.raport-activite" fallbackIcon="pi pi-chart-line" fallbackLabel="Rapport d'activité" />
         </a>
         <ng-template ngbNavContent>
           @defer (on immediate) {

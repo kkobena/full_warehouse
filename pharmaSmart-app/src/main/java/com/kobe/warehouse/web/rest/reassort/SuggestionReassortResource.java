@@ -1,22 +1,21 @@
 package com.kobe.warehouse.web.rest.reassort;
 
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.reassort.dto.SuggestionReassortDto;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing suggestion reassort (stock replenishment suggestions)
  */
 @RestController
 @RequestMapping("/api/suggestion-reassort")
-@RequiresNavAccess({ "commande.repartition-stock", "commande" })
+@RequiresNavAccess({"commande.repartition-stock", "commande"})
 public class SuggestionReassortResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SuggestionReassortResource.class);
@@ -34,8 +33,7 @@ public class SuggestionReassortResource {
      */
     @GetMapping("/open")
     public ResponseEntity<List<SuggestionReassortDto>> getOpenSuggestions(
-        @RequestParam(required = false) TypeReassort typeReassort
-    ) {
+            @RequestParam(required = false) TypeReassort typeReassort) {
         LOG.debug("REST request to get open suggestions, type: {}", typeReassort);
 
         return ResponseEntity.ok().body(suggestionReassortService.getOpenningSuggestions(typeReassort));
@@ -49,9 +47,7 @@ public class SuggestionReassortResource {
      */
     @PutMapping("/ligne/{id}")
     public ResponseEntity<Void> updateLigneQuantity(
-        @PathVariable Integer id,
-        @RequestBody UpdateQuantityRequest request
-    ) {
+            @PathVariable Integer id, @RequestBody UpdateQuantityRequest request) {
         LOG.debug("REST request to update ligne reassort {} quantity to {}", id, request.quantity());
         suggestionReassortService.updateLigneReassort(id, request.quantity());
         return ResponseEntity.ok().build();

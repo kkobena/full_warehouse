@@ -6,18 +6,17 @@ import java.util.List;
 
 /** Ordonnance et son suivi. */
 public record OrdonnanceDTO(
-    Integer id,
-    Integer customerId,
-    Integer prescripteurId,
-    String prescripteurNom,
-    LocalDate datePrescription,
-    String source,
-    int renouvellements,
-    int renouvellementsRestants,
-    LocalDate dateFinValidite,
-    StatutOrdonnance statut,
-    boolean cloturee,
-    String note,
-    List<OrdonnanceLigneDTO> lignes,
-    List<VenteLieeDTO> ventes
-) {}
+        Integer id,
+        Integer customerId,
+        Integer prescripteurId,
+        String prescripteurNom,
+        LocalDate datePrescription,
+        String source,
+        int renouvellements,
+        int renouvellementsRestants,
+        LocalDate dateFinValidite,
+        StatutOrdonnance statut,
+        boolean cloturee,
+        String note,
+        List<OrdonnanceLigneDTO> lignes,
+        List<VenteLieeDTO> ventes) {}

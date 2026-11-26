@@ -1,15 +1,15 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy} from "@angular/core";
-import {ActivatedRoute, Router} from "@angular/router";
-import {Location} from "@angular/common";
-import {Subscription} from "rxjs";
-import {TranslateService} from "@ngx-translate/core";
+import { Component, computed, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: "jhi-error",
-  templateUrl: "./error.component.html",
-  styleUrl: "./error.component.scss",
+  selector: 'jhi-error',
+  templateUrl: './error.component.html',
+  styleUrl: './error.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: []
+  imports: [],
 })
 export default class ErrorComponent implements OnInit, OnDestroy {
   errorMessage = signal<string | undefined>(undefined);
@@ -17,33 +17,33 @@ export default class ErrorComponent implements OnInit, OnDestroy {
   langChangeSubscription?: Subscription;
   protected readonly errorCode = computed(() => {
     const key = this.errorKey();
-    if (key === "error.http.403") {
-      return "403";
+    if (key === 'error.http.403') {
+      return '403';
     }
-    if (key === "error.http.404") {
-      return "404";
+    if (key === 'error.http.404') {
+      return '404';
     }
-    return "500";
+    return '500';
   });
   protected readonly errorIcon = computed(() => {
     const key = this.errorKey();
-    if (key === "error.http.403") {
-      return "pi pi-lock";
+    if (key === 'error.http.403') {
+      return 'pi pi-lock';
     }
-    if (key === "error.http.404") {
-      return "pi pi-search";
+    if (key === 'error.http.404') {
+      return 'pi pi-search';
     }
-    return "pi pi-exclamation-triangle";
+    return 'pi pi-exclamation-triangle';
   });
   protected readonly errorTitle = computed(() => {
     const key = this.errorKey();
-    if (key === "error.http.403") {
-      return "Accès refusé";
+    if (key === 'error.http.403') {
+      return 'Accès refusé';
     }
-    if (key === "error.http.404") {
-      return "Page introuvable";
+    if (key === 'error.http.404') {
+      return 'Page introuvable';
     }
-    return "Une erreur est survenue";
+    return 'Une erreur est survenue';
   });
   private readonly translateService = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
@@ -69,11 +69,11 @@ export default class ErrorComponent implements OnInit, OnDestroy {
   }
 
   goHome(): void {
-    this.router.navigate(["/"]);
+    this.router.navigate(['/']);
   }
 
   private getErrorMessageTranslation(): void {
-    this.errorMessage.set("");
+    this.errorMessage.set('');
     const key = this.errorKey();
     if (key) {
       this.translateService.get(key).subscribe(msg => this.errorMessage.set(msg));

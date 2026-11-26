@@ -1,20 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  signal
-} from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { BadgeComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from "app/shared/ui";
-import { IProduit } from "app/shared/model/produit.model";
-import { ISubstitut } from "app/shared/model/substitut.model";
-import { ProductsApiService } from "../../data-access/services/products-api.service";
-import { DevisePipe } from "app/shared/utils/devise";
+import { BadgeComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from 'app/shared/ui';
+import { IProduit } from 'app/shared/model/produit.model';
+import { ISubstitut } from 'app/shared/model/substitut.model';
+import { ProductsApiService } from '../../data-access/services/products-api.service';
+import { DevisePipe } from 'app/shared/utils/devise';
 
 /**
  * Onglet « Génériques » du panneau détail : les produits qui partagent la MOLÉCULE du produit
@@ -25,10 +17,10 @@ import { DevisePipe } from "app/shared/utils/devise";
  * cherche quand un client attend et que le princeps manque.
  */
 @Component({
-  selector: "app-produit-generiques-tab",
-  templateUrl: "./produit-generiques-tab.component.html",
+  selector: 'app-produit-generiques-tab',
+  templateUrl: './produit-generiques-tab.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent, BadgeComponent, DevisePipe, DetailGridComponent, DetailSectionComponent]
+  imports: [CommonModule, DataTableComponent, BadgeComponent, DevisePipe, DetailGridComponent, DetailSectionComponent],
 })
 export class ProduitGeneriquesTabComponent {
   readonly produit = input.required<IProduit>();
@@ -58,19 +50,19 @@ export class ProduitGeneriquesTabComponent {
             this.substituts.set(list);
             this.loading.set(false);
           },
-          error: () => this.loading.set(false)
+          error: () => this.loading.set(false),
         });
     });
   }
 
-  protected stockSeverity(p: IProduit): "success" | "warn" | "danger" {
+  protected stockSeverity(p: IProduit): 'success' | 'warn' | 'danger' {
     const qty = p.totalQuantity ?? 0;
     if (qty <= 0) {
-      return "danger";
+      return 'danger';
     }
     if ((p.qtySeuilMini ?? 0) > 0 && qty < (p.qtySeuilMini ?? 0)) {
-      return "warn";
+      return 'warn';
     }
-    return "success";
+    return 'success';
   }
 }

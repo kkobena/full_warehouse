@@ -62,17 +62,11 @@ export class DiffereApiService {
   }
 
   printReceipt(paymentId: IPaymentIdDiffere): Observable<HttpResponse<{}>> {
-    return this.http.get(
-      `${this.resourceUrl}/print-receipt/${paymentId.id}/${paymentId.transactionDate}`,
-      { observe: 'response' },
-    );
+    return this.http.get(`${this.resourceUrl}/print-receipt/${paymentId.id}/${paymentId.transactionDate}`, { observe: 'response' });
   }
 
   getEscPosReceiptForTauri(paymentId: IPaymentIdDiffere): Observable<ArrayBuffer> {
-    return this.http.get(
-      `${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`,
-      { responseType: 'arraybuffer' },
-    );
+    return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, { responseType: 'arraybuffer' });
   }
 
   exportListToPdf(params: IDiffereSearchParams): Observable<Blob> {

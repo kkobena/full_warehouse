@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 class StockADateIntegrationTest extends AbstractReportIntegrationTest {
 
     // Les partitions de inventory_transaction du conteneur de test ne couvrent que l'année en cours.
-    private static final LocalDateTime T = LocalDate.now().withMonth(1).withDayOfMonth(15).atTime(12, 0);
+    private static final LocalDateTime T =
+            LocalDate.now().withMonth(1).withDayOfMonth(15).atTime(12, 0);
 
     private static final DateTimeFormatter INSTANT_SQL = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -31,7 +32,8 @@ class StockADateIntegrationTest extends AbstractReportIntegrationTest {
     }
 
     @Test
-    @DisplayName("sans photo antérieure, le stock à T se déduit du stock courant en retirant les mouvements postérieurs")
+    @DisplayName(
+            "sans photo antérieure, le stock à T se déduit du stock courant en retirant les mouvements postérieurs")
     void remonteDepuisLeStockCourant() {
         stock(produit, 10);
         mouvement("SALE", T.plusHours(1), 12, 10);
@@ -75,40 +77,36 @@ class StockADateIntegrationTest extends AbstractReportIntegrationTest {
         photo(T.minusDays(1), 10, 5);
         mouvement("ENTREE_STOCK", T.minusHours(1), 10, 30, 700);
 
-        Object[] valeur = (Object[]) em
-            .createNativeQuery(
-                "SELECT qty_stock, qty_ug, prix_achat, valeur_achat FROM fn_stock_valuation_at_time(:produit, :storage, " + instantUtc(T) + ")"
-            )
-            .setParameter("produit", produit.getId())
-            .setParameter("storage", rayon.getId())
-            .getSingleResult();
+        Object[] valeur = (Object[]) em.createNativeQuery(
+                        "SELECT qty_stock, qty_ug, prix_achat, valeur_achat FROM fn_stock_valuation_at_time(:produit, :storage, "
+                                + instantUtc(T) + ")")
+                .setParameter("produit", produit.getId())
+                .setParameter("storage", rayon.getId())
+                .getSingleResult();
 
         assertThat(entiers(valeur)).containsExactly(30, 5, 700, 35 * 700);
     }
 
     private int[] stockA(LocalDateTime instant) {
         em.flush();
-        Object[] ligne = (Object[]) em
-            .createNativeQuery(
-                "SELECT qty_stock, qty_ug FROM fn_stock_quantites_at_time(" + instantUtc(instant) + ", NULL, ARRAY[CAST(:produit AS int)])"
-            )
-            .setParameter("produit", produit.getId())
-            .getSingleResult();
+        Object[] ligne = (Object[]) em.createNativeQuery("SELECT qty_stock, qty_ug FROM fn_stock_quantites_at_time("
+                        + instantUtc(instant) + ", NULL, ARRAY[CAST(:produit AS int)])")
+                .setParameter("produit", produit.getId())
+                .getSingleResult();
         return entiers(ligne);
     }
 
     private void photo(LocalDateTime instant, int quantite, int ug) {
         em.flush();
-        em
-            .createNativeQuery(
-                "INSERT INTO stock_produit_snapshot (produit_id, storage_id, snapshot_date, qty_stock, qty_ug, source_type) " +
-                "VALUES (:produit, :storage, " + instantUtc(instant) + ", :quantite, :ug, 'BATCH_QUOTIDIEN')"
-            )
-            .setParameter("produit", produit.getId())
-            .setParameter("storage", rayon.getId())
-            .setParameter("quantite", quantite)
-            .setParameter("ug", ug)
-            .executeUpdate();
+        em.createNativeQuery(
+                        "INSERT INTO stock_produit_snapshot (produit_id, storage_id, snapshot_date, qty_stock, qty_ug, source_type) "
+                                + "VALUES (:produit, :storage, " + instantUtc(instant)
+                                + ", :quantite, :ug, 'BATCH_QUOTIDIEN')")
+                .setParameter("produit", produit.getId())
+                .setParameter("storage", rayon.getId())
+                .setParameter("quantite", quantite)
+                .setParameter("ug", ug)
+                .executeUpdate();
     }
 
     private void mouvement(String type, LocalDateTime instant, int avant, int apres) {
@@ -117,24 +115,23 @@ class StockADateIntegrationTest extends AbstractReportIntegrationTest {
 
     private void mouvement(String type, LocalDateTime instant, int avant, int apres, int prixAchat) {
         em.flush();
-        em
-            .createNativeQuery(
-                "INSERT INTO inventory_transaction (id, transaction_date, created_at, mouvement_type, quantity, quantity_befor, " +
-                "quantity_after, cost_amount, regular_unit_price, entity_id, produit_id, user_id, magasin_id, storage_id) " +
-                "VALUES (nextval('id_mvt_produit_seq'), DATE '" + instant.toLocalDate() + "', TIMESTAMP '" + INSTANT_SQL.format(instant) +
-                "', :type, :quantite, :avant, :apres, :prix, 1000, " +
-                "nextval('id_mvt_produit_seq'), :produit, :user, :magasin, :storage)"
-            )
-            .setParameter("type", type)
-            .setParameter("quantite", Math.abs(apres - avant))
-            .setParameter("avant", avant)
-            .setParameter("apres", apres)
-            .setParameter("prix", prixAchat)
-            .setParameter("produit", produit.getId())
-            .setParameter("user", utilisateur.getId())
-            .setParameter("magasin", magasin.getId())
-            .setParameter("storage", rayon.getId())
-            .executeUpdate();
+        em.createNativeQuery(
+                        "INSERT INTO inventory_transaction (id, transaction_date, created_at, mouvement_type, quantity, quantity_befor, "
+                                + "quantity_after, cost_amount, regular_unit_price, entity_id, produit_id, user_id, magasin_id, storage_id) "
+                                + "VALUES (nextval('id_mvt_produit_seq'), DATE '"
+                                + instant.toLocalDate() + "', TIMESTAMP '" + INSTANT_SQL.format(instant)
+                                + "', :type, :quantite, :avant, :apres, :prix, 1000, "
+                                + "nextval('id_mvt_produit_seq'), :produit, :user, :magasin, :storage)")
+                .setParameter("type", type)
+                .setParameter("quantite", Math.abs(apres - avant))
+                .setParameter("avant", avant)
+                .setParameter("apres", apres)
+                .setParameter("prix", prixAchat)
+                .setParameter("produit", produit.getId())
+                .setParameter("user", utilisateur.getId())
+                .setParameter("magasin", magasin.getId())
+                .setParameter("storage", rayon.getId())
+                .executeUpdate();
     }
 
     /** Instant écrit en UTC dans la requête : created_at est stocké en UTC, sans fuseau. */

@@ -19,7 +19,9 @@ import java.time.LocalDateTime;
  * A SuggestionLine.
  */
 @Entity
-@Table(name = "suggestion_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "suggestion_id", "fournisseur_produit_id" }) })
+@Table(
+        name = "suggestion_line",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"suggestion_id", "fournisseur_produit_id"})})
 public class SuggestionLine implements Serializable {
 
     @Serial

@@ -28,4 +28,3 @@ export interface IMargeSummary {
   nbProduitsMargeConfortable?: number;
   caProduitsBonneMarge?: number;
 }
-

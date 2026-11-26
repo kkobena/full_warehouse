@@ -7,4 +7,5 @@ import java.util.List;
  * puis désactivés. {@code lotResolutions} doit couvrir tous les conflits de lot remontés
  * par {@link ProduitMergePreviewDTO#lotConflicts()} — la fusion est rejetée sinon.
  */
-public record ProduitMergeRequestDTO(Integer targetId, List<Integer> sourceIds, List<LotResolutionDTO> lotResolutions) {}
+public record ProduitMergeRequestDTO(
+        Integer targetId, List<Integer> sourceIds, List<LotResolutionDTO> lotResolutions) {}

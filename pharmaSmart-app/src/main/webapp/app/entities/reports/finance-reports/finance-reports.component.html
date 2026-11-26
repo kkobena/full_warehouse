@@ -1,17 +1,26 @@
 <div class="container-fluid">
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-2"
-                   icon="pi pi-chart-line" menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
-                   title="Finance &amp; Rentabilité">
-    <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
-
+  <app-nav-sidebar
+    (collapsedChange)="menuReplie.set($event)"
+    [collapsed]="menuReplie()"
+    [collapsible]="true"
+    [nav]="nav"
+    contentColumnClass="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content p-2"
+    icon="pi pi-chart-line"
+    menuColumnClass="col-lg-2 col-xl-2 col-md-2 col-sm-4"
+    title="Finance &amp; Rentabilité"
+  >
+    <div
+      #nav="ngbNav"
+      (activeIdChange)="active.set($event)"
+      [activeId]="active()"
+      class="nav flex-column nav-pills"
+      ngbNav
+      orientation="vertical"
+    >
       @if (showPnlAnalytique()) {
         <ng-container ngbNavItem="pnl-analytique">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.pnl-analytique"
-                                  fallbackIcon="pi pi-wallet"
-                                  fallbackLabel="Marges &amp; Résultat" />
+            <app-nav-section-link code="rapport-finance.pnl-analytique" fallbackIcon="pi pi-wallet" fallbackLabel="Marges &amp; Résultat" />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -26,9 +35,11 @@
       @if (showProfitability()) {
         <ng-container ngbNavItem="profitability">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.profitability"
-                                  fallbackIcon="pi pi-chart-line"
-                                  fallbackLabel="Analyse de Rentabilité" />
+            <app-nav-section-link
+              code="rapport-finance.profitability"
+              fallbackIcon="pi pi-chart-line"
+              fallbackLabel="Analyse de Rentabilité"
+            />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -43,9 +54,7 @@
       @if (showCreances()) {
         <ng-container ngbNavItem="creances">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.creances"
-                                  fallbackIcon="pi pi-clock"
-                                  fallbackLabel="Créances TP" />
+            <app-nav-section-link code="rapport-finance.creances" fallbackIcon="pi pi-clock" fallbackLabel="Créances TP" />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -61,9 +70,11 @@
         <!-- À SUPPRIMER après validation TNR — migré vers onglet Créances TP -->
         <ng-container ngbNavItem="vieillissement-creances">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.vieillissement-creances"
-                                  fallbackIcon="pi pi-clock"
-                                  fallbackLabel="Vieillissement Créances" />
+            <app-nav-section-link
+              code="rapport-finance.vieillissement-creances"
+              fallbackIcon="pi pi-clock"
+              fallbackLabel="Vieillissement Créances"
+            />
           </a>
           <ng-template ngbNavContent>
             <app-vieillissement-creances></app-vieillissement-creances>
@@ -75,9 +86,11 @@
         <!-- À SUPPRIMER après validation TNR — migré vers onglet Créances TP -->
         <ng-container ngbNavItem="concentration-payers">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.concentration-payers"
-                                  fallbackIcon="pi pi-sitemap"
-                                  fallbackLabel="Concentration Payeurs" />
+            <app-nav-section-link
+              code="rapport-finance.concentration-payers"
+              fallbackIcon="pi pi-sitemap"
+              fallbackLabel="Concentration Payeurs"
+            />
           </a>
           <ng-template ngbNavContent>
             <app-concentration-payers></app-concentration-payers>
@@ -88,9 +101,11 @@
       @if (showCashFlowBfr()) {
         <ng-container ngbNavItem="cash-flow-bfr">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.cash-flow-bfr"
-                                  fallbackIcon="pi pi-money-bill"
-                                  fallbackLabel="BFR & Cycle d'exploitation" />
+            <app-nav-section-link
+              code="rapport-finance.cash-flow-bfr"
+              fallbackIcon="pi pi-money-bill"
+              fallbackLabel="BFR & Cycle d'exploitation"
+            />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -105,9 +120,7 @@
       @if (showSituationCreances()) {
         <ng-container ngbNavItem="situation-creances">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.situation-creances"
-                                  fallbackIcon="pi pi-table"
-                                  fallbackLabel="Situation Créances" />
+            <app-nav-section-link code="rapport-finance.situation-creances" fallbackIcon="pi pi-table" fallbackLabel="Situation Créances" />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -122,9 +135,11 @@
       @if (showVieillissementDiff()) {
         <ng-container ngbNavItem="vieillissement-differes">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.vieillissement-differes"
-                                  fallbackIcon="pi pi-users"
-                                  fallbackLabel="Différés Clients" />
+            <app-nav-section-link
+              code="rapport-finance.vieillissement-differes"
+              fallbackIcon="pi pi-users"
+              fallbackLabel="Différés Clients"
+            />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -139,9 +154,7 @@
       @if (showAvoirsAnalytics()) {
         <ng-container ngbNavItem="avoirs-analytics">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.avoirs-analytics"
-                                  fallbackIcon="pi pi-undo"
-                                  fallbackLabel="Avoirs TP" />
+            <app-nav-section-link code="rapport-finance.avoirs-analytics" fallbackIcon="pi pi-undo" fallbackLabel="Avoirs TP" />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -156,9 +169,11 @@
       @if (showTauxRecouvrement()) {
         <ng-container ngbNavItem="taux-recouvrement-tp">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="rapport-finance.taux-recouvrement-tp"
-                                  fallbackIcon="pi pi-percentage"
-                                  fallbackLabel="Taux Recouvrement" />
+            <app-nav-section-link
+              code="rapport-finance.taux-recouvrement-tp"
+              fallbackIcon="pi pi-percentage"
+              fallbackLabel="Taux Recouvrement"
+            />
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {

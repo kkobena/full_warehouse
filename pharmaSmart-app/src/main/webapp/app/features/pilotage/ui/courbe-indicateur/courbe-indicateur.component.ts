@@ -10,7 +10,13 @@ import { ValeurIndicateurPipe } from '../valeur-indicateur/valeur-indicateur.pip
 @Component({
   selector: 'app-courbe-indicateur',
   imports: [ChartComponent],
-  template: `<app-chart [ariaLabel]="description()" [data]="configuration().data" [options]="configuration().options" [height]="hauteur()" type="line" />`,
+  template: `<app-chart
+    [ariaLabel]="description()"
+    [data]="configuration().data"
+    [options]="configuration().options"
+    [height]="hauteur()"
+    type="line"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourbeIndicateurComponent {
@@ -29,7 +35,10 @@ export class CourbeIndicateurComponent {
   private readonly couleurs = inject(ChartThemeColorsService).colors;
   private readonly valeurIndicateur = new ValeurIndicateurPipe();
 
-  protected readonly description = computed(() => `${this.serie().indicateur.libelle} par période, comparé à ${this.contreObjectif() ? "l'objectif" : this.libelleReference().toLowerCase()}`);
+  protected readonly description = computed(
+    () =>
+      `${this.serie().indicateur.libelle} par période, comparé à ${this.contreObjectif() ? "l'objectif" : this.libelleReference().toLowerCase()}`,
+  );
 
   protected readonly configuration = computed(() => {
     const serie = this.serie();
@@ -39,7 +48,13 @@ export class CourbeIndicateurComponent {
       data: {
         labels: serie.points.map(point => point.libelle),
         datasets: [
-          { label: 'Réalisé', data: serie.points.map(point => point.valeur), borderColor: couleurs.accent, backgroundColor: couleurs.accent, tension: 0.3 },
+          {
+            label: 'Réalisé',
+            data: serie.points.map(point => point.valeur),
+            borderColor: couleurs.accent,
+            backgroundColor: couleurs.accent,
+            tension: 0.3,
+          },
           {
             label: this.contreObjectif() ? 'Objectif' : this.libelleReference(),
             data: serie.points.map(point => point.valeurReference),
@@ -69,7 +84,10 @@ export class CourbeIndicateurComponent {
         plugins: { legend: { labels: { color: couleurs.text, usePointStyle: true, pointStyleWidth: 14 } } },
         scales: {
           x: { ticks: { color: couleurs.textMuted }, grid: { color: couleurs.border } },
-          y: { ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) }, grid: { color: couleurs.border } },
+          y: {
+            ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) },
+            grid: { color: couleurs.border },
+          },
         },
       },
     };

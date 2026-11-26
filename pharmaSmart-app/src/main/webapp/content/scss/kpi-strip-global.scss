@@ -131,7 +131,10 @@
 }
 
 @media (max-width: 576px) {
-  .kpi-strip-divider { display: none; }
-  .kpi-strip-item    { min-width: calc(50% - 0.5rem); }
+  .kpi-strip-divider {
+    display: none;
+  }
+  .kpi-strip-item {
+    min-width: calc(50% - 0.5rem);
+  }
 }
-

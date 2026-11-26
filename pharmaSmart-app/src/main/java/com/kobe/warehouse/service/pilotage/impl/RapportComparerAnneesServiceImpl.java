@@ -40,20 +40,14 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
     private static final int LIGNES_CROISEES = 30;
     private static final List<String> TRIMESTRES = List.of("T1", "T2", "T3", "T4");
     private static final DateTimeFormatter MOIS_LONG = DateTimeFormatter.ofPattern("MMMM", Locale.FRENCH);
-    private static final List<String> COLONNES_SYNTHESE = List.of(
-        "CA TTC",
-        "Croissance",
-        "Marge brute",
-        "Taux de marge",
-        "Ventes",
-        "Panier moyen",
-        "Remises"
-    );
+    private static final List<String> COLONNES_SYNTHESE =
+            List.of("CA TTC", "Croissance", "Marge brute", "Taux de marge", "Ventes", "Panier moyen", "Remises");
 
     private final ComparaisonAnneesService comparaisonAnneesService;
     private final GraphiquePilotageService graphiquePilotageService;
 
-    public RapportComparerAnneesServiceImpl(ComparaisonAnneesService comparaisonAnneesService, GraphiquePilotageService graphiquePilotageService) {
+    public RapportComparerAnneesServiceImpl(
+            ComparaisonAnneesService comparaisonAnneesService, GraphiquePilotageService graphiquePilotageService) {
         this.comparaisonAnneesService = comparaisonAnneesService;
         this.graphiquePilotageService = graphiquePilotageService;
     }
@@ -64,17 +58,24 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
         IndicateurPilotageDTO indicateur = comparaison.indicateur();
         List<String> mois = lireMois(comparaison.jusquAu().getYear());
         return new ComparerAnneesRapportDTO(
-            decrireReglage(reglage, comparaison, libelleFiltre),
-            lireLecture(comparaison),
-            indicateur.libelle() + " : une courbe par année",
-            graphiquePilotageService.dessinerCourbes(mois, lireSeriesAnnees(comparaison, AnneeCompareeDTO::mois), indicateur.unite(), FormatGraphe.LARGE),
-            graphiquePilotageService.dessinerBarres(TRIMESTRES, lireSeriesAnnees(comparaison, AnneeCompareeDTO::trimestres), indicateur.unite(), FormatGraphe.MOITIE),
-            dessinerSaisonnalite(comparaison.saisonnalite(), mois),
-            construireMoisAnnees(comparaison, mois),
-            construireSynthese(comparaison.synthese()),
-            lireCroise("Famille / Année", comparaison.parFamille(), indicateur),
-            lireCroise("Type de vente / Année", comparaison.parNatureVente(), indicateur)
-        );
+                decrireReglage(reglage, comparaison, libelleFiltre),
+                lireLecture(comparaison),
+                indicateur.libelle() + " : une courbe par année",
+                graphiquePilotageService.dessinerCourbes(
+                        mois,
+                        lireSeriesAnnees(comparaison, AnneeCompareeDTO::mois),
+                        indicateur.unite(),
+                        FormatGraphe.LARGE),
+                graphiquePilotageService.dessinerBarres(
+                        TRIMESTRES,
+                        lireSeriesAnnees(comparaison, AnneeCompareeDTO::trimestres),
+                        indicateur.unite(),
+                        FormatGraphe.MOITIE),
+                dessinerSaisonnalite(comparaison.saisonnalite(), mois),
+                construireMoisAnnees(comparaison, mois),
+                construireSynthese(comparaison.synthese()),
+                lireCroise("Famille / Année", comparaison.parFamille(), indicateur),
+                lireCroise("Type de vente / Année", comparaison.parNatureVente(), indicateur));
     }
 
     private static List<String> lireMois(int annee) {
@@ -86,25 +87,28 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
     }
 
     /** « CA TTC sur 3 années civiles, mois par mois, par jour ouvré, filtré sur Antalgiques. » */
-    private static String decrireReglage(RequeteAnneesDTO reglage, ComparaisonAnneesDTO comparaison, String libelleFiltre) {
+    private static String decrireReglage(
+            RequeteAnneesDTO reglage, ComparaisonAnneesDTO comparaison, String libelleFiltre) {
         StringBuilder texte = new StringBuilder(comparaison.indicateur().libelle())
-            .append(" sur ")
-            .append(comparaison.annees().size())
-            .append(" années civiles, ")
-            .append(
-                switch (comparaison.mode()) {
-                    case MENSUEL -> "mois par mois";
-                    case CUMULE -> "en cumul depuis janvier";
-                    case GLISSANT -> "sur 12 mois glissants";
-                }
-            );
+                .append(" sur ")
+                .append(comparaison.annees().size())
+                .append(" années civiles, ")
+                .append(
+                        switch (comparaison.mode()) {
+                            case MENSUEL -> "mois par mois";
+                            case CUMULE -> "en cumul depuis janvier";
+                            case GLISSANT -> "sur 12 mois glissants";
+                        });
         if (comparaison.parJourOuvre()) {
             texte.append(", par jour ouvré");
         }
         if (!reglage.filtre().isEmpty()) {
-            texte.append(", filtré sur ").append(libelleFiltre == null ? reglage.filtre().getFirst() : libelleFiltre);
+            texte.append(", filtré sur ")
+                    .append(libelleFiltre == null ? reglage.filtre().getFirst() : libelleFiltre);
         }
-        texte.append(". L'année en cours est arrêtée au ").append(FormatRapport.formaterDate(comparaison.jusquAu())).append('.');
+        texte.append(". L'année en cours est arrêtée au ")
+                .append(FormatRapport.formaterDate(comparaison.jusquAu()))
+                .append('.');
         if (reglage.parJourOuvre() && !comparaison.parJourOuvre()) {
             texte.append(" « Par jour ouvré » ne s'applique pas à un taux ou à un ratio.");
         }
@@ -117,25 +121,33 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
         MoisRecordDTO maximum = comparaison.moisMaximum();
         if (maximum != null) {
             String mois = LocalDate.of(maximum.annee(), maximum.mois(), 1).format(MOIS_LONG);
-            String valeur = FormatRapport.formaterValeur(maximum.valeur(), comparaison.indicateur().unite());
+            String valeur = FormatRapport.formaterValeur(
+                    maximum.valeur(), comparaison.indicateur().unite());
             phrases.add("Mois le plus élevé : " + mois + " " + maximum.annee() + " (" + valeur + ").");
         }
         if (comparaison.croissanceAnnuelleMoyenne() != null) {
-            String croissance = FormatRapport.formaterVariation(null, comparaison.croissanceAnnuelleMoyenne(), UniteIndicateur.MONTANT, SensFavorable.HAUSSE).texte();
-            phrases.add(
-                "Croissance annuelle moyenne " + comparaison.croissanceDepuis() + "-" + comparaison.croissanceJusqua() + " : " + croissance + "."
-            );
+            String croissance = FormatRapport.formaterVariation(
+                            null,
+                            comparaison.croissanceAnnuelleMoyenne(),
+                            UniteIndicateur.MONTANT,
+                            SensFavorable.HAUSSE)
+                    .texte();
+            phrases.add("Croissance annuelle moyenne " + comparaison.croissanceDepuis() + "-"
+                    + comparaison.croissanceJusqua() + " : " + croissance + ".");
         }
         return phrases.isEmpty() ? null : String.join(" ", phrases);
     }
 
     /** L'année la plus récente d'abord, à la couleur d'accent et en trait plein ; les autres en pointillés. */
-    private static List<SerieGraphiqueDTO> lireSeriesAnnees(ComparaisonAnneesDTO comparaison, Function<AnneeCompareeDTO, List<CelluleAnalyseDTO>> cellules) {
+    private static List<SerieGraphiqueDTO> lireSeriesAnnees(
+            ComparaisonAnneesDTO comparaison, Function<AnneeCompareeDTO, List<CelluleAnalyseDTO>> cellules) {
         List<AnneeCompareeDTO> annees = comparaison.annees();
         List<SerieGraphiqueDTO> series = new ArrayList<>(annees.size());
         for (int rang = annees.size() - 1; rang >= 0; rang--) {
             AnneeCompareeDTO annee = annees.get(rang);
-            List<Double> valeurs = cellules.apply(annee).stream().map(cellule -> cellule == null ? null : cellule.valeur()).toList();
+            List<Double> valeurs = cellules.apply(annee).stream()
+                    .map(cellule -> cellule == null ? null : cellule.valeur())
+                    .toList();
             StyleSerie style = rang == annees.size() - 1 ? StyleSerie.PALETTE : StyleSerie.PALETTE_POINTILLE;
             series.add(new SerieGraphiqueDTO(libellerAnnee(annee), valeurs, style));
         }
@@ -147,7 +159,8 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
             return null;
         }
         SerieGraphiqueDTO poids = new SerieGraphiqueDTO("Poids du mois", saisonnalite, StyleSerie.REALISE);
-        return graphiquePilotageService.dessinerBarres(mois, List.of(poids), UniteIndicateur.POURCENTAGE, FormatGraphe.MOITIE);
+        return graphiquePilotageService.dessinerBarres(
+                mois, List.of(poids), UniteIndicateur.POURCENTAGE, FormatGraphe.MOITIE);
     }
 
     /** Mois × années ; le mois en cours porte « (au 15) » : l'année en cours y est incomplète. */
@@ -161,7 +174,9 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
             for (AnneeCompareeDTO annee : annees) {
                 cellules.add(TableauxRapport.lireCellule(annee.mois().get(rang), indicateur));
             }
-            String libelle = rang == jusquAu.getMonthValue() - 1 ? mois.get(rang) + " (au " + jusquAu.getDayOfMonth() + ")" : mois.get(rang);
+            String libelle = rang == jusquAu.getMonthValue() - 1
+                    ? mois.get(rang) + " (au " + jusquAu.getDayOfMonth() + ")"
+                    : mois.get(rang);
             lignes.add(new LigneRapportDTO(libelle, cellules));
         }
         List<CelluleRapportDTO> totaux = new ArrayList<>(annees.size());
@@ -169,26 +184,32 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
             totaux.add(TableauxRapport.lireCellule(annee.total(), indicateur));
         }
         lignes.add(new LigneRapportDTO("Année", totaux, true));
-        return new TableauRapportDTO("Mois / Année", annees.stream().map(RapportComparerAnneesServiceImpl::libellerAnnee).toList(), lignes);
+        return new TableauRapportDTO(
+                "Mois / Année",
+                annees.stream()
+                        .map(RapportComparerAnneesServiceImpl::libellerAnnee)
+                        .toList(),
+                lignes);
     }
 
     private static TableauRapportDTO construireSynthese(List<SyntheseAnneeDTO> synthese) {
         List<LigneRapportDTO> lignes = new ArrayList<>(synthese.size());
         for (SyntheseAnneeDTO annee : synthese) {
-            lignes.add(
-                new LigneRapportDTO(
+            lignes.add(new LigneRapportDTO(
                     libellerAnnee(annee.annee(), annee.complete()),
                     List.of(
-                        lireMontant(annee.caTtc()),
-                        new CelluleRapportDTO("", FormatRapport.formaterVariation(null, annee.croissanceCa(), UniteIndicateur.MONTANT, SensFavorable.HAUSSE)),
-                        lireMontant(annee.margeBrute()),
-                        new CelluleRapportDTO(FormatRapport.formaterValeur(annee.tauxMarge(), UniteIndicateur.POURCENTAGE), null),
-                        new CelluleRapportDTO(FormatRapport.formaterValeur(annee.nbVentes(), UniteIndicateur.NOMBRE), null),
-                        lireMontant(annee.panierMoyen()),
-                        lireMontant(annee.remises())
-                    )
-                )
-            );
+                            lireMontant(annee.caTtc()),
+                            new CelluleRapportDTO(
+                                    "",
+                                    FormatRapport.formaterVariation(
+                                            null, annee.croissanceCa(), UniteIndicateur.MONTANT, SensFavorable.HAUSSE)),
+                            lireMontant(annee.margeBrute()),
+                            new CelluleRapportDTO(
+                                    FormatRapport.formaterValeur(annee.tauxMarge(), UniteIndicateur.POURCENTAGE), null),
+                            new CelluleRapportDTO(
+                                    FormatRapport.formaterValeur(annee.nbVentes(), UniteIndicateur.NOMBRE), null),
+                            lireMontant(annee.panierMoyen()),
+                            lireMontant(annee.remises()))));
         }
         return new TableauRapportDTO("Année", COLONNES_SYNTHESE, lignes);
     }
@@ -197,8 +218,11 @@ public class RapportComparerAnneesServiceImpl implements RapportComparerAnneesSe
         return new CelluleRapportDTO(FormatRapport.formaterValeurComplete(montant, UniteIndicateur.MONTANT), null);
     }
 
-    private static TableauRapportDTO lireCroise(String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur) {
-        return croise == null ? null : TableauxRapport.limiter(TableauxRapport.lireCroise(entete, croise, indicateur), LIGNES_CROISEES);
+    private static TableauRapportDTO lireCroise(
+            String entete, CroiseAnalyseDTO croise, IndicateurPilotageDTO indicateur) {
+        return croise == null
+                ? null
+                : TableauxRapport.limiter(TableauxRapport.lireCroise(entete, croise, indicateur), LIGNES_CROISEES);
     }
 
     private static String libellerAnnee(AnneeCompareeDTO annee) {

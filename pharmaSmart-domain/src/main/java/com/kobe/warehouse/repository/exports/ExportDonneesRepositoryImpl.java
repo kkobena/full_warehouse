@@ -37,18 +37,23 @@ public class ExportDonneesRepositoryImpl implements ExportDonneesRepository {
     private EntityManager entityManager;
 
     @Override
-    public Stream<Object[]> lireLignes(ExportDonnees export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    public Stream<Object[]> lireLignes(
+            ExportDonnees export, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
         RequeteExport requete = RequeteExport.lirePour(export);
         Map<FiltreExport, List<String>> retenus = lireFiltresRetenus(export, filtres);
         Query query = entityManager.createQuery(ecrire(requete, retenus));
         for (Parameter<?> parametre : query.getParameters()) {
             query.setParameter(parametre.getName(), lireValeur(parametre.getName(), du, au, retenus));
         }
-        return query.setHint(HINT_FETCH_SIZE, TAILLE_LOT).setHint(HINT_READ_ONLY, true).getResultStream().map(ligne -> (Object[]) ligne);
+        return query.setHint(HINT_FETCH_SIZE, TAILLE_LOT)
+                .setHint(HINT_READ_ONLY, true)
+                .getResultStream()
+                .map(ligne -> (Object[]) ligne);
     }
 
     /** Les filtres que l'export annonce et dont une valeur a été retenue ; les autres ne touchent pas la requête. */
-    private Map<FiltreExport, List<String>> lireFiltresRetenus(ExportDonnees export, Map<FiltreExport, List<String>> filtres) {
+    private Map<FiltreExport, List<String>> lireFiltresRetenus(
+            ExportDonnees export, Map<FiltreExport, List<String>> filtres) {
         Map<FiltreExport, List<String>> retenus = new HashMap<>();
         if (filtres == null) {
             return retenus;
@@ -70,7 +75,8 @@ public class ExportDonneesRepositoryImpl implements ExportDonneesRepository {
         for (FiltreExport filtre : retenus.keySet()) {
             conditions.add(filtre.getPredicat().replace(RACINE_VENTE, requete.getRacineVente()));
         }
-        StringBuilder jpql = new StringBuilder(requete.getProjection()).append(' ').append(requete.getOrigine());
+        StringBuilder jpql =
+                new StringBuilder(requete.getProjection()).append(' ').append(requete.getOrigine());
         if (!conditions.isEmpty()) {
             jpql.append(" WHERE ").append(String.join(" AND ", conditions));
         }
@@ -94,7 +100,9 @@ public class ExportDonneesRepositoryImpl implements ExportDonneesRepository {
         }
         for (Map.Entry<FiltreExport, List<String>> filtre : retenus.entrySet()) {
             if (filtre.getKey().getParametre().equals(parametre)) {
-                return filtre.getValue().stream().map(filtre.getKey().getSource()::convertir).toList();
+                return filtre.getValue().stream()
+                        .map(filtre.getKey().getSource()::convertir)
+                        .toList();
             }
         }
         throw new IllegalStateException("Paramètre d'export inconnu : " + parametre);

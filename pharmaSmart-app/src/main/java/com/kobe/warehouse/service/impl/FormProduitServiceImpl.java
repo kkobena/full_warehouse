@@ -3,8 +3,8 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.FormProduit;
 import com.kobe.warehouse.repository.FormProduitRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.dto.FormProduitDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.referential.FormProduitService;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -82,9 +82,8 @@ public class FormProduitServiceImpl implements FormProduitService {
         long rattaches = this.produitRepository.countByFormeId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "La forme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "La forme est encore utilisée par %d produit(s) : suppression impossible.".formatted(rattaches),
+                    "referentielUtilise");
         }
         log.debug("Request to delete FormProduit : {}", id);
         formProduitRepository.deleteById(id);

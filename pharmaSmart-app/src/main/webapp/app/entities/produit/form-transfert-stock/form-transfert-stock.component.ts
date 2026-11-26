@@ -5,7 +5,7 @@ import { ErrorService } from '../../../shared/error.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
-import { IProduit } from "../../../shared/model";
+import { IProduit } from '../../../shared/model';
 import { IStockProduit } from '../../../shared/model/stock-produit.model';
 import { RepartitionStockService } from '../../repartition-stock/repartition-stock.service';
 import { ButtonComponent, CardComponent, KeyFilterDirective } from '../../../shared/ui';
@@ -111,7 +111,7 @@ export class FormTransfertStockComponent implements OnInit, AfterViewInit {
 
     this.repartitionStockService
       .processManualRepartition(request)
-      .pipe(finalize(() => (this.isSaving.set(false))))
+      .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: () => this.onSaveSuccess(),
         error: (error: HttpErrorResponse) => this.onSaveError(error),

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -36,8 +38,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Rayon}.
@@ -74,8 +74,9 @@ public class RayonResource {
         }
         RayonDTO result = rayonService.save(rayonDTO);
         return ResponseEntity.created(new URI("/api/rayons/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -94,8 +95,9 @@ public class RayonResource {
         }
         RayonDTO result = rayonService.update(rayonDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, rayonDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, rayonDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -108,15 +110,15 @@ public class RayonResource {
     @GetMapping(value = "/rayons")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, l'inventaire et les listes déroulantes")
     public ResponseEntity<List<RayonDTO>> getAllRayons(
-        @RequestParam(name = "magasinId", required = false) Integer magasinId,
-        @RequestParam(name = "storageId", required = false) Integer storageId,
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        @RequestParam(name = "typeZone", required = false) String typeZone,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "magasinId", required = false) Integer magasinId,
+            @RequestParam(name = "storageId", required = false) Integer storageId,
+            @RequestParam(value = "search", required = false, defaultValue = "") String search,
+            @RequestParam(name = "typeZone", required = false) String typeZone,
+            Pageable pageable) {
         log.debug("REST request to get a page of Rayons");
         Page<RayonDTO> page = rayonService.findAll(magasinId, storageId, search, typeZone, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -146,30 +148,29 @@ public class RayonResource {
         log.debug("REST request to delete Rayon : {}", id);
         rayonService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/rayons/importcsv/{storageId}")
     public ResponseEntity<ResponseDTO> uploadFile(
-        @RequestPart("importcsv") MultipartFile file,
-        @PathVariable(name = "storageId") Integer storageId
-    ) throws URISyntaxException, IOException {
+            @RequestPart("importcsv") MultipartFile file, @PathVariable(name = "storageId") Integer storageId)
+            throws URISyntaxException, IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
 
     @PostMapping("/rayons/clone/{storageId}")
     public ResponseEntity<ResponseDTO> clonerRayons(
-        @PathVariable(name = "storageId", required = false) Integer storageId,
-        @RequestBody List<RayonDTO> rayonIds
-    ) {
+            @PathVariable(name = "storageId", required = false) Integer storageId,
+            @RequestBody List<RayonDTO> rayonIds) {
         ResponseDTO responseDTO = rayonService.cloner(rayonIds, storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
 
     @PostMapping("/rayons/importcsv")
-    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file) throws IOException {
+    public ResponseEntity<ResponseDTO> importRayonFromCSV(@RequestPart("importcsv") MultipartFile file)
+            throws IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), null);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }
@@ -177,15 +178,15 @@ public class RayonResource {
     @GetMapping(value = "/rayons/export", produces = "text/csv")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, l'inventaire et les listes déroulantes")
     public ResponseEntity<byte[]> exportRayonsToCsv(
-        @RequestParam(name = "storageId", required = false) Integer storageId
-    ) {
+            @RequestParam(name = "storageId", required = false) Integer storageId) {
         try {
             byte[] csvData = rayonService.exportCsv(storageId);
-            String filename = "rayons_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
+            String filename =
+                    "rayons_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".csv";
             return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (IOException e) {
             log.error("Export rayons CSV", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

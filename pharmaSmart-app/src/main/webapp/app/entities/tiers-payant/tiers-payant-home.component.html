@@ -1,24 +1,31 @@
 <div class="container-fluid">
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-8 row"
-                   icon="pi pi-building" menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-4"
-                   title="Tiers payants">
-    <div #nav="ngbNav" [(activeId)]="active"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
-      <ng-container ngbNavItem="tiers-payant">       <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="tiers-payant.tiers-payant"
-                                fallbackIcon="pi pi-shield"
-                                fallbackLabel="Tiers payants" />
+  <app-nav-sidebar
+    (collapsedChange)="menuReplie.set($event)"
+    [collapsed]="menuReplie()"
+    [collapsible]="true"
+    [nav]="nav"
+    contentColumnClass="col-xl-10 col-lg-10 col-md-10 col-sm-8 row"
+    icon="pi pi-building"
+    menuColumnClass="col-xl-2 col-lg-2 col-md-2 col-sm-4"
+    title="Tiers payants"
+  >
+    <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+      <ng-container ngbNavItem="tiers-payant">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="tiers-payant.tiers-payant" fallbackIcon="pi pi-shield" fallbackLabel="Tiers payants" />
         </a>
         <ng-template ngbNavContent>
           <app-tiers-payant navCode="tiers-payant.tiers-payant"></app-tiers-payant>
         </ng-template>
       </ng-container>
 
-      <ng-container ngbNavItem="groupe-tiers-payant">       <a class="pharma-nav-vertical-link" ngbNavLink>
-          <app-nav-section-link code="tiers-payant.groupe-tiers-payant"
-                                fallbackIcon="pi pi-users"
-                                fallbackLabel="Groupe de tiers payants" />
+      <ng-container ngbNavItem="groupe-tiers-payant">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link
+            code="tiers-payant.groupe-tiers-payant"
+            fallbackIcon="pi pi-users"
+            fallbackLabel="Groupe de tiers payants"
+          />
         </a>
         <ng-template ngbNavContent>
           <app-groupe-tiers-payant navCode="tiers-payant.groupe-tiers-payant"></app-groupe-tiers-payant>
@@ -26,3 +33,4 @@
       </ng-container>
     </div>
   </app-nav-sidebar>
+</div>

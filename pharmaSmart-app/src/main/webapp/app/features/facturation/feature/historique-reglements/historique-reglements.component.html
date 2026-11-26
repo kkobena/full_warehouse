@@ -1,5 +1,4 @@
 <div class="pharma-smart-content">
-
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-history" title="Historique des règlements factures">
     <ng-container ngProjectAs="[toolbarFilters]">
@@ -10,20 +9,18 @@
         </div>
 
         <app-float-label inputId="hrSearch" label="Recherche libre">
-          <input
-            [(ngModel)]="search"
-            [style]="{ width: '160px' }"
-            class="form-control"
-            id="hrSearch"
-            placeholder=" " type="text" />
+          <input [(ngModel)]="search" [style]="{ width: '160px' }" class="form-control" id="hrSearch" placeholder=" " type="text" />
         </app-float-label>
 
-        <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [style]="{ 'max-width': '180px' }"
-                            id="hrDu"
-                            label="Du" />
+        <pharma-date-picker
+          [ngModel]="modelStartDate()"
+          (ngModelChange)="modelStartDate.set($event)"
+          [style]="{ 'max-width': '180px' }"
+          id="hrDu"
+          label="Du"
+        />
 
-        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="hrAu"
-                            label="Au" />
+        <pharma-date-picker [(ngModel)]="modelEndDate" [style]="{ 'max-width': '180px' }" id="hrAu" label="Au" />
 
         @if (factureGroup) {
           <app-float-label inputId="hrGroupe" label="Groupe tiers-payant">
@@ -91,7 +88,8 @@
     <div class="px-2">
       <app-data-table
         #reglementTable
-        [selection]="selectedDatas()" (selectionChange)="selectedDatas.set($any($event))"
+        [selection]="selectedDatas()"
+        (selectionChange)="selectedDatas.set($any($event))"
         [paginator]="true"
         [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
         [rows]="15"
@@ -115,7 +113,9 @@
                 (input)="reglementTable.filterGlobal($event.target['value'])"
                 [style]="{ width: '280px' }"
                 class="form-control"
-                placeholder="Filtrer dans la liste..." type="text" />
+                placeholder="Filtrer dans la liste..."
+                type="text"
+              />
             </app-icon-field>
             @if (selectedDatas().length > 0) {
               <app-button
@@ -149,9 +149,7 @@
         <!-- Sous-en-tête de groupe -->
         <ng-template #groupheader let-r>
           <tr>
-            <td class="fw-bold" colspan="3">
-              <i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}
-            </td>
+            <td class="fw-bold" colspan="3"><i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}</td>
             <td class="text-end fw-bold" colspan="2">
               Total : <span class="pharma-total">{{ getTotalByGroupe(r.organismeId) | number }}</span>
             </td>
@@ -162,11 +160,21 @@
         <ng-template #body let-r>
           <tr>
             <td></td>
-            <td><span class="pharma-code">{{ r.codeFacture }}</span></td>
-            <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
-            <td class="text-end"><span class="pharma-price">{{ r.montantAttendu }}</span></td>
-            <td class="text-end"><span class="pharma-total">{{ r.paidAmount }}</span></td>
-            <td class="text-end"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+            <td>
+              <span class="pharma-code">{{ r.codeFacture }}</span>
+            </td>
+            <td>
+              <span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-price">{{ r.montantAttendu }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-total">{{ r.paidAmount }}</span>
+            </td>
+            <td class="text-end">
+              <span class="pharma-price">{{ r.montantRestant }}</span>
+            </td>
             <td class="text-center small text-muted">{{ r.created }}</td>
             <td class="small">{{ r.user }}</td>
             <td class="text-center">
@@ -219,5 +227,4 @@
       </app-data-table>
     </div>
   </app-card>
-
 </div>

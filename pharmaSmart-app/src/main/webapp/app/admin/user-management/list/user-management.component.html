@@ -1,36 +1,19 @@
 <div class="pharma-smart-content py-1">
-
   <app-toolbar icon="pi pi-users" title="Utilisateurs">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
-        <app-button
-          [raised]="true"
-          [routerLink]="['./new']"
-          icon="pi pi-plus"
-          label="Nouvel utilisateur"
-          severity="primary"
-        />
+        <app-button [raised]="true" [routerLink]="['./new']" icon="pi pi-plus" label="Nouvel utilisateur" severity="primary" />
       </div>
-
     </ng-container>
   </app-toolbar>
 
   <app-card>
     @if (users() !== null) {
-      <app-data-table
-        [paginator]="true"
-        [rows]="itemsPerPage"
-        [value]="filteredUsers()"
-      >
+      <app-data-table [paginator]="true" [rows]="itemsPerPage" [value]="filteredUsers()">
         <ng-template #caption>
           <div class="d-flex justify-content-end">
             <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input
-                (input)="onFilter($event)"
-                class="form-control"
-                placeholder="Rechercher…"
-                type="text"
-              />
+              <input (input)="onFilter($event)" class="form-control" placeholder="Rechercher…" type="text" />
             </app-icon-field>
           </div>
         </ng-template>
@@ -54,9 +37,7 @@
             <td>{{ user.lastName }}</td>
             <td>{{ user.firstName }}</td>
             <td>
-
               <span class="pharma-badge pharma-badge-info me-1">{{ user.authority?.libelle }}</span>
-
             </td>
             <td>
               <div class="d-flex align-items-center gap-2">
@@ -87,9 +68,7 @@
                       severity="danger"
                       size="small"
                     />
-
                   }
-
                 }
               </div>
             </td>
@@ -124,7 +103,6 @@
                   severity="danger"
                 />
               }
-
             </td>
           </tr>
         </ng-template>
@@ -135,9 +113,6 @@
           </tr>
         </ng-template>
       </app-data-table>
-
     }
   </app-card>
-
 </div>
-

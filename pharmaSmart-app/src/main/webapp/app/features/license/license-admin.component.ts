@@ -1,18 +1,11 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {DatePipe} from '@angular/common';
-import {HttpErrorResponse} from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  AppBadgeSeverity,
-  BadgeComponent,
-  ButtonComponent,
-  CardComponent,
-  FileUploadComponent,
-  ToolbarComponent
-} from 'app/shared/ui';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {AbilityService} from 'app/core/auth/ability.service';
-import {LicenseService} from 'app/core/license/license.service';
+import { AppBadgeSeverity, BadgeComponent, ButtonComponent, CardComponent, FileUploadComponent, ToolbarComponent } from 'app/shared/ui';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { LicenseService } from 'app/core/license/license.service';
 import {
   LICENSE_AUDIT_LABEL,
   LICENSE_STATUS_LABEL,
@@ -21,8 +14,8 @@ import {
   LicenseStatus,
   PublisherContacts,
 } from 'app/core/license/license.model';
-import {ReactiveFormsModule} from "@angular/forms";
-import {APPEND_TO} from "../../shared/constants/pagination.constants";
+import { ReactiveFormsModule } from '@angular/forms';
+import { APPEND_TO } from '../../shared/constants/pagination.constants';
 
 /**
  * Écran unique de gestion de la licence : première activation, renouvellement annuel et diagnostic.

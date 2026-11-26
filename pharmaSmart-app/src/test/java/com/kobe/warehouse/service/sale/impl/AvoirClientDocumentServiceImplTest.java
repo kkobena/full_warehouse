@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,11 +14,13 @@ import static org.mockito.Mockito.when;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AvoirClient;
+import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -27,29 +28,27 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
-import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
-import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
-import com.kobe.warehouse.repository.PaymentModeRepository;
-import com.kobe.warehouse.service.cash_register.CashRegisterService;
-import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
-import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.service.LogsService;
-import com.kobe.warehouse.service.stock.LotService;
-import com.kobe.warehouse.service.stock.LotStockLocationService;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.repository.AvoirClientUtilisationRepository;
+import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
 import com.kobe.warehouse.service.sale.dto.AvoirClientDocumentDTO;
 import com.kobe.warehouse.service.sale.dto.CloturerAvoirRequest;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -67,20 +66,47 @@ import org.springframework.data.domain.PageRequest;
 @ExtendWith(MockitoExtension.class)
 class AvoirClientDocumentServiceImplTest {
 
-    @Mock private AvoirClientRepository repository;
-    @Mock private SalesLineRepository lineRepository;
-    @Mock private ReferenceService referenceService;
-    @Mock private StorageService storageService;
-    @Mock private StockProduitRepository stockRepository;
-    @Mock private AvoirClientNotificationService notificationService;
-    @Mock private AppConfigurationService configurationService;
-    @Mock private AvoirClientUtilisationRepository utilisationRepository;
-    @Mock private LotService lotService;
-    @Mock private LotStockLocationService lotStockLocationService;
-    @Mock private LogsService logsService;
-    @Mock private CashRegisterService cashRegisterService;
-    @Mock private FinancialTransactionService financialTransactionService;
-    @Mock private PaymentModeRepository paymentModeRepository;
+    @Mock
+    private AvoirClientRepository repository;
+
+    @Mock
+    private SalesLineRepository lineRepository;
+
+    @Mock
+    private ReferenceService referenceService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private StockProduitRepository stockRepository;
+
+    @Mock
+    private AvoirClientNotificationService notificationService;
+
+    @Mock
+    private AppConfigurationService configurationService;
+
+    @Mock
+    private AvoirClientUtilisationRepository utilisationRepository;
+
+    @Mock
+    private LotService lotService;
+
+    @Mock
+    private LotStockLocationService lotStockLocationService;
+
+    @Mock
+    private LogsService logsService;
+
+    @Mock
+    private CashRegisterService cashRegisterService;
+
+    @Mock
+    private FinancialTransactionService financialTransactionService;
+
+    @Mock
+    private PaymentModeRepository paymentModeRepository;
 
     private AvoirClientDocumentServiceImpl service;
     private AppUser user;
@@ -95,13 +121,24 @@ class AvoirClientDocumentServiceImplTest {
         magasin.setId(2);
         user.setMagasin(magasin);
         service = new AvoirClientDocumentServiceImpl(
-            repository, lineRepository, referenceService, storageService, stockRepository,
-            notificationService, configurationService, utilisationRepository,
-            lotService, lotStockLocationService, logsService,
-            cashRegisterService, financialTransactionService, paymentModeRepository
-        );
+                repository,
+                lineRepository,
+                referenceService,
+                storageService,
+                stockRepository,
+                notificationService,
+                configurationService,
+                utilisationRepository,
+                lotService,
+                lotStockLocationService,
+                logsService,
+                cashRegisterService,
+                financialTransactionService,
+                paymentModeRepository);
         // Par défaut une caisse est ouverte : seuls les tests de remboursement s'intéressent à l'autre cas.
-        lenient().when(cashRegisterService.getOpiningCashRegisterByUser(any())).thenReturn(Optional.of(new CashRegister()));
+        lenient()
+                .when(cashRegisterService.getOpiningCashRegisterByUser(any()))
+                .thenReturn(Optional.of(new CashRegister()));
         lenient().when(paymentModeRepository.findById(any())).thenReturn(Optional.of(new PaymentMode()));
     }
 
@@ -152,9 +189,10 @@ class AvoirClientDocumentServiceImplTest {
         when(orderLine.getFournisseurProduit()).thenReturn(supplier);
         when(supplier.getProduit()).thenReturn(product);
         AvoirClient avoir = avoir();
-        when(repository.existsByStatutAndCommandeIsNull(AvoirClientStatut.OUVERT)).thenReturn(true);
+        when(repository.existsByStatutAndCommandeIsNull(AvoirClientStatut.OUVERT))
+                .thenReturn(true);
         when(repository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
-            .thenReturn(List.of(avoir));
+                .thenReturn(List.of(avoir));
 
         service.linkCommandeToAvoirs(commande);
 
@@ -166,7 +204,8 @@ class AvoirClientDocumentServiceImplTest {
     @Test
     void doesNotQueryCreditsWhenNoOpenCreditExists() {
         Commande commande = org.mockito.Mockito.mock(Commande.class);
-        when(repository.existsByStatutAndCommandeIsNull(AvoirClientStatut.OUVERT)).thenReturn(false);
+        when(repository.existsByStatutAndCommandeIsNull(AvoirClientStatut.OUVERT))
+                .thenReturn(false);
 
         service.linkCommandeToAvoirs(commande);
 
@@ -189,13 +228,15 @@ class AvoirClientDocumentServiceImplTest {
         when(repository.findById(2)).thenReturn(Optional.of(open));
         when(storageService.getUser()).thenReturn(user);
         when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(-1);
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(2,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "x", null)));
+        assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(2, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "x", null)));
 
         AvoirClient noProduct = avoir().setProduit(null);
         when(repository.findById(3)).thenReturn(Optional.of(noProduct));
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(3,
-            new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, "x", 1_001)));
+        assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(3, new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, "x", 1_001)));
     }
 
     @Test
@@ -205,8 +246,8 @@ class AvoirClientDocumentServiceImplTest {
         when(storageService.getUser()).thenReturn(user);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.COMPENSATION_VENTE, "partiel", 300));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.COMPENSATION_VENTE, "partiel", 300));
 
         assertEquals(300, result.montantUtilise());
         assertEquals(700, result.montantRestant());
@@ -218,7 +259,9 @@ class AvoirClientDocumentServiceImplTest {
 
     /** Remboursement en espèces ou par CB : une sortie de caisse au mode de paiement choisi, sur une caisse ouverte. */
     @ParameterizedTest
-    @EnumSource(value = ModeClotureAvoir.class, names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
+    @EnumSource(
+            value = ModeClotureAvoir.class,
+            names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
     void refundWritesACashOutflowAtTheChosenPaymentMode(ModeClotureAvoir mode) {
         AvoirClient avoir = avoir().setProduit(null);
         String code = mode == ModeClotureAvoir.REMBOURSEMENT_ESPECES ? "CASH" : "CB";
@@ -243,7 +286,9 @@ class AvoirClientDocumentServiceImplTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = ModeClotureAvoir.class, names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
+    @EnumSource(
+            value = ModeClotureAvoir.class,
+            names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
     void refundWithoutOpenCashRegisterChangesNothing(ModeClotureAvoir mode) {
         AvoirClient avoir = avoir().setProduit(null);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
@@ -259,7 +304,9 @@ class AvoirClientDocumentServiceImplTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = ModeClotureAvoir.class, names = {"BON_AVOIR", "COMPENSATION_VENTE"})
+    @EnumSource(
+            value = ModeClotureAvoir.class,
+            names = {"BON_AVOIR", "COMPENSATION_VENTE"})
     void otherModesDoNotTouchTheCashRegister(ModeClotureAvoir mode) {
         AvoirClient avoir = avoir().setProduit(null);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
@@ -283,8 +330,8 @@ class AvoirClientDocumentServiceImplTest {
         avoir.setQuantite(0);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "complet", null));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "complet", null));
 
         assertEquals(AvoirClientStatut.CLOTURE, result.statut());
         assertEquals(0, line.getQuantityAvoir());
@@ -333,8 +380,11 @@ class AvoirClientDocumentServiceImplTest {
         assertEquals(0, stock.getQtyVirtual());
         verify(stockRepository, never()).findTotalQuantityByMagasinIdIdAndProduitId(any(), any());
         verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
-        verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
-            org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.eq("1"));
+        verify(logsService)
+                .create(
+                        org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.eq("1"));
     }
 
     @ParameterizedTest
@@ -364,8 +414,11 @@ class AvoirClientDocumentServiceImplTest {
         service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_CB, null, null));
 
         ArgumentCaptor<String> comment = ArgumentCaptor.forClass(String.class);
-        verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
-            comment.capture(), org.mockito.ArgumentMatchers.eq("1"));
+        verify(logsService)
+                .create(
+                        org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
+                        comment.capture(),
+                        org.mockito.ArgumentMatchers.eq("1"));
         assertTrue(comment.getValue().contains("AV-1"), comment.getValue());
         assertTrue(comment.getValue().contains("REMBOURSEMENT_CB"), comment.getValue());
         assertTrue(comment.getValue().contains("-2 -> 0"), comment.getValue());
@@ -393,8 +446,9 @@ class AvoirClientDocumentServiceImplTest {
         AvoirClient avoir = avoir();
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
 
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, 300)));
+        assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, 300)));
 
         assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
         assertEquals(0, avoir.getMontantUtilise());
@@ -411,8 +465,8 @@ class AvoirClientDocumentServiceImplTest {
         when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(5);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 1));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 1));
 
         assertEquals(AvoirClientStatut.OUVERT, result.statut());
         assertEquals(500, result.montantUtilise());
@@ -425,14 +479,15 @@ class AvoirClientDocumentServiceImplTest {
 
     @Test
     void lastHandOverSettlesTheCreditAndCreditsNothingBackToStock() {
-        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(3).setMontantUtilise(1_500);
+        AvoirClient avoir =
+                avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(3).setMontantUtilise(1_500);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
         when(storageService.getUser()).thenReturn(user);
         when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(0);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
 
         assertEquals(AvoirClientStatut.CLOTURE, result.statut());
         assertEquals(2_000, result.montantUtilise(), "la dernière remise prend tout le solde");
@@ -443,13 +498,18 @@ class AvoirClientDocumentServiceImplTest {
 
     @Test
     void refusesMoreUnitsThanRemain() {
-        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
+        AvoirClient avoir =
+                avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
 
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 4)));
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 0)));
+        assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(
+                        1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 4)));
+        assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(
+                        1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 0)));
 
         assertEquals(1, avoir.getQuantiteRemise());
         verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
@@ -458,14 +518,15 @@ class AvoirClientDocumentServiceImplTest {
     /** Une unité a déjà été remise : solder le reste en argent ne recrédite que les trois autres. */
     @Test
     void settlingInMoneyAfterAPartialHandOverCreditsOnlyTheUnhandedUnits() {
-        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
+        AvoirClient avoir =
+                avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
         StockProduit stock = stockRayon(-3);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
         when(storageService.getUser()).thenReturn(user);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, null));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, null));
 
         assertEquals(AvoirClientStatut.CLOTURE, result.statut());
         assertEquals(0, stock.getQtyStock(), "3 unités recréditées, pas les 4 de l'avoir");
@@ -478,8 +539,9 @@ class AvoirClientDocumentServiceImplTest {
         when(storageService.getUser()).thenReturn(user);
         when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(-3);
 
-        GenericError error = assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null)));
+        GenericError error = assertThrows(
+                GenericError.class,
+                () -> service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null)));
 
         assertTrue(error.getMessage().contains("il manque 3"), error.getMessage());
         assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
@@ -499,8 +561,8 @@ class AvoirClientDocumentServiceImplTest {
         when(stockRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(null);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
-            new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null));
+        AvoirClientDocumentDTO result =
+                service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null));
 
         assertEquals(AvoirClientStatut.CLOTURE, result.statut());
         verify(stockRepository, never()).save(any());
@@ -543,12 +605,17 @@ class AvoirClientDocumentServiceImplTest {
         when(commande.getReceiptReference()).thenReturn("CMD-1");
         complete.setCommande(commande);
         AvoirClient minimal = new AvoirClient()
-            .setId(2).setReference("AV-2").setMontant(100).setQuantite(1)
-            .setDateExpiration(LocalDate.now().plusDays(8));
+                .setId(2)
+                .setReference("AV-2")
+                .setMontant(100)
+                .setQuantite(1)
+                .setDateExpiration(LocalDate.now().plusDays(8));
         when(repository.findByCustomerIdOrderByCreatedAtDesc(8)).thenReturn(List.of(complete, minimal));
         PageRequest pageable = PageRequest.of(0, 10);
-        when(repository.findAll(any(org.springframework.data.jpa.domain.Specification.class),
-            org.mockito.ArgumentMatchers.eq(pageable))).thenReturn(new PageImpl<>(List.of(complete)));
+        when(repository.findAll(
+                        any(org.springframework.data.jpa.domain.Specification.class),
+                        org.mockito.ArgumentMatchers.eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(complete)));
 
         List<AvoirClientDocumentDTO> customerCredits = service.findAllByCustomer(8);
 
@@ -557,22 +624,24 @@ class AvoirClientDocumentServiceImplTest {
         assertEquals("CMD-1", customerCredits.getFirst().commandeReference());
         assertNull(customerCredits.get(1).customerName());
         assertFalse(customerCredits.get(1).procheExpiration());
-        assertEquals(1, service.findAll("AV", LocalDate.now().minusDays(1), LocalDate.now(),
-            AvoirClientStatut.OUVERT, pageable).getTotalElements());
+        assertEquals(
+                1,
+                service.findAll("AV", LocalDate.now().minusDays(1), LocalDate.now(), AvoirClientStatut.OUVERT, pageable)
+                        .getTotalElements());
     }
 
     private AvoirClient avoir() {
         return new AvoirClient()
-            .setId(1)
-            .setReference("AV-1")
-            .setStatut(AvoirClientStatut.OUVERT)
-            .setQuantite(2)
-            .setMontant(1_000)
-            .setCustomer(customer())
-            .setProduit(saleLine().getProduit())
-            .setSalesLine(saleLine())
-            .setCreatedBy(user)
-            .setDateExpiration(LocalDate.now().plusDays(30));
+                .setId(1)
+                .setReference("AV-1")
+                .setStatut(AvoirClientStatut.OUVERT)
+                .setQuantite(2)
+                .setMontant(1_000)
+                .setCustomer(customer())
+                .setProduit(saleLine().getProduit())
+                .setSalesLine(saleLine())
+                .setCreatedBy(user)
+                .setDateExpiration(LocalDate.now().plusDays(30));
     }
 
     private Customer customer() {
@@ -602,4 +671,3 @@ class AvoirClientDocumentServiceImplTest {
         return line;
     }
 }
-

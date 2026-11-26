@@ -56,8 +56,10 @@ class EcrivainCsv implements EcrivainExport {
             case null -> "";
             case LocalDateTime horodatage -> horodatage.format(DATE_HEURE);
             case LocalDate date -> date.format(DATE);
-            case Double nombre -> BigDecimal.valueOf(nombre).stripTrailingZeros().toPlainString().replace('.', ',');
-            case BigDecimal nombre -> nombre.stripTrailingZeros().toPlainString().replace('.', ',');
+            case Double nombre ->
+                BigDecimal.valueOf(nombre).stripTrailingZeros().toPlainString().replace('.', ',');
+            case BigDecimal nombre ->
+                nombre.stripTrailingZeros().toPlainString().replace('.', ',');
             case Number nombre -> nombre.toString();
             case Boolean booleen -> booleen ? "Oui" : "Non";
             default -> "\"" + valeur.toString().replace("\"", "\"\"") + "\"";

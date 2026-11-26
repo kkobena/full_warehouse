@@ -6,13 +6,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record LigneRapprochementDto(
-    Long factureId,
-    String numFacture,
-    LocalDate invoiceDate,
-    LocalDate echeance,
-    BigDecimal montantFacture,
-    BigDecimal montantRegle,
-    BigDecimal ecart,
-    InvoiceStatut statut,
-    List<ReglementDto> reglements
-) {}
+        Long factureId,
+        String numFacture,
+        LocalDate invoiceDate,
+        LocalDate echeance,
+        BigDecimal montantFacture,
+        BigDecimal montantRegle,
+        BigDecimal ecart,
+        InvoiceStatut statut,
+        List<ReglementDto> reglements) {}

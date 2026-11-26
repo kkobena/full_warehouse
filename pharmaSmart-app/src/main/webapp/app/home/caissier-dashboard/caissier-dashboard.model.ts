@@ -1,6 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
 
-
 export interface ICaisseStatus {
   fondOuverture: number;
   encaissementsEspeces: number;
@@ -8,7 +7,6 @@ export interface ICaisseStatus {
   heureOuverture?: string;
   etat: 'OUVERTE' | 'FERMEE';
   derniereFermeture?: Date;
-
 }
 
 export type PaymentGroup = 'CASH' | 'MOBILE' | 'CB' | 'CHEQUE' | 'VIREMENT' | 'CREDIT' | 'CAUTION';
@@ -25,10 +23,9 @@ export interface ISessionEncaissements {
   carnet: number;
   differe: number;
   totalEncaisse: number;
-  totalARecouvrer: number;          // CREDIT/CAUTION + carnet + differe
+  totalARecouvrer: number; // CREDIT/CAUTION + carnet + differe
   nombreTransactions: number;
 }
-
 
 export interface IDiffereARelancer {
   saleId: number;
@@ -46,14 +43,12 @@ export interface IResumeDifferes {
   differes: IDiffereARelancer[];
 }
 
-
 export interface ILivraisonAttendue {
   commandeId: number;
   fournisseurNom: string;
   heureAttendue?: string;
   nombreReferences: number;
 }
-
 
 export interface IVenteRecente {
   saleId: number;
@@ -65,7 +60,6 @@ export interface IVenteRecente {
   clientNom?: string;
 }
 
-
 export interface ICaissierDashboard {
   caisseStatus: ICaisseStatus;
   sessionEncaissements: ISessionEncaissements;
@@ -74,7 +68,4 @@ export interface ICaissierDashboard {
   ventesRecentes?: IVenteRecente[];
 }
 
-
 export type DashboardResponseType = HttpResponse<ICaissierDashboard>;
-
-

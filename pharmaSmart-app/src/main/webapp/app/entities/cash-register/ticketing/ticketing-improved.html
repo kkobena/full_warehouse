@@ -20,8 +20,7 @@
             <!-- Real-time Total Display -->
             <div class="pharma-live-total">
               <span class="pharma-live-total-label">Total</span>
-              <span [class.pharma-amount-animated]="totalAmount() > 0"
-                    class="pharma-live-total-amount">
+              <span [class.pharma-amount-animated]="totalAmount() > 0" class="pharma-live-total-amount">
                 {{ totalAmount() | number }} <span appDevise></span>
               </span>
             </div>
@@ -66,9 +65,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number }} </span>
                   </div>
                 </div>
 
@@ -82,8 +79,7 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">5 000</span>
                   </div>
-                  <div
-                    class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 ">
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1">
                     <app-input-number
                       [inputId]="'numberOf5Thousand'"
                       [min]="0"
@@ -93,9 +89,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number }} </span>
                   </div>
                 </div>
 
@@ -109,8 +103,7 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">2 000</span>
                   </div>
-                  <div
-                    class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 ">
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1">
                     <app-input-number
                       [inputId]="'numberOf2Thousand'"
                       [min]="0"
@@ -120,9 +113,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number }} </span>
                   </div>
                 </div>
 
@@ -136,8 +127,7 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">1 000</span>
                   </div>
-                  <div
-                    class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 ">
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1">
                     <app-input-number
                       [inputId]="'numberOf1Thousand'"
                       [min]="0"
@@ -147,9 +137,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number }} </span>
                   </div>
                 </div>
                 <!-- 500 <span appDevise></span> -->
@@ -162,8 +150,7 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">500</span>
                   </div>
-                  <div
-                    class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 ">
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1">
                     <app-input-number
                       [inputId]="'numberOf500Hundred'"
                       [min]="0"
@@ -173,9 +160,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number }} </span>
                   </div>
                 </div>
                 <div class="pharma-ticketing-row pharma-other-row">
@@ -187,8 +172,7 @@
                   <div class="pharma-ticketing-col pharma-col-value">
                     <span class="pharma-denomination-value">Autre montant</span>
                   </div>
-                  <div
-                    class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1 ">
+                  <div class="pharma-ticketing-col pharma-col-qty d-flex align-items-center gap-1">
                     <app-input-number
                       [inputId]="'otherAmount'"
                       [min]="0"
@@ -199,9 +183,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount"> {{
-                        (editForm.get('otherAmount')!.value || 0) | number
-                      }} </span>
+                    <span class="pharma-subtotal-amount"> {{ (editForm.get('otherAmount')!.value || 0) | number }} </span>
                   </div>
                 </div>
               </div>
@@ -222,8 +204,7 @@
           <!-- Footer Actions -->
           <div class="pharma-card-footer">
             <div class="pharma-button-group-flex">
-              <app-button (clicked)="previousState()" [outlined]="true" icon="pi pi-arrow-left"
-                          label="Retour" severity="secondary" />
+              <app-button (clicked)="previousState()" [outlined]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
               <app-button
                 (clicked)="save()"
                 [disabled]="editForm.invalid || isSaving()"
@@ -241,4 +222,3 @@
     </div>
   </div>
 </div>
-

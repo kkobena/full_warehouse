@@ -11,24 +11,26 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SuggestionProduitService {
-
 
     /**
      * Liste paginée des suggestions, avec filtres optionnels.
      *
      * @param statut filtre par statut (GENEREE = Réapprovisionnement, VALIDEE = Commandes à passer). null = tous.
      */
-    Page<SuggestionProjection> getAllSuggestion(String search, Set<Integer> fournisseurIds,
-                                                TypeSuggession typeSuggession, Set<StatutSuggession> statut, Pageable pageable);
+    Page<SuggestionProjection> getAllSuggestion(
+            String search,
+            Set<Integer> fournisseurIds,
+            TypeSuggession typeSuggession,
+            Set<StatutSuggession> statut,
+            Pageable pageable);
 
     /**
      * Compte les suggestions par statut — utilisé pour les badges onglets de l'UI.
@@ -42,12 +44,13 @@ public interface SuggestionProduitService {
      * @param fournisseurIds filtre sur une liste de fournisseurs (null ou vide = tous)
      * @param searchTerm     filtre produit sur codeCip, codeEan, libelle, codeEanLaboratoire (null = aucun filtre)
      */
-    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm);
-
+    List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(
+            Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm);
 
     Optional<SuggestionDTO> getSuggestionById(Integer id);
 
-    Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, String niveauUrgence, Pageable pageable);
+    Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(
+            Integer suggestionId, String search, String niveauUrgence, Pageable pageable);
 
     /**
      * Charge toutes les lignes d'une suggestion sans pagination (usage édition).
@@ -65,7 +68,6 @@ public interface SuggestionProduitService {
     CommandeId commander(Integer suggestionId, Integer fournisseurId);
 
     CommandeId commanderSelection(CommanderSelectionDTO dto);
-
 
     BudgetCommandeDTO getBudgetCommande();
 

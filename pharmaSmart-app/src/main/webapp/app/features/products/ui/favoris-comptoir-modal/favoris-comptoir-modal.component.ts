@@ -1,23 +1,23 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { forkJoin, Observable } from "rxjs";
-import { DevisePipe } from "app/shared/utils/devise";
-import { ButtonComponent, CardComponent } from "app/shared/ui";
-import { NotificationService } from "app/shared/services/notification.service";
-import { ProduitSearch } from "app/shared/model";
-import { FavoriSuggere, ProduitsFavorisApiService } from "../../data-access/services/produits-favoris-api.service";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { forkJoin, Observable } from 'rxjs';
+import { DevisePipe } from 'app/shared/utils/devise';
+import { ButtonComponent, CardComponent } from 'app/shared/ui';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { ProduitSearch } from 'app/shared/model';
+import { FavoriSuggere, ProduitsFavorisApiService } from '../../data-access/services/produits-favoris-api.service';
 
 /**
  * Grille du comptoir : les produits épinglés, dans l'ordre des tuiles, et les produits à épingler d'après les ventes. Chaque
  * geste s'applique tout de suite côté serveur ; il n'y a pas d'« Enregistrer ». Se ferme sans résultat : l'écran appelant relit.
  */
 @Component({
-  selector: "app-favoris-comptoir-modal",
-  templateUrl: "./favoris-comptoir-modal.component.html",
-  styleUrl: "./favoris-comptoir-modal.component.scss",
+  selector: 'app-favoris-comptoir-modal',
+  templateUrl: './favoris-comptoir-modal.component.html',
+  styleUrl: './favoris-comptoir-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DevisePipe, CardComponent]
+  imports: [ButtonComponent, DevisePipe, CardComponent],
 })
 export class FavorisComptoirModalComponent implements OnInit {
   protected readonly epingles = signal<ProduitSearch[]>([]);
@@ -79,7 +79,7 @@ export class FavorisComptoirModalComponent implements OnInit {
         },
         error: () => {
           this.chargement.set(false);
-          this.notifications.error("Les favoris n'ont pas pu être chargés.", "Favoris du comptoir");
+          this.notifications.error("Les favoris n'ont pas pu être chargés.", 'Favoris du comptoir');
         },
       });
   }
@@ -94,7 +94,7 @@ export class FavorisComptoirModalComponent implements OnInit {
       },
       error: () => {
         this.occupe.set(false);
-        this.notifications.error("L'opération n'a pas abouti.", "Favoris du comptoir");
+        this.notifications.error("L'opération n'a pas abouti.", 'Favoris du comptoir');
       },
     });
   }

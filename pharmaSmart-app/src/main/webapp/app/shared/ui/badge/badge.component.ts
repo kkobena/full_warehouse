@@ -1,14 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
-export type AppBadgeSeverity =
-  'primary'
-  | 'secondary'
-  | 'success'
-  | 'info'
-  | 'warn'
-  | 'danger'
-  | 'help'
-  | 'contrast';
+export type AppBadgeSeverity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
 
 /**
  * Badge du Design System — remplace `p-tag`, `p-badge` et `p-chip`.
@@ -36,8 +28,7 @@ export type AppBadgeSeverity =
 
     <ng-content />
     @if (dismissible()) {
-      <button type="button" class="app-badge__close" [attr.aria-label]="dismissAriaLabel()"
-              (click)="dismissed.emit()">
+      <button type="button" class="app-badge__close" [attr.aria-label]="dismissAriaLabel()" (click)="dismissed.emit()">
         <i class="pi pi-times" aria-hidden="true"></i>
       </button>
     }

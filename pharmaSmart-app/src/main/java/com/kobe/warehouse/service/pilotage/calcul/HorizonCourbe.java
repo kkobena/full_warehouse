@@ -17,19 +17,19 @@ public final class HorizonCourbe {
     private HorizonCourbe() {}
 
     /** La requête élargie aux 13 dernières tranches (6 pour l'année), jamais rétrécie, pour un seul indicateur. */
-    public static RequetePilotageDTO elargirAuxTreizeTranches(RequetePilotageDTO requete, IndicateurPilotage indicateur) {
+    public static RequetePilotageDTO elargirAuxTreizeTranches(
+            RequetePilotageDTO requete, IndicateurPilotage indicateur) {
         LocalDate debut = lireDebutHorizon(requete.au(), requete.granularite());
         return new RequetePilotageDTO(
-            debut.isBefore(requete.du()) ? debut : requete.du(),
-            requete.au(),
-            requete.comparaison(),
-            requete.anneesEnArriere(),
-            requete.referenceDu(),
-            requete.referenceAu(),
-            requete.aDate(),
-            requete.granularite(),
-            List.of(indicateur)
-        );
+                debut.isBefore(requete.du()) ? debut : requete.du(),
+                requete.au(),
+                requete.comparaison(),
+                requete.anneesEnArriere(),
+                requete.referenceDu(),
+                requete.referenceAu(),
+                requete.aDate(),
+                requete.granularite(),
+                List.of(indicateur));
     }
 
     public static String libellerHorizon(Granularite granularite) {
@@ -46,7 +46,8 @@ public final class HorizonCourbe {
         int annees = requete.anneesEnArriere();
         return switch (requete.comparaison()) {
             case MEME_PERIODE_N_1 -> "Même période, année précédente (N-1)";
-            case ANNEE_N_MOINS_K -> "Même période, il y a " + annees + " an" + (annees > 1 ? "s" : "") + " (N-" + annees + ")";
+            case ANNEE_N_MOINS_K ->
+                "Même période, il y a " + annees + " an" + (annees > 1 ? "s" : "") + " (N-" + annees + ")";
             case PERIODE_PRECEDENTE -> "Période précédente (juste avant)";
             case PERSONNALISEE -> "Période de comparaison choisie";
             case OBJECTIF -> "Objectif";
@@ -57,9 +58,11 @@ public final class HorizonCourbe {
     private static LocalDate lireDebutHorizon(LocalDate fin, Granularite granularite) {
         return switch (granularite) {
             case JOUR -> fin.minusDays(TRANCHES - 1);
-            case SEMAINE -> fin.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(TRANCHES - 1);
+            case SEMAINE ->
+                fin.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(TRANCHES - 1);
             case MOIS -> fin.withDayOfMonth(1).minusMonths(TRANCHES - 1);
-            case TRIMESTRE -> fin.withDayOfMonth(1).minusMonths((fin.getMonthValue() - 1) % 3).minusMonths((TRANCHES - 1) * 3L);
+            case TRIMESTRE ->
+                fin.withDayOfMonth(1).minusMonths((fin.getMonthValue() - 1) % 3).minusMonths((TRANCHES - 1) * 3L);
             case ANNEE -> fin.withDayOfYear(1).minusYears(ANNEES - 1);
         };
     }

@@ -60,7 +60,6 @@ export default class CashFlowBfrComponent implements OnInit, OnDestroy {
     return 'badge bg-danger fs-6';
   }
 
-
   private createChart(evo: IBfrEvolution): void {
     this.evolutionChart?.destroy();
     this.evolutionChart = undefined;

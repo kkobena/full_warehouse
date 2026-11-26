@@ -1,36 +1,26 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
-import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {CommonModule} from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
-import {FormsModule} from '@angular/forms';
-import {filter} from 'rxjs';
-import {NgxSpinnerService} from 'ngx-spinner';
-import {NotificationService} from '../../../../shared/services/notification.service';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { filter } from 'rxjs';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
-import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {AjustementFacade} from '../../data-access/facades/ajustement.facade';
-import {AjustEvent} from '../../models';
-import {IAjust} from '../../../../shared/model/ajust.model';
-import {IAjustement} from '../../../../shared/model/ajustement.model';
-import {IUser, User} from '../../../../core/user/user.model';
-import {UserService} from '../../../../core/user/user.service';
-import {HttpResponse} from '@angular/common/http';
-import {ITEMS_PER_PAGE} from '../../../../config/pagination.constants';
-import {APPEND_TO} from '../../../../shared/constants/pagination.constants';
-import {
-  PharmaDatePickerComponent
-} from '../../../../shared/date-picker/pharma-date-picker.component';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
-import {NGB_DATE_TO_ISO, TODAY_NGB_DATE} from '../../../../shared/util/warehouse-util';
+import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AjustementFacade } from '../../data-access/facades/ajustement.facade';
+import { AjustEvent } from '../../models';
+import { IAjust } from '../../../../shared/model/ajust.model';
+import { IAjustement } from '../../../../shared/model/ajustement.model';
+import { IUser, User } from '../../../../core/user/user.model';
+import { UserService } from '../../../../core/user/user.service';
+import { HttpResponse } from '@angular/common/http';
+import { ITEMS_PER_PAGE } from '../../../../config/pagination.constants';
+import { APPEND_TO } from '../../../../shared/constants/pagination.constants';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
@@ -41,7 +31,7 @@ import {
   PillSelectorComponent,
   RowTogglerDirective,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../../shared/ui';
 
 @Component({
@@ -63,8 +53,8 @@ import {
     PillSelectorComponent,
     PharmaDatePickerComponent,
     RowTogglerDirective,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class AjustementHomeComponent implements OnInit {
   readonly facade = inject(AjustementFacade);
@@ -74,13 +64,13 @@ export class AjustementHomeComponent implements OnInit {
   protected search = '';
   protected fromDate: NgbDateStruct = TODAY_NGB_DATE();
   protected toDate: NgbDateStruct = TODAY_NGB_DATE();
-  protected user: IUser | null = {id: null, abbrName: 'TOUT'};
+  protected user: IUser | null = { id: null, abbrName: 'TOUT' };
   protected readonly users = signal<IUser[]>([]);
   protected typeFilter = 'TOUT';
   protected readonly typeOptions = [
-    {label: 'Tout', value: 'TOUT'},
-    {label: 'Entrées', value: 'AJUSTEMENT_IN'},
-    {label: 'Sorties', value: 'AJUSTEMENT_OUT'},
+    { label: 'Tout', value: 'TOUT' },
+    { label: 'Entrées', value: 'AJUSTEMENT_IN' },
+    { label: 'Sorties', value: 'AJUSTEMENT_OUT' },
   ];
 
   protected first = signal(0);
@@ -90,9 +80,7 @@ export class AjustementHomeComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
-  private lastEvent$ = toObservable(this.facade.lastEvent).pipe(
-    filter((e): e is AjustEvent => e !== null),
-  );
+  private lastEvent$ = toObservable(this.facade.lastEvent).pipe(filter((e): e is AjustEvent => e !== null));
 
   constructor() {
     effect(() => {
@@ -175,10 +163,11 @@ export class AjustementHomeComponent implements OnInit {
   }
 
   private loadUsers(): void {
-    this.userService.query()
+    this.userService
+      .query()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: HttpResponse<User[]>) => {
-        this.users.set([{id: null, abbrName: 'TOUT'}, ...(res.body ?? [])]);
+        this.users.set([{ id: null, abbrName: 'TOUT' }, ...(res.body ?? [])]);
       });
   }
 }

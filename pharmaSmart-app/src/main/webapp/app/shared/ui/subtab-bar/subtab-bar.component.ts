@@ -99,7 +99,10 @@ export class SubtabBarComponent {
     if (onglets.length === 0) {
       return;
     }
-    const courant = Math.max(0, onglets.findIndex(t => t.id === this.active()));
+    const courant = Math.max(
+      0,
+      onglets.findIndex(t => t.id === this.active()),
+    );
     let cible = -1;
     switch (event.key) {
       case 'ArrowRight':

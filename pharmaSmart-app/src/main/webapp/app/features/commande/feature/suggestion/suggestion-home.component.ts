@@ -1,37 +1,34 @@
-import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule, DecimalPipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, CardComponent, IconFieldComponent, MultiSelectComponent } from "app/shared/ui";
-import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
-import {
-  SuggestionFournisseurListComponent
-} from "./ui/suggestion-fournisseur-list/suggestion-fournisseur-list.component";
-import { SuggestionProduitPanelComponent } from "./ui/suggestion-produit-panel/suggestion-produit-panel.component";
-import {
-  SuggestionCommanderModalComponent
-} from "./ui/suggestion-commander-modal/suggestion-commander-modal.component";
-import { CommanderModalResult } from "./data-access/suggestion-commander.model";
-import { SuggestionComparaisonComponent } from "./ui/suggestion-comparaison/suggestion-comparaison.component";
-import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
-import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-access/suggestion-enrichie.model";
-import { NotificationService } from "app/shared/services/notification.service";
-import { CommandeService } from "app/entities/commande/commande.service";
-import { IClientsEnAttente } from "app/shared/model/produit-du.model";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, startWith } from "rxjs/operators";
-import { FournisseurApiService } from "../../../partners/data-access/services/fournisseur-api.service";
+import { Component, DestroyRef, effect, inject, Injector, signal, untracked, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent, IconFieldComponent, MultiSelectComponent } from 'app/shared/ui';
+import { SuggestionFacadeService } from './data-access/suggestion-facade.service';
+import { SuggestionFournisseurListComponent } from './ui/suggestion-fournisseur-list/suggestion-fournisseur-list.component';
+import { SuggestionProduitPanelComponent } from './ui/suggestion-produit-panel/suggestion-produit-panel.component';
+import { SuggestionCommanderModalComponent } from './ui/suggestion-commander-modal/suggestion-commander-modal.component';
+import { CommanderModalResult } from './data-access/suggestion-commander.model';
+import { SuggestionComparaisonComponent } from './ui/suggestion-comparaison/suggestion-comparaison.component';
+import { DispoComparaisonComponent } from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
+import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from './data-access/suggestion-enrichie.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { CommandeService } from 'app/entities/commande/commande.service';
+import { IClientsEnAttente } from 'app/shared/model/produit-du.model';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { IFournisseur } from '../../../../shared/model/fournisseur.model';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
+import { FournisseurApiService } from '../../../partners/data-access/services/fournisseur-api.service';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
-  selector: "app-suggestion-home",
-  templateUrl: "./suggestion-home.component.html",
-  styleUrls: ["./suggestion-home.component.scss"],
+  selector: 'app-suggestion-home',
+  templateUrl: './suggestion-home.component.html',
+  styleUrls: ['./suggestion-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     SuggestionFournisseurListComponent,
@@ -40,14 +37,15 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     NgbTooltip,
     DecimalPipe,
     IconFieldComponent,
-    MultiSelectComponent, CardComponent
-  ]
+    MultiSelectComponent,
+    CardComponent,
+  ],
 })
 export class SuggestionHomeComponent {
   readonly selectedLignes = signal<SuggestionLigneEnrichie[]>([]);
   readonly editingFournisseur = signal<FournisseurSuggestionSummary | null>(null);
   // ── List-level filters ─────────────────────────────────────────────────────
-  readonly listSearch = signal("");
+  readonly listSearch = signal('');
   readonly listFournisseurIds = signal<number[]>([]);
   readonly fournisseurOptions = signal<IFournisseur[]>([]);
   readonly childSelectionCount = signal<number>(0);
@@ -70,15 +68,13 @@ export class SuggestionHomeComponent {
   constructor() {
     // Charge les options du multiselect une seule fois
     this.fournisseurService.queryParents({ page: 0, size: 999 }).subscribe({
-      next: res => this.fournisseurOptions.set(res.body ?? [])
+      next: res => this.fournisseurOptions.set(res.body ?? []),
     });
 
     // Recharge la liste à chaque changement de search (debounced) ou fournisseurs (init inclus via startWith)
-    combineLatest([
-      this.listSearchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith("")),
-      this.listFournisseurIds$
-    ]).pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([search, ids]) => this.facade.loadAll(["GENEREE", "VALIDEE"], search, ids));
+    combineLatest([this.listSearchSubject.pipe(debounceTime(300), distinctUntilChanged(), startWith('')), this.listFournisseurIds$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([search, ids]) => this.facade.loadAll(['GENEREE', 'VALIDEE'], search, ids));
 
     // Le dû client suit les lignes affichées : il se relit à chaque changement de fournisseur
     // ou de page, et jamais produit par produit.
@@ -131,26 +127,26 @@ export class SuggestionHomeComponent {
   onCommander(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur) {
-      this.notificationService.warning("Aucun fournisseur sélectionné.");
+      this.notificationService.warning('Aucun fournisseur sélectionné.');
       return;
     }
     const lignes = this.facade.lignesEnrichies();
-    this.openCommanderModal(fournisseur, lignes, "full");
+    this.openCommanderModal(fournisseur, lignes, 'full');
   }
 
   /** Commander uniquement les lignes sélectionnées (la suggestion n'est pas supprimée si des lignes restent). */
   onCommanderSelection(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur) {
-      this.notificationService.warning("Aucun fournisseur sélectionné.");
+      this.notificationService.warning('Aucun fournisseur sélectionné.');
       return;
     }
     const lignes = this.selectedLignes();
     if (lignes.length === 0) {
-      this.notificationService.warning("Aucune ligne sélectionnée.");
+      this.notificationService.warning('Aucune ligne sélectionnée.');
       return;
     }
-    this.openCommanderModal(fournisseur, lignes, "selection");
+    this.openCommanderModal(fournisseur, lignes, 'selection');
   }
 
   /**
@@ -160,14 +156,14 @@ export class SuggestionHomeComponent {
   onCommanderFiltre(lignes: SuggestionLigneEnrichie[]): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur) {
-      this.notificationService.warning("Aucun fournisseur sélectionné.");
+      this.notificationService.warning('Aucun fournisseur sélectionné.');
       return;
     }
     if (lignes.length === 0) {
-      this.notificationService.warning("Aucune ligne visible après filtrage.");
+      this.notificationService.warning('Aucune ligne visible après filtrage.');
       return;
     }
-    this.openCommanderModal(fournisseur, lignes, "selection");
+    this.openCommanderModal(fournisseur, lignes, 'selection');
   }
 
   onQuantiteChanged(data: { ligne: SuggestionLigneEnrichie; qte: number }): void {
@@ -177,7 +173,6 @@ export class SuggestionHomeComponent {
   onResetQte(ligne: SuggestionLigneEnrichie): void {
     this.facade.resetQuantite(ligne);
   }
-
 
   onSelectionChanged(lignes: SuggestionLigneEnrichie[]): void {
     this.selectedLignes.set(lignes);
@@ -212,10 +207,10 @@ export class SuggestionHomeComponent {
       return;
     }
     const modalRef = this.modalService.open(SuggestionComparaisonComponent, {
-      size: "lg",
+      size: 'lg',
       scrollable: true,
-      centered:true,
-      injector: this.injector
+      centered: true,
+      injector: this.injector,
     });
     modalRef.componentInstance.produitId = ligne.produitId;
     modalRef.componentInstance.produitLibelle = ligne.libelle;
@@ -230,11 +225,9 @@ export class SuggestionHomeComponent {
 
     this.confirmDialog.onConfirm(
       () => this.facade.valider(fournisseur.suggestionId),
-      "Validation de la suggestion",
-      "Valider cette suggestion ? Après validation, elle passera dans l'onglet \"Commandes à passer\" et ne pourra plus être modifiée par la suggestion automatique."
+      'Validation de la suggestion',
+      'Valider cette suggestion ? Après validation, elle passera dans l\'onglet "Commandes à passer" et ne pourra plus être modifiée par la suggestion automatique.',
     );
-
-
   }
 
   onRejeter(): void {
@@ -244,8 +237,8 @@ export class SuggestionHomeComponent {
     }
     this.confirmDialog.onConfirm(
       () => this.facade.rejeter(fournisseur.suggestionId!),
-      "Rejeter la suggestion",
-      "Cette action supprimera définitivement la suggestion. Confirmer ?"
+      'Rejeter la suggestion',
+      'Cette action supprimera définitivement la suggestion. Confirmer ?',
     );
   }
 
@@ -255,8 +248,8 @@ export class SuggestionHomeComponent {
     }
     this.confirmDialog.onConfirm(
       () => this.facade.supprimerLigne(ligne.id!),
-      "Supprimer le produit",
-      `Retirer "${ligne.libelle}" de cette suggestion ?`
+      'Supprimer le produit',
+      `Retirer "${ligne.libelle}" de cette suggestion ?`,
     );
   }
 
@@ -267,8 +260,8 @@ export class SuggestionHomeComponent {
     }
     this.confirmDialog.onConfirm(
       () => this.facade.supprimerLignes(ids),
-      "Supprimer la sélection",
-      `Retirer ${ids.length} produit(s) de cette suggestion ?`
+      'Supprimer la sélection',
+      `Retirer ${ids.length} produit(s) de cette suggestion ?`,
     );
   }
 
@@ -280,8 +273,8 @@ export class SuggestionHomeComponent {
         }
         this.facade.supprimerSuggestions([id]);
       },
-      "Supprimer la suggestion",
-      "Cette action supprimera définitivement la suggestion et toutes ses lignes. Confirmer ?"
+      'Supprimer la suggestion',
+      'Cette action supprimera définitivement la suggestion et toutes ses lignes. Confirmer ?',
     );
   }
 
@@ -296,31 +289,27 @@ export class SuggestionHomeComponent {
         }
         this.facade.supprimerSuggestions(ids);
       },
-      "Supprimer les suggestions",
-      `Supprimer définitivement ${ids.length} suggestion(s) ? Cette action est irréversible.`
+      'Supprimer les suggestions',
+      `Supprimer définitivement ${ids.length} suggestion(s) ? Cette action est irréversible.`,
     );
   }
 
-  onAjouterProduit(data: {
-    produitId: number;
-    fournisseurProduitId: number;
-    quantite: number
-  }): void {
+  onAjouterProduit(data: { produitId: number; fournisseurProduitId: number; quantite: number }): void {
     this.facade.ajouterProduit(data.produitId, data.fournisseurProduitId, data.quantite);
   }
 
   onVerifierDispo(): void {
     const fournisseur = this.facade.selectedFournisseur();
     if (!fournisseur?.suggestionId) {
-      this.notificationService.warning("Aucune suggestion sélectionnée.");
+      this.notificationService.warning('Aucune suggestion sélectionnée.');
       return;
     }
     const modalRef = this.modalService.open(DispoComparaisonComponent, {
-      size: "xl",
+      size: 'xl',
       scrollable: true,
-      backdrop: "static",
+      backdrop: 'static',
       centered: true,
-      injector: this.injector
+      injector: this.injector,
     });
     modalRef.componentInstance.suggestionId = fournisseur.suggestionId;
     modalRef.componentInstance.header = `Disponibilité PharmaML — ${fournisseur.libelle}`;
@@ -335,11 +324,11 @@ export class SuggestionHomeComponent {
       return;
     }
     const modalRef = this.modalService.open(DispoComparaisonComponent, {
-      size: "xl",
+      size: 'xl',
       scrollable: true,
-      backdrop: "static",
+      backdrop: 'static',
       centered: true,
-      injector: this.injector
+      injector: this.injector,
     });
     modalRef.componentInstance.suggestionId = fournisseur.suggestionId;
     modalRef.componentInstance.header = `Disponibilité PharmaML — ${fournisseur.libelle}`;
@@ -367,8 +356,8 @@ export class SuggestionHomeComponent {
     }
     this.confirmDialog.onConfirm(
       () => this.facade.fusionnerSuggestions(ids),
-      "Fusionner les suggestions",
-      `Fusionner ${ids.length} suggestions en une seule ? Les lignes seront regroupées.`
+      'Fusionner les suggestions',
+      `Fusionner ${ids.length} suggestions en une seule ? Les lignes seront regroupées.`,
     );
   }
 
@@ -385,8 +374,8 @@ export class SuggestionHomeComponent {
         this.editingFournisseur.set(f);
         this.facade.valider(f.suggestionId!);
       },
-      "Valider la suggestion",
-      `Valider la suggestion pour ${f.libelle} ? Elle passera en statut VALIDÉE.`
+      'Valider la suggestion',
+      `Valider la suggestion pour ${f.libelle} ? Elle passera en statut VALIDÉE.`,
     );
   }
 
@@ -407,30 +396,26 @@ export class SuggestionHomeComponent {
   }
 
   protected onCommanderDirect(f: FournisseurSuggestionSummary): void {
-
     this.facade.selectFournisseur(f);
-    this.facade.fetchLignes(f.suggestionId).subscribe(
-      {
-        next: lignes => {
-          this.openCommanderModal(f, lignes, "full");
-        },
-        error: () => {
-          this.notificationService.error("Erreur lors du chargement des lignes de la suggestion.");
-        }
-      }
-    );
-
+    this.facade.fetchLignes(f.suggestionId).subscribe({
+      next: lignes => {
+        this.openCommanderModal(f, lignes, 'full');
+      },
+      error: () => {
+        this.notificationService.error('Erreur lors du chargement des lignes de la suggestion.');
+      },
+    });
   }
 
   private openCommanderModal(
     fournisseur: FournisseurSuggestionSummary,
     lignes: SuggestionLigneEnrichie[],
-    mode: "full" | "selection" = "selection"
+    mode: 'full' | 'selection' = 'selection',
   ): void {
     const modalRef = this.modalService.open(SuggestionCommanderModalComponent, {
-      size: "xl",
-      centered:true,
-      backdrop: "static"
+      size: 'xl',
+      centered: true,
+      backdrop: 'static',
     });
     modalRef.componentInstance.fournisseurLibelle = fournisseur.libelle;
     modalRef.componentInstance.fournisseurId = fournisseur.fournisseurId;
@@ -447,7 +432,7 @@ export class SuggestionHomeComponent {
         if (!result?.type) {
           return;
         }
-        if (mode === "full") {
+        if (mode === 'full') {
           this.facade.commanderFull(result);
         } else {
           this.facade.commanderSelection(lignes, result);
@@ -455,7 +440,7 @@ export class SuggestionHomeComponent {
       },
       () => {
         // dismissed — do nothing
-      }
+      },
     );
   }
 }

@@ -2,13 +2,10 @@ package com.kobe.warehouse.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Accès en lecture seule à la vue {@code v_abc_pareto_analysis}.
@@ -59,7 +56,8 @@ public class ParetoAnalysisRepository {
      */
     @SuppressWarnings("unchecked")
     public Optional<Object[]> findByProduitId(Integer produitId) {
-        List<Object[]> rows = entityManager.createNativeQuery("""
+        List<Object[]> rows = entityManager
+                .createNativeQuery("""
             SELECT p.produit_id,
                    p.ca_cumule_pct,
                    p.rang,
@@ -75,8 +73,8 @@ public class ParetoAnalysisRepository {
             ) sq ON sq.produit_id = p.produit_id
             WHERE p.produit_id = :produitId
             """)
-            .setParameter("produitId", produitId)
-            .getResultList();
+                .setParameter("produitId", produitId)
+                .getResultList();
         return rows.isEmpty() ? Optional.empty() : Optional.of(rows.get(0));
     }
 }

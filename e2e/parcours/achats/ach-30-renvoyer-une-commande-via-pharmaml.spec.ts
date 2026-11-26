@@ -32,8 +32,6 @@ scenario('ACH-30', async ({ etape, page }) => {
   await etape(2, async () => {
     // Le bon porte les deux sens de l'échange : ce qu'on transmet, et ce que le grossiste a
     // répondu. Une commande déjà partie propose la réponse plutôt qu'un second envoi.
-    await expect(
-      page.getByRole('button', { name: /Envoyer via PharmaML|Voir réponse|Importer réponse/ }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /Envoyer via PharmaML|Voir réponse|Importer réponse/ }).first()).toBeVisible();
   });
 });

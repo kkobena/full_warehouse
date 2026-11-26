@@ -68,7 +68,12 @@ const CONTROLES_FOCALISABLES = 'button:not([disabled]), a[href], [tabindex]:not(
         </div>
 
         <!-- Flèches gauche / droite, Début et Fin d'un bouton à l'autre ; Tab passe toujours par chacun. -->
-        <div (keydown)="naviguerAuxFleches($event)" [attr.aria-label]="'Actions : ' + resolvedTitle()" class="pharma-toolbar-actions" role="toolbar">
+        <div
+          (keydown)="naviguerAuxFleches($event)"
+          [attr.aria-label]="'Actions : ' + resolvedTitle()"
+          class="pharma-toolbar-actions"
+          role="toolbar"
+        >
           <ng-content select="[toolbarActions]" />
         </div>
       </div>

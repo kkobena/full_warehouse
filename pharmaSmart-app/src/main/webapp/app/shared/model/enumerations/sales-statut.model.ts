@@ -1,4 +1,4 @@
-export  enum SalesStatut {
+export enum SalesStatut {
   PROCESSING = 'PROCESSING', // Status d'une pré-vente en cours de traitement
   PENDING = 'PENDING', // Status d'une pré-vente validée qui peut être rappeler pour être traité comme vente en cours
   CLOSE = 'CLOSE',

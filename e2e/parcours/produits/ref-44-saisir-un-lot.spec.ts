@@ -28,8 +28,7 @@ scenario('REF-44', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, produit);
-    await page.locator('tbody tr').filter({ visible: true }).first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('tbody tr').filter({ visible: true }).first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Saisir un lot' }).click();
     // L'en-tête rappelle le stock disponible et la règle : la saisie s'y compare.
     await expect(modale).toContainText('Saisir un lot');

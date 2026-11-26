@@ -33,10 +33,9 @@ public class ConsommationPlafondService {
     private final ReinitialisationConsommationRepository reinitialisationRepository;
 
     public ConsommationPlafondService(
-        ClientTiersPayantRepository clientTiersPayantRepository,
-        TiersPayantRepository tiersPayantRepository,
-        ReinitialisationConsommationRepository reinitialisationRepository
-    ) {
+            ClientTiersPayantRepository clientTiersPayantRepository,
+            TiersPayantRepository tiersPayantRepository,
+            ReinitialisationConsommationRepository reinitialisationRepository) {
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.tiersPayantRepository = tiersPayantRepository;
         this.reinitialisationRepository = reinitialisationRepository;
@@ -73,25 +72,21 @@ public class ConsommationPlafondService {
 
     /** Annulation d'une facture : rend aux compteurs ce que sa création avait effacé. */
     public void annulerReinitialisation(FactureItemId id) {
-        List<ReinitialisationConsommation> traces = reinitialisationRepository.findAllByFactureIdAndFactureDate(
-            id.getId(),
-            id.getInvoiceDate()
-        );
+        List<ReinitialisationConsommation> traces =
+                reinitialisationRepository.findAllByFactureIdAndFactureDate(id.getId(), id.getInvoiceDate());
         for (ReinitialisationConsommation trace : traces) {
             if (trace.getClientTiersPayantId() != null) {
                 clientTiersPayantRepository
-                    .findById(trace.getClientTiersPayantId())
-                    .ifPresent(adherent -> {
-                        adherent.setConsoMensuelle(valeur(adherent.getConsoMensuelle()) + trace.getMontant());
-                        clientTiersPayantRepository.save(adherent);
-                    });
+                        .findById(trace.getClientTiersPayantId())
+                        .ifPresent(adherent -> {
+                            adherent.setConsoMensuelle(valeur(adherent.getConsoMensuelle()) + trace.getMontant());
+                            clientTiersPayantRepository.save(adherent);
+                        });
             } else {
-                tiersPayantRepository
-                    .findById(trace.getTiersPayantId())
-                    .ifPresent(organisme -> {
-                        organisme.setConsoMensuelle(valeur(organisme.getConsoMensuelle()) + trace.getMontant());
-                        tiersPayantRepository.save(organisme);
-                    });
+                tiersPayantRepository.findById(trace.getTiersPayantId()).ifPresent(organisme -> {
+                    organisme.setConsoMensuelle(valeur(organisme.getConsoMensuelle()) + trace.getMontant());
+                    tiersPayantRepository.save(organisme);
+                });
             }
         }
         reinitialisationRepository.deleteAll(traces);
@@ -115,7 +110,10 @@ public class ConsommationPlafondService {
     }
 
     private static ReinitialisationConsommation trace(FactureItemId id, long montant) {
-        return new ReinitialisationConsommation().setFactureId(id.getId()).setFactureDate(id.getInvoiceDate()).setMontant(montant);
+        return new ReinitialisationConsommation()
+                .setFactureId(id.getId())
+                .setFactureDate(id.getInvoiceDate())
+                .setMontant(montant);
     }
 
     private static long valeur(Number conso) {

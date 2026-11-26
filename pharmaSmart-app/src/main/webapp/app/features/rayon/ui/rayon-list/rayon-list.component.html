@@ -23,14 +23,16 @@
   </ng-template>
 
   <ng-template #body let-rayon>
-    <tr
-      (click)="onRowClick(rayon)"
-      [class.ligne-selected]="isSelected(rayon)"
-      style="cursor: pointer"
-    >
-      <td><span class="pharma-entity-name">{{ rayon.storageType }}</span></td>
-      <td><span class="pharma-code">{{ rayon.code }}</span></td>
-      <td><span class="pharma-entity-name">{{ rayon.libelle }}</span></td>
+    <tr (click)="onRowClick(rayon)" [class.ligne-selected]="isSelected(rayon)" style="cursor: pointer">
+      <td>
+        <span class="pharma-entity-name">{{ rayon.storageType }}</span>
+      </td>
+      <td>
+        <span class="pharma-code">{{ rayon.code }}</span>
+      </td>
+      <td>
+        <span class="pharma-entity-name">{{ rayon.libelle }}</span>
+      </td>
       <td>{{ rayon.position }}</td>
       <td>
         @if (rayon.typeZone) {
@@ -42,14 +44,18 @@
           <app-button
             (clicked)="onViewDetail(rayon, $event)"
             [rounded]="true"
-            [text]="true" icon="pi pi-eye" ngbTooltip="Voir détail"
+            [text]="true"
+            icon="pi pi-eye"
+            ngbTooltip="Voir détail"
             severity="info"
             size="small"
           />
           <app-button
             (clicked)="onLancerInventaire(rayon, $event)"
             [rounded]="true"
-            [text]="true" icon="pi pi-list-check" ngbTooltip="Lancer un inventaire"
+            [text]="true"
+            icon="pi pi-list-check"
+            ngbTooltip="Lancer un inventaire"
             severity="help"
             size="small"
           />
@@ -57,27 +63,32 @@
             <app-button
               (clicked)="onClone(rayon, $event)"
               [rounded]="true"
-              [text]="true" icon="pi pi-copy" ngbTooltip="Cloner vers d'autres stockages"
+              [text]="true"
+              icon="pi pi-copy"
+              ngbTooltip="Cloner vers d'autres stockages"
               severity="info"
               size="small"
             />
             <app-button
               (clicked)="onEdit(rayon, $event)"
               [rounded]="true"
-              [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier"
+              [text]="true"
+              icon="pi pi-pencil"
+              ngbTooltip="Modifier"
               severity="success"
               size="small"
             />
             <app-button
               (clicked)="onDelete(rayon, $event)"
               [rounded]="true"
-              [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer"
+              [text]="true"
+              icon="pi pi-trash"
+              ngbTooltip="Supprimer"
               severity="danger"
               size="small"
             />
           }
         </div>
-
       </td>
     </tr>
   </ng-template>

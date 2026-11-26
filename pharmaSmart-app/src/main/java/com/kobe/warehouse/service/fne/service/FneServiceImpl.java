@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.domain.PlanificationCertificationFne;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.StorageService;
@@ -22,14 +22,6 @@ import com.kobe.warehouse.service.fne.model.TaxeEnum;
 import com.kobe.warehouse.service.license.LicenseService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
@@ -40,6 +32,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class FneServiceImpl implements FneService {
@@ -59,14 +58,13 @@ public class FneServiceImpl implements FneService {
     private String fneUrl;
 
     public FneServiceImpl(
-        FacturationRepository facturationRepository,
-        HttpClient httpClient,
-        StorageService storageService,
-        ObjectMapper objectMapper,
-        MagasinRepository magasinRepository,
-        FneCertificationTransactionService certificationTransactionService,
-        LicenseService licenseService
-    ) {
+            FacturationRepository facturationRepository,
+            HttpClient httpClient,
+            StorageService storageService,
+            ObjectMapper objectMapper,
+            MagasinRepository magasinRepository,
+            FneCertificationTransactionService certificationTransactionService,
+            LicenseService licenseService) {
         this.facturationRepository = facturationRepository;
         this.httpClient = httpClient;
         this.storageService = storageService;
@@ -98,16 +96,19 @@ public class FneServiceImpl implements FneService {
     @Override
     public FneResponse create(FactureItemId factureItemId) throws GenericError {
         assertCertificationAllowed();
-        FactureTiersPayant factureTiersPayant = facturationRepository.findById(factureItemId)
-            .orElseThrow(() -> new GenericError("Aucune facture trouvée"));
+        FactureTiersPayant factureTiersPayant = facturationRepository
+                .findById(factureItemId)
+                .orElseThrow(() -> new GenericError("Aucune facture trouvée"));
         return createInvoice(factureTiersPayant);
     }
 
     @Override
     public void certifyGroupInvoice(FactureItemId factureItemId) throws GenericError {
         assertCertificationAllowed();
-        List<FactureTiersPayant> factureTiersPayants = facturationRepository.findById(factureItemId)
-            .orElseThrow(() -> new GenericError("Aucune facture trouvée")).getFactureTiersPayants();
+        List<FactureTiersPayant> factureTiersPayants = facturationRepository
+                .findById(factureItemId)
+                .orElseThrow(() -> new GenericError("Aucune facture trouvée"))
+                .getFactureTiersPayants();
         for (FactureTiersPayant factureTiersPayant : factureTiersPayants) {
             createInvoice(factureTiersPayant);
         }
@@ -128,10 +129,15 @@ public class FneServiceImpl implements FneService {
         log.info("Certification FNE planifiée (id={}) : {} facture(s) à certifier", plan.getId(), pending.size());
         // Seule l'officine certifie : un dépôt ou une unité de gestion n'a pas d'identité FNE.
         // findAll() n'impose aucun ordre et rendait le premier magasin venu, dépôt compris.
-        Magasin magasin = magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE).orElse(null);
+        Magasin magasin = magasinRepository
+                .findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
+                .orElse(null);
         if (magasin == null) {
-            log.error("Certification FNE planifiée (id={}) : aucune officine paramétrée, "
-                + "{} facture(s) laissées en attente", plan.getId(), pending.size());
+            log.error(
+                    "Certification FNE planifiée (id={}) : aucune officine paramétrée, "
+                            + "{} facture(s) laissées en attente",
+                    plan.getId(),
+                    pending.size());
             return new CertificationFneResult(0, 0);
         }
         int nbOk = 0;
@@ -143,8 +149,11 @@ public class FneServiceImpl implements FneService {
                 certificationTransactionService.certifier(facture, fneInvoice, magasin);
                 nbOk++;
             } catch (Exception e) {
-                log.error("Échec certification FNE facture {} ({}): {}",
-                    facture.getNumFacture(), facture.getId(), e.getMessage());
+                log.error(
+                        "Échec certification FNE facture {} ({}): {}",
+                        facture.getNumFacture(),
+                        facture.getId(),
+                        e.getMessage());
                 nbKo++;
             }
         }
@@ -173,7 +182,8 @@ public class FneServiceImpl implements FneService {
 
     private void validateTiersPayantContact(TiersPayant tiersPayant) {
         if (!StringUtils.hasText(tiersPayant.getTelephone()) || !StringUtils.hasText(tiersPayant.getEmail())) {
-            throw new GenericError("Le tiers payant doit avoir un numéro de téléphone et une adresse email valides pour la certification FNE.");
+            throw new GenericError(
+                    "Le tiers payant doit avoir un numéro de téléphone et une adresse email valides pour la certification FNE.");
         }
     }
 
@@ -182,7 +192,8 @@ public class FneServiceImpl implements FneService {
             return buildFromProduitCodeTva(factureTiersPayant);
         }
         FactureItemId id = factureTiersPayant.getId();
-        return buildFromDetailProduit(facturationRepository.getDetailProduitFacture(id.getId(), id.getInvoiceDate(), tiersPayant.getId()));
+        return buildFromDetailProduit(
+                facturationRepository.getDetailProduitFacture(id.getId(), id.getInvoiceDate(), tiersPayant.getId()));
     }
 
     private FneResponse createInvoice(FactureTiersPayant factureTiersPayant) {
@@ -192,17 +203,15 @@ public class FneServiceImpl implements FneService {
 
             log.info("fneInvoice --- {}", fneInvoice);
 
-
             String jsonPayload = objectMapper.writeValueAsString(fneInvoice);
             log.info("JSON payload: {}", jsonPayload);
 
-
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(fneUrl))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + magasin.getFneSecretKey())
-                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
-                .build();
+                    .uri(URI.create(fneUrl))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + magasin.getFneSecretKey())
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
 
             // Send request and get response
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -221,21 +230,21 @@ public class FneServiceImpl implements FneService {
                 return fneResponse;
             } else {
                 log.error("FNE API returned error status: {} - {}", response.statusCode(), response.body());
-                throw new GenericError("L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
+                throw new GenericError(
+                        "L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
             }
 
         } catch (Exception e) {
             log.error("Error creating FNE invoice", e);
-            throw new GenericError("L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
+            throw new GenericError(
+                    "L'opération a échoué lors de l'envoi de la facture à la FNE. Veuillez réessayer ou contacter l'administrateur.");
         }
     }
-
 
     private void saveResponse(FneResponse fneResponse, FactureTiersPayant factureTiersPayant) {
         // Pas de save() de l'entité lue avant l'appel HTTP : il réécrirait aussi son montant réglé.
         certificationTransactionService.enregistrerReponse(factureTiersPayant.getId(), fneResponse);
     }
-
 
     private List<FneInvoiceItem> buildFromProduitCodeTva(FactureTiersPayant factureTiersPayant) {
         List<RepartitionTiersPayantParTva> repartitions = factureTiersPayant.getRepartitions();
@@ -244,8 +253,14 @@ public class FneServiceImpl implements FneService {
 
         String reference = factureTiersPayant.getNumFacture();
         String description = "FACTURATION DU " + DateUtil.formatFr(factureTiersPayant.getDebutPeriode()) + " AU "
-            + DateUtil.formatFr(factureTiersPayant.getFinPeriode());
-        repartitions.forEach(repartition -> fneInvoiceItems.add(new FneInvoiceItem(1, new String[]{TaxeEnum.getByValue(repartition.tva()).name()}, reference, description, repartition.montantHt(), 0.0)));
+                + DateUtil.formatFr(factureTiersPayant.getFinPeriode());
+        repartitions.forEach(repartition -> fneInvoiceItems.add(new FneInvoiceItem(
+                1,
+                new String[] {TaxeEnum.getByValue(repartition.tva()).name()},
+                reference,
+                description,
+                repartition.montantHt(),
+                0.0)));
         return fneInvoiceItems;
     }
 
@@ -255,15 +270,27 @@ public class FneServiceImpl implements FneService {
         for (DetailProduitFacture detailProduitFacture : detailProduitFactures) {
             String reference = detailProduitFacture.getProduitCode();
             String description = detailProduitFacture.getLibelle();
-            double prixUniHt = ServiceUtil.calculHt(Objects.requireNonNullElse(detailProduitFacture.getTarifReferenceAssurance(), detailProduitFacture.getPrixUnitaire()), detailProduitFacture.getCodeTva());
-            BigDecimal prixUniHtAcharge = BigDecimal.valueOf(prixUniHt).multiply(BigDecimal.valueOf(detailProduitFacture.getTauxCouverture()).divide(ONE_HUNDRED, SCALE_RATE, ROUNDING_MODE));
-            fneInvoiceItems.add(new FneInvoiceItem(detailProduitFacture.getQuantite(), new String[]{TaxeEnum.getByValue(detailProduitFacture.getCodeTva()).name()}, reference, description, prixUniHtAcharge.setScale(SCALE_RATE, ROUNDING_MODE).doubleValue(), detailProduitFacture.getTauxRemise()));
+            double prixUniHt = ServiceUtil.calculHt(
+                    Objects.requireNonNullElse(
+                            detailProduitFacture.getTarifReferenceAssurance(), detailProduitFacture.getPrixUnitaire()),
+                    detailProduitFacture.getCodeTva());
+            BigDecimal prixUniHtAcharge = BigDecimal.valueOf(prixUniHt)
+                    .multiply(BigDecimal.valueOf(detailProduitFacture.getTauxCouverture())
+                            .divide(ONE_HUNDRED, SCALE_RATE, ROUNDING_MODE));
+            fneInvoiceItems.add(new FneInvoiceItem(
+                    detailProduitFacture.getQuantite(),
+                    new String[] {
+                        TaxeEnum.getByValue(detailProduitFacture.getCodeTva()).name()
+                    },
+                    reference,
+                    description,
+                    prixUniHtAcharge.setScale(SCALE_RATE, ROUNDING_MODE).doubleValue(),
+                    detailProduitFacture.getTauxRemise()));
         }
 
         return fneInvoiceItems;
     }
 
     // 1428351F
-
 
 }

@@ -1,29 +1,28 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import {
-  DiffereApiService
-} from '../../../features/differes/data-access/services/differe-api.service';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {IDiffere, IDiffereSummary} from "../../../features/differes/data-access/models";
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {formatCurrency, formatNumber} from 'app/shared/utils/format-utils';
-import {forkJoin} from 'rxjs';
+import { DiffereApiService } from '../../../features/differes/data-access/services/differe-api.service';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { IDiffere, IDiffereSummary } from '../../../features/differes/data-access/models';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { formatCurrency, formatNumber } from 'app/shared/utils/format-utils';
+import { forkJoin } from 'rxjs';
 import {
   ButtonComponent,
   DataTableComponent,
   KpiItemComponent,
   KpiStripComponent,
   SortableHeaderDirective,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-vieillissement-differes',
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     PharmaDatePickerComponent,
@@ -32,7 +31,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     SortableHeaderDirective,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
   templateUrl: './vieillissement-differes.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

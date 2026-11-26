@@ -51,7 +51,7 @@ export class ProduitFournisseursCreationComponent {
         prixUni: [null, [Validators.required, Validators.min(1)]],
         qteColis: [1, Validators.min(1)],
         qteMinimaleCommande: [0, Validators.min(0)],
-      })
+      }),
     );
   }
 

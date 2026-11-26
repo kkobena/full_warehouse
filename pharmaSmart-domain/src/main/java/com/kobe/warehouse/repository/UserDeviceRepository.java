@@ -1,13 +1,12 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.UserDevice;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository for UserDevice entity.
@@ -33,15 +32,12 @@ public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
     /**
      * Find all devices by user authority (role) with notifications enabled.
      */
-    @Query("SELECT ud FROM UserDevice ud " +
-        "JOIN ud.user u " +
-        "JOIN u.authorities a " +
-        "WHERE a.name = :authority " +
-        "AND ud.notificationsEnabled = :notificationsEnabled")
+    @Query("SELECT ud FROM UserDevice ud " + "JOIN ud.user u "
+            + "JOIN u.authorities a "
+            + "WHERE a.name = :authority "
+            + "AND ud.notificationsEnabled = :notificationsEnabled")
     List<UserDevice> findByUserAuthorityAndNotificationsEnabled(
-        @Param("authority") String authority,
-        @Param("notificationsEnabled") Boolean notificationsEnabled
-    );
+            @Param("authority") String authority, @Param("notificationsEnabled") Boolean notificationsEnabled);
 
     /**
      * Find all devices with notifications enabled.

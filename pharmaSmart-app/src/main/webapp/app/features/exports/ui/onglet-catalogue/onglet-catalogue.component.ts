@@ -4,7 +4,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
 import { ButtonComponent, CardComponent, PillSelectorComponent } from 'app/shared/ui';
@@ -125,7 +124,6 @@ export class OngletCatalogueComponent {
       filtres: retenirFiltres(this.filtres()),
     });
   }
-
 }
 
 /** « lignes-vente_2026-10-01_2026-10-31 » ; le service du téléchargement ajoute l'extension. */

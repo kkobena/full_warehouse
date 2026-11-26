@@ -11,31 +11,29 @@ import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
  * {@code supportLibelle} groupe la liste déroulante.
  */
 public record FormatEtiquetteDTO(
-    String code,
-    String libelle,
-    String reference,
-    String support,
-    String supportLibelle,
-    double largeurMm,
-    double hauteurMm,
-    int colonnes,
-    int rangees,
-    int capacite,
-    boolean parDefaut
-) {
+        String code,
+        String libelle,
+        String reference,
+        String support,
+        String supportLibelle,
+        double largeurMm,
+        double hauteurMm,
+        int colonnes,
+        int rangees,
+        int capacite,
+        boolean parDefaut) {
     public static FormatEtiquetteDTO depuis(FormatEtiquette format) {
         return new FormatEtiquetteDTO(
-            format.name(),
-            format.getLibelle(),
-            format.getReference(),
-            format.getSupport().name(),
-            format.getSupport().getLibelle(),
-            format.getLargeurMm(),
-            format.getHauteurMm(),
-            format.getColonnes(),
-            format.getRangees(),
-            format.getCapacite(),
-            format == FormatEtiquette.parDefaut()
-        );
+                format.name(),
+                format.getLibelle(),
+                format.getReference(),
+                format.getSupport().name(),
+                format.getSupport().getLibelle(),
+                format.getLargeurMm(),
+                format.getHauteurMm(),
+                format.getColonnes(),
+                format.getRangees(),
+                format.getCapacite(),
+                format == FormatEtiquette.parDefaut());
     }
 }

@@ -9,4 +9,12 @@ import java.time.LocalDate;
  * @param objectif objectif de la tranche (prorata des jours pour un mois entamé) ; {@code null} sans objectif ou sans le droit
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record PointSerieDTO(LocalDate debut, LocalDate fin, String libelle, Double valeur, Double valeurReference, Double ecart, Double ecartPct, Double objectif) {}
+public record PointSerieDTO(
+        LocalDate debut,
+        LocalDate fin,
+        String libelle,
+        Double valeur,
+        Double valeurReference,
+        Double ecart,
+        Double ecartPct,
+        Double objectif) {}

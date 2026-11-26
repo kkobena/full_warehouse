@@ -57,7 +57,7 @@ describe('FileUploadComponent', () => {
     expect(render().textContent).toContain('produits.csv');
   });
 
-  it('résume la sélection au-delà d\'un fichier', () => {
+  it("résume la sélection au-delà d'un fichier", () => {
     choose(fileOf('a.csv', 1), fileOf('b.csv', 1));
     expect(render().textContent).toContain('2 fichiers sélectionnés');
   });
@@ -77,7 +77,7 @@ describe('FileUploadComponent', () => {
       expect(rejected).toHaveBeenCalledWith('« gros.csv » dépasse la taille maximale de 5 Mo.');
     });
 
-    it('ne retient que les fichiers valides d\'une sélection mixte', () => {
+    it("ne retient que les fichiers valides d'une sélection mixte", () => {
       const selected = jest.fn();
       fixture.componentInstance.filesSelected.subscribe(selected);
       const ok = fileOf('ok.csv', 1);
@@ -85,7 +85,7 @@ describe('FileUploadComponent', () => {
       expect(selected).toHaveBeenCalledWith([ok]);
     });
 
-    it('laisse passer les fichiers quand aucune limite n\'est fixée', () => {
+    it("laisse passer les fichiers quand aucune limite n'est fixée", () => {
       fixture.componentRef.setInput('maxSizeMb', 0);
       const selected = jest.fn();
       fixture.componentInstance.filesSelected.subscribe(selected);

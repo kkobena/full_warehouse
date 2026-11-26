@@ -184,11 +184,7 @@ export const INVENTAIRE_A_COMPTER = /rayon ANTIBIOTIQUES/i;
 
 export async function ouvrirInventaireACompter(page: Page): Promise<void> {
   await page.goto('/inventaire');
-  const ligne = page
-    .locator('tbody tr')
-    .filter({ visible: true })
-    .filter({ hasText: INVENTAIRE_A_COMPTER })
-    .first();
+  const ligne = page.locator('tbody tr').filter({ visible: true }).filter({ hasText: INVENTAIRE_A_COMPTER }).first();
   await expect(
     ligne,
     "L'inventaire « rayon ANTIBIOTIQUES » de 11_inventaires.sql est absent : recharger le jeu de démonstration.",
@@ -306,7 +302,10 @@ export async function ajouterAuPanier(page: Page, quantite: string): Promise<voi
 export async function accepterStockInsuffisant(page: Page): Promise<void> {
   const bouton = page.locator('.modal-content').getByRole('button', { name: /la machine se trompe/ });
   // `isVisible` ne patiente pas : on attend vraiment la fenêtre, brièvement.
-  const apparue = await bouton.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false);
+  const apparue = await bouton.waitFor({ state: 'visible', timeout: 3000 }).then(
+    () => true,
+    () => false,
+  );
   if (apparue) {
     await bouton.click();
     await expect(page.locator('.modal-content').filter({ hasText: 'Stock insuffisant' })).toBeHidden();
@@ -467,7 +466,6 @@ export async function abandonnerVentesEnAttente(page: Page): Promise<void> {
   }
 }
 
-
 /**
  * Crée un produit jetable par le FORMULAIRE de l'application, et rend son libellé.
  *
@@ -528,7 +526,12 @@ export async function chercherAuCatalogue(page: Page, terme: string, attendu = t
     // 1,2 s et non 400 ms : sous la charge d'une campagne, la réponse du chargement initial arrive
     // plus tard, et le parcours agissait alors sur le premier produit du catalogue entier.
     await page.waitForTimeout(1200);
-    if (await premiere.filter({ hasText: attendu }).isVisible().catch(() => false)) {
+    if (
+      await premiere
+        .filter({ hasText: attendu })
+        .isVisible()
+        .catch(() => false)
+    ) {
       return;
     }
   }
@@ -813,14 +816,24 @@ export async function traverserConfirmations(
   const etiquettes = page.locator('.modal-content:visible').filter({ hasText: /IMPRIMER LES ETIQUETTES/i });
 
   for (let i = 0; i < (options.limite ?? 6); i++) {
-    if (await etiquettes.first().isVisible().catch(() => false)) {
+    if (
+      await etiquettes
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
       if (options.sarreterAvant?.test('étiquettes')) {
         break;
       }
       await etiquettes.first().getByRole('button', { name: 'Annuler' }).click();
-      await etiquettes.first().waitFor({ state: 'hidden', timeout: 10000 }).catch(() => undefined);
+      await etiquettes
+        .first()
+        .waitFor({ state: 'hidden', timeout: 10000 })
+        .catch(() => undefined);
     }
-    const visible = await boites.first().waitFor({ state: 'visible', timeout: 8000 })
+    const visible = await boites
+      .first()
+      .waitFor({ state: 'visible', timeout: 8000 })
       .then(() => true)
       .catch(() => false);
     if (!visible) {
@@ -842,9 +855,7 @@ export async function traverserConfirmations(
     // correspondance par sous-chaîne (le défaut de `getByRole`) le retrouve, un `exact` non.
     const accepte = !refus.some(r => r.test(titre));
     const rangement = await boites.first().getByRole('button', { name: 'Ignorer' }).count();
-    const bouton = rangement
-      ? accepte ? /Transférer vers réserve/ : /Ignorer/
-      : accepte ? 'Oui' : 'Non';
+    const bouton = rangement ? (accepte ? /Transférer vers réserve/ : /Ignorer/) : accepte ? 'Oui' : 'Non';
     await boites.first().getByRole('button', { name: bouton }).click();
     // Ne pas attendre que CETTE boîte disparaisse : la suivante s'ouvre au même endroit et
     // le sélecteur la retrouverait aussitôt. On attend que le TEXTE change — ou que plus
@@ -852,8 +863,7 @@ export async function traverserConfirmations(
     await page
       .waitForFunction(
         (precedent: string) => {
-          const boite = Array.from(document.querySelectorAll('.modal-content'))
-            .find(el => (el as HTMLElement).innerText.includes('Oui'));
+          const boite = Array.from(document.querySelectorAll('.modal-content')).find(el => (el as HTMLElement).innerText.includes('Oui'));
           if (!boite) {
             return true;
           }
@@ -944,21 +954,19 @@ export function referencesBonsAvecExcedent(): string[] {
          AND c.receipt_reference IS NOT NULL
          AND c.order_date >= CURRENT_DATE - INTERVAL '5 months'
          AND t.servies = t.lignes) AS candidats`);
-  return brut.split(',').map(r => r.trim()).filter(r => /^BL\d+$/.test(r));
+  return brut
+    .split(',')
+    .map(r => r.trim())
+    .filter(r => /^BL\d+$/.test(r));
 }
 
-export async function ouvrirBonDeReception(
-  page: Page,
-  attendu: 'aucun' | 'partiel' | 'complet',
-  candidats?: string[],
-): Promise<string> {
+export async function ouvrirBonDeReception(page: Page, attendu: 'aucun' | 'partiel' | 'complet', candidats?: string[]): Promise<string> {
   const liste = page.locator('app-list-bons');
   const ecran = page.locator('app-commande-received');
   await expect(liste.locator('tbody tr').first()).toBeVisible();
 
   /** Le taux de service annoncé par l'écran, ou −1 s'il ne l'annonce pas. */
-  const tauxAffiche = async (): Promise<number> =>
-    Number((await ecran.innerText()).match(/Taux service\s*:\s*(\d+)/)?.[1] ?? '-1');
+  const tauxAffiche = async (): Promise<number> => Number((await ecran.innerText()).match(/Taux service\s*:\s*(\d+)/)?.[1] ?? '-1');
 
   const convientAuTaux = (taux: number): boolean =>
     attendu === 'aucun' ? taux === 0 : attendu === 'complet' ? taux === 100 : taux > 0 && taux < 100;
@@ -995,9 +1003,7 @@ export async function ouvrirBonDeReception(
       await page.getByRole('button', { name: 'Retour à la liste' }).click();
       await expect(liste.locator('tbody tr').first()).toBeVisible();
     }
-    throw new Error(
-      `Aucun des ${candidats.length} bon(s) désigné(s) n'est « ${attendu} » : ${candidats.join(', ')}.`,
-    );
+    throw new Error(`Aucun des ${candidats.length} bon(s) désigné(s) n'est « ${attendu} » : ${candidats.join(', ')}.`);
   }
 
   const ouverts = await liste.locator('tbody tr').filter({ hasNotText: 'Clôturé' }).allInnerTexts();
@@ -1056,7 +1062,8 @@ export async function ouvrirFactureARegler(page: Page): Promise<Locator> {
     }
     await detail.click();
     const regler = page.getByRole('button', { name: 'Régler' }).first();
-    const present = await regler.waitFor({ state: 'visible', timeout: 4000 })
+    const present = await regler
+      .waitFor({ state: 'visible', timeout: 4000 })
       .then(() => true)
       .catch(() => false);
     if (present) {

@@ -58,5 +58,4 @@ scenario('ACH-28', async ({ etape, page }) => {
     await expect(modale).toContainText('Envoi commande PharmaML');
     await expect(modale).toContainText('Date de livraison souhaitée');
   });
-
 });

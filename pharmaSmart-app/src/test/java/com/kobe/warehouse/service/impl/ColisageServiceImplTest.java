@@ -135,8 +135,10 @@ class ColisageServiceImplTest {
     @Test
     @DisplayName("la quantité nue de la génération de suggestion est ajustée de la même façon")
     void ajusterUneQuantiteNue() {
-        assertThat(colisageService.ajusterQuantite(fournisseurProduit(12, 0, null), 7)).isEqualTo(12);
-        assertThat(colisageService.ajusterQuantite(fournisseurProduit(1, 6, null), 2)).isEqualTo(6);
+        assertThat(colisageService.ajusterQuantite(fournisseurProduit(12, 0, null), 7))
+                .isEqualTo(12);
+        assertThat(colisageService.ajusterQuantite(fournisseurProduit(1, 6, null), 2))
+                .isEqualTo(6);
         assertThat(colisageService.ajusterQuantite(null, 7)).isEqualTo(7);
     }
 

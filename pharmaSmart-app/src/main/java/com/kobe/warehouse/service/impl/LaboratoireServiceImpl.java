@@ -3,12 +3,12 @@ package com.kobe.warehouse.service.impl;
 import com.kobe.warehouse.domain.Laboratoire;
 import com.kobe.warehouse.repository.LaboratoireRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.repository.util.Condition;
 import com.kobe.warehouse.repository.util.SpecificationBuilder;
 import com.kobe.warehouse.service.LaboratoireService;
 import com.kobe.warehouse.service.dto.LaboratoireDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,12 +69,16 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     @Transactional(readOnly = true)
     public Page<LaboratoireDTO> findAll(String libelle, Pageable pageable) {
         log.debug("Request to get all Laboratoires");
-        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
+        Pageable page = PageRequest.of(
+                pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
         if (StringUtils.hasLength(libelle)) {
             SpecificationBuilder<Laboratoire> builder = new SpecificationBuilder<>();
-            Specification<Laboratoire> spec = builder
-                .with(new String[] { "libelle" }, libelle + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)
-                .build();
+            Specification<Laboratoire> spec = builder.with(
+                            new String[] {"libelle"},
+                            libelle + "%",
+                            Condition.OperationType.LIKE,
+                            Condition.LogicalOperatorType.END)
+                    .build();
             return laboratoireRepository.findAll(spec, page).map(LaboratoireDTO::new);
         }
         return laboratoireRepository.findAll(page).map(LaboratoireDTO::new);
@@ -106,9 +110,9 @@ public class LaboratoireServiceImpl implements LaboratoireService {
         long rattaches = this.produitRepository.countByLaboratoireId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "Le laboratoire est encore utilisé par %d produit(s) : suppression impossible.".formatted(rattaches),
-                "referentielUtilise"
-            );
+                    "Le laboratoire est encore utilisé par %d produit(s) : suppression impossible."
+                            .formatted(rattaches),
+                    "referentielUtilise");
         }
         log.debug("Request to delete Laboratoire : {}", id);
 
@@ -119,7 +123,10 @@ public class LaboratoireServiceImpl implements LaboratoireService {
     public ResponseDTO importation(InputStream inputStream) {
         AtomicInteger count = new AtomicInteger();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withDelimiter(';').withFirstRecordAsHeader().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .withDelimiter(';')
+                    .withFirstRecordAsHeader()
+                    .parse(br);
             records.forEach(record -> {
                 Laboratoire laboratoire = new Laboratoire();
                 laboratoire.setLibelle(record.get(0));

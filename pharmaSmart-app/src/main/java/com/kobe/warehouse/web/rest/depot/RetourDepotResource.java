@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.depot;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.RetourDepotDTO;
 import com.kobe.warehouse.service.stock.RetourDepotService;
 import com.kobe.warehouse.web.util.HeaderUtil;
@@ -26,14 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.RetourDepot}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "depot.retour-depot", "depot" })
+@RequiresNavAccess({"depot.retour-depot", "depot"})
 public class RetourDepotResource {
 
     private static final String ENTITY_NAME = "retourDepot";
@@ -56,25 +56,24 @@ public class RetourDepotResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/retour-depots")
-    public ResponseEntity<RetourDepotDTO> createRetourDepot(@Valid @RequestBody RetourDepotDTO retourDepotDTO) throws URISyntaxException {
+    public ResponseEntity<RetourDepotDTO> createRetourDepot(@Valid @RequestBody RetourDepotDTO retourDepotDTO)
+            throws URISyntaxException {
         log.debug("REST request to save RetourDepot : {}", retourDepotDTO);
         if (retourDepotDTO.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(
-                    HeaderUtil.createFailureAlert(
-                        applicationName,
-                        true,
-                        ENTITY_NAME,
-                        "idexists",
-                        "A new retour depot cannot already have an ID"
-                    )
-                )
-                .body(null);
+                    .headers(HeaderUtil.createFailureAlert(
+                            applicationName,
+                            true,
+                            ENTITY_NAME,
+                            "idexists",
+                            "A new retour depot cannot already have an ID"))
+                    .body(null);
         }
         RetourDepotDTO result = retourDepotService.create(retourDepotDTO);
         return ResponseEntity.created(new URI("/api/retour-depots/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -93,13 +92,13 @@ public class RetourDepotResource {
 
     @GetMapping("/retour-depots")
     public ResponseEntity<List<RetourDepotDTO>> getRetourDepots(
-        @RequestParam(name = "depotId", required = false) Integer depotId,
-        @RequestParam(name = "dtStart", required = false) LocalDate dtStart,
-        @RequestParam(name = "dtEnd", required = false) LocalDate dtEnd,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "depotId", required = false) Integer depotId,
+            @RequestParam(name = "dtStart", required = false) LocalDate dtStart,
+            @RequestParam(name = "dtEnd", required = false) LocalDate dtEnd,
+            Pageable pageable) {
         Page page = retourDepotService.findAllByDateRange(depotId, dtStart, dtEnd, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

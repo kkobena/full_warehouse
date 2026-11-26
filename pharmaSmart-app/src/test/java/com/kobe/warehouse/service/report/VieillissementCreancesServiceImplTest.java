@@ -42,7 +42,7 @@ class VieillissementCreancesServiceImplTest {
 
     @BeforeEach
     void aucuneCreance() {
-        when(repository.findAgingGlobal()).thenReturn(new Object[] { 0L, 0L, 0L, 0L, 0L, 0L, 0L });
+        when(repository.findAgingGlobal()).thenReturn(new Object[] {0L, 0L, 0L, 0L, 0L, 0L, 0L});
         when(repository.countAgingByOrganisme()).thenReturn(0L);
         when(repository.findAgingByOrganisme(anyInt(), anyInt())).thenReturn(List.of());
         when(repository.findEncoursMensuelEvolution()).thenReturn(List.of());
@@ -61,9 +61,8 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("chaque colonne du tableau brut atterrit dans le champ qui la désigne")
         void lectureDesColonnes() {
-            when(repository.findAgingGlobal()).thenReturn(
-                new Object[] { 1_000_000L, 2_000_000L, 3_000_000L, 4_000_000L, 10_000_000L, 42L, 17L }
-            );
+            when(repository.findAgingGlobal())
+                    .thenReturn(new Object[] {1_000_000L, 2_000_000L, 3_000_000L, 4_000_000L, 10_000_000L, 42L, 17L});
 
             VieillissementGlobalDTO global = service.getAgingGlobal();
 
@@ -79,7 +78,7 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("une colonne non renseignée vaut zéro")
         void colonneAbsente() {
-            when(repository.findAgingGlobal()).thenReturn(new Object[] { null, null, null, null, null, null, null });
+            when(repository.findAgingGlobal()).thenReturn(new Object[] {null, null, null, null, null, null, null});
 
             VieillissementGlobalDTO global = service.getAgingGlobal();
 
@@ -104,11 +103,13 @@ class VieillissementCreancesServiceImplTest {
         @DisplayName("chaque organisme porte ses tranches, son encours et son délai")
         void contenuDeLaLigne() {
             when(repository.countAgingByOrganisme()).thenReturn(1L);
-            when(repository.findAgingByOrganisme(0, 20)).thenReturn(
-                List.<Object[]>of(organisme("CNAM", 45, 10_000_000L, 6_000_000L, 2_000_000L, 1_500_000L, 500_000L, 30L, 8L, 40))
-            );
+            when(repository.findAgingByOrganisme(0, 20))
+                    .thenReturn(List.<Object[]>of(organisme(
+                            "CNAM", 45, 10_000_000L, 6_000_000L, 2_000_000L, 1_500_000L, 500_000L, 30L, 8L, 40)));
 
-            DsoOrganismeDTO ligne = service.getDsoByOrganisme(PageRequest.of(0, 20)).getContent().getFirst();
+            DsoOrganismeDTO ligne = service.getDsoByOrganisme(PageRequest.of(0, 20))
+                    .getContent()
+                    .getFirst();
 
             assertThat(ligne.organisme()).isEqualTo("CNAM");
             assertThat(ligne.delaiReglement()).isEqualTo(45);
@@ -144,7 +145,8 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("aucun organisme rend une page vide")
         void aucunOrganisme() {
-            assertThat(service.getDsoByOrganisme(PageRequest.of(0, 20)).getContent()).isEmpty();
+            assertThat(service.getDsoByOrganisme(PageRequest.of(0, 20)).getContent())
+                    .isEmpty();
         }
     }
 
@@ -206,11 +208,14 @@ class VieillissementCreancesServiceImplTest {
 
         private String fiabilite(long encours, long tranche90Plus, int dso, int delai) {
             when(repository.countAgingByOrganisme()).thenReturn(1L);
-            when(repository.findAgingByOrganisme(0, 20)).thenReturn(
-                List.<Object[]>of(organisme("CNAM", delai, encours, 0L, 0L, 0L, tranche90Plus, 1L, 0L, dso))
-            );
+            when(repository.findAgingByOrganisme(0, 20))
+                    .thenReturn(List.<Object[]>of(
+                            organisme("CNAM", delai, encours, 0L, 0L, 0L, tranche90Plus, 1L, 0L, dso)));
 
-            return service.getDsoByOrganisme(PageRequest.of(0, 20)).getContent().getFirst().fiabilite();
+            return service.getDsoByOrganisme(PageRequest.of(0, 20))
+                    .getContent()
+                    .getFirst()
+                    .fiabilite();
         }
     }
 
@@ -223,9 +228,10 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("chaque mois porte son libellé, le facturé et ce qui reste dû")
         void contenuDeLaCourbe() {
-            when(repository.findEncoursMensuelEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2026, 1, 8_000_000L, 3_000_000L }, new Object[] { 2026, 2, 9_000_000L, 5_000_000L })
-            );
+            when(repository.findEncoursMensuelEvolution())
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {2026, 1, 8_000_000L, 3_000_000L},
+                            new Object[] {2026, 2, 9_000_000L, 5_000_000L}));
 
             EncoursMensuelDTO evolution = service.getEncoursMensuelEvolution();
 
@@ -237,9 +243,9 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("un mois sans facture vaut zéro et ne disparaît pas de la courbe")
         void moisSansFacture() {
-            when(repository.findEncoursMensuelEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2026, 1, null, null }, new Object[] { 2026, 2, 9_000_000L, 5_000_000L })
-            );
+            when(repository.findEncoursMensuelEvolution())
+                    .thenReturn(List.<Object[]>of(
+                            new Object[] {2026, 1, null, null}, new Object[] {2026, 2, 9_000_000L, 5_000_000L}));
 
             EncoursMensuelDTO evolution = service.getEncoursMensuelEvolution();
 
@@ -250,9 +256,8 @@ class VieillissementCreancesServiceImplTest {
         @Test
         @DisplayName("les trois séries ont toujours la même longueur")
         void seriesDeMemeLongueur() {
-            when(repository.findEncoursMensuelEvolution()).thenReturn(
-                List.<Object[]>of(new Object[] { 2025, 12, 1L, 1L }, new Object[] { 2026, 1, 2L, 2L })
-            );
+            when(repository.findEncoursMensuelEvolution())
+                    .thenReturn(List.<Object[]>of(new Object[] {2025, 12, 1L, 1L}, new Object[] {2026, 1, 2L, 2L}));
 
             EncoursMensuelDTO evolution = service.getEncoursMensuelEvolution();
 
@@ -270,18 +275,17 @@ class VieillissementCreancesServiceImplTest {
     // ===== utilitaires =====
 
     private static Object[] organisme(
-        String nom,
-        int delai,
-        long encours,
-        long t030,
-        long t3160,
-        long t6190,
-        long t90p,
-        long nbFactures,
-        long nbRetard,
-        int dso
-    ) {
-        return new Object[] { nom, delai, encours, t030, t3160, t6190, t90p, nbFactures, nbRetard, dso };
+            String nom,
+            int delai,
+            long encours,
+            long t030,
+            long t3160,
+            long t6190,
+            long t90p,
+            long nbFactures,
+            long nbRetard,
+            int dso) {
+        return new Object[] {nom, delai, encours, t030, t3160, t6190, t90p, nbFactures, nbRetard, dso};
     }
 
     private static String libelle(int annee, int mois) {

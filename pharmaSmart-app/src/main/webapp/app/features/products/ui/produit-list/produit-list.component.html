@@ -16,19 +16,74 @@
   <ng-template #header>
     <tr class="pharma-table-head">
       <th style="width: 36px; text-align: center">
-        <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()"
-                      ariaLabel="Tout sélectionner" />
+        <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()" ariaLabel="Tout sélectionner" />
       </th>
       <th style="width: 110px">CIP</th>
       <th>Libellé</th>
       <th style="width: 80px; text-align: right">Stock</th>
-      <th style="width: 100px; text-align: right; cursor: default; white-space: nowrap">J. stock <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne J. stock" ngbTooltip="Jours avant rupture, estimés d’après les ventes récentes. Le détail est dans le panneau du produit." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
-      <th style="width: 100px; text-align: right; white-space: nowrap">Marge <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Marge" ngbTooltip="Marge brute en pourcentage du prix de vente : (PV − PA) / PV. Orange sous le seuil attendu, vert au-dessus." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
+      <th style="width: 100px; text-align: right; cursor: default; white-space: nowrap">
+        J. stock
+        <button
+          type="button"
+          class="btn btn-link p-0 ms-1 th-info"
+          aria-label="À propos de la colonne J. stock"
+          ngbTooltip="Jours avant rupture, estimés d’après les ventes récentes. Le détail est dans le panneau du produit."
+          triggers="mouseenter:mouseleave focus:blur"
+          placement="top"
+          container="body"
+          (click)="$event.stopPropagation()"
+        >
+          <i class="pi pi-info-circle" aria-hidden="true"></i>
+        </button>
+      </th>
+      <th style="width: 100px; text-align: right; white-space: nowrap">
+        Marge
+        <button
+          type="button"
+          class="btn btn-link p-0 ms-1 th-info"
+          aria-label="À propos de la colonne Marge"
+          ngbTooltip="Marge brute en pourcentage du prix de vente : (PV − PA) / PV. Orange sous le seuil attendu, vert au-dessus."
+          triggers="mouseenter:mouseleave focus:blur"
+          placement="top"
+          container="body"
+          (click)="$event.stopPropagation()"
+        >
+          <i class="pi pi-info-circle" aria-hidden="true"></i>
+        </button>
+      </th>
       <th style="width: 56px; text-align: center">Cl.</th>
       <th style="width: 140px">Rayon</th>
       @if (!selectedProduit()) {
-        <th style="width: 130px; white-space: nowrap">Etat <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Etat" ngbTooltip="Situation du produit : en stock, rupture, stock négatif, en suggestion, en commande ou reçu. Un produit peut cumuler plusieurs états." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
-        <th style="width: 96px; text-align: center; white-space: nowrap">Favori <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Favori" ngbTooltip="Coché : le produit est épinglé à la grille de la vente comptant. Réservé aux produits actifs ; la modification demande le droit d’édition du catalogue." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
+        <th style="width: 130px; white-space: nowrap">
+          Etat
+          <button
+            type="button"
+            class="btn btn-link p-0 ms-1 th-info"
+            aria-label="À propos de la colonne Etat"
+            ngbTooltip="Situation du produit : en stock, rupture, stock négatif, en suggestion, en commande ou reçu. Un produit peut cumuler plusieurs états."
+            triggers="mouseenter:mouseleave focus:blur"
+            placement="top"
+            container="body"
+            (click)="$event.stopPropagation()"
+          >
+            <i class="pi pi-info-circle" aria-hidden="true"></i>
+          </button>
+        </th>
+        <th style="width: 96px; text-align: center; white-space: nowrap">
+          Favori
+          <button
+            type="button"
+            class="btn btn-link p-0 ms-1 th-info"
+            aria-label="À propos de la colonne Favori"
+            ngbTooltip="Coché : le produit est épinglé à la grille de la vente comptant. Réservé aux produits actifs ; la modification demande le droit d’édition du catalogue."
+            triggers="mouseenter:mouseleave focus:blur"
+            placement="top"
+            container="body"
+            (click)="$event.stopPropagation()"
+          >
+            <i class="pi pi-info-circle" aria-hidden="true"></i>
+          </button>
+        </th>
         <th style="width: 80px; text-align: center">Statut</th>
       }
       <th style="width: 44px"></th>
@@ -43,10 +98,15 @@
       style="cursor: pointer"
     >
       <td (click)="$event.stopPropagation()" class="text-center">
-        <app-checkbox (ngModelChange)="toggleCheckbox(produit)" [ariaLabel]="'Sélectionner ' + produit.libelle"
-                      [ngModel]="isChecked(produit)" />
+        <app-checkbox
+          (ngModelChange)="toggleCheckbox(produit)"
+          [ariaLabel]="'Sélectionner ' + produit.libelle"
+          [ngModel]="isChecked(produit)"
+        />
       </td>
-      <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+      <td>
+        <span class="pharma-code">{{ produit.codeCip }}</span>
+      </td>
       <td>
         <span class="pharma-product-name">{{ produit.libelle }}</span>
         @if (produit.estMedicamentEssentiel) {
@@ -57,11 +117,7 @@
         }
       </td>
       <td class="text-end">
-        <app-badge
-          [label]="(produit.totalQuantity ?? 0) | number"
-          [rounded]="true"
-          [severity]="stockSeverity(produit)"
-        />
+        <app-badge [label]="produit.totalQuantity ?? 0 | number" [rounded]="true" [severity]="stockSeverity(produit)" />
       </td>
       <td class="text-end">
         @if (joursStock(produit) != null) {
@@ -71,7 +127,8 @@
             [class.jours-warning]="joursStock(produit)! > 0 && joursStock(produit)! < 7"
             class="jours-stock"
             ngbTooltip="Couverture estimée sur base CMM"
-          >{{ joursStock(produit) }} j</span>
+            >{{ joursStock(produit) }} j</span
+          >
         } @else {
           <span class="text-muted" style="font-size: 0.7rem">—</span>
         }
@@ -84,7 +141,8 @@
             [class.marge-ok]="tauxMarge(produit)! >= 15 && tauxMarge(produit)! < 30"
             class="marge-value"
             ngbTooltip="(PV − PA) / PV × 100"
-          >{{ tauxMarge(produit) }}%</span>
+            >{{ tauxMarge(produit) }}%</span
+          >
         } @else {
           <span class="text-muted" style="font-size: 0.7rem">—</span>
         }
@@ -96,10 +154,9 @@
       </td>
       <td>
         @if (produit.rayonLibelle) {
-          <span class="pharma-code" style="font-size: 0.75rem;">{{ produit.rayonLibelle }}</span>
+          <span class="pharma-code" style="font-size: 0.75rem">{{ produit.rayonLibelle }}</span>
           @if (produit.rayonPosition) {
-            <span class="text-muted ms-1"
-                  style="font-size: 0.7rem;">· {{ produit.rayonPosition }}</span>
+            <span class="text-muted ms-1" style="font-size: 0.7rem">· {{ produit.rayonPosition }}</span>
           }
         } @else {
           <span class="text-muted" style="font-size: 0.7rem">—</span>
@@ -114,9 +171,15 @@
         <td (click)="$event.stopPropagation()" class="text-center">
           <app-checkbox
             (ngModelChange)="favoriChanged.emit({ produit: produit, favori: $event })"
-            [ariaLabel]="(estFavori(produit) ? 'Retirer ' : 'Épingler ') + produit.libelle + (estFavori(produit) ? ' des' : ' aux') + ' favoris du comptoir'"
+            [ariaLabel]="
+              (estFavori(produit) ? 'Retirer ' : 'Épingler ') +
+              produit.libelle +
+              (estFavori(produit) ? ' des' : ' aux') +
+              ' favoris du comptoir'
+            "
             [disabled]="!canEdit() || produit.status !== 'ENABLE'"
-            [ngModel]="estFavori(produit)" />
+            [ngModel]="estFavori(produit)"
+          />
         </td>
         <td class="text-center">
           @if (produit.status === 'DISABLE') {

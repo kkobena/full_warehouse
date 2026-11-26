@@ -1,17 +1,19 @@
 <div class="container-fluid">
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav" contentColumnClass="col-lg-10 col-xl-10 col-md-9 col-sm-8"
-                   icon="pi pi-wallet" menuColumnClass="col-lg-2 col-xl-2 col-md-3 col-sm-4"
-                   title="Gestion de caisse">
-    <div #nav="ngbNav" [(activeId)]="active"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
-
+  <app-nav-sidebar
+    (collapsedChange)="menuReplie.set($event)"
+    [collapsed]="menuReplie()"
+    [collapsible]="true"
+    [nav]="nav"
+    contentColumnClass="col-lg-10 col-xl-10 col-md-9 col-sm-8"
+    icon="pi pi-wallet"
+    menuColumnClass="col-lg-2 col-xl-2 col-md-3 col-sm-4"
+    title="Gestion de caisse"
+  >
+    <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
       @if (showMvtCaisse()) {
         <ng-container ngbNavItem="mvt-caisse">
           <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="mvt-caisse.mvt-caisse"
-                                  fallbackIcon="pi pi-arrows-h"
-                                  fallbackLabel="Mouvements de caisse" />
+            <app-nav-section-link code="mvt-caisse.mvt-caisse" fallbackIcon="pi pi-arrows-h" fallbackLabel="Mouvements de caisse" />
           </a>
           <ng-template ngbNavContent>
             <app-visualisation-mvt-caisse navCode="mvt-caisse.mvt-caisse"></app-visualisation-mvt-caisse>
@@ -19,20 +21,16 @@
         </ng-container>
       }
 
-
       @if (showGestionCaisse()) {
-        <ng-container ngbNavItem="gestion-caisse">       <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="mvt-caisse.gestion-caisse"
-                                  fallbackIcon="pi pi-cog"
-                                  fallbackLabel="Gestion de caisse" />
+        <ng-container ngbNavItem="gestion-caisse">
+          <a class="pharma-nav-vertical-link" ngbNavLink>
+            <app-nav-section-link code="mvt-caisse.gestion-caisse" fallbackIcon="pi pi-cog" fallbackLabel="Gestion de caisse" />
           </a>
           <ng-template ngbNavContent>
             <app-gestion-caisse navCode="mvt-caisse.gestion-caisse"></app-gestion-caisse>
           </ng-template>
         </ng-container>
       }
-
-
-
     </div>
   </app-nav-sidebar>
+</div>

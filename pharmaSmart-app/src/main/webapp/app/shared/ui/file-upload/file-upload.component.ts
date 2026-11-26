@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
 
 /**
  * Sélecteur de fichiers — remplace `p-fileupload` en mode « basic ».
@@ -29,7 +29,12 @@ import {ChangeDetectionStrategy, Component, ElementRef, computed, input, output,
         (change)="onFilesChosen($event)"
       />
 
-      <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" [disabled]="disabled()" (click)="open()">
+      <button
+        type="button"
+        class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+        [disabled]="disabled()"
+        (click)="open()"
+      >
         <i [class]="icon()" aria-hidden="true"></i>
         <span>{{ label() }}</span>
       </button>

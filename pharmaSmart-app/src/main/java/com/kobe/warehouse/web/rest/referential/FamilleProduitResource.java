@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.FamilleProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -32,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.FamilleProduit}.
@@ -64,16 +64,18 @@ public class FamilleProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/famille-produits")
-    public ResponseEntity<FamilleProduitDTO> createFamilleProduit(@Valid @RequestBody FamilleProduitDTO familleProduitDTO)
-        throws URISyntaxException {
+    public ResponseEntity<FamilleProduitDTO> createFamilleProduit(
+            @Valid @RequestBody FamilleProduitDTO familleProduitDTO) throws URISyntaxException {
         log.debug("REST request to save FamilleProduit : {}", familleProduitDTO);
         if (familleProduitDTO.getId() != null) {
-            throw new BadRequestAlertException("A new familleProduit cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException(
+                    "A new familleProduit cannot already have an ID", ENTITY_NAME, "idexists");
         }
         FamilleProduitDTO result = familleProduitService.save(familleProduitDTO);
         return ResponseEntity.created(new URI("/api/famille-produits/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -87,16 +89,20 @@ public class FamilleProduitResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/famille-produits")
-    public ResponseEntity<FamilleProduitDTO> updateFamilleProduit(@Valid @RequestBody FamilleProduitDTO familleProduitDTO)
-        throws URISyntaxException {
+    public ResponseEntity<FamilleProduitDTO> updateFamilleProduit(
+            @Valid @RequestBody FamilleProduitDTO familleProduitDTO) throws URISyntaxException {
         log.debug("REST request to update FamilleProduit : {}", familleProduitDTO);
         if (familleProduitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         FamilleProduitDTO result = familleProduitService.save(familleProduitDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, familleProduitDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        familleProduitDTO.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -109,12 +115,11 @@ public class FamilleProduitResource {
     @GetMapping(value = "/famille-produits")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<List<FamilleProduitDTO>> getAllFamilleProduits(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search,
-        Pageable pageable
-    ) {
+            @RequestParam(value = "search", required = false, defaultValue = "") String search, Pageable pageable) {
         log.debug("REST request to get a page of FamilleProduits");
         Page<FamilleProduitDTO> page = familleProduitService.findAll(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -144,12 +149,13 @@ public class FamilleProduitResource {
         log.debug("REST request to delete FamilleProduit : {}", id);
         familleProduitService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PostMapping("/famille-produits/importcsv")
-    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws URISyntaxException, IOException {
+    public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file)
+            throws URISyntaxException, IOException {
         ResponseDTO responseDTO = familleProduitService.importation(file.getInputStream());
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }

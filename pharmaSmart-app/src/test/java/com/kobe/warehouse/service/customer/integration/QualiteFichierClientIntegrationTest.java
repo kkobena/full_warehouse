@@ -87,13 +87,12 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         fusion = new FusionClientService(em, logs);
         documents = new CustomerDocumentService(em, templateEngine(), storage, configuration);
         DossierSanteService dossierSante = new DossierSanteService(
-            null,
-            IntegrationPostgresDatabase.bean(CustomerDossierSanteRepository.class),
-            IntegrationPostgresDatabase.bean(CustomerAllergieRepository.class),
-            null,
-            null,
-            em
-        );
+                null,
+                IntegrationPostgresDatabase.bean(CustomerDossierSanteRepository.class),
+                IntegrationPostgresDatabase.bean(CustomerAllergieRepository.class),
+                null,
+                null,
+                em);
         donnees = new DonneesPersonnellesClientService(em, dossierSante, documents, sales, logs);
         caisse = caisseOuverte(0);
     }
@@ -122,7 +121,9 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         AssuredCustomer a = assure(unique("KONAN"), "0700000042", naissance);
         AssuredCustomer b = assure(unique("KONANN"), "0700000042", naissance);
 
-        assertThat(groupeDe(a).clients()).extracting(DoublonClientDTO::id).containsExactlyInAnyOrder(a.getId(), b.getId());
+        assertThat(groupeDe(a).clients())
+                .extracting(DoublonClientDTO::id)
+                .containsExactlyInAnyOrder(a.getId(), b.getId());
     }
 
     // ── Fusion ──
@@ -135,7 +136,12 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         source.setEmail("awa@exemple.ci");
         CashSale vente = venteDifferee(caisse, 10_000, 8_000, source, aujourdHui());
         reglement(vente, 3_000, aujourdHui());
-        em.persist(new RelanceDiffere().setCustomerId(source.getId()).setTelephone("0700000043").setMontant(5_000).setMessage("relance").setUser(utilisateur));
+        em.persist(new RelanceDiffere()
+                .setCustomerId(source.getId())
+                .setTelephone("0700000043")
+                .setMontant(5_000)
+                .setMessage("relance")
+                .setUser(utilisateur));
         em.flush();
 
         FusionClientApercuDTO apercu = fusion.apercu(cible.getId(), List.of(source.getId()));
@@ -150,19 +156,19 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         assertThat(conservee.getEmail()).isEqualTo("awa@exemple.ci");
         assertThat(conservee.getPhone()).isEqualTo("0700000043");
         assertThat(em.find(Customer.class, source.getId()).getStatus()).isEqualTo(Status.DISABLE);
-        assertThat(
-            em.createQuery("SELECT COUNT(r) FROM RelanceDiffere r WHERE r.customerId = :id", Long.class).setParameter("id", cible.getId()).getSingleResult()
-        ).isEqualTo(1L);
-        assertThat(
-            em
-                .createQuery("SELECT COUNT(p) FROM DifferePayment p WHERE p.differeCustomer.id = :id", Long.class)
-                .setParameter("id", cible.getId())
-                .getSingleResult()
-        ).isEqualTo(1L);
+        assertThat(em.createQuery("SELECT COUNT(r) FROM RelanceDiffere r WHERE r.customerId = :id", Long.class)
+                        .setParameter("id", cible.getId())
+                        .getSingleResult())
+                .isEqualTo(1L);
+        assertThat(em.createQuery("SELECT COUNT(p) FROM DifferePayment p WHERE p.differeCustomer.id = :id", Long.class)
+                        .setParameter("id", cible.getId())
+                        .getSingleResult())
+                .isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("assurés : un même organisme se fond en un tiers payant, un autre change de fiche à une priorité libre")
+    @DisplayName(
+            "assurés : un même organisme se fond en un tiers payant, un autre change de fiche à une priorité libre")
     void fusionTiersPayants() {
         TiersPayant mugef = tiersPayant("MUGEF");
         TiersPayant ascoma = tiersPayant("ASCOMA");
@@ -178,17 +184,21 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
 
         fusion.fusionner(new FusionClientRequestDTO(cible.getId(), List.of(source.getId())));
 
-        List<ClientTiersPayant> comptes = em
-            .createQuery("SELECT c FROM ClientTiersPayant c WHERE c.assuredCustomer.id = :id ORDER BY c.priorite", ClientTiersPayant.class)
-            .setParameter("id", cible.getId())
-            .getResultList();
+        List<ClientTiersPayant> comptes = em.createQuery(
+                        "SELECT c FROM ClientTiersPayant c WHERE c.assuredCustomer.id = :id ORDER BY c.priorite",
+                        ClientTiersPayant.class)
+                .setParameter("id", cible.getId())
+                .getResultList();
         assertThat(comptes).hasSize(2);
         assertThat(comptes.get(0).getTiersPayant().getId()).isEqualTo(mugef.getId());
         assertThat(comptes.get(0).getConsoMensuelle()).isEqualTo(1_500L);
         assertThat(comptes.get(0).getDateFinValidite()).isEqualTo(LocalDate.of(2030, 1, 1));
         assertThat(comptes.get(1).getTiersPayant().getId()).isEqualTo(ascoma.getId());
         assertThat(comptes.get(1).getPriorite()).isEqualTo(PrioriteTiersPayant.R1);
-        assertThat(em.find(AssuredCustomer.class, ayantDroit.getId()).getAssurePrincipal().getId()).isEqualTo(cible.getId());
+        assertThat(em.find(AssuredCustomer.class, ayantDroit.getId())
+                        .getAssurePrincipal()
+                        .getId())
+                .isEqualTo(cible.getId());
         assertThat(em.find(AssuredCustomer.class, cible.getId()).getDatNaiss()).isEqualTo(LocalDate.of(1990, 1, 1));
     }
 
@@ -200,14 +210,18 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         em.persist(new CustomerAllergie().setCustomerId(cible.getId()).setLibelle("Pénicilline"));
         em.persist(new CustomerAllergie().setCustomerId(source.getId()).setLibelle("PENICILLINE"));
         em.persist(new CustomerAllergie().setCustomerId(source.getId()).setLibelle("Aspirine"));
-        em.persist(new CustomerDossierSante().setCustomerId(source.getId()).setPathologies(List.of("Diabète")).setNote("suivi"));
+        em.persist(new CustomerDossierSante()
+                .setCustomerId(source.getId())
+                .setPathologies(List.of("Diabète"))
+                .setNote("suivi"));
         em.flush();
 
         fusion.fusionner(new FusionClientRequestDTO(cible.getId(), List.of(source.getId())));
 
-        assertThat(
-            em.createQuery("SELECT a.libelle FROM CustomerAllergie a WHERE a.customerId = :id", String.class).setParameter("id", cible.getId()).getResultList()
-        ).containsExactlyInAnyOrder("Pénicilline", "Aspirine");
+        assertThat(em.createQuery("SELECT a.libelle FROM CustomerAllergie a WHERE a.customerId = :id", String.class)
+                        .setParameter("id", cible.getId())
+                        .getResultList())
+                .containsExactlyInAnyOrder("Pénicilline", "Aspirine");
         CustomerDossierSante dossier = em.find(CustomerDossierSante.class, cible.getId());
         assertThat(dossier.getPathologies()).containsExactly("Diabète");
         assertThat(em.find(CustomerDossierSante.class, source.getId())).isNull();
@@ -222,18 +236,19 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         FusionClientApercuDTO apercu = fusion.apercu(standard.getId(), List.of(assure.getId()));
         assertThat(apercu.rejets()).containsKey(assure.getId());
         assertThat(apercu.sourceIds()).isEmpty();
-        assertThatThrownBy(() -> fusion.fusionner(new FusionClientRequestDTO(standard.getId(), List.of(assure.getId()))))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo("fusionClientRejetee");
+        assertThatThrownBy(
+                        () -> fusion.fusionner(new FusionClientRequestDTO(standard.getId(), List.of(assure.getId()))))
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("fusionClientRejetee");
 
         standard.setStatus(Status.DISABLE);
         em.flush();
         UninsuredCustomer autre = client(unique("REFUS"), "Awa", null);
         assertThatThrownBy(() -> fusion.apercu(standard.getId(), List.of(autre.getId())))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo("fusionCibleInactive");
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("fusionCibleInactive");
     }
 
     // ── Documents ──
@@ -253,7 +268,8 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         assertThat(releve.lignes()).extracting(LigneReleveDTO::debit).containsExactly(5_000L, 0L);
         assertThat(releve.lignes()).extracting(LigneReleveDTO::credit).containsExactly(0L, 3_000L);
         assertThat(releve.lignes()).extracting(LigneReleveDTO::solde).containsExactly(13_000L, 10_000L);
-        assertThat(releve.soldeFinal()).isEqualTo(sales.getDiffereSoldeByCustomerId(client.getId()).longValue());
+        assertThat(releve.soldeFinal())
+                .isEqualTo(sales.getDiffereSoldeByCustomerId(client.getId()).longValue());
     }
 
     @Test
@@ -287,7 +303,9 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         UninsuredCustomer client = client(unique("PDF"), "Awa", null);
         venteDifferee(caisse, 5_000, 5_000, client, jour);
 
-        for (byte[] pdf : List.of(documents.relevePdf(client.getId(), jour.minusDays(30), jour), documents.attestationPdf(client.getId(), jour.minusDays(30), jour))) {
+        for (byte[] pdf : List.of(
+                documents.relevePdf(client.getId(), jour.minusDays(30), jour),
+                documents.attestationPdf(client.getId(), jour.minusDays(30), jour))) {
             assertThat(new String(pdf, 0, 5, StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
         }
     }
@@ -315,7 +333,10 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         em.persist(new CustomerAllergie().setCustomerId(client.getId()).setLibelle("Aspirine"));
         em.flush();
 
-        assertThatThrownBy(() -> donnees.anonymiser(client.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("anonymisationAvecEncours");
+        assertThatThrownBy(() -> donnees.anonymiser(client.getId()))
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("anonymisationAvecEncours");
 
         reglement(vente, 2_000, aujourdHui());
         donnees.anonymiser(client.getId());
@@ -326,19 +347,24 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         assertThat(anonyme.getLastName()).isEqualTo(anonyme.getCode());
         assertThat(anonyme.getPhone()).isNull();
         assertThat(anonyme.getStatus()).isEqualTo(Status.DISABLE);
-        assertThat(
-            em.createQuery("SELECT COUNT(a) FROM CustomerAllergie a WHERE a.customerId = :id", Long.class).setParameter("id", client.getId()).getSingleResult()
-        ).isZero();
+        assertThat(em.createQuery("SELECT COUNT(a) FROM CustomerAllergie a WHERE a.customerId = :id", Long.class)
+                        .setParameter("id", client.getId())
+                        .getSingleResult())
+                .isZero();
         // Les délivrances restent rattachées à la fiche : seule l'identité disparaît.
-        assertThat(
-            em.createQuery("SELECT COUNT(s) FROM Sales s WHERE s.customer.id = :id", Long.class).setParameter("id", client.getId()).getSingleResult()
-        ).isEqualTo(1L);
+        assertThat(em.createQuery("SELECT COUNT(s) FROM Sales s WHERE s.customer.id = :id", Long.class)
+                        .setParameter("id", client.getId())
+                        .getSingleResult())
+                .isEqualTo(1L);
     }
 
     // ===== fixtures =====
 
     private DoublonClientGroupeDTO groupeDe(Customer client) {
-        return fusion.doublons().stream().filter(g -> g.clients().stream().anyMatch(c -> c.id().equals(client.getId()))).findFirst().orElse(null);
+        return fusion.doublons().stream()
+                .filter(g -> g.clients().stream().anyMatch(c -> c.id().equals(client.getId())))
+                .findFirst()
+                .orElse(null);
     }
 
     private AssuredCustomer assure(String nom, String telephone, LocalDate naissance) {
@@ -371,7 +397,12 @@ class QualiteFichierClientIntegrationTest extends AbstractDashboardIntegrationTe
         return tiersPayant;
     }
 
-    private void compte(AssuredCustomer assure, TiersPayant tiersPayant, PrioriteTiersPayant priorite, Long conso, LocalDate finValidite) {
+    private void compte(
+            AssuredCustomer assure,
+            TiersPayant tiersPayant,
+            PrioriteTiersPayant priorite,
+            Long conso,
+            LocalDate finValidite) {
         ClientTiersPayant compte = new ClientTiersPayant();
         compte.setTiersPayant(tiersPayant);
         compte.setAssuredCustomer(assure);

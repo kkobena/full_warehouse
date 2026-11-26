@@ -20,13 +20,12 @@ public class TaxeDTO {
     public TaxeDTO() {}
 
     public TaxeDTO(
-        LocalDate mvtDate,
-        Integer codeTva,
-        Long montantTtc,
-        Long montantAchat,
-        Double montantHt,
-        Long amountToBeTakenIntoAccount
-    ) {
+            LocalDate mvtDate,
+            Integer codeTva,
+            Long montantTtc,
+            Long montantAchat,
+            Double montantHt,
+            Long amountToBeTakenIntoAccount) {
         this.mvtDate = mvtDate;
         this.codeTva = codeTva;
         this.montantTtc = montantTtc;
@@ -36,7 +35,8 @@ public class TaxeDTO {
         this.montantTaxe = Objects.requireNonNullElse(montantAchat, 0L) - this.montantHt;
     }
 
-    public TaxeDTO(Integer codeTva, Long montantTtc, Long montantAchat, Double montantHt, Long amountToBeTakenIntoAccount) {
+    public TaxeDTO(
+            Integer codeTva, Long montantTtc, Long montantAchat, Double montantHt, Long amountToBeTakenIntoAccount) {
         this.codeTva = codeTva;
         this.montantTtc = montantTtc;
         this.montantAchat = montantAchat;

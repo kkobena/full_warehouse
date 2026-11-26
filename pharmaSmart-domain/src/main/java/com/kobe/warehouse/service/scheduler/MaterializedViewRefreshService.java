@@ -50,42 +50,35 @@ public class MaterializedViewRefreshService {
      * pipeline : « 0 produits, marge 0,00 % » sur la valorisation du stock.
      */
     static final Map<String, List<String>> CACHES_PAR_VUE = Map.of(
-        "mv_daily_sales_summary", List.of("dailySalesReport"),
-        "mv_stock_alerts", List.of("stockAlerts"),
-        "mv_monthly_top_products", List.of("topProducts"),
-        "mv_stock_valuation", List.of("stockValuation"),
-        "mv_stock_valuation_by_rayon", List.of("stockValuation"),
-        "mv_customer_rfm", List.of("customerSegmentation"),
-        "mv_supplier_performance", List.of("supplierPerformance"),
-        "mv_marge_produit", List.of("margeReport")
-    );
+            "mv_daily_sales_summary", List.of("dailySalesReport"),
+            "mv_stock_alerts", List.of("stockAlerts"),
+            "mv_monthly_top_products", List.of("topProducts"),
+            "mv_stock_valuation", List.of("stockValuation"),
+            "mv_stock_valuation_by_rayon", List.of("stockValuation"),
+            "mv_customer_rfm", List.of("customerSegmentation"),
+            "mv_supplier_performance", List.of("supplierPerformance"),
+            "mv_marge_produit", List.of("margeReport"));
+
     private static final Logger LOG = LoggerFactory.getLogger(MaterializedViewRefreshService.class);
     // ── TIER 1 : Dashboards temps réel ───────────────────────────────────────────
     private static final List<String> TIER1_VIEWS = List.of(
-        "mv_dashboard_ca_daily",
-        "mv_dashboard_ca_payment_methods",
-        "mv_stock_alerts",
-        "mv_daily_sales_summary"
-    );
+            "mv_dashboard_ca_daily", "mv_dashboard_ca_payment_methods", "mv_stock_alerts", "mv_daily_sales_summary");
     // ── TIER 2 : Données analytiques ─────────────────────────────────────────────
     private static final List<String> TIER2_VIEWS = List.of(
-        "mv_dashboard_ca_product_families",
-        "mv_monthly_top_products",
-        "mv_produits_frequents_comptoir",
-        "mv_stock_valuation",
-        "mv_stock_valuation_by_rayon"
-    );
+            "mv_dashboard_ca_product_families",
+            "mv_monthly_top_products",
+            "mv_produits_frequents_comptoir",
+            "mv_stock_valuation",
+            "mv_stock_valuation_by_rayon");
     // ── TIER 3 : Analyses complexes ──────────────────────────────────────────────
-    private static final List<String> TIER3_VIEWS = List.of(
-        "mv_customer_rfm",
-        "mv_supplier_performance",
-        "mv_marge_produit"
-    );
+    private static final List<String> TIER3_VIEWS =
+            List.of("mv_customer_rfm", "mv_supplier_performance", "mv_marge_produit");
     private static final List<String> NON_CONCURRENT_VIEWS = List.of();
     /**
      * Absent du module batch, qui ne sert aucun rapport : rien à vider.
      */
     private final ObjectProvider<CacheManager> cacheManager;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -136,22 +129,19 @@ public class MaterializedViewRefreshService {
     @Transactional
     public TierRefreshResultDTO refreshTier1Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER1", refreshViews(TIER1_VIEWS, "TIER1"), startTime,
-            LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER1", refreshViews(TIER1_VIEWS, "TIER1"), startTime, LocalDateTime.now());
     }
 
     @Transactional
     public TierRefreshResultDTO refreshTier2Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER2", refreshViews(TIER2_VIEWS, "TIER2"), startTime,
-            LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER2", refreshViews(TIER2_VIEWS, "TIER2"), startTime, LocalDateTime.now());
     }
 
     @Transactional
     public TierRefreshResultDTO refreshTier3Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER3", refreshViews(TIER3_VIEWS, "TIER3"), startTime,
-            LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER3", refreshViews(TIER3_VIEWS, "TIER3"), startTime, LocalDateTime.now());
     }
 
     @Transactional
@@ -165,11 +155,13 @@ public class MaterializedViewRefreshService {
         allResults.addAll(refreshViews(TIER2_VIEWS, "TIER2"));
         allResults.addAll(refreshViews(TIER3_VIEWS, "TIER3"));
 
-        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime,
-            LocalDateTime.now());
+        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime, LocalDateTime.now());
 
-        LOG.info("ALL views refreshed: {} OK, {} KO en {}ms",
-            result.successCount(), result.failedCount(), result.totalDurationMillis());
+        LOG.info(
+                "ALL views refreshed: {} OK, {} KO en {}ms",
+                result.successCount(),
+                result.failedCount(),
+                result.totalDurationMillis());
 
         return result;
     }
@@ -200,8 +192,10 @@ public class MaterializedViewRefreshService {
             results.add(refreshSingleView(viewName, tier));
         }
 
-        long successCount = results.stream().filter(r -> "SUCCESS".equals(r.status())).count();
-        long failedCount = results.stream().filter(r -> "FAILED".equals(r.status())).count();
+        long successCount =
+                results.stream().filter(r -> "SUCCESS".equals(r.status())).count();
+        long failedCount =
+                results.stream().filter(r -> "FAILED".equals(r.status())).count();
 
         LOG.info("{} refresh: {} OK, {} KO", tier, successCount, failedCount);
 
@@ -214,8 +208,8 @@ public class MaterializedViewRefreshService {
         try {
             boolean useConcurrent = !NON_CONCURRENT_VIEWS.contains(viewName);
             String sql = useConcurrent
-                ? "REFRESH MATERIALIZED VIEW CONCURRENTLY " + viewName
-                : "REFRESH MATERIALIZED VIEW " + viewName;
+                    ? "REFRESH MATERIALIZED VIEW CONCURRENTLY " + viewName
+                    : "REFRESH MATERIALIZED VIEW " + viewName;
 
             entityManager.createNativeQuery(sql).executeUpdate();
             viderLesCachesApresCommit(viewName);
@@ -244,13 +238,12 @@ public class MaterializedViewRefreshService {
         }
         Set<String> aVider = new LinkedHashSet<>(caches);
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        viderLesCaches(aVider);
-                    }
-                });
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    viderLesCaches(aVider);
+                }
+            });
         } else {
             viderLesCaches(aVider);
         }

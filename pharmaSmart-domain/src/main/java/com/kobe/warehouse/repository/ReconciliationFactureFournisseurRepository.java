@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReconciliationFactureFournisseurRepository
-    extends JpaRepository<ReconciliationFactureFournisseur, Integer> {
-}
+        extends JpaRepository<ReconciliationFactureFournisseur, Integer> {}

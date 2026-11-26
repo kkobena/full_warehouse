@@ -7,5 +7,5 @@ import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 public interface EditionService {
 
     FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
-        throws InvoiceEmptyDataException;
+            throws InvoiceEmptyDataException;
 }

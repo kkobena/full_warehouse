@@ -25,12 +25,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(
-    name = "grille_remise",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "code" }, name = "grille_remise_code_un_index"),
-        @UniqueConstraint(columnNames = { "code", "remise_produit_id" }, name = "remise_produit_id_code_un_index"),
-    }
-)
+        name = "grille_remise",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    columnNames = {"code"},
+                    name = "grille_remise_code_un_index"),
+            @UniqueConstraint(
+                    columnNames = {"code", "remise_produit_id"},
+                    name = "remise_produit_id_code_un_index"),
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GrilleRemise implements Serializable {
 

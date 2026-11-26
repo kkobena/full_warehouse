@@ -1,19 +1,19 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {provideHttpClient} from '@angular/common/http';
-import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
-import {Router} from '@angular/router';
-import {EcartsARegulariserComponent} from './ecarts-a-regulariser.component';
-import {IEcartStock} from '../../models';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
+import { EcartsARegulariserComponent } from './ecarts-a-regulariser.component';
+import { IEcartStock } from '../../models';
 
 /** Lot 4 de PLAN-VENTE-SUR-STOCK-ERRONE : la liste des écarts machine/physique. */
 describe('EcartsARegulariserComponent', () => {
   let fixture: ComponentFixture<EcartsARegulariserComponent>;
   let httpMock: HttpTestingController;
-  const router = {navigate: jest.fn()};
+  const router = { navigate: jest.fn() };
 
   const ecarts: IEcartStock[] = [
-    {produitId: 1, libelle: 'SPASFON', codeCip: '3400001', stock: -9, quantiteDue: 2, ecart: 7},
-    {produitId: 2, libelle: 'SMECTA', codeCip: null, stock: -1, quantiteDue: 0, ecart: 1},
+    { produitId: 1, libelle: 'SPASFON', codeCip: '3400001', stock: -9, quantiteDue: 2, ecart: 7 },
+    { produitId: 2, libelle: 'SMECTA', codeCip: null, stock: -1, quantiteDue: 0, ecart: 1 },
   ];
 
   function ouvrir(): HTMLElement {
@@ -28,7 +28,7 @@ describe('EcartsARegulariserComponent', () => {
     jest.clearAllMocks();
     TestBed.configureTestingModule({
       imports: [EcartsARegulariserComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting(), {provide: Router, useValue: router}],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: Router, useValue: router }],
     });
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -58,7 +58,7 @@ describe('EcartsARegulariserComponent', () => {
     expect(el.textContent).toContain('2 produit(s), 8 unité(s) non expliquée(s)');
   });
 
-  it("rassure quand aucun négatif ne dépasse les avoirs", () => {
+  it('rassure quand aucun négatif ne dépasse les avoirs', () => {
     const el = ouvrir();
     requete().flush([]);
     fixture.detectChanges();
@@ -68,7 +68,7 @@ describe('EcartsARegulariserComponent', () => {
 
   it("signale l'échec du chargement", () => {
     const el = ouvrir();
-    requete().flush({}, {status: 500, statusText: 'Erreur'});
+    requete().flush({}, { status: 500, statusText: 'Erreur' });
     fixture.detectChanges();
 
     expect(el.textContent).toContain('Impossible de charger les écarts');

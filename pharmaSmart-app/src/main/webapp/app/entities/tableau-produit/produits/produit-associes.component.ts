@@ -1,25 +1,25 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
-import {ProduitService} from "../../produit/produit.service";
-import {TableauProduitService} from "../tableau-produit.service";
-import {IProduit} from "../../../shared/model";
-import {HttpResponse} from "@angular/common/http";
-import {ActivatedRoute} from "@angular/router";
-import {ITableau} from "../../../shared/model/tableau.model";
-import {FormsModule} from "@angular/forms";
-import {CommonModule} from "@angular/common";
-import {ButtonComponent, CardComponent, DataTableComponent, ToolbarComponent} from "../../../shared/ui";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ProduitService } from '../../produit/produit.service';
+import { TableauProduitService } from '../tableau-produit.service';
+import { IProduit } from '../../../shared/model';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { ITableau } from '../../../shared/model/tableau.model';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ButtonComponent, CardComponent, DataTableComponent, ToolbarComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-produit-associes",
-  templateUrl: "./produit-associes.component.html",
-  styleUrls: ["./produit-associes.component.scss"],
+  selector: 'app-produit-associes',
+  templateUrl: './produit-associes.component.html',
+  styleUrls: ['./produit-associes.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, CardComponent, ToolbarComponent]
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, CardComponent, ToolbarComponent],
 })
 export class ProduitAssociesComponent implements OnInit {
   protected readonly produitsSource = signal<IProduit[]>([]);
   protected readonly produitsTarget = signal<IProduit[]>([]);
-  protected statut = "ENABLE";
+  protected statut = 'ENABLE';
   protected searchSource: string;
   protected searchTarget: string;
   protected readonly tableau = signal<ITableau | undefined>(undefined);
@@ -28,7 +28,7 @@ export class ProduitAssociesComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({tableau}) => {
+    this.activatedRoute.data.subscribe(({ tableau }) => {
       this.tableau.set(tableau);
     });
     this.fetchSource();
@@ -40,11 +40,11 @@ export class ProduitAssociesComponent implements OnInit {
       .queryLite({
         page: 0,
         size: 300,
-        search: this.searchTarget || "",
+        search: this.searchTarget || '',
         status: this.statut,
-        tableauId: this.tableau().id
+        tableauId: this.tableau().id,
       })
-      .subscribe({next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget.set(res.body))});
+      .subscribe({ next: (res: HttpResponse<IProduit[]>) => this.produitsTarget.set(res.body) });
   }
 
   protected previousState(): void {
@@ -56,11 +56,11 @@ export class ProduitAssociesComponent implements OnInit {
       .queryLite({
         page: 0,
         size: 300,
-        search: this.searchSource || "",
+        search: this.searchSource || '',
         status: this.statut,
-        tableauNot: this.tableau().id
+        tableauNot: this.tableau().id,
       })
-      .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource.set(res.body)));
+      .subscribe((res: HttpResponse<IProduit[]>) => this.produitsSource.set(res.body));
   }
 
   protected moveToTarget(item: IProduit): void {

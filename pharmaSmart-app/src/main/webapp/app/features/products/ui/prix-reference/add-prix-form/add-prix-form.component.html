@@ -8,109 +8,117 @@
 
 <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
   <div class="modal-body pb-2">
-  <app-card [variant]="'form'">
-    <input type="hidden" formControlName="id"/>
+    <app-card [variant]="'form'">
+      <input type="hidden" formControlName="id" />
 
-    <!-- Produit info bar -->
-    <div class="produit-info-bar mb-3">
-      <i class="pi pi-box text-primary"></i>
-      <span class="fw-semibold">{{ produit?.libelle }}</span>
-      @if (produit?.codeCip) {
-        <span class="text-muted">&nbsp;· {{ produit.codeCip }}</span>
-      }
-      <span class="ms-auto text-muted small">
-        PA&nbsp;<strong>{{ produit?.costAmount ?? 0 }}</strong>&nbsp;<span appDevise></span>
-        &nbsp;·&nbsp;
-        PV&nbsp;<strong>{{ produit?.regularUnitPrice ?? 0 }}</strong>&nbsp;<span appDevise></span>
-      </span>
-    </div>
+      <!-- Produit info bar -->
+      <div class="produit-info-bar mb-3">
+        <i class="pi pi-box text-primary"></i>
+        <span class="fw-semibold">{{ produit?.libelle }}</span>
+        @if (produit?.codeCip) {
+          <span class="text-muted">&nbsp;· {{ produit.codeCip }}</span>
+        }
+        <span class="ms-auto text-muted small">
+          PA&nbsp;<strong>{{ produit?.costAmount ?? 0 }}</strong
+          >&nbsp;<span appDevise></span> &nbsp;·&nbsp; PV&nbsp;<strong>{{ produit?.regularUnitPrice ?? 0 }}</strong
+          >&nbsp;<span appDevise></span>
+        </span>
+      </div>
 
-    <!-- Ligne 1 : Option de prix + Tiers payant -->
-    <div class="row g-2 mb-2">
-      <div class="col-6">
-        <label class="form-label form-label-sm" for="type">
-          Option de prix <span class="text-danger">*</span>
-        </label>
-        <app-select [items]="pricesType" formControlName="type" inputId="type"
-                  bindLabel="libelle" bindValue="code"
-                  placeholder="Sélectionner"/>
-        @let typePrix = editForm.get('type');
-        @if (typePrix!.invalid && typePrix!.touched) {
-          <small class="text-danger">Obligatoire</small>
+      <!-- Ligne 1 : Option de prix + Tiers payant -->
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <label class="form-label form-label-sm" for="type"> Option de prix <span class="text-danger">*</span> </label>
+          <app-select
+            [items]="pricesType"
+            formControlName="type"
+            inputId="type"
+            bindLabel="libelle"
+            bindValue="code"
+            placeholder="Sélectionner"
+          />
+          @let typePrix = editForm.get('type');
+          @if (typePrix!.invalid && typePrix!.touched) {
+            <small class="text-danger">Obligatoire</small>
+          }
+        </div>
+
+        @if (isFromProduit) {
+          <div class="col-6">
+            <label class="form-label form-label-sm" for="tiersPayantId"> Tiers payant <span class="text-danger">*</span> </label>
+            <app-select-search
+              [items]="tiersPayants()"
+              formControlName="tiersPayantId"
+              inputId="tiersPayantId"
+              bindLabel="fullName"
+              bindValue="id"
+              placeholder="Sélectionner"
+            />
+            @let tp = editForm.get('tiersPayantId');
+            @if (tp!.invalid && tp!.touched) {
+              <small class="text-danger">Obligatoire</small>
+            }
+          </div>
+        } @else {
+          <div class="col-6">
+            <label class="form-label form-label-sm" for="produitId"> Produit <span class="text-danger">*</span> </label>
+            <app-select-search
+              [items]="produits()"
+              formControlName="produitId"
+              inputId="produitId"
+              bindLabel="libelle"
+              bindValue="id"
+              placeholder="Sélectionner"
+            />
+            @let pid = editForm.get('produitId');
+            @if (pid!.invalid && pid!.touched) {
+              <small class="text-danger">Obligatoire</small>
+            }
+          </div>
         }
       </div>
 
-      @if (isFromProduit) {
-        <div class="col-6">
-          <label class="form-label form-label-sm" for="tiersPayantId">
-            Tiers payant <span class="text-danger">*</span>
-          </label>
-          <app-select-search [items]="tiersPayants()" formControlName="tiersPayantId" inputId="tiersPayantId"
-                    bindLabel="fullName" bindValue="id"
-                    placeholder="Sélectionner"/>
-          @let tp = editForm.get('tiersPayantId');
-          @if (tp!.invalid && tp!.touched) {
-            <small class="text-danger">Obligatoire</small>
-          }
-        </div>
-      } @else {
-        <div class="col-6">
-          <label class="form-label form-label-sm" for="produitId">
-            Produit <span class="text-danger">*</span>
-          </label>
-          <app-select-search [items]="produits()" formControlName="produitId" inputId="produitId"
-                    bindLabel="libelle" bindValue="id"
-                    placeholder="Sélectionner"/>
-          @let pid = editForm.get('produitId');
-          @if (pid!.invalid && pid!.touched) {
-            <small class="text-danger">Obligatoire</small>
-          }
-        </div>
-      }
-    </div>
+      <!-- Ligne 2 : Prix de référence + Taux (affichage conditionnel) -->
+      <div class="row g-2 mb-2">
+        @if (shouldShowPriceControl) {
+          <div [class]="shouldShowRateControl ? 'col-6' : 'col-12'">
+            <label class="form-label form-label-sm" for="price"> Prix de référence <span class="text-danger">*</span> </label>
+            <app-input-number #prixSaisie formControlName="price" inputId="price" />
+            @let price = editForm.get('price');
+            @if (price!.invalid && price!.touched) {
+              <small class="text-danger">Obligatoire</small>
+            }
+          </div>
+        }
+        @if (shouldShowRateControl) {
+          <div [class]="shouldShowPriceControl ? 'col-6' : 'col-12'">
+            <label class="form-label form-label-sm" for="rate"> Taux de remboursement (%) <span class="text-danger">*</span> </label>
+            <app-input-number formControlName="rate" inputId="rate" [min]="0" [max]="100" suffix="%" />
+            @let rate = editForm.get('rate');
+            @if (rate!.invalid && rate!.touched) {
+              <small class="text-danger">Obligatoire</small>
+            }
+          </div>
+        }
+      </div>
 
-    <!-- Ligne 2 : Prix de référence + Taux (affichage conditionnel) -->
-    <div class="row g-2 mb-2">
-      @if (shouldShowPriceControl) {
-        <div [class]="shouldShowRateControl ? 'col-6' : 'col-12'">
-          <label class="form-label form-label-sm" for="price">
-            Prix de référence <span class="text-danger">*</span>
-          </label>
-          <app-input-number #prixSaisie formControlName="price" inputId="price"/>
-          @let price = editForm.get('price');
-          @if (price!.invalid && price!.touched) {
-            <small class="text-danger">Obligatoire</small>
-          }
-        </div>
-      }
-      @if (shouldShowRateControl) {
-        <div [class]="shouldShowPriceControl ? 'col-6' : 'col-12'">
-          <label class="form-label form-label-sm" for="rate">
-            Taux de remboursement (%) <span class="text-danger">*</span>
-          </label>
-          <app-input-number formControlName="rate" inputId="rate"
-                         [min]="0" [max]="100" suffix="%"/>
-          @let rate = editForm.get('rate');
-          @if (rate!.invalid && rate!.touched) {
-            <small class="text-danger">Obligatoire</small>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- Ligne 3 : Toggle actif/inactif -->
-    <div class="d-flex align-items-center gap-2 mt-1">
-      <app-switch formControlName="enabled" inputId="f_enabled"/>
-      <label for="f_enabled" class="mb-0 small">Tarif actif</label>
-    </div>
-  </app-card>
+      <!-- Ligne 3 : Toggle actif/inactif -->
+      <div class="d-flex align-items-center gap-2 mt-1">
+        <app-switch formControlName="enabled" inputId="f_enabled" />
+        <label for="f_enabled" class="mb-0 small">Tarif actif</label>
+      </div>
+    </app-card>
   </div>
 
   <div class="modal-footer py-2">
-    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler"
-              severity="secondary" [text]="true" type="button"/>
-    <app-button [disabled]="editForm.invalid || isSaving()" [loading]="isSaving()"
-              icon="pi pi-check" label="Enregistrer"
-              severity="primary" type="submit"/>
+    <app-button (clicked)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [text]="true" type="button" />
+    <app-button
+      [disabled]="editForm.invalid || isSaving()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit"
+    />
   </div>
 </form>

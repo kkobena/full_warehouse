@@ -42,8 +42,7 @@ scenario('REF-60', async ({ etape, page }) => {
   const confirmation = page.locator('.modal-content');
 
   /** Combien de produits de la gamme sont en veille en base. */
-  const enVeille = (): string =>
-    lire(`SELECT count(*) FROM produit WHERE libelle LIKE '${recherche}%' AND status <> 'ENABLE'`);
+  const enVeille = (): string => lire(`SELECT count(*) FROM produit WHERE libelle LIKE '${recherche}%' AND status <> 'ENABLE'`);
 
   const gamme = Number(lire(`SELECT count(*) FROM produit WHERE libelle LIKE '${recherche}%'`));
   expect(gamme, `la démo doit porter au moins deux produits « ${recherche} »`).toBeGreaterThanOrEqual(2);
@@ -102,8 +101,14 @@ scenario('REF-60', async ({ etape, page }) => {
       await chercherAuCatalogue('Produits actifs');
       await expect(lignes.first()).toContainText(recherche);
       // Deux lignes suffisent à montrer le lot ; l'action est la même à deux ou à deux cents.
-      await lignes.nth(0).getByRole('checkbox', { name: /^Sélectionner/ }).check();
-      await lignes.nth(1).getByRole('checkbox', { name: /^Sélectionner/ }).check();
+      await lignes
+        .nth(0)
+        .getByRole('checkbox', { name: /^Sélectionner/ })
+        .check();
+      await lignes
+        .nth(1)
+        .getByRole('checkbox', { name: /^Sélectionner/ })
+        .check();
       // La barre d'actions groupées n'apparaît qu'avec une sélection, et compte ce qu'elle tient.
       await expect(barre).toContainText('2 produit(s) sélectionné(s)');
     });
@@ -123,9 +128,7 @@ scenario('REF-60', async ({ etape, page }) => {
       // La base AVANT l'écran : si l'écriture n'a pas eu lieu, le dire ainsi plutôt que de
       // laisser le filtre « désactivés » répondre « Aucun produit trouvé », ce qui accuse la
       // recherche d'un tort qui est celui de l'enregistrement.
-      await expect
-        .poll(enVeille, { timeout: 15_000, message: 'les deux produits doivent passer en veille en base' })
-        .toBe('2');
+      await expect.poll(enVeille, { timeout: 15_000, message: 'les deux produits doivent passer en veille en base' }).toBe('2');
       await chercherAuCatalogue('Produits désactivés');
       await expect(lignes.nth(0)).toContainText('Veille');
       await expect(lignes.nth(1)).toContainText('Veille');
@@ -149,7 +152,10 @@ scenario('REF-60', async ({ etape, page }) => {
       const aReactiver = await lignes.count();
       expect(aReactiver, 'les produits mis en veille doivent être listés').toBeGreaterThan(0);
       for (let i = 0; i < aReactiver; i++) {
-        await lignes.nth(i).getByRole('checkbox', { name: /^Sélectionner/ }).check({ timeout: 5_000 });
+        await lignes
+          .nth(i)
+          .getByRole('checkbox', { name: /^Sélectionner/ })
+          .check({ timeout: 5_000 });
       }
       // Lire le compte avant d'agir : la barre ne porte le bon bouton qu'une fois à jour.
       await expect(barre).toContainText(`${aReactiver} produit(s) sélectionné(s)`, { timeout: 5_000 });

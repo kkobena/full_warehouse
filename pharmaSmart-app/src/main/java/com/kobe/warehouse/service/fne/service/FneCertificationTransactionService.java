@@ -36,10 +36,7 @@ public class FneCertificationTransactionService {
     private String fneUrl;
 
     public FneCertificationTransactionService(
-        FacturationRepository facturationRepository,
-        HttpClient httpClient,
-        ObjectMapper objectMapper
-    ) {
+            FacturationRepository facturationRepository, HttpClient httpClient, ObjectMapper objectMapper) {
         this.facturationRepository = facturationRepository;
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
@@ -63,8 +60,8 @@ public class FneCertificationTransactionService {
     }
 
     private void ecrireReponse(FactureItemId factureId, FneResponse fneResponse) {
-        FactureTiersPayant aJour = facturationRepository.findById(factureId)
-            .orElseThrow(() -> new GenericError("Facture introuvable"));
+        FactureTiersPayant aJour =
+                facturationRepository.findById(factureId).orElseThrow(() -> new GenericError("Facture introuvable"));
         aJour.setFneResponse(fneResponse);
         facturationRepository.save(aJour);
     }
@@ -76,14 +73,18 @@ public class FneCertificationTransactionService {
             log.debug("FNE payload facture {}: {}", facture.getNumFacture(), jsonPayload);
 
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(fneUrl))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + magasin.getFneSecretKey())
-                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
-                .build();
+                    .uri(URI.create(fneUrl))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + magasin.getFneSecretKey())
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            log.info("FNE response [{}] facture {}: HTTP {}", magasin.getName(), facture.getNumFacture(), response.statusCode());
+            log.info(
+                    "FNE response [{}] facture {}: HTTP {}",
+                    magasin.getName(),
+                    facture.getNumFacture(),
+                    response.statusCode());
 
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 FneResponse fneResponse = objectMapper.readValue(response.body(), FneResponse.class);

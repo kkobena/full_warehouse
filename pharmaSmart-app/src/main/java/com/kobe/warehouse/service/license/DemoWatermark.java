@@ -18,9 +18,7 @@ public final class DemoWatermark {
 
     private static final String TEXT = "DÉMONSTRATION — SANS VALEUR LÉGALE";
 
-
-    private static final String STYLE =
-        """
+    private static final String STYLE = """
         <style>
           .ps-demo-watermark {
             position: fixed;

@@ -27,11 +27,10 @@ public class InventoryReportReportService extends CommonReportService {
     private String templateFile;
 
     public InventoryReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        InventoryValuationService valuationService
-    ) {
-        super( storageService);
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            InventoryValuationService valuationService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.valuationService = valuationService;
     }
@@ -43,10 +42,7 @@ public class InventoryReportReportService extends CommonReportService {
     /**
      * Génère le PDF en mode gestion de lot.
      */
-    public byte[] printLotToPdf(
-        InventoryExportWrapper wrapper,
-        List<StoreInventoryLotGroupExport> lotGroups
-    ) {
+    public byte[] printLotToPdf(InventoryExportWrapper wrapper, List<StoreInventoryLotGroupExport> lotGroups) {
         return printLot(wrapper, lotGroups);
     }
 
@@ -58,24 +54,33 @@ public class InventoryReportReportService extends CommonReportService {
         getParameters().put(Constant.ENTITY, inventory);
         getParameters().put(Constant.ITEMS, groupExports);
         getParameters().put(Constant.REPORT_SUMMARY, wrapper.getInventoryExportSummaries());
-        getParameters().put(Constant.REPORT_TITLE,
-            "Inventaire du " + inventory.getCreatedAt().format(Constant.DATE_FORMATTER));
-        addValuationIfClosed(inventory.getId(), inventory.getStatut(), wrapper.getExportGroupBy().name());
+        getParameters()
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Inventaire du " + inventory.getCreatedAt().format(Constant.DATE_FORMATTER));
+        addValuationIfClosed(
+                inventory.getId(),
+                inventory.getStatut(),
+                wrapper.getExportGroupBy().name());
         super.getCommonParameters();
 
         return super.exportReportToPdf();
     }
 
-    private byte[] printLot(InventoryExportWrapper wrapper,
-        List<StoreInventoryLotGroupExport> lotGroups) {
+    private byte[] printLot(InventoryExportWrapper wrapper, List<StoreInventoryLotGroupExport> lotGroups) {
         var inventory = wrapper.getStoreInventory();
         this.templateFile = LOT_TEMPLATE_FILE;
         getParameters().put(Constant.ENTITY, inventory);
         getParameters().put(Constant.ITEMS, lotGroups);
         getParameters().put(Constant.REPORT_SUMMARY, wrapper.getInventoryExportSummaries());
-        getParameters().put(Constant.REPORT_TITLE,
-            "Inventaire (lots) du " + inventory.getCreatedAt().format(Constant.DATE_FORMATTER));
-        addValuationIfClosed(inventory.getId(), inventory.getStatut(), wrapper.getExportGroupBy().name());
+        getParameters()
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Inventaire (lots) du " + inventory.getCreatedAt().format(Constant.DATE_FORMATTER));
+        addValuationIfClosed(
+                inventory.getId(),
+                inventory.getStatut(),
+                wrapper.getExportGroupBy().name());
         super.getCommonParameters();
 
         return super.exportReportToPdf();

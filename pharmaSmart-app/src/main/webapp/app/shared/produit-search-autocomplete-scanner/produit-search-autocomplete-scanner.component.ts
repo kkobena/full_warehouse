@@ -11,18 +11,18 @@ import {
   OnInit,
   output,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {TranslatePipe} from '@ngx-translate/core';
-import {DecimalPipe} from '@angular/common';
-import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../constants/pagination.constants';
-import {ProduitSearch} from '../model';
-import {ProduitService} from '../../entities/produit/produit.service';
-import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
-import {ScanDetectorService, ScanEvent} from '../scan-detector.service';
-import {FloatLabelComponent, SelectSearchComponent} from '../ui';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
+import { DecimalPipe } from '@angular/common';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH } from '../constants/pagination.constants';
+import { ProduitSearch } from '../model';
+import { ProduitService } from '../../entities/produit/produit.service';
+import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
+import { ScanDetectorService, ScanEvent } from '../scan-detector.service';
+import { FloatLabelComponent, SelectSearchComponent } from '../ui';
 
 @Component({
   selector: 'app-produit-search-autocomplete-scanner',
@@ -32,16 +32,16 @@ import {FloatLabelComponent, SelectSearchComponent} from '../ui';
 })
 export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnInit {
   produits = signal<ProduitSearch[]>([]);
-  private readonly produitboxCmp = viewChild.required('produitbox', {read: SelectSearchComponent});
-  private readonly produitboxEl = viewChild.required('produitbox', {read: ElementRef<HTMLElement>});
+  private readonly produitboxCmp = viewChild.required('produitbox', { read: SelectSearchComponent });
+  private readonly produitboxEl = viewChild.required('produitbox', { read: ElementRef<HTMLElement> });
   selectProduit = signal<ProduitSearch | null>(null);
   includeDetails = input<boolean>(true);
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
   pageSize = input<number>(5);
   storageId = input<number>(null);
-  style = input<{}>({width: '100%'});
-  inputStyle = input<{}>({width: '100%'});
+  style = input<{}>({ width: '100%' });
+  inputStyle = input<{}>({ width: '100%' });
   enableScanner = input<boolean>(true);
   disabled = input<boolean>(false);
   protected readonly isDisabledEffective = () => this.disabled();
@@ -127,7 +127,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
           this.stopInputClearLoop();
         }
       },
-      {injector: this.injector},
+      { injector: this.injector },
     );
   }
 
@@ -266,8 +266,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
       if (cible.closest('.modal, .modal-content')) {
         return true;
       }
-      const estUnChamp =
-        cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+      const estUnChamp = cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
       return estUnChamp && cible.id !== 'produitbox';
     };
     this.keydownListener = (event: KeyboardEvent) => {
@@ -390,7 +389,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
         catchError(err => {
           this.isScanning.set(false);
           this.produits.set([]);
-          return of({body: []});
+          return of({ body: [] });
         }),
       )
       .subscribe(res => {
@@ -427,7 +426,7 @@ export class ProduitSearchAutocompleteScannerComponent implements OnDestroy, OnI
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(err => {
-          return of({body: []});
+          return of({ body: [] });
         }),
       )
       .subscribe(res => {

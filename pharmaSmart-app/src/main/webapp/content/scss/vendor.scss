@@ -9,7 +9,6 @@ $web-font-path: false !default;
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 
-
 // pour que Bootstrap génère `.btn-help`, `.btn-outline-help`, `.text-help`, `.bg-help`…
 // avec les états hover/active dérivés — aucun CSS à écrire à la main.
 $theme-colors: map-merge(

@@ -107,6 +107,36 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <!--
+        Formatage du Java de tous les modules, avant la compilation.
+        -Dspotless.apply.skip=true pour s'en passer ; mvnw spotless:check pour vérifier sans écrire.
+      -->
+      <plugin>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <configuration>
+          <java>
+            <endWithNewline/>
+            <palantirJavaFormat>
+              <version>${palantir-java-format.version}</version>
+            </palantirJavaFormat>
+            <removeUnusedImports/>
+            <trimTrailingWhitespace/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <id>spotless-apply</id>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+        <groupId>com.diffplug.spotless</groupId>
+        <version>${spotless-maven-plugin.version}</version>
+      </plugin>
+    </plugins>
   </build>
 
   <description>Agrégateur multi-module Pharma-Smart</description>
@@ -214,6 +244,7 @@
     <maven.version>3.9.12</maven.version>
     <npm.executable>npm</npm.executable>
     <openpdf.version>3.0.5</openpdf.version>
+    <palantir-java-format.version>2.103.0</palantir-java-format.version>
 
     <!-- npm executable: npm (Linux/macOS) ou npm.cmd (Windows, détecté via profil) -->
     <poi.version>6.0.0</poi.version>
@@ -230,7 +261,10 @@
     <revision>0.0.2</revision>
     <run.addResources>false</run.addResources>
     <skip.npm>false</skip.npm>
+    <!-- Passer -Dskip.prettier=true pour sauter le formatage du front ; suit skip.npm par défaut -->
+    <skip.prettier>${skip.npm}</skip.prettier>
     <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
+    <spotless-maven-plugin.version>3.12.0</spotless-maven-plugin.version>
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
     <testcontainers.version>2.0.5</testcontainers.version>

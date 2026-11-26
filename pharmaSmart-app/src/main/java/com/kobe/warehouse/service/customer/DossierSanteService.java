@@ -51,13 +51,12 @@ public class DossierSanteService {
     private final EntityManager em;
 
     public DossierSanteService(
-        CustomerRepository customerRepository,
-        CustomerDossierSanteRepository dossierRepository,
-        CustomerAllergieRepository allergieRepository,
-        AlerteSanteDerogationRepository derogationRepository,
-        DerogationAuthorizer derogationAuthorizer,
-        EntityManager em
-    ) {
+            CustomerRepository customerRepository,
+            CustomerDossierSanteRepository dossierRepository,
+            CustomerAllergieRepository allergieRepository,
+            AlerteSanteDerogationRepository derogationRepository,
+            DerogationAuthorizer derogationAuthorizer,
+            EntityManager em) {
         this.customerRepository = customerRepository;
         this.dossierRepository = dossierRepository;
         this.allergieRepository = allergieRepository;
@@ -68,47 +67,47 @@ public class DossierSanteService {
 
     @Transactional(readOnly = true)
     public DossierSanteDTO dossier(Integer customerId) {
-        List<DossierSanteDTO.Allergie> allergies = allergieRepository
-            .findAllByCustomerIdOrderByCreatedAtAsc(customerId)
-            .stream()
-            .map(DossierSanteService::toDto)
-            .toList();
+        List<DossierSanteDTO.Allergie> allergies =
+                allergieRepository.findAllByCustomerIdOrderByCreatedAtAsc(customerId).stream()
+                        .map(DossierSanteService::toDto)
+                        .toList();
         return dossierRepository
-            .findById(customerId)
-            .map(d ->
-                new DossierSanteDTO(
-                    allergies,
-                    List.copyOf(d.getPathologies()),
-                    d.isGrossesse(),
-                    d.getDateTerme(),
-                    d.isAllaitement(),
-                    d.getPoidsKg(),
-                    d.getDatePesee(),
-                    d.getNote(),
-                    d.getUpdatedAt(),
-                    d.getUpdatedBy() == null ? null : d.getUpdatedBy().getFirstName() + " " + d.getUpdatedBy().getLastName()
-                )
-            )
-            .orElseGet(() ->
-                new DossierSanteDTO(allergies, List.of(), false, null, false, null, null, null, null, null)
-            );
+                .findById(customerId)
+                .map(d -> new DossierSanteDTO(
+                        allergies,
+                        List.copyOf(d.getPathologies()),
+                        d.isGrossesse(),
+                        d.getDateTerme(),
+                        d.isAllaitement(),
+                        d.getPoidsKg(),
+                        d.getDatePesee(),
+                        d.getNote(),
+                        d.getUpdatedAt(),
+                        d.getUpdatedBy() == null
+                                ? null
+                                : d.getUpdatedBy().getFirstName() + " "
+                                        + d.getUpdatedBy().getLastName()))
+                .orElseGet(() ->
+                        new DossierSanteDTO(allergies, List.of(), false, null, false, null, null, null, null, null));
     }
 
     public DossierSanteDTO enregistrer(Integer customerId, DossierSanteDTO dto) {
         if (!customerRepository.existsById(customerId)) {
             throw new GenericError("Client introuvable", "customerNotFound");
         }
-        CustomerDossierSante dossier = dossierRepository.findById(customerId).orElseGet(() -> new CustomerDossierSante().setCustomerId(customerId));
-        dossier
-            .setPathologies(nettoyer(dto.pathologies()))
-            .setGrossesse(dto.grossesse())
-            .setDateTerme(dto.grossesse() ? dto.dateTerme() : null)
-            .setAllaitement(dto.allaitement())
-            .setPoidsKg(dto.poidsKg())
-            .setDatePesee(dto.poidsKg() == null ? null : Objects.requireNonNullElse(dto.datePesee(), LocalDate.now()))
-            .setNote(StringUtils.hasText(dto.note()) ? dto.note().trim() : null)
-            .setUpdatedAt(LocalDateTime.now())
-            .setUpdatedBy(derogationAuthorizer.utilisateurCourant());
+        CustomerDossierSante dossier = dossierRepository
+                .findById(customerId)
+                .orElseGet(() -> new CustomerDossierSante().setCustomerId(customerId));
+        dossier.setPathologies(nettoyer(dto.pathologies()))
+                .setGrossesse(dto.grossesse())
+                .setDateTerme(dto.grossesse() ? dto.dateTerme() : null)
+                .setAllaitement(dto.allaitement())
+                .setPoidsKg(dto.poidsKg())
+                .setDatePesee(
+                        dto.poidsKg() == null ? null : Objects.requireNonNullElse(dto.datePesee(), LocalDate.now()))
+                .setNote(StringUtils.hasText(dto.note()) ? dto.note().trim() : null)
+                .setUpdatedAt(LocalDateTime.now())
+                .setUpdatedBy(derogationAuthorizer.utilisateurCourant());
         dossierRepository.save(dossier);
         synchroniserAllergies(customerId, dto.allergies() == null ? List.of() : dto.allergies());
         return dossier(customerId);
@@ -121,23 +120,30 @@ public class DossierSanteService {
         for (Object[] ligne : allergieRepository.findAllergiesMisesEnCause(customerId, produitId, StatutDci.COMPOSEE)) {
             CustomerAllergie allergie = (CustomerAllergie) ligne[0];
             String molecule = (String) ligne[1];
-            String message = "Allergie connue à " + allergie.getDci().getLibelle() + " : ce produit contient " + molecule + ".";
+            String message =
+                    "Allergie connue à " + allergie.getDci().getLibelle() + " : ce produit contient " + molecule + ".";
             if (StringUtils.hasText(allergie.getReaction())) {
                 message += " Réaction signalée : " + allergie.getReaction() + ".";
             }
             alertes.add(new AlerteSanteDTO(AlerteSanteDTO.BLOQUANTE, "ALLERGIE", message));
         }
-        dossierRepository
-            .findById(customerId)
-            .ifPresent(dossier -> {
-                if (grossesseEnCours(dossier)) {
-                    String terme = dossier.getDateTerme() == null ? "" : " (terme prévu le " + dossier.getDateTerme().format(JOUR) + ")";
-                    alertes.add(new AlerteSanteDTO(AlerteSanteDTO.INFO, "GROSSESSE", "Patiente enceinte" + terme + " : vérifier la compatibilité du produit."));
-                }
-                if (dossier.isAllaitement()) {
-                    alertes.add(new AlerteSanteDTO(AlerteSanteDTO.INFO, "ALLAITEMENT", "Patiente allaitante : vérifier la compatibilité du produit."));
-                }
-            });
+        dossierRepository.findById(customerId).ifPresent(dossier -> {
+            if (grossesseEnCours(dossier)) {
+                String terme = dossier.getDateTerme() == null
+                        ? ""
+                        : " (terme prévu le " + dossier.getDateTerme().format(JOUR) + ")";
+                alertes.add(new AlerteSanteDTO(
+                        AlerteSanteDTO.INFO,
+                        "GROSSESSE",
+                        "Patiente enceinte" + terme + " : vérifier la compatibilité du produit."));
+            }
+            if (dossier.isAllaitement()) {
+                alertes.add(new AlerteSanteDTO(
+                        AlerteSanteDTO.INFO,
+                        "ALLAITEMENT",
+                        "Patiente allaitante : vérifier la compatibilité du produit."));
+            }
+        });
         return alertes;
     }
 
@@ -146,41 +152,42 @@ public class DossierSanteService {
      * autres présentent la clé de sécurité d'un collègue qui le détient.
      */
     public void deroger(Integer customerId, DerogationAlerteSanteDTO demande) {
-        List<AlerteSanteDTO> bloquantes = alertes(customerId, demande.produitId()).stream().filter(AlerteSanteDTO::bloquante).toList();
+        List<AlerteSanteDTO> bloquantes = alertes(customerId, demande.produitId()).stream()
+                .filter(AlerteSanteDTO::bloquante)
+                .toList();
         if (bloquantes.isEmpty()) {
             throw new GenericError("Aucune alerte à lever pour ce produit.", "aucuneAlerteSante");
         }
         AppUser utilisateur = derogationAuthorizer.utilisateurCourant();
         AppUser autorisePar = derogationAuthorizer.autoriser(
-            DROIT_DEROGATION,
-            demande.actionAuthorityKey(),
-            "la délivrance malgré une allergie",
-            "alerteSante"
-        );
-        derogationRepository.save(
-            new AlerteSanteDerogation()
+                DROIT_DEROGATION, demande.actionAuthorityKey(), "la délivrance malgré une allergie", "alerteSante");
+        derogationRepository.save(new AlerteSanteDerogation()
                 .setCustomerId(customerId)
                 .setProduit(em.getReference(Produit.class, demande.produitId()))
                 .setAlertes(bloquantes.stream().map(AlerteSanteDTO::message).collect(Collectors.joining("\n")))
                 .setMotif(demande.motif().trim())
                 .setUser(utilisateur)
-                .setAutorisePar(autorisePar)
-        );
+                .setAutorisePar(autorisePar));
     }
 
     private void synchroniserAllergies(Integer customerId, List<DossierSanteDTO.Allergie> saisies) {
-        Map<Integer, CustomerAllergie> existantes = allergieRepository
-            .findAllByCustomerIdOrderByCreatedAtAsc(customerId)
-            .stream()
-            .collect(Collectors.toMap(CustomerAllergie::getId, Function.identity()));
+        Map<Integer, CustomerAllergie> existantes =
+                allergieRepository.findAllByCustomerIdOrderByCreatedAtAsc(customerId).stream()
+                        .collect(Collectors.toMap(CustomerAllergie::getId, Function.identity()));
         // Les suppressions d'abord : remplacer une allergie par la même molécule heurterait sinon
         // l'unicité (client, molécule) avant que l'ancienne ne parte.
-        Set<Integer> conservees = saisies.stream().map(DossierSanteDTO.Allergie::id).filter(existantes::containsKey).collect(Collectors.toSet());
-        existantes.values().stream().filter(a -> !conservees.contains(a.getId())).forEach(allergieRepository::delete);
+        Set<Integer> conservees = saisies.stream()
+                .map(DossierSanteDTO.Allergie::id)
+                .filter(existantes::containsKey)
+                .collect(Collectors.toSet());
+        existantes.values().stream()
+                .filter(a -> !conservees.contains(a.getId()))
+                .forEach(allergieRepository::delete);
         allergieRepository.flush();
         Set<Integer> molecules = new HashSet<>();
         for (DossierSanteDTO.Allergie saisie : saisies) {
-            String libelle = StringUtils.hasText(saisie.libelle()) ? saisie.libelle().trim() : null;
+            String libelle =
+                    StringUtils.hasText(saisie.libelle()) ? saisie.libelle().trim() : null;
             if (saisie.dciId() == null && libelle == null) {
                 continue;
             }
@@ -189,29 +196,41 @@ public class DossierSanteService {
                 continue;
             }
             CustomerAllergie allergie = saisie.id() != null && existantes.containsKey(saisie.id())
-                ? existantes.get(saisie.id())
-                : new CustomerAllergie().setCustomerId(customerId);
-            allergie
-                .setDci(saisie.dciId() == null ? null : em.getReference(Dci.class, saisie.dciId()))
-                .setLibelle(saisie.dciId() == null ? libelle : null)
-                .setReaction(StringUtils.hasText(saisie.reaction()) ? saisie.reaction().trim() : null);
+                    ? existantes.get(saisie.id())
+                    : new CustomerAllergie().setCustomerId(customerId);
+            allergie.setDci(saisie.dciId() == null ? null : em.getReference(Dci.class, saisie.dciId()))
+                    .setLibelle(saisie.dciId() == null ? libelle : null)
+                    .setReaction(
+                            StringUtils.hasText(saisie.reaction())
+                                    ? saisie.reaction().trim()
+                                    : null);
             allergieRepository.save(allergie);
         }
     }
 
     private static boolean grossesseEnCours(CustomerDossierSante dossier) {
-        return dossier.isGrossesse() && (dossier.getDateTerme() == null || !dossier.getDateTerme().isBefore(LocalDate.now()));
+        return dossier.isGrossesse()
+                && (dossier.getDateTerme() == null || !dossier.getDateTerme().isBefore(LocalDate.now()));
     }
 
     private static List<String> nettoyer(List<String> libelles) {
         if (libelles == null) {
             return new ArrayList<>();
         }
-        return libelles.stream().filter(StringUtils::hasText).map(String::trim).distinct().collect(Collectors.toCollection(ArrayList::new));
+        return libelles.stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static DossierSanteDTO.Allergie toDto(CustomerAllergie a) {
         Dci dci = a.getDci();
-        return new DossierSanteDTO.Allergie(a.getId(), dci == null ? null : dci.getId(), dci == null ? null : dci.getLibelle(), a.getLibelle(), a.getReaction());
+        return new DossierSanteDTO.Allergie(
+                a.getId(),
+                dci == null ? null : dci.getId(),
+                dci == null ? null : dci.getLibelle(),
+                a.getLibelle(),
+                a.getReaction());
     }
 }

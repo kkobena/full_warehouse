@@ -48,11 +48,14 @@ scenario('STK-26', async ({ etape, page }) => {
     // dépendent du jeu de données, et un code figé finit par ne désigner personne. L'import
     // ne compte alors rien, et le parcours accuse l'application à tort.
     await expect(modale).toContainText(/Format attendu/);
-    await modale.locator('input[type="file"]').first().setInputFiles({
-      name: 'comptage-terminal.csv',
-      mimeType: 'text/csv',
-      buffer: Buffer.from([`${codeCip ?? '9999998'};12`, '9999999;4', ''].join('\n'), 'utf-8'),
-    });
+    await modale
+      .locator('input[type="file"]')
+      .first()
+      .setInputFiles({
+        name: 'comptage-terminal.csv',
+        mimeType: 'text/csv',
+        buffer: Buffer.from([`${codeCip ?? '9999998'};12`, '9999999;4', ''].join('\n'), 'utf-8'),
+      });
     await modale.getByRole('button', { name: 'Importer' }).click();
     // Le compte rendu en trois colonnes : entrées, ignorées, rejetées. C'est la dernière
     // qu'on regarde en premier — un code absent de l'inventaire n'y entre pas par la bande.

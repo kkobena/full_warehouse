@@ -19,10 +19,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(
-    name = "dci",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }), @UniqueConstraint(columnNames = { "libelle" }) },
-    indexes = { @Index(columnList = "libelle", name = "dci_libelle_index") }
-)
+        name = "dci",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"code"}), @UniqueConstraint(columnNames = {"libelle"})},
+        indexes = {@Index(columnList = "libelle", name = "dci_libelle_index")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Dci implements Serializable {
 

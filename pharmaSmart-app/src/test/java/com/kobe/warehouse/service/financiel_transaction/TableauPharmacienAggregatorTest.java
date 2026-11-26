@@ -68,10 +68,12 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(2, result.size());
 
-        FournisseurAchat supplierA = result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
+        FournisseurAchat supplierA =
+                result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
         assertEquals(1500L, supplierA.getAchat().getMontantNet());
 
-        FournisseurAchat supplierB = result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
+        FournisseurAchat supplierB =
+                result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
         assertEquals(2000L, supplierB.getAchat().getMontantNet());
     }
 
@@ -88,7 +90,8 @@ class TableauPharmacienAggregatorTest {
         assertEquals(2, result.size());
 
         // Check "Others" group (-1)
-        FournisseurAchat others = result.stream().filter(f -> f.getId() == -1).findFirst().orElseThrow();
+        FournisseurAchat others =
+                result.stream().filter(f -> f.getId() == -1).findFirst().orElseThrow();
         assertEquals(800L, others.getAchat().getMontantNet()); // 500 + 300
     }
 
@@ -137,13 +140,16 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(3, result.size());
 
-        FournisseurAchat supplierA = result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
+        FournisseurAchat supplierA =
+                result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
         assertEquals(1500L, supplierA.getAchat().getMontantNet()); // 1000 + 500
 
-        FournisseurAchat supplierB = result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
+        FournisseurAchat supplierB =
+                result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
         assertEquals(2000L, supplierB.getAchat().getMontantNet());
 
-        FournisseurAchat supplierC = result.stream().filter(f -> f.getId() == 3).findFirst().orElseThrow();
+        FournisseurAchat supplierC =
+                result.stream().filter(f -> f.getId() == 3).findFirst().orElseThrow();
         assertEquals(1500L, supplierC.getAchat().getMontantNet());
     }
 
@@ -213,10 +219,16 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(2, result.size());
 
-        TableauPharmacienDTO dto1 = result.stream().filter(d -> d.getMvtDate().equals(date1)).findFirst().orElseThrow();
+        TableauPharmacienDTO dto1 = result.stream()
+                .filter(d -> d.getMvtDate().equals(date1))
+                .findFirst()
+                .orElseThrow();
         assertEquals(1000L, dto1.getMontantBonAchat());
 
-        TableauPharmacienDTO dto2 = result.stream().filter(d -> d.getMvtDate().equals(date2)).findFirst().orElseThrow();
+        TableauPharmacienDTO dto2 = result.stream()
+                .filter(d -> d.getMvtDate().equals(date2))
+                .findFirst()
+                .orElseThrow();
         assertEquals(2000L, dto2.getMontantBonAchat());
     }
 
@@ -370,10 +382,16 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(2, result.size());
 
-        TableauPharmacienDTO dto1 = result.stream().filter(d -> d.getMvtDate().equals(date1)).findFirst().orElseThrow();
+        TableauPharmacienDTO dto1 = result.stream()
+                .filter(d -> d.getMvtDate().equals(date1))
+                .findFirst()
+                .orElseThrow();
         assertEquals(500L, dto1.getMontantAvoirFournisseur());
 
-        TableauPharmacienDTO dto2 = result.stream().filter(d -> d.getMvtDate().equals(date2)).findFirst().orElseThrow();
+        TableauPharmacienDTO dto2 = result.stream()
+                .filter(d -> d.getMvtDate().equals(date2))
+                .findFirst()
+                .orElseThrow();
         assertEquals(1000L, dto2.getMontantAvoirFournisseur());
     }
 
@@ -460,15 +478,7 @@ class TableauPharmacienAggregatorTest {
     }
 
     private TableauPharmacienDTO createSalesDTO(
-        long credit,
-        long comptant,
-        long ht,
-        long ttc,
-        long taxe,
-        long remise,
-        long net,
-        int nombreVente
-    ) {
+            long credit, long comptant, long ht, long ttc, long taxe, long remise, long net, int nombreVente) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMontantCredit(credit);
         dto.setMontantComptant(comptant);

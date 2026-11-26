@@ -1,6 +1,5 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-1">
-
     <!-- ── HEADER ────────────────────────────────────────────────────────── -->
     <div class="pharma-sales-header">
       <div class="header-left">
@@ -40,7 +39,6 @@
       </div>
 
       <div class="search-controls">
-
         <!-- Emplacement -->
         <div class="storage-select-input">
           <app-select
@@ -81,39 +79,31 @@
         <div class="quantity-input-wrapper d-flex gap-1">
           <app-input-number
             #qtyBox
-            [ngModel]="qty()" (ngModelChange)="qty.set($event)"
+            [ngModel]="qty()"
+            (ngModelChange)="qty.set($event)"
             [showButtons]="true"
             incrementButtonIcon="pi pi-plus"
             decrementButtonIcon="pi pi-minus"
             placeholder="Qté (±)"
             (keydown.enter)="onAddLine()"
           />
-          <app-button
-            icon="pi pi-check"
-            severity="primary"
-            [disabled]="!canAdd"
-            [loading]="facade.isSaving()"
-            (clicked)="onAddLine()"
-          />
+          <app-button icon="pi pi-check" severity="primary" [disabled]="!canAdd" [loading]="facade.isSaving()" (clicked)="onAddLine()" />
         </div>
-
       </div>
 
       <!-- Meta : stock actuel + après + lot selection -->
       @if (produitSearch()) {
         <div class="order-meta">
-
           <!-- CIP -->
           <div class="meta-item">
             <i class="pi pi-barcode"></i>
-            <span>CIP : <strong>{{ produitSearch()?.fournisseurProduit?.codeCip ?? '–' }}</strong></span>
+            <span
+              >CIP : <strong>{{ produitSearch()?.fournisseurProduit?.codeCip ?? '–' }}</strong></span
+            >
           </div>
 
           <!-- Stock actuel -->
-          <div
-            class="meta-item"
-            [class.low-stock]="facade.stockActuel() < 10"
-          >
+          <div class="meta-item" [class.low-stock]="facade.stockActuel() < 10">
             <i class="pi pi-database"></i>
             <span>
               {{ selectedStorage?.type === 'SAFETY_STOCK' ? 'Réserve' : 'Rayon' }} :
@@ -123,19 +113,14 @@
 
           <!-- Stock après -->
           @if (qty() !== 0) {
-            <div
-              class="meta-item"
-              [class.low-stock]="stockAfter < 0"
-            >
+            <div class="meta-item" [class.low-stock]="stockAfter < 0">
               <i class="pi pi-arrow-right"></i>
               <span>
                 Après :
                 <strong [class.text-danger]="stockAfter < 0">{{ stockAfter | number }}</strong>
               </span>
               @if (stockAfter < 0) {
-                <span class="meta-warn">
-                  <i class="pi pi-exclamation-triangle"></i> Stock insuffisant
-                </span>
+                <span class="meta-warn"> <i class="pi pi-exclamation-triangle"></i> Stock insuffisant </span>
               }
             </div>
           }
@@ -162,19 +147,14 @@
                   </div>
                   <div class="lot-option-meta">
                     @if (lot.expiryDate) {
-                      <span class="lot-exp">
-                        <i class="pi pi-calendar"></i> {{ lot.expiryDate | date:'dd/MM/yyyy' }}
-                      </span>
+                      <span class="lot-exp"> <i class="pi pi-calendar"></i> {{ lot.expiryDate | date: 'dd/MM/yyyy' }} </span>
                     }
-                    <span class="lot-qty">
-                      <i class="pi pi-box"></i> {{ lot.quantity | number }} u.
-                    </span>
+                    <span class="lot-qty"> <i class="pi pi-box"></i> {{ lot.quantity | number }} u. </span>
                   </div>
                 </div>
               </ng-template>
             </div>
           }
-
         </div>
       }
     </div>
@@ -190,6 +170,5 @@
         (searchChange)="onSearchLines($event)"
       />
     </div>
-
   </div>
 </div>

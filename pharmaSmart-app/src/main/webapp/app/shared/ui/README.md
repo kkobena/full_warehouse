@@ -21,36 +21,36 @@ Les severities PrimeNG absentes de Bootstrap (`help`, `contrast`) sont ajoutées
 
 ## Mémo de substitution
 
-| PrimeNG | Design System | Notes |
-|---|---|---|
-| `<p-button label="X" (onClick)="f()">` | `<app-button label="X" (clicked)="f()">` | l'event est renommé `clicked` |
-| `<p-tag value="X" severity="s">` | `<app-badge label="X" severity="s">` | |
-| `<p-badge value="X">` | `<app-badge label="X">` | |
-| `<p-chip label="X" [removable]="true">` | `<app-badge label="X" [rounded]="true" [dismissible]="true">` | |
-| `<p-checkbox [(ngModel)]="v">` | `<app-checkbox [(ngModel)]="v">` | |
-| `<p-radiobutton name="g" [value]="v">` | `<app-radio name="g" [value]="v">` | `name` est requis |
-| `<p-toggleswitch [(ngModel)]="v">` | `<app-switch [(ngModel)]="v">` | |
-| `<input pInputText>` | `<app-input>` | |
-| `<p-inputnumber [(ngModel)]="v">` | `<app-input-number [(ngModel)]="v">` | formatage FR |
-| `<p-password [(ngModel)]="v">` | `<app-password [(ngModel)]="v">` | |
-| `<p-skeleton width="4rem">` | `<app-skeleton width="4rem">` | |
-| `<p-select>` (sans recherche) | `<app-select>` | wrappe `ng-select` en `[searchable]="false"`. Un `<select>` natif a été essayé puis abandonné : ses `<option>` sont dessinées par l'OS, surbrillance système impossible à aligner sur la charte |
-| `<p-select>` (recherche, lazy, ≥ 20 options) | `<app-select-search>` | wrappe `ng-select` |
-| `<p-autocomplete>` | `<app-select-search>` | idem |
-| `<p-multiselect>` | `<app-multi-select>` | idem, en multiple |
-| `<p-splitbutton [model]="items">` | `<app-split-button [items]="items">` | `NgbDropdown` + `.btn-group` |
-| `<p-selectbutton>` | `<app-pill-selector [items]="opts">` | style `.dashboard-periode-selector` du tableau de bord |
-| onglets de section sous un en-tête (`.su-source-tabs-bar`, `.su-tab`) | `<app-subtab-bar [tabs]="onglets()" [active]="id" (activeChange)="…">` | `role="tablist"`, flèches / Début / Fin, pastilles de comptage thémées ; suit le thème de couleur |
-| `<p-fileupload>` | `<app-file-upload>` | choix des fichiers uniquement, l'envoi reste à l'appelant |
-| `<p-table>` | `<app-data-table>` | + `[appSortableHeader]`, `[appSelectableRow]`, `[appRowToggler]` |
-| `pKeyFilter="alphanum"` | `appKeyFilter="alphanum"` | presets `alpha` / `alphanum` / `int` / `pint`, ou une `RegExp` |
-| `<p-toast />` | **rien** — supprimer la balise | un `<app-toast-host />` unique est monté dans le layout racine |
-| `MessageService` (injection directe) | `NotificationService` | API `success` / `info` / `warning` / `error` |
-| `<p-floatlabel>` | `<app-float-label label="X" [inputId]="'id'">` | le champ projeté doit porter le même `id` **et** un `placeholder` |
-| `<p-iconfield><p-inputicon>` | `<app-icon-field icon="pi pi-search" [overlay]="true">` | `overlay` superpose l'icône au champ comme le faisait PrimeNG ; sans lui, elle occupe une case `.input-group` à côté |
-| `<p-card>` | `<div class="card data-card">` | pas de composant : Bootstrap natif suffit |
-| `<p-divider>` | `<hr class="my-3">` | idem |
-| `<p-toolbar>` | `<div class="btn-toolbar">` | idem |
+| PrimeNG                                                               | Design System                                                          | Notes                                                                                                                                                                                           |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<p-button label="X" (onClick)="f()">`                                | `<app-button label="X" (clicked)="f()">`                               | l'event est renommé `clicked`                                                                                                                                                                   |
+| `<p-tag value="X" severity="s">`                                      | `<app-badge label="X" severity="s">`                                   |                                                                                                                                                                                                 |
+| `<p-badge value="X">`                                                 | `<app-badge label="X">`                                                |                                                                                                                                                                                                 |
+| `<p-chip label="X" [removable]="true">`                               | `<app-badge label="X" [rounded]="true" [dismissible]="true">`          |                                                                                                                                                                                                 |
+| `<p-checkbox [(ngModel)]="v">`                                        | `<app-checkbox [(ngModel)]="v">`                                       |                                                                                                                                                                                                 |
+| `<p-radiobutton name="g" [value]="v">`                                | `<app-radio name="g" [value]="v">`                                     | `name` est requis                                                                                                                                                                               |
+| `<p-toggleswitch [(ngModel)]="v">`                                    | `<app-switch [(ngModel)]="v">`                                         |                                                                                                                                                                                                 |
+| `<input pInputText>`                                                  | `<app-input>`                                                          |                                                                                                                                                                                                 |
+| `<p-inputnumber [(ngModel)]="v">`                                     | `<app-input-number [(ngModel)]="v">`                                   | formatage FR                                                                                                                                                                                    |
+| `<p-password [(ngModel)]="v">`                                        | `<app-password [(ngModel)]="v">`                                       |                                                                                                                                                                                                 |
+| `<p-skeleton width="4rem">`                                           | `<app-skeleton width="4rem">`                                          |                                                                                                                                                                                                 |
+| `<p-select>` (sans recherche)                                         | `<app-select>`                                                         | wrappe `ng-select` en `[searchable]="false"`. Un `<select>` natif a été essayé puis abandonné : ses `<option>` sont dessinées par l'OS, surbrillance système impossible à aligner sur la charte |
+| `<p-select>` (recherche, lazy, ≥ 20 options)                          | `<app-select-search>`                                                  | wrappe `ng-select`                                                                                                                                                                              |
+| `<p-autocomplete>`                                                    | `<app-select-search>`                                                  | idem                                                                                                                                                                                            |
+| `<p-multiselect>`                                                     | `<app-multi-select>`                                                   | idem, en multiple                                                                                                                                                                               |
+| `<p-splitbutton [model]="items">`                                     | `<app-split-button [items]="items">`                                   | `NgbDropdown` + `.btn-group`                                                                                                                                                                    |
+| `<p-selectbutton>`                                                    | `<app-pill-selector [items]="opts">`                                   | style `.dashboard-periode-selector` du tableau de bord                                                                                                                                          |
+| onglets de section sous un en-tête (`.su-source-tabs-bar`, `.su-tab`) | `<app-subtab-bar [tabs]="onglets()" [active]="id" (activeChange)="…">` | `role="tablist"`, flèches / Début / Fin, pastilles de comptage thémées ; suit le thème de couleur                                                                                               |
+| `<p-fileupload>`                                                      | `<app-file-upload>`                                                    | choix des fichiers uniquement, l'envoi reste à l'appelant                                                                                                                                       |
+| `<p-table>`                                                           | `<app-data-table>`                                                     | + `[appSortableHeader]`, `[appSelectableRow]`, `[appRowToggler]`                                                                                                                                |
+| `pKeyFilter="alphanum"`                                               | `appKeyFilter="alphanum"`                                              | presets `alpha` / `alphanum` / `int` / `pint`, ou une `RegExp`                                                                                                                                  |
+| `<p-toast />`                                                         | **rien** — supprimer la balise                                         | un `<app-toast-host />` unique est monté dans le layout racine                                                                                                                                  |
+| `MessageService` (injection directe)                                  | `NotificationService`                                                  | API `success` / `info` / `warning` / `error`                                                                                                                                                    |
+| `<p-floatlabel>`                                                      | `<app-float-label label="X" [inputId]="'id'">`                         | le champ projeté doit porter le même `id` **et** un `placeholder`                                                                                                                               |
+| `<p-iconfield><p-inputicon>`                                          | `<app-icon-field icon="pi pi-search" [overlay]="true">`                | `overlay` superpose l'icône au champ comme le faisait PrimeNG ; sans lui, elle occupe une case `.input-group` à côté                                                                            |
+| `<p-card>`                                                            | `<div class="card data-card">`                                         | pas de composant : Bootstrap natif suffit                                                                                                                                                       |
+| `<p-divider>`                                                         | `<hr class="my-3">`                                                    | idem                                                                                                                                                                                            |
+| `<p-toolbar>`                                                         | `<div class="btn-toolbar">`                                            | idem                                                                                                                                                                                            |
 
 **Severities** — le vocabulaire PrimeNG est conservé (`primary`, `secondary`, `success`,
 `info`, `warn`, `danger`, `help`, `contrast`). Noter `warn`, pas `warning` : le composant
@@ -120,7 +120,8 @@ import { ButtonComponent, BadgeComponent, InputComponent } from 'app/shared/ui';
   label="Enregistrer"
   icon="pi pi-save"
   [items]="[{ label: 'Enregistrer et fermer', icon: 'pi pi-check', command: saveAndClose }]"
-  (clicked)="save()" />
+  (clicked)="save()"
+/>
 
 <!-- Import de fichier -->
 <app-file-upload accept=".csv,.xlsx" [maxSizeMb]="5" (filesSelected)="importer($event)" (rejected)="notif.error($event)" />
@@ -151,19 +152,19 @@ n'apparaît qu'à la compilation du composant, donc pas au build tant que rien n
 
 ## État
 
-| Composant | Statut |
-|---|---|
-| `app-button` | ✅ Bootstrap natif |
-| `app-badge` | ✅ tokens Aura |
-| `app-checkbox` / `app-radio` / `app-switch` | ✅ `.form-check` Bootstrap |
-| `app-input` / `app-input-number` / `app-password` | ✅ `.form-control` Bootstrap |
-| `app-form-field` / `app-float-label` / `app-icon-field` | ✅ Bootstrap natif |
-| `app-skeleton` | ✅ `.placeholder` Bootstrap |
-| `app-select-search` / `app-multi-select` | ✅ wrappers `ng-select` |
-| `app-split-button` | ✅ `NgbDropdown` |
-| `app-file-upload` | ✅ `<input type="file">` |
-| `app-data-table` | ✅ Bootstrap + `NgbPagination` |
-| `app-toast-host` | ✅ `NgbToast` |
+| Composant                                                     | Statut                                                                                                                                 |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `app-button`                                                  | ✅ Bootstrap natif                                                                                                                     |
+| `app-badge`                                                   | ✅ tokens Aura                                                                                                                         |
+| `app-checkbox` / `app-radio` / `app-switch`                   | ✅ `.form-check` Bootstrap                                                                                                             |
+| `app-input` / `app-input-number` / `app-password`             | ✅ `.form-control` Bootstrap                                                                                                           |
+| `app-form-field` / `app-float-label` / `app-icon-field`       | ✅ Bootstrap natif                                                                                                                     |
+| `app-skeleton`                                                | ✅ `.placeholder` Bootstrap                                                                                                            |
+| `app-select-search` / `app-multi-select`                      | ✅ wrappers `ng-select`                                                                                                                |
+| `app-split-button`                                            | ✅ `NgbDropdown`                                                                                                                       |
+| `app-file-upload`                                             | ✅ `<input type="file">`                                                                                                               |
+| `app-data-table`                                              | ✅ Bootstrap + `NgbPagination`                                                                                                         |
+| `app-toast-host`                                              | ✅ `NgbToast`                                                                                                                          |
 | `app-detail-grid` / `app-detail-section` / `app-detail-field` | ✅ panneaux de détail : sections repliables (état mémorisé via `storageKey`), `—` et formats gérés par le champ ; `accent` / `variant` |
 
 ## Surfaces : élévation et accent

@@ -18,7 +18,8 @@ public interface CustomerSegmentationReportService {
      * @param classification The customer classification to filter by
      * @return List of customers for the classification
      */
-    List<CustomerSegmentationDTO> getCustomersByClassification(CustomerSegmentationDTO.CustomerClassification classification);
+    List<CustomerSegmentationDTO> getCustomersByClassification(
+            CustomerSegmentationDTO.CustomerClassification classification);
 
     /**
      * Get champion customers (highest RFM scores)
@@ -48,5 +49,4 @@ public interface CustomerSegmentationReportService {
      * @return Customer segmentation data
      */
     CustomerSegmentationDTO getCustomerSegmentation(Integer customerId);
-
 }

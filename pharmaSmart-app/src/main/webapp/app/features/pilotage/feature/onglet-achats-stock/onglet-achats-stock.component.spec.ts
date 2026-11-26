@@ -16,7 +16,12 @@ const REQUETE: RequetePilotage = {
   granularite: 'MOIS',
 };
 const COMPARAISON = { periode: { du: REQUETE.du, au: REQUETE.au }, reference: { du: '2025-09-01', au: '2025-09-30' }, aDate: false };
-const cellule = (valeur: number, valeurReference: number): CelluleAnalyse => ({ valeur, valeurReference, ecart: valeur - valeurReference, ecartPct: null });
+const cellule = (valeur: number, valeurReference: number): CelluleAnalyse => ({
+  valeur,
+  valeurReference,
+  ecart: valeur - valeurReference,
+  ecartPct: null,
+});
 
 const RUPTURES: RupturesPilotage = {
   comparaison: COMPARAISON,
@@ -65,6 +70,8 @@ describe('Onglet « Achats & stock »', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(api.lireSeries).toHaveBeenCalledWith(expect.objectContaining({ du: '2025-10-01', au: '2026-09-30', comparaison: 'AUCUNE' }), ['RATIO_VENTES_ACHATS']);
+    expect(api.lireSeries).toHaveBeenCalledWith(expect.objectContaining({ du: '2025-10-01', au: '2026-09-30', comparaison: 'AUCUNE' }), [
+      'RATIO_VENTES_ACHATS',
+    ]);
   });
 });

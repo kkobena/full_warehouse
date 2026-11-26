@@ -1,60 +1,60 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-import {SERVER_API_URL} from 'app/app.constants';
-import {createRequestOption, createRequestOptions} from 'app/shared/util/request-util';
-import {FinalyseSale, ISales, SaleId, UpdateSaleInfo} from 'app/shared/model/sales.model';
-import {ISalesLine, SaleLineId} from '../../shared/model/sales-line.model';
-import {UtilisationCleSecurite} from '../action-autorisation/utilisation-cle-securite.model';
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
+import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
+import { ISalesLine, SaleLineId } from '../../shared/model/sales-line.model';
+import { UtilisationCleSecurite } from '../action-autorisation/utilisation-cle-securite.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class SalesService {
   private readonly resourceUrl = SERVER_API_URL + 'api/sales';
   private readonly http = inject(HttpClient);
 
   createComptant(sales: ISales): Observable<EntityResponseType> {
-    return this.http.post<ISales>(`${this.resourceUrl}/comptant`, sales, {observe: 'response'});
+    return this.http.post<ISales>(`${this.resourceUrl}/comptant`, sales, { observe: 'response' });
   }
 
   authorizeAction(utilisationCleSecurite: UtilisationCleSecurite): Observable<HttpResponse<{}>> {
-    return this.http.post(this.resourceUrl + '/comptant/authorize-action', utilisationCleSecurite, {observe: 'response'});
+    return this.http.post(this.resourceUrl + '/comptant/authorize-action', utilisationCleSecurite, { observe: 'response' });
   }
 
   updateDate(sales: ISales): Observable<EntityResponseType> {
-    return this.http.put<ISales>(this.resourceUrl + '/assurance/date', sales, {observe: 'response'});
+    return this.http.put<ISales>(this.resourceUrl + '/assurance/date', sales, { observe: 'response' });
   }
 
   find(id: SaleId): Observable<EntityResponseType> {
-    return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<ISales[]>(this.resourceUrl, {params: options, observe: 'response'});
+    return this.http.get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   saveCash(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', sales, {observe: 'response'});
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', sales, { observe: 'response' });
   }
 
   print(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
   printReceipt(id: SaleId): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   rePrintReceipt(id: SaleId): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/re-print/receipt/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.get(`${this.resourceUrl}/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   /**
@@ -75,66 +75,66 @@ export class SalesService {
 
   getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
-      params: {isEdition},
+      params: { isEdition },
       responseType: 'arraybuffer',
     });
   }
 
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, salesLine, {observe: 'response'});
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item/comptant`, salesLine, { observe: 'response' });
   }
 
   create(sales: ISales): Observable<EntityResponseType> {
-    return this.http.post<ISales>(this.resourceUrl, sales, {observe: 'response'});
+    return this.http.post<ISales>(this.resourceUrl, sales, { observe: 'response' });
   }
 
   updateItemPrice(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, {observe: 'response'});
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, { observe: 'response' });
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, {observe: 'response'});
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' });
   }
 
   updateItemQtySold(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, {observe: 'response'});
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, { observe: 'response' });
   }
 
   deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/delete-item/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/delete-item/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   putCurrentCashSaleOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', sales, {observe: 'response'});
+    return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', sales, { observe: 'response' });
   }
 
   addCustommerToCashSale(keyValue: UpdateSaleInfo): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/comptant/add-customer', keyValue, {observe: 'response'});
+    return this.http.put(this.resourceUrl + '/comptant/add-customer', keyValue, { observe: 'response' });
   }
 
   removeCustommerToCashSale(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/comptant/remove-customer/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/comptant/remove-customer/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, {params: options, observe: 'response'});
+    return this.http.get<ISales[]>(`${this.resourceUrl}/prevente`, { params: options, observe: 'response' });
   }
 
   deletePrevente(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   printInvoice(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
   cancelComptant(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   cancelAssurance(id: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   transform(req?: any): Observable<HttpResponse<SaleId>> {
@@ -146,23 +146,23 @@ export class SalesService {
   }
 
   removeRemiseFromCashSale(saleId: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${saleId.id}/${saleId.saleDate}`, {observe: 'response'});
+    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
   }
 
   addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/comptant/add-remise', key, {observe: 'response'});
+    return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
 
   countPendingSales(req?: any): Observable<HttpResponse<number>> {
     const options = createRequestOptions(req);
     return this.http.get<number>(this.resourceUrl + '/vente-en-attente-count', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
   copyToEdit(sales: ISales): Observable<HttpResponse<SaleId>> {
-    return this.http.put<SaleId>(this.resourceUrl + '/assurance/copier', sales, {observe: 'response'});
+    return this.http.put<SaleId>(this.resourceUrl + '/assurance/copier', sales, { observe: 'response' });
   }
 
   // ============================================
@@ -171,28 +171,26 @@ export class SalesService {
 
   queryDevis(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<ISales[]>(`${this.resourceUrl}/devis`, {params: options, observe: 'response'});
+    return this.http.get<ISales[]>(`${this.resourceUrl}/devis`, { params: options, observe: 'response' });
   }
 
-
   transformToVenteComptant(id: SaleId): Observable<HttpResponse<SaleId>> {
-    return this.http.put<SaleId>(`${this.resourceUrl}/comptant/transform`, id, {observe: 'response'});
+    return this.http.put<SaleId>(`${this.resourceUrl}/comptant/transform`, id, { observe: 'response' });
   }
 
   transformToVenteAssurance(id: SaleId): Observable<HttpResponse<SaleId>> {
-    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/transform`, id, {observe: 'response'});
+    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/transform`, id, { observe: 'response' });
   }
 
   cloneDevisComptant(id: SaleId): Observable<HttpResponse<void>> {
-    return this.http.put<void>(`${this.resourceUrl}/comptant/clone-devis`, id, {observe: 'response'});
+    return this.http.put<void>(`${this.resourceUrl}/comptant/clone-devis`, id, { observe: 'response' });
   }
 
   cloneDevisAssurance(id: SaleId): Observable<HttpResponse<void>> {
-    return this.http.put<void>(`${this.resourceUrl}/assurance/clone-devis`, id, {observe: 'response'});
+    return this.http.put<void>(`${this.resourceUrl}/assurance/clone-devis`, id, { observe: 'response' });
   }
 
   printDevisPdf(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/devis/print/${id.id}/${id.saleDate}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/devis/print/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
-
 }

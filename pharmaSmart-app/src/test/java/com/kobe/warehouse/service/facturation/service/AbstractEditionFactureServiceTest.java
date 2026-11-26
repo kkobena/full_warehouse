@@ -6,14 +6,14 @@ import static org.mockito.Mockito.when;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.FactureTiersPayant;
-import com.kobe.warehouse.service.errors.GenericError;
-import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
@@ -68,13 +68,12 @@ class AbstractEditionFactureServiceTest {
     @BeforeEach
     void setUp() {
         service = new TestableEditionService(
-            thirdPartySaleLineRepository,
-            facturationRepository,
-            appConfigurationService,
-            userService,
-            factureIdGeneratorService,
-            invoiceGenerationCodeGeneratorService
-        );
+                thirdPartySaleLineRepository,
+                facturationRepository,
+                appConfigurationService,
+                userService,
+                factureIdGeneratorService,
+                invoiceGenerationCodeGeneratorService);
     }
 
     @Nested
@@ -118,7 +117,8 @@ class AbstractEditionFactureServiceTest {
         @Test
         @DisplayName("poursuit la numérotation d'une année sur l'autre par défaut")
         void anneePrecedenteSansRemiseAZero() {
-            when(facturationRepository.findLatestFactureNumber()).thenReturn(Year.now().minusYears(1) + "_0042");
+            when(facturationRepository.findLatestFactureNumber())
+                    .thenReturn(Year.now().minusYears(1) + "_0042");
             when(appConfigurationService.findParamResetInvoiceNumberEveryYear()).thenReturn(Optional.empty());
 
             assertThat(service.dernierNumero()).isEqualTo(42);
@@ -127,8 +127,10 @@ class AbstractEditionFactureServiceTest {
         @Test
         @DisplayName("repart de zéro à l'année nouvelle si le paramétrage le demande")
         void remiseAZeroAnnuelle() {
-            when(facturationRepository.findLatestFactureNumber()).thenReturn(Year.now().minusYears(1) + "_0042");
-            when(appConfigurationService.findParamResetInvoiceNumberEveryYear()).thenReturn(Optional.of(configuration("1")));
+            when(facturationRepository.findLatestFactureNumber())
+                    .thenReturn(Year.now().minusYears(1) + "_0042");
+            when(appConfigurationService.findParamResetInvoiceNumberEveryYear())
+                    .thenReturn(Optional.of(configuration("1")));
 
             assertThat(service.dernierNumero()).isZero();
         }
@@ -136,8 +138,10 @@ class AbstractEditionFactureServiceTest {
         @Test
         @DisplayName("ne repart pas de zéro si le paramètre est présent mais désactivé")
         void parametreDesactive() {
-            when(facturationRepository.findLatestFactureNumber()).thenReturn(Year.now().minusYears(1) + "_0042");
-            when(appConfigurationService.findParamResetInvoiceNumberEveryYear()).thenReturn(Optional.of(configuration("0")));
+            when(facturationRepository.findLatestFactureNumber())
+                    .thenReturn(Year.now().minusYears(1) + "_0042");
+            when(appConfigurationService.findParamResetInvoiceNumberEveryYear())
+                    .thenReturn(Optional.of(configuration("0")));
 
             assertThat(service.dernierNumero()).isEqualTo(42);
         }
@@ -168,9 +172,8 @@ class AbstractEditionFactureServiceTest {
             TiersPayant cnam = tiersPayant(1, "CNAM");
             TiersPayant mugef = tiersPayant(2, "MUGEF");
 
-            Map<TiersPayant, List<ThirdPartySaleLine>> groupes = service.grouper(
-                List.of(dossier(cnam), dossier(mugef), dossier(cnam))
-            );
+            Map<TiersPayant, List<ThirdPartySaleLine>> groupes =
+                    service.grouper(List.of(dossier(cnam), dossier(mugef), dossier(cnam)));
 
             assertThat(groupes).hasSize(2);
             assertThat(groupes.get(cnam)).hasSize(2);
@@ -201,17 +204,21 @@ class AbstractEditionFactureServiceTest {
         @Test
         @DisplayName("prend le verrou d'edition avant de lire le dernier numero et les dossiers")
         void verrouAvantLecture() {
-            org.mockito.Mockito.lenient().when(invoiceGenerationCodeGeneratorService.getNextIdAsString()).thenReturn("1");
-            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
-                .thenReturn(List.of());
+            org.mockito.Mockito.lenient()
+                    .when(invoiceGenerationCodeGeneratorService.getNextIdAsString())
+                    .thenReturn("1");
+            when(thirdPartySaleLineRepository.findAll(
+                            org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                    .thenReturn(List.of());
 
             org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.createFactureEdition(null))
-                .isInstanceOf(InvoiceEmptyDataException.class);
+                    .isInstanceOf(InvoiceEmptyDataException.class);
 
             var ordre = org.mockito.Mockito.inOrder(facturationRepository, thirdPartySaleLineRepository);
             ordre.verify(facturationRepository).verrouillerEdition();
             ordre.verify(facturationRepository).findLatestFactureNumber();
-            ordre.verify(thirdPartySaleLineRepository).findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any());
+            ordre.verify(thirdPartySaleLineRepository)
+                    .findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any());
         }
 
         @Test
@@ -220,13 +227,14 @@ class AbstractEditionFactureServiceTest {
             ThirdPartySaleLine dossier = new ThirdPartySaleLine();
             FactureTiersPayant provisoire = new FactureTiersPayant().setId(5L);
             dossier.setFactureTiersPayant(provisoire);
-            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
-                .thenReturn(List.of(dossier));
+            when(thirdPartySaleLineRepository.findAll(
+                            org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                    .thenReturn(List.of(dossier));
             when(facturationRepository.numerosFacturesReglees(Set.of(5L))).thenReturn(List.of("2026_0005"));
 
             org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.donnees())
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("2026_0005");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("2026_0005");
 
             var ordre = org.mockito.Mockito.inOrder(facturationRepository);
             ordre.verify(facturationRepository).verrouillerLignesEtFilles(Set.of(5L));
@@ -236,12 +244,14 @@ class AbstractEditionFactureServiceTest {
         @Test
         @DisplayName("des dossiers jamais factures ne verrouillent aucune facture")
         void dossiersNonFactures() {
-            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
-                .thenReturn(List.of(new ThirdPartySaleLine()));
+            when(thirdPartySaleLineRepository.findAll(
+                            org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                    .thenReturn(List.of(new ThirdPartySaleLine()));
 
             assertThat(service.donnees()).hasSize(1);
 
-            org.mockito.Mockito.verify(facturationRepository, org.mockito.Mockito.never()).verrouillerLignesEtFilles(org.mockito.ArgumentMatchers.any());
+            org.mockito.Mockito.verify(facturationRepository, org.mockito.Mockito.never())
+                    .verrouillerLignesEtFilles(org.mockito.ArgumentMatchers.any());
         }
     }
 
@@ -249,21 +259,19 @@ class AbstractEditionFactureServiceTest {
     private static final class TestableEditionService extends AbstractEditionFactureService {
 
         private TestableEditionService(
-            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-            FacturationRepository facturationRepository,
-            AppConfigurationService appConfigurationService,
-            UserService userService,
-            FactureIdGeneratorService factureIdGeneratorService,
-            InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
-        ) {
+                ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+                FacturationRepository facturationRepository,
+                AppConfigurationService appConfigurationService,
+                UserService userService,
+                FactureIdGeneratorService factureIdGeneratorService,
+                InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService) {
             super(
-                thirdPartySaleLineRepository,
-                facturationRepository,
-                appConfigurationService,
-                userService,
-                factureIdGeneratorService,
-                invoiceGenerationCodeGeneratorService
-            );
+                    thirdPartySaleLineRepository,
+                    facturationRepository,
+                    appConfigurationService,
+                    userService,
+                    factureIdGeneratorService,
+                    invoiceGenerationCodeGeneratorService);
         }
 
         @Override

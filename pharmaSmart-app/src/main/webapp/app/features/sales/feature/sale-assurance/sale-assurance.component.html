@@ -21,7 +21,8 @@
     [plafondMessage]="facade.plafondIsReached() ? facade.plafondMessage() : null"
     [hasLines]="(currentSale()?.salesLines?.length ?? 0) > 0"
     [saleType]="'ASSURANCE'"
-    [tiersPayants]="currentSale()?.tiersPayants || []">
+    [tiersPayants]="currentSale()?.tiersPayants || []"
+  >
   </app-insurance-data-bar>
 </div>
 
@@ -37,7 +38,8 @@
   [requiresCustomer]="true"
   [saleType]="'ASSURANCE'"
   [selectedProduct]="selectedProduct()"
-  [showStock]="showStock()">
+  [showStock]="showStock()"
+>
 </app-product-search-section>
 
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
@@ -65,7 +67,8 @@
         [salesLines]="salesLines()"
         [selectedLineId]="selectedLineId()"
         [tiersPayants]="currentSale()?.tiersPayants ?? []"
-        [showRemiseSection]="false" />
+        [showRemiseSection]="false"
+      />
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
@@ -83,7 +86,8 @@
             [saleType]="'ASSURANCE'"
             [thirdPartyDetails]="thirdPartyDetails()"
             [taxAmount]="currentSale()?.taxAmount || 0"
-            [totalAmount]="currentSale()?.salesAmount || 0" />
+            [totalAmount]="currentSale()?.salesAmount || 0"
+          />
         </div>
         <div class="col-12 d-flex justify-content-center">
           <app-sale-actions
@@ -128,6 +132,11 @@
 }
 
 <!-- Spinner global -->
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
-             color="#009688" name="sale-spinner"
-             size="medium" type="timer"></ngx-spinner>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="sale-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>

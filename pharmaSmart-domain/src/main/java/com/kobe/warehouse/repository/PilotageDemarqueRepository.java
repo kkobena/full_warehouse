@@ -15,8 +15,7 @@ import org.springframework.data.repository.Repository;
  * rapport de démarque).
  */
 public interface PilotageDemarqueRepository extends Repository<Ajustement, Integer> {
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.MontantDemarqueDTO(
             coalesce(cast(m.id AS String), ''), coalesce(m.libelle, 'Sans motif'),
             coalesce(sum(abs(aj.qtyMvt)), 0L), coalesce(sum(abs(aj.qtyMvt) * coalesce(p.costAmount, 0)), 0L))
@@ -29,12 +28,11 @@ public interface PilotageDemarqueRepository extends Repository<Ajustement, Integ
           AND aj.type = :type
           AND a.dateMtv >= :debut AND a.dateMtv < :fin
         GROUP BY m.id, m.libelle
-        """
-    )
-    List<MontantDemarqueDTO> sommerParMotif(LocalDateTime debut, LocalDateTime fin, AjustementStatut statut, AjustType type);
+        """)
+    List<MontantDemarqueDTO> sommerParMotif(
+            LocalDateTime debut, LocalDateTime fin, AjustementStatut statut, AjustType type);
 
-    @Query(
-        """
+    @Query("""
         SELECT new com.kobe.warehouse.service.dto.pilotage.MontantDemarqueDTO(
             cast(p.id AS String), p.libelle,
             coalesce(sum(abs(aj.qtyMvt)), 0L), coalesce(sum(abs(aj.qtyMvt) * coalesce(p.costAmount, 0)), 0L))
@@ -47,7 +45,7 @@ public interface PilotageDemarqueRepository extends Repository<Ajustement, Integ
           AND a.dateMtv >= :debut AND a.dateMtv < :fin
         GROUP BY p.id, p.libelle
         ORDER BY coalesce(sum(abs(aj.qtyMvt) * coalesce(p.costAmount, 0)), 0L) DESC
-        """
-    )
-    List<MontantDemarqueDTO> listerProduitsLesPlusTouches(LocalDateTime debut, LocalDateTime fin, AjustementStatut statut, AjustType type, Pageable page);
+        """)
+    List<MontantDemarqueDTO> listerProduitsLesPlusTouches(
+            LocalDateTime debut, LocalDateTime fin, AjustementStatut statut, AjustType type, Pageable page);
 }

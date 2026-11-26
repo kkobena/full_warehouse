@@ -8,7 +8,6 @@ import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import jakarta.validation.constraints.PastOrPresent;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +36,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
         this.dateFinValidite = dateFinValidite;
         return this;
     }
+
     private Integer assureId;
     private String numAyantDroit;
     private Integer remiseId;
@@ -52,24 +52,23 @@ public class AssuredCustomerDTO extends CustomerDTO {
     private TiersPayantCategorie typeTiersPayant;
 
     public AssuredCustomerDTO(
-        AssuredCustomer customer,
-        List<ClientTiersPayantDTO> clientTiersPayants,
-        List<AssuredCustomerDTO> ayantDroits
-    ) {
+            AssuredCustomer customer,
+            List<ClientTiersPayantDTO> clientTiersPayants,
+            List<AssuredCustomerDTO> ayantDroits) {
         super(customer);
         this.remise = customer.getRemiseClient();
         this.sexe = customer.getSexe();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.num = customer.getNumAyantDroit();
-        this.tiersPayants = clientTiersPayants
-            .stream()
-            .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
-            .toList();
+        this.tiersPayants = clientTiersPayants.stream()
+                .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
+                .toList();
         this.ayantDroits = ayantDroits;
         this.datNaiss = customer.getDatNaiss();
         if (!this.tiersPayants.isEmpty()) {
-            Optional<ClientTiersPayantDTO> clientTiersPayantOp =
-                this.tiersPayants.stream().filter(t -> t.getPriorite() == PrioriteTiersPayant.R0).findFirst();
+            Optional<ClientTiersPayantDTO> clientTiersPayantOp = this.tiersPayants.stream()
+                    .filter(t -> t.getPriorite() == PrioriteTiersPayant.R0)
+                    .findFirst();
             if (clientTiersPayantOp.isPresent()) {
                 ClientTiersPayantDTO pr = clientTiersPayantOp.get();
                 this.tiersPayantId = pr.getTiersPayantId();
@@ -95,30 +94,28 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     public AssuredCustomerDTO(AssuredCustomer customer) {
         super(customer);
-        if (customer==null) {
+        if (customer == null) {
             return;
         }
         this.num = customer.getNumAyantDroit();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.datNaiss = customer.getDatNaiss();
         /*  this.tiersPayants = customer.getClientTiersPayants()
-            .stream().map(ClientTiersPayantDTO::new)
-            .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
-            .toList();*/
+        .stream().map(ClientTiersPayantDTO::new)
+        .sorted(Comparator.comparing(ClientTiersPayantDTO::getCategorie, Comparator.naturalOrder()))
+        .toList();*/
     }
 
     private void updateAssuranceInfo(AssuredCustomerDTO assuredCustomer, AssuredCustomer customer) {
-        customer
-            .getClientTiersPayants()
-            .forEach(c -> {
-                var tp = new ClientTiersPayantDTO();
-                TiersPayant tiersPayant = c.getTiersPayant();
-                tp.setId(c.getId());
-                tp.setNum(c.getNum());
-                tp.setTiersPayantFullName(tiersPayant.getFullName());
-                tp.setPriorite(c.getPriorite());
-                assuredCustomer.getTiersPayants().add(tp);
-            });
+        customer.getClientTiersPayants().forEach(c -> {
+            var tp = new ClientTiersPayantDTO();
+            TiersPayant tiersPayant = c.getTiersPayant();
+            tp.setId(c.getId());
+            tp.setNum(c.getNum());
+            tp.setTiersPayantFullName(tiersPayant.getFullName());
+            tp.setPriorite(c.getPriorite());
+            assuredCustomer.getTiersPayants().add(tp);
+        });
     }
 
     public TiersPayantDto getTiersPayant() {
@@ -132,9 +129,9 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     private TiersPayantDto buildTiersPayan(ClientTiersPayantDTO tiersPayant) {
         return new TiersPayantDto()
-            .setId(tiersPayant.getTiersPayantId())
-            .setName(tiersPayant.getTiersPayantName())
-            .setFullName(tiersPayant.getTiersPayantFullName());
+                .setId(tiersPayant.getTiersPayantId())
+                .setName(tiersPayant.getTiersPayantName())
+                .setFullName(tiersPayant.getTiersPayantFullName());
     }
 
     public Integer getRemiseId() {

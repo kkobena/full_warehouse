@@ -1,15 +1,21 @@
 <div class="pharma-smart-content p-1">
   <app-toolbar [code]="navCode()" icon="pi pi-chart-line" title="Synthèse des Ventes Quotidiennes">
-
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="startDate"
-                            [style]="{ 'width': '180px' }"
-                            id="ssDateDebut" label="Du" />
-        <pharma-date-picker (ngModelChange)="onFilterChange()" [(ngModel)]="endDate"
-                            [style]="{ 'width': '180px' }"
-                            id="ssDateFin"
-                            label="Au" />
+        <pharma-date-picker
+          (ngModelChange)="onFilterChange()"
+          [(ngModel)]="startDate"
+          [style]="{ width: '180px' }"
+          id="ssDateDebut"
+          label="Du"
+        />
+        <pharma-date-picker
+          (ngModelChange)="onFilterChange()"
+          [(ngModel)]="endDate"
+          [style]="{ width: '180px' }"
+          id="ssDateFin"
+          label="Au"
+        />
         <app-select
           (selectionChange)="onFilterChange()"
           [(ngModel)]="selectedTypeVente"
@@ -28,47 +34,68 @@
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div>
-        <app-button (clicked)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir"
-                    severity="info"
-                    size="small" />
+        <app-button (clicked)="loadSummaries()" icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" [value]="getTotalCA() | number: '1.0-0'" icon="pi pi-dollar"
-                  iconClass="text-primary"
-                  label="CA officine" valueClass="text-primary"
-                  info="Ventes clôturées de la période au prix de vente, avant remise : comptant et tiers payant. Les ventes annulées, les ventes importées et les sorties vers le dépôt en sont écartées.">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="getTotalCA() | number: '1.0-0'"
+      icon="pi pi-dollar"
+      iconClass="text-primary"
+      label="CA officine"
+      valueClass="text-primary"
+      info="Ventes clôturées de la période au prix de vente, avant remise : comptant et tiers payant. Les ventes annulées, les ventes importées et les sorties vers le dépôt en sont écartées."
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">hors ventes au dépôt</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" [value]="getTotalCANet() | number: '1.0-0'"
-                  icon="pi pi-money-bill"
-                  iconClass="text-success" label="CA Net"
-                  info="Le même chiffre, remises déduites. L'écart avec le CA officine est le total des remises accordées."
-                  valueClass="text-success">
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="getTotalCANet() | number: '1.0-0'"
+      icon="pi pi-money-bill"
+      iconClass="text-success"
+      label="CA Net"
+      info="Le même chiffre, remises déduites. L'écart avec le CA officine est le total des remises accordées."
+      valueClass="text-success"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">après remises</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" [value]="getTotalVentes()" icon="pi pi-shopping-cart"
-                  iconClass="text-warning" label="Nombre de ventes" valueClass="text-warning"
-                  info="Ventes clôturées de l'officine sur la période, dépôt exclu.">
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="getTotalVentes()"
+      icon="pi pi-shopping-cart"
+      iconClass="text-warning"
+      label="Nombre de ventes"
+      valueClass="text-warning"
+      info="Ventes clôturées de l'officine sur la période, dépôt exclu."
+    >
       <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" [value]="getAveragePanier() | number: '1.0-0'"
-                  icon="pi pi-shopping-bag"
-                  iconClass="text-danger" label="Panier moyen"
-                  info="CA officine divisé par le nombre de ventes. Assis sur le CA avant remise, non sur le CA net."
-                  valueClass="text-danger">
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="getAveragePanier() | number: '1.0-0'"
+      icon="pi pi-shopping-bag"
+      iconClass="text-danger"
+      label="Panier moyen"
+      info="CA officine divisé par le nombre de ventes. Assis sur le CA avant remise, non sur le CA net."
+      valueClass="text-danger"
+    >
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par transaction</ng-container>
     </app-kpi-item>
     @if (totalDepot().nbVentes > 0) {
-      <app-kpi-item [accent]="'secondary'" [value]="totalDepot().caTotal | number: '1.0-0'" icon="pi pi-truck"
-                    label="Ventes au dépôt"
-                    info="Transferts vers un dépositaire, de catégorie distincte : ils ne sont comptés dans aucune des tuiles précédentes et ne figurent pas au chiffre d'affaires déclaré.">
+      <app-kpi-item
+        [accent]="'secondary'"
+        [value]="totalDepot().caTotal | number: '1.0-0'"
+        icon="pi pi-truck"
+        label="Ventes au dépôt"
+        info="Transferts vers un dépositaire, de catégorie distincte : ils ne sont comptés dans aucune des tuiles précédentes et ne figurent pas au chiffre d'affaires déclaré."
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ totalDepot().nbVentes | number }} sortie(s), hors CA</ng-container>
       </app-kpi-item>
@@ -84,21 +111,19 @@
   @if (ventilationParType().length > 0) {
     <div class="card data-card mt-2">
       <div class="card-header py-2">
-        <h6 class="card-title mb-0">
-          <i class="pi pi-tags text-info me-1"></i>Répartition par type de vente
-        </h6>
+        <h6 class="card-title mb-0"><i class="pi pi-tags text-info me-1"></i>Répartition par type de vente</h6>
       </div>
       <div class="card-body p-0">
         <table class="table table-sm mb-0">
           <thead>
-          <tr class="pharma-table-head">
-            <th>Type de vente</th>
-            <th class="text-end">Nb ventes</th>
-            <th class="text-end">CA total</th>
-            <th class="text-end">CA net</th>
-            <th class="text-end">Panier moyen</th>
-            <th class="text-end">Part du CA net</th>
-          </tr>
+            <tr class="pharma-table-head">
+              <th>Type de vente</th>
+              <th class="text-end">Nb ventes</th>
+              <th class="text-end">CA total</th>
+              <th class="text-end">CA net</th>
+              <th class="text-end">Panier moyen</th>
+              <th class="text-end">Part du CA net</th>
+            </tr>
           </thead>
           <tbody>
             @for (ligne of ventilationParType(); track ligne.type) {
@@ -163,19 +188,13 @@
               <tr>
                 <td>{{ summary.saleDate | date: 'dd/MM/yyyy' }}</td>
                 <td>
-                  <app-badge [label]="getLibelleType(summary.typeVente)"
-                             [severity]="getSeverityForType(summary.typeVente)">
-                  </app-badge>
+                  <app-badge [label]="getLibelleType(summary.typeVente)" [severity]="getSeverityForType(summary.typeVente)"> </app-badge>
                 </td>
                 <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
                 <td class="text-end pharma-price">{{ summary.caTotal | number }}</td>
                 <td class="text-end pharma-price">{{ summary.caNet | number }}</td>
-                <td class="text-end pharma-price">{{ summary.totalRemises | number }}
-
-                </td>
-                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }}
-
-                </td>
+                <td class="text-end pharma-price">{{ summary.totalRemises | number }}</td>
+                <td class="text-end pharma-price">{{ summary.panierMoyen | number: '1.0-2' }}</td>
               </tr>
             </ng-template>
             <ng-template #emptymessage>

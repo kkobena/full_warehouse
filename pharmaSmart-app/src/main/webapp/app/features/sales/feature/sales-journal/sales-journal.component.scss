@@ -118,7 +118,11 @@ $gray-border: #e2e8f0;
     }
 
     .activity-card-icon {
-      background: linear-gradient(135deg, color-mix(in srgb, $primary-blue 10%, transparent), color-mix(in srgb, var(--pharma-chrome-brand-light, #{$primary-light}) 10%, transparent));
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, $primary-blue 10%, transparent),
+        color-mix(in srgb, var(--pharma-chrome-brand-light, #{$primary-light}) 10%, transparent)
+      );
       color: $primary-blue;
     }
   }
@@ -269,4 +273,3 @@ $gray-border: #e2e8f0;
     }
   }
 }
-

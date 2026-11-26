@@ -29,9 +29,15 @@
       [class.ligne-selected]="store.selectedDiffere()?.customerId === differe.customerId"
       class="clickable-row"
     >
-      <td><span class="pharma-entity-name">{{ differe.firstName }} {{ differe.lastName }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ differe.saleAmount | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ differe.paidAmount | number }}</span></td>
+      <td>
+        <span class="pharma-entity-name">{{ differe.firstName }} {{ differe.lastName }}</span>
+      </td>
+      <td class="text-end">
+        <span class="pharma-price">{{ differe.saleAmount | number }}</span>
+      </td>
+      <td class="text-end">
+        <span class="pharma-price">{{ differe.paidAmount | number }}</span>
+      </td>
       <td class="text-end">
         <span [class.pharma-total]="(differe.rest ?? 0) > 0">{{ differe.rest | number }}</span>
       </td>

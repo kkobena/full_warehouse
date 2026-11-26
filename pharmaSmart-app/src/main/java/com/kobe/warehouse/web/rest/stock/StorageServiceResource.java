@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.StorageDTO;
 import java.util.List;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
@@ -27,7 +27,8 @@ public class StorageServiceResource {
     }
 
     @GetMapping("/storages")
-    public ResponseEntity<List<StorageDTO>> fetchAllByMagasin(@RequestParam(name = "magasinId", required = false) Integer magasinId) {
+    public ResponseEntity<List<StorageDTO>> fetchAllByMagasin(
+            @RequestParam(name = "magasinId", required = false) Integer magasinId) {
         return ResponseEntity.ok().body(this.storageService.fetchAllByMagasin(magasinId));
     }
 }

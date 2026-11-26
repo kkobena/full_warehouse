@@ -54,15 +54,14 @@ public class Interaction implements Serializable {
     protected Interaction() {}
 
     public Interaction(
-        Integer versionId,
-        Integer aRefDciId,
-        Integer aClasseId,
-        Integer bRefDciId,
-        Integer bClasseId,
-        NiveauInteraction niveau,
-        String mecanisme,
-        String conduite
-    ) {
+            Integer versionId,
+            Integer aRefDciId,
+            Integer aClasseId,
+            Integer bRefDciId,
+            Integer bClasseId,
+            NiveauInteraction niveau,
+            String mecanisme,
+            String conduite) {
         this.versionId = versionId;
         this.aRefDciId = aRefDciId;
         this.aClasseId = aClasseId;

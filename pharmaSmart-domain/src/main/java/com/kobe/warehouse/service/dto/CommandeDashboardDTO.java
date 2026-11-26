@@ -11,18 +11,17 @@ import java.util.List;
  * si elle tarde. D'où trois compteurs là où il n'y en avait qu'un.
  */
 public record CommandeDashboardDTO(
-    long totalRequested,
-    long totalReceived,
-    long totalPharmamlPending,
-    /** Bons en cours de saisie, jamais transmis. */
-    long totalBrouillons,
-    /** Commandes transmises, en attente de livraison. */
-    long totalEnvoyees,
-    /** Parmi les envoyées, celles dont le délai annoncé est dépassé. */
-    long totalEnRetard,
-    List<CommandeResumeeDTO> commandesRequested,
-    List<CommandeResumeeDTO> commandesReceived,
-    List<PharmaMlEnvoiResumeeDTO> envoisPending,
-    /** Les plus anciennes d'abord : c'est par celles-là qu'il faut relancer. */
-    List<CommandeResumeeDTO> commandesEnRetard
-) {}
+        long totalRequested,
+        long totalReceived,
+        long totalPharmamlPending,
+        /** Bons en cours de saisie, jamais transmis. */
+        long totalBrouillons,
+        /** Commandes transmises, en attente de livraison. */
+        long totalEnvoyees,
+        /** Parmi les envoyées, celles dont le délai annoncé est dépassé. */
+        long totalEnRetard,
+        List<CommandeResumeeDTO> commandesRequested,
+        List<CommandeResumeeDTO> commandesReceived,
+        List<PharmaMlEnvoiResumeeDTO> envoisPending,
+        /** Les plus anciennes d'abord : c'est par celles-là qu'il faut relancer. */
+        List<CommandeResumeeDTO> commandesEnRetard) {}

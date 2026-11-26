@@ -41,8 +41,7 @@ class InventoryClosedEventListenerIntegrationTest extends AbstractInventaireInte
 
         ecouter(inventaire, InventoryCategory.RAYON);
 
-        assertEquals(7L, quantiteEnEmplacement(inventaire),
-            "le comptage doit atteindre lot_stock_location");
+        assertEquals(7L, quantiteEnEmplacement(inventaire), "le comptage doit atteindre lot_stock_location");
         // Aucune ligne de réserve n'existe : les deux requêtes de suggestion ne remontent rien.
         verifyNoInteractions(suggestionReassortService);
     }
@@ -69,11 +68,10 @@ class InventoryClosedEventListenerIntegrationTest extends AbstractInventaireInte
         ecouter(inventaire, InventoryCategory.RAYON);
         assertEquals(5L, quantiteEnEmplacement(inventaire));
 
-        em.createNativeQuery(
-                "UPDATE inventory_lot SET quantity_on_hand = 0 WHERE store_inventory_line_id IN "
-                    + "(SELECT id FROM store_inventory_line WHERE store_inventory_id = :id)")
-            .setParameter("id", inventaire.getId())
-            .executeUpdate();
+        em.createNativeQuery("UPDATE inventory_lot SET quantity_on_hand = 0 WHERE store_inventory_line_id IN "
+                        + "(SELECT id FROM store_inventory_line WHERE store_inventory_id = :id)")
+                .setParameter("id", inventaire.getId())
+                .executeUpdate();
         viderLeCache();
 
         ecouter(inventaire, InventoryCategory.RAYON);
@@ -84,16 +82,14 @@ class InventoryClosedEventListenerIntegrationTest extends AbstractInventaireInte
     // ===== utilitaires =====
 
     private void ecouter(StoreInventory inventaire, InventoryCategory categorie) {
-        new InventoryClosedEventListener(em, suggestionReassortService).onInventoryClosed(
-            new InventoryClosedEvent(
-                inventaire.getId(),
-                categorie,
-                rayon.getStorageType(),
-                rayon.getId(),
-                magasin.getId(),
-                utilisateur.getId()
-            )
-        );
+        new InventoryClosedEventListener(em, suggestionReassortService)
+                .onInventoryClosed(new InventoryClosedEvent(
+                        inventaire.getId(),
+                        categorie,
+                        rayon.getStorageType(),
+                        rayon.getId(),
+                        magasin.getId(),
+                        utilisateur.getId()));
         viderLeCache();
     }
 
@@ -109,24 +105,20 @@ class InventoryClosedEventListenerIntegrationTest extends AbstractInventaireInte
     }
 
     private long quantiteEnEmplacement(StoreInventory inventaire) {
-        return compter(
-            """
+        return compter("""
             SELECT COALESCE(sum(lsl.qty), 0) FROM lot_stock_location lsl
             JOIN inventory_lot il ON il.lot_id = lsl.lot_id
             JOIN store_inventory_line sil ON sil.id = il.store_inventory_line_id
             WHERE sil.store_inventory_id = %d AND lsl.storage_id = %d
-            """.formatted(inventaire.getId(), rayon.getId())
-        );
+            """.formatted(inventaire.getId(), rayon.getId()));
     }
 
     private long lignesEnEmplacement(StoreInventory inventaire) {
-        return compter(
-            """
+        return compter("""
             SELECT count(*) FROM lot_stock_location lsl
             JOIN inventory_lot il ON il.lot_id = lsl.lot_id
             JOIN store_inventory_line sil ON sil.id = il.store_inventory_line_id
             WHERE sil.store_inventory_id = %d AND lsl.storage_id = %d
-            """.formatted(inventaire.getId(), rayon.getId())
-        );
+            """.formatted(inventaire.getId(), rayon.getId()));
     }
 }

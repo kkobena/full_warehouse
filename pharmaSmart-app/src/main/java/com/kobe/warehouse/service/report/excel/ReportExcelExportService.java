@@ -41,9 +41,10 @@ public class ReportExcelExportService {
      * @param <T> Type des données
      * @return ByteArray du fichier Excel
      */
-    public <T> byte[] createExcelReport(String title, String[] headers, List<T> data, BiConsumer<Row, T> rowMapper) throws IOException {
+    public <T> byte[] createExcelReport(String title, String[] headers, List<T> data, BiConsumer<Row, T> rowMapper)
+            throws IOException {
         try (SXSSFWorkbook workbook = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             SXSSFSheet sheet = workbook.createSheet(sanitizeSheetName(title));
 
@@ -107,17 +108,12 @@ public class ReportExcelExportService {
      * Crée un fichier Excel simple avec données en tableau
      */
     public byte[] createSimpleExcelReport(String title, String[] headers, List<String[]> data) throws IOException {
-        return createExcelReport(
-            title,
-            headers,
-            data,
-            (row, rowData) -> {
-                for (int i = 0; i < rowData.length; i++) {
-                    Cell cell = row.createCell(i);
-                    cell.setCellValue(rowData[i]);
-                }
+        return createExcelReport(title, headers, data, (row, rowData) -> {
+            for (int i = 0; i < rowData.length; i++) {
+                Cell cell = row.createCell(i);
+                cell.setCellValue(rowData[i]);
             }
-        );
+        });
     }
 
     // Styles

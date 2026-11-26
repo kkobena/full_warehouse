@@ -62,8 +62,12 @@
   font-size: 0.82rem;
   font-weight: 600;
 
-  &.cr-pv { color: #198754; }
-  &.cr-stock-zero { color: #dc3545; }
+  &.cr-pv {
+    color: #198754;
+  }
+  &.cr-stock-zero {
+    color: #dc3545;
+  }
 }
 
 .cr-label {

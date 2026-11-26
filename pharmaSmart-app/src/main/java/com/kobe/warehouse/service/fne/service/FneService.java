@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.fne.model.FneResponse;
 
 public interface FneService {
     FneResponse create(FactureItemId factureItemId) throws GenericError;
+
     void certifyGroupInvoice(FactureItemId factureItemId) throws GenericError;
 
     /**

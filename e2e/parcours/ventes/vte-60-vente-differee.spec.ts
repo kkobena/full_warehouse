@@ -51,7 +51,12 @@ scenario('VTE-60', async ({ etape, page }) => {
 
   /** Le montant tel que l'écran l'écrit, quel que soit l'espace insécable de la locale. */
   const montant = (valeur: number): RegExp =>
-    new RegExp(String(valeur).replace(/\B(?=(\d{3})+(?!\d))/g, '~').split('~').join('[ \u00a0\u202f]'));
+    new RegExp(
+      String(valeur)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '~')
+        .split('~')
+        .join('[ \u00a0\u202f]'),
+    );
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);

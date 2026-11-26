@@ -8,9 +8,8 @@ package com.kobe.warehouse.service.cahier_recette;
  * PDF (voir {@code CahierRecettePdfService}), et directement par le navigateur côté Angular.
  */
 public record CaptureEcranDTO(
-    Integer ordre,
-    String fichier,
-    String legende,
-    /** Empreinte SHA-256 de l'image, injectée lors de la génération du JSON. */
-    String empreinte
-) {}
+        Integer ordre,
+        String fichier,
+        String legende,
+        /** Empreinte SHA-256 de l'image, injectée lors de la génération du JSON. */
+        String empreinte) {}

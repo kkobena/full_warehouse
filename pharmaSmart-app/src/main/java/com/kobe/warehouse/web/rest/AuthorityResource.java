@@ -1,9 +1,9 @@
 package com.kobe.warehouse.web.rest;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.AuthorityService;
 import com.kobe.warehouse.service.dto.AuthorityDTO;
-import com.kobe.warehouse.service.dto.PrivillegesDTO;
-import com.kobe.warehouse.service.dto.PrivillegesWrapperDTO;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -13,17 +13,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "utilisateurs", "nav-manager" })
+@RequiresNavAccess({"utilisateurs", "nav-manager"})
 public class AuthorityResource {
 
     private final AuthorityService authorityService;
@@ -35,17 +32,12 @@ public class AuthorityResource {
         this.authorityService = authorityService;
     }
 
-
-
     @GetMapping(value = "/authorities/all")
     @NavAccessExempt("liste des rôles, affichée par la gestion des utilisateurs, des menus et des accueils")
     public ResponseEntity<List<AuthorityDTO>> getAuthorities(
-        @RequestParam(value = "search", required = false, defaultValue = "") String search
-    ) {
+            @RequestParam(value = "search", required = false, defaultValue = "") String search) {
         return ResponseEntity.ok(authorityService.fetch(search));
     }
-
-
 
     @PostMapping("/authorities/save")
     public ResponseEntity<Void> save(@Valid @RequestBody AuthorityDTO authorityDTO) {
@@ -56,7 +48,9 @@ public class AuthorityResource {
     @DeleteMapping("/authorities/delete/{name}")
     public ResponseEntity<Void> delete(@PathVariable("name") String name) {
         authorityService.delete(name);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "menu", name)).build();
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "menu", name))
+                .build();
     }
 
     @GetMapping(value = "/authorities/{role}")
@@ -65,12 +59,9 @@ public class AuthorityResource {
         return ResponseEntity.ok(authorityService.fetchOne(roleName));
     }
 
-
-
     @GetMapping(value = "/authorities/all/v2")
     @NavAccessExempt("liste des rôles, affichée par la gestion des utilisateurs, des menus et des accueils")
-    public ResponseEntity<List<AuthorityDTO>> fetchAllAuthorities( ) {
+    public ResponseEntity<List<AuthorityDTO>> fetchAllAuthorities() {
         return ResponseEntity.ok(authorityService.fetchAll());
     }
-
 }

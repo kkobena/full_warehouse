@@ -1,9 +1,10 @@
 package com.kobe.warehouse.web.rest.dci;
 
-import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
-
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
 import com.kobe.warehouse.service.dci.service.DciService;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -21,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/dci")
@@ -38,14 +37,17 @@ public class DciResource {
     @GetMapping("/unpaged")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
     public ResponseEntity<List<DciDTO>> getAllUnpaged(@RequestParam(name = "search", required = false) String search) {
-        return ResponseEntity.ok().body(dciService.findAll(search, Pageable.unpaged()).getContent());
+        return ResponseEntity.ok()
+                .body(dciService.findAll(search, Pageable.unpaged()).getContent());
     }
 
     @GetMapping
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
-    public ResponseEntity<List<DciDTO>> getAll(@RequestParam(name = "search", required = false) String search, Pageable pageable) {
+    public ResponseEntity<List<DciDTO>> getAll(
+            @RequestParam(name = "search", required = false) String search, Pageable pageable) {
         Page<DciDTO> page = dciService.findAll(search, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -74,10 +76,9 @@ public class DciResource {
      */
     @PostMapping("/{id}/produits")
     public ResponseEntity<Integer> rattacherProduits(
-        @PathVariable Integer id,
-        @RequestBody List<Integer> produitIds,
-        @RequestParam(name = "mode", defaultValue = "AJOUTER") ModeRattachementDci mode
-    ) {
+            @PathVariable Integer id,
+            @RequestBody List<Integer> produitIds,
+            @RequestParam(name = "mode", defaultValue = "AJOUTER") ModeRattachementDci mode) {
         return ResponseEntity.ok(dciService.rattacherProduits(id, produitIds, mode));
     }
 
@@ -96,7 +97,9 @@ public class DciResource {
      * Importe un CSV « code;libelle ». Le libellé est obligatoire, le code facultatif : lorsqu'il
      * est absent, il est dérivé du libellé.
      */
-    @PostMapping(path = "/importcsv", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(
+            path = "/importcsv",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importcsv") MultipartFile file) throws IOException {
         return ResponseUtil.wrapOrNotFound(Optional.of(dciService.importation(file.getInputStream())));
     }

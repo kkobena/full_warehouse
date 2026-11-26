@@ -1,37 +1,23 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { finalize } from "rxjs/operators";
+import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { DecimalPipe } from "@angular/common";
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { DecimalPipe } from '@angular/common';
 
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { IAvoir, IAvoirCommand, IFacture } from "../../data-access/models";
-import { AvoirApiService } from "../../data-access/services/avoir-api.service";
-import { FactureApiService } from "../../data-access/services/facture-api.service";
-import {
-  BadgeComponent,
-  ButtonComponent,
-  FloatLabelComponent,
-  InputNumberComponent,
-  SelectSearchComponent
-} from 'app/shared/ui';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IAvoir, IAvoirCommand, IFacture } from '../../data-access/models';
+import { AvoirApiService } from '../../data-access/services/avoir-api.service';
+import { FactureApiService } from '../../data-access/services/facture-api.service';
+import { BadgeComponent, ButtonComponent, FloatLabelComponent, InputNumberComponent, SelectSearchComponent } from 'app/shared/ui';
 
 @Component({
-  selector: "app-avoir-form-modal",
-  imports: [
-    DecimalPipe,
-    FormsModule,
-    BadgeComponent,
-    ButtonComponent,
-    FloatLabelComponent,
-    InputNumberComponent,
-    SelectSearchComponent
-  ],
-  templateUrl: "./avoir-form-modal.component.html",
+  selector: 'app-avoir-form-modal',
+  imports: [DecimalPipe, FormsModule, BadgeComponent, ButtonComponent, FloatLabelComponent, InputNumberComponent, SelectSearchComponent],
+  templateUrl: './avoir-form-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./avoir-form-modal.component.scss"
+  styleUrl: './avoir-form-modal.component.scss',
 })
 export class AvoirFormModalComponent implements OnInit {
   prefillFacture?: IFacture;
@@ -43,7 +29,7 @@ export class AvoirFormModalComponent implements OnInit {
   protected readonly montantAvoir = signal<number | null>(null);
   protected montantTva: number | null = null;
   protected montantHt: number | null = null;
-  protected motif = "";
+  protected motif = '';
 
   protected readonly saving = signal(false);
 
@@ -82,31 +68,38 @@ export class AvoirFormModalComponent implements OnInit {
   }
 
   protected searchFacture(query: string): void {
-    const toIso = (d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const toIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const today = new Date();
     const fiveYearsAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
     this.factureApiService
       .query({ search: query, startDate: toIso(fiveYearsAgo), endDate: toIso(today), statuts: ['PAID', 'PARTIALLY_PAID'] })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.factureSuggestions.set(res.body ?? [])));
+      .subscribe(res => this.factureSuggestions.set(res.body ?? []));
   }
 
   getStatutLabel(statut: string): string {
     switch (statut) {
-      case 'PAID': return 'Réglé';
-      case 'PARTIALLY_PAID': return 'Partiel';
-      case 'NOT_PAID': return 'Impayé';
-      default: return statut ?? '—';
+      case 'PAID':
+        return 'Réglé';
+      case 'PARTIALLY_PAID':
+        return 'Partiel';
+      case 'NOT_PAID':
+        return 'Impayé';
+      default:
+        return statut ?? '—';
     }
   }
 
   getStatutSeverity(statut: string): 'success' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
-      case 'PAID': return 'success';
-      case 'PARTIALLY_PAID': return 'warn';
-      case 'NOT_PAID': return 'danger';
-      default: return 'secondary';
+      case 'PAID':
+        return 'success';
+      case 'PARTIALLY_PAID':
+        return 'warn';
+      case 'NOT_PAID':
+        return 'danger';
+      default:
+        return 'secondary';
     }
   }
 
@@ -119,7 +112,7 @@ export class AvoirFormModalComponent implements OnInit {
       montantAvoir: this.montantAvoir()!,
       montantTva: this.montantTva ?? undefined,
       montantHt: this.montantHt ?? undefined,
-      motif: this.motif.trim()
+      motif: this.motif.trim(),
     };
 
     this.saving.set(true);
@@ -128,10 +121,10 @@ export class AvoirFormModalComponent implements OnInit {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: res => {
-          this.notificationService.success("Avoir créé avec succès");
+          this.notificationService.success('Avoir créé avec succès');
           this.activeModal.close(res.body as IAvoir);
         },
-        error: () => this.notificationService.error("Erreur lors de la création de l'avoir")
+        error: () => this.notificationService.error("Erreur lors de la création de l'avoir"),
       });
   }
 }

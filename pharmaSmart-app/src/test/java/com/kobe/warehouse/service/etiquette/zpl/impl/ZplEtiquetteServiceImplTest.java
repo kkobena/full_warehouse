@@ -32,26 +32,27 @@ class ZplEtiquetteServiceImplTest {
 
     private static EtiquetteDTO etiquetteStandard(String code) {
         return new EtiquetteDTO()
-            .setCode(code)
-            .setLibelle("DOLIPRANE 1000MG")
-            .setPrix("1 500 CFA")
-            .setMagasin("PHARMACIE DU PLATEAU")
-            .setDate("16/10/2026")
-            .setPrint(true);
+                .setCode(code)
+                .setLibelle("DOLIPRANE 1000MG")
+                .setPrix("1 500 CFA")
+                .setMagasin("PHARMACIE DU PLATEAU")
+                .setDate("16/10/2026")
+                .setPrint(true);
     }
 
     private static EtiquetteDTO etiquetteDeLot() {
         return etiquetteStandard("3794609")
-            .setNumLot("L26050002")
-            .setExpiryDate("30/05/2027")
-            .setCodeDataMatrix("dm:2403794609{GS}10L26050002{GS}17270530");
+                .setNumLot("L26050002")
+                .setExpiryDate("30/05/2027")
+                .setCodeDataMatrix("dm:2403794609{GS}10L26050002{GS}17270530");
     }
 
     private String rendre(List<EtiquetteDTO> etiquettes, FormatEtiquette format, ResolutionEtiquette resolution) {
         return rendre(etiquettes, TypeEtiquette.STANDARD, format, resolution);
     }
 
-    private String rendre(List<EtiquetteDTO> etiquettes, TypeEtiquette type, FormatEtiquette format, ResolutionEtiquette resolution) {
+    private String rendre(
+            List<EtiquetteDTO> etiquettes, TypeEtiquette type, FormatEtiquette format, ResolutionEtiquette resolution) {
         return service.rendreEtiquettes(etiquettes, type, format, resolution);
     }
 
@@ -72,10 +73,9 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("un bloc ^XA … ^XZ par etiquette a imprimer")
         void unBlocParEtiquette() {
             String zpl = rendre(
-                List.of(etiquetteStandard("3794609"), etiquetteStandard("3794610"), etiquetteStandard("3794611")),
-                ROULEAU,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(etiquetteStandard("3794609"), etiquetteStandard("3794610"), etiquetteStandard("3794611")),
+                    ROULEAU,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(compter(zpl, "^XA")).isEqualTo(3);
             assertThat(compter(zpl, "^XZ")).isEqualTo(3);
@@ -85,10 +85,9 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("une case blanche de planche ne deroule rien")
         void casesBlanchesIgnorees() {
             String zpl = rendre(
-                List.of(new EtiquetteDTO().setPrint(false), etiquetteStandard("3794609")),
-                ROULEAU,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(new EtiquetteDTO().setPrint(false), etiquetteStandard("3794609")),
+                    ROULEAU,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(compter(zpl, "^XA")).isEqualTo(1);
         }
@@ -136,7 +135,10 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("la page est redeclaree a chaque etiquette")
         void pageRedeclaree() {
-            String zpl = rendre(List.of(etiquetteStandard("3794609"), etiquetteStandard("3794610")), ROULEAU, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(etiquetteStandard("3794609"), etiquetteStandard("3794610")),
+                    ROULEAU,
+                    ResolutionEtiquette.DPI_203);
 
             // L'imprimante garde la derniere configuration recue : sans redeclaration, une
             // etiquette imprimee apres un travail d'un autre format sortirait a sa longueur.
@@ -146,8 +148,10 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("le nom de l officine n apparait que sur une etiquette assez haute")
         void nomDeLOfficine() {
-            String haute = rendre(List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
-            String basse = rendre(List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_40X20, ResolutionEtiquette.DPI_203);
+            String haute = rendre(
+                    List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String basse = rendre(
+                    List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_40X20, ResolutionEtiquette.DPI_203);
 
             assertThat(haute).contains("PHARMACIE DU PLATEAU");
             // Sous 25 mm, le nom pousserait le prix hors de la decoupe — regle du gabarit PDF.
@@ -185,7 +189,8 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("une etiquette standard large porte un Code 39")
         void code39QuandIlTient() {
-            String zpl = rendre(List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(etiquetteStandard("3794609")), FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("^B3N,N,");
             assertThat(zpl).contains("^FD3794609^FS");
@@ -195,7 +200,10 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("un Code 39 qui ne tiendrait pas cede la place a un DataMatrix")
         void repliSurDataMatrix() {
             // Dix caracteres a 0,25 mm de module demandent 39 mm : le 30 x 20 ne les porte pas.
-            String zpl = rendre(List.of(etiquetteStandard("3794609123")), FormatEtiquette.ROULEAU_30X20, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(etiquetteStandard("3794609123")),
+                    FormatEtiquette.ROULEAU_30X20,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).doesNotContain("^B3");
             assertThat(zpl).contains("^BXN,");
@@ -224,39 +232,38 @@ class ZplEtiquetteServiceImplTest {
 
         private static EtiquetteDTO posologie() {
             return new EtiquetteDTO()
-                .setLibelle("DOLIPRANE 1000MG")
-                .setPatient("KOUASSI Awa")
-                .setPrescripteur("Dr TRAORE Issa — cardiologue")
-                .setPosologie("1 comprimé matin, midi et soir, au moment des repas")
-                .setDuree("Pendant 7 jours")
-                .setMagasin("PHARMACIE DU PLATEAU")
-                .setDate("16/10/2026")
-                .setPrint(true);
+                    .setLibelle("DOLIPRANE 1000MG")
+                    .setPatient("KOUASSI Awa")
+                    .setPrescripteur("Dr TRAORE Issa — cardiologue")
+                    .setPosologie("1 comprimé matin, midi et soir, au moment des repas")
+                    .setDuree("Pendant 7 jours")
+                    .setMagasin("PHARMACIE DU PLATEAU")
+                    .setDate("16/10/2026")
+                    .setPrint(true);
         }
 
         private static EtiquetteDTO preparation() {
             return new EtiquetteDTO()
-                .setLibelle("Pommade salicylée 5 %")
-                .setComposition("Acide salicylique 5 g, vaseline qsp 100 g")
-                .setPatient("KOUASSI Awa")
-                .setPrescripteur("Dr TRAORE Issa")
-                .setPosologie("Appliquer matin et soir sur la zone atteinte")
-                .setMention("À usage externe")
-                .setMagasin("PHARMACIE DU PLATEAU")
-                .setDate("16/10/2026")
-                .setExpiryDate("16/01/2027")
-                .setPrint(true);
+                    .setLibelle("Pommade salicylée 5 %")
+                    .setComposition("Acide salicylique 5 g, vaseline qsp 100 g")
+                    .setPatient("KOUASSI Awa")
+                    .setPrescripteur("Dr TRAORE Issa")
+                    .setPosologie("Appliquer matin et soir sur la zone atteinte")
+                    .setMention("À usage externe")
+                    .setMagasin("PHARMACIE DU PLATEAU")
+                    .setDate("16/10/2026")
+                    .setExpiryDate("16/01/2027")
+                    .setPrint(true);
         }
 
         @Test
         @DisplayName("la reglette met le prix en gros et garde le code discret")
         void reglette() {
             String zpl = rendre(
-                List.of(etiquetteStandard("3794609")),
-                TypeEtiquette.REGLETTE,
-                FormatEtiquette.ROULEAU_58X40,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(etiquetteStandard("3794609")),
+                    TypeEtiquette.REGLETTE,
+                    FormatEtiquette.ROULEAU_58X40,
+                    ResolutionEtiquette.DPI_203);
 
             int hauteurPrix = (int) Math.round(6.0 * 203 / 25.4);
             int hauteurTexte = (int) Math.round(2.6 * 203 / 25.4);
@@ -269,11 +276,10 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("la reglette garde le code en clair quand le Code 39 ne tient pas")
         void regletteSansCode39() {
             String zpl = rendre(
-                List.of(etiquetteStandard("3794609123")),
-                TypeEtiquette.REGLETTE,
-                FormatEtiquette.ROULEAU_30X20,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(etiquetteStandard("3794609123")),
+                    TypeEtiquette.REGLETTE,
+                    FormatEtiquette.ROULEAU_30X20,
+                    ResolutionEtiquette.DPI_203);
 
             // Pas de repli en DataMatrix : au rayon, le code n'est qu'une verification.
             assertThat(zpl).doesNotContain("^B3");
@@ -284,7 +290,11 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("la posologie ne porte ni prix ni code-barres")
         void posologieSansPrix() {
-            String zpl = rendre(List.of(posologie()), TypeEtiquette.POSOLOGIE, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(posologie()),
+                    TypeEtiquette.POSOLOGIE,
+                    FormatEtiquette.ROULEAU_58X40,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).doesNotContain("CFA");
             assertThat(zpl).doesNotContain("^B3");
@@ -298,7 +308,11 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("une posologie longue est repliee en bloc, pas ecrite hors de l etiquette")
         void posologieEnBloc() {
-            String zpl = rendre(List.of(posologie()), TypeEtiquette.POSOLOGIE, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(posologie()),
+                    TypeEtiquette.POSOLOGIE,
+                    FormatEtiquette.ROULEAU_58X40,
+                    ResolutionEtiquette.DPI_203);
 
             // ^FB declare la largeur du bloc et le nombre de lignes : ZPL ne replie rien tout seul.
             assertThat(zpl).contains("^FB");
@@ -309,11 +323,10 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("la preparation porte composition, dates et mention")
         void preparationComplete() {
             String zpl = rendre(
-                List.of(preparation()),
-                TypeEtiquette.PREPARATION,
-                FormatEtiquette.ROULEAU_58X40,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(preparation()),
+                    TypeEtiquette.PREPARATION,
+                    FormatEtiquette.ROULEAU_58X40,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("Acide salicylique 5 g, vaseline qsp 100 g");
             assertThat(zpl).contains("^FDPréparé le 16/10/2026^FS");
@@ -325,7 +338,11 @@ class ZplEtiquetteServiceImplTest {
         @Test
         @DisplayName("un usage declare sa page comme les autres etiquettes")
         void pageDeclaree() {
-            String zpl = rendre(List.of(posologie()), TypeEtiquette.POSOLOGIE, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = rendre(
+                    List.of(posologie()),
+                    TypeEtiquette.POSOLOGIE,
+                    FormatEtiquette.ROULEAU_58X40,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("^CI28");
             assertThat(zpl).contains("^PW" + (int) Math.round(58.0 * 203 / 25.4));
@@ -341,10 +358,9 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("les caracteres de commande d un libelle sont neutralises")
         void libelleAvecCaracteresDeCommande() {
             String zpl = rendre(
-                List.of(etiquetteStandard("3794609").setLibelle("SIROP ^TOUX~ 100_ML")),
-                ROULEAU,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(etiquetteStandard("3794609").setLibelle("SIROP ^TOUX~ 100_ML")),
+                    ROULEAU,
+                    ResolutionEtiquette.DPI_203);
 
             // ^ et ~ ouvrent une commande ZPL, _ porte nos FNC1 : laisses tels quels, ils
             // couperaient l'etiquette en deux.
@@ -355,11 +371,10 @@ class ZplEtiquetteServiceImplTest {
         @DisplayName("un numero de lot a caractere de commande ne casse pas la trame")
         void lotAvecCaractereDeCommande() {
             String zpl = rendre(
-                List.of(etiquetteDeLot().setNumLot("L26_05").setCodeDataMatrix("dm:2403794609{GS}10L26_05")),
-                TypeEtiquette.LOT,
-                ROULEAU,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(etiquetteDeLot().setNumLot("L26_05").setCodeDataMatrix("dm:2403794609{GS}10L26_05")),
+                    TypeEtiquette.LOT,
+                    ROULEAU,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("^FD_12403794609_110L26-05^FS");
             assertThat(zpl).contains("^FDLot L26-05^FS");

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy, input} from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, viewChild, WritableSignal, ChangeDetectionStrategy, input } from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
@@ -10,20 +10,14 @@ import { IUser } from '../../../core/user/user.model';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {
-  AppSplitButtonItem,
-  ButtonComponent,
-  MultiSelectComponent,
-  SelectComponent,
-  SplitButtonComponent,
-} from '../../../shared/ui';
+import { AppSplitButtonItem, ButtonComponent, MultiSelectComponent, SelectComponent, SplitButtonComponent } from '../../../shared/ui';
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
-import { IMagasin } from "../../../shared/model";
+import { IMagasin } from '../../../shared/model';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
 
@@ -31,7 +25,9 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 @Component({
   selector: 'app-recapitualtif-caisse',
-  imports: [ToolbarComponent, DeviseDirective, 
+  imports: [
+    ToolbarComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,

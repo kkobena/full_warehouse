@@ -19,11 +19,33 @@
           <app-button (clicked)="edit()" icon="pi pi-pencil" label="Modifier" severity="primary" size="small" [outlined]="true" />
         }
         @if (canDonneesPersonnelles()) {
-          <app-button (clicked)="exporterDonnees()" icon="pi pi-download" label="Exporter ses données" severity="info" size="small" [outlined]="true" />
-          <app-button (clicked)="confirmerAnonymisation()" icon="pi pi-eraser" label="Effacer ses données" severity="danger" size="small" [outlined]="true" [hidden]="true" />
+          <app-button
+            (clicked)="exporterDonnees()"
+            icon="pi pi-download"
+            label="Exporter ses données"
+            severity="info"
+            size="small"
+            [outlined]="true"
+          />
+          <app-button
+            (clicked)="confirmerAnonymisation()"
+            icon="pi pi-eraser"
+            label="Effacer ses données"
+            severity="danger"
+            size="small"
+            [outlined]="true"
+            [hidden]="true"
+          />
         }
         @if (panelMode()) {
-          <app-button (clicked)="closePanel.emit()" [text]="true" icon="pi pi-times" ngbTooltip="Fermer" severity="secondary" size="small" />
+          <app-button
+            (clicked)="closePanel.emit()"
+            [text]="true"
+            icon="pi pi-times"
+            ngbTooltip="Fermer"
+            severity="secondary"
+            size="small"
+          />
         } @else {
           <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" size="small" />
         }
@@ -52,35 +74,63 @@
                   </app-detail-section>
                 </div>
                 <div class="col-6">
-                  <app-detail-section header="Consentements" icon="pi pi-check-square" [accent]="'slate'" [layout]="'block'"
-                                      storageKey="customer.synthese.consentements">
+                  <app-detail-section
+                    header="Consentements"
+                    icon="pi pi-check-square"
+                    [accent]="'slate'"
+                    [layout]="'block'"
+                    storageKey="customer.synthese.consentements"
+                  >
                     <app-consentements [canEdit]="canEditSante()" [customerId]="client.id!" />
                   </app-detail-section>
                 </div>
               </div>
               <!-- Situation financière -->
-              <app-detail-section header="Situation financière" icon="pi pi-wallet" [accent]="'amber'"
-                                  [width]="'full'" [layout]="'fields'" [loading]="!synthese()" [skeletonRows]="4"
-                                  storageKey="customer.synthese.finances">
-                <app-detail-field label="Encours (différés)" hint="Cliquer pour voir le détail dans l'onglet Crédit"
-                                  [tone]="(synthese()?.encours ?? 0) > 0 ? 'danger' : 'success'">
+              <app-detail-section
+                header="Situation financière"
+                icon="pi pi-wallet"
+                [accent]="'amber'"
+                [width]="'full'"
+                [layout]="'fields'"
+                [loading]="!synthese()"
+                [skeletonRows]="4"
+                storageKey="customer.synthese.finances"
+              >
+                <app-detail-field
+                  label="Encours (différés)"
+                  hint="Cliquer pour voir le détail dans l'onglet Crédit"
+                  [tone]="(synthese()?.encours ?? 0) > 0 ? 'danger' : 'success'"
+                >
                   <span (click)="voirCredit()" class="clickable">{{ synthese()?.encours ?? 0 | number }} {{ devise }}</span>
                 </app-detail-field>
                 <!--<app-detail-field label="Avoirs disponibles" [value]="soldeTotalAvoirs()" format="montant"
                                   [tone]="soldeTotalAvoirs() > 0 ? 'success' : 'none'" />-->
                 <app-detail-field label="Dernière visite" [value]="synthese()?.derniereVisite" format="date" />
-                <app-detail-field label="Achats sur 12 mois" hint="Nombre d'achats sur 12 mois"
-                                  [value]="synthese()?.montantAchats" format="montant"
-                                  [unit]="'(' + (synthese()?.nombreAchats ?? 0) + ' achat(s))'" />
+                <app-detail-field
+                  label="Achats sur 12 mois"
+                  hint="Nombre d'achats sur 12 mois"
+                  [value]="synthese()?.montantAchats"
+                  format="montant"
+                  [unit]="'(' + (synthese()?.nombreAchats ?? 0) + ' achat(s))'"
+                />
               </app-detail-section>
               <!-- Couverture -->
               @if (couverturePrincipale(); as couverture) {
-                <app-detail-section header="Couverture" icon="pi pi-shield" [accent]="'teal'"
-                                    [width]="'wide'" [layout]="'block'" storageKey="customer.synthese.couverture">
+                <app-detail-section
+                  header="Couverture"
+                  icon="pi pi-shield"
+                  [accent]="'teal'"
+                  [width]="'wide'"
+                  [layout]="'block'"
+                  storageKey="customer.synthese.couverture"
+                >
                   @for (tp of cartesExpirees(); track tp.id) {
                     <div class="mb-1">
-                      <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
-                                 icon="pi pi-exclamation-triangle" severity="danger" />
+                      <app-badge
+                        [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
+                        icon="pi pi-exclamation-triangle"
+                        severity="danger"
+                      />
                     </div>
                   }
                   <div class="fiche-couverture">
@@ -98,17 +148,27 @@
               }
               <!-- Pastilles d'alerte : ce qu'on doit voir avant de délivrer -->
               @if (dossierSante(); as sante) {
-                <app-detail-section header="Alertes santé" icon="pi pi-heart"
-                                    [accent]="(sante.allergies?.length || grossesseEnCours()) ? 'danger' : 'slate'"
-                                    [width]="'wide'" [layout]="'block'" storageKey="customer.synthese.sante">
+                <app-detail-section
+                  header="Alertes santé"
+                  icon="pi pi-heart"
+                  [accent]="sante.allergies?.length || grossesseEnCours() ? 'danger' : 'slate'"
+                  [width]="'wide'"
+                  [layout]="'block'"
+                  storageKey="customer.synthese.sante"
+                >
                   <div class="d-flex flex-wrap gap-2">
                     @for (allergie of sante.allergies; track allergie.id) {
-                      <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle"
-                                 severity="danger" />
+                      <app-badge
+                        [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)"
+                        icon="pi pi-exclamation-triangle"
+                        severity="danger"
+                      />
                     }
                     @if (grossesseEnCours()) {
-                      <app-badge [label]="sante.dateTerme ? 'Enceinte (terme ' + (sante.dateTerme | date: 'dd/MM/yyyy') + ')' : 'Enceinte'"
-                                 severity="help" />
+                      <app-badge
+                        [label]="sante.dateTerme ? 'Enceinte (terme ' + (sante.dateTerme | date: 'dd/MM/yyyy') + ')' : 'Enceinte'"
+                        severity="help"
+                      />
                     }
                     @if (sante.allaitement) {
                       <app-badge label="Allaitement" severity="help" />
@@ -124,9 +184,15 @@
               }
               <!-- Ayants droit -->
               @if (client.ayantDroits?.length) {
-                <app-detail-section header="Ayants droit" icon="pi pi-users" [accent]="'indigo'"
-                                    [width]="'wide'" [layout]="'block'" [count]="client.ayantDroits!.length"
-                                    storageKey="customer.synthese.ayants-droit">
+                <app-detail-section
+                  header="Ayants droit"
+                  icon="pi pi-users"
+                  [accent]="'indigo'"
+                  [width]="'wide'"
+                  [layout]="'block'"
+                  [count]="client.ayantDroits!.length"
+                  storageKey="customer.synthese.ayants-droit"
+                >
                   <app-data-table [value]="client.ayantDroits ?? []" size="small">
                     <ng-template #header>
                       <tr class="pharma-table-head">
@@ -150,22 +216,28 @@
 
               <!-- Traitements chroniques à renouveler : de quoi proposer la délivrance au comptoir -->
               @if (traitementsARelancer().length > 0) {
-                <app-detail-section header="Traitements à relancer" icon="pi pi-replay" [accent]="'warning'"
-                                    [width]="'wide'" [layout]="'block'" [count]="traitementsARelancer().length"
-                                    storageKey="customer.synthese.traitements">
+                <app-detail-section
+                  header="Traitements à relancer"
+                  icon="pi pi-replay"
+                  [accent]="'warning'"
+                  [width]="'wide'"
+                  [layout]="'block'"
+                  [count]="traitementsARelancer().length"
+                  storageKey="customer.synthese.traitements"
+                >
                   <div class="d-flex flex-wrap gap-2">
                     @for (t of traitementsARelancer(); track t.id) {
-                      <app-badge [label]="suivis[t.suivi].libelle + ' : ' + libelleTraitement(t) + ' (' + echeanceTraitement(t) + ')'"
-                                 [severity]="suivis[t.suivi].severity" icon="pi pi-replay" />
+                      <app-badge
+                        [label]="suivis[t.suivi].libelle + ' : ' + libelleTraitement(t) + ' (' + echeanceTraitement(t) + ')'"
+                        [severity]="suivis[t.suivi].severity"
+                        icon="pi pi-replay"
+                      />
                     }
                   </div>
                 </app-detail-section>
               }
-
-
             </app-detail-grid>
           </ng-template>
-
         </ng-container>
 
         <!-- Achats -->
@@ -228,8 +300,13 @@
             }
           </a>
           <ng-template ngbNavContent>
-            <app-customer-credit-tab [canOpenDifferes]="canOpenDifferes()" [customerCode]="client.code"
-                                     [customerId]="client.id!" [customerPhone]="client.phone" [devise]="devise" />
+            <app-customer-credit-tab
+              [canOpenDifferes]="canOpenDifferes()"
+              [customerCode]="client.code"
+              [customerId]="client.id!"
+              [customerPhone]="client.phone"
+              [devise]="devise"
+            />
           </ng-template>
         </ng-container>
 

@@ -27,8 +27,8 @@ import com.kobe.warehouse.security.navaccess.NavAccessService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.customer.AlerteSanteDTO;
-import com.kobe.warehouse.service.customer.DerogationAuthorizer;
 import com.kobe.warehouse.service.customer.DerogationAlerteSanteDTO;
+import com.kobe.warehouse.service.customer.DerogationAuthorizer;
 import com.kobe.warehouse.service.customer.DossierSanteDTO;
 import com.kobe.warehouse.service.customer.DossierSanteService;
 import com.kobe.warehouse.service.dashboard.integration.AbstractDashboardIntegrationTest;
@@ -76,29 +76,33 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
         LicenseService licenseService = mock(LicenseService.class);
         when(licenseService.hasFeature(any())).thenReturn(true);
         NavAccessService navAccess = new NavAccessService(
-            IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
-            IntegrationPostgresDatabase.bean(NavItemRepository.class),
-            userRepository,
-            licenseService,
-            new NoOpCacheManager()
-        );
+                IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
+                IntegrationPostgresDatabase.bean(NavItemRepository.class),
+                userRepository,
+                licenseService,
+                new NoOpCacheManager());
         UserService userService = mock(UserService.class);
-        when(userService.getUser()).thenAnswer(i -> userRepository.findOneByLogin(SecurityContextHolder.getContext().getAuthentication().getName()).orElse(null));
-        when(userService.getUserByPwdOrSecurityKey(anyString())).thenAnswer(i ->
-            userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex((String) i.getArgument(0)))
-        );
+        when(userService.getUser())
+                .thenAnswer(i -> userRepository
+                        .findOneByLogin(SecurityContextHolder.getContext()
+                                .getAuthentication()
+                                .getName())
+                        .orElse(null));
+        when(userService.getUserByPwdOrSecurityKey(anyString()))
+                .thenAnswer(i ->
+                        userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex((String) i.getArgument(0))));
         UtilisationCleSecuriteService cles = mock(UtilisationCleSecuriteService.class);
         NavItemRepository navItems = IntegrationPostgresDatabase.bean(NavItemRepository.class);
-        when(cles.hasPrivilege(anyString(), anyString())).thenAnswer(i -> navItems.existByCodeAndRoleName(i.getArgument(0), i.getArgument(1)));
+        when(cles.hasPrivilege(anyString(), anyString()))
+                .thenAnswer(i -> navItems.existByCodeAndRoleName(i.getArgument(0), i.getArgument(1)));
 
         service = new DossierSanteService(
-            IntegrationPostgresDatabase.bean(CustomerRepository.class),
-            IntegrationPostgresDatabase.bean(CustomerDossierSanteRepository.class),
-            IntegrationPostgresDatabase.bean(CustomerAllergieRepository.class),
-            IntegrationPostgresDatabase.bean(AlerteSanteDerogationRepository.class),
-            new DerogationAuthorizer(navAccess, userService, cles),
-            em
-        );
+                IntegrationPostgresDatabase.bean(CustomerRepository.class),
+                IntegrationPostgresDatabase.bean(CustomerDossierSanteRepository.class),
+                IntegrationPostgresDatabase.bean(CustomerAllergieRepository.class),
+                IntegrationPostgresDatabase.bean(AlerteSanteDerogationRepository.class),
+                new DerogationAuthorizer(navAccess, userService, cles),
+                em);
 
         client = client(unique("SANTE"), "Awa", "0700000020");
         amoxicilline = dci(unique("AMOXICILLINE"), StatutDci.ACTIVE);
@@ -113,42 +117,62 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
     @Test
     @DisplayName("le dossier s'enregistre et se relit, allergies comprises")
     void enregistrerEtRelire() {
-        DossierSanteDTO enregistre = service.enregistrer(client.getId(), dossier(allergie(amoxicilline, "urticaire"), new DossierSanteDTO.Allergie(null, null, null, "Arachide", null)));
+        DossierSanteDTO enregistre = service.enregistrer(
+                client.getId(),
+                dossier(
+                        allergie(amoxicilline, "urticaire"),
+                        new DossierSanteDTO.Allergie(null, null, null, "Arachide", null)));
 
-        assertThat(enregistre.allergies()).extracting(DossierSanteDTO.Allergie::dciLibelle).containsExactly(amoxicilline.getLibelle(), null);
-        assertThat(enregistre.allergies()).extracting(DossierSanteDTO.Allergie::libelle).containsExactly(null, "Arachide");
+        assertThat(enregistre.allergies())
+                .extracting(DossierSanteDTO.Allergie::dciLibelle)
+                .containsExactly(amoxicilline.getLibelle(), null);
+        assertThat(enregistre.allergies())
+                .extracting(DossierSanteDTO.Allergie::libelle)
+                .containsExactly(null, "Arachide");
         assertThat(enregistre.pathologies()).containsExactly("Diabète");
         assertThat(enregistre.poidsKg()).isEqualByComparingTo("62.5");
         assertThat(enregistre.datePesee()).isEqualTo(LocalDate.now());
 
         // Retirer une allergie la supprime ; ressaisir la même molécule n'en crée pas deux.
-        DossierSanteDTO modifie = service.enregistrer(client.getId(), dossier(allergie(amoxicilline, null), allergie(amoxicilline, null)));
+        DossierSanteDTO modifie = service.enregistrer(
+                client.getId(), dossier(allergie(amoxicilline, null), allergie(amoxicilline, null)));
         assertThat(modifie.allergies()).hasSize(1);
     }
 
     @Test
-    @DisplayName("une allergie bloque le produit qui contient la molécule, y compris dans une association non décomposée")
+    @DisplayName(
+            "une allergie bloque le produit qui contient la molécule, y compris dans une association non décomposée")
     void alerteAllergie() {
         service.enregistrer(client.getId(), dossier(allergie(amoxicilline, "œdème")));
 
         assertThat(service.alertes(client.getId(), clamoxyl.getId()))
-            .singleElement()
-            .satisfies(a -> {
-                assertThat(a.niveau()).isEqualTo(AlerteSanteDTO.BLOQUANTE);
-                assertThat(a.message()).contains("AMOXICILLINE").contains("œdème");
-            });
-        assertThat(service.alertes(client.getId(), augmentin.getId())).extracting(AlerteSanteDTO::niveau).containsExactly(AlerteSanteDTO.BLOQUANTE);
+                .singleElement()
+                .satisfies(a -> {
+                    assertThat(a.niveau()).isEqualTo(AlerteSanteDTO.BLOQUANTE);
+                    assertThat(a.message()).contains("AMOXICILLINE").contains("œdème");
+                });
+        assertThat(service.alertes(client.getId(), augmentin.getId()))
+                .extracting(AlerteSanteDTO::niveau)
+                .containsExactly(AlerteSanteDTO.BLOQUANTE);
         assertThat(service.alertes(client.getId(), doliprane.getId())).isEmpty();
     }
 
     @Test
     @DisplayName("grossesse et allaitement ne font que rappeler ; une grossesse à terme dépassé ne rappelle plus rien")
     void grossesseEtAllaitement() {
-        service.enregistrer(client.getId(), new DossierSanteDTO(List.of(), List.of(), true, LocalDate.now().plusMonths(3), true, null, null, null, null, null));
-        assertThat(service.alertes(client.getId(), doliprane.getId())).extracting(AlerteSanteDTO::type).containsExactly("GROSSESSE", "ALLAITEMENT");
+        service.enregistrer(
+                client.getId(),
+                new DossierSanteDTO(
+                        List.of(), List.of(), true, LocalDate.now().plusMonths(3), true, null, null, null, null, null));
+        assertThat(service.alertes(client.getId(), doliprane.getId()))
+                .extracting(AlerteSanteDTO::type)
+                .containsExactly("GROSSESSE", "ALLAITEMENT");
         assertThat(service.alertes(client.getId(), doliprane.getId())).noneMatch(AlerteSanteDTO::bloquante);
 
-        service.enregistrer(client.getId(), new DossierSanteDTO(List.of(), List.of(), true, LocalDate.now().minusDays(1), false, null, null, null, null, null));
+        service.enregistrer(
+                client.getId(),
+                new DossierSanteDTO(
+                        List.of(), List.of(), true, LocalDate.now().minusDays(1), false, null, null, null, null, null));
         assertThat(service.alertes(client.getId(), doliprane.getId())).isEmpty();
     }
 
@@ -156,11 +180,15 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
     @DisplayName("sans le droit ni une clé valide, la dérogation est refusée")
     void derogationRefusee() {
         service.enregistrer(client.getId(), dossier(allergie(amoxicilline, null)));
-        DerogationAlerteSanteDTO sansCle = new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", null);
-        DerogationAlerteSanteDTO mauvaiseCle = new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", "0000");
+        DerogationAlerteSanteDTO sansCle =
+                new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", null);
+        DerogationAlerteSanteDTO mauvaiseCle =
+                new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", "0000");
 
-        assertThatThrownBy(() -> service.deroger(client.getId(), sansCle)).isInstanceOf(ForbiddenOperationException.class);
-        assertThatThrownBy(() -> service.deroger(client.getId(), mauvaiseCle)).isInstanceOf(ForbiddenOperationException.class);
+        assertThatThrownBy(() -> service.deroger(client.getId(), sansCle))
+                .isInstanceOf(ForbiddenOperationException.class);
+        assertThatThrownBy(() -> service.deroger(client.getId(), mauvaiseCle))
+                .isInstanceOf(ForbiddenOperationException.class);
         assertThat(derogations()).isEmpty();
     }
 
@@ -169,7 +197,9 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
     void derogationParCle() {
         service.enregistrer(client.getId(), dossier(allergie(amoxicilline, null)));
 
-        service.deroger(client.getId(), new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", CLE_PHARMACIEN));
+        service.deroger(
+                client.getId(),
+                new DerogationAlerteSanteDTO(clamoxyl.getId(), "prescription maintenue", CLE_PHARMACIEN));
 
         assertThat(derogations()).singleElement().satisfies(d -> {
             assertThat(d.getUser().getId()).isEqualTo(caissier.getId());
@@ -187,14 +217,18 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
 
         service.deroger(client.getId(), new DerogationAlerteSanteDTO(clamoxyl.getId(), "avis du médecin", null));
 
-        assertThat(derogations()).singleElement().extracting(d -> d.getAutorisePar().getId()).isEqualTo(pharmacien.getId());
+        assertThat(derogations())
+                .singleElement()
+                .extracting(d -> d.getAutorisePar().getId())
+                .isEqualTo(pharmacien.getId());
     }
 
     // ===== fixtures =====
 
     private List<AlerteSanteDerogation> derogations() {
         em.flush();
-        return IntegrationPostgresDatabase.bean(AlerteSanteDerogationRepository.class).findAllByCustomerIdOrderByCreatedAtDesc(client.getId());
+        return IntegrationPostgresDatabase.bean(AlerteSanteDerogationRepository.class)
+                .findAllByCustomerIdOrderByCreatedAtDesc(client.getId());
     }
 
     private static DossierSanteDTO.Allergie allergie(Dci dci, String reaction) {
@@ -202,7 +236,17 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
     }
 
     private static DossierSanteDTO dossier(DossierSanteDTO.Allergie... allergies) {
-        return new DossierSanteDTO(List.of(allergies), List.of("Diabète", " ", "Diabète"), false, null, false, new BigDecimal("62.5"), null, null, null, null);
+        return new DossierSanteDTO(
+                List.of(allergies),
+                List.of("Diabète", " ", "Diabète"),
+                false,
+                null,
+                false,
+                new BigDecimal("62.5"),
+                null,
+                null,
+                null,
+                null);
     }
 
     private Dci dci(String libelle, StatutDci statut) {
@@ -228,22 +272,24 @@ class DossierSanteIntegrationTest extends AbstractDashboardIntegrationTest {
         user.setActivated(true);
         user.setLangKey("fr");
         user.setMagasin(em.find(Magasin.class, MAGASIN_ID));
-        user.setAuthorities(Set.of(role).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
+        user.setAuthorities(
+                Set.of(role).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
         em.persist(user);
         em.flush();
         if (cle != null) {
-            // Posée en SQL, comme le jeu de démonstration : l'entité valide la saisie (chiffres), la base garde son empreinte.
-            em
-                .createNativeQuery("UPDATE app_user SET action_authority_key = :cle WHERE id = :id")
-                .setParameter("cle", DigestUtils.sha256Hex(cle))
-                .setParameter("id", user.getId())
-                .executeUpdate();
+            // Posée en SQL, comme le jeu de démonstration : l'entité valide la saisie (chiffres), la base garde son
+            // empreinte.
+            em.createNativeQuery("UPDATE app_user SET action_authority_key = :cle WHERE id = :id")
+                    .setParameter("cle", DigestUtils.sha256Hex(cle))
+                    .setParameter("id", user.getId())
+                    .executeUpdate();
             em.refresh(user);
         }
         return user;
     }
 
     private static void connecter(AppUser user) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
     }
 }

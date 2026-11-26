@@ -30,9 +30,6 @@ export const MOTIFS_BED_CREATION: { value: MotifBed; label: string }[] = [
   { value: 'AUTRE', label: 'Autre' },
 ];
 
-
-
-
 export interface IBedLigne {
   id?: number;
   orderDate?: string;

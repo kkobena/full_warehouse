@@ -40,7 +40,8 @@
           @if (formatChoisi()) {
             <small class="form-text text-muted">
               @if (estRouleau()) {
-                {{ formatChoisi()!.reference }} — une étiquette par page, {{ formatChoisi()!.largeurMm }} × {{ formatChoisi()!.hauteurMm }} mm
+                {{ formatChoisi()!.reference }} — une étiquette par page, {{ formatChoisi()!.largeurMm }} ×
+                {{ formatChoisi()!.hauteurMm }} mm
               } @else {
                 {{ formatChoisi()!.reference }} — {{ formatChoisi()!.colonnes }} × {{ formatChoisi()!.rangees }},
                 {{ formatChoisi()!.capacite }} étiquettes par planche
@@ -103,15 +104,22 @@
           <!-- Ce champ n'est pas une quantité mais la CASE de départ sur la planche : on
                reprend une planche entamée là où elle s'est arrêtée, plutôt que d'en gâcher
                une entière. Le libellé « Quantité » faisait saisir un nombre d'étiquettes. -->
-          <label class="col-auto col-form-label" for="etiquette-start">Position de départ sur la planche<span
-            style="font-weight: 900; color: red">*</span></label>
-          <input #startInput id="etiquette-start" [(ngModel)]="startAt" [appKeyFilter]="'int'"
-                 autocomplete="off" class="form-control" type="text" />
+          <label class="col-auto col-form-label" for="etiquette-start"
+            >Position de départ sur la planche<span style="font-weight: 900; color: red">*</span></label
+          >
+          <input
+            #startInput
+            id="etiquette-start"
+            [(ngModel)]="startAt"
+            [appKeyFilter]="'int'"
+            autocomplete="off"
+            class="form-control"
+            type="text"
+          />
           <small class="form-text text-muted">Case de la première étiquette, de 1 à {{ capacite() }}.</small>
           @if (!departValide()) {
             <div>
-              <small class="form-text text-danger" style="color: red"> La position doit être
-                comprise entre 1 et {{ capacite() }} </small>
+              <small class="form-text text-danger" style="color: red"> La position doit être comprise entre 1 et {{ capacite() }} </small>
             </div>
           }
         </div>

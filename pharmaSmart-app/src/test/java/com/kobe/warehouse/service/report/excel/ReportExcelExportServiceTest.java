@@ -66,9 +66,10 @@ class ReportExcelExportServiceTest {
         @Test
         @DisplayName("les données suivent immédiatement les en-têtes")
         void donneesApresLesEntetes() throws IOException {
-            Sheet feuille = feuille(
-                classeur("Alertes", entetes("Code", "Libellé"), lignes(ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN")))
-            );
+            Sheet feuille = feuille(classeur(
+                    "Alertes",
+                    entetes("Code", "Libellé"),
+                    lignes(ligne("CIP1", "DOLIPRANE"), ligne("CIP2", "EFFERALGAN"))));
 
             assertThat(valeur(feuille, 4, 0)).isEqualTo("CIP1");
             assertThat(valeur(feuille, 4, 1)).isEqualTo("DOLIPRANE");
@@ -99,7 +100,8 @@ class ReportExcelExportServiceTest {
         @Test
         @DisplayName("les accents survivent au classeur")
         void accents() throws IOException {
-            Sheet feuille = feuille(classeur("Produits périmés", entetes("Libellé", "Péremption"), lignes(ligne("DOLIPRANE", "31/03/2026"))));
+            Sheet feuille = feuille(classeur(
+                    "Produits périmés", entetes("Libellé", "Péremption"), lignes(ligne("DOLIPRANE", "31/03/2026"))));
 
             assertThat(valeur(feuille, 0, 0)).isEqualTo("Produits périmés");
             assertThat(valeur(feuille, 3, 0)).isEqualTo("Libellé");
@@ -130,7 +132,9 @@ class ReportExcelExportServiceTest {
         @Test
         @DisplayName("le titre nomme la feuille")
         void titreNommeLaFeuille() throws IOException {
-            assertThat(feuille(classeur("Alertes Stock", entetes("Code", "Libellé"), lignes())).getSheetName()).isEqualTo("Alertes Stock");
+            assertThat(feuille(classeur("Alertes Stock", entetes("Code", "Libellé"), lignes()))
+                            .getSheetName())
+                    .isEqualTo("Alertes Stock");
         }
 
         /**
@@ -141,9 +145,15 @@ class ReportExcelExportServiceTest {
         @Test
         @DisplayName("les caractères qu'Excel refuse sont remplacés")
         void caracteresInterdits() throws IOException {
-            String nom = feuille(classeur("Ventes 01/01 [A]*?", entetes("Code", "Libellé"), lignes())).getSheetName();
+            String nom = feuille(classeur("Ventes 01/01 [A]*?", entetes("Code", "Libellé"), lignes()))
+                    .getSheetName();
 
-            assertThat(nom).doesNotContain("/").doesNotContain("[").doesNotContain("]").doesNotContain("*").doesNotContain("?");
+            assertThat(nom)
+                    .doesNotContain("/")
+                    .doesNotContain("[")
+                    .doesNotContain("]")
+                    .doesNotContain("*")
+                    .doesNotContain("?");
             assertThat(nom).isEqualTo("Ventes 01_01 _A___");
         }
 
@@ -153,7 +163,8 @@ class ReportExcelExportServiceTest {
         void titreTropLong() throws IOException {
             String titreLong = "Récapitulatif des produits vendus du 01/01/2026 au 31/03/2026";
 
-            String nom = feuille(classeur(titreLong, entetes("Code", "Libellé"), lignes())).getSheetName();
+            String nom = feuille(classeur(titreLong, entetes("Code", "Libellé"), lignes()))
+                    .getSheetName();
 
             assertThat(nom).hasSize(31);
         }
@@ -188,7 +199,8 @@ class ReportExcelExportServiceTest {
         @Test
         @DisplayName("une date s'écrit au format du jour")
         void formatDeLaDate() {
-            assertThat(service.formatDate(LocalDateTime.of(2026, 3, 31, 14, 30))).isEqualTo("31/03/2026");
+            assertThat(service.formatDate(LocalDateTime.of(2026, 3, 31, 14, 30)))
+                    .isEqualTo("31/03/2026");
         }
 
         @Test

@@ -1,18 +1,18 @@
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { RouterModule } from "@angular/router";
-import { PosteService } from "./poste.service";
-import { IPoste } from "../../../../shared/model/poste.model";
-import { FormsModule } from "@angular/forms";
-import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ErrorService } from "../../../../shared/error.service";
-import { showCommonModal } from "../../../../entities/sales/selling-home/sale-helper";
-import { FormPosteComponent } from "./form-poste/form-poste.component";
-import { PosteDeviceService } from "./poste-device.service";
-import { IPosteDevice } from "../../../../shared/model/poste-device.model";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { CommonModule } from "@angular/common";
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { PosteService } from './poste.service';
+import { IPoste } from '../../../../shared/model/poste.model';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../../shared/error.service';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { FormPosteComponent } from './form-poste/form-poste.component';
+import { PosteDeviceService } from './poste-device.service';
+import { IPosteDevice } from '../../../../shared/model/poste-device.model';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { CommonModule } from '@angular/common';
 import { CardComponent } from 'app/shared/ui';
 import {
   BadgeComponent,
@@ -20,15 +20,16 @@ import {
   DataTableComponent,
   IconFieldComponent,
   RowTogglerDirective,
-  ToolbarComponent
-} from "../../../../shared/ui";
+  ToolbarComponent,
+} from '../../../../shared/ui';
 
 @Component({
-  selector: "app-poste",
-  templateUrl: "./poste.component.html",
-  styleUrls: ["./poste.component.scss"],
+  selector: 'app-poste',
+  templateUrl: './poste.component.html',
+  styleUrls: ['./poste.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     CommonModule,
     ButtonComponent,
     ToolbarComponent,
@@ -38,14 +39,14 @@ import {
     IconFieldComponent,
     RowTogglerDirective,
     BadgeComponent,
-    NgbTooltip
-  ]
+    NgbTooltip,
+  ],
 })
 export class PosteComponent implements OnInit {
   protected readonly loading = signal<boolean | undefined>(undefined);
   protected entites: IPoste[] = [];
   protected readonly filteredEntities = signal<IPoste[]>([]);
-  protected searchQuery = "";
+  protected searchQuery = '';
   protected devicesMap = signal<Record<number, IPosteDevice[]>>({});
   private readonly entityService = inject(PosteService);
   private readonly posteDeviceService = inject(PosteDeviceService);
@@ -62,7 +63,7 @@ export class PosteComponent implements OnInit {
     this.loading.set(true);
     this.entityService.fetchAll().subscribe({
       next: (res: HttpResponse<IPoste[]>) => this.onSuccess(res.body),
-      error: err => this.onError(err)
+      error: err => this.onError(err),
     });
   }
 
@@ -72,12 +73,12 @@ export class PosteComponent implements OnInit {
       FormPosteComponent,
       {
         entity: null,
-        title: "Ajouter un nouveau poste"
+        title: 'Ajouter un nouveau poste',
       },
       () => {
         this.loadAll();
       },
-      "lg"
+      'lg',
     );
   }
 
@@ -87,12 +88,12 @@ export class PosteComponent implements OnInit {
       FormPosteComponent,
       {
         entity,
-        title: "Modification de " + entity.name
+        title: 'Modification de ' + entity.name,
       },
       () => {
         this.loadAll();
       },
-      "lg"
+      'lg',
     );
   }
 
@@ -102,17 +103,16 @@ export class PosteComponent implements OnInit {
     }
   }
 
-
   protected confirmDelete(id: number): void {
     this.confirmDialog.onConfirm(
       () => {
         this.entityService.delete(id).subscribe(() => {
-          this.notificationService.success("Le poste a été supprimé avec succès.", "Suppression réussie");
+          this.notificationService.success('Le poste a été supprimé avec succès.', 'Suppression réussie');
           this.loadAll();
         });
       },
-      "Suppression",
-      "Êtes-vous sûr de vouloir supprimer ce poste ?"
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ce poste ?',
     );
   }
 
@@ -136,27 +136,27 @@ export class PosteComponent implements OnInit {
 
   protected deviceTypeLabel(type: string): string {
     switch (type) {
-      case "SCANNER":
-        return "Scanner";
-      case "DISPLAY":
-        return "Afficheur";
-      case "PRINTER":
-        return "Imprimante";
+      case 'SCANNER':
+        return 'Scanner';
+      case 'DISPLAY':
+        return 'Afficheur';
+      case 'PRINTER':
+        return 'Imprimante';
       default:
         return type;
     }
   }
 
-  protected deviceTypeSeverity(type: string): "info" | "success" | "warn" | "danger" | "secondary" {
+  protected deviceTypeSeverity(type: string): 'info' | 'success' | 'warn' | 'danger' | 'secondary' {
     switch (type) {
-      case "SCANNER":
-        return "info";
-      case "DISPLAY":
-        return "warn";
-      case "PRINTER":
-        return "success";
+      case 'SCANNER':
+        return 'info';
+      case 'DISPLAY':
+        return 'warn';
+      case 'PRINTER':
+        return 'success';
       default:
-        return "secondary";
+        return 'secondary';
     }
   }
 
@@ -164,12 +164,14 @@ export class PosteComponent implements OnInit {
     if (!this.searchQuery) {
       this.filteredEntities.set([...this.entites]);
     } else {
-      this.filteredEntities.set(this.entites.filter(
-        entity =>
-          entity.name?.toLowerCase().includes(this.searchQuery) ||
-          entity.address?.toLowerCase().includes(this.searchQuery) ||
-          entity.posteNumber?.toLowerCase().includes(this.searchQuery)
-      ));
+      this.filteredEntities.set(
+        this.entites.filter(
+          entity =>
+            entity.name?.toLowerCase().includes(this.searchQuery) ||
+            entity.address?.toLowerCase().includes(this.searchQuery) ||
+            entity.posteNumber?.toLowerCase().includes(this.searchQuery),
+        ),
+      );
     }
   }
 

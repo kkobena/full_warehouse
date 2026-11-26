@@ -74,14 +74,16 @@ class SemoisStockActuelIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
         stockProduitRepository = IntegrationPostgresDatabase.bean(StockProduitRepository.class);
         vueRepository = IntegrationPostgresDatabase.bean(SemoisSuggestionViewRepository.class);
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         magasin = em.find(Magasin.class, MAGASIN_ID);
     }
 
@@ -104,10 +106,7 @@ class SemoisStockActuelIntegrationTest {
         int attendu = 13;
 
         Integer calculJava = stockProduitRepository.findTotalQuantityCouvrantLaDemande(
-            MAGASIN_ID,
-            produit.getId(),
-            StorageType.listerTypesCouvrantLaDemande()
-        );
+                MAGASIN_ID, produit.getId(), StorageType.listerTypesCouvrantLaDemande());
         Optional<SemoisSuggestionView> vue = lireLaVue(produit);
 
         assertThat(calculJava).isEqualTo(attendu);
@@ -140,7 +139,8 @@ class SemoisStockActuelIntegrationTest {
         Produit produit = produitSuggerable();
         poserLeStockDEssai(produit);
 
-        Integer tousEmplacements = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(MAGASIN_ID, produit.getId());
+        Integer tousEmplacements =
+                stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(MAGASIN_ID, produit.getId());
 
         assertThat(tousEmplacements).isEqualTo(113);
     }
@@ -165,10 +165,7 @@ class SemoisStockActuelIntegrationTest {
         em.flush();
 
         Integer calculJava = stockProduitRepository.findTotalQuantityCouvrantLaDemande(
-            MAGASIN_ID,
-            produit.getId(),
-            StorageType.listerTypesCouvrantLaDemande()
-        );
+                MAGASIN_ID, produit.getId(), StorageType.listerTypesCouvrantLaDemande());
         SemoisSuggestionView vue = lireLaVue(produit).orElseThrow();
 
         assertThat(calculJava).isEqualTo(13);
@@ -181,8 +178,8 @@ class SemoisStockActuelIntegrationTest {
     @DisplayName("seule la quarantaine est écartée : rayon, réserve et toxiques couvrent la demande")
     void regleDesEmplacements() {
         assertThat(StorageType.listerTypesCouvrantLaDemande())
-            .containsExactlyInAnyOrder(StorageType.PRINCIPAL, StorageType.SAFETY_STOCK, StorageType.TOXIQUE)
-            .doesNotContain(StorageType.QUARANTAINE);
+                .containsExactlyInAnyOrder(StorageType.PRINCIPAL, StorageType.SAFETY_STOCK, StorageType.TOXIQUE)
+                .doesNotContain(StorageType.QUARANTAINE);
     }
 
     // ===== jeu d'essai =====
@@ -211,11 +208,12 @@ class SemoisStockActuelIntegrationTest {
     }
 
     private Storage emplacement(StorageType type) {
-        return em
-            .createQuery("SELECT s FROM Storage s WHERE s.magasin.id = :magasin AND s.storageType = :type", Storage.class)
-            .setParameter("magasin", MAGASIN_ID)
-            .setParameter("type", type)
-            .getSingleResult();
+        return em.createQuery(
+                        "SELECT s FROM Storage s WHERE s.magasin.id = :magasin AND s.storageType = :type",
+                        Storage.class)
+                .setParameter("magasin", MAGASIN_ID)
+                .setParameter("type", type)
+                .getSingleResult();
     }
 
     /**
@@ -238,10 +236,11 @@ class SemoisStockActuelIntegrationTest {
         produit.setDeconditionnable(false);
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
-        produit.setTva(em.createQuery("SELECT t FROM Tva t WHERE t.taux = 0", Tva.class).getSingleResult());
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult()
-        );
+        produit.setTva(em.createQuery("SELECT t FROM Tva t WHERE t.taux = 0", Tva.class)
+                .getSingleResult());
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult());
         em.persist(produit);
         em.flush();
 

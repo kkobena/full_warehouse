@@ -15,13 +15,13 @@ import com.kobe.warehouse.domain.RepartitionStockProduit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.SuggestionReassort;
-import com.kobe.warehouse.domain.enumeration.StatutLot;
+import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.domain.enumeration.StatutReassort;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.domain.enumeration.TypeReassort;
-import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -71,12 +71,14 @@ abstract class AbstractReassortIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new ReassortServicesUnderTest(em);
 
         utilisateur = em.find(AppUser.class, 1);
@@ -86,13 +88,17 @@ abstract class AbstractReassortIntegrationTest {
 
         lenient().when(services.storageService.getUser()).thenReturn(utilisateur);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
-        lenient().when(services.storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
-        lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserMainStorage())
+                .thenReturn(rayon);
+        lenient()
+                .when(services.storageService.getDefaultConnectedUserReserveStorage())
+                .thenReturn(reserve);
         lenient().when(services.storageService.getOne(STORAGE_RAYON_ID)).thenReturn(rayon);
         lenient().when(services.storageService.getOne(STORAGE_RESERVE_ID)).thenReturn(reserve);
         lenient()
-            .when(services.storageService.getStorageByMagasinIdAndType(MAGASIN_ID, StorageType.PRINCIPAL))
-            .thenReturn(rayon);
+                .when(services.storageService.getStorageByMagasinIdAndType(MAGASIN_ID, StorageType.PRINCIPAL))
+                .thenReturn(rayon);
     }
 
     @AfterEach
@@ -109,7 +115,9 @@ abstract class AbstractReassortIntegrationTest {
     }
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     /**
@@ -132,9 +140,9 @@ abstract class AbstractReassortIntegrationTest {
         produit.setCreatedAt(LocalDateTime.now());
         produit.setUpdatedAt(LocalDateTime.now());
         produit.setTva(tva(0));
-        produit.setFamille(
-            em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult()
-        );
+        produit.setFamille(em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(1)
+                .getSingleResult());
         em.persist(produit);
         em.flush();
 
@@ -180,7 +188,8 @@ abstract class AbstractReassortIntegrationTest {
      * Un lot et sa présence sur un emplacement — les deux faces de la même quantité.
      * {@code peremption} décide de l'ordre FEFO du transfert.
      */
-    protected Lot lotSurEmplacement(Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
+    protected Lot lotSurEmplacement(
+            Produit produit, String numLot, LocalDate peremption, Storage storage, int quantite) {
         Lot lot = new Lot();
         lot.setNumLot(numLot);
         lot.setProduit(produit);
@@ -241,33 +250,29 @@ abstract class AbstractReassortIntegrationTest {
     }
 
     protected int stockEnBase(Produit produit, Storage storage) {
-        return (int) compter(
-            "SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(produit.getId(), storage.getId())
-        );
+        return (int) compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                .formatted(produit.getId(), storage.getId()));
     }
 
     protected int stockVirtuelEnBase(Produit produit, Storage storage) {
-        return (int) compter(
-            "SELECT qty_virtual FROM stock_produit WHERE produit_id = %d AND storage_id = %d".formatted(produit.getId(), storage.getId())
-        );
+        return (int) compter("SELECT qty_virtual FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                .formatted(produit.getId(), storage.getId()));
     }
 
     protected int quantiteSurEmplacement(Lot lot, Storage storage) {
         return services.lotStockLocationRepository
-            .findByLotIdAndStorageId(lot.getId(), storage.getId())
-            .map(LotStockLocation::getQty)
-            .orElse(0);
+                .findByLotIdAndStorageId(lot.getId(), storage.getId())
+                .map(LotStockLocation::getQty)
+                .orElse(0);
     }
 
     /** La trace de répartition du produit — il n'y en a qu'une par test. */
     protected RepartitionStockProduit repartitionPour(Produit produit) {
-        return em
-            .createQuery(
-                "SELECT r FROM RepartitionStockProduit r WHERE r.stockProduitDestination.produit.id = :produitId",
-                RepartitionStockProduit.class
-            )
-            .setParameter("produitId", produit.getId())
-            .getSingleResult();
+        return em.createQuery(
+                        "SELECT r FROM RepartitionStockProduit r WHERE r.stockProduitDestination.produit.id = :produitId",
+                        RepartitionStockProduit.class)
+                .setParameter("produitId", produit.getId())
+                .getSingleResult();
     }
 
     protected long mouvementsJournalises(Produit produit) {

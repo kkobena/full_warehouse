@@ -6,7 +6,11 @@
 // ── Table inventaires ─────────────────────────────────────────────────────────
 .inventory-table {
   thead tr th {
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff),
+      var(--pharma-chrome-tab, #5b89a6)
+    );
     color: #fff;
     font-size: 0.8rem;
     font-weight: 600;
@@ -124,7 +128,11 @@ $white: #fff;
     }
 
     .activity-card-icon {
-      background: linear-gradient(135deg, color-mix(in srgb, $primary-blue 10%, transparent), color-mix(in srgb, var(--pharma-chrome-brand-light, #{$primary-light}) 10%, transparent));
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, $primary-blue 10%, transparent),
+        color-mix(in srgb, var(--pharma-chrome-brand-light, #{$primary-light}) 10%, transparent)
+      );
       color: $primary-blue;
     }
   }

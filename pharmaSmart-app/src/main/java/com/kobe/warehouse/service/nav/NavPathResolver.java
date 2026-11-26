@@ -76,7 +76,6 @@ public class NavPathResolver {
         return Optional.ofNullable(navItemRepository.findByCode(code)).map(this::buildPath);
     }
 
-
     private String buildPath(NavItem item) {
         List<String> libelles = new ArrayList<>();
         Set<Integer> visites = new HashSet<>();
@@ -92,4 +91,3 @@ public class NavPathResolver {
         return String.join(SEPARATEUR, libelles);
     }
 }
-

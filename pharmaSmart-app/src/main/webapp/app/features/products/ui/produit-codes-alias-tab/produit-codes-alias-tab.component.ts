@@ -1,14 +1,14 @@
-import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent, DetailGridComponent, DetailSectionComponent } from "../../../../shared/ui";
-import { IProduit } from "../../../../shared/model";
-import { CodeAliasType, IProduitCodeAlias } from "../../../../shared/model/reception-scan-result.model";
-import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { ErrorService } from "../../../../shared/error.service";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ProductsApiService } from "../../data-access/services/products-api.service";
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DetailGridComponent, DetailSectionComponent } from '../../../../shared/ui';
+import { IProduit } from '../../../../shared/model';
+import { CodeAliasType, IProduitCodeAlias } from '../../../../shared/model/reception-scan-result.model';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ErrorService } from '../../../../shared/error.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ProductsApiService } from '../../data-access/services/products-api.service';
 
 /**
  * Codes alternatifs d'un produit : GTIN du fabricant, EAN d'une autre boîte, code interne d'un
@@ -19,9 +19,9 @@ import { ProductsApiService } from "../../data-access/services/products-api.serv
  * comme au comptoir.
  */
 @Component({
-  selector: "app-produit-codes-alias-tab",
-  templateUrl: "./produit-codes-alias-tab.component.html",
-  styleUrl: "./produit-codes-alias-tab.component.scss",
+  selector: 'app-produit-codes-alias-tab',
+  templateUrl: './produit-codes-alias-tab.component.html',
+  styleUrl: './produit-codes-alias-tab.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, FormsModule, BadgeComponent, ButtonComponent, DetailGridComponent, DetailSectionComponent, NgbTooltip],
 })
@@ -35,10 +35,10 @@ export class ProduitCodesAliasTabComponent {
 
   protected readonly alias = signal<IProduitCodeAlias[]>([]);
   protected readonly chargement = signal(false);
-  protected readonly nouveauCode = signal("");
+  protected readonly nouveauCode = signal('');
 
   /** Un produit désactivé ne doit plus recevoir de nouveau code. */
-  protected readonly estDesactive = computed(() => this.produit().status === "DISABLE");
+  protected readonly estDesactive = computed(() => this.produit().status === 'DISABLE');
 
   protected readonly peutAjouter = computed(() => !this.estDesactive() && this.nouveauCode().trim().length > 0);
 
@@ -54,18 +54,18 @@ export class ProduitCodesAliasTabComponent {
   /** Libellés des types : l'utilisateur n'a pas à connaître la nomenclature GS1. */
   protected libelleType(type: CodeAliasType): string {
     switch (type) {
-      case "GTIN_14":
-        return "GTIN fabricant";
-      case "EAN_13":
-        return "EAN-13";
-      case "EAN_8":
-        return "EAN-8";
-      case "CIP_13":
-        return "CIP-13";
-      case "CIP_7":
-        return "CIP-7";
+      case 'GTIN_14':
+        return 'GTIN fabricant';
+      case 'EAN_13':
+        return 'EAN-13';
+      case 'EAN_8':
+        return 'EAN-8';
+      case 'CIP_13':
+        return 'CIP-13';
+      case 'CIP_7':
+        return 'CIP-7';
       default:
-        return "Code interne";
+        return 'Code interne';
     }
   }
 
@@ -77,11 +77,11 @@ export class ProduitCodesAliasTabComponent {
     }
     this.api.createCodeAlias(id, code).subscribe({
       next: cree => {
-        this.nouveauCode.set("");
+        this.nouveauCode.set('');
         // Le serveur est idempotent : un code déjà présent revient à l'identique.
         this.alias.update(liste => (liste.some(a => a.id === cree.id) ? liste : [cree, ...liste]));
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur"),
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
     });
   }
 
@@ -90,9 +90,9 @@ export class ProduitCodesAliasTabComponent {
       () =>
         this.api.deleteCodeAlias(alias.id).subscribe({
           next: () => this.alias.update(liste => liste.filter(a => a.id !== alias.id)),
-          error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur"),
+          error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur'),
         }),
-      "Retirer ce code",
+      'Retirer ce code',
       `Le code ${alias.code} ne sera plus reconnu au scan. La fiche produit n'est pas modifiée.`,
     );
   }
@@ -106,7 +106,7 @@ export class ProduitCodesAliasTabComponent {
       },
       error: err => {
         this.chargement.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },
     });
   }

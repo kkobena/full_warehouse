@@ -91,17 +91,17 @@ class EcartsARegulariserIntegrationTest extends AbstractAjustementIntegrationTes
         Produit grand = produitEnStock(unique("ECART-GRAND"), -9);
 
         List<Integer> ordre = services.ajustementService.findEcartsARegulariser().stream()
-            .map(EcartStockDTO::produitId)
-            .filter(id -> id.equals(petit.getId()) || id.equals(grand.getId()))
-            .toList();
+                .map(EcartStockDTO::produitId)
+                .filter(id -> id.equals(petit.getId()) || id.equals(grand.getId()))
+                .toList();
 
         assertThat(ordre).containsExactly(grand.getId(), petit.getId());
     }
 
     private Optional<EcartStockDTO> ecartDe(Produit produit) {
         return services.ajustementService.findEcartsARegulariser().stream()
-            .filter(e -> e.produitId().equals(produit.getId()))
-            .findFirst();
+                .filter(e -> e.produitId().equals(produit.getId()))
+                .findFirst();
     }
 
     private void avoir(Produit produit, int quantite, String statut) {
@@ -109,12 +109,12 @@ class EcartsARegulariserIntegrationTest extends AbstractAjustementIntegrationTes
                 INSERT INTO avoir_client (reference, statut, quantite, montant, produit_id, created_by_id)
                 VALUES (:reference, :statut, :quantite, :montant, :produit, :auteur)
                 """)
-            .setParameter("reference", unique("AV"))
-            .setParameter("statut", statut)
-            .setParameter("quantite", quantite)
-            .setParameter("montant", quantite * 1_000)
-            .setParameter("produit", produit.getId())
-            .setParameter("auteur", utilisateur.getId())
-            .executeUpdate();
+                .setParameter("reference", unique("AV"))
+                .setParameter("statut", statut)
+                .setParameter("quantite", quantite)
+                .setParameter("montant", quantite * 1_000)
+                .setParameter("produit", produit.getId())
+                .setParameter("auteur", utilisateur.getId())
+                .executeUpdate();
     }
 }

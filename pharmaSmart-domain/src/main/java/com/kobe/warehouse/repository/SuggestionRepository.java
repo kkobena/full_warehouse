@@ -27,12 +27,9 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface SuggestionRepository
-    extends JpaRepository<Suggestion, Integer>, JpaSpecificationExecutor<Suggestion>, SuggestionCustomRepository {
+        extends JpaRepository<Suggestion, Integer>, JpaSpecificationExecutor<Suggestion>, SuggestionCustomRepository {
     Optional<Suggestion> findByTypeSuggessionAndFournisseurIdAndMagasinId(
-        TypeSuggession typeSuggession,
-        Integer fournisseurId,
-        Integer magasinId
-    );
+            TypeSuggession typeSuggession, Integer fournisseurId, Integer magasinId);
 
     default Specification<Suggestion> filterByType(TypeSuggession typeSuggession) {
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.typeSuggession), typeSuggession);
@@ -47,7 +44,8 @@ public interface SuggestionRepository
     }
 
     default Specification<Suggestion> filterByFournisseurIds(Set<Integer> fournisseurIds) {
-        return (root, query, cb) -> root.get(Suggestion_.fournisseur).get(Fournisseur_.id).in(fournisseurIds);
+        return (root, query, cb) ->
+                root.get(Suggestion_.fournisseur).get(Fournisseur_.id).in(fournisseurIds);
     }
 
     default Specification<Suggestion> filterByProduit(String search) {
@@ -55,17 +53,22 @@ public interface SuggestionRepository
             String searchPattern = search.toUpperCase() + "%";
             SetJoin<Suggestion, SuggestionLine> setJoin = root.joinSet(Suggestion_.SUGGESTION_LINES);
             return cb.or(
-                cb.like(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip), searchPattern),
-                cb.like(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan), searchPattern),
-                cb.like(
-                    cb.upper(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
-                    searchPattern
-                ),
-                cb.like(
-                    setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire),
-                    searchPattern
-                )
-            );
+                    cb.like(
+                            setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip),
+                            searchPattern),
+                    cb.like(
+                            setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan),
+                            searchPattern),
+                    cb.like(
+                            cb.upper(setJoin.get(SuggestionLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.libelle)),
+                            searchPattern),
+                    cb.like(
+                            setJoin.get(SuggestionLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.codeEanLaboratoire),
+                            searchPattern));
         };
     }
 
@@ -74,7 +77,8 @@ public interface SuggestionRepository
      * @param maxDays nombre de jours conservation des suggestions
      */
     default Specification<Suggestion> filterByDate(int maxDays) {
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Suggestion_.updatedAt), LocalDateTime.now().minusDays(maxDays));
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(
+                root.get(Suggestion_.updatedAt), LocalDateTime.now().minusDays(maxDays));
     }
 
     /**

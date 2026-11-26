@@ -74,9 +74,11 @@ class GestionStockDepotImplTest {
         LocalDate to = LocalDate.of(2026, 1, 31);
         Pageable pageable = PageRequest.of(2, 10);
         Page<DepotExtensionSaleDTO> expected = Page.empty(pageable);
-        when(saleDataService.fetchVenteDepot("dolipra", from, to, 3, PaymentStatus.PAYE, 5, pageable)).thenReturn(expected);
+        when(saleDataService.fetchVenteDepot("dolipra", from, to, 3, PaymentStatus.PAYE, 5, pageable))
+                .thenReturn(expected);
 
-        Page<DepotExtensionSaleDTO> result = service.getVenteDepot(PaymentStatus.PAYE, 5, "dolipra", from, to, 3, pageable);
+        Page<DepotExtensionSaleDTO> result =
+                service.getVenteDepot(PaymentStatus.PAYE, 5, "dolipra", from, to, 3, pageable);
 
         assertThat(result).isSameAs(expected);
         verify(saleDataService).fetchVenteDepot("dolipra", from, to, 3, PaymentStatus.PAYE, 5, pageable);
@@ -86,7 +88,8 @@ class GestionStockDepotImplTest {
     @DisplayName("getVenteDepot transmet les filtres optionnels nuls tels quels")
     void getVenteDepotFiltresNuls() {
         Pageable pageable = Pageable.unpaged();
-        when(saleDataService.fetchVenteDepot(null, null, null, null, null, null, pageable)).thenReturn(Page.empty());
+        when(saleDataService.fetchVenteDepot(null, null, null, null, null, null, pageable))
+                .thenReturn(Page.empty());
 
         service.getVenteDepot(null, null, null, null, null, null, pageable);
 

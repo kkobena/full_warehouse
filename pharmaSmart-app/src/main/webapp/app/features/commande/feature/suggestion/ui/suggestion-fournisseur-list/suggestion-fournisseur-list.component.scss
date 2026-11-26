@@ -25,10 +25,15 @@
     display: flex;
     flex-direction: column;
 
-    .p-datatable-wrapper { flex: 1 1 0; min-height: 0; }
+    .p-datatable-wrapper {
+      flex: 1 1 0;
+      min-height: 0;
+    }
   }
 
-  ::ng-deep tr { cursor: pointer; }
+  ::ng-deep tr {
+    cursor: pointer;
+  }
 
   // Ligne active (fournisseur ouvert en détail)
   ::ng-deep tr.row-active {
@@ -66,7 +71,9 @@
   color: #dc3545;
 }
 
-.sfl-text-muted { color: #9ca3af; }
+.sfl-text-muted {
+  color: #9ca3af;
+}
 
 .sfl-statut-badge {
   padding: 2px 8px;
@@ -77,6 +84,5 @@
 }
 
 // ── FOOTER TOTAUX ─────────────────────────────────────────────────────────────
-
 
 // bulk-toolbar, bulk-info, bulk-actions, bulk-btn → commande-shared

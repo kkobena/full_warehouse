@@ -6,5 +6,6 @@ import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 
 public interface ReglementService {
-    ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException;
+    ResponseReglementDTO doReglement(ReglementParam reglementParam)
+            throws CashRegisterException, PaymentAmountException;
 }

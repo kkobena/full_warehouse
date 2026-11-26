@@ -62,5 +62,8 @@ scenario('ADM-03', async ({ etape, page }) => {
   // ── Remise en état : le compte créé pour le parcours est supprimé. ──────────────────────
   await lignes.filter({ hasText: login }).first().getByRole('button', { name: 'Supprimer' }).click();
   await expect(modale).toBeVisible();
-  await modale.getByRole('button', { name: /Supprimer|Oui/ }).first().click();
+  await modale
+    .getByRole('button', { name: /Supprimer|Oui/ })
+    .first()
+    .click();
 });

@@ -119,4 +119,3 @@ class FournisseurProduitColisageTest {
         assertThat(fp(6, 0).appliquerColisage(1200)).isEqualTo(1200);
     }
 }
-

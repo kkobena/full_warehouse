@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.service.dto.AuthorityDTO;
-
 import java.util.List;
 
 public interface AuthorityService {

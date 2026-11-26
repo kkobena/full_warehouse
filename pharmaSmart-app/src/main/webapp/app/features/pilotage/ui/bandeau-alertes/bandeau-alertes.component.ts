@@ -21,7 +21,13 @@ const CLE_OUVERT = 'pilotage.alertes.ouvert';
             <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
             {{ alertes().length === 1 ? '1 alerte' : alertes().length + ' alertes' }}
           </h3>
-          <button (click)="basculer()" [attr.aria-expanded]="ouvert()" aria-controls="pilotage-alertes-liste" class="btn btn-link btn-sm" type="button">
+          <button
+            (click)="basculer()"
+            [attr.aria-expanded]="ouvert()"
+            aria-controls="pilotage-alertes-liste"
+            class="btn btn-link btn-sm"
+            type="button"
+          >
             {{ ouvert() ? 'Replier' : 'Afficher' }}
           </button>
         </div>

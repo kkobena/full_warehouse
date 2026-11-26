@@ -12,13 +12,13 @@
  */
 export enum SaleType {
   THIRD_PARTY = 'ThirdPartySales',
-  CASH        = 'CashSale',
-  DEPOT       = 'VenteDepot',
+  CASH = 'CashSale',
+  DEPOT = 'VenteDepot',
 }
 
 /** Labels d'affichage uniquement — ne pas utiliser comme valeurs API */
 export const SALE_TYPE_LABEL: Record<SaleType, string> = {
   [SaleType.THIRD_PARTY]: 'Vente ordonnancée (VO)',
-  [SaleType.CASH]:        'Vente au comptant (VNO)',
-  [SaleType.DEPOT]:       'Vente aux dépôts',
+  [SaleType.CASH]: 'Vente au comptant (VNO)',
+  [SaleType.DEPOT]: 'Vente aux dépôts',
 };

@@ -100,10 +100,9 @@ public class AppUser extends AbstractAuditingEntity<Integer> implements Serializ
     @JsonIgnore
     @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(
-        name = "user_authority",
-        joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
-        inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
-    )
+            name = "user_authority",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @BatchSize(size = 10)
     private Set<Authority> authorities = new HashSet<>();
@@ -271,30 +270,30 @@ public class AppUser extends AbstractAuditingEntity<Integer> implements Serializ
     @Override
     public String toString() {
         return "User{"
-            + "login='"
-            + login
-            + '\''
-            + ", firstName='"
-            + firstName
-            + '\''
-            + ", lastName='"
-            + lastName
-            + '\''
-            + ", email='"
-            + email
-            + '\''
-            + ", imageUrl='"
-            + imageUrl
-            + '\''
-            + ", activated='"
-            + activated
-            + '\''
-            + ", langKey='"
-            + langKey
-            + '\''
-            + ", activationKey='"
-            + activationKey
-            + '\''
-            + "}";
+                + "login='"
+                + login
+                + '\''
+                + ", firstName='"
+                + firstName
+                + '\''
+                + ", lastName='"
+                + lastName
+                + '\''
+                + ", email='"
+                + email
+                + '\''
+                + ", imageUrl='"
+                + imageUrl
+                + '\''
+                + ", activated='"
+                + activated
+                + '\''
+                + ", langKey='"
+                + langKey
+                + '\''
+                + ", activationKey='"
+                + activationKey
+                + '\''
+                + "}";
     }
 }

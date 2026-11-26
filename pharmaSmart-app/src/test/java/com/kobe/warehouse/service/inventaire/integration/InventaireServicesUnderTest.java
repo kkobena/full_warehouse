@@ -16,11 +16,10 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireCreationService;
-import com.kobe.warehouse.service.report.InventoryReportReportService;
 import com.kobe.warehouse.service.inventaire.InventaireImportService;
-import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireProgressService;
 import com.kobe.warehouse.service.inventaire.InventaireQueryService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireSyncService;
 import com.kobe.warehouse.service.inventaire.InventoryCloseService;
 import com.kobe.warehouse.service.inventaire.InventoryLotService;
@@ -29,15 +28,16 @@ import com.kobe.warehouse.service.inventaire.InventoryValuationService;
 import com.kobe.warehouse.service.inventaire.PlanningInventaireTournantService;
 import com.kobe.warehouse.service.inventaire.impl.InventaireCreationServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireImportServiceImpl;
-import com.kobe.warehouse.service.inventaire.impl.InventaireServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireProgressServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireQueryServiceImpl;
+import com.kobe.warehouse.service.inventaire.impl.InventaireServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireSyncServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventoryCloseServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventoryLotServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventoryStockServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventoryValuationServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.PlanningInventaireTournantServiceImpl;
+import com.kobe.warehouse.service.report.InventoryReportReportService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
@@ -105,21 +105,16 @@ final class InventaireServicesUnderTest {
         this.inventoryStockService = new InventoryStockServiceImpl(stockProduitRepository);
 
         this.inventaireCreationService = new InventaireCreationServiceImpl(
-            storeInventoryRepository,
-            userService,
-            userRepository,
-            storageService,
-            rayonRepository,
-            entityManager,
-            appConfigurationService
-        );
+                storeInventoryRepository,
+                userService,
+                userRepository,
+                storageService,
+                rayonRepository,
+                entityManager,
+                appConfigurationService);
 
         this.inventaireQueryService = new InventaireQueryServiceImpl(
-            storeInventoryRepository,
-            inventoryStockService,
-            appConfigurationService,
-            entityManager
-        );
+                storeInventoryRepository, inventoryStockService, appConfigurationService, entityManager);
 
         this.inventaireProgressService = new InventaireProgressServiceImpl(entityManager);
 
@@ -127,50 +122,43 @@ final class InventaireServicesUnderTest {
 
         this.inventaireSyncService = new InventaireSyncServiceImpl(storeInventoryLineRepository, userService);
 
-        this.inventaireImportService = new InventaireImportServiceImpl(
-            storeInventoryLineRepository,
-            inventoryStockService,
-            userService
-        );
+        this.inventaireImportService =
+                new InventaireImportServiceImpl(storeInventoryLineRepository, inventoryStockService, userService);
 
         this.inventoryCloseService = new InventoryCloseServiceImpl(
-            storeInventoryLineRepository,
-            storeInventoryRepository,
-            historiqueInventaireService,
-            appConfigurationService,
-            entityManager,
-            eventPublisher
-        );
+                storeInventoryLineRepository,
+                storeInventoryRepository,
+                historiqueInventaireService,
+                appConfigurationService,
+                entityManager,
+                eventPublisher);
 
         this.inventoryLotService = new InventoryLotServiceImpl(
-            inventoryLotRepository,
-            storeInventoryLineRepository,
-            storeInventoryRepository,
-            lotRepository,
-            userService,
-            inventoryStockService,
-            entityManager
-        );
+                inventoryLotRepository,
+                storeInventoryLineRepository,
+                storeInventoryRepository,
+                lotRepository,
+                userService,
+                inventoryStockService,
+                entityManager);
 
         // Le service d'édition PDF n'entre dans aucun scénario ici : seule sa présence est requise.
         this.inventaireService = new InventaireServiceImpl(
-            userService,
-            storeInventoryRepository,
-            storeInventoryLineRepository,
-            storageService,
-            rayonRepository,
-            mock(InventoryReportReportService.class),
-            entityManager,
-            inventaireQueryService
-        );
+                userService,
+                storeInventoryRepository,
+                storeInventoryLineRepository,
+                storageService,
+                rayonRepository,
+                mock(InventoryReportReportService.class),
+                entityManager,
+                inventaireQueryService);
 
         this.planningInventaireTournantService = new PlanningInventaireTournantServiceImpl(
-            planningRepository,
-            rayonRepository,
-            familleProduitRepository,
-            storageRepository,
-            userRepository,
-            inventaireCreationService
-        );
+                planningRepository,
+                rayonRepository,
+                familleProduitRepository,
+                storageRepository,
+                userRepository,
+                inventaireCreationService);
     }
 }

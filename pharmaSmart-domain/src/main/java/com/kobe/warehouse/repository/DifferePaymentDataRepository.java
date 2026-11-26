@@ -10,7 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 public interface DifferePaymentDataRepository {
-    Page<CustomerReglementDiffereDTO> getDifferePayments(Specification<DifferePayment> specification, Pageable pageable);
+    Page<CustomerReglementDiffereDTO> getDifferePayments(
+            Specification<DifferePayment> specification, Pageable pageable);
 
     DifferePaymentSummary getDiffereSummary(Specification<DifferePayment> specification);
 

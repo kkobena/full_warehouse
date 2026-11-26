@@ -13,58 +13,55 @@ import java.util.Set;
  * exposé à un utilisateur non administrateur (le caissier doit voir la bannière et l'échéance).
  */
 public record LicenseInfo(
-    LicenseStatus status,
-    LicenseType licenseType,
-    String edition,
-    LocalDate expiresAt,
-    long daysRemaining,
-    String magasinName,
-    Set<Feature> features,
-    boolean readOnly,
-    boolean demo,
-    boolean showBanner,
-    String message,
-    SupportContacts support
-) {
+        LicenseStatus status,
+        LicenseType licenseType,
+        String edition,
+        LocalDate expiresAt,
+        long daysRemaining,
+        String magasinName,
+        Set<Feature> features,
+        boolean readOnly,
+        boolean demo,
+        boolean showBanner,
+        String message,
+        SupportContacts support) {
     /**
      * Statut renvoyé lorsque le contrôle de licence est désactivé
      * ({@code pharma-smart.license.enabled=false} en dev et dans les tests).
      */
     public static LicenseInfo disabled() {
         return new LicenseInfo(
-            LicenseStatus.VALID,
-            LicenseType.PARTNER,
-            "STANDARD",
-            null,
-            Long.MAX_VALUE,
-            null,
-            // Tous les modules, options comprises : contrôle désactivé signifie « rien n'est bridé ».
-            // Renvoyer un jeu vide masquerait les écrans optionnels en développement et dans les tests.
-            EnumSet.allOf(Feature.class),
-            false,
-            false,
-            false,
-            "Contrôle de licence désactivé",
-            SupportContacts.empty()
-        );
+                LicenseStatus.VALID,
+                LicenseType.PARTNER,
+                "STANDARD",
+                null,
+                Long.MAX_VALUE,
+                null,
+                // Tous les modules, options comprises : contrôle désactivé signifie « rien n'est bridé ».
+                // Renvoyer un jeu vide masquerait les écrans optionnels en développement et dans les tests.
+                EnumSet.allOf(Feature.class),
+                false,
+                false,
+                false,
+                "Contrôle de licence désactivé",
+                SupportContacts.empty());
     }
 
     /** Aucun fichier de licence trouvé, ni sur disque ni en base. */
     public static LicenseInfo missing(SupportContacts support) {
         return new LicenseInfo(
-            LicenseStatus.MISSING,
-            LicenseType.SUBSCRIPTION,
-            "STANDARD",
-            null,
-            0,
-            null,
-            Set.of(),
-            true,
-            false,
-            true,
-            "Aucune licence n'est installée. Rendez-vous dans « Gérer ma licence » pour activer votre abonnement.",
-            support == null ? SupportContacts.empty() : support
-        );
+                LicenseStatus.MISSING,
+                LicenseType.SUBSCRIPTION,
+                "STANDARD",
+                null,
+                0,
+                null,
+                Set.of(),
+                true,
+                false,
+                true,
+                "Aucune licence n'est installée. Rendez-vous dans « Gérer ma licence » pour activer votre abonnement.",
+                support == null ? SupportContacts.empty() : support);
     }
 
     /**
@@ -84,19 +81,18 @@ public record LicenseInfo(
      */
     public static LicenseInfo unavailable() {
         return new LicenseInfo(
-            LicenseStatus.UNKNOWN,
-            LicenseType.SUBSCRIPTION,
-            "STANDARD",
-            null,
-            0,
-            null,
-            EnumSet.allOf(Feature.class),
-            false,
-            false,
-            false,
-            "",
-            SupportContacts.empty()
-        );
+                LicenseStatus.UNKNOWN,
+                LicenseType.SUBSCRIPTION,
+                "STANDARD",
+                null,
+                0,
+                null,
+                EnumSet.allOf(Feature.class),
+                false,
+                false,
+                false,
+                "",
+                SupportContacts.empty());
     }
 
     /**

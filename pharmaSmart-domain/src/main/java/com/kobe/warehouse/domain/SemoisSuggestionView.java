@@ -2,11 +2,10 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Immutable;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import org.hibernate.annotations.Immutable;
 
 /**
  * Entité en lecture seule mappée sur la vue ordinaire v_semois_suggestion.
@@ -159,15 +158,14 @@ public class SemoisSuggestionView implements Serializable {
 
     @Override
     public String toString() {
-        return "SemoisSuggestionView{" +
-            "produitId=" + produitId +
-            ", libelle='" + libelle + '\'' +
-            ", classeCriticite=" + classeCriticite +
-            ", vmm=" + vmm +
-            ", stockObjectif=" + stockObjectif +
-            ", stockActuel=" + stockActuel +
-            ", quantiteACommander=" + quantiteACommander +
-            '}';
+        return "SemoisSuggestionView{" + "produitId="
+                + produitId + ", libelle='"
+                + libelle + '\'' + ", classeCriticite="
+                + classeCriticite + ", vmm="
+                + vmm + ", stockObjectif="
+                + stockObjectif + ", stockActuel="
+                + stockActuel + ", quantiteACommander="
+                + quantiteACommander + '}';
     }
 
     @Override

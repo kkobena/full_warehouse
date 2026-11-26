@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * A InvoicePayment.
  */
-
 @Entity
 public class InvoicePayment extends PaymentTransaction implements Serializable {
 
@@ -25,29 +24,30 @@ public class InvoicePayment extends PaymentTransaction implements Serializable {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "facture_tierspayant_id", referencedColumnName = "id"),
-            @JoinColumn(name = "facture_tierspayant_invoice_date", referencedColumnName = "invoice_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "facture_tierspayant_id", referencedColumnName = "id"),
+        @JoinColumn(name = "facture_tierspayant_invoice_date", referencedColumnName = "invoice_date"),
+    })
     private FactureTiersPayant factureTiersPayant;
 
-    @OneToMany(mappedBy = "invoicePayment", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "invoicePayment",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<InvoicePaymentItem> invoicePaymentItems = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "parent_id", referencedColumnName = "id"),
-            @JoinColumn(name = "parent_transaction_date", referencedColumnName = "transaction_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "parent_id", referencedColumnName = "id"),
+        @JoinColumn(name = "parent_transaction_date", referencedColumnName = "transaction_date"),
+    })
     private InvoicePayment parent;
 
     private boolean grouped;
 
-    @OneToMany(mappedBy = "parent", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(
+            mappedBy = "parent",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<InvoicePayment> invoicePayments = new ArrayList<>();
 
     public FactureTiersPayant getFactureTiersPayant() {

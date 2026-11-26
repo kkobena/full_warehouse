@@ -14,21 +14,21 @@ public class DailyDigestDTO {
     private Long averageCA30j;
     /** Écart en % entre le CA du jour et la moyenne des 30 derniers jours. */
     private Double trendVs30j;
+
     private Integer customersCount;
     private Long averageBasket;
 
     public DailyDigestDTO() {}
 
     public DailyDigestDTO(
-        Long totalCA,
-        Double variation,
-        Integer transactionCount,
-        Integer alertsCount,
-        Long averageCA30j,
-        Double trendVs30j,
-        Integer customersCount,
-        Long averageBasket
-    ) {
+            Long totalCA,
+            Double variation,
+            Integer transactionCount,
+            Integer alertsCount,
+            Long averageCA30j,
+            Double trendVs30j,
+            Integer customersCount,
+            Long averageBasket) {
         this.totalCA = totalCA;
         this.variation = variation;
         this.transactionCount = transactionCount;
@@ -107,15 +107,14 @@ public class DailyDigestDTO {
 
     @Override
     public String toString() {
-        return "DailyDigestDTO{" +
-            "totalCA=" + totalCA +
-            ", variation=" + variation +
-            ", transactionCount=" + transactionCount +
-            ", alertsCount=" + alertsCount +
-            ", averageCA30j=" + averageCA30j +
-            ", trendVs30j=" + trendVs30j +
-            ", customersCount=" + customersCount +
-            ", averageBasket=" + averageBasket +
-            '}';
+        return "DailyDigestDTO{" + "totalCA="
+                + totalCA + ", variation="
+                + variation + ", transactionCount="
+                + transactionCount + ", alertsCount="
+                + alertsCount + ", averageCA30j="
+                + averageCA30j + ", trendVs30j="
+                + trendVs30j + ", customersCount="
+                + customersCount + ", averageBasket="
+                + averageBasket + '}';
     }
 }

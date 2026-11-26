@@ -72,8 +72,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             commandeSur(produit, LocalDateTime.now());
 
             assertThat(service.lireProduitsDusNonCommandes())
-                .extracting(ProduitDuNonCommandeDTO::produitId)
-                .doesNotContain(produit.getId());
+                    .extracting(ProduitDuNonCommandeDTO::produitId)
+                    .doesNotContain(produit.getId());
         }
 
         @Test
@@ -87,8 +87,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             commandeSur(produit, null);
 
             assertThat(service.lireProduitsDusNonCommandes())
-                .extracting(ProduitDuNonCommandeDTO::produitId)
-                .contains(produit.getId());
+                    .extracting(ProduitDuNonCommandeDTO::produitId)
+                    .contains(produit.getId());
         }
 
         @Test
@@ -100,8 +100,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             em.flush();
 
             assertThat(service.lireProduitsDusNonCommandes())
-                .extracting(ProduitDuNonCommandeDTO::produitId)
-                .doesNotContain(produit.getId());
+                    .extracting(ProduitDuNonCommandeDTO::produitId)
+                    .doesNotContain(produit.getId());
         }
 
         @Test
@@ -111,8 +111,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             avoir(produit, client("KONE", "Yao", "0505050505"), 3, 3);
 
             assertThat(service.lireProduitsDusNonCommandes())
-                .extracting(ProduitDuNonCommandeDTO::produitId)
-                .doesNotContain(produit.getId());
+                    .extracting(ProduitDuNonCommandeDTO::produitId)
+                    .doesNotContain(produit.getId());
         }
 
         @Test
@@ -121,7 +121,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             Produit produit = produit("ASPIRINE 500", 1);
             avoir(produit, client("YAO", "Afi", "0606060606"), 5, 2);
 
-            assertThat(ligneDe(service.lireProduitsDusNonCommandes(), produit).quantiteDue()).isEqualTo(3);
+            assertThat(ligneDe(service.lireProduitsDusNonCommandes(), produit).quantiteDue())
+                    .isEqualTo(3);
         }
 
         @Test
@@ -162,8 +163,8 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
             em.flush();
 
             assertThat(service.lireProduitsDusNonCommandes())
-                .extracting(ProduitDuNonCommandeDTO::produitId)
-                .doesNotContain(produit.getId());
+                    .extracting(ProduitDuNonCommandeDTO::produitId)
+                    .doesNotContain(produit.getId());
         }
 
         @Test
@@ -171,16 +172,16 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
         void laPlusAncienneDAbord() {
             Produit recent = produit("RECENT", 1);
             Produit ancien = produit("ANCIEN", 1);
-            avoir(recent, client("A", "A", "0001"), 1, 0).setCreatedAt(LocalDateTime.now().minusDays(1));
-            avoir(ancien, client("B", "B", "0002"), 1, 0).setCreatedAt(LocalDateTime.now().minusDays(40));
+            avoir(recent, client("A", "A", "0001"), 1, 0)
+                    .setCreatedAt(LocalDateTime.now().minusDays(1));
+            avoir(ancien, client("B", "B", "0002"), 1, 0)
+                    .setCreatedAt(LocalDateTime.now().minusDays(40));
             em.flush();
 
-            List<Integer> ordre = service
-                .lireProduitsDusNonCommandes()
-                .stream()
-                .map(ProduitDuNonCommandeDTO::produitId)
-                .filter(id -> id.equals(recent.getId()) || id.equals(ancien.getId()))
-                .toList();
+            List<Integer> ordre = service.lireProduitsDusNonCommandes().stream()
+                    .map(ProduitDuNonCommandeDTO::produitId)
+                    .filter(id -> id.equals(recent.getId()) || id.equals(ancien.getId()))
+                    .toList();
 
             assertThat(ordre).containsExactly(ancien.getId(), recent.getId());
         }
@@ -225,7 +226,10 @@ class ProduitDuIntegrationTest extends AbstractDashboardIntegrationTest {
     // --- fabriques ---
 
     private ProduitDuNonCommandeDTO ligneDe(List<ProduitDuNonCommandeDTO> dus, Produit produit) {
-        return dus.stream().filter(d -> d.produitId().equals(produit.getId())).findFirst().orElseThrow();
+        return dus.stream()
+                .filter(d -> d.produitId().equals(produit.getId()))
+                .findFirst()
+                .orElseThrow();
     }
 
     private AvoirClient avoir(Produit produit, UninsuredCustomer client, int quantite, int quantiteRemise) {

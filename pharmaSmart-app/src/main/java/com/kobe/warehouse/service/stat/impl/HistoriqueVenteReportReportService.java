@@ -29,121 +29,106 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
     private String templateFile;
     private String fileName;
 
-    public HistoriqueVenteReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public HistoriqueVenteReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
     private byte[] print(
-        List<HistoriqueProduitVente> datas,
-        HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) {
+            List<HistoriqueProduitVente> datas,
+            HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode) {
         this.fileName = "historique_ventes";
         templateFile = Constant.HISTORIQUE_VENTE_DAILY_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.ITEMS, datas);
         getParameters().put(Constant.REPORT_SUMMARY, historiqueProduitVenteSummary);
         getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "Historique des ventes de " +
-                historiqueProduitInfo.getLibelle() +
-                " [ " +
-                historiqueProduitInfo.getCodeCip() +
-                " ]" +
-                " du " +
-                DateUtil.format(reportPeriode.from()) +
-                " au " +
-                DateUtil.format(reportPeriode.to())
-            );
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Historique des ventes de " + historiqueProduitInfo.getLibelle()
+                                + " [ "
+                                + historiqueProduitInfo.getCodeCip()
+                                + " ]"
+                                + " du "
+                                + DateUtil.format(reportPeriode.from())
+                                + " au "
+                                + DateUtil.format(reportPeriode.to()));
 
         super.getCommonParameters();
         return super.printOneReceiptPage();
     }
 
     private byte[] printHistoriquesAchatsMensuel(
-        List<HistoriqueProduitAchatMensuelleWrapper> datas,
-        HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) {
+            List<HistoriqueProduitAchatMensuelleWrapper> datas,
+            HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode) {
         this.fileName = "historique_achats";
         this.templateFile = Constant.HISTORIQUE_ACHAT_YEARLY_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.ITEMS, datas);
         getParameters().put(Constant.REPORT_SUMMARY, historiqueProduitAchatsSummary);
         getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "Historique des achats de " +
-                historiqueProduitInfo.getLibelle() +
-                " [ " +
-                historiqueProduitInfo.getCodeCip() +
-                " ]" +
-                " du " +
-                DateUtil.format(reportPeriode.from()) +
-                " au " +
-                DateUtil.format(reportPeriode.to())
-            );
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Historique des achats de " + historiqueProduitInfo.getLibelle()
+                                + " [ "
+                                + historiqueProduitInfo.getCodeCip()
+                                + " ]"
+                                + " du "
+                                + DateUtil.format(reportPeriode.from())
+                                + " au "
+                                + DateUtil.format(reportPeriode.to()));
 
         super.getCommonParameters();
         return super.printOneReceiptPage();
     }
 
     private byte[] printHistoriquesAchats(
-        List<HistoriqueProduitAchats> datas,
-        HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) {
+            List<HistoriqueProduitAchats> datas,
+            HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode) {
         this.fileName = "historique_achats";
         templateFile = Constant.HISTORIQUE_ACHAT_DAILY_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.ITEMS, datas);
         getParameters().put(Constant.REPORT_SUMMARY, historiqueProduitAchatsSummary);
         getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "Historique des achats de " +
-                historiqueProduitInfo.getLibelle() +
-                " [ " +
-                historiqueProduitInfo.getCodeCip() +
-                " ]" +
-                " du " +
-                DateUtil.format(reportPeriode.from()) +
-                " au " +
-                DateUtil.format(reportPeriode.to())
-            );
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Historique des achats de " + historiqueProduitInfo.getLibelle()
+                                + " [ "
+                                + historiqueProduitInfo.getCodeCip()
+                                + " ]"
+                                + " du "
+                                + DateUtil.format(reportPeriode.from())
+                                + " au "
+                                + DateUtil.format(reportPeriode.to()));
 
         super.getCommonParameters();
         return super.printOneReceiptPage();
     }
 
     private byte[] printHistoriquesMensuelles(
-        List<HistoriqueProduitVenteMensuelleWrapper> datas,
-        HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) {
+            List<HistoriqueProduitVenteMensuelleWrapper> datas,
+            HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode) {
         this.fileName = "historique_ventes";
         templateFile = Constant.HISTORIQUE_VENTE_YEARLY_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.ITEMS, datas);
         getParameters().put(Constant.REPORT_SUMMARY, produitVenteMensuelleSummary);
         getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "Historique des ventes de " +
-                historiqueProduitInfo.getLibelle() +
-                " [ " +
-                historiqueProduitInfo.getCodeCip() +
-                " ]" +
-                " du " +
-                DateUtil.format(reportPeriode.from()) +
-                " au " +
-                DateUtil.format(reportPeriode.to())
-            );
+                .put(
+                        Constant.REPORT_TITLE,
+                        "Historique des ventes de " + historiqueProduitInfo.getLibelle()
+                                + " [ "
+                                + historiqueProduitInfo.getCodeCip()
+                                + " ]"
+                                + " du "
+                                + DateUtil.format(reportPeriode.from())
+                                + " au "
+                                + DateUtil.format(reportPeriode.to()));
 
         super.getCommonParameters();
         return super.printOneReceiptPage();
@@ -181,13 +166,14 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
     }
 
     public byte[] exportHistoriqueVenteMensuelleToPdf(
-        List<HistoriqueProduitVenteMensuelleWrapper> datas,
-        HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException {
+            List<HistoriqueProduitVenteMensuelleWrapper> datas,
+            HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException {
         try {
-            return printHistoriquesMensuelles(datas, produitVenteMensuelleSummary, historiqueProduitInfo, reportPeriode);
+            return printHistoriquesMensuelles(
+                    datas, produitVenteMensuelleSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueVenteMensuelleToPdf", e);
             throw new ReportFileExportException();
@@ -195,11 +181,11 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
     }
 
     public byte[] exportHistoriqueVenteToPdf(
-        List<HistoriqueProduitVente> datas,
-        HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException {
+            List<HistoriqueProduitVente> datas,
+            HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException {
         try {
             return print(datas, historiqueProduitVenteSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
@@ -209,13 +195,14 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
     }
 
     public byte[] exportHistoriqueAchatsMensuelToPdf(
-        List<HistoriqueProduitAchatMensuelleWrapper> datas,
-        HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException {
+            List<HistoriqueProduitAchatMensuelleWrapper> datas,
+            HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException {
         try {
-            return printHistoriquesAchatsMensuel(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode);
+            return printHistoriquesAchatsMensuel(
+                    datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueAchatsMensuelToPdf", e);
             throw new ReportFileExportException();
@@ -223,11 +210,11 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
     }
 
     public byte[] exportHistoriqueAchatsToPdf(
-        List<HistoriqueProduitAchats> datas,
-        HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
-        HistoriqueProduitInfo historiqueProduitInfo,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException {
+            List<HistoriqueProduitAchats> datas,
+            HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
+            HistoriqueProduitInfo historiqueProduitInfo,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException {
         try {
             return printHistoriquesAchats(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {

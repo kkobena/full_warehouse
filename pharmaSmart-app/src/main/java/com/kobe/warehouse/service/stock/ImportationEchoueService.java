@@ -18,9 +18,8 @@ public class ImportationEchoueService {
     private final ImportationEchoueLigneRepository importationEchoueLigneRepository;
 
     public ImportationEchoueService(
-        ImportationEchoueRepository importationEchoueRepository,
-        ImportationEchoueLigneRepository importationEchoueLigneRepository
-    ) {
+            ImportationEchoueRepository importationEchoueRepository,
+            ImportationEchoueLigneRepository importationEchoueLigneRepository) {
         this.importationEchoueRepository = importationEchoueRepository;
         this.importationEchoueLigneRepository = importationEchoueLigneRepository;
     }
@@ -29,17 +28,17 @@ public class ImportationEchoueService {
         ImportationEchoue importationEchoue = new ImportationEchoue();
         importationEchoue.setObjectId(objectId);
         importationEchoue.setCommande(isCommande);
-        items
-            .stream()
-            .map(this::buildFromOrderItem)
-            .peek(e -> e.setImportationEchoue(importationEchoue))
-            .forEach(importationEchoue.getImportationEchoueLignes()::add);
+        items.stream()
+                .map(this::buildFromOrderItem)
+                .peek(e -> e.setImportationEchoue(importationEchoue))
+                .forEach(importationEchoue.getImportationEchoueLignes()::add);
         importationEchoueRepository.save(importationEchoue);
     }
 
     private ImportationEchoueLigne buildFromOrderItem(OrderItem item) {
         ImportationEchoueLigne importationEchoueLigne = new ImportationEchoueLigne();
-        importationEchoueLigne.setCodeTva(Objects.nonNull(item.getTva()) ? item.getTva().intValue() : null);
+        importationEchoueLigne.setCodeTva(
+                Objects.nonNull(item.getTva()) ? item.getTva().intValue() : null);
         importationEchoueLigne.setQuantityReceived(item.getQuantityReceived());
         importationEchoueLigne.setPrixAchat(item.getPrixAchat());
         importationEchoueLigne.setPrixUn((int) item.getPrixUn());
@@ -47,8 +46,7 @@ public class ImportationEchoueService {
         importationEchoueLigne.setProduitCip(item.getProduitCip());
         importationEchoueLigne.setProduitEan(item.getProduitEan());
         importationEchoueLigne.setDatePeremption(
-            StringUtils.hasText(item.getDatePeremption()) ? LocalDate.parse(item.getDatePeremption()) : null
-        );
+                StringUtils.hasText(item.getDatePeremption()) ? LocalDate.parse(item.getDatePeremption()) : null);
 
         return importationEchoueLigne;
     }

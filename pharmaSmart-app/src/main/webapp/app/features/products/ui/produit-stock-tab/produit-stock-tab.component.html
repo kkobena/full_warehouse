@@ -7,11 +7,15 @@
   </div>
 } @else {
   <app-detail-grid>
-
     <!-- Rayon (PRINCIPAL) -->
     @if (stockPrincipal(); as rayon) {
-      <app-detail-section header="Rayon" icon="pi pi-shopping-cart" [accent]="niveauAccent(rayon)"
-                          [layout]="'block'" storageKey="produit.stock.rayon">
+      <app-detail-section
+        header="Rayon"
+        icon="pi pi-shopping-cart"
+        [accent]="niveauAccent(rayon)"
+        [layout]="'block'"
+        storageKey="produit.stock.rayon"
+      >
         <app-button
           ngProjectAs="[sectionActions]"
           icon="pi pi-pencil"
@@ -26,14 +30,10 @@
         <ng-container *ngTemplateOutlet="niveau; context: { $implicit: rayon }" />
 
         @if ((rayon.qtyStock ?? 0) > 0 && rayon.seuilMini && (rayon.qtyStock ?? 0) < rayon.seuilMini) {
-          <div class="stock-alert">
-            <i class="pi pi-exclamation-triangle me-1"></i>Stock sous seuil minimum
-          </div>
+          <div class="stock-alert"><i class="pi pi-exclamation-triangle me-1"></i>Stock sous seuil minimum</div>
         }
         @if ((rayon.qtyStock ?? 0) === 0) {
-          <div class="stock-alert stock-alert-empty">
-            <i class="pi pi-times-circle me-1"></i>Rayon vide
-          </div>
+          <div class="stock-alert stock-alert-empty"><i class="pi pi-times-circle me-1"></i>Rayon vide</div>
         }
 
         @if (canTransfertToReserve()) {
@@ -45,7 +45,11 @@
                 size="small"
                 [severity]="lotUrgent() ? 'warn' : 'secondary'"
                 [outlined]="true"
-                [ngbTooltip]="lotUrgent() ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.expiryDate + ' — déplacer en priorité' : 'Transférer du rayon vers la réserve'"
+                [ngbTooltip]="
+                  lotUrgent()
+                    ? 'Lot ' + lotUrgent()!.numLot + ' expire le ' + lotUrgent()!.expiryDate + ' — déplacer en priorité'
+                    : 'Transférer du rayon vers la réserve'
+                "
                 [disabled]="isDisabled()"
                 (clicked)="onTransfert(rayon)"
               />
@@ -61,7 +65,7 @@
                 (clicked)="onAddReserve()"
               />
 
-             <!-- @if (canAddReserve()) {
+              <!-- @if (canAddReserve()) {
                 &nbsp;&nbsp;
                 <app-button
                   icon="pi pi-plus"
@@ -87,8 +91,13 @@
 
     <!-- Réserve (SAFETY_STOCK) -->
     @if (stockReserve(); as reserve) {
-      <app-detail-section header="Réserve" icon="pi pi-database" [accent]="niveauAccent(reserve)"
-                          [layout]="'block'" storageKey="produit.stock.reserve">
+      <app-detail-section
+        header="Réserve"
+        icon="pi pi-database"
+        [accent]="niveauAccent(reserve)"
+        [layout]="'block'"
+        storageKey="produit.stock.reserve"
+      >
         <app-button
           ngProjectAs="[sectionActions]"
           icon="pi pi-pencil"
@@ -103,9 +112,7 @@
         <ng-container *ngTemplateOutlet="niveau; context: { $implicit: reserve }" />
 
         @if ((reserve.qtyStock ?? 0) === 0) {
-          <div class="stock-alert stock-alert-empty">
-            <i class="pi pi-times-circle me-1"></i>Réserve vide
-          </div>
+          <div class="stock-alert stock-alert-empty"><i class="pi pi-times-circle me-1"></i>Réserve vide</div>
         }
 
         @if (canTransfertToRayon()) {
@@ -125,23 +132,29 @@
       </app-detail-section>
     }
 
-
-
     <!-- Analyse CMM / couverture cible -->
     @if (cmm() > 0) {
-      <app-detail-section header="Analyse CMM" icon="pi pi-calculator" [accent]="'amber'"
-                          storageKey="produit.stock.cmm">
+      <app-detail-section header="Analyse CMM" icon="pi pi-calculator" [accent]="'amber'" storageKey="produit.stock.cmm">
         <app-detail-field label="CMM" [value]="cmm()" format="nombre" unit="u/mois" />
         <app-detail-field label="Délai fournisseur" [value]="delaiLivraison()" format="nombre" unit="j" />
-        <app-detail-field label="Couverture actuelle" hint="Jours de vente couverts par le stock actuel"
-                          [value]="couvertureActuelle()" format="nombre" unit="j"
-                          [tone]="couvertureActuelle() !== null && couvertureActuelle()! < delaiLivraison() ? 'danger' : 'none'" />
+        <app-detail-field
+          label="Couverture actuelle"
+          hint="Jours de vente couverts par le stock actuel"
+          [value]="couvertureActuelle()"
+          format="nombre"
+          unit="j"
+          [tone]="couvertureActuelle() !== null && couvertureActuelle()! < delaiLivraison() ? 'danger' : 'none'"
+        />
         @if (seuilCalcule() !== null) {
           <app-detail-field label="Seuil recommandé" hint="Calculé sur la CMM et le délai fournisseur">
             @if (seuilInsuffisant()) {
-              <span class="insight-warn"
-                    ngbTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)"
-                    container="body">
+              <span
+                class="insight-warn"
+                ngbTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{
+                  seuilCalcule()
+                }} u)"
+                container="body"
+              >
                 <i class="pi pi-exclamation-triangle"></i>
               </span>
             }
@@ -153,14 +166,17 @@
 
     <!-- Lots, premier expirant premier sorti -->
     @if (lotsFEFO().length > 0) {
-      <app-detail-section header="Lots" icon="pi pi-sort-amount-up" [width]="'full'"
-                          [accent]="lotUrgent() ? 'danger' : 'violet'" [count]="lotsFEFO().length"
-                          storageKey="produit.stock.lots">
+      <app-detail-section
+        header="Lots"
+        icon="pi pi-sort-amount-up"
+        [width]="'full'"
+        [accent]="lotUrgent() ? 'danger' : 'violet'"
+        [count]="lotsFEFO().length"
+        storageKey="produit.stock.lots"
+      >
         <span ngProjectAs="[sectionActions]" class="lots-actions">
           @if (lotUrgent()) {
-            <span class="fefo-urgent-badge">
-              <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
-            </span>
+            <span class="fefo-urgent-badge"> <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois </span>
           }
           <app-button
             icon="pi pi-plus"
@@ -185,7 +201,7 @@
           @for (lot of lotsFEFO(); track lot.id) {
             <div [class]="'fefo-row ' + fefoClass(lot)">
               <span class="fefo-num">{{ lot.numLot }}</span>
-              <span class="fefo-date">{{ lot.expiryDate | date : 'dd/MM/yyyy' }}</span>
+              <span class="fefo-date">{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
               <span class="fefo-qty text-end">{{ lot.currentQuantity }}</span>
               <span>
                 @if ((lot.peremptionStatut?.days ?? 9999) <= 30) {

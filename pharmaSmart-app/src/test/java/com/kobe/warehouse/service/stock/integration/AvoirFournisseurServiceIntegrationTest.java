@@ -56,8 +56,7 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         AvoirFournisseurDTO avoir = services.avoirFournisseurService.create(
-            new AvoirFournisseurCommand(retour.getId(), "casse transport", List.of(acceptation(ligne, 10)))
-        );
+                new AvoirFournisseurCommand(retour.getId(), "casse transport", List.of(acceptation(ligne, 10))));
         viderLeCache();
 
         assertNotNull(avoir.getId());
@@ -65,9 +64,12 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         assertEquals(60_000, avoir.getMontant(), "10 unités au prix d'achat de 6 000");
         assertEquals(AvoirFournisseurStatut.EN_ATTENTE, avoir.getStatut());
 
-        assertEquals(1, compter("SELECT COUNT(*) FROM avoir_fournisseur_line WHERE avoir_fournisseur_id = " + avoir.getId()));
+        assertEquals(
+                1,
+                compter("SELECT COUNT(*) FROM avoir_fournisseur_line WHERE avoir_fournisseur_id = " + avoir.getId()));
         assertEquals(10, compter("SELECT accepted_qty FROM retour_bon_item WHERE id = " + ligne.getId()));
-        assertEquals(RetourStatut.CLOSED, em.find(RetourBon.class, retour.getId()).getStatut());
+        assertEquals(
+                RetourStatut.CLOSED, em.find(RetourBon.class, retour.getId()).getStatut());
     }
 
     @Test
@@ -79,13 +81,14 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         AvoirFournisseurDTO avoir = services.avoirFournisseurService.create(
-            new AvoirFournisseurCommand(retour.getId(), null, List.of(acceptation(ligne, 4)))
-        );
+                new AvoirFournisseurCommand(retour.getId(), null, List.of(acceptation(ligne, 4))));
         viderLeCache();
 
         assertEquals(20_000, avoir.getMontant());
         assertEquals(4, compter("SELECT accepted_qty FROM retour_bon_item WHERE id = " + ligne.getId()));
-        assertEquals(RetourStatut.PARTIALLY_ACCEPTED, em.find(RetourBon.class, retour.getId()).getStatut());
+        assertEquals(
+                RetourStatut.PARTIALLY_ACCEPTED,
+                em.find(RetourBon.class, retour.getId()).getStatut());
     }
 
     @Test
@@ -96,9 +99,8 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         RetourBonItem ligne = ligneDeRetour(retour, produit, 5);
         viderLeCache();
 
-        AvoirFournisseurDTO avoir = services.avoirFournisseurService.create(
-            new AvoirFournisseurCommand(retour.getId(), null, List.of(new AvoirFournisseurCommand.AvoirLigneCommand(ligne.getId(), 5, 4_000)))
-        );
+        AvoirFournisseurDTO avoir = services.avoirFournisseurService.create(new AvoirFournisseurCommand(
+                retour.getId(), null, List.of(new AvoirFournisseurCommand.AvoirLigneCommand(ligne.getId(), 5, 4_000))));
         viderLeCache();
 
         assertEquals(20_000, avoir.getMontant(), "5 × 4 000, et non le prix d'achat du retour");
@@ -113,13 +115,15 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         AvoirFournisseurDTO avoir = services.avoirFournisseurService.create(
-            new AvoirFournisseurCommand(retour.getId(), "rien de repris", List.of())
-        );
+                new AvoirFournisseurCommand(retour.getId(), "rien de repris", List.of()));
         viderLeCache();
 
         assertEquals(0, avoir.getMontant());
-        assertEquals(0, compter("SELECT COUNT(*) FROM avoir_fournisseur_line WHERE avoir_fournisseur_id = " + avoir.getId()));
-        assertEquals(RetourStatut.CLOSED, em.find(RetourBon.class, retour.getId()).getStatut());
+        assertEquals(
+                0,
+                compter("SELECT COUNT(*) FROM avoir_fournisseur_line WHERE avoir_fournisseur_id = " + avoir.getId()));
+        assertEquals(
+                RetourStatut.CLOSED, em.find(RetourBon.class, retour.getId()).getStatut());
     }
 
     @Test
@@ -131,18 +135,14 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         AvoirFournisseurCommand surRetourClos = new AvoirFournisseurCommand(retour.getId(), null, List.of());
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.avoirFournisseurService.create(surRetourClos))
+        assertTrue(assertThrows(GenericError.class, () -> services.avoirFournisseurService.create(surRetourClos))
                 .getMessage()
-                .contains("déjà traité")
-        );
+                .contains("déjà traité"));
 
         AvoirFournisseurCommand surRetourInconnu = new AvoirFournisseurCommand(999_999, null, List.of());
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.avoirFournisseurService.create(surRetourInconnu))
+        assertTrue(assertThrows(GenericError.class, () -> services.avoirFournisseurService.create(surRetourInconnu))
                 .getMessage()
-                .contains("RetourBon non trouvé")
-        );
+                .contains("RetourBon non trouvé"));
     }
 
     // ===== cycle de vie =====
@@ -154,17 +154,19 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         assertEquals(
-            AvoirFournisseurStatut.IMPUTE,
-            services.avoirFournisseurService.updateStatut(avoir.getId(), AvoirFournisseurStatut.IMPUTE).getStatut()
-        );
+                AvoirFournisseurStatut.IMPUTE,
+                services.avoirFournisseurService
+                        .updateStatut(avoir.getId(), AvoirFournisseurStatut.IMPUTE)
+                        .getStatut());
         viderLeCache();
-        assertEquals(AvoirFournisseurStatut.IMPUTE, em.find(AvoirFournisseur.class, avoir.getId()).getStatut());
+        assertEquals(
+                AvoirFournisseurStatut.IMPUTE,
+                em.find(AvoirFournisseur.class, avoir.getId()).getStatut());
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.avoirFournisseurService.annuler(avoir.getId(), "trop tard"))
+        assertTrue(assertThrows(
+                        GenericError.class, () -> services.avoirFournisseurService.annuler(avoir.getId(), "trop tard"))
                 .getMessage()
-                .contains("déjà imputé")
-        );
+                .contains("déjà imputé"));
     }
 
     @Test
@@ -177,27 +179,28 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         viderLeCache();
 
         assertEquals(AvoirFournisseurStatut.ANNULE, annule.getStatut());
-        assertEquals("erreur de saisie", em.find(AvoirFournisseur.class, avoir.getId()).getCommentaire());
+        assertEquals(
+                "erreur de saisie",
+                em.find(AvoirFournisseur.class, avoir.getId()).getCommentaire());
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.avoirFournisseurService.annuler(avoir.getId(), "encore"))
+        assertTrue(assertThrows(
+                        GenericError.class, () -> services.avoirFournisseurService.annuler(avoir.getId(), "encore"))
                 .getMessage()
-                .contains("déjà annulé")
-        );
-        assertTrue(
-            assertThrows(
-                GenericError.class,
-                () -> services.avoirFournisseurService.updateStatut(avoir.getId(), AvoirFournisseurStatut.IMPUTE)
-            )
+                .contains("déjà annulé"));
+        assertTrue(assertThrows(
+                        GenericError.class,
+                        () -> services.avoirFournisseurService.updateStatut(
+                                avoir.getId(), AvoirFournisseurStatut.IMPUTE))
                 .getMessage()
-                .contains("avoir annulé")
-        );
+                .contains("avoir annulé"));
     }
 
     @Test
     @DisplayName("Un avoir introuvable ne se modifie ni ne s'annule")
     void avoirIntrouvable() {
-        assertThrows(GenericError.class, () -> services.avoirFournisseurService.updateStatut(999_999, AvoirFournisseurStatut.IMPUTE));
+        assertThrows(
+                GenericError.class,
+                () -> services.avoirFournisseurService.updateStatut(999_999, AvoirFournisseurStatut.IMPUTE));
         assertThrows(GenericError.class, () -> services.avoirFournisseurService.annuler(999_999, "motif"));
     }
 
@@ -217,9 +220,8 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         assertEquals(60_000L, montantPour(encours, premier));
         assertEquals(10_000L, montantPour(encours, second));
         assertTrue(
-            encours.stream().noneMatch(e -> e.getFournisseurId().equals(impute.getFournisseurId())),
-            "un avoir imputé ne pèse plus sur l'encours"
-        );
+                encours.stream().noneMatch(e -> e.getFournisseurId().equals(impute.getFournisseurId())),
+                "un avoir imputé ne pèse plus sur l'encours");
         assertEquals(2, services.avoirFournisseurService.countEnAttente());
     }
 
@@ -236,45 +238,42 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         LocalDate lendemain = LocalDate.now().plusDays(1);
 
         assertEquals(
-            List.of(avoir.getId()),
-            services.avoirFournisseurService
-                .findAll(null, null, fournisseurId, null, null, PageRequest.of(0, 20))
-                .map(AvoirFournisseurDTO::getId)
-                .getContent()
-        );
+                List.of(avoir.getId()),
+                services.avoirFournisseurService
+                        .findAll(null, null, fournisseurId, null, null, PageRequest.of(0, 20))
+                        .map(AvoirFournisseurDTO::getId)
+                        .getContent());
         assertEquals(
-            1,
-            services.avoirFournisseurService
-                .findAll(avoir.getReference(), null, null, null, null, PageRequest.of(0, 20))
-                .getTotalElements()
-        );
+                1,
+                services.avoirFournisseurService
+                        .findAll(avoir.getReference(), null, null, null, null, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertEquals(
-            1,
-            services.avoirFournisseurService
-                .findAll(null, AvoirFournisseurStatut.IMPUTE, null, veille, lendemain, PageRequest.of(0, 20))
-                .getTotalElements()
-        );
+                1,
+                services.avoirFournisseurService
+                        .findAll(null, AvoirFournisseurStatut.IMPUTE, null, veille, lendemain, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertTrue(
-            services.avoirFournisseurService
-                .findAll(null, null, null, veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
-                .isEmpty(),
-            "hors période, rien ne remonte"
-        );
+                services.avoirFournisseurService
+                        .findAll(null, null, null, veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
+                        .isEmpty(),
+                "hors période, rien ne remonte");
         assertTrue(
-            services.avoirFournisseurService.findAll(null, null, null, null, null, PageRequest.of(0, 20)).getTotalElements() >= 2,
-            "sans filtre, la recherche rend tout le registre"
-        );
+                services.avoirFournisseurService
+                                .findAll(null, null, null, null, null, PageRequest.of(0, 20))
+                                .getTotalElements()
+                        >= 2,
+                "sans filtre, la recherche rend tout le registre");
     }
 
     // ===== fabriques du jeu d'essai propres aux avoirs =====
 
     private long montantPour(List<AvoirEncoursFournisseurDTO> encours, AvoirFournisseurDTO avoir) {
-        return encours
-            .stream()
-            .filter(e -> e.getFournisseurId().equals(avoir.getFournisseurId()))
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("aucun encours pour le fournisseur " + avoir.getFournisseurId()))
-            .getMontantEncours();
+        return encours.stream()
+                .filter(e -> e.getFournisseurId().equals(avoir.getFournisseurId()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("aucun encours pour le fournisseur " + avoir.getFournisseurId()))
+                .getMontantEncours();
     }
 
     /** Un produit et son fournisseur principal, dont le prix d'achat fait le montant de l'avoir. */
@@ -323,14 +322,12 @@ class AvoirFournisseurServiceIntegrationTest extends AbstractStockIntegrationTes
         RetourBon retour = retourBon(produit.getFournisseurProduitPrincipal().getFournisseur());
         RetourBonItem ligne = ligneDeRetour(retour, produit, quantite);
         return services.avoirFournisseurService.create(
-            new AvoirFournisseurCommand(retour.getId(), null, List.of(acceptation(ligne, quantite)))
-        );
+                new AvoirFournisseurCommand(retour.getId(), null, List.of(acceptation(ligne, quantite))));
     }
 
     private MotifRetourProduit premierMotif() {
-        return em
-            .createQuery("SELECT m FROM MotifRetourProduit m ORDER BY m.id", MotifRetourProduit.class)
-            .setMaxResults(1)
-            .getSingleResult();
+        return em.createQuery("SELECT m FROM MotifRetourProduit m ORDER BY m.id", MotifRetourProduit.class)
+                .setMaxResults(1)
+                .getSingleResult();
     }
 }

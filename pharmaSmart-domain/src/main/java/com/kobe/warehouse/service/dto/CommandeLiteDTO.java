@@ -19,14 +19,20 @@ public class CommandeLiteDTO extends CommandeWrapperDTO {
 
     public CommandeLiteDTO(Commande commande) {
         super(commande);
-        fournisseur = Optional.ofNullable(commande.getFournisseur()).map(FournisseurDTO::new).orElse(null);
-        lastUserEdit = Optional.ofNullable(commande.getUser()).map(UserDTO::user).orElse(null);
+        fournisseur = Optional.ofNullable(commande.getFournisseur())
+                .map(FournisseurDTO::new)
+                .orElse(null);
+        lastUserEdit =
+                Optional.ofNullable(commande.getUser()).map(UserDTO::user).orElse(null);
     }
 
     public CommandeLiteDTO(Commande commande, long count) {
         super(commande);
-        fournisseur = Optional.ofNullable(commande.getFournisseur()).map(FournisseurDTO::new).orElse(null);
-        lastUserEdit = Optional.ofNullable(commande.getUser()).map(UserDTO::user).orElse(null);
+        fournisseur = Optional.ofNullable(commande.getFournisseur())
+                .map(FournisseurDTO::new)
+                .orElse(null);
+        lastUserEdit =
+                Optional.ofNullable(commande.getUser()).map(UserDTO::user).orElse(null);
         itemSize = (int) count;
     }
 

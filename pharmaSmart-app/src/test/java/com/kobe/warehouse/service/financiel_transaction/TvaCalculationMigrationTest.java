@@ -49,6 +49,7 @@ class TvaCalculationMigrationTest {
 
     /** Le jeu d'essai : un TTC par taux, choisi pour que le HT tombe juste sur 10 000. */
     private static final int TTC_TAUX_0 = 10_000;
+
     private static final int TTC_TAUX_9 = 10_900;
     private static final int TTC_TAUX_18 = 11_800;
     private static final int HT_ATTENDU_PAR_LIGNE = 10_000;
@@ -70,8 +71,8 @@ class TvaCalculationMigrationTest {
      */
     @Container
     @SuppressWarnings("resource")
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:18-alpine")
-        .withDatabaseName("pharma_smart_test");
+    private static final PostgreSQLContainer<?> POSTGRES =
+            new PostgreSQLContainer<>("postgres:18-alpine").withDatabaseName("pharma_smart_test");
 
     private static Connection connection;
 
@@ -80,13 +81,13 @@ class TvaCalculationMigrationTest {
     @BeforeAll
     static void preparerBase() throws SQLException {
         Flyway.configure()
-            .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-            .schemas(SCHEMA)
-            .defaultSchema(SCHEMA)
-            .table("pharma_smart_history")
-            .locations("classpath:db/migration")
-            .load()
-            .migrate();
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+                .schemas(SCHEMA)
+                .defaultSchema(SCHEMA)
+                .table("pharma_smart_history")
+                .locations("classpath:db/migration")
+                .load()
+                .migrate();
 
         connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
         try (Statement st = connection.createStatement()) {
@@ -118,8 +119,7 @@ class TvaCalculationMigrationTest {
             creerProduit(st, PRODUIT_TAUX_18, "PRODUIT TAUX 18", TTC_TAUX_18, 18, famille);
 
             int totalTtc = TTC_TAUX_0 + TTC_TAUX_9 + TTC_TAUX_18;
-            st.executeUpdate(
-                """
+            st.executeUpdate("""
                 INSERT INTO sales (dtype, id, sale_date, number_transaction, statut, ca,
                                    sales_amount, amount_to_be_paid, amount_to_be_taken_into_account,
                                    discount_amount, payroll_amount, rest_to_pay, monnaie,
@@ -134,8 +134,7 @@ class TvaCalculationMigrationTest {
                         'COMPTANT', 'DIRECT', 'PAYE', 'PRESCRIPTION',
                         now(), now(), now(),
                         1, 1, 1, 1)
-                """.formatted(VENTE_ID, DATE_VENTE, totalTtc, totalTtc, totalTtc, totalTtc)
-            );
+                """.formatted(VENTE_ID, DATE_VENTE, totalTtc, totalTtc, totalTtc, totalTtc));
 
             creerLigne(st, 900_101L, PRODUIT_TAUX_0, TTC_TAUX_0, 0);
             creerLigne(st, 900_102L, PRODUIT_TAUX_9, TTC_TAUX_9, 9);
@@ -151,18 +150,15 @@ class TvaCalculationMigrationTest {
      */
     private static void creerPartitionsAnnuelles(Statement st) throws SQLException {
         int annee = Integer.parseInt(DATE_VENTE.substring(0, 4));
-        for (String table : new String[] { "sales", "sales_line" }) {
-            st.execute(
-                "CREATE TABLE IF NOT EXISTS %s_%d PARTITION OF %s FOR VALUES FROM ('%d-01-01') TO ('%d-01-01')"
-                    .formatted(table, annee, table, annee, annee + 1)
-            );
+        for (String table : new String[] {"sales", "sales_line"}) {
+            st.execute("CREATE TABLE IF NOT EXISTS %s_%d PARTITION OF %s FOR VALUES FROM ('%d-01-01') TO ('%d-01-01')"
+                    .formatted(table, annee, table, annee, annee + 1));
         }
     }
 
     private static void creerProduit(Statement st, int id, String libelle, int prix, int taux, int famille)
-        throws SQLException {
-        st.executeUpdate(
-            """
+            throws SQLException {
+        st.executeUpdate("""
             INSERT INTO produit (id, libelle, status, type_produit, deconditionnable,
                                  cost_amount, regular_unit_price, net_unit_price,
                                  item_cost_amount, item_qty, item_regular_unit_price,
@@ -171,13 +167,11 @@ class TvaCalculationMigrationTest {
                     0, %d, %d,
                     0, 1, %d,
                     now(), now(), %d, (SELECT id FROM tva WHERE taux = %d))
-            """.formatted(id, libelle, prix, prix, prix, famille, taux)
-        );
+            """.formatted(id, libelle, prix, prix, prix, famille, taux));
     }
 
     private static void creerLigne(Statement st, long id, int produitId, int prix, int taux) throws SQLException {
-        st.executeUpdate(
-            """
+        st.executeUpdate("""
             INSERT INTO sales_line (id, sale_date, sales_id, sales_sale_date, produit_id,
                                     quantity_requested, quantity_sold, quantity_ug,
                                     regular_unit_price, net_unit_price, discount_unit_price,
@@ -190,8 +184,7 @@ class TvaCalculationMigrationTest {
                     %d, 0, %d, 0,
                     %d, false,
                     now(), now(), now())
-            """.formatted(id, DATE_VENTE, VENTE_ID, DATE_VENTE, produitId, prix, prix, prix, taux, prix)
-        );
+            """.formatted(id, DATE_VENTE, VENTE_ID, DATE_VENTE, produitId, prix, prix, prix, taux, prix));
     }
 
     // ===== Le diviseur lui-même =====
@@ -207,16 +200,15 @@ class TvaCalculationMigrationTest {
     @Test
     @DisplayName("ht_from_ttc rend la même valeur que son pendant Java ServiceUtil#htFromTtc")
     void htSqlEtHtJavaConcordent() throws SQLException {
-        for (int taux : new int[] { 0, 9, 18 }) {
-            for (int ttc : new int[] { 1, 999, 10_000, 11_800, 1_234_567 }) {
+        for (int taux : new int[] {0, 9, 18}) {
+            for (int ttc : new int[] {1, 999, 10_000, 11_800, 1_234_567}) {
                 BigDecimal sql = valeurDecimale("SELECT round(ht_from_ttc(%d, %d))".formatted(ttc, taux));
                 long java = ServiceUtil.htFromTtc(ttc, taux);
                 assertEquals(
-                    sql.longValueExact(),
-                    java,
-                    "divergence SQL/Java pour ttc=%d taux=%d — le rapport TVA et la FNE cesseraient de se recouper"
-                        .formatted(ttc, taux)
-                );
+                        sql.longValueExact(),
+                        java,
+                        "divergence SQL/Java pour ttc=%d taux=%d — le rapport TVA et la FNE cesseraient de se recouper"
+                                .formatted(ttc, taux));
             }
         }
     }
@@ -263,18 +255,16 @@ class TvaCalculationMigrationTest {
         }
 
         long htBalance = 0;
-        for (JsonNode l : appelJson(
-            "SELECT sales_balance(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
-                .formatted(DATE_VENTE, DATE_VENTE)
-        )) {
+        for (JsonNode l :
+                appelJson("SELECT sales_balance(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
+                        .formatted(DATE_VENTE, DATE_VENTE))) {
             htBalance += l.get("montantHt").asLong();
         }
 
         long htTableau = 0;
         for (JsonNode l : appelJson(
-            "SELECT tableau_pharmacien_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
-                .formatted(DATE_VENTE, DATE_VENTE)
-        )) {
+                "SELECT tableau_pharmacien_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, 'DECLARE')"
+                        .formatted(DATE_VENTE, DATE_VENTE))) {
             htTableau += l.get("montantHt").asLong();
         }
 
@@ -285,27 +275,22 @@ class TvaCalculationMigrationTest {
 
     // ===== Modes de lecture REEL / DECLARE =====
 
-
-
     @Test
     @DisplayName("Le mode par défaut est REEL : un paramètre oublié ne sous-déclare pas en silence")
     void modeParDefautEstReel() throws SQLException {
-        long defaut = valeurEntiere(
-            """
+        long defaut = valeurEntiere("""
             SELECT coalesce(sum((l ->> 'montantTtc')::bigint), 0)
               FROM jsonb_array_elements(
                      sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false)
                    ) AS l
-            """.formatted(DATE_VENTE, DATE_VENTE)
-        );
+            """.formatted(DATE_VENTE, DATE_VENTE));
         assertEquals(totalTtc(rapportTva("REEL")), defaut, "l'état neutre est la donnée non retraitée");
     }
 
     @Test
     @DisplayName("Les 5 fonctions des écrans de comptabilité acceptent le mode")
     void lesCinqFonctionsAcceptentLeMode() throws SQLException {
-        String sql =
-            """
+        String sql = """
             SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
              WHERE n.nspname = '%s'
                AND p.proname IN ('sales_balance', 'sales_tva_report', 'sales_tva_report_journalier',
@@ -318,8 +303,7 @@ class TvaCalculationMigrationTest {
     @Test
     @DisplayName("L'ancienne signature à six arguments a bien été supprimée")
     void ancienneSignatureSupprimee() throws SQLException {
-        String sql =
-            """
+        String sql = """
             SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
              WHERE n.nspname = '%s' AND p.proname = 'sales_balance'
             """.formatted(SCHEMA);
@@ -331,25 +315,22 @@ class TvaCalculationMigrationTest {
     @Test
     @DisplayName("Aucune fonction de rapport ne calcule encore le diviseur à la main")
     void aucuneDivisionEntiereResiduelle() throws SQLException {
-        String sql =
-            """
+        String sql = """
             SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
              WHERE n.nspname = '%s'
                AND p.prokind = 'f'          -- pg_get_functiondef ne sait pas décrire un agrégat
                AND p.prosrc LIKE '%%tax_value / 100%%'
             """.formatted(SCHEMA);
         assertEquals(
-            0,
-            valeurEntiere(sql),
-            "une fonction réintroduit la division entière : passer par tva_divisor(tax_value)"
-        );
+                0,
+                valeurEntiere(sql),
+                "une fonction réintroduit la division entière : passer par tva_divisor(tax_value)");
     }
 
     @Test
     @DisplayName("La redéfinition n'a pas créé de surcharge parasite")
     void pasDeSurchargeDupliquee() throws SQLException {
-        String sql =
-            """
+        String sql = """
             SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
              WHERE n.nspname = '%s' AND p.proname = 'sales_tva_report'
             """.formatted(SCHEMA);
@@ -363,10 +344,9 @@ class TvaCalculationMigrationTest {
         assertEquals(ttcAttendu, ligne.get("montantTtc").asLong(), "TTC au taux " + taux);
         assertEquals(htAttendu, ligne.get("montantHt").asLong(), "HT au taux " + taux);
         assertEquals(
-            tvaAttendue,
-            ligne.get("montantTtc").asLong() - ligne.get("montantHt").asLong(),
-            "TVA au taux " + taux
-        );
+                tvaAttendue,
+                ligne.get("montantTtc").asLong() - ligne.get("montantHt").asLong(),
+                "TVA au taux " + taux);
     }
 
     private JsonNode ligneDuTaux(JsonNode lignes, int taux) {
@@ -383,10 +363,8 @@ class TvaCalculationMigrationTest {
     }
 
     private JsonNode rapportTva(String mode) throws SQLException {
-        return appelJson(
-            "SELECT sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, '%s')"
-                .formatted(DATE_VENTE, DATE_VENTE, mode)
-        );
+        return appelJson("SELECT sales_tva_report(DATE '%s', DATE '%s', ARRAY['CLOSED'], ARRAY['CA'], false, '%s')"
+                .formatted(DATE_VENTE, DATE_VENTE, mode));
     }
 
     private long totalTtc(JsonNode lignes) {
@@ -398,7 +376,8 @@ class TvaCalculationMigrationTest {
     }
 
     private JsonNode appelJson(String sql) throws SQLException {
-        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             assertTrue(rs.next(), "la fonction n'a rien renvoyé");
             String json = rs.getString(1);
             assertNotNull(json, "la fonction a renvoyé NULL : le jeu d'essai n'a pas été vu");
@@ -413,14 +392,16 @@ class TvaCalculationMigrationTest {
     }
 
     private BigDecimal valeurDecimale(String sql) throws SQLException {
-        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             assertTrue(rs.next());
             return rs.getBigDecimal(1);
         }
     }
 
     private static int valeurEntiere(String sql) throws SQLException {
-        try (Statement st = connection.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
             assertTrue(rs.next());
             return rs.getInt(1);
         }

@@ -72,11 +72,7 @@ class AvoirFournisseurServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new AvoirFournisseurServiceImpl(
-            avoirFournisseurRepository,
-            retourBonRepository,
-            retourBonItemRepository,
-            userService
-        );
+                avoirFournisseurRepository, retourBonRepository, retourBonItemRepository, userService);
     }
 
     private static Fournisseur fournisseur(int id, String libelle) {
@@ -100,10 +96,10 @@ class AvoirFournisseurServiceImplTest {
 
     private static AvoirFournisseur avoir(AvoirFournisseurStatut statut) {
         return new AvoirFournisseur()
-            .setId(5)
-            .setStatut(statut)
-            .setFournisseur(fournisseur(2, "LABOREX"))
-            .setRetourBon(retourBon(RetourStatut.CLOSED));
+                .setId(5)
+                .setStatut(statut)
+                .setFournisseur(fournisseur(2, "LABOREX"))
+                .setRetourBon(retourBon(RetourStatut.CLOSED));
     }
 
     /** Rejoue l'attribution d'identifiant faite par la base au premier save. */
@@ -128,26 +124,30 @@ class AvoirFournisseurServiceImplTest {
             when(retourBonRepository.findById(99)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.create(command))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("RetourBon non trouvé: 99");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("RetourBon non trouvé: 99");
         }
 
         @ParameterizedTest(name = "un retour {0} est refuse")
-        @EnumSource(value = RetourStatut.class, names = { "CLOSED", "PARTIALLY_ACCEPTED" })
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"CLOSED", "PARTIALLY_ACCEPTED"})
         void retourDejaTraite(RetourStatut statut) {
             RetourBon bon = retourBon(statut);
             AvoirFournisseurCommand command = new AvoirFournisseurCommand(31, null, List.of());
             when(retourBonRepository.findById(31)).thenReturn(Optional.of(bon));
 
             assertThatThrownBy(() -> service.create(command))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Ce retour est déjà traité");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Ce retour est déjà traité");
 
             verify(avoirFournisseurRepository, never()).save(any());
         }
 
         @ParameterizedTest(name = "un retour {0} est accepte")
-        @EnumSource(value = RetourStatut.class, names = { "VALIDATED", "PROCESSING" })
+        @EnumSource(
+                value = RetourStatut.class,
+                names = {"VALIDATED", "PROCESSING"})
         void retourTraitable(RetourStatut statut) {
             RetourBon bon = retourBon(statut);
             bon.setFournisseur(fournisseur(2, "LABOREX"));
@@ -189,7 +189,8 @@ class AvoirFournisseurServiceImplTest {
             bon.setFournisseur(fournisseur(2, "LABOREX"));
             saveAssignsId(5);
 
-            assertThat(service.createFromRetourBon(bon, null, null).getFournisseurId()).isEqualTo(2);
+            assertThat(service.createFromRetourBon(bon, null, null).getFournisseurId())
+                    .isEqualTo(2);
         }
 
         @Test
@@ -199,7 +200,8 @@ class AvoirFournisseurServiceImplTest {
             bon.setFournisseur(fournisseur(2, "LABOREX"));
             saveAssignsId(5);
 
-            assertThat(service.createFromRetourBon(bon, null, null).getFournisseurId()).isEqualTo(2);
+            assertThat(service.createFromRetourBon(bon, null, null).getFournisseurId())
+                    .isEqualTo(2);
         }
 
         @Test
@@ -208,8 +210,8 @@ class AvoirFournisseurServiceImplTest {
             RetourBon bon = retourBon(RetourStatut.VALIDATED);
 
             assertThatThrownBy(() -> service.createFromRetourBon(bon, null, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Aucun fournisseur associé au retour");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Aucun fournisseur associé au retour");
         }
 
         @Test
@@ -271,10 +273,7 @@ class AvoirFournisseurServiceImplTest {
             saveAssignsId(5);
 
             AvoirFournisseurDTO dto = service.createFromRetourBon(
-                bon,
-                List.of(new AvoirLigneCommand(1, 10, null), new AvoirLigneCommand(2, 4, null)),
-                null
-            );
+                    bon, List.of(new AvoirLigneCommand(1, 10, null), new AvoirLigneCommand(2, 4, null)), null);
 
             assertThat(dto.getMontant()).isEqualTo(10 * 500 + 4 * 250);
         }
@@ -287,7 +286,8 @@ class AvoirFournisseurServiceImplTest {
             when(retourBonItemRepository.findById(1)).thenReturn(Optional.of(item(1, 10, 500)));
             saveAssignsId(5);
 
-            AvoirFournisseurDTO dto = service.createFromRetourBon(bon, List.of(new AvoirLigneCommand(1, 10, 300)), null);
+            AvoirFournisseurDTO dto =
+                    service.createFromRetourBon(bon, List.of(new AvoirLigneCommand(1, 10, 300)), null);
 
             assertThat(dto.getMontant()).isEqualTo(3000);
         }
@@ -330,10 +330,7 @@ class AvoirFournisseurServiceImplTest {
             saveAssignsId(5);
 
             service.createFromRetourBon(
-                bon,
-                List.of(new AvoirLigneCommand(1, 10, null), new AvoirLigneCommand(2, 3, null)),
-                null
-            );
+                    bon, List.of(new AvoirLigneCommand(1, 10, null), new AvoirLigneCommand(2, 3, null)), null);
 
             assertThat(bon.getStatut()).isEqualTo(RetourStatut.PARTIALLY_ACCEPTED);
         }
@@ -347,8 +344,8 @@ class AvoirFournisseurServiceImplTest {
             List<AvoirLigneCommand> lignes = List.of(new AvoirLigneCommand(404, 1, null));
 
             assertThatThrownBy(() -> service.createFromRetourBon(bon, lignes, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("RetourBonItem non trouvé: 404");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("RetourBonItem non trouvé: 404");
         }
 
         @Test
@@ -383,7 +380,7 @@ class AvoirFournisseurServiceImplTest {
         @DisplayName("sans filtre : liste tout, trie par date de mouvement descendante")
         void sansFiltre() {
             when(avoirFournisseurRepository.findAll(any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(avoir(AvoirFournisseurStatut.EN_ATTENTE))));
+                    .thenReturn(new PageImpl<>(List.of(avoir(AvoirFournisseurStatut.EN_ATTENTE))));
 
             Page<AvoirFournisseurDTO> result = service.findAll(null, null, null, null, null, pageable);
 
@@ -397,7 +394,7 @@ class AvoirFournisseurServiceImplTest {
         }
 
         @ParameterizedTest(name = "une reference [{0}] vide ne declenche pas la specification")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void referenceBlancheNestPasUnFiltre(String reference) {
             when(avoirFournisseurRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
@@ -423,7 +420,8 @@ class AvoirFournisseurServiceImplTest {
 
             service.findAll(null, AvoirFournisseurStatut.IMPUTE, null, null, null, pageable);
 
-            verify(avoirFournisseurRepository).buildSpecification(AvoirFournisseurStatut.IMPUTE, null, null, null, null);
+            verify(avoirFournisseurRepository)
+                    .buildSpecification(AvoirFournisseurStatut.IMPUTE, null, null, null, null);
         }
 
         @Test
@@ -446,7 +444,7 @@ class AvoirFournisseurServiceImplTest {
             service.findAll(null, null, null, from, to, pageable);
 
             verify(avoirFournisseurRepository)
-                .buildSpecification(null, null, null, from.atStartOfDay(), to.atTime(LocalTime.MAX));
+                    .buildSpecification(null, null, null, from.atStartOfDay(), to.atTime(LocalTime.MAX));
         }
 
         @Test
@@ -474,8 +472,10 @@ class AvoirFournisseurServiceImplTest {
         @SuppressWarnings("unchecked")
         private void stubSpecification() {
             Specification<com.kobe.warehouse.domain.AvoirFournisseur> spec = (root, query, cb) -> null;
-            when(avoirFournisseurRepository.buildSpecification(any(), any(), any(), any(), any())).thenReturn(spec);
-            when(avoirFournisseurRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+            when(avoirFournisseurRepository.buildSpecification(any(), any(), any(), any(), any()))
+                    .thenReturn(spec);
+            when(avoirFournisseurRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
         }
     }
 
@@ -487,9 +487,10 @@ class AvoirFournisseurServiceImplTest {
         @DisplayName("agrege uniquement les avoirs en attente")
         void agregeLesEnAttente() {
             List<Object[]> rows = new ArrayList<>();
-            rows.add(new Object[] { 2, "LABOREX", 125000L });
-            rows.add(new Object[] { 7, "COPHARMED", 4200 });
-            when(avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE)).thenReturn(rows);
+            rows.add(new Object[] {2, "LABOREX", 125000L});
+            rows.add(new Object[] {7, "COPHARMED", 4200});
+            when(avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE))
+                    .thenReturn(rows);
 
             List<AvoirEncoursFournisseurDTO> result = service.getEncoursParFournisseur();
 
@@ -503,7 +504,8 @@ class AvoirFournisseurServiceImplTest {
         @Test
         @DisplayName("renvoie une liste vide quand rien n est en attente")
         void aucunEncours() {
-            when(avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE)).thenReturn(List.of());
+            when(avoirFournisseurRepository.sumParFournisseur(AvoirFournisseurStatut.EN_ATTENTE))
+                    .thenReturn(List.of());
 
             assertThat(service.getEncoursParFournisseur()).isEmpty();
         }
@@ -519,8 +521,8 @@ class AvoirFournisseurServiceImplTest {
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.updateStatut(1, AvoirFournisseurStatut.IMPUTE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Avoir fournisseur non trouvé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Avoir fournisseur non trouvé");
         }
 
         @Test
@@ -529,14 +531,16 @@ class AvoirFournisseurServiceImplTest {
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.of(avoir(AvoirFournisseurStatut.ANNULE)));
 
             assertThatThrownBy(() -> service.updateStatut(1, AvoirFournisseurStatut.IMPUTE))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Impossible de modifier un avoir annulé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Impossible de modifier un avoir annulé");
 
             verify(avoirFournisseurRepository, never()).save(any());
         }
 
         @ParameterizedTest(name = "bascule vers {0}")
-        @EnumSource(value = AvoirFournisseurStatut.class, names = { "REMBOURSE", "IMPUTE", "ANNULE", "EN_ATTENTE" })
+        @EnumSource(
+                value = AvoirFournisseurStatut.class,
+                names = {"REMBOURSE", "IMPUTE", "ANNULE", "EN_ATTENTE"})
         void changeLeStatut(AvoirFournisseurStatut cible) {
             AvoirFournisseur existing = avoir(AvoirFournisseurStatut.EN_ATTENTE);
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.of(existing));
@@ -559,8 +563,8 @@ class AvoirFournisseurServiceImplTest {
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.annuler(1, "erreur de saisie"))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Avoir fournisseur non trouvé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Avoir fournisseur non trouvé");
         }
 
         @Test
@@ -569,8 +573,8 @@ class AvoirFournisseurServiceImplTest {
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.of(avoir(AvoirFournisseurStatut.IMPUTE)));
 
             assertThatThrownBy(() -> service.annuler(1, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Impossible d'annuler un avoir déjà imputé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Impossible d'annuler un avoir déjà imputé");
         }
 
         @Test
@@ -579,8 +583,8 @@ class AvoirFournisseurServiceImplTest {
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.of(avoir(AvoirFournisseurStatut.ANNULE)));
 
             assertThatThrownBy(() -> service.annuler(1, null))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("déjà annulé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("déjà annulé");
         }
 
         @Test
@@ -597,7 +601,7 @@ class AvoirFournisseurServiceImplTest {
         }
 
         @ParameterizedTest(name = "un motif [{0}] laisse le commentaire intact")
-        @ValueSource(strings = { "", "   " })
+        @ValueSource(strings = {"", "   "})
         void motifBlancIgnore(String motif) {
             AvoirFournisseur existing = avoir(AvoirFournisseurStatut.EN_ATTENTE).setCommentaire("initial");
             when(avoirFournisseurRepository.findById(1)).thenReturn(Optional.of(existing));
@@ -624,7 +628,8 @@ class AvoirFournisseurServiceImplTest {
         @Test
         @DisplayName("compte les avoirs en attente")
         void compte() {
-            when(avoirFournisseurRepository.countByStatut(AvoirFournisseurStatut.EN_ATTENTE)).thenReturn(4L);
+            when(avoirFournisseurRepository.countByStatut(AvoirFournisseurStatut.EN_ATTENTE))
+                    .thenReturn(4L);
 
             assertThat(service.countEnAttente()).isEqualTo(4L);
         }

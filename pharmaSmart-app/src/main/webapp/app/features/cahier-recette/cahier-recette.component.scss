@@ -122,7 +122,8 @@ $doc-primary-bg: #e7f1ff;
     color: $doc-primary;
   }
 
-  .pi-chevron-down, .pi-chevron-right {
+  .pi-chevron-down,
+  .pi-chevron-right {
     font-size: 0.6rem;
     width: 0.8rem;
     color: $doc-text-muted;
@@ -246,7 +247,6 @@ $doc-primary-bg: #e7f1ff;
   line-height: 1.55;
 }
 
-
 .content-acces {
   display: flex;
   align-items: baseline;
@@ -344,7 +344,6 @@ $doc-primary-bg: #e7f1ff;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 4px;
 }
-
 
 .scenario-doc__section {
   margin-bottom: 1.1rem;

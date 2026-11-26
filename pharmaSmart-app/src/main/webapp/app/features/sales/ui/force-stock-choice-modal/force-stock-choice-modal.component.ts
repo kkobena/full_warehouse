@@ -22,7 +22,8 @@ export type ChoixStockInsuffisant = MotifForcageStock | 'SUBSTITUER';
         }
         la quantité saisie
         @if (quantiteDemandee != null) {
-          (<strong>{{ quantiteDemandee }}</strong>)
+          (<strong>{{ quantiteDemandee }}</strong
+          >)
         }
         dépasse le stock affiché. Que se passe-t-il au comptoir ?
       </p>
@@ -52,7 +53,9 @@ export type ChoixStockInsuffisant = MotifForcageStock | 'SUBSTITUER';
               [outlined]="true"
               (clicked)="choisir('ECART_INVENTAIRE')"
             />
-            <small class="choice-hint">Le client repart servi, sans avoir. Le stock est régularisé par un ajustement à l'encaissement.</small>
+            <small class="choice-hint"
+              >Le client repart servi, sans avoir. Le stock est régularisé par un ajustement à l'encaissement.</small
+            >
           </div>
         }
       </div>

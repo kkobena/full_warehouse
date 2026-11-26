@@ -1,11 +1,12 @@
-<div class="pharma-smart-content ">
+<div class="pharma-smart-content">
   <!-- Toolbar -->
   <app-toolbar icon="pi pi-tag" title="Rayons" [compact]="true">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-float-label label="Emplacement" inputId="rhStorage">
           <app-select
-            [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
+            [ngModel]="selectedStorage()"
+            (ngModelChange)="selectedStorage.set($event)"
             [items]="storages()"
             bindLabel="storageType"
             [clearable]="true"
@@ -32,12 +33,7 @@
 
         <div class="pharma-compact-search">
           <app-icon-field icon="pi pi-search">
-            <input
-              class="form-control"
-              [(ngModel)]="search"
-              (keyup.enter)="onSearch()"
-              placeholder="Rechercher…"
-            />
+            <input class="form-control" [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Rechercher…" />
           </app-icon-field>
         </div>
       </div>
@@ -99,8 +95,7 @@
   </app-toolbar>
 
   <!-- Split container -->
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
-          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
     <div class="split-container" [class.panel-open]="panelOpen()">
       <div class="list-column">
         <app-rayon-list
@@ -132,4 +127,3 @@
     </div>
   </app-card>
 </div>
-

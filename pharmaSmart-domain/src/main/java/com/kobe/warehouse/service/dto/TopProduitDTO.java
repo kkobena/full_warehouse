@@ -15,14 +15,13 @@ public class TopProduitDTO {
     public TopProduitDTO() {}
 
     public TopProduitDTO(
-        Long id,
-        String libelle,
-        String codeCip,
-        Long quantiteTotale,
-        BigDecimal cumul,
-        BigDecimal totalGlobal,
-        Integer salesAmount
-    ) {
+            Long id,
+            String libelle,
+            String codeCip,
+            Long quantiteTotale,
+            BigDecimal cumul,
+            BigDecimal totalGlobal,
+            Integer salesAmount) {
         this.id = id;
         this.libelle = libelle;
         this.codeCip = codeCip;

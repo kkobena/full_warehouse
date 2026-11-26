@@ -1,9 +1,23 @@
 <app-detail-grid>
-  <app-detail-section header="Traitements chroniques" icon="pi pi-replay" [accent]="'warning'" [width]="'full'"
-                      [layout]="'block'" [count]="traitements().length" storageKey="customer.sante.traitements">
+  <app-detail-section
+    header="Traitements chroniques"
+    icon="pi pi-replay"
+    [accent]="'warning'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="traitements().length"
+    storageKey="customer.sante.traitements"
+  >
     @if (canEdit()) {
-      <app-button ngProjectAs="[sectionActions]" (clicked)="declarer()" [outlined]="true" icon="pi pi-plus"
-                  label="Déclarer" severity="info" size="small" />
+      <app-button
+        ngProjectAs="[sectionActions]"
+        (clicked)="declarer()"
+        [outlined]="true"
+        icon="pi pi-plus"
+        label="Déclarer"
+        severity="info"
+        size="small"
+      />
     }
     @if (traitements().length > 0) {
       <app-data-table [value]="traitements()" [stripedRows]="true" dataKey="id" size="small">
@@ -50,7 +64,8 @@
                   <span class="text-danger">expirée le {{ t.dateFinOrdonnance | date: 'dd/MM/yyyy' }}</span>
                   @if (t.renouvellementExceptionnelJusquau) {
                     <div class="small text-success">
-                      Renouvellement exceptionnel possible jusqu'au {{ t.renouvellementExceptionnelJusquau | date: 'dd/MM/yyyy' }}, un mois à la fois
+                      Renouvellement exceptionnel possible jusqu'au {{ t.renouvellementExceptionnelJusquau | date: 'dd/MM/yyyy' }}, un mois
+                      à la fois
                     </div>
                   } @else if (t.renouvellementExceptionnelMotif) {
                     <div class="small text-muted">{{ t.renouvellementExceptionnelMotif }}</div>
@@ -63,7 +78,14 @@
             </td>
             @if (canEdit()) {
               <td class="text-end text-nowrap">
-                <app-button (clicked)="modifier(t)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
+                <app-button
+                  (clicked)="modifier(t)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Modifier"
+                  severity="success"
+                />
                 <app-button
                   (clicked)="basculer(t)"
                   [icon]="t.actif ? 'pi pi-pause' : 'pi pi-play'"

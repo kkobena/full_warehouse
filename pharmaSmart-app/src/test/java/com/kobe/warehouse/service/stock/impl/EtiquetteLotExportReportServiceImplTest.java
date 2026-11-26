@@ -29,26 +29,26 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.openpdf.text.Rectangle;
 import org.openpdf.text.pdf.PdfReader;
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("EtiquetteLotExportReportServiceImpl")
 class EtiquetteLotExportReportServiceImplTest {
 
-    private static final String HTML = "<html><head><title>Etiquettes</title></head><body><p>etiquettes</p></body></html>";
+    private static final String HTML =
+            "<html><head><title>Etiquettes</title></head><body><p>etiquettes</p></body></html>";
     private static final LocalDate PEREMPTION = LocalDate.of(2026, 12, 31);
 
     /** Le PDF compte en points : 72 par pouce. La seule unite où la page se mesure vraiment. */
@@ -76,7 +76,8 @@ class EtiquetteLotExportReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new EtiquetteLotExportReportServiceImpl(templateEngine, storageService, lotRepository, new ZplEtiquetteServiceImpl());
+        service = new EtiquetteLotExportReportServiceImpl(
+                templateEngine, storageService, lotRepository, new ZplEtiquetteServiceImpl());
         Magasin magasin = new Magasin();
         magasin.setId(1);
         magasin.setName("pharmacie du plateau");
@@ -127,7 +128,8 @@ class EtiquetteLotExportReportServiceImplTest {
 
     @SuppressWarnings("unchecked")
     private List<EtiquetteDTO> etiquettesRendues() {
-        List<List<EtiquetteDTO>> paquets = (List<List<EtiquetteDTO>>) service.getParameters().get(Constant.ITEMS);
+        List<List<EtiquetteDTO>> paquets =
+                (List<List<EtiquetteDTO>>) service.getParameters().get(Constant.ITEMS);
         return paquets.stream().flatMap(List::stream).toList();
     }
 
@@ -192,12 +194,13 @@ class EtiquetteLotExportReportServiceImplTest {
 
             List<EtiquetteDTO> etiquettes = etiquettesRendues();
             assertThat(etiquettes).hasSize(3);
-            assertThat(etiquettes.subList(0, 2)).allSatisfy(e -> assertThat(e.isPrint()).isFalse());
+            assertThat(etiquettes.subList(0, 2))
+                    .allSatisfy(e -> assertThat(e.isPrint()).isFalse());
             assertThat(etiquettes.getLast().isPrint()).isTrue();
         }
 
         @ParameterizedTest(name = "un depart a {0} n insere aucune etiquette blanche")
-        @ValueSource(ints = { 0, 1 })
+        @ValueSource(ints = {0, 1})
         void sansEtiquetteBlanche(int startAt) {
             service.exporterPourBon(List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))), startAt);
 
@@ -237,7 +240,8 @@ class EtiquetteLotExportReportServiceImplTest {
 
             assertThat(pdf).isNotEmpty();
             assertThat(etiquettesRendues()).hasSize(3);
-            assertThat(etiquettesRendues()).allSatisfy(e -> assertThat(e.getNumLot()).isEqualTo("LOT9"));
+            assertThat(etiquettesRendues())
+                    .allSatisfy(e -> assertThat(e.getNumLot()).isEqualTo("LOT9"));
         }
 
         @Test
@@ -259,8 +263,8 @@ class EtiquetteLotExportReportServiceImplTest {
             when(lotRepository.findById(404)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.exporterPourLot(404, 1, 1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("404");
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("404");
         }
     }
 
@@ -317,10 +321,9 @@ class EtiquetteLotExportReportServiceImplTest {
         @DisplayName("un bon rend une etiquette par lot recu")
         void uneEtiquetteParLot() {
             String zpl = service.genererZplPourBon(
-                List.of(orderLine("1234567", List.of(lot("LOT1", PEREMPTION), lot("LOT2", PEREMPTION)))),
-                FormatEtiquette.ROULEAU_40X30,
-                ResolutionEtiquette.DPI_203
-            );
+                    List.of(orderLine("1234567", List.of(lot("LOT1", PEREMPTION), lot("LOT2", PEREMPTION)))),
+                    FormatEtiquette.ROULEAU_40X30,
+                    ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("Lot LOT1");
             assertThat(zpl).contains("Lot LOT2");
@@ -341,7 +344,8 @@ class EtiquetteLotExportReportServiceImplTest {
             resolver.setTemplateMode(TemplateMode.HTML);
             SpringTemplateEngine moteur = new SpringTemplateEngine();
             moteur.setTemplateResolver(resolver);
-            serviceAvecVraiGabarit = new EtiquetteLotExportReportServiceImpl(moteur, storageService, lotRepository, new ZplEtiquetteServiceImpl());
+            serviceAvecVraiGabarit = new EtiquetteLotExportReportServiceImpl(
+                    moteur, storageService, lotRepository, new ZplEtiquetteServiceImpl());
         }
 
         @Test
@@ -360,10 +364,7 @@ class EtiquetteLotExportReportServiceImplTest {
         @MethodSource("com.kobe.warehouse.service.stock.impl.EtiquetteLotExportReportServiceImplTest#planches")
         void chaqueFormatRendSaGeometrie(FormatEtiquette format) {
             byte[] pdf = serviceAvecVraiGabarit.exporterPourBon(
-                List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))),
-                1,
-                format
-            );
+                    List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))), 1, format);
             String html = serviceAvecVraiGabarit.getTemplateAsHtml();
 
             assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
@@ -408,10 +409,7 @@ class EtiquetteLotExportReportServiceImplTest {
         @MethodSource("com.kobe.warehouse.service.stock.impl.EtiquetteLotExportReportServiceImplTest#rouleaux")
         void chaqueRouleauFixeLaPage(FormatEtiquette format) throws Exception {
             byte[] pdf = serviceAvecVraiGabarit.exporterPourBon(
-                List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))),
-                1,
-                format
-            );
+                    List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))), 1, format);
             String html = serviceAvecVraiGabarit.getTemplateAsHtml();
 
             assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
@@ -432,9 +430,8 @@ class EtiquetteLotExportReportServiceImplTest {
         @Test
         @DisplayName("un rouleau sort une page par etiquette, sans page blanche a la fin")
         void unePageParEtiquetteEnRouleau() throws Exception {
-            List<OrderLine> lignes = List.of(
-                orderLine("1234567", List.of(lot("LOT1", PEREMPTION), lot("LOT2", PEREMPTION), lot("LOT3", PEREMPTION)))
-            );
+            List<OrderLine> lignes = List.of(orderLine(
+                    "1234567", List.of(lot("LOT1", PEREMPTION), lot("LOT2", PEREMPTION), lot("LOT3", PEREMPTION))));
 
             byte[] pdf = serviceAvecVraiGabarit.exporterPourBon(lignes, 1, FormatEtiquette.ROULEAU_40X30);
 
@@ -465,9 +462,7 @@ class EtiquetteLotExportReportServiceImplTest {
         void produitUnPdfAvecLeSymbole() {
             byte[] sansSymbole = serviceAvecVraiGabarit.exporterPourBon(List.of(orderLine("1234567", List.of())), 1);
             byte[] avecSymbole = serviceAvecVraiGabarit.exporterPourBon(
-                List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))),
-                1
-            );
+                    List.of(orderLine("1234567", List.of(lot("LOT9", PEREMPTION)))), 1);
 
             assertThat(new String(avecSymbole, 0, 5)).isEqualTo("%PDF-");
             // L'image du symbole est embarquee : le PDF pese plus que la meme planche sans etiquette.

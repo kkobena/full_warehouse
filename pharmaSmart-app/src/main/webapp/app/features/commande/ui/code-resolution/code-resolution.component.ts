@@ -1,9 +1,9 @@
-import { DatePipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { ButtonComponent, CheckboxComponent } from "app/shared/ui";
-import { IOrderLine } from "app/shared/model/order-line.model";
-import { IDataMatrixHint } from "app/shared/model/reception-scan-result.model";
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonComponent, CheckboxComponent } from 'app/shared/ui';
+import { IOrderLine } from 'app/shared/model/order-line.model';
+import { IDataMatrixHint } from 'app/shared/model/reception-scan-result.model';
 
 /** Ce que l'utilisateur a tranché : la ligne reconnue, et s'il faut mémoriser le code. */
 export interface CodeResolutionChoice {
@@ -20,15 +20,15 @@ export interface CodeResolutionChoice {
  * sur la boîte sont affichés pour que le pharmacien confirme qu'il tient bien le bon article.
  */
 @Component({
-  selector: "app-code-resolution",
-  templateUrl: "./code-resolution.component.html",
-  styleUrls: ["./code-resolution.component.scss"],
+  selector: 'app-code-resolution',
+  templateUrl: './code-resolution.component.html',
+  styleUrls: ['./code-resolution.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, FormsModule, ButtonComponent, CheckboxComponent],
 })
 export class CodeResolutionComponent {
   /** Code produit retenu par le parser, tel qu'il sera mémorisé. */
-  readonly scannedCode = input<string>("");
+  readonly scannedCode = input<string>('');
 
   /** Données extraites de la boîte ; absentes si le code n'était pas un DataMatrix. */
   readonly hint = input<IDataMatrixHint | null>(null);
@@ -39,7 +39,7 @@ export class CodeResolutionComponent {
   readonly valide = output<CodeResolutionChoice>();
   readonly annule = output();
 
-  protected readonly filtre = signal("");
+  protected readonly filtre = signal('');
   protected readonly ligneChoisie = signal<IOrderLine | null>(null);
   protected readonly memoriser = signal(true);
 
@@ -49,9 +49,7 @@ export class CodeResolutionComponent {
       return this.lignes();
     }
     return this.lignes().filter(
-      ligne =>
-        (ligne.produitLibelle ?? "").toLowerCase().includes(recherche) ||
-        (ligne.produitCip ?? "").toLowerCase().includes(recherche),
+      ligne => (ligne.produitLibelle ?? '').toLowerCase().includes(recherche) || (ligne.produitCip ?? '').toLowerCase().includes(recherche),
     );
   });
 
@@ -59,7 +57,7 @@ export class CodeResolutionComponent {
 
   /** Remet le formulaire à son état initial : la modale est réutilisée d'un scan à l'autre. */
   reinitialiser(): void {
-    this.filtre.set("");
+    this.filtre.set('');
     this.ligneChoisie.set(null);
     this.memoriser.set(true);
   }

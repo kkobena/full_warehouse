@@ -1,11 +1,11 @@
 <div class="pharma-smart-content">
   <!-- Modern Pharma Toolbar -->
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shopping-cart"
-               title="Journal des ventes">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-shopping-cart" title="Journal des ventes">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-multi-select
         (ngModelChange)="typeVenteSelected.set($event)"
-        (selectionChange)="onTypeVenteChange()" [clearable]="true"
+        (selectionChange)="onTypeVenteChange()"
+        [clearable]="true"
         [items]="typeVentes"
         [ngModel]="typeVenteSelected()"
         [style]="{ 'max-width': '180px' }"
@@ -17,7 +17,8 @@
       />
 
       <app-select
-        (ngModelChange)="selectedUserId.set($event)" [clearable]="true"
+        (ngModelChange)="selectedUserId.set($event)"
+        [clearable]="true"
         [items]="users()"
         [ngModel]="selectedUserId()"
         [style]="{ 'min-width': '180px' }"
@@ -28,45 +29,59 @@
         placeholder="Caissier"
       />
 
-
       <div class="pharma-compact-search mr-1">
         <div class="input-group">
-          <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..."
-                 type="text" />
+          <input (keyup.enter)="onSearch()" class="form-control" placeholder="Rechercher..." type="text" />
           <span class="input-group-text">
-              <app-checkbox (ngModelChange)="global.set($event)" [ngModel]="global()"
-                            ngbTooltip="Recherche globale" />
-            </span>
+            <app-checkbox (ngModelChange)="global.set($event)" [ngModel]="global()" ngbTooltip="Recherche globale" />
+          </span>
         </div>
       </div>
 
-      <pharma-date-picker (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
-                          [ngModel]="fromDate()"
-                          [style]="{ 'max-width': '180px' }" id="fromDate"
-                          label="Du" />
+      <pharma-date-picker
+        (ngModelChange)="fromDate.set($event)"
+        [maxDate]="toDate()"
+        [ngModel]="fromDate()"
+        [style]="{ 'max-width': '180px' }"
+        id="fromDate"
+        label="Du"
+      />
 
-      <pharma-date-picker (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
-                          [ngModel]="toDate()"
-                          [style]="{ 'max-width': '180px' }" id="toDate"
-                          label="Au" />
+      <pharma-date-picker
+        (ngModelChange)="toDate.set($event)"
+        [minDate]="fromDate()"
+        [ngModel]="toDate()"
+        [style]="{ 'max-width': '180px' }"
+        id="toDate"
+        label="Au"
+      />
 
       <div class="pharma-hide-mobile">
-        <app-select (ngModelChange)="fromHour.set($event)" [items]="hours" [ngModel]="fromHour()"
-                    [searchable]="false"
-                    [style]="{ 'max-width': '110px' }" appendTo="body" />
+        <app-select
+          (ngModelChange)="fromHour.set($event)"
+          [items]="hours"
+          [ngModel]="fromHour()"
+          [searchable]="false"
+          [style]="{ 'max-width': '110px' }"
+          appendTo="body"
+        />
       </div>
 
       <div class="pharma-hide-mobile">
-        <app-select (ngModelChange)="toHour.set($event)" [items]="hours" [ngModel]="toHour()"
-                    [searchable]="false"
-                    [style]="{ 'max-width': '110px' }" appendTo="body" />
+        <app-select
+          (ngModelChange)="toHour.set($event)"
+          [items]="hours"
+          [ngModel]="toHour()"
+          [searchable]="false"
+          [style]="{ 'max-width': '110px' }"
+          appendTo="body"
+        />
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-button-group pharma-hide-mobile">
-        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
-                    severity="info" />
+        <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
         <app-button
           (clicked)="exportJournal()"
           [hidden]="true"
@@ -78,7 +93,6 @@
           placement="bottom"
           severity="secondary"
         />
-
 
         @if (canCreateVente()) {
           <div>
@@ -176,7 +190,7 @@
             </tr>
           </ng-template>
           <ng-template #body let-expanded="expanded" let-sale>
-            <tr [class.pharma-negative-canceled-row]="sale.canceled  && sale.salesAmount>0">
+            <tr [class.pharma-negative-canceled-row]="sale.canceled && sale.salesAmount > 0">
               <td>
                 <app-button
                   (clicked)="onRowToggle(sale, salesTable)"
@@ -193,8 +207,7 @@
                 } @else if (sale.natureVente === 'CARNET') {
                   <span class="pharma-badge pharma-badge-warning">Carnet</span>
                 } @else {
-                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance"
-                        placement="top">Comptant</span>
+                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Vente sans ordonnance" placement="top">Comptant</span>
                 }
                 @if (sale.canceled || sale.statut === SalesStatut.CANCELED) {
                   <span class="pharma-badge pharma-badge-danger ms-1">Annulée</span>
@@ -203,12 +216,8 @@
               <td>
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
-              <td class="text-right">{{
-                  (sale.itemCount || sale.salesLines?.length)  | number
-                }}
-              </td>
-              <td
-                [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
+              <td class="text-right">{{ sale.itemCount || sale.salesLines?.length | number }}</td>
+              <td [ngClass]="sale.salesAmount < 0 || sale.canceled ? 'pharma-price-negative' : 'pharma-price'">
                 {{ sale.salesAmount | number }}
               </td>
               <!-- Remise : cellule vide plutôt qu'un zéro quand il n'y en a pas — une colonne
@@ -222,8 +231,7 @@
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>
               <td class="text-right">
-                <div container="body" ngbDropdown
-                     placement="bottom-end top-end bottom-start top-start">
+                <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
                   <button
                     (click)="$event.stopPropagation()"
                     aria-label="Actions"
@@ -240,9 +248,7 @@
                       @if (item.separator) {
                         <div class="dropdown-divider"></div>
                       } @else {
-                        <button (click)="item.command!()" [class.text-danger]="item.danger"
-                                ngbDropdownItem
-                                type="button">
+                        <button (click)="item.command!()" [class.text-danger]="item.danger" ngbDropdownItem type="button">
                           <i [class]="item.icon" aria-hidden="true"></i> {{ item.label }}
                         </button>
                       }
@@ -273,40 +279,35 @@
                           <div class="activity-item">
                             <span class="activity-item-label">Montant TTC</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.salesAmount | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant HT</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.htAmount | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.htAmount | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant Taxe</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.taxAmount | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
                           <div class="activity-item">
                             <span class="activity-item-label">Montant Assuré</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.partAssure | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.partAssure | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
                           <div class="activity-item activity-item-highlight">
                             <span class="activity-item-label">Montant Assurance</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.partTiersPayant | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
@@ -314,8 +315,7 @@
                             <div class="activity-item activity-item-danger">
                               <span class="activity-item-label">Remise</span>
                               <div class="activity-item-value-wrapper">
-                                  <span
-                                    class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
+                                <span class="activity-item-value">{{ elRow?.discountAmount | number }}</span>
                                 <span appDevise class="activity-item-currency"></span>
                               </div>
                             </div>
@@ -323,8 +323,7 @@
                           <div class="activity-item">
                             <span class="activity-item-label">Reste à payer</span>
                             <div class="activity-item-value-wrapper">
-                                <span
-                                  class="activity-item-value">{{ elRow?.restToPay | number }}</span>
+                              <span class="activity-item-value">{{ elRow?.restToPay | number }}</span>
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
@@ -352,11 +351,7 @@
                             </div>
                           </div>
                           <div class="activity-card-table-body">
-                            <app-data-table
-                              [value]="elRow.thirdPartySaleLines"
-                              class=" rowexpansion-table"
-                              dataKey="tiersPayantFullName"
-                            >
+                            <app-data-table [value]="elRow.thirdPartySaleLines" class="rowexpansion-table" dataKey="tiersPayantFullName">
                               <ng-template #header>
                                 <tr class="pharma-table-head">
                                   <th style="width: 50%">Assureur</th>
@@ -367,23 +362,18 @@
                               <ng-template #body let-tp>
                                 <tr>
                                   <td>
-                                      <span
-                                        class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
+                                    <span class="pharma-entity-name">{{ tp?.tiersPayantFullName }}</span>
                                   </td>
                                   <td class="text-right">
                                     <span class="fs-6">{{ tp?.taux }}%</span>
                                   </td>
-                                  <td
-                                    class="fs-6 text-right pharma-price">{{ tp?.montant | number }}
-                                  </td>
+                                  <td class="fs-6 text-right pharma-price">{{ tp?.montant | number }}</td>
                                 </tr>
                               </ng-template>
                             </app-data-table>
                           </div>
                         </div>
                       }
-
-
                     </div>
                   }
 
@@ -396,8 +386,7 @@
                         </div>
                         <div class="activity-card-header-content">
                           <h3 class="activity-card-title">Liste des produits</h3>
-                          <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
-                            article(s)</span>
+                          <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
                         </div>
                       </div>
                       <div class="activity-card-table-body">
@@ -437,18 +426,11 @@
                                 <span class="pharma-code">{{ saleLine.code }}</span>
                               </td>
                               <td>
-                                  <span
-                                    class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                                <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                               </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                              </td>
-                              <td
-                                class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                              </td>
+                              <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                              <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                              <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
                               <td class="pharma-total" style="text-align: right; font-weight: bold">
                                 {{ saleLine.salesAmount | number }}
                               </td>
@@ -472,11 +454,9 @@
                         <div class="activity-card-body">
                           @for (payment of elRow?.payments; track payment) {
                             <div class="activity-item">
-                                <span
-                                  class="activity-item-label">{{ payment?.paymentMode?.libelle }}</span>
+                              <span class="activity-item-label">{{ payment?.paymentMode?.libelle }}</span>
                               <div class="activity-item-value-wrapper">
-                                  <span
-                                    class="activity-item-value">{{ payment?.paidAmount | number }}</span>
+                                <span class="activity-item-value">{{ payment?.paidAmount | number }}</span>
                                 <span appDevise class="activity-item-currency"></span>
                               </div>
                             </div>
@@ -485,7 +465,6 @@
                       </div>
                     }
                   </div>
-
                 </div>
               </td>
             </tr>
@@ -500,7 +479,11 @@
   </app-card>
 </div>
 
-
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="sale-spinner"
-             size="medium"
-             type="timer"></ngx-spinner>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#f13151"
+  name="sale-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>

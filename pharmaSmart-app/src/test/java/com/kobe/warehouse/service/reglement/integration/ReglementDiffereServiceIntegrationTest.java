@@ -46,9 +46,8 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         CashSale seconde = venteDiffere(client, 8_000, 0);
         viderLeCache();
 
-        ReglementDiffereResponse reponse = services.reglementDiffereService.doReglement(
-            versement(client, Set.of(premiere.getId().getId(), seconde.getId().getId()), 20_000, 20_000)
-        );
+        ReglementDiffereResponse reponse = services.reglementDiffereService.doReglement(versement(
+                client, Set.of(premiere.getId().getId(), seconde.getId().getId()), 20_000, 20_000));
         viderLeCache();
 
         assertEquals(PaymentStatus.PAYE, em.find(Sales.class, premiere.getId()).getPaymentStatus());
@@ -60,10 +59,10 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         assertEquals(20_000, paiement.getMontantVerse());
         assertNotNull(paiement.getTransactionNumber());
         assertEquals(
-            2,
-            compter("SELECT count(*) FROM differe_payment_item WHERE differe_payment_id = " + reponse.idReglement().getId()),
-            "un élément par vente apurée"
-        );
+                2,
+                compter("SELECT count(*) FROM differe_payment_item WHERE differe_payment_id = "
+                        + reponse.idReglement().getId()),
+                "un élément par vente apurée");
     }
 
     @Test
@@ -73,7 +72,8 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         CashSale vente = venteDiffere(client, 30_000, 0);
         viderLeCache();
 
-        services.reglementDiffereService.doReglement(versement(client, Set.of(vente.getId().getId()), 30_000, 18_000));
+        services.reglementDiffereService.doReglement(
+                versement(client, Set.of(vente.getId().getId()), 30_000, 18_000));
         viderLeCache();
 
         Sales relue = em.find(Sales.class, vente.getId());
@@ -87,10 +87,12 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         UninsuredCustomer client = clientDiffere("DIALLO", "Moussa");
         CashSale vente = venteDiffere(client, 25_000, 0);
         viderLeCache();
-        services.reglementDiffereService.doReglement(versement(client, Set.of(vente.getId().getId()), 25_000, 10_000));
+        services.reglementDiffereService.doReglement(
+                versement(client, Set.of(vente.getId().getId()), 25_000, 10_000));
         viderLeCache();
 
-        services.reglementDiffereService.doReglement(versement(client, Set.of(vente.getId().getId()), 15_000, 15_000));
+        services.reglementDiffereService.doReglement(
+                versement(client, Set.of(vente.getId().getId()), 15_000, 15_000));
         viderLeCache();
 
         Sales relue = em.find(Sales.class, vente.getId());
@@ -107,7 +109,8 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         venteDiffere(client, 10_000, 0);
         viderLeCache();
 
-        DiffereSummary resume = services.reglementDiffereService.getDiffereSummary(client.getId(), Set.of(PaymentStatus.IMPAYE));
+        DiffereSummary resume =
+                services.reglementDiffereService.getDiffereSummary(client.getId(), Set.of(PaymentStatus.IMPAYE));
 
         assertEquals(25_000L, resume.saleAmount());
         assertEquals(5_000L, resume.paidAmount());
@@ -123,15 +126,20 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         viderLeCache();
 
         List<DiffereDTO> differes = services.reglementDiffereService
-            .getDiffere(client.getId(), Set.of(PaymentStatus.IMPAYE), Pageable.unpaged())
-            .getContent();
+                .getDiffere(client.getId(), Set.of(PaymentStatus.IMPAYE), Pageable.unpaged())
+                .getContent();
 
         assertEquals(1, differes.size(), "un regroupement par client");
         DiffereDTO differe = differes.getFirst();
         assertEquals(15_000L, differe.saleAmount());
         assertEquals(15_000L, differe.rest());
         assertEquals(2, differe.differeItems().size());
-        assertEquals(differe.rest(), services.reglementDiffereService.getOne(client.getId()).orElseThrow().rest());
+        assertEquals(
+                differe.rest(),
+                services.reglementDiffereService
+                        .getOne(client.getId())
+                        .orElseThrow()
+                        .rest());
     }
 
     @Test
@@ -143,8 +151,8 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         viderLeCache();
 
         List<DiffereItem> lignes = services.reglementDiffereService
-            .getDiffereItems(client.getId(), null, null, null, Set.of(PaymentStatus.IMPAYE), Pageable.unpaged())
-            .getContent();
+                .getDiffereItems(client.getId(), null, null, null, Set.of(PaymentStatus.IMPAYE), Pageable.unpaged())
+                .getContent();
 
         assertEquals(1, lignes.size());
         assertEquals(impayee.getId().getId(), lignes.getFirst().saleId());
@@ -173,11 +181,11 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         venteDiffere(client, 6_000, 0);
         viderLeCache();
         ReglementDiffereResponse reponse = services.reglementDiffereService.doReglement(
-            versement(client, Set.of(premiere.getId().getId()), 20_000, 20_000)
-        );
+                versement(client, Set.of(premiere.getId().getId()), 20_000, 20_000));
         viderLeCache();
 
-        ReglementDiffereReceiptDTO recu = services.reglementDiffereService.getReglementDiffereReceipt(reponse.idReglement());
+        ReglementDiffereReceiptDTO recu =
+                services.reglementDiffereService.getReglementDiffereReceipt(reponse.idReglement());
 
         assertEquals("Hamed", recu.firstName());
         assertEquals(20_000, recu.paidAmount());
@@ -194,17 +202,15 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         CashSale premiere = venteDiffere(client, 14_000, 0);
         venteDiffere(client, 11_000, 0);
         viderLeCache();
-        services.reglementDiffereService.doReglement(versement(client, Set.of(premiere.getId().getId()), 14_000, 14_000));
+        services.reglementDiffereService.doReglement(
+                versement(client, Set.of(premiere.getId().getId()), 14_000, 14_000));
         viderLeCache();
 
         List<ReglementDiffereWrapperDTO> reglements = services.reglementDiffereService
-            .getReglementsDifferes(client.getId(), LocalDate.now(), LocalDate.now(), Pageable.unpaged())
-            .getContent();
+                .getReglementsDifferes(client.getId(), LocalDate.now(), LocalDate.now(), Pageable.unpaged())
+                .getContent();
         DifferePaymentSummaryDTO resume = services.reglementDiffereService.getDifferePaymentSummary(
-            client.getId(),
-            LocalDate.now(),
-            LocalDate.now()
-        );
+                client.getId(), LocalDate.now(), LocalDate.now());
 
         assertEquals(1, reglements.size());
         assertEquals(14_000L, reglements.getFirst().paidAmount());
@@ -220,12 +226,14 @@ class ReglementDiffereServiceIntegrationTest extends AbstractReglementIntegratio
         venteDiffere(client, 13_000, 0);
         viderLeCache();
 
-        byte[] classeur = services.reglementDiffereService.exportDifferesToExcel(client.getId(), Set.of(PaymentStatus.IMPAYE));
+        byte[] classeur =
+                services.reglementDiffereService.exportDifferesToExcel(client.getId(), Set.of(PaymentStatus.IMPAYE));
 
         assertTrue(classeur.length > 0);
     }
 
     private NewDifferePaymentDTO versement(UninsuredCustomer client, Set<Long> ventes, int attendu, int verse) {
-        return new NewDifferePaymentDTO(client.getId(), ventes, attendu, verse, ModePaimentCode.CASH, LocalDate.now(), null);
+        return new NewDifferePaymentDTO(
+                client.getId(), ventes, attendu, verse, ModePaimentCode.CASH, LocalDate.now(), null);
     }
 }

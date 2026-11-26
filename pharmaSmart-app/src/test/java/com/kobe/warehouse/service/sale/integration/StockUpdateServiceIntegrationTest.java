@@ -91,12 +91,14 @@ class StockUpdateServiceIntegrationTest extends AbstractSaleIntegrationTest {
         Storage stockageDepot = depot("DEPOT STOCK").getPrimaryStorage();
         SalesLine ligne = ligneVendue(produit, 7, 0);
 
-        StockUpdateService.StockUpdateResult resultat = services.stockUpdateService.updateStockDepot(ligne, stockageDepot);
+        StockUpdateService.StockUpdateResult resultat =
+                services.stockUpdateService.updateStockDepot(ligne, stockageDepot);
         viderLeCache();
 
         assertEquals(0, resultat.quantityBefore(), "le dépôt ne connaissait pas encore ce produit");
         assertEquals(7, resultat.quantityAfter());
-        StockProduit cree = services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), stockageDepot.getId());
+        StockProduit cree =
+                services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), stockageDepot.getId());
         assertNotNull(cree);
         assertEquals(7, cree.getQtyStock());
     }
@@ -109,10 +111,8 @@ class StockUpdateServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.stockUpdateService.updateStockDepot(ligneVendue(produit, 4, 0), stockageDepot);
         em.flush();
 
-        StockUpdateService.StockUpdateResult resultat = services.stockUpdateService.updateStockDepot(
-            ligneVendue(produit, 3, 0),
-            stockageDepot
-        );
+        StockUpdateService.StockUpdateResult resultat =
+                services.stockUpdateService.updateStockDepot(ligneVendue(produit, 3, 0), stockageDepot);
         viderLeCache();
 
         assertEquals(4, resultat.quantityBefore());

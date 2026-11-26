@@ -29,4 +29,3 @@ public interface PosteDeviceRepository extends JpaRepository<PosteDevice, Long> 
     @Query("UPDATE PosteDevice d SET d.active = false WHERE d.poste.id = :posteId AND d.deviceType = :deviceType")
     void deactivateAllByPosteAndType(@Param("posteId") Integer posteId, @Param("deviceType") DeviceType deviceType);
 }
-

@@ -45,10 +45,9 @@ public class ExportsResource {
     private final ModelesExportService modelesExportService;
 
     public ExportsResource(
-        CatalogueExportsService catalogueExportsService,
-        ExportsFichiersService exportsFichiersService,
-        ModelesExportService modelesExportService
-    ) {
+            CatalogueExportsService catalogueExportsService,
+            ExportsFichiersService exportsFichiersService,
+            ModelesExportService modelesExportService) {
         this.catalogueExportsService = catalogueExportsService;
         this.exportsFichiersService = exportsFichiersService;
         this.modelesExportService = modelesExportService;
@@ -65,9 +64,14 @@ public class ExportsResource {
     public ResponseEntity<byte[]> exporter(@Valid @RequestBody DemandeExportDTO demande) {
         ContenuExportDTO fichier = exportsFichiersService.produire(demande);
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(fichier.typeMime()))
-            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fichier.nom()).build().toString())
-            .body(fichier.contenu());
+                .contentType(MediaType.parseMediaType(fichier.typeMime()))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename(fichier.nom())
+                                .build()
+                                .toString())
+                .body(fichier.contenu());
     }
 
     @PostMapping("/fichiers")
@@ -79,7 +83,8 @@ public class ExportsResource {
     @GetMapping("/fichiers")
     public ResponseEntity<List<ExportFichierDTO>> listerHistorique(Pageable pageable) {
         Page<ExportFichierDTO> page = exportsFichiersService.listerHistorique(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -87,9 +92,14 @@ public class ExportsResource {
     public ResponseEntity<Resource> telecharger(@PathVariable Long id) {
         FichierExporteDTO fichier = exportsFichiersService.lireFichier(id);
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(fichier.typeMime()))
-            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fichier.nom()).build().toString())
-            .body(new FileSystemResource(fichier.chemin()));
+                .contentType(MediaType.parseMediaType(fichier.typeMime()))
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename(fichier.nom())
+                                .build()
+                                .toString())
+                .body(new FileSystemResource(fichier.chemin()));
     }
 
     @GetMapping("/modeles")

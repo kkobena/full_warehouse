@@ -20,38 +20,39 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CashRegisterRepository extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
+public interface CashRegisterRepository
+        extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
     Optional<CashRegister> findOneByUserIdAndStatut(Integer id, CashRegisterStatut statut);
-   boolean existsByUserIdAndStatut(Integer id, CashRegisterStatut statut);
-    @Query("SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
+
+    boolean existsByUserIdAndStatut(Integer id, CashRegisterStatut statut);
+
+    @Query(
+            "SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
     List<CashRegister> findOneByUserIdAndStatutAndAndBeginTime(
-        @Param("userId") Integer id,
-        @Param("statut") CashRegisterStatut statut,
-        @Param("beginDate") LocalDateTime beginDate,
-        @Param("toDay") LocalDateTime now
-    );
+            @Param("userId") Integer id,
+            @Param("statut") CashRegisterStatut statut,
+            @Param("beginDate") LocalDateTime beginDate,
+            @Param("toDay") LocalDateTime now);
 
-    //TODO: revoir la requete pour prendre en compte la date au regard de la partition postgresql
+    // TODO: revoir la requete pour prendre en compte la date au regard de la partition postgresql
     @Query(
-        value = "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction AS typeTransaction FROM  sales s join payment_transaction p ON s.id = p.sale_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction AS typeTransaction FROM  sales s join payment_transaction p ON s.id = p.sale_id JOIN payment_mode md ON p.payment_mode_code = md.code WHERE s.ca IN(:categorieChiffreAffaires) AND s.cash_register_id=:cashRegisterId AND s.statut IN(:statuts) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
+            nativeQuery = true)
     List<CashRegisterVenteSpecialisation> findCashRegisterSalesDataById(
-        @Param("cashRegisterId") Integer cashRegisterId,
-        @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
-        @Param("statuts") Set<String> statuts
-    );
+            @Param("cashRegisterId") Integer cashRegisterId,
+            @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
+            @Param("statuts") Set<String> statuts);
 
     @Query(
-        value = "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id" +
-        " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE p.dtype NOT IN(:transactionTypes) AND cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
-        nativeQuery = true
-    )
+            value =
+                    "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id"
+                            + " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE p.dtype NOT IN(:transactionTypes) AND cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
+            nativeQuery = true)
     List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(
-        @Param("cashRegisterId") Integer cashRegisterId,
-        @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
-        @Param("transactionTypes") Set<String> transactionTypes
-    );
+            @Param("cashRegisterId") Integer cashRegisterId,
+            @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
+            @Param("transactionTypes") Set<String> transactionTypes);
 
     // ── Requêtes dashboard préparateur ───────────────────────────────────────
 
@@ -59,8 +60,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
      * Retourne [id, init_amount, begin_time, statut, end_time] de la caisse
      * ouverte aujourd'hui pour l'utilisateur connecté (login).
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT cr.id, cr.init_amount, cr.begin_time, cr.statut, cr.end_time
             FROM cash_register cr
             INNER JOIN app_user u ON cr.user_id = u.id
@@ -68,16 +68,13 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
               AND DATE(cr.begin_time) = CURRENT_DATE
             ORDER BY cr.begin_time DESC
             LIMIT 1
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<Object[]> findCurrentByUserLogin(@Param("login") String login);
 
     /**
      * Retourne le end_time de la dernière session fermée de l'utilisateur.
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT cr.end_time
             FROM cash_register cr
             INNER JOIN app_user u ON cr.user_id = u.id
@@ -85,16 +82,13 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
               AND cr.statut IN ('CLOSED', 'VALIDATED')
             ORDER BY cr.end_time DESC
             LIMIT 1
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<Object> findLastClosedTimeByUserLogin(@Param("login") String login);
 
     /**
      * Retourne l'id de la caisse ouverte aujourd'hui pour l'utilisateur connecté.
      */
-    @Query(
-        value = """
+    @Query(value = """
             SELECT cr.id
             FROM cash_register cr
             INNER JOIN app_user u ON cr.user_id = u.id
@@ -102,9 +96,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
               AND DATE(cr.begin_time) = CURRENT_DATE
             ORDER BY cr.begin_time DESC
             LIMIT 1
-            """,
-        nativeQuery = true
-    )
+            """, nativeQuery = true)
     List<Object> findCurrentIdByUserLogin(@Param("login") String login);
 
     default Specification<CashRegister> specialisation(Integer userId) {

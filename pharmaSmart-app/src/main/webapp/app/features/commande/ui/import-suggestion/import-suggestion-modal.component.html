@@ -20,8 +20,9 @@
               [value]="searchTerm()"
               class="form-control"
               placeholder="Réf., fournisseur, CIP…"
-              style="width:13rem"
-              type="text" />
+              style="width: 13rem"
+              type="text"
+            />
           </app-icon-field>
           <!--
             Les propositions appartiennent à un grossiste PRINCIPAL, jamais à une agence :
@@ -41,7 +42,7 @@
 
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width:3rem"></th>
+          <th style="width: 3rem"></th>
           <th>Référence</th>
           <th>Fournisseur</th>
           <th>Type</th>
@@ -80,19 +81,16 @@
           </td>
           <td>{{ s.typeSuggession }}</td>
           <td>
-            <app-badge [label]="s.statutLibelle || s.statut"
-                       [severity]="statutSeverity(s.statut)" />
+            <app-badge [label]="s.statutLibelle || s.statut" [severity]="statutSeverity(s.statut)" />
           </td>
           <td class="text-end">
             <span class="pharma-qty-value">{{ s.nombreLignes ?? 0 }}</span>
           </td>
-          <td class="text-end"><span class="pharma-total">{{
-              (s.montantEstimeAchat ?? 0) | number
-            }} </span>
+          <td class="text-end">
+            <span class="pharma-total">{{ s.montantEstimeAchat ?? 0 | number }} </span>
           </td>
-          <td class="text-end"><span class="pharma-price">{{
-              (s.montantEstimeVente ?? 0) | number
-            }} </span>
+          <td class="text-end">
+            <span class="pharma-price">{{ s.montantEstimeVente ?? 0 | number }} </span>
           </td>
           <td class="text-end">
             @if (selectedLineCount(s) > 0) {
@@ -105,7 +103,6 @@
                 icon="pi pi-check-square"
                 ngbTooltip="Importer uniquement les lignes sélectionnées"
                 severity="success"
-
               />
             } @else {
               <app-button
@@ -129,13 +126,9 @@
           <td class="p-0" colspan="10">
             <div class="suggestion-lines-panel">
               @if (isLoadingLines(s)) {
-                <div class="text-center py-3 text-muted">
-                  <i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes…
-                </div>
+                <div class="text-center py-3 text-muted"><i class="pi pi-spin pi-spinner me-2"></i>Chargement des lignes…</div>
               } @else if (linesOf(s).length === 0) {
-                <div class="text-center py-3 text-muted">
-                  <i class="pi pi-info-circle me-2"></i>Aucune ligne disponible
-                </div>
+                <div class="text-center py-3 text-muted"><i class="pi pi-info-circle me-2"></i>Aucune ligne disponible</div>
               } @else {
                 <div class="d-flex align-items-center px-2 py-1 gap-2">
                   <app-icon-field [overlay]="true" icon="pi pi-search">
@@ -144,12 +137,11 @@
                       [value]="detailSearchTerms()[s.id] ?? ''"
                       class="form-control"
                       placeholder="CIP, désignation, EAN…"
-                      style="width:16rem"
-                      type="text" />
+                      style="width: 16rem"
+                      type="text"
+                    />
                   </app-icon-field>
-                  <span class="text-muted small">{{ filteredLinesOf(s).length }} / {{
-                      linesOf(s).length
-                    }} ligne(s)</span>
+                  <span class="text-muted small">{{ filteredLinesOf(s).length }} / {{ linesOf(s).length }} ligne(s)</span>
                 </div>
                 <app-data-table
                   (selectionChange)="onSelectionChange(s.id, $any($event))"
@@ -162,7 +154,7 @@
                 >
                   <ng-template #header>
                     <tr class="pharma-table-head">
-                      <th style="width:2.5rem">
+                      <th style="width: 2.5rem">
                         <app-header-checkbox ngbTooltip="Tout sélectionner / désélectionner" />
                       </th>
                       <th>CIP</th>
@@ -182,12 +174,10 @@
                       <td>{{ line.fournisseurProduitLibelle }}</td>
                       <td class="text-end">{{ line.currentStock ?? 0 }}</td>
                       <td class="text-end fw-semibold">{{ line.quantity }}</td>
-                      <td class="text-end">{{ (line.prixAchat ?? 0) | number }}
-                      </td>
+                      <td class="text-end">{{ line.prixAchat ?? 0 | number }}</td>
                       <td>
                         @if (line.etatProduit) {
-                          <jhi-eta-produit [etatProduit]="line.etatProduit" [isSuggestion]="true"
-                                           [showLabel]="false" />
+                          <jhi-eta-produit [etatProduit]="line.etatProduit" [isSuggestion]="true" [showLabel]="false" />
                         }
                       </td>
                     </tr>
@@ -201,9 +191,7 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td class="text-center text-muted py-4" colspan="8">
-            <i class="pi pi-info-circle me-2"></i>Aucune suggestion active disponible
-          </td>
+          <td class="text-center text-muted py-4" colspan="8"><i class="pi pi-info-circle me-2"></i>Aucune suggestion active disponible</td>
         </tr>
       </ng-template>
     </app-data-table>

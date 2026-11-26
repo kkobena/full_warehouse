@@ -10,21 +10,29 @@
   height: 100%;
 
   &--success {
-    .response-card-header { background: #16a34a; }
+    .response-card-header {
+      background: #16a34a;
+    }
   }
 
   &--warn {
-    .response-card-header { background: #d97706; }
+    .response-card-header {
+      background: #d97706;
+    }
   }
 
   &--danger {
     border-color: #dc2626;
-    .response-card-header { background: #dc2626; }
+    .response-card-header {
+      background: #dc2626;
+    }
   }
 
   &--info {
     border-color: #2563eb;
-    .response-card-header { background: #2563eb; }
+    .response-card-header {
+      background: #2563eb;
+    }
   }
 }
 
@@ -37,7 +45,9 @@
   font-weight: 600;
   font-size: 0.85rem;
 
-  i { font-size: 1rem; }
+  i {
+    font-size: 1rem;
+  }
 }
 
 .response-card-body {
@@ -63,7 +73,7 @@
 .response-counter-badge {
   font-size: 0.85rem;
   font-weight: 700;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
   padding: 1px 8px;
   border-radius: 12px;
 }

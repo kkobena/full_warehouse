@@ -1,11 +1,14 @@
 <div class="finances-dashboard">
-
   <!-- Cartes KPI supplémentaires (dettes / créances) -->
   <div class="row g-3 mb-3">
-
     <div class="col-xl-3 col-lg-6 col-md-6">
-      <div class="kpi-card warning-accent" (click)="goToComptesFournisseurs()" role="button" tabindex="0"
-           (keydown.enter)="goToComptesFournisseurs()">
+      <div
+        class="kpi-card warning-accent"
+        (click)="goToComptesFournisseurs()"
+        role="button"
+        tabindex="0"
+        (keydown.enter)="goToComptesFournisseurs()"
+      >
         <div class="card-body">
           <div class="kpi-header">
             <div class="kpi-content">
@@ -26,7 +29,7 @@
               }
             </div>
             <div class="kpi-icon">
-              <i class="pi pi-truck" style="color: #e99002;"></i>
+              <i class="pi pi-truck" style="color: #e99002"></i>
             </div>
           </div>
         </div>
@@ -59,7 +62,7 @@
               }
             </div>
             <div class="kpi-icon">
-              <i class="pi pi-receipt" style="color: #17a2b8;"></i>
+              <i class="pi pi-receipt" style="color: #17a2b8"></i>
             </div>
           </div>
         </div>
@@ -69,10 +72,8 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Dashboard CA existant -->
   <app-dashboard-ca />
-
 </div>

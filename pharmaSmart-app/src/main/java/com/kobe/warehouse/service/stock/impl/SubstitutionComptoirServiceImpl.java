@@ -24,10 +24,7 @@ public class SubstitutionComptoirServiceImpl implements SubstitutionComptoirServ
     private final StorageService storageService;
 
     public SubstitutionComptoirServiceImpl(
-        SubstitutRepository substitutRepository,
-        ProduitService produitService,
-        StorageService storageService
-    ) {
+            SubstitutRepository substitutRepository, ProduitService produitService, StorageService storageService) {
         this.substitutRepository = substitutRepository;
         this.produitService = produitService;
         this.storageService = storageService;
@@ -35,10 +32,15 @@ public class SubstitutionComptoirServiceImpl implements SubstitutionComptoirServ
 
     @Override
     public List<SubstitutPropose> lireSubstitutsDisponibles(Integer produitId) {
-        // La table s'écrit dans un sens et se lit dans les deux : « A est un générique de B » vaut « B est l'équivalent de A ».
+        // La table s'écrit dans un sens et se lit dans les deux : « A est un générique de B » vaut « B est l'équivalent
+        // de A ».
         Map<Integer, TypeSubstitut> types = new LinkedHashMap<>();
-        substitutRepository.findAllByProduitId(produitId).forEach(s -> types.putIfAbsent(s.getSubstitut().getId(), s.getType()));
-        substitutRepository.findAllBySubstitutId(produitId).forEach(s -> types.putIfAbsent(s.getProduit().getId(), s.getType()));
+        substitutRepository
+                .findAllByProduitId(produitId)
+                .forEach(s -> types.putIfAbsent(s.getSubstitut().getId(), s.getType()));
+        substitutRepository
+                .findAllBySubstitutId(produitId)
+                .forEach(s -> types.putIfAbsent(s.getProduit().getId(), s.getType()));
         types.remove(produitId);
         if (types.isEmpty()) {
             return List.of();
@@ -52,11 +54,11 @@ public class SubstitutionComptoirServiceImpl implements SubstitutionComptoirServ
                 proposes.add(new SubstitutPropose(produit, type.name(), type.getLibelle()));
             }
         }
-        proposes.sort(
-            Comparator.comparing((SubstitutPropose p) -> TypeSubstitut.valueOf(p.typeSubstitut()))
-                .thenComparing(p -> p.produit().regularunitprice() == null ? Integer.MAX_VALUE : p.produit().regularunitprice())
-                .thenComparing(p -> p.produit().libelle())
-        );
+        proposes.sort(Comparator.comparing((SubstitutPropose p) -> TypeSubstitut.valueOf(p.typeSubstitut()))
+                .thenComparing(p -> p.produit().regularunitprice() == null
+                        ? Integer.MAX_VALUE
+                        : p.produit().regularunitprice())
+                .thenComparing(p -> p.produit().libelle()));
         return proposes;
     }
 }

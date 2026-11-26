@@ -12,14 +12,13 @@ import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
 import com.kobe.warehouse.domain.enumeration.EtatPalierRfa;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.AvoirFournisseurRepository;
-import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.AvoirFournisseurRfaDTO;
 import com.kobe.warehouse.service.dto.RemiseRfaFournisseurDTO;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -47,9 +46,8 @@ class RemiseRfaServiceImplTest {
 
     private final FournisseurRepository fournisseurRepository = mock(FournisseurRepository.class);
 
-    private final RemiseRfaService service = new RemiseRfaServiceImpl(
-        commandeRepository, avoirRepository, fournisseurRepository
-    );
+    private final RemiseRfaService service =
+            new RemiseRfaServiceImpl(commandeRepository, avoirRepository, fournisseurRepository);
 
     @BeforeEach
     void aucunAccord() {
@@ -85,9 +83,12 @@ class RemiseRfaServiceImplTest {
         void commandesCloturees() {
             service.getRfaFournisseurs();
 
-            verify(commandeRepository).sumCaByFournisseur(
-                org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED), any(), any(), org.mockito.ArgumentMatchers.isNull()
-            );
+            verify(commandeRepository)
+                    .sumCaByFournisseur(
+                            org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED),
+                            any(),
+                            any(),
+                            org.mockito.ArgumentMatchers.isNull());
         }
 
         /** Seuls les avoirs remboursés sont des remises acquises : un avoir en attente ne l'est pas. */
@@ -160,13 +161,14 @@ class RemiseRfaServiceImplTest {
         void palierNul() {
             donneChiffres(fournisseur(3, "LABOREX", 60_000_000L, 0L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().pourcentageAtteint()).isZero();
+            assertThat(service.getRfaFournisseurs().getFirst().pourcentageAtteint())
+                    .isZero();
         }
 
         @Test
         @DisplayName("un chiffre d'affaires non renseigné vaut zéro")
         void chiffreAbsent() {
-            donneChiffres(new Object[] { 3, "LABOREX", null, 100_000_000L, 2 });
+            donneChiffres(new Object[] {3, "LABOREX", null, 100_000_000L, 2});
 
             assertThat(service.getRfaFournisseurs().getFirst().caCommandeN()).isZero();
         }
@@ -175,9 +177,8 @@ class RemiseRfaServiceImplTest {
         @DisplayName("la remise déjà remboursée est rapprochée du fournisseur")
         void remiseDejaRecue() {
             donneChiffres(fournisseur(3, "LABOREX", 60_000_000L, 100_000_000L, 2));
-            when(avoirRepository.sumParFournisseur(any())).thenReturn(
-                List.<Object[]>of(new Object[] { 3, "LABOREX", 800_000L })
-            );
+            when(avoirRepository.sumParFournisseur(any()))
+                    .thenReturn(List.<Object[]>of(new Object[] {3, "LABOREX", 800_000L}));
 
             assertThat(service.getRfaFournisseurs().getFirst().rfaRecue()).isEqualTo(800_000L);
         }
@@ -186,9 +187,8 @@ class RemiseRfaServiceImplTest {
         @DisplayName("un fournisseur sans avoir remboursé n'a rien reçu")
         void aucuneRemiseRecue() {
             donneChiffres(fournisseur(3, "LABOREX", 60_000_000L, 100_000_000L, 2));
-            when(avoirRepository.sumParFournisseur(any())).thenReturn(
-                List.<Object[]>of(new Object[] { 9, "AUTRE", 800_000L })
-            );
+            when(avoirRepository.sumParFournisseur(any()))
+                    .thenReturn(List.<Object[]>of(new Object[] {9, "AUTRE", 800_000L}));
 
             assertThat(service.getRfaFournisseurs().getFirst().rfaRecue()).isZero();
         }
@@ -355,9 +355,14 @@ class RemiseRfaServiceImplTest {
         @Test
         @DisplayName("chaque avoir porte son fournisseur, sa référence, sa date et son statut")
         void contenuDeLAvoir() {
-            when(avoirRepository.findAllWithFournisseur()).thenReturn(
-                List.of(avoir(12, "LABOREX", "AV-2026-001", LocalDate.of(2026, 3, 15), 800_000, AvoirFournisseurStatut.REMBOURSE))
-            );
+            when(avoirRepository.findAllWithFournisseur())
+                    .thenReturn(List.of(avoir(
+                            12,
+                            "LABOREX",
+                            "AV-2026-001",
+                            LocalDate.of(2026, 3, 15),
+                            800_000,
+                            AvoirFournisseurStatut.REMBOURSE)));
 
             AvoirFournisseurRfaDTO dto = service.getAvoirsFournisseurs().getFirst();
 
@@ -383,17 +388,16 @@ class RemiseRfaServiceImplTest {
     }
 
     private static Object[] fournisseur(Integer id, String nom, Long chiffreAffaires, Long palier, Integer tauxPct) {
-        return new Object[] { id, nom, chiffreAffaires, palier, tauxPct };
+        return new Object[] {id, nom, chiffreAffaires, palier, tauxPct};
     }
 
     private static AvoirFournisseur avoir(
-        int id,
-        String nomFournisseur,
-        String reference,
-        LocalDate date,
-        int montant,
-        AvoirFournisseurStatut statut
-    ) {
+            int id,
+            String nomFournisseur,
+            String reference,
+            LocalDate date,
+            int montant,
+            AvoirFournisseurStatut statut) {
         Fournisseur fournisseur = new Fournisseur();
         fournisseur.setLibelle(nomFournisseur);
 

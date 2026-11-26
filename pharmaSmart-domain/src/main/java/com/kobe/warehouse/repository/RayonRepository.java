@@ -14,16 +14,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RayonRepository extends JpaRepository<Rayon, Integer>,
-    JpaSpecificationExecutor<Rayon> {
+public interface RayonRepository extends JpaRepository<Rayon, Integer>, JpaSpecificationExecutor<Rayon> {
 
     List<Rayon> findAllByStorageIdOrderByLibelle(Integer storageId);
-
 
     Optional<Rayon> findFirstByLibelleAndStorageId(String libelle, Integer storageId);
 
     Optional<Rayon> findFirstByCodeAndStorageId(String code, Integer storageId);
-
 
     void deleteAllByStorage(Storage storage);
 
@@ -36,11 +33,9 @@ public interface RayonRepository extends JpaRepository<Rayon, Integer>,
      * pourvu de ses jokers, comme pour les autres référentiels.
      */
     default Specification<Rayon> specialisationQueryString(String queryValue) {
-        return (root, _, cb) ->
-            cb.or(
+        return (root, _, cb) -> cb.or(
                 cb.like(cb.upper(root.get(Rayon_.libelle)), queryValue),
-                cb.like(cb.upper(root.get(Rayon_.code)), queryValue)
-            );
+                cb.like(cb.upper(root.get(Rayon_.code)), queryValue));
     }
 
     /**
@@ -56,5 +51,4 @@ public interface RayonRepository extends JpaRepository<Rayon, Integer>,
     default Specification<Rayon> notSansEmplacement() {
         return (root, _, cb) -> cb.notEqual(root.get(Rayon_.code), SANS_EMPLACEMENT_CODE);
     }
-
 }

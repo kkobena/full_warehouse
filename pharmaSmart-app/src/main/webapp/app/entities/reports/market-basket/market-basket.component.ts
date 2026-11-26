@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {HttpResponse} from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
 
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 import {
   BadgeComponent,
@@ -12,18 +12,14 @@ import {
   InputNumberComponent,
   KpiItemComponent,
   KpiStripComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 
-
-import {MarketBasketService} from '../services/market-basket.service';
-import {
-  IMarketBasketSummary,
-  IProductAssociation
-} from 'app/shared/model/report/market-basket.model';
-import {formatDecimal, formatNumber, formatPercent} from 'app/shared/utils/format-utils';
+import { MarketBasketService } from '../services/market-basket.service';
+import { IMarketBasketSummary, IProductAssociation } from 'app/shared/model/report/market-basket.model';
+import { formatDecimal, formatNumber, formatPercent } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'app-market-basket',
@@ -37,7 +33,7 @@ import {formatDecimal, formatNumber, formatPercent} from 'app/shared/utils/forma
     ToolbarComponent,
     PharmaDatePickerComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
   templateUrl: './market-basket.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -147,6 +143,6 @@ export default class MarketBasketComponent implements OnInit {
   }
 
   private dateToNgbStruct(date: Date): NgbDateStruct {
-    return {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()};
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
 }

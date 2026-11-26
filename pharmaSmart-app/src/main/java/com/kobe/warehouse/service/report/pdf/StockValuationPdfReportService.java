@@ -1,18 +1,17 @@
 package com.kobe.warehouse.service.report.pdf;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import com.kobe.warehouse.service.report.StockValuationReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.isNull;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class StockValuationPdfReportService extends AbstractStatistiqueReportService {
@@ -21,12 +20,14 @@ public class StockValuationPdfReportService extends AbstractStatistiqueReportSer
 
     private final StockValuationReportService stockValuationReportService;
 
-    public StockValuationPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, StockValuationReportService stockValuationReportService) {
+    public StockValuationPdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            StockValuationReportService stockValuationReportService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.stockValuationReportService = stockValuationReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -49,10 +50,11 @@ public class StockValuationPdfReportService extends AbstractStatistiqueReportSer
         return "rapport_valuation_stock";
     }
 
-
     public byte[] export(Integer familleProduitId, Integer rayonId) {
         List<StockValuationView> valuations = stockValuationReportService.getStockValuation(familleProduitId, rayonId);
-        StockValuationSummaryDTO summary = isNull(familleProduitId) && isNull(rayonId) ? stockValuationReportService.getStockValuationSummary() : stockValuationReportService.getStockValuationSummary(familleProduitId, rayonId);
+        StockValuationSummaryDTO summary = isNull(familleProduitId) && isNull(rayonId)
+                ? stockValuationReportService.getStockValuationSummary()
+                : stockValuationReportService.getStockValuationSummary(familleProduitId, rayonId);
 
         this.getParameters().put("valuations", valuations);
         this.getParameters().put("summary", summary);

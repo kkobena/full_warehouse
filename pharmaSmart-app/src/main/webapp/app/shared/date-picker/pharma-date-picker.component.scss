@@ -1,14 +1,14 @@
 // ── Palette PharmaSmart (identique à ngb-confirm-dialog) ──────────────────────
 // Jetons du thème de couleur (`--pharma-chrome-dlg-*`, `_pharma-chrome-themes.scss`) : les valeurs d'« Actuel » sont celles d'avant.
-$pharma-primary:        var(--pharma-chrome-dlg-accent);
-$pharma-primary-light:  var(--pharma-chrome-dlg-icon-bg);
-$pharma-primary-hover:  var(--pharma-chrome-dlg-accent-hover);
-$pharma-bg-header:      linear-gradient(135deg, var(--pharma-chrome-dlg-a) 0%, var(--pharma-chrome-dlg-b) 100%);
-$pharma-border:         var(--pharma-chrome-dlg-line);
-$pharma-text-title:     var(--pharma-chrome-dlg-title);
-$pharma-text-body:      #374151;
-$pharma-footer-bg:      #f9fafb;
-$pharma-footer-border:  #e5e7eb;
+$pharma-primary: var(--pharma-chrome-dlg-accent);
+$pharma-primary-light: var(--pharma-chrome-dlg-icon-bg);
+$pharma-primary-hover: var(--pharma-chrome-dlg-accent-hover);
+$pharma-bg-header: linear-gradient(135deg, var(--pharma-chrome-dlg-a) 0%, var(--pharma-chrome-dlg-b) 100%);
+$pharma-border: var(--pharma-chrome-dlg-line);
+$pharma-text-title: var(--pharma-chrome-dlg-title);
+$pharma-text-body: #374151;
+$pharma-footer-bg: #f9fafb;
+$pharma-footer-border: #e5e7eb;
 
 :host {
   display: block;
@@ -41,7 +41,9 @@ $pharma-footer-border:  #e5e7eb;
   color: $pharma-text-title;
   border-color: $pharma-border;
   background-color: #fff;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
 
   &:focus {
     border-color: $pharma-primary;
@@ -60,7 +62,10 @@ $pharma-footer-border:  #e5e7eb;
   background: $pharma-bg-header;
   color: $pharma-primary;
   padding: 0 0.55rem;
-  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s;
+  transition:
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out,
+    border-color 0.15s;
 
   // Survol : teinte pleine du thème et icône à la couleur du thème. `background` (raccourci) et non `background-color` :
   // le dégradé de l'état de repos est une `background-image`, qui resterait par-dessus et rendait l'icône blanche illisible.
@@ -117,7 +122,9 @@ $pharma-footer-border:  #e5e7eb;
   color: $pharma-primary;
   background: transparent;
 
-  i { font-size: 0.85rem; }
+  i {
+    font-size: 0.85rem;
+  }
 
   &:hover {
     background: $pharma-primary;
@@ -145,7 +152,9 @@ $pharma-footer-border:  #e5e7eb;
   color: $pharma-text-body;
   background: transparent;
 
-  i { font-size: 0.85rem; }
+  i {
+    font-size: 0.85rem;
+  }
 
   &:hover {
     background: $pharma-text-body;
@@ -157,4 +166,3 @@ $pharma-footer-border:  #e5e7eb;
     outline-offset: 2px;
   }
 }
-

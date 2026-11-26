@@ -2,18 +2,8 @@
   <app-toolbar [code]="navCode()" icon="pi pi-sync" title="Génériques &amp; Substitution">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
-        <pharma-date-picker
-          (ngModelChange)="fromDate.set(structToDate($event))"
-          [ngModel]="fromStruct()"
-          id="gs-from"
-          label="Du"
-        />
-        <pharma-date-picker
-          (ngModelChange)="toDate.set(structToDate($event))"
-          [ngModel]="toStruct()"
-          id="gs-to"
-          label="Au"
-        />
+        <pharma-date-picker (ngModelChange)="fromDate.set(structToDate($event))" [ngModel]="fromStruct()" id="gs-from" label="Du" />
+        <pharma-date-picker (ngModelChange)="toDate.set(structToDate($event))" [ngModel]="toStruct()" id="gs-to" label="Au" />
       </div>
     </ng-container>
 
@@ -41,42 +31,55 @@
   }
 
   @if (!isLoading() && stats()) {
-
     <!-- KPI Strip -->
     <app-kpi-strip stripClass="mt-2 mb-3">
-      <app-kpi-item [accent]="'success'" [value]="formatNumber(stats()?.produitsGeneriques)" icon="pi pi-sync"
-                    iconClass="text-success"
-                    label="Produits génériques vendus" valueClass="text-success"
-                    info="Produits vendus sur la période qui sont référencés comme génériques d'un princeps. Le pourcentage les rapporte au nombre de produits distincts vendus, non aux quantités.">
+      <app-kpi-item
+        [accent]="'success'"
+        [value]="formatNumber(stats()?.produitsGeneriques)"
+        icon="pi pi-sync"
+        iconClass="text-success"
+        label="Produits génériques vendus"
+        valueClass="text-success"
+        info="Produits vendus sur la période qui sont référencés comme génériques d'un princeps. Le pourcentage les rapporte au nombre de produits distincts vendus, non aux quantités."
+      >
         <ng-container ngProjectAs="[kpiSub]">{{ tauxGeneriques() }}% des produits</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" [value]="formatNumber(stats()?.princepsAvecGenerique)" icon="pi pi-exclamation-triangle"
-                    iconClass="text-warning"
-                    label="Princeps substituables vendus"
-                    info="Produits vendus qui ont un générique référencé : autant d'occasions de substitution. Un produit peut être à la fois générique d'un autre et substituable, et compter dans les deux tuiles."
-                    valueClass="text-warning">
+      <app-kpi-item
+        [accent]="'warning'"
+        [value]="formatNumber(stats()?.princepsAvecGenerique)"
+        icon="pi pi-exclamation-triangle"
+        iconClass="text-warning"
+        label="Princeps substituables vendus"
+        info="Produits vendus qui ont un générique référencé : autant d'occasions de substitution. Un produit peut être à la fois générique d'un autre et substituable, et compter dans les deux tuiles."
+        valueClass="text-warning"
+      >
         <ng-container ngProjectAs="[kpiSub]">{{ tauxSubstituables() }}% des produits</ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'primary'" [value]="formatCurrency(stats()?.caGeneriques)" icon="pi pi-chart-pie"
-                    iconClass="text-primary" label="CA Génériques"
-                    info="Chiffre d'affaires réalisé par les produits génériques, et sa part dans le CA total de la période."
-                    valueClass="text-primary">
+      <app-kpi-item
+        [accent]="'primary'"
+        [value]="formatCurrency(stats()?.caGeneriques)"
+        icon="pi pi-chart-pie"
+        iconClass="text-primary"
+        label="CA Génériques"
+        info="Chiffre d'affaires réalisé par les produits génériques, et sa part dans le CA total de la période."
+        valueClass="text-primary"
+      >
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ tauxCaGeneriques() }}% du CA total</ng-container>
       </app-kpi-item>
-      <app-kpi-item [value]="formatNumber(stats()?.totalProduits)" icon="pi pi-wallet" iconClass="text-secondary"
-                    label="Total produits distincts"
-                    info="Références différentes vendues sur la période, génériques ou non, avec le CA total correspondant.">
-        <ng-container ngProjectAs="[kpiSub]">CA: {{
-            formatCurrency(stats()?.caTotal)
-          }}
-        </ng-container>
+      <app-kpi-item
+        [value]="formatNumber(stats()?.totalProduits)"
+        icon="pi pi-wallet"
+        iconClass="text-secondary"
+        label="Total produits distincts"
+        info="Références différentes vendues sur la période, génériques ou non, avec le CA total correspondant."
+      >
+        <ng-container ngProjectAs="[kpiSub]">CA: {{ formatCurrency(stats()?.caTotal) }} </ng-container>
       </app-kpi-item>
     </app-kpi-strip>
 
     <!-- Chart + Detail -->
     <div class="row g-3">
-
       <!-- Doughnut chart -->
       <div class="col-md-5">
         <div class="card data-card h-100">
@@ -95,7 +98,6 @@
       <!-- Detail cards -->
       <div class="col-md-7">
         <div class="row g-3 h-100">
-
           <div class="col-12">
             <div class="card data-card">
               <div class="card-header">
@@ -106,43 +108,31 @@
               </div>
               <div class="card-body">
                 <ul class="list-group list-group-flush">
-
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <div>
                       <span class="badge bg-success-subtle text-success me-2">Génériques</span>
                       <small class="text-muted">Produits vendus qui sont des génériques</small>
                     </div>
                     <div class="text-end">
-                      <div class="fw-bold text-success">{{
-                          formatCurrency(stats()?.caGeneriques)
-                        }}
-                      </div>
-                      <small class="text-muted">{{ formatNumber(stats()?.produitsGeneriques) }}
-                        produits · {{ tauxGeneriques() }}%</small>
+                      <div class="fw-bold text-success">{{ formatCurrency(stats()?.caGeneriques) }}</div>
+                      <small class="text-muted">{{ formatNumber(stats()?.produitsGeneriques) }} produits · {{ tauxGeneriques() }}%</small>
                     </div>
                   </li>
 
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <div>
-                      <span
-                        class="badge bg-warning-subtle text-warning me-2">Princeps substituables</span>
-                      <small class="text-muted">Princeps vendus ayant un générique
-                        disponible</small>
+                      <span class="badge bg-warning-subtle text-warning me-2">Princeps substituables</span>
+                      <small class="text-muted">Princeps vendus ayant un générique disponible</small>
                     </div>
                     <div class="text-end">
-                      <div class="fw-bold text-warning">{{
-                          formatCurrency(stats()?.caPrincepsAvecGenerique)
-                        }}
-                      </div>
-                      <small class="text-muted">{{ formatNumber(stats()?.princepsAvecGenerique) }}
-                        produits · {{ tauxSubstituables() }}%</small>
+                      <div class="fw-bold text-warning">{{ formatCurrency(stats()?.caPrincepsAvecGenerique) }}</div>
+                      <small class="text-muted"
+                        >{{ formatNumber(stats()?.princepsAvecGenerique) }} produits · {{ tauxSubstituables() }}%</small
+                      >
                     </div>
                   </li>
 
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <div>
                       <span class="badge bg-secondary-subtle text-secondary me-2">Autres</span>
                       <small class="text-muted">Sans substitut générique référencé</small>
@@ -150,40 +140,34 @@
                     <div class="text-end">
                       <div class="fw-bold">
                         {{
-                          formatCurrency((stats()?.caTotal ?? 0) - (stats()?.caGeneriques ?? 0)
-                            - (stats()?.caPrincepsAvecGenerique ?? 0))
+                          formatCurrency((stats()?.caTotal ?? 0) - (stats()?.caGeneriques ?? 0) - (stats()?.caPrincepsAvecGenerique ?? 0))
                         }}
                       </div>
                       <small class="text-muted">
                         {{
                           formatNumber(
-                            (stats()?.totalProduits ?? 0) - (stats()?.produitsGeneriques ?? 0)
-                            - (stats()?.princepsAvecGenerique ?? 0))
-                        }} produits
+                            (stats()?.totalProduits ?? 0) - (stats()?.produitsGeneriques ?? 0) - (stats()?.princepsAvecGenerique ?? 0)
+                          )
+                        }}
+                        produits
                       </small>
                     </div>
                   </li>
 
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold">
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold">
                     <span>Total</span>
                     <div class="text-end">
                       <div>{{ formatCurrency(stats()?.caTotal) }}</div>
-                      <small class="text-muted">{{ formatNumber(stats()?.totalProduits) }} produits
-                        distincts</small>
+                      <small class="text-muted">{{ formatNumber(stats()?.totalProduits) }} produits distincts</small>
                     </div>
                   </li>
-
                 </ul>
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
-
   }
 
   @if (!isLoading() && !stats()) {

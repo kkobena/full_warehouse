@@ -65,10 +65,9 @@ class InventoryValuationServiceIntegrationTest extends AbstractInventaireIntegra
         StoreInventorySummaryRecord resume = services.inventoryValuationService.getGlobalSummary(inventaire.getId());
 
         assertEquals(
-            0,
-            BigDecimal.valueOf(4_000_000_000L).compareTo(resume.amountValueAfter()),
-            "2 000 × 2 000 000 dépasse la capacité d'un entier signé"
-        );
+                0,
+                BigDecimal.valueOf(4_000_000_000L).compareTo(resume.amountValueAfter()),
+                "2 000 × 2 000 000 dépasse la capacité d'un entier signé");
     }
 
     @Test
@@ -80,7 +79,7 @@ class InventoryValuationServiceIntegrationTest extends AbstractInventaireIntegra
         viderLeCache();
 
         List<StoreInventorySummaryByGroupRecord> groupes =
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE");
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE");
 
         assertEquals(1, groupes.size());
         assertEquals(rayon.getName(), groupes.getFirst().groupLabel());
@@ -91,17 +90,17 @@ class InventoryValuationServiceIntegrationTest extends AbstractInventaireIntegra
     @Test
     @DisplayName("La ventilation par famille sépare les familles de produits")
     void ventilationParFamille() {
-        List<FamilleProduit> familles = em
-            .createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
-            .setMaxResults(2)
-            .getResultList();
+        List<FamilleProduit> familles = em.createQuery(
+                        "SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+                .setMaxResults(2)
+                .getResultList();
         StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN);
         ligneComptee(inventaire, produit(unique("FAMILLE 1"), 1_000, 600, familles.get(0)), 10, 9);
         ligneComptee(inventaire, produit(unique("FAMILLE 2"), 1_000, 600, familles.get(1)), 10, 10);
         viderLeCache();
 
         List<StoreInventorySummaryByGroupRecord> groupes =
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "FAMILLE");
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "FAMILLE");
 
         assertEquals(2, groupes.size());
         assertTrue(groupes.stream().allMatch(g -> g.lineCount() == 1));
@@ -119,13 +118,12 @@ class InventoryValuationServiceIntegrationTest extends AbstractInventaireIntegra
         viderLeCache();
 
         List<StoreInventorySummaryByGroupRecord> groupes =
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "RAYON");
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "RAYON");
 
         assertEquals(2, groupes.size());
         assertTrue(
-            groupes.stream().anyMatch(g -> "Sans rayon".equals(g.groupLabel())),
-            "les lignes hors rayon ne disparaissent pas de la ventilation"
-        );
+                groupes.stream().anyMatch(g -> "Sans rayon".equals(g.groupLabel())),
+                "les lignes hors rayon ne disparaissent pas de la ventilation");
     }
 
     @Test
@@ -136,12 +134,10 @@ class InventoryValuationServiceIntegrationTest extends AbstractInventaireIntegra
         viderLeCache();
 
         assertEquals(
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE"),
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "N IMPORTE QUOI")
-        );
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE"),
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "N IMPORTE QUOI"));
         assertEquals(
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE"),
-            services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), null)
-        );
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), "STORAGE"),
+                services.inventoryValuationService.getSummaryByGroup(inventaire.getId(), null));
     }
 }

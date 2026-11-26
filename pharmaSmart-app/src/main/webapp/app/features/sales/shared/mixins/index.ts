@@ -95,8 +95,4 @@ export {
 } from './deconditionnement.mixin';
 
 // Sale lifecycle mixin
-export {
-  createSaleLifecycle,
-  type SaleLifecycle,
-  type SaleLifecycleContext,
-} from './sale-lifecycle.mixin';
+export { createSaleLifecycle, type SaleLifecycle, type SaleLifecycleContext } from './sale-lifecycle.mixin';

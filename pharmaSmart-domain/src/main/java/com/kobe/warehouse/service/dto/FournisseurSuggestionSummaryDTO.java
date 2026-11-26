@@ -8,14 +8,13 @@ import java.time.LocalDateTime;
  * Les noms de champs correspondent exactement au modèle TypeScript FournisseurSuggestionSummary.
  */
 public record FournisseurSuggestionSummaryDTO(
-    Integer suggestionId,
-    Integer fournisseurId,
-    String libelle,
-    String statut,
-    int nbProduits,
-    int nbUrgents,
-    long montantEstime,
-    long montantEstimeVente,
-    String source,
-    LocalDateTime updatedAt
-) {}
+        Integer suggestionId,
+        Integer fournisseurId,
+        String libelle,
+        String statut,
+        int nbProduits,
+        int nbUrgents,
+        long montantEstime,
+        long montantEstimeVente,
+        String source,
+        LocalDateTime updatedAt) {}

@@ -1,12 +1,8 @@
 <div class="pharma-smart-content">
-
   <app-toolbar icon="pi pi-user" title="Créer ou éditer un utilisateur">
-
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
-        <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left"
-                    label="Retour" severity="secondary" />
-
+        <app-button (clicked)="previousState()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -32,22 +28,16 @@
           <!-- Login Field -->
           <div class="form-field form-field-full">
             <label for="field_login"> Login <span class="required">*</span> </label>
-            <input autocomplete="off" class="form-control w-full" formControlName="login"
-                   id="field_login" name="login" />
+            <input autocomplete="off" class="form-control w-full" formControlName="login" id="field_login" name="login" />
             @if (editForm.get('login')?.invalid && editForm.get('login')?.touched) {
               @if (editForm.get('login')?.errors?.required) {
                 <small class="text-danger">Ce champ est obligatoire.</small>
               }
               @if (editForm.get('login')?.errors?.maxlength) {
-                <small class="text-danger">
-                  Ce champ doit faire moins de 50 caractères.
-                </small>
+                <small class="text-danger"> Ce champ doit faire moins de 50 caractères. </small>
               }
               @if (editForm.get('login')?.errors?.pattern) {
-                <small class="text-danger">
-                  Ce champ ne peut contenir que des lettres, des chiffres ou des adresses
-                  e-mail.
-                </small>
+                <small class="text-danger"> Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail. </small>
               }
             }
           </div>
@@ -67,9 +57,7 @@
                 <small class="text-danger">Ce champ est obligatoire.</small>
               }
               @if (editForm.get('lastName')?.errors?.maxlength) {
-                <small class="text-danger">
-                  Ce champ doit faire moins de 100 caractères.
-                </small>
+                <small class="text-danger"> Ce champ doit faire moins de 100 caractères. </small>
               }
             }
           </div>
@@ -88,9 +76,7 @@
                 <small class="text-danger">Ce champ est obligatoire.</small>
               }
               @if (editForm.get('firstName')?.errors?.maxlength) {
-                <small class="text-danger">
-                  Ce champ doit faire moins de 100 caractères.
-                </small>
+                <small class="text-danger"> Ce champ doit faire moins de 100 caractères. </small>
               }
             }
           </div>
@@ -125,8 +111,7 @@
                 formControlName="authorities"
                 inputId="field_authority"
               />
-              @if (editForm.get('authorities')?.invalid && editForm.get(
-                'authorities')?.touched) {
+              @if (editForm.get('authorities')?.invalid && editForm.get('authorities')?.touched) {
                 @if (editForm.get('authorities')?.errors?.required) {
                   <small class="text-danger">Ce champ est obligatoire.</small>
                 }
@@ -149,18 +134,13 @@
           <!-- Email Field -->
           <div class="form-field form-field-full">
             <label for="field_email"> Email </label>
-            <input autocomplete="off" class="form-control w-full" formControlName="email"
-                   id="field_email" name="email" type="email" />
+            <input autocomplete="off" class="form-control w-full" formControlName="email" id="field_email" name="email" type="email" />
             @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
               @if (editForm.get('email')?.errors?.minlength) {
-                <small class="text-danger">
-                  Ce champ doit faire au minimum 5 caractères.
-                </small>
+                <small class="text-danger"> Ce champ doit faire au minimum 5 caractères. </small>
               }
               @if (editForm.get('email')?.errors?.maxlength) {
-                <small class="text-danger">
-                  Ce champ doit faire moins de 254 caractères.
-                </small>
+                <small class="text-danger"> Ce champ doit faire moins de 254 caractères. </small>
               }
               @if (editForm.get('email')?.errors?.email) {
                 <small class="text-danger"> Votre email n'est pas valide. </small>
@@ -172,9 +152,7 @@
     </div>
 
     <div class="form-actions-compact">
-      <app-button (clicked)="previousState()" [severity]="'secondary'" [text]="true"
-                  icon="pi pi-times"
-                  label="Annuler" type="button" />
+      <app-button (clicked)="previousState()" [severity]="'secondary'" [text]="true" icon="pi pi-times" label="Annuler" type="button" />
       <app-button
         [disabled]="editForm.invalid || isSaving()"
         [loading]="isSaving()"
@@ -185,7 +163,4 @@
       />
     </div>
   </form>
-
-
 </div>
-

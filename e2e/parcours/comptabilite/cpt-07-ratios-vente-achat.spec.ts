@@ -40,7 +40,10 @@ scenario('CPT-07', async ({ etape, page }) => {
     // Les cellules sont lues depuis la FIN : le nombre de colonnes fournisseurs varie avec le
     // paramétrage, un index depuis le début désignerait une autre colonne d'une officine à
     // l'autre.
-    const table = page.locator('table').filter({ has: page.getByText('MONTANT NET') }).first();
+    const table = page
+      .locator('table')
+      .filter({ has: page.getByText('MONTANT NET') })
+      .first();
     const lignes = table.locator('tbody tr').filter({ visible: true });
     const nombreDeJours = await lignes.count();
     expect(nombreDeJours, 'un tableau sans ligne ne prouve rien').toBeGreaterThan(0);
@@ -48,8 +51,14 @@ scenario('CPT-07', async ({ etape, page }) => {
     const auCentieme = (valeur: number) => Math.floor(valeur * 100) / 100;
 
     for (let rang = 0; rang < nombreDeJours; rang++) {
-      const cellules = (await lignes.nth(rang).locator('td').allInnerTexts())
-        .map(t => Number(t.replace(/\s/g, '').replace(',', '.').replace(/[^\d.-]/g, '')));
+      const cellules = (await lignes.nth(rang).locator('td').allInnerTexts()).map(t =>
+        Number(
+          t
+            .replace(/\s/g, '')
+            .replace(',', '.')
+            .replace(/[^\d.-]/g, ''),
+        ),
+      );
       const n = cellules.length;
       const net = cellules[4];
       const avoirs = cellules[n - 4];

@@ -4,7 +4,6 @@
 </div>
 
 <div class="modal-body form-client-step" id="modal">
-
   <app-nav-tabs [nav]="stepNav">
     <div
       #stepNav="ngbNav"
@@ -48,14 +47,13 @@
     ne déplacent les boutons. Une seule ligne, tronquée au besoin.
     « Enregistrer » est toujours le bouton le plus à droite, à l'étape 1 comme à l'étape 2.
   -->
-  <small class="text-muted align-self-center me-auto text-truncate flex-grow-1" data-testid="raison-enregistrement"
-         style="min-width: 0">{{ raisonEnregistrementImpossible() }}&nbsp;</small>
+  <small class="text-muted align-self-center me-auto text-truncate flex-grow-1" data-testid="raison-enregistrement" style="min-width: 0"
+    >{{ raisonEnregistrementImpossible() }}&nbsp;</small
+  >
   @if (activeStep() === 1) {
-    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary"
-                type="button"></app-button>
+    <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></app-button>
     @if (peutAllerAuxAyantsDroit()) {
-      <app-button (clicked)="onGoAyantDroit(2)" icon="pi pi-arrow-right" iconPos="right" label="Suivant"
-                  severity="info" type="button">
+      <app-button (clicked)="onGoAyantDroit(2)" icon="pi pi-arrow-right" iconPos="right" label="Suivant" severity="info" type="button">
       </app-button>
     }
     <app-button

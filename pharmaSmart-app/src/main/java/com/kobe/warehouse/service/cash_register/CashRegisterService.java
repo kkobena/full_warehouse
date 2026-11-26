@@ -22,7 +22,8 @@ public interface CashRegisterService {
 
     Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException;
 
-    CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner) throws CashRegisterException, NonClosedCashRegisterException;
+    CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner)
+            throws CashRegisterException, NonClosedCashRegisterException;
 
     boolean checkAutomaticFundAllocation();
 
@@ -41,7 +42,10 @@ public interface CashRegisterService {
     List<CashRegisterDTO> getConnectedUserNonClosedCashRegisters();
 
     default TypeVente getTypeVenteFromLibelle(String type) {
-        return Stream.of(TypeVente.values()).filter(typeVente -> typeVente.getValue().equals(type)).findFirst().orElseThrow();
+        return Stream.of(TypeVente.values())
+                .filter(typeVente -> typeVente.getValue().equals(type))
+                .findFirst()
+                .orElseThrow();
     }
 
     int getCanceledAmount(CashRegister cashRegister);

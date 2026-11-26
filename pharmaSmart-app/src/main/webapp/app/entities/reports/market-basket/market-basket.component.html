@@ -1,14 +1,10 @@
 <div class="pharma-smart-content p-1">
   <!-- Toolbar -->
-  <app-toolbar [code]="navCode()" icon="pi pi-shopping-bag"
-               title="Analyse du Panier (Cross-selling)">
-
+  <app-toolbar [code]="navCode()" icon="pi pi-shopping-bag" title="Analyse du Panier (Cross-selling)">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters pt-1">
-        <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '180px' }" id="fromDate"
-                            label="Date début" />
-        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="toDate"
-                            label="Date fin" />
+        <pharma-date-picker [(ngModel)]="startDate" [style]="{ 'max-width': '180px' }" id="fromDate" label="Date début" />
+        <pharma-date-picker [(ngModel)]="endDate" [style]="{ 'max-width': '180px' }" id="toDate" label="Date fin" />
         <app-float-label inputId="supportmini" label="Support min">
           <app-input-number
             [(ngModel)]="minSupport"
@@ -30,17 +26,14 @@
           />
         </app-float-label>
         <app-float-label inputId="limit" label="Limite">
-          <app-input-number [(ngModel)]="limit" [max]="200" [min]="10"
-                            [style]="{ 'max-width': '140px' }"
-                            inputId="limit" />
+          <app-input-number [(ngModel)]="limit" [max]="200" [min]="10" [style]="{ 'max-width': '140px' }" inputId="limit" />
         </app-float-label>
       </div>
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions">
-        <app-button (clicked)="onFilterChange()" icon="pi pi-search" label="Rechercher"
-                    severity="info" />
+        <app-button (clicked)="onFilterChange()" icon="pi pi-search" label="Rechercher" severity="info" />
       </div>
     </ng-container>
   </app-toolbar>
@@ -54,30 +47,48 @@
     <!-- KPI Strip -->
     @if (summary(); as sum) {
       <app-kpi-strip stripClass="mt-2 mb-2">
-        <app-kpi-item [accent]="'primary'" [value]="formatNumber(sum.totalTransactions)" icon="pi pi-shopping-cart"
-                      iconClass="text-primary" label="Total transactions"
-                      info="Ventes de la période servant de base à l'analyse, et nombre de produits distincts qu'elles contiennent."
-                      valueClass="text-primary">
-          <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits
-            uniques
-          </ng-container>
+        <app-kpi-item
+          [accent]="'primary'"
+          [value]="formatNumber(sum.totalTransactions)"
+          icon="pi pi-shopping-cart"
+          iconClass="text-primary"
+          label="Total transactions"
+          info="Ventes de la période servant de base à l'analyse, et nombre de produits distincts qu'elles contiennent."
+          valueClass="text-primary"
+        >
+          <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits uniques </ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'success'" [value]="formatDecimal(sum.averageBasketSize)" icon="pi pi-shopping-bag"
-                      iconClass="text-success" label="Taille moy. panier"
-                      info="Nombre moyen de lignes différentes par vente. Une ligne vendue en plusieurs unités compte pour une."
-                      valueClass="text-success">
+        <app-kpi-item
+          [accent]="'success'"
+          [value]="formatDecimal(sum.averageBasketSize)"
+          icon="pi pi-shopping-bag"
+          iconClass="text-success"
+          label="Taille moy. panier"
+          info="Nombre moyen de lignes différentes par vente. Une ligne vendue en plusieurs unités compte pour une."
+          valueClass="text-success"
+        >
           <ng-container ngProjectAs="[kpiSub]">articles / transaction</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'warning'" [value]="formatNumber(sum.totalAssociations)" icon="pi pi-link"
-                      iconClass="text-warning" label="Associations trouvées"
-                      info="Paires de produits achetés ensemble assez souvent pour être retenues : au moins 0,5 % des ventes, et au moins 5 % des ventes du premier produit. Le palmarès est plafonné à cent paires."
-                      valueClass="text-warning">
+        <app-kpi-item
+          [accent]="'warning'"
+          [value]="formatNumber(sum.totalAssociations)"
+          icon="pi pi-link"
+          iconClass="text-warning"
+          label="Associations trouvées"
+          info="Paires de produits achetés ensemble assez souvent pour être retenues : au moins 0,5 % des ventes, et au moins 5 % des ventes du premier produit. Le palmarès est plafonné à cent paires."
+          valueClass="text-warning"
+        >
           <ng-container ngProjectAs="[kpiSub]">paires de produits</ng-container>
         </app-kpi-item>
-        <app-kpi-item [accent]="'danger'" [value]="formatDecimal(sum.maxLift)" icon="pi pi-chart-line"
-                      iconClass="text-danger" label="Corrélation max (lift)"
-                      info="Pour la paire la plus liée : la probabilité d'acheter le second produit quand on a pris le premier, divisée par sa probabilité d'achat en général. Au-delà de 1, les deux produits s'attirent ; à 1, ils sont indépendants."
-                      valueClass="text-danger">
+        <app-kpi-item
+          [accent]="'danger'"
+          [value]="formatDecimal(sum.maxLift)"
+          icon="pi pi-chart-line"
+          iconClass="text-danger"
+          label="Corrélation max (lift)"
+          info="Pour la paire la plus liée : la probabilité d'acheter le second produit quand on a pris le premier, divisée par sa probabilité d'achat en général. Au-delà de 1, les deux produits s'attirent ; à 1, ils sont indépendants."
+          valueClass="text-danger"
+        >
           <ng-container ngProjectAs="[kpiSub]">{{ getLiftLabel(sum.maxLift) }}</ng-container>
         </app-kpi-item>
       </app-kpi-strip>
@@ -95,8 +106,7 @@
                     <p class="m-0 mt-1 text-sm text-muted">
                       <strong>{{ sum.mostFrequentPair }}</strong>
                       <br />
-                      Ces produits sont souvent achetés ensemble et constituent une excellente
-                      opportunité de cross-selling.
+                      Ces produits sont souvent achetés ensemble et constituent une excellente opportunité de cross-selling.
                     </p>
                   </div>
                 </div>
@@ -122,21 +132,20 @@
               <div class="text-center p-4">
                 <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
                 <p class="mt-3 text-muted">Aucune association trouvée avec ces critères</p>
-                <p class="text-sm text-muted">Essayez de réduire les seuils de support et
-                  confiance</p>
+                <p class="text-sm text-muted">Essayez de réduire les seuils de support et confiance</p>
               </div>
             } @else {
               <table>
                 <thead class="pharma-table-head">
-                <tr>
-                  <th>Produit A</th>
-                  <th>Produit B (acheté avec A)</th>
-                  <th class="text-center">Nb Trans. Ensemble</th>
-                  <th class="text-center">Support (%)</th>
-                  <th class="text-center">Confiance (%)</th>
-                  <th class="text-center">Lift</th>
-                  <th class="text-center">Corrélation</th>
-                </tr>
+                  <tr>
+                    <th>Produit A</th>
+                    <th>Produit B (acheté avec A)</th>
+                    <th class="text-center">Nb Trans. Ensemble</th>
+                    <th class="text-center">Support (%)</th>
+                    <th class="text-center">Confiance (%)</th>
+                    <th class="text-center">Lift</th>
+                    <th class="text-center">Corrélation</th>
+                  </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (assoc of associations(); track $index) {
@@ -164,15 +173,13 @@
                         <span>{{ formatPercent(assoc.support) }}%</span>
                       </td>
                       <td class="text-center">
-                        <app-badge [label]="formatPercent(assoc.confidence) + '%'"
-                                   [severity]="getConfidenceSeverity(assoc.confidence)" />
+                        <app-badge [label]="formatPercent(assoc.confidence) + '%'" [severity]="getConfidenceSeverity(assoc.confidence)" />
                       </td>
                       <td class="text-center">
                         <span class="fw-bold">{{ formatDecimal(assoc.lift) }}</span>
                       </td>
                       <td class="text-center">
-                        <app-badge [label]="getLiftLabel(assoc.lift)"
-                                   [severity]="getLiftSeverity(assoc.lift)" />
+                        <app-badge [label]="getLiftLabel(assoc.lift)" [severity]="getLiftSeverity(assoc.lift)" />
                       </td>
                     </tr>
                   }
@@ -186,15 +193,9 @@
                   Comprendre les métriques
                 </div>
                 <div class="row text-sm">
-                  <div class="col-12 col-md-4"><strong>Support :</strong> % de transactions
-                    contenant les deux produits
-                  </div>
-                  <div class="col-12 col-md-4"><strong>Confiance :</strong> Probabilité d'acheter B
-                    quand on achète A
-                  </div>
-                  <div class="col-12 col-md-4"><strong>Lift :</strong> Force de la corrélation (> 1
-                    = corrélation positive)
-                  </div>
+                  <div class="col-12 col-md-4"><strong>Support :</strong> % de transactions contenant les deux produits</div>
+                  <div class="col-12 col-md-4"><strong>Confiance :</strong> Probabilité d'acheter B quand on achète A</div>
+                  <div class="col-12 col-md-4"><strong>Lift :</strong> Force de la corrélation (> 1 = corrélation positive)</div>
                 </div>
               </div>
             }

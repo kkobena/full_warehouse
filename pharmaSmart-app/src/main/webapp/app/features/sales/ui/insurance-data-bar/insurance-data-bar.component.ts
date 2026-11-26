@@ -12,7 +12,7 @@ import {
   viewChildren,
   WritableSignal,
   input,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CustomerService } from '../../../../entities/customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
@@ -28,14 +28,7 @@ import { FicheClientPanelService } from '../../data-access/services/fiche-client
 
 @Component({
   selector: 'app-insurance-data-bar',
-  imports: [OrdonnanceBoutonComponent,
-    FormsModule,
-    ButtonComponent,
-    IconFieldComponent,
-    KeyFilterDirective,
-    NgbTooltip,
-    DatePipe,
-  ],
+  imports: [OrdonnanceBoutonComponent, FormsModule, ButtonComponent, IconFieldComponent, KeyFilterDirective, NgbTooltip, DatePipe],
   templateUrl: './insurance-data-bar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./insurance-data-bar.component.scss'],
@@ -125,7 +118,6 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
     this.tiersPayantsChanged.emit(this.selectedTiersPayants());
     return this.selectedTiersPayants();
   }
-
 
   reset(): void {
     this.selectedTiersPayants.set([]);

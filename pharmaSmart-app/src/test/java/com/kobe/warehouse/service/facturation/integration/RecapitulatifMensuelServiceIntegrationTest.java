@@ -62,7 +62,8 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
         FactureTiersPayant facture = factureDatee(organisme, 80_000, 30_000, InvoiceStatut.PARTIALLY_PAID, ceMoisCi(5));
         viderLeCache();
 
-        RecapitulatifMensuelRow ligne = releveDuMois().getContent().getFirst().lignes().getFirst();
+        RecapitulatifMensuelRow ligne =
+                releveDuMois().getContent().getFirst().lignes().getFirst();
 
         assertEquals(facture.getNumFacture(), ligne.numFacture());
         assertEquals(ceMoisCi(5), ligne.invoiceDate());
@@ -80,7 +81,8 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
         factureDatee(organisme, 50_000, 0, InvoiceStatut.NOT_PAID, ceMoisCi(2));
         viderLeCache();
 
-        RecapitulatifMensuelRow ligne = releveDuMois().getContent().getFirst().lignes().getFirst();
+        RecapitulatifMensuelRow ligne =
+                releveDuMois().getContent().getFirst().lignes().getFirst();
 
         assertEquals(ceMoisCi(2).plusDays(45), ligne.echeance());
     }
@@ -149,11 +151,11 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
 
         assertEquals(2, releves.size());
         assertEquals(
-            0,
-            BigDecimal.valueOf(100_000).compareTo(
-                releves.stream().map(RecapitulatifMensuelDto::totalFacture).reduce(BigDecimal.ZERO, BigDecimal::add)
-            )
-        );
+                0,
+                BigDecimal.valueOf(100_000)
+                        .compareTo(releves.stream()
+                                .map(RecapitulatifMensuelDto::totalFacture)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)));
     }
 
     @Test
@@ -165,11 +167,11 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
         viderLeCache();
 
         List<RecapitulatifMensuelDto> releves = services.recapitulatifMensuelService
-            .getRecapitulatif(
-                new RecapitulatifMensuelParams(MOIS.getYear(), MOIS.getMonthValue(), List.of(vise.getId()), List.of(), null),
-                page()
-            )
-            .getContent();
+                .getRecapitulatif(
+                        new RecapitulatifMensuelParams(
+                                MOIS.getYear(), MOIS.getMonthValue(), List.of(vise.getId()), List.of(), null),
+                        page())
+                .getContent();
 
         assertEquals(1, releves.size());
         assertEquals(vise.getFullName(), releves.getFirst().tiersPayantName());
@@ -184,13 +186,15 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
         facturePorteuse(groupe, 80_000, ceMoisCi(13));
         viderLeCache();
 
-        List<RecapitulatifMensuelDto> individuelles = releve(TypeFacture.INDIVIDUAL).getContent();
+        List<RecapitulatifMensuelDto> individuelles =
+                releve(TypeFacture.INDIVIDUAL).getContent();
         List<RecapitulatifMensuelDto> groupees = releve(TypeFacture.GROUPED).getContent();
 
         assertEquals(1, individuelles.size());
         assertEquals(individuel.getFullName(), individuelles.getFirst().tiersPayantName());
         assertEquals(1, groupees.size());
-        assertEquals(groupe.getName(), groupees.getFirst().tiersPayantName(), "la porteuse est identifiée par son groupe");
+        assertEquals(
+                groupe.getName(), groupees.getFirst().tiersPayantName(), "la porteuse est identifiée par son groupe");
     }
 
     @Test
@@ -257,12 +261,7 @@ class RecapitulatifMensuelServiceIntegrationTest extends AbstractFacturationInte
     }
 
     private FactureTiersPayant factureDatee(
-        TiersPayant organisme,
-        int montantNet,
-        int montantRegle,
-        InvoiceStatut statut,
-        LocalDate dateEmission
-    ) {
+            TiersPayant organisme, int montantNet, int montantRegle, InvoiceStatut statut, LocalDate dateEmission) {
         FactureTiersPayant facture = facture(organisme, false, List.of(), dateEmission);
         facture.setMontantTtc(BigDecimal.valueOf(montantNet));
         facture.setMontantNet(BigDecimal.valueOf(montantNet));

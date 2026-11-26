@@ -43,11 +43,10 @@ public class ExportPilotageServiceImpl implements ExportPilotageService {
     private final CsvExportService csvExportService;
 
     public ExportPilotageServiceImpl(
-        SeriesPilotageService seriesPilotageService,
-        AnalysePilotageService analysePilotageService,
-        ComparaisonAnneesService comparaisonAnneesService,
-        CsvExportService csvExportService
-    ) {
+            SeriesPilotageService seriesPilotageService,
+            AnalysePilotageService analysePilotageService,
+            ComparaisonAnneesService comparaisonAnneesService,
+            CsvExportService csvExportService) {
         this.seriesPilotageService = seriesPilotageService;
         this.analysePilotageService = analysePilotageService;
         this.comparaisonAnneesService = comparaisonAnneesService;
@@ -75,7 +74,11 @@ public class ExportPilotageServiceImpl implements ExportPilotageService {
             }
             lignes.add(ligne.toArray(String[]::new));
         }
-        return ecrire("Pilotage — détail par période " + libellerPeriode(donnees.comparaison().periode()), entete, lignes);
+        return ecrire(
+                "Pilotage — détail par période "
+                        + libellerPeriode(donnees.comparaison().periode()),
+                entete,
+                lignes);
     }
 
     @Override
@@ -96,7 +99,11 @@ public class ExportPilotageServiceImpl implements ExportPilotageService {
             lignes.add(lireElement(analyse.autres()));
         }
         lignes.add(lireLigne("Total", analyse.total(), "100", ""));
-        return ecrire("Pilotage — " + analyse.axe().libelle() + " " + libellerPeriode(analyse.comparaison().periode()), entete, lignes);
+        return ecrire(
+                "Pilotage — " + analyse.axe().libelle() + " "
+                        + libellerPeriode(analyse.comparaison().periode()),
+                entete,
+                lignes);
     }
 
     @Override
@@ -133,10 +140,15 @@ public class ExportPilotageServiceImpl implements ExportPilotageService {
     }
 
     private static String[] lireElement(ElementAnalyseDTO element) {
-        return lireLigne(element.libelle(), element.cellules(), FormatTableur.formater(element.part()), FormatTableur.formater(element.contribution()));
+        return lireLigne(
+                element.libelle(),
+                element.cellules(),
+                FormatTableur.formater(element.part()),
+                FormatTableur.formater(element.contribution()));
     }
 
-    private static String[] lireLigne(String libelle, List<CelluleAnalyseDTO> cellules, String part, String contribution) {
+    private static String[] lireLigne(
+            String libelle, List<CelluleAnalyseDTO> cellules, String part, String contribution) {
         List<String> ligne = new ArrayList<>(cellules.size() * 2 + 3);
         ligne.add(libelle);
         for (CelluleAnalyseDTO cellule : cellules) {
@@ -154,7 +166,8 @@ public class ExportPilotageServiceImpl implements ExportPilotageService {
 
     private byte[] ecrire(String titre, List<String> entete, List<String[]> lignes) {
         try {
-            return csvExportService.addUtf8Bom(csvExportService.createSimpleCsvReport(titre, entete.toArray(String[]::new), lignes));
+            return csvExportService.addUtf8Bom(
+                    csvExportService.createSimpleCsvReport(titre, entete.toArray(String[]::new), lignes));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -355,9 +354,9 @@ public class ClassificationConfig implements Serializable {
      */
     public boolean isSeuilsValides() {
         return seuilParetoAPlus < seuilParetoA
-            && seuilParetoA < seuilParetoB
-            && seuilParetoB < seuilParetoC
-            && seuilParetoC <= 100;
+                && seuilParetoA < seuilParetoB
+                && seuilParetoB < seuilParetoC
+                && seuilParetoC <= 100;
     }
 
     @Override
@@ -374,16 +373,15 @@ public class ClassificationConfig implements Serializable {
 
     @Override
     public String toString() {
-        return "ClassificationConfig{" +
-            "id=" + id +
-            ", seuilParetoAPlus=" + seuilParetoAPlus +
-            ", seuilParetoA=" + seuilParetoA +
-            ", seuilParetoB=" + seuilParetoB +
-            ", seuilParetoC=" + seuilParetoC +
-            ", seuilFrequenceMinMois=" + seuilFrequenceMinMois +
-            ", changementMinPourcentage=" + changementMinPourcentage +
-            ", activerClassificationOrdo=" + activerClassificationOrdo +
-            ", autoClassificationEnabled=" + autoClassificationEnabled +
-            '}';
+        return "ClassificationConfig{" + "id="
+                + id + ", seuilParetoAPlus="
+                + seuilParetoAPlus + ", seuilParetoA="
+                + seuilParetoA + ", seuilParetoB="
+                + seuilParetoB + ", seuilParetoC="
+                + seuilParetoC + ", seuilFrequenceMinMois="
+                + seuilFrequenceMinMois + ", changementMinPourcentage="
+                + changementMinPourcentage + ", activerClassificationOrdo="
+                + activerClassificationOrdo + ", autoClassificationEnabled="
+                + autoClassificationEnabled + '}';
     }
 }

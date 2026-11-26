@@ -1,6 +1,5 @@
-<div class="pharma-smart-content p-1 ">
-  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-calculator"
-               title="Récapitulatif de caisse">
+<div class="pharma-smart-content p-1">
+  <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-calculator" title="Récapitulatif de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-select
         (selectionChange)="onSelectedUsersChange()"
@@ -13,7 +12,8 @@
       />
 
       <app-multi-select
-        [ngModel]="selectedUsersId()" (ngModelChange)="selectedUsersId.set($event)"
+        [ngModel]="selectedUsersId()"
+        (ngModelChange)="selectedUsersId.set($event)"
         [items]="users()"
         appendTo="body"
         bindLabel="abbrName"
@@ -22,26 +22,18 @@
         placeholder="Utilisateurs"
       />
 
-      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate"
-                          [style]="{ 'max-width': '180px' }" id="fromDate"
-                          label="Du" />
+      <pharma-date-picker [(ngModel)]="fromDate" [maxDate]="toDate" [style]="{ 'max-width': '180px' }" id="fromDate" label="Du" />
 
-      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate"
-                          [style]="{ 'max-width': '180px' }" id="toDate"
-                          label="Au" />
+      <pharma-date-picker [(ngModel)]="toDate" [minDate]="fromDate" [style]="{ 'max-width': '180px' }" id="toDate" label="Au" />
 
       <div class="pharma-hide-mobile">
         <label class="pharma-dp-label" for="fromHour">De</label>
-        <app-select [(ngModel)]="fromTime" [clearable]="false" [items]="hous"
-                    appendTo="body"
-                    inputId="fromHour" />
+        <app-select [(ngModel)]="fromTime" [clearable]="false" [items]="hous" appendTo="body" inputId="fromHour" />
       </div>
 
       <div class="pharma-hide-mobile">
         <label class="pharma-dp-label" for="toHour">À</label>
-        <app-select [(ngModel)]="toTime" [clearable]="false" [items]="hous"
-                    appendTo="body"
-                    inputId="toHour" />
+        <app-select [(ngModel)]="toTime" [clearable]="false" [items]="hous" appendTo="body" inputId="toHour" />
       </div>
     </ng-container>
 
@@ -57,15 +49,23 @@
           severity="info"
         />
 
+        <app-split-button
+          [items]="messageBtn()"
+          [raised]="true"
+          icon="pi pi-send"
+          label="Message"
+          ngbTooltip="Envoie par mail ou SMS"
+          severity="info"
+        />
 
-        <app-split-button [items]="messageBtn()" [raised]="true" icon="pi pi-send" label="Message"
-                          ngbTooltip="Envoie par mail ou SMS"
-                          severity="info" />
-
-        <app-split-button [items]="exportMenus()" [raised]="true" icon="pi pi-file-export"
-                          label="Exporter"
-                          ngbTooltip="Imprimer ou exporter en PDF"
-                          severity="help" />
+        <app-split-button
+          [items]="exportMenus()"
+          [raised]="true"
+          icon="pi pi-file-export"
+          label="Exporter"
+          ngbTooltip="Imprimer ou exporter en PDF"
+          severity="help"
+        />
       </div>
     </ng-container>
   </app-toolbar>

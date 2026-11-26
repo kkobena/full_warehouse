@@ -1,24 +1,23 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.stock.StockProduitService;
 import com.kobe.warehouse.service.stock.dto.StockProduitSearchDTO;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-
 /**
  * REST controller for managing StockProduit
  */
 @RestController
 @RequestMapping("/api/stock-produit")
-@RequiresNavAccess({ "catalogue", "commande.repartition-stock" })
+@RequiresNavAccess({"catalogue", "commande.repartition-stock"})
 public class StockProduitResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockProduitResource.class);
@@ -38,7 +37,7 @@ public class StockProduitResource {
     public ResponseEntity<StockProduitDTO> createStockProduit(@Valid @RequestBody StockProduitDTO dto) {
         LOG.debug("REST request to create StockProduit: {}", dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body( stockProduitService.createStockProduit(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(stockProduitService.createStockProduit(dto));
     }
 
     /**
@@ -50,9 +49,7 @@ public class StockProduitResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<StockProduitDTO> updateStockProduit(
-        @PathVariable Integer id,
-        @Valid @RequestBody StockProduitDTO dto
-    ) {
+            @PathVariable Integer id, @Valid @RequestBody StockProduitDTO dto) {
         LOG.debug("REST request to update StockProduit: id={}, dto={}", id, dto);
         dto.setId(id);
         return ResponseEntity.ok(stockProduitService.updateStockProduit(dto));
@@ -73,10 +70,11 @@ public class StockProduitResource {
 
     @GetMapping("/search-for-repartition")
     public ResponseEntity<List<StockProduitSearchDTO>> searchForRepartition(
-        @RequestParam Integer storageId,
-        @RequestParam String searchTerm
-    ) {
-        LOG.debug("REST request to search stock produits for repartition: storageId={}, searchTerm={}", storageId, searchTerm);
+            @RequestParam Integer storageId, @RequestParam String searchTerm) {
+        LOG.debug(
+                "REST request to search stock produits for repartition: storageId={}, searchTerm={}",
+                storageId,
+                searchTerm);
         return ResponseEntity.ok(stockProduitService.searchStockProduitsForRepartition(storageId, searchTerm));
     }
 }

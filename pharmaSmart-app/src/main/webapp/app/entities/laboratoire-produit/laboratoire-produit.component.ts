@@ -1,40 +1,31 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
-import {RouterModule} from '@angular/router';
-import {HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {LaboratoireProduitService} from './laboratoire-produit.service';
-import {FormLaboratoireComponent} from './form-laboratoire/form-laboratoire.component';
-import {IResponseDto} from '../../shared/util/response-dto';
-import {ILaboratoire} from '../../shared/model/laboratoire.model';
-import {ITEMS_PER_PAGE} from '../../shared/constants/pagination.constants';
-import {FormsModule} from '@angular/forms';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  SelectableRowDirective,
-} from '../../shared/ui';
-import {showCommonModal} from '../sales/selling-home/sale-helper';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {
-  FileUploadDialogComponent
-} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import {finalize} from 'rxjs/operators';
-import {ErrorService} from '../../shared/error.service';
-import {SpinnerComponent} from '../../shared/spinner/spinner.component';
-import {NotificationService} from "../../shared/services/notification.service";
+import { ChangeDetectionStrategy, Component, inject, OnInit, viewChild, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { LaboratoireProduitService } from './laboratoire-produit.service';
+import { FormLaboratoireComponent } from './form-laboratoire/form-laboratoire.component';
+import { IResponseDto } from '../../shared/util/response-dto';
+import { ILaboratoire } from '../../shared/model/laboratoire.model';
+import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
+import { FormsModule } from '@angular/forms';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent, SelectableRowDirective } from '../../shared/ui';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { finalize } from 'rxjs/operators';
+import { ErrorService } from '../../shared/error.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { NotificationService } from '../../shared/services/notification.service';
 import { CardComponent } from 'app/shared/ui';
-import {
-  NgbConfirmDialogService
-} from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 @Component({
   selector: 'app-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
   styleUrl: './laboratoire-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, 
+  imports: [
+    CardComponent,
     RouterModule,
     FormsModule,
     ButtonComponent,

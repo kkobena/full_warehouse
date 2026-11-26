@@ -12,8 +12,8 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
-import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.Rupture;
+import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StoreInventory;
@@ -83,11 +83,12 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertTrue(apercu.stockConflicts().isEmpty(), "les deux fiches n'ont aucun emplacement en commun");
 
         viderLeCache();
-        assertEquals(Status.ENABLE, em.find(Produit.class, doublon.getId()).getStatus(), "la simulation n'archive rien");
         assertEquals(
-            doublon.getId().intValue(),
-            compter("SELECT produit_id FROM stock_produit WHERE storage_id = %d AND produit_id = %d".formatted(STORAGE_RESERVE_ID, doublon.getId()))
-        );
+                Status.ENABLE, em.find(Produit.class, doublon.getId()).getStatus(), "la simulation n'archive rien");
+        assertEquals(
+                doublon.getId().intValue(),
+                compter("SELECT produit_id FROM stock_produit WHERE storage_id = %d AND produit_id = %d"
+                        .formatted(STORAGE_RESERVE_ID, doublon.getId())));
     }
 
     @Test
@@ -101,7 +102,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit doublon = produit(unique("DOUBLON"));
         fournisseurProduit(doublon);
         StockProduit stockDoublon = stock(doublon, rayon, 4);
-        Lot lotDoublon = lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), rayon, 4);
+        Lot lotDoublon =
+                lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), rayon, 4);
         viderLeCache();
 
         ProduitMergePreviewDTO apercu = services.produitMergeService.preview(cible.getId(), List.of(doublon.getId()));
@@ -128,10 +130,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         stock(cible, rayon, 10);
         viderLeCache();
 
-        ProduitMergePreviewDTO apercu = services.produitMergeService.preview(
-            cible.getId(),
-            List.of(cible.getId(), 999_999)
-        );
+        ProduitMergePreviewDTO apercu =
+                services.produitMergeService.preview(cible.getId(), List.of(cible.getId(), 999_999));
 
         assertTrue(apercu.sourceIds().isEmpty(), "on ne fusionne pas un produit avec lui-même");
         assertEquals(List.of(999_999), apercu.rejectedSourceIds());
@@ -152,7 +152,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit doublon = produit(unique("DOUBLON"));
         FournisseurProduit referenceDoublon = fournisseurProduit(doublon);
         StockProduit stockDoublon = stock(doublon, reserve, 4);
-        Lot lotDoublon = lotSurEmplacement(doublon, unique("LOT"), LocalDate.now().plusMonths(6), reserve, 4);
+        Lot lotDoublon =
+                lotSurEmplacement(doublon, unique("LOT"), LocalDate.now().plusMonths(6), reserve, 4);
         Rayon rayonDoublon = rayonSupplementaire();
         RayonProduit rangementDoublon = rayonProduit(doublon, rayonDoublon);
         venteMensuelle(doublon, "2026-01", 12, 120_000);
@@ -166,14 +167,23 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(List.of(doublon.getId()), resultat.mergedSourceIds());
         assertTrue(resultat.stockConflicts().isEmpty());
 
-        assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()));
+        assertEquals(
+                cible.getId().intValue(),
+                compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()));
         assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM lot WHERE id = " + lotDoublon.getId()));
-        assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM fournisseur_produit WHERE id = " + referenceDoublon.getId()));
-        assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM rayon_produit WHERE id = " + rangementDoublon.getId()));
+        assertEquals(
+                cible.getId().intValue(),
+                compter("SELECT produit_id FROM fournisseur_produit WHERE id = " + referenceDoublon.getId()));
+        assertEquals(
+                cible.getId().intValue(),
+                compter("SELECT produit_id FROM rayon_produit WHERE id = " + rangementDoublon.getId()));
         assertEquals(1, compter("SELECT COUNT(*) FROM ventes_mensuelles_agregees WHERE produit_id = " + cible.getId()));
         assertEquals(1, compter("SELECT COUNT(*) FROM semois_configuration WHERE produit_id = " + cible.getId()));
 
-        assertEquals(Status.DISABLE, em.find(Produit.class, doublon.getId()).getStatus(), "le doublon est archivé, jamais supprimé");
+        assertEquals(
+                Status.DISABLE,
+                em.find(Produit.class, doublon.getId()).getStatus(),
+                "le doublon est archivé, jamais supprimé");
         assertEquals(1, compter("SELECT COUNT(*) FROM produit WHERE id = " + doublon.getId()));
     }
 
@@ -196,9 +206,10 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.produitMergeService.merge(fusion(cible, doublon));
         viderLeCache();
 
-        List<Integer> molecules = em.createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
-            .setParameter("id", cible.getId())
-            .getResultList();
+        List<Integer> molecules = em.createNativeQuery(
+                        "SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+                .setParameter("id", cible.getId())
+                .getResultList();
         assertEquals(List.of(propreCible.getId(), commune.getId(), propreDoublon.getId()), molecules);
     }
 
@@ -251,12 +262,14 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(1, resultat.stockConflicts().size());
-        assertEquals(10, compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockCible.getId()), "la cible n'est jamais créditée en douce");
         assertEquals(
-            doublon.getId().intValue(),
-            compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()),
-            "la ligne du doublon reste chez lui, avec son historique d'ajustement"
-        );
+                10,
+                compter("SELECT qty_stock FROM stock_produit WHERE id = " + stockCible.getId()),
+                "la cible n'est jamais créditée en douce");
+        assertEquals(
+                doublon.getId().intValue(),
+                compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()),
+                "la ligne du doublon reste chez lui, avec son historique d'ajustement");
     }
 
     @Test
@@ -270,22 +283,24 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit doublon = produit(unique("DOUBLON"));
         fournisseurProduit(doublon);
         stock(doublon, reserve, 4);
-        Lot lotDoublon = lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), reserve, 4);
+        Lot lotDoublon =
+                lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), reserve, 4);
         viderLeCache();
 
-        services.produitMergeService.merge(
-            new ProduitMergeRequestDTO(
+        services.produitMergeService.merge(new ProduitMergeRequestDTO(
                 cible.getId(),
                 List.of(doublon.getId()),
-                List.of(new LotResolutionDTO(lotDoublon.getId(), LotConflictAction.MERGE))
-            )
-        );
+                List.of(new LotResolutionDTO(lotDoublon.getId(), LotConflictAction.MERGE))));
         viderLeCache();
 
-        assertEquals(0, compter("SELECT COUNT(*) FROM lot WHERE id = " + lotDoublon.getId()), "le lot du doublon a disparu");
+        assertEquals(
+                0, compter("SELECT COUNT(*) FROM lot WHERE id = " + lotDoublon.getId()), "le lot du doublon a disparu");
         assertEquals(14, compter("SELECT quantity FROM lot WHERE id = " + lotCible.getId()));
         assertEquals(14, compter("SELECT current_quantity FROM lot WHERE id = " + lotCible.getId()));
-        assertEquals(1, compter("SELECT COUNT(*) FROM lot WHERE num_lot = 'LOT-COMMUN'"), "la contrainte (num_lot, produit) tient");
+        assertEquals(
+                1,
+                compter("SELECT COUNT(*) FROM lot WHERE num_lot = 'LOT-COMMUN'"),
+                "la contrainte (num_lot, produit) tient");
     }
 
     @Test
@@ -299,20 +314,21 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         Produit doublon = produit(unique("DOUBLON"));
         fournisseurProduit(doublon);
         stock(doublon, reserve, 4);
-        Lot lotDoublon = lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), reserve, 4);
+        Lot lotDoublon =
+                lotSurEmplacement(doublon, "LOT-COMMUN", LocalDate.now().plusMonths(9), reserve, 4);
         viderLeCache();
 
-        services.produitMergeService.merge(
-            new ProduitMergeRequestDTO(
+        services.produitMergeService.merge(new ProduitMergeRequestDTO(
                 cible.getId(),
                 List.of(doublon.getId()),
-                List.of(new LotResolutionDTO(lotDoublon.getId(), LotConflictAction.DELETE))
-            )
-        );
+                List.of(new LotResolutionDTO(lotDoublon.getId(), LotConflictAction.DELETE))));
         viderLeCache();
 
         assertEquals(0, compter("SELECT COUNT(*) FROM lot WHERE id = " + lotDoublon.getId()));
-        assertEquals(10, compter("SELECT quantity FROM lot WHERE id = " + lotCible.getId()), "la quantité du doublon n'est pas reportée");
+        assertEquals(
+                10,
+                compter("SELECT quantity FROM lot WHERE id = " + lotCible.getId()),
+                "la quantité du doublon n'est pas reportée");
     }
 
     @Test
@@ -331,15 +347,15 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         ProduitMergeRequestDTO demande = fusion(cible, doublon);
 
-        BadRequestAlertException erreur = assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitMergeService.merge(demande)
-        );
+        BadRequestAlertException erreur =
+                assertThrows(BadRequestAlertException.class, () -> services.produitMergeService.merge(demande));
         assertTrue(erreur.getMessage().contains("Conflit de lot non résolu"));
 
         viderLeCache();
         assertEquals(Status.ENABLE, em.find(Produit.class, doublon.getId()).getStatus(), "rien n'a été engagé");
-        assertEquals(doublon.getId().intValue(), compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()));
+        assertEquals(
+                doublon.getId().intValue(),
+                compter("SELECT produit_id FROM stock_produit WHERE id = " + stockDoublon.getId()));
     }
 
     @Test
@@ -361,14 +377,12 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(0, compter("SELECT COUNT(*) FROM fournisseur_produit WHERE id = " + referenceDoublon.getId()));
         assertEquals(
-            1,
-            compter("SELECT COUNT(*) FROM order_line WHERE fournisseur_produit_id = " + referenceCible.getId()),
-            "la commande passée sur le doublon pointe désormais la référence conservée"
-        );
+                1,
+                compter("SELECT COUNT(*) FROM order_line WHERE fournisseur_produit_id = " + referenceCible.getId()),
+                "la commande passée sur le doublon pointe désormais la référence conservée");
         assertNull(
-            em.find(Produit.class, doublon.getId()).getFournisseurProduitPrincipal(),
-            "le fournisseur principal du doublon est vidé : la colonne est unique"
-        );
+                em.find(Produit.class, doublon.getId()).getFournisseurProduitPrincipal(),
+                "le fournisseur principal du doublon est vidé : la colonne est unique");
     }
 
     @Test
@@ -390,7 +404,10 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(0, compter("SELECT COUNT(*) FROM rayon_produit WHERE id = " + rangementDoublon.getId()));
-        assertEquals(1, compter("SELECT COUNT(*) FROM rayon_produit WHERE produit_id = %d AND rayon_id = %d".formatted(cible.getId(), rayonCommun.getId())));
+        assertEquals(
+                1,
+                compter("SELECT COUNT(*) FROM rayon_produit WHERE produit_id = %d AND rayon_id = %d"
+                        .formatted(cible.getId(), rayonCommun.getId())));
     }
 
     @Test
@@ -413,18 +430,22 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(2, compter("SELECT COUNT(*) FROM ventes_mensuelles_agregees WHERE produit_id = " + cible.getId()));
         assertEquals(
-            13,
-            compter("SELECT quantite_vendue FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-01'".formatted(cible.getId()))
-        );
+                13,
+                compter(
+                        "SELECT quantite_vendue FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-01'"
+                                .formatted(cible.getId())));
         assertEquals(
-            130_000,
-            compter("SELECT montant_ca FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-01'".formatted(cible.getId()))
-        );
+                130_000,
+                compter(
+                        "SELECT montant_ca FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-01'"
+                                .formatted(cible.getId())));
         assertEquals(
-            7,
-            compter("SELECT quantite_vendue FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-02'".formatted(cible.getId()))
-        );
-        assertEquals(0, compter("SELECT COUNT(*) FROM ventes_mensuelles_agregees WHERE produit_id = " + doublon.getId()));
+                7,
+                compter(
+                        "SELECT quantite_vendue FROM ventes_mensuelles_agregees WHERE produit_id = %d AND annee_mois = '2026-02'"
+                                .formatted(cible.getId())));
+        assertEquals(
+                0, compter("SELECT COUNT(*) FROM ventes_mensuelles_agregees WHERE produit_id = " + doublon.getId()));
     }
 
     @Test
@@ -445,7 +466,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(1, compter("SELECT COUNT(*) FROM semois_configuration WHERE id = " + configurationCible.getId()));
-        assertEquals(0, compter("SELECT COUNT(*) FROM semois_configuration WHERE id = " + configurationDoublon.getId()));
+        assertEquals(
+                0, compter("SELECT COUNT(*) FROM semois_configuration WHERE id = " + configurationDoublon.getId()));
     }
 
     @Test
@@ -469,12 +491,13 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(1, resultat.entityCounts().get("storeInventoryLine"), "seule la ligne sans collision est reprise");
-        assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM store_inventory_line WHERE id = " + ligneLibre.getId()));
         assertEquals(
-            doublon.getId().intValue(),
-            compter("SELECT produit_id FROM store_inventory_line WHERE id = " + ligneEnCollision.getId()),
-            "la ligne en collision n'est pas déplacée : quelle quantité comptée retenir ?"
-        );
+                cible.getId().intValue(),
+                compter("SELECT produit_id FROM store_inventory_line WHERE id = " + ligneLibre.getId()));
+        assertEquals(
+                doublon.getId().intValue(),
+                compter("SELECT produit_id FROM store_inventory_line WHERE id = " + ligneEnCollision.getId()),
+                "la ligne en collision n'est pas déplacée : quelle quantité comptée retenir ?");
     }
 
     @Test
@@ -499,8 +522,13 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.produitMergeService.merge(fusion(cible, doublon));
         viderLeCache();
 
-        assertEquals(0, compter("SELECT COUNT(*) FROM substitut WHERE id = " + croise.getId()), "un produit n'est pas son propre substitut");
-        assertEquals(cible.getId().intValue(), compter("SELECT produit_id FROM substitut WHERE id = " + versLeTiers.getId()));
+        assertEquals(
+                0,
+                compter("SELECT COUNT(*) FROM substitut WHERE id = " + croise.getId()),
+                "un produit n'est pas son propre substitut");
+        assertEquals(
+                cible.getId().intValue(),
+                compter("SELECT produit_id FROM substitut WHERE id = " + versLeTiers.getId()));
     }
 
     // ===== refus =====
@@ -509,13 +537,11 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
     @DisplayName("Une demande sans cible ou sans source est refusée")
     void demandeIncomplete() {
         assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitMergeService.merge(new ProduitMergeRequestDTO(null, List.of(1), List.of()))
-        );
+                BadRequestAlertException.class,
+                () -> services.produitMergeService.merge(new ProduitMergeRequestDTO(null, List.of(1), List.of())));
         assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitMergeService.merge(new ProduitMergeRequestDTO(1, List.of(), List.of()))
-        );
+                BadRequestAlertException.class,
+                () -> services.produitMergeService.merge(new ProduitMergeRequestDTO(1, List.of(), List.of())));
     }
 
     @Test
@@ -528,10 +554,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         ProduitMergeRequestDTO demande = new ProduitMergeRequestDTO(cible.getId(), List.of(cible.getId()), List.of());
 
-        BadRequestAlertException erreur = assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitMergeService.merge(demande)
-        );
+        BadRequestAlertException erreur =
+                assertThrows(BadRequestAlertException.class, () -> services.produitMergeService.merge(demande));
         assertTrue(erreur.getMessage().contains("Aucun produit source valide"));
     }
 
@@ -551,10 +575,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         ProduitMergeRequestDTO demande = fusion(cible, doublon);
 
-        BadRequestAlertException erreur = assertThrows(
-            BadRequestAlertException.class,
-            () -> services.produitMergeService.merge(demande)
-        );
+        BadRequestAlertException erreur =
+                assertThrows(BadRequestAlertException.class, () -> services.produitMergeService.merge(demande));
         assertTrue(erreur.getMessage().contains("plusieurs produits détail"));
 
         ProduitMergePreviewDTO apercu = services.produitMergeService.preview(cible.getId(), List.of(doublon.getId()));
@@ -582,7 +604,8 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(1, resultat.entityCounts().get("produitDetailReparente"));
         assertEquals(cible.getId().intValue(), compter("SELECT parent_id FROM produit WHERE id = " + detail.getId()));
-        assertEquals(Status.ENABLE, em.find(Produit.class, detail.getId()).getStatus(), "le détail re-parenté reste actif");
+        assertEquals(
+                Status.ENABLE, em.find(Produit.class, detail.getId()).getStatus(), "le détail re-parenté reste actif");
     }
 
     @Test
@@ -604,10 +627,9 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(1, resultat.entityCounts().get("produitDetailFusionne"));
         assertEquals(
-            Status.DISABLE,
-            em.find(Produit.class, detailDoublon.getId()).getStatus(),
-            "jamais deux produits détail actifs sous la même boîte"
-        );
+                Status.DISABLE,
+                em.find(Produit.class, detailDoublon.getId()).getStatus(),
+                "jamais deux produits détail actifs sous la même boîte");
         assertEquals(Status.ENABLE, em.find(Produit.class, detailCible.getId()).getStatus());
     }
 

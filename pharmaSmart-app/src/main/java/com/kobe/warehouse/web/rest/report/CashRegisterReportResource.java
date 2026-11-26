@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.CashMovementDTO;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import com.kobe.warehouse.service.report.CashRegisterReportService;
+import com.kobe.warehouse.service.report.pdf.CashRegisterPdfReportService;
 import java.time.LocalDate;
 import java.util.List;
-
-import com.kobe.warehouse.service.report.pdf.CashRegisterPdfReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,18 +16,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse" })
+@RequiresNavAccess({"mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse"
+})
 public class CashRegisterReportResource {
 
     private final CashRegisterReportService cashRegisterReportService;
     private final CashRegisterPdfReportService cashRegisterPdfReportService;
 
-    public CashRegisterReportResource(CashRegisterReportService cashRegisterReportService, CashRegisterPdfReportService cashRegisterPdfReportService) {
+    public CashRegisterReportResource(
+            CashRegisterReportService cashRegisterReportService,
+            CashRegisterPdfReportService cashRegisterPdfReportService) {
         this.cashRegisterReportService = cashRegisterReportService;
         this.cashRegisterPdfReportService = cashRegisterPdfReportService;
     }
@@ -39,8 +41,7 @@ public class CashRegisterReportResource {
      */
     @GetMapping("/cash-register/daily-report")
     public ResponseEntity<List<DailyCashRegisterReportDTO>> getDailyReport(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LocalDate reportDate = date != null ? date : LocalDate.now();
         List<DailyCashRegisterReportDTO> report = cashRegisterReportService.getDailyReport(reportDate);
         return ResponseEntity.ok().body(report);
@@ -57,12 +58,12 @@ public class CashRegisterReportResource {
      */
     @GetMapping("/cash-register/movements")
     public ResponseEntity<List<CashMovementDTO>> getCashMovements(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam(required = false) Long userId,
-        @RequestParam(required = false) Long cashRegisterId
-    ) {
-        List<CashMovementDTO> movements = cashRegisterReportService.getCashMovements(startDate, endDate, userId, cashRegisterId);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long cashRegisterId) {
+        List<CashMovementDTO> movements =
+                cashRegisterReportService.getCashMovements(startDate, endDate, userId, cashRegisterId);
         return ResponseEntity.ok().body(movements);
     }
 
@@ -75,9 +76,8 @@ public class CashRegisterReportResource {
      */
     @GetMapping("/cash-register/summary")
     public ResponseEntity<List<DailyCashRegisterReportDTO>> getCashRegisterSummary(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         LocalDate start = startDate != null ? startDate : LocalDate.now().minusDays(7);
         LocalDate end = endDate != null ? endDate : LocalDate.now();
         List<DailyCashRegisterReportDTO> summary = cashRegisterReportService.getCashRegisterSummary(start, end);
@@ -91,10 +91,12 @@ public class CashRegisterReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/cash-register/daily-report/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailyReportToPdf(
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LocalDate reportDate = date != null ? date : LocalDate.now();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=cash-register-report-" + reportDate + ".pdf");

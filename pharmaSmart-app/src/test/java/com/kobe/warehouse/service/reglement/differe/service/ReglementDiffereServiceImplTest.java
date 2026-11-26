@@ -30,13 +30,13 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.receipt.service.DiffereReceiptService;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
+import com.kobe.warehouse.service.reglement.differe.dto.CustomerReglementDiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
-import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummary;
-import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
+import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummary;
+import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
-import com.kobe.warehouse.service.reglement.differe.dto.CustomerReglementDiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.NewDifferePaymentDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptDTO;
@@ -109,17 +109,16 @@ class ReglementDiffereServiceImplTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         service = new ReglementDiffereServiceImpl(
-            differePaymentRepository,
-            salesRepository,
-            customerRepository,
-            cashRegisterService,
-            reglementDiffereReportService,
-            banqueRepository,
-            differeReceiptService,
-            transactionIdGeneratorService,
-            referenceService,
-            reportExcelExportService
-        );
+                differePaymentRepository,
+                salesRepository,
+                customerRepository,
+                cashRegisterService,
+                reglementDiffereReportService,
+                banqueRepository,
+                differeReceiptService,
+                transactionIdGeneratorService,
+                referenceService,
+                reportExcelExportService);
         Specification<Sales> salesSpec = (r, q, cb) -> null;
         when(salesRepository.hasStatut(any())).thenReturn(salesSpec);
         when(salesRepository.filterByCustomerId(anyInt())).thenReturn(salesSpec);
@@ -222,10 +221,14 @@ class ReglementDiffereServiceImplTest {
             Differe differe = new Differe(3, "Kofi", "YAO", 10000L, 4000L, 6000L);
             when(salesRepository.getDiffere(any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(differe)));
 
-            assertThat(service.getOne(3)).get().extracting(DiffereDTO::customerId).isEqualTo(3);
+            assertThat(service.getOne(3))
+                    .get()
+                    .extracting(DiffereDTO::customerId)
+                    .isEqualTo(3);
 
             // getOne force le filtre sur les impayes, en tete de page comme sur le detail
-            verify(salesRepository, org.mockito.Mockito.atLeastOnce()).filterByPaymentStatus(Set.of(PaymentStatus.IMPAYE));
+            verify(salesRepository, org.mockito.Mockito.atLeastOnce())
+                    .filterByPaymentStatus(Set.of(PaymentStatus.IMPAYE));
         }
 
         @Test
@@ -234,7 +237,8 @@ class ReglementDiffereServiceImplTest {
             DiffereSummary attendu = new DiffereSummary(10000L, 4000L, 6000L);
             when(salesRepository.getDiffereSummary(any())).thenReturn(attendu);
 
-            assertThat(service.getDiffereSummary(3, Set.of(PaymentStatus.IMPAYE))).isSameAs(attendu);
+            assertThat(service.getDiffereSummary(3, Set.of(PaymentStatus.IMPAYE)))
+                    .isSameAs(attendu);
         }
 
         @Test
@@ -242,7 +246,8 @@ class ReglementDiffereServiceImplTest {
         void getDifferePaymentSummary() {
             when(differePaymentRepository.getDiffereSummary(any())).thenReturn(new DifferePaymentSummary(4000L));
 
-            DifferePaymentSummaryDTO dto = service.getDifferePaymentSummary(3, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
+            DifferePaymentSummaryDTO dto =
+                    service.getDifferePaymentSummary(3, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
 
             assertThat(dto.paidAmount()).isEqualTo(4000L);
             assertThat(dto.solde()).isNull();
@@ -303,7 +308,8 @@ class ReglementDiffereServiceImplTest {
         void avecBanque() {
             when(customerRepository.getReferenceById(3)).thenReturn(customer());
             when(salesRepository.findSalesByIdIn(any())).thenReturn(List.of());
-            BanqueInfoDTO banqueInfo = new BanqueInfoDTO().setCode("BQ1").setNom("SGBCI").setBeneficiaire("PHARMACIE");
+            BanqueInfoDTO banqueInfo =
+                    new BanqueInfoDTO().setCode("BQ1").setNom("SGBCI").setBeneficiaire("PHARMACIE");
 
             service.doReglement(commande(5000, null, banqueInfo));
 
@@ -416,8 +422,8 @@ class ReglementDiffereServiceImplTest {
             when(salesRepository.findSalesByIdIn(any())).thenReturn(List.of(vente(1L, 3000, 0), vente(2L, 0, 2000)));
 
             org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.doReglement(commande(3000, null, null)))
-                .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
-                .hasMessageContaining("déjà soldées");
+                    .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
+                    .hasMessageContaining("déjà soldées");
 
             verify(differePaymentRepository, org.mockito.Mockito.never()).save(any());
         }
@@ -489,14 +495,16 @@ class ReglementDiffereServiceImplTest {
 
             service.printReceipt(PAYMENT_ID);
 
-            verify(differeReceiptService).printReceipt(org.mockito.ArgumentMatchers.isNull(), any(ReglementDiffereReceiptDTO.class));
+            verify(differeReceiptService)
+                    .printReceipt(org.mockito.ArgumentMatchers.isNull(), any(ReglementDiffereReceiptDTO.class));
         }
 
         @Test
         @DisplayName("generateEscPosReceiptForTauri delegue au service de recu")
         void generateEscPos() throws IOException {
             paiement(BigDecimal.ZERO);
-            when(differeReceiptService.generateEscPosReceiptForTauri(any(ReglementDiffereReceiptDTO.class))).thenReturn(new byte[] { 7 });
+            when(differeReceiptService.generateEscPosReceiptForTauri(any(ReglementDiffereReceiptDTO.class)))
+                    .thenReturn(new byte[] {7});
 
             assertThat(service.generateEscPosReceiptForTauri(PAYMENT_ID)).containsExactly(7);
         }
@@ -516,17 +524,16 @@ class ReglementDiffereServiceImplTest {
         @DisplayName("l export Excel alimente une ligne par client")
         void exportExcel() throws Exception {
             stubDiffere(10000L, 4000L, 6000L);
-            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any())).thenReturn(new byte[] { 9 });
+            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any()))
+                    .thenReturn(new byte[] {9});
 
-            assertThat(service.exportDifferesToExcel(3, Set.of(PaymentStatus.IMPAYE))).containsExactly(9);
+            assertThat(service.exportDifferesToExcel(3, Set.of(PaymentStatus.IMPAYE)))
+                    .containsExactly(9);
 
             ArgumentCaptor<String[]> headers = ArgumentCaptor.forClass(String[].class);
-            verify(reportExcelExportService).createExcelReport(
-                org.mockito.ArgumentMatchers.eq("Différés clients"),
-                headers.capture(),
-                any(),
-                any()
-            );
+            verify(reportExcelExportService)
+                    .createExcelReport(
+                            org.mockito.ArgumentMatchers.eq("Différés clients"), headers.capture(), any(), any());
             assertThat(headers.getValue()).hasSize(4);
         }
 
@@ -535,19 +542,23 @@ class ReglementDiffereServiceImplTest {
         @SuppressWarnings("unchecked")
         void ecritLesMontants() throws Exception {
             stubDiffere(null, null, null);
-            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any())).thenAnswer(inv -> {
-                List<DiffereDTO> data = inv.getArgument(2);
-                java.util.function.BiConsumer<org.apache.poi.ss.usermodel.Row, DiffereDTO> mapper = inv.getArgument(3);
-                try (org.apache.poi.xssf.usermodel.XSSFWorkbook wb = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
-                    org.apache.poi.ss.usermodel.Row row = wb.createSheet().createRow(0);
-                    mapper.accept(row, data.getFirst());
-                    assertThat(row.getCell(0).getStringCellValue()).isEqualTo("Kofi YAO");
-                    assertThat(row.getCell(1).getNumericCellValue()).isZero();
-                    assertThat(row.getCell(2).getNumericCellValue()).isZero();
-                    assertThat(row.getCell(3).getNumericCellValue()).isZero();
-                }
-                return new byte[] { 9 };
-            });
+            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any()))
+                    .thenAnswer(inv -> {
+                        List<DiffereDTO> data = inv.getArgument(2);
+                        java.util.function.BiConsumer<org.apache.poi.ss.usermodel.Row, DiffereDTO> mapper =
+                                inv.getArgument(3);
+                        try (org.apache.poi.xssf.usermodel.XSSFWorkbook wb =
+                                new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+                            org.apache.poi.ss.usermodel.Row row =
+                                    wb.createSheet().createRow(0);
+                            mapper.accept(row, data.getFirst());
+                            assertThat(row.getCell(0).getStringCellValue()).isEqualTo("Kofi YAO");
+                            assertThat(row.getCell(1).getNumericCellValue()).isZero();
+                            assertThat(row.getCell(2).getNumericCellValue()).isZero();
+                            assertThat(row.getCell(3).getNumericCellValue()).isZero();
+                        }
+                        return new byte[] {9};
+                    });
 
             service.exportDifferesToExcel(3, Set.of(PaymentStatus.IMPAYE));
         }
@@ -557,18 +568,22 @@ class ReglementDiffereServiceImplTest {
         @SuppressWarnings("unchecked")
         void ecritLesMontantsRenseignes() throws Exception {
             stubDiffere(10000L, 4000L, 6000L);
-            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any())).thenAnswer(inv -> {
-                List<DiffereDTO> data = inv.getArgument(2);
-                java.util.function.BiConsumer<org.apache.poi.ss.usermodel.Row, DiffereDTO> mapper = inv.getArgument(3);
-                try (org.apache.poi.xssf.usermodel.XSSFWorkbook wb = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
-                    org.apache.poi.ss.usermodel.Row row = wb.createSheet().createRow(0);
-                    mapper.accept(row, data.getFirst());
-                    assertThat(row.getCell(1).getNumericCellValue()).isEqualTo(10000d);
-                    assertThat(row.getCell(2).getNumericCellValue()).isEqualTo(4000d);
-                    assertThat(row.getCell(3).getNumericCellValue()).isEqualTo(6000d);
-                }
-                return new byte[] { 9 };
-            });
+            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any()))
+                    .thenAnswer(inv -> {
+                        List<DiffereDTO> data = inv.getArgument(2);
+                        java.util.function.BiConsumer<org.apache.poi.ss.usermodel.Row, DiffereDTO> mapper =
+                                inv.getArgument(3);
+                        try (org.apache.poi.xssf.usermodel.XSSFWorkbook wb =
+                                new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+                            org.apache.poi.ss.usermodel.Row row =
+                                    wb.createSheet().createRow(0);
+                            mapper.accept(row, data.getFirst());
+                            assertThat(row.getCell(1).getNumericCellValue()).isEqualTo(10000d);
+                            assertThat(row.getCell(2).getNumericCellValue()).isEqualTo(4000d);
+                            assertThat(row.getCell(3).getNumericCellValue()).isEqualTo(6000d);
+                        }
+                        return new byte[] {9};
+                    });
 
             service.exportDifferesToExcel(3, Set.of(PaymentStatus.IMPAYE));
         }
@@ -577,11 +592,12 @@ class ReglementDiffereServiceImplTest {
         @DisplayName("une erreur de generation Excel remonte en erreur applicative")
         void exportExcelEnErreur() throws Exception {
             stubDiffere(10000L, 4000L, 6000L);
-            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any())).thenThrow(new IOException("disque plein"));
+            when(reportExcelExportService.createExcelReport(anyString(), any(), any(), any()))
+                    .thenThrow(new IOException("disque plein"));
 
             assertThatThrownBy(() -> service.exportDifferesToExcel(3, Set.of(PaymentStatus.IMPAYE)))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Erreur génération Excel différés");
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Erreur génération Excel différés");
         }
 
         @Test
@@ -591,7 +607,7 @@ class ReglementDiffereServiceImplTest {
             stubDiffere(10000L, 4000L, 6000L);
             DiffereSummary summary = new DiffereSummary(10000L, 4000L, 6000L);
             when(salesRepository.getDiffereSummary(any())).thenReturn(summary);
-            when(reglementDiffereReportService.printListToPdf(any(), any())).thenReturn(new byte[] { 1, 2 });
+            when(reglementDiffereReportService.printListToPdf(any(), any())).thenReturn(new byte[] {1, 2});
 
             assertThat(service.printListToPdf(3, Set.of(PaymentStatus.IMPAYE))).containsExactly(1, 2);
 
@@ -603,18 +619,17 @@ class ReglementDiffereServiceImplTest {
         @SuppressWarnings("unchecked")
         void printReglementToPdf() {
             when(differePaymentRepository.getDiffereSummary(any())).thenReturn(new DifferePaymentSummary(4000L));
-            when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class))).thenReturn(Page.empty());
-            when(reglementDiffereReportService.printReglementToPdf(any(), any(), any())).thenReturn(new byte[] { 3 });
+            when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class)))
+                    .thenReturn(Page.empty());
+            when(reglementDiffereReportService.printReglementToPdf(any(), any(), any()))
+                    .thenReturn(new byte[] {3});
             LocalDate debut = LocalDate.of(2026, 4, 1);
             LocalDate fin = LocalDate.of(2026, 4, 30);
 
             assertThat(service.printReglementToPdf(3, debut, fin)).containsExactly(3);
 
-            verify(reglementDiffereReportService).printReglementToPdf(
-                any(),
-                any(),
-                org.mockito.ArgumentMatchers.eq(new ReportPeriode(debut, fin))
-            );
+            verify(reglementDiffereReportService)
+                    .printReglementToPdf(any(), any(), org.mockito.ArgumentMatchers.eq(new ReportPeriode(debut, fin)));
         }
     }
 
@@ -628,17 +643,14 @@ class ReglementDiffereServiceImplTest {
         void assembleLesReglements() {
             CustomerReglementDiffereDTO reglement = new CustomerReglementDiffereDTO(3, "Kofi", "YAO", 4000L);
             when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(reglement)));
-            ReglementDiffereDTO detail = new ReglementDiffereDTO(55L, "Kofi", "YAO", LocalDateTime.now(), 5000, 5000, 5000, "CASH", "Espèces");
+                    .thenReturn(new PageImpl<>(List.of(reglement)));
+            ReglementDiffereDTO detail = new ReglementDiffereDTO(
+                    55L, "Kofi", "YAO", LocalDateTime.now(), 5000, 5000, 5000, "CASH", "Espèces");
             when(differePaymentRepository.getDifferePaymentsByCustomerId(any())).thenReturn(List.of(detail));
             when(salesRepository.getSolde(any())).thenReturn(new Solde(6000L));
 
             Page<ReglementDiffereWrapperDTO> page = service.getReglementsDifferes(
-                3,
-                LocalDate.of(2026, 4, 1),
-                LocalDate.of(2026, 4, 30),
-                Pageable.unpaged()
-            );
+                    3, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), Pageable.unpaged());
 
             assertThat(page).hasSize(1);
             ReglementDiffereWrapperDTO dto = page.getContent().getFirst();
@@ -655,7 +667,7 @@ class ReglementDiffereServiceImplTest {
         void reglementSansClient() {
             CustomerReglementDiffereDTO reglement = new CustomerReglementDiffereDTO(null, "Kofi", "YAO", 4000L);
             when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(reglement)));
+                    .thenReturn(new PageImpl<>(List.of(reglement)));
             when(differePaymentRepository.getDifferePaymentsByCustomerId(any())).thenReturn(List.of());
             when(salesRepository.getSolde(any())).thenReturn(new Solde(0L));
 
@@ -670,9 +682,11 @@ class ReglementDiffereServiceImplTest {
         @DisplayName("une page vide ne sollicite ni detail ni solde")
         @SuppressWarnings("unchecked")
         void pageVide() {
-            when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class))).thenReturn(Page.empty());
+            when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class)))
+                    .thenReturn(Page.empty());
 
-            assertThat(service.getReglementsDifferes(3, null, null, Pageable.unpaged())).isEmpty();
+            assertThat(service.getReglementsDifferes(3, null, null, Pageable.unpaged()))
+                    .isEmpty();
 
             verify(differePaymentRepository, never()).getDifferePaymentsByCustomerId(any());
         }

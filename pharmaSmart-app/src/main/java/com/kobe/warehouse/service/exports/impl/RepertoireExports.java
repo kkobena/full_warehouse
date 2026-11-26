@@ -15,7 +15,9 @@ class RepertoireExports {
     private final Path racine;
 
     RepertoireExports(FileStorageProperties fileStorageProperties) {
-        this.racine = Paths.get(fileStorageProperties.getReportsDir(), "exports").toAbsolutePath().normalize();
+        this.racine = Paths.get(fileStorageProperties.getReportsDir(), "exports")
+                .toAbsolutePath()
+                .normalize();
     }
 
     /** Le fichier d'un nom généré par l'application ; refuse tout nom qui sortirait du répertoire. */

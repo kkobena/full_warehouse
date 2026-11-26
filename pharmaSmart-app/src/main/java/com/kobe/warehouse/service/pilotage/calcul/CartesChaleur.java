@@ -16,7 +16,8 @@ public final class CartesChaleur {
 
     /** Au-delà, le texte perdrait du contraste sur l'accent. */
     private static final int INTENSITE_MAX = 45;
-    private static final int[] ACCENT = { 0x39, 0x89, 0xc6 };
+
+    private static final int[] ACCENT = {0x39, 0x89, 0xc6};
     private static final int BLANC = 0xff;
 
     private CartesChaleur() {}
@@ -29,11 +30,16 @@ public final class CartesChaleur {
             for (CelluleAnalyseDTO cellule : ligne.cellules()) {
                 Double valeur = cellule == null ? null : cellule.valeur();
                 boolean vide = valeur == null || valeur == 0;
-                cases.add(new CaseChaleurDTO(vide ? "" : FormatRapport.formaterValeur(valeur, unite), melanger(vide ? 0 : valeur / maximum)));
+                cases.add(new CaseChaleurDTO(
+                        vide ? "" : FormatRapport.formaterValeur(valeur, unite),
+                        melanger(vide ? 0 : valeur / maximum)));
             }
             lignes.add(new LigneChaleurDTO(ligne.libelle(), cases));
         }
-        return new CarteChaleurRapportDTO(entete, croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList(), lignes);
+        return new CarteChaleurRapportDTO(
+                entete,
+                croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList(),
+                lignes);
     }
 
     private static double lireMaximum(CroiseAnalyseDTO croise) {

@@ -51,11 +51,17 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
 
         VenteDepot vente = em.find(VenteDepot.class, cree.getSaleId());
         assertNotNull(vente);
-        assertEquals(CategorieChiffreAffaire.CA_DEPOT, vente.getCategorieChiffreAffaire(), "hors chiffre d'affaires officine");
+        assertEquals(
+                CategorieChiffreAffaire.CA_DEPOT,
+                vente.getCategorieChiffreAffaire(),
+                "hors chiffre d'affaires officine");
         assertEquals(depot.getId(), vente.getDepot().getId());
         assertEquals(10_000, vente.getSalesAmount());
         assertEquals(10_000, vente.getAmountToBePaid());
-        assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()));
     }
 
     @Test
@@ -78,7 +84,8 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
         StockProduit stockDepot = stock(produit, depot.getPrimaryStorage().getId());
         assertNotNull(stockDepot, "la fiche de stock du dépôt est créée à la volée");
         assertEquals(30, stockDepot.getQtyStock());
-        verify(services.inventoryTransactionService).saveVenteDepotExtensionInventoryTransactions(any(Magasin.class), anyList());
+        verify(services.inventoryTransactionService)
+                .saveVenteDepotExtensionInventoryTransactions(any(Magasin.class), anyList());
     }
 
     @Test
@@ -88,7 +95,9 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
         Produit produit = produitEnStock("IBU 400", 700, 400, 0, 50);
         DepotExtensionSaleDTO cree = services.saleDepotExtensionService.create(venteDe(depot, produit, 5));
         viderLeCache();
-        em.createNativeQuery("UPDATE sales SET depot_id = NULL WHERE id = " + cree.getSaleId().getId()).executeUpdate();
+        em.createNativeQuery("UPDATE sales SET depot_id = NULL WHERE id = "
+                        + cree.getSaleId().getId())
+                .executeUpdate();
         viderLeCache();
 
         DepotExtensionSaleDTO cloture = clotureDe(cree.getSaleId());
@@ -106,7 +115,9 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
         services.saleDepotExtensionService.changeDepot(cree.getSaleId(), second.getId());
         viderLeCache();
 
-        assertEquals(second.getId(), em.find(VenteDepot.class, cree.getSaleId()).getDepot().getId());
+        assertEquals(
+                second.getId(),
+                em.find(VenteDepot.class, cree.getSaleId()).getDepot().getId());
     }
 
     @Test
@@ -161,10 +172,10 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
 
         assertTrue(em.find(VenteDepot.class, cree.getSaleId()).isCanceled());
         assertEquals(
-            -8_000,
-            compter("SELECT sales_amount FROM sales WHERE canceled_sale_id = " + cree.getSaleId().getId()),
-            "la contrepassation dépôt passe elle aussi la contrainte sur le montant déclarable"
-        );
+                -8_000,
+                compter("SELECT sales_amount FROM sales WHERE canceled_sale_id = "
+                        + cree.getSaleId().getId()),
+                "la contrepassation dépôt passe elle aussi la contrainte sur le montant déclarable");
     }
 
     @Test
@@ -178,8 +189,14 @@ class SaleDepotExtensionServiceIntegrationTest extends AbstractSaleIntegrationTe
         services.saleDepotExtensionService.deleteSalePrevente(cree.getSaleId());
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM sales WHERE id = " + cree.getSaleId().getId()));
-        assertEquals(0, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales WHERE id = "
+                        + cree.getSaleId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()));
     }
 
     // ===== outils =====

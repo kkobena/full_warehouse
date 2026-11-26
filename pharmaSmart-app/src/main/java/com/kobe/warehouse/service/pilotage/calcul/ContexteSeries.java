@@ -11,11 +11,10 @@ import java.util.List;
  * @param contreObjectif la référence est l'objectif (comparaison « Objectif »)
  */
 public record ContexteSeries(
-    TranchesSerie periode,
-    TranchesSerie reference,
-    Granularite granularite,
-    ObjectifsPeriode objectifs,
-    boolean contreObjectif,
-    List<MesuresPilotage> moisN1,
-    LocalDate aujourdhui
-) {}
+        TranchesSerie periode,
+        TranchesSerie reference,
+        Granularite granularite,
+        ObjectifsPeriode objectifs,
+        boolean contreObjectif,
+        List<MesuresPilotage> moisN1,
+        LocalDate aujourdhui) {}

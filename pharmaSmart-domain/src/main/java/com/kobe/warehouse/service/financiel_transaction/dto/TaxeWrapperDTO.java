@@ -17,8 +17,8 @@ public class TaxeWrapperDTO {
     private long montantTvaUg;
     private long amountToBeTakenIntoAccount;
     private long montantTtcUg;
-    private long tvaDeductible;   // TVA sur achats de la période
-    private long tvaNette;        // montantTaxe - tvaDeductible
+    private long tvaDeductible; // TVA sur achats de la période
+    private long tvaNette; // montantTaxe - tvaDeductible
     private List<TaxeDTO> taxes = new ArrayList<>();
     private DoughnutChart chart;
 

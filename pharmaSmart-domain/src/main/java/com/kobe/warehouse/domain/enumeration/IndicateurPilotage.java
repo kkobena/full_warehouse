@@ -28,73 +28,79 @@ public enum IndicateurPilotage {
     NB_VENTES("Nombre de ventes", "Ventes comptées dans le CA de l'officine.", NOMBRE, HAUSSE, PAGE),
     FREQUENTATION("Fréquentation", "Nombre de ventes par jour ouvré.", NOMBRE, HAUSSE, PAGE),
     PANIER_MOYEN("Panier moyen", "CA TTC divisé par le nombre de ventes.", MONTANT, HAUSSE, PAGE),
-    ARTICLES_PAR_VENTE("Articles par vente", "Quantités vendues divisées par le nombre de ventes.", NOMBRE, HAUSSE, PAGE),
+    ARTICLES_PAR_VENTE(
+            "Articles par vente", "Quantités vendues divisées par le nombre de ventes.", NOMBRE, HAUSSE, PAGE),
     PRIX_MOYEN_ARTICLE("Prix moyen d'un article", "CA TTC divisé par les quantités vendues.", MONTANT, NEUTRE, PAGE),
     QUANTITES_VENDUES("Quantités vendues", "Unités servies au comptoir.", NOMBRE, HAUSSE, PAGE),
     MARGE_BRUTE(
-        "Marge brute",
-        "CA HT moins le coût d'achat HT des quantités demandées.",
-        MONTANT,
-        HAUSSE,
-        RENTABILITE_REMISES
-    ),
-    TAUX_MARGE("Taux de marge", "Marge brute divisée par le CA HT ; sa variation se lit en points.", POURCENTAGE, HAUSSE, RENTABILITE_REMISES),
+            "Marge brute",
+            "CA HT moins le coût d'achat HT des quantités demandées.",
+            MONTANT,
+            HAUSSE,
+            RENTABILITE_REMISES),
+    TAUX_MARGE(
+            "Taux de marge",
+            "Marge brute divisée par le CA HT ; sa variation se lit en points.",
+            POURCENTAGE,
+            HAUSSE,
+            RENTABILITE_REMISES),
     COEFFICIENT_MOYEN(
-        "Coefficient moyen",
-        "CA HT divisé par le coût d'achat HT des quantités demandées.",
-        RATIO,
-        HAUSSE,
-        RENTABILITE_REMISES
-    ),
-    MARGE_PAR_VENTE("Marge par vente", "Marge brute divisée par le nombre de ventes.", MONTANT, HAUSSE, RENTABILITE_REMISES),
+            "Coefficient moyen",
+            "CA HT divisé par le coût d'achat HT des quantités demandées.",
+            RATIO,
+            HAUSSE,
+            RENTABILITE_REMISES),
+    MARGE_PAR_VENTE(
+            "Marge par vente", "Marge brute divisée par le nombre de ventes.", MONTANT, HAUSSE, RENTABILITE_REMISES),
     REMISES(
-        "Remises accordées",
-        "Total des remises produit accordées au comptoir, par privilège ou après autorisation.",
-        MONTANT,
-        BAISSE,
-        RENTABILITE_REMISES
-    ),
+            "Remises accordées",
+            "Total des remises produit accordées au comptoir, par privilège ou après autorisation.",
+            MONTANT,
+            BAISSE,
+            RENTABILITE_REMISES),
     TAUX_REMISE("Taux de remise", "Remises divisées par le CA TTC.", POURCENTAGE, BAISSE, RENTABILITE_REMISES),
     POIDS_REMISES_MARGE(
-        "Poids des remises dans la marge",
-        "Remises divisées par la marge qu'on aurait faite sans elles (marge brute + remises).",
-        POURCENTAGE,
-        BAISSE,
-        RENTABILITE_REMISES
-    ),
+            "Poids des remises dans la marge",
+            "Remises divisées par la marge qu'on aurait faite sans elles (marge brute + remises).",
+            POURCENTAGE,
+            BAISSE,
+            RENTABILITE_REMISES),
     ACHATS_TTC("Achats TTC", "Total TTC des commandes reçues, datées à la réception.", MONTANT, NEUTRE, ACHATS_STOCK),
     RATIO_VENTES_ACHATS("Ratio ventes / achats", "CA TTC divisé par les achats TTC.", RATIO, NEUTRE, ACHATS_STOCK),
-    ROTATION_STOCK("Rotation du stock", "Stock moyen divisé par le coût des ventes, en jours.", JOURS, BAISSE, ACHATS_STOCK),
+    ROTATION_STOCK(
+            "Rotation du stock", "Stock moyen divisé par le coût des ventes, en jours.", JOURS, BAISSE, ACHATS_STOCK),
     TAUX_RUPTURE_FOURNISSEUR(
-        "Taux de rupture fournisseurs",
-        "Lignes commandées non livrées par le fournisseur divisées par les lignes commandées.",
-        POURCENTAGE,
-        BAISSE,
-        ACHATS_STOCK
-    ),
+            "Taux de rupture fournisseurs",
+            "Lignes commandées non livrées par le fournisseur divisées par les lignes commandées.",
+            POURCENTAGE,
+            BAISSE,
+            ACHATS_STOCK),
     VENTES_MANQUEES(
-        "Ventes manquées",
-        "Valeur des quantités demandées au comptoir et non servies (avoirs clients).",
-        MONTANT,
-        BAISSE,
-        ACHATS_STOCK
-    ),
+            "Ventes manquées",
+            "Valeur des quantités demandées au comptoir et non servies (avoirs clients).",
+            MONTANT,
+            BAISSE,
+            ACHATS_STOCK),
     ENCAISSEMENTS(
-        "Encaissements",
-        "Règlements reçus des clients et des organismes (ventes, différés, factures tiers payant), tous modes ; arrondis de caisse à part.",
-        MONTANT,
-        HAUSSE,
-        TRESORERIE_TIERS_PAYANT
-    ),
-    PART_TIERS_PAYANT("Part tiers payant", "Part du CA TTC à la charge des organismes.", POURCENTAGE, NEUTRE, TRESORERIE_TIERS_PAYANT),
+            "Encaissements",
+            "Règlements reçus des clients et des organismes (ventes, différés, factures tiers payant), tous modes ; arrondis de caisse à part.",
+            MONTANT,
+            HAUSSE,
+            TRESORERIE_TIERS_PAYANT),
+    PART_TIERS_PAYANT(
+            "Part tiers payant",
+            "Part du CA TTC à la charge des organismes.",
+            POURCENTAGE,
+            NEUTRE,
+            TRESORERIE_TIERS_PAYANT),
     DELAI_PAIEMENT_TP(
-        "Délai de paiement des organismes",
-        "Créances tiers payant divisées par le CA tiers payant, en jours.",
-        JOURS,
-        BAISSE,
-        TRESORERIE_TIERS_PAYANT
-    ),
-    TAUX_ANNULATION("Taux d'annulation", "Ventes annulées divisées par les ventes.", POURCENTAGE, BAISSE, CLIENTS_EQUIPE);
+            "Délai de paiement des organismes",
+            "Créances tiers payant divisées par le CA tiers payant, en jours.",
+            JOURS,
+            BAISSE,
+            TRESORERIE_TIERS_PAYANT),
+    TAUX_ANNULATION(
+            "Taux d'annulation", "Ventes annulées divisées par les ventes.", POURCENTAGE, BAISSE, CLIENTS_EQUIPE);
 
     private final String libelle;
     private final String definition;
@@ -102,7 +108,12 @@ public enum IndicateurPilotage {
     private final SensFavorable sensFavorable;
     private final DroitPilotage droit;
 
-    IndicateurPilotage(String libelle, String definition, UniteIndicateur unite, SensFavorable sensFavorable, DroitPilotage droit) {
+    IndicateurPilotage(
+            String libelle,
+            String definition,
+            UniteIndicateur unite,
+            SensFavorable sensFavorable,
+            DroitPilotage droit) {
         this.libelle = libelle;
         this.definition = definition;
         this.unite = unite;
@@ -133,7 +144,8 @@ public enum IndicateurPilotage {
     /** Un indicateur additif se somme d'un élément à l'autre : il a une part du total et une contribution à l'écart. */
     public boolean estAdditif() {
         return switch (this) {
-            case CA_TTC, CA_HT, CA_NET, NB_VENTES, QUANTITES_VENDUES, MARGE_BRUTE, REMISES, ACHATS_TTC, ENCAISSEMENTS -> true;
+            case CA_TTC, CA_HT, CA_NET, NB_VENTES, QUANTITES_VENDUES, MARGE_BRUTE, REMISES, ACHATS_TTC, ENCAISSEMENTS ->
+                true;
             default -> false;
         };
     }

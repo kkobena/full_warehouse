@@ -1,5 +1,7 @@
 package com.kobe.warehouse.domain;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,16 +14,12 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
 import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.LastModifiedBy;
-
-import static java.util.Objects.isNull;
 
 /**
  * A StockProduit.
@@ -69,14 +67,16 @@ public class StockProduit implements Serializable {
 
     @Min(value = 0)
     @Column(name = "stock_reassort", comment = "Quantite de reassort pour la reconstitution de stock")
-    private Integer stockReassort = 0;// si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
-    // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors de l'entree en stock
+    private Integer stockReassort =
+            0; // si c'est un stock rayon, c'est la quantite à prendre du stock reserve pour reconstituer le stock rayon
+    // si c'est un stock reserve, c'est la quantite à prendre du stock principal pour reconstituer le stock reserve lors
+    // de l'entree en stock
 
     @Min(value = 0)
-    @Column(name = "seuil_mini", comment = "Seuil minimum de stock pour reassortiment automatique ou suggestion de commande")
+    @Column(
+            name = "seuil_mini",
+            comment = "Seuil minimum de stock pour reassortiment automatique ou suggestion de commande")
     private Integer seuilMini;
-
-
 
     @Formula("qty_ug+qty_stock")
     private Integer totalStockQuantity;
@@ -88,7 +88,6 @@ public class StockProduit implements Serializable {
     @LastModifiedBy
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy;
-
 
     @Column(name = "stock_maxi", comment = "Stock maximum en rayon pour la suggestion de reassort réserve")
     private Integer stockMaxi;
@@ -253,20 +252,20 @@ public class StockProduit implements Serializable {
     @Override
     public String toString() {
         return "StockProduit{"
-            + "id="
-            + getId()
-            + ", qtyStock="
-            + getQtyStock()
-            + ", qtyVirtual="
-            + getQtyVirtual()
-            + ", qtyUG="
-            + getQtyUG()
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", qtyStock="
+                + getQtyStock()
+                + ", qtyVirtual="
+                + getQtyVirtual()
+                + ", qtyUG="
+                + getQtyUG()
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "'"
+                + "}";
     }
 }

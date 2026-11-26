@@ -45,8 +45,7 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         BedDTO bon = services.bedService.createBed(
-            new BedDTO().setMotifBed(MotifBed.RETOUR_CLIENT).setCommentaireBed("retour d'un client")
-        );
+                new BedDTO().setMotifBed(MotifBed.RETOUR_CLIENT).setCommentaireBed("retour d'un client"));
         viderLeCache();
 
         assertNotNull(bon.getId());
@@ -54,9 +53,9 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(OrderStatut.REQUESTED, bon.getOrderStatus());
         assertEquals(MotifBed.RETOUR_CLIENT, bon.getMotifBed());
         assertTrue(
-            bon.getReceiptReference().startsWith("BED-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "-"),
-            "la référence porte la date du jour : " + bon.getReceiptReference()
-        );
+                bon.getReceiptReference()
+                        .startsWith("BED-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "-"),
+                "la référence porte la date du jour : " + bon.getReceiptReference());
 
         Commande relu = em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate()));
         assertEquals(TypeDeliveryReceipt.DIRECT, relu.getType(), "un bon d'entrée n'est pas une commande fournisseur");
@@ -69,9 +68,13 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
     void numerotationIncrementaleDansLaJournee() {
         viderLeCache();
 
-        String premier = services.bedService.createBed(new BedDTO().setMotifBed(MotifBed.ECHANTILLON)).getReceiptReference();
+        String premier = services.bedService
+                .createBed(new BedDTO().setMotifBed(MotifBed.ECHANTILLON))
+                .getReceiptReference();
         viderLeCache();
-        String second = services.bedService.createBed(new BedDTO().setMotifBed(MotifBed.ECHANTILLON)).getReceiptReference();
+        String second = services.bedService
+                .createBed(new BedDTO().setMotifBed(MotifBed.ECHANTILLON))
+                .getReceiptReference();
         viderLeCache();
 
         String prefixe = "BED-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "-";
@@ -94,15 +97,17 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         assertEquals(2, apresDeuxLignes.getLignes().size());
-        assertEquals(10_000, em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate())).getGrossAmount(), "10 × 600 + 4 × 1 000");
+        assertEquals(
+                10_000,
+                em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate()))
+                        .getGrossAmount(),
+                "10 × 600 + 4 × 1 000");
         assertEquals(2, compter("SELECT COUNT(*) FROM order_line WHERE commande_id = " + bon.getId()));
 
-        BedLigneDTO premiere = apresDeuxLignes
-            .getLignes()
-            .stream()
-            .filter(l -> l.getProduitId().equals(produit.getId()))
-            .findFirst()
-            .orElseThrow();
+        BedLigneDTO premiere = apresDeuxLignes.getLignes().stream()
+                .filter(l -> l.getProduitId().equals(produit.getId()))
+                .findFirst()
+                .orElseThrow();
         assertEquals(10, premiere.getQuantite());
         assertEquals(600, premiere.getPrixAchat());
         assertEquals(produit.getFournisseurProduitPrincipal().getCodeCip(), premiere.getCodeCip());
@@ -120,15 +125,17 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         services.bedService.updateLigne(
-            bon.getId(),
-            bon.getOrderDate(),
-            ligne.getId(),
-            ligne.getOrderDate(),
-            new BedLigneDTO().setQuantite(3).setPrixAchat(500)
-        );
+                bon.getId(),
+                bon.getOrderDate(),
+                ligne.getId(),
+                ligne.getOrderDate(),
+                new BedLigneDTO().setQuantite(3).setPrixAchat(500));
         viderLeCache();
 
-        assertEquals(1_500, em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate())).getGrossAmount());
+        assertEquals(
+                1_500,
+                em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate()))
+                        .getGrossAmount());
         assertEquals(3, compter("SELECT quantity_requested FROM order_line WHERE id = " + ligne.getId()));
         assertEquals(3, compter("SELECT quantity_received FROM order_line WHERE id = " + ligne.getId()));
     }
@@ -149,7 +156,10 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.bedService.removeLigne(bon.getId(), bon.getOrderDate(), aRetirer.getId(), aRetirer.getOrderDate());
         viderLeCache();
 
-        assertEquals(2_000, em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate())).getGrossAmount());
+        assertEquals(
+                2_000,
+                em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate()))
+                        .getGrossAmount());
         assertEquals(1, compter("SELECT COUNT(*) FROM order_line WHERE commande_id = " + bon.getId()));
     }
 
@@ -175,9 +185,9 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(12, compter("SELECT init_stock FROM order_line WHERE id = " + ligne.getId()));
         assertEquals(20, compter("SELECT final_stock FROM order_line WHERE id = " + ligne.getId()));
         assertEquals(
-            LocalDate.now(),
-            em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate())).getReceiptDate()
-        );
+                LocalDate.now(),
+                em.find(Commande.class, new CommandeId(bon.getId(), bon.getOrderDate()))
+                        .getReceiptDate());
     }
 
     @Test
@@ -198,26 +208,20 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         Integer ligneId = ligne.getId();
         LocalDate ligneDate = ligne.getOrderDate();
 
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.bedService.addLigne(bonId, date, new BedLigneDTO()))
+        assertTrue(assertThrows(GenericError.class, () -> services.bedService.addLigne(bonId, date, new BedLigneDTO()))
                 .getMessage()
-                .contains("ne peut plus être modifié")
-        );
+                .contains("ne peut plus être modifié"));
         assertTrue(
-            assertThrows(GenericError.class, () -> services.bedService.removeLigne(bonId, date, ligneId, ligneDate))
-                .getMessage()
-                .contains("ne peut plus être modifié")
-        );
+                assertThrows(GenericError.class, () -> services.bedService.removeLigne(bonId, date, ligneId, ligneDate))
+                        .getMessage()
+                        .contains("ne peut plus être modifié"));
         assertTrue(
-            assertThrows(GenericError.class, () -> services.bedService.validateBed(bonId, date, null, null, null))
+                assertThrows(GenericError.class, () -> services.bedService.validateBed(bonId, date, null, null, null))
+                        .getMessage()
+                        .contains("déjà validé"));
+        assertTrue(assertThrows(GenericError.class, () -> services.bedService.deleteBed(bonId, date))
                 .getMessage()
-                .contains("déjà validé")
-        );
-        assertTrue(
-            assertThrows(GenericError.class, () -> services.bedService.deleteBed(bonId, date))
-                .getMessage()
-                .contains("brouillon")
-        );
+                .contains("brouillon"));
     }
 
     @Test
@@ -226,14 +230,12 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         BedDTO bonVide = bonEnBrouillon();
         viderLeCache();
 
-        assertTrue(
-            assertThrows(
-                GenericError.class,
-                () -> services.bedService.validateBed(bonVide.getId(), bonVide.getOrderDate(), null, null, null)
-            )
+        assertTrue(assertThrows(
+                        GenericError.class,
+                        () -> services.bedService.validateBed(
+                                bonVide.getId(), bonVide.getOrderDate(), null, null, null))
                 .getMessage()
-                .contains("au moins une ligne")
-        );
+                .contains("au moins une ligne"));
 
         Produit produit = produitReference("SANS MOTIF");
         stock(produit, rayon, 5);
@@ -241,14 +243,12 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         services.bedService.addLigne(sansMotif.getId(), sansMotif.getOrderDate(), ligne(produit, 2, 600));
         viderLeCache();
 
-        assertTrue(
-            assertThrows(
-                GenericError.class,
-                () -> services.bedService.validateBed(sansMotif.getId(), sansMotif.getOrderDate(), null, null, null)
-            )
+        assertTrue(assertThrows(
+                        GenericError.class,
+                        () -> services.bedService.validateBed(
+                                sansMotif.getId(), sansMotif.getOrderDate(), null, null, null))
                 .getMessage()
-                .contains("motif est obligatoire")
-        );
+                .contains("motif est obligatoire"));
     }
 
     @Test
@@ -284,32 +284,34 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
         LocalDate lendemain = LocalDate.now().plusDays(1);
 
         assertEquals(
-            2,
-            services.bedService.findAll(null, null, null, veille, lendemain, PageRequest.of(0, 20)).getTotalElements(),
-            "seuls les bons d'entrée directe remontent, pas la commande fournisseur"
-        );
+                2,
+                services.bedService
+                        .findAll(null, null, null, veille, lendemain, PageRequest.of(0, 20))
+                        .getTotalElements(),
+                "seuls les bons d'entrée directe remontent, pas la commande fournisseur");
         assertEquals(
-            1,
-            services.bedService.findAll(null, MotifBed.ECHANTILLON, null, null, null, PageRequest.of(0, 20)).getTotalElements()
-        );
+                1,
+                services.bedService
+                        .findAll(null, MotifBed.ECHANTILLON, null, null, null, PageRequest.of(0, 20))
+                        .getTotalElements());
         assertEquals(
-            1,
-            services.bedService.findAll(null, null, OrderStatut.CLOSED, null, null, PageRequest.of(0, 20)).getTotalElements()
-        );
+                1,
+                services.bedService
+                        .findAll(null, null, OrderStatut.CLOSED, null, null, PageRequest.of(0, 20))
+                        .getTotalElements());
 
         BedSummaryDTO trouve = services.bedService
-            .findAll(echantillon.getReceiptReference(), null, null, null, null, PageRequest.of(0, 20))
-            .getContent()
-            .getFirst();
+                .findAll(echantillon.getReceiptReference(), null, null, null, null, PageRequest.of(0, 20))
+                .getContent()
+                .getFirst();
         assertEquals(echantillon.getId(), trouve.getId());
         assertEquals(MotifBed.ECHANTILLON, trouve.getMotifBed());
 
         assertTrue(
-            services.bedService
-                .findAll(null, null, null, veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
-                .isEmpty(),
-            "hors période, rien ne remonte"
-        );
+                services.bedService
+                        .findAll(null, null, null, veille.minusDays(30), veille.minusDays(10), PageRequest.of(0, 20))
+                        .isEmpty(),
+                "hors période, rien ne remonte");
     }
 
     // ===== fabriques du jeu d'essai propres aux bons d'entrée =====
@@ -328,9 +330,9 @@ class BedServiceIntegrationTest extends AbstractStockIntegrationTest {
     private BedLigneDTO ligne(Produit produit, int quantite, int prixAchat) {
         FournisseurProduit reference = produit.getFournisseurProduitPrincipal();
         return new BedLigneDTO()
-            .setFournisseurProduitId(reference.getId())
-            .setQuantite(quantite)
-            .setPrixAchat(prixAchat)
-            .setPrixVente(produit.getRegularUnitPrice());
+                .setFournisseurProduitId(reference.getId())
+                .setQuantite(quantite)
+                .setPrixAchat(prixAchat)
+                .setPrixVente(produit.getRegularUnitPrice());
     }
 }

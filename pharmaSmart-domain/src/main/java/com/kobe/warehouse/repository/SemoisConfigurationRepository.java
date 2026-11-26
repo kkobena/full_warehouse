@@ -2,6 +2,9 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,10 +12,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
- import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Repository pour SemoisConfiguration.
@@ -52,15 +51,14 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      */
     boolean existsByProduitIdAndMagasinId(Integer produitId, Integer magasinId);
 
-
     /**
      * Charge les configurations SEMOIS pour un lot de produits (évite les N+1 dans suggerer()).
      *
      * @param produitIds IDs des produits
      * @return Liste des configurations existantes (les produits sans config sont absents)
      */
-    List<SemoisConfiguration> findByProduitIdInAndMagasinId(java.util.Collection<Integer> produitIds, Integer magasinId);
-
+    List<SemoisConfiguration> findByProduitIdInAndMagasinId(
+            java.util.Collection<Integer> produitIds, Integer magasinId);
 
     /**
      * Recherche paginée de configurations SEMOIS avec filtres.
@@ -78,8 +76,7 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
           AND (:search IS NULL OR :search = '' OR
                LOWER(p.libelle) LIKE LOWER(CONCAT('%', :search, '%')) OR
                LOWER(p.codeEanLaboratoire) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY p.libelle ASC
-        """,
-        countQuery = """
+        """, countQuery = """
         SELECT COUNT(DISTINCT sc) FROM SemoisConfiguration sc
         JOIN sc.produit p
         WHERE (:classeCriticite IS NULL OR sc.classeCriticite = :classeCriticite)
@@ -88,12 +85,9 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
                LOWER(p.codeEanLaboratoire) LIKE LOWER(CONCAT('%', :search, '%')))
         """)
     Page<SemoisConfiguration> findAllWithFilters(
-        @Param("search") String search,
-        @Param("classeCriticite") ClasseCriticite classeCriticite,
-        Pageable pageable
-    );
-
-
+            @Param("search") String search,
+            @Param("classeCriticite") ClasseCriticite classeCriticite,
+            Pageable pageable);
 
     /**
      * Retourne toutes les configurations avec une exclusion encore active (NOW < date_fin).
@@ -116,8 +110,6 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
           AND NOW() < exclusion_date + (COALESCE(exclusion_duree_jours, 30) || ' days')::INTERVAL
         """, nativeQuery = true)
     long countExclusionsActives();
-
-
 
     /**
      * Réintègre en masse les exclusions expirées (met exclusion_date à NULL).

@@ -4,7 +4,6 @@
   @include modal-theme;
 }
 
-
 // ── Groupes de champs conditionnels ─────────────────────────────────────────
 .field-group {
   background: #f8f9fa;
@@ -29,7 +28,6 @@
     }
   }
 }
-
 
 ::ng-deep .category-option {
   display: flex;
@@ -83,4 +81,3 @@
     color: #adb5bd;
   }
 }
-

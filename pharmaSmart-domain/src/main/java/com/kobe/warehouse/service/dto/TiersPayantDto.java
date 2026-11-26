@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GroupeTiersPayant;
-import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
 import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
@@ -58,10 +57,11 @@ public class TiersPayantDto implements Serializable {
     @Max(100)
     private Integer tauxCouvertureDefaut;
 
-    private  Periodicite periodiciteFactureDefinitive;
-    private  Periodicite periodiciteFactureProvisoire;
-    private boolean inclureFacturationAutoDefinitive ;
-    private boolean inclureFacturationAutoProvisoire ;
+    private Periodicite periodiciteFactureDefinitive;
+    private Periodicite periodiciteFactureProvisoire;
+    private boolean inclureFacturationAutoDefinitive;
+    private boolean inclureFacturationAutoProvisoire;
+
     public TiersPayantDto() {}
 
     public OrdreTrisFacture getOrdreTrisFacture() {

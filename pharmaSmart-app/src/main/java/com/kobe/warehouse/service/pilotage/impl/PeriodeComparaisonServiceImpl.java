@@ -23,7 +23,9 @@ public class PeriodeComparaisonServiceImpl implements PeriodeComparaisonService 
     @Override
     public ComparaisonPeriodesDTO comparer(RequetePilotageDTO requete, LocalDate aujourdhui) {
         PeriodeDTO demandee = PeriodePilotage.verifier(requete.du(), requete.au());
-        boolean aDate = requete.aDate() && demandee.au().isAfter(aujourdhui) && !demandee.du().isAfter(aujourdhui);
+        boolean aDate = requete.aDate()
+                && demandee.au().isAfter(aujourdhui)
+                && !demandee.du().isAfter(aujourdhui);
         PeriodeDTO periode = aDate ? new PeriodeDTO(demandee.du(), aujourdhui) : demandee;
         return new ComparaisonPeriodesDTO(periode, calculerReference(requete, demandee, periode), aDate);
     }
@@ -52,7 +54,8 @@ public class PeriodeComparaisonServiceImpl implements PeriodeComparaisonService 
     }
 
     private static boolean estCaleeSurDesMois(PeriodeDTO periode) {
-        return periode.du().getDayOfMonth() == 1 && periode.au().equals(periode.au().withDayOfMonth(periode.au().lengthOfMonth()));
+        return periode.du().getDayOfMonth() == 1
+                && periode.au().equals(periode.au().withDayOfMonth(periode.au().lengthOfMonth()));
     }
 
     private static int verifierAnnees(int annees) {

@@ -37,39 +37,111 @@ public class ReconciliationFactureDTO {
         updatedAt = r.getUpdatedAt();
     }
 
-    public Integer getId() { return id; }
-    public ReconciliationFactureDTO setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getFactureReference() { return factureReference; }
-    public ReconciliationFactureDTO setFactureReference(String factureReference) { this.factureReference = factureReference; return this; }
+    public ReconciliationFactureDTO setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDate getFactureDate() { return factureDate; }
-    public ReconciliationFactureDTO setFactureDate(LocalDate factureDate) { this.factureDate = factureDate; return this; }
+    public String getFactureReference() {
+        return factureReference;
+    }
 
-    public Integer getFactureMontantHT() { return factureMontantHT; }
-    public ReconciliationFactureDTO setFactureMontantHT(Integer factureMontantHT) { this.factureMontantHT = factureMontantHT; return this; }
+    public ReconciliationFactureDTO setFactureReference(String factureReference) {
+        this.factureReference = factureReference;
+        return this;
+    }
 
-    public Integer getFactureTVA() { return factureTVA; }
-    public ReconciliationFactureDTO setFactureTVA(Integer factureTVA) { this.factureTVA = factureTVA; return this; }
+    public LocalDate getFactureDate() {
+        return factureDate;
+    }
 
-    public Integer getBlMontantHT() { return blMontantHT; }
-    public ReconciliationFactureDTO setBlMontantHT(Integer blMontantHT) { this.blMontantHT = blMontantHT; return this; }
+    public ReconciliationFactureDTO setFactureDate(LocalDate factureDate) {
+        this.factureDate = factureDate;
+        return this;
+    }
 
-    public Integer getBlTVA() { return blTVA; }
-    public ReconciliationFactureDTO setBlTVA(Integer blTVA) { this.blTVA = blTVA; return this; }
+    public Integer getFactureMontantHT() {
+        return factureMontantHT;
+    }
 
-    public Integer getEcartHT() { return ecartHT; }
-    public ReconciliationFactureDTO setEcartHT(Integer ecartHT) { this.ecartHT = ecartHT; return this; }
+    public ReconciliationFactureDTO setFactureMontantHT(Integer factureMontantHT) {
+        this.factureMontantHT = factureMontantHT;
+        return this;
+    }
 
-    public Integer getEcartTVA() { return ecartTVA; }
-    public ReconciliationFactureDTO setEcartTVA(Integer ecartTVA) { this.ecartTVA = ecartTVA; return this; }
+    public Integer getFactureTVA() {
+        return factureTVA;
+    }
 
-    public ReconciliationStatut getStatut() { return statut; }
-    public ReconciliationFactureDTO setStatut(ReconciliationStatut statut) { this.statut = statut; return this; }
+    public ReconciliationFactureDTO setFactureTVA(Integer factureTVA) {
+        this.factureTVA = factureTVA;
+        return this;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public ReconciliationFactureDTO setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+    public Integer getBlMontantHT() {
+        return blMontantHT;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public ReconciliationFactureDTO setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; return this; }
+    public ReconciliationFactureDTO setBlMontantHT(Integer blMontantHT) {
+        this.blMontantHT = blMontantHT;
+        return this;
+    }
+
+    public Integer getBlTVA() {
+        return blTVA;
+    }
+
+    public ReconciliationFactureDTO setBlTVA(Integer blTVA) {
+        this.blTVA = blTVA;
+        return this;
+    }
+
+    public Integer getEcartHT() {
+        return ecartHT;
+    }
+
+    public ReconciliationFactureDTO setEcartHT(Integer ecartHT) {
+        this.ecartHT = ecartHT;
+        return this;
+    }
+
+    public Integer getEcartTVA() {
+        return ecartTVA;
+    }
+
+    public ReconciliationFactureDTO setEcartTVA(Integer ecartTVA) {
+        this.ecartTVA = ecartTVA;
+        return this;
+    }
+
+    public ReconciliationStatut getStatut() {
+        return statut;
+    }
+
+    public ReconciliationFactureDTO setStatut(ReconciliationStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public ReconciliationFactureDTO setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public ReconciliationFactureDTO setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+        return this;
+    }
 }

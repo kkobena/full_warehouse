@@ -1,5 +1,6 @@
 <app-data-table
-  [selection]="selectedRows()" (selectionChange)="selectedRows.set($any($event))"
+  [selection]="selectedRows()"
+  (selectionChange)="selectedRows.set($any($event))"
   [loading]="loading()"
   [paginator]="true"
   [rowsPerPageOptions]="[10, 15, 20, 50]"
@@ -50,38 +51,29 @@
   </ng-template>
 
   <ng-template #body let-line let-rowIndex="rowIndex">
-    <tr
-      [class.ajust-row-in]="(line.qtyMvt ?? 0) >= 0"
-      [class.ajust-row-out]="(line.qtyMvt ?? 0) < 0"
-      class="pharma-row-hover"
-    >
-      <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+    <tr [class.ajust-row-in]="(line.qtyMvt ?? 0) >= 0" [class.ajust-row-out]="(line.qtyMvt ?? 0) < 0" class="pharma-row-hover">
       <td>
-        <app-badge
-          [icon]="directionIcon(line.qtyMvt)"
-          [label]="directionLabel(line.qtyMvt)"
-          [severity]="directionSeverity(line.qtyMvt)"
-        />
+        <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
       </td>
-      <td><span class="pharma-code">{{ line.codeCip }}</span></td>
-      <td><span class="pharma-entity-name">{{ line.produitLibelle }}</span></td>
+      <td>
+        <app-badge [icon]="directionIcon(line.qtyMvt)" [label]="directionLabel(line.qtyMvt)" [severity]="directionSeverity(line.qtyMvt)" />
+      </td>
+      <td>
+        <span class="pharma-code">{{ line.codeCip }}</span>
+      </td>
+      <td>
+        <span class="pharma-entity-name">{{ line.produitLibelle }}</span>
+      </td>
       <td class="text-right pharma-qty-value">{{ line.stockBefore | number }}</td>
 
       <!-- Quantité éditable inline -->
       <td class="text-right">
         <app-editable-cell>
           <ng-template #input>
-            <app-input-number
-              (ngModelChange)="onQtyChange(line, $event)"
-              [ngModel]="line.qtyMvt"
-            />
+            <app-input-number (ngModelChange)="onQtyChange(line, $event)" [ngModel]="line.qtyMvt" />
           </ng-template>
           <ng-template #output>
-            <span
-              [class.ajust-qty-in]="(line.qtyMvt ?? 0) >= 0"
-              [class.ajust-qty-out]="(line.qtyMvt ?? 0) < 0"
-              class="ajust-qty-cell"
-            >
+            <span [class.ajust-qty-in]="(line.qtyMvt ?? 0) >= 0" [class.ajust-qty-out]="(line.qtyMvt ?? 0) < 0" class="ajust-qty-cell">
               {{ (line.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ line.qtyMvt | number }}
             </span>
           </ng-template>
@@ -91,7 +83,8 @@
       <td class="text-right">
         <strong class="pharma-qty-value">{{ line.stockAfter | number }}</strong>
       </td>
-      <td><span class="pharma-entity-name text-truncate">{{ line.motifAjustementLibelle }}</span>
+      <td>
+        <span class="pharma-entity-name text-truncate">{{ line.motifAjustementLibelle }}</span>
       </td>
       <td class="text-right">
         <app-button
@@ -112,10 +105,8 @@
   <ng-template #emptymessage>
     <tr>
       <td class="text-center p-5 text-muted" colspan="10">
-        <i class="pi pi-inbox" style="font-size:2rem; opacity:.4"></i>
-        <div class="mt-2">Aucun produit ajouté — sélectionnez un produit dans le formulaire
-          ci-dessus
-        </div>
+        <i class="pi pi-inbox" style="font-size: 2rem; opacity: 0.4"></i>
+        <div class="mt-2">Aucun produit ajouté — sélectionnez un produit dans le formulaire ci-dessus</div>
       </td>
     </tr>
   </ng-template>

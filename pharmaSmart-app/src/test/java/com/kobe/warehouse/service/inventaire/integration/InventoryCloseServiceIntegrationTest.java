@@ -42,23 +42,22 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
 
         assertEquals(1, resultat.count());
         assertEquals(
-            7,
-            compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-                .formatted(produit.getId(), STORAGE_RAYON_ID)),
-            "le stock du rayon vaut désormais le comptage"
-        );
+                7,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RAYON_ID)),
+                "le stock du rayon vaut désormais le comptage");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d) AND mouvement_type = 'INVENTAIRE'"
-                .formatted(inventaire.getId())),
-            "le mouvement d'inventaire est journalisé"
-        );
+                1,
+                compter(
+                        "SELECT count(*) FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d) AND mouvement_type = 'INVENTAIRE'"
+                                .formatted(inventaire.getId())),
+                "le mouvement d'inventaire est journalisé");
         assertEquals(
-            -3,
-            compter("SELECT quantity FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d)"
-                .formatted(inventaire.getId())),
-            "le journal porte le delta signé, pas la quantité comptée"
-        );
+                -3,
+                compter(
+                        "SELECT quantity FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d)"
+                                .formatted(inventaire.getId())),
+                "le journal porte le delta signé, pas la quantité comptée");
     }
 
     @Test
@@ -73,7 +72,8 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
         services.inventoryCloseService.close(inventaire.getId());
         viderLeCache();
 
-        StoreInventory relu = services.storeInventoryRepository.findById(inventaire.getId()).orElseThrow();
+        StoreInventory relu =
+                services.storeInventoryRepository.findById(inventaire.getId()).orElseThrow();
         assertEquals(InventoryStatut.CLOSED, relu.getStatut());
         assertEquals(6_000L, relu.getInventoryValueCostBegin(), "10 × 600");
         assertEquals(4_200L, relu.getInventoryValueCostAfter(), "7 × 600");
@@ -95,13 +95,16 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
         viderLeCache();
 
         assertEquals(
-            10,
-            compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-                .formatted(produit.getId(), STORAGE_RAYON_ID)),
-            "le stock n'a pas bougé"
-        );
-        assertEquals(InventoryStatut.CREATE,
-            services.storeInventoryRepository.findById(inventaire.getId()).orElseThrow().getStatut());
+                10,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RAYON_ID)),
+                "le stock n'a pas bougé");
+        assertEquals(
+                InventoryStatut.CREATE,
+                services.storeInventoryRepository
+                        .findById(inventaire.getId())
+                        .orElseThrow()
+                        .getStatut());
     }
 
     @Test
@@ -120,11 +123,11 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
 
         assertEquals(0, seconde.count());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d)"
-                .formatted(inventaire.getId())),
-            "le mouvement n'est pas journalisé deux fois"
-        );
+                1,
+                compter(
+                        "SELECT count(*) FROM inventory_transaction WHERE entity_id IN (SELECT id FROM store_inventory_line WHERE store_inventory_id = %d)"
+                                .formatted(inventaire.getId())),
+                "le mouvement n'est pas journalisé deux fois");
         verify(services.eventPublisher).publishEvent(org.mockito.ArgumentMatchers.any(InventoryClosedEvent.class));
     }
 
@@ -141,10 +144,15 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
         services.inventoryCloseService.close(inventaire.getId());
         viderLeCache();
 
-        assertEquals(48, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-            .formatted(produit.getId(), STORAGE_RAYON_ID)));
-        assertEquals(0, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-            .formatted(produit.getId(), STORAGE_RESERVE_ID)), "la réserve est incluse dans le chiffre consolidé");
+        assertEquals(
+                48,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RAYON_ID)));
+        assertEquals(
+                0,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RESERVE_ID)),
+                "la réserve est incluse dans le chiffre consolidé");
     }
 
     @Test
@@ -160,8 +168,11 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
         services.inventoryCloseService.close(inventaire.getId());
         viderLeCache();
 
-        assertEquals(40, compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
-            .formatted(produit.getId(), STORAGE_RESERVE_ID)), "la réserve n'était pas dans le périmètre");
+        assertEquals(
+                40,
+                compter("SELECT qty_stock FROM stock_produit WHERE produit_id = %d AND storage_id = %d"
+                        .formatted(produit.getId(), STORAGE_RESERVE_ID)),
+                "la réserve n'était pas dans le périmètre");
     }
 
     @Test
@@ -231,6 +242,7 @@ class InventoryCloseServiceIntegrationTest extends AbstractInventaireIntegration
 
         assertThrows(InventoryException.class, () -> services.inventoryCloseService.close(inventaire.getId()));
 
-        verify(services.eventPublisher, never()).publishEvent(org.mockito.ArgumentMatchers.any(InventoryClosedEvent.class));
+        verify(services.eventPublisher, never())
+                .publishEvent(org.mockito.ArgumentMatchers.any(InventoryClosedEvent.class));
     }
 }

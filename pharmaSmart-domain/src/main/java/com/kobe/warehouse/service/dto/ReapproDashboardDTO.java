@@ -18,64 +18,60 @@ import java.util.List;
  */
 public record ReapproDashboardDTO(
 
-    /** Nombre total de produits actifs avec configuration SEMOIS (vmm > 0). */
-    long totalProduits,
+        /** Nombre total de produits actifs avec configuration SEMOIS (vmm > 0). */
+        long totalProduits,
 
-    /** Produits en rupture critique (stock &lt; marge de sécurité). */
-    long nbRupture,
+        /** Produits en rupture critique (stock &lt; marge de sécurité). */
+        long nbRupture,
 
-    /** Produits sous seuil : stock entre marge de sécurité et stock objectif. */
-    long nbSousSeuil,
+        /** Produits sous seuil : stock entre marge de sécurité et stock objectif. */
+        long nbSousSeuil,
 
-    /** Produits à stock optimal : stock entre objectif et 150 % de l'objectif. */
-    long nbOk,
+        /** Produits à stock optimal : stock entre objectif et 150 % de l'objectif. */
+        long nbOk,
 
-    /** Produits en surstock : stock &gt; 150 % du stock objectif. */
-    long nbSurstock,
+        /** Produits en surstock : stock &gt; 150 % du stock objectif. */
+        long nbSurstock,
 
-    /** Produits sans données de vente (vmm = 0) — nécessitent un paramétrage initial. */
-    long nbSansConfig,
+        /** Produits sans données de vente (vmm = 0) — nécessitent un paramétrage initial. */
+        long nbSansConfig,
 
-    /** Quantité totale à commander pour tous les produits en rupture (unités). */
-    long totalUnitesManquantes,
+        /** Quantité totale à commander pour tous les produits en rupture (unités). */
+        long totalUnitesManquantes,
 
-    /** Répartition par classe de criticité. */
-    List<ClasseBreakdown> parClasse,
+        /** Répartition par classe de criticité. */
+        List<ClasseBreakdown> parClasse,
 
-    /** Top 10 des produits les plus urgents (rupture), triés par taux de couverture croissant. */
-    List<TopUrgentDTO> topUrgents
-
-) {
+        /** Top 10 des produits les plus urgents (rupture), triés par taux de couverture croissant. */
+        List<TopUrgentDTO> topUrgents) {
 
     /**
      * Répartition des produits par classe de criticité SEMOIS.
      */
     public record ClasseBreakdown(
-        ClasseCriticite classeCriticite,
-        long nbProduits,
-        long nbRupture,
-        long nbSousSeuil,
-        long nbOk,
-        long nbSurstock
-    ) {}
+            ClasseCriticite classeCriticite,
+            long nbProduits,
+            long nbRupture,
+            long nbSousSeuil,
+            long nbOk,
+            long nbSurstock) {}
 
     /**
      * Produit urgent nécessitant une commande immédiate.
      */
     public record TopUrgentDTO(
-        Integer produitId,
-        String libelle,
-        String codeCip,
-        String fournisseurLibelle,
-        ClasseCriticite classeCriticite,
-        int vmm,
-        int margeSecurite,
-        int stockObjectif,
-        long stockActuel,
-        long quantiteACommander,
-        /** Taux de couverture en mois = stock_actuel / vmm. */
-        double tauxCouvertureMois
-    ) {}
+            Integer produitId,
+            String libelle,
+            String codeCip,
+            String fournisseurLibelle,
+            ClasseCriticite classeCriticite,
+            int vmm,
+            int margeSecurite,
+            int stockObjectif,
+            long stockActuel,
+            long quantiteACommander,
+            /** Taux de couverture en mois = stock_actuel / vmm. */
+            double tauxCouvertureMois) {}
 
     /** Pourcentage de produits OK sur le total configuré. */
     public double tauxOkPourcent() {
@@ -89,4 +85,3 @@ public record ReapproDashboardDTO(
         return (double) (nbRupture + nbSousSeuil) / totalProduits * 100.0;
     }
 }
-

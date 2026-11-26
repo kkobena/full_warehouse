@@ -1,28 +1,21 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
-import { HttpResponse } from "@angular/common/http";
-import { Router, RouterModule } from "@angular/router";
-import { IMagasin } from "../../shared/model";
-import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { AbilityService } from "../../core/auth/ability.service";
-import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { NotificationService } from "../../shared/services/notification.service";
-import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from "../../shared/ui";
+import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { IMagasin } from '../../shared/model';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AbilityService } from '../../core/auth/ability.service';
+import { NgbConfirmDialogService } from '../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../shared/services/notification.service';
+import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from '../../shared/ui';
 import { CardComponent } from 'app/shared/ui';
 @Component({
-  selector: "app-depot",
+  selector: 'app-depot',
 
-  imports: [CardComponent, 
-    RouterModule,
-    ButtonComponent,
-    DataTableComponent,
-    ToolbarComponent,
-    NgbTooltip,
-    IconFieldComponent
-  ],
-  templateUrl: "./depot.component.html",
+  imports: [CardComponent, RouterModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip, IconFieldComponent],
+  templateUrl: './depot.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./depot.component.scss"
+  styleUrl: './depot.component.scss',
 })
 export class DepotComponent implements OnInit {
   /**
@@ -35,11 +28,11 @@ export class DepotComponent implements OnInit {
   readonly navCode = input<string>('');
 
   protected readonly ability = inject(AbilityService);
-  protected readonly canNewVente = this.ability.canSignal("execute", "depot.liste-depots");
-  protected readonly canCreate = this.ability.canSignal("create", "depot.liste-depots");
-  protected readonly canEdit = this.ability.canSignal("edit", "depot.liste-depots");
-  protected readonly canDelete = this.ability.canSignal("delete", "depot.liste-depots");
-  protected readonly canReturn = this.ability.canSignal("access", "depot.retour-depot");
+  protected readonly canNewVente = this.ability.canSignal('execute', 'depot.liste-depots');
+  protected readonly canCreate = this.ability.canSignal('create', 'depot.liste-depots');
+  protected readonly canEdit = this.ability.canSignal('edit', 'depot.liste-depots');
+  protected readonly canDelete = this.ability.canSignal('delete', 'depot.liste-depots');
+  protected readonly canReturn = this.ability.canSignal('access', 'depot.retour-depot');
   protected readonly depots = signal<IMagasin[]>([]);
   protected readonly loading = signal(false);
   private magasinService = inject(MagasinService);
@@ -60,21 +53,21 @@ export class DepotComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.notificationService.error("Une erreur est survenue lors du chargement des dépôts.");
-      }
+        this.notificationService.error('Une erreur est survenue lors du chargement des dépôts.');
+      },
     });
   }
 
   onEdit(depot: IMagasin): void {
-    this.router.navigate(["/depot", depot.id, "edit"]);
+    this.router.navigate(['/depot', depot.id, 'edit']);
   }
 
   onCreate(): void {
-    this.router.navigate(["/depot", "new"]);
+    this.router.navigate(['/depot', 'new']);
   }
 
   onNewVente(): void {
-    this.router.navigate(["/sales-home", "vente-depot"]);
+    this.router.navigate(['/sales-home', 'vente-depot']);
   }
 
   onDelete(depot: IMagasin): void {
@@ -82,14 +75,14 @@ export class DepotComponent implements OnInit {
       () => {
         this.magasinService.delete(depot.id).subscribe({
           next: () => {
-            this.notificationService.success("Le dépôt a été supprimé avec succès.");
+            this.notificationService.success('Le dépôt a été supprimé avec succès.');
             this.loadAll();
-          }
+          },
         });
       },
-      "Suppression du dépôt",
-      "Etes-vous sûr de vouloir changer le dépôt ?",
-      null
+      'Suppression du dépôt',
+      'Etes-vous sûr de vouloir changer le dépôt ?',
+      null,
     );
   }
 }

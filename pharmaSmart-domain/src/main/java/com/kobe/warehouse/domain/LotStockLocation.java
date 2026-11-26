@@ -17,16 +17,14 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(
-    name = "lot_stock_location",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"lot_id", "storage_id"}),
-    indexes = {
-        @Index(columnList = "lot_id",     name = "idx_lsl_lot"),
-        @Index(columnList = "storage_id", name = "idx_lsl_storage"),
-    }
-)
+        name = "lot_stock_location",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"lot_id", "storage_id"}),
+        indexes = {
+            @Index(columnList = "lot_id", name = "idx_lsl_lot"),
+            @Index(columnList = "storage_id", name = "idx_lsl_storage"),
+        })
 public class LotStockLocation implements Serializable {
 
     @Serial
@@ -55,30 +53,47 @@ public class LotStockLocation implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-
     public LotStockLocation() {}
 
     public LotStockLocation(Lot lot, Storage storage, int qty) {
-        this.lot     = lot;
+        this.lot = lot;
         this.storage = storage;
-        this.qty     = qty;
+        this.qty = qty;
     }
 
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
+    public Lot getLot() {
+        return lot;
+    }
 
-    public Lot getLot() { return lot; }
-    public LotStockLocation setLot(Lot lot) { this.lot = lot; return this; }
+    public LotStockLocation setLot(Lot lot) {
+        this.lot = lot;
+        return this;
+    }
 
-    public Storage getStorage() { return storage; }
-    public LotStockLocation setStorage(Storage storage) { this.storage = storage; return this; }
+    public Storage getStorage() {
+        return storage;
+    }
 
-    public Integer getQty() { return qty; }
+    public LotStockLocation setStorage(Storage storage) {
+        this.storage = storage;
+        return this;
+    }
+
+    public Integer getQty() {
+        return qty;
+    }
+
     public LotStockLocation setQty(Integer qty) {
         this.qty = qty;
         this.updatedAt = LocalDateTime.now();
         return this;
     }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

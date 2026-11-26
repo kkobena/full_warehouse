@@ -42,12 +42,11 @@ public class StockReapproServiceImpl {
     private final ObjectMapper objectMapper;
 
     public StockReapproServiceImpl(
-        EntityManager entityManager,
-        AppConfigurationService appConfigurationService,
-        TransactionTemplate transactionTemplate,
-        SalesRepository salesRepository,
-        ObjectMapper objectMapper
-    ) {
+            EntityManager entityManager,
+            AppConfigurationService appConfigurationService,
+            TransactionTemplate transactionTemplate,
+            SalesRepository salesRepository,
+            ObjectMapper objectMapper) {
         this.entityManager = entityManager;
         this.appConfigurationService = appConfigurationService;
         this.transactionTemplate = transactionTemplate;
@@ -108,56 +107,53 @@ public class StockReapproServiceImpl {
      */
     private ModelReapprovisionnement getConfiguredModel() {
         return appConfigurationService
-            .findOneById(EntityConstant.APP_MODEL_REAPPRO)
-            .map(AppConfiguration::getValue)
-            .filter(StringUtils::isNotEmpty)
-            .map(value -> {
-                try {
-                    return ModelReapprovisionnement.valueOf(value);
-                } catch (IllegalArgumentException e) {
-                    log.warn("Modèle de réapprovisionnement invalide '{}', utilisation du modèle CLASSIQUE par défaut", value);
-                    return ModelReapprovisionnement.CLASSIQUE;
-                }
-            })
-            .orElse(ModelReapprovisionnement.CLASSIQUE);
+                .findOneById(EntityConstant.APP_MODEL_REAPPRO)
+                .map(AppConfiguration::getValue)
+                .filter(StringUtils::isNotEmpty)
+                .map(value -> {
+                    try {
+                        return ModelReapprovisionnement.valueOf(value);
+                    } catch (IllegalArgumentException e) {
+                        log.warn(
+                                "Modèle de réapprovisionnement invalide '{}', utilisation du modèle CLASSIQUE par défaut",
+                                value);
+                        return ModelReapprovisionnement.CLASSIQUE;
+                    }
+                })
+                .orElse(ModelReapprovisionnement.CLASSIQUE);
     }
 
     private void compute() {
         final LocalDate lastMonth = DateUtil.getLastMonthFromNow();
         final LocalDate threeMonthAgo = DateUtil.getNthLastMonthFromNow(3);
-        final int dailyNumberStock = Integer.parseInt(
-            appConfigurationService
+        final int dailyNumberStock = Integer.parseInt(appConfigurationService
                 .findOneById(EntityConstant.APP_DAY_STOCK)
                 .map(AppConfiguration::getValue)
-                .orElse(EntityConstant.APP_DAY_STOCK_DEFAULT_VALUE + "")
-        );
-        final int nbLimit = Integer.parseInt(
-            appConfigurationService
+                .orElse(EntityConstant.APP_DAY_STOCK_DEFAULT_VALUE + ""));
+        final int nbLimit = Integer.parseInt(appConfigurationService
                 .findOneById(EntityConstant.APP_LIMIT_NBR_DAY_REAPPRO)
                 .map(AppConfiguration::getValue)
-                .orElse(EntityConstant.APP_LIMIT_NBR_DAY_REAPPRO_DEFAULT_VALUE + "")
-        );
-        final double denominateur = Double.parseDouble(
-            appConfigurationService
+                .orElse(EntityConstant.APP_LIMIT_NBR_DAY_REAPPRO_DEFAULT_VALUE + ""));
+        final double denominateur = Double.parseDouble(appConfigurationService
                 .findOneById(EntityConstant.APP_DENOMINATEUR_REAPPRO)
                 .map(AppConfiguration::getValue)
-                .orElse(EntityConstant.APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE + "")
-        );
-        fetchProductAndQuantitySold(threeMonthAgo, lastMonth)
-            .parallelStream()
-            .forEach(tuple -> computeProduitQtyReappro(tuple, dailyNumberStock, nbLimit, denominateur));
+                .orElse(EntityConstant.APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE + ""));
+        fetchProductAndQuantitySold(threeMonthAgo, lastMonth).parallelStream()
+                .forEach(tuple -> computeProduitQtyReappro(tuple, dailyNumberStock, nbLimit, denominateur));
     }
 
     private List<ProduitQuantitySold> fetchProductAndQuantitySold(LocalDate threeMonthAgo, LocalDate lastMonth) {
         try {
-            return objectMapper.readValue(salesRepository.fetchProductQuantitySold(threeMonthAgo, lastMonth), new TypeReference<>() {});
+            return objectMapper.readValue(
+                    salesRepository.fetchProductQuantitySold(threeMonthAgo, lastMonth), new TypeReference<>() {});
         } catch (Exception e) {
             log.info(e.getMessage());
             return Collections.emptyList();
         }
     }
 
-    private void computeProduitQtyReappro(ProduitQuantitySold tuple, int dayStock, int delayReappro, double denominateurReappro) {
+    private void computeProduitQtyReappro(
+            ProduitQuantitySold tuple, int dayStock, int delayReappro, double denominateurReappro) {
         long id = tuple.id();
         int qtySold = tuple.qtySold();
         int itemQtySold = tuple.itemQtySold();
@@ -172,21 +168,19 @@ public class StockReapproServiceImpl {
     }
 
     private void updateProduit(long id, int seuilMin, int quantityReappro) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    CriteriaUpdate<Produit> update = cb.createCriteriaUpdate(Produit.class);
-                    Root<Produit> root = update.from(Produit.class);
-                    update.set(Produit_.qtyAppro, quantityReappro);
-                    update.set(Produit_.qtySeuilMini, seuilMin);
-                    update.set(Produit_.updatedAt, LocalDateTime.now());
-                    update.where(cb.equal(root.get(Produit_.id), id));
-                    entityManager.createQuery(update).executeUpdate();
-                }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                CriteriaUpdate<Produit> update = cb.createCriteriaUpdate(Produit.class);
+                Root<Produit> root = update.from(Produit.class);
+                update.set(Produit_.qtyAppro, quantityReappro);
+                update.set(Produit_.qtySeuilMini, seuilMin);
+                update.set(Produit_.updatedAt, LocalDateTime.now());
+                update.where(cb.equal(root.get(Produit_.id), id));
+                entityManager.createQuery(update).executeUpdate();
             }
-        );
+        });
     }
 
     private Optional<AppConfiguration> getLastReapproDate() {

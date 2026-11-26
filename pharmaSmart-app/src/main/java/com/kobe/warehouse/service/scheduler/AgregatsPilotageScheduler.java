@@ -24,6 +24,7 @@ public class AgregatsPilotageScheduler {
 
     /** Le double de l'intervalle par défaut : un passage manqué est rattrapé par le suivant. */
     private static final Duration FENETRE_ACTUALISATION = Duration.ofMinutes(30);
+
     private static final Duration FENETRE_RATTRAPAGE = Duration.ofDays(7);
 
     private final AgregatsPilotageService agregatsPilotageService;

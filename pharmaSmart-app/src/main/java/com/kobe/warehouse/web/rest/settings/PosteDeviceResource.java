@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.settings;
 
 import com.kobe.warehouse.domain.enumeration.DeviceType;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.settings.PosteDeviceService;
 import com.kobe.warehouse.service.settings.dto.PosteDeviceRecord;
 import com.kobe.warehouse.web.util.ResponseUtil;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/postes/{posteId}/devices")
@@ -32,38 +32,28 @@ public class PosteDeviceResource {
 
     @GetMapping
     public ResponseEntity<List<PosteDeviceRecord>> getAll(
-        @PathVariable Integer posteId,
-        @RequestParam(required = false) DeviceType type
-    ) {
+            @PathVariable Integer posteId, @RequestParam(required = false) DeviceType type) {
         List<PosteDeviceRecord> devices = type != null
-            ? posteDeviceService.findByPosteAndType(posteId, type)
-            : posteDeviceService.findByPoste(posteId);
+                ? posteDeviceService.findByPosteAndType(posteId, type)
+                : posteDeviceService.findByPoste(posteId);
         return ResponseEntity.ok(devices);
     }
 
     @GetMapping("/active")
     @NavAccessExempt("périphériques actifs du poste, lus par l'impression sur chaque poste")
-    public ResponseEntity<PosteDeviceRecord> getActive(
-        @PathVariable Integer posteId,
-        @RequestParam DeviceType type
-    ) {
+    public ResponseEntity<PosteDeviceRecord> getActive(@PathVariable Integer posteId, @RequestParam DeviceType type) {
         return ResponseUtil.wrapOrNotFound(posteDeviceService.findActiveDevice(posteId, type));
     }
 
     @PostMapping
     public ResponseEntity<PosteDeviceRecord> create(
-        @PathVariable Integer posteId,
-        @Valid @RequestBody PosteDeviceRecord record
-    ) {
+            @PathVariable Integer posteId, @Valid @RequestBody PosteDeviceRecord record) {
         return ResponseEntity.ok(posteDeviceService.save(record.withPosteId(posteId)));
     }
 
     @PutMapping("/{deviceId}")
     public ResponseEntity<PosteDeviceRecord> update(
-        @PathVariable Integer posteId,
-        @PathVariable Long deviceId,
-        @Valid @RequestBody PosteDeviceRecord record
-    ) {
+            @PathVariable Integer posteId, @PathVariable Long deviceId, @Valid @RequestBody PosteDeviceRecord record) {
         return ResponseEntity.ok(posteDeviceService.save(record.withIdAndPosteId(deviceId, posteId)));
     }
 
@@ -73,11 +63,9 @@ public class PosteDeviceResource {
         return ResponseEntity.ok().build();
     }
 
-
     @DeleteMapping("/{deviceId}")
     public ResponseEntity<Void> delete(@PathVariable Integer posteId, @PathVariable Long deviceId) {
         posteDeviceService.delete(deviceId);
         return ResponseEntity.noContent().build();
     }
 }
-

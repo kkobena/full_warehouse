@@ -23,12 +23,13 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final UserService userService;
+
     public TicketZReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        MailService mailService, UserService userService
-    ) {
-        super( storageService);
+            SpringTemplateEngine templateEngine,
+            StorageService storageService,
+            MailService mailService,
+            UserService userService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.mailService = mailService;
         this.userService = userService;
@@ -85,6 +86,6 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
     public void sentToEmail(TicketZ ticket, Pair periode) {
         String sendToEmail = userService.getUser().getMagasin().getEmail();
         buildContext(ticket, periode);
-        this.mailService.sendTicketZ(this.getTemplateAsHtml(),sendToEmail);
+        this.mailService.sendTicketZ(this.getTemplateAsHtml(), sendToEmail);
     }
 }

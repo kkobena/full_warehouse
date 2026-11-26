@@ -85,33 +85,42 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         LicenseService licenseService = mock(LicenseService.class);
         when(licenseService.hasFeature(any())).thenReturn(true);
         NavAccessService navAccess = new NavAccessService(
-            IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
-            IntegrationPostgresDatabase.bean(NavItemRepository.class),
-            userRepository,
-            licenseService,
-            new NoOpCacheManager()
-        );
+                IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
+                IntegrationPostgresDatabase.bean(NavItemRepository.class),
+                userRepository,
+                licenseService,
+                new NoOpCacheManager());
         UserService userService = mock(UserService.class);
-        when(userService.getUser()).thenAnswer(i -> userRepository.findOneByLogin(SecurityContextHolder.getContext().getAuthentication().getName()).orElse(null));
-        when(userService.getUserByPwdOrSecurityKey(anyString())).thenAnswer(i ->
-            userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex((String) i.getArgument(0)))
-        );
+        when(userService.getUser())
+                .thenAnswer(i -> userRepository
+                        .findOneByLogin(SecurityContextHolder.getContext()
+                                .getAuthentication()
+                                .getName())
+                        .orElse(null));
+        when(userService.getUserByPwdOrSecurityKey(anyString()))
+                .thenAnswer(i ->
+                        userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex((String) i.getArgument(0))));
         UtilisationCleSecuriteService cles = mock(UtilisationCleSecuriteService.class);
         NavItemRepository navItems = IntegrationPostgresDatabase.bean(NavItemRepository.class);
-        when(cles.hasPrivilege(anyString(), anyString())).thenAnswer(i -> navItems.existByCodeAndRoleName(i.getArgument(0), i.getArgument(1)));
+        when(cles.hasPrivilege(anyString(), anyString()))
+                .thenAnswer(i -> navItems.existByCodeAndRoleName(i.getArgument(0), i.getArgument(1)));
         DerogationAuthorizer authorizer = new DerogationAuthorizer(navAccess, userService, cles);
         SalesRepository sales = IntegrationPostgresDatabase.bean(SalesRepository.class);
 
-        limite = new LimiteCreditService(configuration, sales, IntegrationPostgresDatabase.bean(LimiteCreditDerogationRepository.class), authorizer);
+        limite = new LimiteCreditService(
+                configuration,
+                sales,
+                IntegrationPostgresDatabase.bean(LimiteCreditDerogationRepository.class),
+                authorizer);
         relance = new RelanceDiffereService(
-            IntegrationPostgresDatabase.bean(CustomerRepository.class),
-            sales,
-            IntegrationPostgresDatabase.bean(RelanceDiffereRepository.class),
-            sms,
-            configuration,
-            authorizer,
-            consentements = new ConsentementService(IntegrationPostgresDatabase.bean(CustomerConsentementRepository.class), em, authorizer)
-        );
+                IntegrationPostgresDatabase.bean(CustomerRepository.class),
+                sales,
+                IntegrationPostgresDatabase.bean(RelanceDiffereRepository.class),
+                sms,
+                configuration,
+                authorizer,
+                consentements = new ConsentementService(
+                        IntegrationPostgresDatabase.bean(CustomerConsentementRepository.class), em, authorizer));
         when(configuration.getDevise()).thenReturn("FCFA");
 
         caisse = caisseOuverte(0);
@@ -140,14 +149,17 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         when(configuration.getLimiteCreditClient()).thenReturn(10_000);
 
         assertThatThrownBy(() -> limite.controlerCloture(nouvelle))
-            .isInstanceOf(GenericError.class)
-            .satisfies(e -> {
-                GenericError erreur = (GenericError) e;
-                assertThat(erreur.getErrorKey()).isEqualTo(LimiteCreditService.ERROR_KEY);
-                @SuppressWarnings("unchecked")
-                Map<String, Object> payload = (Map<String, Object>) erreur.getPayload();
-                assertThat(payload).containsEntry("encours", 8_000L).containsEntry("montant", 3_000).containsEntry("limite", 10_000);
-            });
+                .isInstanceOf(GenericError.class)
+                .satisfies(e -> {
+                    GenericError erreur = (GenericError) e;
+                    assertThat(erreur.getErrorKey()).isEqualTo(LimiteCreditService.ERROR_KEY);
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> payload = (Map<String, Object>) erreur.getPayload();
+                    assertThat(payload)
+                            .containsEntry("encours", 8_000L)
+                            .containsEntry("montant", 3_000)
+                            .containsEntry("limite", 10_000);
+                });
     }
 
     @Test
@@ -159,7 +171,8 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         assertThatCode(() -> limite.controlerCloture(nouvelle)).doesNotThrowAnyException();
 
         when(configuration.getLimiteCreditClient()).thenReturn(1_000);
-        assertThatCode(() -> limite.controlerCloture(venteComptant(caisse, 50_000))).doesNotThrowAnyException();
+        assertThatCode(() -> limite.controlerCloture(venteComptant(caisse, 50_000)))
+                .doesNotThrowAnyException();
 
         when(configuration.getLimiteCreditClient()).thenReturn(0);
         assertThatCode(() -> limite.controlerCloture(nouvelle)).doesNotThrowAnyException();
@@ -173,7 +186,8 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         when(configuration.getLimiteCreditClient()).thenReturn(10_000);
         DerogationLimiteCreditDTO sansCle = demande(nouvelle, null);
 
-        assertThatThrownBy(() -> limite.deroger(client.getId(), sansCle)).isInstanceOf(ForbiddenOperationException.class);
+        assertThatThrownBy(() -> limite.deroger(client.getId(), sansCle))
+                .isInstanceOf(ForbiddenOperationException.class);
 
         limite.deroger(client.getId(), demande(nouvelle, CLE_PHARMACIEN));
         em.flush();
@@ -186,9 +200,9 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         CashSale nouvelle = venteDifferee(caisse, 3_000, 3_000, client, LocalDate.now());
         when(configuration.getLimiteCreditClient()).thenReturn(10_000);
         assertThatThrownBy(() -> limite.deroger(client.getId(), demande(nouvelle, CLE_PHARMACIEN)))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo("limiteCreditNonDepassee");
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("limiteCreditNonDepassee");
     }
 
     @Test
@@ -201,7 +215,9 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         assertThat(envoyee.montant()).isEqualTo(12_500);
         verify(sms).sendSms(eq("0700000030"), contains("12 500 FCFA"));
         em.flush();
-        assertThat(relance.historique(client.getId())).extracting(RelanceDiffereDTO::telephone).containsExactly("0700000030");
+        assertThat(relance.historique(client.getId()))
+                .extracting(RelanceDiffereDTO::telephone)
+                .containsExactly("0700000030");
     }
 
     @Test
@@ -210,8 +226,14 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         UninsuredCustomer sansTelephone = client(unique("CREDIT"), "Yao", null);
         venteDifferee(caisse, 5_000, 5_000, sansTelephone, LocalDate.now());
 
-        assertThatThrownBy(() -> relance.relancer(sansTelephone.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSansTelephone");
-        assertThatThrownBy(() -> relance.relancer(client.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSansEncours");
+        assertThatThrownBy(() -> relance.relancer(sansTelephone.getId()))
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("relanceSansTelephone");
+        assertThatThrownBy(() -> relance.relancer(client.getId()))
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("relanceSansEncours");
         verify(sms, never()).sendSms(anyString(), anyString());
     }
 
@@ -222,20 +244,26 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
 
         consentements.enregistrer(client.getId(), CanalConsentement.SMS, false);
         em.flush();
-        assertThatThrownBy(() -> relance.relancer(client.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSmsRefuse");
+        assertThatThrownBy(() -> relance.relancer(client.getId()))
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("relanceSmsRefuse");
         verify(sms, never()).sendSms(anyString(), anyString());
 
         consentements.enregistrer(client.getId(), CanalConsentement.SMS, true);
         em.flush();
         relance.relancer(client.getId());
         verify(sms).sendSms(eq("0700000030"), anyString());
-        assertThat(consentements.historique(client.getId())).extracting(ConsentementDTO::accorde).containsExactly(true, false);
+        assertThat(consentements.historique(client.getId()))
+                .extracting(ConsentementDTO::accorde)
+                .containsExactly(true, false);
     }
 
     // ===== fixtures =====
 
     private static DerogationLimiteCreditDTO demande(CashSale vente, String cle) {
-        return new DerogationLimiteCreditDTO(vente.getId().getId(), vente.getSaleDate(), vente.getRestToPay(), "client régulier", cle);
+        return new DerogationLimiteCreditDTO(
+                vente.getId().getId(), vente.getSaleDate(), vente.getRestToPay(), "client régulier", cle);
     }
 
     private AppUser utilisateur(String role, String cle) {
@@ -245,22 +273,24 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         user.setActivated(true);
         user.setLangKey("fr");
         user.setMagasin(em.find(Magasin.class, MAGASIN_ID));
-        user.setAuthorities(Set.of(role).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
+        user.setAuthorities(
+                Set.of(role).stream().map(r -> em.find(Authority.class, r)).collect(Collectors.toSet()));
         em.persist(user);
         em.flush();
         if (cle != null) {
-            // Posée en SQL, comme le jeu de démonstration : l'entité valide la saisie (chiffres), la base garde son empreinte.
-            em
-                .createNativeQuery("UPDATE app_user SET action_authority_key = :cle WHERE id = :id")
-                .setParameter("cle", DigestUtils.sha256Hex(cle))
-                .setParameter("id", user.getId())
-                .executeUpdate();
+            // Posée en SQL, comme le jeu de démonstration : l'entité valide la saisie (chiffres), la base garde son
+            // empreinte.
+            em.createNativeQuery("UPDATE app_user SET action_authority_key = :cle WHERE id = :id")
+                    .setParameter("cle", DigestUtils.sha256Hex(cle))
+                    .setParameter("id", user.getId())
+                    .executeUpdate();
             em.refresh(user);
         }
         return user;
     }
 
     private static void connecter(AppUser user) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(user.getLogin(), null, List.of()));
     }
 }

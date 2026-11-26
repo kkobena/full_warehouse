@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CashFlowBfrRepository {
 
     private static final String STOCK_VALUE_SQL =
-        "SELECT COALESCE(SUM(total_purchase_value), 0) FROM mv_stock_valuation WHERE magasin_id = :magasinId";
+            "SELECT COALESCE(SUM(total_purchase_value), 0) FROM mv_stock_valuation WHERE magasin_id = :magasinId";
 
     private static final String CREANCE_TP_SQL = """
         SELECT COALESCE(SUM(tpsl.montant - COALESCE(tpsl.montant_regle, 0)), 0)
@@ -64,38 +64,37 @@ public class CashFlowBfrRepository {
         """;
 
     // Monthly TP invoices + supplier purchases for the rolling 12-month chart
-    private static final String EVOLUTION_SQL =
-        "WITH months AS (" +
-        "  SELECT DATE_TRUNC('month', CURRENT_DATE - make_interval(months => gs::int)) AS month_start" +
-        "  FROM generate_series(0, 11) gs" +
-        ")," +
-        "creances_by_month AS (" +
-        "  SELECT DATE_TRUNC('month', f.invoice_date) AS month_start," +
-        "    SUM(CAST(f.montant_net AS bigint)) AS creances_emises" +
-        "  FROM facture_tiers_payant f" +
-        "  WHERE f.groupe_facture_tiers_payant_id IS NULL" +
-        "    AND f.invoice_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'" +
-        "    AND f.invoice_date <= CURRENT_DATE" +
-        "  GROUP BY DATE_TRUNC('month', f.invoice_date)" +
-        ")," +
-        "achats_by_month AS (" +
-        "  SELECT DATE_TRUNC('month', c.receipt_date) AS month_start," +
-        "    SUM(c.final_amount) AS achats_recus" +
-        "  FROM commande c" +
-        "  WHERE c.order_status = 'CLOSED'" +
-        "    AND c.receipt_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'" +
-        "    AND c.receipt_date <= CURRENT_DATE" +
-        "  GROUP BY DATE_TRUNC('month', c.receipt_date)" +
-        ")" +
-        " SELECT" +
-        "   CAST(EXTRACT(YEAR FROM m.month_start) AS int) AS yr," +
-        "   CAST(EXTRACT(MONTH FROM m.month_start) AS int) AS mo," +
-        "   COALESCE(cm.creances_emises, 0) AS creances_emises," +
-        "   COALESCE(am.achats_recus, 0) AS achats_recus" +
-        " FROM months m" +
-        " LEFT JOIN creances_by_month cm ON cm.month_start = m.month_start" +
-        " LEFT JOIN achats_by_month am ON am.month_start = m.month_start" +
-        " ORDER BY yr, mo";
+    private static final String EVOLUTION_SQL = "WITH months AS ("
+            + "  SELECT DATE_TRUNC('month', CURRENT_DATE - make_interval(months => gs::int)) AS month_start"
+            + "  FROM generate_series(0, 11) gs"
+            + "),"
+            + "creances_by_month AS ("
+            + "  SELECT DATE_TRUNC('month', f.invoice_date) AS month_start,"
+            + "    SUM(CAST(f.montant_net AS bigint)) AS creances_emises"
+            + "  FROM facture_tiers_payant f"
+            + "  WHERE f.groupe_facture_tiers_payant_id IS NULL"
+            + "    AND f.invoice_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'"
+            + "    AND f.invoice_date <= CURRENT_DATE"
+            + "  GROUP BY DATE_TRUNC('month', f.invoice_date)"
+            + "),"
+            + "achats_by_month AS ("
+            + "  SELECT DATE_TRUNC('month', c.receipt_date) AS month_start,"
+            + "    SUM(c.final_amount) AS achats_recus"
+            + "  FROM commande c"
+            + "  WHERE c.order_status = 'CLOSED'"
+            + "    AND c.receipt_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'"
+            + "    AND c.receipt_date <= CURRENT_DATE"
+            + "  GROUP BY DATE_TRUNC('month', c.receipt_date)"
+            + ")"
+            + " SELECT"
+            + "   CAST(EXTRACT(YEAR FROM m.month_start) AS int) AS yr,"
+            + "   CAST(EXTRACT(MONTH FROM m.month_start) AS int) AS mo,"
+            + "   COALESCE(cm.creances_emises, 0) AS creances_emises,"
+            + "   COALESCE(am.achats_recus, 0) AS achats_recus"
+            + " FROM months m"
+            + " LEFT JOIN creances_by_month cm ON cm.month_start = m.month_start"
+            + " LEFT JOIN achats_by_month am ON am.month_start = m.month_start"
+            + " ORDER BY yr, mo";
 
     private final EntityManager entityManager;
 
@@ -104,9 +103,10 @@ public class CashFlowBfrRepository {
     }
 
     public long getStockValue(Integer magasinId) {
-        Object result = entityManager.createNativeQuery(STOCK_VALUE_SQL)
-            .setParameter("magasinId", magasinId)
-            .getSingleResult();
+        Object result = entityManager
+                .createNativeQuery(STOCK_VALUE_SQL)
+                .setParameter("magasinId", magasinId)
+                .getSingleResult();
         return result != null ? ((Number) result).longValue() : 0L;
     }
 

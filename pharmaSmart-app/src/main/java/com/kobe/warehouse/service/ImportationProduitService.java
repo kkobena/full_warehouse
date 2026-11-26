@@ -23,6 +23,7 @@ import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
+import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.StatutLegal;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.repository.FamilleProduitRepository;
@@ -43,10 +44,9 @@ import com.kobe.warehouse.service.dto.InstallationDataDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.TypeImportationProduit;
-import com.kobe.warehouse.service.stock.BedService;
-import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stock.BedService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -106,23 +106,22 @@ public class ImportationProduitService {
     private final Path fileStorageLocation;
 
     public ImportationProduitService(
-        TransactionTemplate transactionTemplate,
-        FamilleProduitRepository familleProduitRepository,
-        RayonRepository rayonRepository,
-        TvaRepository tvaRepository,
-        FournisseurRepository fournisseurRepository,
-        GammeProduitRepository gammeProduitRepository,
-        LaboratoireRepository laboratoireRepository,
-        FormProduitRepository formProduitRepository,
-        ProduitRepository produitRepository,
-        StorageService storageService,
-        StockProduitRepository stockProduitRepository,
-        FournisseurProduitRepository fournisseurProduitRepository,
-        ImportationRepository importationRepository,
-        TableauRepository tableauRepository,
-        BedService bedService,
-        FileStorageProperties fileStorageProperties
-    ) {
+            TransactionTemplate transactionTemplate,
+            FamilleProduitRepository familleProduitRepository,
+            RayonRepository rayonRepository,
+            TvaRepository tvaRepository,
+            FournisseurRepository fournisseurRepository,
+            GammeProduitRepository gammeProduitRepository,
+            LaboratoireRepository laboratoireRepository,
+            FormProduitRepository formProduitRepository,
+            ProduitRepository produitRepository,
+            StorageService storageService,
+            StockProduitRepository stockProduitRepository,
+            FournisseurProduitRepository fournisseurProduitRepository,
+            ImportationRepository importationRepository,
+            TableauRepository tableauRepository,
+            BedService bedService,
+            FileStorageProperties fileStorageProperties) {
         this.familleProduitRepository = familleProduitRepository;
         this.rayonRepository = rayonRepository;
         this.tvaRepository = tvaRepository;
@@ -138,12 +137,15 @@ public class ImportationProduitService {
         this.storageService = storageService;
         this.tableauRepository = tableauRepository;
         this.bedService = bedService;
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir() + "/installation/rejets").toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir() + "/installation/rejets")
+                .toAbsolutePath()
+                .normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (IOException ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+            throw new FileStorageException(
+                    "Could not create the directory where the uploaded files will be stored.", ex);
         }
     }
 
@@ -173,33 +175,35 @@ public class ImportationProduitService {
     void processImportation(final ProduitDTO p, Storage storage, AtomicInteger errorSize, AtomicInteger size) {
         transactionTemplate.executeWithoutResult(status -> {
             try {
-                        StockProduit stockProduit = buidStockProduit(p, storage);
-                        Produit produit = buildProduit(p);
-                        produit.setRayonProduits(Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produit)));
-                        produit = produitRepository.save(produit);
-                        stockProduit.setProduit(produit);
-                        stockProduitRepository.save(stockProduit);
-                        for (FournisseurProduitDTO d : p.getFournisseurProduits()) {
-                            FournisseurProduit fournisseurProduit = buildFournisseurProduit(d);
-                            fournisseurProduit.setProduit(produit);
-                            produit.addFournisseurProduit(fournisseurProduit);
-                            fournisseurProduitRepository.save(fournisseurProduit);
-                        }
-                        if (!p.getProduits().isEmpty()) {
-                            ProduitDTO detail = p.getProduits().getFirst();
-                            Produit produitDetail = buildDeatilProduit(detail, produit);
-                            produitDetail.setRayonProduits(Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produitDetail)));
-                            StockProduit stockProduitDetail = buidStockProduit(detail, storage);
-                            produitDetail = produitRepository.save(produitDetail);
-                            stockProduitDetail.setProduit(produitDetail);
-                            stockProduitRepository.save(stockProduitDetail);
-                            for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
-                                FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(d);
-                                fournisseurProduitDetail.setProduit(produitDetail);
-                                fournisseurProduitRepository.save(fournisseurProduitDetail);
-                            }
-                        }
-                        size.incrementAndGet();
+                StockProduit stockProduit = buidStockProduit(p, storage);
+                Produit produit = buildProduit(p);
+                produit.setRayonProduits(
+                        Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produit)));
+                produit = produitRepository.save(produit);
+                stockProduit.setProduit(produit);
+                stockProduitRepository.save(stockProduit);
+                for (FournisseurProduitDTO d : p.getFournisseurProduits()) {
+                    FournisseurProduit fournisseurProduit = buildFournisseurProduit(d);
+                    fournisseurProduit.setProduit(produit);
+                    produit.addFournisseurProduit(fournisseurProduit);
+                    fournisseurProduitRepository.save(fournisseurProduit);
+                }
+                if (!p.getProduits().isEmpty()) {
+                    ProduitDTO detail = p.getProduits().getFirst();
+                    Produit produitDetail = buildDeatilProduit(detail, produit);
+                    produitDetail.setRayonProduits(
+                            Set.of(fromRayonCode(p.getRayonLibelle(), storage).setProduit(produitDetail)));
+                    StockProduit stockProduitDetail = buidStockProduit(detail, storage);
+                    produitDetail = produitRepository.save(produitDetail);
+                    stockProduitDetail.setProduit(produitDetail);
+                    stockProduitRepository.save(stockProduitDetail);
+                    for (FournisseurProduitDTO d : detail.getFournisseurProduits()) {
+                        FournisseurProduit fournisseurProduitDetail = buildFournisseurProduit(d);
+                        fournisseurProduitDetail.setProduit(produitDetail);
+                        fournisseurProduitRepository.save(fournisseurProduitDetail);
+                    }
+                }
+                size.incrementAndGet();
             } catch (Exception e) {
                 log.error(null, e);
                 errorSize.incrementAndGet();
@@ -236,11 +240,9 @@ public class ImportationProduitService {
     private RayonProduit fromRayonCode(String code, Storage storage) {
         Optional<Rayon> optionalRayon = rayonRepository.findFirstByCodeAndStorageId(code, storage.getId());
         return new RayonProduit()
-            .setRayon(
-                optionalRayon.orElse(
-                    rayonRepository.findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId()).orElse(null)
-                )
-            );
+                .setRayon(optionalRayon.orElse(rayonRepository
+                        .findFirstByLibelleAndStorageId(EntityConstant.SANS_EMPLACEMENT_LIBELLE, storage.getId())
+                        .orElse(null)));
     }
 
     private Produit buildProduit(ProduitDTO produitDTO) {
@@ -264,17 +266,25 @@ public class ImportationProduitService {
             tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux()).ifPresent(produit::setTva);
         }
         if (StringUtils.isNotEmpty(produitDTO.getLaboratoireLibelle())) {
-            laboratoireRepository.findFirstByLibelleEquals(produitDTO.getLaboratoireLibelle()).ifPresent(produit::setLaboratoire);
+            laboratoireRepository
+                    .findFirstByLibelleEquals(produitDTO.getLaboratoireLibelle())
+                    .ifPresent(produit::setLaboratoire);
         }
         if (StringUtils.isNotEmpty(produitDTO.getFamilleLibelle())) {
-            familleProduitRepository.findFirstByLibelleEquals(produitDTO.getFamilleLibelle()).ifPresent(produit::setFamille);
+            familleProduitRepository
+                    .findFirstByLibelleEquals(produitDTO.getFamilleLibelle())
+                    .ifPresent(produit::setFamille);
         }
         if (StringUtils.isNotEmpty(produitDTO.getGammeLibelle())) {
-            gammeProduitRepository.findFirstByLibelleEquals(produitDTO.getGammeLibelle()).ifPresent(produit::setGamme);
+            gammeProduitRepository
+                    .findFirstByLibelleEquals(produitDTO.getGammeLibelle())
+                    .ifPresent(produit::setGamme);
         }
 
         if (StringUtils.isNotEmpty(produitDTO.getFormeLibelle())) {
-            formProduitRepository.findFirstByLibelleEquals(produitDTO.getFormeLibelle()).ifPresent(produit::setForme);
+            formProduitRepository
+                    .findFirstByLibelleEquals(produitDTO.getFormeLibelle())
+                    .ifPresent(produit::setForme);
         }
 
         return produit;
@@ -282,17 +292,19 @@ public class ImportationProduitService {
 
     private StockProduit buidStockProduit(ProduitDTO p, Storage storage) {
         return new StockProduit()
-            .qtyStock(p.getTotalQuantity())
-            .qtyUG(p.getQtyUG())
-            .qtyVirtual(p.getTotalQuantity())
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .setStorage(storage);
+                .qtyStock(p.getTotalQuantity())
+                .qtyUG(p.getQtyUG())
+                .qtyVirtual(p.getTotalQuantity())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .setStorage(storage);
     }
 
     private FournisseurProduit buildFournisseurProduit(FournisseurProduitDTO p) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
-        fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).orElse(null));
+        fournisseurProduit.setFournisseur(fournisseurRepository
+                .findFirstByLibelleEquals(p.getFournisseurLibelle())
+                .orElse(null));
         fournisseurProduit.setPrixUni(p.getPrixUni());
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
         fournisseurProduit.setCodeCip(p.getCodeCip());
@@ -322,15 +334,13 @@ public class ImportationProduitService {
         transactionTemplate.executeWithoutResult(status -> {
             try {
                 Importation importation = importationRepository.findFirstByImportationTypeOrderByCreatedDesc(
-                    ImportationType.STOCK_PRODUIT
-                );
+                        ImportationType.STOCK_PRODUIT);
                 if (importation != null) {
                     importation.setUpdated(LocalDateTime.now());
                     importation.setSize(size);
                     importation.setErrorSize(errorSize);
                     importation.setImportationStatus(
-                        errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED
-                    );
+                            errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
                     importationRepository.save(importation);
                 }
             } catch (Exception e) {
@@ -345,7 +355,9 @@ public class ImportationProduitService {
 
     @Transactional
     public ResponseDTO installNewOfficine(InputStream inputStream, InstallationDataDTO installationData) {
-        Fournisseur fournisseur = fournisseurRepository.findById(installationData.getFournisseurId()).orElse(null);
+        Fournisseur fournisseur = fournisseurRepository
+                .findById(installationData.getFournisseurId())
+                .orElse(null);
         return switch (installationData.getTypeImportation()) {
             case NOUVELLE_INSTALLATION -> faireNouvelleInstallation(inputStream, fournisseur);
             case BASCULEMENT -> faireBasculement(inputStream, fournisseur);
@@ -356,19 +368,22 @@ public class ImportationProduitService {
     private ResponseDTO faireNouvelleInstallation(InputStream inputStream, Fournisseur fournisseur) {
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
         Storage storage = storageService.getDefaultMagasinMainStorage();
-        Rayon rayon = rayonRepository.findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId()).orElseThrow();
+        Rayon rayon = rayonRepository
+                .findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId())
+                .orElseThrow();
         AtomicInteger count = new AtomicInteger();
         List<Record> errorList = new ArrayList<>();
         AtomicInteger errorSize = new AtomicInteger();
         FamilleProduit familleProduit = findFamilleProduit(DEFAULT_CODE_FAMILLE);
 
-        Map<String, Integer> tableauCode =
-            this.tableauRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
+        Map<String, Integer> tableauCode = this.tableauRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         ResponseDTO response = new ResponseDTO();
-        Map<Integer, Integer> codeTvaMap =
-            this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
+        Map<Integer, Integer> codeTvaMap = this.tvaRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> transactionTemplate.executeWithoutResult(status -> {
                 Record[] produitRecordRef = {null};
                 try {
@@ -385,33 +400,32 @@ public class ImportationProduitService {
                     }
                     var tab = record.get(6);
                     produitRecordRef[0] = new Record(
-                        org.springframework.util.StringUtils.hasText(tab) ? tableauCode.get(tab) : null,
-                        cip,
-                        cip.length() > 8 ? cip : null,
-                        record.get(1),
-                        familleProduit.getId(),
-                        rayon.getId(),
-                        null,
-                        fournisseur.getId(),
-                        Integer.parseInt(record.get(3)),
-                        Integer.parseInt(record.get(2)),
-                        Integer.parseInt(record.get(4)),
-                        tvaId,
-                        1,
-                        1,
-                        null,
-                        null,
-                        null,
-                        null,
-                        0,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TypeImportationProduit.NOUVELLE_INSTALLATION
-                    );
+                            org.springframework.util.StringUtils.hasText(tab) ? tableauCode.get(tab) : null,
+                            cip,
+                            cip.length() > 8 ? cip : null,
+                            record.get(1),
+                            familleProduit.getId(),
+                            rayon.getId(),
+                            null,
+                            fournisseur.getId(),
+                            Integer.parseInt(record.get(3)),
+                            Integer.parseInt(record.get(2)),
+                            Integer.parseInt(record.get(4)),
+                            tvaId,
+                            1,
+                            1,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            TypeImportationProduit.NOUVELLE_INSTALLATION);
                     saveRecord(produitRecordRef[0], storage);
                     count.incrementAndGet();
                 } catch (Exception e) {
@@ -432,24 +446,25 @@ public class ImportationProduitService {
     private ResponseDTO faireBasculement(InputStream inputStream, Fournisseur fournisseur) {
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
         Storage storage = storageService.getDefaultMagasinMainStorage();
-        Rayon rayon = rayonRepository.findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId()).orElseThrow();
+        Rayon rayon = rayonRepository
+                .findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId())
+                .orElseThrow();
         ResponseDTO response = new ResponseDTO();
         List<Record> errorList = new ArrayList<>();
         List<BedImportLigneDTO> bedLignes = new ArrayList<>();
         AtomicInteger errorSize = new AtomicInteger();
         Integer defaultRayonId = rayon.getId();
-        Map<String, Integer> rayonCodes =
-            this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
-        AtomicInteger count = new AtomicInteger();
-        Map<String, Integer> familleCode =
-            this.familleProduitRepository.findAll()
-                .stream()
+        Map<String, Integer> rayonCodes = this.rayonRepository.findAll().stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
-        Map<Integer, Integer> codeTvaMap =
-            this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
+        AtomicInteger count = new AtomicInteger();
+        Map<String, Integer> familleCode = this.familleProduitRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
+        Map<Integer, Integer> codeTvaMap = this.tvaRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> transactionTemplate.executeWithoutResult(status -> {
                 Record[] produitRecordRef = {null};
                 try {
@@ -485,40 +500,38 @@ public class ImportationProduitService {
                         rayonId = rayonCodes.get(rayonCode);
                     }
                     produitRecordRef[0] = new Record(
-                        null,
-                        cip,
-                        cip.length() > 8 ? cip : null,
-                        record.get(1),
-                        familleId,
-                        rayonId,
-                        record.get(4),
-                        fournisseur.getId(),
-                        Integer.parseInt(record.get(3)),
-                        Integer.parseInt(record.get(2)),
-                        Integer.parseInt(record.get(8)),
-                        tvaId,
-                        Integer.parseInt(record.get(9)),
-                        Integer.parseInt(record.get(10)),
-                        null,
-                        null,
-                        null,
-                        null,
-                        0,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TypeImportationProduit.BASCULEMENT
-                    );
+                            null,
+                            cip,
+                            cip.length() > 8 ? cip : null,
+                            record.get(1),
+                            familleId,
+                            rayonId,
+                            record.get(4),
+                            fournisseur.getId(),
+                            Integer.parseInt(record.get(3)),
+                            Integer.parseInt(record.get(2)),
+                            Integer.parseInt(record.get(8)),
+                            tvaId,
+                            Integer.parseInt(record.get(9)),
+                            Integer.parseInt(record.get(10)),
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            TypeImportationProduit.BASCULEMENT);
                     SaveResult result = saveRecord(produitRecordRef[0], storage);
                     bedLignes.add(new BedImportLigneDTO(
-                        result.fournisseurProduit().getId(),
-                        produitRecordRef[0].qty(),
-                        produitRecordRef[0].prixAchat(),
-                        produitRecordRef[0].prixVente()
-                    ));
+                            result.fournisseurProduit().getId(),
+                            produitRecordRef[0].qty(),
+                            produitRecordRef[0].prixAchat(),
+                            produitRecordRef[0].prixVente()));
                     count.incrementAndGet();
                 } catch (Exception e) {
                     errorList.add(produitRecordRef[0]);
@@ -542,31 +555,30 @@ public class ImportationProduitService {
     private ResponseDTO faireBasculementPrestige(InputStream inputStream, Fournisseur fournisseur) {
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
         Storage storage = storageService.getDefaultMagasinMainStorage();
-        Rayon rayon = rayonRepository.findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId()).orElseThrow();
+        Rayon rayon = rayonRepository
+                .findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId())
+                .orElseThrow();
         ResponseDTO response = new ResponseDTO();
         List<Record> errorList = new ArrayList<>();
         List<BedImportLigneDTO> bedLignes = new ArrayList<>();
-        Map<String, Integer> tableauCode =
-            this.tableauRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
+        Map<String, Integer> tableauCode = this.tableauRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
 
         Integer defaultRayonId = rayon.getId();
-        Map<String, Integer> rayonCodes =
-            this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
+        Map<String, Integer> rayonCodes = this.rayonRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         AtomicInteger count = new AtomicInteger();
         AtomicInteger errorSize = new AtomicInteger();
-        Map<String, Integer> familleCode =
-            this.familleProduitRepository.findAll()
-                .stream()
+        Map<String, Integer> familleCode = this.familleProduitRepository.findAll().stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
-        Map<Integer, Integer> codeTvaMap =
-            this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
-        Map<String, Integer> fournisseurCodes =
-            this.fournisseurRepository.findAll()
-                .stream()
+        Map<Integer, Integer> codeTvaMap = this.tvaRepository.findAll().stream()
+                .collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
+        Map<String, Integer> fournisseurCodes = this.fournisseurRepository.findAll().stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
+            Iterable<CSVRecord> records =
+                    CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> {
                 var index = count.get();
                 if (index == 0) {
@@ -576,13 +588,11 @@ public class ImportationProduitService {
                 transactionTemplate.executeWithoutResult(status -> {
                     Record[] produitRecordRef = {null};
                     try {
-                        //2175198
+                        // 2175198
                         var codeTva = record.get(11);
                         Integer tvaId;
-                        if (
-                            org.springframework.util.StringUtils.hasText(codeTva) &&
-                            codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
-                        ) {
+                        if (org.springframework.util.StringUtils.hasText(codeTva)
+                                && codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))) {
                             tvaId = codeTvaMap.get(NumberUtil.parseInt(codeTva));
                         } else {
                             tvaId = codeTvaMap.get(0);
@@ -618,37 +628,42 @@ public class ImportationProduitService {
                         var prixUniDetail = NumberUtil.parseInt(record.get(23));
                         var prixAchatDetail = NumberUtil.parseInt(record.get(24));
                         produitRecordRef[0] = new Record(
-                            org.springframework.util.StringUtils.hasText(tab) ? tableauCode.get(tab) : null,
-                            record.get(0),
-                            record.get(1),
-                            record.get(2),
-                            familleId,
-                            rayonId,
-                            record.get(12),
-                            fournisseurId,
-                            NumberUtil.parseInt(record.get(3)),
-                            NumberUtil.parseInt(record.get(4)),
-                            NumberUtil.parseInt(record.get(5)),
-                            tvaId,
-                            NumberUtil.parseInt(record.get(6)),
-                            NumberUtil.parseInt(record.get(7)),
-                            org.springframework.util.StringUtils.hasText(labo) ? tableauCode.get(labo) : null,
-                            org.springframework.util.StringUtils.hasText(gamme) ? tableauCode.get(gamme) : null,
-                            org.springframework.util.StringUtils.hasText(chiffre) ? Integer.parseInt(chiffre) == 1 : null,
-                            org.springframework.util.StringUtils.hasText(produitAvecOrdance)
-                                ? (NumberUtil.parseInt(produitAvecOrdance) == 1 ? StatutLegal.LISTE_I : StatutLegal.SANS_LISTE)
-                                : null,
-                            org.springframework.util.StringUtils.hasText(cmu) ? Integer.parseInt(cmu) : 0,
-                            org.springframework.util.StringUtils.hasText(checkExpiryDate)
-                                ? NumberUtil.parseInt(checkExpiryDate) == 1
-                                : null,
-                            org.springframework.util.StringUtils.hasText(perimeAt) ? LocalDate.parse(perimeAt) : null,
-                            itemNumber > 0 ? itemNumber : null,
-                            deconQty,
-                            prixUniDetail,
-                            prixAchatDetail,
-                            TypeImportationProduit.BASCULEMENT_PRESTIGE
-                        );
+                                org.springframework.util.StringUtils.hasText(tab) ? tableauCode.get(tab) : null,
+                                record.get(0),
+                                record.get(1),
+                                record.get(2),
+                                familleId,
+                                rayonId,
+                                record.get(12),
+                                fournisseurId,
+                                NumberUtil.parseInt(record.get(3)),
+                                NumberUtil.parseInt(record.get(4)),
+                                NumberUtil.parseInt(record.get(5)),
+                                tvaId,
+                                NumberUtil.parseInt(record.get(6)),
+                                NumberUtil.parseInt(record.get(7)),
+                                org.springframework.util.StringUtils.hasText(labo) ? tableauCode.get(labo) : null,
+                                org.springframework.util.StringUtils.hasText(gamme) ? tableauCode.get(gamme) : null,
+                                org.springframework.util.StringUtils.hasText(chiffre)
+                                        ? Integer.parseInt(chiffre) == 1
+                                        : null,
+                                org.springframework.util.StringUtils.hasText(produitAvecOrdance)
+                                        ? (NumberUtil.parseInt(produitAvecOrdance) == 1
+                                                ? StatutLegal.LISTE_I
+                                                : StatutLegal.SANS_LISTE)
+                                        : null,
+                                org.springframework.util.StringUtils.hasText(cmu) ? Integer.parseInt(cmu) : 0,
+                                org.springframework.util.StringUtils.hasText(checkExpiryDate)
+                                        ? NumberUtil.parseInt(checkExpiryDate) == 1
+                                        : null,
+                                org.springframework.util.StringUtils.hasText(perimeAt)
+                                        ? LocalDate.parse(perimeAt)
+                                        : null,
+                                itemNumber > 0 ? itemNumber : null,
+                                deconQty,
+                                prixUniDetail,
+                                prixAchatDetail,
+                                TypeImportationProduit.BASCULEMENT_PRESTIGE);
 
                         SaveResult result = saveRecord(produitRecordRef[0], storage);
 
@@ -657,11 +672,10 @@ public class ImportationProduitService {
                         }
 
                         bedLignes.add(new BedImportLigneDTO(
-                            result.fournisseurProduit().getId(),
-                            produitRecordRef[0].qty(),
-                            produitRecordRef[0].prixAchat(),
-                            produitRecordRef[0].prixVente()
-                        ));
+                                result.fournisseurProduit().getId(),
+                                produitRecordRef[0].qty(),
+                                produitRecordRef[0].prixAchat(),
+                                produitRecordRef[0].prixVente()));
                         count.incrementAndGet();
                     } catch (Exception e) {
                         errorSize.incrementAndGet();
@@ -677,7 +691,8 @@ public class ImportationProduitService {
         }
 
         if (!bedLignes.isEmpty()) {
-            String bedRef = bedService.createBedFromImport(MotifBed.BASCULEMENT_PRESTIGE, fournisseur.getId(), bedLignes);
+            String bedRef =
+                    bedService.createBedFromImport(MotifBed.BASCULEMENT_PRESTIGE, fournisseur.getId(), bedLignes);
             response.setBedReference(bedRef);
         }
         return response;
@@ -690,7 +705,9 @@ public class ImportationProduitService {
     private SaveResult saveRecord(Record produitRecord, Storage storage) {
         StockProduit stockProduit = buidStockProduit(produitRecord, storage);
         Produit produit = buildProduit(produitRecord);
-        produit.setRayonProduits(Set.of(new RayonProduit().setRayon(new Rayon().id(produitRecord.rayonId())).setProduit(produit)));
+        produit.setRayonProduits(Set.of(new RayonProduit()
+                .setRayon(new Rayon().id(produitRecord.rayonId()))
+                .setProduit(produit)));
         FournisseurProduit fournisseurProduit = buildFournisseurProduit(produitRecord);
         fournisseurProduit.setProduit(produit);
         produit = produitRepository.save(produit);
@@ -708,7 +725,8 @@ public class ImportationProduitService {
     private void saveRecordDetail(Record v, Produit parent, Storage storage) {
         StockProduit stockProduit = buidStockProduit(v, storage);
         Produit produit = buildDeatilProduit(v, parent);
-        produit.setRayonProduits(Set.of(new RayonProduit().setRayon(new Rayon().id(v.rayonId())).setProduit(produit)));
+        produit.setRayonProduits(
+                Set.of(new RayonProduit().setRayon(new Rayon().id(v.rayonId())).setProduit(produit)));
         produit = produitRepository.save(produit);
         stockProduit.setProduit(produit);
         stockProduitRepository.save(stockProduit);
@@ -722,12 +740,12 @@ public class ImportationProduitService {
 
     private StockProduit buidStockProduit(Record record, Storage storage) {
         return new StockProduit()
-            .qtyStock(record.qty())
-            .qtyUG(0)
-            .qtyVirtual(record.qty())
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .setStorage(storage);
+                .qtyStock(record.qty())
+                .qtyUG(0)
+                .qtyVirtual(record.qty())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .setStorage(storage);
     }
 
     private FournisseurProduit buildFournisseurProduit(Record record) {
@@ -820,46 +838,42 @@ public class ImportationProduitService {
             return;
         }
         log.info("Writing data to the csv printer");
-        String filename = "importation_produit_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + ".csv";
+        String filename = "importation_produit_"
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + ".csv";
         String p = this.fileStorageLocation.resolve(filename).toFile().getAbsolutePath();
-        try (
-            final FileWriter writer = new FileWriter(p);
-            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setDelimiter(";").get())
-        ) {
+        try (final FileWriter writer = new FileWriter(p);
+                final CSVPrinter printer = new CSVPrinter(
+                        writer, CSVFormat.DEFAULT.builder().setDelimiter(";").get())) {
             printer.printRecord(
-                "Type Importation",
-                "Tableau",
-                "Cip",
-                "Code Ean",
-                "Nom",
-                "Famille id",
-                "Rayon id",
-                "Code Remise",
-                "Fournisseur id",
-                "Prix Achat",
-                "Prix Vente",
-                "Stock",
-                "Tva",
-                "Seuil",
-                "Qté Reappro",
-                "Laboratoire id",
-                "Gamme id",
-                "Chiffre",
-                "Produit ordonnancé",
-                "Cmu",
-                "Date péremtion",
-                "Date péremption",
-                "Nbre detail",
-                "Qte detail",
-                "Prix unitaire detail",
-                "Prix achat detail"
-            );
-            records
-                .stream()
-                .filter(Objects::nonNull)
-                .forEach(record -> {
-                    try {
-                        printer.printRecord(
+                    "Type Importation",
+                    "Tableau",
+                    "Cip",
+                    "Code Ean",
+                    "Nom",
+                    "Famille id",
+                    "Rayon id",
+                    "Code Remise",
+                    "Fournisseur id",
+                    "Prix Achat",
+                    "Prix Vente",
+                    "Stock",
+                    "Tva",
+                    "Seuil",
+                    "Qté Reappro",
+                    "Laboratoire id",
+                    "Gamme id",
+                    "Chiffre",
+                    "Produit ordonnancé",
+                    "Cmu",
+                    "Date péremtion",
+                    "Date péremption",
+                    "Nbre detail",
+                    "Qte detail",
+                    "Prix unitaire detail",
+                    "Prix achat detail");
+            records.stream().filter(Objects::nonNull).forEach(record -> {
+                try {
+                    printer.printRecord(
                             record.typeImportationProduit(),
                             record.tableauId(),
                             record.cip(),
@@ -885,12 +899,11 @@ public class ImportationProduitService {
                             record.itemNumber(),
                             record.itmQty(),
                             record.prixUniDetail(),
-                            record.prixAchatDetail()
-                        );
-                    } catch (IOException e) {
-                        log.error("Error writing data to the csv printer", e);
-                    }
-                });
+                            record.prixAchatDetail());
+                } catch (IOException e) {
+                    log.error("Error writing data to the csv printer", e);
+                }
+            });
 
             printer.flush();
         } catch (final IOException e) {
@@ -900,7 +913,8 @@ public class ImportationProduitService {
     }
 
     public byte[] getRejets(String nomFichier) {
-        Path path = this.fileStorageLocation.toAbsolutePath().resolve(nomFichier).normalize();
+        Path path =
+                this.fileStorageLocation.toAbsolutePath().resolve(nomFichier).normalize();
 
         try {
             return Files.readAllBytes(path);
@@ -910,31 +924,30 @@ public class ImportationProduitService {
     }
 
     private record Record(
-        Integer tableauId,
-        String cip,
-        String codeEan,
-        String nom,
-        Integer familleId,
-        Integer rayonId,
-        String codeRemise,
-        Integer fournisseurId,
-        int prixAchat,
-        int prixVente,
-        int qty,
-        Integer tvaId,
-        int seuil,
-        int qtyReappro,
-        Integer laboratoireId,
-        Integer gammeId,
-        Boolean chiffre,
-        StatutLegal statutLegal,
-        int cmu,
-        Boolean checkExpiryDate,
-        LocalDate perimeAt,
-        Integer itemNumber,
-        Integer itmQty,
-        Integer prixUniDetail,
-        Integer prixAchatDetail,
-        TypeImportationProduit typeImportationProduit
-    ) {}
+            Integer tableauId,
+            String cip,
+            String codeEan,
+            String nom,
+            Integer familleId,
+            Integer rayonId,
+            String codeRemise,
+            Integer fournisseurId,
+            int prixAchat,
+            int prixVente,
+            int qty,
+            Integer tvaId,
+            int seuil,
+            int qtyReappro,
+            Integer laboratoireId,
+            Integer gammeId,
+            Boolean chiffre,
+            StatutLegal statutLegal,
+            int cmu,
+            Boolean checkExpiryDate,
+            LocalDate perimeAt,
+            Integer itemNumber,
+            Integer itmQty,
+            Integer prixUniDetail,
+            Integer prixAchatDetail,
+            TypeImportationProduit typeImportationProduit) {}
 }

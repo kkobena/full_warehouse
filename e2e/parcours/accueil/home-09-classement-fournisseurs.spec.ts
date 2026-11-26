@@ -10,8 +10,7 @@ import { scenario } from '../../src/scenario';
  */
 scenario('HOME-09', async ({ etape, page }) => {
   const bloc = carte(page, 'Achats par fournisseur');
-  const periode = (libelle: string) =>
-    page.locator('app-pill-selector').getByRole('button', { name: libelle, exact: true }).first();
+  const periode = (libelle: string) => page.locator('app-pill-selector').getByRole('button', { name: libelle, exact: true }).first();
 
   await etape(1, async () => {
     await page.goto('/');
@@ -35,7 +34,11 @@ scenario('HOME-09', async ({ etape, page }) => {
     // mois : la liste montrait, sous « 30 j », un premier moins-disant que le deuxième.
     // Une ligne se lit en morceaux : rang, nom, score et délai, puis le montant — le dernier.
     // Aucune classe ne les désigne plus, c'est l'ordre du texte qui fait foi.
-    const morceaux = (texte: string): string[] => texte.split('\n').map(m => m.trim()).filter(Boolean);
+    const morceaux = (texte: string): string[] =>
+      texte
+        .split('\n')
+        .map(m => m.trim())
+        .filter(Boolean);
     const montantDeLigne = (texte: string): number => Number(morceaux(texte).at(-1)!.replace(/\D/g, ''));
     // Le classement se recharge à chaque changement de période : on attend qu'il soit complet.
     await expect.poll(() => bloc.locator('li').count()).toBeGreaterThan(1);
@@ -57,8 +60,7 @@ scenario('HOME-09', async ({ etape, page }) => {
     // resserre la période. On le suit par son NOM — il peut aussi sortir du Top, montant nul.
     await periode('Mois').click();
     await expect(periode('Mois')).toHaveClass(/active/);
-    const surLeMois = async () =>
-      (await bloc.locator('li').filter({ hasText: nom }).count()) === 0 ? 0 : montantDe(nom);
+    const surLeMois = async () => ((await bloc.locator('li').filter({ hasText: nom }).count()) === 0 ? 0 : montantDe(nom));
     await expect.poll(surLeMois, { timeout: 5000 }).toBeLessThanOrEqual(surLAnnee);
   });
 });

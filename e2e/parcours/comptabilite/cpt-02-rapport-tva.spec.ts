@@ -44,9 +44,7 @@ scenario('CPT-02', async ({ etape, page }) => {
   await etape(4, async () => {
     // Le résultat attendu du modèle, vérifié plutôt qu'affirmé : la ligne de total (dans le
     // `tfoot`, hors du décompte des lignes) est la somme exacte des taux affichés.
-    const totalTva = Number(
-      (await page.locator('tfoot td').nth(2).innerText()).replace(/\D/g, ''),
-    );
+    const totalTva = Number((await page.locator('tfoot td').nth(2).innerText()).replace(/\D/g, ''));
     expect(totalTva).toBe(await somme(3));
   });
 });

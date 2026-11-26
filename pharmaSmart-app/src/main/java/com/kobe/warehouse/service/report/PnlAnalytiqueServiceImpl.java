@@ -33,33 +33,29 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
     @Override
     @Cacheable(value = "pnlAnalytique", key = "'segment_' + #year")
     public List<PnlSegmentDTO> getSnapshotBySegment(int year) {
-        return pnlAnalytiqueRepository.findSnapshotBySegment(year)
-            .stream()
-            .map(row -> new PnlSegmentDTO(
-                (String) row[0],
-                segmentLabel((String) row[0]),
-                row[1] != null ? ((Number) row[1]).longValue() : 0L,
-                row[2] != null ? ((Number) row[2]).longValue() : 0L,
-                row[3] != null ? ((Number) row[3]).longValue() : 0L,
-                row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO,
-                row[5] != null ? ((Number) row[5]).intValue() : 0
-            ))
-            .toList();
+        return pnlAnalytiqueRepository.findSnapshotBySegment(year).stream()
+                .map(row -> new PnlSegmentDTO(
+                        (String) row[0],
+                        segmentLabel((String) row[0]),
+                        row[1] != null ? ((Number) row[1]).longValue() : 0L,
+                        row[2] != null ? ((Number) row[2]).longValue() : 0L,
+                        row[3] != null ? ((Number) row[3]).longValue() : 0L,
+                        row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO,
+                        row[5] != null ? ((Number) row[5]).intValue() : 0))
+                .toList();
     }
 
     @Override
     @Cacheable(value = "pnlAnalytique", key = "'famille_' + #year")
     public List<PnlFamilleDTO> getSnapshotByFamille(int year) {
-        return pnlAnalytiqueRepository.findSnapshotByFamille(year)
-            .stream()
-            .map(row -> new PnlFamilleDTO(
-                (String) row[0],
-                row[1] != null ? ((Number) row[1]).longValue() : 0L,
-                row[2] != null ? ((Number) row[2]).longValue() : 0L,
-                row[3] != null ? ((Number) row[3]).longValue() : 0L,
-                row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO
-            ))
-            .toList();
+        return pnlAnalytiqueRepository.findSnapshotByFamille(year).stream()
+                .map(row -> new PnlFamilleDTO(
+                        (String) row[0],
+                        row[1] != null ? ((Number) row[1]).longValue() : 0L,
+                        row[2] != null ? ((Number) row[2]).longValue() : 0L,
+                        row[3] != null ? ((Number) row[3]).longValue() : 0L,
+                        row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO))
+                .toList();
     }
 
     @Override
@@ -83,14 +79,16 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             if (!labels.contains(monthLabel)) {
                 labels.add(monthLabel);
             }
-            tauxParMoisEtFamille.computeIfAbsent(monthLabel, k -> new LinkedHashMap<>()).put(famille, taux);
+            tauxParMoisEtFamille
+                    .computeIfAbsent(monthLabel, k -> new LinkedHashMap<>())
+                    .put(famille, taux);
             familles.add(famille);
         }
 
-        List<PnlEvolutionSerieDTO> series = familles
-            .stream()
-            .map(famille -> new PnlEvolutionSerieDTO(famille, null, valeursAlignees(labels, tauxParMoisEtFamille, famille)))
-            .toList();
+        List<PnlEvolutionSerieDTO> series = familles.stream()
+                .map(famille ->
+                        new PnlEvolutionSerieDTO(famille, null, valeursAlignees(labels, tauxParMoisEtFamille, famille)))
+                .toList();
 
         return new PnlEvolutionDTO(labels, series);
     }
@@ -116,14 +114,16 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             if (!labels.contains(monthLabel)) {
                 labels.add(monthLabel);
             }
-            tauxParMoisEtSegment.computeIfAbsent(monthLabel, k -> new LinkedHashMap<>()).put(segment, taux);
+            tauxParMoisEtSegment
+                    .computeIfAbsent(monthLabel, k -> new LinkedHashMap<>())
+                    .put(segment, taux);
             segments.add(segment);
         }
 
-        List<PnlEvolutionSerieDTO> series = segments
-            .stream()
-            .map(segment -> new PnlEvolutionSerieDTO(null, segment, valeursAlignees(labels, tauxParMoisEtSegment, segment)))
-            .toList();
+        List<PnlEvolutionSerieDTO> series = segments.stream()
+                .map(segment ->
+                        new PnlEvolutionSerieDTO(null, segment, valeursAlignees(labels, tauxParMoisEtSegment, segment)))
+                .toList();
 
         return new PnlEvolutionDTO(labels, series);
     }
@@ -135,8 +135,11 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
      * dans leur ordre d'arrivee decalait alors toute la fin de sa courbe d'un cran : le taux de mars
      * s'affichait sur fevrier, et ainsi de suite jusqu'au bout.
      */
-    private List<BigDecimal> valeursAlignees(List<String> labels, Map<String, Map<String, BigDecimal>> parMois, String serie) {
-        return labels.stream().map(label -> parMois.getOrDefault(label, Map.of()).getOrDefault(serie, BigDecimal.ZERO)).toList();
+    private List<BigDecimal> valeursAlignees(
+            List<String> labels, Map<String, Map<String, BigDecimal>> parMois, String serie) {
+        return labels.stream()
+                .map(label -> parMois.getOrDefault(label, Map.of()).getOrDefault(serie, BigDecimal.ZERO))
+                .toList();
     }
 
     private String segmentLabel(String natureVente) {

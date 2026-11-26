@@ -22,7 +22,8 @@ public class ConsentementService {
     private final EntityManager em;
     private final DerogationAuthorizer derogationAuthorizer;
 
-    public ConsentementService(CustomerConsentementRepository repository, EntityManager em, DerogationAuthorizer derogationAuthorizer) {
+    public ConsentementService(
+            CustomerConsentementRepository repository, EntityManager em, DerogationAuthorizer derogationAuthorizer) {
         this.repository = repository;
         this.em = em;
         this.derogationAuthorizer = derogationAuthorizer;
@@ -33,41 +34,47 @@ public class ConsentementService {
     public List<ConsentementDTO> etat(Integer customerId) {
         List<CustomerConsentement> historique = repository.findAllByCustomerIdOrderByCreatedAtDesc(customerId);
         return Arrays.stream(CanalConsentement.values())
-            .map(canal ->
-                historique.stream().filter(c -> c.getCanal() == canal).findFirst().map(ConsentementService::toDto).orElse(new ConsentementDTO(canal, null, null, null))
-            )
-            .toList();
+                .map(canal -> historique.stream()
+                        .filter(c -> c.getCanal() == canal)
+                        .findFirst()
+                        .map(ConsentementService::toDto)
+                        .orElse(new ConsentementDTO(canal, null, null, null)))
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<ConsentementDTO> historique(Integer customerId) {
-        return repository.findAllByCustomerIdOrderByCreatedAtDesc(customerId).stream().map(ConsentementService::toDto).toList();
+        return repository.findAllByCustomerIdOrderByCreatedAtDesc(customerId).stream()
+                .map(ConsentementService::toDto)
+                .toList();
     }
 
     public ConsentementDTO enregistrer(Integer customerId, CanalConsentement canal, boolean accorde) {
         if (em.find(Customer.class, customerId) == null) {
             throw new GenericError("Client introuvable", "customerNotFound");
         }
-        return toDto(
-            repository.save(
-                new CustomerConsentement().setCustomerId(customerId).setCanal(canal).setAccorde(accorde).setUser(derogationAuthorizer.utilisateurCourant())
-            )
-        );
+        return toDto(repository.save(new CustomerConsentement()
+                .setCustomerId(customerId)
+                .setCanal(canal)
+                .setAccorde(accorde)
+                .setUser(derogationAuthorizer.utilisateurCourant())));
     }
 
     /** Vrai si le client a retiré son accord pour ce canal. */
     @Transactional(readOnly = true)
     public boolean estRefuse(Integer customerId, CanalConsentement canal) {
-        return repository
-            .findAllByCustomerIdOrderByCreatedAtDesc(customerId)
-            .stream()
-            .filter(c -> c.getCanal() == canal)
-            .findFirst()
-            .map(c -> !c.isAccorde())
-            .orElse(false);
+        return repository.findAllByCustomerIdOrderByCreatedAtDesc(customerId).stream()
+                .filter(c -> c.getCanal() == canal)
+                .findFirst()
+                .map(c -> !c.isAccorde())
+                .orElse(false);
     }
 
     private static ConsentementDTO toDto(CustomerConsentement c) {
-        return new ConsentementDTO(c.getCanal(), c.isAccorde(), c.getCreatedAt(), c.getUser().getFirstName() + " " + c.getUser().getLastName());
+        return new ConsentementDTO(
+                c.getCanal(),
+                c.isAccorde(),
+                c.getCreatedAt(),
+                c.getUser().getFirstName() + " " + c.getUser().getLastName());
     }
 }

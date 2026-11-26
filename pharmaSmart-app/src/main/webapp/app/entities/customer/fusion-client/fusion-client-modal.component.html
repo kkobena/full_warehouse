@@ -6,7 +6,6 @@
 <div class="modal-body">
   <app-card [variant]="'form'">
     <div class="form-grid-compact">
-
       <div class="form-field form-field-full">
         <span class="field-label">Choisir le client à conserver (cible)</span>
 
@@ -33,22 +32,24 @@
                   name="targetId"
                 />
               </td>
-              <td><div class="pharma-entity-name">{{ nom(client) }}</div></td>
+              <td>
+                <div class="pharma-entity-name">{{ nom(client) }}</div>
+              </td>
               <td>{{ client.categorie ?? '—' }}</td>
-              <td><span class="pharma-code">{{ client.code ?? '—' }}</span></td>
+              <td>
+                <span class="pharma-code">{{ client.code ?? '—' }}</span>
+              </td>
               <td>{{ client.num || '—' }}</td>
               <td>{{ client.phone || '—' }}</td>
               <td>{{ (client.datNaiss | date: 'dd/MM/yyyy') ?? '—' }}</td>
-              <td class="text-end">{{ (client.encours ?? 0) | number }}</td>
+              <td class="text-end">{{ client.encours ?? 0 | number }}</td>
             </tr>
           </ng-template>
         </app-data-table>
       </div>
 
       @if (loadingPreview()) {
-        <div class="form-field form-field-full">
-          <i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…
-        </div>
+        <div class="form-field form-field-full"><i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…</div>
       }
 
       @if (targetId() === null) {
@@ -58,7 +59,6 @@
       }
 
       @if (targetId() !== null && !loadingPreview() && !previewError()) {
-
         @if (rejetEntries().length > 0) {
           <div class="form-field form-field-full">
             <div class="alert alert-warning">
@@ -78,7 +78,9 @@
             <span class="field-label">Données qui seront rattachées au client conservé</span>
             <ul class="entity-counts-list">
               @for (entry of entityCountEntries(); track entry.label) {
-                <li><span class="count-badge">{{ entry.count }}</span> {{ entry.label }}</li>
+                <li>
+                  <span class="count-badge">{{ entry.count }}</span> {{ entry.label }}
+                </li>
               }
             </ul>
           </div>
@@ -102,20 +104,12 @@
           </div>
         }
       }
-
     </div>
   </app-card>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="cancel()"
-    [raised]="true"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-    type="button"
-  />
+  <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
   <app-button
     (clicked)="confirm()"
     [disabled]="!canConfirm()"

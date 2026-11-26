@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.TicketZItem;
-import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import com.kobe.warehouse.service.tiketz.dto.TicketZData;
@@ -49,16 +48,12 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
             count.incrementAndGet();
             new TicketZItem(data.userName(), null, 1, BOLD_FONT);
             items.add(new TicketZItem("CAISSE DE : " + data.userName(), null, 1, BOLD_FONT));
-            data
-                .datas()
-                .forEach(d -> {
-                    items.add(new TicketZItem(d.libelle(), d.montant(), 1, PLAIN_FONT));
-                });
-            data
-                .summary()
-                .forEach(sum -> {
-                    items.add(new TicketZItem(sum.libelle(), sum.montant(), 2, BOLD_FONT));
-                });
+            data.datas().forEach(d -> {
+                items.add(new TicketZItem(d.libelle(), d.montant(), 1, PLAIN_FONT));
+            });
+            data.summary().forEach(sum -> {
+                items.add(new TicketZItem(sum.libelle(), sum.montant(), 2, BOLD_FONT));
+            });
         });
 
         if (!CollectionUtils.isEmpty(summaries) && count.get() > 1) {
@@ -126,7 +121,8 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
         }
     }
 
-    public byte[] generateEscPosReceiptForTauri(TicketZ ticket, LocalDateTime from, LocalDateTime to) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(TicketZ ticket, LocalDateTime from, LocalDateTime to)
+            throws IOException {
         this.ticketZItems = buildTicketZItems(ticket);
         this.periode = "DU " + DateUtil.format(from) + " AU " + DateUtil.format(to);
         return generateEscPosReceipt(true);

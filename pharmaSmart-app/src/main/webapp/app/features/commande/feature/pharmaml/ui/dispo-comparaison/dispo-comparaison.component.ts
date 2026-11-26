@@ -1,17 +1,15 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {BadgeComponent, ButtonComponent, DataTableComponent} from "../../../../../../shared/ui";
-import {IDispoGrossisteResult, IInfoProduit} from "../../../../../../shared/model/pharmaml.model";
-import {IFournisseur} from "../../../../../../shared/model/fournisseur.model";
-import {CommandeId} from "../../../../../../shared/model/abstract-commande.model";
-import {PharmamlApiService} from "../../../../data-access/pharmaml-api.service";
-import {NotificationService} from "../../../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../../../shared/error.service";
-import {
-  FournisseurSelectComponent
-} from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../../../shared/ui';
+import { IDispoGrossisteResult, IInfoProduit } from '../../../../../../shared/model/pharmaml.model';
+import { IFournisseur } from '../../../../../../shared/model/fournisseur.model';
+import { CommandeId } from '../../../../../../shared/model/abstract-commande.model';
+import { PharmamlApiService } from '../../../../data-access/pharmaml-api.service';
+import { NotificationService } from '../../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../../shared/error.service';
+import { FournisseurSelectComponent } from '../../../../../partners/ui/fournisseur-select/fournisseur-select.component';
 
 export interface ComparaisonRow {
   codeProduit: string;
@@ -20,11 +18,11 @@ export interface ComparaisonRow {
 }
 
 @Component({
-  selector: "app-dispo-comparaison",
-  templateUrl: "./dispo-comparaison.component.html",
-  styleUrls: ["./dispo-comparaison.component.scss"],
+  selector: 'app-dispo-comparaison',
+  templateUrl: './dispo-comparaison.component.html',
+  styleUrls: ['./dispo-comparaison.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent]
+  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent],
 })
 export class DispoComparaisonComponent {
   commandeId!: CommandeId;
@@ -65,9 +63,10 @@ export class DispoComparaisonComponent {
 
     const grossisteIds = grossistes.map(f => f.id!);
 
-    const call$ = this.suggestionId != null
-      ? this.api.disponibiliteMultiSuggestion(this.suggestionId, grossisteIds)
-      : this.api.disponibiliteMulti(this.commandeId.id, this.commandeId.orderDate, grossisteIds);
+    const call$ =
+      this.suggestionId != null
+        ? this.api.disponibiliteMultiSuggestion(this.suggestionId, grossisteIds)
+        : this.api.disponibiliteMulti(this.commandeId.id, this.commandeId.orderDate, grossisteIds);
 
     call$.subscribe({
       next: res => {
@@ -81,7 +80,7 @@ export class DispoComparaisonComponent {
               produits.set(info.codeProduit, {
                 codeProduit: info.codeProduit,
                 designation: info.designation,
-                resultats: new Map()
+                resultats: new Map(),
               });
             }
             produits.get(info.codeProduit)!.resultats.set(result.grossisteId, info);
@@ -89,17 +88,14 @@ export class DispoComparaisonComponent {
         });
 
         this.rows.set(
-          [...produits.values()].sort((a, b) =>
-            (a.designation ?? a.codeProduit).localeCompare(b.designation ?? b.codeProduit)
-          )
+          [...produits.values()].sort((a, b) => (a.designation ?? a.codeProduit).localeCompare(b.designation ?? b.codeProduit)),
         );
         this.loading.set(false);
         this.comparaisonFaite.set(true);
       },
-      error: (error) => {
-        this.loading.set(false),
-          this.notificationService.error(this.errorService.getErrorMessage(error), "Erreur");
-      }
+      error: error => {
+        (this.loading.set(false), this.notificationService.error(this.errorService.getErrorMessage(error), 'Erreur'));
+      },
     });
   }
 

@@ -49,12 +49,11 @@ class FacturationServiceRegistryTest {
     @BeforeEach
     void setUp() {
         registry = new FacturationServiceRegistry(
-            editionAllService,
-            editionBySelectionBonsService,
-            editionByTiersPayantService,
-            editionByTypeTiersPayantService,
-            editionByGroupTiersService
-        );
+                editionAllService,
+                editionBySelectionBonsService,
+                editionByTiersPayantService,
+                editionByTypeTiersPayantService,
+                editionByGroupTiersService);
     }
 
     @Test
@@ -71,7 +70,7 @@ class FacturationServiceRegistryTest {
     @DisplayName("le mode SELECTED n'est pas pris en charge et le dit")
     void modeNonPrisEnCharge() {
         assertThatThrownBy(() -> registry.getService(ModeEditionEnum.SELECTED))
-            .isInstanceOf(GenericError.class)
-            .hasMessageContaining("n'est pas pris en charge");
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("n'est pas pris en charge");
     }
 }

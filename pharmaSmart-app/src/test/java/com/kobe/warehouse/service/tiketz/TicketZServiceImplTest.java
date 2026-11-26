@@ -59,14 +59,13 @@ class TicketZServiceImplTest {
     private final TicketZReportService reportService = mock(TicketZReportService.class);
 
     private final TicketZServiceImpl service = new TicketZServiceImpl(
-        salePaymentRepository,
-        paymentTransactionRepository,
-        salesRepository,
-        thirdPartySaleRepository,
-        paymentModeService,
-        printerService,
-        reportService
-    );
+            salePaymentRepository,
+            paymentTransactionRepository,
+            salesRepository,
+            thirdPartySaleRepository,
+            paymentModeService,
+            printerService,
+            reportService);
 
     @BeforeEach
     void caisseVide() {
@@ -87,9 +86,8 @@ class TicketZServiceImplTest {
         @DisplayName("chaque caissier a son récapitulatif, nommé par son initiale et son nom")
         void unRecapParCaissier() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
-                reglement(2, "Jean", "DUPONT", ModePaimentCode.CASH, 200_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
+                    reglement(2, "Jean", "DUPONT", ModePaimentCode.CASH, 200_000, false));
 
             TicketZ ticket = service.getTicketZ(parametre());
 
@@ -100,29 +98,26 @@ class TicketZServiceImplTest {
         @DisplayName("les caissiers sont classés par nom")
         void classementParNom() {
             donneReglements(
-                reglement(1, "Zoe", "ZOBO", ModePaimentCode.CASH, 100_000, false),
-                reglement(2, "Awa", "KONE", ModePaimentCode.CASH, 100_000, false)
-            );
+                    reglement(1, "Zoe", "ZOBO", ModePaimentCode.CASH, 100_000, false),
+                    reglement(2, "Awa", "KONE", ModePaimentCode.CASH, 100_000, false));
 
             assertThat(service.getTicketZ(parametre()).datas())
-                .extracting(TicketZRecap::userName)
-                .isSorted();
+                    .extracting(TicketZRecap::userName)
+                    .isSorted();
         }
 
         @Test
         @DisplayName("les modes d'un caissier se cumulent mode par mode")
         void cumulParMode() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.CB, 120_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CB, 120_000, false));
 
             assertThat(lignesDuCaissier(0))
-                .extracting(TicketZData::modePaimentCode, TicketZData::value)
-                .containsExactly(
-                    org.assertj.core.api.Assertions.tuple(ModePaimentCode.CASH, 300_000L),
-                    org.assertj.core.api.Assertions.tuple(ModePaimentCode.CB, 120_000L)
-                );
+                    .extracting(TicketZData::modePaimentCode, TicketZData::value)
+                    .containsExactly(
+                            org.assertj.core.api.Assertions.tuple(ModePaimentCode.CASH, 300_000L),
+                            org.assertj.core.api.Assertions.tuple(ModePaimentCode.CB, 120_000L));
         }
 
         /**
@@ -133,9 +128,8 @@ class TicketZServiceImplTest {
         @DisplayName("la part à crédit d'un mode se retranche de son règlement")
         void creditRetranche() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 50_000, true)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 50_000, true));
 
             assertThat(lignesDuCaissier(0).getFirst().value()).isEqualTo(250_000L);
         }
@@ -144,10 +138,9 @@ class TicketZServiceImplTest {
         @DisplayName("les lignes du caissier sont rangées dans l'ordre d'affichage des modes")
         void ordreDesModes() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CH, 10_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 20_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.CB, 30_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CH, 10_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 20_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CB, 30_000, false));
 
             assertThat(lignesDuCaissier(0)).extracting(TicketZData::sortOrder).isSorted();
         }
@@ -177,10 +170,9 @@ class TicketZServiceImplTest {
         @DisplayName("un mode mobile portant un crédit ne compte pas deux fois son règlement")
         void creditNeDoublePasLeReglement() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 30_000, true),
-                reglement(1, "Awa", "KONE", ModePaimentCode.WAVE, 50_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 30_000, true),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.WAVE, 50_000, false));
 
             // Orange Money net : 100 000 − 30 000. Plus Wave : 120 000 au total.
             assertThat(sousTotalMobileDuCaissier(0)).isEqualTo(120_000L);
@@ -195,20 +187,19 @@ class TicketZServiceImplTest {
         @DisplayName("un seul opérateur mobile ne produit pas de sous-total")
         void unSeulOperateur() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 30_000, true)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 30_000, true));
 
-            assertThat(service.getTicketZ(parametre()).datas().getFirst().summary()).isEmpty();
+            assertThat(service.getTicketZ(parametre()).datas().getFirst().summary())
+                    .isEmpty();
         }
 
         @Test
         @DisplayName("deux opérateurs mobiles produisent leur sous-total")
         void deuxOperateurs() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.MTN, 60_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.MTN, 60_000, false));
 
             assertThat(sousTotalMobileDuCaissier(0)).isEqualTo(160_000L);
         }
@@ -218,9 +209,8 @@ class TicketZServiceImplTest {
         @DisplayName("le récapitulatif global porte son propre sous-total mobile")
         void sousTotalGlobal() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
-                reglement(2, "Jean", "DUPONT", ModePaimentCode.WAVE, 60_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.OM, 100_000, false),
+                    reglement(2, "Jean", "DUPONT", ModePaimentCode.WAVE, 60_000, false));
 
             assertThat(ligneGlobale("Total Mobile").value()).isEqualTo(160_000L);
         }
@@ -231,8 +221,8 @@ class TicketZServiceImplTest {
             donneReglements(reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false));
 
             assertThat(service.getTicketZ(parametre()).summaries())
-                .extracting(TicketZData::libelle)
-                .doesNotContain("Total Mobile");
+                    .extracting(TicketZData::libelle)
+                    .doesNotContain("Total Mobile");
         }
     }
 
@@ -248,9 +238,7 @@ class TicketZServiceImplTest {
             donneReglements(reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false));
             donneCredits(credit(1, "Awa", "KONE", 75_000));
 
-            assertThat(lignesDuCaissier(0))
-                .extracting(TicketZData::libelle)
-                .contains("Crédit(vno/vo)");
+            assertThat(lignesDuCaissier(0)).extracting(TicketZData::libelle).contains("Crédit(vno/vo)");
         }
 
         /**
@@ -266,7 +254,9 @@ class TicketZServiceImplTest {
 
             assertThat(ticket.datas()).hasSize(1);
             assertThat(ticket.datas().getFirst().userName()).isEqualTo("A. KONE");
-            assertThat(ticket.datas().getFirst().datas()).extracting(TicketZData::value).containsExactly(75_000L);
+            assertThat(ticket.datas().getFirst().datas())
+                    .extracting(TicketZData::value)
+                    .containsExactly(75_000L);
         }
 
         @Test
@@ -274,7 +264,13 @@ class TicketZServiceImplTest {
         void cumulDesCredits() {
             donneCredits(credit(7, "Awa", "KONE", 50_000), credit(7, "Awa", "KONE", 25_000));
 
-            assertThat(service.getTicketZ(parametre()).datas().getFirst().datas().getFirst().value()).isEqualTo(75_000L);
+            assertThat(service.getTicketZ(parametre())
+                            .datas()
+                            .getFirst()
+                            .datas()
+                            .getFirst()
+                            .value())
+                    .isEqualTo(75_000L);
         }
 
         @Test
@@ -292,8 +288,8 @@ class TicketZServiceImplTest {
             donneReglements(reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false));
 
             assertThat(service.getTicketZ(parametre()).summaries())
-                .extracting(TicketZData::libelle)
-                .doesNotContain("Crédit(vno/vo)");
+                    .extracting(TicketZData::libelle)
+                    .doesNotContain("Crédit(vno/vo)");
         }
     }
 
@@ -307,9 +303,8 @@ class TicketZServiceImplTest {
         @DisplayName("les modes de tous les caissiers se cumulent au global")
         void cumulTousCaissiers() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
-                reglement(2, "Jean", "DUPONT", ModePaimentCode.CASH, 200_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false),
+                    reglement(2, "Jean", "DUPONT", ModePaimentCode.CASH, 200_000, false));
 
             assertThat(ligneGlobaleDuMode(ModePaimentCode.CASH).value()).isEqualTo(500_000L);
         }
@@ -318,11 +313,12 @@ class TicketZServiceImplTest {
         @DisplayName("les lignes globales sont rangées dans l'ordre d'affichage des modes")
         void ordreDesLignes() {
             donneReglements(
-                reglement(1, "Awa", "KONE", ModePaimentCode.CH, 10_000, false),
-                reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 20_000, false)
-            );
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CH, 10_000, false),
+                    reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 20_000, false));
 
-            assertThat(service.getTicketZ(parametre()).summaries()).extracting(TicketZData::sortOrder).isSorted();
+            assertThat(service.getTicketZ(parametre()).summaries())
+                    .extracting(TicketZData::sortOrder)
+                    .isSorted();
         }
 
         /** Le libellé vient du référentiel des modes de règlement, avec repli sur le code. */
@@ -396,7 +392,7 @@ class TicketZServiceImplTest {
 
     private void donneCredits(TicketZCreditProjection... projections) {
         when(thirdPartySaleRepository.getTicketZCreditProjection(any()))
-            .thenReturn(new java.util.ArrayList<>(List.of(projections)));
+                .thenReturn(new java.util.ArrayList<>(List.of(projections)));
     }
 
     private List<TicketZData> lignesDuCaissier(int index) {
@@ -404,39 +400,28 @@ class TicketZServiceImplTest {
     }
 
     private long sousTotalMobileDuCaissier(int index) {
-        List<TicketZData> sousTotaux = service.getTicketZ(parametre()).datas().get(index).summary();
+        List<TicketZData> sousTotaux =
+                service.getTicketZ(parametre()).datas().get(index).summary();
         assertThat(sousTotaux).hasSize(1);
         return sousTotaux.getFirst().value();
     }
 
     private TicketZData ligneGlobale(String libelle) {
-        return service
-            .getTicketZ(parametre())
-            .summaries()
-            .stream()
-            .filter(data -> libelle.equals(data.libelle()))
-            .findFirst()
-            .orElseThrow();
+        return service.getTicketZ(parametre()).summaries().stream()
+                .filter(data -> libelle.equals(data.libelle()))
+                .findFirst()
+                .orElseThrow();
     }
 
     private TicketZData ligneGlobaleDuMode(ModePaimentCode code) {
-        return service
-            .getTicketZ(parametre())
-            .summaries()
-            .stream()
-            .filter(data -> code == data.modePaimentCode())
-            .findFirst()
-            .orElseThrow();
+        return service.getTicketZ(parametre()).summaries().stream()
+                .filter(data -> code == data.modePaimentCode())
+                .findFirst()
+                .orElseThrow();
     }
 
     private static TicketZProjection reglement(
-        int userId,
-        String prenom,
-        String nom,
-        ModePaimentCode mode,
-        long montant,
-        boolean credit
-    ) {
+            int userId, String prenom, String nom, ModePaimentCode mode, long montant, boolean credit) {
         return new TicketZProjection(mode.name(), mode.name(), userId, prenom, nom, montant, montant, credit);
     }
 

@@ -2,17 +2,14 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
-import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeRapideDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +24,7 @@ public interface OrderLineService {
     OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) throws GenericError;
 
     OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit);
+
     OrderLine buildOrderLine(CommandeRapideDTO commandeRapideDTO);
 
     Pair<OrderLine, OrderLine> updateOrderLineQuantityRequested(OrderLineDTO orderLineDTO);
@@ -38,6 +36,7 @@ public interface OrderLineService {
     void deleteOrderLine(OrderLine orderLine);
 
     Optional<OrderLine> findOneById(OrderLineId id);
+
     List<OrderLine> findAllByOrderLineIdIn(Set<Integer> ids, LocalDate orderDate);
 
     OrderLine save(OrderLine orderLine);
@@ -69,15 +68,15 @@ public interface OrderLineService {
     void changeFournisseurProduit(OrderLine orderLine, Integer fournisseurId);
 
     void delete(OrderLine orderLine);
+
     OrderLine buildDeliveryReceiptItemFromRecord(
-        FournisseurProduit fournisseurProduit,
-        int quantityRequested,
-        int quantityReceived,
-        int orderCostAmount,
-        int orderUnitPrice,
-        int quantityUg,
-        int stock,
-        int taxeAmount,
-        Commande commande
-    );
+            FournisseurProduit fournisseurProduit,
+            int quantityRequested,
+            int quantityReceived,
+            int orderCostAmount,
+            int orderUnitPrice,
+            int quantityUg,
+            int stock,
+            int taxeAmount,
+            Commande commande);
 }

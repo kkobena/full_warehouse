@@ -102,11 +102,8 @@ describe('CahierRecetteService', () => {
     let chemins: CheminsMenu | undefined;
     service.loadNavPaths().subscribe(recu => (chemins = recu));
 
-    httpMock
-      .expectOne(`${SERVER_API_URL}api/nav/paths`)
-      .flush('', { status: 500, statusText: 'Server Error' });
+    httpMock.expectOne(`${SERVER_API_URL}api/nav/paths`).flush('', { status: 500, statusText: 'Server Error' });
 
     expect(chemins).toEqual({});
   });
 });
-

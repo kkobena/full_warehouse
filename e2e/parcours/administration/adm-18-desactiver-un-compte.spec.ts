@@ -48,7 +48,11 @@ scenario('ADM-18', async ({ etape, page }) => {
       // n'émettrait aucun événement et ne filtrerait donc rien. On le vide d'abord.
       await champ.fill('');
       await champ.fill(login);
-      if (await etatAffiche().isVisible().catch(() => false)) {
+      if (
+        await etatAffiche()
+          .isVisible()
+          .catch(() => false)
+      ) {
         return;
       }
       await ligne()

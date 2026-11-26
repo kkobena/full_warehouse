@@ -1,22 +1,23 @@
 <div class="pharma-smart-content p-1">
-
   <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
   <app-toolbar icon="pi pi-sliders-h" title="Historique des ajustements">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters flex-wrap gap-2">
-
         <!-- Période -->
         <pharma-date-picker
           (selectionChange)="onSearch()"
           [(ngModel)]="fromDate"
-          [labelPosition]="'inline'" [maxDate]="toDate"
+          [labelPosition]="'inline'"
+          [maxDate]="toDate"
           id="dateDebut"
           label="Du"
         />
         <pharma-date-picker
           (selectionChange)="onSearch()"
           [(ngModel)]="toDate"
-          [labelPosition]="'inline'" [minDate]="fromDate" id="dateFin"
+          [labelPosition]="'inline'"
+          [minDate]="fromDate"
+          id="dateFin"
           label="Au"
         />
 
@@ -32,11 +33,7 @@
         />
 
         <!-- Sens -->
-        <app-pill-selector
-          (selectionChange)="onSearch()"
-          [(ngModel)]="typeFilter"
-          [items]="typeOptions"
-        />
+        <app-pill-selector (selectionChange)="onSearch()" [(ngModel)]="typeFilter" [items]="typeOptions" />
 
         <!-- Recherche texte -->
         <app-icon-field [overlay]="true" icon="pi pi-search">
@@ -49,7 +46,6 @@
             type="text"
           />
         </app-icon-field>
-
       </div>
     </ng-container>
 
@@ -117,7 +113,9 @@
             type="button"
           />
         </td>
-        <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+        <td>
+          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+        </td>
         <td class="text-muted small">
           {{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}
         </td>
@@ -127,18 +125,10 @@
         <td>
           <div class="d-flex flex-column gap-1">
             @if (hasEntrees(ajust.ajustements ?? [])) {
-              <app-badge
-                icon="pi pi-arrow-up"
-                label="Entrée"
-                severity="success"
-              />
+              <app-badge icon="pi pi-arrow-up" label="Entrée" severity="success" />
             }
             @if (hasSorties(ajust.ajustements ?? [])) {
-              <app-badge
-                icon="pi pi-arrow-down"
-                label="Sortie"
-                severity="danger"
-              />
+              <app-badge icon="pi pi-arrow-down" label="Sortie" severity="danger" />
             }
           </div>
         </td>
@@ -181,24 +171,25 @@
               @if ((ajust.ajustements ?? []).length) {
                 <table class="table table-sm ajust-detail-table mb-0">
                   <thead>
-                  <tr class="pharma-table-head">
-                    <th>Code CIP</th>
-                    <th>Produit</th>
-                    <th class="text-right">Qté</th>
-                    <th class="text-right">Stock avant</th>
-                    <th class="text-right">Stock après</th>
-                    <th>Motif</th>
-                    <th>Commentaire</th>
-                  </tr>
+                    <tr class="pharma-table-head">
+                      <th>Code CIP</th>
+                      <th>Produit</th>
+                      <th class="text-right">Qté</th>
+                      <th class="text-right">Stock avant</th>
+                      <th class="text-right">Stock après</th>
+                      <th>Motif</th>
+                      <th>Commentaire</th>
+                    </tr>
                   </thead>
                   <tbody>
                     @for (detail of ajust.ajustements; track detail.id) {
                       <tr>
-                        <td><span class="pharma-code">{{ detail.codeCip ?? '–' }}</span></td>
+                        <td>
+                          <span class="pharma-code">{{ detail.codeCip ?? '–' }}</span>
+                        </td>
                         <td>{{ detail.produitLibelle ?? '–' }}</td>
                         <td class="text-right">
-                          <span [class.ajust-qty-in]="(detail.qtyMvt ?? 0) >= 0"
-                                [class.ajust-qty-out]="(detail.qtyMvt ?? 0) < 0">
+                          <span [class.ajust-qty-in]="(detail.qtyMvt ?? 0) >= 0" [class.ajust-qty-out]="(detail.qtyMvt ?? 0) < 0">
                             {{ (detail.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ detail.qtyMvt | number }}
                           </span>
                         </td>
@@ -211,8 +202,7 @@
                   </tbody>
                 </table>
               } @else {
-                <div class="text-muted small text-center py-2">Aucune ligne pour cet ajustement
-                </div>
+                <div class="text-muted small text-center py-2">Aucune ligne pour cet ajustement</div>
               }
             </app-card>
           </div>
@@ -237,5 +227,4 @@
       </tr>
     </ng-template>
   </app-data-table>
-
 </div>

@@ -3,15 +3,17 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
-import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.Sort;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -33,15 +35,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link Commande}.
  */
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "commande", "depot.achat-depot" })
+@RequiresNavAccess({"commande", "depot.achat-depot"})
 public class CommandeDataResource {
 
     private final Logger log = LoggerFactory.getLogger(CommandeDataResource.class);
@@ -55,92 +55,88 @@ public class CommandeDataResource {
 
     @GetMapping("/commandes/commandes-without-order-lines")
     public ResponseEntity<List<CommandeLiteDTO>> getAllCommandes(
-        @RequestParam(required = false, name = "typeSuggession") String typeSuggession,
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "searchCommande") String searchCommande,
-        @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
-        Pageable pageable
-    ) {
+            @RequestParam(required = false, name = "typeSuggession") String typeSuggession,
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "searchCommande") String searchCommande,
+            @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
+            Pageable pageable) {
         Page<CommandeLiteDTO> page = commandeDataService.fetchCommandes(
-            new CommandeFilterDTO()
-                // On ne liste que les commandes des magasins qu'on a le droit de lire.
-                .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
-                .setTypeSuggession(typeSuggession)
-                .setOrderStatuts(orderStatuts)
-                .setSearch(search)
-                .setSearchCommande(searchCommande),
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                new CommandeFilterDTO()
+                        // On ne liste que les commandes des magasins qu'on a le droit de lire.
+                        .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
+                        .setTypeSuggession(typeSuggession)
+                        .setOrderStatuts(orderStatuts)
+                        .setSearch(search)
+                        .setSearchCommande(searchCommande),
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/commandes/{id}/{orderDate}")
-    public ResponseEntity<CommandeDTO> getCommande(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate) {
-        Optional<CommandeDTO> commande = Optional.ofNullable(commandeDataService.findOneById(new CommandeId(id, orderDate)));
+    public ResponseEntity<CommandeDTO> getCommande(
+            @PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate) {
+        Optional<CommandeDTO> commande =
+                Optional.ofNullable(commandeDataService.findOneById(new CommandeId(id, orderDate)));
         return ResponseUtil.wrapOrNotFound(commande);
     }
 
     @GetMapping("/commandes/filter-order-lines")
     public ResponseEntity<List<OrderLineDTO>> filterCommandeLines(
-        @RequestParam(name = "commandeId") Integer commandeId,
-        @RequestParam(name = "orderDate") LocalDate orderDate,
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "searchCommande") String searchCommande,
-        @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
-        @RequestParam(required = false, name = "orderBy") Sort orderBy,
-        @RequestParam(required = false, name = "filterCommaneEnCours") FilterCommaneEnCours filterCommaneEnCours
-    ) {
-        return ResponseEntity.ok(
-            commandeDataService.filterCommandeLines(
-                new CommandeFilterDTO()
-                    // Meme cloisonnement : l'identifiant d'une commande d'un autre magasin ne doit
-                    // pas suffire a en lire les lignes.
-                    .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
-                    .setCommandeId(commandeId)
-                    .setOrderStatuts(orderStatuts)
-                    .setSearchCommande(searchCommande)
-                    .setSearch(search)
-                    .setOrderBy(orderBy)
-                    .setOrderDate(orderDate)
-                    .setFilterCommaneEnCours(filterCommaneEnCours)
-            )
-        );
+            @RequestParam(name = "commandeId") Integer commandeId,
+            @RequestParam(name = "orderDate") LocalDate orderDate,
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "searchCommande") String searchCommande,
+            @RequestParam(required = false, name = "orderStatuts") Set<OrderStatut> orderStatuts,
+            @RequestParam(required = false, name = "orderBy") Sort orderBy,
+            @RequestParam(required = false, name = "filterCommaneEnCours") FilterCommaneEnCours filterCommaneEnCours) {
+        return ResponseEntity.ok(commandeDataService.filterCommandeLines(new CommandeFilterDTO()
+                // Meme cloisonnement : l'identifiant d'une commande d'un autre magasin ne doit
+                // pas suffire a en lire les lignes.
+                .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
+                .setCommandeId(commandeId)
+                .setOrderStatuts(orderStatuts)
+                .setSearchCommande(searchCommande)
+                .setSearch(search)
+                .setOrderBy(orderBy)
+                .setOrderDate(orderDate)
+                .setFilterCommaneEnCours(filterCommaneEnCours)));
     }
 
     @GetMapping("/commandes/csv/{id}/{orderDate}")
-    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande", "depot.achat-depot"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getCsv(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate)
-        throws IOException {
-        return Utils.exportCsv(commandeDataService.exportCommandeToCsv(new CommandeId(id, orderDate)), "commande_" + id + "_" + orderDate);
+            throws IOException {
+        return Utils.exportCsv(
+                commandeDataService.exportCommandeToCsv(new CommandeId(id, orderDate)),
+                "commande_" + id + "_" + orderDate);
     }
 
     @GetMapping("/commandes/pdf/{id}/{orderDate}")
-    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"commande", "depot.achat-depot"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getPdf(
-        @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate
-    ) {
+            @PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate) {
         String fileName = "commande_" + id + "_" + orderDate + ".pdf";
         return Utils.printPDF(commandeDataService.exportCommandeToPdf(new CommandeId(id, orderDate)), fileName);
     }
 
     @GetMapping("/commandes/pageable-order-lines/{id}/{orderDate}")
     public ResponseEntity<List<OrderLineDTO>> getOrderLinesByCommandeId(
-        @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate,
-        Pageable pageable
-    ) {
+            @PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate, Pageable pageable) {
         Page<OrderLineDTO> page = commandeDataService.filterCommandeLines(new CommandeId(id, orderDate), pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/commandes/entree-stock/{id}/{orderDate}")
     public ResponseEntity<CommandeEntryDTO> getCommandeEntreeStock(
-        @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate
-    ) {
+            @PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate) {
         log.debug("REST request to get Commande : {}", id);
         return ResponseUtil.wrapOrNotFound(commandeDataService.getCommandeById(new CommandeId(id, orderDate)));
     }

@@ -18,9 +18,8 @@ class ExceptionTranslatorIntrouvableTest {
 
     @Test
     void uneEntiteIntrouvableRendUn404ExplicitePlutotQueLErreurInterne() {
-        ResponseEntity<Object> reponse = translator.handleEntityNotFound(
-            new EntityNotFoundException("No row with the given identifier exists for entity [ThirdPartySales with id '4151']")
-        );
+        ResponseEntity<Object> reponse = translator.handleEntityNotFound(new EntityNotFoundException(
+                "No row with the given identifier exists for entity [ThirdPartySales with id '4151']"));
 
         assertThat(reponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         var corps = (ProblemDetail) reponse.getBody();
@@ -30,8 +29,11 @@ class ExceptionTranslatorIntrouvableTest {
 
     @Test
     void laTraceTechniqueNeRemonteAuCaissierQueDansLeJournal() {
-        ResponseEntity<Object> reponse = translator.handleEntityNotFound(new EntityNotFoundException("[ThirdPartySales with id '4151']"));
+        ResponseEntity<Object> reponse =
+                translator.handleEntityNotFound(new EntityNotFoundException("[ThirdPartySales with id '4151']"));
 
-        assertThat(((ProblemDetail) reponse.getBody()).getDetail()).doesNotContain("ThirdPartySales").doesNotContain("4151");
+        assertThat(((ProblemDetail) reponse.getBody()).getDetail())
+                .doesNotContain("ThirdPartySales")
+                .doesNotContain("4151");
     }
 }

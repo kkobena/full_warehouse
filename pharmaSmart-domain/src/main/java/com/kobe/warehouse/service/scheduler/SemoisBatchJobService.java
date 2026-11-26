@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.scheduler;
 
-import com.kobe.warehouse.repository.MagasinRepository;
-import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -9,6 +7,7 @@ import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
@@ -81,16 +80,15 @@ public class SemoisBatchJobService {
     private final EntityManager em;
 
     public SemoisBatchJobService(
-        ProduitRepository produitRepository,
-        SemoisConfigurationRepository semoisConfigurationRepository,
-        SuggestionRepository suggestionRepository,
-        SuggestionLineRepository suggestionLineRepository,
-        OrderLineRepository orderLineRepository,
-        EtatProduitService etatProduitService,
-        ReferenceService referenceService,
-        MagasinRepository magasinRepository,
-        EntityManager em
-    ) {
+            ProduitRepository produitRepository,
+            SemoisConfigurationRepository semoisConfigurationRepository,
+            SuggestionRepository suggestionRepository,
+            SuggestionLineRepository suggestionLineRepository,
+            OrderLineRepository orderLineRepository,
+            EtatProduitService etatProduitService,
+            ReferenceService referenceService,
+            MagasinRepository magasinRepository,
+            EntityManager em) {
         this.produitRepository = produitRepository;
         this.semoisConfigurationRepository = semoisConfigurationRepository;
         this.suggestionRepository = suggestionRepository;
@@ -111,9 +109,7 @@ public class SemoisBatchJobService {
     public void reintegrerExclusionsExpirees() {
         int nb = semoisConfigurationRepository.reintegrerExclusionsExpirees();
         if (nb > 0) {
-            LOG.info(
-                "[SEMOIS-BATCH] {} produit(s) réintégré(s) automatiquement après expiration de l'exclusion",
-                nb);
+            LOG.info("[SEMOIS-BATCH] {} produit(s) réintégré(s) automatiquement après expiration de l'exclusion", nb);
         }
     }
 
@@ -134,8 +130,10 @@ public class SemoisBatchJobService {
     public int nettoyerSuggestionsObsoletes() {
         int nbLignes = suggestionLineRepository.deleteAutoLinesForInactive();
         int nbSugg = suggestionRepository.deleteEmptyAutoSuggestions();
-        LOG.info("[SEMOIS-BATCH] Nettoyage : {} lignes obsolètes supprimées, {} suggestions vides supprimées",
-            nbLignes, nbSugg);
+        LOG.info(
+                "[SEMOIS-BATCH] Nettoyage : {} lignes obsolètes supprimées, {} suggestions vides supprimées",
+                nbLignes,
+                nbSugg);
         return nbLignes + nbSugg;
     }
 
@@ -191,8 +189,12 @@ public class SemoisBatchJobService {
         // — un magasin sans produit éligible n'empêche pas de nettoyer ce que les autres ont vidé.
         int nbVides = suggestionRepository.deleteEmptyAutoSuggestions();
 
-        LOG.info("[SEMOIS-BATCH] Terminé en {}ms — {} magasin(s), {} produits, {} suggestion(s) vide(s) supprimée(s)",
-            System.currentTimeMillis() - debut, magasins.size(), totalProduits, nbVides);
+        LOG.info(
+                "[SEMOIS-BATCH] Terminé en {}ms — {} magasin(s), {} produits, {} suggestion(s) vide(s) supprimée(s)",
+                System.currentTimeMillis() - debut,
+                magasins.size(),
+                totalProduits,
+                nbVides);
     }
 
     /**
@@ -242,18 +244,16 @@ public class SemoisBatchJobService {
             Map<Integer, Integer> pendingQtyByProduitId = loadPendingOrderQty(produitIds);
 
             // Batch-load existing AUTO suggestion lines for this page's FP IDs
-            Map<Integer, SuggestionLine> existingLineByFpId = suggestionLineRepository
-                .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, fpIds)
-                .stream()
-                .collect(Collectors.toMap(
-                    l -> l.getFournisseurProduit().getId(),
-                    Function.identity(),
-                    (a, b) -> a
-                ));
+            Map<Integer, SuggestionLine> existingLineByFpId =
+                    suggestionLineRepository
+                            .findAllByTypeSuggessionAndFournisseurProduitIdIn(TypeSuggession.AUTO, fpIds)
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    l -> l.getFournisseurProduit().getId(), Function.identity(), (a, b) -> a));
 
             // Group items by fournisseur for suggestion management
-            Map<Integer, List<SemoisEligibleItem>> byFournisseurId = items.stream()
-                .collect(Collectors.groupingBy(SemoisEligibleItem::fournisseurId));
+            Map<Integer, List<SemoisEligibleItem>> byFournisseurId =
+                    items.stream().collect(Collectors.groupingBy(SemoisEligibleItem::fournisseurId));
 
             List<Suggestion> suggestionsToSave = new ArrayList<>();
             List<SuggestionLine> linesToSave = new ArrayList<>();
@@ -262,8 +262,9 @@ public class SemoisBatchJobService {
             for (Map.Entry<Integer, List<SemoisEligibleItem>> entry : byFournisseurId.entrySet()) {
                 Integer fournisseurId = entry.getKey();
 
-                Optional<Suggestion> optSuggestion = suggestionRepository
-                    .findByTypeSuggessionAndFournisseurIdAndMagasinId(TypeSuggession.AUTO, fournisseurId, magasinId);
+                Optional<Suggestion> optSuggestion =
+                        suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
+                                TypeSuggession.AUTO, fournisseurId, magasinId);
                 final boolean alreadyExisted = optSuggestion.isPresent();
                 final Suggestion suggestion;
                 if (alreadyExisted) {
@@ -271,9 +272,8 @@ public class SemoisBatchJobService {
                     suggestion.setUpdatedAt(LocalDateTime.now());
                 } else {
                     suggestion = buildNewSemoisSuggestion(
-                        em.getReference(Fournisseur.class, fournisseurId),
-                        em.getReference(Magasin.class, magasinId)
-                    );
+                            em.getReference(Fournisseur.class, fournisseurId),
+                            em.getReference(Magasin.class, magasinId));
                 }
 
                 for (SemoisEligibleItem item : entry.getValue()) {
@@ -301,8 +301,10 @@ public class SemoisBatchJobService {
                     SuggestionLine existingLine = existingLineByFpId.get(item.fpPrincipalId());
                     if (existingLine != null) {
                         if (existingLine.isQuantiteModifieeManuel()) {
-                            LOG.debug("[SEMOIS-BATCH] Ligne {} protégée (qté manuelle={}) — skip",
-                                existingLine.getId(), existingLine.getQuantity());
+                            LOG.debug(
+                                    "[SEMOIS-BATCH] Ligne {} protégée (qté manuelle={}) — skip",
+                                    existingLine.getId(),
+                                    existingLine.getQuantity());
                             nbProtegees++;
                             continue;
                         }
@@ -340,8 +342,14 @@ public class SemoisBatchJobService {
             em.flush();
             em.clear();
 
-            LOG.debug("[SEMOIS-BATCH] Page {} ({} produits) — créées:{} màj:{} prot:{} suppr:{}",
-                pageIndex, items.size(), nbCreees, nbMajees, nbProtegees, nbLignesSupp);
+            LOG.debug(
+                    "[SEMOIS-BATCH] Page {} ({} produits) — créées:{} màj:{} prot:{} suppr:{}",
+                    pageIndex,
+                    items.size(),
+                    nbCreees,
+                    nbMajees,
+                    nbProtegees,
+                    nbLignesSupp);
         }
 
         if (totalProduits == 0) {
@@ -351,18 +359,23 @@ public class SemoisBatchJobService {
 
         long duree = System.currentTimeMillis() - debut;
         LOG.info(
-            "[SEMOIS-BATCH] {} traité en {}ms — {} produits, {} créées, {} màj, {} protégées, {} lignes supprimées",
-            magasin.getName(), duree, totalProduits, nbCreees, nbMajees, nbProtegees, nbLignesSupp);
+                "[SEMOIS-BATCH] {} traité en {}ms — {} produits, {} créées, {} màj, {} protégées, {} lignes supprimées",
+                magasin.getName(),
+                duree,
+                totalProduits,
+                nbCreees,
+                nbMajees,
+                nbProtegees,
+                nbLignesSupp);
         return totalProduits;
     }
 
     private Suggestion buildNewSemoisSuggestion(Fournisseur fournisseur, Magasin magasin) {
         Suggestion s = new Suggestion()
-            .setSuggessionReference(
-                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                    .concat(referenceService.buildSuggestionReference())
-            )
-            .createdAt(LocalDateTime.now());
+                .setSuggessionReference(LocalDate.now()
+                        .format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                        .concat(referenceService.buildSuggestionReference()))
+                .createdAt(LocalDateTime.now());
         s.setFournisseur(fournisseur);
         s.setMagasin(magasin);
         s.setTypeSuggession(TypeSuggession.AUTO);
@@ -392,11 +405,9 @@ public class SemoisBatchJobService {
      * Sans seuil manuel, le produit n'est pas suggéré (conforme au réappro piloté par la demande).
      */
     private int computeStockObjectif(SemoisEligibleItem item) {
-        int objectif = item.stockObjectifCalcule() != null
-            ? item.stockObjectifCalcule()
-            : safeInt(item.qtySeuilMini());
+        int objectif = item.stockObjectifCalcule() != null ? item.stockObjectifCalcule() : safeInt(item.qtySeuilMini());
         if (objectif <= 0) {
-            objectif =  Math.max(1,Math.max(safeInt(item.qtySeuilMini()), safeInt(item.qtyAppro()))) ;
+            objectif = Math.max(1, Math.max(safeInt(item.qtySeuilMini()), safeInt(item.qtyAppro())));
         }
         return objectif;
     }
@@ -427,8 +438,7 @@ public class SemoisBatchJobService {
         List<Integer> list = new ArrayList<>(ids);
         List<Set<Integer>> chunks = new ArrayList<>();
         for (int i = 0; i < list.size(); i += IN_CLAUSE_CHUNK_SIZE) {
-            chunks.add(new LinkedHashSet<>(
-                list.subList(i, Math.min(i + IN_CLAUSE_CHUNK_SIZE, list.size()))));
+            chunks.add(new LinkedHashSet<>(list.subList(i, Math.min(i + IN_CLAUSE_CHUNK_SIZE, list.size()))));
         }
         return chunks;
     }

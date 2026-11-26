@@ -1,35 +1,36 @@
-import { afterNextRender, signal, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { CommonModule } from "@angular/common";
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ErrorService } from "../../../../shared/error.service";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { FournisseurApiService } from "../../data-access/services/fournisseur-api.service";
-import { Fournisseur, IFournisseur } from "../../../../shared/model/fournisseur.model";
-import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from "../../../../shared/ui";
+import { afterNextRender, signal, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../../shared/error.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { FournisseurApiService } from '../../data-access/services/fournisseur-api.service';
+import { Fournisseur, IFournisseur } from '../../../../shared/model/fournisseur.model';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent } from '../../../../shared/ui';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
-  selector: "app-fournisseur-form",
-  templateUrl: "./fournisseur-form.component.html",
-  styleUrl: "./fournisseur-form.component.scss",
+  selector: 'app-fournisseur-form',
+  templateUrl: './fournisseur-form.component.html',
+  styleUrl: './fournisseur-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ButtonComponent,
     KeyFilterDirective,
     SelectComponent,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class FournisseurFormComponent implements OnInit {
   fournisseur: IFournisseur | null = null;
   presetParentId: number | null = null;
-  title = "Fournisseur";
+  title = 'Fournisseur';
 
   protected readonly parents = signal([]);
   protected readonly isSaving = signal(false);
@@ -56,14 +57,14 @@ export class FournisseurFormComponent implements OnInit {
     urlPharmaMl: [],
     codeOfficePharmaMl: [],
     codeRecepteurPharmaMl: [],
-    idRecepteurPharmaMl: []
+    idRecepteurPharmaMl: [],
   });
 
   private readonly api = inject(FournisseurApiService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly notif = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
-  private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
+  private readonly libelleInput = viewChild.required<ElementRef>('libelleInput');
 
   constructor() {
     afterNextRender(() => {
@@ -72,7 +73,7 @@ export class FournisseurFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isAgenceMode.set(this.presetParentId != null || (this.fournisseur?.parentId != null));
+    this.isAgenceMode.set(this.presetParentId != null || this.fournisseur?.parentId != null);
     this.loadParents();
     if (this.fournisseur) {
       this.updateForm(this.fournisseur);
@@ -93,7 +94,7 @@ export class FournisseurFormComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.isSaving.set(false);
         this.notif.error(this.errorService.getErrorMessage(err));
-      }
+      },
     });
   }
 
@@ -105,7 +106,7 @@ export class FournisseurFormComponent implements OnInit {
     this.api.queryParents({ page: 0, size: 9999 }).subscribe({
       next: (res: HttpResponse<IFournisseur[]>) => {
         this.parents.set(res.body ?? []);
-      }
+      },
     });
   }
 
@@ -129,32 +130,32 @@ export class FournisseurFormComponent implements OnInit {
       urlPharmaMl: f.urlPharmaMl,
       codeOfficePharmaMl: f.codeOfficePharmaMl,
       codeRecepteurPharmaMl: f.codeRecepteurPharmaMl,
-      idRecepteurPharmaMl: f.idRecepteurPharmaMl
+      idRecepteurPharmaMl: f.idRecepteurPharmaMl,
     });
   }
 
   private createFromForm(): IFournisseur {
     return {
       ...new Fournisseur(),
-      id: this.editForm.get(["id"])!.value,
-      code: this.editForm.get(["code"])!.value,
-      libelle: this.editForm.get(["libelle"])!.value,
-      parentId: this.editForm.get(["parentId"])!.value ?? null,
-      addressePostal: this.editForm.get(["addresspostale"])!.value,
-      phone: this.editForm.get(["phone"])!.value,
-      mobile: this.editForm.get(["mobile"])!.value,
-      delaiLivraisonJours: this.editForm.get(["delaiLivraisonJours"])!.value,
-      frequenceCommandeJours: this.editForm.get(["frequenceCommandeJours"])!.value,
-      identifiantRepartiteur: this.editForm.get(["identifiantRepartiteur"])!.value,
-      joursCredit: this.editForm.get(["joursCredit"])!.value ?? null,
-      joursCritique: this.editForm.get(["joursCritique"])!.value ?? null,
-      palierRfa: this.editForm.get(["palierRfa"])!.value ?? null,
-      francoDePort: this.editForm.get(["francoDePort"])!.value ?? null,
-      tauxRfa: this.editForm.get(["tauxRfa"])!.value ?? null,
-      urlPharmaMl: this.editForm.get(["urlPharmaMl"])!.value ?? null,
-      codeOfficePharmaMl: this.editForm.get(["codeOfficePharmaMl"])!.value ?? null,
-      codeRecepteurPharmaMl: this.editForm.get(["codeRecepteurPharmaMl"])!.value ?? null,
-      idRecepteurPharmaMl: this.editForm.get(["idRecepteurPharmaMl"])!.value ?? null
+      id: this.editForm.get(['id'])!.value,
+      code: this.editForm.get(['code'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      parentId: this.editForm.get(['parentId'])!.value ?? null,
+      addressePostal: this.editForm.get(['addresspostale'])!.value,
+      phone: this.editForm.get(['phone'])!.value,
+      mobile: this.editForm.get(['mobile'])!.value,
+      delaiLivraisonJours: this.editForm.get(['delaiLivraisonJours'])!.value,
+      frequenceCommandeJours: this.editForm.get(['frequenceCommandeJours'])!.value,
+      identifiantRepartiteur: this.editForm.get(['identifiantRepartiteur'])!.value,
+      joursCredit: this.editForm.get(['joursCredit'])!.value ?? null,
+      joursCritique: this.editForm.get(['joursCritique'])!.value ?? null,
+      palierRfa: this.editForm.get(['palierRfa'])!.value ?? null,
+      francoDePort: this.editForm.get(['francoDePort'])!.value ?? null,
+      tauxRfa: this.editForm.get(['tauxRfa'])!.value ?? null,
+      urlPharmaMl: this.editForm.get(['urlPharmaMl'])!.value ?? null,
+      codeOfficePharmaMl: this.editForm.get(['codeOfficePharmaMl'])!.value ?? null,
+      codeRecepteurPharmaMl: this.editForm.get(['codeRecepteurPharmaMl'])!.value ?? null,
+      idRecepteurPharmaMl: this.editForm.get(['idRecepteurPharmaMl'])!.value ?? null,
     };
   }
 }

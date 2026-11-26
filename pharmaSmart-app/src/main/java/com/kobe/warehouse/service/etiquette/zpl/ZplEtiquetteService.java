@@ -24,9 +24,5 @@ public interface ZplEtiquetteService {
      *     la mise en page
      */
     String rendreEtiquettes(
-        List<EtiquetteDTO> etiquettes,
-        TypeEtiquette type,
-        FormatEtiquette format,
-        ResolutionEtiquette resolution
-    );
+            List<EtiquetteDTO> etiquettes, TypeEtiquette type, FormatEtiquette format, ResolutionEtiquette resolution);
 }

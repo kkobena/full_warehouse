@@ -1,38 +1,38 @@
 package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.CodeAliasSource;
+import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
-import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
-import com.kobe.warehouse.service.etiquette.EtiquetteUsageService;
 import com.kobe.warehouse.domain.enumeration.ProduitFlag;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
-import com.kobe.warehouse.domain.enumeration.CodeAliasSource;
 import com.kobe.warehouse.service.dto.ProductResolveResult;
 import com.kobe.warehouse.service.dto.ProduitCodeAliasDTO;
-import com.kobe.warehouse.domain.enumeration.CodeRemise;
-import org.springframework.util.StringUtils;
-import com.kobe.warehouse.service.dto.etiquette.FormatEtiquetteDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.ProduitIndicateursDTO;
+import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.dto.VenteMoisDTO;
+import com.kobe.warehouse.service.dto.etiquette.FormatEtiquetteDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.etiquette.EtiquetteUsageService;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.ProduitIndicateursService;
 import com.kobe.warehouse.service.stock.ProduitService;
-import com.kobe.warehouse.service.stock.ProductCodeResolverService;
-import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
-import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
+import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +42,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -55,8 +57,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -87,15 +87,14 @@ public class ProduitResource {
     private String applicationName;
 
     public ProduitResource(
-        ProduitRepository produitRepository,
-        ProduitService produitService,
-        ProductActivityService productActivityService,
-        ProduitIndicateursService produitIndicateursService,
-        EtiquetteExportReportServiceImpl etiquetteExportReportService,
-        ProductCodeResolverService productCodeResolverService,
-        EtiquetteLotExportService etiquetteLotExportService,
-        EtiquetteUsageService etiquetteUsageService
-    ) {
+            ProduitRepository produitRepository,
+            ProduitService produitService,
+            ProductActivityService productActivityService,
+            ProduitIndicateursService produitIndicateursService,
+            EtiquetteExportReportServiceImpl etiquetteExportReportService,
+            ProductCodeResolverService productCodeResolverService,
+            EtiquetteLotExportService etiquetteLotExportService,
+            EtiquetteUsageService etiquetteUsageService) {
         this.produitRepository = produitRepository;
         this.produitService = produitService;
         this.productActivityService = productActivityService;
@@ -117,11 +116,10 @@ public class ProduitResource {
     public ResponseEntity<ProduitCreatedResponse> createProduit(@Valid @RequestBody ProduitDTO produitDTO) {
         log.debug("REST request to save Produit : {}", produitDTO);
         if (produitDTO.getId() != null) {
-            throw new BadRequestAlertException("A new produit cannot already have an ID",
-                ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new produit cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
-        return ResponseEntity.ok(new ProduitCreatedResponse( produitService.save(produitDTO)));
+        return ResponseEntity.ok(new ProduitCreatedResponse(produitService.save(produitDTO)));
     }
 
     /**
@@ -149,43 +147,40 @@ public class ProduitResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of produits in
      * body.
      */
-
     @GetMapping("/produits")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitDTO>> getAllProduits(
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "storageId") Integer storageId,
-        @RequestParam(required = false, name = "rayonId") Integer rayonId,
-        @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
-        @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
-        @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "familleId") Integer familleId,
-        @RequestParam(required = false, name = "tableauId") Integer tableauId,
-        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
-        // Le code de remise circule par sa VALEUR d'affichage — « 1 », « 2 »… — et non par
-        // le nom de la constante : c'est ce que porte le DTO côté écran, et le conserver
-        // évite au front de connaître le vocabulaire interne de l'énumération.
-        @RequestParam(required = false, name = "dciId") Integer dciId,
-        @RequestParam(required = false, name = "codeRemise") String codeRemise,
-        Pageable pageable
-    ) {
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "storageId") Integer storageId,
+            @RequestParam(required = false, name = "rayonId") Integer rayonId,
+            @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
+            @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
+            @RequestParam(required = false, name = "status") Status status,
+            @RequestParam(required = false, name = "familleId") Integer familleId,
+            @RequestParam(required = false, name = "tableauId") Integer tableauId,
+            @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
+            // Le code de remise circule par sa VALEUR d'affichage — « 1 », « 2 »… — et non par
+            // le nom de la constante : c'est ce que porte le DTO côté écran, et le conserver
+            // évite au front de connaître le vocabulaire interne de l'énumération.
+            @RequestParam(required = false, name = "dciId") Integer dciId,
+            @RequestParam(required = false, name = "codeRemise") String codeRemise,
+            Pageable pageable) {
         Page<ProduitDTO> page = produitService.findAll(
-            new ProduitCriteria()
-                .setSearch(search)
-                .setStatus(status)
-                .setDeconditionnable(deconditionnable)
-                .setDeconditionne(deconditionne)
-                .setFamilleId(familleId)
-                .setTableauId(tableauId)
-                .setTableauNot(tableauNot)
-                .setRayonId(rayonId)
-                .setDciId(dciId)
-                .setCodeRemise(StringUtils.hasText(codeRemise) ? CodeRemise.fromValue(codeRemise) : null)
-                .setStorageId(storageId),
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+                new ProduitCriteria()
+                        .setSearch(search)
+                        .setStatus(status)
+                        .setDeconditionnable(deconditionnable)
+                        .setDeconditionne(deconditionne)
+                        .setFamilleId(familleId)
+                        .setTableauId(tableauId)
+                        .setTableauNot(tableauNot)
+                        .setRayonId(rayonId)
+                        .setDciId(dciId)
+                        .setCodeRemise(StringUtils.hasText(codeRemise) ? CodeRemise.fromValue(codeRemise) : null)
+                        .setStorageId(storageId),
+                pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -196,7 +191,6 @@ public class ProduitResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the produit, or
      * with status {@code 404 (Not Found)}.
      */
-
     @GetMapping("/produits/{id}")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<ProduitDTO> getProduit(@PathVariable Integer id) {
@@ -231,9 +225,7 @@ public class ProduitResource {
     @GetMapping("/produits/{id}/ventes-mensuelles")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<VenteMoisDTO>> getVentesMensuelles(
-        @PathVariable Integer id,
-        @RequestParam(required = false, defaultValue = "12") int nbMois
-    ) {
+            @PathVariable Integer id, @RequestParam(required = false, defaultValue = "12") int nbMois) {
         log.debug("REST request to get ventes-mensuelles for Produit : {}, nbMois={}", id, nbMois);
         return ResponseEntity.ok(produitIndicateursService.getVentesMensuelles(id, nbMois));
     }
@@ -245,20 +237,14 @@ public class ProduitResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @PatchMapping("/produits/{id}/status")
-    public ResponseEntity<Void> changeStatus(
-        @PathVariable Integer id,
-        @RequestParam Status status
-    ) {
+    public ResponseEntity<Void> changeStatus(@PathVariable Integer id, @RequestParam Status status) {
         log.debug("REST request to change status of Produit {} to {}", id, status);
         produitService.changeStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/produits/{id}/gestion-lot")
-    public ResponseEntity<Void> toggleGestionLot(
-        @PathVariable Integer id,
-        @RequestParam boolean active
-    ) {
+    public ResponseEntity<Void> toggleGestionLot(@PathVariable Integer id, @RequestParam boolean active) {
         log.debug("REST request to toggle gestion_lot for Produit {} → {}", id, active);
         produitService.toggleGestionLot(id, active);
         return ResponseEntity.noContent().build();
@@ -266,10 +252,7 @@ public class ProduitResource {
 
     @PatchMapping("/produits/{id}/flags")
     public ResponseEntity<Void> toggleFlag(
-        @PathVariable Integer id,
-        @RequestParam ProduitFlag flag,
-        @RequestParam boolean value
-    ) {
+            @PathVariable Integer id, @RequestParam ProduitFlag flag, @RequestParam boolean value) {
         log.debug("REST request to toggle flag {} for Produit {} → {}", flag, id, value);
         produitService.toggleFlag(id, flag, value);
         return ResponseEntity.noContent().build();
@@ -280,9 +263,8 @@ public class ProduitResource {
         log.debug("REST request to delete Produit : {}", id);
         produitService.deleteProduit(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME,
-                id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PutMapping("/produits/detail")
@@ -298,49 +280,46 @@ public class ProduitResource {
     @GetMapping("/produits/lite")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
-        @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "storageId") Integer storageId,
-        @RequestParam(required = false, name = "rayonId") Integer rayonId,
-        @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
-        @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
-        @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "familleId") Integer familleId,
-        @RequestParam(required = false, name = "tableauId") Integer tableauId,
-        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
-        @RequestParam(required = false, name = "remisable") Boolean remisable,
-        Pageable pageable
-    ) {
-        return ResponseEntity.ok().body(produitService.productsLiteList(new ProduitCriteria()
-            .setSearch(search)
-            .setStatus(status)
-            .setDeconditionnable(deconditionnable)
-            .setDeconditionne(deconditionne)
-            .setFamilleId(familleId)
-            .setTableauId(tableauId)
-            .setTableauNot(tableauNot)
-            .setRayonId(rayonId)
-            .setStorageId(storageId)
-            .setRemisable(remisable), pageable));
-
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "storageId") Integer storageId,
+            @RequestParam(required = false, name = "rayonId") Integer rayonId,
+            @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
+            @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
+            @RequestParam(required = false, name = "status") Status status,
+            @RequestParam(required = false, name = "familleId") Integer familleId,
+            @RequestParam(required = false, name = "tableauId") Integer tableauId,
+            @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
+            @RequestParam(required = false, name = "remisable") Boolean remisable,
+            Pageable pageable) {
+        return ResponseEntity.ok()
+                .body(produitService.productsLiteList(
+                        new ProduitCriteria()
+                                .setSearch(search)
+                                .setStatus(status)
+                                .setDeconditionnable(deconditionnable)
+                                .setDeconditionne(deconditionne)
+                                .setFamilleId(familleId)
+                                .setTableauId(tableauId)
+                                .setTableauNot(tableauNot)
+                                .setRayonId(rayonId)
+                                .setStorageId(storageId)
+                                .setRemisable(remisable),
+                        pageable));
     }
 
     @GetMapping("/produits/code/{code}")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
-    public ResponseEntity<List<ProduitSearch>> findByCode(@PathVariable("code") String code
+    public ResponseEntity<List<ProduitSearch>> findByCode(@PathVariable("code") String code) {
 
-    ) {
-
-        return ResponseEntity.ok()
-            .body(produitService.searchProducts(code, null, Pageable.ofSize(1)));
+        return ResponseEntity.ok().body(produitService.searchProducts(code, null, Pageable.ofSize(1)));
     }
 
     @GetMapping("/produits/search")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitSearch>> search(
-        @RequestParam(name = "search") String search,
-        @RequestParam(required = false, name = "magasinId") Integer magasinId,
-        Pageable pageable
-    ) {
+            @RequestParam(name = "search") String search,
+            @RequestParam(required = false, name = "magasinId") Integer magasinId,
+            Pageable pageable) {
 
         return ResponseEntity.ok().body(produitService.searchProducts(search, magasinId, pageable));
     }
@@ -348,23 +327,19 @@ public class ProduitResource {
     @GetMapping("/produits/activity")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProductActivityDTO>> getProduitActivity(
-        @RequestParam(name = "produitId") Long produitId,
-        @RequestParam(name = "fromDate") LocalDate fromDate,
-        @RequestParam(name = "toDate") LocalDate toDate
-    ) {
-        return ResponseEntity.ok()
-            .body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
+            @RequestParam(name = "produitId") Long produitId,
+            @RequestParam(name = "fromDate") LocalDate fromDate,
+            @RequestParam(name = "toDate") LocalDate toDate) {
+        return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
     }
 
     @GetMapping("/produits/search-by-storage")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitSearch>> searchByStorage(
-        @RequestParam(name = "search") String search,
-        @RequestParam(name = "storageId") Integer storageId,
-        Pageable pageable
-    ) {
-        return ResponseEntity.ok()
-            .body(produitService.searchProductsByStorage(storageId, search, pageable));
+            @RequestParam(name = "search") String search,
+            @RequestParam(name = "storageId") Integer storageId,
+            Pageable pageable) {
+        return ResponseEntity.ok().body(produitService.searchProductsByStorage(storageId, search, pageable));
     }
 
     @GetMapping("/produits/{id}/generiques")
@@ -376,13 +351,13 @@ public class ProduitResource {
     @GetMapping("/produits/{id}/etiquettes")
     @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<byte[]> getEtiquettes(
-        @PathVariable Integer id,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt,
-        @RequestParam(required = false) FormatEtiquette format
-    ) {
-        var produit = produitRepository.findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(defaultValue = "1") int startAt,
+            @RequestParam(required = false) FormatEtiquette format) {
+        var produit = produitRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
         byte[] pdf = etiquetteExportReportService.exportForProduit(produit, qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -397,12 +372,11 @@ public class ProduitResource {
     @GetMapping("/produits/{id}/lots/{lotId}/etiquettes")
     @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
     public ResponseEntity<byte[]> getEtiquettesLot(
-        @PathVariable Integer id,
-        @PathVariable Integer lotId,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt,
-        @RequestParam(required = false) FormatEtiquette format
-    ) {
+            @PathVariable Integer id,
+            @PathVariable Integer lotId,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(defaultValue = "1") int startAt,
+            @RequestParam(required = false) FormatEtiquette format) {
         byte[] pdf = etiquetteLotExportService.exporterPourLot(lotId, qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -417,11 +391,10 @@ public class ProduitResource {
     @GetMapping("/produits/{id}/etiquettes/reglette")
     @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
     public ResponseEntity<byte[]> getReglette(
-        @PathVariable Integer id,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt,
-        @RequestParam(required = false) FormatEtiquette format
-    ) {
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(defaultValue = "1") int startAt,
+            @RequestParam(required = false) FormatEtiquette format) {
         byte[] pdf = etiquetteUsageService.imprimerReglette(chargerProduit(id), qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -433,13 +406,13 @@ public class ProduitResource {
     @GetMapping(value = "/produits/{id}/etiquettes/reglette/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
     @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
     public ResponseEntity<String> getRegletteZpl(
-        @PathVariable Integer id,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(required = false) FormatEtiquette format,
-        @RequestParam(required = false) ResolutionEtiquette resolution
-    ) {
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(required = false) FormatEtiquette format,
+            @RequestParam(required = false) ResolutionEtiquette resolution) {
         return ResponseEntity.ok()
-            .body(etiquetteUsageService.genererZplReglette(chargerProduit(id), qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+                .body(etiquetteUsageService.genererZplReglette(
+                        chargerProduit(id), qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
     }
 
     /**
@@ -449,29 +422,30 @@ public class ProduitResource {
     @GetMapping(value = "/produits/{id}/etiquettes/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
     @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
     public ResponseEntity<String> getEtiquettesZpl(
-        @PathVariable Integer id,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(required = false) FormatEtiquette format,
-        @RequestParam(required = false) ResolutionEtiquette resolution
-    ) {
-        var produit = produitRepository.findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(required = false) FormatEtiquette format,
+            @RequestParam(required = false) ResolutionEtiquette resolution) {
+        var produit = produitRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
         return ResponseEntity.ok()
-            .body(etiquetteExportReportService.genererZplPourProduit(produit, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+                .body(etiquetteExportReportService.genererZplPourProduit(
+                        produit, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
     }
 
     /** Étiquette « lot » en ZPL : le GS1 DataMatrix est tracé par l'imprimante, pas par nous. */
     @GetMapping(value = "/produits/{id}/lots/{lotId}/etiquettes/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
     @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
     public ResponseEntity<String> getEtiquettesLotZpl(
-        @PathVariable Integer id,
-        @PathVariable Integer lotId,
-        @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(required = false) FormatEtiquette format,
-        @RequestParam(required = false) ResolutionEtiquette resolution
-    ) {
+            @PathVariable Integer id,
+            @PathVariable Integer lotId,
+            @RequestParam(defaultValue = "1") int qty,
+            @RequestParam(required = false) FormatEtiquette format,
+            @RequestParam(required = false) ResolutionEtiquette resolution) {
         return ResponseEntity.ok()
-            .body(etiquetteLotExportService.genererZplPourLot(lotId, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+                .body(etiquetteLotExportService.genererZplPourLot(
+                        lotId, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
     }
 
     /**
@@ -491,18 +465,12 @@ public class ProduitResource {
      */
     @PostMapping("/produits/{id}/codes-alias")
     public ResponseEntity<ProduitCodeAliasDTO> createCodeAlias(
-        @PathVariable Integer id,
-        @Valid @RequestBody CodeAliasRequest request
-    ) {
+            @PathVariable Integer id, @Valid @RequestBody CodeAliasRequest request) {
         if (!produitRepository.existsById(id)) {
             throw new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound");
         }
         ProduitCodeAliasDTO alias = productCodeResolverService.enregistrerAlias(
-            id,
-            request.code(),
-            productCodeResolverService.deduireType(request.code()),
-            CodeAliasSource.MANUAL
-        );
+                id, request.code(), productCodeResolverService.deduireType(request.code()), CodeAliasSource.MANUAL);
         return ResponseEntity.status(HttpStatus.CREATED).body(alias);
     }
 
@@ -532,8 +500,9 @@ public class ProduitResource {
     }
 
     private Produit chargerProduit(Integer id) {
-        return produitRepository.findById(id)
-            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+        return produitRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
     }
 
     /** 203 dpi tant que l'appelant ne dit rien : la résolution des rouleaux d'entrée de gamme. */

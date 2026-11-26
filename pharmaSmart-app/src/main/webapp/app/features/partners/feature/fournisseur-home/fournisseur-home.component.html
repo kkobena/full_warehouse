@@ -5,229 +5,272 @@
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-search-input">
         <app-icon-field icon="pi pi-search">
-          <input (keyup.enter)="loadPage(0)" [(ngModel)]="search"
-                 class="form-control" placeholder="Rechercher un fournisseur…" type="text" />
+          <input
+            (keyup.enter)="loadPage(0)"
+            [(ngModel)]="search"
+            class="form-control"
+            placeholder="Rechercher un fournisseur…"
+            type="text"
+          />
         </app-icon-field>
       </div>
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-button-group">
-        <app-button (clicked)="showFileDialog()" [raised]="true" [severity]="'secondary'"
-                    icon="pi pi-upload" label="Importer" type="button" />
-        <app-button (clicked)="openNewParent()" [raised]="true" [severity]="'primary'"
-                    icon="pi pi-plus" label="Nouveau fournisseur" type="button" />
+        <app-button
+          (clicked)="showFileDialog()"
+          [raised]="true"
+          [severity]="'secondary'"
+          icon="pi pi-upload"
+          label="Importer"
+          type="button"
+        />
+        <app-button
+          (clicked)="openNewParent()"
+          [raised]="true"
+          [severity]="'primary'"
+          icon="pi pi-plus"
+          label="Nouveau fournisseur"
+          type="button"
+        />
       </div>
     </ng-container>
   </app-toolbar>
-<app-card>
-  <app-data-table
-    (onLazyLoad)="lazyLoading($event)"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rows]="itemsPerPage()"
-    [totalRecords]="totalItems()"
-    [value]="fournisseurs()"
-    class="p-datatable-sm"
-    dataKey="id"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 3rem"></th>
-        <th><span>Code</span></th>
-        <th><span>Libellé</span></th>
-        <th><span>Mobile</span></th>
-        <th><span>Téléphone</span></th>
-        <th><span>Adresse postale</span></th>
-        <th><span>Site web</span></th>
-        <th><span>Id. grossiste</span></th>
-        <th><span>Délai livraison (j)</span></th>
-        <th><span>Fréq. commande (j)</span></th>
-        <th><span>Jours crédit</span></th>
-        <th><span>Jours critique</span></th>
-        <th><span>Seuil RFA (<span appDevise></span>)</span></th>
-        <th><span>Taux RFA (%)</span></th>
-        <th class="text-center"><span>PharmaML</span></th>
-        <th><span>Code officine</span></th>
-        <th><span>Code destinataire</span></th>
-        <th><span>N° client grossiste</span></th>
-        <th class="text-center"><span>Agences</span></th>
-        <th appFrozenColumn="right" style="width: 8rem"></th>
-      </tr>
-    </ng-template>
+  <app-card>
+    <app-data-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="itemsPerPage()"
+      [totalRecords]="totalItems()"
+      [value]="fournisseurs()"
+      class="p-datatable-sm"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 3rem"></th>
+          <th><span>Code</span></th>
+          <th><span>Libellé</span></th>
+          <th><span>Mobile</span></th>
+          <th><span>Téléphone</span></th>
+          <th><span>Adresse postale</span></th>
+          <th><span>Site web</span></th>
+          <th><span>Id. grossiste</span></th>
+          <th><span>Délai livraison (j)</span></th>
+          <th><span>Fréq. commande (j)</span></th>
+          <th><span>Jours crédit</span></th>
+          <th><span>Jours critique</span></th>
+          <th>
+            <span>Seuil RFA (<span appDevise></span>)</span>
+          </th>
+          <th><span>Taux RFA (%)</span></th>
+          <th class="text-center"><span>PharmaML</span></th>
+          <th><span>Code officine</span></th>
+          <th><span>Code destinataire</span></th>
+          <th><span>N° client grossiste</span></th>
+          <th class="text-center"><span>Agences</span></th>
+          <th appFrozenColumn="right" style="width: 8rem"></th>
+        </tr>
+      </ng-template>
 
-    <!-- ── Ligne principale : fournisseur parent ── -->
-    <ng-template #body let-expanded="expanded" let-f>
-      <tr>
-        <td>
-          <app-button (clicked)="onRowExpand(f)"
-                      [appRowToggler]="f"
-                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                      [rounded]="true" [severity]="'secondary'"
-                      [text]="true"
-                      ngbTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}"
-                      size="small" />
-        </td>
-        <td><span class="pharma-code">{{ f.code }}</span></td>
-        <td>
-          <div class="pharma-entity-name">{{ f.libelle }}</div>
-        </td>
-        <td>{{ f.mobile }}</td>
-        <td>{{ f.phone }}</td>
-        <td>{{ f.addressePostal }}</td>
-        <td>{{ f.site }}</td>
-        <td>{{ f.identifiantRepartiteur }}</td>
-        <td>{{ f.delaiLivraisonJours }}</td>
-        <td>{{ f.frequenceCommandeJours }}</td>
-        <td>{{ f.joursCredit }}</td>
-        <td>{{ f.joursCritique }}</td>
-        <td>{{ f.palierRfa }}</td>
-        <td>{{ f.tauxRfa }}</td>
-        <td class="text-center">
-          @if (f.urlPharmaMl) {
-            <i class="pi pi-check-circle text-success" ngbTooltip="{{ f.urlPharmaMl }}"></i>
-          } @else {
-            <i class="pi pi-minus-circle text-muted" ngbTooltip="PharmaML non configuré"></i>
-          }
-        </td>
-        <td>{{ f.codeOfficePharmaMl }}</td>
-        <td>{{ f.codeRecepteurPharmaMl }}</td>
-        <td>{{ f.idRecepteurPharmaMl }}</td>
-        <td class="text-center">
-          @let agences = agencesOf(f.id!);
-          @if (agencesMap().has(f.id!)) {
-            <app-badge [label]="agences.length + ''"
-                       [rounded]="true"
-                       [severity]="agences.length > 0 ? 'info' : 'secondary'" />
-          }
-        </td>
-        <td appFrozenColumn="right" class="text-end">
-          <div class="btn-group">
-            <app-button (clicked)="editFournisseur(f)" [rounded]="true"
-                        [severity]="'success'" [text]="true" icon="pi pi-pencil"
-                        ngbTooltip="Modifier"
-                        placement="left" />
-            <app-button (clicked)="addAgence(f)" [rounded]="true"
-                        [severity]="'info'" [text]="true" icon="pi pi-building"
-                        ngbTooltip="Ajouter une agence"
-                        placement="left" />
-            <app-button (clicked)="deleteParent(f)" [rounded]="true"
-                        [severity]="'danger'" [text]="true" icon="pi pi-trash"
-                        ngbTooltip="Supprimer"
-                        placement="left" />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <!-- ── Ligne étendue : agences ── -->
-    <ng-template #expandedrow let-f>
-      <tr class="pharma-expanded-row">
-        <td colspan="20">
-          <div class="expanded-row-container">
-
-            @if (isLoadingAgences(f.id!)) {
-              <div class="d-flex align-items-center gap-2 text-muted py-2 px-3">
-                <i class="pi pi-spin pi-spinner"></i>
-                <span>Chargement des agences…</span>
-              </div>
+      <!-- ── Ligne principale : fournisseur parent ── -->
+      <ng-template #body let-expanded="expanded" let-f>
+        <tr>
+          <td>
+            <app-button
+              (clicked)="onRowExpand(f)"
+              [appRowToggler]="f"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [rounded]="true"
+              [severity]="'secondary'"
+              [text]="true"
+              ngbTooltip="{{ expanded ? 'Masquer les agences' : 'Voir les agences' }}"
+              size="small"
+            />
+          </td>
+          <td>
+            <span class="pharma-code">{{ f.code }}</span>
+          </td>
+          <td>
+            <div class="pharma-entity-name">{{ f.libelle }}</div>
+          </td>
+          <td>{{ f.mobile }}</td>
+          <td>{{ f.phone }}</td>
+          <td>{{ f.addressePostal }}</td>
+          <td>{{ f.site }}</td>
+          <td>{{ f.identifiantRepartiteur }}</td>
+          <td>{{ f.delaiLivraisonJours }}</td>
+          <td>{{ f.frequenceCommandeJours }}</td>
+          <td>{{ f.joursCredit }}</td>
+          <td>{{ f.joursCritique }}</td>
+          <td>{{ f.palierRfa }}</td>
+          <td>{{ f.tauxRfa }}</td>
+          <td class="text-center">
+            @if (f.urlPharmaMl) {
+              <i class="pi pi-check-circle text-success" ngbTooltip="{{ f.urlPharmaMl }}"></i>
             } @else {
-              @let agences = agencesOf(f.id!);
-              @if (agences.length === 0) {
-                <div class="d-flex align-items-center gap-2 text-muted fst-italic py-2 px-3">
-                  <i class="pi pi-info-circle"></i>
-                  <span>Aucune agence — les commandes sont passées directement à ce fournisseur.</span>
+              <i class="pi pi-minus-circle text-muted" ngbTooltip="PharmaML non configuré"></i>
+            }
+          </td>
+          <td>{{ f.codeOfficePharmaMl }}</td>
+          <td>{{ f.codeRecepteurPharmaMl }}</td>
+          <td>{{ f.idRecepteurPharmaMl }}</td>
+          <td class="text-center">
+            @let agences = agencesOf(f.id!);
+            @if (agencesMap().has(f.id!)) {
+              <app-badge [label]="agences.length + ''" [rounded]="true" [severity]="agences.length > 0 ? 'info' : 'secondary'" />
+            }
+          </td>
+          <td appFrozenColumn="right" class="text-end">
+            <div class="btn-group">
+              <app-button
+                (clicked)="editFournisseur(f)"
+                [rounded]="true"
+                [severity]="'success'"
+                [text]="true"
+                icon="pi pi-pencil"
+                ngbTooltip="Modifier"
+                placement="left"
+              />
+              <app-button
+                (clicked)="addAgence(f)"
+                [rounded]="true"
+                [severity]="'info'"
+                [text]="true"
+                icon="pi pi-building"
+                ngbTooltip="Ajouter une agence"
+                placement="left"
+              />
+              <app-button
+                (clicked)="deleteParent(f)"
+                [rounded]="true"
+                [severity]="'danger'"
+                [text]="true"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                placement="left"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- ── Ligne étendue : agences ── -->
+      <ng-template #expandedrow let-f>
+        <tr class="pharma-expanded-row">
+          <td colspan="20">
+            <div class="expanded-row-container">
+              @if (isLoadingAgences(f.id!)) {
+                <div class="d-flex align-items-center gap-2 text-muted py-2 px-3">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <span>Chargement des agences…</span>
                 </div>
               } @else {
-                <div class="expanded-cards-container">
-                  <div class="activity-card activity-card-info">
-                    <div class="activity-card-header">
-                      <div class="activity-card-icon activity-card-icon-small">
-                        <i class="pi pi-building"></i>
+                @let agences = agencesOf(f.id!);
+                @if (agences.length === 0) {
+                  <div class="d-flex align-items-center gap-2 text-muted fst-italic py-2 px-3">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Aucune agence — les commandes sont passées directement à ce fournisseur.</span>
+                  </div>
+                } @else {
+                  <div class="expanded-cards-container">
+                    <div class="activity-card activity-card-info">
+                      <div class="activity-card-header">
+                        <div class="activity-card-icon activity-card-icon-small">
+                          <i class="pi pi-building"></i>
+                        </div>
+                        <div class="activity-card-header-content">
+                          <h3 class="activity-card-title">Agences</h3>
+                          <span class="activity-card-subtitle">{{ agences.length }} agence(s) rattachée(s)</span>
+                        </div>
                       </div>
-                      <div class="activity-card-header-content">
-                        <h3 class="activity-card-title">Agences</h3>
-                        <span class="activity-card-subtitle">{{ agences.length }} agence(s) rattachée(s)</span>
+                      <div class="activity-card-table-body">
+                        <app-data-table [value]="agences" class="rowexpansion-table">
+                          <ng-template #header>
+                            <tr class="pharma-table-head">
+                              <th><span>Code</span></th>
+                              <th><span>Libellé</span></th>
+                              <th><span>Mobile</span></th>
+                              <th><span>Téléphone</span></th>
+                              <th><span>Adresse</span></th>
+                              <th><span>Site web</span></th>
+                              <th><span>Délai livr. (j)</span></th>
+                              <th><span>Id. grossiste</span></th>
+                              <th class="text-center"><span>PharmaML</span></th>
+                              <th><span>Code officine</span></th>
+                              <th><span>Code destinataire</span></th>
+                              <th><span>N° client grossiste</span></th>
+                              <th appFrozenColumn="right" style="width: 7rem"></th>
+                            </tr>
+                          </ng-template>
+                          <ng-template #body let-agence>
+                            <tr>
+                              <td>
+                                <span class="pharma-code">{{ agence.code }}</span>
+                              </td>
+                              <td>
+                                <div class="pharma-entity-name">{{ agence.libelle }}</div>
+                              </td>
+                              <td>{{ agence.mobile }}</td>
+                              <td>{{ agence.phone }}</td>
+                              <td>{{ agence.addressePostal }}</td>
+                              <td>{{ agence.site }}</td>
+                              <td>{{ agence.delaiLivraisonJours }}</td>
+                              <td>{{ agence.identifiantRepartiteur }}</td>
+                              <td class="text-center">
+                                @if (agence.urlPharmaMl) {
+                                  <i class="pi pi-check-circle text-success" ngbTooltip="{{ agence.urlPharmaMl }}"></i>
+                                } @else {
+                                  <i class="pi pi-minus-circle text-muted" ngbTooltip="PharmaML non configuré"></i>
+                                }
+                              </td>
+                              <td>{{ agence.codeOfficePharmaMl }}</td>
+                              <td>{{ agence.codeRecepteurPharmaMl }}</td>
+                              <td>{{ agence.idRecepteurPharmaMl }}</td>
+                              <td appFrozenColumn="right" class="text-end">
+                                <div class="btn-group">
+                                  <app-button
+                                    (clicked)="editFournisseur(agence)"
+                                    [rounded]="true"
+                                    [severity]="'success'"
+                                    [text]="true"
+                                    icon="pi pi-pencil"
+                                    ngbTooltip="Modifier"
+                                    size="small"
+                                  />
+                                  <app-button
+                                    (clicked)="deleteAgence(agence, f.id!)"
+                                    [rounded]="true"
+                                    [severity]="'danger'"
+                                    [text]="true"
+                                    icon="pi pi-trash"
+                                    ngbTooltip="Supprimer"
+                                    size="small"
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </app-data-table>
                       </div>
-                    </div>
-                    <div class="activity-card-table-body">
-                      <app-data-table [value]="agences"
-                                      class=" rowexpansion-table">
-                        <ng-template #header>
-                          <tr class="pharma-table-head">
-                            <th><span>Code</span></th>
-                            <th><span>Libellé</span></th>
-                            <th><span>Mobile</span></th>
-                            <th><span>Téléphone</span></th>
-                            <th><span>Adresse</span></th>
-                            <th><span>Site web</span></th>
-                            <th><span>Délai livr. (j)</span></th>
-                            <th><span>Id. grossiste</span></th>
-                            <th class="text-center"><span>PharmaML</span></th>
-                            <th><span>Code officine</span></th>
-                            <th><span>Code destinataire</span></th>
-                            <th><span>N° client grossiste</span></th>
-                            <th appFrozenColumn="right" style="width: 7rem"></th>
-                          </tr>
-                        </ng-template>
-                        <ng-template #body let-agence>
-                          <tr>
-                            <td><span class="pharma-code">{{ agence.code }}</span></td>
-                            <td>
-                              <div class="pharma-entity-name">{{ agence.libelle }}</div>
-                            </td>
-                            <td>{{ agence.mobile }}</td>
-                            <td>{{ agence.phone }}</td>
-                            <td>{{ agence.addressePostal }}</td>
-                            <td>{{ agence.site }}</td>
-                            <td>{{ agence.delaiLivraisonJours }}</td>
-                            <td>{{ agence.identifiantRepartiteur }}</td>
-                            <td class="text-center">
-                              @if (agence.urlPharmaMl) {
-                                <i class="pi pi-check-circle text-success"
-                                   ngbTooltip="{{ agence.urlPharmaMl }}"></i>
-                              } @else {
-                                <i class="pi pi-minus-circle text-muted"
-                                   ngbTooltip="PharmaML non configuré"></i>
-                              }
-                            </td>
-                            <td>{{ agence.codeOfficePharmaMl }}</td>
-                            <td>{{ agence.codeRecepteurPharmaMl }}</td>
-                            <td>{{ agence.idRecepteurPharmaMl }}</td>
-                            <td appFrozenColumn="right" class="text-end">
-                              <div class="btn-group">
-                                <app-button (clicked)="editFournisseur(agence)" [rounded]="true"
-                                            [severity]="'success'"
-                                            [text]="true" icon="pi pi-pencil"
-                                            ngbTooltip="Modifier"
-                                            size="small" />
-                                <app-button (clicked)="deleteAgence(agence, f.id!)" [rounded]="true"
-                                            [severity]="'danger'" [text]="true" icon="pi pi-trash"
-                                            ngbTooltip="Supprimer" size="small" />
-                              </div>
-                            </td>
-                          </tr>
-                        </ng-template>
-                      </app-data-table>
                     </div>
                   </div>
-                </div>
+                }
               }
-            }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="20">
-          <div class="alert alert-warning text-center">Aucun fournisseur trouvé.</div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
-</app-card>
-
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="20">
+            <div class="alert alert-warning text-center">Aucun fournisseur trouvé.</div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>

@@ -1,17 +1,17 @@
-import {inject, Injectable} from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
-import {NavItem, navItemIdFromLabel} from 'app/layouts/navbar/navbar-item.model';
-import {PeremptionAlertService} from '../../shared/services/peremption-alert.service';
-import {AlertBadgeService} from '../../shared/services/alert-badge.service';
-import {AccountService} from '../auth/account.service';
-import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
-import {LayoutService} from './layout.service';
-import {CHROMES} from 'app/core/theme/chrome-theme';
-import {ChromeThemeService} from 'app/core/theme/chrome-theme.service';
-import {Authority} from '../../config/authority.constants';
-import {NavStore} from 'app/core/store/nav.store';
-import {INavNode} from 'app/shared/model/nav-item.model';
-import {IconProp} from '@fortawesome/fontawesome-svg-core';
+import { inject, Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { NavItem, navItemIdFromLabel } from 'app/layouts/navbar/navbar-item.model';
+import { PeremptionAlertService } from '../../shared/services/peremption-alert.service';
+import { AlertBadgeService } from '../../shared/services/alert-badge.service';
+import { AccountService } from '../auth/account.service';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { LayoutService } from './layout.service';
+import { CHROMES } from 'app/core/theme/chrome-theme';
+import { ChromeThemeService } from 'app/core/theme/chrome-theme.service';
+import { Authority } from '../../config/authority.constants';
+import { NavStore } from 'app/core/store/nav.store';
+import { INavNode } from 'app/shared/model/nav-item.model';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
   faAlignJustify,
   faArrowsAltH,
@@ -153,7 +153,7 @@ export class NavigationService {
         click: () => this.chromeThemeService.setChrome(chrome.name),
       })),
     };
-    const menuDivider: NavItem = {id: 'account.divider', label: '', divider: true};
+    const menuDivider: NavItem = { id: 'account.divider', label: '', divider: true };
 
     if (!account) {
       const anonymousItems: NavItem[] = [
@@ -164,7 +164,7 @@ export class NavigationService {
           id: 'account.login',
           label: 'Se connecter',
           faIcon: 'sign-out-alt',
-          click: actions.onLogin
+          click: actions.onLogin,
         },
       ];
       if (isTauri) {
@@ -187,7 +187,7 @@ export class NavigationService {
         id: 'account.logout',
         label: 'Se déconnecter',
         faIcon: 'sign-out-alt',
-        click: actions.onLogout
+        click: actions.onLogout,
       },
     ];
     if (isAdmin && isTauri) {
@@ -215,7 +215,7 @@ export class NavigationService {
     // « Guide des fonctionnalités » n'est plus poussé ici : il est devenu une entrée
     // nav_item du module Administration (migration V1.9.5), donc soumise au même
     // paramétrage de droits et au même ordre personnalisable que le reste du menu.
-    return this.buildNavItemsFromStore({additionalAccountMenuItems: accountItems});
+    return this.buildNavItemsFromStore({ additionalAccountMenuItems: accountItems });
   }
 
   /**
@@ -281,7 +281,7 @@ export class NavigationService {
     ruptureCount: number,
     urgentCount: number,
     peremptionCount: number,
-    facturationOverdueCount: number
+    facturationOverdueCount: number,
   ): void {
     for (const item of items) {
       if (item.children?.length) {
@@ -344,7 +344,7 @@ export class NavigationService {
         id: 'account.settings',
         label: this.translateLabel('account.settings'),
         routerLink: '/account/settings',
-        faIcon: 'wrench'
+        faIcon: 'wrench',
       },
       {
         id: 'account.cash-register',
@@ -356,7 +356,7 @@ export class NavigationService {
         id: 'account.password',
         label: this.translateLabel('account.password'),
         routerLink: '/account/password',
-        faIcon: 'lock'
+        faIcon: 'lock',
       },
     ];
     if (options.additionalAccountMenuItems) {
@@ -366,7 +366,7 @@ export class NavigationService {
       id: 'account',
       label: this.translateLabel('account.main'),
       faIcon: 'user',
-      children: accountChildren
+      children: accountChildren,
     };
   }
 

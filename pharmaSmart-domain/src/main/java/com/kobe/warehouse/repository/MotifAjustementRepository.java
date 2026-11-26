@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MotifAjustementRepository extends JpaRepository<MotifAjustement, Integer> {
     Page<MotifAjustement> findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(String libelle, Pageable pageable);
-    Page<MotifAjustement> findAllByOrderByLibelleAsc( Pageable pageable);
+
+    Page<MotifAjustement> findAllByOrderByLibelleAsc(Pageable pageable);
+
     Optional<MotifAjustement> findFirstByLibelle(String libelle);
 }

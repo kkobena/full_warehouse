@@ -31,6 +31,7 @@ public class FinancesWidgets extends AbstractWidgets {
 
     /** Seuils du rapport de rentabilité, repris de l'accueil pharmacien. */
     private static final int SEUIL_MARGE_BASSE = 10;
+
     private static final int SEUIL_MARGE_HAUTE = 20;
 
     public FinancesWidgets(AppConfigurationService appConfigurationService) {
@@ -45,16 +46,16 @@ public class FinancesWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(null, null, devise(), null);
             }
             return new WidgetData.Kpi(
-                zeroIfNull(marge.margeBruteGlobale()),
-                null,
-                devise(),
-                String.format(
-                    Locale.FRANCE,
-                    "%.1f %% · %d référence(s) · 12 mois glissants",
-                    marge.tauxMargeMoyen() == null ? 0 : marge.tauxMargeMoyen().doubleValue(),
-                    zeroIfNull(marge.totalProduits())
-                )
-            );
+                    zeroIfNull(marge.margeBruteGlobale()),
+                    null,
+                    devise(),
+                    String.format(
+                            Locale.FRANCE,
+                            "%.1f %% · %d référence(s) · 12 mois glissants",
+                            marge.tauxMargeMoyen() == null
+                                    ? 0
+                                    : marge.tauxMargeMoyen().doubleValue(),
+                            zeroIfNull(marge.totalProduits())));
         });
     }
 
@@ -64,54 +65,43 @@ public class FinancesWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("creances-tp", (context, params) -> {
             List<TiersPayantCreancesSummaryDTO> creances = tiersPayantReportService.getCreancesSummary();
             return new WidgetData.Series(
-                List.of("Moins de 30 j", "30 à 60 j", "60 à 90 j", "Plus de 90 j"),
-                List.of(
-                    new SeriesItem(
-                        "Encours",
-                        List.of(
-                            sum(creances, TiersPayantCreancesSummaryDTO::montantMoinsDe30Jours),
-                            sum(creances, TiersPayantCreancesSummaryDTO::montantEntre30Et60Jours),
-                            sum(creances, TiersPayantCreancesSummaryDTO::montantEntre60Et90Jours),
-                            sum(creances, TiersPayantCreancesSummaryDTO::montantPlusDe90Jours)
-                        )
-                    )
-                ),
-                "Encours total : %s · %d facture(s)".formatted(
-                    amount(sum(creances, TiersPayantCreancesSummaryDTO::montantEncours)),
-                    sum(creances, TiersPayantCreancesSummaryDTO::nombreFactures)
-                )
-            );
+                    List.of("Moins de 30 j", "30 à 60 j", "60 à 90 j", "Plus de 90 j"),
+                    List.of(new SeriesItem(
+                            "Encours",
+                            List.of(
+                                    sum(creances, TiersPayantCreancesSummaryDTO::montantMoinsDe30Jours),
+                                    sum(creances, TiersPayantCreancesSummaryDTO::montantEntre30Et60Jours),
+                                    sum(creances, TiersPayantCreancesSummaryDTO::montantEntre60Et90Jours),
+                                    sum(creances, TiersPayantCreancesSummaryDTO::montantPlusDe90Jours)))),
+                    "Encours total : %s · %d facture(s)"
+                            .formatted(
+                                    amount(sum(creances, TiersPayantCreancesSummaryDTO::montantEncours)),
+                                    sum(creances, TiersPayantCreancesSummaryDTO::nombreFactures)));
         });
     }
 
     @Bean
     WidgetDataProvider creancesParOrganismeWidget(TiersPayantReportService tiersPayantReportService) {
-        return WidgetDataProvider.of("creances-par-organisme", (context, params) ->
-            new WidgetData.Table(
-                List.of(
-                    Column.text("organisme", "Organisme"),
-                    Column.number("factures", "Factures"),
-                    Column.amount("encours", "Encours"),
-                    Column.amount("plus90", "Plus de 90 j")
-                ),
-                safe(tiersPayantReportService.getCreancesSummary())
-                    .stream()
-                    .map(c ->
-                        buildRow(
-                            "organisme",
-                            c.groupeTiersPayantLibelle(),
-                            "factures",
-                            c.nombreFactures(),
-                            "encours",
-                            c.montantEncours(),
-                            "plus90",
-                            c.montantPlusDe90Jours()
-                        )
-                    )
-                    .toList(),
-                null
-            )
-        );
+        return WidgetDataProvider.of(
+                "creances-par-organisme",
+                (context, params) -> new WidgetData.Table(
+                        List.of(
+                                Column.text("organisme", "Organisme"),
+                                Column.number("factures", "Factures"),
+                                Column.amount("encours", "Encours"),
+                                Column.amount("plus90", "Plus de 90 j")),
+                        safe(tiersPayantReportService.getCreancesSummary()).stream()
+                                .map(c -> buildRow(
+                                        "organisme",
+                                        c.groupeTiersPayantLibelle(),
+                                        "factures",
+                                        c.nombreFactures(),
+                                        "encours",
+                                        c.montantEncours(),
+                                        "plus90",
+                                        c.montantPlusDe90Jours()))
+                                .toList(),
+                        null));
     }
 
     /** Différés clients encore dus, pour toute l'officine. */
@@ -123,16 +113,19 @@ public class FinancesWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(0L, null, devise(), null);
             }
             return new WidgetData.Kpi(
-                zeroIfNull(differes.rest()),
-                null,
-                devise(),
-                "accordé %s · remboursé %s".formatted(amount(differes.saleAmount()), amount(differes.paidAmount()))
-            );
+                    zeroIfNull(differes.rest()),
+                    null,
+                    devise(),
+                    "accordé %s · remboursé %s"
+                            .formatted(amount(differes.saleAmount()), amount(differes.paidAmount())));
         });
     }
 
-    private static int sum(List<TiersPayantCreancesSummaryDTO> creances, Function<TiersPayantCreancesSummaryDTO, Integer> montant) {
-        return safe(creances).stream().mapToInt(c -> zeroIfNull(montant.apply(c))).sum();
+    private static int sum(
+            List<TiersPayantCreancesSummaryDTO> creances, Function<TiersPayantCreancesSummaryDTO, Integer> montant) {
+        return safe(creances).stream()
+                .mapToInt(c -> zeroIfNull(montant.apply(c)))
+                .sum();
     }
 
     private static <T> List<T> safe(List<T> list) {

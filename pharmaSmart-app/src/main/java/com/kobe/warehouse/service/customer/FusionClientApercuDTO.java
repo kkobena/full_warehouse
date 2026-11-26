@@ -11,9 +11,8 @@ import java.util.Map;
  * @param avertissements points à vérifier après fusion (dossiers santé réunis, carnets additionnés…)
  */
 public record FusionClientApercuDTO(
-    Integer targetId,
-    List<Integer> sourceIds,
-    Map<Integer, String> rejets,
-    Map<String, Integer> counts,
-    List<String> avertissements
-) {}
+        Integer targetId,
+        List<Integer> sourceIds,
+        Map<Integer, String> rejets,
+        Map<String, Integer> counts,
+        List<String> avertissements) {}

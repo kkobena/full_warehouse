@@ -44,24 +44,24 @@ class VentilateurPilotage {
     private final PilotageAnalyseRepository pilotageAnalyseRepository;
     private final AppConfigurationService appConfigurationService;
 
-    VentilateurPilotage(PilotageAnalyseRepository pilotageAnalyseRepository, AppConfigurationService appConfigurationService) {
+    VentilateurPilotage(
+            PilotageAnalyseRepository pilotageAnalyseRepository, AppConfigurationService appConfigurationService) {
         this.pilotageAnalyseRepository = pilotageAnalyseRepository;
         this.appConfigurationService = appConfigurationService;
     }
 
     /** @param axe {@code null} : un seul élément, le total du périmètre filtré */
     Ventilation comparer(
-        SourceAnalyse source,
-        ComparaisonPeriodesDTO comparaison,
-        AxeAnalyse axe,
-        AxeAnalyse axe2,
-        List<FiltreAnalyseDTO> filtres,
-        Granularite granularite
-    ) {
+            SourceAnalyse source,
+            ComparaisonPeriodesDTO comparaison,
+            AxeAnalyse axe,
+            AxeAnalyse axe2,
+            List<FiltreAnalyseDTO> filtres,
+            Granularite granularite) {
         List<AxeAnalyse> axes = Stream.of(axe, axe2).filter(Objects::nonNull).toList();
         TranchesRemise tranchesRemise = axes.contains(AxeAnalyse.REMISE)
-            ? TranchesRemise.decouper(appConfigurationService.getTranchesRemisePilotage())
-            : null;
+                ? TranchesRemise.decouper(appConfigurationService.getTranchesRemisePilotage())
+                : null;
         LectureVentilation lecture = new LectureVentilation(source, axes, filtres, granularite, tranchesRemise);
         Map<List<String>, MesuresComparees> parCles = new LinkedHashMap<>();
         MesuresComparees total = ajouter(parCles, lecture, comparaison.periode(), true);
@@ -72,24 +72,36 @@ class VentilateurPilotage {
     }
 
     /** @return le total des lignes ajoutées */
-    private MesuresComparees ajouter(Map<List<String>, MesuresComparees> parCles, LectureVentilation lecture, PeriodeDTO periode, boolean estLaPeriode) {
+    private MesuresComparees ajouter(
+            Map<List<String>, MesuresComparees> parCles,
+            LectureVentilation lecture,
+            PeriodeDTO periode,
+            boolean estLaPeriode) {
         List<AxeAnalyse> axes = lecture.axes();
-        List<AxeAnalyse> lusEnBase = axes.stream().filter(AxeAnalyse::estLuEnBase).toList();
+        List<AxeAnalyse> lusEnBase =
+                axes.stream().filter(AxeAnalyse::estLuEnBase).toList();
         boolean parJour = lusEnBase.size() < axes.size();
         TranchesPeriode tranches = TranchesPeriode.decouper(periode, lecture.granularite());
-        List<MesuresVentileesDTO> lignes = pilotageAnalyseRepository.ventiler(
-            new RequeteVentilationDTO(periode.du(), periode.au(), lecture.source(), lusEnBase, parJour, lecture.filtres(), CategorieChiffreAffaire.officine())
-        );
+        List<MesuresVentileesDTO> lignes = pilotageAnalyseRepository.ventiler(new RequeteVentilationDTO(
+                periode.du(),
+                periode.au(),
+                lecture.source(),
+                lusEnBase,
+                parJour,
+                lecture.filtres(),
+                CategorieChiffreAffaire.officine()));
         MesuresComparees total = MesuresComparees.AUCUNES;
         for (MesuresVentileesDTO ligne : lignes) {
-            MembreAnalyseDTO membre = axes.isEmpty() ? null : lireMembre(axes.getFirst(), ligne, 0, tranches, lecture.tranchesRemise());
+            MembreAnalyseDTO membre =
+                    axes.isEmpty() ? null : lireMembre(axes.getFirst(), ligne, 0, tranches, lecture.tranchesRemise());
             MembreAnalyseDTO membre2 = axes.size() < 2
-                ? null
-                : lireMembre(axes.get(1), ligne, lusEnBase.indexOf(axes.get(1)), tranches, lecture.tranchesRemise());
+                    ? null
+                    : lireMembre(
+                            axes.get(1), ligne, lusEnBase.indexOf(axes.get(1)), tranches, lecture.tranchesRemise());
             MesuresPilotage mesures = MesuresPilotage.deVentilation(lecture.source(), ligne);
             MesuresComparees comparees = estLaPeriode
-                ? new MesuresComparees(membre, membre2, mesures, MesuresPilotage.AUCUNE)
-                : new MesuresComparees(membre, membre2, MesuresPilotage.AUCUNE, mesures);
+                    ? new MesuresComparees(membre, membre2, mesures, MesuresPilotage.AUCUNE)
+                    : new MesuresComparees(membre, membre2, MesuresPilotage.AUCUNE, mesures);
             parCles.merge(cles(membre, membre2), comparees, MesuresComparees::plus);
             total = total.plus(new MesuresComparees(null, null, comparees.periode(), comparees.reference()));
         }
@@ -97,19 +109,19 @@ class VentilateurPilotage {
     }
 
     private static MembreAnalyseDTO lireMembre(
-        AxeAnalyse axe,
-        MesuresVentileesDTO ligne,
-        int rangEnBase,
-        TranchesPeriode tranches,
-        TranchesRemise tranchesRemise
-    ) {
+            AxeAnalyse axe,
+            MesuresVentileesDTO ligne,
+            int rangEnBase,
+            TranchesPeriode tranches,
+            TranchesRemise tranchesRemise) {
         String cle = rangEnBase == 0 ? ligne.cle1() : ligne.cle2();
         return switch (axe) {
             case PERIODE -> tranches.lireMembre(ligne.jour());
-            case JOUR_SEMAINE -> new MembreAnalyseDTO(
-                String.valueOf(ligne.jour().getDayOfWeek().getValue()),
-                LibellesPilotage.majuscule(ligne.jour().getDayOfWeek().getDisplayName(TextStyle.FULL, FRANCAIS))
-            );
+            case JOUR_SEMAINE ->
+                new MembreAnalyseDTO(
+                        String.valueOf(ligne.jour().getDayOfWeek().getValue()),
+                        LibellesPilotage.majuscule(
+                                ligne.jour().getDayOfWeek().getDisplayName(TextStyle.FULL, FRANCAIS)));
             case REMISE -> tranchesRemise.classer(Integer.parseInt(cle));
             default -> {
                 String libelle = rangEnBase == 0 ? ligne.libelle1() : ligne.libelle2();
@@ -121,5 +133,4 @@ class VentilateurPilotage {
     private static List<String> cles(MembreAnalyseDTO membre, MembreAnalyseDTO membre2) {
         return List.of(membre == null ? "" : membre.cle(), membre2 == null ? "" : membre2.cle());
     }
-
 }

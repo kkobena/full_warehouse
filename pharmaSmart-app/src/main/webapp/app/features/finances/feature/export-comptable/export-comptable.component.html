@@ -4,23 +4,17 @@
       <i class="pi pi-download export-icon"></i>
       <span class="pharma-toolbar-title">Export expert-comptable</span>
     </div>
-
   </div>
 
-
   <div class="export-card">
-
     <!-- Période -->
     <section class="export-section">
       <h6 class="section-title"><i class="pi pi-calendar me-2"></i>Période</h6>
       <div class="d-flex gap-3 flex-wrap">
-        <pharma-date-picker (ngModelChange)="startDate.set($event)" [ngModel]="startDate()"
-                            id="exp-start" label="Du" />
-        <pharma-date-picker (ngModelChange)="endDate.set($event)" [ngModel]="endDate()" id="exp-end"
-                            label="Au" />
+        <pharma-date-picker (ngModelChange)="startDate.set($event)" [ngModel]="startDate()" id="exp-start" label="Du" />
+        <pharma-date-picker (ngModelChange)="endDate.set($event)" [ngModel]="endDate()" id="exp-end" label="Au" />
       </div>
     </section>
-
 
     <!-- Contenu -->
     <section class="export-section">
@@ -36,8 +30,7 @@
           <app-checkbox [(ngModel)]="includeMvtCaisse" label="Mouvements de caisse" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
-          <app-checkbox [(ngModel)]="includeTiersPayant"
-                        label="Tiers-payants (créances + règlements)" />
+          <app-checkbox [(ngModel)]="includeTiersPayant" label="Tiers-payants (créances + règlements)" />
         </div>
         <div class="col-md-6 d-flex align-items-center gap-2">
           <app-checkbox [(ngModel)]="includeDifferes" label="Différés clients" />
@@ -52,16 +45,20 @@
       <h6 class="section-title"><i class="pi pi-file me-2"></i>Exporter au format</h6>
       <div class="d-flex gap-3 flex-wrap">
         @for (f of formatOptions; track f.value) {
-          <button (click)="generateExport(f.value)"
-                  [disabled]="isLoading() || (!includeVentes && !includeAchats && !includeMvtCaisse && !includeTiersPayant && !includeDifferes && !includeTva)"
-                  class="format-btn" type="button">
+          <button
+            (click)="generateExport(f.value)"
+            [disabled]="
+              isLoading() ||
+              (!includeVentes && !includeAchats && !includeMvtCaisse && !includeTiersPayant && !includeDifferes && !includeTva)
+            "
+            class="format-btn"
+            type="button"
+          >
             <i [class]="isLoading() ? 'pi pi-spin pi-spinner' : f.icon"></i>
             <span>{{ f.label }}</span>
           </button>
         }
       </div>
     </section>
-
   </div>
-
 </div>

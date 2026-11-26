@@ -14,14 +14,7 @@ import { IDiffere, INewReglementDiffere } from '../../data-access/models';
 
 @Component({
   selector: 'app-reglement-differe-form',
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    InputNumberComponent,
-    PharmaDatePickerComponent,
-    SelectComponent,
-  ],
+  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, InputNumberComponent, PharmaDatePickerComponent, SelectComponent],
   templateUrl: './reglement-differe-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './reglement-differe-form.component.scss',

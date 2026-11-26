@@ -3,12 +3,12 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
-import com.kobe.warehouse.service.dto.TvaEmbeded;
-import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
+import com.kobe.warehouse.service.dto.TvaEmbeded;
 import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -45,7 +45,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     protected int getAvoirCount() {
         return thirdPartySale.getSalesLines().stream()
-            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
+                .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold())
+                .sum();
     }
 
     @Override
@@ -69,8 +70,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
 
         item.setProduitName(
-            produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth)
-                : produitName);
+                produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
         item.setLots(formaterLots(saleLineDTO));
@@ -95,34 +95,24 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         Font font = PLAIN_FONT;
         AssuredCustomerDTO customer = (AssuredCustomerDTO) thirdPartySale.getCustomer();
-        headerItems.add(
-            new HeaderFooterItem(
-                "ASSURE: " +
-                    customer.getFullName() +
-                    " | MATRICULE: " +
-                    thirdPartySale
-                        .getTiersPayants()
-                        .stream()
-                        .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
-                        .findFirst()
-                        .map(ClientTiersPayantDTO::getNum)
-                        .orElse(""),
+        headerItems.add(new HeaderFooterItem(
+                "ASSURE: " + customer.getFullName()
+                        + " | MATRICULE: "
+                        + thirdPartySale.getTiersPayants().stream()
+                                .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
+                                .findFirst()
+                                .map(ClientTiersPayantDTO::getNum)
+                                .orElse(""),
                 1,
-                font
-            )
-        );
+                font));
         if (!customer.getId().equals(thirdPartySale.getAyantDroitId())) {
-            headerItems.add(
-                new HeaderFooterItem(
-                    "BENEFICIAIRE: " +
-                        thirdPartySale.getAyantDroitFirstName().concat(" ") +
-                        thirdPartySale.getAyantDroitLastName() +
-                        " | MATRICULE: " +
-                        thirdPartySale.getAyantDroitNum(),
+            headerItems.add(new HeaderFooterItem(
+                    "BENEFICIAIRE: " + thirdPartySale.getAyantDroitFirstName().concat(" ")
+                            + thirdPartySale.getAyantDroitLastName()
+                            + " | MATRICULE: "
+                            + thirdPartySale.getAyantDroitNum(),
                     1,
-                    font
-                )
-            );
+                    font));
         }
         headerItems.addAll(getOperateurInfos());
         return headerItems;
@@ -138,16 +128,15 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     @Override
     protected int getMontantHorsTicket() {
-        return TicketNonRembourseBuilder
-            .listerLignesNonRemboursees(thirdPartySale)
-            .stream()
-            .mapToInt(SaleLineDTO::getSalesAmount)
-            .sum();
+        return TicketNonRembourseBuilder.listerLignesNonRemboursees(thirdPartySale).stream()
+                .mapToInt(SaleLineDTO::getSalesAmount)
+                .sum();
     }
 
     @Override
     protected List<PaymentDTO> getReglementsTicket() {
-        return TicketNonRembourseBuilder.repartirReglements(thirdPartySale.getPayments(), getMontantHorsTicket()).ticketAssurance();
+        return TicketNonRembourseBuilder.repartirReglements(thirdPartySale.getPayments(), getMontantHorsTicket())
+                .ticketAssurance();
     }
 
     @Override
@@ -155,22 +144,19 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         if (getMontantHorsTicket() == 0) {
             return thirdPartySale.getTvaEmbededs();
         }
-        return TicketNonRembourseBuilder.calculerTva(
-            thirdPartySale.getSalesLines().stream().filter(l -> !l.isNonRembourse()).toList()
-        );
+        return TicketNonRembourseBuilder.calculerTva(thirdPartySale.getSalesLines().stream()
+                .filter(l -> !l.isNonRembourse())
+                .toList());
     }
 
     @Override
     public List<HeaderFooterItem> getFooterItems() {
         int montantNonRembourse = getMontantHorsTicket();
         if (montantNonRembourse > 0) {
-            return List.of(
-                new HeaderFooterItem(
+            return List.of(new HeaderFooterItem(
                     "Dont non remboursés (ticket joint): " + NumberUtil.formatToString(montantNonRembourse),
                     1,
-                    PLAIN_FONT
-                )
-            );
+                    PLAIN_FONT));
         }
         return List.of();
     }
@@ -201,8 +187,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
      * @return byte array containing ESC/POS commands
      * @throws IOException if generation fails
      */
-    public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit)
-        throws IOException {
+    public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit) throws IOException {
         this.thirdPartySale = sale;
         return generateEscPosReceipt(isEdit);
     }
@@ -212,8 +197,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
      */
     @Override
     protected String getAssuranceInfoText() {
-        if (thirdPartySale == null || CollectionUtils.isEmpty(
-            thirdPartySale.getThirdPartySaleLines())) {
+        if (thirdPartySale == null || CollectionUtils.isEmpty(thirdPartySale.getThirdPartySaleLines())) {
             return null;
         }
 
@@ -225,18 +209,16 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
             if (!thirdPartySale.isHasPriceOption()) {
                 // Display percentage
-                info.append(String.format("%-26s %7s%% %10s", priorityCode + ": " + tiersPayantName,
-                    thirdPartySaleLine.getTaux(), amount));
+                info.append(String.format(
+                        "%-26s %7s%% %10s",
+                        priorityCode + ": " + tiersPayantName, thirdPartySaleLine.getTaux(), amount));
             } else {
                 // Display amount
-                info.append(
-                    String.format(
+                info.append(String.format(
                         "%-26s %10s %10s",
                         priorityCode + ": " + tiersPayantName,
                         NumberUtil.formatToString(thirdPartySaleLine.getMontant()),
-                        amount
-                    )
-                );
+                        amount));
             }
             info.append("\n");
         }

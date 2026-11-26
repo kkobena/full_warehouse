@@ -55,17 +55,25 @@
     @if (aideVisible()) {
       <aside aria-label="Aide de l'onglet Analyser" class="analyser-aide">
         <ol>
-          <li><strong>Choisissez quoi mesurer.</strong> Un à trois indicateurs ; le premier pilote le graphique, la part et la contribution.</li>
-          <li><strong>Ventilez.</strong> « Ventiler par » découpe les chiffres (famille, rayon, fournisseur…) ; « Puis par » ajoute un second découpage, lu dans l'affichage <em>Croisé</em>.</li>
           <li>
-            <strong>Descendez.</strong> Avec <i aria-hidden="true" class="pi pi-arrow-down-right"></i> sur une ligne du tableau (famille, puis produit, puis ses ventes
-            <i aria-hidden="true" class="pi pi-list"></i>) ; le fil au-dessus du graphique permet de remonter.
+            <strong>Choisissez quoi mesurer.</strong> Un à trois indicateurs ; le premier pilote le graphique, la part et la contribution.
           </li>
           <li>
-            <strong>Comprenez un écart.</strong> Avec <i aria-hidden="true" class="pi pi-question-circle"></i> : le panneau montre ce qui porte la hausse ou la baisse
-            de l'élément, et propose de le ventiler par l'axe le plus explicatif.
+            <strong>Ventilez.</strong> « Ventiler par » découpe les chiffres (famille, rayon, fournisseur…) ; « Puis par » ajoute un second
+            découpage, lu dans l'affichage <em>Croisé</em>.
           </li>
-          <li><strong>Gardez le réglage.</strong> Avec « Enregistrer la vue » ; la période et la comparaison restent celles de la barre du haut.</li>
+          <li>
+            <strong>Descendez.</strong> Avec <i aria-hidden="true" class="pi pi-arrow-down-right"></i> sur une ligne du tableau (famille,
+            puis produit, puis ses ventes <i aria-hidden="true" class="pi pi-list"></i>) ; le fil au-dessus du graphique permet de remonter.
+          </li>
+          <li>
+            <strong>Comprenez un écart.</strong> Avec <i aria-hidden="true" class="pi pi-question-circle"></i> : le panneau montre ce qui
+            porte la hausse ou la baisse de l'élément, et propose de le ventiler par l'axe le plus explicatif.
+          </li>
+          <li>
+            <strong>Gardez le réglage.</strong> Avec « Enregistrer la vue » ; la période et la comparaison restent celles de la barre du
+            haut.
+          </li>
         </ol>
       </aside>
     }
@@ -110,15 +118,38 @@
         />
       </app-form-field>
       <app-form-field class="analyser-champ analyser-champ--etroit" fieldId="pilotageTop" label="Éléments">
-        <app-select (selectionChange)="choisirTop($event)" [clearable]="false" [items]="tops" [ngModel]="reglage().top" [searchable]="false"
-                    ariaLabel="Nombre d'éléments" bindLabel="libelle" bindValue="valeur" inputId="pilotageTop" />
+        <app-select
+          (selectionChange)="choisirTop($event)"
+          [clearable]="false"
+          [items]="tops"
+          [ngModel]="reglage().top"
+          [searchable]="false"
+          ariaLabel="Nombre d'éléments"
+          bindLabel="libelle"
+          bindValue="valeur"
+          inputId="pilotageTop"
+        />
       </app-form-field>
       <app-form-field class="analyser-champ" fieldId="pilotageTri" label="Trier par">
-        <app-select (selectionChange)="choisirTri($event)" [clearable]="false" [items]="tris" [ngModel]="reglage().tri" [searchable]="false" ariaLabel="Trier par"
-                    bindLabel="libelle" bindValue="valeur" inputId="pilotageTri" />
+        <app-select
+          (selectionChange)="choisirTri($event)"
+          [clearable]="false"
+          [items]="tris"
+          [ngModel]="reglage().tri"
+          [searchable]="false"
+          ariaLabel="Trier par"
+          bindLabel="libelle"
+          bindValue="valeur"
+          inputId="pilotageTri"
+        />
       </app-form-field>
       <app-form-field class="analyser-champ analyser-champ--affichage" label="Affichage">
-        <app-pill-selector (selectionChange)="choisirAffichage($event)" [items]="affichages" [ngModel]="reglage().affichage" ariaLabel="Affichage" />
+        <app-pill-selector
+          (selectionChange)="choisirAffichage($event)"
+          [items]="affichages"
+          [ngModel]="reglage().affichage"
+          ariaLabel="Affichage"
+        />
       </app-form-field>
     </div>
   </div>
@@ -161,8 +192,12 @@
       @case ('CROISE') {
         <app-card [header]="analyse.indicateurs[0].libelle + ' : tableau croisé'" icon="pi pi-th-large">
           @if (analyse.croise) {
-            <app-croise-analyse [avecReference]="!!analyse.comparaison.reference" [croise]="analyse.croise" [entete]="analyse.axe.libelle + ' / ' + analyse.axe2?.libelle"
-                                [indicateur]="analyse.indicateurs[0]" />
+            <app-croise-analyse
+              [avecReference]="!!analyse.comparaison.reference"
+              [croise]="analyse.croise"
+              [entete]="analyse.axe.libelle + ' / ' + analyse.axe2?.libelle"
+              [indicateur]="analyse.indicateurs[0]"
+            />
           } @else {
             <p class="text-muted mb-0">Choisissez une seconde ventilation (« Puis par ») pour croiser.</p>
           }
@@ -172,8 +207,15 @@
 
     <app-card [header]="'Détail par ' + analyse.axe.libelle.toLowerCase()" icon="pi pi-table">
       @if (peutExporter()) {
-        <app-button (clicked)="exporter(analyse)" [disabled]="!analyse.elements.length" [outlined]="true" cardActions icon="pi pi-download" label="Exporter (CSV)"
-                    size="small" />
+        <app-button
+          (clicked)="exporter(analyse)"
+          [disabled]="!analyse.elements.length"
+          [outlined]="true"
+          cardActions
+          icon="pi pi-download"
+          label="Exporter (CSV)"
+          size="small"
+        />
       }
       <app-tableau-analyse
         (descendre)="descendre($event, analyse)"
@@ -199,7 +241,13 @@
   [visible]="explicationVisible()"
 />
 
-<app-panneau-ventes-produit (visibleChange)="ventesVisibles.set($event)" [au]="requete().au" [du]="requete().du" [produit]="produitDetaille()" [visible]="ventesVisibles()" />
+<app-panneau-ventes-produit
+  (visibleChange)="ventesVisibles.set($event)"
+  [au]="requete().au"
+  [du]="requete().du"
+  [produit]="produitDetaille()"
+  [visible]="ventesVisibles()"
+/>
 
 <app-panneau-vue
   (enregistrement)="enregistrerVue($event)"

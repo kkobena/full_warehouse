@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -43,11 +42,7 @@ class CommandeReportReportServiceTest {
     private final SpringTemplateEngine templateEngine = mock(SpringTemplateEngine.class);
     private final StorageService storageService = mock(StorageService.class);
 
-
-    private final CommandeReportReportService service = new CommandeReportReportService(
-        templateEngine,
-        storageService
-    );
+    private final CommandeReportReportService service = new CommandeReportReportService(templateEngine, storageService);
 
     private Magasin magasin;
 
@@ -92,8 +87,8 @@ class CommandeReportReportServiceTest {
             assertThat(pdf).isNotEmpty();
             assertThat(new String(pdf, 0, 5)).isEqualTo("%PDF-");
             assertThat(service.getParameters())
-                .containsEntry(Constant.IS_LAST_PAGE, true)
-                .containsEntry(Constant.PAGE_COUNT, "1/1");
+                    .containsEntry(Constant.IS_LAST_PAGE, true)
+                    .containsEntry(Constant.PAGE_COUNT, "1/1");
         }
 
         @Test
@@ -113,9 +108,9 @@ class CommandeReportReportServiceTest {
             service.export(commande);
 
             assertThat(service.getParameters())
-                .containsEntry(Constant.MAGASIN, magasin)
-                .containsEntry(Constant.COMMANDE, commande)
-                .containsEntry(Constant.ITEM_SIZE, 7);
+                    .containsEntry(Constant.MAGASIN, magasin)
+                    .containsEntry(Constant.COMMANDE, commande)
+                    .containsEntry(Constant.ITEM_SIZE, 7);
         }
 
         @Test
@@ -123,7 +118,9 @@ class CommandeReportReportServiceTest {
         void piedDePage() {
             service.export(commande("CMD-004", lignes(3)));
 
-            assertThat((String) service.getParameters().get(Constant.FOOTER)).contains("RC-001").contains("0102030405");
+            assertThat((String) service.getParameters().get(Constant.FOOTER))
+                    .contains("RC-001")
+                    .contains("0102030405");
         }
 
         /** La devise vient de la configuration : le rapport ne doit pas en imposer une. */
@@ -173,17 +170,16 @@ class CommandeReportReportServiceTest {
 
             service.export(commande);
 
-            List<String> imprimees = tranchesRendues()
-                .stream()
-                .flatMap(List::stream)
-                .map(OrderLineDTO::getProduitLibelle)
-                .toList();
+            List<String> imprimees = tranchesRendues().stream()
+                    .flatMap(List::stream)
+                    .map(OrderLineDTO::getProduitLibelle)
+                    .toList();
 
             assertThat(imprimees).hasSize(120).doesNotHaveDuplicates();
             assertThat(imprimees)
-                .containsExactlyInAnyOrderElementsOf(
-                    commande.getOrderLines().stream().map(OrderLineDTO::getProduitLibelle).toList()
-                );
+                    .containsExactlyInAnyOrderElementsOf(commande.getOrderLines().stream()
+                            .map(OrderLineDTO::getProduitLibelle)
+                            .toList());
         }
 
         @Test
@@ -191,7 +187,10 @@ class CommandeReportReportServiceTest {
         void ordreAlphabetique() {
             service.export(commande("CMD-012", lignesDesordonnees(120)));
 
-            List<String> imprimees = tranchesRendues().stream().flatMap(List::stream).map(OrderLineDTO::getProduitLibelle).toList();
+            List<String> imprimees = tranchesRendues().stream()
+                    .flatMap(List::stream)
+                    .map(OrderLineDTO::getProduitLibelle)
+                    .toList();
 
             assertThat(imprimees).isSorted();
         }

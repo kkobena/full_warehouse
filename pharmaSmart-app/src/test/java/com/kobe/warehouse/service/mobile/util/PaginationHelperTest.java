@@ -132,8 +132,10 @@ class PaginationHelperTest {
         void tranchesSuccessives() {
             List<Integer> elements = elements(25);
 
-            assertThat(PaginationHelper.paginateList(elements, 0, 10)).containsExactlyElementsOf(elements.subList(0, 10));
-            assertThat(PaginationHelper.paginateList(elements, 1, 10)).containsExactlyElementsOf(elements.subList(10, 20));
+            assertThat(PaginationHelper.paginateList(elements, 0, 10))
+                    .containsExactlyElementsOf(elements.subList(0, 10));
+            assertThat(PaginationHelper.paginateList(elements, 1, 10))
+                    .containsExactlyElementsOf(elements.subList(10, 20));
         }
 
         @Test
@@ -165,7 +167,7 @@ class PaginationHelperTest {
         @DisplayName("appelée directement, elle attend un numéro de page déjà validé")
         void numeroNonValide() {
             assertThatThrownBy(() -> PaginationHelper.paginateList(elements(25), -1, 10))
-                .isInstanceOf(IndexOutOfBoundsException.class);
+                    .isInstanceOf(IndexOutOfBoundsException.class);
         }
 
         @Test
@@ -191,14 +193,17 @@ class PaginationHelperTest {
         void corpsDeLaReponse() {
             ResponseEntity<List<Integer>> reponse = PaginationHelper.createPaginatedResponse(elements(25), 1, 10);
 
-            assertThat(reponse.getBody()).hasSize(10).containsExactlyElementsOf(elements(25).subList(10, 20));
+            assertThat(reponse.getBody())
+                    .hasSize(10)
+                    .containsExactlyElementsOf(elements(25).subList(10, 20));
         }
 
         /** C'est sur ces en-têtes que le client décide d'afficher ou non « page suivante ». */
         @Test
         @DisplayName("les en-têtes décrivent la position dans l'ensemble")
         void entetesDePagination() {
-            HttpHeaders entetes = PaginationHelper.createPaginatedResponse(elements(25), 1, 10).getHeaders();
+            HttpHeaders entetes = PaginationHelper.createPaginatedResponse(elements(25), 1, 10)
+                    .getHeaders();
 
             assertThat(entetes.getFirst(PaginationHelper.HEADER_TOTAL_COUNT)).isEqualTo("25");
             assertThat(entetes.getFirst(PaginationHelper.HEADER_TOTAL_PAGES)).isEqualTo("3");
@@ -211,8 +216,10 @@ class PaginationHelperTest {
         @Test
         @DisplayName("la première page n'a pas de précédente, la dernière pas de suivante")
         void bornesDeLEnsemble() {
-            HttpHeaders premiere = PaginationHelper.createPaginatedResponse(elements(25), 0, 10).getHeaders();
-            HttpHeaders derniere = PaginationHelper.createPaginatedResponse(elements(25), 2, 10).getHeaders();
+            HttpHeaders premiere = PaginationHelper.createPaginatedResponse(elements(25), 0, 10)
+                    .getHeaders();
+            HttpHeaders derniere = PaginationHelper.createPaginatedResponse(elements(25), 2, 10)
+                    .getHeaders();
 
             assertThat(premiere.getFirst(PaginationHelper.HEADER_HAS_PREVIOUS)).isEqualTo("false");
             assertThat(premiere.getFirst(PaginationHelper.HEADER_HAS_NEXT)).isEqualTo("true");
@@ -227,10 +234,14 @@ class PaginationHelperTest {
         @Test
         @DisplayName("les en-têtes traversent CORS")
         void entetesExposesAuClient() {
-            HttpHeaders entetes = PaginationHelper.createPaginatedResponse(elements(25), 0, 10).getHeaders();
+            HttpHeaders entetes = PaginationHelper.createPaginatedResponse(elements(25), 0, 10)
+                    .getHeaders();
 
             assertThat(entetes.getAccessControlExposeHeaders())
-                .contains(PaginationHelper.HEADER_TOTAL_COUNT, PaginationHelper.HEADER_TOTAL_PAGES, PaginationHelper.HEADER_HAS_NEXT);
+                    .contains(
+                            PaginationHelper.HEADER_TOTAL_COUNT,
+                            PaginationHelper.HEADER_TOTAL_PAGES,
+                            PaginationHelper.HEADER_HAS_NEXT);
         }
 
         @Test
@@ -238,7 +249,8 @@ class PaginationHelperTest {
         void demandeHorsBornes() {
             ResponseEntity<List<Integer>> reponse = PaginationHelper.createPaginatedResponse(elements(25), 99, 10);
 
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_CURRENT_PAGE)).isEqualTo("2");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_CURRENT_PAGE))
+                    .isEqualTo("2");
             assertThat(reponse.getBody()).hasSize(5);
         }
 
@@ -247,7 +259,8 @@ class PaginationHelperTest {
         void taillePlafonnee() {
             ResponseEntity<List<Integer>> reponse = PaginationHelper.createPaginatedResponse(elements(500), 0, 10_000);
 
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_PAGE_SIZE)).isEqualTo("100");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_PAGE_SIZE))
+                    .isEqualTo("100");
             assertThat(reponse.getBody()).hasSize(100);
         }
 
@@ -257,9 +270,12 @@ class PaginationHelperTest {
             ResponseEntity<List<Integer>> reponse = PaginationHelper.createPaginatedResponse(List.<Integer>of(), 0, 10);
 
             assertThat(reponse.getBody()).isEmpty();
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_COUNT)).isEqualTo("0");
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_PAGES)).isEqualTo("0");
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_HAS_NEXT)).isEqualTo("false");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_COUNT))
+                    .isEqualTo("0");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_PAGES))
+                    .isEqualTo("0");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_HAS_NEXT))
+                    .isEqualTo("false");
         }
 
         /**
@@ -269,16 +285,14 @@ class PaginationHelperTest {
         @Test
         @DisplayName("la forme paresseuse ne charge que ce qu'on lui donne")
         void formeParesseuse() {
-            ResponseEntity<List<Integer>> reponse = PaginationHelper.createPaginatedResponse(
-                () -> elements(10),
-                () -> 250L,
-                1,
-                10
-            );
+            ResponseEntity<List<Integer>> reponse =
+                    PaginationHelper.createPaginatedResponse(() -> elements(10), () -> 250L, 1, 10);
 
             assertThat(reponse.getBody()).hasSize(10);
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_COUNT)).isEqualTo("250");
-            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_PAGES)).isEqualTo("25");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_COUNT))
+                    .isEqualTo("250");
+            assertThat(reponse.getHeaders().getFirst(PaginationHelper.HEADER_TOTAL_PAGES))
+                    .isEqualTo("25");
         }
     }
 

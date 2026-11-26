@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.reassort.dto;
 
 import com.kobe.warehouse.service.dto.StockProduitDTO;
-
 import java.time.LocalDateTime;
 
 public class RepartitionStockProduitDto {

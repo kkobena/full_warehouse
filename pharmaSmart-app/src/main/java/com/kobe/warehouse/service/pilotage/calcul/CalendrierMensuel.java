@@ -57,7 +57,9 @@ public final class CalendrierMensuel {
     private MesuresPilotage sommer(int debut, int fin) {
         int borneHaute = Math.min(fin + 1, cumuls.size() - 1);
         int borneBasse = Math.max(debut, 0);
-        return borneHaute <= borneBasse ? MesuresPilotage.AUCUNE : cumuls.get(borneHaute).moins(cumuls.get(borneBasse));
+        return borneHaute <= borneBasse
+                ? MesuresPilotage.AUCUNE
+                : cumuls.get(borneHaute).moins(cumuls.get(borneBasse));
     }
 
     private int rang(int annee, int mois) {

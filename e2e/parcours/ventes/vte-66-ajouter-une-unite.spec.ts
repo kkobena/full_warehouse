@@ -28,7 +28,10 @@ scenario('VTE-66', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await page.locator('.dropdown-menu.show').getByRole('button', { name: /Ajouter une unité/ }).click();
+    await page
+      .locator('.dropdown-menu.show')
+      .getByRole('button', { name: /Ajouter une unité/ })
+      .click();
     // Deux boîtes à 2 860 : 5 720.
     await expect(ligne).toContainText('5 720');
   });

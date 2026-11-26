@@ -5,15 +5,14 @@ import com.kobe.warehouse.service.dto.CompteFournisseurAPDTO;
 import com.kobe.warehouse.service.dto.FournisseurAPSummaryDTO;
 import com.kobe.warehouse.service.dto.LigneFournisseurAPDTO;
 import com.kobe.warehouse.service.license.DemoWatermark;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class AccountsPayableApPdfExportService extends AbstractStatistiqueReportService {
@@ -47,13 +46,19 @@ public class AccountsPayableApPdfExportService extends AbstractStatistiqueReport
         return "comptes_fournisseurs";
     }
 
-    public byte[] exportGlobal(List<CompteFournisseurAPDTO> comptes, FournisseurAPSummaryDTO summary, LocalDate fromDate, LocalDate toDate) {
+    public byte[] exportGlobal(
+            List<CompteFournisseurAPDTO> comptes,
+            FournisseurAPSummaryDTO summary,
+            LocalDate fromDate,
+            LocalDate toDate) {
         variablesMap.clear();
         variablesMap.put("comptes", comptes);
         variablesMap.put("summary", summary);
         variablesMap.put("reportTitle", "État des Comptes Fournisseurs");
         variablesMap.put("periode", buildPeriodeLabel(fromDate, toDate));
-        variablesMap.put("totalSolde", comptes.stream().mapToLong(CompteFournisseurAPDTO::solde).sum());
+        variablesMap.put(
+                "totalSolde",
+                comptes.stream().mapToLong(CompteFournisseurAPDTO::solde).sum());
         variablesMap.put("generatedAt", LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         super.getCommonParameters();
         return super.exportReportToPdf();
@@ -64,7 +69,9 @@ public class AccountsPayableApPdfExportService extends AbstractStatistiqueReport
         variablesMap.put("compte", compte);
         variablesMap.put("lignes", lignes);
         variablesMap.put("reportTitle", "Détail Compte Fournisseur — " + compte.fournisseurName());
-        variablesMap.put("totalRestant", lignes.stream().mapToLong(LigneFournisseurAPDTO::restantDu).sum());
+        variablesMap.put(
+                "totalRestant",
+                lignes.stream().mapToLong(LigneFournisseurAPDTO::restantDu).sum());
         variablesMap.put("generatedAt", LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         super.getCommonParameters();
 

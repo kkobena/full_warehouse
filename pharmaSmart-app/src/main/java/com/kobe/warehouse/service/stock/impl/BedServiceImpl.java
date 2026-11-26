@@ -54,17 +54,17 @@ public class BedServiceImpl implements BedService {
     private final InventoryTransactionService inventoryTransactionService;
 
     public BedServiceImpl(
-        CommandeRepository commandeRepository,
-        OrderLineRepository orderLineRepository,
-        FournisseurProduitRepository fournisseurProduitRepository,
-        FournisseurRepository fournisseurRepository,
-        StorageService storageService,
-        LogsService logsService,
-        ProduitService produitService,
-        CommandeIdGeneratorService commandeIdGeneratorService,
-        OrderLineIdGeneratorService orderLineIdGeneratorService,
-        ReferenceService referenceService, InventoryTransactionService inventoryTransactionService
-    ) {
+            CommandeRepository commandeRepository,
+            OrderLineRepository orderLineRepository,
+            FournisseurProduitRepository fournisseurProduitRepository,
+            FournisseurRepository fournisseurRepository,
+            StorageService storageService,
+            LogsService logsService,
+            ProduitService produitService,
+            CommandeIdGeneratorService commandeIdGeneratorService,
+            OrderLineIdGeneratorService orderLineIdGeneratorService,
+            ReferenceService referenceService,
+            InventoryTransactionService inventoryTransactionService) {
         this.commandeRepository = commandeRepository;
         this.orderLineRepository = orderLineRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
@@ -111,10 +111,8 @@ public class BedServiceImpl implements BedService {
     public BedDTO findById(Integer bedId, LocalDate orderDate) {
         Commande commande = loadBed(bedId, orderDate);
         BedDTO dto = new BedDTO(commande);
-        List<BedLigneDTO> lignes = commande.getOrderLines()
-            .stream()
-            .map(BedLigneDTO::new)
-            .toList();
+        List<BedLigneDTO> lignes =
+                commande.getOrderLines().stream().map(BedLigneDTO::new).toList();
         dto.setLignes(lignes);
         return dto;
     }
@@ -122,13 +120,12 @@ public class BedServiceImpl implements BedService {
     @Override
     @Transactional(readOnly = true)
     public Page<BedSummaryDTO> findAll(
-        String search,
-        MotifBed motifBed,
-        OrderStatut orderStatus,
-        LocalDate fromDate,
-        LocalDate toDate,
-        Pageable pageable
-    ) {
+            String search,
+            MotifBed motifBed,
+            OrderStatut orderStatus,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable) {
         Specification<Commande> spec = commandeRepository.byReceiptType(TypeDeliveryReceipt.DIRECT);
 
         if (motifBed != null) {
@@ -146,8 +143,7 @@ public class BedServiceImpl implements BedService {
             spec = spec.and(commandeRepository.byBedSearchRef(search));
         }
 
-        return commandeRepository.findAll(spec, pageable)
-            .map(BedSummaryDTO::new);
+        return commandeRepository.findAll(spec, pageable).map(BedSummaryDTO::new);
     }
 
     @Override
@@ -186,7 +182,8 @@ public class BedServiceImpl implements BedService {
     }
 
     @Override
-    public BedDTO updateLigne(Integer bedId, LocalDate orderDate, Integer ligneId, LocalDate ligneDate, BedLigneDTO dto) {
+    public BedDTO updateLigne(
+            Integer bedId, LocalDate orderDate, Integer ligneId, LocalDate ligneDate, BedLigneDTO dto) {
         Commande commande = loadBed(bedId, orderDate);
         if (commande.getOrderStatus() != OrderStatut.REQUESTED) {
             throw new GenericError("Ce BED ne peut plus être modifié", "bedNonModifiable");
@@ -225,7 +222,8 @@ public class BedServiceImpl implements BedService {
     }
 
     @Override
-    public BedDTO validateBed(Integer bedId, LocalDate orderDate, MotifBed motif, Integer fournisseurId, String commentaire) {
+    public BedDTO validateBed(
+            Integer bedId, LocalDate orderDate, MotifBed motif, Integer fournisseurId, String commentaire) {
         Commande commande = loadBed(bedId, orderDate);
         if (commande.getOrderStatus() != OrderStatut.REQUESTED) {
             throw new GenericError("Ce BED est déjà validé ou annulé", "bedDejaValide");
@@ -260,11 +258,10 @@ public class BedServiceImpl implements BedService {
         });
 
         logsService.create(
-            TransactionType.ENTREE_STOCK,
-            "bed.entry",
-            new Object[]{commande.getReceiptReference()},
-            commande.getId().getId().toString()
-        );
+                TransactionType.ENTREE_STOCK,
+                "bed.entry",
+                new Object[] {commande.getReceiptReference()},
+                commande.getId().getId().toString());
 
         commande.setOrderStatus(OrderStatut.CLOSED);
         commande.setUpdatedAt(LocalDateTime.now());
@@ -282,9 +279,10 @@ public class BedServiceImpl implements BedService {
     }
 
     private Commande loadBed(Integer bedId, LocalDate orderDate) {
-        return commandeRepository.findById(new CommandeId(bedId, orderDate))
-            .filter(c -> c.getType() == TypeDeliveryReceipt.DIRECT)
-            .orElseThrow(() -> new GenericError("BED introuvable", "bedIntrouvable"));
+        return commandeRepository
+                .findById(new CommandeId(bedId, orderDate))
+                .filter(c -> c.getType() == TypeDeliveryReceipt.DIRECT)
+                .orElseThrow(() -> new GenericError("BED introuvable", "bedIntrouvable"));
     }
 
     @Override
@@ -329,7 +327,7 @@ public class BedServiceImpl implements BedService {
             line.setCreatedAt(LocalDateTime.now());
             line.setUpdatedAt(line.getCreatedAt());
             commande.getOrderLines().add(line);
-            totalGross +=  dto.quantite() * dto.prixAchat();
+            totalGross += dto.quantite() * dto.prixAchat();
         }
         commande.setGrossAmount(totalGross);
         commande.setDiscountAmount(0);
@@ -341,11 +339,10 @@ public class BedServiceImpl implements BedService {
         inventoryTransactionService.saveAll(commande.getOrderLines());
 
         logsService.create(
-            TransactionType.ENTREE_STOCK,
-            "bed.import",
-            new Object[]{commande.getReceiptReference(), motif.name()},
-            commande.getId().getId().toString()
-        );
+                TransactionType.ENTREE_STOCK,
+                "bed.import",
+                new Object[] {commande.getReceiptReference(), motif.name()},
+                commande.getId().getId().toString());
 
         return commande.getReceiptReference();
     }

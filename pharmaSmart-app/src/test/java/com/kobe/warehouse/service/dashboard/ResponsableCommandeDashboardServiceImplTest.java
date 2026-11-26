@@ -62,11 +62,10 @@ class ResponsableCommandeDashboardServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ResponsableCommandeDashboardServiceImpl(
-            stockAlertReportService,
-            abcParetoReportService,
-            supplierPerformanceReportService,
-            new DashboardDTOMapper()
-        );
+                stockAlertReportService,
+                abcParetoReportService,
+                supplierPerformanceReportService,
+                new DashboardDTOMapper());
     }
 
     // ===== alertes de stock =====
@@ -74,9 +73,11 @@ class ResponsableCommandeDashboardServiceImplTest {
     @Test
     @DisplayName("les alertes sont comptées par type")
     void alertesCompteesParType() {
-        when(stockAlertReportService.getStockAlerts(isNull(), any(Pageable.class))).thenReturn(
-            page(alerte(1, StockAlertType.RUPTURE), alerte(2, StockAlertType.ALERTE), alerte(3, StockAlertType.ALERTE))
-        );
+        when(stockAlertReportService.getStockAlerts(isNull(), any(Pageable.class)))
+                .thenReturn(page(
+                        alerte(1, StockAlertType.RUPTURE),
+                        alerte(2, StockAlertType.ALERTE),
+                        alerte(3, StockAlertType.ALERTE)));
 
         StockAlertsDTO resultat = service.getStockAlerts();
 
@@ -91,7 +92,8 @@ class ResponsableCommandeDashboardServiceImplTest {
     @Test
     @DisplayName("demande toutes les alertes, sans pagination, et sans filtrer par type")
     void demandeToutesLesAlertes() {
-        when(stockAlertReportService.getStockAlerts(isNull(), any(Pageable.class))).thenReturn(page());
+        when(stockAlertReportService.getStockAlerts(isNull(), any(Pageable.class)))
+                .thenReturn(page());
 
         service.getStockAlerts();
 
@@ -127,13 +129,16 @@ class ResponsableCommandeDashboardServiceImplTest {
     @Test
     @DisplayName("le classement fournisseurs est converti en notes sur cinq")
     void classementFournisseursConverti() {
-        when(supplierPerformanceReportService.getTopSuppliersByVolume(3)).thenReturn(
-            List.of(fournisseur(1, "LABOREX", BigDecimal.valueOf(95)), fournisseur(2, "DPCI", BigDecimal.valueOf(45)))
-        );
+        when(supplierPerformanceReportService.getTopSuppliersByVolume(3))
+                .thenReturn(List.of(
+                        fournisseur(1, "LABOREX", BigDecimal.valueOf(95)),
+                        fournisseur(2, "DPCI", BigDecimal.valueOf(45))));
 
         List<PerformanceFournisseurDTO> resultat = service.getPerformanceFournisseurs(3);
 
-        assertThat(resultat).extracting(PerformanceFournisseurDTO::fournisseurName).containsExactly("LABOREX", "DPCI");
+        assertThat(resultat)
+                .extracting(PerformanceFournisseurDTO::fournisseurName)
+                .containsExactly("LABOREX", "DPCI");
         assertThat(resultat).extracting(PerformanceFournisseurDTO::note).containsExactly(5, 2);
     }
 
@@ -154,47 +159,52 @@ class ResponsableCommandeDashboardServiceImplTest {
     }
 
     private static StockAlertDTO alerte(int produitId, StockAlertType type) {
-        return new StockAlertDTO(produitId, "PRODUIT " + produitId, "CIP" + produitId, 0, 5, LocalDate.now().plusMonths(1), type);
+        return new StockAlertDTO(
+                produitId,
+                "PRODUIT " + produitId,
+                "CIP" + produitId,
+                0,
+                5,
+                LocalDate.now().plusMonths(1),
+                type);
     }
 
     private static ABCParetoSummaryDTO resumeABC() {
         return new ABCParetoSummaryDTO(
-            100,
-            10_000_000L,
-            5,
-            4_000_000L,
-            BigDecimal.valueOf(40),
-            10,
-            8_000_000L,
-            BigDecimal.valueOf(78.5),
-            30,
-            1_500_000L,
-            BigDecimal.valueOf(16.2),
-            60,
-            500_000L,
-            BigDecimal.valueOf(5.3),
-            0,
-            0L,
-            BigDecimal.ZERO
-        );
+                100,
+                10_000_000L,
+                5,
+                4_000_000L,
+                BigDecimal.valueOf(40),
+                10,
+                8_000_000L,
+                BigDecimal.valueOf(78.5),
+                30,
+                1_500_000L,
+                BigDecimal.valueOf(16.2),
+                60,
+                500_000L,
+                BigDecimal.valueOf(5.3),
+                0,
+                0L,
+                BigDecimal.ZERO);
     }
 
     private static SupplierPerformanceDTO fournisseur(int id, String nom, BigDecimal score) {
         return new SupplierPerformanceDTO(
-            id,
-            nom,
-            "F" + id,
-            "0100000000",
-            "0700000000",
-            2,
-            10_000_000L,
-            24,
-            120_000_000L,
-            3,
-            1,
-            10,
-            BigDecimal.valueOf(95),
-            score
-        );
+                id,
+                nom,
+                "F" + id,
+                "0100000000",
+                "0700000000",
+                2,
+                10_000_000L,
+                24,
+                120_000_000L,
+                3,
+                1,
+                10,
+                BigDecimal.valueOf(95),
+                score);
     }
 }

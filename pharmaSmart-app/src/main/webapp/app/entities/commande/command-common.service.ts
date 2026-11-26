@@ -31,8 +31,6 @@ export class CommandCommonService {
 
   constructor() {}
 
-
-
   updateCommandPreviousActiveNav(nav: string): void {
     this.commandPreviousActiveNav.set(nav);
   }

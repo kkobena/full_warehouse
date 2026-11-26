@@ -1,11 +1,11 @@
-import {inject, Injectable} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {catchError, from, map, Observable, of, switchMap} from 'rxjs';
-import {CustomerService} from 'app/entities/customer/customer.service';
-import {IAlerteSante, IControleResultat} from 'app/entities/customer/customer-fiche.model';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {AlerteSanteModalComponent} from '../../ui/alerte-sante-modal/alerte-sante-modal.component';
-import {ControleOrdonnanceModalComponent} from '../../ui/controle-ordonnance-modal/controle-ordonnance-modal.component';
+import { inject, Injectable } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
+import { CustomerService } from 'app/entities/customer/customer.service';
+import { IAlerteSante, IControleResultat } from 'app/entities/customer/customer-fiche.model';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { AlerteSanteModalComponent } from '../../ui/alerte-sante-modal/alerte-sante-modal.component';
+import { ControleOrdonnanceModalComponent } from '../../ui/controle-ordonnance-modal/controle-ordonnance-modal.component';
 
 /**
  * Contrôle santé à l'ajout d'un produit (fiche client, lot 2).
@@ -14,7 +14,7 @@ import {ControleOrdonnanceModalComponent} from '../../ui/controle-ordonnance-mod
  * que si la dérogation est enregistrée. Grossesse et allaitement ne font qu'un rappel, affiché une
  * fois par client pour ne pas lasser au fil des lignes.
  */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AlerteSanteGuardService {
   private readonly customerService = inject(CustomerService);
   private readonly modalService = inject(NgbModal);
@@ -22,7 +22,7 @@ export class AlerteSanteGuardService {
   private readonly rappelsAffiches = new Set<string>();
 
   /** Émet `true` si le produit peut être ajouté à la vente de ce client. */
-  verifier(customerId: number | undefined | null, produit: {id?: number; libelle?: string}): Observable<boolean> {
+  verifier(customerId: number | undefined | null, produit: { id?: number; libelle?: string }): Observable<boolean> {
     if (!customerId || !produit?.id) {
       return of(true);
     }
@@ -41,7 +41,7 @@ export class AlerteSanteGuardService {
         }
         // Avec une modale ouverte, les rappels y figurent : un toast par-dessus en masquerait le formulaire.
         rappels.forEach(rappel => this.rappelsAffiches.add(`${customerId}:${rappel.type}`));
-        const modalRef = this.modalService.open(AlerteSanteModalComponent, {backdrop: 'static', centered: true, size: 'md'});
+        const modalRef = this.modalService.open(AlerteSanteModalComponent, { backdrop: 'static', centered: true, size: 'md' });
         modalRef.componentInstance.customerId = customerId;
         modalRef.componentInstance.produitId = produit.id;
         modalRef.componentInstance.produitLibelle = produit.libelle ?? '';
@@ -49,9 +49,9 @@ export class AlerteSanteGuardService {
         modalRef.componentInstance.rappels = rappels;
         return from(modalRef.result).pipe(
           map(result => result === true),
-          catchError(() => of(false))
+          catchError(() => of(false)),
         );
-      })
+      }),
     );
   }
 
@@ -60,7 +60,7 @@ export class AlerteSanteGuardService {
    * redondances, contre-indications. Seules les alertes qui concernent CE produit s'affichent, pour ne
    * pas répéter celles déjà prises en compte aux ajouts précédents. Émet `true` si l'ajout peut se faire.
    */
-  controler(customerId: number | undefined | null, produit: {id?: number; libelle?: string}, panierIds: number[]): Observable<boolean> {
+  controler(customerId: number | undefined | null, produit: { id?: number; libelle?: string }, panierIds: number[]): Observable<boolean> {
     if (!customerId || !produit?.id) {
       return of(true);
     }
@@ -81,7 +81,7 @@ export class AlerteSanteGuardService {
           alertes.forEach(a => this.notificationService.warning(a.message + (a.conduite ? ` — ${a.conduite}` : ''), 'Contrôle ordonnance'));
           return of(true);
         }
-        const modalRef = this.modalService.open(ControleOrdonnanceModalComponent, {backdrop: 'static', centered: true, size: 'lg'});
+        const modalRef = this.modalService.open(ControleOrdonnanceModalComponent, { backdrop: 'static', centered: true, size: 'lg' });
         modalRef.componentInstance.customerId = customerId;
         modalRef.componentInstance.produitLibelle = produit.libelle ?? '';
         modalRef.componentInstance.produitIds = produitIds;
@@ -89,9 +89,9 @@ export class AlerteSanteGuardService {
         modalRef.componentInstance.limite = resultat.limite;
         return from(modalRef.result).pipe(
           map(result => result === true),
-          catchError(() => of(false))
+          catchError(() => of(false)),
         );
-      })
+      }),
     );
   }
 

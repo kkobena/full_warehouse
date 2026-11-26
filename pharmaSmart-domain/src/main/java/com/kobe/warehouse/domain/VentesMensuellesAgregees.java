@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -21,18 +20,17 @@ import java.time.YearMonth;
  */
 @Entity
 @Table(
-    name = "ventes_mensuelles_agregees",
-    uniqueConstraints = @UniqueConstraint(
-        name = "uq_ventes_agregees_produit_mois",
-        columnNames = {"produit_id", "annee_mois"}
-    ),
-    indexes = {
-        @Index(name = "idx_ventes_mensuelles_produit", columnList = "produit_id"),
-        @Index(name = "idx_ventes_mensuelles_date", columnList = "annee_mois"),
-        @Index(name = "idx_ventes_mensuelles_frozen", columnList = "is_frozen, annee_mois"),
-        @Index(name = "idx_ventes_mensuelles_updated", columnList = "updated_at")
-    }
-)
+        name = "ventes_mensuelles_agregees",
+        uniqueConstraints =
+                @UniqueConstraint(
+                        name = "uq_ventes_agregees_produit_mois",
+                        columnNames = {"produit_id", "annee_mois"}),
+        indexes = {
+            @Index(name = "idx_ventes_mensuelles_produit", columnList = "produit_id"),
+            @Index(name = "idx_ventes_mensuelles_date", columnList = "annee_mois"),
+            @Index(name = "idx_ventes_mensuelles_frozen", columnList = "is_frozen, annee_mois"),
+            @Index(name = "idx_ventes_mensuelles_updated", columnList = "updated_at")
+        })
 public class VentesMensuellesAgregees implements Serializable {
 
     @Serial
@@ -108,8 +106,6 @@ public class VentesMensuellesAgregees implements Serializable {
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
-
-
 
     public Integer getId() {
         return id;
@@ -204,8 +200,6 @@ public class VentesMensuellesAgregees implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-
-
     /**
      * Convertit anneeMois (String) en YearMonth
      *
@@ -274,14 +268,13 @@ public class VentesMensuellesAgregees implements Serializable {
 
     @Override
     public String toString() {
-        return "VentesMensuellesAgregees{" +
-            "id=" + id +
-            ", anneeMois='" + anneeMois + '\'' +
-            ", quantiteVendue=" + quantiteVendue +
-            ", montantCa=" + montantCa +
-            ", nombreVentes=" + nombreVentes +
-            ", isFrozen=" + isFrozen +
-            ", estRuptureFournisseur=" + estRuptureFournisseur +
-            '}';
+        return "VentesMensuellesAgregees{" + "id="
+                + id + ", anneeMois='"
+                + anneeMois + '\'' + ", quantiteVendue="
+                + quantiteVendue + ", montantCa="
+                + montantCa + ", nombreVentes="
+                + nombreVentes + ", isFrozen="
+                + isFrozen + ", estRuptureFournisseur="
+                + estRuptureFournisseur + '}';
     }
 }

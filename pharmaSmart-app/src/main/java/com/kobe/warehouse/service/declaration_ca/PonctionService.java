@@ -59,7 +59,6 @@ public interface PonctionService {
      */
     void annulerPourVente(Long saleId, LocalDate saleDate, Integer ponctionId);
 
-
     /**
      * L'historique d'une officine, éventuellement restreint à une période.
      *

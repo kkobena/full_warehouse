@@ -8,14 +8,13 @@ import java.time.LocalTime;
 import java.util.Set;
 
 public record TransactionFilterDTO(
-    LocalDate fromDate,
-    LocalDate toDate,
-    Long userId,
-    String search,
-    Set<TypeFinancialTransaction> typeFinancialTransactions,
-    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-    Set<String> paymentModes,
-    Order order,
-    LocalTime fromTime,
-    LocalTime toTime
-) {}
+        LocalDate fromDate,
+        LocalDate toDate,
+        Long userId,
+        String search,
+        Set<TypeFinancialTransaction> typeFinancialTransactions,
+        Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+        Set<String> paymentModes,
+        Order order,
+        LocalTime fromTime,
+        LocalTime toTime) {}

@@ -92,7 +92,14 @@
       </div>
     } @else if (chart(); as c) {
       <div class="chart-area">
-        <app-chart [type]="c.type" [data]="c.data" [options]="c.options" [plugins]="c.plugins ?? []" height="100%" [ariaLabel]="item().title || item().widgetKey" />
+        <app-chart
+          [type]="c.type"
+          [data]="c.data"
+          [options]="c.options"
+          [plugins]="c.plugins ?? []"
+          height="100%"
+          [ariaLabel]="item().title || item().widgetKey"
+        />
       </div>
     }
     @if (footer(); as f) {

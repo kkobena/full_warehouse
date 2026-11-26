@@ -5,5 +5,4 @@ public enum NavBadgeType {
     RUPTURE,
     PEREMPTION,
     URGENT
-
 }

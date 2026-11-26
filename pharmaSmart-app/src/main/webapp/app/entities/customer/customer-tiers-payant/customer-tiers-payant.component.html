@@ -26,26 +26,29 @@
               placeholder="Taper pour rechercher"
             />
 
-            @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty
-              || editForm.get('tiersPayant')!.touched)) {
+            @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty || editForm.get('tiersPayant')!.touched)) {
               <div>
                 @if (editForm.get('tiersPayant')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
             <label for="field_num">Numéro <span class="required">*</span></label>
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="num"
-                   id="field_num" name="num" type="text" />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
+            <input
+              [appKeyFilter]="'alphanum'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="num"
+              id="field_num"
+              name="num"
+              type="text"
+            />
+            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -57,14 +60,19 @@
 
           <div class="form-field form-field-full">
             <label for="field_taux">Taux(%) <span class="required">*</span></label>
-            <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="taux"
-                   id="field_taux" name="taux" type="text" />
-            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-              'taux')!.touched)) {
+            <input
+              [appKeyFilter]="'int'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="taux"
+              id="field_taux"
+              name="taux"
+              type="text"
+            />
+            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -72,8 +80,7 @@
           <!-- Les plafonds sont portés par le tiers payant et communs à tous ses adhérents. -->
           <p class="form-field form-field-full text-muted small mb-0">
             <i class="pi pi-info-circle me-1"></i>
-            Les plafonds de vente et de consommation se règlent sur la fiche du tiers payant : ils
-            s'appliquent à tous ses adhérents.
+            Les plafonds de vente et de consommation se règlent sur la fiche du tiers payant : ils s'appliquent à tous ses adhérents.
           </p>
         </div>
       </app-card>

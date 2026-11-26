@@ -67,33 +67,93 @@ public class AvoirFournisseur implements Serializable {
     @OneToMany(mappedBy = "avoirFournisseur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvoirFournisseurLine> lignes = new ArrayList<>();
 
-    public Integer getId() { return id; }
-    public AvoirFournisseur setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getReference() { return reference; }
-    public AvoirFournisseur setReference(String reference) { this.reference = reference; return this; }
+    public AvoirFournisseur setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDateTime getDateMtv() { return dateMtv; }
-    public AvoirFournisseur setDateMtv(LocalDateTime dateMtv) { this.dateMtv = dateMtv; return this; }
+    public String getReference() {
+        return reference;
+    }
 
-    public int getMontant() { return montant; }
-    public AvoirFournisseur setMontant(int montant) { this.montant = montant; return this; }
+    public AvoirFournisseur setReference(String reference) {
+        this.reference = reference;
+        return this;
+    }
 
-    public AvoirFournisseurStatut getStatut() { return statut; }
-    public AvoirFournisseur setStatut(AvoirFournisseurStatut statut) { this.statut = statut; return this; }
+    public LocalDateTime getDateMtv() {
+        return dateMtv;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public AvoirFournisseur setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public AvoirFournisseur setDateMtv(LocalDateTime dateMtv) {
+        this.dateMtv = dateMtv;
+        return this;
+    }
 
-    public AppUser getUser() { return user; }
-    public AvoirFournisseur setUser(AppUser user) { this.user = user; return this; }
+    public int getMontant() {
+        return montant;
+    }
 
-    public RetourBon getRetourBon() { return retourBon; }
-    public AvoirFournisseur setRetourBon(RetourBon retourBon) { this.retourBon = retourBon; return this; }
+    public AvoirFournisseur setMontant(int montant) {
+        this.montant = montant;
+        return this;
+    }
 
-    public Fournisseur getFournisseur() { return fournisseur; }
-    public AvoirFournisseur setFournisseur(Fournisseur fournisseur) { this.fournisseur = fournisseur; return this; }
+    public AvoirFournisseurStatut getStatut() {
+        return statut;
+    }
 
-    public List<AvoirFournisseurLine> getLignes() { return lignes; }
-    public AvoirFournisseur setLignes(List<AvoirFournisseurLine> lignes) { this.lignes = lignes; return this; }
+    public AvoirFournisseur setStatut(AvoirFournisseurStatut statut) {
+        this.statut = statut;
+        return this;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public AvoirFournisseur setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
+
+    public AppUser getUser() {
+        return user;
+    }
+
+    public AvoirFournisseur setUser(AppUser user) {
+        this.user = user;
+        return this;
+    }
+
+    public RetourBon getRetourBon() {
+        return retourBon;
+    }
+
+    public AvoirFournisseur setRetourBon(RetourBon retourBon) {
+        this.retourBon = retourBon;
+        return this;
+    }
+
+    public Fournisseur getFournisseur() {
+        return fournisseur;
+    }
+
+    public AvoirFournisseur setFournisseur(Fournisseur fournisseur) {
+        this.fournisseur = fournisseur;
+        return this;
+    }
+
+    public List<AvoirFournisseurLine> getLignes() {
+        return lignes;
+    }
+
+    public AvoirFournisseur setLignes(List<AvoirFournisseurLine> lignes) {
+        this.lignes = lignes;
+        return this;
+    }
 }

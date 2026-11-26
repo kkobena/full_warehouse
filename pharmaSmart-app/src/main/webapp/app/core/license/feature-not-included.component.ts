@@ -32,10 +32,14 @@ import { LicenseService } from 'app/core/license/license.service';
               <p class="text-muted small">Contactez-le pour ajouter ce module à votre abonnement.</p>
               <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
                 @for (phone of contacts.phones; track phone) {
-                  <li><i class="pi pi-phone me-2" aria-hidden="true"></i><a [href]="'tel:' + phone">{{ phone }}</a></li>
+                  <li>
+                    <i class="pi pi-phone me-2" aria-hidden="true"></i><a [href]="'tel:' + phone">{{ phone }}</a>
+                  </li>
                 }
                 @for (email of contacts.emails; track email) {
-                  <li><i class="pi pi-envelope me-2" aria-hidden="true"></i><a [href]="'mailto:' + email">{{ email }}</a></li>
+                  <li>
+                    <i class="pi pi-envelope me-2" aria-hidden="true"></i><a [href]="'mailto:' + email">{{ email }}</a>
+                  </li>
                 }
               </ul>
             </div>

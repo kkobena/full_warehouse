@@ -44,12 +44,11 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     private final WidgetAuthorizationService widgetAuthorizationService;
 
     public DashboardLayoutServiceImpl(
-        DashboardLayoutRepository dashboardLayoutRepository,
-        DashboardLayoutAuthorityRepository dashboardLayoutAuthorityRepository,
-        UserRepository userRepository,
-        AuthorityRepository authorityRepository,
-        WidgetAuthorizationService widgetAuthorizationService
-    ) {
+            DashboardLayoutRepository dashboardLayoutRepository,
+            DashboardLayoutAuthorityRepository dashboardLayoutAuthorityRepository,
+            UserRepository userRepository,
+            AuthorityRepository authorityRepository,
+            WidgetAuthorizationService widgetAuthorizationService) {
         this.dashboardLayoutRepository = dashboardLayoutRepository;
         this.dashboardLayoutAuthorityRepository = dashboardLayoutAuthorityRepository;
         this.userRepository = userRepository;
@@ -59,7 +58,7 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
 
     /** Eviction ciblée : seule l'entrée de l'utilisateur courant est invalidée. */
     private static final String CURRENT_USER_KEY =
-        "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('')";
+            "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('')";
 
     @Override
     @CacheEvict(value = EntityConstant.DASHBOARD_LAYOUT_RESOLVED_CACHE, key = CURRENT_USER_KEY)
@@ -77,7 +76,8 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
         layout.setScope(dto.getScope() != null ? dto.getScope() : DashboardScope.PRIVATE);
         layout.setIsDefault(Boolean.TRUE.equals(dto.getIsDefault()));
         layout.setIsRoute(isRoute);
-        layout.setComponentKey(resolveComponentKey(dto.getComponentKey(), isRoute ? DashboardComponentKey.ROUTE : DashboardComponentKey.CUSTOM));
+        layout.setComponentKey(resolveComponentKey(
+                dto.getComponentKey(), isRoute ? DashboardComponentKey.ROUTE : DashboardComponentKey.CUSTOM));
         layout.setLayoutConfig(dto.getLayoutConfig());
 
         if (Boolean.TRUE.equals(layout.getIsDefault())) {
@@ -121,20 +121,27 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     @Transactional(readOnly = true)
     public List<DashboardLayoutDTO> findAllForCurrentUser() {
         AppUser currentUser = getCurrentUser();
-        return dashboardLayoutRepository.findByUserOrPublic(currentUser).stream().map(this::toDTO).collect(Collectors.toList());
+        return dashboardLayoutRepository.findByUserOrPublic(currentUser).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<DashboardLayoutDTO> findAllPublic() {
-        return dashboardLayoutRepository.findPublicUserLayouts().stream().map(this::toDTO).collect(Collectors.toList());
+        return dashboardLayoutRepository.findPublicUserLayouts().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<DashboardLayoutDTO> findOne(Integer id) {
         AppUser currentUser = getCurrentUser();
-        return dashboardLayoutRepository.findById(id).filter(layout -> isReadable(layout, currentUser)).map(this::toDTO);
+        return dashboardLayoutRepository
+                .findById(id)
+                .filter(layout -> isReadable(layout, currentUser))
+                .map(this::toDTO);
     }
 
     @Override
@@ -166,14 +173,12 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
 
         // Niveau 2 — layout par rôle via la table d'association
         // AppUser.getAuthorities() retourne Set<Authority> directement
-        return currentUser
-            .getAuthorities()
-            .stream()
-            .map(auth -> dashboardLayoutAuthorityRepository.findDefaultByAuthorityName(auth.getName()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .findFirst()
-            .map(dla -> toDTOWithIsDefault(dla.getLayout(), true));
+        return currentUser.getAuthorities().stream()
+                .map(auth -> dashboardLayoutAuthorityRepository.findDefaultByAuthorityName(auth.getName()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .map(dla -> toDTOWithIsDefault(dla.getLayout(), true));
     }
 
     @Override
@@ -184,13 +189,14 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
 
         // Le drapeau d'un layout système n'est lu par personne : l'accueil par rôle passe par l'association
         if (layout.getUser() == null) {
-            throw new GenericError("Un tableau de bord système ne peut pas devenir votre accueil ; dupliquez-le d'abord.", "layoutSysteme");
+            throw new GenericError(
+                    "Un tableau de bord système ne peut pas devenir votre accueil ; dupliquez-le d'abord.",
+                    "layoutSysteme");
         }
         if (!isOwner(layout, currentUser)) {
             throw new ForbiddenOperationException(
-                "Seul le propriétaire peut faire de ce tableau de bord son accueil ; dupliquez-le d'abord.",
-                "layoutNonProprietaire"
-            );
+                    "Seul le propriétaire peut faire de ce tableau de bord son accueil ; dupliquez-le d'abord.",
+                    "layoutNonProprietaire");
         }
 
         unsetOtherUserDefaults(currentUser, layout.getId());
@@ -206,31 +212,31 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     @CacheEvict(value = EntityConstant.DASHBOARD_LAYOUT_RESOLVED_CACHE, allEntries = true)
     public DashboardLayoutDTO setAsDefaultForAuthority(Integer id, String authorityName) {
         requireAdmin(getCurrentUser());
-        authorityRepository.findById(authorityName).orElseThrow(() -> new GenericError("Rôle inexistant : " + authorityName));
+        authorityRepository
+                .findById(authorityName)
+                .orElseThrow(() -> new GenericError("Rôle inexistant : " + authorityName));
 
         DashboardLayout layout = findLayout(id);
 
         // Retire is_default des autres entrées pour ce rôle
-        dashboardLayoutAuthorityRepository
-            .findByAuthorityName(authorityName)
-            .forEach(dla -> {
-                if (Boolean.TRUE.equals(dla.getIsDefault())) {
-                    dla.setIsDefault(false);
-                    dashboardLayoutAuthorityRepository.save(dla);
-                }
-            });
+        dashboardLayoutAuthorityRepository.findByAuthorityName(authorityName).forEach(dla -> {
+            if (Boolean.TRUE.equals(dla.getIsDefault())) {
+                dla.setIsDefault(false);
+                dashboardLayoutAuthorityRepository.save(dla);
+            }
+        });
 
         // Crée ou met à jour l'association pour ce layout + ce rôle
         DashboardLayoutAuthorityId assocId = new DashboardLayoutAuthorityId(layout.getId(), authorityName);
         DashboardLayoutAuthority association = dashboardLayoutAuthorityRepository
-            .findById(assocId)
-            .orElseGet(() -> {
-                DashboardLayoutAuthority newAssoc = new DashboardLayoutAuthority();
-                newAssoc.setId(assocId);
-                newAssoc.setLayout(layout);
-                authorityRepository.findById(authorityName).ifPresent(newAssoc::setAuthority);
-                return newAssoc;
-            });
+                .findById(assocId)
+                .orElseGet(() -> {
+                    DashboardLayoutAuthority newAssoc = new DashboardLayoutAuthority();
+                    newAssoc.setId(assocId);
+                    newAssoc.setLayout(layout);
+                    authorityRepository.findById(authorityName).ifPresent(newAssoc::setAuthority);
+                    return newAssoc;
+                });
         association.setIsDefault(true);
         dashboardLayoutAuthorityRepository.save(association);
 
@@ -275,20 +281,21 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     @Transactional(readOnly = true)
     public List<DashboardLayoutDTO> findAllForAuthority(String authorityName) {
         requireAdmin(getCurrentUser());
-        return dashboardLayoutAuthorityRepository
-            .findByAuthorityName(authorityName)
-            .stream()
-            .map(dla -> toDTOWithIsDefault(dla.getLayout(), dla.getIsDefault()))
-            .collect(Collectors.toList());
+        return dashboardLayoutAuthorityRepository.findByAuthorityName(authorityName).stream()
+                .map(dla -> toDTOWithIsDefault(dla.getLayout(), dla.getIsDefault()))
+                .collect(Collectors.toList());
     }
 
     private AppUser getCurrentUser() {
-        String login = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new GenericError("Utilisateur non connecté"));
+        String login =
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new GenericError("Utilisateur non connecté"));
         return userRepository.findOneByLogin(login).orElseThrow(() -> new GenericError("Utilisateur introuvable"));
     }
 
     private DashboardLayout findLayout(Integer id) {
-        return dashboardLayoutRepository.findById(id).orElseThrow(() -> new GenericError("Tableau de bord inexistant", "layoutInexistant"));
+        return dashboardLayoutRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Tableau de bord inexistant", "layoutInexistant"));
     }
 
     private static boolean isOwner(DashboardLayout layout, AppUser user) {
@@ -308,7 +315,8 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
         if (layout.getUser() == null) {
             requireAdmin(user);
         } else if (!isOwner(layout, user) && !isAdmin(user)) {
-            throw new ForbiddenOperationException("Seul le propriétaire peut modifier ce tableau de bord.", "layoutNonProprietaire");
+            throw new ForbiddenOperationException(
+                    "Seul le propriétaire peut modifier ce tableau de bord.", "layoutNonProprietaire");
         }
     }
 
@@ -331,14 +339,12 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
 
     /** Un seul accueil personnel par utilisateur, quelle que soit la portée de ses layouts. */
     private void unsetOtherUserDefaults(AppUser user, Integer keptLayoutId) {
-        dashboardLayoutRepository
-            .findAllByUserAndIsDefaultTrue(user)
-            .stream()
-            .filter(layout -> !Objects.equals(layout.getId(), keptLayoutId))
-            .forEach(layout -> {
-                layout.setIsDefault(false);
-                dashboardLayoutRepository.save(layout);
-            });
+        dashboardLayoutRepository.findAllByUserAndIsDefaultTrue(user).stream()
+                .filter(layout -> !Objects.equals(layout.getId(), keptLayoutId))
+                .forEach(layout -> {
+                    layout.setIsDefault(false);
+                    dashboardLayoutRepository.save(layout);
+                });
     }
 
     private DashboardLayoutDTO toDTO(DashboardLayout layout) {
@@ -350,26 +356,23 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
      * isDefault est tiré de l'association (DashboardLayoutAuthority), pas du layout lui-même.
      */
     private DashboardLayoutDTO toDTOWithIsDefault(DashboardLayout layout, Boolean isDefault) {
-        List<String> authorityNames = dashboardLayoutAuthorityRepository
-            .findByLayoutId(layout.getId())
-            .stream()
-            .map(dla -> dla.getAuthority().getName())
-            .collect(Collectors.toList());
+        List<String> authorityNames = dashboardLayoutAuthorityRepository.findByLayoutId(layout.getId()).stream()
+                .map(dla -> dla.getAuthority().getName())
+                .collect(Collectors.toList());
 
         return new DashboardLayoutDTO(
-            layout.getId(),
-            layout.getName(),
-            layout.getDescription(),
-            layout.getUser() != null ? layout.getUser().getId() : null,
-            layout.getUser() != null ? layout.getUser().getLogin() : null,
-            authorityNames,
-            layout.getScope(),
-            isDefault,
-            layout.getIsRoute(),
-            layout.getComponentKey() != null ? layout.getComponentKey().name() : null,
-            layout.getLayoutConfig(),
-            layout.getCreatedAt(),
-            layout.getUpdatedAt()
-        );
+                layout.getId(),
+                layout.getName(),
+                layout.getDescription(),
+                layout.getUser() != null ? layout.getUser().getId() : null,
+                layout.getUser() != null ? layout.getUser().getLogin() : null,
+                authorityNames,
+                layout.getScope(),
+                isDefault,
+                layout.getIsRoute(),
+                layout.getComponentKey() != null ? layout.getComponentKey().name() : null,
+                layout.getLayoutConfig(),
+                layout.getCreatedAt(),
+                layout.getUpdatedAt());
     }
 }

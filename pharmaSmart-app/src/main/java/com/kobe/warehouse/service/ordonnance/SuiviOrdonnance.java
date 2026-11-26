@@ -24,7 +24,10 @@ public final class SuiviOrdonnance {
 
     /** Passages complets de l'ordonnance : le plus petit nombre de fois où chaque ligne a été entièrement délivrée. */
     public static int passagesComplets(List<LigneSuivieDTO> lignes) {
-        return lignes.stream().mapToInt(l -> l.quantiteDelivree() / l.quantitePrescrite()).min().orElse(0);
+        return lignes.stream()
+                .mapToInt(l -> l.quantiteDelivree() / l.quantitePrescrite())
+                .min()
+                .orElse(0);
     }
 
     /**
@@ -36,8 +39,16 @@ public final class SuiviOrdonnance {
         return passages == 0 ? renouvellements : Math.max(0, renouvellements + 1 - passages);
     }
 
-    public static StatutOrdonnance statut(boolean cloturee, LocalDate dateFinValidite, int renouvellements, List<LigneSuivieDTO> lignes, LocalDate aujourdhui) {
-        boolean soldee = !lignes.isEmpty() && lignes.stream().allMatch(l -> resteADelivrer(l.quantitePrescrite(), renouvellements, l.quantiteDelivree()) == 0);
+    public static StatutOrdonnance statut(
+            boolean cloturee,
+            LocalDate dateFinValidite,
+            int renouvellements,
+            List<LigneSuivieDTO> lignes,
+            LocalDate aujourdhui) {
+        boolean soldee = !lignes.isEmpty()
+                && lignes.stream()
+                        .allMatch(
+                                l -> resteADelivrer(l.quantitePrescrite(), renouvellements, l.quantiteDelivree()) == 0);
         if (cloturee || soldee) {
             return StatutOrdonnance.TERMINEE;
         }

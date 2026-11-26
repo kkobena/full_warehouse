@@ -24,7 +24,8 @@ public class AlertesPilotageServiceImpl implements AlertesPilotageService {
     private final List<RegleAlerte> regles;
     private final DictionnaireIndicateursService dictionnaireIndicateursService;
 
-    public AlertesPilotageServiceImpl(List<RegleAlerte> regles, DictionnaireIndicateursService dictionnaireIndicateursService) {
+    public AlertesPilotageServiceImpl(
+            List<RegleAlerte> regles, DictionnaireIndicateursService dictionnaireIndicateursService) {
         this.regles = regles;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
     }

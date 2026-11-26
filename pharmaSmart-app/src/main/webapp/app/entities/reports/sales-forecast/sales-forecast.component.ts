@@ -1,28 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild, input} from "@angular/core";
-import {HttpResponse} from "@angular/common/http";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {forkJoin, Subject, takeUntil} from "rxjs";
+import { ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, input } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 
+import { FORECAST_METHOD_LABELS, ForecastMethod, IForecastSummary, ISalesForecast } from 'app/shared/model/report/sales-forecast.model';
+import { SalesForecastService } from '../services/sales-forecast.service';
+import { formatCurrency, formatMonth, formatPercent } from 'app/shared/utils/format-utils';
 
-import {
-  FORECAST_METHOD_LABELS,
-  ForecastMethod,
-  IForecastSummary,
-  ISalesForecast
-} from "app/shared/model/report/sales-forecast.model";
-import {SalesForecastService} from "../services/sales-forecast.service";
-import {formatCurrency, formatMonth, formatPercent} from "app/shared/utils/format-utils";
-
-import {Chart, ChartConfiguration, ChartData, registerables} from "chart.js";
+import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { currencySymbol } from 'app/shared/utils/format-utils';
 import {
@@ -32,7 +18,7 @@ import {
   KpiStripComponent,
   OffcanvasComponent,
   SelectComponent,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
 Chart.register(...registerables);
@@ -48,11 +34,12 @@ interface PeriodOption {
 }
 
 @Component({
-  selector: "app-sales-forecast",
-  templateUrl: "./sales-forecast.component.html",
-  styleUrl: "./sales-forecast.component.scss",
+  selector: 'app-sales-forecast',
+  templateUrl: './sales-forecast.component.html',
+  styleUrl: './sales-forecast.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     BadgeComponent,
@@ -61,8 +48,8 @@ interface PeriodOption {
     SelectComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
-  ]
+    KpiItemComponent,
+  ],
 })
 export default class SalesForecastComponent implements OnInit, OnDestroy {
   /**
@@ -73,8 +60,8 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
    */
   readonly navCode = input<string>('');
 
-  @ViewChild("forecastChartCanvas") forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild("confidenceChartCanvas") confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('forecastChartCanvas') forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('confidenceChartCanvas') confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   // Data signals
   protected summary = signal<IForecastSummary | null>(null);
@@ -83,19 +70,19 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
   protected helpDrawerVisible = signal<boolean>(false);
 
   // Filters
-  protected selectedMethod = signal<string>("LINEAR_REGRESSION");
+  protected selectedMethod = signal<string>('LINEAR_REGRESSION');
   protected selectedPeriod = signal<number>(3);
 
   protected methodOptions: MethodOption[] = [
-    {label: "Régression Linéaire", value: "LINEAR_REGRESSION"},
-    {label: "Moyenne Mobile", value: "MOVING_AVERAGE"},
-    {label: "Saisonnier", value: "SEASONAL"}
+    { label: 'Régression Linéaire', value: 'LINEAR_REGRESSION' },
+    { label: 'Moyenne Mobile', value: 'MOVING_AVERAGE' },
+    { label: 'Saisonnier', value: 'SEASONAL' },
   ];
 
   protected periodOptions: PeriodOption[] = [
-    {label: "3 mois", value: 3},
-    {label: "6 mois", value: 6},
-    {label: "12 mois", value: 12}
+    { label: '3 mois', value: 3 },
+    { label: '6 mois', value: 6 },
+    { label: '12 mois', value: 12 },
   ];
 
   private salesForecastService = inject(SalesForecastService);
@@ -125,11 +112,11 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
 
     forkJoin({
       summary: this.salesForecastService.getSummary(),
-      forecast: this.salesForecastService.getForecast(this.selectedPeriod(), this.selectedMethod())
+      forecast: this.salesForecastService.getForecast(this.selectedPeriod(), this.selectedMethod()),
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({summary, forecast}) => {
+        next: ({ summary, forecast }) => {
           this.summary.set(summary.body);
           const forecastData = forecast.body ?? [];
           this.forecasts.set(forecastData);
@@ -139,7 +126,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.isLoading.set(false);
-        }
+        },
       });
   }
 
@@ -163,7 +150,7 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.isLoading.set(false);
-        }
+        },
       });
   }
 
@@ -185,47 +172,47 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const ctx = this.forecastChartCanvas.nativeElement.getContext("2d");
+    const ctx = this.forecastChartCanvas.nativeElement.getContext('2d');
     if (!ctx) {
       return;
     }
 
-    const chartData: ChartData<"line"> = {
-      labels: data.map(d => this.formatMonth(d.forecastPeriod ?? "")),
+    const chartData: ChartData<'line'> = {
+      labels: data.map(d => this.formatMonth(d.forecastPeriod ?? '')),
       datasets: [
         {
-          label: "CA Prévu",
+          label: 'CA Prévu',
           data: data.map(d => d.forecastedCA ?? 0),
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
           borderWidth: 2,
           fill: true,
-          tension: 0.4
-        }
-      ]
+          tension: 0.4,
+        },
+      ],
     };
 
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
       data: chartData,
       options: {
         responsive: true,
         plugins: {
-          legend: {position: "top"},
-          title: {display: true, text: "Prévisions de Chiffre d'Affaires"},
+          legend: { position: 'top' },
+          title: { display: true, text: "Prévisions de Chiffre d'Affaires" },
           tooltip: {
             callbacks: {
-              label: context => `CA: ${this.formatCurrency(context.parsed.y)} ${currencySymbol()}`
-            }
-          }
+              label: context => `CA: ${this.formatCurrency(context.parsed.y)} ${currencySymbol()}`,
+            },
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
-            ticks: {callback: value => this.formatCurrency(Number(value))}
-          }
-        }
-      }
+            ticks: { callback: value => this.formatCurrency(Number(value)) },
+          },
+        },
+      },
     };
 
     this.forecastChart = new Chart(ctx, config);
@@ -239,54 +226,54 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const ctx = this.confidenceChartCanvas.nativeElement.getContext("2d");
+    const ctx = this.confidenceChartCanvas.nativeElement.getContext('2d');
     if (!ctx) {
       return;
     }
 
-    const chartData: ChartData<"line"> = {
-      labels: data.map(d => this.formatMonth(d.forecastPeriod ?? "")),
+    const chartData: ChartData<'line'> = {
+      labels: data.map(d => this.formatMonth(d.forecastPeriod ?? '')),
       datasets: [
         {
-          label: "Limite Haute",
+          label: 'Limite Haute',
           data: data.map(d => d.upperBound ?? 0),
-          borderColor: "#FF9800",
-          backgroundColor: "rgba(255, 152, 0, 0.1)",
+          borderColor: '#FF9800',
+          backgroundColor: 'rgba(255, 152, 0, 0.1)',
           borderWidth: 1,
           borderDash: [5, 5],
-          fill: false
+          fill: false,
         },
         {
-          label: "Prévision",
+          label: 'Prévision',
           data: data.map(d => d.forecastedCA ?? 0),
-          borderColor: "#4CAF50",
-          backgroundColor: "rgba(76, 175, 80, 0.2)",
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76, 175, 80, 0.2)',
           borderWidth: 2,
-          fill: "+1"
+          fill: '+1',
         },
         {
-          label: "Limite Basse",
+          label: 'Limite Basse',
           data: data.map(d => d.lowerBound ?? 0),
-          borderColor: "#FF5722",
-          backgroundColor: "rgba(255, 87, 34, 0.1)",
+          borderColor: '#FF5722',
+          backgroundColor: 'rgba(255, 87, 34, 0.1)',
           borderWidth: 1,
           borderDash: [5, 5],
-          fill: false
-        }
-      ]
+          fill: false,
+        },
+      ],
     };
 
-    const config: ChartConfiguration<"line"> = {
-      type: "line",
+    const config: ChartConfiguration<'line'> = {
+      type: 'line',
       data: chartData,
       options: {
         responsive: true,
         plugins: {
-          legend: {position: "top"},
-          title: {display: true, text: "Intervalles de Confiance (95%)"}
+          legend: { position: 'top' },
+          title: { display: true, text: 'Intervalles de Confiance (95%)' },
         },
-        scales: {y: {beginAtZero: true}}
-      }
+        scales: { y: { beginAtZero: true } },
+      },
     };
 
     this.confidenceChart = new Chart(ctx, config);
@@ -301,7 +288,6 @@ export default class SalesForecastComponent implements OnInit, OnDestroy {
   protected getMethodLabel(method: string): string {
     return FORECAST_METHOD_LABELS[method as ForecastMethod] ?? method;
   }
-
 
   protected getTotalForecastedCA(): number {
     return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA ?? 0), 0);

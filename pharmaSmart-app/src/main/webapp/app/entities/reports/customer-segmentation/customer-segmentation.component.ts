@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, input, OnInit, signal} from "@angular/core";
-import {HttpResponse} from "@angular/common/http";
-import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import {
   AppBadgeSeverity,
@@ -12,25 +12,35 @@ import {
   KpiStripComponent,
   SelectComponent,
   SortableHeaderDirective,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
 
-import {
-  CustomerClassification,
-  ICustomerSegmentation
-} from "app/shared/model/report/customer-segmentation.model";
-import {CustomerSegmentationReportService} from "../services/customer-segmentation-report.service";
-import {TauriPrinterService} from "../../../shared/services/tauri-printer.service";
-import {handleBlobForTauri} from "../../../shared/util/tauri-util";
+import { CustomerClassification, ICustomerSegmentation } from 'app/shared/model/report/customer-segmentation.model';
+import { CustomerSegmentationReportService } from '../services/customer-segmentation-report.service';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
-import {DeviseDirective, DevisePipe} from 'app/shared/utils/devise';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-customer-segmentation",
-  templateUrl: "./customer-segmentation.component.html",
-  styleUrl: "./customer-segmentation.component.scss",
+  selector: 'app-customer-segmentation',
+  templateUrl: './customer-segmentation.component.html',
+  styleUrl: './customer-segmentation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent, SortableHeaderDirective, KpiStripComponent, KpiItemComponent, DevisePipe]
+  imports: [
+    DeviseDirective,
+    CommonModule,
+    FormsModule,
+    BadgeComponent,
+    ButtonComponent,
+    DataTableComponent,
+    SelectComponent,
+    ToolbarComponent,
+    SortableHeaderDirective,
+    KpiStripComponent,
+    KpiItemComponent,
+    DevisePipe,
+  ],
 })
 export default class CustomerSegmentationComponent implements OnInit {
   /**
@@ -49,14 +59,14 @@ export default class CustomerSegmentationComponent implements OnInit {
   showAtRiskOnly = signal<boolean>(false);
 
   classificationOptions = [
-    {label: "Toutes les classifications", value: null},
-    {label: "Champions", value: CustomerClassification.CHAMPION},
-    {label: "Fidèles", value: CustomerClassification.LOYAL},
-    {label: "Gros dépensiers", value: CustomerClassification.BIG_SPENDER},
-    {label: "Actifs", value: CustomerClassification.ACTIVE},
-    {label: "À risque", value: CustomerClassification.AT_RISK},
-    {label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION},
-    {label: "Inactifs", value: CustomerClassification.INACTIVE}
+    { label: 'Toutes les classifications', value: null },
+    { label: 'Champions', value: CustomerClassification.CHAMPION },
+    { label: 'Fidèles', value: CustomerClassification.LOYAL },
+    { label: 'Gros dépensiers', value: CustomerClassification.BIG_SPENDER },
+    { label: 'Actifs', value: CustomerClassification.ACTIVE },
+    { label: 'À risque', value: CustomerClassification.AT_RISK },
+    { label: "Besoin d'attention", value: CustomerClassification.NEED_ATTENTION },
+    { label: 'Inactifs', value: CustomerClassification.INACTIVE },
   ];
 
   private readonly customerSegmentationService = inject(CustomerSegmentationReportService);
@@ -91,7 +101,7 @@ export default class CustomerSegmentationComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -101,8 +111,8 @@ export default class CustomerSegmentationComponent implements OnInit {
         this.classificationCounts.set(res.body ?? {});
       },
       error() {
-        console.error("Error loading classification counts");
-      }
+        console.error('Error loading classification counts');
+      },
     });
   }
 
@@ -137,15 +147,13 @@ export default class CustomerSegmentationComponent implements OnInit {
   }
 
   exportToPdf(): void {
-    this.customerSegmentationService.exportCustomerSegmentationToPdf()
-      .subscribe(resp => {
-        if (this.tauriPrinter.isRunningInTauri()) {
-          handleBlobForTauri(resp.body, `segmentation-clients_${new Date().getTime()}`);
-        } else {
-          window.open(URL.createObjectURL(resp.body));
-        }
-      });
-
+    this.customerSegmentationService.exportCustomerSegmentationToPdf().subscribe(resp => {
+      if (this.tauriPrinter.isRunningInTauri()) {
+        handleBlobForTauri(resp.body, `segmentation-clients_${new Date().getTime()}`);
+      } else {
+        window.open(URL.createObjectURL(resp.body));
+      }
+    });
   }
 
   getTotalCustomers(): number {
@@ -176,47 +184,47 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   getClassificationSeverity(classification: CustomerClassification | undefined): AppBadgeSeverity {
     if (!classification) {
-      return "secondary";
+      return 'secondary';
     }
     switch (classification) {
       case CustomerClassification.CHAMPION:
-        return "success";
+        return 'success';
       case CustomerClassification.LOYAL:
-        return "success";
+        return 'success';
       case CustomerClassification.BIG_SPENDER:
-        return "info";
+        return 'info';
       case CustomerClassification.ACTIVE:
-        return "info";
+        return 'info';
       case CustomerClassification.AT_RISK:
-        return "warn";
+        return 'warn';
       case CustomerClassification.NEED_ATTENTION:
-        return "warn";
+        return 'warn';
       case CustomerClassification.INACTIVE:
-        return "danger";
+        return 'danger';
       default:
-        return "secondary";
+        return 'secondary';
     }
   }
 
   getClassificationLabel(classification: CustomerClassification | undefined): string {
     if (!classification) {
-      return "N/A";
+      return 'N/A';
     }
     switch (classification) {
       case CustomerClassification.CHAMPION:
-        return "Champion";
+        return 'Champion';
       case CustomerClassification.LOYAL:
-        return "Fidèle";
+        return 'Fidèle';
       case CustomerClassification.BIG_SPENDER:
-        return "Gros dépensier";
+        return 'Gros dépensier';
       case CustomerClassification.ACTIVE:
-        return "Actif";
+        return 'Actif';
       case CustomerClassification.AT_RISK:
-        return "À risque";
+        return 'À risque';
       case CustomerClassification.NEED_ATTENTION:
         return "Besoin d'attention";
       case CustomerClassification.INACTIVE:
-        return "Inactif";
+        return 'Inactif';
       default:
         return classification;
     }
@@ -225,19 +233,19 @@ export default class CustomerSegmentationComponent implements OnInit {
   /** Seuils sur la somme des trois notes : le code valant au moins 111, des seuils de 9 ou 6 rendaient tous les badges verts. */
   getRFMScoreSeverity(code: number | undefined): AppBadgeSeverity {
     if (!code) {
-      return "secondary";
+      return 'secondary';
     }
     const somme = this.sommeNotesRfm(code);
     if (somme >= 12) {
-      return "success";
+      return 'success';
     }
     if (somme >= 9) {
-      return "info";
+      return 'info';
     }
     if (somme >= 6) {
-      return "warn";
+      return 'warn';
     }
-    return "danger";
+    return 'danger';
   }
 
   /** Les trois notes du code RFM additionnées : de 3 (111) à 15 (555). */
@@ -247,17 +255,17 @@ export default class CustomerSegmentationComponent implements OnInit {
 
   getRecencySeverity(days: number | undefined): AppBadgeSeverity {
     if (!days) {
-      return "secondary";
+      return 'secondary';
     }
     if (days <= 30) {
-      return "success";
+      return 'success';
     }
     if (days <= 90) {
-      return "info";
+      return 'info';
     }
     if (days <= 180) {
-      return "warn";
+      return 'warn';
     }
-    return "danger";
+    return 'danger';
   }
 }

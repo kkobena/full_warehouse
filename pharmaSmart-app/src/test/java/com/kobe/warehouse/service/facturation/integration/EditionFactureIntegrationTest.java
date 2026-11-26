@@ -48,17 +48,17 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         dossier(second, 45_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         List<FactureTiersPayant> factures = facturesDe(reponse.generationCode());
         assertEquals(2, factures.size(), "un organisme, une facture");
         assertFalse(reponse.isGroup());
         assertEquals(
-            3,
-            compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"),
-            "les trois dossiers sont rattachés à leur facture"
-        );
+                3,
+                compter("SELECT count(*) FROM third_party_sale_line WHERE facture_tiers_payant_id IS NOT NULL"),
+                "les trois dossiers sont rattachés à leur facture");
     }
 
     @Test
@@ -69,7 +69,8 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         dossier(compte, 50_000, LocalDate.now(), List.of(repartition(50_000, 0)));
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(reponse.generationCode()).getFirst();
@@ -86,14 +87,19 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         dossier(compte, 10_000, LocalDate.now(), List.of(repartition(10_000, 18)));
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(reponse.generationCode()).getFirst();
         assertEquals(2, facture.getRepartitions().size(), "les ventilations sont regroupées par taux, pas par dossier");
-        var taux18 = facture.getRepartitions().stream().filter(r -> r.tva() == 18).findFirst().orElseThrow();
+        var taux18 = facture.getRepartitions().stream()
+                .filter(r -> r.tva() == 18)
+                .findFirst()
+                .orElseThrow();
         assertEquals(30_000d, taux18.montantTtc(), "20 000 + 10 000 au taux 18");
-        assertEquals(0, BigDecimal.valueOf(70_000).compareTo(facture.getMontantTtc()), "le total reprend les deux taux");
+        assertEquals(
+                0, BigDecimal.valueOf(70_000).compareTo(facture.getMontantTtc()), "le total reprend les deux taux");
     }
 
     @Test
@@ -108,7 +114,8 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         ClientTiersPayant second = compte(tiersPayant("NUM 2"));
         dossier(second, 12_000);
         viderLeCache();
-        FactureEditionResponse seconde = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse seconde =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(seconde.generationCode()).getFirst();
@@ -140,7 +147,9 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         assertNotNull(em.find(ThirdPartySaleLine.class, dansLaPeriode.getId()).getFactureTiersPayant());
-        assertNull(em.find(ThirdPartySaleLine.class, avant.getId()).getFactureTiersPayant(), "hors période, le dossier attend");
+        assertNull(
+                em.find(ThirdPartySaleLine.class, avant.getId()).getFactureTiersPayant(),
+                "hors période, le dossier attend");
     }
 
     @Test
@@ -152,7 +161,8 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         ThirdPartySaleLine aFacturer = dossier(compte, 15_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(reponse.generationCode()).getFirst();
@@ -168,12 +178,17 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         facture(compte.getTiersPayant(), true, List.of(surProvisoire));
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant definitive = facturesDe(reponse.generationCode()).getFirst();
         assertEquals(1, definitive.getFacturesDetails().size(), "la définitive reprend ce que la provisoire portait");
-        assertEquals(definitive.getId(), em.find(ThirdPartySaleLine.class, surProvisoire.getId()).getFactureTiersPayant().getId());
+        assertEquals(
+                definitive.getId(),
+                em.find(ThirdPartySaleLine.class, surProvisoire.getId())
+                        .getFactureTiersPayant()
+                        .getId());
     }
 
     @Test
@@ -185,8 +200,7 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         ThirdPartySaleLine vierge = dossier(compte, 12_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(
-            new EditionSearchParams(
+        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(new EditionSearchParams(
                 null,
                 ModeEditionEnum.ALL,
                 LocalDate.now().minusDays(1),
@@ -197,9 +211,7 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
                 true,
                 Set.of(),
                 true,
-                OrigineGeneration.MANUELLE
-            )
-        );
+                OrigineGeneration.MANUELLE));
         viderLeCache();
 
         FactureTiersPayant provisoire = facturesDe(reponse.generationCode()).getFirst();
@@ -218,8 +230,7 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         FactureEditionResponse reponse = services.editionByTiersPayantService.createFactureEdition(
-            parametres(ModeEditionEnum.TIERS_PAYANT, Set.of(vise.getId()), Set.of(), Set.of())
-        );
+                parametres(ModeEditionEnum.TIERS_PAYANT, Set.of(vise.getId()), Set.of(), Set.of()));
         viderLeCache();
 
         List<FactureTiersPayant> factures = facturesDe(reponse.generationCode());
@@ -237,8 +248,7 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         FactureEditionResponse reponse = services.editionByTypeTiersPayantService.createFactureEdition(
-            parametres(ModeEditionEnum.TYPE, Set.of(), Set.of(), Set.of(TiersPayantCategorie.DEPOT))
-        );
+                parametres(ModeEditionEnum.TYPE, Set.of(), Set.of(), Set.of(TiersPayantCategorie.DEPOT)));
         viderLeCache();
 
         List<FactureTiersPayant> factures = facturesDe(reponse.generationCode());
@@ -254,9 +264,8 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         ThirdPartySaleLine laisse = dossier(compte, 35_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionBySelectionBonsService.createFactureEdition(
-            parametres(ModeEditionEnum.SELECTION_BON, Set.of(), Set.of(choisi.getId().getId()), Set.of())
-        );
+        FactureEditionResponse reponse = services.editionBySelectionBonsService.createFactureEdition(parametres(
+                ModeEditionEnum.SELECTION_BON, Set.of(), Set.of(choisi.getId().getId()), Set.of()));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(reponse.generationCode()).getFirst();
@@ -275,17 +284,23 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         FactureEditionResponse reponse = services.editionByGroupTiersService.createFactureEdition(
-            parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of())
-        );
+                parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of()));
         viderLeCache();
 
         assertTrue(reponse.isGroup());
         List<FactureTiersPayant> factures = facturesDe(reponse.generationCode());
         assertEquals(3, factures.size(), "deux filles et leur porteuse");
-        FactureTiersPayant porteuse = factures.stream().filter(f -> f.getGroupeTiersPayant() != null).findFirst().orElseThrow();
+        FactureTiersPayant porteuse = factures.stream()
+                .filter(f -> f.getGroupeTiersPayant() != null)
+                .findFirst()
+                .orElseThrow();
         assertEquals(groupe.getId(), porteuse.getGroupeTiersPayant().getId());
         assertNull(porteuse.getTiersPayant(), "la porteuse n'appartient à aucun organisme en particulier");
-        assertEquals(2, factures.stream().filter(f -> f.getGroupeFactureTiersPayant() != null).count());
+        assertEquals(
+                2,
+                factures.stream()
+                        .filter(f -> f.getGroupeFactureTiersPayant() != null)
+                        .count());
     }
 
     @Test
@@ -299,15 +314,13 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         FactureEditionResponse reponse = services.editionByGroupTiersService.createFactureEdition(
-            parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of())
-        );
+                parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of()));
         viderLeCache();
 
-        FactureTiersPayant porteuse = facturesDe(reponse.generationCode())
-            .stream()
-            .filter(f -> f.getGroupeTiersPayant() != null)
-            .findFirst()
-            .orElseThrow();
+        FactureTiersPayant porteuse = facturesDe(reponse.generationCode()).stream()
+                .filter(f -> f.getGroupeTiersPayant() != null)
+                .findFirst()
+                .orElseThrow();
         assertEquals(0, BigDecimal.valueOf(100_000).compareTo(porteuse.getMontantTtc()), "30 000 + 70 000");
         assertEquals(0, BigDecimal.valueOf(100_000).compareTo(porteuse.getMontantNet()));
     }
@@ -322,11 +335,14 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         viderLeCache();
 
         FactureEditionResponse reponse = services.editionByGroupTiersService.createFactureEdition(
-            parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of())
-        );
+                parametres(ModeEditionEnum.GROUP, Set.of(), Set.of(), Set.of()));
         viderLeCache();
 
-        assertEquals(2, facturesDe(reponse.generationCode()).stream().filter(f -> f.getGroupeTiersPayant() != null).count());
+        assertEquals(
+                2,
+                facturesDe(reponse.generationCode()).stream()
+                        .filter(f -> f.getGroupeTiersPayant() != null)
+                        .count());
         assertEquals(4, facturesDe(reponse.generationCode()).size());
     }
 
@@ -337,8 +353,7 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         dossier(compte, 10_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(
-            new EditionSearchParams(
+        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(new EditionSearchParams(
                 null,
                 ModeEditionEnum.ALL,
                 LocalDate.now().minusDays(1),
@@ -349,12 +364,12 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
                 true,
                 Set.of(),
                 false,
-                OrigineGeneration.AUTO
-            )
-        );
+                OrigineGeneration.AUTO));
         viderLeCache();
 
-        assertEquals(OrigineGeneration.AUTO, facturesDe(reponse.generationCode()).getFirst().getOrigineGeneration());
+        assertEquals(
+                OrigineGeneration.AUTO,
+                facturesDe(reponse.generationCode()).getFirst().getOrigineGeneration());
     }
 
     @Test
@@ -365,7 +380,8 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
         dossier(compte(organisme), 10_000);
         viderLeCache();
 
-        FactureEditionResponse reponse = services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
+        FactureEditionResponse reponse =
+                services.editionAllService.createFactureEdition(parametres(ModeEditionEnum.ALL));
         viderLeCache();
 
         FactureTiersPayant facture = facturesDe(reponse.generationCode()).getFirst();
@@ -379,11 +395,12 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
     @DisplayName("Le registre rend le service correspondant au mode demandé")
     void registreDesModesDEdition() {
         assertEquals(services.editionAllService, services.facturationServiceRegistry.getService(ModeEditionEnum.ALL));
-        assertEquals(services.editionByGroupTiersService, services.facturationServiceRegistry.getService(ModeEditionEnum.GROUP));
         assertEquals(
-            services.editionBySelectionBonsService,
-            services.facturationServiceRegistry.getService(ModeEditionEnum.SELECTION_BON)
-        );
+                services.editionByGroupTiersService,
+                services.facturationServiceRegistry.getService(ModeEditionEnum.GROUP));
+        assertEquals(
+                services.editionBySelectionBonsService,
+                services.facturationServiceRegistry.getService(ModeEditionEnum.SELECTION_BON));
     }
 
     // ===== outils =====
@@ -393,23 +410,21 @@ class EditionFactureIntegrationTest extends AbstractFacturationIntegrationTest {
     }
 
     private EditionSearchParams parametres(
-        ModeEditionEnum mode,
-        Set<Integer> tiersPayantIds,
-        Set<Long> dossierIds,
-        Set<TiersPayantCategorie> categories
-    ) {
+            ModeEditionEnum mode,
+            Set<Integer> tiersPayantIds,
+            Set<Long> dossierIds,
+            Set<TiersPayantCategorie> categories) {
         return new EditionSearchParams(
-            null,
-            mode,
-            LocalDate.now().minusDays(1),
-            LocalDate.now().plusDays(1),
-            Set.of(),
-            tiersPayantIds,
-            dossierIds,
-            true,
-            categories,
-            false,
-            OrigineGeneration.MANUELLE
-        );
+                null,
+                mode,
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(1),
+                Set.of(),
+                tiersPayantIds,
+                dossierIds,
+                true,
+                categories,
+                false,
+                OrigineGeneration.MANUELLE);
     }
 }

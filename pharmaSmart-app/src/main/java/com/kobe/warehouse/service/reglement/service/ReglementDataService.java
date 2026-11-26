@@ -18,6 +18,7 @@ public interface ReglementDataService {
     void printReceipt(PaymentId idReglement);
 
     List<InvoicePaymentDTO> fetchInvoicesPayments(InvoicePaymentParam invoicePaymentParam);
+
     List<InvoicePaymentDTO> findByInvoice(FactureItemId factureId);
 
     List<InvoicePaymentItemDTO> getInvoicePaymentsItems(PaymentId idReglement);

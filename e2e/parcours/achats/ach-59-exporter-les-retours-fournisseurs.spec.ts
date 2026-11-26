@@ -22,9 +22,7 @@ scenario('ACH-59', async ({ etape, page }) => {
     await ouvrirOnglet(page, /Retours fournisseurs/);
     await expect(lignes.first()).toBeVisible();
     // Le bon lui-même, ligne par ligne : c'est le papier qui part avec le carton.
-    await expect(
-      lignes.first().locator('app-button[ngbtooltip="Imprimer le bon de retour"] button'),
-    ).toBeVisible();
+    await expect(lignes.first().locator('app-button[ngbtooltip="Imprimer le bon de retour"] button')).toBeVisible();
   });
 
   await etape(2, async () => {

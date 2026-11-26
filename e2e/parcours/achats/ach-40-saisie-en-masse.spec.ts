@@ -32,7 +32,10 @@ scenario('ACH-40', async ({ etape, page }) => {
     await ecran.getByRole('button', { name: 'Tout valider' }).click();
     // La confirmation annonce le nombre de lignes concernées et la contrepartie : elles
     // seront tenues pour entièrement livrées.
-    const question = page.locator('.modal-content').filter({ hasText: /Tout valider/ }).first();
+    const question = page
+      .locator('.modal-content')
+      .filter({ hasText: /Tout valider/ })
+      .first();
     await expect(question).toContainText(/entièrement livrée/i);
   });
 

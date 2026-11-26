@@ -1,11 +1,10 @@
-import {AfterViewInit, Component, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
-
-import {PasswordResetInitService} from './password-reset-init.service';
-import {AlertErrorComponent} from "../../../shared/alert/alert-error.component";
-import TranslateDirective from "../../../shared/language/translate.directive";
-import {TranslatePipe} from "@ngx-translate/core";
+import { PasswordResetInitService } from './password-reset-init.service';
+import { AlertErrorComponent } from '../../../shared/alert/alert-error.component';
+import TranslateDirective from '../../../shared/language/translate.directive';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-password-reset-init',

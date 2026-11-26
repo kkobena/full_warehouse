@@ -93,17 +93,19 @@ public enum AxeAnalyse {
             case TVA -> brut + " %";
             case HEURE -> brut + " h";
             case NATURE_VENTE -> brut.charAt(0) + brut.substring(1).toLowerCase();
-            case OCTROI_REMISE -> switch (brut) {
-                case "PRIVILEGE" -> "Privilège du vendeur";
-                case "AUTORISEE" -> "Autorisée (clé de sécurité)";
-                default -> libelleAbsent;
-            };
-            case TYPE_PRESCRIPTION -> switch (brut) {
-                case "PRESCRIPTION" -> "Ordonnance";
-                case "CONSEIL" -> "Conseil";
-                case "DEPOT" -> "Dépôt";
-                default -> brut;
-            };
+            case OCTROI_REMISE ->
+                switch (brut) {
+                    case "PRIVILEGE" -> "Privilège du vendeur";
+                    case "AUTORISEE" -> "Autorisée (clé de sécurité)";
+                    default -> libelleAbsent;
+                };
+            case TYPE_PRESCRIPTION ->
+                switch (brut) {
+                    case "PRESCRIPTION" -> "Ordonnance";
+                    case "CONSEIL" -> "Conseil";
+                    case "DEPOT" -> "Dépôt";
+                    default -> brut;
+                };
             default -> brut;
         };
     }

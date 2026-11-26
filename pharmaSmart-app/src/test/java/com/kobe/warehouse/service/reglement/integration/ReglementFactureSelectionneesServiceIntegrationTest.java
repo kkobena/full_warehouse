@@ -45,13 +45,17 @@ class ReglementFactureSelectionneesServiceIntegrationTest extends AbstractReglem
         FactureTiersPayant facture = facture(organisme, List.of(premier, second, horsSelection));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementFactureSelectionneesService.doReglement(
-            parametre(facture, 50_000, 50_000, 100_000).setDossierIds(List.of(premier.getId().getId(), second.getId().getId()))
-        );
+        ResponseReglementDTO reponse = services.reglementFactureSelectionneesService.doReglement(parametre(
+                        facture, 50_000, 50_000, 100_000)
+                .setDossierIds(List.of(premier.getId().getId(), second.getId().getId())));
         viderLeCache();
 
-        assertEquals(ThirdPartySaleStatut.PAID, em.find(ThirdPartySaleLine.class, premier.getId()).getStatut());
-        assertEquals(ThirdPartySaleStatut.PAID, em.find(ThirdPartySaleLine.class, second.getId()).getStatut());
+        assertEquals(
+                ThirdPartySaleStatut.PAID,
+                em.find(ThirdPartySaleLine.class, premier.getId()).getStatut());
+        assertEquals(
+                ThirdPartySaleStatut.PAID,
+                em.find(ThirdPartySaleLine.class, second.getId()).getStatut());
         ThirdPartySaleLine intact = em.find(ThirdPartySaleLine.class, horsSelection.getId());
         assertEquals(ThirdPartySaleStatut.ACTIF, intact.getStatut());
         assertEquals(0, intact.getMontantRegle(), "le dossier non sélectionné n'a rien encaissé");
@@ -71,15 +75,17 @@ class ReglementFactureSelectionneesServiceIntegrationTest extends AbstractReglem
         FactureTiersPayant facture = facture(organisme, List.of(dossier));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementFactureSelectionneesService.doReglement(
-            parametre(facture, 15_000, 40_000, 40_000).setDossierIds(List.of(dossier.getId().getId()))
-        );
+        ResponseReglementDTO reponse =
+                services.reglementFactureSelectionneesService.doReglement(parametre(facture, 15_000, 40_000, 40_000)
+                        .setDossierIds(List.of(dossier.getId().getId())));
         viderLeCache();
 
         ThirdPartySaleLine relu = em.find(ThirdPartySaleLine.class, dossier.getId());
         assertEquals(15_000, relu.getMontantRegle());
         assertEquals(ThirdPartySaleStatut.HALF_PAID, relu.getStatut());
-        assertEquals(InvoiceStatut.PARTIALLY_PAID, em.find(FactureTiersPayant.class, facture.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.PARTIALLY_PAID,
+                em.find(FactureTiersPayant.class, facture.getId()).getStatut());
 
         InvoicePayment paiement = em.find(InvoicePayment.class, reponse.id());
         assertEquals(15_000, paiement.getPaidAmount());
@@ -95,9 +101,9 @@ class ReglementFactureSelectionneesServiceIntegrationTest extends AbstractReglem
         FactureTiersPayant facture = facture(organisme, List.of(dossier));
         viderLeCache();
 
-        ResponseReglementDTO reponse = services.reglementFactureSelectionneesService.doReglement(
-            parametre(facture, 18_000, 10_000, 10_000).setDossierIds(List.of(dossier.getId().getId()))
-        );
+        ResponseReglementDTO reponse =
+                services.reglementFactureSelectionneesService.doReglement(parametre(facture, 18_000, 10_000, 10_000)
+                        .setDossierIds(List.of(dossier.getId().getId())));
         viderLeCache();
 
         assertEquals(10_000, em.find(ThirdPartySaleLine.class, dossier.getId()).getMontantRegle());
@@ -124,13 +130,14 @@ class ReglementFactureSelectionneesServiceIntegrationTest extends AbstractReglem
      * {@code totalAttendu} est la somme due par les dossiers sélectionnés, {@code montantFacture}
      * celle de la facture entière : c'est leur écart qui décide du statut laissé à la facture.
      */
-    private ReglementParam parametre(FactureTiersPayant facture, int montantVerse, int totalAttendu, int montantFacture) {
+    private ReglementParam parametre(
+            FactureTiersPayant facture, int montantVerse, int totalAttendu, int montantFacture) {
         return new ReglementParam()
-            .setId(facture.getId())
-            .setMode(ModeEditionReglement.FACTURE_PARTIEL)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setAmount(montantVerse)
-            .setTotalAmount(totalAttendu)
-            .setMontantFacture(montantFacture);
+                .setId(facture.getId())
+                .setMode(ModeEditionReglement.FACTURE_PARTIEL)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setAmount(montantVerse)
+                .setTotalAmount(totalAttendu)
+                .setMontantFacture(montantFacture);
     }
 }

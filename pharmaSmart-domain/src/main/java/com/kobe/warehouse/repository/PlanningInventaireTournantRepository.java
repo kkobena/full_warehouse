@@ -9,8 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PlanningInventaireTournantRepository extends
-    JpaRepository<PlanningInventaireTournant, Integer> {
+public interface PlanningInventaireTournantRepository extends JpaRepository<PlanningInventaireTournant, Integer> {
 
     /**
      * Tous les plannings actifs dont l'échéance est dépassée ou aujourd'hui.

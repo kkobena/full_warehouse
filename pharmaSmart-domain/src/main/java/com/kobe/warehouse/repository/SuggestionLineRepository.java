@@ -6,7 +6,6 @@ import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.SuggestionLine_;
 import com.kobe.warehouse.domain.Suggestion_;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
-import org.springframework.data.jpa.repository.Modifying;
 import com.kobe.warehouse.service.dto.projection.SuggestionAggregator;
 import java.util.Collection;
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -23,11 +23,12 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, Integer>, JpaSpecificationExecutor<SuggestionLine>, SuggestionLineRepositoryCustom {
+public interface SuggestionLineRepository
+        extends JpaRepository<SuggestionLine, Integer>,
+                JpaSpecificationExecutor<SuggestionLine>,
+                SuggestionLineRepositoryCustom {
     Optional<SuggestionLine> findBySuggestionTypeSuggessionAndFournisseurProduitId(
-        TypeSuggession typeSuggession,
-        Integer fournisseurProduitId
-    );
+            TypeSuggession typeSuggession, Integer fournisseurProduitId);
 
     boolean existsByFournisseurProduitProduitId(Integer produitId);
 
@@ -37,33 +38,38 @@ public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, 
      * Charge en une seule requête toutes les lignes AUTO existantes pour un ensemble
      * de fournisseurProduitId. Utilisé par suggerer() pour éliminer le N+1.
      */
-    @Query("SELECT l FROM SuggestionLine l WHERE l.suggestion.typeSuggession = :type AND l.fournisseurProduit.id IN :ids")
+    @Query(
+            "SELECT l FROM SuggestionLine l WHERE l.suggestion.typeSuggession = :type AND l.fournisseurProduit.id IN :ids")
     List<SuggestionLine> findAllByTypeSuggessionAndFournisseurProduitIdIn(
-        @Param("type") TypeSuggession type,
-        @Param("ids") Collection<Integer> ids
-    );
+            @Param("type") TypeSuggession type, @Param("ids") Collection<Integer> ids);
 
     default Specification<SuggestionLine> filterBySuggestionId(Integer suggestionId) {
-        return (root, query, cb) -> cb.equal(root.get(SuggestionLine_.suggestion).get(Suggestion_.id), suggestionId);
+        return (root, query, cb) ->
+                cb.equal(root.get(SuggestionLine_.suggestion).get(Suggestion_.id), suggestionId);
     }
 
     default Specification<SuggestionLine> filterByProduit(String search) {
         return (root, query, cb) -> {
             String searchPattern = search.toUpperCase() + "%";
             return cb.or(
-                cb.like(cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), searchPattern),
-                cb.like(
-                    cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
-                    searchPattern
-                ),
-                cb.like(cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)), searchPattern),
-                cb.like(
-                    cb.upper(
-                        root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire)
-                    ),
-                    searchPattern
-                )
-            );
+                    cb.like(
+                            cb.upper(
+                                    root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)),
+                            searchPattern),
+                    cb.like(
+                            cb.upper(root.get(SuggestionLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.libelle)),
+                            searchPattern),
+                    cb.like(
+                            cb.upper(
+                                    root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)),
+                            searchPattern),
+                    cb.like(
+                            cb.upper(root.get(SuggestionLine_.fournisseurProduit)
+                                    .get(FournisseurProduit_.produit)
+                                    .get(Produit_.codeEanLaboratoire)),
+                            searchPattern));
         };
     }
 
@@ -82,8 +88,8 @@ public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, 
     int deleteAutoLinesForInactive();
 
     @Query(
-        nativeQuery = true,
-        value = "SELECT COUNT(sug_line.id) AS itemsCount,SUM(sug_line.quantity*fp.prix_achat) AS montantAchat ,SUM(sug_line.quantity*fp.prix_uni) AS montantVente FROM suggestion_line sug_line JOIN fournisseur_produit fp ON fp.id=sug_line.fournisseur_produit_id WHERE sug_line.suggestion_id = ?1"
-    )
+            nativeQuery = true,
+            value =
+                    "SELECT COUNT(sug_line.id) AS itemsCount,SUM(sug_line.quantity*fp.prix_achat) AS montantAchat ,SUM(sug_line.quantity*fp.prix_uni) AS montantVente FROM suggestion_line sug_line JOIN fournisseur_produit fp ON fp.id=sug_line.fournisseur_produit_id WHERE sug_line.suggestion_id = ?1")
     SuggestionAggregator getSuggestionData(Integer suggestionId);
 }

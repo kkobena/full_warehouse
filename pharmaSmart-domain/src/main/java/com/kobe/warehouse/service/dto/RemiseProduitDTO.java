@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.enumeration.CodeGrilleType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +19,16 @@ public class RemiseProduitDTO extends RemiseDTO {
         super(remise);
         this.setTypeLibelle("Remise produit");
         this.grilles = remise.getGrilles().stream().map(GrilleRemiseDTO::new).toList();
-        this.vnoDiscountRate=this.grilles.stream().filter(grilleRemiseDTO -> grilleRemiseDTO.getGrilleType()== CodeGrilleType.VNO).mapToInt(GrilleRemiseDTO::getDiscountRate).max().orElse(0);
-        this.voDiscountRate=this.grilles.stream().filter(grilleRemiseDTO -> grilleRemiseDTO.getGrilleType()== CodeGrilleType.VO).mapToInt(GrilleRemiseDTO::getDiscountRate).max().orElse(0);
-
+        this.vnoDiscountRate = this.grilles.stream()
+                .filter(grilleRemiseDTO -> grilleRemiseDTO.getGrilleType() == CodeGrilleType.VNO)
+                .mapToInt(GrilleRemiseDTO::getDiscountRate)
+                .max()
+                .orElse(0);
+        this.voDiscountRate = this.grilles.stream()
+                .filter(grilleRemiseDTO -> grilleRemiseDTO.getGrilleType() == CodeGrilleType.VO)
+                .mapToInt(GrilleRemiseDTO::getDiscountRate)
+                .max()
+                .orElse(0);
     }
 
     public int getVnoDiscountRate() {

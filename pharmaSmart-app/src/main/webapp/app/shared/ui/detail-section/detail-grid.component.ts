@@ -17,7 +17,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       align-items: flex-start;
       // Assez d'air pour que l'ombre des cartes se voie.
       gap: 0.9rem;
-      padding: 0.1rem  0.5rem;
+      padding: 0.1rem 0.5rem;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

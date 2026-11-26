@@ -31,39 +31,39 @@ public class VieillissementCreancesServiceImpl implements VieillissementCreances
     public VieillissementGlobalDTO getAgingGlobal() {
         Object[] row = repository.findAgingGlobal();
         return new VieillissementGlobalDTO(
-            toLong(row[4]),   // total_encours
-            toLong(row[0]),   // tranche_0_30
-            toLong(row[1]),   // tranche_31_60
-            toLong(row[2]),   // tranche_61_90
-            toLong(row[3]),   // tranche_90_plus
-            toLong(row[5]),   // nb_factures
-            toLong(row[6])    // nb_en_retard
-        );
+                toLong(row[4]), // total_encours
+                toLong(row[0]), // tranche_0_30
+                toLong(row[1]), // tranche_31_60
+                toLong(row[2]), // tranche_61_90
+                toLong(row[3]), // tranche_90_plus
+                toLong(row[5]), // nb_factures
+                toLong(row[6]) // nb_en_retard
+                );
     }
 
     @Override
     @Cacheable(value = "vieillissementCreances", key = "'dso_p' + #pageable.pageNumber + '_s' + #pageable.pageSize")
     public Page<DsoOrganismeDTO> getDsoByOrganisme(Pageable pageable) {
         long total = repository.countAgingByOrganisme();
-        List<DsoOrganismeDTO> content = repository
-            .findAgingByOrganisme((int) pageable.getOffset(), pageable.getPageSize())
-            .stream()
-            .map(row -> {
-                String organisme = (String) row[0];
-                int delai = toInt(row[1]);
-                long encours = toLong(row[2]);
-                long t030 = toLong(row[3]);
-                long t3160 = toLong(row[4]);
-                long t6190 = toLong(row[5]);
-                long t90p = toLong(row[6]);
-                long nbFact = toLong(row[7]);
-                long nbRetard = toLong(row[8]);
-                int dso = toInt(row[9]);
-                String fiabilite = computeFiabilite(encours, t90p, dso, delai);
-                return new DsoOrganismeDTO(organisme, encours, t030, t3160, t6190, t90p,
-                    nbFact, nbRetard, dso, delai, fiabilite);
-            })
-            .toList();
+        List<DsoOrganismeDTO> content =
+                repository.findAgingByOrganisme((int) pageable.getOffset(), pageable.getPageSize()).stream()
+                        .map(row -> {
+                            String organisme = (String) row[0];
+                            int delai = toInt(row[1]);
+                            long encours = toLong(row[2]);
+                            long t030 = toLong(row[3]);
+                            long t3160 = toLong(row[4]);
+                            long t6190 = toLong(row[5]);
+                            long t90p = toLong(row[6]);
+                            long nbFact = toLong(row[7]);
+                            long nbRetard = toLong(row[8]);
+                            int dso = toInt(row[9]);
+                            String fiabilite = computeFiabilite(encours, t90p, dso, delai);
+                            return new DsoOrganismeDTO(
+                                    organisme, encours, t030, t3160, t6190, t90p, nbFact, nbRetard, dso, delai,
+                                    fiabilite);
+                        })
+                        .toList();
         return new PageImpl<>(content, pageable, total);
     }
 

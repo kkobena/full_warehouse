@@ -1,10 +1,10 @@
-import { ActivatedRouteSnapshot, Router, Routes } from "@angular/router";
-import { EMPTY, mergeMap, Observable, of } from "rxjs";
-import { IProduit } from "../../shared/model";
-import { inject } from "@angular/core";
-import { ProduitService } from "../../entities/produit/produit.service";
-import { HttpResponse } from "@angular/common/http";
-import { Produit } from "../../shared/model/produit.model";
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
+import { IProduit } from '../../shared/model';
+import { inject } from '@angular/core';
+import { ProduitService } from '../../entities/produit/produit.service';
+import { HttpResponse } from '@angular/common/http';
+import { Produit } from '../../shared/model/produit.model';
 
 export const ProductResolve = (route: ActivatedRouteSnapshot): Observable<null | IProduit> => {
   const id = route.params['id'];

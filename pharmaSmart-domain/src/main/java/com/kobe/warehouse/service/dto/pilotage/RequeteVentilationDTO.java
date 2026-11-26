@@ -15,11 +15,10 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record RequeteVentilationDTO(
-    LocalDate du,
-    LocalDate au,
-    SourceAnalyse source,
-    List<AxeAnalyse> axes,
-    boolean parJour,
-    List<FiltreAnalyseDTO> filtres,
-    Set<CategorieChiffreAffaire> categories
-) {}
+        LocalDate du,
+        LocalDate au,
+        SourceAnalyse source,
+        List<AxeAnalyse> axes,
+        boolean parJour,
+        List<FiltreAnalyseDTO> filtres,
+        Set<CategorieChiffreAffaire> categories) {}

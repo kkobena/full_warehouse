@@ -36,7 +36,9 @@ export class ThemeService {
     this.apply(name);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, name);
-    } catch { /* silently ignore storage errors */ }
+    } catch {
+      /* silently ignore storage errors */
+    }
   }
 
   private apply(name: ThemeName): void {

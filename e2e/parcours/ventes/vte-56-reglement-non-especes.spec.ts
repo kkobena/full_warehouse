@@ -54,7 +54,12 @@ scenario('VTE-56', async ({ etape, page }) => {
     // Valider sans référence : refusé, et le panier reste entier. Rien n'est perdu, rien
     // n'est enregistré.
     await page.getByRole('button', { name: 'Finaliser' }).click();
-    await expect(page.locator('[role="alert"], .toast').filter({ hasText: /Référence bancaire requise/i }).first()).toBeVisible();
+    await expect(
+      page
+        .locator('[role="alert"], .toast')
+        .filter({ hasText: /Référence bancaire requise/i })
+        .first(),
+    ).toBeVisible();
     await expect(lignes.first()).toContainText(produit);
   });
 

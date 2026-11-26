@@ -16,10 +16,10 @@ import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.criteria.InventoryTransactionSpec;
+import com.kobe.warehouse.service.id_generator.MvtProduitIdGeneratorService;
 import com.kobe.warehouse.service.impl.LotServiceImpl;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServiceIml;
-import com.kobe.warehouse.service.id_generator.MvtProduitIdGeneratorService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -79,42 +79,40 @@ final class AjustementServicesUnderTest {
         this.lotRepository = IntegrationPostgresDatabase.bean(LotRepository.class);
         this.lotStockLocationRepository = IntegrationPostgresDatabase.bean(LotStockLocationRepository.class);
         this.inventoryTransactionRepository = IntegrationPostgresDatabase.bean(InventoryTransactionRepository.class);
-        this.motifAjustementRepository = IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class);
+        this.motifAjustementRepository =
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class);
 
         this.lotStockLocationService = new LotStockLocationServiceImpl(lotStockLocationRepository, lotRepository);
 
         this.lotService = new LotServiceImpl(
-            lotRepository,
-            lotStockLocationRepository,
-            appConfigurationService,
-            produitRepository,
-            lotServiceReportService,
-            orderLineService,
-            lotStockLocationService,
-            storageService,
-            IntegrationPostgresDatabase.bean(RetourBonRepository.class)
-        );
+                lotRepository,
+                lotStockLocationRepository,
+                appConfigurationService,
+                produitRepository,
+                lotServiceReportService,
+                orderLineService,
+                lotStockLocationService,
+                storageService,
+                IntegrationPostgresDatabase.bean(RetourBonRepository.class));
 
         this.inventoryTransactionService = new InventoryTransactionServiceIml(
-            inventoryTransactionRepository,
-            new InventoryTransactionSpec(),
-            new MvtProduitIdGeneratorService(entityManager),
-            new ObjectMapper(),
-            storageService
-        );
+                inventoryTransactionRepository,
+                new InventoryTransactionSpec(),
+                new MvtProduitIdGeneratorService(entityManager),
+                new ObjectMapper(),
+                storageService);
 
         this.ajustementService = new AjustementService(
-            ajustementRepository,
-            produitRepository,
-            ajustRepository,
-            storageService,
-            stockProduitRepository,
-            logsService,
-            inventoryTransactionService,
-            suggestionReassortService,
-            lotStockLocationService,
-            lotService,
-            motifAjustementRepository
-        );
+                ajustementRepository,
+                produitRepository,
+                ajustRepository,
+                storageService,
+                stockProduitRepository,
+                logsService,
+                inventoryTransactionService,
+                suggestionReassortService,
+                lotStockLocationService,
+                lotService,
+                motifAjustementRepository);
     }
 }

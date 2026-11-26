@@ -1,16 +1,16 @@
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from "app/shared/ui";
-import { IOrderLine } from "../../../../shared/model/order-line.model";
-import { ICommande } from "../../../../shared/model/commande.model";
-import { IAvoirFournisseur, IAvoirFromBonLignesCommand } from "../../../../shared/model/avoir-fournisseur.model";
-import { AvoirFournisseurService } from "../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { IMotifRetourProduit } from "../../../../shared/model/motif-retour-produit.model";
-import { ModifRetourProduitService } from "../../../../entities/motif-retour-produit/motif-retour-produit.service";
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from 'app/shared/ui';
+import { IOrderLine } from '../../../../shared/model/order-line.model';
+import { ICommande } from '../../../../shared/model/commande.model';
+import { IAvoirFournisseur, IAvoirFromBonLignesCommand } from '../../../../shared/model/avoir-fournisseur.model';
+import { AvoirFournisseurService } from '../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { IMotifRetourProduit } from '../../../../shared/model/motif-retour-produit.model';
+import { ModifRetourProduitService } from '../../../../entities/motif-retour-produit/motif-retour-produit.service';
 
 interface RetourLine {
   orderLine: IOrderLine;
@@ -20,19 +20,19 @@ interface RetourLine {
 }
 
 @Component({
-  selector: "app-retour-depuis-reception",
-  templateUrl: "./retour-depuis-reception.component.html",
-  styleUrls: ["./retour-depuis-reception.component.scss"],
+  selector: 'app-retour-depuis-reception',
+  templateUrl: './retour-depuis-reception.component.html',
+  styleUrls: ['./retour-depuis-reception.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, DataTableComponent, SelectComponent]
+  imports: [CommonModule, FormsModule, ButtonComponent, InputNumberComponent, DataTableComponent, SelectComponent],
 })
 export class RetourDepuisReceptionComponent implements OnInit {
   commande!: ICommande;
   orderLines: IOrderLine[] = [];
-  header = "Retour fournisseur";
+  header = 'Retour fournisseur';
 
   protected readonly retourLines = signal([]);
-  protected commentaire = "";
+  protected commentaire = '';
   protected readonly saving = signal(false);
 
   protected readonly motifs = signal([]);
@@ -43,7 +43,7 @@ export class RetourDepuisReceptionComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   ngOnInit(): void {
-    this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs.set(res.body ?? [])) });
+    this.motifService.query({ size: 999 }).subscribe({ next: res => this.motifs.set(res.body ?? []) });
     this.retourLines.set(
       this.orderLines
         // On ne peut retourner une quantité qu'on a pas reçu
@@ -95,7 +95,7 @@ export class RetourDepuisReceptionComponent implements OnInit {
     const command: IAvoirFromBonLignesCommand = {
       commandeId: this.commande.commandeId!.id,
       commandeOrderDate: this.commande.commandeId!.orderDate,
-      commentaire: this.isRetourComplet ? (this.commentaire || undefined) : undefined,
+      commentaire: this.isRetourComplet ? this.commentaire || undefined : undefined,
       lignes: selected.map(r => ({
         orderLineId: r.orderLine.orderLineId!.id,
         orderLineOrderDate: r.orderLine.orderLineId!.orderDate,
@@ -103,8 +103,8 @@ export class RetourDepuisReceptionComponent implements OnInit {
         produitCip: r.orderLine.produitCip,
         qtyRetour: r.qtyRetour,
         motifRetourId: r.motifRetourId!,
-        prixAchat: r.orderLine.costAmount ?? r.orderLine.orderCostAmount
-      }))
+        prixAchat: r.orderLine.costAmount ?? r.orderLine.orderCostAmount,
+      })),
     };
 
     this.saving.set(true);
@@ -113,14 +113,14 @@ export class RetourDepuisReceptionComponent implements OnInit {
         this.saving.set(false);
         this.notificationService.success(
           `Avoir ${avoir.reference ?? ''} créé — ${selected.length} ligne(s), ${this.totalUnites} unité(s)`,
-          "Retour fournisseur"
+          'Retour fournisseur',
         );
         this.activeModal.close(avoir);
       },
       error: err => {
         this.saving.set(false);
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Retour fournisseur");
-      }
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Retour fournisseur');
+      },
     });
   }
 

@@ -10,9 +10,7 @@ export class DeclarationTvaApiService {
   private readonly http = inject(HttpClient);
 
   getDeclaration(params: IDeclarationTvaParams): Observable<HttpResponse<IDeclarationTvaSummary>> {
-    let httpParams = new HttpParams()
-      .set('startDate', params.startDate)
-      .set('endDate', params.endDate);
+    let httpParams = new HttpParams().set('startDate', params.startDate).set('endDate', params.endDate);
     if (params.typeTva) {
       httpParams = httpParams.set('typeTva', params.typeTva);
     }
@@ -23,9 +21,7 @@ export class DeclarationTvaApiService {
   }
 
   exportToPdf(params: IDeclarationTvaParams): Observable<HttpResponse<Blob>> {
-    let httpParams = new HttpParams()
-      .set('startDate', params.startDate)
-      .set('endDate', params.endDate);
+    let httpParams = new HttpParams().set('startDate', params.startDate).set('endDate', params.endDate);
     if (params.typeTva) {
       httpParams = httpParams.set('typeTva', params.typeTva);
     }

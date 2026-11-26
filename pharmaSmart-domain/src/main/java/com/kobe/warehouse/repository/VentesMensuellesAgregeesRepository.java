@@ -1,19 +1,17 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.VentesMensuellesAgregees;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import org.springframework.data.jpa.repository.Modifying;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repository pour VentesMensuellesAgregees.
@@ -48,9 +46,7 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
           AND vma.anneeMois IN :months
         """)
     List<VentesMensuellesAgregees> findByProduitIdInAndAnneeMoisIn(
-        @Param("produitIds") Set<Integer> produitIds,
-        @Param("months") Set<String> months
-    );
+            @Param("produitIds") Set<Integer> produitIds, @Param("months") Set<String> months);
 
     /**
      * Charge en une seule requête toutes les agrégations mensuelles d'un lot de produits.
@@ -76,8 +72,8 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
         ORDER BY vma.anneeMois DESC
         LIMIT :nbMois
         """)
-    List<VentesMensuellesAgregees> findLastNMonthsByProduit(@Param("produitId") Integer produitId,
-                                                             @Param("nbMois") int nbMois);
+    List<VentesMensuellesAgregees> findLastNMonthsByProduit(
+            @Param("produitId") Integer produitId, @Param("nbMois") int nbMois);
 
     /**
      * Récupère les N derniers mois VALIDES (hors rupture fournisseur) pour un produit.
@@ -98,8 +94,8 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
         ORDER BY vma.anneeMois DESC
         LIMIT :nbMois
         """)
-    List<VentesMensuellesAgregees> findLastNValidMonthsByProduit(@Param("produitId") Integer produitId,
-                                                                  @Param("nbMois") int nbMois);
+    List<VentesMensuellesAgregees> findLastNValidMonthsByProduit(
+            @Param("produitId") Integer produitId, @Param("nbMois") int nbMois);
 
     /**
      * Recalcule le statut de rupture fournisseur pour un mois donné.
@@ -144,10 +140,7 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
           AND vma.is_frozen  = FALSE
         """, nativeQuery = true)
     int refreshRuptureStatus(
-        @Param("anneeMois") String anneeMois,
-        @Param("debut") LocalDate debut,
-        @Param("fin") LocalDate fin
-    );
+            @Param("anneeMois") String anneeMois, @Param("debut") LocalDate debut, @Param("fin") LocalDate fin);
 
     /**
      * Récupère les ventes entre deux mois inclus pour un produit
@@ -164,9 +157,10 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
           AND vma.anneeMois <= :moisFin
         ORDER BY vma.anneeMois ASC
         """)
-    List<VentesMensuellesAgregees> findByProduitBetweenMonths(@Param("produitId") Integer produitId,
-                                                               @Param("moisDebut") String moisDebut,
-                                                               @Param("moisFin") String moisFin);
+    List<VentesMensuellesAgregees> findByProduitBetweenMonths(
+            @Param("produitId") Integer produitId,
+            @Param("moisDebut") String moisDebut,
+            @Param("moisFin") String moisFin);
 
     /**
      * Liste tous les mois gelés
@@ -340,21 +334,18 @@ public interface VentesMensuellesAgregeesRepository extends JpaRepository<Ventes
             updated_at = NOW()
         """, nativeQuery = true)
     int aggregateOrUpdateMonth(
-        @Param("anneeMois") String anneeMois,
-        @Param("debut") java.time.LocalDate debut,
-        @Param("fin") java.time.LocalDate fin,
-        @Param("freeze") boolean freeze
-    );
+            @Param("anneeMois") String anneeMois,
+            @Param("debut") java.time.LocalDate debut,
+            @Param("fin") java.time.LocalDate fin,
+            @Param("freeze") boolean freeze);
 
     /**
      * Récupère la date de la dernière mise à jour dans la table
      *
      * @return Date et heure de la dernière mise à jour
      */
-
     @Query(
-        value = "SELECT v.updated_at FROM ventes_mensuelles_agregees v ORDER BY v.updated_at DESC LIMIT 1",
-        nativeQuery = true
-    )
+            value = "SELECT v.updated_at FROM ventes_mensuelles_agregees v ORDER BY v.updated_at DESC LIMIT 1",
+            nativeQuery = true)
     LocalDateTime findTop1UpdatedAt();
 }

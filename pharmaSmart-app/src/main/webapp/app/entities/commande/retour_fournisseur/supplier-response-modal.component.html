@@ -7,8 +7,6 @@
 </div>
 
 <div class="modal-body">
-
-
   <div class="alert alert-info mb-2">
     <div class="d-flex justify-content-between align-items-center">
       <div>
@@ -16,13 +14,17 @@
         <span class="ms-2 text-muted">{{ retourBon?.fournisseurLibelle }}</span>
       </div>
       <div class="text-end">
-        <div class="text-sm">Total retourné : <strong>{{ getTotalRequested() | number }}</strong></div>
-        <div class="text-sm">Total accepté : <strong class="text-primary">{{ getTotalAccepted() | number }}</strong></div>
+        <div class="text-sm">
+          Total retourné : <strong>{{ getTotalRequested() | number }}</strong>
+        </div>
+        <div class="text-sm">
+          Total accepté : <strong class="text-primary">{{ getTotalAccepted() | number }}</strong>
+        </div>
       </div>
     </div>
   </div>
 
-  <app-data-table [value]="lines()"  [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
+  <app-data-table [value]="lines()" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 50px">#</th>
@@ -37,9 +39,15 @@
     </ng-template>
     <ng-template #body let-line let-rowIndex="rowIndex">
       <tr [ngClass]="getRowClass(line)">
-        <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-        <td><span class="pharma-code">{{ line.item.produitCip }}</span></td>
-        <td><span class="pharma-product-name">{{ line.item.produitLibelle }}</span></td>
+        <td>
+          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+        </td>
+        <td>
+          <span class="pharma-code">{{ line.item.produitCip }}</span>
+        </td>
+        <td>
+          <span class="pharma-product-name">{{ line.item.produitLibelle }}</span>
+        </td>
         <td>
           @if (line.item.lotNumero) {
             <span class="pharma-badge pharma-badge-info">{{ line.item.lotNumero }}</span>

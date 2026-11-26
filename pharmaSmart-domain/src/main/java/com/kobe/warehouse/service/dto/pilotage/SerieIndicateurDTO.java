@@ -12,12 +12,11 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record SerieIndicateurDTO(
-    IndicateurPilotageDTO indicateur,
-    Double valeur,
-    Double valeurReference,
-    Double ecart,
-    Double ecartPct,
-    List<PointSerieDTO> points,
-    Double objectif,
-    ProjectionObjectifDTO projection
-) {}
+        IndicateurPilotageDTO indicateur,
+        Double valeur,
+        Double valeurReference,
+        Double ecart,
+        Double ecartPct,
+        List<PointSerieDTO> points,
+        Double objectif,
+        ProjectionObjectifDTO projection) {}

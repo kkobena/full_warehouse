@@ -45,7 +45,10 @@ class SimplifiedSaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertNotNull(vente.getNumberTransaction());
         assertEquals(3_000, vente.getSalesAmount());
         assertEquals(38, stockRayon(produit), "40 − 2 vendues");
-        assertEquals(1, compter("SELECT count(*) FROM payment_transaction WHERE sale_id = " + finalisee.saleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE sale_id = "
+                        + finalisee.saleId().getId()));
     }
 
     @Test
@@ -54,13 +57,15 @@ class SimplifiedSaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         Produit exonere = produitEnStock("MOBILE EXO", 2_000, 1_200, 0, 40);
         Produit taxe = produitEnStock("MOBILE TVA", 5_000, 3_000, 18, 40);
 
-        FinalyseSaleDTO finalisee = services.simplifiedSaleService.createCashSale(
-            venteDe(9_000, ligneDe(exonere, 2), ligneDe(taxe, 1))
-        );
+        FinalyseSaleDTO finalisee =
+                services.simplifiedSaleService.createCashSale(venteDe(9_000, ligneDe(exonere, 2), ligneDe(taxe, 1)));
         viderLeCache();
 
         CashSale vente = em.find(CashSale.class, finalisee.saleId());
-        assertEquals(2, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + finalisee.saleId().getId()));
+        assertEquals(
+                2,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + finalisee.saleId().getId()));
         assertEquals(9_000, vente.getSalesAmount());
         assertNotNull(vente.getTvaEmbeded(), "le détail de TVA est figé sur la vente");
         assertTrue(vente.getTvaEmbeded().contains("18"), vente.getTvaEmbeded());
@@ -77,7 +82,9 @@ class SimplifiedSaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         FinalyseSaleDTO finalisee = services.simplifiedSaleService.createCashSale(dto);
         viderLeCache();
 
-        assertEquals(client.getId(), em.find(CashSale.class, finalisee.saleId()).getCustomer().getId());
+        assertEquals(
+                client.getId(),
+                em.find(CashSale.class, finalisee.saleId()).getCustomer().getId());
     }
 
     @Test
@@ -95,15 +102,16 @@ class SimplifiedSaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertTrue(liste.getContent().stream().allMatch(v -> v.getStatut() == SalesStatut.CLOSED));
 
         var parReference = services.simplifiedSaleService.getList(
-            em.find(CashSale.class, premiere.saleId()).getNumberTransaction()
-        );
+                em.find(CashSale.class, premiere.saleId()).getNumberTransaction());
         assertEquals(1, parReference.getContent().size(), "la recherche porte sur la référence de vente");
     }
 
     // ===== outils =====
 
     private int stockRayon(Produit produit) {
-        return services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID).getQtyStock();
+        return services.stockProduitRepository
+                .findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID)
+                .getQtyStock();
     }
 
     private CashSaleDTO venteDe(int montant, SaleLineDTO... lignes) {

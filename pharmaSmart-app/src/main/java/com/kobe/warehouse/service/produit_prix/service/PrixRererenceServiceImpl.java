@@ -33,7 +33,8 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
+    public Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(
+            Integer produitId, Integer tiersPayantId) {
         return this.prixReferenceRepository.findOneActifByProduitIdAndTiersPayantId(produitId, tiersPayantId);
     }
 
@@ -41,17 +42,17 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     @Transactional(readOnly = true)
     public Optional<PrixReferenceDTO> findActif(Integer produitId, Integer tiersPayantId) {
         return this.findOneActifByProduitIdAndTiersPayantId(produitId, tiersPayantId)
-            .map(prixReference -> {
-                PrixReferenceDTO dto = new PrixReferenceDTO();
-                dto.setId(prixReference.getId());
-                dto.setPrice(prixReference.getPrice());
-                dto.setRate(prixReference.getRate());
-                dto.setEnabled(prixReference.isEnabled());
-                dto.setType(prixReference.getType());
-                dto.setProduitId(produitId);
-                return Optional.of(dto);
-            })
-            .orElse(Optional.empty());
+                .map(prixReference -> {
+                    PrixReferenceDTO dto = new PrixReferenceDTO();
+                    dto.setId(prixReference.getId());
+                    dto.setPrice(prixReference.getPrice());
+                    dto.setRate(prixReference.getRate());
+                    dto.setEnabled(prixReference.isEnabled());
+                    dto.setType(prixReference.getType());
+                    dto.setProduitId(produitId);
+                    return Optional.of(dto);
+                })
+                .orElse(Optional.empty());
     }
 
     @Override
@@ -74,15 +75,14 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
         // ressaisissait un tarif existant récoltait une erreur 500 muette — la fenêtre restait
         // ouverte, rien ne s'enregistrait, et rien ne le disait.
         this.prixReferenceRepository
-            .findAllByProduitIdAndTiersPayantId(dto.getProduitId(), dto.getTiersPayantId())
-            .stream()
-            .findFirst()
-            .ifPresent(existant -> {
-                throw new GenericError(
-                    "Ce produit a déjà un tarif pour ce tiers payant : modifiez-le plutôt que d'en créer un second.",
-                    "tarifAssuranceDejaDefini"
-                );
-            });
+                .findAllByProduitIdAndTiersPayantId(dto.getProduitId(), dto.getTiersPayantId())
+                .stream()
+                .findFirst()
+                .ifPresent(existant -> {
+                    throw new GenericError(
+                            "Ce produit a déjà un tarif pour ce tiers payant : modifiez-le plutôt que d'en créer un second.",
+                            "tarifAssuranceDejaDefini");
+                });
 
         OptionPrixProduit optionPrixProduit = new OptionPrixProduit();
         optionPrixProduit.setProduit(new Produit().id(dto.getProduitId()));
@@ -98,12 +98,12 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     @Override
     public void update(PrixReferenceDTO dto) {
         this.prixReferenceRepository.findById(dto.getId()).ifPresent(prixReference -> {
-                prixReference.setPrice(dto.getPrice());
-                prixReference.setEnabled(dto.isEnabled());
-                prixReference.setRate(dto.getRate());
-                prixReference.setType(dto.getType());
-                this.prixReferenceRepository.save(prixReference);
-            });
+            prixReference.setPrice(dto.getPrice());
+            prixReference.setEnabled(dto.isEnabled());
+            prixReference.setRate(dto.getRate());
+            prixReference.setType(dto.getType());
+            this.prixReferenceRepository.save(prixReference);
+        });
     }
 
     @Override
@@ -114,7 +114,9 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     @Override
     @Transactional(readOnly = true)
     public List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
-        return this.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId).stream().map(PrixReferenceDTO::new).toList();
+        return this.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId).stream()
+                .map(PrixReferenceDTO::new)
+                .toList();
     }
 
     @Override
@@ -124,24 +126,23 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     public List<PrixReferenceDTO> findAllByProduitId(Integer produitId) {
-        return this.prixReferenceRepository.findAllByProduitId(produitId)
-            .stream()
-            .map(prixReference -> {
-                PrixReferenceDTO dto = new PrixReferenceDTO();
-                dto.setId(prixReference.getId());
-                dto.setPrice(prixReference.getPrice());
-                dto.setRate(prixReference.getRate());
-                dto.setEnabled(prixReference.isEnabled());
-                OptionPrixType type = prixReference.getType();
-                dto.setTypeLibelle(type.getLibelle());
-                dto.setProduitId(produitId);
-                dto.setType(type);
-                TiersPayant tiersPayant = prixReference.getTiersPayant();
-                dto.setTiersPayantId(tiersPayant.getId());
-                dto.setTiersPayantName(tiersPayant.getFullName());
+        return this.prixReferenceRepository.findAllByProduitId(produitId).stream()
+                .map(prixReference -> {
+                    PrixReferenceDTO dto = new PrixReferenceDTO();
+                    dto.setId(prixReference.getId());
+                    dto.setPrice(prixReference.getPrice());
+                    dto.setRate(prixReference.getRate());
+                    dto.setEnabled(prixReference.isEnabled());
+                    OptionPrixType type = prixReference.getType();
+                    dto.setTypeLibelle(type.getLibelle());
+                    dto.setProduitId(produitId);
+                    dto.setType(type);
+                    TiersPayant tiersPayant = prixReference.getTiersPayant();
+                    dto.setTiersPayantId(tiersPayant.getId());
+                    dto.setTiersPayantName(tiersPayant.getFullName());
 
-                return dto;
-            })
-            .toList();
+                    return dto;
+                })
+                .toList();
     }
 }

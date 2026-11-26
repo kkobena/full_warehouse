@@ -304,11 +304,11 @@ For detailed Tauri setup and configuration, see [TAURI_README.md](TAURI_README.m
 
 Trois artefacts, selon le rôle du poste.
 
-| Artefact | Commande | Destination |
-| --- | --- | --- |
-| Poste client | `npm run tauri:build` | Déposer `src-tauri/target/release/pharmasmart.exe` sur le poste, avec un `backend-url.txt` indiquant l'URL du serveur. Pas d'installation. |
-| Poste serveur **sans** JRE | `npm run tauri:build:bundled` | Postes disposant déjà d'un Java |
-| Poste serveur **avec** JRE | `npm run tauri:build:bundled-jre` | Postes sans Java — livrable autonome |
+| Artefact                   | Commande                          | Destination                                                                                                                                |
+| -------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Poste client               | `npm run tauri:build`             | Déposer `src-tauri/target/release/pharmasmart.exe` sur le poste, avec un `backend-url.txt` indiquant l'URL du serveur. Pas d'installation. |
+| Poste serveur **sans** JRE | `npm run tauri:build:bundled`     | Postes disposant déjà d'un Java                                                                                                            |
+| Poste serveur **avec** JRE | `npm run tauri:build:bundled-jre` | Postes sans Java — livrable autonome                                                                                                       |
 
 Les deux artefacts serveur portent le même numéro de version : ils sont suffixés
 automatiquement `-sans-jre` / `-avec-jre` à la construction, car **les appliquer l'un pour
@@ -673,16 +673,19 @@ Get-ScheduledTask | Where-Object TaskName -like "PharmaSmart*" | Select-Object T
 
 ---
 
-### Activation shared_preload_libraries 
+### Activation shared_preload_libraries
+
 shared_preload_libraries = 'pg_cron'
 pour activer l'extension pg_cron pour les tâches planifiées sur windows
 il faut ajouter cette ligne dans le fichier postgresql.conf
 et redémarrer le service postgresql
-En amont il faut installer l'extension pgAgent 
+En amont il faut installer l'extension pgAgent
 
 create schema pharma_smart;
 
 alter schema pharma_smart owner to pharma_smart;
+
 ## reparation de la base de données pharma_smart
-mvn -Dflyway.url="jdbc:postgresql://localhost:5432/pharma_smart" -Dflyway.user=pharma_smart -Dflyway.password="2802_pharma_smart" -Dflyway.schemas=pharma_smart -Dflyway.table=pharma_smart_history   flyway:repair
+
+mvn -Dflyway.url="jdbc:postgresql://localhost:5432/pharma_smart" -Dflyway.user=pharma_smart -Dflyway.password="2802_pharma_smart" -Dflyway.schemas=pharma_smart -Dflyway.table=pharma_smart_history flyway:repair
 "Get users to their primary task as fast as possible"

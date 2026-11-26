@@ -10,9 +10,4 @@ package com.kobe.warehouse.service.dto.mobile;
  * @param percentTotal Percentage of total purchases
  */
 public record GroupeFournisseurAchatMobileDTO(
-    String libelle,
-    long montantTtc,
-    long montantTva,
-    long montantHt,
-    double percentTotal
-) {}
+        String libelle, long montantTtc, long montantTva, long montantHt, double percentTotal) {}

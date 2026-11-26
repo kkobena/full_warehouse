@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, ElementRef, forwardRef, input, signal, viewChild} from '@angular/core';
-import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, forwardRef, input, signal, viewChild } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
+import { ControlValueAccessorBase } from '../forms/control-value-accessor.base';
 
 /**
  * Champ numérique du Design System — remplace `p-inputnumber`.
@@ -20,15 +20,20 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
  */
 @Component({
   selector: 'app-input-number',
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => InputNumberComponent),
-    multi: true
-  }],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputNumberComponent),
+      multi: true,
+    },
+  ],
   template: `
     @if (showButtons()) {
-      <div class="app-input-number-group" [class.app-input-number-group--sm]="size() === 'small'"
-           [class.app-input-number-group--lg]="size() === 'large'">
+      <div
+        class="app-input-number-group"
+        [class.app-input-number-group--sm]="size() === 'small'"
+        [class.app-input-number-group--lg]="size() === 'large'"
+      >
         <button
           class="app-input-number-btn app-input-number-btn--start"
           type="button"
@@ -90,7 +95,6 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
       display: block;
     }
 
-
     .app-input-number-group {
       display: flex;
       align-items: stretch;
@@ -118,7 +122,10 @@ import {ControlValueAccessorBase} from '../forms/control-value-accessor.base';
       border: 1px solid var(--bs-border-color);
       background-color: var(--bs-tertiary-bg, #f1f3f5);
       color: var(--bs-secondary-color, #6c757d);
-      transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+      transition:
+        background-color 0.15s ease-in-out,
+        color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out;
 
       &--start {
         border-top-left-radius: var(--bs-border-radius);

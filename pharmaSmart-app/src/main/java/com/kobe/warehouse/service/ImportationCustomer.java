@@ -21,13 +21,11 @@ import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,13 +48,13 @@ public class ImportationCustomer {
     private final ObjectMapper objectMapper;
 
     public ImportationCustomer(
-        TiersPayantRepository tiersPayantRepository,
-        StorageService storageService,
-        AssuredCustomerRepository assuredCustomerRepository,
-        UninsuredCustomerRepository uninsuredCustomerRepository,
-        ImportationRepository importationRepository,
-        TransactionTemplate transactionTemplate, ObjectMapper objectMapper
-    ) {
+            TiersPayantRepository tiersPayantRepository,
+            StorageService storageService,
+            AssuredCustomerRepository assuredCustomerRepository,
+            UninsuredCustomerRepository uninsuredCustomerRepository,
+            ImportationRepository importationRepository,
+            TransactionTemplate transactionTemplate,
+            ObjectMapper objectMapper) {
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
         this.assuredCustomerRepository = assuredCustomerRepository;
@@ -72,8 +70,7 @@ public class ImportationCustomer {
         AppUser user = this.storageService.getUserFormImport();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<CustomerDTO> list = objectMapper.readValue(input, new TypeReference<>() {
-        });
+        List<CustomerDTO> list = objectMapper.readValue(input, new TypeReference<>() {});
         int totalSize = list.size();
         response.setTotalSize(totalSize);
         log.info("size===>> {}", list.size());
@@ -101,51 +98,44 @@ public class ImportationCustomer {
         return importationRepository.findFirstByImportationTypeOrderByCreatedDesc(ImportationType.CLIENTS);
     }
 
-    private void processImportation(final AssuredCustomerDTO p, AtomicInteger errorSize, AtomicInteger size, Importation importation) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    AssuredCustomer assuredCustomer = null;
-                    try {
-                        assuredCustomer = fromExternalDto(p);
-                        buildClientTiersPayantExternalFromDto(p.getTiersPayants(), assuredCustomer);
-                        buidAyantDroit(p.getAyantDroits(), assuredCustomer);
-                        assuredCustomerRepository.save(assuredCustomer);
-                        size.incrementAndGet();
-                    } catch (Exception e) {
-                        log.error("processImportation ===>> ", e);
-                        errorSize.incrementAndGet();
-                        importation.getLigneEnErreur().add(assuredCustomer);
-                    }
+    private void processImportation(
+            final AssuredCustomerDTO p, AtomicInteger errorSize, AtomicInteger size, Importation importation) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                AssuredCustomer assuredCustomer = null;
+                try {
+                    assuredCustomer = fromExternalDto(p);
+                    buildClientTiersPayantExternalFromDto(p.getTiersPayants(), assuredCustomer);
+                    buidAyantDroit(p.getAyantDroits(), assuredCustomer);
+                    assuredCustomerRepository.save(assuredCustomer);
+                    size.incrementAndGet();
+                } catch (Exception e) {
+                    log.error("processImportation ===>> ", e);
+                    errorSize.incrementAndGet();
+                    importation.getLigneEnErreur().add(assuredCustomer);
                 }
             }
-        );
+        });
     }
 
     private void processImportationUninsuredCustomer(
-        final UninsuredCustomerDTO p,
-        AtomicInteger errorSize,
-        AtomicInteger size,
-        Importation importation
-    ) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    UninsuredCustomer uninsuredCustomer = null;
-                    try {
-                        uninsuredCustomer = fromExternalUninsuredCustomerDto(p);
-                        uninsuredCustomerRepository.save(uninsuredCustomer);
-                        size.incrementAndGet();
-                    } catch (Exception e) {
-                        log.error("processImportation ===>> 0", e);
-                        errorSize.incrementAndGet();
-                        importation.getLigneEnErreur().add(uninsuredCustomer);
-                    }
+            final UninsuredCustomerDTO p, AtomicInteger errorSize, AtomicInteger size, Importation importation) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                UninsuredCustomer uninsuredCustomer = null;
+                try {
+                    uninsuredCustomer = fromExternalUninsuredCustomerDto(p);
+                    uninsuredCustomerRepository.save(uninsuredCustomer);
+                    size.incrementAndGet();
+                } catch (Exception e) {
+                    log.error("processImportation ===>> 0", e);
+                    errorSize.incrementAndGet();
+                    importation.getLigneEnErreur().add(uninsuredCustomer);
                 }
             }
-        );
+        });
     }
 
     private UninsuredCustomer fromExternalUninsuredCustomerDto(UninsuredCustomerDTO dto) {
@@ -189,13 +179,14 @@ public class ImportationCustomer {
         });
     }
 
-    private void buildClientTiersPayantExternalFromDto(final List<ClientTiersPayantDTO> dtos, final AssuredCustomer assuredCustomer) {
+    private void buildClientTiersPayantExternalFromDto(
+            final List<ClientTiersPayantDTO> dtos, final AssuredCustomer assuredCustomer) {
         dtos.forEach(c -> {
             ClientTiersPayant o = new ClientTiersPayant();
             o.setCreated(LocalDateTime.now());
-            o.setTiersPayant(
-                tiersPayantRepository.findOneByNameOrFullName(c.getTiersPayantName(), c.getTiersPayantFullName()).orElse(null)
-            );
+            o.setTiersPayant(tiersPayantRepository
+                    .findOneByNameOrFullName(c.getTiersPayantName(), c.getTiersPayantFullName())
+                    .orElse(null));
             o.setNum(c.getNum());
             o.setPriorite(c.getPriorite());
             o.setTaux(c.getTaux());
@@ -216,36 +207,33 @@ public class ImportationCustomer {
     }
 
     private void saveImportation(Importation importation) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        importationRepository.save(importation);
-                    } catch (Exception e) {
-                        log.error("saveImportation ===>> ", e);
-                    }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    importationRepository.save(importation);
+                } catch (Exception e) {
+                    log.error("saveImportation ===>> ", e);
                 }
             }
-        );
+        });
     }
 
     private void updateImportation(final int errorSize, final int size, Importation importation) {
-        transactionTemplate.execute(
-            new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    try {
-                        importation.setUpdated(LocalDateTime.now());
-                        importation.setSize(size);
-                        importation.setErrorSize(errorSize);
-                        importation.setImportationStatus(errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
-                        importationRepository.save(importation);
-                    } catch (Exception e) {
-                        log.error("saveImportation ===>> ", e);
-                    }
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    importation.setUpdated(LocalDateTime.now());
+                    importation.setSize(size);
+                    importation.setErrorSize(errorSize);
+                    importation.setImportationStatus(
+                            errorSize > 0 ? ImportationStatus.COMPLETED_ERRORS : ImportationStatus.COMPLETED);
+                    importationRepository.save(importation);
+                } catch (Exception e) {
+                    log.error("saveImportation ===>> ", e);
                 }
             }
-        );
+        });
     }
 }

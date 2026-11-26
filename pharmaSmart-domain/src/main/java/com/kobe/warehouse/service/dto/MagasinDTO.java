@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -11,6 +10,7 @@ public class MagasinDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     private Integer id;
 
     @NotNull

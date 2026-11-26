@@ -1,7 +1,7 @@
-@use  'app/shared/scss/dashboard-common' as *;
-@use  'app/shared/scss/table-common' as *;
-@use  'app/shared/scss/pharma-toolbar' as *;
-@use  'app/shared/scss/kpi-strip' as *;
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/kpi-strip' as *;
 @use 'app/shared/scss/pharma-nav' as *;
 .sortable {
   cursor: pointer;
@@ -20,5 +20,3 @@
 .card {
   border-radius: 0.5rem;
 }
-
-

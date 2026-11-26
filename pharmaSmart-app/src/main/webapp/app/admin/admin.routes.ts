@@ -7,7 +7,6 @@ const routes: Routes = [
     title: 'userManagement.home.title',
   },
   {
-
     path: 'license',
     redirectTo: '/licence',
     pathMatch: 'prefix',

@@ -34,7 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class EcartsPilotageServiceImpl implements EcartsPilotageService {
 
     private static final int CONTRIBUTIONS_MAX = 20;
-    private static final List<AxeAnalyse> AXES_EXPLICATIFS = List.of(AxeAnalyse.FAMILLE, AxeAnalyse.PRODUIT, AxeAnalyse.VENDEUR, AxeAnalyse.NATURE_VENTE);
+    private static final List<AxeAnalyse> AXES_EXPLICATIFS =
+            List.of(AxeAnalyse.FAMILLE, AxeAnalyse.PRODUIT, AxeAnalyse.VENDEUR, AxeAnalyse.NATURE_VENTE);
 
     private final PeriodeComparaisonService periodeComparaisonService;
     private final LecteurMesuresPilotage lecteurMesuresPilotage;
@@ -42,11 +43,10 @@ public class EcartsPilotageServiceImpl implements EcartsPilotageService {
     private final DictionnaireIndicateursService dictionnaireIndicateursService;
 
     public EcartsPilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        LecteurMesuresPilotage lecteurMesuresPilotage,
-        VentilateurPilotage ventilateurPilotage,
-        DictionnaireIndicateursService dictionnaireIndicateursService
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            LecteurMesuresPilotage lecteurMesuresPilotage,
+            VentilateurPilotage ventilateurPilotage,
+            DictionnaireIndicateursService dictionnaireIndicateursService) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.lecteurMesuresPilotage = lecteurMesuresPilotage;
         this.ventilateurPilotage = ventilateurPilotage;
@@ -65,39 +65,39 @@ public class EcartsPilotageServiceImpl implements EcartsPilotageService {
         }
         MesuresPilotage reference = lecteurMesuresPilotage.lireTotal(comparaison.reference());
         EffetsEcart effets = EffetsEcart.calculer(periode, reference);
-        Map<Boolean, List<ContributionDTO>> parSens = listerContributions(comparaison)
-            .stream()
-            .filter(contribution -> contribution.ecart() != 0)
-            .collect(Collectors.partitioningBy(contribution -> contribution.ecart() > 0));
+        Map<Boolean, List<ContributionDTO>> parSens = listerContributions(comparaison).stream()
+                .filter(contribution -> contribution.ecart() != 0)
+                .collect(Collectors.partitioningBy(contribution -> contribution.ecart() > 0));
         return new EcartsPilotageDTO(
-            comparaison,
-            periode.caLignesTtc(),
-            reference.caLignesTtc(),
-            effets.frequentation(),
-            effets.articles(),
-            effets.prix(),
-            premieres(parSens.get(true), Comparator.comparingLong(ContributionDTO::ecart).reversed(), nombreContributions),
-            premieres(parSens.get(false), Comparator.comparingLong(ContributionDTO::ecart), nombreContributions)
-        );
+                comparaison,
+                periode.caLignesTtc(),
+                reference.caLignesTtc(),
+                effets.frequentation(),
+                effets.articles(),
+                effets.prix(),
+                premieres(
+                        parSens.get(true),
+                        Comparator.comparingLong(ContributionDTO::ecart).reversed(),
+                        nombreContributions),
+                premieres(parSens.get(false), Comparator.comparingLong(ContributionDTO::ecart), nombreContributions));
     }
 
     /** Un axe sans droit (les vendeurs, sans « Clients & équipe ») n'est pas lu. */
     private List<ContributionDTO> listerContributions(ComparaisonPeriodesDTO comparaison) {
         Set<DroitPilotage> droits = dictionnaireIndicateursService.lireDroitsAccordes();
         return AXES_EXPLICATIFS.stream()
-            .filter(axe -> droits.contains(axe.getDroit()))
-            .flatMap(axe ->
-                ventilateurPilotage
-                    .comparer(SourceAnalyse.LIGNES, comparaison, axe, null, List.of(), Granularite.MOIS)
-                    .elements()
-                    .stream()
-                    .map(element -> element.versContribution(axe, IndicateurPilotage.CA_TTC))
-            )
-            .toList();
+                .filter(axe -> droits.contains(axe.getDroit()))
+                .flatMap(
+                        axe -> ventilateurPilotage
+                                .comparer(SourceAnalyse.LIGNES, comparaison, axe, null, List.of(), Granularite.MOIS)
+                                .elements()
+                                .stream()
+                                .map(element -> element.versContribution(axe, IndicateurPilotage.CA_TTC)))
+                .toList();
     }
 
-    private static List<ContributionDTO> premieres(List<ContributionDTO> contributions, Comparator<ContributionDTO> ordre, int nombre) {
+    private static List<ContributionDTO> premieres(
+            List<ContributionDTO> contributions, Comparator<ContributionDTO> ordre, int nombre) {
         return contributions.stream().sorted(ordre).limit(nombre).toList();
     }
-
 }

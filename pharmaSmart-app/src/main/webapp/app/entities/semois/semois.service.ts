@@ -71,11 +71,10 @@ export class SemoisService {
 
   /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
   getSemoisFournisseurs(magasinId?: number): Observable<HttpResponse<{ fournisseurId: number; fournisseurLibelle: string }[]>> {
-    return this.http.get<{ fournisseurId: number; fournisseurLibelle: string }[]>(
-      `${this.resourceUrl}/suggestions/fournisseurs`, {
-        params: createRequestOptions({ magasinId }),
-        observe: 'response',
-      });
+    return this.http.get<{ fournisseurId: number; fournisseurLibelle: string }[]>(`${this.resourceUrl}/suggestions/fournisseurs`, {
+      params: createRequestOptions({ magasinId }),
+      observe: 'response',
+    });
   }
 
   /**

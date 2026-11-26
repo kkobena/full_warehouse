@@ -7,16 +7,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record PlanificationDto(
-    Integer id,
-    String libelle,
-    Periodicite periodicite,
-    LocalTime heureDeclenchement,
-    boolean factureProvisoire,
-    boolean actif,
-    LocalDate dernierePeriodeFin,
-    LocalDateTime prochaineExecution,
-    LocalDateTime derniereExecution,
-    ExecutionStatut dernierStatut,
-    String dernierMessage,
-    long nombreOrganismes
-) {}
+        Integer id,
+        String libelle,
+        Periodicite periodicite,
+        LocalTime heureDeclenchement,
+        boolean factureProvisoire,
+        boolean actif,
+        LocalDate dernierePeriodeFin,
+        LocalDateTime prochaineExecution,
+        LocalDateTime derniereExecution,
+        ExecutionStatut dernierStatut,
+        String dernierMessage,
+        long nombreOrganismes) {}

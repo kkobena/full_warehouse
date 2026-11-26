@@ -15,8 +15,8 @@ import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.MagasinDTO;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,12 +55,11 @@ class MagasinHierarchieTest {
         StorageService storageService = mock(StorageService.class);
         when(storageService.createStorageForNewMagasin(any())).thenReturn(Set.<Storage>of());
         service = new MagasinServiceImpl(
-            magasinRepository,
-            mock(UserService.class),
-            storageService,
-            mock(RayonService.class),
-            mock(PorteeMagasinService.class)
-        );
+                magasinRepository,
+                mock(UserService.class),
+                storageService,
+                mock(RayonService.class),
+                mock(PorteeMagasinService.class));
         when(magasinRepository.save(any(Magasin.class))).thenAnswer(appel -> appel.getArgument(0));
     }
 
@@ -72,8 +71,8 @@ class MagasinHierarchieTest {
         @DisplayName("une officine ne dépend d'aucun autre magasin")
         void officineSansParent() {
             assertThatThrownBy(() -> service.save(dto(TypeMagasin.OFFICINE, 1)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("racine");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("racine");
         }
 
         @Test
@@ -83,8 +82,8 @@ class MagasinHierarchieTest {
             dto.setId(7);
 
             assertThatThrownBy(() -> service.save(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("lui-même");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("lui-même");
         }
 
         @Test
@@ -93,19 +92,19 @@ class MagasinHierarchieTest {
             when(magasinRepository.findById(9)).thenReturn(Optional.of(magasin(9, TypeMagasin.DEPOT)));
 
             assertThatThrownBy(() -> service.save(dto(TypeMagasin.DEPOT, 9)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("que d'une officine");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("que d'une officine");
         }
 
         @Test
         @DisplayName("avec deux officines, le rattachement doit être précisé")
         void deuxOfficinesExigentUnChoix() {
             when(magasinRepository.findAllByTypeMagasin(TypeMagasin.OFFICINE))
-                .thenReturn(List.of(magasin(1, TypeMagasin.OFFICINE), magasin(2, TypeMagasin.OFFICINE)));
+                    .thenReturn(List.of(magasin(1, TypeMagasin.OFFICINE), magasin(2, TypeMagasin.OFFICINE)));
 
             assertThatThrownBy(() -> service.save(dto(TypeMagasin.DEPOT, null)))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Préciser l'officine");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Préciser l'officine");
         }
 
         @Test
@@ -116,8 +115,8 @@ class MagasinHierarchieTest {
             dto.setFnePointOfSale("PV-002");
 
             assertThatThrownBy(() -> service.save(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("identité FNE");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("identité FNE");
         }
 
         @Test
@@ -174,8 +173,10 @@ class MagasinHierarchieTest {
         void defautDeLaCapaciteDeCommander() {
             when(magasinRepository.findById(1)).thenReturn(Optional.of(magasin(1, TypeMagasin.OFFICINE)));
 
-            assertThat(service.save(dto(TypeMagasin.UNITE_GESTION, 1)).getCommandeEnPropre()).isTrue();
-            assertThat(service.save(dto(TypeMagasin.DEPOT, 1)).getCommandeEnPropre()).isFalse();
+            assertThat(service.save(dto(TypeMagasin.UNITE_GESTION, 1)).getCommandeEnPropre())
+                    .isTrue();
+            assertThat(service.save(dto(TypeMagasin.DEPOT, 1)).getCommandeEnPropre())
+                    .isFalse();
         }
 
         /**

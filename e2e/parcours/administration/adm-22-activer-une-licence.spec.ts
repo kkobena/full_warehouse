@@ -25,11 +25,14 @@ scenario('ADM-22', async ({ etape, page }) => {
     // Le fichier se dépose dans la zone prévue, ou se choisit par le sélecteur : deux gestes
     // pour le même résultat, selon que l'on vient d'un courriel ou d'un dossier.
     await expect(contenu).toContainText('.lic');
-    await contenu.locator('input[type="file"]').first().setInputFiles({
-      name: 'pharmasmart-2026.lic',
-      mimeType: 'application/octet-stream',
-      buffer: Buffer.from('exemple de fichier de licence'),
-    });
+    await contenu
+      .locator('input[type="file"]')
+      .first()
+      .setInputFiles({
+        name: 'pharmasmart-2026.lic',
+        mimeType: 'application/octet-stream',
+        buffer: Buffer.from('exemple de fichier de licence'),
+      });
     // Le bouton « Activer » n'existe qu'une fois un fichier retenu : tant qu'il n'y a rien à
     // activer, il n'y a rien à cliquer.
     await expect(contenu).toContainText('pharmasmart-2026.lic');
@@ -38,7 +41,7 @@ scenario('ADM-22', async ({ etape, page }) => {
 
   etape.horsPortee(
     3,
-    "activer un fichier remplacerait la licence de la base de démonstration ; le fichier est " +
+    'activer un fichier remplacerait la licence de la base de démonstration ; le fichier est ' +
       'choisi, l’activation elle-même n’est pas jouée.',
   );
 });

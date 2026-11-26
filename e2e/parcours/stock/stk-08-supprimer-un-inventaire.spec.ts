@@ -30,7 +30,10 @@ scenario('STK-08', async ({ etape, page }) => {
     await modale.getByRole('button', { name: 'Créer' }).click();
     // L'inventaire créé enchaîne sur sa feuille de comptage : on la ferme.
     const feuille = page.locator('.modal-content').last();
-    await feuille.getByRole('button', { name: /Annuler|Fermer/ }).first().click();
+    await feuille
+      .getByRole('button', { name: /Annuler|Fermer/ })
+      .first()
+      .click();
     await page.goto('/inventaire');
     await expect(lignes.filter({ hasText: description }).first()).toBeVisible();
   });
@@ -38,8 +41,7 @@ scenario('STK-08', async ({ etape, page }) => {
   await etape(2, async () => {
     // La suppression demande confirmation en nommant l'inventaire : dans une liste où
     // plusieurs comptages se ressemblent, c'est le dernier garde-fou.
-    await lignes.filter({ hasText: description }).first()
-      .getByRole('button', { name: 'Supprimer' }).click();
+    await lignes.filter({ hasText: description }).first().getByRole('button', { name: 'Supprimer' }).click();
     const question = page.locator('.modal-content:visible').first();
     await expect(question).toContainText(/Suppression inventaire/);
     await expect(question).toContainText(description);

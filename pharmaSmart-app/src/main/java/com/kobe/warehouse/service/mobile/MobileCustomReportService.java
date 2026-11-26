@@ -33,7 +33,8 @@ public class MobileCustomReportService {
     private final MobileSalesRepository salesRepository;
     private final AppConfigurationService appConfigurationService;
 
-    public MobileCustomReportService(MobileSalesRepository salesRepository, AppConfigurationService appConfigurationService) {
+    public MobileCustomReportService(
+            MobileSalesRepository salesRepository, AppConfigurationService appConfigurationService) {
         this.salesRepository = salesRepository;
         this.appConfigurationService = appConfigurationService;
     }
@@ -63,10 +64,7 @@ public class MobileCustomReportService {
      * @return Map of metric code to metric data
      */
     public Map<String, CustomReportMetricDTO> generateMetrics(
-        List<String> metricCodes,
-        LocalDate startDate,
-        LocalDate endDate
-    ) {
+            List<String> metricCodes, LocalDate startDate, LocalDate endDate) {
         LOG.debug("Generating custom report metrics: {} for period {} to {}", metricCodes, startDate, endDate);
 
         Map<String, CustomReportMetricDTO> metrics = new HashMap<>();
@@ -77,7 +75,8 @@ public class MobileCustomReportService {
         for (String code : metricCodes) {
             try {
                 MetricCode metricCode = MetricCode.valueOf(code);
-                CustomReportMetricDTO metric = generateMetric(metricCode, startDate, endDate, previousStartDate, previousEndDate);
+                CustomReportMetricDTO metric =
+                        generateMetric(metricCode, startDate, endDate, previousStartDate, previousEndDate);
                 metrics.put(code, metric);
             } catch (IllegalArgumentException e) {
                 LOG.warn("Unknown metric code: {}", code);
@@ -91,12 +90,11 @@ public class MobileCustomReportService {
      * Generate a single metric
      */
     private CustomReportMetricDTO generateMetric(
-        MetricCode metricCode,
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate
-    ) {
+            MetricCode metricCode,
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalDate previousStartDate,
+            LocalDate previousEndDate) {
         return switch (metricCode) {
             case CA -> generateCAMetric(startDate, endDate, previousStartDate, previousEndDate);
             case TRANSACTIONS -> generateTransactionsMetric(startDate, endDate, previousStartDate, previousEndDate);
@@ -115,11 +113,7 @@ public class MobileCustomReportService {
      * Generate CA (Revenue) metric
      */
     private CustomReportMetricDTO generateCAMetric(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate
-    ) {
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate) {
         SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
         SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
         double trend = calculateTrend(current.caTotal(), previous.caTotal());
@@ -127,47 +121,37 @@ public class MobileCustomReportService {
         List<ChartDataPointDTO> chartData = mapDailyCAChart(salesRepository.getCATrend(startDate, endDate));
 
         return new CustomReportMetricDTO(
-            "CA",
-            "Chiffre d'affaires",
-            formatAmount(current.caTotal()),
-            trend,
-            chartData,
-            String.format("Période: %s - %s", startDate, endDate)
-        );
+                "CA",
+                "Chiffre d'affaires",
+                formatAmount(current.caTotal()),
+                trend,
+                chartData,
+                String.format("Période: %s - %s", startDate, endDate));
     }
 
     /**
      * Generate Transactions metric
      */
     private CustomReportMetricDTO generateTransactionsMetric(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate
-    ) {
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate) {
         SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
         SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
         double trend = calculateTrend(current.transactionsCount(), previous.transactionsCount());
 
         return new CustomReportMetricDTO(
-            "TRANSACTIONS",
-            "Nombre de ventes",
-            String.valueOf(current.transactionsCount()),
-            trend,
-            null,
-            "Transactions enregistrées"
-        );
+                "TRANSACTIONS",
+                "Nombre de ventes",
+                String.valueOf(current.transactionsCount()),
+                trend,
+                null,
+                "Transactions enregistrées");
     }
 
     /**
      * Generate Average Basket metric
      */
     private CustomReportMetricDTO generateAverageBasketMetric(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate
-    ) {
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate) {
         SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
         SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
 
@@ -177,41 +161,33 @@ public class MobileCustomReportService {
         double trend = calculateTrend(currentAvg, previousAvg);
 
         return new CustomReportMetricDTO(
-            "AVERAGE_BASKET",
-            "Panier moyen",
-            formatAmount(currentAvg),
-            trend,
-            null,
-            "Valeur moyenne par transaction"
-        );
+                "AVERAGE_BASKET",
+                "Panier moyen",
+                formatAmount(currentAvg),
+                trend,
+                null,
+                "Valeur moyenne par transaction");
     }
 
     /**
      * Generate Margin metric
      */
     private CustomReportMetricDTO generateMarginMetric(
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDate previousStartDate,
-        LocalDate previousEndDate
-    ) {
+            LocalDate startDate, LocalDate endDate, LocalDate previousStartDate, LocalDate previousEndDate) {
         SalesSummaryProjection current = salesRepository.getSalesSummary(startDate, endDate);
         SalesSummaryProjection previous = salesRepository.getSalesSummary(previousStartDate, previousEndDate);
 
-        double currentMarginPercent = current.caTotal() > 0
-            ? (current.marginAmount() * 100.0 / current.caTotal())
-            : 0;
+        double currentMarginPercent = current.caTotal() > 0 ? (current.marginAmount() * 100.0 / current.caTotal()) : 0;
 
         double trend = calculateTrend(current.marginAmount(), previous.marginAmount());
 
         return new CustomReportMetricDTO(
-            "MARGIN",
-            "Marge brute",
-            formatAmount(current.marginAmount()),
-            trend,
-            null,
-            String.format("%.1f%% du CA", currentMarginPercent)
-        );
+                "MARGIN",
+                "Marge brute",
+                formatAmount(current.marginAmount()),
+                trend,
+                null,
+                String.format("%.1f%% du CA", currentMarginPercent));
     }
 
     /**
@@ -220,8 +196,8 @@ public class MobileCustomReportService {
     private CustomReportMetricDTO generateTopProductsMetric(LocalDate startDate, LocalDate endDate) {
         List<TopProductProjection> projections = salesRepository.getTopProducts(startDate, endDate, TOP_PRODUCTS_LIMIT);
         List<ChartDataPointDTO> topProducts = projections.stream()
-            .map(p -> new ChartDataPointDTO(p.productName(), (double) p.salesAmount(), null))
-            .toList();
+                .map(p -> new ChartDataPointDTO(p.productName(), (double) p.salesAmount(), null))
+                .toList();
 
         StringBuilder details = new StringBuilder();
         int count = Math.min(5, topProducts.size());
@@ -232,13 +208,12 @@ public class MobileCustomReportService {
         }
 
         return new CustomReportMetricDTO(
-            "TOP_PRODUCTS",
-            "Top produits",
-            String.valueOf(topProducts.size()),
-            null,
-            topProducts,
-            details.toString()
-        );
+                "TOP_PRODUCTS",
+                "Top produits",
+                String.valueOf(topProducts.size()),
+                null,
+                topProducts,
+                details.toString());
     }
 
     /**
@@ -247,17 +222,16 @@ public class MobileCustomReportService {
     private CustomReportMetricDTO generatePaymentMethodsMetric(LocalDate startDate, LocalDate endDate) {
         List<PaymentMethodProjection> projections = salesRepository.getPaymentMethodsSummary(startDate, endDate);
         List<ChartDataPointDTO> paymentMethods = projections.stream()
-            .map(p -> new ChartDataPointDTO(p.libelle(), (double) p.amount(), null))
-            .toList();
+                .map(p -> new ChartDataPointDTO(p.libelle(), (double) p.amount(), null))
+                .toList();
 
         return new CustomReportMetricDTO(
-            "PAYMENT_METHODS",
-            "Modes de paiement",
-            String.valueOf(paymentMethods.size()),
-            null,
-            paymentMethods,
-            "Répartition des paiements"
-        );
+                "PAYMENT_METHODS",
+                "Modes de paiement",
+                String.valueOf(paymentMethods.size()),
+                null,
+                paymentMethods,
+                "Répartition des paiements");
     }
 
     /**
@@ -267,13 +241,7 @@ public class MobileCustomReportService {
         // This would query by product categories
         // Simplified version - can be implemented later
         return new CustomReportMetricDTO(
-            "SALES_BY_CATEGORY",
-            "Ventes par catégorie",
-            "0",
-            null,
-            List.of(),
-            "Catégories actives"
-        );
+                "SALES_BY_CATEGORY", "Ventes par catégorie", "0", null, List.of(), "Catégories actives");
     }
 
     /**
@@ -283,41 +251,26 @@ public class MobileCustomReportService {
         int customersCount = salesRepository.getCustomersCount(startDate, endDate);
 
         return new CustomReportMetricDTO(
-            "CUSTOMER_STATS",
-            "Statistiques clients",
-            String.valueOf(customersCount),
-            null,
-            null,
-            "Clients uniques"
-        );
+                "CUSTOMER_STATS",
+                "Statistiques clients",
+                String.valueOf(customersCount),
+                null,
+                null,
+                "Clients uniques");
     }
 
     /**
      * Generate Alerts metric
      */
     private CustomReportMetricDTO generateAlertsMetric() {
-        return new CustomReportMetricDTO(
-            "ALERTS",
-            "Alertes actives",
-            "0",
-            null,
-            null,
-            "Aucune alerte critique"
-        );
+        return new CustomReportMetricDTO("ALERTS", "Alertes actives", "0", null, null, "Aucune alerte critique");
     }
 
     /**
      * Generate Stock Status metric
      */
     private CustomReportMetricDTO generateStockStatusMetric() {
-        return new CustomReportMetricDTO(
-            "STOCK_STATUS",
-            "État du stock",
-            "N/A",
-            null,
-            null,
-            "Statut du stock"
-        );
+        return new CustomReportMetricDTO("STOCK_STATUS", "État du stock", "N/A", null, null, "Statut du stock");
     }
 
     /**
@@ -325,8 +278,8 @@ public class MobileCustomReportService {
      */
     private List<ChartDataPointDTO> mapDailyCAChart(List<DailyCATrendProjection> projections) {
         return projections.stream()
-            .map(p -> new ChartDataPointDTO(p.date().toString(), (double) p.caTotal(), null))
-            .toList();
+                .map(p -> new ChartDataPointDTO(p.date().toString(), (double) p.caTotal(), null))
+                .toList();
     }
 
     private double calculateTrend(long current, long previous) {
@@ -334,8 +287,8 @@ public class MobileCustomReportService {
             return current > 0 ? 100.0 : 0.0;
         }
         return BigDecimal.valueOf(((current - previous) * 100.0) / previous)
-            .setScale(2, RoundingMode.HALF_UP)
-            .doubleValue();
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     /** La devise est configurable : une officine hors zone franc ne doit pas lire « FCFA ». */

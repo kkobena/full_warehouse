@@ -12,22 +12,22 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormsModule } from "@angular/forms";
-import { TranslatePipe } from "@ngx-translate/core";
-import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from "../../../../shared/constants/pagination.constants";
-import { ProduitSearch } from "../../../../shared/model";
-import { ProduitService } from "../../../../entities/produit/produit.service";
-import { catchError, debounceTime, filter, of, Subject, Subscription } from "rxjs";
-import { ScanDetectorService, ScanEvent } from "../../../../shared/scan-detector.service";
-import { GlobalScannerService } from "../../../../shared/global-scanner.service";
-import { CommonModule } from "@angular/common";
-import { SalesScannerService } from "../../data-access/services/sales-scanner.service";
-import { FloatLabelComponent, SelectSearchComponent } from "../../../../shared/ui";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import {ProduitBadgesComponent} from '../produit-badges/produit-badges.component';
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH } from '../../../../shared/constants/pagination.constants';
+import { ProduitSearch } from '../../../../shared/model';
+import { ProduitService } from '../../../../entities/produit/produit.service';
+import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
+import { ScanDetectorService, ScanEvent } from '../../../../shared/scan-detector.service';
+import { GlobalScannerService } from '../../../../shared/global-scanner.service';
+import { CommonModule } from '@angular/common';
+import { SalesScannerService } from '../../data-access/services/sales-scanner.service';
+import { FloatLabelComponent, SelectSearchComponent } from '../../../../shared/ui';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ProduitBadgesComponent } from '../produit-badges/produit-badges.component';
 
 /**
  * Composant de recherche produit avec scanner intégré
@@ -40,24 +40,24 @@ import {ProduitBadgesComponent} from '../produit-badges/produit-badges.component
  * - Affichage stock et prix
  */
 @Component({
-  selector: "app-product-search",
-  templateUrl: "./product-search.component.html",
-  styleUrls: ["./product-search.component.scss"],
+  selector: 'app-product-search',
+  templateUrl: './product-search.component.html',
+  styleUrls: ['./product-search.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule, ProduitBadgesComponent]
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule, ProduitBadgesComponent],
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
   // ViewChild
-  private readonly produitboxCmp = viewChild.required("produitbox", { read: SelectSearchComponent });
-  private readonly produitboxEl = viewChild.required("produitbox", { read: ElementRef<HTMLElement> });
+  private readonly produitboxCmp = viewChild.required('produitbox', { read: SelectSearchComponent });
+  private readonly produitboxEl = viewChild.required('produitbox', { read: ElementRef<HTMLElement> });
 
   // Inputs
   autofocus = input<boolean>(true);
   showClear = input<boolean>(true);
   pageSize = input<number>(10);
   storageId = input<number | null>(null);
-  style = input<{}>({ width: "100%" });
-  inputStyle = input<{}>({ width: "100%" });
+  style = input<{}>({ width: '100%' });
+  inputStyle = input<{}>({ width: '100%' });
   enableScanner = input<boolean>(true);
   disabled = input<boolean>(false);
 
@@ -90,8 +90,10 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
    * SalesScannerService fourni par SalesHomeComponent (parent dans la hiérarchie DI).
    * null si le composant est utilisé hors du contexte vente.
    */
-   
-  private readonly salesScanner: SalesScannerService | null = inject(SalesScannerService as any, { optional: true }) as SalesScannerService | null;
+
+  private readonly salesScanner: SalesScannerService | null = inject(SalesScannerService as any, {
+    optional: true,
+  }) as SalesScannerService | null;
   private readonly searchTrigger$ = new Subject<string>();
   /**
    * Passé à `[typeahead]` de `app-select-search` dans le seul but d'être « observé » :
@@ -121,12 +123,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   set produitSelected(value: any) {
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       return;
     }
     if (this.isScanning()) {
       if (isDevMode()) {
-        console.debug("[Scanner] Setter bloqué pendant le scan");
+        console.debug('[Scanner] Setter bloqué pendant le scan');
       }
       return;
     }
@@ -156,7 +158,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.stopInputClearLoop();
         }
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 
@@ -205,7 +207,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       // Si un scan global est en cours, laisser l'événement propager au scanner
       if (!this.enableScanner() && this.globalScanner.isScanActive()) {
         return;
@@ -241,7 +243,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   getFocus(): void {
     requestAnimationFrame(() => {
-      const el = this.produitboxEl()?.nativeElement.querySelector("input");
+      const el = this.produitboxEl()?.nativeElement.querySelector('input');
 
       if (el) {
         el.focus();
@@ -274,9 +276,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       setTimeout(() => cmp.close(), 100);
     }
 
-    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) {
-      inputEl.value = "";
+      inputEl.value = '';
     }
   }
 
@@ -294,14 +296,14 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = this.scanDetectorService.onScanEvent$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter((event: ScanEvent) => event.type === "start" || event.type === "complete" || event.type === "reset")
+        filter((event: ScanEvent) => event.type === 'start' || event.type === 'complete' || event.type === 'reset'),
       )
       .subscribe((event: ScanEvent) => {
-        if (event.type === "start") {
+        if (event.type === 'start') {
           this.onScanStart();
-        } else if (event.type === "complete" && event.code) {
+        } else if (event.type === 'complete' && event.code) {
           this.onScanComplete(event.code);
-        } else if (event.type === "reset") {
+        } else if (event.type === 'reset') {
           // Scan détecté (frappe rapide) puis abandonné côté service sans code valide :
           // sans ce cas, `isScanning` restait bloqué à `true` et la boucle de nettoyage
           // vidait le champ en continu, rendant la saisie manuelle impossible en vente.
@@ -323,8 +325,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       if (cible.closest('.modal, .modal-content')) {
         return true;
       }
-      const estUnChamp =
-        cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+      const estUnChamp = cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
       return estUnChamp && cible.id !== 'produitbox';
     };
     this.keydownListener = (event: KeyboardEvent) => {
@@ -334,7 +335,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       this.scanDetectorService.keyPressed(event.key);
     };
 
-    document.addEventListener("keydown", this.keydownListener, true);
+    document.addEventListener('keydown', this.keydownListener, true);
   }
 
   private onScanStart(): void {
@@ -367,9 +368,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   private clearInputValue(): void {
-    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl) {
-      inputEl.value = "";
+      inputEl.value = '';
     }
   }
 
@@ -406,7 +407,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     this.scanSubscription = undefined;
 
     if (this.keydownListener) {
-      document.removeEventListener("keydown", this.keydownListener, true);
+      document.removeEventListener('keydown', this.keydownListener, true);
       this.keydownListener = undefined;
     }
 
@@ -422,9 +423,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           page: 0,
           size: 1,
           search: barcode,
-          storageId: this.storageId()
+          storageId: this.storageId(),
         },
-        this.storageId() !== null
+        this.storageId() !== null,
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -432,7 +433,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.isScanning.set(false);
           this.produits.set([]);
           return of({ body: [] });
-        })
+        }),
       )
       .subscribe(res => {
         const result = res.body || [];
@@ -455,7 +456,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   private loadProduits(search: string): void {
     // Ignorer les recherches obsolètes (input vidé par reset() après un scan global)
-    const inputEl = this.produitboxEl()?.nativeElement.querySelector("input");
+    const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl && !inputEl.value?.trim()) {
       return;
     }
@@ -466,9 +467,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           page: 0,
           size: this.pageSize(),
           search,
-          storageId: this.storageId()
+          storageId: this.storageId(),
         },
-        this.storageId() !== null
+        this.storageId() !== null,
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -476,7 +477,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           // « Aucun résultat » est un état normal ; une panne API n'en est pas un : on la dit.
           this.signalerErreurRecherche();
           return of(null);
-        })
+        }),
       )
       .subscribe(res => {
         if (res === null) {
@@ -514,11 +515,11 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
    * l'utilisateur a continué à taper depuis.
    */
   private correspondanceExacte(recherche: string, resultat: ProduitSearch[]): ProduitSearch | null {
-    const terme = (recherche ?? "").trim();
+    const terme = (recherche ?? '').trim();
     if (this.isScanning() || resultat.length !== 1 || !/^\d{6,}$/.test(terme)) {
       return null;
     }
-    const saisi = this.produitboxEl()?.nativeElement.querySelector("input")?.value?.trim();
+    const saisi = this.produitboxEl()?.nativeElement.querySelector('input')?.value?.trim();
     if (saisi !== terme) {
       return null;
     }
@@ -527,7 +528,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       produit.fournisseurProduit?.codeCip,
       produit.fournisseurProduit?.codeEan,
       produit.codeEanLabo,
-      ...(produit.fournisseurs ?? []).flatMap(f => [f.codeCip, f.codeEan])
+      ...(produit.fournisseurs ?? []).flatMap(f => [f.codeCip, f.codeEan]),
     ];
     return codes.some(code => code === terme) ? produit : null;
   }

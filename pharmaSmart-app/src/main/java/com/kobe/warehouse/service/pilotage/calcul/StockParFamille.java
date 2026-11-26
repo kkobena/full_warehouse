@@ -9,8 +9,14 @@ import java.util.List;
 import java.util.Map;
 
 /** Stock, coût des ventes et dormants par famille, rapprochés en une ligne par famille. */
-public record StockParFamille(List<StockFamilleDTO> stock, Map<String, Long> couts, Map<String, StockFamilleDTO> dormants, long nbDormants, long valeurDormante) {
-    public static StockParFamille lire(List<StockFamilleDTO> stock, List<MontantsFamilleDTO> couts, List<StockFamilleDTO> dormantsLus) {
+public record StockParFamille(
+        List<StockFamilleDTO> stock,
+        Map<String, Long> couts,
+        Map<String, StockFamilleDTO> dormants,
+        long nbDormants,
+        long valeurDormante) {
+    public static StockParFamille lire(
+            List<StockFamilleDTO> stock, List<MontantsFamilleDTO> couts, List<StockFamilleDTO> dormantsLus) {
         Map<String, Long> coutParFamille = new HashMap<>();
         for (MontantsFamilleDTO cout : couts) {
             coutParFamille.put(cout.cle(), cout.montantTtc());
@@ -27,23 +33,21 @@ public record StockParFamille(List<StockFamilleDTO> stock, Map<String, Long> cou
     }
 
     public List<LigneStockDTO> lignes(long valeurTotale) {
-        return stock
-            .stream()
-            .sorted(Comparator.comparingLong(StockFamilleDTO::valeur).reversed())
-            .map(famille -> {
-                long cout = couts.getOrDefault(famille.cle(), 0L);
-                StockFamilleDTO dormant = dormants.get(famille.cle());
-                return new LigneStockDTO(
-                    famille.cle(),
-                    famille.libelle(),
-                    famille.valeur(),
-                    Variations.part((double) famille.valeur(), (double) valeurTotale),
-                    cout,
-                    IndicateursStock.rotation(cout, famille.valeur()),
-                    IndicateursStock.couverture(famille.valeur(), cout),
-                    dormant == null ? 0 : dormant.valeur()
-                );
-            })
-            .toList();
+        return stock.stream()
+                .sorted(Comparator.comparingLong(StockFamilleDTO::valeur).reversed())
+                .map(famille -> {
+                    long cout = couts.getOrDefault(famille.cle(), 0L);
+                    StockFamilleDTO dormant = dormants.get(famille.cle());
+                    return new LigneStockDTO(
+                            famille.cle(),
+                            famille.libelle(),
+                            famille.valeur(),
+                            Variations.part((double) famille.valeur(), (double) valeurTotale),
+                            cout,
+                            IndicateursStock.rotation(cout, famille.valeur()),
+                            IndicateursStock.couverture(famille.valeur(), cout),
+                            dormant == null ? 0 : dormant.valeur());
+                })
+                .toList();
     }
 }

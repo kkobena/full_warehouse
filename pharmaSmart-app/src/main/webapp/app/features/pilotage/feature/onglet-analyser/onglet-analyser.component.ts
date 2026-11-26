@@ -6,7 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { AbilityService } from 'app/core/auth/ability.service';
-import { ButtonComponent, CardComponent, FormFieldComponent, MultiSelectComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  FormFieldComponent,
+  MultiSelectComponent,
+  PillSelectorComponent,
+  SelectComponent,
+} from 'app/shared/ui';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
 import { PilotageApiService } from '../../data-access/pilotage-api.service';
 import {
@@ -90,7 +97,9 @@ export class OngletAnalyserComponent {
   /** La courbe suit les éléments sur 13 tranches : sur la seule période de la barre (un mois découpé par mois), elle n'aurait qu'un point. */
   protected readonly courbe = rxResource({
     params: () =>
-      this.reglage().affichage === 'COURBE' ? { requete: elargirAuxTreizeTranches(this.requete()), reglage: preparerRequete(this.reglage()) } : undefined,
+      this.reglage().affichage === 'COURBE'
+        ? { requete: elargirAuxTreizeTranches(this.requete()), reglage: preparerRequete(this.reglage()) }
+        : undefined,
     stream: ({ params }) => this.api.analyser(params.requete, params.reglage),
   });
   protected readonly horizonCourbe = computed(() => libellerHorizon(this.requete().granularite));
@@ -108,7 +117,8 @@ export class OngletAnalyserComponent {
   protected readonly aideVisible = signal(lireAideVisible());
   protected readonly infobulleEnregistrerVue =
     "Garde les indicateurs, les ventilations, le nombre d'éléments, le tri et l'affichage sous un nom, à retrouver dans « Vues enregistrées ». La période reste celle de la barre du haut.";
-  protected readonly infobulleModifierVue = 'Met à jour la vue choisie avec le réglage affiché (ou la renomme, ou la partage avec l\'équipe).';
+  protected readonly infobulleModifierVue =
+    "Met à jour la vue choisie avec le réglage affiché (ou la renomme, ou la partage avec l'équipe).";
 
   protected readonly explication = rxResource({
     params: () => {
@@ -146,14 +156,18 @@ export class OngletAnalyserComponent {
       .map(vue => ({ ...vue, groupe: GROUPES_VUES[vue.rang] })),
   );
 
-  protected readonly vueModifiable = computed(() => (this.vues.value() ?? []).find(vue => vue.id === this.vueChoisie() && vue.modifiable) ?? null);
+  protected readonly vueModifiable = computed(
+    () => (this.vues.value() ?? []).find(vue => vue.id === this.vueChoisie() && vue.modifiable) ?? null,
+  );
 
   private readonly axesParCode = computed(() => new Map((this.axes.value() ?? []).map(axe => [axe.code, axe])));
 
   /** « Puis par » : les axes qui se croisent avec l'axe choisi et le chemin de descente (une source commune). */
   protected readonly axesCroisables = computed(() => {
     const reglage = this.reglage();
-    return (this.axes.value() ?? []).filter(axe => axe.code !== reglage.axe && this.seCroisent([reglage.axe, axe.code, ...reglage.chemin.map(e => e.axe)]));
+    return (this.axes.value() ?? []).filter(
+      axe => axe.code !== reglage.axe && this.seCroisent([reglage.axe, axe.code, ...reglage.chemin.map(e => e.axe)]),
+    );
   });
 
   protected readonly libelleAxe = computed(() => this.axesParCode().get(this.reglage().axe)?.libelle ?? '');

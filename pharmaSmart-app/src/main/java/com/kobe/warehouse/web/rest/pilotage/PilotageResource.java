@@ -2,12 +2,12 @@ package com.kobe.warehouse.web.rest.pilotage;
 
 import com.kobe.warehouse.security.navaccess.NavAction;
 import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.service.dto.pilotage.AlertePilotageDTO;
 import com.kobe.warehouse.service.dto.pilotage.ChiffreAffairesReferenceDTO;
 import com.kobe.warehouse.service.dto.pilotage.EcartsPilotageDTO;
 import com.kobe.warehouse.service.dto.pilotage.IndicateurPilotageDTO;
 import com.kobe.warehouse.service.dto.pilotage.RequetePilotageDTO;
 import com.kobe.warehouse.service.dto.pilotage.SeriesPilotageDTO;
-import com.kobe.warehouse.service.dto.pilotage.AlertePilotageDTO;
 import com.kobe.warehouse.service.pilotage.AgregatsPilotageService;
 import com.kobe.warehouse.service.pilotage.AlertesPilotageService;
 import com.kobe.warehouse.service.pilotage.ChiffreAffairesReferenceService;
@@ -41,14 +41,13 @@ public class PilotageResource {
     private final AlertesPilotageService alertesPilotageService;
 
     public PilotageResource(
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        ChiffreAffairesReferenceService chiffreAffairesReferenceService,
-        AgregatsPilotageService agregatsPilotageService,
-        SeriesPilotageService seriesPilotageService,
-        EcartsPilotageService ecartsPilotageService,
-        ExportPilotageService exportPilotageService,
-        AlertesPilotageService alertesPilotageService
-    ) {
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            ChiffreAffairesReferenceService chiffreAffairesReferenceService,
+            AgregatsPilotageService agregatsPilotageService,
+            SeriesPilotageService seriesPilotageService,
+            EcartsPilotageService ecartsPilotageService,
+            ExportPilotageService exportPilotageService,
+            AlertesPilotageService alertesPilotageService) {
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.chiffreAffairesReferenceService = chiffreAffairesReferenceService;
         this.agregatsPilotageService = agregatsPilotageService;
@@ -66,11 +65,13 @@ public class PilotageResource {
     @GetMapping("/series/export")
     @RequiresNavAccess(value = "pilotage.tableau-de-bord", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exporterSeries(RequetePilotageDTO requete) {
-        return Utils.exportCsv(exportPilotageService.exporterSeries(requete), "pilotage-" + requete.du() + "-" + requete.au());
+        return Utils.exportCsv(
+                exportPilotageService.exporterSeries(requete), "pilotage-" + requete.du() + "-" + requete.au());
     }
 
     @GetMapping("/ecarts")
-    public ResponseEntity<EcartsPilotageDTO> expliquerEcarts(RequetePilotageDTO requete, @RequestParam(defaultValue = "5") int contributions) {
+    public ResponseEntity<EcartsPilotageDTO> expliquerEcarts(
+            RequetePilotageDTO requete, @RequestParam(defaultValue = "5") int contributions) {
         return ResponseEntity.ok(ecartsPilotageService.expliquerEcarts(requete, contributions));
     }
 
@@ -87,9 +88,8 @@ public class PilotageResource {
 
     @GetMapping("/chiffre-affaires")
     public ResponseEntity<ChiffreAffairesReferenceDTO> calculerChiffreAffaires(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au) {
         return ResponseEntity.ok(chiffreAffairesReferenceService.calculerChiffreAffaires(du, au));
     }
 
@@ -97,9 +97,8 @@ public class PilotageResource {
     @PostMapping("/agregats/recalcul")
     @RequiresNavAccess(value = "pilotage", action = NavAction.EXECUTE)
     public ResponseEntity<Void> recalculerAgregats(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au) {
         agregatsPilotageService.recalculer(du, au);
         return ResponseEntity.noContent().build();
     }

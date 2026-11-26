@@ -23,12 +23,8 @@ public class ModeChiffreAffaireResolver {
      * un module de fidélité, un connecteur — deviendrait sinon un motif de basculer la comptabilité
      * en mode déclaré, alors qu'elle n'a rien à y retrancher.
      */
-    private static final Set<Feature> MODULES_RETRAITEMENT = EnumSet.of(
-        Feature.EXCLUSION_RAYON,
-        Feature.EXCLUSION_TP,
-        Feature.EXCLUSION_UG,
-        Feature.CALLEBASSE
-    );
+    private static final Set<Feature> MODULES_RETRAITEMENT =
+            EnumSet.of(Feature.EXCLUSION_RAYON, Feature.EXCLUSION_TP, Feature.EXCLUSION_UG, Feature.CALLEBASSE);
 
     private final LicenseService licenseService;
 
@@ -49,7 +45,7 @@ public class ModeChiffreAffaireResolver {
      */
     public ModeChiffreAffaire modeComptabilite() {
         return MODULES_RETRAITEMENT.stream().anyMatch(licenseService::hasFeature)
-            ? ModeChiffreAffaire.DECLARE
-            : ModeChiffreAffaire.REEL;
+                ? ModeChiffreAffaire.DECLARE
+                : ModeChiffreAffaire.REEL;
     }
 }

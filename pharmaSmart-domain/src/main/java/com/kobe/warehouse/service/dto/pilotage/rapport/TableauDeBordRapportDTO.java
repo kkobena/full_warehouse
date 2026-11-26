@@ -10,14 +10,13 @@ import java.util.List;
  * @param ecartCa {@code null} sans référence comparable
  */
 public record TableauDeBordRapportDTO(
-    String contexte,
-    List<AlertePilotageDTO> alertes,
-    List<TuileRapportDTO> tuiles,
-    String titreCourbe,
-    String courbeCa,
-    MontantRapportDTO ecartCa,
-    List<MontantRapportDTO> effets,
-    List<MontantRapportDTO> hausses,
-    List<MontantRapportDTO> baisses,
-    TableauRapportDTO detail
-) {}
+        String contexte,
+        List<AlertePilotageDTO> alertes,
+        List<TuileRapportDTO> tuiles,
+        String titreCourbe,
+        String courbeCa,
+        MontantRapportDTO ecartCa,
+        List<MontantRapportDTO> effets,
+        List<MontantRapportDTO> hausses,
+        List<MontantRapportDTO> baisses,
+        TableauRapportDTO detail) {}

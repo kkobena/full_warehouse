@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy,Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
-import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../shared/ui';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../shared/ui';
 
 @Component({
   imports: [FontAwesomeModule, NgbTooltipModule, ButtonComponent],

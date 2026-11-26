@@ -52,12 +52,11 @@ public class RemisesPilotageServiceImpl implements RemisesPilotageService {
     private final AppConfigurationService appConfigurationService;
 
     public RemisesPilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        VentilateurPilotage ventilateurPilotage,
-        PilotageVentesDetailRepository pilotageVentesDetailRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            VentilateurPilotage ventilateurPilotage,
+            PilotageVentesDetailRepository pilotageVentesDetailRepository,
+            AppConfigurationService appConfigurationService) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.ventilateurPilotage = ventilateurPilotage;
@@ -69,113 +68,138 @@ public class RemisesPilotageServiceImpl implements RemisesPilotageService {
     public RemisesRentabiliteDTO analyserRemises(RequetePilotageDTO requete) {
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, LocalDate.now());
         boolean avecReference = comparaison.reference() != null;
-        boolean voitLEquipe = dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.CLIENTS_EQUIPE);
+        boolean voitLEquipe =
+                dictionnaireIndicateursService.lireDroitsAccordes().contains(DroitPilotage.CLIENTS_EQUIPE);
 
         var octrois = lireEntetes(comparaison, AxeAnalyse.OCTROI_REMISE, requete);
         MesuresComparees total = octrois.total();
-        Map<Boolean, List<MesuresComparees>> parRemise = octrois
-            .elements()
-            .stream()
-            .collect(Collectors.partitioningBy(element -> !OctroiRemise.AUCUNE.name().equals(element.membre().cle())));
+        Map<Boolean, List<MesuresComparees>> parRemise = octrois.elements().stream()
+                .collect(Collectors.partitioningBy(element ->
+                        !OctroiRemise.AUCUNE.name().equals(element.membre().cle())));
         MesuresComparees sansRemise = parRemise.get(false).stream().findFirst().orElse(MesuresComparees.AUCUNES);
-        MesuresComparees remisees = new MesuresComparees(null, null, total.periode().moins(sansRemise.periode()), total.reference().moins(sansRemise.reference()));
-        MesuresComparees marge = ventilateurPilotage.comparer(SourceAnalyse.LIGNES, comparaison, null, null, List.of(), requete.granularite()).total();
+        MesuresComparees remisees = new MesuresComparees(
+                null,
+                null,
+                total.periode().moins(sansRemise.periode()),
+                total.reference().moins(sansRemise.reference()));
+        MesuresComparees marge = ventilateurPilotage
+                .comparer(SourceAnalyse.LIGNES, comparaison, null, null, List.of(), requete.granularite())
+                .total();
         double multiple = appConfigurationService.getAlerteRemiseVendeurPilotage();
 
         return new RemisesRentabiliteDTO(
-            comparaison,
-            Variations.cellule(IndicateurPilotage.REMISES, total, avecReference),
-            Variations.cellule(IndicateurPilotage.TAUX_REMISE, total, avecReference),
-            Variations.cellule(
-                UniteIndicateur.POURCENTAGE,
-                pourcentage(remisees.periode().nbVentes(), total.periode().nbVentes()),
-                avecReference ? pourcentage(remisees.reference().nbVentes(), total.reference().nbVentes()) : null
-            ),
-            Variations.cellule(
-                UniteIndicateur.MONTANT,
-                ratio(remisees.periode().remises(), remisees.periode().nbVentes()),
-                avecReference ? ratio(remisees.reference().remises(), remisees.reference().nbVentes()) : null
-            ),
-            Variations.cellule(
-                UniteIndicateur.POURCENTAGE,
-                pourcentage(total.periode().remises(), marge.periode().margeBrute() + total.periode().remises()),
-                avecReference ? pourcentage(total.reference().remises(), marge.reference().margeBrute() + total.reference().remises()) : null
-            ),
-            parRemise.get(true).stream().map(element -> versLigne(element, null, avecReference, false)).toList(),
-            listerTranches(comparaison, requete, avecReference),
-            voitLEquipe ? listerVendeurs(comparaison, requete, avecReference, multiple) : null,
-            multiple,
-            listerPlusFortesRemises(comparaison, voitLEquipe)
-        );
+                comparaison,
+                Variations.cellule(IndicateurPilotage.REMISES, total, avecReference),
+                Variations.cellule(IndicateurPilotage.TAUX_REMISE, total, avecReference),
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        pourcentage(
+                                remisees.periode().nbVentes(), total.periode().nbVentes()),
+                        avecReference
+                                ? pourcentage(
+                                        remisees.reference().nbVentes(),
+                                        total.reference().nbVentes())
+                                : null),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        ratio(remisees.periode().remises(), remisees.periode().nbVentes()),
+                        avecReference
+                                ? ratio(
+                                        remisees.reference().remises(),
+                                        remisees.reference().nbVentes())
+                                : null),
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        pourcentage(
+                                total.periode().remises(),
+                                marge.periode().margeBrute() + total.periode().remises()),
+                        avecReference
+                                ? pourcentage(
+                                        total.reference().remises(),
+                                        marge.reference().margeBrute()
+                                                + total.reference().remises())
+                                : null),
+                parRemise.get(true).stream()
+                        .map(element -> versLigne(element, null, avecReference, false))
+                        .toList(),
+                listerTranches(comparaison, requete, avecReference),
+                voitLEquipe ? listerVendeurs(comparaison, requete, avecReference, multiple) : null,
+                multiple,
+                listerPlusFortesRemises(comparaison, voitLEquipe));
     }
 
     /** Nombre de ventes par tranche (en-têtes), CA, remises et marge par tranche (lignes), dans l'ordre des tranches. */
-    private List<LigneRemiseDTO> listerTranches(ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, boolean avecReference) {
-        Map<String, MesuresComparees> ventesParTranche = lireEntetes(comparaison, AxeAnalyse.REMISE, requete)
-            .elements()
-            .stream()
-            .collect(Collectors.toMap(element -> element.membre().cle(), Function.identity()));
+    private List<LigneRemiseDTO> listerTranches(
+            ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, boolean avecReference) {
+        Map<String, MesuresComparees> ventesParTranche =
+                lireEntetes(comparaison, AxeAnalyse.REMISE, requete).elements().stream()
+                        .collect(Collectors.toMap(element -> element.membre().cle(), Function.identity()));
         return ventilateurPilotage
-            .comparer(SourceAnalyse.LIGNES, comparaison, AxeAnalyse.REMISE, null, List.of(), requete.granularite())
-            .elements()
-            .stream()
-            .sorted(Comparator.comparingInt(element -> RangNaturel.lire(element.membre().cle())))
-            .map(element -> versLigne(element, ventesParTranche.get(element.membre().cle()), avecReference, false))
-            .toList();
+                .comparer(SourceAnalyse.LIGNES, comparaison, AxeAnalyse.REMISE, null, List.of(), requete.granularite())
+                .elements()
+                .stream()
+                .sorted(Comparator.comparingInt(
+                        element -> RangNaturel.lire(element.membre().cle())))
+                .map(element ->
+                        versLigne(element, ventesParTranche.get(element.membre().cle()), avecReference, false))
+                .toList();
     }
 
     /** Taux de remise de chaque vendeur face à celui de l'équipe ; au-delà du multiple fixé, signalé. */
-    private List<LigneRemiseDTO> listerVendeurs(ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, boolean avecReference, double multiple) {
+    private List<LigneRemiseDTO> listerVendeurs(
+            ComparaisonPeriodesDTO comparaison, RequetePilotageDTO requete, boolean avecReference, double multiple) {
         var vendeurs = lireEntetes(comparaison, AxeAnalyse.VENDEUR, requete);
-        Double tauxEquipe = CalculateurIndicateurs.calculer(IndicateurPilotage.TAUX_REMISE, vendeurs.total().periode());
-        return vendeurs
-            .elements()
-            .stream()
-            .sorted(Comparator.comparingLong((MesuresComparees element) -> element.periode().remises()).reversed())
-            .map(element -> {
-                Double taux = CalculateurIndicateurs.calculer(IndicateurPilotage.TAUX_REMISE, element.periode());
-                boolean alerte = taux != null && tauxEquipe != null && tauxEquipe > 0 && taux > multiple * tauxEquipe;
-                return versLigne(element, null, avecReference, alerte);
-            })
-            .toList();
+        Double tauxEquipe = CalculateurIndicateurs.calculer(
+                IndicateurPilotage.TAUX_REMISE, vendeurs.total().periode());
+        return vendeurs.elements().stream()
+                .sorted(Comparator.comparingLong(
+                                (MesuresComparees element) -> element.periode().remises())
+                        .reversed())
+                .map(element -> {
+                    Double taux = CalculateurIndicateurs.calculer(IndicateurPilotage.TAUX_REMISE, element.periode());
+                    boolean alerte =
+                            taux != null && tauxEquipe != null && tauxEquipe > 0 && taux > multiple * tauxEquipe;
+                    return versLigne(element, null, avecReference, alerte);
+                })
+                .toList();
     }
 
     private List<VenteRemiseeDTO> listerPlusFortesRemises(ComparaisonPeriodesDTO comparaison, boolean voitLEquipe) {
         return pilotageVentesDetailRepository
-            .listerPlusFortesRemises(
-                comparaison.periode().du(),
-                comparaison.periode().au(),
-                SalesStatut.CLOSED,
-                CategorieChiffreAffaire.officine(),
-                PRIVILEGE_REMISE,
-                PageRequest.of(0, VENTES_MAX)
-            )
-            .stream()
-            .map(vente -> voitLEquipe ? vente : vente.masquerPersonnes())
-            .toList();
+                .listerPlusFortesRemises(
+                        comparaison.periode().du(),
+                        comparaison.periode().au(),
+                        SalesStatut.CLOSED,
+                        CategorieChiffreAffaire.officine(),
+                        PRIVILEGE_REMISE,
+                        PageRequest.of(0, VENTES_MAX))
+                .stream()
+                .map(vente -> voitLEquipe ? vente : vente.masquerPersonnes())
+                .toList();
     }
 
     private Ventilation lireEntetes(ComparaisonPeriodesDTO comparaison, AxeAnalyse axe, RequetePilotageDTO requete) {
-        return ventilateurPilotage.comparer(SourceAnalyse.ENTETES, comparaison, axe, null, List.of(), requete.granularite());
+        return ventilateurPilotage.comparer(
+                SourceAnalyse.ENTETES, comparaison, axe, null, List.of(), requete.granularite());
     }
 
     /**
      * @param ventes les en-têtes de l'élément quand {@code mesures} vient des lignes (qui ne comptent pas les ventes) ; sinon
      *     {@code null}, {@code mesures} étant lui-même lu sur les en-têtes
      */
-    private static LigneRemiseDTO versLigne(MesuresComparees mesures, MesuresComparees ventes, boolean avecReference, boolean alerte) {
+    private static LigneRemiseDTO versLigne(
+            MesuresComparees mesures, MesuresComparees ventes, boolean avecReference, boolean alerte) {
         MesuresComparees entetes = ventes == null ? mesures : ventes;
         boolean lignes = ventes != null;
         return new LigneRemiseDTO(
-            mesures.membre().cle(),
-            mesures.membre().libelle(),
-            Variations.cellule(IndicateurPilotage.NB_VENTES, entetes, avecReference),
-            Variations.cellule(IndicateurPilotage.CA_TTC, mesures, avecReference),
-            Variations.cellule(IndicateurPilotage.REMISES, mesures, avecReference),
-            Variations.cellule(IndicateurPilotage.TAUX_REMISE, mesures, avecReference),
-            lignes ? Variations.cellule(IndicateurPilotage.TAUX_MARGE, mesures, avecReference) : null,
-            alerte
-        );
+                mesures.membre().cle(),
+                mesures.membre().libelle(),
+                Variations.cellule(IndicateurPilotage.NB_VENTES, entetes, avecReference),
+                Variations.cellule(IndicateurPilotage.CA_TTC, mesures, avecReference),
+                Variations.cellule(IndicateurPilotage.REMISES, mesures, avecReference),
+                Variations.cellule(IndicateurPilotage.TAUX_REMISE, mesures, avecReference),
+                lignes ? Variations.cellule(IndicateurPilotage.TAUX_MARGE, mesures, avecReference) : null,
+                alerte);
     }
 
     private static Double pourcentage(long numerateur, long denominateur) {

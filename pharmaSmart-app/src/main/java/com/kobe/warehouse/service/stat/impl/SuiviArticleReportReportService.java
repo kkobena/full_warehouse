@@ -6,13 +6,12 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class SuiviArticleReportReportService extends CommonReportService {
@@ -27,10 +26,7 @@ public class SuiviArticleReportReportService extends CommonReportService {
     private List<ProduitAuditingState> items;
 
     public SuiviArticleReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        MagasinService magasinService
-    ) {
+            SpringTemplateEngine templateEngine, StorageService storageService, MagasinService magasinService) {
         super(storageService);
         this.templateEngine = templateEngine;
 

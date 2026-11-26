@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.sale.calculation.dto;
 
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -17,8 +16,7 @@ public class TvaRepartitionDto {
     private BigDecimal montantHt = BigDecimal.ZERO;
     private int tva;
 
-    public TvaRepartitionDto() {
-    }
+    public TvaRepartitionDto() {}
 
     public TvaRepartitionDto(int tva) {
         this.tva = tva;
@@ -31,12 +29,11 @@ public class TvaRepartitionDto {
      */
     public RepartitionTiersPayantParTva toDomainRecord() {
         return new RepartitionTiersPayantParTva(
-            montantTtc.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-            montantTva.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-            montantNet.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-            montantHt.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-            tva
-        );
+                montantTtc.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+                montantTva.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+                montantNet.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+                montantHt.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+                tva);
     }
 
     public BigDecimal getMontantTtc() {

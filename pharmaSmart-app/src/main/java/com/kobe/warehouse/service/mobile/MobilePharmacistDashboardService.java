@@ -21,10 +21,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +41,7 @@ public class MobilePharmacistDashboardService {
 
     private final TableauPharmacienService tableauPharmacienService;
 
-    public MobilePharmacistDashboardService(
-        TableauPharmacienService tableauPharmacienService
-    ) {
+    public MobilePharmacistDashboardService(TableauPharmacienService tableauPharmacienService) {
         this.tableauPharmacienService = tableauPharmacienService;
     }
 
@@ -71,53 +67,53 @@ public class MobilePharmacistDashboardService {
         // Calculate margin
         long marge = wrapper.getMontantVenteNet() - wrapper.getMontantAchatNet();
         double margePercent = wrapper.getMontantVenteNet() > 0
-            ? BigDecimal.valueOf(marge)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(wrapper.getMontantVenteNet()), 2, RoundingMode.HALF_UP)
-                .doubleValue()
-            : 0.0;
+                ? BigDecimal.valueOf(marge)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(wrapper.getMontantVenteNet()), 2, RoundingMode.HALF_UP)
+                        .doubleValue()
+                : 0.0;
 
         // Calculate variations vs previous period
         TableauPharmacienWrapper precedent = fetchPeriodePrecedente(fromDate, toDate);
-        Double ventesVariation = variation(precedent == null ? null : precedent.getMontantVenteNet(), wrapper.getMontantVenteNet());
-        Double achatsVariation = variation(precedent == null ? null : precedent.getMontantAchatNet(), wrapper.getMontantAchatNet());
+        Double ventesVariation =
+                variation(precedent == null ? null : precedent.getMontantVenteNet(), wrapper.getMontantVenteNet());
+        Double achatsVariation =
+                variation(precedent == null ? null : precedent.getMontantAchatNet(), wrapper.getMontantAchatNet());
 
         // Build top suppliers list
-        List<FournisseurAchatMobileDTO> topFournisseurs = buildTopFournisseurs(
-            wrapper.getGroupAchats(),
-            wrapper.getMontantAchatNet()
-        );
+        List<FournisseurAchatMobileDTO> topFournisseurs =
+                buildTopFournisseurs(wrapper.getGroupAchats(), wrapper.getMontantAchatNet());
 
         // Build chart data for daily sales vs purchases
         List<ChartDataPointDTO> chartVentesAchats = buildChartData(wrapper);
 
         return MobilePharmacistDashboardDTO.builder()
-            .fromDate(fromDate)
-            .toDate(toDate)
-            .periodLabel(periodLabel)
-            .montantVenteComptant(wrapper.getMontantVenteComptant())
-            .montantVenteCredit(wrapper.getMontantVenteCredit())
-            .montantVenteRemise(wrapper.getMontantVenteRemise())
-            .montantVenteNet(wrapper.getMontantVenteNet())
-            .montantVenteTtc(wrapper.getMontantVenteTtc())
-            .montantVenteHt(wrapper.getMontantVenteHt())
-            .montantVenteTaxe(wrapper.getMontantVenteTaxe())
-            .transactionsCount((int) wrapper.getNumberCount())
-            .montantAchatNet(wrapper.getMontantAchatNet())
-            .montantAchatTtc(wrapper.getMontantAchatTtc())
-            .montantAchatHt(wrapper.getMontantAchatHt())
-            .montantAchatTaxe(wrapper.getMontantAchatTaxe())
-            .montantAchatRemise(wrapper.getMontantAchatRemise())
-            .montantAvoirFournisseur(wrapper.getMontantAvoirFournisseur())
-            .ratioVenteAchat(wrapper.getRatioVenteAchat())
-            .ratioAchatVente(wrapper.getRatioAchatVente())
-            .marge(marge)
-            .margePercent(margePercent)
-            .ventesVariation(ventesVariation)
-            .achatsVariation(achatsVariation)
-            .topFournisseurs(topFournisseurs)
-            .chartVentesAchats(chartVentesAchats)
-            .build();
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .periodLabel(periodLabel)
+                .montantVenteComptant(wrapper.getMontantVenteComptant())
+                .montantVenteCredit(wrapper.getMontantVenteCredit())
+                .montantVenteRemise(wrapper.getMontantVenteRemise())
+                .montantVenteNet(wrapper.getMontantVenteNet())
+                .montantVenteTtc(wrapper.getMontantVenteTtc())
+                .montantVenteHt(wrapper.getMontantVenteHt())
+                .montantVenteTaxe(wrapper.getMontantVenteTaxe())
+                .transactionsCount((int) wrapper.getNumberCount())
+                .montantAchatNet(wrapper.getMontantAchatNet())
+                .montantAchatTtc(wrapper.getMontantAchatTtc())
+                .montantAchatHt(wrapper.getMontantAchatHt())
+                .montantAchatTaxe(wrapper.getMontantAchatTaxe())
+                .montantAchatRemise(wrapper.getMontantAchatRemise())
+                .montantAvoirFournisseur(wrapper.getMontantAvoirFournisseur())
+                .ratioVenteAchat(wrapper.getRatioVenteAchat())
+                .ratioAchatVente(wrapper.getRatioAchatVente())
+                .marge(marge)
+                .margePercent(margePercent)
+                .ventesVariation(ventesVariation)
+                .achatsVariation(achatsVariation)
+                .topFournisseurs(topFournisseurs)
+                .chartVentesAchats(chartVentesAchats)
+                .build();
     }
 
     /**
@@ -129,12 +125,7 @@ public class MobilePharmacistDashboardService {
         mvtParam.setToDate(toDate);
         mvtParam.setGroupeBy(groupBy);
         mvtParam.setStatuts(EnumSet.of(SalesStatut.CLOSED));
-        mvtParam.setCategorieChiffreAffaires(
-            EnumSet.of(
-                CategorieChiffreAffaire.CA,
-                CategorieChiffreAffaire.CA_DEPOT
-            )
-        );
+        mvtParam.setCategorieChiffreAffaires(EnumSet.of(CategorieChiffreAffaire.CA, CategorieChiffreAffaire.CA_DEPOT));
         return mvtParam;
     }
 
@@ -148,19 +139,14 @@ public class MobilePharmacistDashboardService {
         } else if (fromDate.getMonth().equals(toDate.getMonth()) && fromDate.getYear() == toDate.getYear()) {
             // Same month
             return String.format(
-                "Du %d au %d %s %d",
-                fromDate.getDayOfMonth(),
-                toDate.getDayOfMonth(),
-                toDate.getMonth().getDisplayName(TextStyle.FULL, FR_LOCALE),
-                toDate.getYear()
-            );
+                    "Du %d au %d %s %d",
+                    fromDate.getDayOfMonth(),
+                    toDate.getDayOfMonth(),
+                    toDate.getMonth().getDisplayName(TextStyle.FULL, FR_LOCALE),
+                    toDate.getYear());
         } else {
             // Different months
-            return String.format(
-                "%s - %s",
-                fromDate.format(DATE_FORMATTER),
-                toDate.format(DATE_FORMATTER)
-            );
+            return String.format("%s - %s", fromDate.format(DATE_FORMATTER), toDate.format(DATE_FORMATTER));
         }
     }
 
@@ -175,8 +161,7 @@ public class MobilePharmacistDashboardService {
             long nombreDeJours = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
             LocalDate finPrecedente = fromDate.minusDays(1);
             return tableauPharmacienService.getTableauPharmacien(
-                buildMvtParam(finPrecedente.minusDays(nombreDeJours - 1), finPrecedente, "daily")
-            );
+                    buildMvtParam(finPrecedente.minusDays(nombreDeJours - 1), finPrecedente, "daily"));
         } catch (Exception e) {
             LOG.warn("Error calculating variation: {}", e.getMessage());
             return null;
@@ -192,36 +177,34 @@ public class MobilePharmacistDashboardService {
             return courant > 0 ? 100.0 : 0.0;
         }
         return BigDecimal.valueOf(courant - precedent)
-            .multiply(BigDecimal.valueOf(100))
-            .divide(BigDecimal.valueOf(precedent), 2, RoundingMode.HALF_UP)
-            .doubleValue();
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(precedent), 2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     /**
      * Build top suppliers list sorted by purchase amount.
      */
-    private List<FournisseurAchatMobileDTO> buildTopFournisseurs(
-        List<FournisseurAchat> groupAchats,
-        long totalAchats
-    ) {
+    private List<FournisseurAchatMobileDTO> buildTopFournisseurs(List<FournisseurAchat> groupAchats, long totalAchats) {
         if (groupAchats == null || groupAchats.isEmpty()) {
             return new ArrayList<>();
         }
 
         return groupAchats.stream()
-            .sorted(Comparator.comparingLong((FournisseurAchat f) -> f.getAchat().getMontantNet()).reversed())
-            .limit(TOP_FOURNISSEURS_LIMIT)
-            .map(f -> FournisseurAchatMobileDTO.of(
-                f.getId(),
-                f.getLibelle(),
-                f.getAchat().getMontantNet(),
-                f.getAchat().getMontantTtc(),
-                f.getAchat().getMontantHt(),
-                f.getAchat().getMontantTaxe(),
-                f.getAchat().getMontantRemise(),
-                totalAchats
-            ))
-            .toList();
+                .sorted(Comparator.comparingLong(
+                                (FournisseurAchat f) -> f.getAchat().getMontantNet())
+                        .reversed())
+                .limit(TOP_FOURNISSEURS_LIMIT)
+                .map(f -> FournisseurAchatMobileDTO.of(
+                        f.getId(),
+                        f.getLibelle(),
+                        f.getAchat().getMontantNet(),
+                        f.getAchat().getMontantTtc(),
+                        f.getAchat().getMontantHt(),
+                        f.getAchat().getMontantTaxe(),
+                        f.getAchat().getMontantRemise(),
+                        totalAchats))
+                .toList();
     }
 
     /**
@@ -230,18 +213,18 @@ public class MobilePharmacistDashboardService {
     private List<ChartDataPointDTO> buildChartData(TableauPharmacienWrapper wrapper) {
         List<ChartDataPointDTO> chartData = new ArrayList<>();
 
-        if (wrapper.getTableauPharmaciens() == null || wrapper.getTableauPharmaciens().isEmpty()) {
+        if (wrapper.getTableauPharmaciens() == null
+                || wrapper.getTableauPharmaciens().isEmpty()) {
             return chartData;
         }
 
         // Sort by date
         List<TableauPharmacienDTO> sortedData = wrapper.getTableauPharmaciens().stream()
-            .sorted(Comparator.comparing(TableauPharmacienDTO::getMvtDate))
-            .toList();
+                .sorted(Comparator.comparing(TableauPharmacienDTO::getMvtDate))
+                .toList();
 
         for (TableauPharmacienDTO dto : sortedData) {
-            String dateLabel = dto.getMvtDate().getDayOfWeek()
-                .getDisplayName(TextStyle.SHORT, FR_LOCALE);
+            String dateLabel = dto.getMvtDate().getDayOfWeek().getDisplayName(TextStyle.SHORT, FR_LOCALE);
 
             // Add sales point
             chartData.add(ChartDataPointDTO.sales(dateLabel, dto.getMontantNet()));

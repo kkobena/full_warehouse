@@ -3,9 +3,9 @@ package com.kobe.warehouse.service.sale;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
 import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.SmsService;
-import com.kobe.warehouse.domain.enumeration.CanalConsentement;
 import com.kobe.warehouse.service.customer.ConsentementService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.Locale;
@@ -30,12 +30,11 @@ public class AvoirClientNotificationService {
     private final ConsentementService consentementService;
 
     public AvoirClientNotificationService(
-        MailService mailService,
-        SmsService smsService,
-        AppConfigurationService appConfigurationService,
-        SpringTemplateEngine templateEngine,
-        ConsentementService consentementService
-    ) {
+            MailService mailService,
+            SmsService smsService,
+            AppConfigurationService appConfigurationService,
+            SpringTemplateEngine templateEngine,
+            ConsentementService consentementService) {
         this.consentementService = consentementService;
         this.mailService = mailService;
         this.smsService = smsService;
@@ -57,10 +56,14 @@ public class AvoirClientNotificationService {
         }
         Magasin magasin = appConfigurationService.getMagasin();
 
-        if (appConfigurationService.isNotifAvoirEmailEnabled() && StringUtils.hasText(customer.getEmail()) && !refuse(customer, CanalConsentement.EMAIL)) {
-            sendEmail(avoir, customer, magasin);// Brevo (ex-Sendinblue)
+        if (appConfigurationService.isNotifAvoirEmailEnabled()
+                && StringUtils.hasText(customer.getEmail())
+                && !refuse(customer, CanalConsentement.EMAIL)) {
+            sendEmail(avoir, customer, magasin); // Brevo (ex-Sendinblue)
         }
-        if (appConfigurationService.isNotifAvoirSmsEnabled() && StringUtils.hasText(customer.getPhone()) && !refuse(customer, CanalConsentement.SMS)) {
+        if (appConfigurationService.isNotifAvoirSmsEnabled()
+                && StringUtils.hasText(customer.getPhone())
+                && !refuse(customer, CanalConsentement.SMS)) {
             sendSms(avoir, customer, magasin);
         }
     }
@@ -72,8 +75,8 @@ public class AvoirClientNotificationService {
 
     private void sendEmail(AvoirClient avoir, Customer customer, Magasin magasin) {
         try {
-            String customerName = (customer.getFirstName() + " "
-                + Objects.requireNonNullElse(customer.getLastName(), "")).strip();
+            String customerName =
+                    (customer.getFirstName() + " " + Objects.requireNonNullElse(customer.getLastName(), "")).strip();
             Context context = new Context(Locale.FRENCH);
             context.setVariable("customerName", customerName);
             context.setVariable("avoir", avoir);
@@ -81,10 +84,7 @@ public class AvoirClientNotificationService {
             context.setVariable("magasinPhone", magasin.getPhone());
             String content = templateEngine.process("mail/avoir-produits-prets", context);
             mailService.sendEmail(
-                customer.getEmail(),
-                "Vos produits sont disponibles — " + magasin.getName(),
-                content, false, true
-            );
+                    customer.getEmail(), "Vos produits sont disponibles — " + magasin.getName(), content, false, true);
             LOG.debug("Email notification avoir {} envoyé à {}", avoir.getReference(), customer.getEmail());
         } catch (Exception e) {
             LOG.warn("Erreur envoi email notification avoir {} : {}", avoir.getReference(), e.getMessage());
@@ -93,8 +93,8 @@ public class AvoirClientNotificationService {
 
     private void sendSms(AvoirClient avoir, Customer customer, Magasin magasin) {
         String message = "Vos produits (avoir " + avoir.getReference()
-            + ") sont disponibles à " + magasin.getName()
-            + ". Montant : " + avoir.getMontant() + " " + appConfigurationService.getDevise() + ".";
+                + ") sont disponibles à " + magasin.getName()
+                + ". Montant : " + avoir.getMontant() + " " + appConfigurationService.getDevise() + ".";
         smsService.sendSms(customer.getPhone(), message);
     }
 }

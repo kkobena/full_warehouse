@@ -25,10 +25,12 @@ public interface EtiquetteUsageService {
      */
     byte[] imprimerPosologie(Integer ordonnanceId, Integer ligneId, int qty, int startAt, FormatEtiquette format);
 
-    String genererZplPosologie(Integer ordonnanceId, Integer ligneId, int qty, FormatEtiquette format, ResolutionEtiquette resolution);
+    String genererZplPosologie(
+            Integer ordonnanceId, Integer ligneId, int qty, FormatEtiquette format, ResolutionEtiquette resolution);
 
     /** Préparation magistrale, saisie à l'impression : rien n'est conservé. */
     byte[] imprimerPreparation(EtiquettePreparationDTO saisie, int qty, int startAt, FormatEtiquette format);
 
-    String genererZplPreparation(EtiquettePreparationDTO saisie, int qty, FormatEtiquette format, ResolutionEtiquette resolution);
+    String genererZplPreparation(
+            EtiquettePreparationDTO saisie, int qty, FormatEtiquette format, ResolutionEtiquette resolution);
 }

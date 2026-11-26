@@ -75,7 +75,9 @@
   margin-bottom: 0.5rem;
   transition: border-color 0.15s;
 
-  &:hover { border-color: var(--bs-border-color); }
+  &:hover {
+    border-color: var(--bs-border-color);
+  }
 }
 
 .prix-row-fields {
@@ -104,10 +106,19 @@
     font-size: 0.8rem;
     color: var(--bs-body-color);
 
-    .required { color: var(--bs-danger); font-weight: 700; margin-left: 0.1rem; }
+    .required {
+      color: var(--bs-danger);
+      font-weight: 700;
+      margin-left: 0.1rem;
+    }
   }
 
-  input, app-select-search, app-select, app-input-number { width: 100%; }
+  input,
+  app-select-search,
+  app-select,
+  app-input-number {
+    width: 100%;
+  }
 
   &.form-field-toggle {
     flex-direction: row;
@@ -115,7 +126,11 @@
     gap: 0.5rem;
     padding-bottom: 0.2rem;
 
-    label { font-size: 0.8rem; margin: 0; white-space: nowrap; }
+    label {
+      font-size: 0.8rem;
+      margin: 0;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -125,8 +140,13 @@
 .pharma-empty-content {
   color: var(--bs-secondary-color);
 
-  p { margin-bottom: 0.25rem; font-size: 0.875rem; }
-  small { font-size: 0.78rem; }
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+  small {
+    font-size: 0.78rem;
+  }
 }
 
 // ========================================================================
@@ -155,8 +175,14 @@
   .prix-row-fields {
     grid-template-columns: 1fr 1fr;
 
-    .prix-row-actions { grid-column: 1 / -1; justify-content: flex-end; }
+    .prix-row-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+    }
   }
 
-  .form-field.form-field-toggle { flex-direction: row; align-items: center; }
+  .form-field.form-field-toggle {
+    flex-direction: row;
+    align-items: center;
+  }
 }

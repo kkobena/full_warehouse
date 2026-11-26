@@ -1,34 +1,23 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule} from "@angular/common";
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from "../../../shared/ui";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, InputNumberComponent, SelectComponent } from '../../../shared/ui';
 
-import { LotPerimes } from "../model/lot-perimes";
-import {
-  RetourBonBatchResult,
-  RetourFournisseurBatchRequest,
-  RetourFournisseurRequest
-} from "../model/retour-fournisseur-request";
-import { IMotifRetourProduit } from "../../../shared/model/motif-retour-produit.model";
-import { ModifRetourProduitService } from "../../motif-retour-produit/motif-retour-produit.service";
-import { RetourBonService } from "../../commande/retour_fournisseur/retour-bon.service";
-import { NotificationService } from "../../../shared/services/notification.service";
+import { LotPerimes } from '../model/lot-perimes';
+import { RetourBonBatchResult, RetourFournisseurBatchRequest, RetourFournisseurRequest } from '../model/retour-fournisseur-request';
+import { IMotifRetourProduit } from '../../../shared/model/motif-retour-produit.model';
+import { ModifRetourProduitService } from '../../motif-retour-produit/motif-retour-produit.service';
+import { RetourBonService } from '../../commande/retour_fournisseur/retour-bon.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
-  selector: "jhi-retour-groupe-perime-dialog",
-  imports: [DeviseDirective, 
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    SelectComponent,
-    InputNumberComponent,
-    DataTableComponent
-  ],
-  templateUrl: "./retour-groupe-perime-dialog.component.html",
+  selector: 'jhi-retour-groupe-perime-dialog',
+  imports: [DeviseDirective, CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, InputNumberComponent, DataTableComponent],
+  templateUrl: './retour-groupe-perime-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./retour-lot-pereme-groupe.scss"]
+  styleUrls: ['./retour-lot-pereme-groupe.scss'],
 })
 export class RetourGroupePerimeDialogComponent implements OnInit {
   lots: LotPerimes[] = [];
@@ -52,16 +41,16 @@ export class RetourGroupePerimeDialogComponent implements OnInit {
           this.fb.group({
             lotId: [lot.id],
             quantity: [lot.quantity, [Validators.required, Validators.min(1), Validators.max(lot.quantity)]],
-            included: [true]
-          })
-        )
-      )
+            included: [true],
+          }),
+        ),
+      ),
     });
     this.loadMotifs();
   }
 
   protected get itemsArray(): FormArray {
-    return this.form.get("items") as FormArray;
+    return this.form.get('items') as FormArray;
   }
 
   protected getItemGroup(i: number): FormGroup {
@@ -69,13 +58,13 @@ export class RetourGroupePerimeDialogComponent implements OnInit {
   }
 
   protected get selectedCount(): number {
-    return this.itemsArray.controls.filter(c => c.get("included")?.value).length;
+    return this.itemsArray.controls.filter(c => c.get('included')?.value).length;
   }
 
   protected get totalAvoir(): number {
     return this.itemsArray.controls.reduce((sum, ctrl, i) => {
-      if (!ctrl.get("included")?.value) return sum;
-      const qty: number = ctrl.get("quantity")?.value ?? 0;
+      if (!ctrl.get('included')?.value) return sum;
+      const qty: number = ctrl.get('quantity')?.value ?? 0;
       return sum + qty * (this.lots[i]?.prixAchat ?? 0);
     }, 0);
   }
@@ -90,14 +79,14 @@ export class RetourGroupePerimeDialogComponent implements OnInit {
       return;
     }
 
-    const motifRetourId = this.form.get("motifRetourId")!.value;
+    const motifRetourId = this.form.get('motifRetourId')!.value;
     const lotsRequests: RetourFournisseurRequest[] = this.itemsArray.controls
       .map((ctrl, i) => {
-        if (!ctrl.get("included")?.value) return null;
+        if (!ctrl.get('included')?.value) return null;
         return {
           lotId: this.lots[i].id,
           motifRetourId,
-          quantity: ctrl.get("quantity")!.value
+          quantity: ctrl.get('quantity')!.value,
         } as RetourFournisseurRequest;
       })
       .filter((r): r is RetourFournisseurRequest => r !== null);
@@ -111,26 +100,20 @@ export class RetourGroupePerimeDialogComponent implements OnInit {
         const batchResult = res.body!;
         this.result.set(batchResult);
         if (batchResult.totalErrors === 0) {
-          this.notificationService.success(
-            `${batchResult.totalCreated} retour(s) fournisseur créé(s) avec succès.`,
-            "Succès"
-          );
+          this.notificationService.success(`${batchResult.totalCreated} retour(s) fournisseur créé(s) avec succès.`, 'Succès');
         } else if (batchResult.totalCreated > 0) {
           this.notificationService.warning(
             `${batchResult.totalCreated} retour(s) créé(s), ${batchResult.totalErrors} erreur(s).`,
-            "Résultat partiel"
+            'Résultat partiel',
           );
         } else {
-          this.notificationService.error(
-            "Aucun retour fournisseur n'a pu être créé.",
-            "Erreur"
-          );
+          this.notificationService.error("Aucun retour fournisseur n'a pu être créé.", 'Erreur');
         }
       },
       error: () => {
         this.isSaving.set(false);
-        this.notificationService.error("Une erreur est survenue lors du traitement batch.", "Erreur");
-      }
+        this.notificationService.error('Une erreur est survenue lors du traitement batch.', 'Erreur');
+      },
     });
   }
 
@@ -148,4 +131,3 @@ export class RetourGroupePerimeDialogComponent implements OnInit {
     });
   }
 }
-

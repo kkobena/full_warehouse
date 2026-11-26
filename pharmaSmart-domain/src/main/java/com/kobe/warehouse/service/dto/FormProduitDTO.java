@@ -52,11 +52,6 @@ public class FormProduitDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "FormProduitDTO{" +
-            "id=" + getId() +
-
-            ", libelle='" + getLibelle() + "'" +
-
-            "}";
+        return "FormProduitDTO{" + "id=" + getId() + ", libelle='" + getLibelle() + "'" + "}";
     }
 }

@@ -3,9 +3,9 @@ package com.kobe.warehouse.service.sale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.lenient;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
@@ -47,14 +47,29 @@ import org.springframework.data.domain.PageRequest;
 @ExtendWith(MockitoExtension.class)
 class SaleDataServiceCriteriaTest {
 
-    @Mock private EntityManager entityManager;
-    @Mock private SaleInvoiceReportService invoiceService;
-    @Mock private SalesLineRepository lineRepository;
-    @Mock private ThirdPartySaleLineRepository thirdPartyLineRepository;
-    @Mock private ReceiptPrinterService printerService;
-    @Mock private SalesRepository salesRepository;
-    @Mock private StorageService storageService;
-    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS) private CriteriaBuilder cb;
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
+    private SaleInvoiceReportService invoiceService;
+
+    @Mock
+    private SalesLineRepository lineRepository;
+
+    @Mock
+    private ThirdPartySaleLineRepository thirdPartyLineRepository;
+
+    @Mock
+    private ReceiptPrinterService printerService;
+
+    @Mock
+    private SalesRepository salesRepository;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
+    private CriteriaBuilder cb;
 
     private SaleDataService service;
 
@@ -66,8 +81,14 @@ class SaleDataServiceCriteriaTest {
         user.setMagasin(magasin);
         lenient().when(storageService.getUser()).thenReturn(user);
         when(entityManager.getCriteriaBuilder()).thenReturn(cb);
-        service = new SaleDataService(entityManager, invoiceService, lineRepository,
-            thirdPartyLineRepository, printerService, salesRepository, storageService);
+        service = new SaleDataService(
+                entityManager,
+                invoiceService,
+                lineRepository,
+                thirdPartyLineRepository,
+                printerService,
+                salesRepository,
+                storageService);
     }
 
     @Test
@@ -92,9 +113,12 @@ class SaleDataServiceCriteriaTest {
         LocalDate to = LocalDate.now();
         Set<SalesStatut> statuses = Set.of(SalesStatut.ACTIVE);
 
-        assertTrue(service.allPrevente("para", EntityConstant.TOUT, 1, statuses, from, to, true).isEmpty());
-        assertTrue(service.allPrevente("", EntityConstant.VNO, null, statuses, from, to, false).isEmpty());
-        assertTrue(service.allPrevente(null, "VO", null, statuses, from, to, true).isEmpty());
+        assertTrue(service.allPrevente("para", EntityConstant.TOUT, 1, statuses, from, to, true)
+                .isEmpty());
+        assertTrue(service.allPrevente("", EntityConstant.VNO, null, statuses, from, to, false)
+                .isEmpty());
+        assertTrue(
+                service.allPrevente(null, "VO", null, statuses, from, to, true).isEmpty());
 
         verify(cb).treat(root, CashSale.class);
         verify(cb).treat(root, ThirdPartySales.class);
@@ -105,8 +129,8 @@ class SaleDataServiceCriteriaTest {
         DepotCriteria mocks = depotCriteria(0L);
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Page<DepotExtensionSaleDTO> result = service.fetchVenteDepot(
-            null, null, null, null, PaymentStatus.ALL, null, pageable);
+        Page<DepotExtensionSaleDTO> result =
+                service.fetchVenteDepot(null, null, null, null, PaymentStatus.ALL, null, pageable);
 
         assertTrue(result.isEmpty());
         verify(mocks.countQuery).getSingleResult();
@@ -115,10 +139,9 @@ class SaleDataServiceCriteriaTest {
     @Test
     void fetchesPagedDepotSalesWithAllPredicates() {
         DepotCriteria mocks = depotCriteria(2L);
-        CriteriaQuery<VenteDepot> dataCriteria = org.mockito.Mockito.mock(CriteriaQuery.class,
-            org.mockito.Answers.RETURNS_DEEP_STUBS);
-        Root<VenteDepot> dataRoot = org.mockito.Mockito.mock(Root.class,
-            org.mockito.Answers.RETURNS_DEEP_STUBS);
+        CriteriaQuery<VenteDepot> dataCriteria =
+                org.mockito.Mockito.mock(CriteriaQuery.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
+        Root<VenteDepot> dataRoot = org.mockito.Mockito.mock(Root.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
         TypedQuery<VenteDepot> dataQuery = org.mockito.Mockito.mock(TypedQuery.class);
         when(cb.createQuery(VenteDepot.class)).thenReturn(dataCriteria);
         when(dataCriteria.from(VenteDepot.class)).thenReturn(dataRoot);
@@ -130,8 +153,7 @@ class SaleDataServiceCriteriaTest {
         PageRequest pageable = PageRequest.of(1, 5);
 
         Page<DepotExtensionSaleDTO> result = service.fetchVenteDepot(
-            "produit", LocalDate.now().minusDays(2), LocalDate.now(), 4,
-            PaymentStatus.IMPAYE, 9, pageable);
+                "produit", LocalDate.now().minusDays(2), LocalDate.now(), 4, PaymentStatus.IMPAYE, 9, pageable);
 
         assertEquals(2, result.getTotalElements());
         verify(dataQuery).setFirstResult(5);
@@ -141,8 +163,8 @@ class SaleDataServiceCriteriaTest {
 
     @Test
     void exportsDepotStockProjection() {
-        CriteriaQuery<StockDepotExportDTO> cq = org.mockito.Mockito.mock(CriteriaQuery.class,
-            org.mockito.Answers.RETURNS_DEEP_STUBS);
+        CriteriaQuery<StockDepotExportDTO> cq =
+                org.mockito.Mockito.mock(CriteriaQuery.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
         Root<SalesLine> root = org.mockito.Mockito.mock(Root.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
         TypedQuery<StockDepotExportDTO> query = org.mockito.Mockito.mock(TypedQuery.class);
         when(cb.createQuery(StockDepotExportDTO.class)).thenReturn(cq);
@@ -153,17 +175,15 @@ class SaleDataServiceCriteriaTest {
         StockDepotExportDTO dto = org.mockito.Mockito.mock(StockDepotExportDTO.class);
         when(query.getResultList()).thenReturn(List.of(dto));
 
-        List<StockDepotExportDTO> result = service.exportVenteDepotStock(
-            new SaleId(8L, LocalDate.of(2026, 8, 21)));
+        List<StockDepotExportDTO> result = service.exportVenteDepotStock(new SaleId(8L, LocalDate.of(2026, 8, 21)));
 
         assertEquals(List.of(dto), result);
     }
 
     private DepotCriteria depotCriteria(long count) {
-        CriteriaQuery<Long> countCriteria = org.mockito.Mockito.mock(CriteriaQuery.class,
-            org.mockito.Answers.RETURNS_DEEP_STUBS);
-        Root<VenteDepot> countRoot = org.mockito.Mockito.mock(Root.class,
-            org.mockito.Answers.RETURNS_DEEP_STUBS);
+        CriteriaQuery<Long> countCriteria =
+                org.mockito.Mockito.mock(CriteriaQuery.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
+        Root<VenteDepot> countRoot = org.mockito.Mockito.mock(Root.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
         TypedQuery<Long> countQuery = org.mockito.Mockito.mock(TypedQuery.class);
         Expression<Long> countExpression = org.mockito.Mockito.mock(Expression.class);
         when(cb.createQuery(Long.class)).thenReturn(countCriteria);
@@ -175,7 +195,5 @@ class SaleDataServiceCriteriaTest {
         return new DepotCriteria(countQuery);
     }
 
-    private record DepotCriteria(TypedQuery<Long> countQuery) {
-    }
+    private record DepotCriteria(TypedQuery<Long> countQuery) {}
 }
-

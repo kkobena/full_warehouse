@@ -16,6 +16,11 @@ export class SubstitutionComptoirService {
   choisir(origine: OrigineSubstitution): Observable<ProduitSearch | null> {
     const ref = this.modalService.open(SubstitutsModalComponent, { centered: true, size: 'lg', scrollable: true });
     (ref.componentInstance as SubstitutsModalComponent).origine = origine;
-    return from(ref.result.then((produit: ProduitSearch): ProduitSearch | null => produit, (): ProduitSearch | null => null));
+    return from(
+      ref.result.then(
+        (produit: ProduitSearch): ProduitSearch | null => produit,
+        (): ProduitSearch | null => null,
+      ),
+    );
   }
 }

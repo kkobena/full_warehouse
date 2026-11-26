@@ -16,6 +16,7 @@ public class DashboardLayoutDTO {
     private String userLogin;
     /** Rôles auxquels ce layout est assigné (many-to-many via dashboard_layout_authority). */
     private List<String> authorityNames;
+
     private DashboardScope scope;
     private Boolean isDefault;
     /**
@@ -28,6 +29,7 @@ public class DashboardLayoutDTO {
      * Valeurs : PHARMACIEN | CAISSIER | COMMANDE | DEFAULT
      */
     private String componentKey;
+
     private String layoutConfig; // JSON string
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -37,20 +39,19 @@ public class DashboardLayoutDTO {
     public DashboardLayoutDTO() {}
 
     public DashboardLayoutDTO(
-        Integer id,
-        String name,
-        String description,
-        Integer userId,
-        String userLogin,
-        List<String> authorityNames,
-        DashboardScope scope,
-        Boolean isDefault,
-        Boolean isRoute,
-        String componentKey,
-        String layoutConfig,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
-    ) {
+            Integer id,
+            String name,
+            String description,
+            Integer userId,
+            String userLogin,
+            List<String> authorityNames,
+            DashboardScope scope,
+            Boolean isDefault,
+            Boolean isRoute,
+            String componentKey,
+            String layoutConfig,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;

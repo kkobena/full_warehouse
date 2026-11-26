@@ -22,7 +22,7 @@ export interface IValuationGroup {
 }
 
 export const VALUATION_GROUP_OPTIONS: { label: string; value: ValuationGroupBy }[] = [
-  {label: 'Par emplacement', value: 'STORAGE'},
-  {label: 'Par famille', value: 'FAMILLE'},
-  {label: 'Par rayon', value: 'RAYON'},
+  { label: 'Par emplacement', value: 'STORAGE' },
+  { label: 'Par famille', value: 'FAMILLE' },
+  { label: 'Par rayon', value: 'RAYON' },
 ];

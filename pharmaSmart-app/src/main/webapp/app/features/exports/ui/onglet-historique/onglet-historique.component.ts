@@ -43,7 +43,9 @@ export class OngletHistoriqueComponent {
 
   protected readonly fichiers = computed(() => this.historique.value()?.fichiers ?? []);
   protected readonly pages = computed(() => Math.max(1, Math.ceil((this.historique.value()?.total ?? 0) / TAILLE_PAGE)));
-  protected readonly enPreparation = computed(() => this.fichiers().some(fichier => fichier.statut === 'EN_ATTENTE' || fichier.statut === 'EN_COURS'));
+  protected readonly enPreparation = computed(() =>
+    this.fichiers().some(fichier => fichier.statut === 'EN_ATTENTE' || fichier.statut === 'EN_COURS'),
+  );
 
   constructor() {
     effect(onCleanup => {

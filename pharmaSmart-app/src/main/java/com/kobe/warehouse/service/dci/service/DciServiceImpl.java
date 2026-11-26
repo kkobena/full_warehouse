@@ -1,13 +1,12 @@
 package com.kobe.warehouse.service.dci.service;
 
-import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
-
 import com.kobe.warehouse.domain.Dci;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.repository.DciRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.referentiel.DcisAjouteesEvent;
@@ -26,11 +25,11 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.util.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -54,10 +53,9 @@ public class DciServiceImpl implements DciService {
     private final ApplicationEventPublisher eventPublisher;
 
     public DciServiceImpl(
-        DciRepository dciRepository,
-        ProduitRepository produitRepository,
-        ApplicationEventPublisher eventPublisher
-    ) {
+            DciRepository dciRepository,
+            ProduitRepository produitRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.dciRepository = dciRepository;
         this.produitRepository = produitRepository;
         this.eventPublisher = eventPublisher;
@@ -67,11 +65,10 @@ public class DciServiceImpl implements DciService {
     @Transactional(readOnly = true)
     public Page<DciDTO> findAll(String search, Pageable pageable) {
         if (search != null && !search.isEmpty()) {
-            return this.dciRepository.findAllByCodeContainingIgnoreCaseOrLibelleContainingIgnoreCaseOrderByLibelleAsc(
-                search,
-                search,
-                pageable
-            ).map(DciDTO::new);
+            return this.dciRepository
+                    .findAllByCodeContainingIgnoreCaseOrLibelleContainingIgnoreCaseOrderByLibelleAsc(
+                            search, search, pageable)
+                    .map(DciDTO::new);
         }
         return this.dciRepository.findAllByOrderByLibelleAsc(pageable).map(DciDTO::new);
     }
@@ -97,9 +94,9 @@ public class DciServiceImpl implements DciService {
     @Override
     public DciDTO update(DciDTO dto) {
         int id = (int) dto.getId();
-        Dci dci = this.dciRepository.findById(id).orElseThrow(() ->
-            new GenericError("Cette DCI n'existe plus.", "dciIntrouvable")
-        );
+        Dci dci = this.dciRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Cette DCI n'existe plus.", "dciIntrouvable"));
         String libelle = exigerLibelle(dto);
         verifierUnicite(libelle, dto.getCode(), id);
         dci.setLibelle(libelle);
@@ -111,23 +108,19 @@ public class DciServiceImpl implements DciService {
     @Override
     @Transactional(readOnly = true)
     public List<DciProduitDTO> findProduits(Integer dciId) {
-        return this.produitRepository.findAllByDciIdForDetail(dciId)
-            .stream()
-            .map(p ->
-                new DciProduitDTO(
-                    p.getId(),
-                    p.getLibelle(),
-                    // Le CIP vit sur fournisseur_produit, pas sur produit : il est donc
-                    // absent tant qu'aucun fournisseur principal n'est désigné.
-                    p.getFournisseurProduitPrincipal() != null
-                        ? p.getFournisseurProduitPrincipal().getCodeCip()
-                        : null,
-                    p.getFamille() != null ? p.getFamille().getLibelle() : null,
-                    p.getRegularUnitPrice(),
-                    p.getStatus() != null ? p.getStatus().name() : null
-                )
-            )
-            .toList();
+        return this.produitRepository.findAllByDciIdForDetail(dciId).stream()
+                .map(p -> new DciProduitDTO(
+                        p.getId(),
+                        p.getLibelle(),
+                        // Le CIP vit sur fournisseur_produit, pas sur produit : il est donc
+                        // absent tant qu'aucun fournisseur principal n'est désigné.
+                        p.getFournisseurProduitPrincipal() != null
+                                ? p.getFournisseurProduitPrincipal().getCodeCip()
+                                : null,
+                        p.getFamille() != null ? p.getFamille().getLibelle() : null,
+                        p.getRegularUnitPrice(),
+                        p.getStatus() != null ? p.getStatus().name() : null))
+                .toList();
     }
 
     /**
@@ -147,8 +140,9 @@ public class DciServiceImpl implements DciService {
         if (CollectionUtils.isEmpty(produitIds)) {
             return 0;
         }
-        Dci dci = this.dciRepository.findById(dciId)
-            .orElseThrow(() -> new GenericError("DCI introuvable", "dciIntrouvable"));
+        Dci dci = this.dciRepository
+                .findById(dciId)
+                .orElseThrow(() -> new GenericError("DCI introuvable", "dciIntrouvable"));
 
         List<Produit> produits = this.produitRepository.findAllById(produitIds);
         produits.forEach(produit -> {
@@ -171,10 +165,8 @@ public class DciServiceImpl implements DciService {
         long rattaches = this.produitRepository.countByDciId(id);
         if (rattaches > 0) {
             throw new GenericError(
-                "Suppression impossible : %d produit(s) sont rattachés à cette DCI.".formatted(
-                    rattaches),
-                "dciRattacheeAProduits"
-            );
+                    "Suppression impossible : %d produit(s) sont rattachés à cette DCI.".formatted(rattaches),
+                    "dciRattacheeAProduits");
         }
         this.dciRepository.deleteById(id);
     }
@@ -186,13 +178,14 @@ public class DciServiceImpl implements DciService {
         AtomicInteger total = new AtomicInteger(0);
         List<Integer> idsImportes = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(
-            new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
-                .setDelimiter(';')
-                .setSkipHeaderRecord(true)
-                .setTrim(true).get()
-                .parse(br);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .builder()
+                    .setDelimiter(';')
+                    .setSkipHeaderRecord(true)
+                    .setTrim(true)
+                    .get()
+                    .parse(br);
 
             for (CSVRecord record : records) {
                 total.incrementAndGet();
@@ -214,9 +207,9 @@ public class DciServiceImpl implements DciService {
                     }
 
                     if (StringUtils.hasText(code)
-                        && this.dciRepository.existsByCodeIgnoreCase(code.trim().toUpperCase())) {
-                        LOG.warn("Ligne {} rejetée : le code « {} » est déjà utilisé.", total.get(),
-                            code);
+                            && this.dciRepository.existsByCodeIgnoreCase(
+                                    code.trim().toUpperCase())) {
+                        LOG.warn("Ligne {} rejetée : le code « {} » est déjà utilisé.", total.get(), code);
                         rejetes.incrementAndGet();
                         continue;
                     }
@@ -244,15 +237,13 @@ public class DciServiceImpl implements DciService {
         }
 
         return new ResponseDTO()
-            .success(true)
-            .setCompleted(true)
-            .size(importes.get())
-            .totalSize(total.get())
-            .setErrorSize(rejetes.get())
-            .message(
-                "%d ligne(s) importée(s) sur %d, %d ignorée(s).".formatted(importes.get(),
-                    total.get(), rejetes.get())
-            );
+                .success(true)
+                .setCompleted(true)
+                .size(importes.get())
+                .totalSize(total.get())
+                .setErrorSize(rejetes.get())
+                .message("%d ligne(s) importée(s) sur %d, %d ignorée(s)."
+                        .formatted(importes.get(), total.get(), rejetes.get()));
     }
 
     /**
@@ -275,13 +266,10 @@ public class DciServiceImpl implements DciService {
      */
     private void verifierUnicite(String libelle, String codeFourni, Integer idAExclure) {
         boolean libellePris = idAExclure == null
-            ? this.dciRepository.existsByLibelleIgnoreCase(libelle)
-            : this.dciRepository.existsByLibelleIgnoreCaseAndIdNot(libelle, idAExclure);
+                ? this.dciRepository.existsByLibelleIgnoreCase(libelle)
+                : this.dciRepository.existsByLibelleIgnoreCaseAndIdNot(libelle, idAExclure);
         if (libellePris) {
-            throw new GenericError(
-                "Une DCI porte déjà le libellé « %s ».".formatted(libelle),
-                "dciLibelleDuplique"
-            );
+            throw new GenericError("Une DCI porte déjà le libellé « %s ».".formatted(libelle), "dciLibelleDuplique");
         }
 
         // Un code absent sera dérivé, et la dérivation garantit déjà son unicité :
@@ -291,13 +279,11 @@ public class DciServiceImpl implements DciService {
         }
         String code = codeFourni.trim().toUpperCase();
         boolean codePris = idAExclure == null
-            ? this.dciRepository.existsByCodeIgnoreCase(code)
-            : this.dciRepository.existsByCodeIgnoreCaseAndIdNot(code, idAExclure);
+                ? this.dciRepository.existsByCodeIgnoreCase(code)
+                : this.dciRepository.existsByCodeIgnoreCaseAndIdNot(code, idAExclure);
         if (codePris) {
             throw new GenericError(
-                "Le code « %s » est déjà utilisé par une autre DCI.".formatted(code),
-                "dciCodeDuplique"
-            );
+                    "Le code « %s » est déjà utilisé par une autre DCI.".formatted(code), "dciCodeDuplique");
         }
     }
 
@@ -322,9 +308,9 @@ public class DciServiceImpl implements DciService {
      */
     private String genererCode(String libelle, Integer idAExclure) {
         String base = Normalizer.normalize(libelle, Normalizer.Form.NFD)
-            .replaceAll("\\p{M}", "")
-            .replaceAll("[^A-Za-z0-9]", "")
-            .toUpperCase();
+                .replaceAll("\\p{M}", "")
+                .replaceAll("[^A-Za-z0-9]", "")
+                .toUpperCase();
 
         if (base.isEmpty()) {
             base = "DCI";
@@ -339,18 +325,17 @@ public class DciServiceImpl implements DciService {
         for (int suffixe = 2; suffixe < 10000; suffixe++) {
             String candidat = base + suffixe;
             if (candidat.length() > CODE_MAX_LENGTH) {
-                candidat =
-                    base.substring(0, CODE_MAX_LENGTH - String.valueOf(suffixe).length()) + suffixe;
+                candidat = base.substring(
+                                0, CODE_MAX_LENGTH - String.valueOf(suffixe).length())
+                        + suffixe;
             }
             if (!codeExiste(candidat, idAExclure)) {
                 return candidat;
             }
         }
         throw new GenericError(
-            "Impossible de dériver un code unique pour « %s » : renseignez-le manuellement.".formatted(
-                libelle),
-            "dciCodeIndicible"
-        );
+                "Impossible de dériver un code unique pour « %s » : renseignez-le manuellement.".formatted(libelle),
+                "dciCodeIndicible");
     }
 
     /**
@@ -361,7 +346,7 @@ public class DciServiceImpl implements DciService {
      */
     private boolean codeExiste(String code, Integer idAExclure) {
         return idAExclure == null
-            ? this.dciRepository.existsByCodeIgnoreCase(code)
-            : this.dciRepository.existsByCodeIgnoreCaseAndIdNot(code, idAExclure);
+                ? this.dciRepository.existsByCodeIgnoreCase(code)
+                : this.dciRepository.existsByCodeIgnoreCaseAndIdNot(code, idAExclure);
     }
 }

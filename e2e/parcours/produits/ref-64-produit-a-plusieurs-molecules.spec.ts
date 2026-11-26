@@ -50,7 +50,10 @@ scenario('REF-64', async ({ etape, page }) => {
     await filtrerSurLaMolecule();
     // Chaque présentation n'apparaît qu'une fois, malgré ses deux molécules : le filtre ne
     // duplique pas les lignes. Et seul AUGMENTIN porte l'acide clavulanique dans la démo.
-    const libelles = await lignes.locator('td').filter({ hasText: /AUGMENTIN/ }).allInnerTexts();
+    const libelles = await lignes
+      .locator('td')
+      .filter({ hasText: /AUGMENTIN/ })
+      .allInnerTexts();
     expect(libelles.length).toBeGreaterThan(0);
     expect(new Set(libelles).size).toBe(libelles.length);
     for (const texte of await lignes.allInnerTexts()) {

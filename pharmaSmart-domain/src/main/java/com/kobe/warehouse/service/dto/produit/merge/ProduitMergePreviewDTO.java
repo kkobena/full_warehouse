@@ -10,11 +10,10 @@ import java.util.Map;
  * l'utilisateur (cf. {@link LotResolutionDTO}) avant l'appel de confirmation.
  */
 public record ProduitMergePreviewDTO(
-    Integer targetId,
-    List<Integer> sourceIds,
-    List<Integer> rejectedSourceIds,
-    Map<String, String> rejectionReasons,
-    Map<String, Integer> entityCounts,
-    List<LotConflictDTO> lotConflicts,
-    List<StockConflictDTO> stockConflicts
-) {}
+        Integer targetId,
+        List<Integer> sourceIds,
+        List<Integer> rejectedSourceIds,
+        Map<String, String> rejectionReasons,
+        Map<String, Integer> entityCounts,
+        List<LotConflictDTO> lotConflicts,
+        List<StockConflictDTO> stockConflicts) {}

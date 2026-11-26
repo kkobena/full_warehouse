@@ -6,8 +6,4 @@ import java.util.List;
  * DTO résumé des différés à relancer (échéances aujourd'hui et retards).
  */
 public record ResumeDifferesDTO(
-    Integer nombreEcheancesAujourdhui,
-    Long montantTotalDu,
-    List<DiffereARelancerDTO> differes
-) {}
-
+        Integer nombreEcheancesAujourdhui, Long montantTotalDu, List<DiffereARelancerDTO> differes) {}

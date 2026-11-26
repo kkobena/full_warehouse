@@ -10,26 +10,27 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AssuredCustomerRepository extends JpaRepository<AssuredCustomer, Integer>, JpaSpecificationExecutor<AssuredCustomer> {
+public interface AssuredCustomerRepository
+        extends JpaRepository<AssuredCustomer, Integer>, JpaSpecificationExecutor<AssuredCustomer> {
     List<AssuredCustomer> findAllByAssurePrincipalId(Integer asssureId);
 
     List<AssuredCustomer> findAllByFirstNameIgnoreCaseAndLastNameIgnoreCase(String firstName, String lastName);
 
     /** Ayants droit portant déjà ces nom, prénom et numéro assuré. */
-    List<AssuredCustomer> findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(String firstName, String lastName, String numAyantDroit);
+    List<AssuredCustomer> findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(
+            String firstName, String lastName, String numAyantDroit);
 
     default Specification<AssuredCustomer> specialisationQueryString(String queryValue) {
-        return (root, query, cb) ->
-            cb.or(
+        return (root, query, cb) -> cb.or(
                 cb.like(cb.upper(root.get(AssuredCustomer_.firstName)), queryValue),
                 cb.like(cb.upper(root.get(AssuredCustomer_.lastName)), queryValue),
                 cb.like(cb.upper(root.get(AssuredCustomer_.code)), queryValue),
                 cb.like(
-                    cb.upper(cb.concat(cb.concat(root.get(AssuredCustomer_.firstName), " "), root.get(AssuredCustomer_.lastName))),
-                    queryValue
-                ),
-                cb.like(cb.upper(root.get(AssuredCustomer_.phone)), queryValue)
-            );
+                        cb.upper(cb.concat(
+                                cb.concat(root.get(AssuredCustomer_.firstName), " "),
+                                root.get(AssuredCustomer_.lastName))),
+                        queryValue),
+                cb.like(cb.upper(root.get(AssuredCustomer_.phone)), queryValue));
     }
 
     default Specification<AssuredCustomer> specialisation() {
@@ -37,11 +38,9 @@ public interface AssuredCustomerRepository extends JpaRepository<AssuredCustomer
     }
 
     default Specification<AssuredCustomer> specialisationCheckExist(String firstName, String lastName, String phone) {
-        return (root, query, cb) ->
-            cb.and(
+        return (root, query, cb) -> cb.and(
                 cb.equal(cb.upper(root.get(AssuredCustomer_.firstName)), firstName),
                 cb.equal(cb.upper(root.get(AssuredCustomer_.lastName)), lastName),
-                cb.equal(cb.upper(root.get(AssuredCustomer_.phone)), phone)
-            );
+                cb.equal(cb.upper(root.get(AssuredCustomer_.phone)), phone));
     }
 }

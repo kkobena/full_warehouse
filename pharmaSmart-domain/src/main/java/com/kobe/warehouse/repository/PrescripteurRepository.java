@@ -17,12 +17,11 @@ public interface PrescripteurRepository extends JpaRepository<Prescripteur, Inte
      * (pg_trgm), ou dont le numéro d'ordre est la saisie.
      */
     @Query(
-        "select p from Prescripteur p where p.actif = true and (" +
-        "p.recherche like concat('%', function('ref_normaliser', :q), '%') " +
-        "or cast(function('similarity', p.recherche, function('ref_normaliser', :q)) as double) > 0.3 " +
-        "or p.numeroOrdre = :q) " +
-        "order by cast(function('similarity', p.recherche, function('ref_normaliser', :q)) as double) desc, p.nom"
-    )
+            "select p from Prescripteur p where p.actif = true and ("
+                    + "p.recherche like concat('%', function('ref_normaliser', :q), '%') "
+                    + "or cast(function('similarity', p.recherche, function('ref_normaliser', :q)) as double) > 0.3 "
+                    + "or p.numeroOrdre = :q) "
+                    + "order by cast(function('similarity', p.recherche, function('ref_normaliser', :q)) as double) desc, p.nom")
     List<Prescripteur> rechercher(@Param("q") String q, Pageable pageable);
 
     boolean existsByNumeroOrdre(String numeroOrdre);

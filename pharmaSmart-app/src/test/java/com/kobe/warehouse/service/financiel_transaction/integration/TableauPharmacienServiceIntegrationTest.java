@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.kobe.warehouse.config.JacksonConfiguration;
-import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -29,13 +29,13 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
+import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 
 /**
  * Le tableau du pharmacien est l'état que le titulaire regarde chaque matin : une ligne par jour, le
@@ -75,21 +75,20 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
         TableauPharmacienCalculator calculator = new TableauPharmacienCalculator();
 
         service = new TableauPharmacienServiceImpl(
-            IntegrationPostgresDatabase.bean(SalesRepository.class),
-            commandeDataService,
-            avoirRepository,
-            appConfigurationService,
-            // L'ObjectMapper de l'application : c'est lui qui porte le module temps de Java. Un
-            // mapper nu ne saurait pas lire « mvtDate » et la lecture échouerait pour une raison
-            // absente de la production — sans bruit, puisque l'échec rend une liste vide.
-            new JacksonConfiguration().objectMapper(),
-            new GroupeFournisseurManager(IntegrationPostgresDatabase.bean(FournisseurRepository.class)),
-            calculator,
-            new TableauPharmacienAggregator(calculator),
-            mock(TableauPharmacienExportService.class),
-            mock(TableauPharmacienReportReportService.class),
-            resolver
-        );
+                IntegrationPostgresDatabase.bean(SalesRepository.class),
+                commandeDataService,
+                avoirRepository,
+                appConfigurationService,
+                // L'ObjectMapper de l'application : c'est lui qui porte le module temps de Java. Un
+                // mapper nu ne saurait pas lire « mvtDate » et la lecture échouerait pour une raison
+                // absente de la production — sans bruit, puisque l'échec rend une liste vide.
+                new JacksonConfiguration().objectMapper(),
+                new GroupeFournisseurManager(IntegrationPostgresDatabase.bean(FournisseurRepository.class)),
+                calculator,
+                new TableauPharmacienAggregator(calculator),
+                mock(TableauPharmacienExportService.class),
+                mock(TableauPharmacienReportReportService.class),
+                resolver);
     }
 
     // ===== présence des ventes =====
@@ -131,11 +130,12 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             venteEncaissee(aujourdHui().minusDays(1), produit, 10, 0, "CASH");
             venteEncaissee(aujourdHui(), produit, 5, 0, "CASH");
 
-            TableauPharmacienWrapper tableau = service.getTableauPharmacien(parametre(aujourdHui().minusDays(1), aujourdHui()));
+            TableauPharmacienWrapper tableau =
+                    service.getTableauPharmacien(parametre(aujourdHui().minusDays(1), aujourdHui()));
 
             assertThat(tableau.getTableauPharmaciens())
-                .extracting(TableauPharmacienDTO::getMvtDate)
-                .containsExactly(aujourdHui().minusDays(1), aujourdHui());
+                    .extracting(TableauPharmacienDTO::getMvtDate)
+                    .containsExactly(aujourdHui().minusDays(1), aujourdHui());
         }
 
         /** Les lignes sortent triées : le tableau se lit du plus ancien au plus récent. */
@@ -146,9 +146,9 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             venteEncaissee(aujourdHui(), produit, 5, 0, "CASH");
             venteEncaissee(aujourdHui().minusDays(2), produit, 10, 0, "CASH");
 
-            List<TableauPharmacienDTO> lignes = service
-                .getTableauPharmacien(parametre(aujourdHui().minusDays(2), aujourdHui()))
-                .getTableauPharmaciens();
+            List<TableauPharmacienDTO> lignes = service.getTableauPharmacien(
+                            parametre(aujourdHui().minusDays(2), aujourdHui()))
+                    .getTableauPharmaciens();
 
             assertThat(lignes).extracting(TableauPharmacienDTO::getMvtDate).isSorted();
         }
@@ -247,9 +247,10 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             TableauPharmacienDTO ligne = ligneDuJour();
 
             assertThat(ligne.getMontantNet())
-                .as("net %d, comptant %d, crédit %d",
-                    ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
-                .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
+                    .as(
+                            "net %d, comptant %d, crédit %d",
+                            ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
+                    .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
         }
 
         /**
@@ -287,18 +288,19 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             TableauPharmacienDTO ligne = ligneDuJour();
 
             assertThat(ligne.getMontantTtc())
-                .as("seule la vente du jour est comptée, pas celle d'hier")
-                .isEqualTo(5_000);
+                    .as("seule la vente du jour est comptée, pas celle d'hier")
+                    .isEqualTo(5_000);
             assertThat(ligne.getMontantComptant())
-                .as("les dix mille encaissés aujourd'hui pour la vente d'hier n'entrent pas ici")
-                .isEqualTo(5_000);
+                    .as("les dix mille encaissés aujourd'hui pour la vente d'hier n'entrent pas ici")
+                    .isEqualTo(5_000);
             assertThat(ligne.getMontantCredit())
-                .as("la créance soldée appartient à hier, elle ne rouvre pas de crédit aujourd'hui")
-                .isZero();
+                    .as("la créance soldée appartient à hier, elle ne rouvre pas de crédit aujourd'hui")
+                    .isZero();
             assertThat(ligne.getMontantNet())
-                .as("net %d, comptant %d, crédit %d",
-                    ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
-                .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
+                    .as(
+                            "net %d, comptant %d, crédit %d",
+                            ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
+                    .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
         }
 
         /**
@@ -333,9 +335,10 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             assertThat(ligne.getMontantComptant()).as("rien n'a été versé").isZero();
             assertThat(ligne.getMontantCredit()).as("tout est à devoir").isEqualTo(10_000);
             assertThat(ligne.getMontantNet())
-                .as("net %d, comptant %d, crédit %d",
-                    ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
-                .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
+                    .as(
+                            "net %d, comptant %d, crédit %d",
+                            ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
+                    .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
         }
 
         /**
@@ -374,15 +377,16 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             TableauPharmacienDTO ligne = ligneDu(jourDeVente);
 
             assertThat(ligne.getMontantComptant())
-                .as("le solde est une entrée de caisse du jour où il tombe, pas du jour de la vente")
-                .isZero();
+                    .as("le solde est une entrée de caisse du jour où il tombe, pas du jour de la vente")
+                    .isZero();
             assertThat(ligne.getMontantCredit())
-                .as("le crédit accordé ce jour-là reste acquis à ce jour-là")
-                .isEqualTo(10_000);
+                    .as("le crédit accordé ce jour-là reste acquis à ce jour-là")
+                    .isEqualTo(10_000);
             assertThat(ligne.getMontantNet())
-                .as("net %d, comptant %d, crédit %d",
-                    ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
-                .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
+                    .as(
+                            "net %d, comptant %d, crédit %d",
+                            ligne.getMontantNet(), ligne.getMontantComptant(), ligne.getMontantCredit())
+                    .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
         }
 
         @Test
@@ -393,7 +397,7 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             TableauPharmacienDTO ligne = ligneDuJour();
 
             assertThat(ligne.getMontantNet())
-                .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
+                    .isCloseTo(ligne.getMontantComptant() + ligne.getMontantCredit(), toleranceMonnaie(ligne));
         }
 
         @Test
@@ -480,12 +484,12 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             venteAvecUnitesGratuites();
             TableauPharmacienDTO sansExclusion = ligneDuJour();
             assertThat(sansExclusion.getMontantNet())
-                .isEqualTo(sansExclusion.getMontantComptant() + sansExclusion.getMontantCredit());
+                    .isEqualTo(sansExclusion.getMontantComptant() + sansExclusion.getMontantCredit());
 
             when(appConfigurationService.excludeFreeUnit()).thenReturn(true);
             TableauPharmacienDTO avecExclusion = ligneDuJour();
             assertThat(avecExclusion.getMontantNet())
-                .isEqualTo(avecExclusion.getMontantComptant() + avecExclusion.getMontantCredit());
+                    .isEqualTo(avecExclusion.getMontantComptant() + avecExclusion.getMontantCredit());
         }
 
         /** Dix unités vendues à mille, dont trois prélevées sur le stock d'unités gratuites. */
@@ -508,13 +512,11 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
         void modeDeReglement() {
             venteEncaissee(aujourdHui(), produit(unique("DOLIPRANE"), 1_000, 0), 10, 0, "CASH");
 
-            assertThat(ligneDuJour().getPayments())
-                .singleElement()
-                .satisfies(paiement -> {
-                    assertThat(paiement.code()).isEqualTo("CASH");
-                    assertThat(paiement.libelle()).isEqualTo("ESPECE");
-                    assertThat(paiement.paidAmount()).isEqualTo(10_000L);
-                });
+            assertThat(ligneDuJour().getPayments()).singleElement().satisfies(paiement -> {
+                assertThat(paiement.code()).isEqualTo("CASH");
+                assertThat(paiement.libelle()).isEqualTo("ESPECE");
+                assertThat(paiement.paidAmount()).isEqualTo(10_000L);
+            });
         }
 
         /** Une vente réglée en deux fois se ventile par mode, et le comptant reste le total. */
@@ -555,7 +557,8 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             venteEncaissee(aujourdHui().minusDays(1), produit, 10, 0, "CASH");
             venteEncaissee(aujourdHui(), produit, 5, 0, "CASH");
 
-            TableauPharmacienWrapper tableau = service.getTableauPharmacien(parametre(aujourdHui().minusDays(1), aujourdHui()));
+            TableauPharmacienWrapper tableau =
+                    service.getTableauPharmacien(parametre(aujourdHui().minusDays(1), aujourdHui()));
 
             assertThat(tableau.getMontantVenteTtc()).isEqualTo(15_000);
             assertThat(tableau.getMontantVenteComptant()).isEqualTo(15_000);
@@ -622,16 +625,20 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
             MvtParam param = parametre(debutDuMois, debutDuMois.plusDays(1));
             param.setGroupeBy("month");
 
-            assertThat(service.getTableauPharmacien(param).getTableauPharmaciens().getFirst().getPayments())
-                .extracting(PaymentDTO::code)
-                .containsExactly("CASH");
+            assertThat(service.getTableauPharmacien(param)
+                            .getTableauPharmaciens()
+                            .getFirst()
+                            .getPayments())
+                    .extracting(PaymentDTO::code)
+                    .containsExactly("CASH");
         }
     }
 
     // ===== utilitaires =====
 
     private TableauPharmacienDTO ligneDuJour() {
-        List<TableauPharmacienDTO> lignes = service.getTableauPharmacien(parametre()).getTableauPharmaciens();
+        List<TableauPharmacienDTO> lignes =
+                service.getTableauPharmacien(parametre()).getTableauPharmaciens();
         assertThat(lignes).as("la journée doit avoir une ligne").hasSize(1);
         return lignes.getFirst();
     }
@@ -653,7 +660,8 @@ class TableauPharmacienServiceIntegrationTest extends AbstractFinancialTransacti
     }
 
     private TableauPharmacienDTO ligneDu(LocalDate jour) {
-        List<TableauPharmacienDTO> lignes = service.getTableauPharmacien(parametre(jour, jour)).getTableauPharmaciens();
+        List<TableauPharmacienDTO> lignes =
+                service.getTableauPharmacien(parametre(jour, jour)).getTableauPharmaciens();
         assertThat(lignes).as("la journée %s doit avoir une ligne", jour).hasSize(1);
         return lignes.getFirst();
     }

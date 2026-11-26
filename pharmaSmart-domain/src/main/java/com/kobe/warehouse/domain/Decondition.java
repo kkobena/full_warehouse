@@ -172,20 +172,17 @@ public class Decondition implements Serializable {
 
     @Override
     public String toString() {
-        return (
-            "Decondition{" +
-            "id=" +
-            getId() +
-            ", qtyMvt=" +
-            getQtyMvt() +
-            ", dateMtv='" +
-            getDateMtv() +
-            "'" +
-            ", stockBefore=" +
-            getStockBefore() +
-            ", stockAfter=" +
-            getStockAfter() +
-            "}"
-        );
+        return ("Decondition{" + "id="
+                + getId()
+                + ", qtyMvt="
+                + getQtyMvt()
+                + ", dateMtv='"
+                + getDateMtv()
+                + "'"
+                + ", stockBefore="
+                + getStockBefore()
+                + ", stockAfter="
+                + getStockAfter()
+                + "}");
     }
 }

@@ -71,17 +71,16 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
         when(referenceService.buildNumTransaction()).thenReturn("MVT0001");
 
         service = new FinancialTransactionServiceImpl(
-            IntegrationPostgresDatabase.bean(PaymentTransactionRepository.class),
-            userService,
-            IntegrationPostgresDatabase.bean(SalesRepository.class),
-            cashRegisterService,
-            em,
-            mock(MvtCaisseReportReportService.class),
-            IntegrationPostgresDatabase.bean(DefaultTransactionRepository.class),
-            new TransactionIdGeneratorService(em),
-            mock(MouvementCaisseReceiptService.class),
-            referenceService
-        );
+                IntegrationPostgresDatabase.bean(PaymentTransactionRepository.class),
+                userService,
+                IntegrationPostgresDatabase.bean(SalesRepository.class),
+                cashRegisterService,
+                em,
+                mock(MvtCaisseReportReportService.class),
+                IntegrationPostgresDatabase.bean(DefaultTransactionRepository.class),
+                new TransactionIdGeneratorService(em),
+                mock(MouvementCaisseReceiptService.class),
+                referenceService);
     }
 
     // ===== enregistrement =====
@@ -107,7 +106,8 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             PaymentId id = service.create(mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000));
             viderLeCache();
 
-            assertThat(colonnes(id, "expected_amount", "paid_amount", "reel_amount")).containsExactly(50_000, 50_000, 50_000);
+            assertThat(colonnes(id, "expected_amount", "paid_amount", "reel_amount"))
+                    .containsExactly(50_000, 50_000, 50_000);
         }
 
         @Test
@@ -130,13 +130,16 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
         @DisplayName("sans caisse ouverte, une caisse est ouverte pour le mouvement")
         void caisseOuverteAuBesoin() throws Exception {
             CashRegister autreCaisse = caisseOuverte();
-            when(cashRegisterService.getLastOpiningUserCashRegisterByUser(any())).thenReturn(null);
-            when(cashRegisterService.openCashRegister(any(AppUser.class), any(AppUser.class))).thenReturn(autreCaisse);
+            when(cashRegisterService.getLastOpiningUserCashRegisterByUser(any()))
+                    .thenReturn(null);
+            when(cashRegisterService.openCashRegister(any(AppUser.class), any(AppUser.class)))
+                    .thenReturn(autreCaisse);
 
             PaymentId id = service.create(mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000));
             viderLeCache();
 
-            assertThat(((Number) colonnes(id, "cash_register_id")[0]).intValue()).isEqualTo(autreCaisse.getId());
+            assertThat(((Number) colonnes(id, "cash_register_id")[0]).intValue())
+                    .isEqualTo(autreCaisse.getId());
         }
 
         @Test
@@ -180,7 +183,8 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
         @DisplayName("une sortie de caisse et un règlement fournisseur sortent du tiroir")
         void sorties() {
             assertThat(estAuCredit(TypeFinancialTransaction.SORTIE_CAISSE)).isTrue();
-            assertThat(estAuCredit(TypeFinancialTransaction.REGLMENT_FOURNISSEUR)).isTrue();
+            assertThat(estAuCredit(TypeFinancialTransaction.REGLMENT_FOURNISSEUR))
+                    .isTrue();
         }
 
         /**
@@ -226,7 +230,11 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             PaymentId id = service.create(mouvement(TypeFinancialTransaction.ENTREE_CAISSE, 50_000));
             viderLeCache();
 
-            assertThat(service.findById(id)).isPresent().get().extracting(FinancialTransactionDTO::getAmount).isEqualTo(50_000);
+            assertThat(service.findById(id))
+                    .isPresent()
+                    .get()
+                    .extracting(FinancialTransactionDTO::getAmount)
+                    .isEqualTo(50_000);
         }
 
         @Test
@@ -286,7 +294,9 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
 
             Page<FinancialTransactionDTO> page = service.findAll(filtre(null), PageRequest.of(0, 20));
 
-            assertThat(page.getContent()).extracting(FinancialTransactionDTO::getAmount).contains(50_000);
+            assertThat(page.getContent())
+                    .extracting(FinancialTransactionDTO::getAmount)
+                    .contains(50_000);
         }
 
         @Test
@@ -296,11 +306,13 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             service.create(mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000));
             viderLeCache();
 
-            Page<FinancialTransactionDTO> sorties = service.findAll(filtre(TypeFinancialTransaction.SORTIE_CAISSE), PageRequest.of(0, 20));
+            Page<FinancialTransactionDTO> sorties =
+                    service.findAll(filtre(TypeFinancialTransaction.SORTIE_CAISSE), PageRequest.of(0, 20));
 
             assertThat(sorties.getContent())
-                .isNotEmpty()
-                .allSatisfy(dto -> assertThat(dto.getTypeFinancialTransaction()).isEqualTo(TypeFinancialTransaction.SORTIE_CAISSE));
+                    .isNotEmpty()
+                    .allSatisfy(dto -> assertThat(dto.getTypeFinancialTransaction())
+                            .isEqualTo(TypeFinancialTransaction.SORTIE_CAISSE));
         }
 
         /** Une période sans mouvement rend une page vide, et non une erreur. */
@@ -310,9 +322,9 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             LocalDate plusTard = LocalDate.now().plusMonths(1);
 
             Page<FinancialTransactionDTO> page = service.findAll(
-                new FinancielTransactionFilterDTO(plusTard, plusTard.plusDays(1), null, null, null, null, null, null),
-                PageRequest.of(0, 20)
-            );
+                    new FinancielTransactionFilterDTO(
+                            plusTard, plusTard.plusDays(1), null, null, null, null, null, null),
+                    PageRequest.of(0, 20));
 
             assertThat(page.getContent()).isEmpty();
             assertThat(page.getTotalElements()).isZero();
@@ -336,15 +348,7 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
         /** Ce filtre borne sur la date d'écriture du mouvement, non sur la date saisie par le caissier. */
         private FinancielTransactionFilterDTO filtre(TypeFinancialTransaction type) {
             return new FinancielTransactionFilterDTO(
-                LocalDate.now().minusDays(1),
-                LocalDate.now().plusDays(1),
-                null,
-                null,
-                type,
-                null,
-                null,
-                null
-            );
+                    LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), null, null, type, null, null, null);
         }
     }
 
@@ -408,8 +412,12 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
 
             MvtCaisseWrapper totaux = service.getMvtCaisseSum(filtreCaisse());
 
-            assertThat(totaux.getTypeTransactionAmounts()).extracting(tuple -> tuple.key()).contains("ENTREE_CAISSE");
-            assertThat(totaux.getModesPaiementAmounts()).extracting(tuple -> tuple.key()).contains("CASH");
+            assertThat(totaux.getTypeTransactionAmounts())
+                    .extracting(tuple -> tuple.key())
+                    .contains("ENTREE_CAISSE");
+            assertThat(totaux.getModesPaiementAmounts())
+                    .extracting(tuple -> tuple.key())
+                    .contains("CASH");
         }
 
         @Test
@@ -419,8 +427,7 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             service.create(mouvement(TypeFinancialTransaction.SORTIE_CAISSE, 20_000));
             viderLeCache();
 
-            MvtCaisseWrapper totaux = service.getMvtCaisseSum(
-                new TransactionFilterDTO(
+            MvtCaisseWrapper totaux = service.getMvtCaisseSum(new TransactionFilterDTO(
                     aujourdHui(),
                     aujourdHui(),
                     null,
@@ -430,9 +437,7 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
                     null,
                     null,
                     null,
-                    null
-                )
-            );
+                    null));
 
             assertThat(totaux.getCreditedAmount()).isEqualByComparingTo(BigDecimal.ZERO);
             assertThat(totaux.getDebitedAmount()).isEqualByComparingTo(BigDecimal.valueOf(20_000));
@@ -445,19 +450,19 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
             viderLeCache();
 
             TransactionFilterDTO autreCaissier = new TransactionFilterDTO(
-                aujourdHui(),
-                aujourdHui(),
-                999_999L,
-                null,
-                null,
-                Set.of(CategorieChiffreAffaire.CA),
-                null,
-                null,
-                null,
-                null
-            );
+                    aujourdHui(),
+                    aujourdHui(),
+                    999_999L,
+                    null,
+                    null,
+                    Set.of(CategorieChiffreAffaire.CA),
+                    null,
+                    null,
+                    null,
+                    null);
 
-            assertThat(service.findAll(autreCaissier, PageRequest.of(0, 20)).getContent()).isEmpty();
+            assertThat(service.findAll(autreCaissier, PageRequest.of(0, 20)).getContent())
+                    .isEmpty();
         }
 
         @Test
@@ -465,31 +470,31 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
         void journeeSansMouvement() {
             LocalDate plusTard = aujourdHui().plusMonths(1);
 
-            MvtCaisseWrapper totaux = service.getMvtCaisseSum(
-                new TransactionFilterDTO(plusTard, plusTard.plusDays(1), null, null, null, null, null, null, null, null)
-            );
+            MvtCaisseWrapper totaux = service.getMvtCaisseSum(new TransactionFilterDTO(
+                    plusTard, plusTard.plusDays(1), null, null, null, null, null, null, null, null));
 
             assertThat(totaux.getTypeTransactionAmounts()).isEmpty();
             assertThat(totaux.getCreditedAmount()).isEqualByComparingTo(BigDecimal.ZERO);
         }
 
         private MvtCaisseDTO premierMouvement() {
-            return service.findAll(filtreCaisse(), PageRequest.of(0, 20)).getContent().getFirst();
+            return service.findAll(filtreCaisse(), PageRequest.of(0, 20))
+                    .getContent()
+                    .getFirst();
         }
 
         private TransactionFilterDTO filtreCaisse() {
             return new TransactionFilterDTO(
-                aujourdHui(),
-                aujourdHui(),
-                null,
-                null,
-                null,
-                Set.of(CategorieChiffreAffaire.CA),
-                null,
-                null,
-                null,
-                null
-            );
+                    aujourdHui(),
+                    aujourdHui(),
+                    null,
+                    null,
+                    null,
+                    Set.of(CategorieChiffreAffaire.CA),
+                    null,
+                    null,
+                    null,
+                    null);
         }
     }
 
@@ -505,11 +510,11 @@ class FinancialTransactionServiceIntegrationTest extends AbstractFinancialTransa
     }
 
     private Object[] colonnes(PaymentId id, String... colonnes) {
-        Object resultat = em
-            .createNativeQuery("SELECT " + String.join(", ", colonnes) + " FROM payment_transaction WHERE id = :id")
-            .setParameter("id", id.getId())
-            .getSingleResult();
-        return resultat instanceof Object[] ligne ? ligne : new Object[] { resultat };
+        Object resultat = em.createNativeQuery(
+                        "SELECT " + String.join(", ", colonnes) + " FROM payment_transaction WHERE id = :id")
+                .setParameter("id", id.getId())
+                .getSingleResult();
+        return resultat instanceof Object[] ligne ? ligne : new Object[] {resultat};
     }
 
     /** Vide le contexte de persistance : la relecture qui suit vient bien de PostgreSQL. */

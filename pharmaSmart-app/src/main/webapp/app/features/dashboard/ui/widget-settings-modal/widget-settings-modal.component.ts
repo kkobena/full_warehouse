@@ -29,7 +29,12 @@ const ALERT_DIRECTIONS: { value: KpiAlertDirection; label: string }[] = [
     <div class="modal-body d-flex flex-column gap-3">
       <div>
         <div class="form-label">Titre</div>
-        <app-input ariaLabel="Titre de la tuile" [placeholder]="definition().label" [ngModel]="title()" (ngModelChange)="title.set($event ?? '')" />
+        <app-input
+          ariaLabel="Titre de la tuile"
+          [placeholder]="definition().label"
+          [ngModel]="title()"
+          (ngModelChange)="title.set($event ?? '')"
+        />
       </div>
 
       @if (vizOptions().length > 1) {

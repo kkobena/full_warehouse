@@ -1,30 +1,17 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  signal,
-  viewChild
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {finalize} from "rxjs/operators";
-import {FormsModule} from "@angular/forms";
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
 
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 
-import {
-  NgbConfirmDialogService
-} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {ErrorService} from "../../../../shared/error.service";
-import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
-import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
-
-import {FactureApiService} from "../../data-access/services/facture-api.service";
-import {FacturationStore} from "../../data-access/store/facturation.store";
-import {ReglementApiService} from "../../data-access/services/reglement-api.service";
+import { FactureApiService } from '../../data-access/services/facture-api.service';
+import { FacturationStore } from '../../data-access/store/facturation.store';
+import { ReglementApiService } from '../../data-access/services/reglement-api.service';
 import {
   IDossierFactureProjection,
   IFactureId,
@@ -32,34 +19,30 @@ import {
   IReglementFactureDossier,
   IReglementParams,
   IResponseReglement,
-  ModeEditionReglement
-} from "../../data-access/models";
-import {ReglementFormComponent} from "../reglement-form/reglement-form.component";
-import {CommonModule} from "@angular/common";
+  ModeEditionReglement,
+} from '../../data-access/models';
+import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
+import { CommonModule } from '@angular/common';
 import { DeviseDirective } from 'app/shared/utils/devise';
-import {
-  DataTableComponent,
-  HeaderCheckboxComponent,
-  IconFieldComponent,
-  RowCheckboxComponent
-} from 'app/shared/ui';
+import { DataTableComponent, HeaderCheckboxComponent, IconFieldComponent, RowCheckboxComponent } from 'app/shared/ui';
 
-export type ReglementMode = "INDIVIDUEL" | "GROUPE";
+export type ReglementMode = 'INDIVIDUEL' | 'GROUPE';
 
 @Component({
-  selector: "app-reglement-workspace",
-  imports: [DeviseDirective,
+  selector: 'app-reglement-workspace',
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ReglementFormComponent,
     DataTableComponent,
     HeaderCheckboxComponent,
     IconFieldComponent,
-    RowCheckboxComponent
+    RowCheckboxComponent,
   ],
-  templateUrl: "./reglement-workspace.component.html",
+  templateUrl: './reglement-workspace.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./reglement-workspace.component.scss"
+  styleUrl: './reglement-workspace.component.scss',
 })
 export class ReglementWorkspaceComponent {
   readonly mode = input.required<ReglementMode>();
@@ -73,12 +56,10 @@ export class ReglementWorkspaceComponent {
   protected readonly isSaving = signal(false);
   protected readonly ModeEditionReglement = ModeEditionReglement;
 
-  protected montantAPayer = computed(() =>
-    this.factureDossierSelectionnes().reduce((acc, d) => acc + this.computeMontantRestant(d), 0) || 0
+  protected montantAPayer = computed(
+    () => this.factureDossierSelectionnes().reduce((acc, d) => acc + this.computeMontantRestant(d), 0) || 0,
   );
-  protected dossierIds = computed(() =>
-    this.factureDossierSelectionnes().map(d => d.id)
-  );
+  protected dossierIds = computed(() => this.factureDossierSelectionnes().map(d => d.id));
   /** Reflète l'état « tout sélectionné » de la table, sans dépendre de son ordre d'initialisation dans le template. */
   protected readonly isAllSelected = computed(() => {
     const rows = this.reglementFactureDossiersSignal();
@@ -90,11 +71,8 @@ export class ReglementWorkspaceComponent {
   });
   /** IDs des dossiers éditables (mode partiel + sélectionnés) — lu directement dans le template pour le tracking signal */
   protected readonly editableIds = computed(() => {
-      return this.partialPayment()
-        ? new Set(this.factureDossierSelectionnes().map(r => r.id))
-        : new Set<number>();
-    }
-  );
+    return this.partialPayment() ? new Set(this.factureDossierSelectionnes().map(r => r.id)) : new Set<number>();
+  });
 
   protected reglementFormComponent = viewChild(ReglementFormComponent);
   protected readonly editingId = signal<number | null>(null);
@@ -142,9 +120,9 @@ export class ReglementWorkspaceComponent {
   onPartielReglement(isPartial: boolean): void {
     this.partialPayment.set(isPartial);
     this.factureDossierSelectionnes.set([]);
-    if (this.mode() === "GROUPE") {
+    if (this.mode() === 'GROUPE') {
       this.reglementFactureDossiersSignal.update(dossiers =>
-        dossiers.map(d => ({...d, montantVerse: d.montantTotal - d.montantDetailRegle}))
+        dossiers.map(d => ({ ...d, montantVerse: d.montantTotal - d.montantDetailRegle })),
       );
     }
   }
@@ -154,9 +132,7 @@ export class ReglementWorkspaceComponent {
   }
 
   onMontantVerseChange(item: IReglementFactureDossier): void {
-    this.factureDossierSelectionnes.set(
-      this.factureDossierSelectionnes().map(d => (d.id === item.id ? item : d))
-    );
+    this.factureDossierSelectionnes.set(this.factureDossierSelectionnes().map(d => (d.id === item.id ? item : d)));
   }
 
   onSaveReglement(params: IReglementParams): void {
@@ -164,8 +140,8 @@ export class ReglementWorkspaceComponent {
     this.reglementApiService
       .doReglement(this.buildReglementParams(params))
       .pipe(
-        finalize(() => (this.isSaving.set(false))),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => this.isSaving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: res => {
@@ -178,11 +154,11 @@ export class ReglementWorkspaceComponent {
           }
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement");
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur règlement');
           // Refus du serveur (facture réglée entre-temps, règlement en cours ailleurs) : on relit
           // la facture pour montrer son état réel, au lieu de laisser des montants périmés à l'écran.
           this.rechargerFacture();
-        }
+        },
       });
   }
 
@@ -202,59 +178,60 @@ export class ReglementWorkspaceComponent {
         if (this.tauriPrinterService.isRunningInTauri()) {
           this.printReceiptForTauri(response.id);
         } else {
-          this.reglementApiService.printReceipt(response.id)
+          this.reglementApiService
+            .printReceipt(response.id)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              error: err =>
-                this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
+              error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
             });
         }
         this.reset(response);
       },
-      "Ticket règlement",
-      "Voulez-vous imprimer le ticket ?"
+      'Ticket règlement',
+      'Voulez-vous imprimer le ticket ?',
     );
   }
 
   private printReceiptForTauri(paymentId: IPaymentId): void {
-    this.reglementApiService.getEscPosReceiptForTauri(paymentId)
+    this.reglementApiService
+      .getEscPosReceiptForTauri(paymentId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async (data: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(data);
-          } catch { /* silently ignore printer errors */
+          } catch {
+            /* silently ignore printer errors */
           }
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Impression")
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Impression'),
       });
   }
 
   private buildReglementParams(params: IReglementParams): IReglementParams {
-    if (this.mode() === "GROUPE") {
+    if (this.mode() === 'GROUPE') {
       return {
         ...params,
         mode: this.partialPayment() ? ModeEditionReglement.GROUPE_PARTIEL : ModeEditionReglement.GROUPE_TOTAL,
         ligneSelectionnes: this.partialPayment()
           ? this.factureDossierSelectionnes().map(d => ({
-            id: d.id,
-            montantAttendu: d.montantTotal - d.montantPaye,
-            montantVerse: d.montantVerse,
-            montantFacture: this.dossierFactureProjectionSignal()?.montantTotal
-          }))
-          : []
+              id: d.id,
+              montantAttendu: d.montantTotal - d.montantPaye,
+              montantVerse: d.montantVerse,
+              montantFacture: this.dossierFactureProjectionSignal()?.montantTotal,
+            }))
+          : [],
       };
     }
     return {
       ...params,
       mode: this.partialPayment() ? ModeEditionReglement.FACTURE_PARTIEL : ModeEditionReglement.FACTURE_TOTAL,
-      dossierIds: this.dossierIds()
+      dossierIds: this.dossierIds(),
     };
   }
 
   private computeMontantRestant(d: IReglementFactureDossier): number {
-    return this.mode() === "GROUPE" ? (d.montantVerse ?? 0) : (d.montantTotal - d.montantPaye);
+    return this.mode() === 'GROUPE' ? (d.montantVerse ?? 0) : d.montantTotal - d.montantPaye;
   }
 
   private reset(response: IResponseReglement): void {
@@ -276,7 +253,7 @@ export class ReglementWorkspaceComponent {
     }
     const factureId: IFactureId = {
       id: projection.id,
-      invoiceDate: projection.invoiceDate
+      invoiceDate: projection.invoiceDate,
     };
     this.loadDossierProjection(projection.factureItemId);
     this.reloadDossiers(factureId);
@@ -284,19 +261,18 @@ export class ReglementWorkspaceComponent {
 
   private loadDossierProjection(factureId: IFactureId): void {
     this.factureApiService
-      .findDossierFactureProjection(factureId, {isGroup: this.mode() === "GROUPE"})
+      .findDossierFactureProjection(factureId, { isGroup: this.mode() === 'GROUPE' })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.dossierFactureProjectionSignal.set(res.body),
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement facture")
+        error: err => this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement facture'),
       });
   }
 
   private reloadDossiers(factureId: IFactureId): void {
-    const typeFacture = this.mode() === "GROUPE" ? "groupes" : "individuelle";
+    const typeFacture = this.mode() === 'GROUPE' ? 'groupes' : 'individuelle';
     this.factureApiService
-      .findDossierReglement(factureId, typeFacture, {page: 0, size: ITEMS_PER_PAGE})
+      .findDossierReglement(factureId, typeFacture, { page: 0, size: ITEMS_PER_PAGE })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
@@ -306,7 +282,7 @@ export class ReglementWorkspaceComponent {
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
           this.dossierFactureProjectionSignal.set(null);
-        }
+        },
       });
   }
 }

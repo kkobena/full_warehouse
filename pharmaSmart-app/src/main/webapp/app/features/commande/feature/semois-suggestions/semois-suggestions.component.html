@@ -1,263 +1,256 @@
 <!-- ── Barre d'actions secondaire (sans header sombre — le parent en possède un) ── -->
 <app-card class="mt-2">
-
-
-
-<div class="su-action-bar">
-  <div class="su-action-bar__filters">
-    <!-- Absent tant qu'il n'y a qu'un magasin commandeur : il n'y aurait rien a choisir. -->
-    @if (plusieursMagasins()) {
-      <app-select
-        (ngModelChange)="selectedMagasinId.set($event)"
-        (selectionChange)="onMagasinChange()"
-        [clearable]="false"
-        [items]="magasins()"
-        [ngModel]="selectedMagasinId()"
-        bindLabel="name"
-        bindValue="id"
-        placeholder="Magasin"
-      />
-    }
-    <app-select
-      (ngModelChange)="selectedFournisseurId.set($event)"
-      (selectionChange)="onFilterChange()"
-      [clearable]="true"
-      [items]="fournisseurOptions()"
-      [ngModel]="selectedFournisseurId()"
-      bindLabel="label"
-      bindValue="value"
-      placeholder="Tous fournisseurs"
-    />
-    <app-select
-      (ngModelChange)="selectedClasse.set($event)"
-      (selectionChange)="onFilterChange()"
-      [clearable]="true"
-      [items]="classeOptions"
-      [ngModel]="selectedClasse()"
-      bindLabel="label"
-      bindValue="value"
-      placeholder="Toutes classes"
-    />
-    <app-select
-      (ngModelChange)="selectedNiveauUrgence.set($event)"
-      (selectionChange)="onFilterChange()"
-      [clearable]="true"
-      [items]="urgenceOptions"
-      [ngModel]="selectedNiveauUrgence()"
-      bindLabel="label"
-      bindValue="value"
-      placeholder="Toutes criticités"
-    />
-    <input
-      (ngModelChange)="searchText.set($event); onSearchChange()"
-      [ngModel]="searchText()"
-      class="form-control"
-      placeholder="Rechercher un produit..."
-      style="flex: 0 1 14rem"
-      type="text" />
-  </div>
-  <div class="su-action-bar__actions">
-    <!-- Recalcul VMM (déplacé depuis le tableau de bord) -->
-    <app-button
-      (clicked)="recalculerVmm()"
-      [loading]="recalculEnCours()"
-      icon="pi pi-sync"
-      label="Recalculer VMM"
-      ngbTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
-      placement="bottom"
-      severity="warn"
-      size="small"
-    />
-    <!-- Bouton exclusions avec badge -->
-    <button
-      (click)="ouvrirGestionExclusions()"
-      class="btn btn-sm btn-outline-warning position-relative"
-      ngbTooltip="Gérer les produits temporairement suspendus du calcul automatique des besoins"
-      placement="bottom"
-      type="button"
-    >
-      <i class="pi pi-ban me-1"></i>
-      Exclusions
-      @if (exclusionCount() > 0) {
-        <span
-          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-white">
-          {{ exclusionCount() }}
-        </span>
+  <div class="su-action-bar">
+    <div class="su-action-bar__filters">
+      <!-- Absent tant qu'il n'y a qu'un magasin commandeur : il n'y aurait rien a choisir. -->
+      @if (plusieursMagasins()) {
+        <app-select
+          (ngModelChange)="selectedMagasinId.set($event)"
+          (selectionChange)="onMagasinChange()"
+          [clearable]="false"
+          [items]="magasins()"
+          [ngModel]="selectedMagasinId()"
+          bindLabel="name"
+          bindValue="id"
+          placeholder="Magasin"
+        />
       }
-    </button>
-
-
-    <app-button
-      (clicked)="onClearFilters()"
-      icon="pi pi-filter-slash"
-      label="Réinitialiser"
-      severity="secondary"
-      size="small"
-    />
-  </div>
-</div>
-
-<!-- Bandeau information lecture seule -->
-<div class="alert alert-info d-flex align-items-center gap-2 mx-0 mt-2 mb-1 py-2" role="alert">
-  <i class="pi pi-info-circle"></i>
-  <small>
-    <strong>Analyse des niveaux de stock — consultation uniquement.</strong>
-    Les quantités à commander sont calculées automatiquement d'après vos ventes mensuelles moyennes
-    (VMM).
-    Rendez-vous dans l'onglet <strong>Réapprovisionnement</strong> pour valider et passer commande.
-  </small>
-</div>
-
-
-<!-- Table des suggestions -->
-<div class="row mt-2">
-  <div class="col-12 mb-3">
-    <div class="card data-card">
-      <div class="card-header">
-        <h5 class="card-title">
-          <i class="pi pi-shopping-cart text-primary"></i>
-          Articles en Situation de Criticité
-        </h5>
-        @if (selectedSuggestions().length > 0) {
-          <span class="badge bg-success ms-auto">{{ selectedSuggestions().length }}
-            sélectionné(s)</span>
+      <app-select
+        (ngModelChange)="selectedFournisseurId.set($event)"
+        (selectionChange)="onFilterChange()"
+        [clearable]="true"
+        [items]="fournisseurOptions()"
+        [ngModel]="selectedFournisseurId()"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Tous fournisseurs"
+      />
+      <app-select
+        (ngModelChange)="selectedClasse.set($event)"
+        (selectionChange)="onFilterChange()"
+        [clearable]="true"
+        [items]="classeOptions"
+        [ngModel]="selectedClasse()"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Toutes classes"
+      />
+      <app-select
+        (ngModelChange)="selectedNiveauUrgence.set($event)"
+        (selectionChange)="onFilterChange()"
+        [clearable]="true"
+        [items]="urgenceOptions"
+        [ngModel]="selectedNiveauUrgence()"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Toutes criticités"
+      />
+      <input
+        (ngModelChange)="searchText.set($event); onSearchChange()"
+        [ngModel]="searchText()"
+        class="form-control"
+        placeholder="Rechercher un produit..."
+        style="flex: 0 1 14rem"
+        type="text"
+      />
+    </div>
+    <div class="su-action-bar__actions">
+      <!-- Recalcul VMM (déplacé depuis le tableau de bord) -->
+      <app-button
+        (clicked)="recalculerVmm()"
+        [loading]="recalculEnCours()"
+        icon="pi pi-sync"
+        label="Recalculer VMM"
+        ngbTooltip="Déclencher un recalcul immédiat des ventes mensuelles moyennes — mise à jour automatique quotidienne selon la configuration"
+        placement="bottom"
+        severity="warn"
+        size="small"
+      />
+      <!-- Bouton exclusions avec badge -->
+      <button
+        (click)="ouvrirGestionExclusions()"
+        class="btn btn-sm btn-outline-warning position-relative"
+        ngbTooltip="Gérer les produits temporairement suspendus du calcul automatique des besoins"
+        placement="bottom"
+        type="button"
+      >
+        <i class="pi pi-ban me-1"></i>
+        Exclusions
+        @if (exclusionCount() > 0) {
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-white">
+            {{ exclusionCount() }}
+          </span>
         }
-      </div>
-      <div class="card-body p-0">
-        <div class="overflow-x-auto">
-          <app-data-table
-            (onPage)="onPageChange($event)"
-            [(rows)]="itemsPerPage"
-            [(selection)]="selectedSuggestions"
-            [first]="page() * itemsPerPage()"
-            [lazy]="true"
-            [loading]="isLoading()"
-            [paginator]="true"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [selectionMode]="'multiple'"
-            [showCurrentPageReport]="true"
-            [totalRecords]="totalItems()"
-            [value]="suggestions()"
-            class="p-datatable-sm"
-            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-            dataKey="produitId"
-            style="min-width: 125rem"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th style="width: 3rem">
-                  <app-header-checkbox />
-                </th>
-                <th>Urgence</th>
-                <th>Produit</th>
-                <th>Code CIP</th>
-                <th>Classe</th>
-                <th class="text-end">VMM</th>
-                <th class="text-end">Marge Séc.</th>
-                <th class="text-end">Stock Obj.</th>
-                <th class="text-end">Stock Act.</th>
-                <th class="text-end">Qté à Cmd</th>
-                <th class="text-end">Couv.
-                  act / cible
-                </th>
-                <th class="text-end">Jours restants</th>
-                <th class="text-end">Délai livr.</th>
-                <th>Dernier calcul</th>
-                <th class="text-center" style="width: 6rem">Actions</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-suggestion>
-              <tr [class]="getRowClass(suggestion)">
-                <td>
-                  <app-row-checkbox [row]="suggestion" />
-                </td>
-                <td>
-                  <app-badge [label]="getUrgenceDisplayLabel(suggestion)"
-                             [severity]="getUrgenceSeverity(suggestion)" />
-                </td>
-                <td>{{ suggestion.libelle }}</td>
-                <td>{{ suggestion.codeCip }}</td>
-                <td>
-                  <app-badge [label]="getClasseLabel(suggestion.classeCriticite)"
-                             [severity]="getClasseSeverity(suggestion.classeCriticite)" />
-                </td>
-                <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
-                <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
-                <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
-                <!--
+      </button>
+
+      <app-button (clicked)="onClearFilters()" icon="pi pi-filter-slash" label="Réinitialiser" severity="secondary" size="small" />
+    </div>
+  </div>
+
+  <!-- Bandeau information lecture seule -->
+  <div class="alert alert-info d-flex align-items-center gap-2 mx-0 mt-2 mb-1 py-2" role="alert">
+    <i class="pi pi-info-circle"></i>
+    <small>
+      <strong>Analyse des niveaux de stock — consultation uniquement.</strong>
+      Les quantités à commander sont calculées automatiquement d'après vos ventes mensuelles moyennes (VMM). Rendez-vous dans l'onglet
+      <strong>Réapprovisionnement</strong> pour valider et passer commande.
+    </small>
+  </div>
+
+  <!-- Table des suggestions -->
+  <div class="row mt-2">
+    <div class="col-12 mb-3">
+      <div class="card data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-shopping-cart text-primary"></i>
+            Articles en Situation de Criticité
+          </h5>
+          @if (selectedSuggestions().length > 0) {
+            <span class="badge bg-success ms-auto">{{ selectedSuggestions().length }} sélectionné(s)</span>
+          }
+        </div>
+        <div class="card-body p-0">
+          <div class="overflow-x-auto">
+            <app-data-table
+              (onPage)="onPageChange($event)"
+              [(rows)]="itemsPerPage"
+              [(selection)]="selectedSuggestions"
+              [first]="page() * itemsPerPage()"
+              [lazy]="true"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [selectionMode]="'multiple'"
+              [showCurrentPageReport]="true"
+              [totalRecords]="totalItems()"
+              [value]="suggestions()"
+              class="p-datatable-sm"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+              dataKey="produitId"
+              style="min-width: 125rem"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th style="width: 3rem">
+                    <app-header-checkbox />
+                  </th>
+                  <th>Urgence</th>
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Classe</th>
+                  <th class="text-end">VMM</th>
+                  <th class="text-end">Marge Séc.</th>
+                  <th class="text-end">Stock Obj.</th>
+                  <th class="text-end">Stock Act.</th>
+                  <th class="text-end">Qté à Cmd</th>
+                  <th class="text-end">Couv. act / cible</th>
+                  <th class="text-end">Jours restants</th>
+                  <th class="text-end">Délai livr.</th>
+                  <th>Dernier calcul</th>
+                  <th class="text-center" style="width: 6rem">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-suggestion>
+                <tr [class]="getRowClass(suggestion)">
+                  <td>
+                    <app-row-checkbox [row]="suggestion" />
+                  </td>
+                  <td>
+                    <app-badge [label]="getUrgenceDisplayLabel(suggestion)" [severity]="getUrgenceSeverity(suggestion)" />
+                  </td>
+                  <td>{{ suggestion.libelle }}</td>
+                  <td>{{ suggestion.codeCip }}</td>
+                  <td>
+                    <app-badge
+                      [label]="getClasseLabel(suggestion.classeCriticite)"
+                      [severity]="getClasseSeverity(suggestion.classeCriticite)"
+                    />
+                  </td>
+                  <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
+                  <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
+                  <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
+                  <!--
                   Le stock affiché reste le stock PHYSIQUE, celui qu'on compte en rayon. La dette
                   s'affiche dessous : sans elle, une quantité à commander plus élevée que
                   « objectif moins stock » passerait pour une erreur de calcul.
                 -->
-                <td [class]="getStockActuelClass(suggestion)" class="text-end">
-                  {{ suggestion.stockActuel || 0 }}
-                  @if (suggestion.detteClient) {
-                    <div class="semois-dette"
-                         [ngbTooltip]="suggestion.detteClient + ' unité(s) promise(s) à des clients : en rayon, mais réservées. Retranchées du stock disponible pour calculer la quantité à commander.'"
-                         placement="left">
-                      <i class="pi pi-user-plus"></i> −{{ suggestion.detteClient }} dû
+                  <td [class]="getStockActuelClass(suggestion)" class="text-end">
+                    {{ suggestion.stockActuel || 0 }}
+                    @if (suggestion.detteClient) {
+                      <div
+                        class="semois-dette"
+                        [ngbTooltip]="
+                          suggestion.detteClient +
+                          ' unité(s) promise(s) à des clients : en rayon, mais réservées. Retranchées du stock disponible pour calculer la quantité à commander.'
+                        "
+                        placement="left"
+                      >
+                        <i class="pi pi-user-plus"></i> −{{ suggestion.detteClient }} dû
+                      </div>
+                    }
+                  </td>
+                  <td class="text-end fw-bold pharma-price">
+                    {{ suggestion.quantiteACommander || 0 }}
+                  </td>
+                  <td class="text-end">
+                    <div class="d-flex flex-column align-items-end gap-0">
+                      <span
+                        [class]="getCouvertureClass(suggestion)"
+                        class="couverture-badge px-2 py-1 rounded fw-semibold"
+                        title="Couverture actuelle"
+                      >
+                        {{ getCouvertureMois(suggestion) | number }} mois
+                      </span>
+                      <span
+                        [class]="getCouvertureCibleClass(suggestion)"
+                        class="couverture-cible text-muted small"
+                        title="Couverture cible (stock objectif)"
+                      >
+                        ↗ {{ getCouvertureCibleMois(suggestion) | number }} mois
+                      </span>
                     </div>
-                  }
-                </td>
-                <td class="text-end fw-bold pharma-price">
-                  {{ suggestion.quantiteACommander || 0 }}
-                </td>
-                <td class="text-end">
-                  <div class="d-flex flex-column align-items-end gap-0">
-                    <span [class]="getCouvertureClass(suggestion)"
-                          class="couverture-badge px-2 py-1 rounded fw-semibold"
-                          title="Couverture actuelle">
-                      {{ getCouvertureMois(suggestion) | number }} mois
+                  </td>
+                  <td class="text-end">
+                    <span [class]="getJoursRestantsClass(suggestion)" class="px-2 py-1 rounded fw-semibold">
+                      {{ getJoursRestantsLabel(suggestion) }}
                     </span>
-                    <span [class]="getCouvertureCibleClass(suggestion)"
-                          class="couverture-cible text-muted small"
-                          title="Couverture cible (stock objectif)">
-                      ↗ {{ getCouvertureCibleMois(suggestion) | number }} mois
-                    </span>
-                  </div>
-                </td>
-                <td class="text-end">
-                  <span [class]="getJoursRestantsClass(suggestion)"
-                        class="px-2 py-1 rounded fw-semibold">
-                    {{ getJoursRestantsLabel(suggestion) }}
-                  </span>
-                </td>
-                <td class="text-end">{{ suggestion.delaiLivraisonJours || 0 }}j</td>
-                <td>
-                  @if (suggestion.dateDernierCalcul) {
-                    <small class="text-muted">
-                      {{ suggestion.dateDernierCalcul | date: 'dd/MM/yyyy HH:mm' }}
-                    </small>
-                  } @else {
-                    <small class="text-danger">Jamais calculé</small>
-                  }
-                </td>
-                <td class="text-center">
-                  <app-button
-                    (clicked)="ouvrirExclureProduit(suggestion)"
-                    [text]="true"
-                    icon="pi pi-ban"
-                    ngbTooltip="Suspendre temporairement ce produit du calcul automatique des besoins"
-                    placement="left"
-                    severity="warn"
-                    size="small"
-                  />
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center p-4" colspan="15">
-                  <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
-                  <p class="mt-3 text-muted">Aucune suggestion disponible</p>
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
+                  </td>
+                  <td class="text-end">{{ suggestion.delaiLivraisonJours || 0 }}j</td>
+                  <td>
+                    @if (suggestion.dateDernierCalcul) {
+                      <small class="text-muted">
+                        {{ suggestion.dateDernierCalcul | date: 'dd/MM/yyyy HH:mm' }}
+                      </small>
+                    } @else {
+                      <small class="text-danger">Jamais calculé</small>
+                    }
+                  </td>
+                  <td class="text-center">
+                    <app-button
+                      (clicked)="ouvrirExclureProduit(suggestion)"
+                      [text]="true"
+                      icon="pi pi-ban"
+                      ngbTooltip="Suspendre temporairement ce produit du calcul automatique des besoins"
+                      placement="left"
+                      severity="warn"
+                      size="small"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center p-4" colspan="15">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                    <p class="mt-3 text-muted">Aucune suggestion disponible</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
 </app-card>

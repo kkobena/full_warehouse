@@ -2,15 +2,7 @@
   <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Liste des remises produits">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
-        <app-button
-          (clicked)="onOpenRemiseForm()"
-          [raised]="true"
-          icon="pi pi-plus"
-          label="Nouveau"
-          severity="primary"
-          type="button"
-        />
-
+        <app-button (clicked)="onOpenRemiseForm()" [raised]="true" icon="pi pi-plus" label="Nouveau" severity="primary" type="button" />
       </div>
     </ng-container>
   </app-toolbar>

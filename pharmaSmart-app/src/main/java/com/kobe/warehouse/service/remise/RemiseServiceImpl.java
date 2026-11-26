@@ -19,13 +19,12 @@ import com.kobe.warehouse.service.dto.RemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitsDTO;
 import com.kobe.warehouse.service.dto.TypeRemise;
+import com.kobe.warehouse.service.stock.ProduitService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.kobe.warehouse.service.stock.ProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -41,12 +40,11 @@ public class RemiseServiceImpl implements RemiseService {
     private final ProduitService produitService;
 
     public RemiseServiceImpl(
-        RemiseRepository remiseRepository,
-        RemiseProduitRepository remiseProduitRepository,
-        RemiseClientRepository remiseClientRepository,
-        GrilleRemiseRepository grilleRemiseRepository,
-        ProduitService produitService
-    ) {
+            RemiseRepository remiseRepository,
+            RemiseProduitRepository remiseProduitRepository,
+            RemiseClientRepository remiseClientRepository,
+            GrilleRemiseRepository grilleRemiseRepository,
+            ProduitService produitService) {
         this.remiseRepository = remiseRepository;
         this.remiseProduitRepository = remiseProduitRepository;
         this.remiseClientRepository = remiseClientRepository;
@@ -85,9 +83,13 @@ public class RemiseServiceImpl implements RemiseService {
     @Transactional(readOnly = true)
     public List<RemiseDTO> findAll(TypeRemise typeRemise) {
         if (typeRemise == TypeRemise.PRODUIT) {
-            return this.remiseProduitRepository.findAll().stream().map(this::toDTO).toList();
+            return this.remiseProduitRepository.findAll().stream()
+                    .map(this::toDTO)
+                    .toList();
         } else if (typeRemise == TypeRemise.CLIENT) {
-            return this.remiseClientRepository.findAll().stream().map(this::toDTO).toList();
+            return this.remiseClientRepository.findAll().stream()
+                    .map(this::toDTO)
+                    .toList();
         }
         return this.remiseRepository.findAll().stream().map(this::toDTO).toList();
     }
@@ -100,24 +102,27 @@ public class RemiseServiceImpl implements RemiseService {
     @Override
     public List<CodeRemiseDTO> queryFullCodes() {
         return Arrays.stream(CodeRemise.values())
-            .map(codeRemise -> {
-                CodeRemiseDTO codeRemiseDTO = CodeRemise.toDTO(codeRemise);
-                Map<RemiseProduit, List<GrilleRemise>> remises = grilleRemiseRepository
-                    .findAllByCodeIn(List.of(codeRemise.getCodeVno(), codeRemise.getCodeVo()))
-                    .stream()
-                    .collect(Collectors.groupingBy(GrilleRemise::getRemiseProduit, Collectors.toList()));
+                .map(codeRemise -> {
+                    CodeRemiseDTO codeRemiseDTO = CodeRemise.toDTO(codeRemise);
+                    Map<RemiseProduit, List<GrilleRemise>> remises =
+                            grilleRemiseRepository
+                                    .findAllByCodeIn(List.of(codeRemise.getCodeVno(), codeRemise.getCodeVo()))
+                                    .stream()
+                                    .collect(
+                                            Collectors.groupingBy(GrilleRemise::getRemiseProduit, Collectors.toList()));
 
-                remises.forEach((remiseProduit, grilleRemises) ->
-                    codeRemiseDTO.setRemise(new RemiseProduitDTO(remiseProduit, grilleRemises))
-                );
-                return codeRemiseDTO;
-            })
-            .toList();
+                    remises.forEach((remiseProduit, grilleRemises) ->
+                            codeRemiseDTO.setRemise(new RemiseProduitDTO(remiseProduit, grilleRemises)));
+                    return codeRemiseDTO;
+                })
+                .toList();
     }
 
     @Override
     public List<GrilleRemiseDTO> findAllGrilles() {
-        return this.grilleRemiseRepository.findAll().stream().map(GrilleRemiseDTO::new).toList();
+        return this.grilleRemiseRepository.findAll().stream()
+                .map(GrilleRemiseDTO::new)
+                .toList();
     }
 
     @Override
@@ -127,8 +132,7 @@ public class RemiseServiceImpl implements RemiseService {
 
         if (remiseProduits.all()) {
             produits = this.produitService.find(
-                    new ProduitCriteria().setSearch(remiseProduits.search()).setRayonId(remiseProduits.rayonId())
-                );
+                    new ProduitCriteria().setSearch(remiseProduits.search()).setRayonId(remiseProduits.rayonId()));
         } else {
             produits = this.produitService.findByIds(remiseProduits.produitIds());
         }
@@ -163,17 +167,14 @@ public class RemiseServiceImpl implements RemiseService {
         if (CollectionUtils.isEmpty(grilleRemises)) {
             return List.of();
         }
-        return grilleRemises
-            .stream()
-            .map(grilleRemiseDTO ->
-                new GrilleRemise()
-                    .setEnable(remise.isEnable())
-                    .setId(grilleRemiseDTO.getId())
-                    .setRemiseValue(grilleRemiseDTO.getRemiseValue())
-                    .setRemiseProduit(remise)
-                    .setCode(CodeGrilleRemise.fromValue(grilleRemiseDTO.getCode()))
-            )
-            .toList();
+        return grilleRemises.stream()
+                .map(grilleRemiseDTO -> new GrilleRemise()
+                        .setEnable(remise.isEnable())
+                        .setId(grilleRemiseDTO.getId())
+                        .setRemiseValue(grilleRemiseDTO.getRemiseValue())
+                        .setRemiseProduit(remise)
+                        .setCode(CodeGrilleRemise.fromValue(grilleRemiseDTO.getCode())))
+                .toList();
     }
 
     private Remise toEntity(RemiseClientDTO remiseDTO, RemiseClient remise) {

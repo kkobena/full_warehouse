@@ -65,13 +65,7 @@
           label="{{ 'warehouseApp.labels.au' | translate }}"
         />
       </div>
-      <app-button
-        (clicked)="load()"
-        icon="pi pi-search"
-        label="Actualiser"
-        severity="info"
-        size="small"
-      />
+      <app-button (clicked)="load()" icon="pi pi-search" label="Actualiser" severity="info" size="small" />
     </div>
 
     <!-- ── Graphique achats ───────────────────────────────────── -->
@@ -125,11 +119,13 @@
         @if (summary()) {
           <tr class="pharma-table-footer">
             <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.quantite | number }}</span>
+            </td>
             <td></td>
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
+            <td class="text-end">
+              <span class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span>
+            </td>
             <td></td>
           </tr>
         }

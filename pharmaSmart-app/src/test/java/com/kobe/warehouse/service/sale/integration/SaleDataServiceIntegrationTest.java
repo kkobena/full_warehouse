@@ -1,17 +1,17 @@
 package com.kobe.warehouse.service.sale.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -56,8 +56,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(2, page.getTotalElements(), "la vente encore active n'y figure pas");
         assertTrue(page.getContent().stream().allMatch(v -> v.getStatut() == SalesStatut.CLOSED));
@@ -72,11 +83,9 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var hier = services.saleDataService.listVenteTerminees(
-            null, HIER, HIER, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20)
-        );
+                null, HIER, HIER, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20));
         var lesDeux = services.saleDataService.listVenteTerminees(
-            null, HIER, AUJOURD_HUI, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20)
-        );
+                null, HIER, AUJOURD_HUI, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20));
 
         assertEquals(1, hier.getTotalElements());
         assertEquals(2, lesDeux.getTotalElements());
@@ -91,20 +100,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            cible.getNumberTransaction(),
-            AUJOURD_HUI,
-            AUJOURD_HUI,
-            null,
-            null,
-            false,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            PageRequest.of(0, 20)
-        );
+                cible.getNumberTransaction(),
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(1, page.getTotalElements());
         assertEquals(cible.getNumberTransaction(), page.getContent().getFirst().getNumberTransaction());
@@ -120,8 +128,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            "zyrtec", AUJOURD_HUI, AUJOURD_HUI, null, null, true, null, null, null, null, null, null, PageRequest.of(0, 20)
-        );
+                "zyrtec",
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                true,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(1, page.getTotalElements(), "la sous-requête EXISTS sur sales_line fait le tri");
     }
@@ -135,13 +154,33 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var comptant = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
-            Set.of("COMPTANT"), null, null, null, null, PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                Set.of("COMPTANT"),
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
         var assurance = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
-            Set.of("ASSURANCE"), null, null, null, null, PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                Set.of("ASSURANCE"),
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(2, comptant.getTotalElements());
         assertEquals(0, assurance.getTotalElements(), "aucune vente assurance n'a été créée");
@@ -163,13 +202,21 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
-            Set.of("COMPTANT' OR '1'='1"), null, null, null, null, PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                Set.of("COMPTANT' OR '1'='1"),
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
         long total = services.saleDataService.totalVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
-            Set.of("COMPTANT' OR '1'='1"), null, null
-        );
+                null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, Set.of("COMPTANT' OR '1'='1"), null, null);
 
         assertEquals(0, page.getTotalElements(), "la valeur est une donnée, pas du SQL");
         assertEquals(0L, total);
@@ -184,8 +231,7 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         long total = services.saleDataService.totalVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, null, null, null
-        );
+                null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, null, null, null);
 
         assertEquals(9_000, total, "3 000 + 6 000");
     }
@@ -200,8 +246,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 2)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 2));
 
         assertEquals(2, page.getContent().size());
         assertEquals(3, page.getTotalElements());
@@ -211,20 +268,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
     @DisplayName("Une période sans vente rend une page vide plutôt qu'une erreur")
     void periodeSansVente() {
         var page = services.saleDataService.listVenteTerminees(
-            null,
-            AUJOURD_HUI.minusYears(1),
-            AUJOURD_HUI.minusYears(1),
-            null,
-            null,
-            false,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI.minusYears(1),
+                AUJOURD_HUI.minusYears(1),
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(0, page.getTotalElements());
         assertTrue(page.getContent().isEmpty());
@@ -241,8 +297,9 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         List<SaleDTO> achats = services.saleDataService
-            .customerPurchases(client.getId(), HIER, AUJOURD_HUI, org.springframework.data.domain.PageRequest.of(0, 20))
-            .getContent();
+                .customerPurchases(
+                        client.getId(), HIER, AUJOURD_HUI, org.springframework.data.domain.PageRequest.of(0, 20))
+                .getContent();
 
         assertEquals(1, achats.size());
         assertEquals(4_000, achats.getFirst().getSalesAmount());
@@ -271,14 +328,7 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         List<SaleDTO> preventes = services.saleDataService.allPrevente(
-            null,
-            null,
-            null,
-            Set.of(SalesStatut.PROCESSING),
-            HIER,
-            AUJOURD_HUI,
-            true
-        );
+                null, null, null, Set.of(SalesStatut.PROCESSING), HIER, AUJOURD_HUI, true);
 
         assertEquals(1, preventes.size());
         assertEquals(SalesStatut.PROCESSING, preventes.getFirst().getStatut());
@@ -288,16 +338,16 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
     @DisplayName("Un identifiant de vente inconnu rend un 404 explicite, pas une erreur interne")
     void venteInconnue() {
         var erreur = org.junit.jupiter.api.Assertions.assertThrows(
-            org.springframework.web.server.ResponseStatusException.class,
-            () -> services.saleDataService.fetchPurchaseBy(987_654_321L, AUJOURD_HUI)
-        );
+                org.springframework.web.server.ResponseStatusException.class,
+                () -> services.saleDataService.fetchPurchaseBy(987_654_321L, AUJOURD_HUI));
 
         assertEquals(404, erreur.getStatusCode().value());
         assertTrue(erreur.getReason().contains("Vente introuvable"));
     }
 
     @Test
-    @DisplayName("Une vente assurance fraîchement transformée, sans assuré, se relit par son identifiant : l'écran doit pouvoir la reprendre")
+    @DisplayName(
+            "Une vente assurance fraîchement transformée, sans assuré, se relit par son identifiant : l'écran doit pouvoir la reprendre")
     void venteAssuranceSansClientSeRelitParSonIdentifiant() {
         Produit produit = produitEnStock("TRANSFORMEE", 700, 400, 0, 100);
         ThirdPartySales sansClient = new ThirdPartySales();
@@ -322,15 +372,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         em.flush();
         viderLeCache();
 
-        SaleDTO relue = services.saleDataService.fetchPurchaseBy(sansClient.getId().getId(), AUJOURD_HUI);
+        SaleDTO relue =
+                services.saleDataService.fetchPurchaseBy(sansClient.getId().getId(), AUJOURD_HUI);
 
         assertEquals(sansClient.getId().getId(), relue.getId());
         assertEquals(1, relue.getSalesLines().size(), "les lignes de la vente transformée sont conservées");
-        assertNull(((com.kobe.warehouse.service.dto.ThirdPartySaleDTO) relue).getCustomer(), "pas d'assuré tant que le caissier n'a pas choisi");
+        assertNull(
+                ((com.kobe.warehouse.service.dto.ThirdPartySaleDTO) relue).getCustomer(),
+                "pas d'assuré tant que le caissier n'a pas choisi");
     }
 
     @Test
-    @DisplayName("Une prévente assurance sans client rattaché n'est pas renvoyée : le front lit les informations de l'assuré")
+    @DisplayName(
+            "Une prévente assurance sans client rattaché n'est pas renvoyée : le front lit les informations de l'assuré")
     void preventeAssuranceSansClientNonRenvoyee() {
         Produit produit = produitEnStock("SANS CLIENT", 700, 400, 0, 100);
         venteEnCours(produit, 1).setStatut(SalesStatut.PROCESSING);
@@ -356,30 +410,24 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         em.flush();
         viderLeCache();
 
-        for (String type : new String[] { null, "VO" }) {
+        for (String type : new String[] {null, "VO"}) {
             List<SaleDTO> preventes = services.saleDataService.allPrevente(
-                null,
-                type,
-                null,
-                Set.of(SalesStatut.PROCESSING),
-                HIER,
-                AUJOURD_HUI,
-                true
-            );
+                    null, type, null, Set.of(SalesStatut.PROCESSING), HIER, AUJOURD_HUI, true);
 
-            assertTrue(preventes.stream().allMatch(java.util.Objects::nonNull), "aucun élément nul dans la liste (type " + type + ")");
             assertTrue(
-                preventes.stream().noneMatch(v -> sansClient.getNumberTransaction().equals(v.getNumberTransaction())),
-                "la prévente assurance sans client ne doit pas remonter (type " + type + ")"
-            );
+                    preventes.stream().allMatch(java.util.Objects::nonNull),
+                    "aucun élément nul dans la liste (type " + type + ")");
+            assertTrue(
+                    preventes.stream()
+                            .noneMatch(v -> sansClient.getNumberTransaction().equals(v.getNumberTransaction())),
+                    "la prévente assurance sans client ne doit pas remonter (type " + type + ")");
         }
         assertEquals(
-            1,
-            services.saleDataService
-                .allPrevente(null, null, null, Set.of(SalesStatut.PROCESSING), HIER, AUJOURD_HUI, true)
-                .size(),
-            "la prévente comptant, elle, remonte"
-        );
+                1,
+                services.saleDataService
+                        .allPrevente(null, null, null, Set.of(SalesStatut.PROCESSING), HIER, AUJOURD_HUI, true)
+                        .size(),
+                "la prévente comptant, elle, remonte");
     }
 
     @Test
@@ -404,16 +452,10 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         venteDepotCloturee(second, produit, 7);
         viderLeCache();
 
-        var toutes = services.saleDataService.fetchVenteDepot(null, HIER, AUJOURD_HUI, null, null, null, PageRequest.of(0, 20));
+        var toutes = services.saleDataService.fetchVenteDepot(
+                null, HIER, AUJOURD_HUI, null, null, null, PageRequest.of(0, 20));
         var duPremier = services.saleDataService.fetchVenteDepot(
-            null,
-            HIER,
-            AUJOURD_HUI,
-            null,
-            null,
-            premier.getId(),
-            PageRequest.of(0, 20)
-        );
+                null, HIER, AUJOURD_HUI, null, null, premier.getId(), PageRequest.of(0, 20));
 
         assertEquals(2, toutes.getTotalElements());
         assertEquals(1, duPremier.getTotalElements());
@@ -428,8 +470,19 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         var page = services.saleDataService.listVenteTerminees(
-            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null, null, null, null, null, null, PageRequest.of(0, 20)
-        );
+                null,
+                AUJOURD_HUI,
+                AUJOURD_HUI,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PageRequest.of(0, 20));
 
         assertEquals(0, page.getTotalElements(), "CA_DEPOT n'entre pas dans les catégories par défaut");
     }
@@ -470,13 +523,12 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
     }
 
     private void remplir(
-        Sales vente,
-        Produit produit,
-        int quantite,
-        LocalDate date,
-        SalesStatut statut,
-        CategorieChiffreAffaire categorie
-    ) {
+            Sales vente,
+            Produit produit,
+            int quantite,
+            LocalDate date,
+            SalesStatut statut,
+            CategorieChiffreAffaire categorie) {
         int montant = quantite * produit.getRegularUnitPrice();
         vente.setId(services.saleIdGeneratorService.nextId());
         vente.setSaleDate(date);

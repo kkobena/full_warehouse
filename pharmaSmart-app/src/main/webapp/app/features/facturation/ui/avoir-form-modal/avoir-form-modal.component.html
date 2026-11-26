@@ -8,21 +8,14 @@
 
 <div class="modal-body">
   <div class="row g-3">
-
     <!-- Contexte facture (depuis fiche ou workspace) -->
     @if (isFromFacture && selectedFacture()) {
       <div class="col-12">
         <div class="d-flex flex-wrap gap-2">
-          <span class="pharma-badge pharma-badge-secondary">
-            <i class="pi pi-receipt me-1"></i>{{ selectedFacture().numFacture }}
-          </span>
+          <span class="pharma-badge pharma-badge-secondary"> <i class="pi pi-receipt me-1"></i>{{ selectedFacture().numFacture }} </span>
           <span class="pharma-badge pharma-badge-info">{{ selectedFacture().tiersPayantName }}</span>
-          <span class="pharma-badge pharma-badge-secondary">
-            Net&nbsp;: {{ selectedFacture().montantNet | number: '1.0-0' }}
-          </span>
-          <span class="pharma-badge pharma-badge-success">
-            Réglé&nbsp;: {{ selectedFacture().montantRegle | number: '1.0-0' }}
-          </span>
+          <span class="pharma-badge pharma-badge-secondary"> Net&nbsp;: {{ selectedFacture().montantNet | number: '1.0-0' }} </span>
+          <span class="pharma-badge pharma-badge-success"> Réglé&nbsp;: {{ selectedFacture().montantRegle | number: '1.0-0' }} </span>
         </div>
       </div>
     }
@@ -34,7 +27,8 @@
           <app-select-search
             appendTo="body"
             (searched)="searchFacture($event)"
-            [ngModel]="selectedFacture()" (ngModelChange)="selectedFacture.set($event)"
+            [ngModel]="selectedFacture()"
+            (ngModelChange)="selectedFacture.set($event)"
             [minSearchLength]="2"
             [items]="factureSuggestions()"
             [optionTemplate]="tplFactureOrigine"
@@ -43,18 +37,18 @@
             inputId="av-facture-id"
           />
           <ng-template #tplFactureOrigine let-item>
-              <div class="d-flex justify-content-between align-items-center gap-3 w-100">
-                <div class="d-flex flex-column">
-                  <span class="pharma-code fw-semibold">{{ item.numFacture }}</span>
-                  <small class="text-muted">{{ item.tiersPayantName }}</small>
-                </div>
-                <div class="d-flex flex-column align-items-end flex-shrink-0">
-                  <span class="pharma-price small">{{ item.montantRegle | number: '1.0-0' }}</span>
-                  <app-badge [label]="getStatutLabel(item.statut)" [severity]="getStatutSeverity(item.statut)" />
-                </div>
+            <div class="d-flex justify-content-between align-items-center gap-3 w-100">
+              <div class="d-flex flex-column">
+                <span class="pharma-code fw-semibold">{{ item.numFacture }}</span>
+                <small class="text-muted">{{ item.tiersPayantName }}</small>
               </div>
+              <div class="d-flex flex-column align-items-end flex-shrink-0">
+                <span class="pharma-price small">{{ item.montantRegle | number: '1.0-0' }}</span>
+                <app-badge [label]="getStatutLabel(item.statut)" [severity]="getStatutSeverity(item.statut)" />
+              </div>
+            </div>
           </ng-template>
-          </app-float-label>
+        </app-float-label>
       </div>
     }
 
@@ -73,16 +67,15 @@
       <div class="col-md-6">
         <app-float-label inputId="av-montant" label="Montant avoir *">
           <app-input-number
-            [ngModel]="montantAvoir()" (ngModelChange)="montantAvoir.set($event)"
+            [ngModel]="montantAvoir()"
+            (ngModelChange)="montantAvoir.set($event)"
             inputId="av-montant"
             [max]="selectedFacture()?.montantRegle ?? undefined"
             style="width: 100%"
           />
-          </app-float-label>
+        </app-float-label>
         @if (montantAvoir() !== null && selectedFacture() && montantAvoir() > (selectedFacture().montantRegle ?? 0)) {
-          <small class="text-danger">
-            Dépasse le montant réglé ({{ selectedFacture().montantRegle | number: '1.0-0' }})
-          </small>
+          <small class="text-danger"> Dépasse le montant réglé ({{ selectedFacture().montantRegle | number: '1.0-0' }}) </small>
         }
       </div>
     }
@@ -90,49 +83,28 @@
     <!-- TVA -->
     <div class="col-md-6">
       <app-float-label inputId="av-tva" label="TVA">
-        <app-input-number
-          [(ngModel)]="montantTva"
-          inputId="av-tva"
-          [min]="0"
-          style="width: 100%"
-        />
-          </app-float-label>
+        <app-input-number [(ngModel)]="montantTva" inputId="av-tva" [min]="0" style="width: 100%" />
+      </app-float-label>
     </div>
 
     <!-- HT -->
     <div class="col-md-6">
       <app-float-label inputId="av-ht" label="Montant HT">
-        <app-input-number
-          [(ngModel)]="montantHt"
-          inputId="av-ht"
-          [min]="0"
-          style="width: 100%"
-        />
-          </app-float-label>
+        <app-input-number [(ngModel)]="montantHt" inputId="av-ht" [min]="0" style="width: 100%" />
+      </app-float-label>
     </div>
 
     <!-- Motif -->
     <div class="col-12">
       <app-float-label inputId="av-motif" label="Motif de l'avoir *">
-        <textarea
-          [(ngModel)]="motif"
-          inputId="av-motif"
-          rows="3"
-          style="width: 100%; resize: vertical"
-        ></textarea>
-          </app-float-label>
+        <textarea [(ngModel)]="motif" inputId="av-motif" rows="3" style="width: 100%; resize: vertical"></textarea>
+      </app-float-label>
     </div>
-
   </div>
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="activeModal.dismiss()"
-    label="Annuler"
-    severity="secondary"
-    [outlined]="true"
-  />
+  <app-button (clicked)="activeModal.dismiss()" label="Annuler" severity="secondary" [outlined]="true" />
   <app-button
     (clicked)="onSave()"
     [disabled]="!isFormValid()"

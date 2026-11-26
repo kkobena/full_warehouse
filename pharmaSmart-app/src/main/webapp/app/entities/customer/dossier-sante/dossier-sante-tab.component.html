@@ -1,10 +1,21 @@
 <app-detail-grid>
-  <app-detail-section header="Dossier santé" icon="pi pi-heart"
-                      [accent]="(dossier()?.allergies?.length || dossier()?.grossesse) ? 'danger' : 'slate'"
-                      [width]="'full'" [layout]="'block'" storageKey="customer.sante.dossier">
+  <app-detail-section
+    header="Dossier santé"
+    icon="pi pi-heart"
+    [accent]="dossier()?.allergies?.length || dossier()?.grossesse ? 'danger' : 'slate'"
+    [width]="'full'"
+    [layout]="'block'"
+    storageKey="customer.sante.dossier"
+  >
     @if (!editing() && canEdit()) {
-      <app-button ngProjectAs="[sectionActions]" (clicked)="modifier()" icon="pi pi-pencil" label="Modifier"
-                  severity="primary" size="small" />
+      <app-button
+        ngProjectAs="[sectionActions]"
+        (clicked)="modifier()"
+        icon="pi pi-pencil"
+        label="Modifier"
+        severity="primary"
+        size="small"
+      />
     }
     @if (!editing()) {
       <!-- ── Consultation ── -->
@@ -23,10 +34,10 @@
       @if (dossier()?.allergies?.length) {
         <table class="table table-sm table-striped">
           <thead class="pharma-table-head">
-          <tr>
-            <th>Allergie</th>
-            <th>Réaction</th>
-          </tr>
+            <tr>
+              <th>Allergie</th>
+              <th>Réaction</th>
+            </tr>
           </thead>
           <tbody>
             @for (allergie of dossier()!.allergies; track allergie.id) {
@@ -91,8 +102,8 @@
           <app-button (clicked)="ajouterAllergie()" icon="pi pi-plus" label="Ajouter une allergie" severity="info" type="button" />
         </div>
         <p class="text-muted small">
-          Choisissez la molécule (DCI) pour que la vente d'un produit qui la contient soit bloquée. Un libellé libre
-          (arachide, latex…) est seulement affiché.
+          Choisissez la molécule (DCI) pour que la vente d'un produit qui la contient soit bloquée. Un libellé libre (arachide, latex…) est
+          seulement affiché.
         </p>
         <div formArrayName="allergies">
           @for (ligne of allergies.controls; track ligne; let i = $index) {
@@ -114,7 +125,14 @@
                 <app-input formControlName="libelle" placeholder="ou libellé libre" />
               }
               <app-input formControlName="reaction" placeholder="Réaction observée" />
-              <app-button (clicked)="retirerAllergie(i)" [rounded]="true" [text]="true" icon="pi pi-trash" severity="danger" type="button" />
+              <app-button
+                (clicked)="retirerAllergie(i)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                severity="danger"
+                type="button"
+              />
             </div>
           }
         </div>
@@ -126,9 +144,13 @@
           }
         </div>
         <div class="d-flex gap-2 align-items-center">
-          <app-input (keydown.enter)="$event.preventDefault(); ajouterPathologie()" (ngModelChange)="pathologieSaisie.set($event)"
-                     [ngModelOptions]="{ standalone: true }" [ngModel]="pathologieSaisie()"
-                     placeholder="Diabète, hypertension…" />
+          <app-input
+            (keydown.enter)="$event.preventDefault(); ajouterPathologie()"
+            (ngModelChange)="pathologieSaisie.set($event)"
+            [ngModelOptions]="{ standalone: true }"
+            [ngModel]="pathologieSaisie()"
+            placeholder="Diabète, hypertension…"
+          />
           <app-button (clicked)="ajouterPathologie()" icon="pi pi-plus" label="Ajouter" severity="primary" type="button" />
         </div>
 

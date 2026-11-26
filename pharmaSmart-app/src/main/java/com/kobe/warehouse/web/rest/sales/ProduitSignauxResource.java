@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
+@RequiresNavAccess({"ventes", "nouvelle-vente", "nouvelle-prevente"})
 public class ProduitSignauxResource {
 
     private final ProduitSignauxService produitSignauxService;

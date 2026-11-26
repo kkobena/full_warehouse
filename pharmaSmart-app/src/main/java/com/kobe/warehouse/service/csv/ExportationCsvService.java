@@ -25,22 +25,19 @@ public class ExportationCsvService {
     public byte[] exportCommandeToCsv(Commande commande) {
         StringWriter writer = new StringWriter();
         try (final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL)) {
-            commande
-                .getOrderLines()
-                .forEach(orderLine -> {
-                    FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
-                    Produit produit = fournisseurProduit.getProduit();
-                    try {
-                        printer.printRecord(
+            commande.getOrderLines().forEach(orderLine -> {
+                FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+                Produit produit = fournisseurProduit.getProduit();
+                try {
+                    printer.printRecord(
                             StringUtils.isNotEmpty(produit.getCodeEanLaboratoire())
-                                ? produit.getCodeEanLaboratoire()
-                                : fournisseurProduit.getCodeCip(),
-                            orderLine.getQuantityRequested()
-                        );
-                    } catch (IOException e) {
-                        log.error("Error writing data to the csv printer", e);
-                    }
-                });
+                                    ? produit.getCodeEanLaboratoire()
+                                    : fournisseurProduit.getCodeCip(),
+                            orderLine.getQuantityRequested());
+                } catch (IOException e) {
+                    log.error("Error writing data to the csv printer", e);
+                }
+            });
 
             printer.flush();
         } catch (final IOException e) {
@@ -52,7 +49,8 @@ public class ExportationCsvService {
     /** Les lignes non prises en compte d'un import de commande, au format du grossiste, produites en mémoire. */
     public byte[] exporterRuptures(List<OrderItem> items, CommandeModel commandeModel) {
         StringWriter writer = new StringWriter();
-        try (final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').get())) {
+        try (final CSVPrinter printer = new CSVPrinter(
+                writer, CSVFormat.EXCEL.builder().setDelimiter(';').get())) {
             switch (commandeModel) {
                 case LABOREX -> printLaborexFormatCsv(printer, items);
                 case DPCI -> printDPCIFormatCsv(printer, items);
@@ -69,97 +67,91 @@ public class ExportationCsvService {
 
     private void printLaborexFormatCsv(CSVPrinter printer, List<OrderItem> items) throws IOException {
         printer.printRecord(
-            "N° Facture",
-            "N° ligne",
-            "CIP/EAN13",
-            "Libellé du produit",
-            "Qté commandée",
-            "Qté livrée",
-            "Prix de cession",
-            "Prix public",
-            "N° commande",
-            "Tva"
-        );
+                "N° Facture",
+                "N° ligne",
+                "CIP/EAN13",
+                "Libellé du produit",
+                "Qté commandée",
+                "Qté livrée",
+                "Prix de cession",
+                "Prix public",
+                "N° commande",
+                "Tva");
         for (OrderItem item : items) {
             printer.printRecord(
-                item.getFacture(),
-                item.getLigne(),
-                item.getProduitCip(),
-                item.getProduitLibelle(),
-                item.getQuantityRequested(),
-                item.getQuantityReceived(),
-                item.getMontant(),
-                item.getPrixUn(),
-                item.getReferenceBonLivraison(),
-                item.getTva()
-            );
+                    item.getFacture(),
+                    item.getLigne(),
+                    item.getProduitCip(),
+                    item.getProduitLibelle(),
+                    item.getQuantityRequested(),
+                    item.getQuantityReceived(),
+                    item.getMontant(),
+                    item.getPrixUn(),
+                    item.getReferenceBonLivraison(),
+                    item.getTva());
         }
     }
 
     private void printDPCIFormatCsv(CSVPrinter printer, List<OrderItem> items) throws IOException {
         for (OrderItem item : items) {
             printer.printRecord(
-                item.getLigne(),
-                item.getProduitLibelle(),
-                item.getProduitCip(),
-                item.getPrixAchat(),
-                item.getPrixUn(),
-                item.getTva(),
-                item.getQuantityReceived(),
-                item.getQuantityRequested(),
-                item.getReferenceBonLivraison()
-            );
+                    item.getLigne(),
+                    item.getProduitLibelle(),
+                    item.getProduitCip(),
+                    item.getPrixAchat(),
+                    item.getPrixUn(),
+                    item.getTva(),
+                    item.getQuantityReceived(),
+                    item.getQuantityRequested(),
+                    item.getReferenceBonLivraison());
         }
     }
 
     private void printTEDISFormatCsv(CSVPrinter printer, List<OrderItem> items) throws IOException {
         for (OrderItem item : items) {
             printer.printRecord(
-                item.getProduitCip(),
-                item.getQuantityRequested(),
-                item.getProduitCip(),
-                item.getQuantityReceived(),
-                item.getMontant().intValue()
-            );
+                    item.getProduitCip(),
+                    item.getQuantityRequested(),
+                    item.getProduitCip(),
+                    item.getQuantityReceived(),
+                    item.getMontant().intValue());
         }
     }
 
     private void printCOPHARMEDFormatCsv(CSVPrinter printer, List<OrderItem> items) throws IOException {
         printer.printRecord(
-            "Date",
-            "Numero Facture",
-            "Numero Ligne",
-            "Code Interne",
-            "Code CIP",
-            "Code CIP Alternatif",
-            "Description",
-            "Laboratoire",
-            "Quantité demandée",
-            "Quantitee livree",
-            "Unite Gratuite",
-            "Prix de Cession Hors Taxe",
-            "Taux Taxe",
-            "Prix public",
-            "Prix TTC"
-        );
+                "Date",
+                "Numero Facture",
+                "Numero Ligne",
+                "Code Interne",
+                "Code CIP",
+                "Code CIP Alternatif",
+                "Description",
+                "Laboratoire",
+                "Quantité demandée",
+                "Quantitee livree",
+                "Unite Gratuite",
+                "Prix de Cession Hors Taxe",
+                "Taux Taxe",
+                "Prix public",
+                "Prix TTC");
         for (OrderItem item : items) {
             printer.printRecord(
-                item.getDateBonLivraison(),
-                item.getFacture(),
-                item.getLigne(),
-                "",
-                item.getProduitCip(),
-                "",
-                item.getProduitLibelle(),
-                "",
-                +item.getQuantityRequested(),
-                item.getQuantityReceived(),
-                item.getUg(),
-                item.getPrixAchat(),
-                "",
-                item.getPrixUn(),
-                ""
-            );
+                    item.getDateBonLivraison(),
+                    item.getFacture(),
+                    item.getLigne(),
+                    "",
+                    item.getProduitCip(),
+                    "",
+                    item.getProduitLibelle(),
+                    "",
+                    +item.getQuantityRequested(),
+                    item.getQuantityReceived(),
+                    item.getUg(),
+                    item.getPrixAchat(),
+                    "",
+                    item.getPrixUn(),
+                    "");
         }
     }
 

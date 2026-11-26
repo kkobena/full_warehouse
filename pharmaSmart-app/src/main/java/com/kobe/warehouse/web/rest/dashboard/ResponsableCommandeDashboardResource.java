@@ -1,13 +1,12 @@
 package com.kobe.warehouse.web.rest.dashboard;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dashboard.ResponsableCommandeDashboardService;
 import com.kobe.warehouse.service.dto.dashboard.*;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/responsable-commande/dashboard")
@@ -88,8 +87,7 @@ public class ResponsableCommandeDashboardResource {
      */
     @GetMapping("/performance-fournisseurs")
     public ResponseEntity<List<PerformanceFournisseurDTO>> getPerformanceFournisseurs(
-        @RequestParam(defaultValue = "5") Integer top
-    ) {
+            @RequestParam(defaultValue = "5") Integer top) {
         List<PerformanceFournisseurDTO> performances = dashboardService.getPerformanceFournisseurs(top);
         return ResponseEntity.ok(performances);
     }

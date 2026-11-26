@@ -9,9 +9,8 @@ import com.kobe.warehouse.service.classification.ClassificationBatchProcessor.Pa
  * Uniquement produit reclassifié avec changement effectif (le processor filtre les non-changements).
  */
 public record ClassificationResult(
-    Produit produit,
-    ClasseCriticite ancienneClasse,
-    ClasseCriticite nouvelleClasse,
-    boolean changed,
-    ParetoScore paretoScore
-) {}
+        Produit produit,
+        ClasseCriticite ancienneClasse,
+        ClasseCriticite nouvelleClasse,
+        boolean changed,
+        ParetoScore paretoScore) {}

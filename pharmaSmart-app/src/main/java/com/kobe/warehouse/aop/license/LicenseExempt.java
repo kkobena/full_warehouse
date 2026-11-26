@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface LicenseExempt {
     /** Justification de l'exemption, à des fins de revue. */
     String value() default "";

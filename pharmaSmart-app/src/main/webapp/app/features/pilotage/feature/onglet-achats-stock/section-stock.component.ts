@@ -13,7 +13,15 @@ import { AideComponent } from '../../ui/aide/aide.component';
 /** Stock : photographie de fin de mois face à N-1, rotation, couverture, dormants ; par famille. */
 @Component({
   selector: 'app-section-stock',
-  imports: [AideComponent, DatePipe, CardComponent, DataTableComponent, TuilesCellulesComponent, CourbeSeriesComponent, ValeurIndicateurPipe],
+  imports: [
+    AideComponent,
+    DatePipe,
+    CardComponent,
+    DataTableComponent,
+    TuilesCellulesComponent,
+    CourbeSeriesComponent,
+    ValeurIndicateurPipe,
+  ],
   templateUrl: './section-stock.component.html',
   styleUrl: '../../ui/section-onglet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,9 +40,27 @@ export class SectionStockComponent {
       return [];
     }
     return [
-      { libelle: 'Valeur du stock', definition: 'Photographie de fin de mois, au prix d’achat, face au même mois N-1.', unite: 'MONTANT', sens: 'NEUTRE', cellule: stock.valeur },
-      { libelle: 'Rotation', definition: 'Coût des ventes des 12 derniers mois / valeur du stock (fois par an).', unite: 'RATIO', sens: 'HAUSSE', cellule: celluleSeule(stock.rotation) },
-      { libelle: 'Couverture', definition: 'Jours de ventes que couvre le stock.', unite: 'JOURS', sens: 'BAISSE', cellule: celluleSeule(stock.couvertureJours) },
+      {
+        libelle: 'Valeur du stock',
+        definition: 'Photographie de fin de mois, au prix d’achat, face au même mois N-1.',
+        unite: 'MONTANT',
+        sens: 'NEUTRE',
+        cellule: stock.valeur,
+      },
+      {
+        libelle: 'Rotation',
+        definition: 'Coût des ventes des 12 derniers mois / valeur du stock (fois par an).',
+        unite: 'RATIO',
+        sens: 'HAUSSE',
+        cellule: celluleSeule(stock.rotation),
+      },
+      {
+        libelle: 'Couverture',
+        definition: 'Jours de ventes que couvre le stock.',
+        unite: 'JOURS',
+        sens: 'BAISSE',
+        cellule: celluleSeule(stock.couvertureJours),
+      },
       {
         libelle: 'Stock dormant',
         definition: `Produits en stock sans vente depuis ${stock.seuilDormant} jours (${stock.nbDormants} produits).`,
@@ -45,7 +71,9 @@ export class SectionStockComponent {
     ];
   });
 
-  protected readonly libelles = computed(() => (this.stock.value()?.courbe ?? []).map(point => this.datePipe.transform(point.mois, 'MMM yyyy') ?? point.mois));
+  protected readonly libelles = computed(() =>
+    (this.stock.value()?.courbe ?? []).map(point => this.datePipe.transform(point.mois, 'MMM yyyy') ?? point.mois),
+  );
   protected readonly series = computed<SerieCourbe[]>(() => {
     const courbe = this.stock.value()?.courbe ?? [];
     return [

@@ -1,48 +1,35 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild, signal } from "@angular/core";
-import {CashRegisterService} from "../cash-register.service";
-import {RouterModule} from "@angular/router";
-import {ConfigurationService} from "../../../shared/configuration.service";
-import {CashRegister, CashRegisterStatut} from "../model/cash-register.model";
-import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from "@angular/forms";
-import {left} from "@popperjs/core";
-import {ErrorService} from "../../../shared/error.service";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  NgbConfirmDialogService
-} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {CommonModule} from "@angular/common";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { CashRegisterService } from '../cash-register.service';
+import { RouterModule } from '@angular/router';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { CashRegister, CashRegisterStatut } from '../model/cash-register.model';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { left } from '@popperjs/core';
+import { ErrorService } from '../../../shared/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { CommonModule } from '@angular/common';
 import { DeviseDirective } from 'app/shared/utils/devise';
-import {
-  BadgeComponent,
-  ButtonComponent,
-  DataTableComponent,
-  KeyFilterDirective
-} from "../../../shared/ui";
+import { BadgeComponent, ButtonComponent, DataTableComponent, KeyFilterDirective } from '../../../shared/ui';
 
 @Component({
-  selector: "app-user-cash-register",
-  imports: [DeviseDirective, 
+  selector: 'app-user-cash-register',
+  imports: [
+    DeviseDirective,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
     KeyFilterDirective,
     BadgeComponent,
     ButtonComponent,
-    DataTableComponent
+    DataTableComponent,
   ],
-  templateUrl: "./user-cash-register.html",
+  templateUrl: './user-cash-register.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./user-cash-register.scss"]
+  styleUrls: ['./user-cash-register.scss'],
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
-  protected cashFundAmountInput = viewChild<ElementRef>("cashFundAmountInput");
+  protected cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
   protected fb = inject(FormBuilder);
   protected overtureCaisseAuto = false;
   protected readonly isSaving = signal(false);
@@ -52,8 +39,8 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(1000000)],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   protected readonly left = left;
@@ -74,14 +61,14 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.configService.find("APP_CASH_FUND").subscribe(res => {
+    this.configService.find('APP_CASH_FUND').subscribe(res => {
       if (res.body) {
         const otherValue = res.body.otherValue;
         if (otherValue) {
           this.cashFundAmount.set(parseInt(otherValue));
         }
-        this.overtureCaisseAuto = res.body.value === "1";
-        this.editForm.get(["cashFundAmount"]).setValue(this.cashFundAmount());
+        this.overtureCaisseAuto = res.body.value === '1';
+        this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount());
       }
     });
     this.fetchCashRegisters();
@@ -94,27 +81,27 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   protected doTicketing(cashRegister: CashRegister): void {
-    this.entityService.doTicketing({cashRegisterId: cashRegister.id}).subscribe({
+    this.entityService.doTicketing({ cashRegisterId: cashRegister.id }).subscribe({
       next: res => {
         if (res.body) {
-          this.notificationService.success("Billetage effectué avec succès");
+          this.notificationService.success('Billetage effectué avec succès');
           this.fetchCashRegisters();
         }
       },
       error: () => {
-        this.notificationService.error("Impossible de faire le ticketing");
-      }
+        this.notificationService.error('Impossible de faire le ticketing');
+      },
     });
   }
 
   protected openCashRegister(): void {
     if (this.editForm.valid) {
       this.isSaving.set(true);
-      this.entityService.openCashRegister({cashFundAmount: this.editForm.get(["cashFundAmount"]).value}).subscribe({
+      this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount']).value }).subscribe({
         next: res => {
           this.isSaving.set(false);
           if (res.body) {
-            this.notificationService.success("Caisse ouverte avec succès");
+            this.notificationService.success('Caisse ouverte avec succès');
             this.openCaisse.set(false);
             this.fetchCashRegisters();
           }
@@ -122,7 +109,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
         error: err => {
           this.isSaving.set(false);
           this.notificationService.error(this.errorService.getErrorMessage(err));
-        }
+        },
       });
     }
   }
@@ -141,16 +128,16 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
       () => () => {
         this.entityService.closeCashRegister(cashRegister.id).subscribe({
           next: () => {
-            this.notificationService.success("Caisse fermée avec succès");
+            this.notificationService.success('Caisse fermée avec succès');
             this.fetchCashRegisters();
           },
           error: err => {
             this.notificationService.error(this.errorService.getErrorMessage(err));
-          }
+          },
         });
       },
-      "Fermeture de caisse",
-      "Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?"
+      'Fermeture de caisse',
+      'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?',
     );
   }
 
@@ -161,7 +148,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   private setCashFundControlFocus(): void {
     setTimeout(() => {
       this.cashFundAmountInput()?.nativeElement.focus();
-      this.editForm.get(["cashFundAmount"])?.setValue(this.cashFundAmount());
+      this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount());
       this.cashFundAmountInput()?.nativeElement.select();
     }, 100);
   }

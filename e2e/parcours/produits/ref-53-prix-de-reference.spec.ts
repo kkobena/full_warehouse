@@ -30,8 +30,7 @@ scenario('REF-53', async ({ etape, page }) => {
     // Attendre que plus aucune fenêtre ne soit ouverte : tant que la précédente se referme,
     // son voile intercepte les clics et le menu d'actions reste inatteignable.
     await expect(page.locator('.modal-content')).toHaveCount(0);
-    await page.locator('app-produit-list tbody tr').first()
-      .getByRole('button', { name: 'Actions' }).click();
+    await page.locator('app-produit-list tbody tr').first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Tarifs assurance' }).click();
     await expect(liste).toContainText(/Tiers payant/i);
   };
@@ -75,7 +74,13 @@ scenario('REF-53', async ({ etape, page }) => {
     // On la rouvre seulement si elle a disparu — c'est là qu'on vérifie le résultat, comme le
     // ferait l'utilisateur qui veut s'assurer de son geste.
     await expect(page.locator('.modal-content')).toHaveCount(1);
-    if (!(await liste.getByText(organisme).first().isVisible().catch(() => false))) {
+    if (
+      !(await liste
+        .getByText(organisme)
+        .first()
+        .isVisible()
+        .catch(() => false))
+    ) {
       await liste.getByRole('button', { name: 'Fermer' }).last().click();
       await ouvrirTarifs();
     }

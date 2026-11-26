@@ -61,7 +61,7 @@ class MobileTvaReportServiceTest {
             service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false);
 
             assertThat(parametresInterroges().getCategorieChiffreAffaires())
-                .containsExactlyInAnyOrder(CategorieChiffreAffaire.CA, CategorieChiffreAffaire.CA_DEPOT);
+                    .containsExactlyInAnyOrder(CategorieChiffreAffaire.CA, CategorieChiffreAffaire.CA_DEPOT);
         }
 
         @Test
@@ -108,16 +108,13 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("les journées d'un même taux se cumulent")
         void cumulParTaux() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    3_000_000,
-                    List.of(
-                        taxe(18, LocalDate.of(2026, 3, 1), 1_000_000, 180_000, 1_180_000),
-                        taxe(18, LocalDate.of(2026, 3, 2), 500_000, 90_000, 590_000),
-                        taxe(0, LocalDate.of(2026, 3, 1), 1_230_000, 0, 1_230_000)
-                    )
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            3_000_000,
+                            List.of(
+                                    taxe(18, LocalDate.of(2026, 3, 1), 1_000_000, 180_000, 1_180_000),
+                                    taxe(18, LocalDate.of(2026, 3, 2), 500_000, 90_000, 590_000),
+                                    taxe(0, LocalDate.of(2026, 3, 1), 1_230_000, 0, 1_230_000))));
 
             List<TvaRateBreakdownDTO> ventilation = rapport(false).tvaBreakdown();
 
@@ -132,22 +129,24 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("les taux sont présentés dans l'ordre croissant")
         void ordreCroissantDesTaux() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    1_000_000,
-                    List.of(taxe(18, null, 100, 18, 118), taxe(0, null, 100, 0, 100), taxe(9, null, 100, 9, 109))
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            1_000_000,
+                            List.of(
+                                    taxe(18, null, 100, 18, 118),
+                                    taxe(0, null, 100, 0, 100),
+                                    taxe(9, null, 100, 9, 109))));
 
-            assertThat(rapport(false).tvaBreakdown()).extracting(TvaRateBreakdownDTO::codeTva).containsExactly(0, 9, 18);
+            assertThat(rapport(false).tvaBreakdown())
+                    .extracting(TvaRateBreakdownDTO::codeTva)
+                    .containsExactly(0, 9, 18);
         }
 
         @Test
         @DisplayName("un taux absent est traité comme zéro plutôt que d'écarter la ligne")
         void tauxAbsent() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(1_000_000, List.of(taxe(null, null, 500_000, 0, 500_000)))
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(1_000_000, List.of(taxe(null, null, 500_000, 0, 500_000))));
 
             assertThat(rapport(false).tvaBreakdown()).singleElement().satisfies(ligne -> {
                 assertThat(ligne.codeTva()).isZero();
@@ -160,31 +159,31 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("le détail par date conserve une ligne par jour et par taux")
         void detailParDate() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    3_000_000,
-                    List.of(
-                        taxe(18, LocalDate.of(2026, 3, 2), 500_000, 90_000, 590_000),
-                        taxe(18, LocalDate.of(2026, 3, 1), 1_000_000, 180_000, 1_180_000)
-                    )
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            3_000_000,
+                            List.of(
+                                    taxe(18, LocalDate.of(2026, 3, 2), 500_000, 90_000, 590_000),
+                                    taxe(18, LocalDate.of(2026, 3, 1), 1_000_000, 180_000, 1_180_000))));
 
             List<TvaRateBreakdownDTO> ventilation = rapport(true).tvaBreakdown();
 
             assertThat(ventilation).hasSize(2);
-            assertThat(ventilation).extracting(TvaRateBreakdownDTO::date)
-                .containsExactly(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 2));
+            assertThat(ventilation)
+                    .extracting(TvaRateBreakdownDTO::date)
+                    .containsExactly(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 2));
         }
 
         @Test
         @DisplayName("sans détail par date, les lignes ne portent pas de date")
         void sansDateHorsDetail() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(1_000_000, List.of(taxe(18, LocalDate.of(2026, 3, 1), 100, 18, 118)))
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(1_000_000, List.of(taxe(18, LocalDate.of(2026, 3, 1), 100, 18, 118))));
 
-            assertThat(rapport(false).tvaBreakdown()).singleElement().extracting(TvaRateBreakdownDTO::date).isNull();
+            assertThat(rapport(false).tvaBreakdown())
+                    .singleElement()
+                    .extracting(TvaRateBreakdownDTO::date)
+                    .isNull();
         }
     }
 
@@ -197,12 +196,10 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("chaque taux occupe une part du total toutes taxes comprises")
         void partsDuTotal() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    1_000_000,
-                    List.of(taxe(18, null, 600_000, 108_000, 750_000), taxe(0, null, 250_000, 0, 250_000))
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            1_000_000,
+                            List.of(taxe(18, null, 600_000, 108_000, 750_000), taxe(0, null, 250_000, 0, 250_000))));
 
             List<TvaChartDataDTO> graphique = rapport(false).chartData();
 
@@ -213,11 +210,13 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("les parts sont arrondies au dixième")
         void arrondiAuDixieme() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(3_000, List.of(taxe(18, null, 1_000, 0, 1_000)))
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(3_000, List.of(taxe(18, null, 1_000, 0, 1_000))));
 
-            assertThat(rapport(false).chartData()).singleElement().extracting(TvaChartDataDTO::percent).isEqualTo(33.3);
+            assertThat(rapport(false).chartData())
+                    .singleElement()
+                    .extracting(TvaChartDataDTO::percent)
+                    .isEqualTo(33.3);
         }
 
         /** Un total nul ne se divise pas : la part vaut zéro plutôt qu'un infini que l'écran afficherait mal. */
@@ -226,35 +225,38 @@ class MobileTvaReportServiceTest {
         void totalNul() {
             when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(wrapper(0, List.of(taxe(18, null, 0, 0, 0))));
 
-            assertThat(rapport(false).chartData()).singleElement().extracting(TvaChartDataDTO::percent).isEqualTo(0.0);
+            assertThat(rapport(false).chartData())
+                    .singleElement()
+                    .extracting(TvaChartDataDTO::percent)
+                    .isEqualTo(0.0);
         }
 
         @Test
         @DisplayName("chaque taux reçoit sa propre couleur")
         void couleursDistinctes() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    1_000_000,
-                    List.of(taxe(0, null, 100, 0, 300_000), taxe(9, null, 100, 9, 300_000), taxe(18, null, 100, 18, 400_000))
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            1_000_000,
+                            List.of(
+                                    taxe(0, null, 100, 0, 300_000),
+                                    taxe(9, null, 100, 9, 300_000),
+                                    taxe(18, null, 100, 18, 400_000))));
 
-            assertThat(rapport(false).chartData()).extracting(TvaChartDataDTO::color).doesNotHaveDuplicates();
+            assertThat(rapport(false).chartData())
+                    .extracting(TvaChartDataDTO::color)
+                    .doesNotHaveDuplicates();
         }
 
         /** Avec le détail par date, le graphique regroupe tout de même par taux : il n'a que faire des jours. */
         @Test
         @DisplayName("le graphique regroupe par taux, même quand le détail est journalier")
         void graphiqueRegroupeParTaux() {
-            when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(
-                wrapper(
-                    1_000_000,
-                    List.of(
-                        taxe(18, LocalDate.of(2026, 3, 1), 100, 18, 600_000),
-                        taxe(18, LocalDate.of(2026, 3, 2), 100, 18, 400_000)
-                    )
-                )
-            );
+            when(taxeService.fetchTaxe(any(), anyBoolean()))
+                    .thenReturn(wrapper(
+                            1_000_000,
+                            List.of(
+                                    taxe(18, LocalDate.of(2026, 3, 1), 100, 18, 600_000),
+                                    taxe(18, LocalDate.of(2026, 3, 2), 100, 18, 400_000))));
 
             assertThat(rapport(true).chartData()).singleElement().satisfies(part -> {
                 assertThat(part.label()).isEqualTo("18%");
@@ -274,7 +276,9 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("la journée en cours se nomme « Aujourd'hui »")
         void aujourdHui() {
-            assertThat(service.getTvaReport(LocalDate.now(), LocalDate.now(), false).periodLabel()).isEqualTo("Aujourd'hui");
+            assertThat(service.getTvaReport(LocalDate.now(), LocalDate.now(), false)
+                            .periodLabel())
+                    .isEqualTo("Aujourd'hui");
         }
 
         @Test
@@ -296,8 +300,9 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("une période s'affiche par ses deux bornes")
         void periode() {
-            assertThat(service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false).periodLabel())
-                .isEqualTo("01/03/2026 - 31/03/2026");
+            assertThat(service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false)
+                            .periodLabel())
+                    .isEqualTo("01/03/2026 - 31/03/2026");
         }
     }
 
@@ -310,7 +315,8 @@ class MobileTvaReportServiceTest {
         @Test
         @DisplayName("une période sans taxe rend un état vide mais daté")
         void aucuneTaxe() {
-            MobileTvaReportDTO rapport = service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false);
+            MobileTvaReportDTO rapport =
+                    service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false);
 
             assertThat(rapport.montantTtc()).isZero();
             assertThat(rapport.tvaBreakdown()).isEmpty();
@@ -325,7 +331,8 @@ class MobileTvaReportServiceTest {
         void reponseAbsente() {
             when(taxeService.fetchTaxe(any(), anyBoolean())).thenReturn(null);
 
-            MobileTvaReportDTO rapport = service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false);
+            MobileTvaReportDTO rapport =
+                    service.getTvaReport(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31), false);
 
             assertThat(rapport.tvaBreakdown()).isEmpty();
             assertThat(rapport.montantTtc()).isZero();

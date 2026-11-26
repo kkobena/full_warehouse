@@ -25,7 +25,10 @@ public class DerogationAuthorizer {
     private final UserService userService;
     private final UtilisationCleSecuriteService cleSecuriteService;
 
-    public DerogationAuthorizer(NavAccessService navAccessService, UserService userService, UtilisationCleSecuriteService cleSecuriteService) {
+    public DerogationAuthorizer(
+            NavAccessService navAccessService,
+            UserService userService,
+            UtilisationCleSecuriteService cleSecuriteService) {
         this.navAccessService = navAccessService;
         this.userService = userService;
         this.cleSecuriteService = cleSecuriteService;
@@ -47,20 +50,17 @@ public class DerogationAuthorizer {
         }
         if (!StringUtils.hasText(cle)) {
             throw new ForbiddenOperationException(
-                capitaliser(operation) + " : la clé de sécurité d'un pharmacien est requise.",
-                errorKey + "CleRequise"
-            );
+                    capitaliser(operation) + " : la clé de sécurité d'un pharmacien est requise.",
+                    errorKey + "CleRequise");
         }
         return userService
-            .getUserByPwdOrSecurityKey(cle)
-            .filter(user ->
-                user
-                    .getAuthorities()
-                    .stream()
-                    .map(Authority::getName)
-                    .anyMatch(role -> AuthoritiesConstants.ADMIN.equals(role) || cleSecuriteService.hasPrivilege(droit, role))
-            )
-            .orElseThrow(() -> new ForbiddenOperationException("Cette clé n'autorise pas " + operation + ".", errorKey + "NonAutorisee"));
+                .getUserByPwdOrSecurityKey(cle)
+                .filter(user -> user.getAuthorities().stream()
+                        .map(Authority::getName)
+                        .anyMatch(role -> AuthoritiesConstants.ADMIN.equals(role)
+                                || cleSecuriteService.hasPrivilege(droit, role)))
+                .orElseThrow(() -> new ForbiddenOperationException(
+                        "Cette clé n'autorise pas " + operation + ".", errorKey + "NonAutorisee"));
     }
 
     private static String capitaliser(String texte) {

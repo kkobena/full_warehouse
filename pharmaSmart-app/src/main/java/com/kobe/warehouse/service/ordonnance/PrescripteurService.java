@@ -24,7 +24,10 @@ public class PrescripteurService {
     private final OrdonnanceRepository ordonnanceRepository;
     private final UserService userService;
 
-    public PrescripteurService(PrescripteurRepository prescripteurRepository, OrdonnanceRepository ordonnanceRepository, UserService userService) {
+    public PrescripteurService(
+            PrescripteurRepository prescripteurRepository,
+            OrdonnanceRepository ordonnanceRepository,
+            UserService userService) {
         this.prescripteurRepository = prescripteurRepository;
         this.ordonnanceRepository = ordonnanceRepository;
         this.userService = userService;
@@ -35,13 +38,14 @@ public class PrescripteurService {
     public List<PrescripteurDTO> rechercher(String q, int limite) {
         PageRequest page = PageRequest.of(0, Math.clamp(limite, 1, 50));
         List<Prescripteur> trouves = StringUtils.hasText(q)
-            ? prescripteurRepository.rechercher(q.trim(), page)
-            : prescripteurRepository.findByActifTrueOrderByCreatedAtDescIdDesc(page);
+                ? prescripteurRepository.rechercher(q.trim(), page)
+                : prescripteurRepository.findByActifTrueOrderByCreatedAtDescIdDesc(page);
         return trouves.stream().map(PrescripteurService::toDto).toList();
     }
 
     public PrescripteurDTO creer(PrescripteurDTO dto) {
-        if (StringUtils.hasText(dto.numeroOrdre()) && prescripteurRepository.existsByNumeroOrdre(dto.numeroOrdre().trim())) {
+        if (StringUtils.hasText(dto.numeroOrdre())
+                && prescripteurRepository.existsByNumeroOrdre(dto.numeroOrdre().trim())) {
             throw numeroOrdreExistant();
         }
         Prescripteur prescripteur = renseigner(new Prescripteur(), dto).setCreatedBy(userService.getUser());
@@ -50,7 +54,9 @@ public class PrescripteurService {
 
     public PrescripteurDTO modifier(Integer id, PrescripteurDTO dto) {
         Prescripteur prescripteur = charger(id);
-        if (StringUtils.hasText(dto.numeroOrdre()) && prescripteurRepository.existsByNumeroOrdreAndIdNot(dto.numeroOrdre().trim(), id)) {
+        if (StringUtils.hasText(dto.numeroOrdre())
+                && prescripteurRepository.existsByNumeroOrdreAndIdNot(
+                        dto.numeroOrdre().trim(), id)) {
             throw numeroOrdreExistant();
         }
         return toDto(prescripteurRepository.save(renseigner(prescripteur, dto)));
@@ -64,7 +70,8 @@ public class PrescripteurService {
     /** Les ordonnances de la fiche source passent sur la fiche conservée ; la source est désactivée, jamais supprimée. */
     public PrescripteurDTO fusionner(Integer sourceId, Integer cibleId) {
         if (sourceId.equals(cibleId)) {
-            throw new GenericError("Une fiche ne peut pas être fusionnée avec elle-même.", "prescripteurFusionIdentique");
+            throw new GenericError(
+                    "Une fiche ne peut pas être fusionnée avec elle-même.", "prescripteurFusionIdentique");
         }
         Prescripteur source = charger(sourceId);
         Prescripteur cible = charger(cibleId);
@@ -80,7 +87,9 @@ public class PrescripteurService {
     }
 
     private Prescripteur charger(Integer id) {
-        return prescripteurRepository.findById(id).orElseThrow(() -> new GenericError("Prescripteur introuvable", "prescripteurIntrouvable"));
+        return prescripteurRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Prescripteur introuvable", "prescripteurIntrouvable"));
     }
 
     private static GenericError numeroOrdreExistant() {
@@ -89,12 +98,12 @@ public class PrescripteurService {
 
     private static Prescripteur renseigner(Prescripteur prescripteur, PrescripteurDTO dto) {
         return prescripteur
-            .setNom(dto.nom().trim())
-            .setPrenom(propre(dto.prenom()))
-            .setSpecialite(propre(dto.specialite()))
-            .setNumeroOrdre(propre(dto.numeroOrdre()))
-            .setStructure(propre(dto.structure()))
-            .setTelephone(propre(dto.telephone()));
+                .setNom(dto.nom().trim())
+                .setPrenom(propre(dto.prenom()))
+                .setSpecialite(propre(dto.specialite()))
+                .setNumeroOrdre(propre(dto.numeroOrdre()))
+                .setStructure(propre(dto.structure()))
+                .setTelephone(propre(dto.telephone()));
     }
 
     private static String propre(String valeur) {
@@ -102,6 +111,14 @@ public class PrescripteurService {
     }
 
     private static PrescripteurDTO toDto(Prescripteur p) {
-        return new PrescripteurDTO(p.getId(), p.getNom(), p.getPrenom(), p.getSpecialite(), p.getNumeroOrdre(), p.getStructure(), p.getTelephone(), p.isActif());
+        return new PrescripteurDTO(
+                p.getId(),
+                p.getNom(),
+                p.getPrenom(),
+                p.getSpecialite(),
+                p.getNumeroOrdre(),
+                p.getStructure(),
+                p.getTelephone(),
+                p.isActif());
     }
 }

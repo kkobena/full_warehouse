@@ -1,29 +1,24 @@
-import {AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
-import {ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import TranslateDirective from '../../../shared/language/translate.directive';
-import {Customer, ICustomer} from '../../../shared/model/customer.model';
-import {IClientTiersPayant, ITiersPayant} from '../../../shared/model';
-import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
-import {CustomerService} from '../customer.service';
-import {HttpResponse} from '@angular/common/http';
-import {AssureFormStepService} from './assure-form-step.service';
-import {CommonService} from './common.service';
-import {ComplementaireStepComponent} from './complementaire-step.component';
-import {DateNaissDirective} from '../../../shared/date-naiss.directive';
-import {CommonModule} from '@angular/common';
-import {showCommonModal} from '../../sales/selling-home/sale-helper';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {FormTiersPayantComponent} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import {Subject} from 'rxjs';
-import {finalize, takeUntil} from 'rxjs/operators';
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
-import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
-import {
-  CardComponent,
-  KeyFilterDirective,
-  RadioComponent,
-  SelectSearchComponent
-} from '../../../shared/ui';
+import { Customer, ICustomer } from '../../../shared/model/customer.model';
+import { IClientTiersPayant, ITiersPayant } from '../../../shared/model';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { CustomerService } from '../customer.service';
+import { HttpResponse } from '@angular/common/http';
+import { AssureFormStepService } from './assure-form-step.service';
+import { CommonService } from './common.service';
+import { ComplementaireStepComponent } from './complementaire-step.component';
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
+import { CommonModule } from '@angular/common';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
+import { ISO_TO_NGB_DATE, NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { CardComponent, KeyFilterDirective, RadioComponent, SelectSearchComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -37,7 +32,7 @@ import {
     KeyFilterDirective,
     RadioComponent,
     SelectSearchComponent,
-    PharmaDatePickerComponent
+    PharmaDatePickerComponent,
   ],
   templateUrl: './assure-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,32 +125,37 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.customerService
-      .controlerAssure({tiersPayantId, num, firstName, lastName, excludeId: valeur.id ?? undefined})
+      .controlerAssure({ tiersPayantId, num, firstName, lastName, excludeId: valeur.id ?? undefined })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: controle => {
           this.homonymes.set(controle.homonymes ?? []);
-          this.refusNumero = controle.numeroDejaUtilise ? {tiersPayantId, num, titulaire: controle.titulaireDuNumero ?? ''} : null;
-          this.refusIdentite = controle.dossierExistant ? {firstName, lastName, num, titulaire: controle.titulaireDuDossier ?? ''} : null;
+          this.refusNumero = controle.numeroDejaUtilise ? { tiersPayantId, num, titulaire: controle.titulaireDuNumero ?? '' } : null;
+          this.refusIdentite = controle.dossierExistant ? { firstName, lastName, num, titulaire: controle.titulaireDuDossier ?? '' } : null;
           this.editForm.get('num')?.updateValueAndValidity();
         },
         // Le contrôle est une aide : son échec ne doit jamais empêcher la saisie (le serveur contrôle à l'enregistrement).
-        error: () => this.homonymes.set([])
+        error: () => this.homonymes.set([]),
       });
   }
 
-  private erreurNumeroUtilise(champ: any): {numeroUtilise?: string; dossierExistant?: string} | null {
+  private erreurNumeroUtilise(champ: any): { numeroUtilise?: string; dossierExistant?: string } | null {
     const num = (champ.value ?? '').toString().trim();
     const refus = this.refusNumero;
     const tiersPayantId = champ.parent?.get('tiersPayantId')?.value?.id;
-    const erreurs: {numeroUtilise?: string; dossierExistant?: string} = {};
+    const erreurs: { numeroUtilise?: string; dossierExistant?: string } = {};
     if (refus && refus.tiersPayantId === tiersPayantId && refus.num === num) {
       erreurs.numeroUtilise = refus.titulaire;
     }
     const identite = this.refusIdentite;
     const nom = (champ.parent?.get('firstName')?.value ?? '').toString().trim();
     const prenom = (champ.parent?.get('lastName')?.value ?? '').toString().trim();
-    if (identite && identite.num === num && identite.firstName.toLowerCase() === nom.toLowerCase() && identite.lastName.toLowerCase() === prenom.toLowerCase()) {
+    if (
+      identite &&
+      identite.num === num &&
+      identite.firstName.toLowerCase() === nom.toLowerCase() &&
+      identite.lastName.toLowerCase() === prenom.toLowerCase()
+    ) {
       erreurs.dossierExistant = identite.titulaire;
     }
     return Object.keys(erreurs).length > 0 ? erreurs : null;
@@ -178,13 +178,13 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       .pipe(
         finalize(() => this.chargementTiersPayants.set(false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
         this.tiersPayants.set(res.body.filter(tp => !alreadyAddedIds.includes(tp.id)));
         if (this.tiersPayants().length === 0) {
-          this.tiersPayants().push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
+          this.tiersPayants().push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
       });
   }
@@ -230,7 +230,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
     const current = this.tiersPayantAlreadyAdded();
     if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
-      this.tiersPayantAlreadyAdded.set([...current, {tiersPayantId: tiersPayant.id, tiersPayant}]);
+      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
     }
   }
 
@@ -268,7 +268,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants().push(resp);
-          this.editForm.patchValue({tiersPayantId: resp});
+          this.editForm.patchValue({ tiersPayantId: resp });
           this.addToAlreadyAdded(resp);
           this.focaliserNumero();
         }

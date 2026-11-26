@@ -5,7 +5,18 @@ import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { ButtonComponent, DataTableComponent, SkeletonComponent } from 'app/shared/ui';
 import { DashboardItem, PeriodPreset, VizType, WidgetComponent } from '../../models/dashboard.model';
-import { evolutionPct, formatCell, formatEvolution, formatKpiValue, formatSecondaryValue, isEmpty, kpiAlert, kpiDetailHtml, toSeries, toTable } from '../../models/widget-data';
+import {
+  evolutionPct,
+  formatCell,
+  formatEvolution,
+  formatKpiValue,
+  formatSecondaryValue,
+  isEmpty,
+  kpiAlert,
+  kpiDetailHtml,
+  toSeries,
+  toTable,
+} from '../../models/widget-data';
 import { previousPeriodLabel, resolvePeriod } from '../../models/period';
 import { buildChart } from '../../models/chart-config';
 import { findWidgetDefinition } from '../widget-registry';

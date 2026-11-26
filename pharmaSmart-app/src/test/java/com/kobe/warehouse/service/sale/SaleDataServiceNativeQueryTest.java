@@ -48,15 +48,32 @@ import org.springframework.data.jpa.domain.Specification;
 @ExtendWith(MockitoExtension.class)
 class SaleDataServiceNativeQueryTest {
 
-    @Mock private EntityManager entityManager;
-    @Mock private SaleInvoiceReportService invoiceService;
-    @Mock private SalesLineRepository lineRepository;
-    @Mock private ThirdPartySaleLineRepository thirdPartyLineRepository;
-    @Mock private ReceiptPrinterService printerService;
-    @Mock private SalesRepository salesRepository;
-    @Mock private StorageService storageService;
-    @Mock private Query countQuery;
-    @Mock private Query dataQuery;
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
+    private SaleInvoiceReportService invoiceService;
+
+    @Mock
+    private SalesLineRepository lineRepository;
+
+    @Mock
+    private ThirdPartySaleLineRepository thirdPartyLineRepository;
+
+    @Mock
+    private ReceiptPrinterService printerService;
+
+    @Mock
+    private SalesRepository salesRepository;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private Query countQuery;
+
+    @Mock
+    private Query dataQuery;
 
     private SaleDataService service;
     private AppUser user;
@@ -68,28 +85,41 @@ class SaleDataServiceNativeQueryTest {
         magasin.setId(12);
         user.setMagasin(magasin);
         when(storageService.getUser()).thenReturn(user);
-        service = new SaleDataService(entityManager, invoiceService, lineRepository,
-            thirdPartyLineRepository, printerService, salesRepository, storageService);
+        service = new SaleDataService(
+                entityManager,
+                invoiceService,
+                lineRepository,
+                thirdPartyLineRepository,
+                printerService,
+                salesRepository,
+                storageService);
     }
 
     @Test
     void listsAndMapsAllSaleKindsWithCompleteFilters() {
         when(entityManager.createNativeQuery(anyString())).thenReturn(countQuery, dataQuery);
         when(countQuery.getSingleResult()).thenReturn(5L);
-        when(dataQuery.getResultList()).thenReturn(List.of(
-            row("CashSale", 1L, "COMPTANT", 7, true),
-            row("ThirdPartySales", 2L, "ASSURANCE", 8, true),
-            row("VenteDepot", 3L, "CARNET", null, false)
-        ));
+        when(dataQuery.getResultList())
+                .thenReturn(List.of(
+                        row("CashSale", 1L, "COMPTANT", 7, true),
+                        row("ThirdPartySales", 2L, "ASSURANCE", 8, true),
+                        row("VenteDepot", 3L, "CARNET", null, false)));
         PageRequest pageable = PageRequest.of(1, 2);
 
         Page<SaleDTO> result = service.listVenteTerminees(
-            "para", LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 21),
-            "08:00", "18:30", true, 5,
-            Set.of(EntityConstant.TOUT, "ASSURANCE", "COMPTANT"),
-            EnumSet.of(SalesStatut.CLOSED), PaymentStatus.PAYE, true,
-            Set.of(CategorieChiffreAffaire.CA), pageable
-        );
+                "para",
+                LocalDate.of(2026, 8, 1),
+                LocalDate.of(2026, 8, 21),
+                "08:00",
+                "18:30",
+                true,
+                5,
+                Set.of(EntityConstant.TOUT, "ASSURANCE", "COMPTANT"),
+                EnumSet.of(SalesStatut.CLOSED),
+                PaymentStatus.PAYE,
+                true,
+                Set.of(CategorieChiffreAffaire.CA),
+                pageable);
 
         assertEquals(5, result.getTotalElements());
         assertInstanceOf(CashSaleDTO.class, result.getContent().get(0));
@@ -116,9 +146,19 @@ class SaleDataServiceNativeQueryTest {
         PageRequest pageable = PageRequest.of(0, 5);
 
         Page<SaleDTO> result = service.listVenteTerminees(
-            "V-", null, null, "00:00", "23:59", false, null,
-            Set.of(), Set.of(), PaymentStatus.ALL, null, Set.of(), pageable
-        );
+                "V-",
+                null,
+                null,
+                "00:00",
+                "23:59",
+                false,
+                null,
+                Set.of(),
+                Set.of(),
+                PaymentStatus.ALL,
+                null,
+                Set.of(),
+                pageable);
 
         assertTrue(result.isEmpty());
         verify(countQuery).setParameter("refSearch", "V-%");
@@ -132,9 +172,7 @@ class SaleDataServiceNativeQueryTest {
         when(countQuery.getSingleResult()).thenReturn(12_345L);
 
         long total = service.totalVenteTerminees(
-            null, null, null, null, null, false, null,
-            Set.of("COMPTANT"), Set.of(), null
-        );
+                null, null, null, null, null, false, null, Set.of("COMPTANT"), Set.of(), null);
 
         assertEquals(12_345L, total);
         verify(countQuery).setParameter("magasinId", 12L);
@@ -153,10 +191,7 @@ class SaleDataServiceNativeQueryTest {
         when(countQuery.getSingleResult()).thenReturn(0L);
         String hostile = "COMPTANT' OR '1'='1";
 
-        service.totalVenteTerminees(
-            null, null, null, null, null, false, null,
-            Set.of(hostile), Set.of(), null
-        );
+        service.totalVenteTerminees(null, null, null, null, null, false, null, Set.of(hostile), Set.of(), null);
 
         verify(entityManager).createNativeQuery(sql.capture());
         assertFalse(sql.getValue().contains(hostile), "la valeur ne doit pas atteindre le SQL");
@@ -172,9 +207,16 @@ class SaleDataServiceNativeQueryTest {
         when(countQuery.getSingleResult()).thenReturn(0L);
 
         service.totalVenteTerminees(
-            null, null, null, null, null, false, null,
-            null, Set.of(SalesStatut.CLOSED), Set.of(CategorieChiffreAffaire.CA)
-        );
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                null,
+                null,
+                Set.of(SalesStatut.CLOSED),
+                Set.of(CategorieChiffreAffaire.CA));
 
         verify(entityManager).createNativeQuery(sql.capture());
         assertFalse(sql.getValue().contains("'CLOSED'"));
@@ -196,12 +238,17 @@ class SaleDataServiceNativeQueryTest {
         when(customer.and(closed)).thenReturn(afterClosed);
         when(salesRepository.between(any(), any())).thenReturn(dates);
         when(afterClosed.and(dates)).thenReturn(finalCustomer);
-        when(salesRepository.findAll(org.mockito.ArgumentMatchers.eq(finalCustomer), any(org.springframework.data.domain.Pageable.class)))
-            .thenReturn(org.springframework.data.domain.Page.empty());
+        when(salesRepository.findAll(
+                        org.mockito.ArgumentMatchers.eq(finalCustomer),
+                        any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        assertTrue(
-            service.customerPurchases(7, LocalDate.now().minusDays(2), LocalDate.now(), org.springframework.data.domain.PageRequest.of(0, 20)).isEmpty()
-        );
+        assertTrue(service.customerPurchases(
+                        7,
+                        LocalDate.now().minusDays(2),
+                        LocalDate.now(),
+                        org.springframework.data.domain.PageRequest.of(0, 20))
+                .isEmpty());
 
         Specification<com.kobe.warehouse.domain.Sales> active = org.mockito.Mockito.mock(Specification.class);
         Specification<com.kobe.warehouse.domain.Sales> today = org.mockito.Mockito.mock(Specification.class);
@@ -227,18 +274,43 @@ class SaleDataServiceNativeQueryTest {
     private Object[] row(String dtype, long id, String nature, Integer customerId, boolean fullUsers) {
         LocalDate date = LocalDate.of(2026, 8, 21);
         LocalDateTime dateTime = LocalDateTime.of(2026, 8, 21, 10, 30);
-        return new Object[]{
-            dtype, id, Date.valueOf(date), "V-" + id,
-            100, 1_000, 900, 0,
-            "CLOSED", "PAYE", nature, "CONSEIL",
-            true, false, Timestamp.valueOf(dateTime), dateTime,
-            "comment", 100, null,
-            "BON", 300, 600, "User Full",
-            fullUsers ? 4 : null, fullUsers ? "Seller" : null, fullUsers ? "One" : null,
-            fullUsers ? 5 : null, fullUsers ? "Cashier" : null, fullUsers ? "Two" : null,
-            "POS-1", "POS-2", "Client", "Name", "0102", customerId,
+        return new Object[] {
+            dtype,
+            id,
+            Date.valueOf(date),
+            "V-" + id,
+            100,
+            1_000,
+            900,
+            0,
+            "CLOSED",
+            "PAYE",
+            nature,
+            "CONSEIL",
+            true,
+            false,
+            Timestamp.valueOf(dateTime),
+            dateTime,
+            "comment",
+            100,
+            null,
+            "BON",
+            300,
+            600,
+            "User Full",
+            fullUsers ? 4 : null,
+            fullUsers ? "Seller" : null,
+            fullUsers ? "One" : null,
+            fullUsers ? 5 : null,
+            fullUsers ? "Cashier" : null,
+            fullUsers ? "Two" : null,
+            "POS-1",
+            "POS-2",
+            "Client",
+            "Name",
+            "0102",
+            customerId,
             customerId == null ? null : 2
         };
     }
 }
-

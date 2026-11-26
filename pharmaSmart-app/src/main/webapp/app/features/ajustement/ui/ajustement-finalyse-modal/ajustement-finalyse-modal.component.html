@@ -8,7 +8,7 @@
 
 <div class="modal-body p-4">
   <p class="text-muted mb-3">
-    Ajoutez un commentaire obligatoire avant de valider.<br/>
+    Ajoutez un commentaire obligatoire avant de valider.<br />
     Cette action applique les modifications de stock et clôture l'ajustement.
   </p>
   <div class="mb-3">
@@ -27,18 +27,6 @@
 </div>
 
 <div class="modal-footer">
-  <app-button
-    label="Annuler"
-    icon="pi pi-times"
-    severity="secondary"
-    [outlined]="true"
-    (clicked)="cancel()"
-  />
-  <app-button
-    label="Valider et clôturer"
-    icon="pi pi-lock"
-    severity="success"
-    [disabled]="!commentaire.trim()"
-    (clicked)="confirm()"
-  />
+  <app-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" (clicked)="cancel()" />
+  <app-button label="Valider et clôturer" icon="pi pi-lock" severity="success" [disabled]="!commentaire.trim()" (clicked)="confirm()" />
 </div>

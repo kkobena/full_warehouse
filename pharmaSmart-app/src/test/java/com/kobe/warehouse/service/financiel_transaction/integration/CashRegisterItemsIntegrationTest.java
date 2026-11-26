@@ -9,11 +9,11 @@ import com.kobe.warehouse.domain.PaymentFournisseur;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.impl.CashRegisterServiceImpl;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import java.time.LocalDateTime;
@@ -42,12 +42,11 @@ class CashRegisterItemsIntegrationTest extends AbstractFinancialTransactionInteg
     @BeforeEach
     void cablerLeService() {
         service = new CashRegisterServiceImpl(
-            IntegrationPostgresDatabase.bean(CashRegisterRepository.class),
-            mock(AppConfigurationService.class),
-            mock(CashFundService.class),
-            mock(UserService.class),
-            mock(PorteeMagasinService.class)
-        );
+                IntegrationPostgresDatabase.bean(CashRegisterRepository.class),
+                mock(AppConfigurationService.class),
+                mock(CashFundService.class),
+                mock(UserService.class),
+                mock(PorteeMagasinService.class));
     }
 
     @Test
@@ -59,8 +58,8 @@ class CashRegisterItemsIntegrationTest extends AbstractFinancialTransactionInteg
         service.buildCashRegisterItems(caisse);
 
         assertThat(caisse.getCashRegisterItems())
-            .extracting(CashRegisterItem::getTypeFinancialTransaction, CashRegisterItem::getAmount)
-            .contains(org.assertj.core.api.Assertions.tuple(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L));
+                .extracting(CashRegisterItem::getTypeFinancialTransaction, CashRegisterItem::getAmount)
+                .contains(org.assertj.core.api.Assertions.tuple(TypeFinancialTransaction.REGLMENT_FOURNISSEUR, 5_000L));
     }
 
     /** Le mode de règlement du mouvement doit suivre, sinon la ligne ne s'impute sur rien. */
@@ -73,12 +72,12 @@ class CashRegisterItemsIntegrationTest extends AbstractFinancialTransactionInteg
         service.buildCashRegisterItems(caisse);
 
         assertThat(caisse.getCashRegisterItems())
-            .filteredOn(item -> item.getTypeFinancialTransaction() == TypeFinancialTransaction.REGLMENT_FOURNISSEUR)
-            .singleElement()
-            .satisfies(item -> {
-                assertThat(item.getPaymentMode().getCode()).isEqualTo("VIREMENT");
-                assertThat(item.getAmount()).isEqualTo(12_000L);
-            });
+                .filteredOn(item -> item.getTypeFinancialTransaction() == TypeFinancialTransaction.REGLMENT_FOURNISSEUR)
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.getPaymentMode().getCode()).isEqualTo("VIREMENT");
+                    assertThat(item.getAmount()).isEqualTo(12_000L);
+                });
     }
 
     @Test

@@ -8,8 +8,8 @@ import com.kobe.warehouse.service.dto.RetourBonBatchResultDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonFromLotRequest;
 import com.kobe.warehouse.service.dto.RetourBonFromLotsRequest;
-import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.dto.RetourBonGroupeDTO;
+import com.kobe.warehouse.service.dto.RetourBonLotResolutionDTO;
 import com.kobe.warehouse.service.dto.RetourCompletCommandeRequest;
 import java.time.LocalDate;
 import java.util.List;
@@ -39,7 +39,13 @@ public interface RetourBonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RetourBonDTO> findAll(RetourStatut statut, RetourStatut excludeStatut, LocalDate dtStart, LocalDate dtEnd, String search, Pageable pageable);
+    Page<RetourBonDTO> findAll(
+            RetourStatut statut,
+            RetourStatut excludeStatut,
+            LocalDate dtStart,
+            LocalDate dtEnd,
+            String search,
+            Pageable pageable);
 
     /**
      * Get retour bons by commande ID.

@@ -1,17 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  input,
-  OnInit,
-  signal
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {CommonModule, DatePipe} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {HttpHeaders} from "@angular/common/http";
-import {Router, RouterLink} from "@angular/router";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpHeaders } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
 import {
   NgbDateParserFormatter,
   NgbDateStruct,
@@ -20,15 +12,13 @@ import {
   NgbDropdownMenu,
   NgbDropdownToggle,
   NgbModal,
-  NgbTooltip
-} from "@ng-bootstrap/ng-bootstrap";
-import {finalize, Subject} from "rxjs";
-import {debounceTime} from "rxjs/operators";
+  NgbTooltip,
+} from '@ng-bootstrap/ng-bootstrap';
+import { finalize, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
-import {FrenchDateParserFormatter} from "../../../../config/french-date-parser-formatter";
-import {
-  PharmaDatePickerComponent
-} from "../../../../shared/date-picker/pharma-date-picker.component";
+import { FrenchDateParserFormatter } from '../../../../config/french-date-parser-formatter';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -37,43 +27,31 @@ import {
   MultiSelectComponent,
   SelectComponent,
   ToolbarComponent,
-} from "../../../../shared/ui";
-import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
-import {ISales, SalesStatut} from "../../../../shared/model";
-import {IUser} from "../../../../core/user/user.model";
-import {UserService} from "../../../../core/user/user.service";
-import {SalesApiService} from "../../data-access/services/sales-api.service";
-import {SaleToolbarService} from "../../data-access/services/sale-toolbar.service";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
-import {ErrorService} from "../../../../shared/error.service";
-import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
-import {NgxSpinnerComponent} from "ngx-spinner";
-import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
-import {
-  CustomerEditModalComponent
-} from "../../../../entities/sales/customer-edit-modal/customer-edit-modal.component";
-import {
-  SaleUpdateDateModalComponent
-} from "../../../../entities/sales/sale-update-date-modal/sale-update-date-modal.component";
-import {TIMES} from "../../../../shared/util/times";
-import {
-  NgbConfirmDialogService
-} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {
-  AnnulationVenteMessageComponent
-} from "../../ui/annulation-vente-message/annulation-vente-message.component";
-import {AbilityService} from "../../../../core/auth/ability.service";
-import {
-  RetourClientModalComponent
-} from "../../ui/retour-client-modal/retour-client-modal.component";
-import {
-  CloturerAvoirModalComponent
-} from "../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component";
-import {AvoirClientApiService} from "../../data-access/services/avoir-client-api.service";
+} from '../../../../shared/ui';
+import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { ISales, SalesStatut } from '../../../../shared/model';
+import { IUser } from '../../../../core/user/user.model';
+import { UserService } from '../../../../core/user/user.service';
+import { SalesApiService } from '../../data-access/services/sales-api.service';
+import { SaleToolbarService } from '../../data-access/services/sale-toolbar.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
+import { NgxSpinnerComponent } from 'ngx-spinner';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { CustomerEditModalComponent } from '../../../../entities/sales/customer-edit-modal/customer-edit-modal.component';
+import { SaleUpdateDateModalComponent } from '../../../../entities/sales/sale-update-date-modal/sale-update-date-modal.component';
+import { TIMES } from '../../../../shared/util/times';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { AnnulationVenteMessageComponent } from '../../ui/annulation-vente-message/annulation-vente-message.component';
+import { AbilityService } from '../../../../core/auth/ability.service';
+import { RetourClientModalComponent } from '../../ui/retour-client-modal/retour-client-modal.component';
+import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component';
+import { AvoirClientApiService } from '../../data-access/services/avoir-client-api.service';
 
-import {DeviseDirective} from 'app/shared/utils/devise';
+import { DeviseDirective } from 'app/shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
 
 interface SaleMenuEntry {
@@ -85,12 +63,14 @@ interface SaleMenuEntry {
 }
 
 @Component({
-  selector: "app-sales-journal",
-  templateUrl: "./sales-journal.component.html",
-  styleUrl: "./sales-journal.component.scss",
-  providers: [DatePipe, {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter}],
+  selector: 'app-sales-journal',
+  templateUrl: './sales-journal.component.html',
+  styleUrl: './sales-journal.component.scss',
+  providers: [DatePipe, { provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardComponent, DeviseDirective,
+  imports: [
+    CardComponent,
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -107,7 +87,7 @@ interface SaleMenuEntry {
     NgbDropdownToggle,
     NgbDropdownMenu,
     NgbDropdownItem,
-  ]
+  ],
 })
 export class SalesJournalComponent implements OnInit {
   /**
@@ -130,19 +110,19 @@ export class SalesJournalComponent implements OnInit {
   protected useSimpleSale = false;
   // ── Filtres ───────────────────────────────────────────
   protected readonly typeVentes = [
-    {label: "Comptant", value: "COMPTANT"},
-    {label: "Assurance", value: "ASSURANCE"},
-    {label: "Carnet", value: "CARNET"}
+    { label: 'Comptant', value: 'COMPTANT' },
+    { label: 'Assurance', value: 'ASSURANCE' },
+    { label: 'Carnet', value: 'CARNET' },
   ];
   protected readonly typeVenteSelected = signal<string[]>([]);
-  protected readonly search = signal("");
+  protected readonly search = signal('');
   protected readonly global = signal(true);
   protected readonly selectedUserId = signal<number | null>(null);
   protected selectedCassierId: number | null = null;
   protected readonly fromDate = signal<NgbDateStruct>(this.todayNgb());
   protected readonly toDate = signal<NgbDateStruct>(this.todayNgb());
-  protected readonly fromHour = signal("01:00");
-  protected readonly toHour = signal("23:59");
+  protected readonly fromHour = signal('01:00');
+  protected readonly toHour = signal('23:59');
   protected hours = TIMES;
   // ── Permissions ───────────────────────────────────────
   protected readonly SalesStatut = SalesStatut;
@@ -159,11 +139,11 @@ export class SalesJournalComponent implements OnInit {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly ability = inject(AbilityService);
   // ── Abilities ─────────────────────────────────────────
-  protected readonly canCancelVente = this.ability.canSignal("execute", "ventes.journal.cancel");
-  protected readonly canEditVente = this.ability.canSignal("execute", "pr-modifier-vente");
-  protected readonly canRetourClient = this.ability.canSignal("execute", "ventes.retours-client.create");
-  protected readonly canCloturerAvoir = this.ability.canSignal("execute", "ventes.avoirs.cloturer");
-  protected readonly canCreateVente = this.ability.canSignal("execute", "nouvelle-vente");
+  protected readonly canCancelVente = this.ability.canSignal('execute', 'ventes.journal.cancel');
+  protected readonly canEditVente = this.ability.canSignal('execute', 'pr-modifier-vente');
+  protected readonly canRetourClient = this.ability.canSignal('execute', 'ventes.retours-client.create');
+  protected readonly canCloturerAvoir = this.ability.canSignal('execute', 'ventes.avoirs.cloturer');
+  protected readonly canCreateVente = this.ability.canSignal('execute', 'nouvelle-vente');
   private readonly blobDownload = inject(BlobDownloadService);
   private readonly avoirApi = inject(AvoirClientApiService);
   private readonly searchSubject = new Subject<void>();
@@ -181,13 +161,13 @@ export class SalesJournalComponent implements OnInit {
       showCommonModal(
         this.modalService,
         SaleUpdateDateModalComponent,
-        {sale},
+        { sale },
         (updatedSale: ISales) => {
           if (updatedSale) {
             this.loadPage();
           }
         },
-        "45%"
+        '45%',
       );
     }
   }
@@ -195,71 +175,71 @@ export class SalesJournalComponent implements OnInit {
   // ── Menu contextuel ───────────────────────────────────
   protected buildMenuItems(sale: ISales): SaleMenuEntry[] {
     const canceled = sale.canceled || sale.statut === SalesStatut.CANCELED;
-    const isAssuranceOrCarnet = sale.natureVente === "ASSURANCE" || sale.natureVente === "CARNET";
+    const isAssuranceOrCarnet = sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET';
     const items: SaleMenuEntry[] = [];
 
     if (!canceled) {
       items.push({
-        label: "Imprimer ticket",
-        icon: "pi pi-print",
-        command: () => this.reprintReceipt(sale)
+        label: 'Imprimer ticket',
+        icon: 'pi pi-print',
+        command: () => this.reprintReceipt(sale),
       });
       if (sale.customer) {
         items.push({
-          label: "Imprimer facture",
-          icon: "pi pi-receipt",
-          command: () => this.printInvoice(sale)
+          label: 'Imprimer facture',
+          icon: 'pi pi-receipt',
+          command: () => this.printInvoice(sale),
         });
       }
       if (this.canRetourClient() || this.canCloturerAvoir()) {
-        items.push({separator: true});
+        items.push({ separator: true });
       }
       if (this.canRetourClient()) {
         items.push({
-          label: "Retour client",
-          icon: "pi pi-undo",
-          command: () => this.openRetourFromSale(sale)
+          label: 'Retour client',
+          icon: 'pi pi-undo',
+          command: () => this.openRetourFromSale(sale),
         });
       }
       if (this.canCloturerAvoir()) {
         items.push({
-          label: "Clôturer avoir",
-          icon: "pi pi-ticket",
-          command: () => this.openAvoirsForSale(sale)
+          label: 'Clôturer avoir',
+          icon: 'pi pi-ticket',
+          command: () => this.openAvoirsForSale(sale),
         });
       }
     }
 
     if (this.canEditVente() && !canceled) {
-      items.push({separator: true});
+      items.push({ separator: true });
       if (isAssuranceOrCarnet) {
         items.push({
-          label: "Éditer la vente",
-          icon: "pi pi-file-edit",
-          command: () => this.confirmEdit(sale)
+          label: 'Éditer la vente',
+          icon: 'pi pi-file-edit',
+          command: () => this.confirmEdit(sale),
         });
       }
       if (isAssuranceOrCarnet) {
         items.push({
-          label: "Modifier le client",
-          icon: "pi pi-user-edit",
-          command: () => this.onEditCustomer(sale)
+          label: 'Modifier le client',
+          icon: 'pi pi-user-edit',
+          command: () => this.onEditCustomer(sale),
         });
       }
       items.push({
-        label: "Modifier la date",
-        icon: "pi pi-calendar-plus",
-        command: () => this.editSaleUpdatedDate(sale)
+        label: 'Modifier la date',
+        icon: 'pi pi-calendar-plus',
+        command: () => this.editSaleUpdatedDate(sale),
       });
     }
 
     if (this.canCancelVente() && !canceled) {
-      items.push({separator: true});
+      items.push({ separator: true });
       items.push({
-        label: "Annuler la vente",
-        icon: "pi pi-trash",
+        label: 'Annuler la vente',
+        icon: 'pi pi-trash',
         danger: true,
-        command: () => this.confirmCancel(sale)
+        command: () => this.confirmCancel(sale),
       });
     }
 
@@ -269,34 +249,35 @@ export class SalesJournalComponent implements OnInit {
   protected openRetourFromSale(sale: ISales): void {
     const ref = this.modalService.open(RetourClientModalComponent, {
       centered: true,
-      size: "xl",
-      backdrop: "static"
+      size: 'xl',
+      backdrop: 'static',
     });
     ref.componentInstance.sale = sale;
   }
 
   protected openAvoirsForSale(sale: ISales): void {
-    this.avoirApi.queryDocuments({
-      search: sale.numberTransaction,
-      statut: "OUVERT",
-      size: 1,
-      page: 0
-    })
+    this.avoirApi
+      .queryDocuments({
+        search: sale.numberTransaction,
+        statut: 'OUVERT',
+        size: 1,
+        page: 0,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           const docs = res.body ?? [];
           if (docs.length === 0) {
-            this.notificationService.warning("Aucun avoir ouvert pour cette vente", "Avoirs client");
+            this.notificationService.warning('Aucun avoir ouvert pour cette vente', 'Avoirs client');
             return;
           }
           const modalRef = this.modalService.open(CloturerAvoirModalComponent, {
             centered: true,
-            size: "lg",
-            backdrop: "static"
+            size: 'lg',
+            backdrop: 'static',
           });
           modalRef.componentInstance.document = docs[0];
-        }
+        },
       });
   }
 
@@ -305,7 +286,7 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected openNewSalesHome(): void {
-    this.router.navigate(["/sales-home"]);
+    this.router.navigate(['/sales-home']);
   }
 
   protected loadPage(page?: number): void {
@@ -314,8 +295,7 @@ export class SalesJournalComponent implements OnInit {
     this.saveParams();
   }
 
-  protected suggerer(sales: ISales): void {
-  }
+  protected suggerer(sales: ISales): void {}
 
   protected lazyLoading(event: AppTableLazyLoadEvent): void {
     if (event.first != null && event.rows != null) {
@@ -328,10 +308,13 @@ export class SalesJournalComponent implements OnInit {
   protected onRowToggle(sale: ISales, table: DataTableComponent<ISales>): void {
     table.toggleRow(sale);
     if (sale.saleId && !(sale as ISales & { _loaded?: boolean })._loaded) {
-      this.api.findSale(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(detail => {
-        const chargee = {...sale, ...detail, _loaded: true};
-        this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
-      });
+      this.api
+        .findSale(sale.saleId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(detail => {
+          const chargee = { ...sale, ...detail, _loaded: true };
+          this.sales.update(lignes => lignes.map(l => (l === sale ? chargee : l)));
+        });
     }
   }
 
@@ -340,24 +323,23 @@ export class SalesJournalComponent implements OnInit {
   }
 
   protected confirmCancel(sale: ISales): void {
-    this.confirmDialog.onConfirm(
-      () => this.cancelSale(sale),
-      "Annulation de vente",
-      "Voulez-vous vraiment annuler cette vente ?"
-    );
+    this.confirmDialog.onConfirm(() => this.cancelSale(sale), 'Annulation de vente', 'Voulez-vous vraiment annuler cette vente ?');
   }
 
   protected printInvoice(sale: ISales): void {
     if (!sale.saleId) {
       return;
     }
-    this.api.printInvoice(sale.saleId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(blob => {
-      if (this.tauriPrinter.isRunningInTauri()) {
-        handleBlobForTauri(blob, `facture-${sale.numberTransaction}`);
-      } else {
-        window.open(URL.createObjectURL(blob));
-      }
-    });
+    this.api
+      .printInvoice(sale.saleId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(blob => {
+        if (this.tauriPrinter.isRunningInTauri()) {
+          handleBlobForTauri(blob, `facture-${sale.numberTransaction}`);
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
+      });
   }
 
   protected reprintReceipt(sale: ISales): void {
@@ -365,18 +347,21 @@ export class SalesJournalComponent implements OnInit {
       return;
     }
     if (this.tauriPrinter.isRunningInTauri()) {
-      this.api.getEscPosReceiptForTauri(sale.saleId, true).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: async escpos => {
-          try {
-            await this.tauriPrinter.printEscPosFromBuffer(escpos);
-          } catch { /* ignore */
-          }
-        }
-      });
+      this.api
+        .getEscPosReceiptForTauri(sale.saleId, true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: async escpos => {
+            try {
+              await this.tauriPrinter.printEscPosFromBuffer(escpos);
+            } catch {
+              /* ignore */
+            }
+          },
+        });
     } else {
-      const reprint$ = sale.categorie === "VNO"
-        ? this.api.reprintReceiptComptant(sale.saleId)
-        : this.api.reprintReceiptAssurance(sale.saleId);
+      const reprint$ =
+        sale.categorie === 'VNO' ? this.api.reprintReceiptComptant(sale.saleId) : this.api.reprintReceiptAssurance(sale.saleId);
       reprint$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
@@ -384,8 +369,8 @@ export class SalesJournalComponent implements OnInit {
   protected confirmEdit(sale: ISales): void {
     this.confirmDialog.onConfirm(
       () => this.editSale(sale),
-      "Modification de vente",
-      "La vente sera annulée puis recréée. Voulez-vous continuer ?"
+      'Modification de vente',
+      'La vente sera annulée puis recréée. Voulez-vous continuer ?',
     );
   }
 
@@ -394,12 +379,12 @@ export class SalesJournalComponent implements OnInit {
       this.modalService,
       CustomerEditModalComponent,
       {
-        sale: currSale
+        sale: currSale,
       },
       () => {
         this.loadPage();
       },
-      "xl"
+      'xl',
     );
   }
 
@@ -415,13 +400,13 @@ export class SalesJournalComponent implements OnInit {
         toHour: this.toHour(),
         global: this.global(),
         userId: this.selectedUserId(),
-        caissierUserId: this.selectedCassierId
+        caissierUserId: this.selectedCassierId,
       }),
       fileName,
-      "excel",
+      'excel',
       () => this.exportLoading.set(true),
       () => this.exportLoading.set(false),
-      () => this.notificationService.error("Erreur lors de l'export", "Export journal")
+      () => this.notificationService.error("Erreur lors de l'export", 'Export journal'),
     );
   }
 
@@ -430,20 +415,23 @@ export class SalesJournalComponent implements OnInit {
   private restoreParams(): void {
     const p = this.toolbarService.params();
     this.typeVenteSelected.set(p.typeVente ?? []);
-    this.search.set(p.search || "");
+    this.search.set(p.search || '');
     this.global.set(p.global ?? true);
     this.selectedUserId.set(p.selectedUserId);
     this.selectedCassierId = p.selectedCassierId;
     this.fromDate.set(p.fromDate || this.todayNgb());
     this.toDate.set(p.toDate || this.todayNgb());
-    this.fromHour.set(p.fromHour || "01:00");
-    this.toHour.set(p.toHour || "23:59");
+    this.fromHour.set(p.fromHour || '01:00');
+    this.toHour.set(p.toHour || '23:59');
   }
 
   private loadAllUsers(): void {
-    this.userService.query().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
-      this.users.set(res.body || []);
-    });
+    this.userService
+      .query()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        this.users.set(res.body || []);
+      });
   }
 
   private buildParams(): any {
@@ -455,7 +443,7 @@ export class SalesJournalComponent implements OnInit {
       fromHour: this.fromHour(),
       toHour: this.toHour(),
       global: this.global(),
-      userId: this.selectedUserId()
+      userId: this.selectedUserId(),
     };
   }
 
@@ -463,27 +451,26 @@ export class SalesJournalComponent implements OnInit {
     this.loading.set(true);
     const params = this.buildParams();
     this.api
-      .querySales({page, size, ...params})
+      .querySales({ page, size, ...params })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           this.loading.set(false);
           this.onSuccess(res.body, res.headers, page);
         },
-        error: () => this.loading.set(false)
+        error: () => this.loading.set(false),
       });
     this.api
       .querySalesTotalAmount(params)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: total => this.totalSalesAmount.set(total),
-        error() {
-        }
+        error() {},
       });
   }
 
   private onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.page.set(page);
     this.sales.set(data || []);
     this.loading.set(false);
@@ -499,7 +486,7 @@ export class SalesJournalComponent implements OnInit {
       fromDate: this.fromDate(),
       toDate: this.toDate(),
       fromHour: this.fromHour(),
-      toHour: this.toHour()
+      toHour: this.toHour(),
     });
   }
 
@@ -511,14 +498,13 @@ export class SalesJournalComponent implements OnInit {
       this.modalService,
       AnnulationVenteMessageComponent,
       {
-        sale
+        sale,
       },
       () => {
         this.loadPage();
       },
-      "xl"
+      'xl',
     );
-
   }
 
   private editSale(sale: ISales): void {
@@ -527,32 +513,32 @@ export class SalesJournalComponent implements OnInit {
       .copyToEdit(sale.saleId!)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false))
+        finalize(() => this.loading.set(false)),
       )
       .subscribe({
         next: res => {
           const saleId = res.body;
-          this.router.navigate(["/sales-home"], {state: {saleInfo: {saleId, isEdit: true}}});
+          this.router.navigate(['/sales-home'], { state: { saleInfo: { saleId, isEdit: true } } });
         },
         error: err => {
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Modification de vente");
-        }
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Modification de vente');
+        },
       });
   }
 
   private todayNgb(): NgbDateStruct {
     const d = new Date();
-    return {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
   private ngbDateToIso(date: NgbDateStruct | null): string | null {
     if (!date) {
       return null;
     }
-    return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+    return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
   }
 
   private compactNgbDate(date: NgbDateStruct): string {
-    return `${date.year}${String(date.month).padStart(2, "0")}${String(date.day).padStart(2, "0")}`;
+    return `${date.year}${String(date.month).padStart(2, '0')}${String(date.day).padStart(2, '0')}`;
   }
 }

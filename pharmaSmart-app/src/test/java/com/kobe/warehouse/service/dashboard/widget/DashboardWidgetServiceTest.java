@@ -30,7 +30,8 @@ class DashboardWidgetServiceTest {
 
     @BeforeEach
     void connecter() {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("caissier", null, List.of()));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken("caissier", null, List.of()));
     }
 
     @AfterEach
@@ -47,17 +48,23 @@ class DashboardWidgetServiceTest {
 
         service.load("ca", LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 28), 1, Map.of("login", "admin"));
 
-        verify(provider).load(new WidgetContext(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 28), 1, "caissier"), Map.of("login", "admin"));
+        verify(provider)
+                .load(
+                        new WidgetContext(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 28), 1, "caissier"),
+                        Map.of("login", "admin"));
     }
 
     @Test
     @DisplayName("un refus de droit empêche l'appel au fournisseur")
     void refusAvantChargement() {
         WidgetDataProvider provider = provider("marge");
-        doThrow(new ForbiddenOperationException("refus", WidgetAuthorizationService.ERROR_NON_AUTORISE)).when(authorization).checkCanLoad("marge");
+        doThrow(new ForbiddenOperationException("refus", WidgetAuthorizationService.ERROR_NON_AUTORISE))
+                .when(authorization)
+                .checkCanLoad("marge");
         DashboardWidgetService service = new DashboardWidgetService(providers(provider), authorization);
 
-        assertThatThrownBy(() -> service.load("marge", null, null, null, Map.of())).isInstanceOf(ForbiddenOperationException.class);
+        assertThatThrownBy(() -> service.load("marge", null, null, null, Map.of()))
+                .isInstanceOf(ForbiddenOperationException.class);
         verify(provider, never()).load(any(), any());
     }
 
@@ -66,15 +73,16 @@ class DashboardWidgetServiceTest {
     void cleInconnue() {
         DashboardWidgetService service = new DashboardWidgetService(providers(), authorization);
         assertThatThrownBy(() -> service.load("inexistant", null, null, null, Map.of()))
-            .isInstanceOf(GenericError.class)
-            .extracting("errorKey")
-            .isEqualTo("widgetInconnu");
+                .isInstanceOf(GenericError.class)
+                .extracting("errorKey")
+                .isEqualTo("widgetInconnu");
     }
 
     @Test
     @DisplayName("le catalogue garde les widgets de mise en page, qui n'ont pas de fournisseur")
     void catalogue() {
-        when(authorization.findAllowedForCurrentUser()).thenReturn(List.of(new AllowedWidgetDTO("ca", true), new AllowedWidgetDTO("note", true)));
+        when(authorization.findAllowedForCurrentUser())
+                .thenReturn(List.of(new AllowedWidgetDTO("ca", true), new AllowedWidgetDTO("note", true)));
         DashboardWidgetService service = new DashboardWidgetService(providers(provider("ca")), authorization);
 
         assertThat(service.findAllowed()).extracting(AllowedWidgetDTO::key).containsExactly("ca", "note");
@@ -83,9 +91,8 @@ class DashboardWidgetServiceTest {
     @Test
     @DisplayName("deux fournisseurs sur la même clé font échouer le démarrage")
     void doublon() {
-        assertThatThrownBy(() -> new DashboardWidgetService(providers(provider("ca"), provider("ca")), authorization)).isInstanceOf(
-            IllegalStateException.class
-        );
+        assertThatThrownBy(() -> new DashboardWidgetService(providers(provider("ca"), provider("ca")), authorization))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     private static WidgetDataProvider provider(String key) {

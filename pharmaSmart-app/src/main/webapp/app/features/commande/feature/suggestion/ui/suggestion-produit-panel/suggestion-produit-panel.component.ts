@@ -1,18 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  input,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
-import {CommonModule, DecimalPipe} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, CardComponent } from "app/shared/ui";
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, output, signal, viewChild } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, CardComponent } from 'app/shared/ui';
 import {
   AllCommunityModule,
   CellClickedEvent,
@@ -26,21 +16,16 @@ import {
   SizeColumnsToFitGridStrategy,
   themeAlpine,
 } from 'ag-grid-community';
-import {AgGridAngular} from 'ag-grid-angular';
-import {IClientsEnAttente} from 'app/shared/model/produit-du.model';
-import {SuggestionProduitActionsComponent} from './suggestion-produit-actions.component';
-import {
-  FournisseurSuggestionSummary,
-  SuggestionLigneEnrichie
-} from '../../data-access/suggestion-enrichie.model';
-import {
-  CommandeProductSearchComponent
-} from '../../../../ui/commande-product-search/commande-product-search.component';
-import {ProduitSearch} from 'app/shared/model';
+import { AgGridAngular } from 'ag-grid-angular';
+import { IClientsEnAttente } from 'app/shared/model/produit-du.model';
+import { SuggestionProduitActionsComponent } from './suggestion-produit-actions.component';
+import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from '../../data-access/suggestion-enrichie.model';
+import { CommandeProductSearchComponent } from '../../../../ui/commande-product-search/commande-product-search.component';
+import { ProduitSearch } from 'app/shared/model';
 
-import {formatNumber} from 'app/shared/utils/format-utils';
-import {DeviseDirective, DevisePipe} from 'app/shared/utils/devise';
-import {AG_GRID_LOCALE_FR} from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
+import { formatNumber } from 'app/shared/utils/format-utils';
+import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
+import { AG_GRID_LOCALE_FR } from '../../../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -49,7 +34,8 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   templateUrl: './suggestion-produit-panel.component.html',
   styleUrls: ['./suggestion-produit-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -57,13 +43,24 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     AgGridAngular,
     DecimalPipe,
     CommandeProductSearchComponent,
-    DevisePipe]
+    DevisePipe,
+  ],
 })
 export class SuggestionProduitPanelComponent {
   /** Libellés des 12 mois en français, indexés sur `Date.getMonth()` (0 = JANVIER). */
   private static readonly MOIS_LABELS = [
-    'JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN',
-    'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE',
+    'JANVIER',
+    'FEVRIER',
+    'MARS',
+    'AVRIL',
+    'MAI',
+    'JUIN',
+    'JUILLET',
+    'AOUT',
+    'SEPTEMBRE',
+    'OCTOBRE',
+    'NOVEMBRE',
+    'DECEMBRE',
   ];
   // ─── Inputs ─────────────────────────────────────────────────────────────────
   fournisseur = input<FournisseurSuggestionSummary | null>(null);
@@ -115,9 +112,7 @@ export class SuggestionProduitPanelComponent {
   readonly produitEnCours = signal<ProduitSearch | null>(null);
   // ─── Computed ────────────────────────────────────────────────────────────────
   readonly lignesSelectionnees = computed(() => this.selectedLignes());
-  readonly montantSelection = computed(() =>
-    this.selectedLignes().reduce((s, l) => s + l.quantite * l.prixAchat, 0),
-  );
+  readonly montantSelection = computed(() => this.selectedLignes().reduce((s, l) => s + l.quantite * l.prixAchat, 0));
   // `rows` vaut 0 par défaut : sans la garde, la division donnerait Infinity.
   readonly totalPages = computed(() => {
     const rows = this.rows();
@@ -131,10 +126,10 @@ export class SuggestionProduitPanelComponent {
   protected readonly localeFr = AG_GRID_LOCALE_FR;
   // ─── AG Grid ─────────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
-  protected readonly autoSizeStrategy: SizeColumnsToFitGridStrategy = {type: 'fitGridWidth'};
+  protected readonly autoSizeStrategy: SizeColumnsToFitGridStrategy = { type: 'fitGridWidth' };
   protected readonly gridContext: {
-    componentParent: SuggestionProduitPanelComponent
-  } = {componentParent: this};
+    componentParent: SuggestionProduitPanelComponent;
+  } = { componentParent: this };
   protected readonly quantiteSaisie = signal(1);
   // ─── ViewChild refs ──────────────────────────────────────────────────────────
   private readonly searchComp = viewChild<CommandeProductSearchComponent>('produitSearch');
@@ -149,7 +144,7 @@ export class SuggestionProduitPanelComponent {
       headerName: 'CIP',
       width: 110,
       sortable: true,
-      cellStyle: {fontFamily: 'monospace', fontSize: '12px'},
+      cellStyle: { fontFamily: 'monospace', fontSize: '12px' },
     },
     {
       field: 'libelle',
@@ -181,11 +176,7 @@ export class SuggestionProduitPanelComponent {
       sortable: true,
       type: 'numericColumn',
       cellStyle: (params: any) =>
-        params.value === 0
-          ? {color: '#dc3545', fontWeight: 700}
-          : params.value <= 2
-            ? {color: '#fd7e14', fontWeight: 600}
-            : null,
+        params.value === 0 ? { color: '#dc3545', fontWeight: 700 } : params.value <= 2 ? { color: '#fd7e14', fontWeight: 600 } : null,
     },
     {
       field: 'quantite',
@@ -207,17 +198,17 @@ export class SuggestionProduitPanelComponent {
         const qteMin = ligne.qteMinimaleCommande ?? 0;
 
         // Avertissement : qté non multiple du colisage
-        const colisWarn = colis > 1 && qty % colis !== 0
-          ? `<span class="ag-colis-warn" title="⚠ Non multiple du colisage (colis = ${colis})">⚠</span>`
-          : '';
+        const colisWarn =
+          colis > 1 && qty % colis !== 0
+            ? `<span class="ag-colis-warn" title="⚠ Non multiple du colisage (colis = ${colis})">⚠</span>`
+            : '';
         // Avertissement : qté sous le minimum fournisseur
-        const minWarn = qteMin > 0 && qty < qteMin
-          ? `<span class="ag-min-warn" title="⚠ Qté sous le minimum fournisseur (min = ${qteMin})">🔻</span>`
-          : '';
+        const minWarn =
+          qteMin > 0 && qty < qteMin
+            ? `<span class="ag-min-warn" title="⚠ Qté sous le minimum fournisseur (min = ${qteMin})">🔻</span>`
+            : '';
         // Badge colisage si contrainte configurée
-        const colisBadge = colis > 1
-          ? `<span class="ag-colis-badge" title="Colis de ${colis} unités">×${colis}</span>`
-          : '';
+        const colisBadge = colis > 1 ? `<span class="ag-colis-badge" title="Colis de ${colis} unités">×${colis}</span>` : '';
 
         return `<div class="ag-qty-cell">${lock}${qty}${colisWarn}${minWarn}${colisBadge}</div>`;
       },
@@ -236,13 +227,13 @@ export class SuggestionProduitPanelComponent {
             backgroundColor: '#fff8e1',
             borderColor: '#f59e0b',
             color: '#92400e',
-            fontWeight: 700
+            fontWeight: 700,
           };
         }
         return ligne.quantiteModifieeManuel
-          ? {backgroundColor: '#fffbeb', borderColor: '#f59e0b', fontWeight: 700, color: '#92400e'}
+          ? { backgroundColor: '#fffbeb', borderColor: '#f59e0b', fontWeight: 700, color: '#92400e' }
           : ligne.quantiteModifiee
-            ? {backgroundColor: '#eff6ff', fontWeight: 600}
+            ? { backgroundColor: '#eff6ff', fontWeight: 600 }
             : null;
       },
       tooltipValueGetter(params: any) {
@@ -282,16 +273,16 @@ export class SuggestionProduitPanelComponent {
       cellStyle(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         if (ligne && ligne.currentStock <= 0) {
-          return {color: '#dc3545', fontWeight: 700};
+          return { color: '#dc3545', fontWeight: 700 };
         }
         if (params.value == null) {
           return null;
         }
         if (params.value < 7) {
-          return {color: '#dc3545', fontWeight: 700};
+          return { color: '#dc3545', fontWeight: 700 };
         }
         if (params.value < 30) {
-          return {color: '#fd7e14'};
+          return { color: '#fd7e14' };
         }
         return null;
       },
@@ -322,18 +313,18 @@ export class SuggestionProduitPanelComponent {
         const stockApres = stockBase + l.quantite;
         return Math.round((stockApres / vmm) * 30);
       },
-      valueFormatter: (params: any) => params.value != null ? `${params.value}j` : '—',
+      valueFormatter: (params: any) => (params.value != null ? `${params.value}j` : '—'),
       cellStyle(params: any) {
         if (params.value == null) {
-          return {color: '#9ca3af'};
+          return { color: '#9ca3af' };
         }
         if (params.value < 7) {
-          return {color: '#dc3545', fontWeight: 700};
+          return { color: '#dc3545', fontWeight: 700 };
         }
         if (params.value < 30) {
-          return {color: '#fd7e14'};
+          return { color: '#fd7e14' };
         }
-        return {color: '#16a34a', fontWeight: 600};
+        return { color: '#16a34a', fontWeight: 600 };
       },
     },
     {
@@ -342,8 +333,7 @@ export class SuggestionProduitPanelComponent {
       width: 100,
       sortable: true,
       type: 'numericColumn',
-      valueFormatter: (params: any) =>
-        params.value != null ? formatNumber(Number(params.value)) : '—',
+      valueFormatter: (params: any) => (params.value != null ? formatNumber(Number(params.value)) : '—'),
     },
   ];
   private readonly actionsColumnDef: ColDef<SuggestionLigneEnrichie> = {
@@ -367,50 +357,53 @@ export class SuggestionProduitPanelComponent {
     type: 'numericColumn',
     valueGetter: (params: any) => params.data?.consommationMensuelle?.[mois] ?? 0,
     valueFormatter: (params: any) => (params.value > 0 ? String(params.value) : '—'),
-    cellStyle: {fontSize: '11px', color: '#6b7280'},
+    cellStyle: { fontSize: '11px', color: '#6b7280' },
   }));
   // ── Colonne VMM + tendance (insérée juste avant les colonnes mois) ───────
-  private readonly vmmColDef: ColDef<SuggestionLigneEnrichie> | null = this.currentMoisKeys.length >= 2 ? {
-    headerName: 'VMM ↑↓',
-    colId: 'vmm_tendance',
-    width: 90,
-    sortable: true,
-    type: 'numericColumn',
-    valueGetter: (params: any) => {
-      const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
-      if (!conso) {
-        return null;
-      }
-      const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
-      return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
-    },
-    cellRenderer: (params: any) => {
-      if (params.value == null) {
-        return '—';
-      }
-      const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
-      if (!conso) {
-        return String(params.value);
-      }
-      const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
-      if (vals.length < 2) {
-        return String(params.value);
-      }
-      const moitie = Math.floor(vals.length / 2);
-      const debut = vals.slice(0, moitie).reduce((s, v) => s + v, 0) / moitie;
-      const fin = vals.slice(moitie).reduce((s, v) => s + v, 0) / (vals.length - moitie);
-      const diff = fin - debut;
-      const arrow = diff > 1 ? '↑' : diff < -1 ? '↓' : '↔';
-      const color = diff > 1 ? '#16a34a' : diff < -1 ? '#dc2626' : '#6b7280';
-      return `<span style="color:${color};font-weight:600">${params.value} ${arrow}</span>`;
-    },
-    tooltipValueGetter(params: any) {
-      if (params.value == null) {
-        return 'Données insuffisantes';
-      }
-      return `VMM moyen: ${params.value} unités/mois`;
-    },
-  } : null;
+  private readonly vmmColDef: ColDef<SuggestionLigneEnrichie> | null =
+    this.currentMoisKeys.length >= 2
+      ? {
+          headerName: 'VMM ↑↓',
+          colId: 'vmm_tendance',
+          width: 90,
+          sortable: true,
+          type: 'numericColumn',
+          valueGetter: (params: any) => {
+            const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
+            if (!conso) {
+              return null;
+            }
+            const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
+            return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
+          },
+          cellRenderer: (params: any) => {
+            if (params.value == null) {
+              return '—';
+            }
+            const conso: Record<string, number> | undefined = params.data?.consommationMensuelle;
+            if (!conso) {
+              return String(params.value);
+            }
+            const vals = this.currentMoisKeys.map(k => conso[k] ?? 0);
+            if (vals.length < 2) {
+              return String(params.value);
+            }
+            const moitie = Math.floor(vals.length / 2);
+            const debut = vals.slice(0, moitie).reduce((s, v) => s + v, 0) / moitie;
+            const fin = vals.slice(moitie).reduce((s, v) => s + v, 0) / (vals.length - moitie);
+            const diff = fin - debut;
+            const arrow = diff > 1 ? '↑' : diff < -1 ? '↓' : '↔';
+            const color = diff > 1 ? '#16a34a' : diff < -1 ? '#dc2626' : '#6b7280';
+            return `<span style="color:${color};font-weight:600">${params.value} ${arrow}</span>`;
+          },
+          tooltipValueGetter(params: any) {
+            if (params.value == null) {
+              return 'Données insuffisantes';
+            }
+            return `VMM moyen: ${params.value} unités/mois`;
+          },
+        }
+      : null;
   /** Colonnes complètes (base + VMM + mois + actions) construites à l'initialisation. */
   columnDefs: ColDef<SuggestionLigneEnrichie>[] = [
     ...this.baseColumnDefs,
@@ -430,7 +423,7 @@ export class SuggestionProduitPanelComponent {
     // s'affichent qu'au prochain redessin de la grille.
     effect(() => {
       this.clientsEnAttente();
-      this.gridApi?.refreshCells({columns: ['libelle'], force: true});
+      this.gridApi?.refreshCells({ columns: ['libelle'], force: true });
     });
   }
 
@@ -449,8 +442,7 @@ export class SuggestionProduitPanelComponent {
     return keys;
   }
 
-  readonly getRowId = (params: any): string =>
-    String(params.data?.id ?? `${params.data?.produitId}-${params.data?.libelle}`);
+  readonly getRowId = (params: any): string => String(params.data?.id ?? `${params.data?.produitId}-${params.data?.libelle}`);
 
   onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
@@ -458,7 +450,7 @@ export class SuggestionProduitPanelComponent {
   }
 
   onSelectionChanged(): void {
-    const selected = this.gridApi?.getSelectedRows() as SuggestionLigneEnrichie[] ?? [];
+    const selected = (this.gridApi?.getSelectedRows() as SuggestionLigneEnrichie[]) ?? [];
     this.selectedLignes.set(selected);
     this.selectionChanged.emit(selected);
   }
@@ -473,7 +465,7 @@ export class SuggestionProduitPanelComponent {
       event.node.setDataValue('quantite', event.oldValue);
       return;
     }
-    this.quantiteChanged.emit({ligne, qte});
+    this.quantiteChanged.emit({ ligne, qte });
   }
 
   // ── Méthodes appelées par SuggestionProduitActionsComponent ──────────────
@@ -507,7 +499,7 @@ export class SuggestionProduitPanelComponent {
       headerCheckbox: val === 'TOUS',
       enableClickSelection: false,
     });
-    this.filterChange.emit({search: this.searchText(), urgence: val});
+    this.filterChange.emit({ search: this.searchText(), urgence: val });
   }
 
   onCommanderFiltre(): void {
@@ -539,7 +531,7 @@ export class SuggestionProduitPanelComponent {
       return;
     }
     this._clearSelection();
-    this.pageChange.emit({page: p, rows: this.rows()});
+    this.pageChange.emit({ page: p, rows: this.rows() });
   }
 
   onSupprimerSelection(): void {
@@ -576,7 +568,7 @@ export class SuggestionProduitPanelComponent {
       return;
     }
     const quantite = Number(this.quantiteSaisie()) || 1;
-    this.ajouterProduit.emit({produitId, fournisseurProduitId, quantite});
+    this.ajouterProduit.emit({ produitId, fournisseurProduitId, quantite });
     this.produitEnCours.set(null);
     this.quantiteSaisie.set(1);
     requestAnimationFrame(() => {
@@ -594,5 +586,4 @@ export class SuggestionProduitPanelComponent {
     this.gridApi?.deselectAll();
     this.selectedLignes.set([]);
   }
-
 }

@@ -3,9 +3,18 @@
 
   <app-kpi-strip [loading]="series.isLoading()" [skeletonCount]="4">
     @for (serie of series.value()?.series ?? []; track serie.indicateur.code) {
-      <app-kpi-item [label]="serie.indicateur.libelle" [info]="serie.indicateur.definition" [value]="serie.valeur | valeurIndicateur: serie.indicateur.unite">
+      <app-kpi-item
+        [label]="serie.indicateur.libelle"
+        [info]="serie.indicateur.definition"
+        [value]="serie.valeur | valeurIndicateur: serie.indicateur.unite"
+      >
         <ng-container ngProjectAs="[kpiSub]">
-          <app-variation [ecartPct]="serie.ecartPct" [ecart]="serie.ecart" [sensFavorable]="serie.indicateur.sensFavorable" [unite]="serie.indicateur.unite" />
+          <app-variation
+            [ecartPct]="serie.ecartPct"
+            [ecart]="serie.ecart"
+            [sensFavorable]="serie.indicateur.sensFavorable"
+            [unite]="serie.indicateur.unite"
+          />
         </ng-container>
       </app-kpi-item>
     }
@@ -23,8 +32,15 @@
     </app-card>
 
     <app-card [header]="'Faibles marges (sous ' + (marge.value()?.seuilFaibleMarge ?? '') + ' %)'" icon="pi pi-exclamation-circle">
-      <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [value]="marge.value()?.faiblesMarges ?? []" emptyMessage="Aucun produit sous le seuil"
-                      size="small">
+      <app-data-table
+        [scrollable]="true"
+        scrollHeight="22rem"
+        [loading]="marge.isLoading()"
+        [stripedRows]="true"
+        [value]="marge.value()?.faiblesMarges ?? []"
+        emptyMessage="Aucun produit sous le seuil"
+        size="small"
+      >
         <ng-template #header>
           <tr class="pharma-table-head">
             <th scope="col">Produit</th>
@@ -44,18 +60,45 @@
   </div>
 
   <app-card header="Marge par élément" icon="pi pi-table">
-    <app-select (selectionChange)="choisirAxe($event)" [clearable]="false" [items]="axes" [ngModel]="axe()" [searchable]="false" ariaLabel="Ventiler la marge par"
-                bindLabel="libelle" bindValue="valeur" cardActions inputId="pilotageMargeAxe" [style]="{'min-width': '200px'}" />
-    <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [paginator]="(marge.value()?.lignes?.length ?? 0) > 25" [rows]="25" [value]="marge.value()?.lignes ?? []" emptyMessage="Aucune vente sur la période" size="small">
+    <app-select
+      (selectionChange)="choisirAxe($event)"
+      [clearable]="false"
+      [items]="axes"
+      [ngModel]="axe()"
+      [searchable]="false"
+      ariaLabel="Ventiler la marge par"
+      bindLabel="libelle"
+      bindValue="valeur"
+      cardActions
+      inputId="pilotageMargeAxe"
+      [style]="{ 'min-width': '200px' }"
+    />
+    <app-data-table
+      [scrollable]="true"
+      scrollHeight="22rem"
+      [loading]="marge.isLoading()"
+      [stripedRows]="true"
+      [paginator]="(marge.value()?.lignes?.length ?? 0) > 25"
+      [rows]="25"
+      [value]="marge.value()?.lignes ?? []"
+      emptyMessage="Aucune vente sur la période"
+      size="small"
+    >
       <ng-template #header>
         <tr class="pharma-table-head">
           <th scope="col">{{ marge.value()?.axe?.libelle }}</th>
           <th class="text-end" scope="col">CA HT</th>
           <th class="text-end" scope="col">Coût HT</th>
           <th class="text-end" scope="col">Marge</th>
-          <th class="text-end" scope="col">Taux <app-aide texte="Taux de marge (marge / CA HT) ; dessous, l'écart en points avec la référence." /></th>
-          <th class="text-end" scope="col">Effet volume <app-aide texte="Marge gagnée ou perdue par le CA en plus ou en moins, au taux de marge de référence." /></th>
-          <th class="text-end" scope="col">Effet taux <app-aide texte="Marge gagnée ou perdue par la variation du taux de marge, à CA constant." /></th>
+          <th class="text-end" scope="col">
+            Taux <app-aide texte="Taux de marge (marge / CA HT) ; dessous, l'écart en points avec la référence." />
+          </th>
+          <th class="text-end" scope="col">
+            Effet volume <app-aide texte="Marge gagnée ou perdue par le CA en plus ou en moins, au taux de marge de référence." />
+          </th>
+          <th class="text-end" scope="col">
+            Effet taux <app-aide texte="Marge gagnée ou perdue par la variation du taux de marge, à CA constant." />
+          </th>
         </tr>
       </ng-template>
       <ng-template #body let-ligne>
@@ -78,8 +121,17 @@
   </app-card>
 
   <app-card header="Ventes à marge négative" icon="pi pi-arrow-down">
-    <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [paginator]="(marge.value()?.ventesAMargeNegative?.length ?? 0) > 25" [rows]="25" [value]="marge.value()?.ventesAMargeNegative ?? []" emptyMessage="Aucune vente à perte sur la période"
-                    size="small">
+    <app-data-table
+      [scrollable]="true"
+      scrollHeight="22rem"
+      [loading]="marge.isLoading()"
+      [stripedRows]="true"
+      [paginator]="(marge.value()?.ventesAMargeNegative?.length ?? 0) > 25"
+      [rows]="25"
+      [value]="marge.value()?.ventesAMargeNegative ?? []"
+      emptyMessage="Aucune vente à perte sur la période"
+      size="small"
+    >
       <ng-template #header>
         <tr class="pharma-table-head">
           <th scope="col">Date</th>

@@ -26,15 +26,18 @@ public class ProductsToDestroyCustomRepositoryImpl implements ProductsToDestroyC
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ProductToDestroySumDTO> query = cb.createQuery(ProductToDestroySumDTO.class);
         Root<ProductsToDestroy> root = query.from(ProductsToDestroy.class);
-        query.select(
-            cb.construct(
+        query.select(cb.construct(
                 ProductToDestroySumDTO.class,
-               cb.coalesce(cb.sum(root.get(ProductsToDestroy_.quantity)), 0),
-                cb.coalesce(cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixAchat))), 0),
-                cb.coalesce(cb.sumAsLong(cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixUnit))), 0),
-                cb.countDistinct(root.get(ProductsToDestroy_.fournisseurProduit).get(FournisseurProduit_.produit))
-            )
-        );
+                cb.coalesce(cb.sum(root.get(ProductsToDestroy_.quantity)), 0),
+                cb.coalesce(
+                        cb.sumAsLong(
+                                cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixAchat))),
+                        0),
+                cb.coalesce(
+                        cb.sumAsLong(
+                                cb.prod(root.get(ProductsToDestroy_.quantity), root.get(ProductsToDestroy_.prixUnit))),
+                        0),
+                cb.countDistinct(root.get(ProductsToDestroy_.fournisseurProduit).get(FournisseurProduit_.produit))));
 
         query.where(specification.toPredicate(root, query, cb));
 

@@ -23,13 +23,12 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-    name = "importation",
-    indexes = {
-        @Index(columnList = "importation_status", name = "importation_status_index"),
-        @Index(columnList = "importation_type", name = "importation_type_index"),
-        @Index(columnList = "created_at", name = "created_at_index"),
-    }
-)
+        name = "importation",
+        indexes = {
+            @Index(columnList = "importation_status", name = "importation_status_index"),
+            @Index(columnList = "importation_type", name = "importation_type_index"),
+            @Index(columnList = "created_at", name = "created_at_index"),
+        })
 public class Importation implements Serializable {
 
     @Serial

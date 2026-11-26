@@ -33,7 +33,8 @@ final class NavAccessHandlers {
         scanner.addIncludeFilter(new AnnotationTypeFilter(RestController.class));
         List<Handler> handlers = new ArrayList<>();
         for (BeanDefinition definition : scanner.findCandidateComponents("com.kobe.warehouse")) {
-            Class<?> type = ClassUtils.resolveClassName(definition.getBeanClassName(), NavAccessHandlers.class.getClassLoader());
+            Class<?> type = ClassUtils.resolveClassName(
+                    definition.getBeanClassName(), NavAccessHandlers.class.getClassLoader());
             List<String> bases = pathsOf(AnnotatedElementUtils.findMergedAnnotation(type, RequestMapping.class));
             for (Method method : type.getDeclaredMethods()) {
                 RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);

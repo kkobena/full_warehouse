@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.MagasinRepository;
-import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
 import com.kobe.warehouse.service.ap.AccountsPayableService;
 import com.kobe.warehouse.service.dto.DashboardAlertCountDTO;
@@ -11,7 +11,6 @@ import com.kobe.warehouse.service.report.StockAlertReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -34,10 +33,11 @@ public class DashboardAlertService {
     private final AccountsPayableService accountsPayableService;
     private final MagasinRepository magasinRepository;
 
-    public DashboardAlertService(StockAlertReportService stockAlertReportService,
-                                  SemoisSuggestionViewRepository semoisSuggestionViewRepository,
-                                  AccountsPayableService accountsPayableService,
-                                  MagasinRepository magasinRepository) {
+    public DashboardAlertService(
+            StockAlertReportService stockAlertReportService,
+            SemoisSuggestionViewRepository semoisSuggestionViewRepository,
+            AccountsPayableService accountsPayableService,
+            MagasinRepository magasinRepository) {
         this.stockAlertReportService = stockAlertReportService;
         this.semoisSuggestionViewRepository = semoisSuggestionViewRepository;
         this.accountsPayableService = accountsPayableService;
@@ -76,7 +76,15 @@ public class DashboardAlertService {
         // Commandes fournisseurs dont l'échéance de paiement AP est dépassée
         Long comptesFournisseursOverdueCount = accountsPayableService.countOverdue();
 
-        return new DashboardAlertCountDTO(peremptionCount, ruptureCount, entreeCount, ajustementCount, prixModifCount, urgentCount, facturationOverdueCount, comptesFournisseursOverdueCount);
+        return new DashboardAlertCountDTO(
+                peremptionCount,
+                ruptureCount,
+                entreeCount,
+                ajustementCount,
+                prixModifCount,
+                urgentCount,
+                facturationOverdueCount,
+                comptesFournisseursOverdueCount);
     }
 
     /**
@@ -105,9 +113,9 @@ public class DashboardAlertService {
      */
     private Integer idDeLOfficine() {
         return magasinRepository
-            .findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
-            .map(Magasin::getId)
-            .orElse(null);
+                .findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
+                .map(Magasin::getId)
+                .orElse(null);
     }
 
     /**
@@ -117,11 +125,9 @@ public class DashboardAlertService {
     private Long getRecentStockEntriesCount() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        String sql =
-            "SELECT COUNT(DISTINCT it.entity_id) " +
-            "FROM inventory_transaction it " +
-            "WHERE it.transaction_date >= :yesterday " +
-            "AND it.mouvement_type = 'ENTREE_STOCK'";
+        String sql = "SELECT COUNT(DISTINCT it.entity_id) " + "FROM inventory_transaction it "
+                + "WHERE it.transaction_date >= :yesterday "
+                + "AND it.mouvement_type = 'ENTREE_STOCK'";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("yesterday", yesterday);
@@ -137,11 +143,9 @@ public class DashboardAlertService {
     private Long getRecentAdjustmentsCount() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        String sql =
-            "SELECT COUNT(DISTINCT it.entity_id) " +
-            "FROM inventory_transaction it " +
-            "WHERE it.transaction_date >= :yesterday " +
-            "AND it.mouvement_type IN ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT')";
+        String sql = "SELECT COUNT(DISTINCT it.entity_id) " + "FROM inventory_transaction it "
+                + "WHERE it.transaction_date >= :yesterday "
+                + "AND it.mouvement_type IN ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT')";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("yesterday", yesterday);
@@ -156,12 +160,10 @@ public class DashboardAlertService {
      * Only NOT_PAID and PARTIALLY_PAID invoices are counted.
      */
     private Long getFacturationOverdueCount() {
-        String sql =
-            "SELECT COUNT(*) " +
-            "FROM facture_tiers_payant f " +
-            "LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id " +
-            "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') " +
-            "  AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, 30)) < CURRENT_DATE";
+        String sql = "SELECT COUNT(*) " + "FROM facture_tiers_payant f "
+                + "LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id "
+                + "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') "
+                + "  AND f.invoice_date + make_interval(days => COALESCE(tp.delai_reglement, 30)) < CURRENT_DATE";
 
         Query query = entityManager.createNativeQuery(sql);
         Number result = (Number) query.getSingleResult();
@@ -175,11 +177,9 @@ public class DashboardAlertService {
     private Long getRecentPriceModificationsCount() {
         LocalDateTime yesterday = LocalDateTime.now().minusHours(24);
 
-        String sql =
-            "SELECT COUNT(*) " +
-            "FROM logs l " +
-            "WHERE l.created_at >= :yesterday " +
-            "AND l.transaction_type = 'MODIFICATION_PRIX_PRODUCT_A_LA_VENTE'";
+        String sql = "SELECT COUNT(*) " + "FROM logs l "
+                + "WHERE l.created_at >= :yesterday "
+                + "AND l.transaction_type = 'MODIFICATION_PRIX_PRODUCT_A_LA_VENTE'";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("yesterday", yesterday);

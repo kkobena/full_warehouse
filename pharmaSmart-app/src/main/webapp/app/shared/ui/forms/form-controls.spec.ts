@@ -131,7 +131,7 @@ describe('RadioComponent', () => {
     expect(onChange).toHaveBeenCalledWith('especes');
   });
 
-  it('reporte le name, qui assure l\'exclusivité native du groupe', () => {
+  it("reporte le name, qui assure l'exclusivité native du groupe", () => {
     expect(input().name).toBe('mode');
   });
 });

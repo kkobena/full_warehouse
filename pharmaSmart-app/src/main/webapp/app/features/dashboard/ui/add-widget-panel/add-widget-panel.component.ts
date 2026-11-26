@@ -63,7 +63,14 @@ export interface CatalogueEntry {
               </div>
               @if (entry.licensed) {
                 @if (entry.alreadyAdded) {
-                  <app-button label="Ajouter en double" icon="pi pi-clone" size="small" severity="secondary" [outlined]="true" (clicked)="addDuplicate(entry.definition)" />
+                  <app-button
+                    label="Ajouter en double"
+                    icon="pi pi-clone"
+                    size="small"
+                    severity="secondary"
+                    [outlined]="true"
+                    (clicked)="addDuplicate(entry.definition)"
+                  />
                 } @else {
                   <input
                     type="checkbox"
@@ -95,15 +102,12 @@ export interface CatalogueEntry {
 
       @if (pendingCount() > 0) {
         <div class="catalogue-batch-bar">
-          <span class="catalogue-batch-count">{{ pendingCount() }} tuile{{ pendingCount() > 1 ? 's' : '' }} sélectionnée{{ pendingCount() > 1 ? 's' : '' }}</span>
+          <span class="catalogue-batch-count"
+            >{{ pendingCount() }} tuile{{ pendingCount() > 1 ? 's' : '' }} sélectionnée{{ pendingCount() > 1 ? 's' : '' }}</span
+          >
           <div class="d-flex gap-2">
             <app-button label="Annuler" severity="secondary" [text]="true" size="small" (clicked)="clearPending()" />
-            <app-button
-              [label]="'Ajouter ' + pendingCount()"
-              icon="pi pi-check"
-              size="small"
-              (clicked)="confirmBatch()"
-            />
+            <app-button [label]="'Ajouter ' + pendingCount()" icon="pi pi-check" size="small" (clicked)="confirmBatch()" />
           </div>
         </div>
       }
@@ -187,9 +191,5 @@ export class AddWidgetPanelComponent {
 }
 
 function normalize(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .trim();
+  return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }

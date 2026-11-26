@@ -1,12 +1,18 @@
 <div class="creation-tab-container">
-
   <div class="section-header-bar">
     <div class="section-header-bar-left">
       <span class="section-number">1</span>
       <span class="section-label">Tarifs assurance</span>
     </div>
-    <app-button [outlined]="true" icon="pi pi-plus" label="Ajouter un tarif" severity="primary"
-              size="small" type="button" (clicked)="addRow()"/>
+    <app-button
+      [outlined]="true"
+      icon="pi pi-plus"
+      label="Ajouter un tarif"
+      severity="primary"
+      size="small"
+      type="button"
+      (clicked)="addRow()"
+    />
   </div>
 
   @for (row of rows; track $index) {
@@ -17,41 +23,59 @@
       <div class="prix-row-fields">
         <div class="form-field">
           <label>Tiers payant <span class="required">*</span></label>
-          <app-select-search formControlName="tiersPayantId" [items]="tiersPayants()"
-                    bindLabel="fullName" bindValue="id"
-                    placeholder="Sélectionner" appendTo="body"
-                    [class.ng-invalid]="row.get('tiersPayantId')?.invalid && row.get('tiersPayantId')?.touched"/>
+          <app-select-search
+            formControlName="tiersPayantId"
+            [items]="tiersPayants()"
+            bindLabel="fullName"
+            bindValue="id"
+            placeholder="Sélectionner"
+            appendTo="body"
+            [class.ng-invalid]="row.get('tiersPayantId')?.invalid && row.get('tiersPayantId')?.touched"
+          />
         </div>
         <div class="form-field">
           <label>Type de prix <span class="required">*</span></label>
-          <app-select formControlName="type" [items]="priceTypes"
-                    bindLabel="libelle" bindValue="code"
-                    appendTo="body"/>
+          <app-select formControlName="type" [items]="priceTypes" bindLabel="libelle" bindValue="code" appendTo="body" />
         </div>
         @if (showPrice(row)) {
           <div class="form-field">
             <label>Prix de référence <span class="required">*</span></label>
-            <app-input-number formControlName="price" [min]="0"
-                           placeholder="0"
-                           [class.ng-invalid]="row.get('price')?.invalid && row.get('price')?.touched"/>
+            <app-input-number
+              formControlName="price"
+              [min]="0"
+              placeholder="0"
+              [class.ng-invalid]="row.get('price')?.invalid && row.get('price')?.touched"
+            />
           </div>
         }
         @if (showRate(row)) {
           <div class="form-field">
             <label>Taux (%) <span class="required">*</span></label>
-            <app-input-number formControlName="rate" [min]="0" [max]="100"
-                           [minFractionDigits]="0" [maxFractionDigits]="2"
-                           placeholder="0"
-                           [class.ng-invalid]="row.get('rate')?.invalid && row.get('rate')?.touched"/>
+            <app-input-number
+              formControlName="rate"
+              [min]="0"
+              [max]="100"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              placeholder="0"
+              [class.ng-invalid]="row.get('rate')?.invalid && row.get('rate')?.touched"
+            />
           </div>
         }
         <div class="form-field form-field-toggle">
           <label>Actif</label>
-          <app-switch formControlName="enabled"/>
+          <app-switch formControlName="enabled" />
         </div>
         <div class="prix-row-actions">
-          <app-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" size="small"
-                    type="button" (clicked)="removeRow($index)"/>
+          <app-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            type="button"
+            (clicked)="removeRow($index)"
+          />
         </div>
       </div>
     </div>
@@ -63,5 +87,4 @@
       <p class="mb-0 text-muted">Aucun tarif configuré — cliquez sur <strong>Ajouter</strong> pour en créer un.</p>
     </div>
   }
-
 </div>

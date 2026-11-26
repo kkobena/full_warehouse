@@ -1,12 +1,12 @@
-import {inject, Signal, signal} from '@angular/core';
-import {ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {createSalesLineFromProduct} from '../../data-access/utils/sales-line.utils';
-import {of, switchMap} from 'rxjs';
-import {AlerteSanteGuardService} from '../../data-access/services/alerte-sante-guard.service';
-import {SubstitutionComptoirService} from '../../data-access/services/substitution-comptoir.service';
+import { inject, Signal, signal } from '@angular/core';
+import { ISales, ISalesLine, ProduitSearch } from '../../../../shared/model';
+import { SalesFacade } from '../../data-access/facades/sales.facade';
+import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { createSalesLineFromProduct } from '../../data-access/utils/sales-line.utils';
+import { of, switchMap } from 'rxjs';
+import { AlerteSanteGuardService } from '../../data-access/services/alerte-sante-guard.service';
+import { SubstitutionComptoirService } from '../../data-access/services/substitution-comptoir.service';
 
 /**
  * Type pour les infos de produit en attente d'affichage
@@ -100,15 +100,7 @@ export interface ProductHandlingContext {
  * ```
  */
 export function createProductHandling(context: ProductHandlingContext) {
-  const {
-    facade,
-    customerDisplay,
-    notificationService,
-    host,
-    config,
-    selectedProduct,
-    currentSale,
-  } = context;
+  const { facade, customerDisplay, notificationService, host, config, selectedProduct, currentSale } = context;
 
   // Signal pour stocker les infos du produit en attente d'affichage (après succès API)
   const pendingDisplayProduct = signal<PendingDisplayProduct | null>(null);
@@ -238,7 +230,11 @@ export function createProductHandling(context: ProductHandlingContext) {
     // Le patient d'une vente assurance peut être un ayant droit plutôt que l'assuré principal.
     const sale = currentSale();
     const customerId =
-      facade.selectedAyantDroit?.()?.id ?? sale?.ayantDroit?.id ?? sale?.ayantDroitId ?? facade.selectedCustomer?.()?.id ?? sale?.customerId;
+      facade.selectedAyantDroit?.()?.id ??
+      sale?.ayantDroit?.id ??
+      sale?.ayantDroitId ??
+      facade.selectedCustomer?.()?.id ??
+      sale?.customerId;
     const panierIds = (sale?.salesLines ?? []).map(l => l.produitId).filter((id): id is number => id != null);
     alerteSanteGuard
       .verifier(customerId, product)
@@ -263,7 +259,12 @@ export function createProductHandling(context: ProductHandlingContext) {
       return;
     }
     substitution
-      .choisir({ id: ligne.produitId, libelle: ligne.produitLibelle ?? '', prixUnitaire: ligne.regularUnitPrice, quantite: ligne.quantityRequested })
+      .choisir({
+        id: ligne.produitId,
+        libelle: ligne.produitLibelle ?? '',
+        prixUnitaire: ligne.regularUnitPrice,
+        quantite: ligne.quantityRequested,
+      })
       .subscribe(produit => {
         if (!produit) {
           focusProductSearch();

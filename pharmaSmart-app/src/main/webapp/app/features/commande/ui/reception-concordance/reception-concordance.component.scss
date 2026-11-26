@@ -25,7 +25,9 @@
     background: var(--p-red-50, #fef2f2);
     border-bottom-color: var(--p-red-200, #fecaca);
 
-    i { color: var(--p-red-500, #ef4444); }
+    i {
+      color: var(--p-red-500, #ef4444);
+    }
   }
 }
 
@@ -100,4 +102,3 @@
     }
   }
 }
-

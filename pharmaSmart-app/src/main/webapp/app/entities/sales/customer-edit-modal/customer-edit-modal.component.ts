@@ -1,28 +1,28 @@
-import { Component, inject, Input, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
-import { NgbActiveModal, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { IClientTiersPayant, ICustomer, ISales } from "../../../shared/model";
-import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
-import { Observable } from "rxjs";
-import { HttpResponse } from "@angular/common/http";
-import { IThirdPartySaleLine } from "../../../shared/model/third-party-sale-line";
-import { AssuranceService } from "../assurance.service";
-import { UpdateSale } from "./update-sale.model";
-import { ErrorService } from "../../../shared/error.service";
-import { showCommonModal } from "../selling-home/sale-helper";
-import { AssuredCustomerListComponent } from "../assured-customer-list/assured-customer-list.component";
-import { CurrentSaleService } from "../service/current-sale.service";
-import { AddComplementaireComponent } from "../selling-home/assurance/add-complementaire/add-complementaire.component";
-import { AyantDroitCustomerListComponent } from "../ayant-droit-customer-list/ayant-droit-customer-list.component";
-import { FormAyantDroitComponent } from "../../customer/form-ayant-droit/form-ayant-droit.component";
-import { CommonModule } from "@angular/common";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, KpiStripComponent } from "../../../shared/ui";
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { NgbActiveModal, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { IClientTiersPayant, ICustomer, ISales } from '../../../shared/model';
+import { FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { IThirdPartySaleLine } from '../../../shared/model/third-party-sale-line';
+import { AssuranceService } from '../assurance.service';
+import { UpdateSale } from './update-sale.model';
+import { ErrorService } from '../../../shared/error.service';
+import { showCommonModal } from '../selling-home/sale-helper';
+import { AssuredCustomerListComponent } from '../assured-customer-list/assured-customer-list.component';
+import { CurrentSaleService } from '../service/current-sale.service';
+import { AddComplementaireComponent } from '../selling-home/assurance/add-complementaire/add-complementaire.component';
+import { AyantDroitCustomerListComponent } from '../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ayant-droit.component';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, KpiItemComponent, KpiStripComponent } from '../../../shared/ui';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-customer-edit-modal",
-  templateUrl: "./customer-edit-modal.component.html",
-  styleUrls: ["./customer-edit-modal.component.scss"],
+  selector: 'app-customer-edit-modal',
+  templateUrl: './customer-edit-modal.component.html',
+  styleUrls: ['./customer-edit-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -33,8 +33,9 @@ import { DevisePipe } from 'app/shared/utils/devise';
     KeyFilterDirective,
     KpiItemComponent,
     KpiStripComponent,
-    NgbTooltip
-  , DevisePipe]
+    NgbTooltip,
+    DevisePipe,
+  ],
 })
 export class CustomerEditModalComponent implements OnInit {
   @Input() sale: ISales;
@@ -48,8 +49,8 @@ export class CustomerEditModalComponent implements OnInit {
       num: [null, [Validators.required]],
       firstName: [null, [Validators.required]],
       lastName: [null, [Validators.required]],
-      phone: []
-    })
+      phone: [],
+    }),
   });
   protected readonly isSaving = signal(false);
   private initialFormValue: any;
@@ -60,7 +61,7 @@ export class CustomerEditModalComponent implements OnInit {
   private readonly currentSaleService = inject(CurrentSaleService);
   private readonly notificationService = inject(NotificationService);
   get thirdPartySaleLinesFomArray(): FormArray {
-    return this.editForm.get("thirdPartySaleLines") as FormArray;
+    return this.editForm.get('thirdPartySaleLines') as FormArray;
   }
 
   ngOnInit(): void {
@@ -73,7 +74,7 @@ export class CustomerEditModalComponent implements OnInit {
     this.patchAyantDroitForm();
 
     if (this.thirdPartySaleLines() && this.thirdPartySaleLines().length > 0) {
-      this.editForm.addControl("thirdPartySaleLines", this.fb.array([]));
+      this.editForm.addControl('thirdPartySaleLines', this.fb.array([]));
       this.thirdPartySaleLines().forEach(line => {
         this.thirdPartySaleLinesFomArray.push(
           this.fb.group({
@@ -82,8 +83,8 @@ export class CustomerEditModalComponent implements OnInit {
             taux: [line.taux],
             montant: [line.montant],
             tiersPayantFullName: [line.tiersPayantFullName],
-            clientTiersPayantId: [line.clientTiersPayantId]
-          })
+            clientTiersPayantId: [line.clientTiersPayantId],
+          }),
         );
       });
     }
@@ -104,7 +105,7 @@ export class CustomerEditModalComponent implements OnInit {
     if (this.isValidTauxCouverture(updateSale)) {
       this.subscribeToSaveResponse(this.assuranceService.updateCustomerInformation(updateSale));
     } else {
-      this.notificationService.error("Les taux sont différents");
+      this.notificationService.error('Les taux sont différents');
     }
   }
 
@@ -113,7 +114,7 @@ export class CustomerEditModalComponent implements OnInit {
       this.modalService,
       AssuredCustomerListComponent,
       {
-        headerLibelle: "CLIENTS ASSURES"
+        headerLibelle: 'CLIENTS ASSURES',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -122,8 +123,8 @@ export class CustomerEditModalComponent implements OnInit {
           this.rebuildThirdPartySaleLines();
         }
       },
-      "70%",
-      "modal-dialog-70"
+      '70%',
+      'modal-dialog-70',
     );
   }
 
@@ -134,17 +135,17 @@ export class CustomerEditModalComponent implements OnInit {
       AddComplementaireComponent,
       {
         tiersPayantsExisting: [],
-        assure: this.customer()
+        assure: this.customer(),
       },
       (resp: IClientTiersPayant) => {
         if (resp) {
           tps.patchValue({
             clientTiersPayantId: resp.id,
-            taux: resp.taux
+            taux: resp.taux,
           });
         }
       },
-      "xl"
+      'xl',
     );
   }
 
@@ -154,7 +155,7 @@ export class CustomerEditModalComponent implements OnInit {
       AyantDroitCustomerListComponent,
       {
         assure: this.customer(),
-        header: "LISTE DES AYANTS DROITS DU CLIENT [" + this.customer().fullName + "]"
+        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + this.customer().fullName + ']',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -166,7 +167,7 @@ export class CustomerEditModalComponent implements OnInit {
           }
         }
       },
-      "xl"
+      'xl',
     );
   }
 
@@ -177,7 +178,7 @@ export class CustomerEditModalComponent implements OnInit {
       {
         entity: ayantDroit,
         assure: this.customer(),
-        title: "FORMULAIRE D'AJOUT D'UN AYANT DROIT"
+        title: "FORMULAIRE D'AJOUT D'UN AYANT DROIT",
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -185,12 +186,12 @@ export class CustomerEditModalComponent implements OnInit {
           this.patchAyantDroitForm();
         }
       },
-      "xl"
+      'xl',
     );
   }
 
   private createFromForm(): UpdateSale {
-    const customerFromForm = this.editForm.get("customer").value;
+    const customerFromForm = this.editForm.get('customer').value;
 
     return {
       id: this.sale.id,
@@ -202,23 +203,23 @@ export class CustomerEditModalComponent implements OnInit {
         firstName: customerFromForm.firstName,
         lastName: customerFromForm.lastName,
         phone: customerFromForm.phone,
-        type: "ASSURE"
+        type: 'ASSURE',
       },
       ayantDroit: this.buildAyantDroit(),
-      thirdPartySaleLines: this.buildTiersPayant()
+      thirdPartySaleLines: this.buildTiersPayant(),
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
   private onSaveSuccess(): void {
     this.isSaving.set(false);
-    this.notificationService.success("Vente modifiée avec succès");
+    this.notificationService.success('Vente modifiée avec succès');
     this.activeModal.close();
   }
 
@@ -228,28 +229,28 @@ export class CustomerEditModalComponent implements OnInit {
   }
 
   private buildAyantDroit(): ICustomer {
-    const ayantDroit = this.editForm.get("ayantDroit")?.value;
+    const ayantDroit = this.editForm.get('ayantDroit')?.value;
     if (ayantDroit) {
       return {
         id: ayantDroit.id,
         num: ayantDroit.num,
         firstName: ayantDroit.firstName,
         lastName: ayantDroit.lastName,
-        type: "ASSURE"
+        type: 'ASSURE',
       };
     }
     return null;
   }
 
   private buildTiersPayant(): IThirdPartySaleLine[] {
-    const tiersPayants = this.editForm.get("thirdPartySaleLines")?.value;
+    const tiersPayants = this.editForm.get('thirdPartySaleLines')?.value;
     if (tiersPayants) {
       return tiersPayants.map((tiersPayant: IThirdPartySaleLine) => {
         return {
           id: tiersPayant.id,
           numBon: tiersPayant.numBon,
           clientTiersPayantId: tiersPayant.clientTiersPayantId,
-          taux: tiersPayant.taux
+          taux: tiersPayant.taux,
         };
       });
     }
@@ -268,14 +269,14 @@ export class CustomerEditModalComponent implements OnInit {
           montant: tpData?.montant,
           taux: [line.taux],
           tiersPayantFullName: [line.tiersPayantName],
-          clientTiersPayantId: [line.id]
-        })
+          clientTiersPayantId: [line.id],
+        }),
       );
     });
   }
 
   private checkCustomerHasBeenChanged(): boolean {
-    const customerFromForm = this.editForm.get("customer").value;
+    const customerFromForm = this.editForm.get('customer').value;
     return customerFromForm.id !== this.sale.customer.id;
   }
 
@@ -291,16 +292,16 @@ export class CustomerEditModalComponent implements OnInit {
 
   private patchAyantDroitForm(): void {
     if (this.ayantDroit()) {
-      const ayantDroitControl = this.editForm.get("ayantDroit");
+      const ayantDroitControl = this.editForm.get('ayantDroit');
       if (!ayantDroitControl) {
         this.editForm.addControl(
-          "ayantDroit",
+          'ayantDroit',
           this.fb.group({
             id: [null, [Validators.required]],
             num: [null, [Validators.required]],
             firstName: [null, [Validators.required]],
-            lastName: [null, [Validators.required]]
-          })
+            lastName: [null, [Validators.required]],
+          }),
         );
       }
 
@@ -309,8 +310,8 @@ export class CustomerEditModalComponent implements OnInit {
           id: this.ayantDroit().id,
           num: this.ayantDroit().numAyantDroit,
           firstName: this.ayantDroit().firstName,
-          lastName: this.ayantDroit().lastName
-        }
+          lastName: this.ayantDroit().lastName,
+        },
       });
     }
   }
@@ -323,8 +324,8 @@ export class CustomerEditModalComponent implements OnInit {
         num: tiersPayants.length > 0 ? tiersPayants[0].num : this.sale.tiersPayants.at(0).num,
         firstName: this.customer().firstName,
         lastName: this.customer().lastName,
-        phone: this.customer().phone
-      }
+        phone: this.customer().phone,
+      },
     });
   }
 }

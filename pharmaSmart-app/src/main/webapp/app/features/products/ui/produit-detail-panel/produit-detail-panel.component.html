@@ -6,8 +6,7 @@
       <div class="panel-meta">
         <span class="pharma-code">{{ produit().codeCip }}</span>
         @if (produit().codeEan) {
-          <span class="text-muted ms-2"
-                style="font-size: 0.75rem">EAN: {{ produit().codeEan }}</span>
+          <span class="text-muted ms-2" style="font-size: 0.75rem">EAN: {{ produit().codeEan }}</span>
         }
         @if (produit().classeCriticite) {
           <span class="classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }} ms-2">
@@ -32,23 +31,9 @@
     </div>
     <div class="panel-actions">
       @if (canEdit()) {
-        <app-button
-          (clicked)="onEdit()"
-          [outlined]="true"
-          icon="pi pi-pencil"
-          label="Modifier"
-          severity="primary"
-          size="small"
-        />
+        <app-button (clicked)="onEdit()" [outlined]="true" icon="pi pi-pencil" label="Modifier" severity="primary" size="small" />
       }
-      <app-button
-        (clicked)="closePanel.emit()"
-        [text]="true"
-        icon="pi pi-times"
-        ngbTooltip="Fermer"
-        severity="success"
-        size="small"
-      />
+      <app-button (clicked)="closePanel.emit()" [text]="true" icon="pi pi-times" ngbTooltip="Fermer" severity="success" size="small" />
     </div>
   </div>
 
@@ -108,10 +93,7 @@
         </a>
         <ng-template ngbNavContent>
           @if (produit().id) {
-            <app-produit-mouvements-tab
-              [produitId]="produit().id!"
-              [produit]="richProduit()"
-            />
+            <app-produit-mouvements-tab [produitId]="produit().id!" [produit]="richProduit()" />
           }
         </ng-template>
       </ng-container>
@@ -146,10 +128,7 @@
           <span>Fournisseurs</span>
         </a>
         <ng-template ngbNavContent>
-          <app-produit-fournisseurs-tab
-            (refreshRequested)="onRefreshRequested()"
-            [produit]="richProduit()"
-          />
+          <app-produit-fournisseurs-tab (refreshRequested)="onRefreshRequested()" [produit]="richProduit()" />
         </ng-template>
       </ng-container>
 
@@ -159,10 +138,7 @@
           <span>Rayons</span>
         </a>
         <ng-template ngbNavContent>
-          <app-produit-rayons-tab
-            (refreshRequested)="onRefreshRequested()"
-            [produit]="richProduit()"
-          />
+          <app-produit-rayons-tab (refreshRequested)="onRefreshRequested()" [produit]="richProduit()" />
         </ng-template>
       </ng-container>
 
@@ -193,9 +169,7 @@
             <span>Déconditionnés</span>
           </a>
           <ng-template ngbNavContent>
-            <app-produit-deconditions-tab
-              [produit]="richProduit()"
-            />
+            <app-produit-deconditions-tab [produit]="richProduit()" />
           </ng-template>
         </ng-container>
       }

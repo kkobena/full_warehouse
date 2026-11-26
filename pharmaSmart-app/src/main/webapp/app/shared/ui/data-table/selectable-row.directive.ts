@@ -1,6 +1,6 @@
-import {computed, Directive, inject, input} from '@angular/core';
+import { computed, Directive, inject, input } from '@angular/core';
 
-import {AppTableHost} from './table.types';
+import { AppTableHost } from './table.types';
 
 /**
  * Rend une ligne sélectionnable — remplace `pSelectableRow`.
@@ -25,7 +25,7 @@ import {AppTableHost} from './table.types';
   },
 })
 export class SelectableRowDirective {
-  readonly row = input.required<unknown>({alias: 'appSelectableRow'});
+  readonly row = input.required<unknown>({ alias: 'appSelectableRow' });
 
   private readonly host = inject(AppTableHost);
 

@@ -1,14 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
-import {
-  NgbDropdown,
-  NgbDropdownButtonItem,
-  NgbDropdownItem,
-  NgbDropdownMenu,
-  NgbDropdownToggle
-} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { NgbDropdown, NgbDropdownButtonItem, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 
-import {AppButtonSeverity, AppButtonSize} from '../button/button.component';
-
+import { AppButtonSeverity, AppButtonSize } from '../button/button.component';
 
 export interface AppSplitButtonItem {
   label: string;
@@ -39,8 +32,7 @@ export interface AppSplitButtonItem {
   imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgbDropdownButtonItem],
   template: `
     <div [class]="groupClasses()" ngbDropdown [placement]="placement()">
-      <button type="button" [class]="mainButtonClasses()" [disabled]="disabled()"
-              (click)="clicked.emit()">
+      <button type="button" [class]="mainButtonClasses()" [disabled]="disabled()" (click)="clicked.emit()">
         @if (icon()) {
           <i [class]="icon()" aria-hidden="true"></i>
         }
@@ -62,8 +54,7 @@ export interface AppSplitButtonItem {
           @if (item.separatorBefore) {
             <div class="dropdown-divider"></div>
           }
-          <button type="button" ngbDropdownItem [disabled]="item.disabled ?? false"
-                  (click)="runCommand(item)">
+          <button type="button" ngbDropdownItem [disabled]="item.disabled ?? false" (click)="runCommand(item)">
             @if (item.icon) {
               <i [class]="item.icon" aria-hidden="true"></i>
             }
@@ -86,17 +77,16 @@ export interface AppSplitButtonItem {
       --bs-btn-line-height: inherit;
     }
 
-
     //
     // Portée par le .btn-group et non par chaque bouton : deux ombres adjacentes se
     // superposeraient à la jointure entre l'action principale et le chevron, laissant
     // une couture visible.
     .app-btn-raised {
-      box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 2px 2px 0 rgba(0, 0, 0, 0.14),
-      0 1px 5px 0 rgba(0, 0, 0, 0.12);
+      box-shadow:
+        0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
     }
-
 
     // aient exactement la même largeur côte à côte dans une barre d'actions.
     .app-btn-normal {
@@ -150,7 +140,6 @@ export class SplitButtonComponent {
   protected readonly mainButtonClasses = computed(() =>
     ['btn', this.variantClass(), this.sizeClass(), 'd-inline-flex', 'align-items-center', 'gap-2'].filter(Boolean).join(' '),
   );
-
 
   protected readonly toggleClasses = computed(() =>
     ['btn', this.variantClass(), this.sizeClass(), 'dropdown-toggle-split'].filter(Boolean).join(' '),

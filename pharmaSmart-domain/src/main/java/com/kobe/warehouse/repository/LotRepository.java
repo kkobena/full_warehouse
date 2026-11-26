@@ -1,5 +1,9 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
+
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -21,27 +25,21 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.persistence.criteria.Subquery;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 @Repository
 public interface LotRepository
-    extends JpaRepository<Lot, Integer>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
+        extends JpaRepository<Lot, Integer>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
     @Query(
-        "SELECT o FROM Lot o  WHERE o.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.currentQuantity  > 0 AND o.statut=:lotStatut  ORDER BY o.expiryDate ASC"
-    )
+            "SELECT o FROM Lot o  WHERE o.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.currentQuantity  > 0 AND o.statut=:lotStatut  ORDER BY o.expiryDate ASC")
     List<Lot> findByProduitId(Integer produitId, LocalDate dateLimit, StatutLot lotStatut);
 
     Optional<Lot> findByNumLot(String numLot);
@@ -49,8 +47,7 @@ public interface LotRepository
     Optional<Lot> findByNumLotAndProduitId(String numLot, Integer produitId);
 
     @Query(
-        "SELECT o FROM Lot o  WHERE o.produit.id =:produitId   AND o.currentQuantity > 0 AND o.statut='AVAILABLE' ORDER BY o.expiryDate ASC"
-    )
+            "SELECT o FROM Lot o  WHERE o.produit.id =:produitId   AND o.currentQuantity > 0 AND o.statut='AVAILABLE' ORDER BY o.expiryDate ASC")
     List<Lot> findByProduitId(Integer produitId);
 
     /**
@@ -64,24 +61,18 @@ public interface LotRepository
      */
     boolean existsBySerialNumberAndProduitId(String serialNumber, Integer produitId);
 
-
     /** Lots qu'il reste a traiter : {@code quantity} est la quantite recue, elle ne decroit pas a la vente. */
     default Specification<Lot> filterByStock() {
         return (root, _, cb) -> cb.greaterThan(root.get(Lot_.currentQuantity), 0);
     }
 
     default Specification<Lot> filterProduitStatut() {
-        return (root, _, cb) ->
-            cb.equal(
-                root.get(Lot_.produit).get(Produit_.status),
-                Status.ENABLE
-            );
+        return (root, _, cb) -> cb.equal(root.get(Lot_.produit).get(Produit_.status), Status.ENABLE);
     }
 
     default Specification<Lot> filterByProduitId(Integer produitId) {
         if (isNull(produitId)) return null;
-        return (root, _, cb) ->
-            cb.equal(root.get(Lot_.produit).get(Produit_.id), produitId);
+        return (root, _, cb) -> cb.equal(root.get(Lot_.produit).get(Produit_.id), produitId);
     }
 
     default Specification<Lot> filterByNumLot(String numLot) {
@@ -94,20 +85,21 @@ public interface LotRepository
         String search = searchTerm.trim().toUpperCase() + "%";
         return (root, _, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
-            SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
+            SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin =
+                    produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
             return cb.or(
-                cb.like(root.get(Lot_.numLot), search),
-                cb.like(produitJoin.get(Produit_.codeEanLaboratoire), search),
-                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
-                cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeCip), search),
-                cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeEan), search)
-            );
+                    cb.like(root.get(Lot_.numLot), search),
+                    cb.like(produitJoin.get(Produit_.codeEanLaboratoire), search),
+                    cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
+                    cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeCip), search),
+                    cb.like(fournisseurProduitJoin.get(FournisseurProduit_.codeEan), search));
         };
     }
 
     default Specification<Lot> filterByDayCount(int dayCount) {
         if (dayCount <= 0) return null;
-        return (root, _, cb) -> cb.lessThanOrEqualTo(root.get(Lot_.expiryDate), LocalDate.now().plusDays(dayCount));
+        return (root, _, cb) ->
+                cb.lessThanOrEqualTo(root.get(Lot_.expiryDate), LocalDate.now().plusDays(dayCount));
     }
 
     default Specification<Lot> filterByFromDate(LocalDate fromDate) {
@@ -120,7 +112,6 @@ public interface LotRepository
         return (root, _, cb) -> cb.lessThanOrEqualTo(root.get(Lot_.expiryDate), LocalDate.now());
     }
 
-
     default Specification<Lot> filterByDateRange(LocalDate fromDate, LocalDate toDate) {
         if (isNull(fromDate) || isNull(toDate)) return null;
         return (root, _, cb) -> cb.between(root.get(Lot_.expiryDate), fromDate, toDate);
@@ -130,8 +121,10 @@ public interface LotRepository
         if (isNull(fournisseurId)) return null;
         return (root, _, cb) -> {
             Join<Lot, Produit> produitJoin = root.join(Lot_.produit);
-            SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
-            Join<FournisseurProduit, Fournisseur> fournisseurJoin = fournisseurProduitJoin.join(FournisseurProduit_.fournisseur);
+            SetJoin<Produit, FournisseurProduit> fournisseurProduitJoin =
+                    produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
+            Join<FournisseurProduit, Fournisseur> fournisseurJoin =
+                    fournisseurProduitJoin.join(FournisseurProduit_.fournisseur);
             return cb.equal(fournisseurJoin.get(Fournisseur_.id), fournisseurId);
         };
     }
@@ -164,9 +157,7 @@ public interface LotRepository
             Subquery<Integer> sq = query.subquery(Integer.class);
             Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
             sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
-                .where(
-                    cb.equal(lsl.get("storage").get("magasin").get("id"), magasinId)
-                );
+                    .where(cb.equal(lsl.get("storage").get("magasin").get("id"), magasinId));
             return root.get(Lot_.id).in(sq);
         };
     }
@@ -181,10 +172,9 @@ public interface LotRepository
             Subquery<Integer> sq = query.subquery(Integer.class);
             Root<LotStockLocation> lsl = sq.from(LotStockLocation.class);
             sq.select(lsl.<Lot>get("lot").<Integer>get("id"))
-                .where(
-                    cb.equal(lsl.get("storage").get("id"), storageId),
-                    cb.greaterThan(lsl.<Integer>get("qty"), 0)
-                );
+                    .where(
+                            cb.equal(lsl.get("storage").get("id"), storageId),
+                            cb.greaterThan(lsl.<Integer>get("qty"), 0));
             return root.get(Lot_.id).in(sq);
         };
     }
@@ -200,7 +190,9 @@ public interface LotRepository
         if (Objects.nonNull(param.getType()) && TypeFilter.PERIME.equals(param.getType())) {
             spec = add(spec, expiredLot());
         }
-        if (Objects.nonNull(param.getDayCount()) && param.getDayCount() > 0 && (TypeFilter.EN_COURS.equals(param.getType()) || TypeFilter.ALL.equals(param.getType()))) {
+        if (Objects.nonNull(param.getDayCount())
+                && param.getDayCount() > 0
+                && (TypeFilter.EN_COURS.equals(param.getType()) || TypeFilter.ALL.equals(param.getType()))) {
             spec = add(spec, filterByDayCount(param.getDayCount()));
         }
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));

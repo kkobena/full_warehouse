@@ -1,120 +1,120 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-chart-bar me-2"></i>Analyse des écarts
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-chart-bar me-2"></i>Analyse des écarts</h5>
   <button type="button" class="btn-close" (click)="skip()"></button>
 </div>
 
 <div class="modal-body">
-<app-card [variant]="'form'">
-  <!-- Résumé compteur -->
-  @if (totalItems() > 0) {
-    <div class="gap-summary-banner mb-3">
-      <div class="gap-banner-item">
-        <span class="gap-banner-value text-danger">{{ totalItems() | number: '1.0-0' : 'fr' }}</span>
-        <span class="gap-banner-label">produit(s) avec écart</span>
-      </div>
-      <div class="gap-banner-sep"></div>
-      <div class="gap-banner-item">
-        <span class="gap-banner-value text-success">{{ savedCount() | number: '1.0-0' : 'fr' }}</span>
-        <span class="gap-banner-label">cause(s) enregistrée(s)</span>
-      </div>
-      @if (pendingCount() > 0) {
+  <app-card [variant]="'form'">
+    <!-- Résumé compteur -->
+    @if (totalItems() > 0) {
+      <div class="gap-summary-banner mb-3">
+        <div class="gap-banner-item">
+          <span class="gap-banner-value text-danger">{{ totalItems() | number: '1.0-0' : 'fr' }}</span>
+          <span class="gap-banner-label">produit(s) avec écart</span>
+        </div>
         <div class="gap-banner-sep"></div>
         <div class="gap-banner-item">
-          <span class="gap-banner-value text-warning">{{ pendingCount() | number: '1.0-0' : 'fr' }}</span>
-          <span class="gap-banner-label">modification(s) non enregistrée(s)</span>
+          <span class="gap-banner-value text-success">{{ savedCount() | number: '1.0-0' : 'fr' }}</span>
+          <span class="gap-banner-label">cause(s) enregistrée(s)</span>
         </div>
-      }
-      <div class="gap-banner-hint">
-        <i class="pi pi-info-circle me-1"></i>
-        Cette étape est facultative. Vos saisies sont conservées d'une page à l'autre.
+        @if (pendingCount() > 0) {
+          <div class="gap-banner-sep"></div>
+          <div class="gap-banner-item">
+            <span class="gap-banner-value text-warning">{{ pendingCount() | number: '1.0-0' : 'fr' }}</span>
+            <span class="gap-banner-label">modification(s) non enregistrée(s)</span>
+          </div>
+        }
+        <div class="gap-banner-hint">
+          <i class="pi pi-info-circle me-1"></i>
+          Cette étape est facultative. Vos saisies sont conservées d'une page à l'autre.
+        </div>
       </div>
-    </div>
-  }
+    }
 
-  <!-- Table des écarts -->
-  <div class="pharma-table-wrapper">
-    <app-data-table
-      (onLazyLoad)="onLazyLoad($event)"
-      [(first)]="first"
-      [(rows)]="rows"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="rowsPerPageOptions"
-      [scrollable]="true"
-      [showCurrentPageReport]="true"
-      [totalRecords]="totalItems()"
-      [value]="lines()"
-      class="p-datatable-sm"
-      dataKey="lineId"
-      scrollHeight="45vh"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Produit</th>
-          <th class="text-center" style="width:90px">Théorique</th>
-          <th class="text-center" style="width:90px">Compté</th>
-          <th class="text-center" style="width:80px">Écart</th>
-          <th style="width:200px">Cause</th>
-          <th>Commentaire</th>
-        </tr>
-      </ng-template>
+    <!-- Table des écarts -->
+    <div class="pharma-table-wrapper">
+      <app-data-table
+        (onLazyLoad)="onLazyLoad($event)"
+        [(first)]="first"
+        [(rows)]="rows"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [scrollable]="true"
+        [showCurrentPageReport]="true"
+        [totalRecords]="totalItems()"
+        [value]="lines()"
+        class="p-datatable-sm"
+        dataKey="lineId"
+        scrollHeight="45vh"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Produit</th>
+            <th class="text-center" style="width: 90px">Théorique</th>
+            <th class="text-center" style="width: 90px">Compté</th>
+            <th class="text-center" style="width: 80px">Écart</th>
+            <th style="width: 200px">Cause</th>
+            <th>Commentaire</th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-line>
-        <tr [class.pharma-row-danger]="line.gap < 0" [class.pharma-row-warning]="line.gap > 0">
-          <td><span class="pharma-entity-name">{{ line.produitLibelle }}</span></td>
-          <td class="text-center">{{ line.quantityInit }}</td>
-          <td class="text-center">{{ line.quantityOnHand }}</td>
-          <td class="text-center">
-            <span [class]="line.gap < 0 ? 'pharma-badge pharma-badge-danger' : 'pharma-badge pharma-badge-warning'">
-              {{ line.gap > 0 ? '+' : '' }}{{ line.gap }}
-            </span>
-          </td>
-          <td>
-            <app-select-search
-              (ngModelChange)="onCauseChange(line, $event)"
-              [ngModel]="line.selectedCause"
-              [items]="causeOptions"
-              bindLabel="label"
-              bindValue="value"
-              [searchable]="false"
-              appendTo="body"
-              [optionTemplate]="causeOption"
-            />
-            <ng-template #causeOption let-opt>
-              <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
-            </ng-template>
-          </td>
-          <td>
-            <input
-              (ngModelChange)="onCommentChange(line, $event)"
-              [ngModel]="line.comment"
-              class="form-control form-control-sm"
-              placeholder="Commentaire optionnel…"
-              type="text"
-            />
-          </td>
-        </tr>
-      </ng-template>
+        <ng-template #body let-line>
+          <tr [class.pharma-row-danger]="line.gap < 0" [class.pharma-row-warning]="line.gap > 0">
+            <td>
+              <span class="pharma-entity-name">{{ line.produitLibelle }}</span>
+            </td>
+            <td class="text-center">{{ line.quantityInit }}</td>
+            <td class="text-center">{{ line.quantityOnHand }}</td>
+            <td class="text-center">
+              <span [class]="line.gap < 0 ? 'pharma-badge pharma-badge-danger' : 'pharma-badge pharma-badge-warning'">
+                {{ line.gap > 0 ? '+' : '' }}{{ line.gap }}
+              </span>
+            </td>
+            <td>
+              <app-select-search
+                (ngModelChange)="onCauseChange(line, $event)"
+                [ngModel]="line.selectedCause"
+                [items]="causeOptions"
+                bindLabel="label"
+                bindValue="value"
+                [searchable]="false"
+                appendTo="body"
+                [optionTemplate]="causeOption"
+              />
+              <ng-template #causeOption let-opt>
+                <span><i [class]="opt.icon + ' me-1'"></i>{{ opt.label }}</span>
+              </ng-template>
+            </td>
+            <td>
+              <input
+                (ngModelChange)="onCommentChange(line, $event)"
+                [ngModel]="line.comment"
+                class="form-control form-control-sm"
+                placeholder="Commentaire optionnel…"
+                type="text"
+              />
+            </td>
+          </tr>
+        </ng-template>
 
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="6">
-            <div class="pharma-empty-message">
-              <div class="pharma-empty-content">
-                <i class="pi pi-check-circle"></i>
-                <p>Aucun écart détecté</p>
-                <small>Toutes les lignes saisies correspondent au stock théorique.</small>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="6">
+              <div class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-check-circle"></i>
+                  <p>Aucun écart détecté</p>
+                  <small>Toutes les lignes saisies correspondent au stock théorique.</small>
+                </div>
               </div>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
-</app-card>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+  </app-card>
 </div>
 
 <div class="modal-footer flex-column align-items-stretch gap-2">

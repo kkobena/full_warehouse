@@ -24,6 +24,7 @@ public final class Constant {
     public static final String FOOTER = "footer";
     /** Nom de la variable de gabarit ; sa valeur vient de la configuration de l'officine. */
     public static final String DEVISE = "devise";
+
     public static final int COMMANDE_PAGE_SIZE = 55;
     public static final int PAGE_SIZE = 73;
     public static final String PAGE_COUNT = "page_count";
@@ -84,6 +85,7 @@ public final class Constant {
 
     /** Procès-Verbal officiel de destruction — Art. R. 4235-12 CSP */
     public static final String PV_DESTRUCTION_TEMPLATE_FILE = "gestion_perimes/pv_destruction/main";
+
     public static final String PV_DESTRUCTION_PHARMACIEN = "pharmacienNom";
     public static final String PV_DESTRUCTION_NUM = "pvNumero";
     public static final String PV_DESTRUCTION_DATE = "pvDate";

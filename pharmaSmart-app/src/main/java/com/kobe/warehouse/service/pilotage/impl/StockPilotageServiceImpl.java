@@ -51,11 +51,10 @@ public class StockPilotageServiceImpl implements StockPilotageService {
     private final AppConfigurationService appConfigurationService;
 
     public StockPilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        PilotageAchatsStockRepository pilotageAchatsStockRepository,
-        PilotageRupturesRepository pilotageRupturesRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            PilotageAchatsStockRepository pilotageAchatsStockRepository,
+            PilotageRupturesRepository pilotageRupturesRepository,
+            AppConfigurationService appConfigurationService) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.pilotageAchatsStockRepository = pilotageAchatsStockRepository;
         this.pilotageRupturesRepository = pilotageRupturesRepository;
@@ -65,11 +64,13 @@ public class StockPilotageServiceImpl implements StockPilotageService {
     @Override
     public StockPilotageDTO analyserStock(RequetePilotageDTO requete) {
         LocalDate aujourdhui = LocalDate.now();
-        PeriodeDTO periode = periodeComparaisonService.comparer(requete, aujourdhui).periode();
+        PeriodeDTO periode =
+                periodeComparaisonService.comparer(requete, aujourdhui).periode();
         LocalDate mois = finDeMois(periode.au());
         LocalDate moisN1 = finDeMois(mois.minusYears(1));
         Map<LocalDate, Long> parMois = new HashMap<>();
-        for (MoisStockDTO photo : pilotageAchatsStockRepository.sommerStockParMois(finDeMois(mois.minusMonths(MOIS_COURBE * 2L - 1)), mois)) {
+        for (MoisStockDTO photo : pilotageAchatsStockRepository.sommerStockParMois(
+                finDeMois(mois.minusMonths(MOIS_COURBE * 2L - 1)), mois)) {
             parMois.put(photo.mois(), photo.valeur());
         }
         long valeur = parMois.getOrDefault(mois, 0L);
@@ -80,22 +81,23 @@ public class StockPilotageServiceImpl implements StockPilotageService {
         int seuil = appConfigurationService.getSeuilStockDormantPilotage();
         LocalDate depuis = (mois.isAfter(aujourdhui) ? aujourdhui : mois).minusDays(seuil);
         StockParFamille familles = StockParFamille.lire(
-            pilotageAchatsStockRepository.sommerStockParFamille(mois),
-            pilotageAchatsStockRepository.sommerCoutVentesParFamille(debutDouzeMois, mois, officine),
-            pilotageAchatsStockRepository.sommerDormantsParFamille(mois, depuis)
-        );
+                pilotageAchatsStockRepository.sommerStockParFamille(mois),
+                pilotageAchatsStockRepository.sommerCoutVentesParFamille(debutDouzeMois, mois, officine),
+                pilotageAchatsStockRepository.sommerDormantsParFamille(mois, depuis));
         return new StockPilotageDTO(
-            mois,
-            Variations.cellule(UniteIndicateur.MONTANT, parMois.containsKey(mois) ? (double) valeur : null, parMois.containsKey(moisN1) ? (double) parMois.get(moisN1) : null),
-            IndicateursStock.rotation(coutDouzeMois, valeur),
-            IndicateursStock.couverture(valeur, coutDouzeMois),
-            familles.nbDormants(),
-            familles.valeurDormante(),
-            seuil,
-            tracerCourbe(mois, parMois),
-            familles.lignes(valeur),
-            pilotageAchatsStockRepository.listerDormants(mois, depuis, PageRequest.of(0, LISTE_MAX))
-        );
+                mois,
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        parMois.containsKey(mois) ? (double) valeur : null,
+                        parMois.containsKey(moisN1) ? (double) parMois.get(moisN1) : null),
+                IndicateursStock.rotation(coutDouzeMois, valeur),
+                IndicateursStock.couverture(valeur, coutDouzeMois),
+                familles.nbDormants(),
+                familles.valeurDormante(),
+                seuil,
+                tracerCourbe(mois, parMois),
+                familles.lignes(valeur),
+                pilotageAchatsStockRepository.listerDormants(mois, depuis, PageRequest.of(0, LISTE_MAX)));
     }
 
     @Override
@@ -107,7 +109,8 @@ public class StockPilotageServiceImpl implements StockPilotageService {
         PeriodeDTO lue = comparaison.periode();
         LocalDateTime debut = lue.du().atStartOfDay();
         LocalDateTime fin = lue.au().plusDays(1).atStartOfDay();
-        List<PeremptionMoisDTO> peremptions = pilotageRupturesRepository.sommerPeremptionsParMois(aujourdhui, finDeMois(aujourdhui.plusMonths(MOIS_PEREMPTIONS - 1L)));
+        List<PeremptionMoisDTO> peremptions = pilotageRupturesRepository.sommerPeremptionsParMois(
+                aujourdhui, finDeMois(aujourdhui.plusMonths(MOIS_PEREMPTIONS - 1L)));
         LocalDate limiteAPerimer = aujourdhui.plusMonths(MOIS_A_PERIMER);
         long aPerimer = 0;
         for (PeremptionMoisDTO peremption : peremptions) {
@@ -116,17 +119,28 @@ public class StockPilotageServiceImpl implements StockPilotageService {
             }
         }
         return new RupturesPilotageDTO(
-            comparaison,
-            Variations.cellule(UniteIndicateur.POURCENTAGE, periode.tauxRupture(), reference == null ? null : reference.tauxRupture()),
-            Variations.cellule(UniteIndicateur.MONTANT, (double) periode.ventesManquees(), reference == null ? null : (double) reference.ventesManquees()),
-            Variations.cellule(UniteIndicateur.POURCENTAGE, periode.tauxVentesManquees(), reference == null ? null : reference.tauxVentesManquees()),
-            Variations.cellule(UniteIndicateur.MONTANT, (double) periode.valeurPerimee(), reference == null ? null : (double) reference.valeurPerimee()),
-            aPerimer,
-            pilotageRupturesRepository.sommerRupturesParFournisseur(debut, fin),
-            pilotageRupturesRepository.sommerRupturesParProduit(debut, fin, PageRequest.of(0, LISTE_MAX)),
-            pilotageRupturesRepository.sommerVentesManqueesParProduit(debut, fin, PageRequest.of(0, LISTE_MAX)),
-            peremptions
-        );
+                comparaison,
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        periode.tauxRupture(),
+                        reference == null ? null : reference.tauxRupture()),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) periode.ventesManquees(),
+                        reference == null ? null : (double) reference.ventesManquees()),
+                Variations.cellule(
+                        UniteIndicateur.POURCENTAGE,
+                        periode.tauxVentesManquees(),
+                        reference == null ? null : reference.tauxVentesManquees()),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) periode.valeurPerimee(),
+                        reference == null ? null : (double) reference.valeurPerimee()),
+                aPerimer,
+                pilotageRupturesRepository.sommerRupturesParFournisseur(debut, fin),
+                pilotageRupturesRepository.sommerRupturesParProduit(debut, fin, PageRequest.of(0, LISTE_MAX)),
+                pilotageRupturesRepository.sommerVentesManqueesParProduit(debut, fin, PageRequest.of(0, LISTE_MAX)),
+                peremptions);
     }
 
     private RupturesPeriode lireRuptures(PeriodeDTO periode) {
@@ -135,17 +149,18 @@ public class StockPilotageServiceImpl implements StockPilotageService {
         long lignesCommandees = pilotageRupturesRepository.compterLignesCommandees(periode.du(), periode.au());
         long ruptures = pilotageRupturesRepository.compterRuptures(debut, fin);
         ComptageDTO avoirs = pilotageRupturesRepository.sommerVentesManquees(debut, fin);
-        ComptageDTO quantites = pilotageRupturesRepository.sommerQuantitesEnAvoir(periode.du(), periode.au(), CategorieChiffreAffaire.officine());
+        ComptageDTO quantites = pilotageRupturesRepository.sommerQuantitesEnAvoir(
+                periode.du(), periode.au(), CategorieChiffreAffaire.officine());
         long perimee = 0;
-        for (PeremptionMoisDTO peremption : pilotageRupturesRepository.sommerPeremptionsParMois(periode.du(), periode.au())) {
+        for (PeremptionMoisDTO peremption :
+                pilotageRupturesRepository.sommerPeremptionsParMois(periode.du(), periode.au())) {
             perimee += peremption.valeur();
         }
         return new RupturesPeriode(
-            lignesCommandees == 0 ? null : ruptures * CENT / lignesCommandees,
-            avoirs.montant(),
-            quantites.nombre() == 0 ? null : quantites.quantite() * CENT / quantites.nombre(),
-            perimee
-        );
+                lignesCommandees == 0 ? null : ruptures * CENT / lignesCommandees,
+                avoirs.montant(),
+                quantites.nombre() == 0 ? null : quantites.quantite() * CENT / quantites.nombre(),
+                perimee);
     }
 
     /** Douze mois jusqu'au mois de fin de période, chacun face au même mois de l'année précédente ; un mois sans photo reste vide. */
@@ -161,5 +176,4 @@ public class StockPilotageServiceImpl implements StockPilotageService {
     private static LocalDate finDeMois(LocalDate jour) {
         return jour.with(TemporalAdjusters.lastDayOfMonth());
     }
-
 }

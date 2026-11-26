@@ -48,7 +48,8 @@ class MobileCustomReportServiceTest {
     private final MobileSalesRepository salesRepository = mock(MobileSalesRepository.class);
     private final AppConfigurationService appConfigurationService = mock(AppConfigurationService.class);
 
-    private final MobileCustomReportService service = new MobileCustomReportService(salesRepository, appConfigurationService);
+    private final MobileCustomReportService service =
+            new MobileCustomReportService(salesRepository, appConfigurationService);
 
     @BeforeEach
     void setUp() {
@@ -166,16 +167,20 @@ class MobileCustomReportServiceTest {
         @DisplayName("le chiffre d'affaires porte sa courbe journalière")
         void chiffreDAffaires() {
             when(salesRepository.getSalesSummary(DEBUT, FIN)).thenReturn(resume(1_200_000, 100, 300_000));
-            when(salesRepository.getCATrend(DEBUT, FIN)).thenReturn(
-                List.of(jour(LocalDate.of(2026, 3, 1), 40_000), jour(LocalDate.of(2026, 3, 2), 55_000))
-            );
+            when(salesRepository.getCATrend(DEBUT, FIN))
+                    .thenReturn(
+                            List.of(jour(LocalDate.of(2026, 3, 1), 40_000), jour(LocalDate.of(2026, 3, 2), 55_000)));
 
             CustomReportMetricDTO indicateur = indicateur("CA");
 
             assertThat(indicateur.metricName()).isEqualTo("Chiffre d'affaires");
             assertThat(indicateur.value()).contains("1").contains("200").contains("FCFA");
-            assertThat(indicateur.chartData()).extracting(ChartDataPointDTO::label).containsExactly("2026-03-01", "2026-03-02");
-            assertThat(indicateur.chartData()).extracting(ChartDataPointDTO::value).containsExactly(40_000.0, 55_000.0);
+            assertThat(indicateur.chartData())
+                    .extracting(ChartDataPointDTO::label)
+                    .containsExactly("2026-03-01", "2026-03-02");
+            assertThat(indicateur.chartData())
+                    .extracting(ChartDataPointDTO::value)
+                    .containsExactly(40_000.0, 55_000.0);
         }
 
         @Test
@@ -232,29 +237,34 @@ class MobileCustomReportServiceTest {
         @Test
         @DisplayName("les meilleurs produits alimentent la courbe et le détail")
         void meilleursProduits() {
-            when(salesRepository.getTopProducts(any(), any(), anyInt())).thenReturn(
-                List.of(produit("DOLIPRANE", 500_000), produit("EFFERALGAN", 300_000))
-            );
+            when(salesRepository.getTopProducts(any(), any(), anyInt()))
+                    .thenReturn(List.of(produit("DOLIPRANE", 500_000), produit("EFFERALGAN", 300_000)));
 
             CustomReportMetricDTO indicateur = indicateur("TOP_PRODUCTS");
 
             assertThat(indicateur.value()).isEqualTo("2");
-            assertThat(indicateur.chartData()).extracting(ChartDataPointDTO::label).containsExactly("DOLIPRANE", "EFFERALGAN");
+            assertThat(indicateur.chartData())
+                    .extracting(ChartDataPointDTO::label)
+                    .containsExactly("DOLIPRANE", "EFFERALGAN");
             // Le séparateur de milliers dépend de la locale : on ne fige que les chiffres.
-            assertThat(indicateur.details()).containsPattern("DOLIPRANE: 500.000").containsPattern("EFFERALGAN: 300.000");
+            assertThat(indicateur.details())
+                    .containsPattern("DOLIPRANE: 500.000")
+                    .containsPattern("EFFERALGAN: 300.000");
         }
 
         /** Le détail tient sur une tuile de téléphone : au-delà de cinq lignes, il déborderait. */
         @Test
         @DisplayName("le détail se limite aux cinq premiers produits")
         void detailLimiteACinq() {
-            when(salesRepository.getTopProducts(any(), any(), anyInt())).thenReturn(
-                List.of(
-                    produit("P1", 900_000), produit("P2", 800_000), produit("P3", 700_000),
-                    produit("P4", 600_000), produit("P5", 500_000), produit("P6", 400_000),
-                    produit("P7", 300_000)
-                )
-            );
+            when(salesRepository.getTopProducts(any(), any(), anyInt()))
+                    .thenReturn(List.of(
+                            produit("P1", 900_000),
+                            produit("P2", 800_000),
+                            produit("P3", 700_000),
+                            produit("P4", 600_000),
+                            produit("P5", 500_000),
+                            produit("P6", 400_000),
+                            produit("P7", 300_000)));
 
             CustomReportMetricDTO indicateur = indicateur("TOP_PRODUCTS");
 
@@ -275,14 +285,15 @@ class MobileCustomReportServiceTest {
         @Test
         @DisplayName("les modes de paiement alimentent la répartition")
         void modesDePaiement() {
-            when(salesRepository.getPaymentMethodsSummary(any(), any())).thenReturn(
-                List.of(paiement("ESPECE", 800_000), paiement("WAVE", 200_000))
-            );
+            when(salesRepository.getPaymentMethodsSummary(any(), any()))
+                    .thenReturn(List.of(paiement("ESPECE", 800_000), paiement("WAVE", 200_000)));
 
             CustomReportMetricDTO indicateur = indicateur("PAYMENT_METHODS");
 
             assertThat(indicateur.value()).isEqualTo("2");
-            assertThat(indicateur.chartData()).extracting(ChartDataPointDTO::label).containsExactly("ESPECE", "WAVE");
+            assertThat(indicateur.chartData())
+                    .extracting(ChartDataPointDTO::label)
+                    .containsExactly("ESPECE", "WAVE");
         }
 
         @Test
@@ -303,11 +314,8 @@ class MobileCustomReportServiceTest {
         @Test
         @DisplayName("chaque indicateur demandé est rendu sous son code")
         void indicateursDemandes() {
-            Map<String, CustomReportMetricDTO> indicateurs = service.generateMetrics(
-                List.of("CA", "TRANSACTIONS", "MARGIN"),
-                DEBUT,
-                FIN
-            );
+            Map<String, CustomReportMetricDTO> indicateurs =
+                    service.generateMetrics(List.of("CA", "TRANSACTIONS", "MARGIN"), DEBUT, FIN);
 
             assertThat(indicateurs).containsOnlyKeys("CA", "TRANSACTIONS", "MARGIN");
             assertThat(indicateurs.get("CA").metricCode()).isEqualTo("CA");
@@ -321,11 +329,8 @@ class MobileCustomReportServiceTest {
         @Test
         @DisplayName("un code inconnu est ignoré sans emporter les autres")
         void codeInconnuIgnore() {
-            Map<String, CustomReportMetricDTO> indicateurs = service.generateMetrics(
-                List.of("CA", "INDICATEUR_RETIRE", "TRANSACTIONS"),
-                DEBUT,
-                FIN
-            );
+            Map<String, CustomReportMetricDTO> indicateurs =
+                    service.generateMetrics(List.of("CA", "INDICATEUR_RETIRE", "TRANSACTIONS"), DEBUT, FIN);
 
             assertThat(indicateurs).containsOnlyKeys("CA", "TRANSACTIONS");
         }
@@ -341,13 +346,14 @@ class MobileCustomReportServiceTest {
         @DisplayName("tous les codes connus produisent un indicateur")
         void tousLesCodesConnus() {
             List<String> tousLesCodes = java.util.Arrays.stream(MobileCustomReportService.MetricCode.values())
-                .map(Enum::name)
-                .toList();
+                    .map(Enum::name)
+                    .toList();
 
             Map<String, CustomReportMetricDTO> indicateurs = service.generateMetrics(tousLesCodes, DEBUT, FIN);
 
             assertThat(indicateurs).hasSize(tousLesCodes.size());
-            assertThat(indicateurs.values()).allSatisfy(indicateur -> assertThat(indicateur.value()).isNotNull());
+            assertThat(indicateurs.values())
+                    .allSatisfy(indicateur -> assertThat(indicateur.value()).isNotNull());
         }
     }
 

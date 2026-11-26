@@ -42,13 +42,12 @@ public class MvtParam {
     }
 
     public MvtParam(
-        LocalDate fromDate,
-        LocalDate toDate,
-        Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        Set<SalesStatut> statuts,
-        Set<TypeVente> typeVentes,
-        String groupeBy
-    ) {
+            LocalDate fromDate,
+            LocalDate toDate,
+            Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            Set<SalesStatut> statuts,
+            Set<TypeVente> typeVentes,
+            String groupeBy) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.categorieChiffreAffaires = categorieChiffreAffaires;

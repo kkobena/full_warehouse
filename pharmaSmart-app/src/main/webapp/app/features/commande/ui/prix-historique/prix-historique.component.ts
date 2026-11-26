@@ -1,4 +1,4 @@
-import {signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { signal, Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { BadgeComponent } from 'app/shared/ui';

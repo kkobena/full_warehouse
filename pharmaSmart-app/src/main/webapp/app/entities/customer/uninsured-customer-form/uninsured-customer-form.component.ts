@@ -1,4 +1,14 @@
-import { afterNextRender, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+  ChangeDetectionStrategy,
+  signal,
+} from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, ValidationErrors, Validators } from '@angular/forms';
@@ -12,7 +22,14 @@ import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dial
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { AssureFormStepComponent } from '../assure-form-step/assure-form-step.component';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
-import { ButtonComponent, CardComponent, CheckboxComponent, FormFieldComponent, KeyFilterDirective, RadioComponent } from '../../../shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  CheckboxComponent,
+  FormFieldComponent,
+  KeyFilterDirective,
+  RadioComponent,
+} from '../../../shared/ui';
 
 /** Un champ texte ne se contente pas d'être « non vide » : des espaces seuls ne font pas un nom. */
 const nonVide = (control: AbstractControl): ValidationErrors | null =>
@@ -23,7 +40,17 @@ const nonVide = (control: AbstractControl): ValidationErrors | null =>
   templateUrl: './uninsured-customer-form.component.html',
   styleUrls: ['./uninsured-customer-component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, CheckboxComponent, DateNaissDirective, FormFieldComponent, KeyFilterDirective, RadioComponent],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    CardComponent,
+    CheckboxComponent,
+    DateNaissDirective,
+    FormFieldComponent,
+    KeyFilterDirective,
+    RadioComponent,
+  ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, OnDestroy {
   title: string | null = null;
@@ -119,7 +146,7 @@ export class UninsuredCustomerFormComponent implements OnInit, OnDestroy {
       return 'Adresse e-mail invalide.';
     }
     if (controle.errors?.pattern) {
-      return 'Numéro invalide : chiffres uniquement (6 à 14). Pour un numéro étranger, commencez par + et l\'indicatif.';
+      return "Numéro invalide : chiffres uniquement (6 à 14). Pour un numéro étranger, commencez par + et l'indicatif.";
     }
     if (controle.errors?.invalidDate || controle.errors?.outOfRange) {
       return 'Veuillez saisir une date valide.';
@@ -280,7 +307,10 @@ export class UninsuredCustomerFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => this.activeModal.close(customer),
         error: () => {
-          this.notificationService.warning('Client créé, mais le consentement n\'a pas pu être enregistré : à reprendre depuis sa fiche.', 'Consentement');
+          this.notificationService.warning(
+            "Client créé, mais le consentement n'a pas pu être enregistré : à reprendre depuis sa fiche.",
+            'Consentement',
+          );
           this.activeModal.close(customer);
         },
       });

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.facturation.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,8 +64,7 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         PlanificationDto cree = services.planificationFacturationService.create(
-            planification("Hebdomadaire", Periodicite.HEBDOMADAIRE, LocalDate.of(2026, 1, 4))
-        );
+                planification("Hebdomadaire", Periodicite.HEBDOMADAIRE, LocalDate.of(2026, 1, 4)));
         viderLeCache();
 
         assertNotNull(cree.id());
@@ -82,7 +80,8 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
 
         // Le service ne contrôle pas l'unicité : c'est la contrainte
         // uq_planification_periodicite_provisoire qui l'impose.
-        assertThrows(DataIntegrityViolationException.class, () -> services.planificationFacturationService.create(doublon));
+        assertThrows(
+                DataIntegrityViolationException.class, () -> services.planificationFacturationService.create(doublon));
     }
 
     @Test
@@ -92,27 +91,27 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         PlanificationDto modifiee = services.planificationFacturationService.update(
-            mensuelle.getId(),
-            new PlanificationDto(
                 mensuelle.getId(),
-                "Mensuelle renommée",
-                Periodicite.MENSUEL,
-                LocalTime.of(5, 15),
-                false,
-                true,
-                LocalDate.of(2026, 1, 31),
-                null,
-                null,
-                null,
-                null,
-                0L
-            )
-        );
+                new PlanificationDto(
+                        mensuelle.getId(),
+                        "Mensuelle renommée",
+                        Periodicite.MENSUEL,
+                        LocalTime.of(5, 15),
+                        false,
+                        true,
+                        LocalDate.of(2026, 1, 31),
+                        null,
+                        null,
+                        null,
+                        null,
+                        0L));
         viderLeCache();
 
         assertEquals("Mensuelle renommée", modifiee.libelle());
         assertEquals(LocalDate.of(2026, 3, 1).atTime(5, 15), modifiee.prochaineExecution());
-        assertEquals("Mensuelle renommée", em.find(PlanificationFacturation.class, mensuelle.getId()).getLibelle());
+        assertEquals(
+                "Mensuelle renommée",
+                em.find(PlanificationFacturation.class, mensuelle.getId()).getLibelle());
     }
 
     @Test
@@ -136,8 +135,7 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
     @DisplayName("Supprimer une planification l'efface")
     void suppression() {
         PlanificationDto hebdomadaire = services.planificationFacturationService.create(
-            planification("À supprimer", Periodicite.HEBDOMADAIRE, LocalDate.of(2026, 1, 4))
-        );
+                planification("À supprimer", Periodicite.HEBDOMADAIRE, LocalDate.of(2026, 1, 4)));
         viderLeCache();
 
         services.planificationFacturationService.delete(hebdomadaire.id());
@@ -161,7 +159,8 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         List<FactureTiersPayant> factures = facturesDe(reponse.generationCode());
         assertEquals(1, factures.size());
         assertEquals(organisme.getId(), factures.getFirst().getTiersPayant().getId());
-        assertEquals(OrigineGeneration.AUTO, factures.getFirst().getOrigineGeneration(), "la facture porte son origine");
+        assertEquals(
+                OrigineGeneration.AUTO, factures.getFirst().getOrigineGeneration(), "la facture porte son origine");
     }
 
     @Test
@@ -176,14 +175,16 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         PlanificationFacturation relue = em.find(PlanificationFacturation.class, plan.getId());
-        LocalDate finDuMoisCourant = LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1);
+        LocalDate finDuMoisCourant =
+                LocalDate.now().withDayOfMonth(1).plusMonths(1).minusDays(1);
         assertEquals(finDuMoisCourant, relue.getDernierePeriodeFin(), "la période facturée est le mois courant");
         assertEquals(ExecutionStatut.SUCCESS, relue.getDernierStatut());
         assertNotNull(relue.getDerniereExecution());
         assertNull(relue.getDernierMessage());
         // La période suivante court du 1er au dernier jour du mois prochain ; l'exécution a lieu
         // le lendemain de sa fin, soit le 1er du mois d'après.
-        LocalDate finDuMoisProchain = finDuMoisCourant.plusDays(1).withDayOfMonth(1).plusMonths(1).minusDays(1);
+        LocalDate finDuMoisProchain =
+                finDuMoisCourant.plusDays(1).withDayOfMonth(1).plusMonths(1).minusDays(1);
         assertEquals(finDuMoisProchain.plusDays(1).atTime(7, 0), relue.getProchaineExecution());
     }
 
@@ -198,8 +199,8 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         List<HistoriquePlanificationDto> historique = services.planificationFacturationService
-            .getHistorique(plan.getId(), page())
-            .getContent();
+                .getHistorique(plan.getId(), page())
+                .getContent();
 
         assertEquals(1, historique.size());
         HistoriquePlanificationDto trace = historique.getFirst();
@@ -220,8 +221,16 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         services.planificationFacturationService.executerMaintenant(mensuelle.getId());
         viderLeCache();
 
-        assertEquals(1, services.planificationFacturationService.getHistorique(mensuelle.getId(), page()).getTotalElements());
-        assertEquals(0, services.planificationFacturationService.getHistorique(bimensuelle.getId(), page()).getTotalElements());
+        assertEquals(
+                1,
+                services.planificationFacturationService
+                        .getHistorique(mensuelle.getId(), page())
+                        .getTotalElements());
+        assertEquals(
+                0,
+                services.planificationFacturationService
+                        .getHistorique(bimensuelle.getId(), page())
+                        .getTotalElements());
     }
 
     @Test
@@ -237,8 +246,10 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
 
         assertNull(reponse.generationCode());
         PlanificationFacturation relue = em.find(PlanificationFacturation.class, plan.getId());
-        assertEquals(ExecutionStatut.ECHEC, relue.getDernierStatut(), "aucun dossier facturable remonte comme un échec");
-        assertEquals(periodeAvant, relue.getDernierePeriodeFin(), "la période n'avance pas tant que rien n'a été facturé");
+        assertEquals(
+                ExecutionStatut.ECHEC, relue.getDernierStatut(), "aucun dossier facturable remonte comme un échec");
+        assertEquals(
+                periodeAvant, relue.getDernierePeriodeFin(), "la période n'avance pas tant que rien n'a été facturé");
         assertEquals(1, compter("SELECT count(*) FROM historique_planification WHERE statut = 'ECHEC'"));
     }
 
@@ -307,16 +318,15 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM facture_tiers_payant WHERE groupe_tiers_payant_id IS NOT NULL"),
-            "une facture porteuse pour le groupe"
-        );
+                1,
+                compter("SELECT count(*) FROM facture_tiers_payant WHERE groupe_tiers_payant_id IS NOT NULL"),
+                "une facture porteuse pour le groupe");
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM facture_tiers_payant WHERE groupe_facture_tiers_payant_id IS NOT NULL"),
-            "l'adhérent est rattaché à la porteuse"
-        );
-        assertEquals(3, compter("SELECT count(*) FROM facture_tiers_payant"), "la porteuse, sa fille, et l'organisme isolé");
+                1,
+                compter("SELECT count(*) FROM facture_tiers_payant WHERE groupe_facture_tiers_payant_id IS NOT NULL"),
+                "l'adhérent est rattaché à la porteuse");
+        assertEquals(
+                3, compter("SELECT count(*) FROM facture_tiers_payant"), "la porteuse, sa fille, et l'organisme isolé");
     }
 
     @Test
@@ -329,17 +339,15 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         services.planificationFacturationService.executerPlanificationScheduled(
-            em.find(PlanificationFacturation.class, plan.getId())
-        );
+                em.find(PlanificationFacturation.class, plan.getId()));
         viderLeCache();
 
         PlanificationFacturation relue = em.find(PlanificationFacturation.class, plan.getId());
         assertEquals(ExecutionStatut.ECHEC, relue.getDernierStatut(), "aucun dossier sur février 2026");
         assertEquals(
-            LocalDate.of(2026, 3, 1).atTime(7, 0),
-            relue.getProchaineExecution(),
-            "l'échéance avance quand même : sans cela le planificateur rejouerait sans fin"
-        );
+                LocalDate.of(2026, 3, 1).atTime(7, 0),
+                relue.getProchaineExecution(),
+                "l'échéance avance quand même : sans cela le planificateur rejouerait sans fin");
         assertEquals(1, compter("SELECT count(*) FROM historique_planification"));
     }
 
@@ -352,8 +360,7 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
         viderLeCache();
 
         services.planificationFacturationService.executerPlanificationScheduled(
-            em.find(PlanificationFacturation.class, plan.getId())
-        );
+                em.find(PlanificationFacturation.class, plan.getId()));
         viderLeCache();
 
         PlanificationFacturation relue = em.find(PlanificationFacturation.class, plan.getId());
@@ -370,30 +377,27 @@ class PlanificationFacturationIntegrationTest extends AbstractFacturationIntegra
 
     private PlanificationDto planification(String libelle, Periodicite periodicite, LocalDate dernierePeriodeFin) {
         return new PlanificationDto(
-            null,
-            libelle,
-            periodicite,
-            LocalTime.of(7, 0),
-            false,
-            true,
-            dernierePeriodeFin,
-            null,
-            null,
-            null,
-            null,
-            0L
-        );
+                null,
+                libelle,
+                periodicite,
+                LocalTime.of(7, 0),
+                false,
+                true,
+                dernierePeriodeFin,
+                null,
+                null,
+                null,
+                null,
+                0L);
     }
 
     /** La planification définitive livrée par les migrations pour cette périodicité. */
     private PlanificationFacturation planificationDeReference(Periodicite periodicite) {
-        return em
-            .createQuery(
-                "SELECT p FROM PlanificationFacturation p WHERE p.periodicite = :p AND p.factureProvisoire = false",
-                PlanificationFacturation.class
-            )
-            .setParameter("p", periodicite)
-            .getSingleResult();
+        return em.createQuery(
+                        "SELECT p FROM PlanificationFacturation p WHERE p.periodicite = :p AND p.factureProvisoire = false",
+                        PlanificationFacturation.class)
+                .setParameter("p", periodicite)
+                .getSingleResult();
     }
 
     /**

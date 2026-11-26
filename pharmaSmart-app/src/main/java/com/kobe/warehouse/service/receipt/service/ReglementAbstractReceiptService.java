@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
  * This class provides the Graphics2D-based printing implementation.
  * Subclasses must implement generateEscPosReceipt() for direct thermal printing.
  */
-
 @Service
 public abstract class ReglementAbstractReceiptService extends AbstractJava2DReceiptPrinterService {
 

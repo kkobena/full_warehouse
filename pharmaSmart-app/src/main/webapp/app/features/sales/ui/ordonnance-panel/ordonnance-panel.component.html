@@ -11,8 +11,13 @@
         <app-button (clicked)="gererPrescripteurs()" icon="pi pi-users" label="Prescripteurs" severity="info" size="small" [text]="true" />
       </div>
       @if (masquees() > 0 || voirToutes()) {
-        <app-button (clicked)="voirToutes.set(!voirToutes())" [text]="true" severity="secondary" size="small"
-                    [label]="voirToutes() ? 'Masquer les terminées et expirées' : 'Afficher les terminées et expirées (' + masquees() + ')'" />
+        <app-button
+          (clicked)="voirToutes.set(!voirToutes())"
+          [text]="true"
+          severity="secondary"
+          size="small"
+          [label]="voirToutes() ? 'Masquer les terminées et expirées' : 'Afficher les terminées et expirées (' + masquees() + ')'"
+        />
       }
     </div>
 
@@ -38,8 +43,15 @@
           @if (o.dateFinValidite) {
             <span class="text-muted small">valable jusqu'au {{ o.dateFinValidite | date: 'dd/MM/yyyy' }}</span>
           }
-          <app-button (clicked)="imprimerPosologie(o)" icon="pi pi-tag" label="Étiquettes" severity="secondary" size="small"
-                      [text]="true" class="ms-auto" />
+          <app-button
+            (clicked)="imprimerPosologie(o)"
+            icon="pi pi-tag"
+            label="Étiquettes"
+            severity="secondary"
+            size="small"
+            [text]="true"
+            class="ms-auto"
+          />
         </div>
 
         <app-data-table [value]="o.lignes" [stripedRows]="true" size="small" class="d-block mb-2">
@@ -57,7 +69,12 @@
               <td>
                 <span class="pharma-product-name">{{ ligne.produitLibelle ?? ligne.texteLu }}</span>
                 @if (ligne.posologie) {
-                  <div class="text-muted small">{{ ligne.posologie }}@if (ligne.dureeJours) { · {{ ligne.dureeJours }} j }</div>
+                  <div class="text-muted small">
+                    {{ ligne.posologie }}
+                    @if (ligne.dureeJours) {
+                      · {{ ligne.dureeJours }} j
+                    }
+                  </div>
                 }
               </td>
               <td class="text-end">{{ ligne.quantitePrescrite }}</td>
@@ -65,8 +82,15 @@
               <td class="text-end fw-semibold">{{ ligne.resteADelivrer }}</td>
               <td class="text-end">
                 @if (o.statut === 'EN_COURS' && ligne.produitId && ligne.resteADelivrer > 0) {
-                  <app-button (clicked)="ajouterAuPanier(ligne)" icon="pi pi-cart-plus" severity="primary" size="small" [text]="true"
-                              label="Ajouter" ariaLabel="Ajouter ce produit à la vente" />
+                  <app-button
+                    (clicked)="ajouterAuPanier(ligne)"
+                    icon="pi pi-cart-plus"
+                    severity="primary"
+                    size="small"
+                    [text]="true"
+                    label="Ajouter"
+                    ariaLabel="Ajouter ce produit à la vente"
+                  />
                 }
               </td>
             </tr>
@@ -76,7 +100,13 @@
         @if (o.statut === 'EN_COURS') {
           <div class="d-flex flex-wrap align-items-center gap-2">
             @if (venteEnCours()) {
-              <app-button (clicked)="rattacher(o)" icon="pi pi-link" label="Rattacher à la vente en cours" severity="secondary" size="small" />
+              <app-button
+                (clicked)="rattacher(o)"
+                icon="pi pi-link"
+                label="Rattacher à la vente en cours"
+                severity="secondary"
+                size="small"
+              />
             }
             <app-button (clicked)="cloturer(o)" icon="pi pi-check" label="Clôturer" severity="primary" size="small" [text]="true" />
             @if (o.ventes.length > 0) {
@@ -89,15 +119,31 @@
   } @else {
     <div class="d-flex flex-column gap-3">
       <app-form-field label="Prescripteur" fieldId="ordoPrescripteur">
-        <app-select-search inputId="ordoPrescripteur" [items]="prescripteurs()" bindLabel="libelle" bindValue="id" [clearable]="true"
-                           [typeahead]="recherchePrescripteur$" (searched)="chercherPrescripteur($event)" [minSearchLength]="2"
-                           placeholder="Nom du prescripteur" [(ngModel)]="prescripteurId" />
+        <app-select-search
+          inputId="ordoPrescripteur"
+          [items]="prescripteurs()"
+          bindLabel="libelle"
+          bindValue="id"
+          [clearable]="true"
+          [typeahead]="recherchePrescripteur$"
+          (searched)="chercherPrescripteur($event)"
+          [minSearchLength]="2"
+          placeholder="Nom du prescripteur"
+          [(ngModel)]="prescripteurId"
+        />
       </app-form-field>
       <div class="d-flex gap-2 align-items-end">
         <div class="flex-grow-1">
           <app-input placeholder="Pas dans la liste ? Nom du nouveau prescripteur" size="small" [(ngModel)]="nouveauPrescripteur" />
         </div>
-        <app-button (clicked)="creerPrescripteur()" [disabled]="!nouveauPrescripteur.trim()" icon="pi pi-user-plus" label="Créer" severity="secondary" size="small" />
+        <app-button
+          (clicked)="creerPrescripteur()"
+          [disabled]="!nouveauPrescripteur.trim()"
+          icon="pi pi-user-plus"
+          label="Créer"
+          severity="secondary"
+          size="small"
+        />
       </div>
 
       <div class="row g-2">
@@ -105,7 +151,13 @@
           <pharma-date-picker id="ordoDate" label="Date de prescription" labelPosition="top" [(ngModel)]="datePrescription" />
         </div>
         <div class="col-6">
-          <pharma-date-picker id="ordoFin" label="Valable jusqu'au" labelPosition="top" [(ngModel)]="dateFin" [minDate]="datePrescription" />
+          <pharma-date-picker
+            id="ordoFin"
+            label="Valable jusqu'au"
+            labelPosition="top"
+            [(ngModel)]="dateFin"
+            [minDate]="datePrescription"
+          />
         </div>
         <div class="col-6">
           <app-form-field label="Renouvellements" fieldId="ordoRenouvellements" hint="0 si l'ordonnance n'est pas renouvelable">
@@ -130,12 +182,25 @@
                 <td>
                   <span class="pharma-product-name">{{ ligne.libelle }}</span>
                   @if (ligne.posologie) {
-                    <div class="text-muted small">{{ ligne.posologie }}@if (ligne.dureeJours) { · {{ ligne.dureeJours }} j }</div>
+                    <div class="text-muted small">
+                      {{ ligne.posologie }}
+                      @if (ligne.dureeJours) {
+                        · {{ ligne.dureeJours }} j
+                      }
+                    </div>
                   }
                 </td>
                 <td class="text-end">{{ ligne.quantitePrescrite }}</td>
                 <td class="text-end">
-                  <app-button (clicked)="retirerLigne(i)" icon="pi pi-trash" severity="danger" size="small" [text]="true" [iconOnly]="true" ariaLabel="Retirer cette ligne" />
+                  <app-button
+                    (clicked)="retirerLigne(i)"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    [text]="true"
+                    [iconOnly]="true"
+                    ariaLabel="Retirer cette ligne"
+                  />
                 </td>
               </tr>
             </ng-template>
@@ -143,9 +208,18 @@
         }
 
         <div class="d-flex flex-column gap-2">
-          <app-select-search inputId="ordoProduit" [items]="produits()" bindLabel="libelle" bindValue="id" [clearable]="true"
-                             [typeahead]="rechercheProduit$" (searched)="chercherProduit($event)" [minSearchLength]="2"
-                             placeholder="Rechercher un produit du catalogue" [(ngModel)]="ligneProduitId" />
+          <app-select-search
+            inputId="ordoProduit"
+            [items]="produits()"
+            bindLabel="libelle"
+            bindValue="id"
+            [clearable]="true"
+            [typeahead]="rechercheProduit$"
+            (searched)="chercherProduit($event)"
+            [minSearchLength]="2"
+            placeholder="Rechercher un produit du catalogue"
+            [(ngModel)]="ligneProduitId"
+          />
           @if (!ligneProduitId) {
             <app-input placeholder="… ou texte libre si le produit n'est pas au catalogue" size="small" [(ngModel)]="ligneTexte" />
           }
@@ -154,7 +228,14 @@
             <div class="col-3"><app-input-number placeholder="Durée (j)" size="small" [min]="1" [(ngModel)]="ligneDuree" /></div>
             <div class="col-2"><app-input-number placeholder="Qté" size="small" [min]="1" [(ngModel)]="ligneQuantite" /></div>
             <div class="col-2 text-end">
-              <app-button (clicked)="ajouterLigne()" icon="pi pi-plus" severity="secondary" size="small" [iconOnly]="true" ariaLabel="Ajouter la ligne" />
+              <app-button
+                (clicked)="ajouterLigne()"
+                icon="pi pi-plus"
+                severity="secondary"
+                size="small"
+                [iconOnly]="true"
+                ariaLabel="Ajouter la ligne"
+              />
             </div>
           </div>
         </div>

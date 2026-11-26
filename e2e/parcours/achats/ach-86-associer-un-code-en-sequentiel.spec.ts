@@ -78,7 +78,12 @@ scenario('ACH-86', async ({ etape, page }) => {
     // Entrée fait la même chose, mais une touche ne se photographie pas : c'est le bouton
     // qu'il faut montrer.
     await bandeau.getByRole('button', { name: 'Associer à cet article' }).click();
-    await expect(page.locator('[role="alert"], .toast, ngb-toast').filter({ hasText: /Code reconnu/i }).first()).toBeVisible();
+    await expect(
+      page
+        .locator('[role="alert"], .toast, ngb-toast')
+        .filter({ hasText: /Code reconnu/i })
+        .first(),
+    ).toBeVisible();
     // Le bandeau se referme et le scan est rejoué : la ligne suit le chemin ordinaire.
     await expect(bandeau).toHaveCount(0);
   });

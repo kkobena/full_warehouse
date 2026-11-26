@@ -11,9 +11,19 @@
   letter-spacing: 0.04em;
   color: #fff;
 
-  &.pareto-a-plus { background-color: #d32f2f; }
-  &.pareto-a      { background-color: #388e3c; }
-  &.pareto-b      { background-color: #1565c0; }
-  &.pareto-c      { background-color: #e65100; }
-  &.pareto-d      { background-color: #757575; }
+  &.pareto-a-plus {
+    background-color: #d32f2f;
+  }
+  &.pareto-a {
+    background-color: #388e3c;
+  }
+  &.pareto-b {
+    background-color: #1565c0;
+  }
+  &.pareto-c {
+    background-color: #e65100;
+  }
+  &.pareto-d {
+    background-color: #757575;
+  }
 }

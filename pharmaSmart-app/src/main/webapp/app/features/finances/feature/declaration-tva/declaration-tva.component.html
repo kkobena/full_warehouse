@@ -1,5 +1,4 @@
 <div class="declaration-tva">
-
   <!-- Toolbar filtres -->
   <app-toolbar [code]="navCode()" icon="pi pi-percentage" title="Déclaration TVA">
     <ng-container ngProjectAs="[toolbarFilters]">
@@ -8,19 +7,24 @@
 
         <pharma-date-picker inputId="endDate" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" label="Au" />
 
-        <app-select inputId="typeVente" [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)"
-                  [items]="typeOptions" bindLabel="label" bindValue="value" [style]="{ 'min-width': '180px' }" />
+        <app-select
+          inputId="typeVente"
+          [ngModel]="selectedType()"
+          (ngModelChange)="selectedType.set($event)"
+          [items]="typeOptions"
+          bindLabel="label"
+          bindValue="value"
+          [style]="{ 'min-width': '180px' }"
+        />
       </div>
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <app-button label="Calculer" icon="pi pi-calculator" (clicked)="load()" [loading]="isLoading()" />
-      <app-button label="Export PDF" icon="pi pi-file-pdf" severity="secondary" (clicked)="exportPdf()"
-                [disabled]="!summary()" />
+      <app-button label="Export PDF" icon="pi pi-file-pdf" severity="secondary" (clicked)="exportPdf()" [disabled]="!summary()" />
     </ng-container>
   </app-toolbar>
 
   @if (summary(); as s) {
-
     <!-- Résumé TVA -->
     <div class="tva-summary-card mt-3">
       <div class="tva-summary-header">
@@ -39,8 +43,7 @@
         <div class="tva-divider"></div>
         <div class="tva-row nette">
           <span class="tva-label fw-bold">TVA nette à payer</span>
-          <span class="tva-amount fw-bold" [class.text-danger]="s.tvaNette > 0"
-                [class.text-success]="s.tvaNette <= 0">
+          <span class="tva-amount fw-bold" [class.text-danger]="s.tvaNette > 0" [class.text-success]="s.tvaNette <= 0">
             {{ formatCurrency(s.tvaNette) }} <span appDevise></span>
           </span>
         </div>
@@ -88,7 +91,6 @@
         </app-data-table>
       </div>
     }
-
   } @else if (!isLoading()) {
     <div class="pharma-empty-message mt-4">
       <div class="pharma-empty-content">
@@ -100,8 +102,7 @@
 
   @if (isLoading()) {
     <div class="text-center py-5">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
     </div>
   }
-
 </div>

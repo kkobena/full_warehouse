@@ -20,30 +20,27 @@ public class EditionBySelectionBonsService extends AbstractEditionFactureService
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     public EditionBySelectionBonsService(
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationRepository facturationRepository,
-        AppConfigurationService appConfigurationService,
-        UserService userService,
-        FactureIdGeneratorService factureIdGeneratorService,
-        InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
-    ) {
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            FacturationRepository facturationRepository,
+            AppConfigurationService appConfigurationService,
+            UserService userService,
+            FactureIdGeneratorService factureIdGeneratorService,
+            InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService) {
         super(
-            thirdPartySaleLineRepository,
-            facturationRepository,
-            appConfigurationService,
-            userService,
-            factureIdGeneratorService,
-            invoiceGenerationCodeGeneratorService
-        );
+                thirdPartySaleLineRepository,
+                facturationRepository,
+                appConfigurationService,
+                userService,
+                factureIdGeneratorService,
+                invoiceGenerationCodeGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
     @Override
     protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
-            return super
-                .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
+            return super.buildFetchSpecification(editionSearchParams)
+                    .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

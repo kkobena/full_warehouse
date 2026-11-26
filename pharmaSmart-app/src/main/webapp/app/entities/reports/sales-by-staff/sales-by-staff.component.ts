@@ -1,28 +1,29 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import {DashboardCAService} from '../services/dashboard-ca.service';
-import {IPerformanceVendeur} from '../../../shared/model/report';
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {ChartBuilderService, ChartConfig} from '../../../shared/util/chart-builder.service';
-import {formatCurrency, formatDecimal, formatNumber} from 'app/shared/utils/format-utils';
+import { DashboardCAService } from '../services/dashboard-ca.service';
+import { IPerformanceVendeur } from '../../../shared/model/report';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { ChartBuilderService, ChartConfig } from '../../../shared/util/chart-builder.service';
+import { formatCurrency, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 import {
   ButtonComponent,
   DataTableComponent,
   KpiItemComponent,
   KpiStripComponent,
   SortableHeaderDirective,
-  ToolbarComponent
+  ToolbarComponent,
 } from '../../../shared/ui';
-import {ChartComponent} from "../../../shared/chart/chart.component";
-import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import { ChartComponent } from '../../../shared/chart/chart.component';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-sales-by-staff',
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     FormsModule,
     DataTableComponent,
@@ -32,7 +33,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     ButtonComponent,
     ToolbarComponent,
     KpiStripComponent,
-    KpiItemComponent
+    KpiItemComponent,
   ],
   templateUrl: './sales-by-staff.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

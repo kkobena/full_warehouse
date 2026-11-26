@@ -39,13 +39,12 @@ public class ScheduledReportService {
     private final ComparativePdfReportService comparativePdfReportService;
 
     public ScheduledReportService(
-        ScheduledReportRepository scheduledReportRepository,
-        MailService mailService,
-        DashboardCAPdfExportService dashboardCAPdfExportService,
-        StockAlertPdfReportService stockAlertPdfReportService,
-        TiersPayantPdfReportService tiersPayantPdfReportService,
-        ComparativePdfReportService comparativePdfReportService
-    ) {
+            ScheduledReportRepository scheduledReportRepository,
+            MailService mailService,
+            DashboardCAPdfExportService dashboardCAPdfExportService,
+            StockAlertPdfReportService stockAlertPdfReportService,
+            TiersPayantPdfReportService tiersPayantPdfReportService,
+            ComparativePdfReportService comparativePdfReportService) {
         this.scheduledReportRepository = scheduledReportRepository;
         this.mailService = mailService;
         this.dashboardCAPdfExportService = dashboardCAPdfExportService;
@@ -71,8 +70,7 @@ public class ScheduledReportService {
                 updateNextExecution(report);
                 scheduledReportRepository.save(report);
             } catch (Exception e) {
-                log.error("Error executing scheduled report {}: {}", report.getId(), e.getMessage(),
-                    e);
+                log.error("Error executing scheduled report {}: {}", report.getId(), e.getMessage(), e);
             }
         }
     }
@@ -81,8 +79,10 @@ public class ScheduledReportService {
      * Execute a single report
      */
     public void executeReport(ScheduledReport scheduledReport) {
-        log.info("Executing scheduled report: {} ({})", scheduledReport.getReportName(),
-            scheduledReport.getReportType());
+        log.info(
+                "Executing scheduled report: {} ({})",
+                scheduledReport.getReportName(),
+                scheduledReport.getReportType());
 
         byte[] pdfData = null;
         byte[] excelData = null;
@@ -114,14 +114,13 @@ public class ScheduledReportService {
 
             case COMPARATIVE_ANALYSIS:
                 if (scheduledReport.isIncludePdf()) {
-                    pdfData = comparativePdfReportService.export("MONTHLY",
-                        LocalDate.now().getYear());
+                    pdfData = comparativePdfReportService.export(
+                            "MONTHLY", LocalDate.now().getYear());
                 }
                 break;
 
             default:
-                log.warn("Report type {} not yet implemented for scheduling",
-                    scheduledReport.getReportType());
+                log.warn("Report type {} not yet implemented for scheduling", scheduledReport.getReportType());
                 return;
         }
 
@@ -136,33 +135,19 @@ public class ScheduledReportService {
      * Send report via email
      */
     private void sendReportEmail(
-        ScheduledReport scheduledReport,
-        byte[] pdfData,
-        byte[] excelData,
-        LocalDate startDate,
-        LocalDate endDate
-    ) {
+            ScheduledReport scheduledReport, byte[] pdfData, byte[] excelData, LocalDate startDate, LocalDate endDate) {
         Set<String> recipients = scheduledReport.getEmailRecipients();
 
-        String subject = String.format(
-            "Rapport Automatique: %s (%s - %s)",
-            scheduledReport.getReportName(),
-            startDate,
-            endDate
-        );
+        String subject =
+                String.format("Rapport Automatique: %s (%s - %s)", scheduledReport.getReportName(), startDate, endDate);
 
         String content = String.format(
-            "<p>Bonjour,</p>" +
-                "<p>Veuillez trouver ci-joint le rapport automatique <strong>%s</strong>.</p>" +
-                "<p>Période: Du %s au %s</p>" +
-                "<p>Fréquence: %s</p>" +
-                "<br/>" +
-                "<p><em>Ce rapport a été généré automatiquement par Pharma-Smart.</em></p>",
-            scheduledReport.getReportName(),
-            startDate,
-            endDate,
-            scheduledReport.getFrequency()
-        );
+                "<p>Bonjour,</p>" + "<p>Veuillez trouver ci-joint le rapport automatique <strong>%s</strong>.</p>"
+                        + "<p>Période: Du %s au %s</p>"
+                        + "<p>Fréquence: %s</p>"
+                        + "<br/>"
+                        + "<p><em>Ce rapport a été généré automatiquement par Pharma-Smart.</em></p>",
+                scheduledReport.getReportName(), startDate, endDate, scheduledReport.getFrequency());
 
         for (String recipient : recipients) {
             try {
@@ -170,26 +155,16 @@ public class ScheduledReportService {
 
                 // Add PDF attachment if present
                 if (pdfData != null) {
-                    ByteArrayDataSource pdfSource = new ByteArrayDataSource(pdfData,
-                        "application/pdf");
-                    String pdfFilename = String.format(
-                        "%s_%s_%s.pdf",
-                        scheduledReport.getReportType(),
-                        startDate,
-                        endDate
-                    );
+                    ByteArrayDataSource pdfSource = new ByteArrayDataSource(pdfData, "application/pdf");
+                    String pdfFilename =
+                            String.format("%s_%s_%s.pdf", scheduledReport.getReportType(), startDate, endDate);
                     // Note: MailService needs to be enhanced to support attachments
                     // For now, this is a placeholder
                 }
                 if (excelData != null) {
-                    ByteArrayDataSource excelSource = new ByteArrayDataSource(pdfData,
-                        "application/pdf");
-                    String pdfFilename = String.format(
-                        "%s_%s_%s.pdf",
-                        scheduledReport.getReportType(),
-                        startDate,
-                        endDate
-                    );
+                    ByteArrayDataSource excelSource = new ByteArrayDataSource(pdfData, "application/pdf");
+                    String pdfFilename =
+                            String.format("%s_%s_%s.pdf", scheduledReport.getReportType(), startDate, endDate);
                     // Note: MailService needs to be enhanced to support attachments
                     // For now, this is a placeholder
                 }
@@ -206,22 +181,21 @@ public class ScheduledReportService {
      */
     private void updateNextExecution(ScheduledReport report) {
         LocalDateTime nextExecution;
-        LocalTime executionTime =
-            report.getExecutionTime() != null ? report.getExecutionTime() : LocalTime.of(8, 0);
+        LocalTime executionTime = report.getExecutionTime() != null ? report.getExecutionTime() : LocalTime.of(8, 0);
 
         nextExecution = switch (report.getFrequency()) {
             case WEEKLY -> {
-                DayOfWeek targetDay = DayOfWeek.of(
-                    report.getDayOfWeek() != null ? report.getDayOfWeek() : 1);
-                yield LocalDateTime
-                    .now()
-                    .with(TemporalAdjusters.next(targetDay))
-                    .with(executionTime);
+                DayOfWeek targetDay = DayOfWeek.of(report.getDayOfWeek() != null ? report.getDayOfWeek() : 1);
+                yield LocalDateTime.now()
+                        .with(TemporalAdjusters.next(targetDay))
+                        .with(executionTime);
             }
             case MONTHLY -> {
                 int dayOfMonth = report.getDayOfMonth() != null ? report.getDayOfMonth() : 1;
-                yield LocalDateTime.now().plusMonths(1).withDayOfMonth(dayOfMonth)
-                    .with(executionTime);
+                yield LocalDateTime.now()
+                        .plusMonths(1)
+                        .withDayOfMonth(dayOfMonth)
+                        .with(executionTime);
             }
             default -> LocalDateTime.now().plusDays(1).with(executionTime);
         };
@@ -240,7 +214,7 @@ public class ScheduledReportService {
             default -> endDate.minusDays(7);
         };
 
-        return new LocalDate[]{startDate, endDate};
+        return new LocalDate[] {startDate, endDate};
     }
 
     /**

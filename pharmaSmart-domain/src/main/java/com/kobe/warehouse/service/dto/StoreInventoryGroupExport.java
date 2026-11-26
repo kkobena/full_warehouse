@@ -57,13 +57,12 @@ public class StoreInventoryGroupExport {
     }
 
     public StoreInventoryGroupExport(
-        long id,
-        String code,
-        String libelle,
-        List<StoreInventoryLineExport> items,
-        long storageId,
-        String storageLibelle
-    ) {
+            long id,
+            String code,
+            String libelle,
+            List<StoreInventoryLineExport> items,
+            long storageId,
+            String storageLibelle) {
         this();
         this.id = id;
         this.code = code;
@@ -124,7 +123,8 @@ public class StoreInventoryGroupExport {
         if (!CollectionUtils.isEmpty(items)) {
             try {
                 storageId = getItems().getFirst().getStorageId();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return storageId;
     }

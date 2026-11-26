@@ -31,33 +31,31 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
     public ReglementFactureSelectionneesService(
-        CashRegisterService cashRegisterService,
-        InvoicePaymentRepository invoicePaymentRepository,
-        UserService userService,
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository,
-        TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService,
-        ReferenceService referenceService
-    ) {
+            CashRegisterService cashRegisterService,
+            InvoicePaymentRepository invoicePaymentRepository,
+            UserService userService,
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            BanqueRepository banqueRepository,
+            TransactionIdGeneratorService transactionIdGeneratorService,
+            InvoicePaymentItemService invoicePaymentItemService,
+            ReferenceService referenceService) {
         super(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam)
-        throws CashRegisterException, PaymentAmountException, GenericError {
+            throws CashRegisterException, PaymentAmountException, GenericError {
         if (reglementParam.getDossierIds().isEmpty()) {
             throw new GenericError("Aucun dossiers à regler");
         }
@@ -84,7 +82,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
                 montantVerse = 0;
             }
             montantPaye += itemAmount;
-            invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
+            invoicePayment
+                    .getInvoicePaymentItems()
+                    .add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
             thirdPartySaleLinesUpdated.add(thirdParty);
         }
@@ -102,11 +102,10 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
     }
 
     public InvoicePayment doReglement(
-        InvoicePayment groupeInvoicePayment,
-        FactureTiersPayant factureTiersPayant,
-        int montantFacture,
-        LigneSelectionnesDTO item
-    ) {
+            InvoicePayment groupeInvoicePayment,
+            FactureTiersPayant factureTiersPayant,
+            int montantFacture,
+            LigneSelectionnesDTO item) {
         List<ThirdPartySaleLine> thirdPartySaleLinesUpdated = new ArrayList<>();
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, groupeInvoicePayment);
         int montantPaye = 0;
@@ -126,7 +125,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
                 montantVerse = 0;
             }
             montantPaye += itemAmount;
-            invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
+            invoicePayment
+                    .getInvoicePaymentItems()
+                    .add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
             thirdPartySaleLinesUpdated.add(thirdParty);
         }
@@ -146,9 +147,12 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
      * appartiennent à la facture réglée, et qu'aucun n'a été soldé depuis l'affichage de l'écran —
      * ce dernier cas est précisément celui d'un double règlement.
      */
-    private static void verifierDossiers(FactureTiersPayant facture, List<ThirdPartySaleLine> dossiers, List<Long> dossierIds) {
+    private static void verifierDossiers(
+            FactureTiersPayant facture, List<ThirdPartySaleLine> dossiers, List<Long> dossierIds) {
         if (dossiers.size() != Set.copyOf(dossierIds).size()) {
-            throw new GenericError("Un ou plusieurs dossiers sélectionnés sont introuvables ; rechargez la facture", "dossierNotFound");
+            throw new GenericError(
+                    "Un ou plusieurs dossiers sélectionnés sont introuvables ; rechargez la facture",
+                    "dossierNotFound");
         }
         for (ThirdPartySaleLine dossier : dossiers) {
             FactureTiersPayant factureDuDossier = dossier.getFactureTiersPayant();
@@ -156,14 +160,15 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
                 throw new GenericError("Un dossier sélectionné n'appartient pas à cette facture", "dossierHorsFacture");
             }
             if (resteDu(dossier) <= 0) {
-                throw new GenericError("Un ou plusieurs dossiers sélectionnés sont déjà réglés ; rechargez la facture", "dossierDejaRegle");
+                throw new GenericError(
+                        "Un ou plusieurs dossiers sélectionnés sont déjà réglés ; rechargez la facture",
+                        "dossierDejaRegle");
             }
         }
     }
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {
         return this.thirdPartySaleLineRepository.findAll(
-                this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
-            );
+                this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds())));
     }
 }

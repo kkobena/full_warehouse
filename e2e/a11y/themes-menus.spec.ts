@@ -75,7 +75,18 @@ async function mesurerContraste(page: Page, portee: string, etat: string): Promi
       if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) {
         return;
       }
-      liste.push({ genre, libelle, couleur: cs.color, opacite: opaciteCumulee(e), taille: parseFloat(cs.fontSize), gras: Number(cs.fontWeight) >= 700, x: r.x, y: r.y, l: r.width, h: r.height });
+      liste.push({
+        genre,
+        libelle,
+        couleur: cs.color,
+        opacite: opaciteCumulee(e),
+        taille: parseFloat(cs.fontSize),
+        gras: Number(cs.fontWeight) >= 700,
+        x: r.x,
+        y: r.y,
+        l: r.width,
+        h: r.height,
+      });
     };
     for (const racine of racines) {
       const parcours = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT);
@@ -89,7 +100,8 @@ async function mesurerContraste(page: Page, portee: string, etat: string): Promi
         ajouter(noeud.parentElement, plage.getBoundingClientRect(), noeud.textContent.trim().slice(0, 30), 'texte');
       }
       racine.querySelectorAll('svg, i.pi').forEach(i => {
-        const nom = i.closest('[aria-label]')?.getAttribute('aria-label') ?? i.closest('a, button')?.textContent?.trim().slice(0, 24) ?? 'icône';
+        const nom =
+          i.closest('[aria-label]')?.getAttribute('aria-label') ?? i.closest('a, button')?.textContent?.trim().slice(0, 24) ?? 'icône';
         ajouter(i, i.getBoundingClientRect(), nom || 'icône', 'icône');
       });
     }
@@ -169,7 +181,12 @@ async function mesurerFocus(page: Page, selecteur: string, nom: string): Promise
     return `${nom} : introuvable`;
   }
   const marge = 6;
-  const clip = { x: Math.max(0, boite.x - marge), y: Math.max(0, boite.y - marge), width: boite.width + 2 * marge, height: boite.height + 2 * marge };
+  const clip = {
+    x: Math.max(0, boite.x - marge),
+    y: Math.max(0, boite.y - marge),
+    width: boite.width + 2 * marge,
+    height: boite.height + 2 * marge,
+  };
   await el.evaluate((e: HTMLElement) => e.blur());
   await page.mouse.move(2, 2);
   await page.waitForTimeout(80);
@@ -178,37 +195,40 @@ async function mesurerFocus(page: Page, selecteur: string, nom: string): Promise
   await el.focus();
   await page.waitForTimeout(80);
   const apres = `data:image/png;base64,${(await page.screenshot({ clip })).toString('base64')}`;
-  const r = await page.evaluate(async ([a, b]) => {
-    const charge = async (src: string): Promise<Uint8ClampedArray> => {
-      const im = new Image();
-      im.src = src;
-      await im.decode();
-      const c = document.createElement('canvas');
-      c.width = im.width;
-      c.height = im.height;
-      const g = c.getContext('2d') as CanvasRenderingContext2D;
-      g.drawImage(im, 0, 0);
-      return g.getImageData(0, 0, im.width, im.height).data;
-    };
-    const lum = (v: number[]): number => {
-      const f = (x: number): number => (x / 255 <= 0.03928 ? x / 255 / 12.92 : Math.pow((x / 255 + 0.055) / 1.055, 2.4));
-      return 0.2126 * f(v[0]) + 0.7152 * f(v[1]) + 0.0722 * f(v[2]);
-    };
-    const A = await charge(a);
-    const B = await charge(b);
-    let changes = 0;
-    let meilleur = 1;
-    for (let i = 0; i < A.length; i += 4) {
-      const d = Math.abs(A[i] - B[i]) + Math.abs(A[i + 1] - B[i + 1]) + Math.abs(A[i + 2] - B[i + 2]);
-      if (d > 30) {
-        changes++;
-        const x = lum([A[i], A[i + 1], A[i + 2]]);
-        const y = lum([B[i], B[i + 1], B[i + 2]]);
-        meilleur = Math.max(meilleur, (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05));
+  const r = await page.evaluate(
+    async ([a, b]) => {
+      const charge = async (src: string): Promise<Uint8ClampedArray> => {
+        const im = new Image();
+        im.src = src;
+        await im.decode();
+        const c = document.createElement('canvas');
+        c.width = im.width;
+        c.height = im.height;
+        const g = c.getContext('2d') as CanvasRenderingContext2D;
+        g.drawImage(im, 0, 0);
+        return g.getImageData(0, 0, im.width, im.height).data;
+      };
+      const lum = (v: number[]): number => {
+        const f = (x: number): number => (x / 255 <= 0.03928 ? x / 255 / 12.92 : Math.pow((x / 255 + 0.055) / 1.055, 2.4));
+        return 0.2126 * f(v[0]) + 0.7152 * f(v[1]) + 0.0722 * f(v[2]);
+      };
+      const A = await charge(a);
+      const B = await charge(b);
+      let changes = 0;
+      let meilleur = 1;
+      for (let i = 0; i < A.length; i += 4) {
+        const d = Math.abs(A[i] - B[i]) + Math.abs(A[i + 1] - B[i + 1]) + Math.abs(A[i + 2] - B[i + 2]);
+        if (d > 30) {
+          changes++;
+          const x = lum([A[i], A[i + 1], A[i + 2]]);
+          const y = lum([B[i], B[i + 1], B[i + 2]]);
+          meilleur = Math.max(meilleur, (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05));
+        }
       }
-    }
-    return { changes, meilleur };
-  }, [avant, apres] as [string, string]);
+      return { changes, meilleur };
+    },
+    [avant, apres] as [string, string],
+  );
   if (r.changes < 6) {
     return `focus invisible : ${nom} (${r.changes} pixel(s) modifié(s))`;
   }
@@ -226,13 +246,23 @@ async function indiceActif(page: Page, racine: string): Promise<string | null> {
     if (!actif) {
       return null; // pas d'entrée active sur cet écran : rien à mesurer
     }
-    const autre = [...(r?.querySelectorAll('a.nav-link, button.nav-link') ?? [])].find(e => e !== actif && !actif.contains(e) && !e.contains(actif)) as HTMLElement | undefined;
+    const autre = [...(r?.querySelectorAll('a.nav-link, button.nav-link') ?? [])].find(
+      e => e !== actif && !actif.contains(e) && !e.contains(actif),
+    ) as HTMLElement | undefined;
     if (!autre) {
       return null;
     }
     const lire = (e: HTMLElement) => {
       const cs = getComputedStyle(e);
-      return [cs.fontWeight, cs.textDecorationLine, cs.boxShadow, cs.borderLeftWidth, cs.borderBottomWidth, cs.backgroundImage, cs.backgroundColor].join('|');
+      return [
+        cs.fontWeight,
+        cs.textDecorationLine,
+        cs.boxShadow,
+        cs.borderLeftWidth,
+        cs.borderBottomWidth,
+        cs.backgroundImage,
+        cs.backgroundColor,
+      ].join('|');
     };
     const li = (e: HTMLElement) => e.closest('li') as HTMLElement | null;
     const a = lire(actif) + '#' + (li(actif) ? lire(li(actif) as HTMLElement) : '');
@@ -261,7 +291,9 @@ async function tailleDesCibles(page: Page, portee: string, etat: string): Promis
           return;
         }
         if (r.width < 24 || r.height < 24) {
-          petits.push(`${contexte} : cible ${Math.round(r.width)}×${Math.round(r.height)} px « ${(e.getAttribute('aria-label') ?? e.textContent ?? '').trim().slice(0, 24)} »`);
+          petits.push(
+            `${contexte} : cible ${Math.round(r.width)}×${Math.round(r.height)} px « ${(e.getAttribute('aria-label') ?? e.textContent ?? '').trim().slice(0, 24)} »`,
+          );
         }
       });
       return petits;
@@ -308,7 +340,10 @@ for (const disposition of DISPOSITIONS) {
         if (!(await item.isVisible())) {
           continue;
         }
-        const nom = ((await item.getAttribute('aria-label')) ?? (await item.textContent()) ?? `item ${i}`).trim().replace(/\s+/g, ' ').slice(0, 26);
+        const nom = ((await item.getAttribute('aria-label')) ?? (await item.textContent()) ?? `item ${i}`)
+          .trim()
+          .replace(/\s+/g, ' ')
+          .slice(0, 26);
         await item.hover();
         await page.waitForTimeout(80);
         await item.evaluate((e: HTMLElement) => {
@@ -318,7 +353,11 @@ for (const disposition of DISPOSITIONS) {
         defauts.push(...(await mesurerContraste(page, `${racine} [data-mesure]`, `survol « ${nom} »`)));
         await item.evaluate((e: HTMLElement) => (e.closest('li') ?? e).removeAttribute('data-mesure'));
         await page.mouse.move(2, 2);
-        const focus = await mesurerFocus(page, `${racine} [data-flyout-trigger], ${racine} a.nav-link, ${racine} button.nav-link >> nth=${i}`, nom);
+        const focus = await mesurerFocus(
+          page,
+          `${racine} [data-flyout-trigger], ${racine} a.nav-link, ${racine} button.nav-link >> nth=${i}`,
+          nom,
+        );
         if (focus) {
           defauts.push(focus);
         }
@@ -335,7 +374,7 @@ for (const disposition of DISPOSITIONS) {
         try {
           await panneau.waitFor({ timeout: 4000 });
         } catch {
-          defauts.push('clavier : Entrée n\'ouvre pas le menu déroulant (2.1.1)');
+          defauts.push("clavier : Entrée n'ouvre pas le menu déroulant (2.1.1)");
         }
         if (await panneau.count()) {
           await page.waitForTimeout(250);
@@ -357,9 +396,11 @@ for (const disposition of DISPOSITIONS) {
           if (await page.locator('.flyout-panel').count()) {
             defauts.push('clavier : Échap ne ferme pas le menu déroulant (2.1.2)');
           } else {
-            const rendu = await page.evaluate(() => (document.activeElement as HTMLElement | null)?.closest('[data-flyout-trigger]') !== null);
+            const rendu = await page.evaluate(
+              () => (document.activeElement as HTMLElement | null)?.closest('[data-flyout-trigger]') !== null,
+            );
             if (!rendu) {
-              defauts.push('clavier : le focus n\'est pas rendu au déclencheur après Échap (2.4.3)');
+              defauts.push("clavier : le focus n'est pas rendu au déclencheur après Échap (2.4.3)");
             }
           }
         }
@@ -375,7 +416,10 @@ for (const disposition of DISPOSITIONS) {
       const connus = reference.get(cle) ?? new Set<string>();
       const nouveaux = theme === 'actuel' ? [] : defauts.filter(d => !connus.has(d));
       mkdirSync(DOSSIER, { recursive: true });
-      writeFileSync(join(DOSSIER, `menus-${disposition}-${theme}.json`), JSON.stringify({ total: defauts.length, nouveaux, defauts }, null, 2));
+      writeFileSync(
+        join(DOSSIER, `menus-${disposition}-${theme}.json`),
+        JSON.stringify({ total: defauts.length, nouveaux, defauts }, null, 2),
+      );
       console.log(`menus ${disposition} — ${theme} : ${defauts.length} défaut(s) dont ${nouveaux.length} propre(s) au thème`);
       expect(nouveaux, `défauts propres au thème « ${theme} » (${disposition})`).toEqual([]);
     });

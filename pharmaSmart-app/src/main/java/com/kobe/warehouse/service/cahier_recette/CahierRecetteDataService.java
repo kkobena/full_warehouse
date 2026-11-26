@@ -57,10 +57,15 @@ public class CahierRecetteDataService {
     private List<ModuleRecetteDTO> withResolvedAcces(List<ModuleRecetteDTO> source) {
         Map<String, String> chemins = navPathResolver.resolveAll();
         return source.stream()
-            .map(module -> new ModuleRecetteDTO(module.id(), module.nom(), module.icone(),
-                module.description(),
-                module.fonctionnalites().stream().map(f -> withAcces(f, chemins)).toList()))
-            .toList();
+                .map(module -> new ModuleRecetteDTO(
+                        module.id(),
+                        module.nom(),
+                        module.icone(),
+                        module.description(),
+                        module.fonctionnalites().stream()
+                                .map(f -> withAcces(f, chemins))
+                                .toList()))
+                .toList();
     }
 
     /**
@@ -68,8 +73,7 @@ public class CahierRecetteDataService {
      * chemin plutôt que d'afficher le code brut : mieux vaut taire l'information que montrer
      * au pharmacien un identifiant technique qu'il ne trouvera nulle part dans l'écran.
      */
-    private FonctionnaliteRecetteDTO withAcces(FonctionnaliteRecetteDTO fonctionnalite,
-        Map<String, String> chemins) {
+    private FonctionnaliteRecetteDTO withAcces(FonctionnaliteRecetteDTO fonctionnalite, Map<String, String> chemins) {
         String code = fonctionnalite.accesCode();
         if (code == null || code.isBlank()) {
             return fonctionnalite;
@@ -79,20 +83,18 @@ public class CahierRecetteDataService {
             return fonctionnalite;
         }
         String suffixe = fonctionnalite.accesSuffixe();
-        String complet = (suffixe == null || suffixe.isBlank())
-            ? chemin
-            : chemin + NavPathResolver.SEPARATEUR + suffixe;
+        String complet =
+                (suffixe == null || suffixe.isBlank()) ? chemin : chemin + NavPathResolver.SEPARATEUR + suffixe;
         return new FonctionnaliteRecetteDTO(
-            fonctionnalite.nom(),
-            fonctionnalite.description(),
-            complet,
-            code,
-            suffixe,
-            fonctionnalite.scenarios(),
-            fonctionnalite.hidden(),
-            fonctionnalite.version(),
-            fonctionnalite.roadmap()
-        );
+                fonctionnalite.nom(),
+                fonctionnalite.description(),
+                complet,
+                code,
+                suffixe,
+                fonctionnalite.scenarios(),
+                fonctionnalite.hidden(),
+                fonctionnalite.version(),
+                fonctionnalite.roadmap());
     }
 
     /**
@@ -108,16 +110,15 @@ public class CahierRecetteDataService {
      * Filtre le manuel par modules puis, si la sélection n'est pas vide, par scénarios. Cette
      * seconde maille permet d'imprimer une rubrique de parcours dépendants sans recopier le modèle.
      */
-    public List<ModuleRecetteDTO> getModules(Collection<String> moduleIds,
-        Collection<String> scenarioIds) {
+    public List<ModuleRecetteDTO> getModules(Collection<String> moduleIds, Collection<String> scenarioIds) {
         List<ModuleRecetteDTO> selectedModules;
         if (moduleIds == null || moduleIds.isEmpty()) {
             selectedModules = getModules();
         } else {
             Set<String> selection = normalizedSelection(moduleIds);
             selectedModules = getModules().stream()
-                .filter(module -> selection.contains(module.id()))
-                .toList();
+                    .filter(module -> selection.contains(module.id()))
+                    .toList();
         }
 
         if (scenarioIds == null || scenarioIds.isEmpty()) {
@@ -125,74 +126,66 @@ public class CahierRecetteDataService {
         }
         Set<String> selectedScenarios = normalizedSelection(scenarioIds);
         return selectedModules.stream()
-            .map(module -> filterScenarios(module, selectedScenarios))
-            .filter(module -> !module.fonctionnalites().isEmpty())
-            .toList();
+                .map(module -> filterScenarios(module, selectedScenarios))
+                .filter(module -> !module.fonctionnalites().isEmpty())
+                .toList();
     }
 
     private Set<String> normalizedSelection(Collection<String> ids) {
-        return ids.stream()
-            .map(String::trim)
-            .filter(id -> !id.isEmpty())
-            .collect(Collectors.toUnmodifiableSet());
+        return ids.stream().map(String::trim).filter(id -> !id.isEmpty()).collect(Collectors.toUnmodifiableSet());
     }
 
     private ModuleRecetteDTO filterScenarios(ModuleRecetteDTO module, Set<String> scenarioIds) {
         List<FonctionnaliteRecetteDTO> features = module.fonctionnalites().stream()
-            .map(feature -> withScenarios(feature, feature.scenarios().stream()
-                .filter(scenario -> scenarioIds.contains(scenario.id()))
-                .toList()))
-            .filter(feature -> !feature.scenarios().isEmpty())
-            .toList();
-        return new ModuleRecetteDTO(module.id(), module.nom(), module.icone(), module.description(),
-            features);
+                .map(feature -> withScenarios(
+                        feature,
+                        feature.scenarios().stream()
+                                .filter(scenario -> scenarioIds.contains(scenario.id()))
+                                .toList()))
+                .filter(feature -> !feature.scenarios().isEmpty())
+                .toList();
+        return new ModuleRecetteDTO(module.id(), module.nom(), module.icone(), module.description(), features);
     }
 
     private List<ModuleRecetteDTO> loadModules() {
         try (InputStream is = new ClassPathResource(RESOURCE_PATH).getInputStream()) {
-            List<ModuleRecetteDTO> raw = objectMapper.readValue(is, new TypeReference<>() {
-            });
-            return raw.stream().map(this::withoutHiddenOrRoadmap)
-                .filter(m -> !m.fonctionnalites().isEmpty()).toList();
+            List<ModuleRecetteDTO> raw = objectMapper.readValue(is, new TypeReference<>() {});
+            return raw.stream()
+                    .map(this::withoutHiddenOrRoadmap)
+                    .filter(m -> !m.fonctionnalites().isEmpty())
+                    .toList();
         } catch (IOException e) {
             throw new IllegalStateException("Impossible de charger " + RESOURCE_PATH, e);
         }
     }
 
     private ModuleRecetteDTO withoutHiddenOrRoadmap(ModuleRecetteDTO module) {
-        List<FonctionnaliteRecetteDTO> fonctionnalites = module
-            .fonctionnalites()
-            .stream()
-            .filter(f -> !Boolean.TRUE.equals(f.hidden()) && !Boolean.TRUE.equals(f.roadmap()))
-            .map(this::withoutHiddenScenarios)
-            .filter(f -> !f.scenarios().isEmpty())
-            .toList();
-        return new ModuleRecetteDTO(module.id(), module.nom(), module.icone(), module.description(),
-            fonctionnalites);
+        List<FonctionnaliteRecetteDTO> fonctionnalites = module.fonctionnalites().stream()
+                .filter(f -> !Boolean.TRUE.equals(f.hidden()) && !Boolean.TRUE.equals(f.roadmap()))
+                .map(this::withoutHiddenScenarios)
+                .filter(f -> !f.scenarios().isEmpty())
+                .toList();
+        return new ModuleRecetteDTO(module.id(), module.nom(), module.icone(), module.description(), fonctionnalites);
     }
 
-    private FonctionnaliteRecetteDTO withoutHiddenScenarios(
-        FonctionnaliteRecetteDTO fonctionnalite) {
-        List<ScenarioRecetteDTO> scenarios = fonctionnalite
-            .scenarios()
-            .stream()
-            .filter(s -> !Boolean.TRUE.equals(s.hidden()))
-            .toList();
+    private FonctionnaliteRecetteDTO withoutHiddenScenarios(FonctionnaliteRecetteDTO fonctionnalite) {
+        List<ScenarioRecetteDTO> scenarios = fonctionnalite.scenarios().stream()
+                .filter(s -> !Boolean.TRUE.equals(s.hidden()))
+                .toList();
         return withScenarios(fonctionnalite, scenarios);
     }
 
-    private FonctionnaliteRecetteDTO withScenarios(FonctionnaliteRecetteDTO fonctionnalite,
-        List<ScenarioRecetteDTO> scenarios) {
+    private FonctionnaliteRecetteDTO withScenarios(
+            FonctionnaliteRecetteDTO fonctionnalite, List<ScenarioRecetteDTO> scenarios) {
         return new FonctionnaliteRecetteDTO(
-            fonctionnalite.nom(),
-            fonctionnalite.description(),
-            fonctionnalite.acces(),
-            fonctionnalite.accesCode(),
-            fonctionnalite.accesSuffixe(),
-            scenarios,
-            fonctionnalite.hidden(),
-            fonctionnalite.version(),
-            fonctionnalite.roadmap()
-        );
+                fonctionnalite.nom(),
+                fonctionnalite.description(),
+                fonctionnalite.acces(),
+                fonctionnalite.accesCode(),
+                fonctionnalite.accesSuffixe(),
+                scenarios,
+                fonctionnalite.hidden(),
+                fonctionnalite.version(),
+                fonctionnalite.roadmap());
     }
 }

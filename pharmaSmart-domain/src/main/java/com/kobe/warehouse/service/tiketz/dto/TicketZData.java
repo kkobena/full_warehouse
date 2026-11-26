@@ -5,12 +5,11 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import jakarta.validation.constraints.NotNull;
 
 public record TicketZData(
-    @NotNull String libelle,
-    @NotNull Long value,
-    @NotNull Long secondValue,
-    int sortOrder,
-    ModePaimentCode modePaimentCode
-) {
+        @NotNull String libelle,
+        @NotNull Long value,
+        @NotNull Long secondValue,
+        int sortOrder,
+        ModePaimentCode modePaimentCode) {
     public TicketZData(String libelle, Long value, Long secondValue, int sortOrder) {
         this(libelle, value, secondValue, sortOrder, null);
     }

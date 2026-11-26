@@ -8,14 +8,7 @@ import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } fro
 
 @Component({
   selector: 'app-depot-form',
-  imports: [
-    ReactiveFormsModule,
-    RouterModule,
-    ButtonComponent,
-    CardComponent,
-    SelectComponent,
-    ToolbarComponent,
-  ],
+  imports: [ReactiveFormsModule, RouterModule, ButtonComponent, CardComponent, SelectComponent, ToolbarComponent],
   templateUrl: './depot-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./depot-form.component.scss'],

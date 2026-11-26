@@ -4,7 +4,8 @@
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
           (keyup.enter)="onSearch()"
-          (ngModelChange)="search.set($event)" [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          [ngModel]="search()"
           class="form-control"
           placeholder="Rechercher (CIP, libellé, EAN)..."
           style="width: 220px"
@@ -14,7 +15,8 @@
 
       <app-select
         (ngModelChange)="selectedFilter.set($event)"
-        (selectionChange)="onFilterChange()" [items]="filterOptions"
+        (selectionChange)="onFilterChange()"
+        [items]="filterOptions"
         [ngModel]="selectedFilter()"
         [style]="{ 'min-width': '180px' }"
         appendTo="body"
@@ -38,7 +40,6 @@
         inputId="produitFiltreFamille"
         placeholder="Famille..."
       />
-
 
       <app-select-search
         (ngModelChange)="onDciChange($event)"
@@ -82,29 +83,18 @@
         />
       }
       @if (canCreate()) {
-        <app-button
-          (clicked)="onNewProduit()"
-          icon="pi pi-plus"
-          label="Nouveau"
-
-        />
-        <app-split-button
-          [items]="importMenuItems"
-          [outlined]="true"
-          icon="pi pi-upload"
-          label="Importer"
-          severity="warn"
-
-        />
-
+        <app-button (clicked)="onNewProduit()" icon="pi pi-plus" label="Nouveau" />
+        <app-split-button [items]="importMenuItems" [outlined]="true" icon="pi pi-upload" label="Importer" severity="warn" />
       }
     </ng-container>
   </app-toolbar>
 
-
   <!-- Hint, actions groupées et split panel dans une carte : contour et élévation du Design System -->
-  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" customClass="produit-home-card"
-            [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+  <app-card
+    bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+    customClass="produit-home-card"
+    [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }"
+  >
     <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
     <app-hint [visible]="!panelOpen()" storageKey="produit-list">
       Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu
@@ -124,17 +114,9 @@
             severity="warn"
             size="small"
           />
-          <app-button
-            (clicked)="onBulkEnable()"
-            [outlined]="true"
-            icon="pi pi-play"
-            label="Réactiver"
-            severity="success"
-            size="small"
-          />
+          <app-button (clicked)="onBulkEnable()" [outlined]="true" icon="pi pi-play" label="Réactiver" severity="success" size="small" />
         }
         @if (canEdit()) {
-
           <app-button
             (clicked)="onBulkDci()"
             [outlined]="true"
@@ -145,14 +127,7 @@
           />
         }
         @if (canMergeProduits() && selectedProduits().length >= 2) {
-          <app-button
-            (clicked)="onBulkMerge()"
-            [outlined]="true"
-            icon="pi pi-sitemap"
-            label="Fusionner"
-            severity="info"
-            size="small"
-          />
+          <app-button (clicked)="onBulkMerge()" [outlined]="true" icon="pi pi-sitemap" label="Fusionner" severity="info" size="small" />
         }
         <app-button
           (clicked)="onClearSelection()"
@@ -167,7 +142,6 @@
 
     <!-- Split panel -->
     <div [class.panel-open]="panelOpen()" class="split-container">
-
       <!-- Colonne gauche : liste -->
       <div class="list-column">
         <app-produit-list
@@ -202,7 +176,6 @@
           />
         </div>
       }
-
     </div>
   </app-card>
 </div>

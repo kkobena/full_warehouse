@@ -24,11 +24,7 @@ export interface Breadcrumb {
             <a routerLink="/" class="breadcrumb-home">{{ officineContext.officineName() }}</a>
           </li>
           @for (crumb of breadcrumbs(); track $index; let last = $last) {
-            <li
-              class="breadcrumb-item"
-              [class.active]="last && !tabCrumb()"
-              [attr.aria-current]="last && !tabCrumb() ? 'page' : null"
-            >
+            <li class="breadcrumb-item" [class.active]="last && !tabCrumb()" [attr.aria-current]="last && !tabCrumb() ? 'page' : null">
               @if (!last || tabCrumb()) {
                 <a [routerLink]="crumb.url">{{ crumb.label }}</a>
               } @else {
@@ -45,27 +41,29 @@ export interface Breadcrumb {
       </nav>
     }
   `,
-  styles: [`
-    .breadcrumb-nav {
-      background: var(--bs-tertiary-bg, #f8f9fa);
-      border-bottom: 1px solid var(--bs-border-color, #dee2e6);
-      padding: 0.35rem 1.25rem;
-    }
+  styles: [
+    `
+      .breadcrumb-nav {
+        background: var(--bs-tertiary-bg, #f8f9fa);
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+        padding: 0.35rem 1.25rem;
+      }
 
-    .breadcrumb {
-      font-size: 0.82rem;
-    }
+      .breadcrumb {
+        font-size: 0.82rem;
+      }
 
-    .breadcrumb-home {
-      font-weight: 600;
-    }
+      .breadcrumb-home {
+        font-weight: 600;
+      }
 
-    .home-sublabel {
-      font-weight: 400;
-      opacity: 0.7;
-      font-size: 0.78rem;
-    }
-  `],
+      .home-sublabel {
+        font-weight: 400;
+        opacity: 0.7;
+        font-size: 0.78rem;
+      }
+    `,
+  ],
 })
 export class BreadcrumbComponent {
   private readonly router = inject(Router);
@@ -102,9 +100,7 @@ export class BreadcrumbComponent {
     const segment = child.snapshot.url.map(s => s.path).join('/');
     if (segment) url = `${url}/${segment}`;
 
-    const label = this.resolveLabel(
-      child.snapshot.data['breadcrumb'] ?? child.snapshot.data['pageTitle'] ?? child.snapshot.title,
-    );
+    const label = this.resolveLabel(child.snapshot.data['breadcrumb'] ?? child.snapshot.data['pageTitle'] ?? child.snapshot.title);
     if (label) crumbs.push({ label, url });
 
     return this.buildBreadcrumbs(child, url, crumbs);
@@ -132,5 +128,3 @@ export class BreadcrumbComponent {
     return translated;
   }
 }
-
-

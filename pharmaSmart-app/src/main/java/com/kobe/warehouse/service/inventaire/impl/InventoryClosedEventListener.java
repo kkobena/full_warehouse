@@ -4,9 +4,9 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.StorageType;
+import com.kobe.warehouse.service.inventaire.InventoryClosedEvent;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.reassort.dto.ReassortRecord;
-import com.kobe.warehouse.service.inventaire.InventoryClosedEvent;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.util.ArrayList;
@@ -50,9 +50,9 @@ public class InventoryClosedEventListener {
 
     /** IN clause SQL des types "réserve" : non-vendables et participant au réassort. */
     private static final String RESERVE_TYPES_IN = Arrays.stream(StorageType.values())
-        .filter(t -> !t.isVendable() && t.isReassortSuggere())
-        .map(t -> "'" + t.name() + "'")
-        .collect(Collectors.joining(", ", "(", ")"));
+            .filter(t -> !t.isVendable() && t.isReassortSuggere())
+            .map(t -> "'" + t.name() + "'")
+            .collect(Collectors.joining(", ", "(", ")"));
 
     /**
      * Types d'inventaire pour lesquels des suggestions de réassort sont pertinentes.
@@ -60,14 +60,13 @@ public class InventoryClosedEventListener {
      * EN_RUPTURE (stock total = 0 par construction → aucune suggestion possible).
      */
     private static final Set<InventoryCategory> CATEGORIES_AVEC_REASSORT = Set.of(
-        InventoryCategory.MAGASIN,
-        InventoryCategory.STORAGE,
-        InventoryCategory.RAYON,
-        InventoryCategory.FAMILLY,
-        InventoryCategory.SOUS_SEUIL,
-        InventoryCategory.ABC,
-        InventoryCategory.SELECTION_PRODUIT
-    );
+            InventoryCategory.MAGASIN,
+            InventoryCategory.STORAGE,
+            InventoryCategory.RAYON,
+            InventoryCategory.FAMILLY,
+            InventoryCategory.SOUS_SEUIL,
+            InventoryCategory.ABC,
+            InventoryCategory.SELECTION_PRODUIT);
 
     /**
      * Produits dont le stock rayon (storage inventorié) &lt; seuil_mini ET qui ont du stock en
@@ -118,8 +117,7 @@ public class InventoryClosedEventListener {
      * UPSERT lots with quantity_on_hand > 0, DELETE those at 0.
      * No-op if no inventory_lot records exist (gestion_lot = false).
      */
-    private static final String SQL_LOT_LOCATION_UPSERT =
-        """
+    private static final String SQL_LOT_LOCATION_UPSERT = """
             INSERT INTO lot_stock_location (lot_id, storage_id, qty, updated_at)
             SELECT il.lot_id, :storageId, il.quantity_on_hand, NOW()
             FROM inventory_lot il
@@ -131,8 +129,7 @@ public class InventoryClosedEventListener {
               SET qty = EXCLUDED.qty, updated_at = NOW()
             """;
 
-    private static final String SQL_LOT_LOCATION_DELETE_ZERO =
-        """
+    private static final String SQL_LOT_LOCATION_DELETE_ZERO = """
             DELETE FROM lot_stock_location
             WHERE storage_id = :storageId
               AND lot_id IN (
@@ -148,10 +145,7 @@ public class InventoryClosedEventListener {
     private final EntityManager em;
     private final SuggestionReassortService suggestionReassortService;
 
-    public InventoryClosedEventListener(
-        EntityManager em,
-        SuggestionReassortService suggestionReassortService
-    ) {
+    public InventoryClosedEventListener(EntityManager em, SuggestionReassortService suggestionReassortService) {
         this.em = em;
         this.suggestionReassortService = suggestionReassortService;
     }
@@ -194,15 +188,17 @@ public class InventoryClosedEventListener {
                   AND s.magasin_id   = :magasinId
                   AND s.storage_type IN %s
                 """.formatted(RESERVE_TYPES_IN))
-            .setParameter("magasinId", event.magasinId())
-            .executeUpdate();
+                .setParameter("magasinId", event.magasinId())
+                .executeUpdate();
         log.info("Inventaire MAGASIN {} — lot_stock_location réserve purgée", event.storeInventoryId());
     }
 
     private void genererSuggestionsReassort(InventoryClosedEvent event) {
         if (!CATEGORIES_AVEC_REASSORT.contains(event.inventoryCategory())) {
-            log.debug("Inventaire {} ({}) : pas de suggestion de réassort pour ce type",
-                event.storeInventoryId(), event.inventoryCategory());
+            log.debug(
+                    "Inventaire {} ({}) : pas de suggestion de réassort pour ce type",
+                    event.storeInventoryId(),
+                    event.inventoryCategory());
             return;
         }
 
@@ -215,15 +211,16 @@ public class InventoryClosedEventListener {
         allSuggestions.addAll(querySuggestions(SQL_RESERVE_FROM_RAYON, event, "réappro réserve"));
 
         if (allSuggestions.isEmpty()) {
-            log.info("Inventaire {} clôturé : aucune suggestion de réassort",
-                event.storeInventoryId());
+            log.info("Inventaire {} clôturé : aucune suggestion de réassort", event.storeInventoryId());
             return;
         }
 
         AppUser user = em.getReference(AppUser.class, event.userId());
         suggestionReassortService.createLigneReassort(allSuggestions, user);
-        log.info("Inventaire {} clôturé : {} suggestions créées (rayon + réserve)",
-            event.storeInventoryId(), allSuggestions.size());
+        log.info(
+                "Inventaire {} clôturé : {} suggestions créées (rayon + réserve)",
+                event.storeInventoryId(),
+                allSuggestions.size());
     }
 
     /**
@@ -234,42 +231,43 @@ public class InventoryClosedEventListener {
      */
     private void reconcileLotStockLocation(InventoryClosedEvent event) {
         int upserted = em.createNativeQuery(SQL_LOT_LOCATION_UPSERT)
-            .setParameter("inventoryId", event.storeInventoryId())
-            .setParameter("storageId", event.storageId())
-            .executeUpdate();
+                .setParameter("inventoryId", event.storeInventoryId())
+                .setParameter("storageId", event.storageId())
+                .executeUpdate();
 
         int deleted = em.createNativeQuery(SQL_LOT_LOCATION_DELETE_ZERO)
-            .setParameter("inventoryId", event.storeInventoryId())
-            .setParameter("storageId", event.storageId())
-            .executeUpdate();
+                .setParameter("inventoryId", event.storeInventoryId())
+                .setParameter("storageId", event.storageId())
+                .executeUpdate();
 
-        log.info("Inventaire {} — lot_stock_location réconcilié : {} upserts, {} suppressions",
-            event.storeInventoryId(), upserted, deleted);
+        log.info(
+                "Inventaire {} — lot_stock_location réconcilié : {} upserts, {} suppressions",
+                event.storeInventoryId(),
+                upserted,
+                deleted);
     }
 
-    private List<ReassortRecord> querySuggestions(String sql, InventoryClosedEvent event,
-        String label) {
+    private List<ReassortRecord> querySuggestions(String sql, InventoryClosedEvent event, String label) {
         @SuppressWarnings("unchecked")
         List<Tuple> rows = em.createNativeQuery(sql, Tuple.class)
-            .setParameter("inventoryId", event.storeInventoryId())
-            .setParameter("magasinId", event.magasinId())
-            .getResultList();
+                .setParameter("inventoryId", event.storeInventoryId())
+                .setParameter("magasinId", event.magasinId())
+                .getResultList();
 
         if (rows.isEmpty()) {
             log.debug("Inventaire {} : aucune suggestion de {}", event.storeInventoryId(), label);
             return List.of();
         }
 
-        log.debug("Inventaire {} : {} suggestions de {}", event.storeInventoryId(), rows.size(),
-            label);
+        log.debug("Inventaire {} : {} suggestions de {}", event.storeInventoryId(), rows.size(), label);
 
         return rows.stream()
-            .map(t -> {
-                Integer spId = ((Number) t.get("sp_id")).intValue();
-                Integer availableQty = ((Number) t.get("available_qty")).intValue();
-                StockProduit stockProduit = em.getReference(StockProduit.class, spId);
-                return new ReassortRecord(stockProduit, availableQty);
-            })
-            .toList();
+                .map(t -> {
+                    Integer spId = ((Number) t.get("sp_id")).intValue();
+                    Integer availableQty = ((Number) t.get("available_qty")).intValue();
+                    StockProduit stockProduit = em.getReference(StockProduit.class, spId);
+                    return new ReassortRecord(stockProduit, availableQty);
+                })
+                .toList();
     }
 }

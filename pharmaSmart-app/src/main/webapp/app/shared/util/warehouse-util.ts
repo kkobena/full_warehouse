@@ -61,8 +61,7 @@ export const NGB_DATE_OFFSET_MONTHS = (mois: number): NgbDateStruct => {
 };
 
 /** Une date `YYYY-MM-DD` antérieure à aujourd'hui (carte d'assuré expirée…). */
-export const IS_ISO_DATE_PAST = (iso: string | null | undefined): boolean =>
-  !!iso && iso.slice(0, 10) < NGB_DATE_TO_ISO(TODAY_NGB_DATE())!;
+export const IS_ISO_DATE_PAST = (iso: string | null | undefined): boolean => !!iso && iso.slice(0, 10) < NGB_DATE_TO_ISO(TODAY_NGB_DATE())!;
 export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
   if (date) {
     const dateArray = date.split('/');

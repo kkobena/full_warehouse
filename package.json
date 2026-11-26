@@ -9,44 +9,44 @@
     "build": "npm run webapp:prod --",
     "build:i18n": "node scripts/build-i18n.js",
     "captures": "playwright test -c e2e --project=captures",
-    "videos": "playwright test -c e2e --project=videos",
-    "videos:assembler": "tsx scripts/assembler-videos.ts",
     "clean-www": "rimraf pharmaSmart-app/target/classes/static/",
     "cleanup": "rimraf target/ pharmaSmart-app/target/",
-    "e2e": "playwright test -c e2e --project=parcours",
-    "e2e:liage": "playwright test -c e2e --project=liage",
-    "e2e:droits": "playwright test -c e2e --project=droits",
-    "e2e:rapport": "playwright show-report target/playwright-report",
-    "e2e:a11y": "playwright test -c e2e --project=a11y",
     "contraste:comptoir": "ng test --test-path-patterns=comptoir-contraste",
+    "e2e": "playwright test -c e2e --project=parcours",
+    "e2e:a11y": "playwright test -c e2e --project=a11y",
+    "e2e:droits": "playwright test -c e2e --project=droits",
+    "e2e:liage": "playwright test -c e2e --project=liage",
+    "e2e:rapport": "playwright show-report target/playwright-report",
     "generate:cahier-recette": "tsx scripts/generate-cahier-recette-json.ts",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
-    "prettier:check": "prettier --check \"{,src/**/,webpack/,.blueprint/**/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,java,html,css,scss}\"",
-    "prettier:format": "prettier --write \"{,src/**/,webpack/,.blueprint/**/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,java,html,css,scss}\"",
+    "prettier:check": "prettier --check \"{,pharmaSmart-app/src/main/webapp/**/,e2e/**/,webpack/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,html,css,scss}\"",
+    "prettier:format": "prettier --write --log-level warn \"{,pharmaSmart-app/src/main/webapp/**/,e2e/**/,webpack/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,html,css,scss}\"",
     "serve": "npm run start --",
     "prestart": "npm run build:i18n",
     "start": "node scripts/build-app.js serve development",
     "start-tls": "npm run webapp:dev-ssl",
     "tauri": "tauri",
-    "version:sync": "node scripts/sync-version.js",
-    "tauri:copy-winsw": "node scripts/copy-winsw.js",
     "tauri:build": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:copy-winsw && tauri build",
     "tauri:build:bundled": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled.conf.json --features bundled-backend && node scripts/label-installer.js sans-jre",
+    "tauri:build:bundled:debug": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --debug --config src-tauri/tauri.bundled.conf.json --features bundled-backend",
+    "tauri:build:bundled:fast": "npm run version:sync && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled.conf.json --features bundled-backend && node scripts/label-installer.js sans-jre",
     "tauri:build:bundled-jre": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled-jre.conf.json --features bundled-backend && node scripts/label-installer.js avec-jre",
     "tauri:build:bundled-jre:debug": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --debug --config src-tauri/tauri.bundled-jre.conf.json --features bundled-backend",
     "tauri:build:bundled-jre:fast": "npm run version:sync && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled-jre.conf.json --features bundled-backend && node scripts/label-installer.js avec-jre",
-    "tauri:build:bundled:debug": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --debug --config src-tauri/tauri.bundled.conf.json --features bundled-backend",
-    "tauri:build:bundled:fast": "npm run version:sync && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled.conf.json --features bundled-backend && node scripts/label-installer.js sans-jre",
     "tauri:build:debug": "npm run version:sync && npm run webapp:build:tauri && npm run tauri:copy-winsw && tauri build --debug",
     "tauri:build:fast": "npm run version:sync && npm run tauri:copy-winsw && tauri build",
+    "tauri:copy-winsw": "node scripts/copy-winsw.js",
     "tauri:dev": "tauri dev",
+    "tauri:prepare-backup": "node scripts/prepare-backup.js",
     "tauri:prepare-client-update": "node scripts/prepare-client-update.js",
     "tauri:prepare-sidecar": "node scripts/prepare-sidecar.js",
-    "tauri:prepare-backup": "node scripts/prepare-backup.js",
     "pretest": "npm run lint",
     "test": "ng test --coverage --log-heap-usage -w=2",
     "test:watch": "npm run test -- --watch",
+    "version:sync": "node scripts/sync-version.js",
+    "videos": "playwright test -c e2e --project=videos",
+    "videos:assembler": "tsx scripts/assembler-videos.ts",
     "webapp:build": "npm run clean-www && npm run webapp:build:dev",
     "prewebapp:build:dev": "npm run build:i18n",
     "webapp:build:dev": "node scripts/build-app.js build development",
@@ -67,6 +67,15 @@
     "backend_port": "9080",
     "default_environment": "prod",
     "packaging": "jar"
+  },
+  "overrides": {
+    "@ngrx/signals": {
+      "@angular/core": "$@angular/core"
+    },
+    "ngx-webstorage": {
+      "@angular/core": "$@angular/core",
+      "@angular/common": "$@angular/common"
+    }
   },
   "dependencies": {
     "@ag-grid-community/locale": "^36.2.0",
@@ -144,14 +153,5 @@
   },
   "engines": {
     "node": ">=24.18.0"
-  },
-  "overrides": {
-    "@ngrx/signals": {
-      "@angular/core": "$@angular/core"
-    },
-    "ngx-webstorage": {
-      "@angular/core": "$@angular/core",
-      "@angular/common": "$@angular/common"
-    }
   }
 }

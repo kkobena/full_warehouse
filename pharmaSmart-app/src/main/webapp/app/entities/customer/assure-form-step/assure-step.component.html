@@ -25,8 +25,7 @@
           />
           @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
             @if (editForm.get('firstName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
-                champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
             }
           }
         </div>
@@ -44,8 +43,7 @@
           />
           @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
             @if (editForm.get('lastName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
-                champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
             }
           }
         </div>
@@ -75,8 +73,7 @@
           />
           @if (editForm.get('tiersPayantId')?.invalid && editForm.get('tiersPayantId')?.touched) {
             @if (editForm.get('tiersPayantId')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
-                champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
             }
           }
         </div>
@@ -106,14 +103,10 @@
           }
           @if (editForm.get('num')?.invalid && editForm.get('num')?.touched) {
             @if (editForm.get('num')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
-                champ est obligatoire</small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
             }
           }
         </div>
-
-
-
 
         <!-- Taux -->
         <div class="form-field form-field-full">
@@ -136,12 +129,19 @@
             }
           }
           @if (tauxSuggere() !== null && editForm.get('taux')?.value === tauxSuggere()) {
-            <small class="form-text text-muted" data-testid="indice-taux-organisme">Taux standard de l'organisme : {{ tauxSuggere() }} % — modifiable</small>
+            <small class="form-text text-muted" data-testid="indice-taux-organisme"
+              >Taux standard de l'organisme : {{ tauxSuggere() }} % — modifiable</small
+            >
           }
         </div>
         <!-- Validité de la carte -->
 
-        <pharma-date-picker formControlName="dateFinValidite" id="field_dateFinValidite" label="Carte valable jusqu'au" [labelPosition]="'top'"/>
+        <pharma-date-picker
+          formControlName="dateFinValidite"
+          id="field_dateFinValidite"
+          label="Carte valable jusqu'au"
+          [labelPosition]="'top'"
+        />
       </div>
     </app-card>
 
@@ -156,15 +156,13 @@
         <!-- Téléphone -->
         <div class="form-field form-field-full">
           <label for="field_phone">Téléphone</label>
-          <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="phone"
-                 id="field_phone" type="tel" />
+          <input [appKeyFilter]="'int'" autocomplete="off" class="form-control" formControlName="phone" id="field_phone" type="tel" />
         </div>
 
         <!-- Email -->
         <div class="form-field form-field-full">
           <label for="email">E-mail</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="email"
-                 type="email" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="email" type="email" />
         </div>
 
         <!-- Date de naissance -->
@@ -191,10 +189,8 @@
         <div class="form-field form-field-full">
           <label>Sexe</label>
           <div class="radio-group">
-            <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin"
-                       name="sexe" />
-            <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Feminin"
-                       name="sexe" />
+            <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin" name="sexe" />
+            <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Feminin" name="sexe" />
           </div>
         </div>
       </div>
@@ -204,8 +200,7 @@
   <!-- Section 3: Assurances Complémentaires -->
   @if (editForm.valid) {
     <div class="mt-2">
-      <jhi-complementaire-step #complementaireStep
-                               [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" />
+      <jhi-complementaire-step #complementaireStep [(tiersPayantAlreadyAdded)]="tiersPayantAlreadyAdded" />
     </div>
   }
 </form>

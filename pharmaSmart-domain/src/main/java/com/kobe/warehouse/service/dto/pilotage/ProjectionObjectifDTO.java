@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto.pilotage;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Projection de fin du mois en cours.
  *
@@ -8,4 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @param atteinteProjetee projection / objectif (%)
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record ProjectionObjectifDTO(Double realiseADate, Double projection, Double objectif, Double atteinteProjetee, Boolean tenu, String methode) {}
+public record ProjectionObjectifDTO(
+        Double realiseADate,
+        Double projection,
+        Double objectif,
+        Double atteinteProjetee,
+        Boolean tenu,
+        String methode) {}

@@ -70,6 +70,8 @@ export class LayoutService {
   private saveToStorage(key: string, value: string): void {
     try {
       localStorage.setItem(key, value);
-    } catch { /* silently ignore storage errors */ }
+    } catch {
+      /* silently ignore storage errors */
+    }
   }
 }

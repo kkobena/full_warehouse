@@ -10,16 +10,12 @@
 
 <!-- Modal body -->
 <div class="modal-body">
-
   @if (!result()) {
     <!-- Formulaire de saisie -->
     <form [formGroup]="form">
-
       <!-- Motif commun pour tous les lots -->
       <div class="mb-3">
-        <label class="form-label fw-semibold">
-          Motif de retour (commun à tous les lots) <span class="text-danger">*</span>
-        </label>
+        <label class="form-label fw-semibold"> Motif de retour (commun à tous les lots) <span class="text-danger">*</span> </label>
         <app-select
           formControlName="motifRetourId"
           [items]="motifs()"
@@ -28,23 +24,15 @@
           placeholder="Sélectionner un motif de retour..."
           [clearable]="true"
           appendTo="body"
-          [style]="{ 'width': '100%' }"
+          [style]="{ width: '100%' }"
         />
         @if (form.get('motifRetourId')?.invalid && form.get('motifRetourId')?.touched) {
-          <small class="text-danger">
-            <i class="pi pi-exclamation-triangle me-1"></i>Le motif est obligatoire.
-          </small>
+          <small class="text-danger"> <i class="pi pi-exclamation-triangle me-1"></i>Le motif est obligatoire. </small>
         }
       </div>
 
       <!-- Tableau des lots avec quantités modifiables -->
-      <app-data-table
-        [value]="lots"
-        [showGridlines]="true"
-        scrollHeight="320px"
-        [scrollable]="true"
-        [size]="'small'"
-      >
+      <app-data-table [value]="lots" [showGridlines]="true" scrollHeight="320px" [scrollable]="true" [size]="'small'">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 40px" class="text-center">✓</th>
@@ -70,7 +58,7 @@
             </td>
             <td class="text-center">
               <small [class.text-danger]="lot.peremptionStatut?.days < 0">
-                {{ lot.datePeremption | date:'dd/MM/yyyy' }}
+                {{ lot.datePeremption | date: 'dd/MM/yyyy' }}
               </small>
             </td>
             <td class="text-center">
@@ -78,7 +66,7 @@
                 [formControl]="$any(itemGroup.get('quantity'))"
                 [min]="1"
                 [max]="lot.quantity"
-                [style]="{ 'width': '70px', 'text-align': 'center' }"
+                [style]="{ width: '70px', 'text-align': 'center' }"
                 [disabled]="!itemGroup.get('included')?.value"
               />
               <small class="text-muted d-block">/ {{ lot.quantity | number }}</small>
@@ -100,9 +88,7 @@
           Avoir total estimé : <strong class="fs-5">{{ totalAvoir | number }} <span appDevise></span></strong>
         </span>
       </div>
-
     </form>
-
   } @else {
     <!-- Résultat du batch -->
     @let batchResult = result()!;
@@ -113,7 +99,9 @@
         <h5 class="text-success mt-2">{{ batchResult.totalCreated }} retour(s) créé(s) avec succès</h5>
       } @else if (batchResult.totalCreated > 0) {
         <i class="pi pi-exclamation-triangle text-warning" style="font-size: 3rem"></i>
-        <h5 class="text-warning mt-2">Résultat partiel : {{ batchResult.totalCreated }} créé(s), {{ batchResult.totalErrors }} erreur(s)</h5>
+        <h5 class="text-warning mt-2">
+          Résultat partiel : {{ batchResult.totalCreated }} créé(s), {{ batchResult.totalErrors }} erreur(s)
+        </h5>
       } @else {
         <i class="pi pi-times-circle text-danger" style="font-size: 3rem"></i>
         <h5 class="text-danger mt-2">Aucun retour créé</h5>
@@ -125,25 +113,20 @@
         <strong>Lots en erreur :</strong>
         <ul class="mb-0 mt-1">
           @for (err of batchResult.errors; track err.lotId) {
-            <li><strong>{{ err.lotNumero }}</strong> — {{ err.message }}</li>
+            <li>
+              <strong>{{ err.lotNumero }}</strong> — {{ err.message }}
+            </li>
           }
         </ul>
       </div>
     }
   }
-
 </div>
 
 <!-- Modal footer -->
 <div class="modal-footer">
   @if (!result()) {
-    <app-button
-      (clicked)="close()"
-      label="Annuler"
-      icon="pi pi-times"
-      severity="secondary"
-      [outlined]="true"
-    />
+    <app-button (clicked)="close()" label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" />
     <app-button
       (clicked)="save()"
       label="Créer les retours"
@@ -153,12 +136,6 @@
       [loading]="isSaving()"
     />
   } @else {
-    <app-button
-      (clicked)="close()"
-      label="Fermer"
-      icon="pi pi-times"
-      severity="secondary"
-    />
+    <app-button (clicked)="close()" label="Fermer" icon="pi pi-times" severity="secondary" />
   }
 </div>
-

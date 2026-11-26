@@ -74,7 +74,10 @@ class VuesPilotageServiceImplTest {
     @Test
     @DisplayName("la vue partagée d'un collègue se lit, mais ne se modifie pas")
     void vueDUnCollegue() {
-        PilotageVue vue = new PilotageVue().setProprietaire(utilisateur(2)).setPartagee(true).setIndicateurs(List.of(IndicateurPilotage.CA_TTC));
+        PilotageVue vue = new PilotageVue()
+                .setProprietaire(utilisateur(2))
+                .setPartagee(true)
+                .setIndicateurs(List.of(IndicateurPilotage.CA_TTC));
         when(pilotageVueRepository.findById(8L)).thenReturn(Optional.of(vue));
         when(pilotageVueRepository.listerVisibles(1)).thenReturn(List.of(vue));
 
@@ -83,7 +86,18 @@ class VuesPilotageServiceImplTest {
     }
 
     private static VuePilotageDTO dto(Long id) {
-        return new VuePilotageDTO(id, " Mes antalgiques ", List.of(IndicateurPilotage.CA_TTC), AxeAnalyse.PRODUIT, null, 20, TriAnalyse.VALEUR, AffichageAnalyse.TABLEAU, false, false, false);
+        return new VuePilotageDTO(
+                id,
+                " Mes antalgiques ",
+                List.of(IndicateurPilotage.CA_TTC),
+                AxeAnalyse.PRODUIT,
+                null,
+                20,
+                TriAnalyse.VALEUR,
+                AffichageAnalyse.TABLEAU,
+                false,
+                false,
+                false);
     }
 
     private static AppUser utilisateur(int id) {

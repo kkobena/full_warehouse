@@ -2,11 +2,7 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
-import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
-import com.kobe.warehouse.service.dto.records.VenteRecord;
-import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
-import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;

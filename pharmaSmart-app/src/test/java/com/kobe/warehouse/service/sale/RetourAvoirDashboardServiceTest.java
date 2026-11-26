@@ -23,6 +23,7 @@ class RetourAvoirDashboardServiceTest {
 
     @Mock
     private RetourClientRepository retourClientRepository;
+
     @Mock
     private AvoirClientRepository avoirClientRepository;
 
@@ -40,27 +41,27 @@ class RetourAvoirDashboardServiceTest {
         LocalDateTime fin = LocalDateTime.of(2026, 8, 1, 0, 0);
 
         when(retourClientRepository.statsGlobales(debut, fin))
-            .thenReturn(List.<Object[]>of(new Object[]{4L, 15_000L}));
+                .thenReturn(List.<Object[]>of(new Object[] {4L, 15_000L}));
         when(retourClientRepository.statsParMotif(debut, fin))
-            .thenReturn(List.<Object[]>of(
-                new Object[]{MotifRetourClient.PRODUIT_DEFECTUEUX, 3L},
-                new Object[]{MotifRetourClient.ERREUR_QUANTITE, 1L}));
+                .thenReturn(List.<Object[]>of(
+                        new Object[] {MotifRetourClient.PRODUIT_DEFECTUEUX, 3L},
+                        new Object[] {MotifRetourClient.ERREUR_QUANTITE, 1L}));
         when(retourClientRepository.produitsEnAlerte(debut, fin, 5))
-            .thenReturn(List.<Object[]>of(new Object[]{10, "Produit A", "CIP10", 6L}));
+                .thenReturn(List.<Object[]>of(new Object[] {10, "Produit A", "CIP10", 6L}));
         when(retourClientRepository.clientsEnAlerte(debut, fin, 3))
-            .thenReturn(List.<Object[]>of(new Object[]{20, "Jean", "Kouadio", 4L}));
-        when(avoirClientRepository.statsAvoirsOuverts())
-            .thenReturn(List.<Object[]>of(new Object[]{2L, 7_500L}));
+                .thenReturn(List.<Object[]>of(new Object[] {20, "Jean", "Kouadio", 4L}));
+        when(avoirClientRepository.statsAvoirsOuverts()).thenReturn(List.<Object[]>of(new Object[] {2L, 7_500L}));
         when(avoirClientRepository.countAvoirsProchesExpiration(LocalDate.now().plusDays(7)))
-            .thenReturn(1L);
+                .thenReturn(1L);
 
         RetourAvoirStatsDTO result = service.getStats(mois);
 
         assertEquals(4, result.nbRetoursMois());
         assertEquals(15_000, result.montantTotalRetoursMois());
         assertEquals(2, result.statsParMotif().size());
-        assertEquals(MotifRetourClient.PRODUIT_DEFECTUEUX,
-            result.statsParMotif().getFirst().motif());
+        assertEquals(
+                MotifRetourClient.PRODUIT_DEFECTUEUX,
+                result.statsParMotif().getFirst().motif());
         assertEquals(3L, result.statsParMotif().getFirst().count());
         assertEquals(10, result.produitsEnAlerte().getFirst().produitId());
         assertEquals("Produit A", result.produitsEnAlerte().getFirst().libelle());
@@ -81,14 +82,13 @@ class RetourAvoirDashboardServiceTest {
         LocalDateTime debut = moisCourant.atDay(1).atStartOfDay();
         LocalDateTime fin = moisCourant.atEndOfMonth().plusDays(1).atStartOfDay();
 
-        when(retourClientRepository.statsGlobales(debut, fin))
-            .thenReturn(List.<Object[]>of(new Object[]{null, null}));
+        when(retourClientRepository.statsGlobales(debut, fin)).thenReturn(List.<Object[]>of(new Object[] {null, null}));
         when(retourClientRepository.statsParMotif(debut, fin)).thenReturn(List.of());
         when(retourClientRepository.produitsEnAlerte(debut, fin, 5)).thenReturn(List.of());
         when(retourClientRepository.clientsEnAlerte(debut, fin, 3)).thenReturn(List.of());
-        when(avoirClientRepository.statsAvoirsOuverts()).thenReturn(List.<Object[]>of(new Object[]{null, null}));
+        when(avoirClientRepository.statsAvoirsOuverts()).thenReturn(List.<Object[]>of(new Object[] {null, null}));
         when(avoirClientRepository.countAvoirsProchesExpiration(LocalDate.now().plusDays(7)))
-            .thenReturn(0L);
+                .thenReturn(0L);
 
         RetourAvoirStatsDTO result = service.getStats(null);
 
@@ -102,4 +102,3 @@ class RetourAvoirDashboardServiceTest {
         assertEquals(List.of(), result.clientsEnAlerte());
     }
 }
-

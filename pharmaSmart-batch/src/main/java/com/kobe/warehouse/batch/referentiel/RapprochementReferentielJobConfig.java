@@ -35,45 +35,49 @@ public class RapprochementReferentielJobConfig {
 
     @Bean
     public Step rapprocherReferentielStep(
-        JobRepository jobRepository,
-        PlatformTransactionManager txManager,
-        RapprochementProduitService rapprochementProduitService
-    ) {
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            RapprochementProduitService rapprochementProduitService) {
         return new StepBuilder("rapprocherReferentielStep", jobRepository)
-            .tasklet(
-                (contribution, ctx) -> {
-                    LOG.info("[REFERENTIEL] {} produit(s) rapproché(s)", rapprochementProduitService.rapprocherNouveauxProduits());
-                    return RepeatStatus.FINISHED;
-                },
-                txManager
-            )
-            .build();
+                .tasklet(
+                        (contribution, ctx) -> {
+                            LOG.info(
+                                    "[REFERENTIEL] {} produit(s) rapproché(s)",
+                                    rapprochementProduitService.rapprocherNouveauxProduits());
+                            return RepeatStatus.FINISHED;
+                        },
+                        txManager)
+                .build();
     }
 
     @Bean
     public Step recalculerReferentielStep(
-        JobRepository jobRepository,
-        PlatformTransactionManager txManager,
-        RapprochementProduitService rapprochementProduitService
-    ) {
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            RapprochementProduitService rapprochementProduitService) {
         return new StepBuilder("recalculerReferentielStep", jobRepository)
-            .tasklet(
-                (_, _) -> {
-                    LOG.info("[REFERENTIEL] {} proposition(s) recalculée(s)", rapprochementProduitService.recalculerPropositions());
-                    return RepeatStatus.FINISHED;
-                },
-                txManager
-            )
-            .build();
+                .tasklet(
+                        (_, _) -> {
+                            LOG.info(
+                                    "[REFERENTIEL] {} proposition(s) recalculée(s)",
+                                    rapprochementProduitService.recalculerPropositions());
+                            return RepeatStatus.FINISHED;
+                        },
+                        txManager)
+                .build();
     }
 
     @Bean
     public Job rapprochementReferentielJob(JobRepository jobRepository, Step rapprocherReferentielStep) {
-        return new JobBuilder("rapprochementReferentielJob", jobRepository).start(rapprocherReferentielStep).build();
+        return new JobBuilder("rapprochementReferentielJob", jobRepository)
+                .start(rapprocherReferentielStep)
+                .build();
     }
 
     @Bean
     public Job recalculReferentielJob(JobRepository jobRepository, Step recalculerReferentielStep) {
-        return new JobBuilder("recalculReferentielJob", jobRepository).start(recalculerReferentielStep).build();
+        return new JobBuilder("recalculReferentielJob", jobRepository)
+                .start(recalculerReferentielStep)
+                .build();
     }
 }

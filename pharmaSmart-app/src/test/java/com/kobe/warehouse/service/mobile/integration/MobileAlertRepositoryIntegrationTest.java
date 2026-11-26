@@ -71,12 +71,10 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         void detailDeLaRupture() {
             Produit produit = produitEnStock("DOLIPRANE MOBILE", 0);
 
-            StockRuptureProjection rupture = repository
-                .getStockRuptureAlerts()
-                .stream()
-                .filter(p -> p.productId() == produit.getId())
-                .findFirst()
-                .orElseThrow();
+            StockRuptureProjection rupture = repository.getStockRuptureAlerts().stream()
+                    .filter(p -> p.productId() == produit.getId())
+                    .findFirst()
+                    .orElseThrow();
 
             assertThat(rupture.productName()).isEqualTo("DOLIPRANE MOBILE");
             assertThat(rupture.totalQtyStock()).isZero();
@@ -92,7 +90,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
             produitEnStock(unique("DISPO"), 5);
             em.flush();
 
-            assertThat(repository.getStockRuptureCount()).isEqualTo(repository.getStockRuptureAlerts().size());
+            assertThat(repository.getStockRuptureCount())
+                    .isEqualTo(repository.getStockRuptureAlerts().size());
         }
     }
 
@@ -166,16 +165,15 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
             lot(produit, LocalDate.now().plusDays(20), 10);
             em.flush();
 
-            assertThat(repository.getExpiringProductsCount(30)).isEqualTo(repository.getExpiryAlerts(30).size());
+            assertThat(repository.getExpiringProductsCount(30))
+                    .isEqualTo(repository.getExpiryAlerts(30).size());
         }
 
         private ExpiryAlertProjection alerteDuProduit(Produit produit) {
-            return repository
-                .getExpiryAlerts(30)
-                .stream()
-                .filter(p -> p.productId() == produit.getId())
-                .findFirst()
-                .orElseThrow();
+            return repository.getExpiryAlerts(30).stream()
+                    .filter(p -> p.productId() == produit.getId())
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 
@@ -189,9 +187,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         @DisplayName("une facture ancienne et partiellement réglée est en retard")
         void facturePartiellementReglee() {
             int ecart = ecart(
-                () -> repository.getOverdueInvoicesCount(90),
-                () -> factureAgee(tiersPayantDeGroupe(), 120, 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID)
-            );
+                    () -> repository.getOverdueInvoicesCount(90),
+                    () -> factureAgee(tiersPayantDeGroupe(), 120, 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID));
 
             assertThat(ecart).isEqualTo(1);
         }
@@ -200,9 +197,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         @DisplayName("une facture soldée n'est pas en retard")
         void factureSoldee() {
             int ecart = ecart(
-                () -> repository.getOverdueInvoicesCount(90),
-                () -> factureAgee(tiersPayantDeGroupe(), 120, 500_000, 500_000, InvoiceStatut.PARTIALLY_PAID)
-            );
+                    () -> repository.getOverdueInvoicesCount(90),
+                    () -> factureAgee(tiersPayantDeGroupe(), 120, 500_000, 500_000, InvoiceStatut.PARTIALLY_PAID));
 
             assertThat(ecart).isZero();
         }
@@ -211,9 +207,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         @DisplayName("une facture récente n'est pas encore en retard")
         void factureRecente() {
             int ecart = ecart(
-                () -> repository.getOverdueInvoicesCount(90),
-                () -> factureAgee(tiersPayantDeGroupe(), 30, 500_000, 0, InvoiceStatut.NOT_PAID)
-            );
+                    () -> repository.getOverdueInvoicesCount(90),
+                    () -> factureAgee(tiersPayantDeGroupe(), 30, 500_000, 0, InvoiceStatut.NOT_PAID));
 
             assertThat(ecart).isZero();
         }
@@ -222,7 +217,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         @DisplayName("l'impayé d'un groupe porte le nom et le téléphone du groupe")
         void impayeDeGroupe() {
             GroupeTiersPayant groupe = groupeTiersPayant("CNAM");
-            FactureTiersPayant facture = factureAgee(tiersPayant("Caisse nationale", groupe), 120, 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID);
+            FactureTiersPayant facture = factureAgee(
+                    tiersPayant("Caisse nationale", groupe), 120, 500_000, 200_000, InvoiceStatut.PARTIALLY_PAID);
             em.flush();
 
             OverdueInvoiceProjection impaye = impayeDeLaFacture(facture);
@@ -242,7 +238,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         @Test
         @DisplayName("l'impayé d'un tiers payant isolé est listé, non pas seulement compté")
         void impayeSansGroupe() {
-            FactureTiersPayant facture = factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
+            FactureTiersPayant facture =
+                    factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             OverdueInvoiceProjection impaye = impayeDeLaFacture(facture);
@@ -259,7 +256,8 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
             factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            assertThat(repository.getOverdueInvoicesCount(90)).isEqualTo(repository.getOverdueInvoiceAlerts(90).size());
+            assertThat(repository.getOverdueInvoicesCount(90))
+                    .isEqualTo(repository.getOverdueInvoiceAlerts(90).size());
         }
 
         private TiersPayant tiersPayantDeGroupe() {
@@ -267,12 +265,10 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
         }
 
         private OverdueInvoiceProjection impayeDeLaFacture(FactureTiersPayant facture) {
-            return repository
-                .getOverdueInvoiceAlerts(90)
-                .stream()
-                .filter(p -> p.invoiceId() == facture.getId().getId())
-                .findFirst()
-                .orElseThrow();
+            return repository.getOverdueInvoiceAlerts(90).stream()
+                    .filter(p -> p.invoiceId() == facture.getId().getId())
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 
@@ -319,13 +315,15 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
             caisseFermee(LocalDate.now().minusDays(4), 500_000L, 510_000L);
             em.flush();
 
-            assertThat(repository.getCashDiscrepancyAmount(LocalDate.now().minusDays(5))).isZero();
+            assertThat(repository.getCashDiscrepancyAmount(LocalDate.now().minusDays(5)))
+                    .isZero();
         }
 
         @Test
         @DisplayName("une journée sans caisse fermée ne produit aucun écart")
         void aucuneCaisse() {
-            assertThat(repository.getCashDiscrepancyAmount(LocalDate.now().minusDays(400))).isZero();
+            assertThat(repository.getCashDiscrepancyAmount(LocalDate.now().minusDays(400)))
+                    .isZero();
         }
     }
 
@@ -346,13 +344,21 @@ class MobileAlertRepositoryIntegrationTest extends AbstractMobileIntegrationTest
             Produit aPerimer = produitEnStock(unique("PEREMPTION"), 20);
             lot(aPerimer, LocalDate.now().plusDays(3), 10);
             lot(aPerimer, LocalDate.now().plusDays(25), 10);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("GROUPE")), 120, 500_000, 100_000, InvoiceStatut.PARTIALLY_PAID);
+            factureAgee(
+                    tiersPayant("Caisse", groupeTiersPayant("GROUPE")),
+                    120,
+                    500_000,
+                    100_000,
+                    InvoiceStatut.PARTIALLY_PAID);
             factureAgee(tiersPayant("MUGEF isolé", null), 200, 300_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
-            assertThat(repository.getStockRuptureCount()).isEqualTo(repository.getStockRuptureAlerts().size());
-            assertThat(repository.getExpiringProductsCount(30)).isEqualTo(repository.getExpiryAlerts(30).size());
-            assertThat(repository.getOverdueInvoicesCount(90)).isEqualTo(repository.getOverdueInvoiceAlerts(90).size());
+            assertThat(repository.getStockRuptureCount())
+                    .isEqualTo(repository.getStockRuptureAlerts().size());
+            assertThat(repository.getExpiringProductsCount(30))
+                    .isEqualTo(repository.getExpiryAlerts(30).size());
+            assertThat(repository.getOverdueInvoicesCount(90))
+                    .isEqualTo(repository.getOverdueInvoiceAlerts(90).size());
 
             List<StockRuptureProjection> ruptures = repository.getStockRuptureAlerts();
             assertThat(ruptures).anyMatch(p -> p.productId() == enRupture.getId());

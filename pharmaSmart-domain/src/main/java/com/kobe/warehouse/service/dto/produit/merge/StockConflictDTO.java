@@ -10,12 +10,11 @@ package com.kobe.warehouse.service.dto.produit.merge;
  * stock physique réellement disponible.
  */
 public record StockConflictDTO(
-    Integer storageId,
-    String storageLibelle,
-    Integer sourceQtyStock,
-    Integer sourceQtyVirtual,
-    Integer sourceQtyUG,
-    Integer targetQtyStock,
-    Integer targetQtyVirtual,
-    Integer targetQtyUG
-) {}
+        Integer storageId,
+        String storageLibelle,
+        Integer sourceQtyStock,
+        Integer sourceQtyVirtual,
+        Integer sourceQtyUG,
+        Integer targetQtyStock,
+        Integer targetQtyVirtual,
+        Integer targetQtyUG) {}

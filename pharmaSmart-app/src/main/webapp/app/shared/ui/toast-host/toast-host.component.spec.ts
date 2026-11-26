@@ -28,7 +28,7 @@ describe('ToastHostComponent', () => {
     notifications = TestBed.inject(NotificationService);
   });
 
-  it('n\'affiche rien tant qu\'aucune notification n\'est émise', () => {
+  it("n'affiche rien tant qu'aucune notification n'est émise", () => {
     expect(toasts()).toHaveLength(0);
   });
 

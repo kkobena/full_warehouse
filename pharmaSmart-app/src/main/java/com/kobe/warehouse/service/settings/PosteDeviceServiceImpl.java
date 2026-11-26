@@ -26,21 +26,22 @@ public class PosteDeviceServiceImpl implements PosteDeviceService {
     @Override
     public List<PosteDeviceRecord> findByPoste(Integer posteId) {
         return posteDeviceRepository.findByPosteId(posteId).stream()
-            .map(this::toRecord)
-            .toList();
+                .map(this::toRecord)
+                .toList();
     }
 
     @Override
     public List<PosteDeviceRecord> findByPosteAndType(Integer posteId, DeviceType deviceType) {
         return posteDeviceRepository.findByPosteIdAndDeviceType(posteId, deviceType).stream()
-            .map(this::toRecord)
-            .toList();
+                .map(this::toRecord)
+                .toList();
     }
 
     @Override
     public Optional<PosteDeviceRecord> findActiveDevice(Integer posteId, DeviceType deviceType) {
-        return posteDeviceRepository.findByPosteIdAndDeviceTypeAndActiveTrue(posteId, deviceType)
-            .map(this::toRecord);
+        return posteDeviceRepository
+                .findByPosteIdAndDeviceTypeAndActiveTrue(posteId, deviceType)
+                .map(this::toRecord);
     }
 
     @Override
@@ -48,26 +49,25 @@ public class PosteDeviceServiceImpl implements PosteDeviceService {
     public PosteDeviceRecord save(PosteDeviceRecord record) {
         Poste poste = posteRepository.getReferenceById(record.posteId());
 
-        PosteDevice entity = record.id() != null
-            ? posteDeviceRepository.getReferenceById(record.id())
-            : new PosteDevice();
+        PosteDevice entity =
+                record.id() != null ? posteDeviceRepository.getReferenceById(record.id()) : new PosteDevice();
 
         entity.setPoste(poste)
-            .setDeviceType(record.deviceType())
-            .setPortName(record.portName())
-            .setLabel(record.label())
-            .setBaudRate(record.baudRate() != null ? record.baudRate() : 9600)
-            .setVid(record.vid())
-            .setPid(record.pid())
-            .setManufacturer(record.manufacturer())
-            .setProductName(record.productName())
-            .setSerialNumber(record.serialNumber())
-            .setActive(record.active());
+                .setDeviceType(record.deviceType())
+                .setPortName(record.portName())
+                .setLabel(record.label())
+                .setBaudRate(record.baudRate() != null ? record.baudRate() : 9600)
+                .setVid(record.vid())
+                .setPid(record.pid())
+                .setManufacturer(record.manufacturer())
+                .setProductName(record.productName())
+                .setSerialNumber(record.serialNumber())
+                .setActive(record.active());
 
         // Si c'est le premier de son type pour ce poste, l'activer automatiquement
         if (record.id() == null) {
-            List<PosteDevice> existing = posteDeviceRepository
-                .findByPosteIdAndDeviceType(record.posteId(), record.deviceType());
+            List<PosteDevice> existing =
+                    posteDeviceRepository.findByPosteIdAndDeviceType(record.posteId(), record.deviceType());
             if (existing.isEmpty()) {
                 entity.setActive(true);
             }
@@ -99,20 +99,18 @@ public class PosteDeviceServiceImpl implements PosteDeviceService {
 
     private PosteDeviceRecord toRecord(PosteDevice entity) {
         return new PosteDeviceRecord(
-            entity.getId(),
-            entity.getPoste().getId(),
-            entity.getDeviceType(),
-            entity.getPortName(),
-            entity.getLabel(),
-            entity.getBaudRate(),
-            entity.getVid(),
-            entity.getPid(),
-            entity.getManufacturer(),
-            entity.getProductName(),
-            entity.getSerialNumber(),
-            entity.isActive(),
-            entity.getLastConnectedAt()
-        );
+                entity.getId(),
+                entity.getPoste().getId(),
+                entity.getDeviceType(),
+                entity.getPortName(),
+                entity.getLabel(),
+                entity.getBaudRate(),
+                entity.getVid(),
+                entity.getPid(),
+                entity.getManufacturer(),
+                entity.getProductName(),
+                entity.getSerialNumber(),
+                entity.isActive(),
+                entity.getLastConnectedAt());
     }
 }
-

@@ -1,9 +1,7 @@
 <div class="pharma-smart-content">
-
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-history" title="Historique des règlements différés">
     <ng-container ngProjectAs="[toolbarFilters]">
-
       <label for="hrClient">Client</label>
       <app-select
         [(ngModel)]="customerId"
@@ -16,14 +14,16 @@
         inputId="hrClient"
       />
 
+      <pharma-date-picker
+        [ngModel]="modelStartDate()"
+        (ngModelChange)="modelStartDate.set($event)"
+        [maxDate]="modelEndDate"
+        [style]="{ 'max-width': '180px' }"
+        id="hrDu"
+        label="Du"
+      />
 
-      <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [maxDate]="modelEndDate"
-                          [style]="{ 'max-width': '180px' }" id="hrDu"
-                          label="Du" />
-
-      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()"
-                          [style]="{ 'max-width': '180px' }" id="hrAu"
-                          label="Au" />
+      <pharma-date-picker [(ngModel)]="modelEndDate" [minDate]="modelStartDate()" [style]="{ 'max-width': '180px' }" id="hrAu" label="Au" />
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
@@ -105,11 +105,7 @@
         <tr>
           <td class="p-0" colspan="5">
             <div class="px-4 py-2 bg-light">
-              <app-data-table
-                [size]="'small'"
-                [stripedRows]="true"
-                [value]="r.items ?? []" class="pharma-table-nested"
-              >
+              <app-data-table [size]="'small'" [stripedRows]="true" [value]="r.items ?? []" class="pharma-table-nested">
                 <ng-template #header>
                   <tr class="pharma-table-head">
                     <th>Mode de paiement</th>
@@ -123,16 +119,15 @@
                 <ng-template #body let-item>
                   <tr>
                     <td>
-                      <span class="pharma-badge pharma-badge-info">{{
-                          item.libelleMode ?? '—'
-                        }}</span>
+                      <span class="pharma-badge pharma-badge-info">{{ item.libelleMode ?? '—' }}</span>
                     </td>
-                    <td class="text-end"><span
-                      class="pharma-price">{{ item.expectedAmount | number }}</span></td>
-                    <td class="text-end"><span
-                      class="pharma-total">{{ item.montantVerse | number }}</span></td>
-                    <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}
+                    <td class="text-end">
+                      <span class="pharma-price">{{ item.expectedAmount | number }}</span>
                     </td>
+                    <td class="text-end">
+                      <span class="pharma-total">{{ item.montantVerse | number }}</span>
+                    </td>
+                    <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
                     <td class="small">{{ item.user ?? '—' }}</td>
                     <td class="text-center">
                       <app-button
@@ -150,9 +145,7 @@
                 </ng-template>
                 <ng-template #emptymessage>
                   <tr>
-                    <td class="text-center text-muted py-2 small" colspan="6">Aucun détail
-                      disponible
-                    </td>
+                    <td class="text-center text-muted py-2 small" colspan="6">Aucun détail disponible</td>
                   </tr>
                 </ng-template>
               </app-data-table>
@@ -164,9 +157,7 @@
       <ng-template #emptymessage>
         <tr>
           <td colspan="5">
-            <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le
-              client
-            </div>
+            <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le client</div>
           </td>
         </tr>
       </ng-template>
@@ -174,9 +165,7 @@
       <ng-template #footer>
         @if (store.reglementSummary(); as s) {
           <tr class="pharma-table-footer">
-            <td class="fw-semibold" colspan="2">
-              <i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)
-            </td>
+            <td class="fw-semibold" colspan="2"><i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)</td>
             <td class="text-end fw-bold text-success">{{ s.paidAmount | number }} <span appDevise></span></td>
             <td colspan="2"></td>
           </tr>
@@ -184,5 +173,4 @@
       </ng-template>
     </app-data-table>
   </app-card>
-
 </div>

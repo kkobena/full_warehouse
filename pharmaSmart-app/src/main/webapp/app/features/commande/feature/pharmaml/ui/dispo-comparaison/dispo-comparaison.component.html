@@ -1,7 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">
-    <i class="pi pi-chart-bar me-2"></i>{{ header }}
-  </h5>
+  <h5 class="modal-title"><i class="pi pi-chart-bar me-2"></i>{{ header }}</h5>
   <button (click)="close()" class="btn-close" type="button"></button>
 </div>
 
@@ -27,8 +25,7 @@
 
   @if (colonnes().length > 4) {
     <small class="text-muted dc-hint">
-      <i class="pi pi-info-circle"></i> Conseil : limitez à 4 grossistes pour une meilleure
-      lisibilité.
+      <i class="pi pi-info-circle"></i> Conseil : limitez à 4 grossistes pour une meilleure lisibilité.
     </small>
   }
 
@@ -89,8 +86,6 @@
                   } @else {
                     -
                   }
-
-
                 </td>
               } @else {
                 <td class="text-center text-muted dc-na" colspan="3">N/A</td>
@@ -118,8 +113,6 @@
 </div>
 
 <div class="modal-footer">
-  <small class="text-muted me-auto">
-    {{ rows().length }} produit(s) comparé(s) sur {{ colonnes().length }} grossiste(s)
-  </small>
+  <small class="text-muted me-auto"> {{ rows().length }} produit(s) comparé(s) sur {{ colonnes().length }} grossiste(s) </small>
   <app-button (clicked)="close()" label="Fermer" severity="secondary" type="button" />
 </div>

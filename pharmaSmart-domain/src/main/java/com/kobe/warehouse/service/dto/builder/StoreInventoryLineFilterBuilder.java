@@ -46,8 +46,7 @@ public class StoreInventoryLineFilterBuilder {
     /**
      * ABC : filtre par classe Pareto ('A', 'B', 'C') — null = toutes les classes.
      */
-    public static final String SQL_INSERT_ABC =
-        """
+    public static final String SQL_INSERT_ABC = """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
             SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
@@ -65,8 +64,7 @@ public class StoreInventoryLineFilterBuilder {
      * l'agrégation. Le {@code ::numeric} sur le premier opérande règle les deux : le produit
      * puis la somme restent en {@code numeric}.
      */
-    public static final String SUMMARY_SQL =
-        """
+    public static final String SUMMARY_SQL = """
             SELECT COALESCE(SUM(i.quantity_on_hand::numeric * i.inventory_value_cost), 0) AS costValueAfter,
                    COALESCE(SUM(i.quantity_on_hand::numeric * i.last_unit_price),      0) AS amountValueAfter,
                    COALESCE(SUM(i.quantity_init::numeric   * i.inventory_value_cost),  0) AS costValueBegin,
@@ -77,8 +75,7 @@ public class StoreInventoryLineFilterBuilder {
             WHERE i.store_inventory_id = ?1
             """;
 
-    public static final String EXPORT_QUERY =
-        """
+    public static final String EXPORT_QUERY = """
             SELECT r.id AS rayon_id, s.id AS storage_id,
                    fm.code AS famillyCode, fm.libelle AS famillyLibelle, fm.id AS famillyId,
                    a.gap, r.code AS code_rayon,
@@ -105,8 +102,7 @@ public class StoreInventoryLineFilterBuilder {
     /**
      * Valorisation ventilée par emplacement (storage).
      */
-    public static final String VALUATION_BY_STORAGE_SQL =
-        """
+    public static final String VALUATION_BY_STORAGE_SQL = """
             SELECT COALESCE(s.id::text, 'SANS_EMPLACEMENT')             AS groupKey,
                    COALESCE(s.name, 'Sans emplacement')                 AS groupLabel,
                    COUNT(*)                                              AS lineCount,
@@ -126,8 +122,7 @@ public class StoreInventoryLineFilterBuilder {
     /**
      * Valorisation ventilée par famille de produit.
      */
-    public static final String VALUATION_BY_FAMILLE_SQL =
-        """
+    public static final String VALUATION_BY_FAMILLE_SQL = """
             SELECT fm.id::text                                           AS groupKey,
                    COALESCE(fm.libelle, 'Sans famille')                  AS groupLabel,
                    COUNT(*)                                              AS lineCount,
@@ -148,8 +143,7 @@ public class StoreInventoryLineFilterBuilder {
     /**
      * Valorisation ventilée par rayon (via rayon_produit).
      */
-    public static final String VALUATION_BY_RAYON_SQL =
-        """
+    public static final String VALUATION_BY_RAYON_SQL = """
             SELECT COALESCE(r.id::text, 'SANS_RAYON')                   AS groupKey,
                    COALESCE(r.libelle, 'Sans rayon')                     AS groupLabel,
                    COUNT(*)                                              AS lineCount,
@@ -177,8 +171,7 @@ public class StoreInventoryLineFilterBuilder {
      * ce qui a été inventorié. Ils y apparaissent en une ligne sans numéro de lot, valorisée au
      * niveau de la ligne produit.
      */
-    public static final String LOT_EXPORT_SQL =
-        """
+    public static final String LOT_EXPORT_SQL = """
             SELECT fp.code_cip,
                    p.libelle                        AS produit_libelle,
                    p.id                             AS produit_id,
@@ -212,11 +205,9 @@ public class StoreInventoryLineFilterBuilder {
             whereClose = whereClose.concat(String.format(EXPORT_RAYON_CLOSE_QUERY, f.rayonId()));
         }
         if (Objects.nonNull(f.storageId())) {
-            whereClose = whereClose.concat(
-                String.format(EXPORT_STORAGE_CLOSE_QUERY, f.storageId()));
+            whereClose = whereClose.concat(String.format(EXPORT_STORAGE_CLOSE_QUERY, f.storageId()));
         }
-        String query = String.format(EXPORT_QUERY,
-            whereClose.concat(buildLineFilter(f.selectedFilter())));
+        String query = String.format(EXPORT_QUERY, whereClose.concat(buildLineFilter(f.selectedFilter())));
         return switch (record.exportGroupBy()) {
             case RAYON -> query.replace("{order_by}", "storage_name, rayon_libelle,");
             case FAMILLY -> query.replace("{order_by}", "storage_name, fm.code,fm.libelle,");
@@ -263,53 +254,50 @@ public class StoreInventoryLineFilterBuilder {
 
     public static StoreInventoryLineExport buildStoreInventoryLineExportRecord(Tuple t) {
         return new StoreInventoryLineExport(
-            t.get("gap", Integer.class),
-            t.get("inventory_value_cost", Integer.class),
-            t.get("quantity_init", Integer.class),
-            t.get("quantity_on_hand", Integer.class),
-            t.get("produit_code_cip", String.class),
-            t.get("code_ean_labo", String.class),
-            t.get("produit_libelle", String.class),
-            t.get("rayon_libelle", String.class),
-            t.get("storage_name", String.class),
-            // L'ordre suit celui du constructeur : prix d'achat d'abord, prix de vente ensuite.
-            // Inversés, la colonne « Prix.A » du PDF affichait le prix de vente et les totaux
-            // « achat » de l'export étaient calculés au prix de vente — et réciproquement.
-            t.get("prix_achat", Integer.class),
-            t.get("prix_uni", Integer.class),
-            t.get("last_unit_price", Integer.class),
-            t.get("rayon_id", Integer.class),
-            t.get("storage_id", Integer.class),
-            t.get("code_rayon", String.class),
-            t.get("famillyCode", String.class),
-            t.get("famillyLibelle", String.class),
-            t.get("famillyId", Integer.class)
-        );
+                t.get("gap", Integer.class),
+                t.get("inventory_value_cost", Integer.class),
+                t.get("quantity_init", Integer.class),
+                t.get("quantity_on_hand", Integer.class),
+                t.get("produit_code_cip", String.class),
+                t.get("code_ean_labo", String.class),
+                t.get("produit_libelle", String.class),
+                t.get("rayon_libelle", String.class),
+                t.get("storage_name", String.class),
+                // L'ordre suit celui du constructeur : prix d'achat d'abord, prix de vente ensuite.
+                // Inversés, la colonne « Prix.A » du PDF affichait le prix de vente et les totaux
+                // « achat » de l'export étaient calculés au prix de vente — et réciproquement.
+                t.get("prix_achat", Integer.class),
+                t.get("prix_uni", Integer.class),
+                t.get("last_unit_price", Integer.class),
+                t.get("rayon_id", Integer.class),
+                t.get("storage_id", Integer.class),
+                t.get("code_rayon", String.class),
+                t.get("famillyCode", String.class),
+                t.get("famillyLibelle", String.class),
+                t.get("famillyId", Integer.class));
     }
 
     public static StoreInventorySummaryRecord buildSammary(Tuple t) {
         return new StoreInventorySummaryRecord(
-            toBigDecimal(t, "costValueBegin"),
-            toBigDecimal(t, "costValueAfter"),
-            toBigDecimal(t, "amountValueBegin"),
-            toBigDecimal(t, "amountValueAfter"),
-            toBigDecimal(t, "gapCost"),
-            toBigDecimal(t, "gapAmount")
-        );
+                toBigDecimal(t, "costValueBegin"),
+                toBigDecimal(t, "costValueAfter"),
+                toBigDecimal(t, "amountValueBegin"),
+                toBigDecimal(t, "amountValueAfter"),
+                toBigDecimal(t, "gapCost"),
+                toBigDecimal(t, "gapAmount"));
     }
 
     public static StoreInventorySummaryByGroupRecord buildGroupRow(Tuple t) {
         return new StoreInventorySummaryByGroupRecord(
-            t.get("groupKey", String.class),
-            t.get("groupLabel", String.class),
-            ((Number) t.get("lineCount")).longValue(),
-            toBigDecimal(t, "costBefore"),
-            toBigDecimal(t, "costAfter"),
-            toBigDecimal(t, "amountBefore"),
-            toBigDecimal(t, "amountAfter"),
-            toBigDecimal(t, "gapCost"),
-            toBigDecimal(t, "gapAmount")
-        );
+                t.get("groupKey", String.class),
+                t.get("groupLabel", String.class),
+                ((Number) t.get("lineCount")).longValue(),
+                toBigDecimal(t, "costBefore"),
+                toBigDecimal(t, "costAfter"),
+                toBigDecimal(t, "amountBefore"),
+                toBigDecimal(t, "amountAfter"),
+                toBigDecimal(t, "gapCost"),
+                toBigDecimal(t, "gapAmount"));
     }
 
     /**
@@ -328,9 +316,9 @@ public class StoreInventoryLineFilterBuilder {
             case Double value -> BigDecimal.valueOf(value);
             case Float value -> BigDecimal.valueOf(value);
             case Number value -> BigDecimal.valueOf(value.longValue());
-            case Object value -> throw new IllegalArgumentException(
-                "Colonne agrégée [%s] non numérique : %s".formatted(alias, value.getClass().getName())
-            );
+            case Object value ->
+                throw new IllegalArgumentException("Colonne agrégée [%s] non numérique : %s"
+                        .formatted(alias, value.getClass().getName()));
         };
     }
 
@@ -353,17 +341,13 @@ public class StoreInventoryLineFilterBuilder {
      *
      * @see #bindSearch(Query, StoreInventoryLineFilterRecord)
      */
-    private static void appendSearch(
-        StringBuilder sql, String search, String col1, String col2, String col3
-    ) {
+    private static void appendSearch(StringBuilder sql, String search, String col1, String col2, String col3) {
         if (!StringUtils.hasLength(search)) {
             return;
         }
         sql.append(String.format(
-            " AND (%s LIKE ?%d OR %s LIKE ?%d OR %s LIKE ?%d)",
-            col1, PREMIER_PARAM_RECHERCHE,
-            col2, PREMIER_PARAM_RECHERCHE + 1,
-            col3, PREMIER_PARAM_RECHERCHE + 2));
+                " AND (%s LIKE ?%d OR %s LIKE ?%d OR %s LIKE ?%d)",
+                col1, PREMIER_PARAM_RECHERCHE, col2, PREMIER_PARAM_RECHERCHE + 1, col3, PREMIER_PARAM_RECHERCHE + 2));
     }
 
     /**
@@ -394,11 +378,11 @@ public class StoreInventoryLineFilterBuilder {
             case NOT_UPDATED -> sql.append(" AND a.updated IS false");
             case UPDATED -> sql.append(" AND a.updated");
             case GAP -> sql.append(" AND a.updated AND a.quantity_on_hand <> a.quantity_init");
-            case GAP_NEGATIF ->
-                sql.append(" AND a.updated AND a.quantity_on_hand < a.quantity_init");
-            case GAP_POSITIF ->
-                sql.append(" AND a.updated AND a.quantity_on_hand >= a.quantity_init");
-            default -> { /* NONE déjà géré */ }
+            case GAP_NEGATIF -> sql.append(" AND a.updated AND a.quantity_on_hand < a.quantity_init");
+            case GAP_POSITIF -> sql.append(" AND a.updated AND a.quantity_on_hand >= a.quantity_init");
+            default -> {
+                /* NONE déjà géré */
+            }
         }
     }
 
@@ -414,13 +398,30 @@ public class StoreInventoryLineFilterBuilder {
         switch (lineEnum) {
             case NOT_UPDATED -> sql.append(" AND ").append(updated).append(" IS false");
             case UPDATED -> sql.append(" AND ").append(updated);
-            case GAP -> sql.append(" AND ").append(updated)
-                .append(" AND ").append(onHand).append(" <> ").append(init);
-            case GAP_NEGATIF -> sql.append(" AND ").append(updated)
-                .append(" AND ").append(onHand).append(" < ").append(init);
-            case GAP_POSITIF -> sql.append(" AND ").append(updated)
-                .append(" AND ").append(onHand).append(" >= ").append(init);
-            default -> { /* NONE déjà géré */ }
+            case GAP ->
+                sql.append(" AND ")
+                        .append(updated)
+                        .append(" AND ")
+                        .append(onHand)
+                        .append(" <> ")
+                        .append(init);
+            case GAP_NEGATIF ->
+                sql.append(" AND ")
+                        .append(updated)
+                        .append(" AND ")
+                        .append(onHand)
+                        .append(" < ")
+                        .append(init);
+            case GAP_POSITIF ->
+                sql.append(" AND ")
+                        .append(updated)
+                        .append(" AND ")
+                        .append(onHand)
+                        .append(" >= ")
+                        .append(init);
+            default -> {
+                /* NONE déjà géré */
+            }
         }
     }
 
@@ -511,13 +512,9 @@ public class StoreInventoryLineFilterBuilder {
                             ELSE CONCAT(LEFT(cb.first_name, 1), '. ', cb.last_name)
                        END                 AS counted_by""");
 
-            sql.append(includeLotCount
-                ? ", COALESCE(ilc.lot_count, 0) AS lot_count"
-                : ", 0 AS lot_count");
+            sql.append(includeLotCount ? ", COALESCE(ilc.lot_count, 0) AS lot_count" : ", 0 AS lot_count");
 
-            sql.append(includeAbcPareto
-                ? ",abc.classe_pareto"
-                : ",CAST(NULL AS VARCHAR)      AS classe_pareto");
+            sql.append(includeAbcPareto ? ",abc.classe_pareto" : ",CAST(NULL AS VARCHAR)      AS classe_pareto");
         }
 
         // ── FROM / JOIN ───────────────────────────────────────────────────────
@@ -577,8 +574,8 @@ public class StoreInventoryLineFilterBuilder {
                 sql.append(String.format(" AND rp.rayon_id = %d", filter.rayonId()));
             } else if (filter.storageId() != null) {
                 sql.append(String.format(
-                    " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d)",
-                    filter.storageId()));
+                        " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d)",
+                        filter.storageId()));
             }
             appendSearch(sql, filter.search(), "p.libelle", "fp.code_cip", "p.code_ean_labo");
             appendLineFilter(sql, filter.selectedFilter());
@@ -609,10 +606,9 @@ public class StoreInventoryLineFilterBuilder {
          * directement écarterait toutes les lignes sans lot.
          */
         static final String EFFECTIVE_UPDATED = "COALESCE(il.updated, sil.updated)";
-        static final String EFFECTIVE_QUANTITY_ON_HAND =
-            "COALESCE(il.quantity_on_hand, sil.quantity_on_hand)";
-        static final String EFFECTIVE_QUANTITY_INIT =
-            "COALESCE(il.quantity_init, sil.quantity_init)";
+
+        static final String EFFECTIVE_QUANTITY_ON_HAND = "COALESCE(il.quantity_on_hand, sil.quantity_on_hand)";
+        static final String EFFECTIVE_QUANTITY_INIT = "COALESCE(il.quantity_init, sil.quantity_init)";
 
         private final StoreInventoryLineFilterRecord filter;
         private boolean includeAbcPareto = false;
@@ -677,9 +673,7 @@ public class StoreInventoryLineFilterBuilder {
             // par l'API ligne, qui exige la version lue pour arbitrer un comptage concurrent
             sql.append("sil.version AS version");
 
-            sql.append(includeAbcPareto
-                ? ",abc.classe_pareto"
-                : ",CAST(NULL AS VARCHAR) AS classe_pareto");
+            sql.append(includeAbcPareto ? ",abc.classe_pareto" : ",CAST(NULL AS VARCHAR) AS classe_pareto");
         }
 
         // ── FROM / JOIN ───────────────────────────────────────────────────────
@@ -723,8 +717,8 @@ public class StoreInventoryLineFilterBuilder {
                 sql.append(String.format(" AND rp.rayon_id = %d", filter.rayonId()));
             } else if (filter.storageId() != null) {
                 sql.append(String.format(
-                    " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d)",
-                    filter.storageId()));
+                        " AND rp.rayon_id IN (SELECT ry.id FROM rayon ry WHERE ry.storage_id = %d)",
+                        filter.storageId()));
             }
             appendSearch(sql, filter.search(), "p.libelle", "fp.code_cip", "l.num_lot");
             appendLotFilter(sql, filter.selectedFilter());

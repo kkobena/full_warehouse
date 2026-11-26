@@ -1,14 +1,14 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {saveAs} from 'file-saver';
-import {AppPillOption, ButtonComponent, CardComponent, InputNumberComponent, PillSelectorComponent, SelectComponent} from 'app/shared/ui';
-import {IFormatEtiquette, ProductsApiService} from 'app/features/products/data-access/services/products-api.service';
-import {IOrdonnance} from 'app/shared/model/ordonnance.model';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {PrinterInfo, TauriPrinterService} from 'app/shared/services/tauri-printer.service';
-import {OrdonnanceApiService} from '../../data-access/services/ordonnance-api.service';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { saveAs } from 'file-saver';
+import { AppPillOption, ButtonComponent, CardComponent, InputNumberComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
+import { IFormatEtiquette, ProductsApiService } from 'app/features/products/data-access/services/products-api.service';
+import { IOrdonnance } from 'app/shared/model/ordonnance.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { PrinterInfo, TauriPrinterService } from 'app/shared/services/tauri-printer.service';
+import { OrdonnanceApiService } from '../../data-access/services/ordonnance-api.service';
 
 /** PDF par le pilote, ou ZPL en direct dans l'imprimante — voir la modale d'étiquettes produit. */
 type ModeImpression = 'PDF' | 'ZPL';
@@ -48,14 +48,14 @@ export class PosologieEtiquetteModalComponent implements OnInit {
   protected readonly estZpl = computed(() => this.zplPossible() && this.modeImpression() === 'ZPL');
 
   protected readonly modeOptions: AppPillOption[] = [
-    {label: 'PDF (pilote)', value: 'PDF', icon: 'pi pi-file-pdf'},
-    {label: 'ZPL (Zebra, TSC)', value: 'ZPL', icon: 'pi pi-print'},
+    { label: 'PDF (pilote)', value: 'PDF', icon: 'pi pi-file-pdf' },
+    { label: 'ZPL (Zebra, TSC)', value: 'ZPL', icon: 'pi pi-print' },
   ];
 
   protected readonly resolutions = [
-    {code: 'DPI_203', libelle: '203 dpi — entrée de gamme'},
-    {code: 'DPI_300', libelle: '300 dpi'},
-    {code: 'DPI_600', libelle: '600 dpi'},
+    { code: 'DPI_203', libelle: '203 dpi — entrée de gamme' },
+    { code: 'DPI_300', libelle: '300 dpi' },
+    { code: 'DPI_600', libelle: '600 dpi' },
   ];
 
   private readonly activeModal = inject(NgbActiveModal);
@@ -66,7 +66,9 @@ export class PosologieEtiquetteModalComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   /** Les lignes de l'ordonnance, plus le choix « toutes ». */
-  protected readonly lignes = computed(() => this.ordonnance.lignes.map(l => ({id: l.id, libelle: l.produitLibelle ?? l.texteLu ?? '—'})));
+  protected readonly lignes = computed(() =>
+    this.ordonnance.lignes.map(l => ({ id: l.id, libelle: l.produitLibelle ?? l.texteLu ?? '—' })),
+  );
 
   ngOnInit(): void {
     this.produitsApi
@@ -116,7 +118,7 @@ export class PosologieEtiquetteModalComponent implements OnInit {
       return;
     }
     this.api
-      .etiquettesPosologie(this.ordonnance.id, {ligneId, qty: this.qty, startAt: this.estRouleau() ? 1 : this.startAt, format})
+      .etiquettesPosologie(this.ordonnance.id, { ligneId, qty: this.qty, startAt: this.estRouleau() ? 1 : this.startAt, format })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: blob => {
@@ -137,7 +139,7 @@ export class PosologieEtiquetteModalComponent implements OnInit {
 
   private envoyerEnZpl(ligneId: number | undefined, format: string | undefined): void {
     this.api
-      .etiquettesPosologieZpl(this.ordonnance.id, {ligneId, qty: this.qty, format, resolution: this.resolution()})
+      .etiquettesPosologieZpl(this.ordonnance.id, { ligneId, qty: this.qty, format, resolution: this.resolution() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: zpl => {

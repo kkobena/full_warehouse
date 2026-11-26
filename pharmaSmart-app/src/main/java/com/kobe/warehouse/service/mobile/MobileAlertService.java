@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class MobileAlertService {
-
 
     private final MobileAlertRepository alertRepository;
 
@@ -46,13 +44,12 @@ public class MobileAlertService {
             AlertType type = AlertType.STOCK_RUPTURE;
             AlertSeverity severity = AlertSeverity.CRITICAL;
             alerts.add(new MobileAlertDTO(
-                type.getCode(),
-                severity.getCode(),
-                stockRuptureCount + " ruptures de stock",
-                stockRuptureCount,
-                type.getIcon(),
-                severity.getColor()
-            ));
+                    type.getCode(),
+                    severity.getCode(),
+                    stockRuptureCount + " ruptures de stock",
+                    stockRuptureCount,
+                    type.getIcon(),
+                    severity.getColor()));
         }
 
         // 2. Expiring products (< 30 days)
@@ -61,13 +58,12 @@ public class MobileAlertService {
             AlertType type = AlertType.EXPIRY;
             AlertSeverity severity = AlertSeverity.WARNING;
             alerts.add(new MobileAlertDTO(
-                type.getCode(),
-                severity.getCode(),
-                expiryCount + " peremptions < 30j",
-                expiryCount,
-                type.getIcon(),
-                severity.getColor()
-            ));
+                    type.getCode(),
+                    severity.getCode(),
+                    expiryCount + " peremptions < 30j",
+                    expiryCount,
+                    type.getIcon(),
+                    severity.getColor()));
         }
 
         // 3. Cash discrepancy (today)
@@ -76,13 +72,12 @@ public class MobileAlertService {
             AlertType type = AlertType.CASH_DISCREPANCY;
             AlertSeverity severity = AlertSeverity.fromCriticalThreshold(cashDiscrepancyAmount > 10000);
             alerts.add(new MobileAlertDTO(
-                type.getCode(),
-                severity.getCode(),
-                "Ecart caisse: " + formatAmount(cashDiscrepancyAmount) + " F",
-                1,
-                type.getIcon(),
-                severity.getColor()
-            ));
+                    type.getCode(),
+                    severity.getCode(),
+                    "Ecart caisse: " + formatAmount(cashDiscrepancyAmount) + " F",
+                    1,
+                    type.getIcon(),
+                    severity.getColor()));
         }
 
         // 4. Overdue invoices (> 90 days)
@@ -91,13 +86,12 @@ public class MobileAlertService {
             AlertType type = AlertType.INVOICE_OVERDUE;
             AlertSeverity severity = AlertSeverity.INFO;
             alerts.add(new MobileAlertDTO(
-                type.getCode(),
-                severity.getCode(),
-                overdueCount + " factures impayees > 90j",
-                overdueCount,
-                type.getIcon(),
-                severity.getColor()
-            ));
+                    type.getCode(),
+                    severity.getCode(),
+                    overdueCount + " factures impayees > 90j",
+                    overdueCount,
+                    type.getIcon(),
+                    severity.getColor()));
         }
 
         return alerts;
@@ -179,20 +173,20 @@ public class MobileAlertService {
         List<MobileAlertDetailDTO> alerts = new ArrayList<>();
         for (StockRuptureProjection p : projections) {
             alerts.add(MobileAlertDetailDTO.builder()
-                .id(p.productId())
-                .type(type.getCode())
-                .severity(severity.getCode())
-                .title(type.getLibelle())
-                .message(p.productName() + " - Stock epuise")
-                .icon(type.getIcon())
-                .color(severity.getColor())
-                .createdAt(LocalDateTime.now())
-                .actionType("VIEW_PRODUCT")
-                .actionData(Map.of("productId", p.productId()))
-                .relatedEntityId(p.productId())
-                .relatedEntityType("PRODUCT")
-                .relatedEntityName(p.productName())
-                .build());
+                    .id(p.productId())
+                    .type(type.getCode())
+                    .severity(severity.getCode())
+                    .title(type.getLibelle())
+                    .message(p.productName() + " - Stock epuise")
+                    .icon(type.getIcon())
+                    .color(severity.getColor())
+                    .createdAt(LocalDateTime.now())
+                    .actionType("VIEW_PRODUCT")
+                    .actionData(Map.of("productId", p.productId()))
+                    .relatedEntityId(p.productId())
+                    .relatedEntityType("PRODUCT")
+                    .relatedEntityName(p.productName())
+                    .build());
         }
 
         return alerts;
@@ -209,20 +203,20 @@ public class MobileAlertService {
             AlertSeverity severity = AlertSeverity.fromCriticalThreshold(p.daysUntilExpiry() <= 7);
 
             alerts.add(MobileAlertDetailDTO.builder()
-                .id(p.lotId())
-                .type(type.getCode())
-                .severity(severity.getCode())
-                .title(type.getLibelle())
-                .message(p.productName() + " - Expire dans " + p.daysUntilExpiry() + " jours")
-                .icon(type.getIcon())
-                .color(severity.getColor())
-                .createdAt(LocalDateTime.now())
-                .actionType("VIEW_PRODUCT")
-                .actionData(Map.of("productId", p.productId(), "lotId", p.lotId()))
-                .relatedEntityId(p.productId())
-                .relatedEntityType("PRODUCT")
-                .relatedEntityName(p.productName())
-                .build());
+                    .id(p.lotId())
+                    .type(type.getCode())
+                    .severity(severity.getCode())
+                    .title(type.getLibelle())
+                    .message(p.productName() + " - Expire dans " + p.daysUntilExpiry() + " jours")
+                    .icon(type.getIcon())
+                    .color(severity.getColor())
+                    .createdAt(LocalDateTime.now())
+                    .actionType("VIEW_PRODUCT")
+                    .actionData(Map.of("productId", p.productId(), "lotId", p.lotId()))
+                    .relatedEntityId(p.productId())
+                    .relatedEntityType("PRODUCT")
+                    .relatedEntityName(p.productName())
+                    .build());
         }
 
         return alerts;
@@ -240,20 +234,21 @@ public class MobileAlertService {
             AlertSeverity severity = AlertSeverity.fromCriticalThreshold(p.daysOverdue() > 180);
 
             alerts.add(MobileAlertDetailDTO.builder()
-                .id(p.invoiceId())
-                .type(type.getCode())
-                .severity(severity.getCode())
-                .title(type.getLibelle())
-                .message(p.tiersPayantName() + " - " + formatAmount(montantRestant) + " F depuis " + p.daysOverdue() + "j")
-                .icon(type.getIcon())
-                .color(severity.getColor())
-                .createdAt(LocalDateTime.now())
-                .actionType("CALL_CLIENT")
-                .actionData(Map.of("invoiceId", p.invoiceId(), "phone", p.telephone() != null ? p.telephone() : ""))
-                .relatedEntityId(p.invoiceId())
-                .relatedEntityType("INVOICE")
-                .relatedEntityName(p.tiersPayantName())
-                .build());
+                    .id(p.invoiceId())
+                    .type(type.getCode())
+                    .severity(severity.getCode())
+                    .title(type.getLibelle())
+                    .message(p.tiersPayantName() + " - " + formatAmount(montantRestant) + " F depuis " + p.daysOverdue()
+                            + "j")
+                    .icon(type.getIcon())
+                    .color(severity.getColor())
+                    .createdAt(LocalDateTime.now())
+                    .actionType("CALL_CLIENT")
+                    .actionData(Map.of("invoiceId", p.invoiceId(), "phone", p.telephone() != null ? p.telephone() : ""))
+                    .relatedEntityId(p.invoiceId())
+                    .relatedEntityType("INVOICE")
+                    .relatedEntityName(p.tiersPayantName())
+                    .build());
         }
 
         return alerts;

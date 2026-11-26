@@ -1,21 +1,29 @@
 package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.constant.EntityConstant;
-import com.kobe.warehouse.domain.pharmacovigilance.NiveauInteraction;
 import com.kobe.warehouse.domain.AppConfiguration;
-import com.kobe.warehouse.domain.enumeration.ParametreValueType;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
 import com.kobe.warehouse.domain.enumeration.ModelReapprovisionnement;
+import com.kobe.warehouse.domain.enumeration.ParametreValueType;
 import com.kobe.warehouse.domain.enumeration.PutawayMode;
+import com.kobe.warehouse.domain.pharmacovigilance.NiveauInteraction;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.settings.dto.AppConfigurationDto;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.Cache;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -26,15 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -57,10 +56,9 @@ public class AppConfigurationService {
     private final ObjectProvider<CacheManager> cacheManager;
 
     public AppConfigurationService(
-        UserService userService,
-        AppConfigurationRepository appConfigurationRepository,
-        ObjectProvider<CacheManager> cacheManager
-    ) {
+            UserService userService,
+            AppConfigurationRepository appConfigurationRepository,
+            ObjectProvider<CacheManager> cacheManager) {
         this.userService = userService;
         this.appConfigurationRepository = appConfigurationRepository;
         this.cacheManager = cacheManager;
@@ -69,8 +67,11 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_MONO_STOCK)
     public boolean isMono() {
-        Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_MONO_STOCK);
-        return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);
+        Optional<AppConfiguration> appConfiguration =
+                appConfigurationRepository.findById(EntityConstant.APP_MONO_STOCK);
+        return appConfiguration
+                .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
+                .orElse(true);
     }
 
     @Transactional(readOnly = true)
@@ -86,69 +87,72 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_GESTION_STOCK)
     public Optional<AppConfigurationDto> findStockParam() {
-        return appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK).map(this::toDto);
+        return appConfigurationRepository
+                .findById(EntityConstant.APP_GESTION_STOCK)
+                .map(this::toDto);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_GESTION_LOT)
     public Optional<Boolean> useLot() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_GESTION_LOT)
-            .map(configuration -> {
-                try {
-                    return Integer.parseInt(configuration.getValue().trim()) == 1;
-                } catch (NumberFormatException _) {
-                    return false;
-                }
-            });
+                .findById(EntityConstant.APP_GESTION_LOT)
+                .map(configuration -> {
+                    try {
+                        return Integer.parseInt(configuration.getValue().trim()) == 1;
+                    } catch (NumberFormatException _) {
+                        return false;
+                    }
+                });
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_GESTION_LOT_INVENTAIRE_CACHE)
     public boolean useGestionLotInventaire() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_GESTION_LOT_INVENTAIRE)
-            .map(configuration -> {
-                try {
-                    return Integer.parseInt(configuration.getValue().trim()) == 1;
-                } catch (NumberFormatException _) {
-                    return false;
-                }
-            })
-            .orElse(false);
+                .findById(EntityConstant.APP_GESTION_LOT_INVENTAIRE)
+                .map(configuration -> {
+                    try {
+                        return Integer.parseInt(configuration.getValue().trim()) == 1;
+                    } catch (NumberFormatException _) {
+                        return false;
+                    }
+                })
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE_CACHE)
     public String getModeSaisieLotInventaire() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE)
-            .map(AppConfiguration::getValue)
-            .orElse("LOT_PLAT");
+                .findById(EntityConstant.APP_MODE_SAISIE_LOT_INVENTAIRE)
+                .map(AppConfiguration::getValue)
+                .orElse("LOT_PLAT");
     }
 
     @Transactional
     public void update(AppConfigurationDto appConfiguration) {
         appConfigurationRepository
-            .findById(appConfiguration.name())
-            .map(configuration -> {
-                configuration.setValue(appConfiguration.value());
-                configuration.setDescription(appConfiguration.description());
-                configuration.setUpdated(LocalDateTime.now());
-                configuration.setValidatedBy(userService.getUser());
-                return appConfigurationRepository.save(configuration);
-            })
-            .ifPresent(configuration -> eviderLeCache(configuration.getName()));
+                .findById(appConfiguration.name())
+                .map(configuration -> {
+                    configuration.setValue(appConfiguration.value());
+                    configuration.setDescription(appConfiguration.description());
+                    configuration.setUpdated(LocalDateTime.now());
+                    configuration.setValidatedBy(userService.getUser());
+                    return appConfigurationRepository.save(configuration);
+                })
+                .ifPresent(configuration -> eviderLeCache(configuration.getName()));
     }
-
 
     @Transactional(readOnly = true)
     public Page<AppConfigurationDto> fetchAll(String search, Pageable pageable) {
         Pageable sorted = pageable.getSort().isSorted()
-            ? pageable
-            : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "description"));
-        return appConfigurationRepository.findAll(AppConfigurationRepository.buildSpec(search), sorted)
-            .map(this::toDto);
+                ? pageable
+                : PageRequest.of(
+                        pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "description"));
+        return appConfigurationRepository
+                .findAll(AppConfigurationRepository.buildSpec(search), sorted)
+                .map(this::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -161,25 +165,25 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_SUGGESTION_RETENTION)
     public int findSuggestionRetention() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_SUGGESTION_RETENTION)
-            .map(appConfiguration -> {
-                try {
-                    return Integer.parseInt(appConfiguration.getValue());
-                } catch (NumberFormatException _) {
-                    return 90;
-                }
-            })
-            .orElse(90);
+                .findById(EntityConstant.APP_SUGGESTION_RETENTION)
+                .map(appConfiguration -> {
+                    try {
+                        return Integer.parseInt(appConfiguration.getValue());
+                    } catch (NumberFormatException _) {
+                        return 90;
+                    }
+                })
+                .orElse(90);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
     public int getPrinterItemCount() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(40);
+                .findById(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
+                .map(AppConfiguration::getValue)
+                .map(Integer::parseInt)
+                .orElse(40);
     }
 
     @Transactional(readOnly = true)
@@ -192,20 +196,20 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
     public int getNombreJourAlertPeremption() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(90);
+                .findById(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
+                .map(AppConfiguration::getValue)
+                .map(Integer::parseInt)
+                .orElse(90);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
     public int getNombreJourPeremption() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(7);
+                .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
+                .map(AppConfiguration::getValue)
+                .map(Integer::parseInt)
+                .orElse(7);
     }
 
     /**
@@ -217,15 +221,15 @@ public class AppConfigurationService {
     @Transactional
     public void setExcludeFreeUnit(boolean exclure) {
         AppConfiguration configuration = appConfigurationRepository
-            .findById(EntityConstant.EXCLUDE_FREE_UNIT)
-            .orElseGet(() -> {
-                AppConfiguration nouvelle = new AppConfiguration();
-                nouvelle.setName(EntityConstant.EXCLUDE_FREE_UNIT);
-                nouvelle.setDescription("Exclure les unités gratuites du chiffre d'affaires à déclarer");
-                nouvelle.setCreated(LocalDateTime.now());
-                nouvelle.setValueType(ParametreValueType.BOOLEAN);
-                return nouvelle;
-            });
+                .findById(EntityConstant.EXCLUDE_FREE_UNIT)
+                .orElseGet(() -> {
+                    AppConfiguration nouvelle = new AppConfiguration();
+                    nouvelle.setName(EntityConstant.EXCLUDE_FREE_UNIT);
+                    nouvelle.setDescription("Exclure les unités gratuites du chiffre d'affaires à déclarer");
+                    nouvelle.setCreated(LocalDateTime.now());
+                    nouvelle.setValueType(ParametreValueType.BOOLEAN);
+                    return nouvelle;
+                });
         configuration.setValue(Boolean.toString(exclure));
         configuration.setUpdated(LocalDateTime.now());
         configuration.setValidatedBy(userService.getUser());
@@ -237,20 +241,20 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.EXCLUDE_FREE_UNIT)
     public boolean excludeFreeUnit() {
         return appConfigurationRepository
-            .findById(EntityConstant.EXCLUDE_FREE_UNIT)
-            .map(AppConfiguration::getValue)
-            .map(Boolean::parseBoolean)
-            .orElse(false);
+                .findById(EntityConstant.EXCLUDE_FREE_UNIT)
+                .map(AppConfiguration::getValue)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
     public int getNombreJourRetentionCommande() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(30);
+                .findById(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
+                .map(AppConfiguration::getValue)
+                .map(Integer::parseInt)
+                .orElse(30);
     }
 
     @Transactional(readOnly = true)
@@ -258,13 +262,13 @@ public class AppConfigurationService {
     public boolean isCustomerDisplayActif() {
         try {
             return appConfigurationRepository
-                .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
-                .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
-                .orElse(false);
+                    .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
+                    .map(configuration ->
+                            Integer.parseInt(configuration.getValue().trim()) == 0)
+                    .orElse(false);
         } catch (Exception e) {
             return false;
         }
-
     }
 
     /**
@@ -277,16 +281,16 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS_CACHE)
     public int getPonctionAnnulationMaxDays() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> {
-                try {
-                    return Integer.parseInt(valeur.trim());
-                } catch (NumberFormatException _) {
-                    return 1;
-                }
-            })
-            .orElse(1);
+                .findById(EntityConstant.APP_PONCTION_ANNULATION_MAX_DAYS)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> {
+                    try {
+                        return Integer.parseInt(valeur.trim());
+                    } catch (NumberFormatException _) {
+                        return 1;
+                    }
+                })
+                .orElse(1);
     }
 
     /**
@@ -299,11 +303,11 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_DEVISE_CACHE)
     public String getDevise() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_DEVISE)
-            .map(AppConfiguration::getValue)
-            .map(String::trim)
-            .filter(valeur -> !valeur.isEmpty())
-            .orElse(DEVISE_DEFAUT);
+                .findById(EntityConstant.APP_DEVISE)
+                .map(AppConfiguration::getValue)
+                .map(String::trim)
+                .filter(valeur -> !valeur.isEmpty())
+                .orElse(DEVISE_DEFAUT);
     }
 
     /** Plafond par defaut d'une ponction, en pourcentage du montant d'une vente. */
@@ -311,98 +315,98 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT_CACHE)
     public BigDecimal getPonctionPlafondDefaut() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> {
-                try {
-                    return new BigDecimal(valeur.trim());
-                } catch (NumberFormatException _) {
-                    return PLAFOND_PONCTION_DEFAUT;
-                }
-            })
-            // Hors des bornes, la valeur saisie ne veut rien dire : on retombe sur le defaut.
-            .filter(plafond -> plafond.signum() > 0 && plafond.compareTo(CENT) <= 0)
-            .orElse(PLAFOND_PONCTION_DEFAUT);
+                .findById(EntityConstant.APP_PONCTION_PLAFOND_DEFAUT)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> {
+                    try {
+                        return new BigDecimal(valeur.trim());
+                    } catch (NumberFormatException _) {
+                        return PLAFOND_PONCTION_DEFAUT;
+                    }
+                })
+                // Hors des bornes, la valeur saisie ne veut rien dire : on retombe sur le defaut.
+                .filter(plafond -> plafond.signum() > 0 && plafond.compareTo(CENT) <= 0)
+                .orElse(PLAFOND_PONCTION_DEFAUT);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_CANCEL_SALE_MAX_DAYS_CACHE)
     public int getCancelSaleMaxDays() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_CANCEL_SALE_MAX_DAYS)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 30;
-                }
-            })
-            .orElse(30);
+                .findById(EntityConstant.APP_CANCEL_SALE_MAX_DAYS)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 30;
+                    }
+                })
+                .orElse(30);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_SEUIL_VARIATION_PRIX_CACHE)
     public int getSeuilVariationPrix() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_SEUIL_VARIATION_PRIX)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 20;
-                }
-            })
-            .orElse(20);
+                .findById(EntityConstant.APP_SEUIL_VARIATION_PRIX)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 20;
+                    }
+                })
+                .orElse(20);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS_CACHE)
     public long getReceptionMinExpiryDays() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 90;
-                }
-            })
-            .orElse(90);
+                .findById(EntityConstant.APP_RECEPTION_MIN_EXPIRY_DAYS)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 90;
+                    }
+                })
+                .orElse(90);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NTH_MOIS_CONSOMMATION_CACHE)
     public int getNthMoisConsommation() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NTH_MOIS_CONSOMMATION)
-            .map(AppConfiguration::getValue)
-            .map(value -> {
-                try {
-                    return Integer.parseInt(value.trim());
-                } catch (NumberFormatException _) {
-                    return 3;
-                }
-            })
-            .orElse(3);
+                .findById(EntityConstant.APP_NTH_MOIS_CONSOMMATION)
+                .map(AppConfiguration::getValue)
+                .map(value -> {
+                    try {
+                        return Integer.parseInt(value.trim());
+                    } catch (NumberFormatException _) {
+                        return 3;
+                    }
+                })
+                .orElse(3);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE_CACHE)
     public int getCouvertureMoisClassique() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE)
-            .map(AppConfiguration::getValue)
-            .map(value -> {
-                try {
-                    return Integer.parseInt(value.trim());
-                } catch (NumberFormatException _) {
-                    return 2;
-                }
-            })
-            .orElse(2);
+                .findById(EntityConstant.APP_COUVERTURE_MOIS_CLASSIQUE)
+                .map(AppConfiguration::getValue)
+                .map(value -> {
+                    try {
+                        return Integer.parseInt(value.trim());
+                    } catch (NumberFormatException _) {
+                        return 2;
+                    }
+                })
+                .orElse(2);
     }
 
     /**
@@ -413,16 +417,16 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_ACCEPTATION_SUBSTITUTION_CACHE)
     public AcceptationSubstitutionMode getAcceptationSubstitutionMode() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_ACCEPTATION_SUBSTITUTION)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return AcceptationSubstitutionMode.valueOf(v.trim());
-                } catch (IllegalArgumentException e) {
-                    return AcceptationSubstitutionMode.MANUEL;
-                }
-            })
-            .orElse(AcceptationSubstitutionMode.MANUEL);
+                .findById(EntityConstant.APP_ACCEPTATION_SUBSTITUTION)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return AcceptationSubstitutionMode.valueOf(v.trim());
+                    } catch (IllegalArgumentException e) {
+                        return AcceptationSubstitutionMode.MANUEL;
+                    }
+                })
+                .orElse(AcceptationSubstitutionMode.MANUEL);
     }
 
     /**
@@ -433,16 +437,16 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_PUTAWAY_MODE_CACHE)
     public PutawayMode getPutawayMode() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PUTAWAY_MODE)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return PutawayMode.valueOf(v.trim());
-                } catch (IllegalArgumentException e) {
-                    return PutawayMode.MANUAL;
-                }
-            })
-            .orElse(PutawayMode.MANUAL);
+                .findById(EntityConstant.APP_PUTAWAY_MODE)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return PutawayMode.valueOf(v.trim());
+                    } catch (IllegalArgumentException e) {
+                        return PutawayMode.MANUAL;
+                    }
+                })
+                .orElse(PutawayMode.MANUAL);
     }
 
     /**
@@ -451,16 +455,16 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     public ModelReapprovisionnement getCurrentModelReappro() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_MODEL_REAPPRO)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return ModelReapprovisionnement.valueOf(v);
-                } catch (IllegalArgumentException e) {
-                    return ModelReapprovisionnement.CLASSIQUE;
-                }
-            })
-            .orElse(ModelReapprovisionnement.CLASSIQUE);
+                .findById(EntityConstant.APP_MODEL_REAPPRO)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return ModelReapprovisionnement.valueOf(v);
+                    } catch (IllegalArgumentException e) {
+                        return ModelReapprovisionnement.CLASSIQUE;
+                    }
+                })
+                .orElse(ModelReapprovisionnement.CLASSIQUE);
     }
 
     /**
@@ -474,23 +478,21 @@ public class AppConfigurationService {
 
         // Récupère le modèle configuré
         String currentModel = appConfigurationRepository
-            .findById(EntityConstant.APP_MODEL_REAPPRO)
-            .map(AppConfiguration::getValue)
-            .orElse(ModelReapprovisionnement.CLASSIQUE.name());
+                .findById(EntityConstant.APP_MODEL_REAPPRO)
+                .map(AppConfiguration::getValue)
+                .orElse(ModelReapprovisionnement.CLASSIQUE.name());
 
         // Liste des modèles disponibles avec leurs descriptions
         List<Map<String, String>> availableModels = Arrays.asList(
-            Map.of(
-                "value", ModelReapprovisionnement.CLASSIQUE.name(),
-                "label", "Modèle Classique",
-                "description", "Calcul basé sur la moyenne des ventes des 3 derniers mois"
-            ),
-            Map.of(
-                "value", ModelReapprovisionnement.SEMOIS.name(),
-                "label", "Modèle SEMOIS",
-                "description", "Stock Économique Mensuel avec VMM pondéré, marge de sécurité et classe de criticité"
-            )
-        );
+                Map.of(
+                        "value", ModelReapprovisionnement.CLASSIQUE.name(),
+                        "label", "Modèle Classique",
+                        "description", "Calcul basé sur la moyenne des ventes des 3 derniers mois"),
+                Map.of(
+                        "value", ModelReapprovisionnement.SEMOIS.name(),
+                        "label", "Modèle SEMOIS",
+                        "description",
+                                "Stock Économique Mensuel avec VMM pondéré, marge de sécurité et classe de criticité"));
 
         response.put("currentModel", currentModel);
         response.put("availableModels", availableModels);
@@ -532,86 +534,85 @@ public class AppConfigurationService {
         eviderLeCache(EntityConstant.APP_MODEL_REAPPRO);
     }
 
-
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR_CACHE)
     public int getDelaiRetourFournisseur() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 365;
-                }
-            })
-            .orElse(365);
+                .findById(EntityConstant.APP_DELAI_RETOUR_FOURNISSEUR)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 365;
+                    }
+                })
+                .orElse(365);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS_CACHE)
     public int getApDefaultCreditDays() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 30;
-                }
-            })
-            .orElse(30);
+                .findById(EntityConstant.APP_AP_DEFAULT_CREDIT_DAYS)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 30;
+                    }
+                })
+                .orElse(30);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS_CACHE)
     public int getApDefaultCritiqueDays() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 30;
-                }
-            })
-            .orElse(30);
+                .findById(EntityConstant.APP_AP_DEFAULT_CRITIQUE_DAYS)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 30;
+                    }
+                })
+                .orElse(30);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED_CACHE)
     public boolean isNotifAvoirEmailEnabled() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED)
-            .map(c -> "1".equals(c.getValue().trim()))
-            .orElse(false);
+                .findById(EntityConstant.APP_NOTIF_AVOIR_EMAIL_ENABLED)
+                .map(c -> "1".equals(c.getValue().trim()))
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED_CACHE)
     public boolean isNotifAvoirSmsEnabled() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED)
-            .map(c -> "1".equals(c.getValue().trim()))
-            .orElse(false);
+                .findById(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED)
+                .map(c -> "1".equals(c.getValue().trim()))
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_RETOUR_CLIENT_CACHE)
     public int getDelaiRetourClient() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_DELAI_RETOUR_CLIENT)
-            .map(c -> {
-                try {
-                    return Integer.parseInt(c.getValue().trim());
-                } catch (NumberFormatException e) {
-                    return 30;
-                }
-            })
-            .orElse(30);
+                .findById(EntityConstant.APP_DELAI_RETOUR_CLIENT)
+                .map(c -> {
+                    try {
+                        return Integer.parseInt(c.getValue().trim());
+                    } catch (NumberFormatException e) {
+                        return 30;
+                    }
+                })
+                .orElse(30);
     }
 
     /** Encours différé maximal par client, pour toute l'officine ; 0 = aucune limite. */
@@ -619,15 +620,15 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_LIMITE_CREDIT_CLIENT_CACHE)
     public int getLimiteCreditClient() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_LIMITE_CREDIT_CLIENT)
-            .map(c -> {
-                try {
-                    return Math.max(0, Integer.parseInt(c.getValue().trim()));
-                } catch (NumberFormatException e) {
-                    return 0;
-                }
-            })
-            .orElse(0);
+                .findById(EntityConstant.APP_LIMITE_CREDIT_CLIENT)
+                .map(c -> {
+                    try {
+                        return Math.max(0, Integer.parseInt(c.getValue().trim()));
+                    } catch (NumberFormatException e) {
+                        return 0;
+                    }
+                })
+                .orElse(0);
     }
 
     /**
@@ -639,9 +640,9 @@ public class AppConfigurationService {
     @Cacheable(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_CACHE)
     public boolean isRenouvellementExceptionnelEnabled() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL)
-            .map(c -> "1".equals(c.getValue().trim()))
-            .orElse(false);
+                .findById(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL)
+                .map(c -> "1".equals(c.getValue().trim()))
+                .orElse(false);
     }
 
     /** Durée maximale du renouvellement exceptionnel, en mois après l'expiration de l'ordonnance. */
@@ -660,46 +661,46 @@ public class AppConfigurationService {
 
     private int entierPositif(String nom, int defaut) {
         return appConfigurationRepository
-            .findById(nom)
-            .map(c -> {
-                try {
-                    return Math.max(0, Integer.parseInt(c.getValue().trim()));
-                } catch (NumberFormatException e) {
-                    return defaut;
-                }
-            })
-            .orElse(defaut);
+                .findById(nom)
+                .map(c -> {
+                    try {
+                        return Math.max(0, Integer.parseInt(c.getValue().trim()));
+                    } catch (NumberFormatException e) {
+                        return defaut;
+                    }
+                })
+                .orElse(defaut);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE)
     public int getDelaiValiditeAvoir() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_DELAI_VALIDITE_AVOIR)
-            .map(c -> {
-                try {
-                    return Integer.parseInt(c.getValue().trim());
-                } catch (NumberFormatException e) {
-                    return 90;
-                }
-            })
-            .orElse(90);
+                .findById(EntityConstant.APP_DELAI_VALIDITE_AVOIR)
+                .map(c -> {
+                    try {
+                        return Integer.parseInt(c.getValue().trim());
+                    } catch (NumberFormatException e) {
+                        return 90;
+                    }
+                })
+                .orElse(90);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
     public int getDelaiReglement() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
-            .map(AppConfiguration::getValue)
-            .map(v -> {
-                try {
-                    return Integer.parseInt(v.trim());
-                } catch (NumberFormatException _) {
-                    return 30;
-                }
-            })
-            .orElse(30);
+                .findById(EntityConstant.APP_DELAI_REGLEMENT_FACTURE)
+                .map(AppConfiguration::getValue)
+                .map(v -> {
+                    try {
+                        return Integer.parseInt(v.trim());
+                    } catch (NumberFormatException _) {
+                        return 30;
+                    }
+                })
+                .orElse(30);
     }
     /**
      * Une alerte de ce niveau du contrôle d'ordonnance bloque-t-elle la vente ?
@@ -711,10 +712,10 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     public boolean isControleOrdonnanceBloquant(NiveauInteraction niveau) {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_CONTROLE_ORDONNANCE_BLOQUANT_PREFIXE + niveau.name())
-            .map(AppConfiguration::getValue)
-            .map(valeur -> "1".equals(valeur.trim()))
-            .orElse(false);
+                .findById(EntityConstant.APP_CONTROLE_ORDONNANCE_BLOQUANT_PREFIXE + niveau.name())
+                .map(AppConfiguration::getValue)
+                .map(valeur -> "1".equals(valeur.trim()))
+                .orElse(false);
     }
 
     /**
@@ -725,10 +726,10 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     public boolean isOrdonnanceObligatoireExigee() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_VENTE_ORDONNANCE_OBLIGATOIRE)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> "1".equals(valeur.trim()))
-            .orElse(true);
+                .findById(EntityConstant.APP_VENTE_ORDONNANCE_OBLIGATOIRE)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> "1".equals(valeur.trim()))
+                .orElse(true);
     }
 
     @Transactional
@@ -757,11 +758,10 @@ public class AppConfigurationService {
         if (gestionnaire == null) {
             return;
         }
-        List<Cache> caches = Stream
-            .of(nomParametre, nomParametre + "_CACHE")
-            .map(gestionnaire::getCache)
-            .filter(Objects::nonNull)
-            .toList();
+        List<Cache> caches = Stream.of(nomParametre, nomParametre + "_CACHE")
+                .map(gestionnaire::getCache)
+                .filter(Objects::nonNull)
+                .toList();
 
         if (caches.isEmpty()) {
             // Un paramètre sans cache est le cas courant ; en journaliser la trace permet de
@@ -773,14 +773,12 @@ public class AppConfigurationService {
         // Après validation de la transaction : vider avant laisserait une lecture concurrente
         // repeupler le cache avec la valeur d'avant l'écriture.
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCommit() {
-                        caches.forEach(Cache::clear);
-                    }
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    caches.forEach(Cache::clear);
                 }
-            );
+            });
         } else {
             caches.forEach(Cache::clear);
         }
@@ -788,43 +786,47 @@ public class AppConfigurationService {
 
     private AppConfigurationDto toDto(AppConfiguration appConfiguration) {
         return new AppConfigurationDto(
-            appConfiguration.getName(),
-            appConfiguration.getDescription(),
-            appConfiguration.getValue(),
-            appConfiguration.getCreated(),
-            appConfiguration.getUpdated(),
-            appConfiguration.getValueType(),
-            appConfiguration.getOtherValue(),
-            appConfiguration.getOptions()
-        );
+                appConfiguration.getName(),
+                appConfiguration.getDescription(),
+                appConfiguration.getValue(),
+                appConfiguration.getCreated(),
+                appConfiguration.getUpdated(),
+                appConfiguration.getValueType(),
+                appConfiguration.getOtherValue(),
+                appConfiguration.getOptions());
     }
 
     /** Seuils des tranches de remise du pilotage, croissants (défaut : 5, 10, 20 %). */
     public List<Integer> getTranchesRemisePilotage() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PILOTAGE_TRANCHES_REMISE)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Arrays.stream(valeur.split(",")).map(String::trim).filter(seuil -> !seuil.isEmpty()).map(Integer::parseInt).sorted().toList())
-            .filter(seuils -> !seuils.isEmpty())
-            .orElse(List.of(5, 10, 20));
+                .findById(EntityConstant.APP_PILOTAGE_TRANCHES_REMISE)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Arrays.stream(valeur.split(","))
+                        .map(String::trim)
+                        .filter(seuil -> !seuil.isEmpty())
+                        .map(Integer::parseInt)
+                        .sorted()
+                        .toList())
+                .filter(seuils -> !seuils.isEmpty())
+                .orElse(List.of(5, 10, 20));
     }
 
     /** Taux de marge (%) sous lequel un produit est dit « à faible marge » dans le pilotage (défaut : 15). */
     public int getSeuilFaibleMargePilotage() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PILOTAGE_SEUIL_FAIBLE_MARGE)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Integer.parseInt(valeur.trim()))
-            .orElse(15);
+                .findById(EntityConstant.APP_PILOTAGE_SEUIL_FAIBLE_MARGE)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Integer.parseInt(valeur.trim()))
+                .orElse(15);
     }
 
     /** Multiple du taux de remise de l'équipe au-delà duquel le taux d'un vendeur est signalé (défaut : 2). */
     public double getAlerteRemiseVendeurPilotage() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PILOTAGE_ALERTE_REMISE_VENDEUR)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
-            .orElse(2.0);
+                .findById(EntityConstant.APP_PILOTAGE_ALERTE_REMISE_VENDEUR)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
+                .orElse(2.0);
     }
 
     /** Alerte « chute d'activité » : CA des 7 derniers jours sous ce % des mêmes jours N-1 (défaut : 90). */
@@ -859,27 +861,27 @@ public class AppConfigurationService {
 
     private double lireDecimal(String cle, double defaut) {
         return appConfigurationRepository
-            .findById(cle)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
-            .orElse(defaut);
+                .findById(cle)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
+                .orElse(defaut);
     }
 
     /** Nombre de jours pendant lesquels un fichier exporté reste téléchargeable (défaut : 7). */
     public int getRetentionExportsJours() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_EXPORT_RETENTION_JOURS)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Integer.parseInt(valeur.trim()))
-            .orElse(7);
+                .findById(EntityConstant.APP_EXPORT_RETENTION_JOURS)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Integer.parseInt(valeur.trim()))
+                .orElse(7);
     }
 
     /** Jours sans vente au-delà desquels un produit en stock est dit dormant dans le pilotage (défaut : 90). */
     public int getSeuilStockDormantPilotage() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_PILOTAGE_SEUIL_STOCK_DORMANT)
-            .map(AppConfiguration::getValue)
-            .map(valeur -> Integer.parseInt(valeur.trim()))
-            .orElse(90);
+                .findById(EntityConstant.APP_PILOTAGE_SEUIL_STOCK_DORMANT)
+                .map(AppConfiguration::getValue)
+                .map(valeur -> Integer.parseInt(valeur.trim()))
+                .orElse(90);
     }
 }

@@ -32,7 +32,15 @@ export interface CouleursChrome {
   texteBarreAttenue?: string;
   panneau?: string;
   /** Sélecteur à pastilles : thèmes dérivés seulement. */
-  pastille?: { piste: string; repos: string; survolFond: string; survolTexte: string; actifDebut: string; actifFin: string; actifTexte: string };
+  pastille?: {
+    piste: string;
+    repos: string;
+    survolFond: string;
+    survolTexte: string;
+    actifDebut: string;
+    actifFin: string;
+    actifTexte: string;
+  };
   /** Bandeau d'indicateurs : thèmes dérivés seulement. */
   kpi?: [string, string];
   /** Accent applicatif (phase 6) : bouton primaire, bouton contour, liens. Thèmes dérivés seulement. */
@@ -501,7 +509,9 @@ export function mesurerInfobulle(fond: string, accent: string, scss: string): Me
 /** Palette des icônes (`--icon-*`, niveau 600) de `icon-colors-global.scss`, dont les teintes de navigation sont dérivées. */
 export function lireTeintesIcones(scss: string): Record<string, string> {
   const teintes: Record<string, string> = {};
-  for (const m of scss.matchAll(new RegExp('--icon-(emerald|blue|amber|violet|rose|teal|orange|indigo|lime|fuchsia|cyan|pink):\\s*(' + HEX + ')', 'g'))) {
+  for (const m of scss.matchAll(
+    new RegExp('--icon-(emerald|blue|amber|violet|rose|teal|orange|indigo|lime|fuchsia|cyan|pink):\\s*(' + HEX + ')', 'g'),
+  )) {
     teintes[m[1]] = m[2].toLowerCase();
   }
   if (Object.keys(teintes).length !== 12) {

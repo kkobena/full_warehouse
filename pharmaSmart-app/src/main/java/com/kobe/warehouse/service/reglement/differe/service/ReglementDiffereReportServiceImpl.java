@@ -23,16 +23,14 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     private String templateFile;
     private String fileName;
 
-    public ReglementDiffereReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public ReglementDiffereReportServiceImpl(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
     @Override
-    public byte[] printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException {
+    public byte[] printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary)
+            throws ReportFileExportException {
         this.templateFile = Constant.LIST_DIFFERE_PDF_TEMPLATE_FILE;
         this.fileName = "liste_des_differes";
         try {
@@ -45,10 +43,10 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
 
     @Override
     public byte[] printReglementToPdf(
-        List<ReglementDiffereWrapperDTO> reglements,
-        DifferePaymentSummaryDTO differePaymentSummary,
-        ReportPeriode reportPeriode
-    ) throws ReportFileExportException {
+            List<ReglementDiffereWrapperDTO> reglements,
+            DifferePaymentSummaryDTO differePaymentSummary,
+            ReportPeriode reportPeriode)
+            throws ReportFileExportException {
         this.fileName = "liste_des_reglements_differes";
         this.templateFile = Constant.REGLEMENT_DIFFERE_PDF_TEMPLATE_FILE;
         try {
@@ -92,26 +90,24 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
 
     private byte[] print(List<DiffereDTO> differe, DiffereSummary differeSummary) {
         this.getParameters().put(Constant.ITEMS, differe);
-        this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES DIFFERES  AU " + DateUtil.format(LocalDateTime.now()));
+        this.getParameters()
+                .put(Constant.REPORT_TITLE, "LISTE DES DIFFERES  AU " + DateUtil.format(LocalDateTime.now()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differeSummary);
         super.getCommonParameters();
         return super.printOneReceiptPage();
     }
 
     private byte[] printReglement(
-        List<ReglementDiffereWrapperDTO> reglements,
-        DifferePaymentSummaryDTO differePaymentSummary,
-        ReportPeriode reportPeriode
-    ) {
+            List<ReglementDiffereWrapperDTO> reglements,
+            DifferePaymentSummaryDTO differePaymentSummary,
+            ReportPeriode reportPeriode) {
         this.getParameters().put(Constant.ITEMS, reglements);
         this.getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "LISTE DES REGLEMENTS DIFFERES PERIODE DU " +
-                DateUtil.format(reportPeriode.from()) +
-                " AU " +
-                DateUtil.format(reportPeriode.to())
-            );
+                .put(
+                        Constant.REPORT_TITLE,
+                        "LISTE DES REGLEMENTS DIFFERES PERIODE DU " + DateUtil.format(reportPeriode.from())
+                                + " AU "
+                                + DateUtil.format(reportPeriode.to()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differePaymentSummary);
 
         super.getCommonParameters();

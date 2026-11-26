@@ -21,14 +21,12 @@ public class ProduitAuditingReportSeviceImpl implements ProduitAuditingReportSev
     public byte[] printToPdf(List<ProduitAuditingState> datas, Produit produit, ReportPeriode reportPeriode) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return suiviArticleReportService.exportToPdf(
-            datas,
-            String.format(
-                "Suivi du produit %s [%s] du %s au %s ",
-                produit.getLibelle(),
-                produit.getFournisseurProduitPrincipal().getCodeCip(),
-                reportPeriode.from().format(dateTimeFormatter),
-                reportPeriode.to().format(dateTimeFormatter)
-            )
-        );
+                datas,
+                String.format(
+                        "Suivi du produit %s [%s] du %s au %s ",
+                        produit.getLibelle(),
+                        produit.getFournisseurProduitPrincipal().getCodeCip(),
+                        reportPeriode.from().format(dateTimeFormatter),
+                        reportPeriode.to().format(dateTimeFormatter)));
     }
 }

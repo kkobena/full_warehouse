@@ -11,19 +11,20 @@
 
         <div class="form-field form-field-full">
           <label for="rf-libelle">Libellé <span class="required">*</span></label>
-          <input #libelleInput autocomplete="off" class="form-control w-full" formControlName="libelle"
-                 id="rf-libelle" />
+          <input #libelleInput autocomplete="off" class="form-control w-full" formControlName="libelle" id="rf-libelle" />
           @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
             <small class="text-danger">Ce champ est obligatoire.</small>
           }
         </div>
 
         <div class="form-field">
-          <label for="rf-code">Code @if (!isSansRayon) {
-            <span class="required">*</span>
-          }</label>
-          <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control w-full"
-                 formControlName="code" id="rf-code" />
+          <label for="rf-code"
+            >Code
+            @if (!isSansRayon) {
+              <span class="required">*</span>
+            }
+          </label>
+          <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control w-full" formControlName="code" id="rf-code" />
           @if (isSansRayon) {
             <small class="text-muted">Code technique non modifiable.</small>
           } @else if (editForm.get('code')?.errors?.['required'] && editForm.get('code')?.touched) {
@@ -65,25 +66,21 @@
 
         <div class="form-field">
           <label for="rf-position">Position</label>
-          <input autocomplete="off" class="form-control w-full" formControlName="position"
-                 id="rf-position" placeholder="Ex. : A3, R2-E5, façade gauche allée 2…" />
-          <small class="field-hint">Localisation physique du rayon dans la pharmacie (allée,
-            étagère, numéro…).</small>
+          <input
+            autocomplete="off"
+            class="form-control w-full"
+            formControlName="position"
+            id="rf-position"
+            placeholder="Ex. : A3, R2-E5, façade gauche allée 2…"
+          />
+          <small class="field-hint">Localisation physique du rayon dans la pharmacie (allée, étagère, numéro…).</small>
         </div>
       </div>
     </app-card>
-
   </div>
 
   <div class="modal-footer">
-    <app-button
-      (clicked)="cancel()"
-      [raised]="true"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    />
+    <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <app-button
       [disabled]="editForm.invalid || isSaving()"
       [loading]="isSaving()"
@@ -95,5 +92,3 @@
     />
   </div>
 </form>
-
-

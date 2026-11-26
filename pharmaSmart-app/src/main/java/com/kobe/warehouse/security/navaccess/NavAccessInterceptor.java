@@ -24,15 +24,16 @@ public class NavAccessInterceptor implements HandlerInterceptor {
 
     /** Logger dédié, pour isoler les refus de la période d'audit dans la configuration Logback. */
     private static final Logger AUDIT = LoggerFactory.getLogger("nav-access-audit");
+
     private static final Logger LOG = LoggerFactory.getLogger(NavAccessInterceptor.class);
 
     private final NavAccessService navAccessService;
     private final NavAccessMode mode;
     // Un refus répété à chaque rafraîchissement d'écran noierait le journal : une ligne par heure suffit.
     private final Cache<String, Boolean> alreadyLogged = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofHours(1))
-        .maximumSize(10_000)
-        .build();
+            .expireAfterWrite(Duration.ofHours(1))
+            .maximumSize(10_000)
+            .build();
 
     public NavAccessInterceptor(NavAccessService navAccessService, NavAccessMode mode) {
         this.navAccessService = navAccessService;
@@ -48,11 +49,13 @@ public class NavAccessInterceptor implements HandlerInterceptor {
         if (!uri.startsWith("/api/") || uri.startsWith("/api/admin/")) {
             return true;
         }
-        if (!(NavAccessRules.resolve(handlerMethod.getMethod(), handlerMethod.getBeanType()) instanceof NavAccessRules.Requires requires)) {
+        if (!(NavAccessRules.resolve(handlerMethod.getMethod(), handlerMethod.getBeanType())
+                instanceof NavAccessRules.Requires requires)) {
             return true;
         }
 
-        NavAction action = requires.action() == NavAction.AUTO ? NavAction.fromHttpMethod(request.getMethod()) : requires.action();
+        NavAction action =
+                requires.action() == NavAction.AUTO ? NavAction.fromHttpMethod(request.getMethod()) : requires.action();
         List<String> codes = List.of(requires.codes());
         if (navAccessService.isAllowed(codes, action)) {
             return true;
@@ -61,17 +64,18 @@ public class NavAccessInterceptor implements HandlerInterceptor {
         if (mode == NavAccessMode.AUDIT) {
             String login = SecurityUtils.getCurrentUserLogin().orElse("?");
             String endpoint = request.getMethod() + ' ' + uri;
-            String handlerName = handlerMethod.getBeanType().getSimpleName() + '#' + handlerMethod.getMethod().getName();
+            String handlerName = handlerMethod.getBeanType().getSimpleName()
+                    + '#'
+                    + handlerMethod.getMethod().getName();
             if (alreadyLogged.asMap().putIfAbsent(login + '|' + handlerName, Boolean.TRUE) == null) {
                 AUDIT.warn(
-                    "Accès non autorisé (audit, laissé passer) : utilisateur={} rôles={} endpoint={} handler={} codes={} droit={}",
-                    login,
-                    navAccessService.currentUserRoles(),
-                    endpoint,
-                    handlerName,
-                    codes,
-                    action
-                );
+                        "Accès non autorisé (audit, laissé passer) : utilisateur={} rôles={} endpoint={} handler={} codes={} droit={}",
+                        login,
+                        navAccessService.currentUserRoles(),
+                        endpoint,
+                        handlerName,
+                        codes,
+                        action);
             }
             return true;
         }

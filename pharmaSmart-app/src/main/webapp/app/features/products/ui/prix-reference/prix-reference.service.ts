@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
-
 import { PrixReference } from './model/prix-reference.model';
 import { Observable } from 'rxjs';
 

@@ -6,14 +6,14 @@ import java.time.LocalDate;
 public interface ExportComptableService {
 
     byte[] export(
-        LocalDate startDate,
-        LocalDate endDate,
-        String format,
-        boolean ventes,
-        boolean achats,
-        boolean mvtCaisse,
-        boolean tiersPayant,
-        boolean differes,
-        boolean tva
-    ) throws IOException;
+            LocalDate startDate,
+            LocalDate endDate,
+            String format,
+            boolean ventes,
+            boolean achats,
+            boolean mvtCaisse,
+            boolean tiersPayant,
+            boolean differes,
+            boolean tva)
+            throws IOException;
 }

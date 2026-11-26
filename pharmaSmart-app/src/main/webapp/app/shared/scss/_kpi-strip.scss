@@ -3,23 +3,35 @@
 // Accents alignés sur la palette Bootstrap (`_pharma-bootstrap-palette.scss`), tous ≥ 3:1
 // sur blanc. `primary` suit le thème.
 
-$_ks-primary:   var(--pharma-kpi-accent, var(--bs-primary));
-$_ks-success:   #15803d;
-$_ks-danger:    #dc2626;
-$_ks-warning:   #c2410c;
-$_ks-info:      #0369a1;
+$_ks-primary: var(--pharma-kpi-accent, var(--bs-primary));
+$_ks-success: #15803d;
+$_ks-danger: #dc2626;
+$_ks-warning: #c2410c;
+$_ks-info: #0369a1;
 $_ks-secondary: #475569;
-$_ks-muted:     var(--bs-secondary-color);
-$_ks-border:    var(--bs-border-color);
+$_ks-muted: var(--bs-secondary-color);
+$_ks-border: var(--bs-border-color);
 
 // Barre d'accent à gauche de l'item.
 @mixin kpi-accent-bars {
-  &.primary-accent::before   { background: $_ks-primary; }
-  &.success-accent::before   { background: $_ks-success; }
-  &.danger-accent::before    { background: $_ks-danger; }
-  &.warning-accent::before   { background: $_ks-warning; }
-  &.info-accent::before      { background: $_ks-info; }
-  &.secondary-accent::before { background: $_ks-secondary; }
+  &.primary-accent::before {
+    background: $_ks-primary;
+  }
+  &.success-accent::before {
+    background: $_ks-success;
+  }
+  &.danger-accent::before {
+    background: $_ks-danger;
+  }
+  &.warning-accent::before {
+    background: $_ks-warning;
+  }
+  &.info-accent::before {
+    background: $_ks-info;
+  }
+  &.secondary-accent::before {
+    background: $_ks-secondary;
+  }
 }
 
 // Pastille ronde derrière l'icône, teintée par la couleur de l'icône elle-même.

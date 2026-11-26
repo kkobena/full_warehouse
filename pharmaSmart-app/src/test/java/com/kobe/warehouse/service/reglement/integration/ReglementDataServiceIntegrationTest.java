@@ -47,18 +47,22 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         ThirdPartySaleLine dossier = dossier(compte, 45_000);
         FactureTiersPayant facture = facture(organisme, List.of(dossier));
         viderLeCache();
-        ResponseReglementDTO reglement = services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 45_000));
+        ResponseReglementDTO reglement =
+                services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 45_000));
         viderLeCache();
 
         services.reglementDataService.deleteReglement(reglement.id());
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE id = " + reglement.id().getId()));
         assertEquals(
-            0,
-            compter("SELECT count(*) FROM invoice_payment_item WHERE invoice_payment_id = " + reglement.id().getId()),
-            "les détails partent avec le paiement"
-        );
+                0,
+                compter("SELECT count(*) FROM payment_transaction WHERE id = "
+                        + reglement.id().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM invoice_payment_item WHERE invoice_payment_id = "
+                        + reglement.id().getId()),
+                "les détails partent avec le paiement");
         ThirdPartySaleLine dossierRelu = em.find(ThirdPartySaleLine.class, dossier.getId());
         assertEquals(0, dossierRelu.getMontantRegle());
         assertEquals(ThirdPartySaleStatut.ACTIF, dossierRelu.getStatut());
@@ -75,18 +79,17 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         ThirdPartySaleLine dossier = dossier(compte, 30_000);
         FactureTiersPayant facture = facture(organisme, List.of(dossier));
         viderLeCache();
-        ResponseReglementDTO premier = services.reglementFactureSelectionneesService.doReglement(
-            new ReglementParam()
+        ResponseReglementDTO premier = services.reglementFactureSelectionneesService.doReglement(new ReglementParam()
                 .setId(facture.getId())
                 .setMode(ModeEditionReglement.FACTURE_PARTIEL)
                 .setModePaimentCode(ModePaimentCode.CASH)
                 .setAmount(10_000)
                 .setTotalAmount(30_000)
                 .setMontantFacture(30_000)
-                .setDossierIds(List.of(dossier.getId().getId()))
-        );
+                .setDossierIds(List.of(dossier.getId().getId())));
         viderLeCache();
-        ResponseReglementDTO second = services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 20_000));
+        ResponseReglementDTO second =
+                services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 20_000));
         viderLeCache();
 
         services.reglementDataService.deleteReglement(second.id());
@@ -98,7 +101,10 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         FactureTiersPayant factureRelue = em.find(FactureTiersPayant.class, facture.getId());
         assertEquals(10_000, factureRelue.getMontantRegle());
         assertEquals(InvoiceStatut.PARTIALLY_PAID, factureRelue.getStatut());
-        assertEquals(1, compter("SELECT count(*) FROM payment_transaction WHERE id = " + premier.id().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE id = "
+                        + premier.id().getId()));
     }
 
     @Test
@@ -110,23 +116,25 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(premiere, seconde));
         viderLeCache();
         ResponseReglementDTO reglement = services.reglementGroupeFactureService.doReglement(
-            parametreTotal(factureGroupe, 60_000).setMode(ModeEditionReglement.GROUPE_TOTAL)
-        );
+                parametreTotal(factureGroupe, 60_000).setMode(ModeEditionReglement.GROUPE_TOTAL));
         viderLeCache();
 
         services.reglementDataService.deleteReglement(reglement.id());
         viderLeCache();
 
         assertEquals(
-            0,
-            compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"),
-            "le porteur et ses fils disparaissent ensemble"
-        );
+                0,
+                compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"),
+                "le porteur et ses fils disparaissent ensemble");
         FactureTiersPayant groupeRelu = em.find(FactureTiersPayant.class, factureGroupe.getId());
         assertEquals(0, groupeRelu.getMontantRegle(), "la facture de groupe est décrémentée du montant annulé");
         assertEquals(InvoiceStatut.NOT_PAID, groupeRelu.getStatut());
-        assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, premiere.getId()).getStatut());
-        assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, seconde.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.NOT_PAID,
+                em.find(FactureTiersPayant.class, premiere.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.NOT_PAID,
+                em.find(FactureTiersPayant.class, seconde.getId()).getStatut());
     }
 
     @Test
@@ -145,8 +153,12 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         viderLeCache();
 
         assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"));
-        assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, premiere.getId()).getStatut());
-        assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, seconde.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.NOT_PAID,
+                em.find(FactureTiersPayant.class, premiere.getId()).getStatut());
+        assertEquals(
+                InvoiceStatut.NOT_PAID,
+                em.find(FactureTiersPayant.class, seconde.getId()).getStatut());
     }
 
     @Test
@@ -162,11 +174,9 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         viderLeCache();
 
         List<InvoicePaymentDTO> tous = services.reglementDataService.fetchInvoicesPayments(
-            new InvoicePaymentParam(null, null, LocalDate.now(), LocalDate.now(), false)
-        );
+                new InvoicePaymentParam(null, null, LocalDate.now(), LocalDate.now(), false));
         List<InvoicePaymentDTO> filtres = services.reglementDataService.fetchInvoicesPayments(
-            new InvoicePaymentParam(null, recherche.getId(), LocalDate.now(), LocalDate.now(), false)
-        );
+                new InvoicePaymentParam(null, recherche.getId(), LocalDate.now(), LocalDate.now(), false));
 
         assertEquals(2, tous.size());
         assertEquals(1, filtres.size());
@@ -186,8 +196,7 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         viderLeCache();
 
         List<InvoicePaymentDTO> resultats = services.reglementDataService.fetchInvoicesPayments(
-            new InvoicePaymentParam("ZENITH", null, LocalDate.now(), LocalDate.now(), false)
-        );
+                new InvoicePaymentParam("ZENITH", null, LocalDate.now(), LocalDate.now(), false));
 
         assertEquals(1, resultats.size());
         assertTrue(resultats.getFirst().getOrganisme().startsWith("ZENITH"));
@@ -219,16 +228,16 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         ThirdPartySaleLine second = dossier(compte, 4_000);
         FactureTiersPayant facture = facture(organisme, List.of(premier, second));
         viderLeCache();
-        ResponseReglementDTO reglement = services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 10_000));
+        ResponseReglementDTO reglement =
+                services.reglementFactureModeAllService.doReglement(parametreTotal(facture, 10_000));
         viderLeCache();
 
         List<InvoicePaymentItemDTO> details = services.reglementDataService.getInvoicePaymentsItems(reglement.id());
 
         assertEquals(2, details.size());
         assertTrue(
-            details.stream().anyMatch(d -> d.getNumBon().equals(premier.getNumBon())),
-            "chaque détail porte le numéro de bon de son dossier"
-        );
+                details.stream().anyMatch(d -> d.getNumBon().equals(premier.getNumBon())),
+                "chaque détail porte le numéro de bon de son dossier");
     }
 
     @Test
@@ -240,14 +249,15 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
         FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(premiere, seconde));
         viderLeCache();
         ResponseReglementDTO reglement = services.reglementGroupeFactureService.doReglement(
-            parametreTotal(factureGroupe, 30_000).setMode(ModeEditionReglement.GROUPE_TOTAL)
-        );
+                parametreTotal(factureGroupe, 30_000).setMode(ModeEditionReglement.GROUPE_TOTAL));
         viderLeCache();
 
         List<InvoicePaymentDTO> fils = services.reglementDataService.getInvoicePaymentsGroupItems(reglement.id());
 
         assertEquals(2, fils.size());
-        assertEquals(30_000, fils.stream().mapToInt(InvoicePaymentDTO::getTotalAmount).sum());
+        assertEquals(
+                30_000,
+                fils.stream().mapToInt(InvoicePaymentDTO::getTotalAmount).sum());
     }
 
     private FactureTiersPayant factureDe(GroupeTiersPayant groupe, String nom, int montant) {
@@ -257,11 +267,11 @@ class ReglementDataServiceIntegrationTest extends AbstractReglementIntegrationTe
 
     private ReglementParam parametreTotal(FactureTiersPayant facture, int montant) {
         return new ReglementParam()
-            .setId(facture.getId())
-            .setMode(ModeEditionReglement.FACTURE_TOTAL)
-            .setModePaimentCode(ModePaimentCode.CASH)
-            .setAmount(montant)
-            .setTotalAmount(montant)
-            .setMontantFacture(montant);
+                .setId(facture.getId())
+                .setMode(ModeEditionReglement.FACTURE_TOTAL)
+                .setModePaimentCode(ModePaimentCode.CASH)
+                .setAmount(montant)
+                .setTotalAmount(montant)
+                .setMontantFacture(montant);
     }
 }

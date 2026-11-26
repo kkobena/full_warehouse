@@ -18,11 +18,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TiersPayantRepository extends JpaRepository<TiersPayant, Integer>,
-    JpaSpecificationExecutor<TiersPayant> {
+public interface TiersPayantRepository
+        extends JpaRepository<TiersPayant, Integer>, JpaSpecificationExecutor<TiersPayant> {
 
-    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName,
-        String codeOrganisme);
+    Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName, String codeOrganisme);
 
     Optional<TiersPayant> findOneByNameOrFullName(String name, String fullName);
 
@@ -39,8 +38,7 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
           AND t.inclureFacturationAutoDefinitive = true
           AND t.statut = 'ACTIF'
         """)
-    List<Integer> findAllIdsForAutoGenerationDefinitive(
-        @Param("periodicite") Periodicite periodicite);
+    List<Integer> findAllIdsForAutoGenerationDefinitive(@Param("periodicite") Periodicite periodicite);
 
     @Query("""
         SELECT t.id FROM TiersPayant t
@@ -51,9 +49,7 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
                OR t.groupeTiersPayant.id NOT IN :groupeIds)
         """)
     List<Integer> findIdsNotInGroupsForAutoGenerationDefinitive(
-        @Param("periodicite") Periodicite periodicite,
-        @Param("groupeIds") Set<Integer> groupeIds
-    );
+            @Param("periodicite") Periodicite periodicite, @Param("groupeIds") Set<Integer> groupeIds);
 
     @Query("""
         SELECT COUNT(t) FROM TiersPayant t
@@ -71,8 +67,7 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
           AND t.inclureFacturationAutoProvisoire = true
           AND t.statut = 'ACTIF'
         """)
-    List<Integer> findAllIdsForAutoGenerationProvisoire(
-        @Param("periodicite") Periodicite periodicite);
+    List<Integer> findAllIdsForAutoGenerationProvisoire(@Param("periodicite") Periodicite periodicite);
 
     @Query("""
         SELECT t.id FROM TiersPayant t
@@ -83,9 +78,7 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
                OR t.groupeTiersPayant.id NOT IN :groupeIds)
         """)
     List<Integer> findIdsNotInGroupsForAutoGenerationProvisoire(
-        @Param("periodicite") Periodicite periodicite,
-        @Param("groupeIds") Set<Integer> groupeIds
-    );
+            @Param("periodicite") Periodicite periodicite, @Param("groupeIds") Set<Integer> groupeIds);
 
     @Query("""
         SELECT COUNT(t) FROM TiersPayant t
@@ -100,33 +93,27 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
     }
 
     default Specification<TiersPayant> specialisationByGroup(Integer groupId) {
-        return (root, _, cb) -> cb.equal(
-            root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
+        return (root, _, cb) ->
+                cb.equal(root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
     }
 
     default Specification<TiersPayant> specialisationQueryString(String queryValue) {
-        return (root, _, cb) ->
-            cb.or(
+        return (root, _, cb) -> cb.or(
                 cb.like(cb.upper(root.get(TiersPayant_.name)), queryValue),
                 cb.like(cb.upper(root.get(TiersPayant_.fullName)), queryValue),
-                cb.like(cb.upper(root.get(TiersPayant_.codeOrganisme)), queryValue)
-            );
+                cb.like(cb.upper(root.get(TiersPayant_.codeOrganisme)), queryValue));
     }
 
     default Specification<TiersPayant> specialisationCategorie(TiersPayantCategorie categorie) {
         return (root, _, cb) -> cb.equal(root.get(TiersPayant_.categorie), categorie);
     }
 
-    default Specification<TiersPayant> specialisationPeriodiciteDefinitive(
-        Periodicite periodicite) {
-        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureDefinitive),
-            periodicite);
+    default Specification<TiersPayant> specialisationPeriodiciteDefinitive(Periodicite periodicite) {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureDefinitive), periodicite);
     }
 
-    default Specification<TiersPayant> specialisationPeriodiciteProvisoire(
-        Periodicite periodicite) {
-        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureProvisoire),
-            periodicite);
+    default Specification<TiersPayant> specialisationPeriodiciteProvisoire(Periodicite periodicite) {
+        return (root, _, cb) -> cb.equal(root.get(TiersPayant_.periodiciteFactureProvisoire), periodicite);
     }
 
     default Specification<TiersPayant> notIn(EnumSet<TiersPayantCategorie> tiersPayantCategories) {

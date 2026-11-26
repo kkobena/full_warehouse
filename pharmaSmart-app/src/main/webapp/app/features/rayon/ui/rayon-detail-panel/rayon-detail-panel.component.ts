@@ -8,7 +8,15 @@ import { CloneRayonProduitsFormComponent } from '../clone-rayon-produits-form/cl
 import { InventoryCreateModalComponent } from '../../../../features/inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';
-import { BadgeComponent, ButtonComponent, DetailFieldComponent, DetailGridComponent, DetailSectionComponent, NavTabsComponent, AppBadgeSeverity } from '../../../../shared/ui';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  NavTabsComponent,
+  AppBadgeSeverity,
+} from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-detail-panel',

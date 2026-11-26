@@ -32,14 +32,13 @@ class ProducteurRapportsStock {
     private final ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService;
 
     ProducteurRapportsStock(
-        StockAlertPdfReportService stockAlertPdfReportService,
-        StockAlertExcelCsvReportService stockAlertExcelCsvReportService,
-        StockRotationPdfReportService stockRotationPdfReportService,
-        StockValuationPdfReportService stockValuationPdfReportService,
-        ABCParetoPdfReportService abcParetoPdfReportService,
-        ProductsToDestroyService productsToDestroyService,
-        ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService
-    ) {
+            StockAlertPdfReportService stockAlertPdfReportService,
+            StockAlertExcelCsvReportService stockAlertExcelCsvReportService,
+            StockRotationPdfReportService stockRotationPdfReportService,
+            StockValuationPdfReportService stockValuationPdfReportService,
+            ABCParetoPdfReportService abcParetoPdfReportService,
+            ProductsToDestroyService productsToDestroyService,
+            ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService) {
         this.stockAlertPdfReportService = stockAlertPdfReportService;
         this.stockAlertExcelCsvReportService = stockAlertExcelCsvReportService;
         this.stockRotationPdfReportService = stockRotationPdfReportService;
@@ -49,15 +48,19 @@ class ProducteurRapportsStock {
         this.productToDestroyExcelCsvReportService = productToDestroyExcelCsvReportService;
     }
 
-    byte[] produire(RapportExport rapport, FormatExport format, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+    byte[] produire(
+            RapportExport rapport,
+            FormatExport format,
+            LocalDate du,
+            LocalDate au,
+            Map<FiltreExport, List<String>> filtres) {
         return switch (rapport) {
             // Aucun type retenu : toutes les alertes, ruptures comprises, comme le défaut de l'écran.
             case ALERTES_STOCK -> produireAlertes(format);
             case ROTATION_STOCK -> stockRotationPdfReportService.export();
-            case VALORISATION_STOCK -> stockValuationPdfReportService.export(
-                ReglagesRapports.lireEntier(filtres, FiltreExport.FAMILLE_UNIQUE),
-                null
-            );
+            case VALORISATION_STOCK ->
+                stockValuationPdfReportService.export(
+                        ReglagesRapports.lireEntier(filtres, FiltreExport.FAMILLE_UNIQUE), null);
             case ABC_PARETO -> abcParetoPdfReportService.export();
             case PRODUITS_A_DETRUIRE -> produireADetruire(format, du, au);
             default -> throw new IllegalArgumentException("Édition hors des rapports de stock : " + rapport);

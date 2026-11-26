@@ -18,7 +18,13 @@ export type GraphiqueAnnees = 'COURBES' | 'TRIMESTRES' | 'SAISONNALITE';
 @Component({
   selector: 'app-graphique-annees',
   imports: [ChartComponent],
-  template: `<app-chart [ariaLabel]="description()" [data]="configuration().data" [options]="configuration().options" [type]="configuration().type" height="300" />`,
+  template: `<app-chart
+    [ariaLabel]="description()"
+    [data]="configuration().data"
+    [options]="configuration().options"
+    [type]="configuration().type"
+    height="300"
+  />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphiqueAnneesComponent {
@@ -44,13 +50,19 @@ export class GraphiqueAnneesComponent {
       case 'COURBES':
         return {
           type: 'line' as const,
-          data: { labels: MOIS_COURTS, datasets: this.lireSeries(comparaison, couleurs, annee => annee.mois.map(cellule => cellule.valeur)) },
+          data: {
+            labels: MOIS_COURTS,
+            datasets: this.lireSeries(comparaison, couleurs, annee => annee.mois.map(cellule => cellule.valeur)),
+          },
           options: this.options(couleurs, comparaison.indicateur.unite),
         };
       case 'TRIMESTRES':
         return {
           type: 'bar' as const,
-          data: { labels: ['T1', 'T2', 'T3', 'T4'], datasets: this.lireSeries(comparaison, couleurs, annee => annee.trimestres.map(cellule => cellule.valeur)) },
+          data: {
+            labels: ['T1', 'T2', 'T3', 'T4'],
+            datasets: this.lireSeries(comparaison, couleurs, annee => annee.trimestres.map(cellule => cellule.valeur)),
+          },
           options: this.options(couleurs, comparaison.indicateur.unite),
         };
       case 'SAISONNALITE':
@@ -66,7 +78,11 @@ export class GraphiqueAnneesComponent {
   });
 
   /** L'année la plus récente d'abord dans la légende, à la couleur d'accent. */
-  private lireSeries(comparaison: ComparaisonAnnees, couleurs: ChartThemeColors, valeurs: (annee: ComparaisonAnnees['annees'][number]) => (number | null)[]) {
+  private lireSeries(
+    comparaison: ComparaisonAnnees,
+    couleurs: ChartThemeColors,
+    valeurs: (annee: ComparaisonAnnees['annees'][number]) => (number | null)[],
+  ) {
     return [...comparaison.annees].reverse().map((annee, rang) => ({
       label: annee.complete ? String(annee.annee) : `${annee.annee} (en cours)`,
       data: valeurs(annee),
@@ -85,7 +101,10 @@ export class GraphiqueAnneesComponent {
       plugins: { legend: { labels: { color: couleurs.text, usePointStyle: true } } },
       scales: {
         x: { ticks: { color: couleurs.textMuted }, grid: { display: false } },
-        y: { ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) }, grid: { color: couleurs.border } },
+        y: {
+          ticks: { color: couleurs.textMuted, callback: (valeur: number) => this.valeurIndicateur.transform(valeur, unite) },
+          grid: { color: couleurs.border },
+        },
       },
     };
   }

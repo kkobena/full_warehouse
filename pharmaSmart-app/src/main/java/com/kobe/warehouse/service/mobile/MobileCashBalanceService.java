@@ -13,9 +13,6 @@ import com.kobe.warehouse.service.financiel_transaction.BalanceCaisseService;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for mobile cash balance report (Balance Caisse).
@@ -37,9 +36,9 @@ public class MobileCashBalanceService {
 
     /** Libellés d'affichage des types de transaction que le domaine classe en sortie de caisse. */
     private static final Set<String> CLES_SORTIE = Arrays.stream(TypeFinancialTransaction.values())
-        .filter(type -> type.getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE)
-        .map(type -> type.getTransactionTypeAffichage().name())
-        .collect(Collectors.toUnmodifiableSet());
+            .filter(type -> type.getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE)
+            .map(type -> type.getTransactionTypeAffichage().name())
+            .collect(Collectors.toUnmodifiableSet());
 
     private final BalanceCaisseService balanceCaisseService;
 
@@ -75,10 +74,7 @@ public class MobileCashBalanceService {
         return buildCashBalance(fromDate, toDate, wrapper);
     }
 
-    private MobileCashBalanceDTO buildCashBalance(
-        LocalDate fromDate,
-        LocalDate toDate,
-        BalanceCaisseWrapper wrapper) {
+    private MobileCashBalanceDTO buildCashBalance(LocalDate fromDate, LocalDate toDate, BalanceCaisseWrapper wrapper) {
 
         String periodLabel = buildPeriodLabel(fromDate, toDate);
 
@@ -92,32 +88,31 @@ public class MobileCashBalanceService {
         List<CashMovementDTO> cashMovements = buildCashMovements(wrapper.getMvtCaisses());
 
         return new MobileCashBalanceDTO(
-            fromDate,
-            toDate,
-            periodLabel,
-            (int) wrapper.getCount(),
-            wrapper.getMontantTtc(),
-            wrapper.getMontantHt(),
-            wrapper.getMontantNet(),
-            wrapper.getMontantDiscount(),
-            wrapper.getMontantTaxe(),
-            wrapper.getPanierMoyen(),
-            wrapper.getMontantCash(),
-            wrapper.getMontantCard(),
-            wrapper.getMontantCheck(),
-            wrapper.getMontantVirement(),
-            wrapper.getMontantMobileMoney(),
-            wrapper.getMontantCredit(),
-            wrapper.getMontantDiffere(),
-            wrapper.getPartTiersPayant(),
-            wrapper.getMontantAchat(),
-            wrapper.getMontantMarge(),
-            wrapper.getRatioVenteAchat(),
-            wrapper.getRatioAchatVente(),
-            paymentBreakdown,
-            categoryBalances,
-            cashMovements
-        );
+                fromDate,
+                toDate,
+                periodLabel,
+                (int) wrapper.getCount(),
+                wrapper.getMontantTtc(),
+                wrapper.getMontantHt(),
+                wrapper.getMontantNet(),
+                wrapper.getMontantDiscount(),
+                wrapper.getMontantTaxe(),
+                wrapper.getPanierMoyen(),
+                wrapper.getMontantCash(),
+                wrapper.getMontantCard(),
+                wrapper.getMontantCheck(),
+                wrapper.getMontantVirement(),
+                wrapper.getMontantMobileMoney(),
+                wrapper.getMontantCredit(),
+                wrapper.getMontantDiffere(),
+                wrapper.getPartTiersPayant(),
+                wrapper.getMontantAchat(),
+                wrapper.getMontantMarge(),
+                wrapper.getRatioVenteAchat(),
+                wrapper.getRatioAchatVente(),
+                paymentBreakdown,
+                categoryBalances,
+                cashMovements);
     }
 
     private List<PaymentModeBreakdownDTO> buildPaymentBreakdown(BalanceCaisseWrapper wrapper) {
@@ -127,56 +122,51 @@ public class MobileCashBalanceService {
         // Espèces
         if (wrapper.getMontantCash() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "ESPECES",
-                "Espèces",
-                wrapper.getMontantCash(),
-                calculatePercent(wrapper.getMontantCash(), total),
-                PaymentModeBreakdownDTO.getColorForMode("ESPECES")
-            ));
+                    "ESPECES",
+                    "Espèces",
+                    wrapper.getMontantCash(),
+                    calculatePercent(wrapper.getMontantCash(), total),
+                    PaymentModeBreakdownDTO.getColorForMode("ESPECES")));
         }
 
         // Cartes
         if (wrapper.getMontantCard() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "CARTE",
-                "Cartes bancaires",
-                wrapper.getMontantCard(),
-                calculatePercent(wrapper.getMontantCard(), total),
-                PaymentModeBreakdownDTO.getColorForMode("CARTE")
-            ));
+                    "CARTE",
+                    "Cartes bancaires",
+                    wrapper.getMontantCard(),
+                    calculatePercent(wrapper.getMontantCard(), total),
+                    PaymentModeBreakdownDTO.getColorForMode("CARTE")));
         }
 
         // Mobile Money
         if (wrapper.getMontantMobileMoney() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "MOBILE_MONEY",
-                "Règlement mobile",
-                wrapper.getMontantMobileMoney(),
-                calculatePercent(wrapper.getMontantMobileMoney(), total),
-                PaymentModeBreakdownDTO.getColorForMode("MOBILE_MONEY")
-            ));
+                    "MOBILE_MONEY",
+                    "Règlement mobile",
+                    wrapper.getMontantMobileMoney(),
+                    calculatePercent(wrapper.getMontantMobileMoney(), total),
+                    PaymentModeBreakdownDTO.getColorForMode("MOBILE_MONEY")));
         }
 
         // Chèques
         if (wrapper.getMontantCheck() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "CHEQUE",
-                "Chèques",
-                wrapper.getMontantCheck(),
-                calculatePercent(wrapper.getMontantCheck(), total),
-                PaymentModeBreakdownDTO.getColorForMode("CHEQUE")
-            ));
+                    "CHEQUE",
+                    "Chèques",
+                    wrapper.getMontantCheck(),
+                    calculatePercent(wrapper.getMontantCheck(), total),
+                    PaymentModeBreakdownDTO.getColorForMode("CHEQUE")));
         }
 
         // Virements
         if (wrapper.getMontantVirement() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "VIREMENT",
-                "Virements",
-                wrapper.getMontantVirement(),
-                calculatePercent(wrapper.getMontantVirement(), total),
-                PaymentModeBreakdownDTO.getColorForMode("VIREMENT")
-            ));
+                    "VIREMENT",
+                    "Virements",
+                    wrapper.getMontantVirement(),
+                    calculatePercent(wrapper.getMontantVirement(), total),
+                    PaymentModeBreakdownDTO.getColorForMode("VIREMENT")));
         }
 
         long credit = wrapper.getMontantCredit() + wrapper.getMontantDiffere() + wrapper.getPartTiersPayant();
@@ -191,7 +181,7 @@ public class MobileCashBalanceService {
         }*/
 
         // Différé
-       /* if (wrapper.getMontantDiffere() > 0) {
+        /* if (wrapper.getMontantDiffere() > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
                 "DIFFERE",
                 "Différé",
@@ -204,12 +194,11 @@ public class MobileCashBalanceService {
         // Tiers payant
         if (credit > 0) {
             breakdown.add(new PaymentModeBreakdownDTO(
-                "CREDIT",
-                "Crédit",
-                credit,
-                calculatePercent(credit, total),
-                PaymentModeBreakdownDTO.getColorForMode("CREDIT")
-            ));
+                    "CREDIT",
+                    "Crédit",
+                    credit,
+                    calculatePercent(credit, total),
+                    PaymentModeBreakdownDTO.getColorForMode("CREDIT")));
         }
 
         return breakdown;
@@ -221,28 +210,27 @@ public class MobileCashBalanceService {
         }
 
         return balanceCaisses.stream()
-            .map(bc -> new CategoryBalanceDTO(
-                bc.getTypeSale() != null ? bc.getTypeSale().getValue() : "AUTRE",
-                getCategoryLabel(bc.getTypeSale()),
-                bc.getCount() != null ? bc.getCount().intValue() : 0,
-                bc.getMontantTtc(),
-                bc.getMontantHt(),
-                bc.getMontantNet(),
-                bc.getMontantDiscount(),
-                bc.getMontantTaxe(),
-                bc.getMontantAchat(),
-                bc.getMontantMarge(),
-                bc.getPanierMoyen(),
-                bc.getMontantCash(),
-                bc.getMontantCard(),
-                bc.getMontantCheck(),
-                bc.getMontantVirement(),
-                bc.getMontantMobileMoney(),
-                bc.getMontantCredit(),
-                bc.getMontantDiffere(),
-                bc.getPartTiersPayant()
-            ))
-            .toList();
+                .map(bc -> new CategoryBalanceDTO(
+                        bc.getTypeSale() != null ? bc.getTypeSale().getValue() : "AUTRE",
+                        getCategoryLabel(bc.getTypeSale()),
+                        bc.getCount() != null ? bc.getCount().intValue() : 0,
+                        bc.getMontantTtc(),
+                        bc.getMontantHt(),
+                        bc.getMontantNet(),
+                        bc.getMontantDiscount(),
+                        bc.getMontantTaxe(),
+                        bc.getMontantAchat(),
+                        bc.getMontantMarge(),
+                        bc.getPanierMoyen(),
+                        bc.getMontantCash(),
+                        bc.getMontantCard(),
+                        bc.getMontantCheck(),
+                        bc.getMontantVirement(),
+                        bc.getMontantMobileMoney(),
+                        bc.getMontantCredit(),
+                        bc.getMontantDiffere(),
+                        bc.getPartTiersPayant()))
+                .toList();
     }
 
     private List<CashMovementDTO> buildCashMovements(List<Tuple> mvtCaisses) {
@@ -251,18 +239,19 @@ public class MobileCashBalanceService {
         }
 
         return mvtCaisses.stream()
-            .map(mvt -> {
-                long valueAsLong = convertToLong(mvt.value());
-                return new CashMovementDTO(
-                    0L, // ID not available from Tuple
-                    mvt.libelle(),
-                    Math.abs(valueAsLong),
-                    isSortie(mvt.key(), valueAsLong) ? CashMovementDTO.TYPE_SORTIE : CashMovementDTO.TYPE_ENTREE,
-                    null, // Date not available from Tuple
-                    null
-                );
-            })
-            .toList();
+                .map(mvt -> {
+                    long valueAsLong = convertToLong(mvt.value());
+                    return new CashMovementDTO(
+                            0L, // ID not available from Tuple
+                            mvt.libelle(),
+                            Math.abs(valueAsLong),
+                            isSortie(mvt.key(), valueAsLong)
+                                    ? CashMovementDTO.TYPE_SORTIE
+                                    : CashMovementDTO.TYPE_ENTREE,
+                            null, // Date not available from Tuple
+                            null);
+                })
+                .toList();
     }
 
     /**

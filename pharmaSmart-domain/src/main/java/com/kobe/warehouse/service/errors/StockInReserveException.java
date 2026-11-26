@@ -36,9 +36,8 @@ public class StockInReserveException extends BadRequestAlertException {
 
     public StockInReserveException(int rayonStock, int reserveStock) {
         super(
-            "Stock rayon insuffisant, réserve disponible",
-            "stock.reserve.available",
-            new StockReserveInfo(rayonStock, reserveStock, rayonStock + reserveStock)
-        );
+                "Stock rayon insuffisant, réserve disponible",
+                "stock.reserve.available",
+                new StockReserveInfo(rayonStock, reserveStock, rayonStock + reserveStock));
     }
 }

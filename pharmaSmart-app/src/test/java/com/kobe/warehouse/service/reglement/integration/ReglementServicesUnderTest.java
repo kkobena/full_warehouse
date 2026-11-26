@@ -4,16 +4,16 @@ import static org.mockito.Mockito.mock;
 
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
-import com.kobe.warehouse.repository.ReinitialisationConsommationRepository;
-import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.DifferePaymentRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentItemRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.ReferenceRepository;
+import com.kobe.warehouse.repository.ReinitialisationConsommationRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -106,99 +106,91 @@ final class ReglementServicesUnderTest {
         this.factureIdGeneratorService = new FactureIdGeneratorService(entityManager);
         this.assuranceItemIdGeneratorService = new AssuranceItemIdGeneratorService(entityManager);
         TransactionIdGeneratorService transactionIdGeneratorService = new TransactionIdGeneratorService(entityManager);
-        InvoicePaymentItemService invoicePaymentItemService = new InvoicePaymentItemService(
-            new TransactionItemIdGeneratorService(entityManager)
-        );
+        InvoicePaymentItemService invoicePaymentItemService =
+                new InvoicePaymentItemService(new TransactionItemIdGeneratorService(entityManager));
 
         this.reglementFactureModeAllService = new ReglementFactureModeAllService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
 
         this.reglementFactureSelectionneesService = new ReglementFactureSelectionneesService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
 
         this.reglementGroupeFactureService = new ReglementGroupeFactureService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            reglementFactureModeAllService,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                reglementFactureModeAllService,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
 
         this.reglementGroupeSelectionFactureService = new ReglementGroupeSelectionFactureService(
-            cashRegisterService,
-            invoicePaymentRepository,
-            userService,
-            facturationRepository,
-            thirdPartySaleLineRepository,
-            banqueRepository,
-            reglementFactureSelectionneesService,
-            transactionIdGeneratorService,
-            invoicePaymentItemService,
-            referenceService
-        );
+                cashRegisterService,
+                invoicePaymentRepository,
+                userService,
+                facturationRepository,
+                thirdPartySaleLineRepository,
+                banqueRepository,
+                reglementFactureSelectionneesService,
+                transactionIdGeneratorService,
+                invoicePaymentItemService,
+                referenceService);
 
         this.consommationPlafondService = new ConsommationPlafondService(
-            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
-            IntegrationPostgresDatabase.bean(TiersPayantRepository.class),
-            IntegrationPostgresDatabase.bean(ReinitialisationConsommationRepository.class)
-        );
+                IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+                IntegrationPostgresDatabase.bean(TiersPayantRepository.class),
+                IntegrationPostgresDatabase.bean(ReinitialisationConsommationRepository.class));
         reglementFactureModeAllService.setConsommationPlafondService(consommationPlafondService);
         reglementFactureSelectionneesService.setConsommationPlafondService(consommationPlafondService);
         reglementGroupeFactureService.setConsommationPlafondService(consommationPlafondService);
         reglementGroupeSelectionFactureService.setConsommationPlafondService(consommationPlafondService);
 
         this.reglementRegistry = new ReglementRegistry(
-            reglementGroupeSelectionFactureService,
-            reglementGroupeFactureService,
-            reglementFactureModeAllService,
-            reglementFactureSelectionneesService,
-            facturationRepository
-        );
+                reglementGroupeSelectionFactureService,
+                reglementGroupeFactureService,
+                reglementFactureModeAllService,
+                reglementFactureSelectionneesService,
+                facturationRepository);
 
         this.reglementDataService = new ReglementDataServiceImpl(
-            facturationRepository,
-            invoicePaymentRepository,
-            thirdPartySaleLineRepository,
-            invoicePaymentItemRepository,
-            reglementReportService,
-            invoiceReceiptService
-        );
-        ((ReglementDataServiceImpl) this.reglementDataService).setConsommationPlafondService(consommationPlafondService);
+                facturationRepository,
+                invoicePaymentRepository,
+                thirdPartySaleLineRepository,
+                invoicePaymentItemRepository,
+                reglementReportService,
+                invoiceReceiptService);
+        ((ReglementDataServiceImpl) this.reglementDataService)
+                .setConsommationPlafondService(consommationPlafondService);
 
         this.reglementDiffereService = new ReglementDiffereServiceImpl(
-            differePaymentRepository,
-            salesRepository,
-            customerRepository,
-            cashRegisterService,
-            reglementDiffereReportService,
-            banqueRepository,
-            differeReceiptService,
-            transactionIdGeneratorService,
-            referenceService,
-            new ReportExcelExportService()
-        );
+                differePaymentRepository,
+                salesRepository,
+                customerRepository,
+                cashRegisterService,
+                reglementDiffereReportService,
+                banqueRepository,
+                differeReceiptService,
+                transactionIdGeneratorService,
+                referenceService,
+                new ReportExcelExportService());
     }
 }

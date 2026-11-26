@@ -9,7 +9,9 @@ public record CroissanceAnnuelle(Double taux, Integer depuis, Integer jusqua) {
     public static final CroissanceAnnuelle AUCUNE = new CroissanceAnnuelle(null, null, null);
 
     public static CroissanceAnnuelle calculer(List<Integer> anneesCloses, LectureAnnees lecture) {
-        List<Integer> retenues = anneesCloses.stream().filter(annee -> lecture.brut(lecture.total(annee)) > 0).toList();
+        List<Integer> retenues = anneesCloses.stream()
+                .filter(annee -> lecture.brut(lecture.total(annee)) > 0)
+                .toList();
         if (retenues.size() < 2) {
             return AUCUNE;
         }

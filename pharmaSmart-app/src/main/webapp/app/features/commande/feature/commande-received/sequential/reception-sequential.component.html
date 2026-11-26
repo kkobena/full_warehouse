@@ -1,10 +1,8 @@
 <div class="rh-seq">
-
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <!-- NAV GAUCHE                                                             -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <div class="rh-seq__nav">
-
     <div class="rh-seq__nav-progress">
       <div class="rh-seq__nav-progress-fill" [style.width.%]="progress()"></div>
     </div>
@@ -22,9 +20,7 @@
 
     <!-- AX-09 — Bandeau concordance compact -->
     <div class="rh-seq__nav-concordance" [class.rh-seq__nav-concordance--ok]="!navConcordance().hasAnomaly">
-      <span class="rh-seq__nav-conc-total">
-        {{ orderLines().length - navConcordance().ecartQte }}/{{ orderLines().length }}
-      </span>
+      <span class="rh-seq__nav-conc-total"> {{ orderLines().length - navConcordance().ecartQte }}/{{ orderLines().length }} </span>
       @if (navConcordance().ecartQte > 0) {
         <span class="rh-seq__nav-conc-chip rh-seq__nav-conc-chip--warn">{{ navConcordance().ecartQte }} éc.qté</span>
       }
@@ -38,17 +34,18 @@
 
     <div class="rh-seq__nav-list">
       @for (line of visibleLines(); track line.id) {
-        <button type="button"
-                class="rh-seq__nav-item"
-                [class.rh-seq__nav-item--active]="currentLine()?.id === line.id"
-                [class.rh-seq__nav-item--done]="isComplete(line)"
-                (click)="selectLine(line)">
-
+        <button
+          type="button"
+          class="rh-seq__nav-item"
+          [class.rh-seq__nav-item--active]="currentLine()?.id === line.id"
+          [class.rh-seq__nav-item--done]="isComplete(line)"
+          (click)="selectLine(line)"
+        >
           <span class="rh-seq__nav-icon">
             @if (isComplete(line)) {
-              <i class="pi pi-check-circle" style="color:#16a34a"></i>
+              <i class="pi pi-check-circle" style="color: #16a34a"></i>
             } @else {
-              <i class="pi pi-circle" style="color:#d1d5db"></i>
+              <i class="pi pi-circle" style="color: #d1d5db"></i>
             }
           </span>
 
@@ -57,20 +54,20 @@
             <span class="rh-seq__nav-sub">
               <span class="rh-seq__nav-cip">{{ line.produitCip }}</span>
               @if (showLotBtn() && line.gestionLot !== false) {
-                <span class="rh-seq__nav-lot-badge"
-                      [class.rh-seq__nav-lot-badge--ok]="(line.lots?.length ?? 0) > 0">
+                <span class="rh-seq__nav-lot-badge" [class.rh-seq__nav-lot-badge--ok]="(line.lots?.length ?? 0) > 0">
                   <i class="pi pi-box"></i>{{ line.lots?.length ?? 0 }}
                 </span>
               }
             </span>
           </span>
 
-          <span class="rh-seq__nav-qty"
-                [class.rh-seq__nav-qty--zero]="(line.quantityReceivedTmp ?? 0) === 0"
-                [class.rh-seq__nav-qty--partial]="(line.quantityReceivedTmp ?? 0) > 0 && !isComplete(line)">
+          <span
+            class="rh-seq__nav-qty"
+            [class.rh-seq__nav-qty--zero]="(line.quantityReceivedTmp ?? 0) === 0"
+            [class.rh-seq__nav-qty--partial]="(line.quantityReceivedTmp ?? 0) > 0 && !isComplete(line)"
+          >
             {{ line.quantityReceivedTmp ?? 0 }}&thinsp;/&thinsp;{{ line.quantityRequested }}
           </span>
-
         </button>
       }
 
@@ -82,26 +79,39 @@
       }
     </div>
 
-    <div class="rh-seq__nav-footer ">
-      <app-button  (clicked)="goPrev()" [disabled]="!hasPrev()"
-                icon="pi pi-arrow-left" label="Précédent" severity="info" size="small"
-                ngbTooltip="F8 — ligne précédente" placement="top"
-                class="rh-nav-btn" />
-      <app-button (clicked)="goNext()" [disabled]="!hasNext()"
-                icon="pi pi-arrow-right" iconPos="right" label="Suivant" severity="warn" size="small"
-                ngbTooltip="F9 — ligne suivante" placement="top"
-                class="rh-nav-btn" />
+    <div class="rh-seq__nav-footer">
+      <app-button
+        (clicked)="goPrev()"
+        [disabled]="!hasPrev()"
+        icon="pi pi-arrow-left"
+        label="Précédent"
+        severity="info"
+        size="small"
+        ngbTooltip="F8 — ligne précédente"
+        placement="top"
+        class="rh-nav-btn"
+      />
+      <app-button
+        (clicked)="goNext()"
+        [disabled]="!hasNext()"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        label="Suivant"
+        severity="warn"
+        size="small"
+        ngbTooltip="F9 — ligne suivante"
+        placement="top"
+        class="rh-nav-btn"
+      />
     </div>
-
-  </div><!-- /nav -->
+  </div>
+  <!-- /nav -->
 
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <!-- PANNEAU PRINCIPAL                                                      -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   <div class="rh-seq__main">
-
     @if (currentLine(); as line) {
-
       <!-- En-tête produit : toujours visible quel que soit le step -->
       <div class="rh-seq__product-header">
         <div class="rh-seq__product-name">{{ line.produitLibelle }}</div>
@@ -112,17 +122,17 @@
           </span>
           @if (line.costAmount) {
             <span class="rh-seq__meta-chip rh-seq__meta-chip--pmp">
-              <i class="pi pi-chart-line"></i>&nbsp;PMP&nbsp;<strong>{{ line.costAmount | number:'1.0-0' }}</strong>
+              <i class="pi pi-chart-line"></i>&nbsp;PMP&nbsp;<strong>{{ line.costAmount | number: '1.0-0' }}</strong>
             </span>
           }
           @if (line.orderCostAmount != null) {
             <span class="rh-seq__meta-chip" [class.rh-seq__meta-chip--pa-diff]="line.orderCostAmount !== line.costAmount">
-              <i class="pi pi-tag"></i>&nbsp;PA&nbsp;<strong>{{ line.orderCostAmount | number:'1.0-0' }}</strong>
+              <i class="pi pi-tag"></i>&nbsp;PA&nbsp;<strong>{{ line.orderCostAmount | number: '1.0-0' }}</strong>
             </span>
           }
           @if (line.orderUnitPrice != null) {
             <span class="rh-seq__meta-chip">
-              <i class="pi pi-shopping-cart"></i>&nbsp;PV&nbsp;<strong>{{ line.orderUnitPrice | number:'1.0-0' }}</strong>
+              <i class="pi pi-shopping-cart"></i>&nbsp;PV&nbsp;<strong>{{ line.orderUnitPrice | number: '1.0-0' }}</strong>
             </span>
           }
           @if (line.qteColis && line.qteColis > 1) {
@@ -131,9 +141,11 @@
             </span>
           }
           @if (line.thermosensible) {
-            <span class="rh-seq__meta-chip rh-seq__meta-chip--cold"
-                  ngbTooltip="Produit thermosensible — conserver entre 2°C et 8°C"
-                  placement="top">
+            <span
+              class="rh-seq__meta-chip rh-seq__meta-chip--cold"
+              ngbTooltip="Produit thermosensible — conserver entre 2°C et 8°C"
+              placement="top"
+            >
               <i class="pi pi-snowflake"></i>&nbsp;2–8°C
             </span>
           }
@@ -142,25 +154,17 @@
 
       <!-- AX-15 — Feedback scan visible en mode séquentiel -->
       @if (lastScanResult(); as scan) {
-        <div class="rh-seq__scan-feedback"
-             [class.rh-seq__scan-feedback--ok]="scan.found"
-             [class.rh-seq__scan-feedback--err]="!scan.found">
+        <div class="rh-seq__scan-feedback" [class.rh-seq__scan-feedback--ok]="scan.found" [class.rh-seq__scan-feedback--err]="!scan.found">
           <i [class]="scan.found ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
           <span>{{ scan.found ? scan.produitLibelle : (scan.warningMessage ?? 'Produit non trouvé') }}</span>
           @if (scan.found && scan.lotNumero) {
-            <span class="rh-seq__scan-chip rh-seq__scan-chip--lot">
-              <i class="pi pi-box"></i>{{ scan.lotNumero }}
-            </span>
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--lot"> <i class="pi pi-box"></i>{{ scan.lotNumero }} </span>
           }
           @if (scan.found && scan.fmdStatus === 'PRESENT') {
-            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-ok">
-              <i class="pi pi-shield"></i>FMD ✓
-            </span>
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-ok"> <i class="pi pi-shield"></i>FMD ✓ </span>
           }
           @if (scan.found && scan.fmdStatus === 'DUPLICATE') {
-            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-dup">
-              <i class="pi pi-shield"></i>DOUBLON !
-            </span>
+            <span class="rh-seq__scan-chip rh-seq__scan-chip--fmd-dup"> <i class="pi pi-shield"></i>DOUBLON ! </span>
           }
         </div>
       }
@@ -209,29 +213,11 @@
                 size="small"
                 (clicked)="onAssocierCodeALaLigneCourante()"
               />
-              <app-button
-                icon="pi pi-search"
-                label="Autre ligne…"
-                severity="secondary"
-                size="small"
-                (clicked)="onDemanderAutreLigne()"
-              />
-              <app-button
-                label="Ignorer"
-                severity="secondary"
-                size="small"
-                [text]="true"
-                (clicked)="scanInconnu.set(null)"
-              />
+              <app-button icon="pi pi-search" label="Autre ligne…" severity="secondary" size="small" (clicked)="onDemanderAutreLigne()" />
+              <app-button label="Ignorer" severity="secondary" size="small" [text]="true" (clicked)="scanInconnu.set(null)" />
               <span class="rh-seq__code-banner-touches">Entrée · A · Échap</span>
             } @else if (!isEditingCip()) {
-              <app-button
-                icon="pi pi-pencil"
-                label="Modifier CIP"
-                severity="secondary"
-                size="small"
-                (clicked)="isEditingCip.set(true)"
-              />
+              <app-button icon="pi pi-pencil" label="Modifier CIP" severity="secondary" size="small" (clicked)="isEditingCip.set(true)" />
             } @else {
               <input
                 type="text"
@@ -253,7 +239,6 @@
       <!-- ÉTAPE 1 — QUANTITÉS                                             -->
       <!-- ════════════════════════════════════════════════════════════════ -->
       @if (step() === 'qty') {
-
         <div class="rh-seq__body">
           <div class="rh-seq__section-label">Quantités reçues</div>
 
@@ -266,31 +251,44 @@
           <!-- Reçu -->
           <div class="rh-seq__row">
             <label class="rh-seq__row-label" for="rh-qty">Reçu</label>
-            <input #qtyInput id="rh-qty" type="number" class="form-control rh-seq__big-input"
-                   [ngModel]="draftQty()" (ngModelChange)="draftQty.set($event)"
-                   min="0"
-                   autocomplete="off"
-                   (focus)="selectOnFocus($event)"
-                   (keydown.enter)="$event.preventDefault(); onValidateQty()" />
+            <input
+              #qtyInput
+              id="rh-qty"
+              type="number"
+              class="form-control rh-seq__big-input"
+              [ngModel]="draftQty()"
+              (ngModelChange)="draftQty.set($event)"
+              min="0"
+              autocomplete="off"
+              (focus)="selectOnFocus($event)"
+              (keydown.enter)="$event.preventDefault(); onValidateQty()"
+            />
           </div>
 
           <!-- UG — toujours visible, Tab depuis Reçu y amène naturellement -->
           <div class="rh-seq__row">
             <label class="rh-seq__row-label" for="rh-ug">UG</label>
-            <input id="rh-ug" type="number" class="form-control rh-seq__big-input rh-seq__big-input--secondary"
-                   [ngModel]="draftUg()" (ngModelChange)="draftUg.set($event ?? 0)"
-                   min="0"
-                   autocomplete="off"
-                   (focus)="selectOnFocus($event)"
-                   (keydown.enter)="$event.preventDefault(); onValidateQty()" />
+            <input
+              id="rh-ug"
+              type="number"
+              class="form-control rh-seq__big-input rh-seq__big-input--secondary"
+              [ngModel]="draftUg()"
+              (ngModelChange)="draftUg.set($event ?? 0)"
+              min="0"
+              autocomplete="off"
+              (focus)="selectOnFocus($event)"
+              (keydown.enter)="$event.preventDefault(); onValidateQty()"
+            />
           </div>
 
           <!-- Stock après -->
           <div class="rh-seq__row rh-seq__row--result">
             <span class="rh-seq__row-label">Stock après</span>
-            <span class="rh-seq__row-value"
-                  [class.rh-seq__row-value--ok]="afterStock() > 0"
-                  [class.rh-seq__row-value--warn]="afterStock() === 0">
+            <span
+              class="rh-seq__row-value"
+              [class.rh-seq__row-value--ok]="afterStock() > 0"
+              [class.rh-seq__row-value--warn]="afterStock() === 0"
+            >
               {{ afterStock() }}
             </span>
           </div>
@@ -300,18 +298,23 @@
             @if (pmpVariation() === 'stable') {
               <div class="rh-seq__pmp-stable">
                 <i class="pi pi-check-circle"></i>
-                PMP inchangé&nbsp;<span class="rh-seq__pmp-stable-val">{{ pmpPreview() | number:'1.0-0' }}</span>
+                PMP inchangé&nbsp;<span class="rh-seq__pmp-stable-val">{{ pmpPreview() | number: '1.0-0' }}</span>
               </div>
             } @else {
-              <div class="rh-seq__row rh-seq__pmp-preview"
-                   [class.rh-seq__pmp-preview--up]="pmpVariation() === 'up'"
-                   [class.rh-seq__pmp-preview--down]="pmpVariation() === 'down'">
+              <div
+                class="rh-seq__row rh-seq__pmp-preview"
+                [class.rh-seq__pmp-preview--up]="pmpVariation() === 'up'"
+                [class.rh-seq__pmp-preview--down]="pmpVariation() === 'down'"
+              >
                 <span class="rh-seq__row-label">Nouveau PMP</span>
                 <span class="rh-seq__row-value">
-                  {{ pmpPreview() | number:'1.0-0' }}
-                  @if (pmpVariation() === 'up') { <i class="pi pi-arrow-up ms-1"></i> }
-                  @else if (pmpVariation() === 'down') { <i class="pi pi-arrow-down ms-1"></i> }
-                  <span class="rh-seq__pmp-actuel">(actuel : {{ currentLine()?.costAmount ?? 0 | number:'1.0-0' }})</span>
+                  {{ pmpPreview() | number: '1.0-0' }}
+                  @if (pmpVariation() === 'up') {
+                    <i class="pi pi-arrow-up ms-1"></i>
+                  } @else if (pmpVariation() === 'down') {
+                    <i class="pi pi-arrow-down ms-1"></i>
+                  }
+                  <span class="rh-seq__pmp-actuel">(actuel : {{ currentLine()?.costAmount ?? 0 | number: '1.0-0' }})</span>
                 </span>
               </div>
             }
@@ -334,9 +337,7 @@
                   <strong>{{ lineLots().length }} lot(s) saisi(s).</strong>
                   Validez pour modifier ou
                 </span>
-                <button type="button" class="rh-seq__lot-shortcut" (click)="goToLotStep()">
-                  accéder aux lots →
-                </button>
+                <button type="button" class="rh-seq__lot-shortcut" (click)="goToLotStep()">accéder aux lots →</button>
               } @else {
                 <span>Après validation, vous pourrez saisir les numéros de lot.</span>
               }
@@ -345,24 +346,23 @@
         </div>
 
         <div class="rh-seq__footer">
-          <app-button (clicked)="onValidateQty()"
-                    [disabled]="saving()"
-                    [loading]="saving()"
-                    icon="pi pi-check"
-                    [label]="(showLotBtn() && line.gestionLot !== false) ? 'Valider et saisir les lots  (F12)' : 'Valider et continuer  (F12)'"
-                    severity="primary"
-                    [style]="{'width':'100%'}" />
+          <app-button
+            (clicked)="onValidateQty()"
+            [disabled]="saving()"
+            [loading]="saving()"
+            icon="pi pi-check"
+            [label]="showLotBtn() && line.gestionLot !== false ? 'Valider et saisir les lots  (F12)' : 'Valider et continuer  (F12)'"
+            severity="primary"
+            [style]="{ width: '100%' }"
+          />
         </div>
-
       }
 
       <!-- ════════════════════════════════════════════════════════════════ -->
       <!-- ÉTAPE 2 — LOTS                                                  -->
       <!-- ════════════════════════════════════════════════════════════════ -->
       @if (step() === 'lot') {
-
         <div class="rh-seq__body">
-
           <!-- Bandeau état -->
           <div class="rh-seq__lot-state" [class.rh-seq__lot-state--complete]="lotsComplete()">
             @if (lotsComplete()) {
@@ -373,24 +373,30 @@
               <span>Lot enregistré ✓</span>
               <span class="rh-seq__lot-state-counters">
                 <span class="rh-seq__lot-counter">
-                  <i class="pi pi-box"></i>&thinsp;<strong>{{ remainingLotQty() }}</strong>&thinsp;unité(s) restante(s)
+                  <i class="pi pi-box"></i>&thinsp;<strong>{{ remainingLotQty() }}</strong
+                  >&thinsp;unité(s) restante(s)
                 </span>
                 @if (remainingLotUg() > 0) {
                   <span class="rh-seq__lot-counter rh-seq__lot-counter--ug">
-                    <i class="pi pi-gift"></i>&thinsp;<strong>{{ remainingLotUg() }}</strong>&thinsp;UG restante(s)
+                    <i class="pi pi-gift"></i>&thinsp;<strong>{{ remainingLotUg() }}</strong
+                    >&thinsp;UG restante(s)
                   </span>
                 }
               </span>
             } @else {
               <i class="pi pi-box"></i>
-              <span>Lots — <strong>{{ line.produitLibelle }}</strong></span>
+              <span
+                >Lots — <strong>{{ line.produitLibelle }}</strong></span
+              >
               <span class="rh-seq__lot-state-counters">
                 <span class="rh-seq__lot-counter">
-                  <i class="pi pi-box"></i>&thinsp;<strong>{{ remainingLotQty() }}</strong>&thinsp;unité(s) restante(s)
+                  <i class="pi pi-box"></i>&thinsp;<strong>{{ remainingLotQty() }}</strong
+                  >&thinsp;unité(s) restante(s)
                 </span>
                 @if (remainingLotUg() > 0) {
                   <span class="rh-seq__lot-counter rh-seq__lot-counter--ug">
-                    <i class="pi pi-gift"></i>&thinsp;<strong>{{ remainingLotUg() }}</strong>&thinsp;UG restante(s)
+                    <i class="pi pi-gift"></i>&thinsp;<strong>{{ remainingLotUg() }}</strong
+                    >&thinsp;UG restante(s)
                   </span>
                 }
               </span>
@@ -410,8 +416,7 @@
                   @if ((lot.ugQuantityReceived ?? 0) > 0) {
                     <span class="rh-seq__lot-ug">+{{ lot.ugQuantityReceived }}&thinsp;UG</span>
                   }
-                  <button type="button" class="rh-seq__lot-del" title="Supprimer ce lot"
-                          (click)="onDeleteLot(lot)">
+                  <button type="button" class="rh-seq__lot-del" title="Supprimer ce lot" (click)="onDeleteLot(lot)">
                     <i class="pi pi-times"></i>
                   </button>
                 </div>
@@ -429,44 +434,59 @@
             </div>
 
             <div class="rh-seq__lot-form">
-
               <!-- N° lot -->
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-numlot">N° lot</label>
-                <input #numLotInput id="rh-numlot" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--num"
-                       [ngModel]="draftLotNum()" (ngModelChange)="draftLotNum.set($event)"
-                       placeholder="ex: A1B2C3"
-                       autocomplete="off"
-                       (focus)="selectOnFocus($event)"
-                       (keydown.enter)="$event.preventDefault(); onSaveLot()" />
+                <input
+                  #numLotInput
+                  id="rh-numlot"
+                  type="text"
+                  class="form-control rh-seq__lot-input rh-seq__lot-input--num"
+                  [ngModel]="draftLotNum()"
+                  (ngModelChange)="draftLotNum.set($event)"
+                  placeholder="ex: A1B2C3"
+                  autocomplete="off"
+                  (focus)="selectOnFocus($event)"
+                  (keydown.enter)="$event.preventDefault(); onSaveLot()"
+                />
               </div>
 
               <!-- Péremption -->
               <div class="rh-seq__row">
                 <label class="rh-seq__row-label" for="rh-expiry">Péremption</label>
-                <input id="rh-expiry" type="text" class="form-control rh-seq__lot-input rh-seq__lot-input--exp"
-                       [ngModel]="draftLotExpiry()"
-                       (ngModelChange)="onLotExpiryInput($event)"
-                       placeholder="MM/AAAA"
-                       maxlength="7"
-                       [class.rh-seq__expiry--critical]="expiryWarning() === 'critical'"
-                       [class.rh-seq__expiry--soon]="expiryWarning() === 'soon'"
-                       autocomplete="off"
-                       (focus)="selectOnFocus($event)"
-                       (keydown.enter)="$event.preventDefault(); onSaveLot()" />
+                <input
+                  id="rh-expiry"
+                  type="text"
+                  class="form-control rh-seq__lot-input rh-seq__lot-input--exp"
+                  [ngModel]="draftLotExpiry()"
+                  (ngModelChange)="onLotExpiryInput($event)"
+                  placeholder="MM/AAAA"
+                  maxlength="7"
+                  [class.rh-seq__expiry--critical]="expiryWarning() === 'critical'"
+                  [class.rh-seq__expiry--soon]="expiryWarning() === 'soon'"
+                  autocomplete="off"
+                  (focus)="selectOnFocus($event)"
+                  (keydown.enter)="$event.preventDefault(); onSaveLot()"
+                />
               </div>
 
               <!-- Qté lot -->
               @if (!isUgOnlyLotMode()) {
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotqty">Qté lot</label>
-                  <input id="rh-lotqty" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
-                         [ngModel]="draftLotQty()" (ngModelChange)="draftLotQty.set($event)"
-                         (input)="recomputeLotUg()"
-                         [max]="remainingLotQty()" min="1"
-                         autocomplete="off"
-                         (focus)="selectOnFocus($event)"
-                         (keydown.enter)="$event.preventDefault(); onSaveLot()" />
+                  <input
+                    id="rh-lotqty"
+                    type="number"
+                    class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
+                    [ngModel]="draftLotQty()"
+                    (ngModelChange)="draftLotQty.set($event)"
+                    (input)="recomputeLotUg()"
+                    [max]="remainingLotQty()"
+                    min="1"
+                    autocomplete="off"
+                    (focus)="selectOnFocus($event)"
+                    (keydown.enter)="$event.preventDefault(); onSaveLot()"
+                  />
                 </div>
               }
 
@@ -474,12 +494,18 @@
               @if (showUg()) {
                 <div class="rh-seq__row">
                   <label class="rh-seq__row-label" for="rh-lotug">UG lot</label>
-                  <input id="rh-lotug" type="number" class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
-                         [ngModel]="draftLotUg()" (ngModelChange)="draftLotUg.set($event)"
-                         [max]="remainingLotUg()" min="0"
-                         autocomplete="off"
-                         (focus)="selectOnFocus($event)"
-                         (keydown.enter)="$event.preventDefault(); onSaveLot()" />
+                  <input
+                    id="rh-lotug"
+                    type="number"
+                    class="form-control rh-seq__lot-input rh-seq__lot-input--qty"
+                    [ngModel]="draftLotUg()"
+                    (ngModelChange)="draftLotUg.set($event)"
+                    [max]="remainingLotUg()"
+                    min="0"
+                    autocomplete="off"
+                    (focus)="selectOnFocus($event)"
+                    (keydown.enter)="$event.preventDefault(); onSaveLot()"
+                  />
                 </div>
               }
 
@@ -493,35 +519,39 @@
                   <i class="pi pi-clock"></i> Péremption proche (&lt;&thinsp;6 mois)
                 </div>
               }
-
             </div>
           }
-
         </div>
 
         <!-- Footer lot : Ajouter (si incomplet) ou Passer à la suivante -->
         <div class="rh-seq__footer rh-seq__footer--lot">
           @if (!lotsComplete()) {
-            <app-button (clicked)="onSaveLot()"
-                      [disabled]="!canSaveLot()"
-                      [loading]="lotSaving()"
-                      icon="pi pi-plus"
-                      label="Ajouter ce lot  (F12)"
-                      severity="success"
-                      [style]="{'flex':'1'}" />
-            <app-button (clicked)="onSkipLots()"
-                      icon="pi pi-forward"
-                      label="Passer"
-                      severity="secondary"
-                      size="small"
-                      ngbTooltip="Passer à la ligne suivante sans compléter les lots"
-                      placement="top" />
+            <app-button
+              (clicked)="onSaveLot()"
+              [disabled]="!canSaveLot()"
+              [loading]="lotSaving()"
+              icon="pi pi-plus"
+              label="Ajouter ce lot  (F12)"
+              severity="success"
+              [style]="{ flex: '1' }"
+            />
+            <app-button
+              (clicked)="onSkipLots()"
+              icon="pi pi-forward"
+              label="Passer"
+              severity="secondary"
+              size="small"
+              ngbTooltip="Passer à la ligne suivante sans compléter les lots"
+              placement="top"
+            />
           } @else {
-            <app-button icon="pi pi-check-circle"
-                      label="Lots complets — ligne suivante…"
-                      severity="success"
-                      [disabled]="true"
-                      [style]="{'width':'100%'}" />
+            <app-button
+              icon="pi pi-check-circle"
+              label="Lots complets — ligne suivante…"
+              severity="success"
+              [disabled]="true"
+              [style]="{ width: '100%' }"
+            />
           }
         </div>
 
@@ -529,37 +559,32 @@
         @if (linesForBatch().length > 0 && draftLotNum() && formatExpiryForSave(draftLotExpiry())) {
           <div class="rh-seq__batch-bar">
             <i class="pi pi-clone rh-seq__batch-icon"></i>
-            <span class="rh-seq__batch-label">
-              {{ linesForBatch().length }} autre(s) ligne(s) sans lot
-            </span>
-            <app-button (clicked)="onApplyLotToAll()"
-                      [disabled]="!canApplyToAll()"
-                      [loading]="lotSaving()"
-                      icon="pi pi-send"
-                      label="Appliquer à toutes"
-                      severity="info"
-                      size="small"
-                      ngbTooltip="Appliquer ce lot ({{ draftLotNum() }}) à toutes les lignes sans lot ayant une quantité reçue"
-                      placement="top" />
+            <span class="rh-seq__batch-label"> {{ linesForBatch().length }} autre(s) ligne(s) sans lot </span>
+            <app-button
+              (clicked)="onApplyLotToAll()"
+              [disabled]="!canApplyToAll()"
+              [loading]="lotSaving()"
+              icon="pi pi-send"
+              label="Appliquer à toutes"
+              severity="info"
+              size="small"
+              ngbTooltip="Appliquer ce lot ({{ draftLotNum() }}) à toutes les lignes sans lot ayant une quantité reçue"
+              placement="top"
+            />
           </div>
         }
-
       }
-
     } @else {
-
       <!-- Toutes les lignes traitées -->
       <div class="rh-seq__all-done">
         <i class="pi pi-check-circle rh-seq__all-done-icon"></i>
         <p class="rh-seq__all-done-title">Toutes les lignes sont traitées !</p>
         <p class="rh-seq__all-done-hint">
-          Décochez « Masquer traitées » pour revoir une ligne,
-          ou cliquez <strong>Valider</strong> dans la barre d'en-tête pour finaliser la réception.
+          Décochez « Masquer traitées » pour revoir une ligne, ou cliquez <strong>Valider</strong> dans la barre d'en-tête pour finaliser la
+          réception.
         </p>
       </div>
-
     }
-
-  </div><!-- /main -->
-
+  </div>
+  <!-- /main -->
 </div>

@@ -1,10 +1,10 @@
 package com.kobe.warehouse.batch.inventaire;
 
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder;
@@ -38,45 +38,43 @@ public class InventaireImportJobConfig {
     private int chunkSize;
 
     @Bean
-    public Job inventaireImportJob(
-        JobRepository jobRepository,
-        Step parseAndPersistStep
-    ) {
+    public Job inventaireImportJob(JobRepository jobRepository, Step parseAndPersistStep) {
         return new JobBuilder("inventaireImportJob", jobRepository)
-            .start(parseAndPersistStep)
-            .build();
+                .start(parseAndPersistStep)
+                .build();
     }
 
     @Bean
     public Step parseAndPersistStep(
-        JobRepository jobRepository,
-        PlatformTransactionManager txManager,
-        FlatFileItemReader<InventaireLigneRaw> inventaireCsvReader,
-        InventaireLineProcessor inventaireLineProcessor,
-        InventaireLineWriter inventaireLineWriter
-    ) {
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            FlatFileItemReader<InventaireLigneRaw> inventaireCsvReader,
+            InventaireLineProcessor inventaireLineProcessor,
+            InventaireLineWriter inventaireLineWriter) {
         return new StepBuilder("parseAndPersistStep", jobRepository)
-            .<InventaireLigneRaw, InventaireLigneValidee>chunk(chunkSize).transactionManager(txManager)
-            .reader(inventaireCsvReader)
-            .processor(inventaireLineProcessor)
-            .writer(inventaireLineWriter)
-            .faultTolerant()
-                .skip(Exception.class).skipLimit(100)
-            .build();
+                .<InventaireLigneRaw, InventaireLigneValidee>chunk(chunkSize)
+                .transactionManager(txManager)
+                .reader(inventaireCsvReader)
+                .processor(inventaireLineProcessor)
+                .writer(inventaireLineWriter)
+                .faultTolerant()
+                .skip(Exception.class)
+                .skipLimit(100)
+                .build();
     }
 
     @Bean
     @StepScope
     public FlatFileItemReader<InventaireLigneRaw> inventaireCsvReader(
-        @Value("#{jobParameters['filePath']}") String filePath
-    ) {
+            @Value("#{jobParameters['filePath']}") String filePath) {
         return new FlatFileItemReaderBuilder<InventaireLigneRaw>()
-            .name("inventaireCsvReader")
-            .resource(new FileSystemResource(filePath))
-            .delimited().delimiter(";")
-            .names("cip13", "lot", "quantite", "peremption")
-            .targetType(InventaireLigneRaw.class)
-            .linesToSkip(1)
-            .build();
+                .name("inventaireCsvReader")
+                .resource(new FileSystemResource(filePath))
+                .delimited()
+                .delimiter(";")
+                .names("cip13", "lot", "quantite", "peremption")
+                .targetType(InventaireLigneRaw.class)
+                .linesToSkip(1)
+                .build();
     }
 }

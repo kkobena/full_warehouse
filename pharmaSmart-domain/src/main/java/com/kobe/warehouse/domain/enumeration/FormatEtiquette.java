@@ -27,7 +27,8 @@ public enum FormatEtiquette {
      * Calage historique de l'application, mesuré sur le PDF : marge de 5 mm, étiquettes de 38 mm
      * espacées de 40. C'est le format par défaut — rien ne bouge pour qui imprimait déjà.
      */
-    A4_65_HISTORIQUE("65 étiquettes — 38 × 21,2 mm (calage historique)", "calage maison", 38.0, 21.2, 5, 13, 5.0, 5.0, 2.0, 0.0),
+    A4_65_HISTORIQUE(
+            "65 étiquettes — 38 × 21,2 mm (calage historique)", "calage maison", 38.0, 21.2, 5, 13, 5.0, 5.0, 2.0, 0.0),
 
     /** Le vrai Avery L7651 : pas de 38,1 mm sans gouttière, marges de la planche du commerce. */
     A4_65_L7651("65 étiquettes — 38,1 × 21,2 mm", "Avery L7651, Herma 4333", 38.1, 21.2, 5, 13, 9.75, 10.7, 0.0, 0.0),
@@ -99,17 +100,16 @@ public enum FormatEtiquette {
     private final double gouttiereVerticaleMm;
 
     FormatEtiquette(
-        String libelle,
-        String reference,
-        double largeurMm,
-        double hauteurMm,
-        int colonnes,
-        int rangees,
-        double margeCoteMm,
-        double margeHautMm,
-        double gouttiereHorizontaleMm,
-        double gouttiereVerticaleMm
-    ) {
+            String libelle,
+            String reference,
+            double largeurMm,
+            double hauteurMm,
+            int colonnes,
+            int rangees,
+            double margeCoteMm,
+            double margeHautMm,
+            double gouttiereHorizontaleMm,
+            double gouttiereVerticaleMm) {
         this.libelle = libelle;
         this.reference = reference;
         this.support = SupportEtiquette.PLANCHE_A4;
@@ -251,7 +251,9 @@ public enum FormatEtiquette {
      * page. Sinon la dernière colonne est rognée à la largeur de l'étiquette.
      */
     public double getLargeurGrilleMm() {
-        return derniereColonneRognee() ? (colonnes - 1) * getPasHorizontalMm() + largeurMm : colonnes * getPasHorizontalMm();
+        return derniereColonneRognee()
+                ? (colonnes - 1) * getPasHorizontalMm() + largeurMm
+                : colonnes * getPasHorizontalMm();
     }
 
     /**

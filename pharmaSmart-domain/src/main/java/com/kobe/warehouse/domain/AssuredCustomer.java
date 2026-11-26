@@ -23,15 +23,17 @@ public class AssuredCustomer extends Customer {
 
     @JsonIgnore
     @OneToMany(
-        fetch = FetchType.EAGER,
-        mappedBy = "assurePrincipal",
-        orphanRemoval = true,
-        cascade = { CascadeType.REMOVE, CascadeType.PERSIST }
-    )
+            fetch = FetchType.EAGER,
+            mappedBy = "assurePrincipal",
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<AssuredCustomer> ayantDroits = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    @OneToMany(
+            mappedBy = "assuredCustomer",
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
     public AssuredCustomer getAssurePrincipal() {

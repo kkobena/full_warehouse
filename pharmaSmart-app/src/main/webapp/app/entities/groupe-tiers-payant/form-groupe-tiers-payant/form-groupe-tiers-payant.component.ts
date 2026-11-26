@@ -1,39 +1,28 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild,
-  signal,
-} from "@angular/core";
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
-import {GroupeTiersPayant, IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
-import {ErrorService} from "app/shared/error.service";
-import {
-  GroupeTiersPayantService
-} from "app/entities/groupe-tiers-payant/groupe-tierspayant.service";
-import {Observable} from "rxjs";
-import {HttpResponse} from "@angular/common/http";
-import {OrdreTrisFacture} from "../../../shared/model/tierspayant.model";
-import {TiersPayantService} from "../../tiers-payant/tierspayant.service";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {LowerCasePipe} from "@angular/common";
-import {NotificationService} from "../../../shared/services/notification.service";
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, viewChild, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
+import { ErrorService } from 'app/shared/error.service';
+import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { LowerCasePipe } from '@angular/common';
+import { NotificationService } from '../../../shared/services/notification.service';
 import {
   ButtonComponent,
   CardComponent,
   InputNumberComponent,
   KeyFilterDirective,
   SelectComponent,
-  SwitchComponent
-} from "../../../shared/ui";
+  SwitchComponent,
+} from '../../../shared/ui';
 
 @Component({
-  selector: "app-form-groupe-tiers-payant",
-  templateUrl: "./form-groupe-tiers-payant.component.html",
-  styleUrls: ["./form-groupe-tiers-payant.component.scss"],
+  selector: 'app-form-groupe-tiers-payant',
+  templateUrl: './form-groupe-tiers-payant.component.html',
+  styleUrls: ['./form-groupe-tiers-payant.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
@@ -44,21 +33,21 @@ import {
     InputNumberComponent,
     KeyFilterDirective,
     SelectComponent,
-    SwitchComponent
-  ]
+    SwitchComponent,
+  ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
-  header = "";
+  header = '';
   entity?: IGroupeTiersPayant;
   protected readonly ordreTrisFacture = signal<OrdreTrisFacture[]>([]);
   protected readonly periodicitesOptions = [
-    {label: "Mensuel", value: "MENSUEL"},
-    {label: "Quinzainière", value: "QUINZAINE"},
-    {label: "Bimensuel", value: "BIMENSUEL"}
+    { label: 'Mensuel', value: 'MENSUEL' },
+    { label: 'Quinzainière', value: 'QUINZAINE' },
+    { label: 'Bimensuel', value: 'BIMENSUEL' },
   ];
   protected readonly isSaving = signal(false);
   protected fb = inject(UntypedFormBuilder);
-  protected name = viewChild.required<ElementRef>("name");
+  protected name = viewChild.required<ElementRef>('name');
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
@@ -71,7 +60,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     periodiciteFactureDefinitive: [null],
     inclureFacturationAutoDefinitive: [true],
     periodiciteFactureProvisoire: [null],
-    inclureFacturationAutoProvisoire: [true]
+    inclureFacturationAutoProvisoire: [true],
   });
   private readonly errorService = inject(ErrorService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
@@ -111,7 +100,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
       periodiciteFactureDefinitive: groupeTiersPayant.periodiciteFactureDefinitive ?? null,
       inclureFacturationAutoDefinitive: groupeTiersPayant.inclureFacturationAutoDefinitive ?? true,
       periodiciteFactureProvisoire: groupeTiersPayant.periodiciteFactureProvisoire ?? null,
-      inclureFacturationAutoProvisoire: groupeTiersPayant.inclureFacturationAutoProvisoire ?? true
+      inclureFacturationAutoProvisoire: groupeTiersPayant.inclureFacturationAutoProvisoire ?? true,
     });
   }
 
@@ -132,31 +121,31 @@ export class FormGroupeTiersPayantComponent implements OnInit {
   protected createFromForm(): IGroupeTiersPayant {
     return {
       ...new GroupeTiersPayant(),
-      id: this.editForm.get(["id"]).value,
-      name: this.editForm.get(["name"]).value,
-      telephone: this.editForm.get(["telephone"]).value,
-      email: this.editForm.get(["email"]).value,
-      adresse: this.editForm.get(["adresse"]).value,
-      telephoneFixe: this.editForm.get(["telephoneFixe"]).value,
-      ordreTrisFacture: this.editForm.get(["ordreTrisFacture"]).value,
-      delaiReglement: this.editForm.get(["delaiReglement"]).value,
-      periodiciteFactureDefinitive: this.editForm.get(["periodiciteFactureDefinitive"]).value,
-      inclureFacturationAutoDefinitive: this.editForm.get(["inclureFacturationAutoDefinitive"]).value,
-      periodiciteFactureProvisoire: this.editForm.get(["periodiciteFactureProvisoire"]).value,
-      inclureFacturationAutoProvisoire: this.editForm.get(["inclureFacturationAutoProvisoire"]).value
+      id: this.editForm.get(['id']).value,
+      name: this.editForm.get(['name']).value,
+      telephone: this.editForm.get(['telephone']).value,
+      email: this.editForm.get(['email']).value,
+      adresse: this.editForm.get(['adresse']).value,
+      telephoneFixe: this.editForm.get(['telephoneFixe']).value,
+      ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value,
+      delaiReglement: this.editForm.get(['delaiReglement']).value,
+      periodiciteFactureDefinitive: this.editForm.get(['periodiciteFactureDefinitive']).value,
+      inclureFacturationAutoDefinitive: this.editForm.get(['inclureFacturationAutoDefinitive']).value,
+      periodiciteFactureProvisoire: this.editForm.get(['periodiciteFactureProvisoire']).value,
+      inclureFacturationAutoProvisoire: this.editForm.get(['inclureFacturationAutoProvisoire']).value,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeTiersPayant>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
   protected onSaveSuccess(groupeTiersPayant: IGroupeTiersPayant | null): void {
     this.isSaving.set(false);
-    this.notificationService.success("Opération effectuée avec succès");
+    this.notificationService.success('Opération effectuée avec succès');
     this.activeModal.close(groupeTiersPayant);
   }
 

@@ -58,7 +58,7 @@ export class BackendStatusService {
           this.appSettingsService.updateApiServerUrl(tauriUrl);
         }
       } catch {
-        console.warn('[BackendStatusService] Impossible de récupérer l\'URL du backend, utilisation de la valeur par défaut');
+        console.warn("[BackendStatusService] Impossible de récupérer l'URL du backend, utilisation de la valeur par défaut");
       }
 
       // ── Bundled backend mode ──────────────────────────────────────────────

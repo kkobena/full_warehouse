@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.nav;
 
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.nav.NavAssignDTO;
 import com.kobe.warehouse.service.dto.nav.NavNodeDTO;
@@ -9,6 +10,10 @@ import com.kobe.warehouse.service.dto.nav.NavReorderDTO;
 import com.kobe.warehouse.service.nav.NavItemService;
 import com.kobe.warehouse.service.nav.NavPathResolver;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller pour la navigation dynamique.
@@ -43,9 +42,7 @@ public class NavItemResource {
     private final NavPathResolver navPathResolver;
     private final UserService userService;
 
-
-    public NavItemResource(NavItemService navItemService, NavPathResolver navPathResolver,
-                           UserService userService) {
+    public NavItemResource(NavItemService navItemService, NavPathResolver navPathResolver, UserService userService) {
         this.navItemService = navItemService;
         this.navPathResolver = navPathResolver;
         this.userService = userService;
@@ -74,9 +71,10 @@ public class NavItemResource {
     @GetMapping("/nav/my-items")
     public ResponseEntity<List<NavNodeDTO>> getMyNavItems() {
         log.debug("REST request to get nav items for current user");
-        Set<String> roles = userService.getUserWithAuthorities()
-            .map(u -> u.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
-            .orElse(Set.of());
+        Set<String> roles = userService
+                .getUserWithAuthorities()
+                .map(u -> u.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
+                .orElse(Set.of());
         String login = SecurityUtils.getCurrentUserLogin().orElseThrow();
         return ResponseEntity.ok(navItemService.buildTreeForRoles(roles, login));
     }
@@ -92,9 +90,10 @@ public class NavItemResource {
     @GetMapping("/nav/my-abilities")
     public ResponseEntity<Set<String>> getMyAbilities() {
         log.debug("REST request to get executable action codes for current user");
-        Set<String> roles = userService.getUserWithAuthorities()
-            .map(u -> u.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
-            .orElse(Set.of());
+        Set<String> roles = userService
+                .getUserWithAuthorities()
+                .map(u -> u.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
+                .orElse(Set.of());
         return ResponseEntity.ok(navItemService.findExecutableActionCodes(roles));
     }
 
@@ -116,8 +115,7 @@ public class NavItemResource {
     @GetMapping("/admin/nav/items")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<NavNodeDTO>> getAllNavItems(
-        @RequestParam(value = "roleName", required = false) String roleName
-    ) {
+            @RequestParam(value = "roleName", required = false) String roleName) {
         log.debug("REST request to get all nav items (admin), roleName={}", roleName);
         if (roleName != null && !roleName.isBlank()) {
             return ResponseEntity.ok(navItemService.findAllItemsForRole(roleName));
@@ -153,9 +151,7 @@ public class NavItemResource {
     @PatchMapping("/admin/nav/items/{id}/libelle")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateNavItemLibelle(
-        @PathVariable Integer id,
-        @RequestBody UpdateLibelleRequest request
-    ) {
+            @PathVariable Integer id, @RequestBody UpdateLibelleRequest request) {
         if (request.libelle() == null || request.libelle().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
@@ -173,9 +169,7 @@ public class NavItemResource {
     @PatchMapping("/admin/nav/items/{id}/titre-long")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateNavItemTitreLong(
-        @PathVariable Integer id,
-        @RequestBody UpdateTitreLongRequest request
-    ) {
+            @PathVariable Integer id, @RequestBody UpdateTitreLongRequest request) {
         navItemService.updateTitreLong(id, request.titreLong());
         return ResponseEntity.ok().build();
     }
@@ -184,4 +178,3 @@ public class NavItemResource {
 record UpdateLibelleRequest(String libelle) {}
 
 record UpdateTitreLongRequest(String titreLong) {}
-

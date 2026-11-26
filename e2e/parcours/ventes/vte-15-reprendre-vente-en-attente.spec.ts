@@ -46,8 +46,7 @@ scenario('VTE-15', async ({ etape, page }) => {
   await etape(2, async () => {
     // Viser le BOUTON dans la liste, et non la « première ligne » : le tableau range le
     // détail dépliable d'une vente dans une ligne à part, qui ne porte aucune action.
-    await page.locator('app-pending-sales-list')
-      .getByRole('button', { name: 'Reprendre la vente' }).first().click();
+    await page.locator('app-pending-sales-list').getByRole('button', { name: 'Reprendre la vente' }).first().click();
     // Reprise intacte : le produit ET sa quantité. Vérifier la seule présence du produit
     // laisserait passer une reprise qui aurait perdu les quantités.
     await expect(lignes.first()).toContainText(produit);

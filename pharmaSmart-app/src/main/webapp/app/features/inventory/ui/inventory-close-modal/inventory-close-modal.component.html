@@ -82,9 +82,7 @@
     @if (hasRemaining()) {
       <div class="alert-remaining mt-3">
         <i class="pi pi-exclamation-triangle"></i>
-        <span>
-          {{ remainingLines() | number:'1.0-0':'fr' }} ligne(s) ne sont pas encore comptées.
-        </span>
+        <span> {{ remainingLines() | number: '1.0-0' : 'fr' }} ligne(s) ne sont pas encore comptées. </span>
       </div>
     }
 
@@ -96,13 +94,6 @@
 </div>
 
 <div class="modal-footer">
-  <app-button (clicked)="activeModal.dismiss()" label="Annuler" severity="secondary"/>
-  <app-button
-    (clicked)="confirm()"
-    [disabled]="loading()"
-    [raised]="true"
-    icon="pi pi-lock"
-    label="Clôturer"
-    severity="primary"
-  />
+  <app-button (clicked)="activeModal.dismiss()" label="Annuler" severity="secondary" />
+  <app-button (clicked)="confirm()" [disabled]="loading()" [raised]="true" icon="pi pi-lock" label="Clôturer" severity="primary" />
 </div>

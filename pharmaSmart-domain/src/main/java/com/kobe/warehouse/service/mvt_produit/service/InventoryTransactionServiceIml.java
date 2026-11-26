@@ -9,9 +9,9 @@ import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.RepartitionStockProduit;
+import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -53,12 +53,11 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     private final StorageService storageService;
 
     public InventoryTransactionServiceIml(
-        InventoryTransactionRepository inventoryTransactionRepository,
-        InventoryTransactionSpec inventoryTransactionSpec,
-        MvtProduitIdGeneratorService mvtProduitIdGeneratorService,
-        ObjectMapper objectMapper,
-        StorageService storageService
-    ) {
+            InventoryTransactionRepository inventoryTransactionRepository,
+            InventoryTransactionSpec inventoryTransactionSpec,
+            MvtProduitIdGeneratorService mvtProduitIdGeneratorService,
+            ObjectMapper objectMapper,
+            StorageService storageService) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.inventoryTransactionSpec = inventoryTransactionSpec;
         this.mvtProduitIdGeneratorService = mvtProduitIdGeneratorService;
@@ -69,11 +68,11 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
     @Override
     public void save(Object entity) {
-        InventoryTransaction tx = new InventoryTransactionBuilder(entity).build()
-            .setId(mvtProduitIdGeneratorService.nextId());
+        InventoryTransaction tx =
+                new InventoryTransactionBuilder(entity).build().setId(mvtProduitIdGeneratorService.nextId());
         if (tx.getStorage() == null && tx.getMagasin() != null) {
-            tx.setStorage(storageService.getStorageByMagasinIdAndType(
-                tx.getMagasin().getId(), StorageType.PRINCIPAL));
+            tx.setStorage(
+                    storageService.getStorageByMagasinIdAndType(tx.getMagasin().getId(), StorageType.PRINCIPAL));
         }
         inventoryTransactionRepository.save(tx);
     }
@@ -91,25 +90,24 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
     @Transactional(readOnly = true)
     public Page<InventoryTransactionDTO> getAllInventoryTransactions(
-        Pageable pageable,
-        Integer produitId,
-        String startDate,
-        String endDate,
-        Integer type
-    ) {
-        this.inventoryTransactionSpec.setInventoryTransactionFilter(
-                new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
-            );
+            Pageable pageable, Integer produitId, String startDate, String endDate, Integer type) {
+        this.inventoryTransactionSpec.setInventoryTransactionFilter(new InventoryTransactionFilterDTO()
+                .setEndDate(endDate)
+                .setProduitId(produitId)
+                .setStartDate(startDate)
+                .setType(type));
 
-        return inventoryTransactionRepository.findAll(this.inventoryTransactionSpec, pageable).map(InventoryTransactionDTO::new);
+        return inventoryTransactionRepository
+                .findAll(this.inventoryTransactionSpec, pageable)
+                .map(InventoryTransactionDTO::new);
     }
 
     @Override
     public LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Integer produitId) {
         return inventoryTransactionRepository
-            .fetchLastDateByTypeAndProduitId(type, produitId)
-            .map(LastDateProjection::getUpdatedAt)
-            .orElse(null);
+                .fetchLastDateByTypeAndProduitId(type, produitId)
+                .map(LastDateProjection::getUpdatedAt)
+                .orElse(null);
     }
 
     @Override
@@ -119,47 +117,49 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         List<ProduitAuditingState> results = fetchMouvementProduit(
-            produitAuditingParam.produitId(), magasinId, startDate, endDate, produitAuditingParam.storageId()
-        );
+                produitAuditingParam.produitId(), magasinId, startDate, endDate, produitAuditingParam.storageId());
         // Filtre côté Java sur les types demandés (la procédure native retourne toujours tout)
         if (!CollectionUtils.isEmpty(produitAuditingParam.mouvementTypes())) {
             return results.stream()
-                .filter(state -> produitAuditingParam.mouvementTypes().stream()
-                    .anyMatch(type -> hasMovementForType(state, type)))
-                .collect(java.util.stream.Collectors.toList());
+                    .filter(state -> produitAuditingParam.mouvementTypes().stream()
+                            .anyMatch(type -> hasMovementForType(state, type)))
+                    .collect(java.util.stream.Collectors.toList());
         }
         return results;
     }
 
     /** Vérifie qu'un état contient au moins un mouvement non nul pour le type donné */
-    private boolean hasMovementForType(ProduitAuditingState state, com.kobe.warehouse.domain.enumeration.MouvementProduit type) {
+    private boolean hasMovementForType(
+            ProduitAuditingState state, com.kobe.warehouse.domain.enumeration.MouvementProduit type) {
         return switch (type) {
-            case SALE            -> state.getSaleQuantity() != 0;
-            case ENTREE_STOCK    -> state.getDeleveryQuantity() != 0;
+            case SALE -> state.getSaleQuantity() != 0;
+            case ENTREE_STOCK -> state.getDeleveryQuantity() != 0;
             case RETOUR_FOURNISSEUR -> state.getRetourFournisseurQuantity() != 0;
-            case RETRAIT_PERIME  -> state.getPerimeQuantity() != 0;
-            case AJUSTEMENT_IN   -> state.getAjustementPositifQuantity() != 0;
-            case AJUSTEMENT_OUT  -> state.getAjustementNegatifQuantity() != 0;
-            case DECONDTION_IN   -> state.getDeconPositifQuantity() != 0;
-            case DECONDTION_OUT  -> state.getDeconNegatifQuantity() != 0;
-            case CANCEL_SALE     -> state.getCanceledQuantity() != 0;
-            case RETOUR_DEPOT    -> state.getRetourDepot() != 0;
-            case MOUVEMENT_STOCK_IN  -> state.getMouvementStockIn() != 0;
+            case RETRAIT_PERIME -> state.getPerimeQuantity() != 0;
+            case AJUSTEMENT_IN -> state.getAjustementPositifQuantity() != 0;
+            case AJUSTEMENT_OUT -> state.getAjustementNegatifQuantity() != 0;
+            case DECONDTION_IN -> state.getDeconPositifQuantity() != 0;
+            case DECONDTION_OUT -> state.getDeconNegatifQuantity() != 0;
+            case CANCEL_SALE -> state.getCanceledQuantity() != 0;
+            case RETOUR_DEPOT -> state.getRetourDepot() != 0;
+            case MOUVEMENT_STOCK_IN -> state.getMouvementStockIn() != 0;
             case MOUVEMENT_STOCK_OUT -> state.getMouvementStockOut() != 0;
-            case INVENTAIRE      -> state.getStoreInventoryQuantity() != 0;
-            default              -> false;
+            case INVENTAIRE -> state.getStoreInventoryQuantity() != 0;
+            default -> false;
         };
     }
 
-    private List<ProduitAuditingState> fetchMouvementProduit(Integer produitId, Integer magasinId, LocalDate startDate, LocalDate endDate, Integer storageId) {
+    private List<ProduitAuditingState> fetchMouvementProduit(
+            Integer produitId, Integer magasinId, LocalDate startDate, LocalDate endDate, Integer storageId) {
         List<ProduitAuditingState> produitAuditingStates = new ArrayList<>();
-        record ProductMouvement(LocalDate mvtDate, int initStock, int afterStock, Map<MouvementProduit, Integer> mouvements) {}
+        record ProductMouvement(
+                LocalDate mvtDate, int initStock, int afterStock, Map<MouvementProduit, Integer> mouvements) {}
 
         try {
             List<ProductMouvement> productMouvements = objectMapper.readValue(
-                inventoryTransactionRepository.fetchMouvementProduit(produitId, magasinId, startDate, endDate, storageId),
-                new TypeReference<>() {}
-            );
+                    inventoryTransactionRepository.fetchMouvementProduit(
+                            produitId, magasinId, startDate, endDate, storageId),
+                    new TypeReference<>() {});
 
             productMouvements.forEach(productMouvement -> {
                 ProduitAuditingState produitAuditingState = new ProduitAuditingState();
@@ -206,15 +206,13 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(
-            inventoryTransactionRepository.combineSpecifications(
-                magasinId,
-                produitAuditingParam.produitId(),
-                startDate,
-                endDate,
-                produitAuditingParam.storageId(),
-                produitAuditingParam.mouvementTypes()
-            )
-        );
+                inventoryTransactionRepository.combineSpecifications(
+                        magasinId,
+                        produitAuditingParam.produitId(),
+                        startDate,
+                        endDate,
+                        produitAuditingParam.storageId(),
+                        produitAuditingParam.mouvementTypes()));
     }
 
     @Override
@@ -229,69 +227,67 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         StockProduit dest = repartition.getStockProduitDestination();
         FournisseurProduit fp = dest.getProduit().getFournisseurProduitPrincipal();
         int prixAchat = fp != null ? fp.getPrixAchat() : 0;
-        int prixUni   = fp != null ? fp.getPrixUni()   : 0;
+        int prixUni = fp != null ? fp.getPrixUni() : 0;
 
         // MOUVEMENT_STOCK_OUT — source perd du stock
         StockProduit src = repartition.getStockProduitSource();
         if (src != null) {
             InventoryTransaction txOut = new InventoryTransaction()
-                .setMouvementType(MouvementProduit.MOUVEMENT_STOCK_OUT)
-                .setQuantity(-repartition.getQtyMvt())
-                .setQuantityBefor(repartition.getSourceInitStock())
-                .setQuantityAfter(repartition.getSourceFinalStock())
-                .setStorage(src.getStorage())
-                .setProduit(src.getProduit())
-                .setMagasin(src.getStorage().getMagasin())
-                .setEntityId(repartition.getId().longValue())
-                .setUser(repartition.getUser())
-                .setCreatedAt(repartition.getCreated())
-                .setCostAmount(prixAchat)
-                .setRegularUnitPrice(prixUni);
+                    .setMouvementType(MouvementProduit.MOUVEMENT_STOCK_OUT)
+                    .setQuantity(-repartition.getQtyMvt())
+                    .setQuantityBefor(repartition.getSourceInitStock())
+                    .setQuantityAfter(repartition.getSourceFinalStock())
+                    .setStorage(src.getStorage())
+                    .setProduit(src.getProduit())
+                    .setMagasin(src.getStorage().getMagasin())
+                    .setEntityId(repartition.getId().longValue())
+                    .setUser(repartition.getUser())
+                    .setCreatedAt(repartition.getCreated())
+                    .setCostAmount(prixAchat)
+                    .setRegularUnitPrice(prixUni);
             txOut.setId(mvtProduitIdGeneratorService.nextId());
             inventoryTransactionRepository.save(txOut);
         }
 
         // MOUVEMENT_STOCK_IN — destination gagne du stock
         InventoryTransaction txIn = new InventoryTransaction()
-            .setMouvementType(MouvementProduit.MOUVEMENT_STOCK_IN)
-            .setQuantity(repartition.getQtyMvt())
-            .setQuantityBefor(repartition.getDestInitStock())
-            .setQuantityAfter(repartition.getDestFinalStock())
-            .setStorage(dest.getStorage())
-            .setProduit(dest.getProduit())
-            .setMagasin(dest.getStorage().getMagasin())
-            .setEntityId(repartition.getId().longValue())
-            .setUser(repartition.getUser())
-            .setCreatedAt(repartition.getCreated())
-            .setCostAmount(prixAchat)
-            .setRegularUnitPrice(prixUni);
+                .setMouvementType(MouvementProduit.MOUVEMENT_STOCK_IN)
+                .setQuantity(repartition.getQtyMvt())
+                .setQuantityBefor(repartition.getDestInitStock())
+                .setQuantityAfter(repartition.getDestFinalStock())
+                .setStorage(dest.getStorage())
+                .setProduit(dest.getProduit())
+                .setMagasin(dest.getStorage().getMagasin())
+                .setEntityId(repartition.getId().longValue())
+                .setUser(repartition.getUser())
+                .setCreatedAt(repartition.getCreated())
+                .setCostAmount(prixAchat)
+                .setRegularUnitPrice(prixUni);
         txIn.setId(mvtProduitIdGeneratorService.nextId());
         inventoryTransactionRepository.save(txIn);
     }
 
     @Override
     public void saveVenteDepotExtensionInventoryTransactions(
-        Magasin depot,
-        List<VenteDepotTransactionRecord> venteDepotTransactionRecords
-    ) {
+            Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords) {
         if (CollectionUtils.isEmpty(venteDepotTransactionRecords)) {
             return;
         }
         venteDepotTransactionRecords.forEach(record -> {
             SalesLine salesLine = record.salesLine();
             InventoryTransaction inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(salesLine.getUpdatedAt())
-                .setProduit(salesLine.getProduit())
-                .setMouvementType(MouvementProduit.ENTREE_STOCK)
-                .setQuantity(salesLine.getQuantityRequested())
-                .setQuantityBefor(record.quantityBefore())
-                .setQuantityAfter(record.quantityAfter())
-                .setCostAmount(salesLine.getCostAmount())
-                .setEntityId(salesLine.getId().getId())
-                .setUser(salesLine.getSales().getUser())
-                .setMagasin(depot)
-                .setStorage(storageService.getStorageByMagasinIdAndType(depot.getId(), StorageType.PRINCIPAL))
-                .setRegularUnitPrice(salesLine.getRegularUnitPrice());
+                    .setCreatedAt(salesLine.getUpdatedAt())
+                    .setProduit(salesLine.getProduit())
+                    .setMouvementType(MouvementProduit.ENTREE_STOCK)
+                    .setQuantity(salesLine.getQuantityRequested())
+                    .setQuantityBefor(record.quantityBefore())
+                    .setQuantityAfter(record.quantityAfter())
+                    .setCostAmount(salesLine.getCostAmount())
+                    .setEntityId(salesLine.getId().getId())
+                    .setUser(salesLine.getSales().getUser())
+                    .setMagasin(depot)
+                    .setStorage(storageService.getStorageByMagasinIdAndType(depot.getId(), StorageType.PRINCIPAL))
+                    .setRegularUnitPrice(salesLine.getRegularUnitPrice());
             inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
             inventoryTransactionRepository.save(inventoryTransaction);
         });
@@ -301,17 +297,17 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     public void saveRetourDepotExtensionInventoryTransaction(Magasin depot, RetourDepotItem retourDepotItem) {
         // Quantité signée : le dépôt est le côté sortant, comme MOUVEMENT_STOCK_OUT.
         InventoryTransaction inventoryTransaction = new InventoryTransaction()
-            .setProduit(retourDepotItem.getProduit())
-            .setMouvementType(MouvementProduit.RETOUR_DEPOT)
-            .setQuantity(-retourDepotItem.getQtyMvt())
-            .setQuantityBefor(retourDepotItem.getInitStock())
-            .setQuantityAfter(retourDepotItem.getAfterStock())
-            .setCostAmount(retourDepotItem.getPrixAchat())
-            .setEntityId(Long.valueOf(retourDepotItem.getId()))
-            .setUser(retourDepotItem.getRetourDepot().getUser())
-            .setMagasin(depot)
-            .setStorage(storageService.getStorageByMagasinIdAndType(depot.getId(), StorageType.PRINCIPAL))
-            .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());
+                .setProduit(retourDepotItem.getProduit())
+                .setMouvementType(MouvementProduit.RETOUR_DEPOT)
+                .setQuantity(-retourDepotItem.getQtyMvt())
+                .setQuantityBefor(retourDepotItem.getInitStock())
+                .setQuantityAfter(retourDepotItem.getAfterStock())
+                .setCostAmount(retourDepotItem.getPrixAchat())
+                .setEntityId(Long.valueOf(retourDepotItem.getId()))
+                .setUser(retourDepotItem.getRetourDepot().getUser())
+                .setMagasin(depot)
+                .setStorage(storageService.getStorageByMagasinIdAndType(depot.getId(), StorageType.PRINCIPAL))
+                .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());
         inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
         inventoryTransactionRepository.save(inventoryTransaction);
     }

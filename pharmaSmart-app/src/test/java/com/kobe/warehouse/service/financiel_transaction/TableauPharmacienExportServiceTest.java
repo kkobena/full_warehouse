@@ -7,11 +7,10 @@ import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -141,14 +140,7 @@ class TableauPharmacienExportServiceTest {
         LocalDate startDate = LocalDate.of(2025, 1, 1);
         for (int i = 0; i < numDays; i++) {
             TableauPharmacienDTO dto = createTableauDTO(
-                startDate.plusDays(i),
-                10000L + (i * 100L),
-                5000L,
-                5000L + (i * 100L),
-                500L,
-                9500L + (i * 100L),
-                5
-            );
+                    startDate.plusDays(i), 10000L + (i * 100L), 5000L, 5000L + (i * 100L), 500L, 9500L + (i * 100L), 5);
             dto.setGroupAchats(createGroupAchats());
             tableauPharmaciens.add(dto);
         }
@@ -158,14 +150,13 @@ class TableauPharmacienExportServiceTest {
     }
 
     private TableauPharmacienDTO createTableauDTO(
-        LocalDate date,
-        long montantNet,
-        long montantComptant,
-        long montantCredit,
-        long montantRemise,
-        long montantBonAchat,
-        int nombreVente
-    ) {
+            LocalDate date,
+            long montantNet,
+            long montantComptant,
+            long montantCredit,
+            long montantRemise,
+            long montantBonAchat,
+            int nombreVente) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMvtDate(date);
         dto.setMontantNet(montantNet);

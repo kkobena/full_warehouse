@@ -49,7 +49,7 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] est inconnu")
         @NullAndEmptySource
-        @ValueSource(strings = { "   ", "abcdef", "12345", "123456789", "1234567890123456" })
+        @ValueSource(strings = {"   ", "abcdef", "12345", "123456789", "1234567890123456"})
         void codesInconnus(String code) {
             assertThat(service.detectBarcodeType(code)).isEqualTo(BarcodeType.UNKNOWN);
         }
@@ -182,7 +182,7 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] est refuse")
         @NullAndEmptySource
-        @ValueSource(strings = { "9638507", "963850745", "9638507a", "96385075" })
+        @ValueSource(strings = {"9638507", "963850745", "9638507a", "96385075"})
         void refuse(String code) {
             assertThat(service.isValidEan8(code)).isFalse();
         }
@@ -200,7 +200,7 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] est refuse")
         @NullAndEmptySource
-        @ValueSource(strings = { "400638133393", "40063813339311", "400638133393a", "4006381333932" })
+        @ValueSource(strings = {"400638133393", "40063813339311", "400638133393a", "4006381333932"})
         void refuse(String code) {
             assertThat(service.isValidEan13(code)).isFalse();
         }
@@ -218,7 +218,7 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] est refuse")
         @NullAndEmptySource
-        @ValueSource(strings = { "340093000000", "34009300000001", "340093000000a", "4006381333931" })
+        @ValueSource(strings = {"340093000000", "34009300000001", "340093000000a", "4006381333931"})
         void refuse(String code) {
             assertThat(service.isValidCip13(code)).isFalse();
         }
@@ -236,7 +236,7 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] est refuse")
         @NullAndEmptySource
-        @ValueSource(strings = { "123456", "12345678", "123456a" })
+        @ValueSource(strings = {"123456", "12345678", "123456a"})
         void refuse(String code) {
             assertThat(service.isValidCip7(code)).isFalse();
         }
@@ -247,14 +247,14 @@ class DataMatrixParserServiceImplTest {
     class IsValidDataMatrix {
 
         @ParameterizedTest(name = "le prefixe AI [{0}] est reconnu")
-        @ValueSource(strings = { "01", "10", "11", "17", "21", "710", "711", "712", "713", "714" })
+        @ValueSource(strings = {"01", "10", "11", "17", "21", "710", "711", "712", "713", "714"})
         void prefixesReconnus(String ai) {
             assertThat(service.isValidDataMatrix(ai + "0000000000")).isTrue();
         }
 
         @ParameterizedTest(name = "[{0}] n est pas un DataMatrix")
         @NullAndEmptySource
-        @ValueSource(strings = { "   ", "9638507400000", "3400930000000" })
+        @ValueSource(strings = {"   ", "9638507400000", "3400930000000"})
         void nonReconnus(String code) {
             assertThat(service.isValidDataMatrix(code)).isFalse();
         }
@@ -284,13 +284,13 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] ne donne aucun resultat")
         @NullAndEmptySource
-        @ValueSource(strings = { "   " })
+        @ValueSource(strings = {"   "})
         void aucunResultat(String code) {
             assertThat(service.parse(code)).isEmpty();
         }
 
         @ParameterizedTest(name = "[{0}] remonte en code brut")
-        @ValueSource(strings = { "abcdef", "12345", "GROS/A-7788" })
+        @ValueSource(strings = {"abcdef", "12345", "GROS/A-7788"})
         @DisplayName("un code hors nomenclature est remonte brut, sans etre interprete")
         void codeBrut(String code) {
             DataMatrixInfo info = service.parse(code).orElseThrow();
@@ -321,7 +321,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("lit code, lot et peremption d une chaine etiquetee")
         void chaineEtiquetee() {
-            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
             assertThat(info.cip13()).isEqualTo(EAN_LIBRE);
@@ -333,7 +334,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("les valeurs deduites ne sont jamais certaines")
         void jamaisCertaine() {
-            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.hasBatchInfo()).isTrue();
             assertThat(info.hasBatchInfoCertaine()).isFalse();
@@ -351,7 +353,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("lit une chaine separee par des barres verticales, au format AAMMJJ")
         void chaineSepareeParBarres() {
-            DataMatrixInfo info = service.parse("LOT ABC123|270131|" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT ABC123|270131|" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
             assertThat(info.batchNumber()).isEqualTo("ABC123");
@@ -391,7 +394,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("une date passee est ignoree : c est une fabrication ou un faux positif")
         void datePasseeIgnoree() {
-            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20100131/EAN:" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT:ABC123/EXP:20100131/EAN:" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.expiryDate()).isNull();
             assertThat(info.batchNumber()).isEqualTo("ABC123");
@@ -400,7 +404,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("entre deux dates futures, la plus proche est retenue")
         void dateLaPlusProche() {
-            DataMatrixInfo info = service.parse("LOT:A1/20300131/20270630/EAN:" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT:A1/20300131/20270630/EAN:" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2027, 6, 30));
         }
@@ -408,7 +413,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("un motif de date impossible ne fait pas echouer la lecture")
         void dateImpossibleIgnoree() {
-            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270230/EAN:" + EAN_LIBRE).orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("LOT:ABC123/EXP:20270230/EAN:" + EAN_LIBRE).orElseThrow();
 
             assertThat(info.expiryDate()).isNull();
             assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
@@ -464,7 +470,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("les espaces autour du code sont ignores")
         void espacesIgnores() {
-            assertThat(service.parse("  " + EAN_13_VALIDE + "  ").orElseThrow().ean13()).isEqualTo(EAN_13_VALIDE);
+            assertThat(service.parse("  " + EAN_13_VALIDE + "  ").orElseThrow().ean13())
+                    .isEqualTo(EAN_13_VALIDE);
         }
 
         @Test
@@ -544,26 +551,30 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("lit la date de fabrication")
         void dateDeFabrication() {
-            assertThat(service.parse("11260115").orElseThrow().manufacturingDate()).isEqualTo(LocalDate.of(2026, 1, 15));
+            assertThat(service.parse("11260115").orElseThrow().manufacturingDate())
+                    .isEqualTo(LocalDate.of(2026, 1, 15));
         }
 
         @Test
         @DisplayName("lit le numero de serie")
         void numeroDeSerie() {
-            assertThat(service.parse("21ABC123XYZ").orElseThrow().serialNumber()).isEqualTo("ABC123XYZ");
+            assertThat(service.parse("21ABC123XYZ").orElseThrow().serialNumber())
+                    .isEqualTo("ABC123XYZ");
         }
 
         @Test
         @DisplayName("lit la quantite scannee")
         void quantiteScannee() {
-            assertThat(service.parse("1012" + GS + "3725").orElseThrow().scannedQty()).isEqualTo(25);
+            assertThat(service.parse("1012" + GS + "3725").orElseThrow().scannedQty())
+                    .isEqualTo(25);
         }
 
         @Test
         @DisplayName("une quantite nulle ou negative est ignoree")
         void quantiteNonPositive() {
             // la quantite par defaut du DTO (1) est conservee
-            assertThat(service.parse("1012" + GS + "370").orElseThrow().scannedQty()).isEqualTo(1);
+            assertThat(service.parse("1012" + GS + "370").orElseThrow().scannedQty())
+                    .isEqualTo(1);
         }
 
         @Test
@@ -576,7 +587,7 @@ class DataMatrixParserServiceImplTest {
         }
 
         @ParameterizedTest(name = "l AI {0} alimente le champ CIP-13")
-        @CsvSource({ "710, DE12345", "711, 3400930000000", "712, ES12345", "713, BR12345", "714, PT12345" })
+        @CsvSource({"710, DE12345", "711, 3400930000000", "712, ES12345", "713, BR12345", "714, PT12345"})
         void codesNationaux(String ai, String valeur) {
             assertThat(service.parse(ai + valeur).orElseThrow().cip13()).isEqualTo(valeur);
         }
@@ -584,7 +595,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("lit une trame complete GTIN + peremption + lot")
         void trameComplete() {
-            DataMatrixInfo info = service.parse("010340093000000017270630" + "10LOT2026A" + GS + "21SN99").orElseThrow();
+            DataMatrixInfo info = service.parse("010340093000000017270630" + "10LOT2026A" + GS + "21SN99")
+                    .orElseThrow();
 
             assertThat(info.gtin()).isEqualTo("03400930000000");
             assertThat(info.ean13()).isEqualTo("3400930000000");
@@ -596,13 +608,15 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("retire l identifiant de symbologie ]d2")
         void symbologieD2() {
-            assertThat(service.parse("]d20103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+            assertThat(service.parse("]d20103400930000000").orElseThrow().gtin())
+                    .isEqualTo("03400930000000");
         }
 
         @Test
         @DisplayName("retire l identifiant de symbologie ]Q3 des QR Code GS1")
         void symbologieQ3() {
-            assertThat(service.parse("]Q30103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+            assertThat(service.parse("]Q30103400930000000").orElseThrow().gtin())
+                    .isEqualTo("03400930000000");
         }
 
         @Test
@@ -614,19 +628,22 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("retire un separateur de groupe en tete, Code 128 GS1 sans identifiant")
         void separateurEnTete() {
-            assertThat(service.parse(GS + "0103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+            assertThat(service.parse(GS + "0103400930000000").orElseThrow().gtin())
+                    .isEqualTo("03400930000000");
         }
 
         @Test
         @DisplayName("accepte l echappement decimal ^029 du separateur")
         void separateurEchappementDecimal() {
-            assertThat(service.parse("10LOT1^02921SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+            assertThat(service.parse("10LOT1^02921SN1").orElseThrow().serialNumber())
+                    .isEqualTo("SN1");
         }
 
         @Test
         @DisplayName("accepte la notation URL-encodee %1D du separateur")
         void separateurUrlEncode() {
-            assertThat(service.parse("10LOT1%1D21SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+            assertThat(service.parse("10LOT1%1D21SN1").orElseThrow().serialNumber())
+                    .isEqualTo("SN1");
         }
 
         @Test
@@ -641,19 +658,22 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("accepte la notation textuelle {GS} du separateur")
         void separateurTextuelAccolades() {
-            assertThat(service.parse("10LOT1{GS}21SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+            assertThat(service.parse("10LOT1{GS}21SN1").orElseThrow().serialNumber())
+                    .isEqualTo("SN1");
         }
 
         @Test
         @DisplayName("ignore les separateurs consecutifs")
         void separateursConsecutifs() {
-            assertThat(service.parse("10LOT1" + GS + GS + "21SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+            assertThat(service.parse("10LOT1" + GS + GS + "21SN1").orElseThrow().serialNumber())
+                    .isEqualTo("SN1");
         }
 
         @Test
         @DisplayName("saute un identifiant inconnu jusqu au separateur suivant")
         void identifiantInconnuSaute() {
-            DataMatrixInfo info = service.parse("10LOT1" + GS + "99INCONNU" + GS + "21SN1").orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("10LOT1" + GS + "99INCONNU" + GS + "21SN1").orElseThrow();
 
             assertThat(info.batchNumber()).isEqualTo("LOT1");
             assertThat(info.serialNumber()).isEqualTo("SN1");
@@ -754,7 +774,8 @@ class DataMatrixParserServiceImplTest {
         @Test
         @DisplayName("lot et peremption y sont certains : ils viennent d un identifiant GS1")
         void lotEtPeremptionCertains() {
-            DataMatrixInfo info = service.parse("240A-7788" + GS + "10LOT9" + GS + "17261231").orElseThrow();
+            DataMatrixInfo info =
+                    service.parse("240A-7788" + GS + "10LOT9" + GS + "17261231").orElseThrow();
 
             assertThat(info.batchNumber()).isEqualTo("LOT9");
             assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2026, 12, 31));

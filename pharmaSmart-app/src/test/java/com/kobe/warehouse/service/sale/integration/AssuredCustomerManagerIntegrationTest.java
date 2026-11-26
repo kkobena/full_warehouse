@@ -34,7 +34,8 @@ class AssuredCustomerManagerIntegrationTest extends AbstractSaleIntegrationTest 
         modifications.setPhone("0709090909");
         modifications.setNumAyantDroit("AD-42");
 
-        services.assuredCustomerManager.updateAssuredCustomer(em.find(AssuredCustomer.class, assure.getId()), modifications);
+        services.assuredCustomerManager.updateAssuredCustomer(
+                em.find(AssuredCustomer.class, assure.getId()), modifications);
         viderLeCache();
 
         AssuredCustomer relu = em.find(AssuredCustomer.class, assure.getId());
@@ -56,10 +57,13 @@ class AssuredCustomerManagerIntegrationTest extends AbstractSaleIntegrationTest 
         modifications.setPhone("pas-un-numero");
 
         AssuredCustomer managed = em.find(AssuredCustomer.class, assure.getId());
-        assertThrows(InvalidPhoneNumberException.class, () -> services.assuredCustomerManager.updateAssuredCustomer(managed, modifications));
+        assertThrows(
+                InvalidPhoneNumberException.class,
+                () -> services.assuredCustomerManager.updateAssuredCustomer(managed, modifications));
 
         em.clear();
-        assertEquals("Adama", em.find(AssuredCustomer.class, assure.getId()).getFirstName(), "rien n'est parti en base");
+        assertEquals(
+                "Adama", em.find(AssuredCustomer.class, assure.getId()).getFirstName(), "rien n'est parti en base");
     }
 
     @Test

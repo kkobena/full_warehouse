@@ -1,17 +1,12 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {NgbActiveModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {RayonApiService} from '../../data-access/services/rayon-api.service';
-import {IRayon} from '../../models/rayon.model';
-import {IProduit} from '../../../../shared/model';
-import {StorageService} from '../../../../entities/storage/storage.service';
-import {MagasinService} from 'app/features/magasin/data-access/services/magasin.service';
-import {
-  ButtonComponent,
-  CardComponent,
-  IconFieldComponent,
-  SelectSearchComponent
-} from '../../../../shared/ui';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { RayonApiService } from '../../data-access/services/rayon-api.service';
+import { IRayon } from '../../models/rayon.model';
+import { IProduit } from '../../../../shared/model';
+import { StorageService } from '../../../../entities/storage/storage.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { ButtonComponent, CardComponent, IconFieldComponent, SelectSearchComponent } from '../../../../shared/ui';
 
 interface StorageOption {
   storageId: number;
@@ -48,9 +43,7 @@ export class RayonAssignFormComponent implements OnInit {
   protected selectedStorage = signal<StorageOption | null>(null);
   /** Stockages disponibles : tous les stockages sauf ceux déjà occupés en mode add-storage. */
   protected readonly availableStorages = computed<StorageOption[]>(() =>
-    this.allStorages().filter(s =>
-      this.mode !== 'add-storage' || !this.occupiedRealStorageIds.includes(s.storageId),
-    ),
+    this.allStorages().filter(s => this.mode !== 'add-storage' || !this.occupiedRealStorageIds.includes(s.storageId)),
   );
   /** Rayons du stockage sélectionné (déjà filtrés par storageId côté API), filtrés par texte. */
   protected readonly filteredRayons = computed<IRayon[]>(() => {
@@ -65,15 +58,10 @@ export class RayonAssignFormComponent implements OnInit {
       if (r.id === this.currentRayonId) {
         return false;
       }
-      return !(search && !(
-        r.code?.toLowerCase().includes(search) ||
-        r.libelle?.toLowerCase().includes(search)
-      ));
+      return !(search && !(r.code?.toLowerCase().includes(search) || r.libelle?.toLowerCase().includes(search)));
     });
   });
-  protected readonly hasNoRayons = computed(
-    () => !this.loading() && !!this.selectedStorage() && this.filteredRayons().length === 0,
-  );
+  protected readonly hasNoRayons = computed(() => !this.loading() && !!this.selectedStorage() && this.filteredRayons().length === 0);
   private readonly modal = inject(NgbActiveModal);
   private readonly rayonApi = inject(RayonApiService);
   private readonly storageService = inject(StorageService);
@@ -82,23 +70,26 @@ export class RayonAssignFormComponent implements OnInit {
   ngOnInit(): void {
     // Charge uniquement les stockages — les rayons sont chargés à la sélection du stockage.
     this.loading.set(true);
-    this.magasinService.findCurrentUserMagasin().then(magasin => {
-      this.storageService.fetchStorages({magasinId: magasin.id}).subscribe({
-        next: res => {
-          this.allStorages.set(
-            (res.body ?? [])
-              .filter(s => s.id != null)
-              .map(s => ({
-                storageId: s.id!,
-                storageLibelle: s.name ?? `Stockage ${s.id}`,
-                storageType: s.storageType ?? s.type ?? '',
-              })),
-          );
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
-    }).catch(() => this.loading.set(false));
+    this.magasinService
+      .findCurrentUserMagasin()
+      .then(magasin => {
+        this.storageService.fetchStorages({ magasinId: magasin.id }).subscribe({
+          next: res => {
+            this.allStorages.set(
+              (res.body ?? [])
+                .filter(s => s.id != null)
+                .map(s => ({
+                  storageId: s.id!,
+                  storageLibelle: s.name ?? `Stockage ${s.id}`,
+                  storageType: s.storageType ?? s.type ?? '',
+                })),
+            );
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
+      })
+      .catch(() => this.loading.set(false));
   }
 
   protected onStorageChange(storage: StorageOption | null): void {
@@ -110,7 +101,7 @@ export class RayonAssignFormComponent implements OnInit {
       return;
     }
     this.loading.set(true);
-    this.rayonApi.query({storageId: storage.storageId, size: 500}).subscribe({
+    this.rayonApi.query({ storageId: storage.storageId, size: 500 }).subscribe({
       next: res => {
         this.allRayons.set(res.body ?? []);
         this.loading.set(false);
@@ -129,13 +120,13 @@ export class RayonAssignFormComponent implements OnInit {
 
   protected onSansEmplacement(): void {
     // currentStorageId est disponible ici (positionné par le parent après open()).
-    this.rayonApi.query({storageId: this.currentStorageId, size: 500}).subscribe({
+    this.rayonApi.query({ storageId: this.currentStorageId, size: 500 }).subscribe({
       next: res => {
         const sansRayon = (res.body ?? []).find(r => r.code === 'SANS');
         if (sansRayon?.id) {
           this.modal.close({
             produitId: this.produit.id!,
-            rayonId: sansRayon.id
+            rayonId: sansRayon.id,
           } satisfies RayonAssignResult);
         }
       },
@@ -147,7 +138,7 @@ export class RayonAssignFormComponent implements OnInit {
     if (!rayon?.id) {
       return;
     }
-    this.modal.close({produitId: this.produit.id!, rayonId: rayon.id} satisfies RayonAssignResult);
+    this.modal.close({ produitId: this.produit.id!, rayonId: rayon.id } satisfies RayonAssignResult);
   }
 
   protected dismiss(): void {

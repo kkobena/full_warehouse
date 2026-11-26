@@ -66,7 +66,7 @@ export class FormMotifAjustementComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: (response: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(response.body),
       error: err => this.onSaveError(err),
     });

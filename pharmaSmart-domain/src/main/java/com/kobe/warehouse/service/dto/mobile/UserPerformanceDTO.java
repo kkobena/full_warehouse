@@ -20,13 +20,12 @@ public class UserPerformanceDTO {
     public UserPerformanceDTO() {}
 
     public UserPerformanceDTO(
-        Long userId,
-        String userName,
-        Long totalCA,
-        Integer salesCount,
-        Long averageBasket,
-        Double variationVsPreviousDay
-    ) {
+            Long userId,
+            String userName,
+            Long totalCA,
+            Integer salesCount,
+            Long averageBasket,
+            Double variationVsPreviousDay) {
         this.userId = userId;
         this.userName = userName;
         this.totalCA = totalCA;
@@ -119,17 +118,16 @@ public class UserPerformanceDTO {
 
     @Override
     public String toString() {
-        return "UserPerformanceDTO{" +
-            "userId=" + userId +
-            ", userName='" + userName + '\'' +
-            ", totalCA=" + totalCA +
-            ", salesCount=" + salesCount +
-            ", averageBasket=" + averageBasket +
-            ", variationVsPreviousDay=" + variationVsPreviousDay +
-            ", rank=" + rank +
-            ", totalSellers=" + totalSellers +
-            ", marginAmount=" + marginAmount +
-            ", marginPercent=" + marginPercent +
-            '}';
+        return "UserPerformanceDTO{" + "userId="
+                + userId + ", userName='"
+                + userName + '\'' + ", totalCA="
+                + totalCA + ", salesCount="
+                + salesCount + ", averageBasket="
+                + averageBasket + ", variationVsPreviousDay="
+                + variationVsPreviousDay + ", rank="
+                + rank + ", totalSellers="
+                + totalSellers + ", marginAmount="
+                + marginAmount + ", marginPercent="
+                + marginPercent + '}';
     }
 }

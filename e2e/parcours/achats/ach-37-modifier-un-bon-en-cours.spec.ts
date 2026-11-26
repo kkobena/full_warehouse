@@ -42,7 +42,6 @@ scenario('ACH-37', async ({ etape, page }) => {
     // s'ouvrira de nouveau pour la suite du comptage.
     await page.getByRole('button', { name: 'Retour à la liste' }).click();
     const liste = page.locator('app-list-bons');
-    await expect(liste.locator('tbody tr').filter({ hasText: reference }).first())
-      .toContainText(/En attente de saisie/i);
+    await expect(liste.locator('tbody tr').filter({ hasText: reference }).first()).toContainText(/En attente de saisie/i);
   });
 });

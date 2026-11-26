@@ -95,7 +95,6 @@
           <td>{{ sale.cassier?.fullName }}</td>
           <td class="text-center">
             <div class="btn-group" role="group">
-
               <app-button
                 (clicked)="editPresale(sale)"
                 [rounded]="true"
@@ -104,7 +103,6 @@
                 icon="pi pi-file-edit"
                 ngbTooltip="Éditer la pré-vente"
                 severity="primary"
-
               />
 
               <!-- Transformer en vente -->
@@ -146,8 +144,7 @@
                   </div>
                   <div class="activity-card-header-content">
                     <h3 class="activity-card-title">Liste des produits</h3>
-                    <span class="activity-card-subtitle">{{ elRow.salesLines?.length }}
-                      article(s)</span>
+                    <span class="activity-card-subtitle">{{ elRow.salesLines?.length }} article(s)</span>
                   </div>
                 </div>
                 <div class="activity-card-table-body">
@@ -158,7 +155,7 @@
                     [showCurrentPageReport]="true"
                     [stripedRows]="true"
                     [value]="elRow.salesLines"
-                    class=" rowexpansion-table"
+                    class="rowexpansion-table"
                     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                     dataKey="id"
                   >
@@ -176,9 +173,9 @@
                     <ng-template #body let-rowIndex="rowIndex" let-saleLine>
                       <tr
                         [class]="{
-                            'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
-                            'pharma-row-hover': true,
-                          }"
+                          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+                          'pharma-row-hover': true,
+                        }"
                       >
                         <td style="text-align: left">
                           <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
@@ -189,15 +186,9 @@
                         <td>
                           <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                         </td>
-                        <td
-                          class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number: '1.0-0' }}
-                        </td>
-                        <td
-                          class="text-right pharma-qty-value">{{ saleLine.quantitySold | number: '1.0-0' }}
-                        </td>
-                        <td
-                          class="text-right pharma-price">{{ saleLine.regularUnitPrice | number: '1.0-0' }}
-                        </td>
+                        <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number: '1.0-0' }}</td>
+                        <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number: '1.0-0' }}</td>
+                        <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number: '1.0-0' }}</td>
                         <td class="pharma-total" style="text-align: right; font-weight: bold">
                           {{ saleLine.salesAmount | number: '1.0-0' }}
                         </td>
@@ -214,11 +205,4 @@
   </app-card>
 </div>
 
-<ngx-spinner
-  [fullScreen]="true"
-  bdColor="rgba(255,255,255,0.5)"
-  color="#009688"
-  name="prevente-spinner"
-  size="medium"
-  type="timer"
-/>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)" color="#009688" name="prevente-spinner" size="medium" type="timer" />

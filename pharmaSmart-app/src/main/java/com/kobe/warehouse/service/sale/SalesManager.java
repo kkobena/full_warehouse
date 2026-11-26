@@ -11,7 +11,8 @@ public interface SalesManager {
     /**
      * Updates the quantity requested for a sales line and updates the sale's totals and customer display.
      */
-    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment) throws StockException, DeconditionnementStockOut, PlafondVenteException;
+    SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales, boolean increment)
+            throws StockException, DeconditionnementStockOut, PlafondVenteException;
 
     /**
      * Updates the quantity sold for a sales line and updates the sale's totals and customer display.
@@ -31,12 +32,14 @@ public interface SalesManager {
     /**
      * Adds or updates a sales line in a sale and updates the sale's totals and customer display.
      */
-    SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales) throws StockException, DeconditionnementStockOut, PlafondVenteException;
+    SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales)
+            throws StockException, DeconditionnementStockOut, PlafondVenteException;
 
     /**
      * Deletes a sales line by its ID and updates the sale's totals and customer display.
      */
     void deleteSaleLineById(SalesLine salesLine) throws PlafondVenteException;
+
     SaleLineDTO incrementItemQuantityRequested(SaleLineDTO saleLineDTO, Sales sales)
-        throws StockException, DeconditionnementStockOut, PlafondVenteException ;
+            throws StockException, DeconditionnementStockOut, PlafondVenteException;
 }

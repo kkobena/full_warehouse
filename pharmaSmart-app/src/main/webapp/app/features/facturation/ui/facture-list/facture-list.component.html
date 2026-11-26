@@ -15,8 +15,6 @@
   dataKey="factureId"
   selectionMode="multiple"
 >
-
-
   <ng-template #header>
     <tr class="pharma-table-head">
       <th class="text-center" style="width: 3rem">
@@ -45,14 +43,24 @@
       <td (click)="$event.stopPropagation()" class="text-center">
         <app-row-checkbox [row]="facture" />
       </td>
-      <td><span class="pharma-code">{{ facture.numFacture }}</span></td>
-      <td><span class="pharma-entity-name">{{ facture.tiersPayantName }}</span></td>
+      <td>
+        <span class="pharma-code">{{ facture.numFacture }}</span>
+      </td>
+      <td>
+        <span class="pharma-entity-name">{{ facture.tiersPayantName }}</span>
+      </td>
       <td class="text-end">{{ facture.itemsCount | number }}</td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montant | number }}</span></td>
-      <td class="text-end"><span
-        class="pharma-price">{{ facture.montantRemiseVente | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montantNet | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.montantRegle | number }}</span>
+      <td class="text-end">
+        <span class="pharma-price">{{ facture.montant | number }}</span>
+      </td>
+      <td class="text-end">
+        <span class="pharma-price">{{ facture.montantRemiseVente | number }}</span>
+      </td>
+      <td class="text-end">
+        <span class="pharma-price">{{ facture.montantNet | number }}</span>
+      </td>
+      <td class="text-end">
+        <span class="pharma-price">{{ facture.montantRegle | number }}</span>
       </td>
       <td class="text-end">
         <span [class.pharma-total]="(facture.montantRestant ?? 0) > 0">
@@ -60,8 +68,7 @@
         </span>
       </td>
       <td>
-        <app-badge [label]="getStatutLabel(facture.statut)"
-                   [severity]="getStatutSeverity(facture.statut)" />
+        <app-badge [label]="getStatutLabel(facture.statut)" [severity]="getStatutSeverity(facture.statut)" />
         @if (facture.enRetard) {
           <app-badge class="ms-1" label="En retard" severity="danger" />
         }
@@ -84,12 +91,7 @@
               @if (item.separatorBefore) {
                 <div class="dropdown-divider"></div>
               }
-              <button
-                (click)="onMenuAction(facture, item.action)"
-                [class.text-danger]="item.danger"
-                ngbDropdownItem
-                type="button"
-              >
+              <button (click)="onMenuAction(facture, item.action)" [class.text-danger]="item.danger" ngbDropdownItem type="button">
                 <i [class]="item.icon + ' ' + item.color" aria-hidden="true"></i> {{ item.label }}
               </button>
             }

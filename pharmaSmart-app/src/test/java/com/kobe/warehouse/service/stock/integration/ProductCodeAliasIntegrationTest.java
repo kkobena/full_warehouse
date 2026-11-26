@@ -61,9 +61,7 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         viderLeCache();
 
         ReceptionScanResultDTO avant = services.stockEntryService.processScanReception(
-            ligne.commandeId().getId(),
-            GTIN_FABRICANT
-        );
+                ligne.commandeId().getId(), GTIN_FABRICANT);
         assertFalse(avant.found(), "le GTIN du fabricant n'est pas dans le catalogue");
         assertNotNull(avant.dataMatrixHint(), "les données lues sur la boîte sont remontées");
         // getProductCode() préfère l'EAN-13 déduit du GTIN à chiffre indicateur zéro : c'est le
@@ -71,17 +69,11 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         assertEquals(EAN_DU_GTIN, avant.dataMatrixHint().scannedCode());
 
         services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         ReceptionScanResultDTO apres = services.stockEntryService.processScanReception(
-            ligne.commandeId().getId(),
-            GTIN_FABRICANT
-        );
+                ligne.commandeId().getId(), GTIN_FABRICANT);
         assertTrue(apres.found(), "le même scan passe désormais sans intervention");
         assertNull(apres.dataMatrixHint(), "plus rien à faire saisir");
         assertEquals(1, apres.scannedQty());
@@ -96,9 +88,7 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         // Un code comme « CIP-12 » n'est ni un EAN ni un CIP-13 : il n'est reconnu par aucune
         // nomenclature et ne remonte que par le code brut.
         ReceptionScanResultDTO resultat = services.stockEntryService.processScanReception(
-            ligne.commandeId().getId(),
-            ligne.codeCip()
-        );
+                ligne.commandeId().getId(), ligne.codeCip());
 
         assertTrue(resultat.found(), "le code du catalogue passe avant les alias");
     }
@@ -109,17 +99,11 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         Ligne ligne = ligneACommander();
         String codeGrossiste = "GROS/A-7788";
         services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            codeGrossiste,
-            CodeAliasType.CUSTOM,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), codeGrossiste, CodeAliasType.CUSTOM, CodeAliasSource.MANUAL);
         viderLeCache();
 
         ReceptionScanResultDTO resultat = services.stockEntryService.processScanReception(
-            ligne.commandeId().getId(),
-            codeGrossiste
-        );
+                ligne.commandeId().getId(), codeGrossiste);
 
         assertTrue(resultat.found(), "un alias CUSTOM doit être atteignable par le scan");
     }
@@ -129,11 +113,7 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
     void sourceDeLaCorrespondance() {
         Ligne ligne = ligneACommander();
         services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         List<ProductResolveResult> parCip = services.productCodeResolverService.resoudreCode(ligne.codeCip());
@@ -153,21 +133,17 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         Ligne ligne = ligneACommander();
 
         ProduitCodeAliasDTO premier = services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         ProduitCodeAliasDTO second = services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         assertEquals(premier.id(), second.id(), "la contrainte d'unicité n'est pas violée, l'existant est renvoyé");
-        assertEquals(1, services.productCodeResolverService.listerAlias(ligne.produitId()).size());
+        assertEquals(
+                1,
+                services.productCodeResolverService
+                        .listerAlias(ligne.produitId())
+                        .size());
     }
 
     @Test
@@ -176,17 +152,9 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
         Ligne premier = ligneACommander();
         Ligne second = ligneACommander();
         services.productCodeResolverService.enregistrerAlias(
-            premier.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                premier.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         services.productCodeResolverService.enregistrerAlias(
-            second.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                second.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         List<ProductResolveResult> resultats = services.productCodeResolverService.resoudreCode(GTIN_FABRICANT);
@@ -199,18 +167,17 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
     void aliasSupprime() {
         Ligne ligne = ligneACommander();
         ProduitCodeAliasDTO alias = services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         services.productCodeResolverService.supprimerAlias(alias.id());
         viderLeCache();
 
-        assertTrue(services.productCodeResolverService.resoudreCode(GTIN_FABRICANT).isEmpty());
-        assertTrue(services.productCodeResolverService.listerAlias(ligne.produitId()).isEmpty());
+        assertTrue(
+                services.productCodeResolverService.resoudreCode(GTIN_FABRICANT).isEmpty());
+        assertTrue(services.productCodeResolverService
+                .listerAlias(ligne.produitId())
+                .isEmpty());
     }
 
     @Test
@@ -218,20 +185,15 @@ class ProductCodeAliasIntegrationTest extends AbstractStockIntegrationTest {
     void rechercheComptoirParAlias() {
         Ligne ligne = ligneACommander();
         services.productCodeResolverService.enregistrerAlias(
-            ligne.produitId(),
-            GTIN_FABRICANT,
-            CodeAliasType.GTIN_14,
-            CodeAliasSource.MANUAL
-        );
+                ligne.produitId(), GTIN_FABRICANT, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
         viderLeCache();
 
         // search_produits_json est une fonction PL/pgSQL (V2.1.46) : seule la base peut la juger.
-        String json = em
-            .createNativeQuery("SELECT search_produits_json(:code, :magasin, 10)::text", String.class)
-            .setParameter("code", GTIN_FABRICANT)
-            .setParameter("magasin", magasin.getId())
-            .getSingleResult()
-            .toString();
+        String json = em.createNativeQuery("SELECT search_produits_json(:code, :magasin, 10)::text", String.class)
+                .setParameter("code", GTIN_FABRICANT)
+                .setParameter("magasin", magasin.getId())
+                .getSingleResult()
+                .toString();
 
         assertTrue(json.contains("\"id\": " + ligne.produitId()) || json.contains("\"id\":" + ligne.produitId()), json);
     }

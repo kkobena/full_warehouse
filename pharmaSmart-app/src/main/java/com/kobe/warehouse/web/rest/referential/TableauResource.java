@@ -1,5 +1,8 @@
 package com.kobe.warehouse.web.rest.referential;
 
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.TableauDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.referential.TableauService;
@@ -21,9 +24,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Tableau}.
@@ -52,8 +52,9 @@ public class TableauResource {
         }
         TableauDTO result = tableauService.save(tableau);
         return ResponseEntity.created(new URI("/api/tableaux/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     @PutMapping("/tableaux")
@@ -63,8 +64,9 @@ public class TableauResource {
         }
         TableauDTO result = tableauService.save(tableauDTO);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, tableauDTO.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, tableauDTO.getId().toString()))
+                .body(result);
     }
 
     @GetMapping("/tableaux")
@@ -83,19 +85,23 @@ public class TableauResource {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         tableauService.delete(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @PutMapping("/tableaux/associer/{id}")
-    @RequiresNavAccess(value = { "tableaux", "catalogue" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"tableaux", "catalogue"},
+            action = NavAction.EDIT)
     public ResponseEntity<Void> associer(@PathVariable Integer id, @RequestBody List<Integer> produitIds) {
         this.tableauService.associer(id, produitIds);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/tableaux/dissocier")
-    @RequiresNavAccess(value = { "tableaux", "catalogue" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"tableaux", "catalogue"},
+            action = NavAction.EDIT)
     public ResponseEntity<Void> dissocier(@RequestBody List<Integer> produitIds) {
         this.tableauService.dissocier(produitIds);
         return ResponseEntity.ok().build();

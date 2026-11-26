@@ -74,8 +74,7 @@ class AssuredCustomerManagerImplTest {
         dto.setLastName("Konan");
         dto.setPhone("incorrect");
 
-        assertThrows(InvalidPhoneNumberException.class,
-            () -> manager.updateAssuredCustomer(customer, dto));
+        assertThrows(InvalidPhoneNumberException.class, () -> manager.updateAssuredCustomer(customer, dto));
 
         verify(repository, never()).save(customer);
     }
@@ -93,4 +92,3 @@ class AssuredCustomerManagerImplTest {
         assertFalse(manager.isSameCustomer(customer, other));
     }
 }
-

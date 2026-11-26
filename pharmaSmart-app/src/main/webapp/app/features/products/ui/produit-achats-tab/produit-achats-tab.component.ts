@@ -1,17 +1,32 @@
-import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  OnDestroy,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, PillSelectorComponent } from 'app/shared/ui';
+import {
+  AppTableLazyLoadEvent,
+  ButtonComponent,
+  DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  PillSelectorComponent,
+} from 'app/shared/ui';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
-import {
-  HistoriqueProduitAchats,
-  HistoriqueProduitAchatsSummary,
-  ProduitAuditingParam,
-} from 'app/shared/model/produit-record.model';
+import { HistoriqueProduitAchats, HistoriqueProduitAchatsSummary, ProduitAuditingParam } from 'app/shared/model/produit-record.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { createPeriodDateFilter } from '../period-date-filter';
@@ -114,7 +129,7 @@ export class ProduitAchatsTabComponent implements OnDestroy {
     this.statService.getProduitHistoriqueAchat({ ...this.buildParam(0), size: 3000 }).subscribe({
       next: res => {
         this.loadingChart.set(false);
-        afterNextRender(() => this.buildChart(res.body ?? []), {injector: this.injector});
+        afterNextRender(() => this.buildChart(res.body ?? []), { injector: this.injector });
       },
       error: () => this.loadingChart.set(false),
     });

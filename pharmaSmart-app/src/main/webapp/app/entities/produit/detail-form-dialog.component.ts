@@ -8,7 +8,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { ErrorService } from '../../shared/error.service';
 import { NotificationService } from '../../shared/services/notification.service';
-import { CommonModule } from "@angular/common";
+import { CommonModule } from '@angular/common';
 import { ButtonComponent, CardComponent, InputNumberComponent } from '../../shared/ui';
 
 @Component({
@@ -42,7 +42,6 @@ export class DetailFormDialogComponent implements OnInit, AfterViewInit {
     } else {
       this.updateForm(this.produit);
     }
-
   }
 
   ngAfterViewInit(): void {

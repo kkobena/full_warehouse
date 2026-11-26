@@ -27,11 +27,7 @@ export class AvoirApiService {
   }
 
   imputer(id: number, factureId: number, factureDate: string): Observable<HttpResponse<{}>> {
-    return this.http.post(
-      `${this.resourceUrl}/${id}/imputer`,
-      { factureId, factureDate },
-      { observe: 'response' },
-    );
+    return this.http.post(`${this.resourceUrl}/${id}/imputer`, { factureId, factureDate }, { observe: 'response' });
   }
 
   annuler(id: number, motif?: string): Observable<HttpResponse<{}>> {

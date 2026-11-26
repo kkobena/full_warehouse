@@ -21,12 +21,11 @@ import java.time.LocalDateTime;
  *     sort la quantité demandée même sans stock, et ce négatif est la dette d'avoir elle-même.
  */
 public record ProduitDuNonCommandeDTO(
-    Integer produitId,
-    String produitLibelle,
-    String codeEan,
-    long nbClients,
-    long nbDemandes,
-    long quantiteDue,
-    LocalDateTime attenteDepuis,
-    int stockDisponible
-) {}
+        Integer produitId,
+        String produitLibelle,
+        String codeEan,
+        long nbClients,
+        long nbDemandes,
+        long quantiteDue,
+        LocalDateTime attenteDepuis,
+        int stockDisponible) {}

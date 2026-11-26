@@ -40,12 +40,10 @@ public class RetourDepot implements Serializable {
     private List<RetourDepotItem> retourDepotItems = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumns(
-        {
-            @JoinColumn(name = "vente_depot_id", referencedColumnName = "id"),
-            @JoinColumn(name = "vente_depot_date", referencedColumnName = "sale_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "vente_depot_id", referencedColumnName = "id"),
+        @JoinColumn(name = "vente_depot_date", referencedColumnName = "sale_date"),
+    })
     private VenteDepot venteDepot;
 
     @ManyToOne(optional = false)

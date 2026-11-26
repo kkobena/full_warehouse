@@ -8,9 +8,9 @@
         @if (rayon().typeZone) {
           <app-badge [label]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
         }
-        <span class="text-muted" style="font-size:.75rem">{{ rayon().storageType }}</span>
+        <span class="text-muted" style="font-size: 0.75rem">{{ rayon().storageType }}</span>
         @if (rayon().position) {
-          <span class="text-muted" style="font-size:.75rem">· {{ rayon().position }}</span>
+          <span class="text-muted" style="font-size: 0.75rem">· {{ rayon().position }}</span>
         }
       </div>
     </div>
@@ -26,33 +26,19 @@
         (clicked)="onLancerInventaire()"
       />
       @if (rayon().code !== 'SANS') {
-      <app-button
-        icon="pi pi-copy"
-        label="Cloner vers..."
-        size="small"
-        severity="info"
-        [outlined]="true"
-        ngbTooltip="Cloner les produits de ce rayon vers d'autres stockages"
-        placement="bottom"
-        (clicked)="onClonerVers()"
-      />
-      <app-button
-        icon="pi pi-pencil"
-        label="Modifier"
-        size="small"
-        severity="primary"
-        [outlined]="true"
-        (clicked)="onEdit()"
-      />
-
         <app-button
-          icon="pi pi-trash"
-          [text]="true"
+          icon="pi pi-copy"
+          label="Cloner vers..."
           size="small"
-          severity="danger"
-          ngbTooltip="Supprimer"
-          (clicked)="onDelete()"
+          severity="info"
+          [outlined]="true"
+          ngbTooltip="Cloner les produits de ce rayon vers d'autres stockages"
+          placement="bottom"
+          (clicked)="onClonerVers()"
         />
+        <app-button icon="pi pi-pencil" label="Modifier" size="small" severity="primary" [outlined]="true" (clicked)="onEdit()" />
+
+        <app-button icon="pi pi-trash" [text]="true" size="small" severity="danger" ngbTooltip="Supprimer" (clicked)="onDelete()" />
       }
       <app-button
         icon="pi pi-times"
@@ -68,13 +54,7 @@
 
   <!-- Onglets ngbNav -->
   <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
-    <div
-      #nav="ngbNav"
-      [activeId]="activeTab()"
-      (activeIdChange)="onTabChange($event)"
-      class="nav pharma-nav-tabs"
-      ngbNav
-    >
+    <div #nav="ngbNav" [activeId]="activeTab()" (activeIdChange)="onTabChange($event)" class="nav pharma-nav-tabs" ngbNav>
       <ng-container ngbNavItem="produits">
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-box"></i>
@@ -92,8 +72,13 @@
         </a>
         <ng-template ngbNavContent>
           <app-detail-grid>
-            <app-detail-section header="Paramètres du rayon" icon="pi pi-cog" [accent]="'slate'"
-                                [width]="'wide'" storageKey="rayon.detail.parametres">
+            <app-detail-section
+              header="Paramètres du rayon"
+              icon="pi pi-cog"
+              [accent]="'slate'"
+              [width]="'wide'"
+              storageKey="rayon.detail.parametres"
+            >
               <app-detail-field label="Emplacement" [value]="rayon().storageLibelle ?? rayon().storageType" />
               <app-detail-field label="Code" [value]="rayon().code" />
               <app-detail-field label="Type de zone">

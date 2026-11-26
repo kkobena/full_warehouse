@@ -19,8 +19,7 @@ import org.springframework.stereotype.Repository;
  * tenter d'écrire dans cette vue.
  */
 @Repository
-public interface SemoisSuggestionViewRepository extends
-    JpaRepository<SemoisSuggestionView, SemoisSuggestionViewId> {
+public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSuggestionView, SemoisSuggestionViewId> {
 
     /**
      * Recherche paginée de suggestions SEMOIS avec filtres. Lit directement depuis la vue
@@ -48,13 +47,12 @@ public interface SemoisSuggestionViewRepository extends
                (:niveauUrgence = 'OK'     AND (s.vmm = 0 OR s.stockActuel >= s.stockObjectif)))
         """)
     Page<SemoisSuggestionView> findAllWithFilters(
-        @Param("magasinId") Integer magasinId,
-        @Param("search") String search,
-        @Param("classeCriticite") ClasseCriticite classeCriticite,
-        @Param("fournisseurId") Integer fournisseurId,
-        @Param("niveauUrgence") String niveauUrgence,
-        Pageable pageable
-    );
+            @Param("magasinId") Integer magasinId,
+            @Param("search") String search,
+            @Param("classeCriticite") ClasseCriticite classeCriticite,
+            @Param("fournisseurId") Integer fournisseurId,
+            @Param("niveauUrgence") String niveauUrgence,
+            Pageable pageable);
 
     /**
      * Tous les produits en rupture (stockActuel < margeSecurite, vmm > 0) sans pagination.
@@ -88,7 +86,6 @@ public interface SemoisSuggestionViewRepository extends
         ORDER BY fournisseur_libelle
         """, nativeQuery = true)
     List<Object[]> findDistinctFournisseurs(@Param("magasinId") Integer magasinId);
-
 
     /**
      * Retourne les statistiques globales du dashboard réappro en une seule requête. Résultat : List
@@ -163,6 +160,5 @@ public interface SemoisSuggestionViewRepository extends
         ORDER BY taux_couverture_mois ASC, quantite_a_commander DESC
         LIMIT :limit
         """, nativeQuery = true)
-    List<Object[]> findTopUrgentProducts(@Param("magasinId") Integer magasinId,
-        @Param("limit") int limit);
+    List<Object[]> findTopUrgentProducts(@Param("magasinId") Integer magasinId, @Param("limit") int limit);
 }

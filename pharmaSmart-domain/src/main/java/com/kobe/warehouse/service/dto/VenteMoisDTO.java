@@ -9,9 +9,4 @@ package com.kobe.warehouse.service.dto;
  * @param montantCa      Chiffre d'affaires du mois en centimes
  * @param nombreVentes   Nombre de transactions de vente distinctes
  */
-public record VenteMoisDTO(
-    String anneeMois,
-    Integer quantiteVendue,
-    Integer montantCa,
-    Integer nombreVentes
-) {}
+public record VenteMoisDTO(String anneeMois, Integer quantiteVendue, Integer montantCa, Integer nombreVentes) {}

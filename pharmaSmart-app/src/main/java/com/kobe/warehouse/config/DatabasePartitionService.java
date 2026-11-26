@@ -26,8 +26,7 @@ public class DatabasePartitionService {
         LocalDate to = year.plusYears(1L).atDay(1);
 
         // Vérifie si la partition existe
-        String existsSql =
-            """
+        String existsSql = """
             SELECT EXISTS (
                 SELECT 1
                 FROM pg_inherits i
@@ -39,20 +38,16 @@ public class DatabasePartitionService {
             """;
 
         boolean partitioExist = jdbcClient
-            .sql(existsSql)
-            .param("parentTable", parentTable)
-            .param("partitionName", partitionName)
-            .query(Boolean.class)
-            .single();
+                .sql(existsSql)
+                .param("parentTable", parentTable)
+                .param("partitionName", partitionName)
+                .query(Boolean.class)
+                .single();
 
         if (!partitioExist) {
             String ddl = String.format(
-                "CREATE TABLE %s PARTITION OF %s FOR VALUES FROM ('%s') TO ('%s');",
-                partitionName,
-                parentTable,
-                from,
-                to
-            );
+                    "CREATE TABLE %s PARTITION OF %s FOR VALUES FROM ('%s') TO ('%s');",
+                    partitionName, parentTable, from, to);
             jdbcClient.sql(ddl).update();
 
             LOG.info(String.format("Partition créée : %s [%s -> %s)%n", partitionName, from, to));

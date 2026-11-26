@@ -11,7 +11,13 @@
   letter-spacing: 0.03em;
   color: #fff;
 
-  &.alert-rupture    { background-color: #d32f2f; }
-  &.alert-alerte     { background-color: #e65100; }
-  &.alert-peremption { background-color: #1565c0; }
+  &.alert-rupture {
+    background-color: #d32f2f;
+  }
+  &.alert-alerte {
+    background-color: #e65100;
+  }
+  &.alert-peremption {
+    background-color: #1565c0;
+  }
 }

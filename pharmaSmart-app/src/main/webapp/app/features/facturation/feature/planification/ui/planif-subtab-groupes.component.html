@@ -8,7 +8,7 @@
     bindValue="value"
     [placeholder]="'Périodicité ' + (mode() === 'def' ? 'déf.' : 'prov.')"
     (selectionChange)="loadGroupes()"
-    [style]="{ 'width': '180px' }"
+    [style]="{ width: '180px' }"
   />
   <app-button (clicked)="loadGroupes()" icon="pi pi-refresh" [text]="true" size="small" ngbTooltip="Actualiser" />
 </div>
@@ -16,22 +16,8 @@
 @if (selectedGroupes.length > 0) {
   <div class="bulk-action-bar">
     <span class="bulk-count">{{ selectedGroupes.length }} groupe(s)</span>
-    <app-button
-      (clicked)="onMassInclude()"
-      icon="pi pi-check"
-      label="Inclure"
-      severity="success"
-      size="small"
-      [outlined]="true"
-    />
-    <app-button
-      (clicked)="onMassExclude()"
-      icon="pi pi-ban"
-      label="Exclure"
-      severity="warn"
-      size="small"
-      [outlined]="true"
-    />
+    <app-button (clicked)="onMassInclude()" icon="pi pi-check" label="Inclure" severity="success" size="small" [outlined]="true" />
+    <app-button (clicked)="onMassExclude()" icon="pi pi-ban" label="Exclure" severity="warn" size="small" [outlined]="true" />
     <div class="d-flex align-items-center gap-1">
       <app-select
         [(ngModel)]="massPeriodicite"
@@ -61,7 +47,8 @@
   [scrollable]="true"
   scrollHeight="calc(100vh - 480px)"
   selectionMode="multiple"
-  [size]="'small'" class="mt-5"
+  [size]="'small'"
+  class="mt-5"
   dataKey="id"
 >
   <ng-template #header>
@@ -84,13 +71,9 @@
       <td class="fw-medium small">{{ g.name }}</td>
       <td>
         @if (mode() === 'def' && g.periodiciteFactureDefinitive) {
-          <span class="pharma-badge pharma-badge-info">{{
-            state.getPeriodiciteLabel(g.periodiciteFactureDefinitive)
-          }}</span>
+          <span class="pharma-badge pharma-badge-info">{{ state.getPeriodiciteLabel(g.periodiciteFactureDefinitive) }}</span>
         } @else if (mode() === 'prov' && g.periodiciteFactureProvisoire) {
-          <span class="pharma-badge pharma-badge-warning">{{
-            state.getPeriodiciteLabel(g.periodiciteFactureProvisoire)
-          }}</span>
+          <span class="pharma-badge pharma-badge-warning">{{ state.getPeriodiciteLabel(g.periodiciteFactureProvisoire) }}</span>
         } @else {
           <span class="text-muted small">—</span>
         }
@@ -102,7 +85,7 @@
           <app-switch [ngModel]="g.inclureFacturationAutoProvisoire" (ngModelChange)="onToggleInclure(g)" />
         }
       </td>
-      <td class="small text-muted">{{ g.delaiReglement  }} j</td>
+      <td class="small text-muted">{{ g.delaiReglement }} j</td>
     </tr>
   </ng-template>
   <ng-template #emptymessage>
@@ -111,4 +94,3 @@
     </tr>
   </ng-template>
 </app-data-table>
-

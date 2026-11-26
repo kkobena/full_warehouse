@@ -1,11 +1,6 @@
 @if (favoris().length > 0) {
   <section [class.favoris--replie]="!ouvert()" aria-label="Produits favoris du comptoir" class="favoris">
-    <button
-      (click)="basculer()"
-      [attr.aria-expanded]="ouvert()"
-      aria-controls="favoris-tuiles"
-      class="favoris-titre"
-      type="button">
+    <button (click)="basculer()" [attr.aria-expanded]="ouvert()" aria-controls="favoris-tuiles" class="favoris-titre" type="button">
       <span class="favoris-entete">
         <i aria-hidden="true" class="pi pi-star-fill"></i>
         <span class="favoris-libelle">Favoris</span>
@@ -26,7 +21,8 @@
               [class.tuile--rupture]="enRupture(produit)"
               [disabled]="disabled()"
               class="tuile"
-              type="button">
+              type="button"
+            >
               <span class="tuile-libelle">{{ produit.libelle }}</span>
               <span class="tuile-pied">
                 <span class="tuile-prix">{{ produit.regularUnitPrice | devise }}</span>

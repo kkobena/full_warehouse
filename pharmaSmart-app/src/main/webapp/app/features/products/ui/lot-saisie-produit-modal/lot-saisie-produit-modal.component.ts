@@ -84,8 +84,7 @@ export class LotSaisieProduitModalComponent implements OnInit {
   }
 
   protected get isQuantiteValide(): boolean {
-    const qty = (this.form.get('quantityReceived')?.value ?? 0)
-      + (this.form.get('freeQty')?.value ?? 0);
+    const qty = (this.form.get('quantityReceived')?.value ?? 0) + (this.form.get('freeQty')?.value ?? 0);
     return qty > 0 && qty <= this.stockDisponible;
   }
 
@@ -113,7 +112,7 @@ export class LotSaisieProduitModalComponent implements OnInit {
         this.notif.success('Lot enregistré avec succès', 'Saisie lot');
         this.activeModal.close('saved');
       },
-      error: (err) => {
+      error: err => {
         this.isSaving.set(false);
         const msg = err?.error?.detail ?? err?.error?.title ?? 'Erreur lors de la saisie du lot';
         this.notif.error(msg, 'Erreur');

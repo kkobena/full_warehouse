@@ -30,7 +30,9 @@ export class MagasinEditComponent {
   protected readonly titre = computed(() => {
     const m = this.magasin();
     if (m.id) {
-      return m.typeMagasin === TypeMagasin.UNITE_GESTION ? `Éditer l'unité de gestion ${m.name ?? ''}`.trim() : 'Éditer les informations du magasin';
+      return m.typeMagasin === TypeMagasin.UNITE_GESTION
+        ? `Éditer l'unité de gestion ${m.name ?? ''}`.trim()
+        : 'Éditer les informations du magasin';
     }
     return 'Nouvelle unité de gestion';
   });

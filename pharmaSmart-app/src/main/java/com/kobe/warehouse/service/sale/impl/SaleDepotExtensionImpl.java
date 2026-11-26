@@ -35,11 +35,10 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
-import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -67,35 +66,34 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     private final SalesManager salesManager;
 
     public SaleDepotExtensionImpl(
-        RemiseRepository remiseRepository,
-        ReferenceService referenceService,
-        StorageService storageService,
-        UserRepository userRepository,
-        SaleLineServiceFactory saleLineServiceFactory,
-        SaleAmountCalculator saleAmountCalculator,
-        CashRegisterService cashRegisterService,
-        PosteRepository posteRepository,
-        CustomerDisplayService afficheurPosService,
-        SaleIdGeneratorService idGeneratorService,
-        VenteDepotRepository venteDepotRepository,
-        StockUpdateService stockUpdateService,
-        InventoryTransactionService inventoryTransactionService,
-        ObjectMapper objectMapper,
-        SalesManager salesManager,
-        AppConfigurationService appConfigurationService
+            RemiseRepository remiseRepository,
+            ReferenceService referenceService,
+            StorageService storageService,
+            UserRepository userRepository,
+            SaleLineServiceFactory saleLineServiceFactory,
+            SaleAmountCalculator saleAmountCalculator,
+            CashRegisterService cashRegisterService,
+            PosteRepository posteRepository,
+            CustomerDisplayService afficheurPosService,
+            SaleIdGeneratorService idGeneratorService,
+            VenteDepotRepository venteDepotRepository,
+            StockUpdateService stockUpdateService,
+            InventoryTransactionService inventoryTransactionService,
+            ObjectMapper objectMapper,
+            SalesManager salesManager,
+            AppConfigurationService appConfigurationService) {
 
-    ) {
         super(
-            referenceService,
-            storageService,
-            userRepository,
-            saleAmountCalculator,
-            cashRegisterService,
-            posteRepository,
-            afficheurPosService,
-            idGeneratorService, objectMapper,
-            appConfigurationService
-        );
+                referenceService,
+                storageService,
+                userRepository,
+                saleAmountCalculator,
+                cashRegisterService,
+                posteRepository,
+                afficheurPosService,
+                idGeneratorService,
+                objectMapper,
+                appConfigurationService);
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.VenteDepot);
         this.storageService = storageService;
         this.venteDepotRepository = venteDepotRepository;
@@ -114,12 +112,11 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         this.intSale(dto, venteDepot);
         venteDepot.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA_DEPOT);
         venteDepot.setDepot(magasin);
-        venteDepot.setNatureVente(NatureVente.ASSURANCE); //TODO a supprimer
+        venteDepot.setNatureVente(NatureVente.ASSURANCE); // TODO a supprimer
 
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
-            dto.getSalesLines().getFirst(),
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
+                dto.getSalesLines().getFirst(),
+                storageService.getDefaultConnectedUserMainStorage().getId());
         venteDepot.getSalesLines().add(saleLine);
         upddateAmounts(venteDepot);
 
@@ -133,41 +130,37 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
-        throws StockException, DeconditionnementStockOut {
-        return salesManager.updateItemQuantityRequested(saleLineDTO,
-            findOne(saleLineDTO.getSaleCompositeId()), increment);
+            throws StockException, DeconditionnementStockOut {
+        return salesManager.updateItemQuantityRequested(
+                saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()), increment);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemQuantitySold(saleLineDTO,
-            findOne(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemQuantitySold(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
-        return salesManager.updateItemRegularPrice(saleLineDTO,
-            findOne(saleLineDTO.getSaleCompositeId()));
+        return salesManager.updateItemRegularPrice(saleLineDTO, findOne(saleLineDTO.getSaleCompositeId()));
     }
-
 
     @Override
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto) {
         return salesManager.addOrUpdateSaleLine(dto, findOne(dto.getSaleCompositeId()));
     }
 
-
     private VenteDepot findOne(SaleId id) {
         return this.venteDepotRepository.getReferenceById(id);
     }
 
-
     @Override
     public FinalyseSaleDTO save(DepotExtensionSaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
+            throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
         VenteDepot venteDepot = venteDepotRepository
-            .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
-            .orElseThrow();
+                .findOneWithEagerSalesLines(
+                        dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
+                .orElseThrow();
         if (isNull(venteDepot.getDepot())) {
             throw new GenericError("Le dépôt de la vente n'est pas défini.");
         }
@@ -208,29 +201,27 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         venteDepotRepository.save(copy);
 
         salesLineService.cloneSalesLine(
-            venteDepot.getSalesLines(),
-            copy,
-            user,
-            storageService.getDefaultConnectedUserMainStorage().getId()
-        );
+                venteDepot.getSalesLines(),
+                copy,
+                user,
+                storageService.getDefaultConnectedUserMainStorage().getId());
     }
-
 
     @Override
     public void processDiscount(UpdateSaleInfo keyValue) {
         venteDepotRepository
-            .findById(keyValue.id())
-            .ifPresent(venteDepot -> remiseRepository
-                .findById(keyValue.value())
-                .ifPresent(remise -> {
-                    if (venteDepot.getRemise() != null) {
-                        this.removeRemise(venteDepot);
-                    }
-                    this.applyRemiseProduit(venteDepot, (RemiseProduit) remise);
-                    computeAmountToPaid(venteDepot);
-                    arrondirMontantCaisse(venteDepot);
-                    this.venteDepotRepository.save(venteDepot);
-                }));
+                .findById(keyValue.id())
+                .ifPresent(venteDepot -> remiseRepository
+                        .findById(keyValue.value())
+                        .ifPresent(remise -> {
+                            if (venteDepot.getRemise() != null) {
+                                this.removeRemise(venteDepot);
+                            }
+                            this.applyRemiseProduit(venteDepot, (RemiseProduit) remise);
+                            computeAmountToPaid(venteDepot);
+                            arrondirMontantCaisse(venteDepot);
+                            this.venteDepotRepository.save(venteDepot);
+                        }));
     }
 
     @Override
@@ -241,22 +232,20 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         //  this.displayNet(sales.getNetAmount());
     }
 
-
     @Override
     public void changeDepot(SaleId saleId, Integer depotId) {
         venteDepotRepository
-            .findById(saleId)
-            .ifPresentOrElse(
-                s -> {
-                    Magasin depot = new Magasin();
-                    depot.setId(depotId);
-                    s.setDepot(depot);
-                    venteDepotRepository.save(s);
-                },
-                () -> {
-                    throw new GenericError("Vente introuvable");
-                }
-            );
+                .findById(saleId)
+                .ifPresentOrElse(
+                        s -> {
+                            Magasin depot = new Magasin();
+                            depot.setId(depotId);
+                            s.setDepot(depot);
+                            venteDepotRepository.save(s);
+                        },
+                        () -> {
+                            throw new GenericError("Vente introuvable");
+                        });
     }
 
     private void upddateAmounts(VenteDepot venteDepot) {
@@ -299,14 +288,10 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         List<VenteDepotTransactionRecord> venteDepotTransactionRecords = new ArrayList<>();
         Set<SalesLine> salesLines = venteDepot.getSalesLines();
         for (SalesLine salesLine : salesLines) {
-            StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(
-                salesLine, storage);
+            StockUpdateService.StockUpdateResult result = stockUpdateService.updateStockDepot(salesLine, storage);
             venteDepotTransactionRecords.add(
-                new VenteDepotTransactionRecord(result.quantityBefore(), result.quantityAfter(),
-                    salesLine)
-            );
+                    new VenteDepotTransactionRecord(result.quantityBefore(), result.quantityAfter(), salesLine));
         }
-        inventoryTransactionService.saveVenteDepotExtensionInventoryTransactions(depot,
-            venteDepotTransactionRecords);
+        inventoryTransactionService.saveVenteDepotExtensionInventoryTransactions(depot, venteDepotTransactionRecords);
     }
 }

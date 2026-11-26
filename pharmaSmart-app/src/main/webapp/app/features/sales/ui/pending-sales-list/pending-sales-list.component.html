@@ -19,7 +19,6 @@
         placeholder="Tous les vendeurs"
       />
 
-
       <!-- Search -->
       <div class="search-group flex-grow-1">
         <app-icon-field [overlay]="true" icon="pi pi-search">
@@ -41,7 +40,7 @@
           [text]="true"
           icon="pi pi-refresh"
           ariaLabel="Actualiser"
-              ngbTooltip="Actualiser"
+          ngbTooltip="Actualiser"
           placement="left"
           size="small"
         />
@@ -91,13 +90,7 @@
         </tr>
       </ng-template>
       <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
-
-        <tr
-          (click)="onSelectSale(sale)"
-          (dblclick)="onResumeSale(sale)"
-          [ngClass]="getRowClass(sale)"
-          class="hoverable-row"
-        >
+        <tr (click)="onSelectSale(sale)" (dblclick)="onResumeSale(sale)" [ngClass]="getRowClass(sale)" class="hoverable-row">
           <td>
             <app-button
               [appRowToggler]="sale"
@@ -132,7 +125,7 @@
             <span class="seller-name">{{ sale.seller?.abbrName || '-' }}</span>
           </td>
           <td>
-            <span class="sale-date">{{ sale.createdAt | date : 'dd/MM/yyyy HH:mm' }}</span>
+            <span class="sale-date">{{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
           </td>
           <td class="text-center">
             <div class="action-buttons">
@@ -142,11 +135,10 @@
                 [text]="true"
                 icon="pi pi-play"
                 ariaLabel="Reprendre la vente"
-              ngbTooltip="Reprendre la vente"
+                ngbTooltip="Reprendre la vente"
                 severity="success"
                 size="small"
               />
-
             </div>
           </td>
         </tr>
@@ -193,15 +185,12 @@
                         <span class="qty-value">{{ line.quantityRequested | number }}</span>
                       </td>
                       <td class="text-right">
-                        <span
-                          [ngClass]="{ 'text-warning': line.quantitySold < line.quantityRequested }"
-                          class="qty-value">
+                        <span [ngClass]="{ 'text-warning': line.quantitySold < line.quantityRequested }" class="qty-value">
                           {{ line.quantitySold | number }}
                         </span>
                       </td>
                       <td class="text-right">
-                        <span
-                          class="price-value">{{ line.regularUnitPrice | number : '1.0-0' }}</span>
+                        <span class="price-value">{{ line.regularUnitPrice | number: '1.0-0' }}</span>
                       </td>
                       <td class="text-right">
                         <span class="total-value">{{ line.salesAmount | devise }}</span>

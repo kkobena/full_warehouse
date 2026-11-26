@@ -67,6 +67,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      * Suffixe unique par fixture : codes et libellés sont uniques en base.
      */
     private static final AtomicInteger COMPTEUR = new AtomicInteger();
+
     protected static EntityManager em;
     protected AppUser utilisateur;
     protected Magasin magasin;
@@ -81,7 +82,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
     @BeforeAll
     static void demarrerLaBase() {
         em = SharedEntityManagerCreator.createSharedEntityManager(
-            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+                IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     protected static String unique(String prefixe) {
@@ -90,8 +91,8 @@ abstract class AbstractFinancialTransactionIntegrationTest {
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager()
-            .getTransaction(new DefaultTransactionDefinition());
+        transaction =
+                IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
 
         utilisateur = em.find(AppUser.class, 1);
         magasin = em.find(Magasin.class, MAGASIN_ID);
@@ -120,20 +121,21 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      */
     protected LocalDate aujourdHui() {
         Object date = em.createNativeQuery("SELECT CURRENT_DATE").getSingleResult();
-        return date instanceof java.sql.Date jour ? jour.toLocalDate()
-            : LocalDate.parse(date.toString());
+        return date instanceof java.sql.Date jour ? jour.toLocalDate() : LocalDate.parse(date.toString());
     }
 
     // ===== référentiel =====
 
     protected Tva tva(int taux) {
         return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
-            .setParameter("taux", taux).getSingleResult();
+                .setParameter("taux", taux)
+                .getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
         return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
-            .setMaxResults(1).getSingleResult();
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     protected PaymentMode modePaiement(String code) {
@@ -211,8 +213,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         vente.setTypePrescription(TypePrescription.PRESCRIPTION);
         vente.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA);
         vente.setCanceled(false);
-        vente.setCreatedAt(
-            date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
+        vente.setCreatedAt(date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
         vente.setUpdatedAt(LocalDateTime.now());
         vente.setEffectiveUpdateDate(LocalDateTime.now());
         vente.setSalesAmount(montantTtc);
@@ -267,8 +268,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
     /**
      * Un encaissement rattaché à la vente et à la caisse.
      */
-    protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode,
-        int montant) {
+    protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode, int montant) {
         return reglement(vente, caisse, codeMode, montant, vente.getSaleDate());
     }
 
@@ -278,12 +278,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      * {@code payment_transaction} (table partitionnée) : elle se pose à la création, jamais après.
      */
     protected SalePayment reglement(
-        Sales vente,
-        CashRegister caisse,
-        String codeMode,
-        int montant,
-        java.time.LocalDate dateEncaissement
-    ) {
+            Sales vente, CashRegister caisse, String codeMode, int montant, java.time.LocalDate dateEncaissement) {
         SalePayment paiement = new SalePayment();
         // payment_transaction est partitionnée par date : son identifiant est composite et explicite.
         paiement.setId(transactionIdGeneratorService.nextId());
@@ -312,8 +307,8 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      * vente à zéro. C'est ce que reproduit ce décor, faute de quoi le cas le plus fréquent de la
      * base réelle — 70 ventes sur le jeu de démonstration — reste hors de portée des tests.
      */
-    protected DifferePaymentItem reglementDiffere(Sales vente, CashRegister caisse, int montant,
-        LocalDate dateEncaissement) {
+    protected DifferePaymentItem reglementDiffere(
+            Sales vente, CashRegister caisse, int montant, LocalDate dateEncaissement) {
         DifferePayment paiement = new DifferePayment();
         paiement.setId(transactionIdGeneratorService.nextId());
         paiement.setTransactionDate(dateEncaissement);
@@ -349,8 +344,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      *
      * @param remise remise accordée sur la ligne et reportée sur l'en-tête
      */
-    protected CashSale venteEncaissee(LocalDate date, Produit produit, int quantite, int remise,
-        String codeMode) {
+    protected CashSale venteEncaissee(LocalDate date, Produit produit, int quantite, int remise, String codeMode) {
         int montantTtc = quantite * produit.getRegularUnitPrice();
         CashSale vente = venteFermee(date, montantTtc, remise);
         ligneDeVente(vente, produit, quantite, remise);

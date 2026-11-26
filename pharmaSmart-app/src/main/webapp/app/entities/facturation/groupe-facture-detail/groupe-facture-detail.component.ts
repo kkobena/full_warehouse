@@ -1,21 +1,15 @@
-import { ChangeDetectionStrategy,Component, inject, input, OnInit, signal} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 
-import {Facture} from '../facture.model';
-import {CommonModule} from '@angular/common';
-import {HttpResponse} from '@angular/common/http';
-import {FactureService} from '../facture.service';
-import {FormsModule} from '@angular/forms';
-import {CardComponent, DataTableComponent, IconFieldComponent} from '../../../shared/ui';
+import { Facture } from '../facture.model';
+import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
+import { FactureService } from '../facture.service';
+import { FormsModule } from '@angular/forms';
+import { CardComponent, DataTableComponent, IconFieldComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'app-groupe-facture-detail',
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardComponent,
-    DataTableComponent,
-    IconFieldComponent
-  ],
+  imports: [CommonModule, FormsModule, CardComponent, DataTableComponent, IconFieldComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './groupe-facture-detail.component.html',
   styleUrls: ['./groupe-facture-detail.component.scss'],

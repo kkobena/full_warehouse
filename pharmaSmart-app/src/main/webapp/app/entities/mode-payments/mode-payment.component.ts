@@ -3,13 +3,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { ModePaymentService } from './mode-payment.service';
-import {
-  AppTableLazyLoadEvent,
-  ButtonComponent,
-  DataTableComponent,
-  IconFieldComponent,
-  SelectableRowDirective,
-} from '../../shared/ui';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, IconFieldComponent, SelectableRowDirective } from '../../shared/ui';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ModePaymentUpdateComponent } from './mode-payment-update.component';

@@ -15,11 +15,7 @@ import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { AppPillOption, PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ITEMS_PER_PAGE, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
-import {
-  DeclarationCaApiService,
-  ExclusionItem,
-  ReferentielExclusion,
-} from '../../data-access/services/declaration-ca-api.service';
+import { DeclarationCaApiService, ExclusionItem, ReferentielExclusion } from '../../data-access/services/declaration-ca-api.service';
 
 type Filtre = 'tous' | 'exclus' | 'non-exclus';
 

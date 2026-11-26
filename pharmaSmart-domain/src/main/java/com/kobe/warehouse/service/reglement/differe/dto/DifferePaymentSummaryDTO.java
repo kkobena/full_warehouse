@@ -9,6 +9,7 @@ public record DifferePaymentSummaryDTO(Long paidAmount, Long solde) {
         }
         return NumberUtil.formatToString(paidAmount);
     }
+
     public String formattedSolde() {
         if (solde == null) {
             return null;

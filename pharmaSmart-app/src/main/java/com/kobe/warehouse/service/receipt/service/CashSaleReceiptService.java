@@ -39,7 +39,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     protected int getAvoirCount() {
         return cashSale.getSalesLines().stream()
-            .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold()).sum();
+                .mapToInt(line -> line.getQuantityRequested() - line.getQuantitySold())
+                .sum();
     }
 
     @Override
@@ -74,8 +75,7 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         }
         if (cashSale.getCustomer() != null) {
             UninsuredCustomerDTO customer = (UninsuredCustomerDTO) cashSale.getCustomer();
-            headerItems.add(
-                new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
+            headerItems.add(new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
             if (StringUtils.hasLength(customer.getPhone())) {
                 headerItems.add(new HeaderFooterItem("Tél: " + customer.getPhone(), 1, PLAIN_FONT));
             }
@@ -99,13 +99,11 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return headerItems;*/
     }
 
-    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit)
-        throws IOException {
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit) throws IOException {
         return generateEscPosReceiptForTauri(sale, isEdit, null);
     }
 
-    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit, String titre)
-        throws IOException {
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit, String titre) throws IOException {
         this.cashSale = sale;
         this.titre = titre;
         return generateEscPosReceipt(isEdit);

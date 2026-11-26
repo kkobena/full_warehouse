@@ -44,7 +44,10 @@ scenario('FAC-30', async ({ etape, page }) => {
     // Le refus nomme ce qui manque, sans quoi on chercherait longtemps. Il arrive par une
     // notification, hors du flux de la page : c'est elle qu'il faut regarder.
     await expect(
-      page.locator('[role="alert"], .toast').filter({ hasText: /téléphone|email/i }).first(),
+      page
+        .locator('[role="alert"], .toast')
+        .filter({ hasText: /téléphone|email/i })
+        .first(),
     ).toBeVisible({ timeout: 15000 });
   });
 });

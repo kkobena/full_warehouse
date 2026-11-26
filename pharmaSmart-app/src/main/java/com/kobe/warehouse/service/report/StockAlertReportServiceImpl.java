@@ -25,11 +25,13 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
     }
 
     @Override
-    @Cacheable(value = "stockAlerts", key = "#alertTypes != null ? #alertTypes.toString() + #pageable.toString() : 'all_' + #pageable.toString()")
+    @Cacheable(
+            value = "stockAlerts",
+            key = "#alertTypes != null ? #alertTypes.toString() + #pageable.toString() : 'all_' + #pageable.toString()")
     public Page<StockAlertDTO> getStockAlerts(List<StockAlertType> alertTypes, Pageable pageable) {
         Page<MvStockAlert> page = (alertTypes != null && !alertTypes.isEmpty())
-            ? mvStockAlertRepository.findAllByAlertTypeIn(EnumSet.copyOf(alertTypes), pageable)
-            : mvStockAlertRepository.findAll(pageable);
+                ? mvStockAlertRepository.findAllByAlertTypeIn(EnumSet.copyOf(alertTypes), pageable)
+                : mvStockAlertRepository.findAll(pageable);
         return page.map(this::toDTO);
     }
 
@@ -49,16 +51,14 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
         return counts;
     }
 
-
     private StockAlertDTO toDTO(MvStockAlert entity) {
         return new StockAlertDTO(
-            entity.getProduitId(),
-            entity.getLibelle(),
-            entity.getCodeCip(),
-            entity.getStockQuantity(),
-            entity.getSeuilMin(),
-            entity.getExpiryDate(),
-            entity.getAlertType()
-        );
+                entity.getProduitId(),
+                entity.getLibelle(),
+                entity.getCodeCip(),
+                entity.getStockQuantity(),
+                entity.getSeuilMin(),
+                entity.getExpiryDate(),
+                entity.getAlertType());
     }
 }

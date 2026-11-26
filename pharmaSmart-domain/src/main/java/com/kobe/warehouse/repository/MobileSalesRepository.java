@@ -103,64 +103,39 @@ public interface MobileSalesRepository {
      * Projection for daily sales summary.
      */
     record DailySalesSummaryProjection(
-        long caTotal,
-        int transactionsCount,
-        int customersCount,
-        long averageBasket,
-        long amountCollected,
-        long amountCredit,
-        long marginAmount,
-        double marginPercent
-    ) {}
+            long caTotal,
+            int transactionsCount,
+            int customersCount,
+            long averageBasket,
+            long amountCollected,
+            long amountCredit,
+            long marginAmount,
+            double marginPercent) {}
 
     /**
      * Projection for sales summary (date range).
      */
-    record SalesSummaryProjection(
-        long caTotal,
-        int transactionsCount,
-        int customersCount,
-        long marginAmount
-    ) {}
+    record SalesSummaryProjection(long caTotal, int transactionsCount, int customersCount, long marginAmount) {}
 
     /**
      * Projection for user sales summary.
      */
     record UserSalesSummaryProjection(
-        long totalCA,
-        int salesCount,
-        long averageBasket,
-        long marginAmount,
-        double marginPercent
-    ) {}
+            long totalCA, int salesCount, long averageBasket, long marginAmount, double marginPercent) {}
 
     /**
      * Projection for top product.
      */
     record TopProductProjection(
-        long productId,
-        String productName,
-        String codeCip,
-        long salesAmount,
-        int quantitySold,
-        int rank
-    ) {}
+            long productId, String productName, String codeCip, long salesAmount, int quantitySold, int rank) {}
 
     /**
      * Projection for daily CA trend.
      */
-    record DailyCATrendProjection(
-        LocalDate date,
-        long caTotal,
-        int transactionsCount
-    ) {}
+    record DailyCATrendProjection(LocalDate date, long caTotal, int transactionsCount) {}
 
     /**
      * Projection for payment method.
      */
-    record PaymentMethodProjection(
-        String code,
-        String libelle,
-        long amount
-    ) {}
+    record PaymentMethodProjection(String code, String libelle, long amount) {}
 }

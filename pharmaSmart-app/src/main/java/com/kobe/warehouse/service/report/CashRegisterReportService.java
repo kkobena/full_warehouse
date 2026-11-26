@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.dto.report.CashMovementDTO;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 

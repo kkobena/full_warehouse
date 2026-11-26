@@ -1,12 +1,13 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import com.kobe.warehouse.service.report.TiersPayantReportService;
+import com.kobe.warehouse.service.report.pdf.TiersPayantPdfReportService;
 import java.time.LocalDate;
 import java.util.List;
-
-import com.kobe.warehouse.service.report.pdf.TiersPayantPdfReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,18 +16,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "rapport-finance.creances", "rapport-finance.situation-creances" })
+@RequiresNavAccess({"rapport-finance.creances", "rapport-finance.situation-creances"})
 public class TiersPayantReportResource {
 
     private final TiersPayantReportService tiersPayantReportService;
-    private final   TiersPayantPdfReportService tiersPayantPdfReportService;
+    private final TiersPayantPdfReportService tiersPayantPdfReportService;
 
-    public TiersPayantReportResource(TiersPayantReportService tiersPayantReportService, TiersPayantPdfReportService tiersPayantPdfReportService) {
+    public TiersPayantReportResource(
+            TiersPayantReportService tiersPayantReportService,
+            TiersPayantPdfReportService tiersPayantPdfReportService) {
         this.tiersPayantReportService = tiersPayantReportService;
         this.tiersPayantPdfReportService = tiersPayantPdfReportService;
     }
@@ -40,10 +41,10 @@ public class TiersPayantReportResource {
      */
     @GetMapping("/tiers-payant/creances")
     public ResponseEntity<List<TiersPayantInvoiceDTO>> getUnpaidInvoices(
-        @RequestParam(required = false) Integer groupeTiersPayantId,
-        @RequestParam(required = false) TiersPayantInvoiceDTO.AgeCategory ageCategory
-    ) {
-        List<TiersPayantInvoiceDTO> invoices = tiersPayantReportService.getUnpaidInvoices(groupeTiersPayantId, ageCategory);
+            @RequestParam(required = false) Integer groupeTiersPayantId,
+            @RequestParam(required = false) TiersPayantInvoiceDTO.AgeCategory ageCategory) {
+        List<TiersPayantInvoiceDTO> invoices =
+                tiersPayantReportService.getUnpaidInvoices(groupeTiersPayantId, ageCategory);
         return ResponseEntity.ok().body(invoices);
     }
 
@@ -68,13 +69,13 @@ public class TiersPayantReportResource {
      */
     @GetMapping("/tiers-payant/payment-history")
     public ResponseEntity<List<TiersPayantInvoiceDTO>> getPaymentHistory(
-        @RequestParam(required = false) Integer groupeTiersPayantId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam(required = false) Integer groupeTiersPayantId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         LocalDate start = startDate != null ? startDate : LocalDate.now().minusDays(30);
         LocalDate end = endDate != null ? endDate : LocalDate.now();
-        List<TiersPayantInvoiceDTO> history = tiersPayantReportService.getPaymentHistory(groupeTiersPayantId, start, end);
+        List<TiersPayantInvoiceDTO> history =
+                tiersPayantReportService.getPaymentHistory(groupeTiersPayantId, start, end);
         return ResponseEntity.ok().body(history);
     }
 
@@ -84,7 +85,9 @@ public class TiersPayantReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/tiers-payant/creances/export", produces = MediaType.APPLICATION_PDF_VALUE)
-    @RequiresNavAccess(value = { "rapport-finance.creances", "rapport-finance.situation-creances" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"rapport-finance.creances", "rapport-finance.situation-creances"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCreancesToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=creances-tiers-payant.pdf");

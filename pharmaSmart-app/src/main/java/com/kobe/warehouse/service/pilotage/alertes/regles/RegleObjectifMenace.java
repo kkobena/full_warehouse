@@ -24,7 +24,8 @@ public class RegleObjectifMenace implements RegleAlerte {
     private final ObjectifsPilotageService objectifsPilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleObjectifMenace(ObjectifsPilotageService objectifsPilotageService, AppConfigurationService appConfigurationService) {
+    public RegleObjectifMenace(
+            ObjectifsPilotageService objectifsPilotageService, AppConfigurationService appConfigurationService) {
         this.objectifsPilotageService = objectifsPilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -38,26 +39,29 @@ public class RegleObjectifMenace implements RegleAlerte {
     public List<AlertePilotageDTO> evaluer(LocalDate aujourdhui) {
         double seuil = appConfigurationService.getAlerteObjectifMenacePilotage();
         List<AlertePilotageDTO> alertes = new ArrayList<>();
-        for (SuiviIndicateurDTO suivi : objectifsPilotageService.suivre(aujourdhui.getYear(), aujourdhui).indicateurs()) {
+        for (SuiviIndicateurDTO suivi : objectifsPilotageService
+                .suivre(aujourdhui.getYear(), aujourdhui)
+                .indicateurs()) {
             ProjectionObjectifDTO projection = suivi.projection();
             if (projection == null || projection.objectif() == null || projection.tenu() == null) {
                 continue;
             }
             boolean plafond = suivi.indicateur().sensFavorable() == SensFavorable.BAISSE;
-            boolean menace = plafond ? !projection.tenu() : projection.atteinteProjetee() != null && projection.atteinteProjetee() < seuil;
+            boolean menace = plafond
+                    ? !projection.tenu()
+                    : projection.atteinteProjetee() != null && projection.atteinteProjetee() < seuil;
             if (menace) {
-                alertes.add(
-                    new AlertePilotageDTO(
+                alertes.add(new AlertePilotageDTO(
                         "OBJECTIF_MENACE_" + suivi.indicateur().code(),
                         GraviteAlerte.HAUTE,
                         "Objectif menacé : " + suivi.indicateur().libelle(),
                         plafond
-                            ? "À date, " + RequetesAlertes.formaterDecimal(projection.projection()) + " % pour un plafond de " +
-                              RequetesAlertes.formaterDecimal(projection.objectif()) + " %."
-                            : "Fin de mois projetée à " + Math.round(projection.atteinteProjetee()) + " % de l'objectif.",
-                        "objectifs"
-                    )
-                );
+                                ? "À date, " + RequetesAlertes.formaterDecimal(projection.projection())
+                                        + " % pour un plafond de "
+                                        + RequetesAlertes.formaterDecimal(projection.objectif()) + " %."
+                                : "Fin de mois projetée à " + Math.round(projection.atteinteProjetee())
+                                        + " % de l'objectif.",
+                        "objectifs"));
             }
         }
         return alertes;

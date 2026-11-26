@@ -1,8 +1,8 @@
-import {TestBed} from '@angular/core/testing';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HasAuthorityService} from '../../../../entities/sales/service/has-authority.service';
-import {Authority} from '../../../../shared/constants/authority.constants';
-import {AuthorizationService} from './authorization.service';
+import { TestBed } from '@angular/core/testing';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { HasAuthorityService } from '../../../../entities/sales/service/has-authority.service';
+import { Authority } from '../../../../shared/constants/authority.constants';
+import { AuthorizationService } from './authorization.service';
 
 /** Privilège de régularisation du stock à la vente — lot 3 de PLAN-VENTE-SUR-STOCK-ERRONE. */
 describe('AuthorizationService.canRegulariserStock', () => {
@@ -13,8 +13,8 @@ describe('AuthorizationService.canRegulariserStock', () => {
     detenus = [];
     TestBed.configureTestingModule({
       providers: [
-        {provide: NgbModal, useValue: {}},
-        {provide: HasAuthorityService, useValue: {hasAuthorities: (a: string) => detenus.includes(a)}},
+        { provide: NgbModal, useValue: {} },
+        { provide: HasAuthorityService, useValue: { hasAuthorities: (a: string) => detenus.includes(a) } },
       ],
     });
     service = TestBed.inject(AuthorizationService);

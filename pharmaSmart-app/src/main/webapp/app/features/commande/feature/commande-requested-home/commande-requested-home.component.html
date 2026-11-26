@@ -4,7 +4,6 @@
 <app-card class="mt-2">
   @if (!editingCommande()) {
     <div class="view-panel">
-
       <!-- HEADER -->
       <div class="view-panel__header view-panel__header--list">
         <input
@@ -34,36 +33,30 @@
           placement="bottom"
           (clicked)="onImportation()"
         />
-        <app-button
-          icon="pi pi-plus"
-          label="Nouvelle commande"
-          severity="primary"
-          size="small"
-          (clicked)="onNouvelleCommande()"
-        />
+        <app-button icon="pi pi-plus" label="Nouvelle commande" severity="primary" size="small" (clicked)="onNouvelleCommande()" />
       </div>
 
       <!-- BANDEAU TOTAUX — au-dessus de la grille, là où le regard tombe en premier -->
       <div class="grid-caption">
         @if (selectionCount() > 0) {
           <span class="grid-caption__count grid-caption__count--attente">
-          <i aria-hidden="true" class="pi pi-check-square"></i>
-          <strong>{{ selectionCount() }}</strong> sélectionnée(s)
-        </span>
+            <i aria-hidden="true" class="pi pi-check-square"></i>
+            <strong>{{ selectionCount() }}</strong> sélectionnée(s)
+          </span>
         }
         <span class="grid-caption__count">
-        <i aria-hidden="true" class="pi pi-shopping-cart"></i>
-        <strong>{{ totalItems() }}</strong>
-        commande{{ totalItems() > 1 ? 's' : '' }}
-      </span>
+          <i aria-hidden="true" class="pi pi-shopping-cart"></i>
+          <strong>{{ totalItems() }}</strong>
+          commande{{ totalItems() > 1 ? 's' : '' }}
+        </span>
         <span class="grid-caption__totals ms-auto">
-        <span class="grid-caption__stat">
-          <span class="grid-caption__stat-label">Total HT</span>
-          <span class="grid-caption__stat-value grid-caption__stat-value--achat">
-            {{ totalAmount() | devise }}
+          <span class="grid-caption__stat">
+            <span class="grid-caption__stat-label">Total HT</span>
+            <span class="grid-caption__stat-value grid-caption__stat-value--achat">
+              {{ totalAmount() | devise }}
+            </span>
           </span>
         </span>
-      </span>
       </div>
 
       <!-- GRILLE COMMANDES -->
@@ -80,16 +73,16 @@
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th style="width:40px">
+              <th style="width: 40px">
                 <app-header-checkbox />
               </th>
-              <th appSortableHeader="updatedAt" style="width:145px">Date</th>
+              <th appSortableHeader="updatedAt" style="width: 145px">Date</th>
               <th>Fournisseur</th>
-              <th style="width:130px">Référence</th>
-              <th appSortableHeader="itemSize" class="text-end" style="width:100px">Lignes</th>
-              <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
-              <th style="width:150px">État</th>
-              <th style="width:60px">Actions</th>
+              <th style="width: 130px">Référence</th>
+              <th appSortableHeader="itemSize" class="text-end" style="width: 100px">Lignes</th>
+              <th appSortableHeader="grossAmount" class="text-end" style="width: 140px">Montant HT</th>
+              <th style="width: 150px">État</th>
+              <th style="width: 60px">Actions</th>
             </tr>
           </ng-template>
 
@@ -98,10 +91,14 @@
               <td (click)="$event.stopPropagation()">
                 <app-row-checkbox [row]="c" />
               </td>
-              <td>{{ c.updatedAt ? (c.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
+              <td>{{ c.updatedAt ? (c.updatedAt | date: 'dd/MM/yy HH:mm') : '—' }}</td>
               <td>{{ c.fournisseur?.libelle ?? '—' }}</td>
-              <td><span class="pharma-code">{{ c.orderReference ?? '—' }}</span></td>
-              <td class="text-end"><span class="pharma-qty-value">{{ c.itemSize }}</span></td>
+              <td>
+                <span class="pharma-code">{{ c.orderReference ?? '—' }}</span>
+              </td>
+              <td class="text-end">
+                <span class="pharma-qty-value">{{ c.itemSize }}</span>
+              </td>
               <td class="text-end">
                 <span class="pharma-total">{{ c.grossAmount != null ? (c.grossAmount | devise) : '—' }}</span>
               </td>
@@ -114,31 +111,34 @@
                   et l'on ouvrait la commande pour découvrir son bandeau de verrouillage.
                 -->
                 @if (c.hasBeenSubmittedToPharmaML) {
-                  <span class="pharma-badge pharma-badge-info"
-                        ngbTooltip="Transmise au grossiste — modifications désactivées">PHARMAML</span>
+                  <span class="pharma-badge pharma-badge-info" ngbTooltip="Transmise au grossiste — modifications désactivées"
+                    >PHARMAML</span
+                  >
                 }
                 <!--
                   Brouillon ou envoyée : le statut REQUESTED couvrait les deux, et rien ne
                   distinguait un bon resté sur le bureau d'une commande qu'on attend.
                 -->
                 @if (!c.envoyee) {
-                  <span class="pharma-badge pharma-badge-secondary"
-                        ngbTooltip="Jamais transmise — hors encours du réassort">BROUILLON</span>
+                  <span class="pharma-badge pharma-badge-secondary" ngbTooltip="Jamais transmise — hors encours du réassort"
+                    >BROUILLON</span
+                  >
                 } @else if (c.joursDeRetard > 0) {
-                  <span class="pharma-badge pharma-badge-danger"
-                        [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date:'dd/MM/yy') + ' — délai annoncé dépassé'"
-                  >RETARD {{ c.joursDeRetard }} J</span>
+                  <span
+                    class="pharma-badge pharma-badge-danger"
+                    [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date: 'dd/MM/yy') + ' — délai annoncé dépassé'"
+                    >RETARD {{ c.joursDeRetard }} J</span
+                  >
                 } @else {
-                  <span class="pharma-badge pharma-badge-success"
-                        [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date:'dd/MM/yy HH:mm') + ' — modifications désactivées.'"
-                  >ENVOYÉE</span>
+                  <span
+                    class="pharma-badge pharma-badge-success"
+                    [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date: 'dd/MM/yy HH:mm') + ' — modifications désactivées.'"
+                    >ENVOYÉE</span
+                  >
                 }
               </td>
               <td class="text-end" (click)="$event.stopPropagation()">
-                <app-commande-requested-actions
-                  [commande]="c"
-                  (menuAction)="onCommandeMenuAction($event, c)"
-                />
+                <app-commande-requested-actions [commande]="c" (menuAction)="onCommandeMenuAction($event, c)" />
               </td>
             </tr>
           </ng-template>
@@ -168,9 +168,8 @@
             ngbTooltip="Page précédente"
           />
           <span class="pagination-info">
-          Page {{ currentPage() + 1 }} / {{ totalPages() }}
-            &nbsp;·&nbsp; {{ totalItems() }} commande(s)
-        </span>
+            Page {{ currentPage() + 1 }} / {{ totalPages() }} &nbsp;·&nbsp; {{ totalItems() }} commande(s)
+          </span>
           <app-button
             icon="pi pi-angle-right"
             severity="secondary"
@@ -181,28 +180,19 @@
           />
         </div>
       }
-
     </div>
-  }
-  @else {
+  } @else {
     <div class="view-panel view-panel--detail">
-
       <!-- HEADER DÉTAIL -->
       <div class="view-panel__header view-panel__header--detail">
-        <app-button
-          icon="pi pi-arrow-left"
-          label="Retour à la liste"
-          [text]="true"
-          size="small"
-          (clicked)="onRetour()"
-        />
+        <app-button icon="pi pi-arrow-left" label="Retour à la liste" [text]="true" size="small" (clicked)="onRetour()" />
         @if (editingCommande()!.commandeId) {
           <span class="view-panel__title">{{ editingCommande()!.fournisseur?.libelle }}</span>
           <span class="view-panel__meta">
-          <i class="pi pi-file"></i>&nbsp;{{ editingCommande()!.orderReference }}
+            <i class="pi pi-file"></i>&nbsp;{{ editingCommande()!.orderReference }}
             &nbsp;·&nbsp;
-            {{ editingCommande()!.updatedAt | date : 'dd/MM/yyyy HH:mm' }}
-        </span>
+            {{ editingCommande()!.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
           @if (editingCommande()!.reliquatDeCommandeId != null) {
             <span class="cc__badge ms-1" data-severity="warn">RELIQUAT</span>
           }
@@ -213,13 +203,8 @@
 
       <!-- COMPOSANT SAISIE COMMANDE (plein écran) -->
       <div class="detail-body">
-        <app-commande-requested
-          [commande]="editingCommande()"
-          (commandeChange)="onCommandeChange($event)"
-        />
+        <app-commande-requested [commande]="editingCommande()" (commandeChange)="onCommandeChange($event)" />
       </div>
-
     </div>
   }
 </app-card>
-

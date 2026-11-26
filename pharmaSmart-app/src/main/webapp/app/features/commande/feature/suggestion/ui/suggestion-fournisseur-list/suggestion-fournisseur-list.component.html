@@ -41,7 +41,7 @@
   >
     <ng-template #header>
       <tr class="pharma-table-head">
-        <th style="width:40px">
+        <th style="width: 40px">
           <app-header-checkbox />
         </th>
         <th appSortableHeader="updatedAt">Date</th>
@@ -49,8 +49,8 @@
         <th appSortableHeader="nbProduits" class="text-end">Produits</th>
         <th appSortableHeader="nbUrgents" class="text-end">Urgents</th>
         <th appSortableHeader="montantEstime" class="text-end">Montant estimé</th>
-        <th style="width:120px">Statut</th>
-        <th style="width:60px">Actions</th>
+        <th style="width: 120px">Statut</th>
+        <th style="width: 60px">Actions</th>
       </tr>
     </ng-template>
 
@@ -59,8 +59,8 @@
         <td (click)="$event.stopPropagation()">
           <app-row-checkbox [row]="f" />
         </td>
-        <td>{{ f.updatedAt ? (f.updatedAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
-        <td >
+        <td>{{ f.updatedAt ? (f.updatedAt | date: 'dd/MM/yy HH:mm') : '—' }}</td>
+        <td>
           @if (f.nbUrgents > 0) {
             <i class="pi pi-bolt sfl-urgent-icon" [title]="f.nbUrgents + ' urgent(s)'"></i>
           }
@@ -75,7 +75,7 @@
           }
         </td>
         <td class="text-end">
-         <span class="pharma-total"> {{ f.montantEstime != null ? (f.montantEstime | devise) : '—' }}</span>
+          <span class="pharma-total"> {{ f.montantEstime != null ? (f.montantEstime | devise) : '—' }}</span>
         </td>
         <td>
           @if (f.statut) {
@@ -85,10 +85,7 @@
           }
         </td>
         <td class="text-end" (click)="$event.stopPropagation()">
-          <app-suggestion-fournisseur-actions
-            [fournisseur]="f"
-            (menuAction)="onSuggestionMenuAction($event, f)"
-          />
+          <app-suggestion-fournisseur-actions [fournisseur]="f" (menuAction)="onSuggestionMenuAction($event, f)" />
         </td>
       </tr>
     </ng-template>

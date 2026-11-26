@@ -12,6 +12,10 @@ public final class FormatTableur {
         if (valeur == null || valeur.isNaN() || valeur.isInfinite()) {
             return "";
         }
-        return BigDecimal.valueOf(valeur).setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString().replace('.', ',');
+        return BigDecimal.valueOf(valeur)
+                .setScale(2, RoundingMode.HALF_UP)
+                .stripTrailingZeros()
+                .toPlainString()
+                .replace('.', ',');
     }
 }

@@ -10,9 +10,8 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
-import java.time.LocalDateTime;
-
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,10 @@ public class StockUpdateService {
     private final LogsService logsService;
     private final SuggestionReassortService suggestionReassortService;
 
-    public StockUpdateService(StockProduitRepository stockProduitRepository, LogsService logsService, SuggestionReassortService suggestionReassortService) {
+    public StockUpdateService(
+            StockProduitRepository stockProduitRepository,
+            LogsService logsService,
+            SuggestionReassortService suggestionReassortService) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
         this.suggestionReassortService = suggestionReassortService;
@@ -42,23 +44,26 @@ public class StockUpdateService {
      * @param stockProduit the stock product to be updated
      * @return StockUpdateResult containing quantity before and after the update
      */
-    public StockUpdateResult updateStock(SalesLine salesLine,StockProduit stockProduit) {
+    public StockUpdateResult updateStock(SalesLine salesLine, StockProduit stockProduit) {
         Produit produit = salesLine.getProduit();
-
 
         int quantityBefore = stockProduit.getTotalStockQuantity();
         int quantityAfter = quantityBefore - salesLine.getQuantityRequested();
 
         // Log force stock if needed
         if (quantityBefore < salesLine.getQuantityRequested()) {
-            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().getId().toString());
+            logsService.create(
+                    TransactionType.FORCE_STOCK,
+                    TransactionType.FORCE_STOCK.getValue(),
+                    salesLine.getId().getId().toString());
         }
 
         // Log price modification if applicable
         logPriceModification(salesLine, produit);
 
         // Update stock quantities
-        stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
+        stockProduit.setQtyStock(
+                stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
@@ -73,16 +78,19 @@ public class StockUpdateService {
      */
     private void logPriceModification(SalesLine salesLine, Produit produit) {
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
-        if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
+        if (fournisseurProduitPrincipal != null
+                && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
             String description = String.format(
-                "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %d",
-                fournisseurProduitPrincipal.getCodeCip(),
-                produit.getLibelle(),
-                salesLine.getSales().getNumberTransaction(),
-                fournisseurProduitPrincipal.getPrixUni(),
-                salesLine.getRegularUnitPrice()
-            );
-            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, description, salesLine.getId().getId().toString());
+                    "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %d",
+                    fournisseurProduitPrincipal.getCodeCip(),
+                    produit.getLibelle(),
+                    salesLine.getSales().getNumberTransaction(),
+                    fournisseurProduitPrincipal.getPrixUni(),
+                    salesLine.getRegularUnitPrice());
+            logsService.create(
+                    TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE,
+                    description,
+                    salesLine.getId().getId().toString());
         }
     }
 
@@ -97,7 +105,8 @@ public class StockUpdateService {
         // canceledLine a des quantités négatives → la soustraction restaure le stock.
         // Symétrie avec updateStock : qtyStock ne contient pas les UG, on restaure chaque
         // compartiment séparément pour éviter de gonfler qtyStock des UG annulées.
-        stockProduit.setQtyStock(stockProduit.getQtyStock() - (canceledLine.getQuantityRequested() - canceledLine.getQuantityUg()));
+        stockProduit.setQtyStock(
+                stockProduit.getQtyStock() - (canceledLine.getQuantityRequested() - canceledLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - canceledLine.getQuantityUg());
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduitRepository.save(stockProduit);
@@ -108,7 +117,8 @@ public class StockUpdateService {
 
     public StockUpdateResult updateStockDepot(SalesLine salesLine, Storage storage) {
         Produit produit = salesLine.getProduit();
-        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
+        StockProduit stockProduit =
+                stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
         int quantityBefore = 0;
         if (isNull(stockProduit)) {
             stockProduit = createStockProduitIfAbsent(produit, storage);
@@ -139,9 +149,7 @@ public class StockUpdateService {
     }
 
     /**
-         * Result of a stock update operation containing quantity information.
-         */
-        public record StockUpdateResult(int quantityBefore, int quantityAfter) {
-
-    }
+     * Result of a stock update operation containing quantity information.
+     */
+    public record StockUpdateResult(int quantityBefore, int quantityAfter) {}
 }

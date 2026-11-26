@@ -26,21 +26,17 @@ import org.springframework.util.CollectionUtils;
 public class GapAnalysisServiceImpl implements GapAnalysisService {
 
     private static final Map<String, String> CAUSE_LABELS = Map.of(
-        "CASSE",            "Casse / dommage",
-        "VOL",              "Vol",
-        "ERREUR_RECEPTION", "Erreur de réception",
-        "ERREUR_SAISIE",    "Erreur de saisie",
-        "PEREMPTION",       "Péremption",
-        "INCONNU",          "Cause inconnue"
-    );
+            "CASSE", "Casse / dommage",
+            "VOL", "Vol",
+            "ERREUR_RECEPTION", "Erreur de réception",
+            "ERREUR_SAISIE", "Erreur de saisie",
+            "PEREMPTION", "Péremption",
+            "INCONNU", "Cause inconnue");
 
     private final InventoryGapAnalysisRepository gapRepo;
     private final StoreInventoryLineRepository lineRepo;
 
-    public GapAnalysisServiceImpl(
-        InventoryGapAnalysisRepository gapRepo,
-        StoreInventoryLineRepository lineRepo
-    ) {
+    public GapAnalysisServiceImpl(InventoryGapAnalysisRepository gapRepo, StoreInventoryLineRepository lineRepo) {
         this.gapRepo = gapRepo;
         this.lineRepo = lineRepo;
     }
@@ -50,10 +46,7 @@ public class GapAnalysisServiceImpl implements GapAnalysisService {
     public Page<GapLineRecord> getLinesWithGap(Long inventoryId, Pageable pageable) {
         // Tri figé côté requête (écart absolu décroissant, id en départage) : un tri client
         // s'ajouterait au ORDER BY et casserait la stabilité de la pagination.
-        return lineRepo.findLinesWithGap(
-            inventoryId,
-            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
-        );
+        return lineRepo.findLinesWithGap(inventoryId, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
     }
 
     @Override
@@ -66,12 +59,14 @@ public class GapAnalysisServiceImpl implements GapAnalysisService {
         // `getReferenceById` dans la boucle déclenchait une requête par ligne à la première
         // lecture du gap, et n'empêchait pas d'écrire sur la ligne d'un autre inventaire.
         Map<Long, StoreInventoryLine> lines = lineRepo
-            .findAllByIdInAndInventoryId(
-                entries.stream().map(GapEntryRecord::lineId).filter(Objects::nonNull).collect(Collectors.toSet()),
-                inventoryId
-            )
-            .stream()
-            .collect(Collectors.toMap(StoreInventoryLine::getId, line -> line));
+                .findAllByIdInAndInventoryId(
+                        entries.stream()
+                                .map(GapEntryRecord::lineId)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toSet()),
+                        inventoryId)
+                .stream()
+                .collect(Collectors.toMap(StoreInventoryLine::getId, line -> line));
 
         if (lines.isEmpty()) {
             return;
@@ -79,10 +74,8 @@ public class GapAnalysisServiceImpl implements GapAnalysisService {
 
         // Qualifications déjà en base pour ces lignes : on met à jour au lieu de recréer,
         // ce qui préserve `created_at` et évite un delete/insert par enregistrement.
-        Map<Long, InventoryGapAnalysis> existing = gapRepo
-            .findAllByStoreInventoryLineIdIn(lines.keySet())
-            .stream()
-            .collect(Collectors.toMap(ga -> ga.getStoreInventoryLine().getId(), ga -> ga, (a, b) -> a));
+        Map<Long, InventoryGapAnalysis> existing = gapRepo.findAllByStoreInventoryLineIdIn(lines.keySet()).stream()
+                .collect(Collectors.toMap(ga -> ga.getStoreInventoryLine().getId(), ga -> ga, (a, b) -> a));
 
         List<InventoryGapAnalysis> toSave = new ArrayList<>();
         List<Long> toClear = new ArrayList<>();
@@ -115,18 +108,13 @@ public class GapAnalysisServiceImpl implements GapAnalysisService {
     @Override
     @Transactional(readOnly = true)
     public List<GapSummaryRecord> getSummary(Long inventoryId) {
-        return gapRepo.aggregateByInventoryId(inventoryId)
-            .stream()
-            .map(row -> {
-                String cause = ((CauseEcart) row[0]).name();
-                return new GapSummaryRecord(
-                    cause,
-                    CAUSE_LABELS.getOrDefault(cause, cause),
-                    (Long) row[1],
-                    (Long) row[2]
-                );
-            })
-            .toList();
+        return gapRepo.aggregateByInventoryId(inventoryId).stream()
+                .map(row -> {
+                    String cause = ((CauseEcart) row[0]).name();
+                    return new GapSummaryRecord(
+                            cause, CAUSE_LABELS.getOrDefault(cause, cause), (Long) row[1], (Long) row[2]);
+                })
+                .toList();
     }
 
     @Override

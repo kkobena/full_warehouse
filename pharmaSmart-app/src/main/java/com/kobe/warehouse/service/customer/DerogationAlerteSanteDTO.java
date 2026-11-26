@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
  * l'utilisateur fournit la clé de sécurité d'un collègue qui le détient.
  */
 public record DerogationAlerteSanteDTO(
-    @NotNull Integer produitId,
-    @NotBlank @Size(max = 255) String motif,
-    String actionAuthorityKey
-) {}
+        @NotNull Integer produitId,
+        @NotBlank @Size(max = 255) String motif,
+        String actionAuthorityKey) {}

@@ -1,16 +1,16 @@
-import { inject, Injectable } from "@angular/core";
-import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
-import { Observable, of } from "rxjs";
-import { SERVER_API_URL } from "app/app.constants";
-import { createRequestOptions } from "app/shared/util/request-util";
-import { ICommande } from "app/shared/model/commande.model";
-import { IOrderLine } from "../../shared/model/order-line.model";
-import { IResponseCommande } from "../../shared/model/response-commande.model";
-import { ICommandeResponse } from "../../shared/model/commande-response.model";
-import { CommandeId, CanalEnvoi } from "../../shared/model/abstract-commande.model";
-import { IRemiseRfaFournisseur } from "../../features/finances/data-access/models";
-import { OrderLineId } from "../../shared/model/abstract-order-item.model";
-import { IClientsEnAttente, IProduitDuNonCommande } from "../../shared/model/produit-du.model";
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOptions } from 'app/shared/util/request-util';
+import { ICommande } from 'app/shared/model/commande.model';
+import { IOrderLine } from '../../shared/model/order-line.model';
+import { IResponseCommande } from '../../shared/model/response-commande.model';
+import { ICommandeResponse } from '../../shared/model/commande-response.model';
+import { CommandeId, CanalEnvoi } from '../../shared/model/abstract-commande.model';
+import { IRemiseRfaFournisseur } from '../../features/finances/data-access/models';
+import { OrderLineId } from '../../shared/model/abstract-order-item.model';
+import { IClientsEnAttente, IProduitDuNonCommande } from '../../shared/model/produit-du.model';
 
 export interface IPriceHistory {
   id: number;
@@ -77,69 +77,69 @@ export interface ICommandeDashboard {
 type EntityResponseType = HttpResponse<ICommande>;
 type EntityArrayResponseType = HttpResponse<ICommande[]>;
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class CommandeService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = SERVER_API_URL + "api/commandes";
+  private readonly resourceUrl = SERVER_API_URL + 'api/commandes';
 
-  createCommandeRapide(totalQuantity: number, fournisseurProduitId: number, quantityRequested: number): Observable<HttpResponse<ICommande>> {
-    return this.http.post<ICommande>(`${this.resourceUrl}/rapide`, {
-      totalQuantity,
-      fournisseurProduitId,
-      quantityRequested
-    }, { observe: "response" });
+  createCommandeRapide(
+    totalQuantity: number,
+    fournisseurProduitId: number,
+    quantityRequested: number,
+  ): Observable<HttpResponse<ICommande>> {
+    return this.http.post<ICommande>(
+      `${this.resourceUrl}/rapide`,
+      {
+        totalQuantity,
+        fournisseurProduitId,
+        quantityRequested,
+      },
+      { observe: 'response' },
+    );
   }
 
   create(commande: ICommande): Observable<EntityResponseType> {
-    return this.http.post<ICommande>(this.resourceUrl, commande, { observe: "response" });
+    return this.http.post<ICommande>(this.resourceUrl, commande, { observe: 'response' });
   }
 
   update(commande: ICommande): Observable<EntityResponseType> {
-    return this.http.put<ICommande>(this.resourceUrl, commande, { observe: "response" });
+    return this.http.put<ICommande>(this.resourceUrl, commande, { observe: 'response' });
   }
 
   find(commandeId: CommandeId): Observable<EntityResponseType> {
-    return this.http.get<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" });
+    return this.http.get<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
 
   delete(commandeId: CommandeId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" });
+    return this.http.delete(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
 
   createOrUpdateOrderLine(orderLine: IOrderLine): Observable<EntityResponseType> {
-    return this.http
-      .post<ICommande>(this.resourceUrl + "/add-order-line", orderLine, { observe: "response" })
-      ;
+    return this.http.post<ICommande>(this.resourceUrl + '/add-order-line', orderLine, { observe: 'response' });
   }
 
   updateQuantityRequested(orderLine: IOrderLine): Observable<EntityResponseType> {
-    return this.http
-      .put<ICommande>(this.resourceUrl + "/update-order-line-quantity-requested", orderLine, { observe: "response" })
-      ;
+    return this.http.put<ICommande>(this.resourceUrl + '/update-order-line-quantity-requested', orderLine, { observe: 'response' });
   }
 
   updateOrderCostAmount(orderLine: IOrderLine): Observable<EntityResponseType> {
-    return this.http
-      .put<ICommande>(this.resourceUrl + "/update-order-line-cost-amount", orderLine, { observe: "response" })
-      ;
+    return this.http.put<ICommande>(this.resourceUrl + '/update-order-line-cost-amount', orderLine, { observe: 'response' });
   }
 
   updateOrderUnitPrice(orderLine: IOrderLine): Observable<EntityResponseType> {
-    return this.http
-      .put<ICommande>(this.resourceUrl + "/update-order-line-unit-price", orderLine, { observe: "response" })
-      ;
+    return this.http.put<ICommande>(this.resourceUrl + '/update-order-line-unit-price', orderLine, { observe: 'response' });
   }
 
   deleteOrderLineById(orderLineId: OrderLineId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/order-line/${orderLineId.id}/${orderLineId.orderDate}`, { observe: "response" });
+    return this.http.delete(`${this.resourceUrl}/order-line/${orderLineId.id}/${orderLineId.orderDate}`, { observe: 'response' });
   }
 
   deleteOrderLinesByIds(commandeId: CommandeId, ids: OrderLineId[]): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/delete/order-lines/${commandeId.id}/${commandeId.orderDate}`, ids, { observe: "response" });
+    return this.http.put(`${this.resourceUrl}/delete/order-lines/${commandeId.id}/${commandeId.orderDate}`, ids, { observe: 'response' });
   }
 
   updateCip(orderLine: IOrderLine): Observable<HttpResponse<{}>> {
-    return this.http.put<IOrderLine>(this.resourceUrl + "/update-provisional-cip", orderLine, { observe: "response" });
+    return this.http.put<IOrderLine>(this.resourceUrl + '/update-provisional-cip', orderLine, { observe: 'response' });
   }
 
   /**
@@ -150,11 +150,7 @@ export class CommandeService {
    * retard n'est possible.
    */
   marquerEnvoyee(commandeId: CommandeId, canal: CanalEnvoi): Observable<ICommande> {
-    return this.http.put<ICommande>(
-      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/envoi`,
-      null,
-      { params: { canal } },
-    );
+    return this.http.put<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/envoi`, null, { params: { canal } });
   }
 
   /** Rend son état de brouillon à une commande marquée envoyée par erreur. */
@@ -185,91 +181,87 @@ export class CommandeService {
   }
 
   lireRfaDuGroupe(fournisseurId: number): Observable<IRemiseRfaFournisseur | null> {
-    return this.http.get<IRemiseRfaFournisseur | null>(
-      `${this.resourceUrl}/fournisseurs/${fournisseurId}/rfa`,
-    );
+    return this.http.get<IRemiseRfaFournisseur | null>(`${this.resourceUrl}/fournisseurs/${fournisseurId}/rfa`);
   }
 
   exportToCsv(commandeId: CommandeId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${commandeId.id}/${commandeId.orderDate}`, { responseType: "blob" });
+    return this.http.get(`${this.resourceUrl}/csv/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
   exportToPdf(commandeId: CommandeId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${commandeId.id}/${commandeId.orderDate}`, { responseType: "blob" });
+    return this.http.get(`${this.resourceUrl}/pdf/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
   filterCommandeLines(req?: any): Observable<HttpResponse<IOrderLine[]>> {
     const options = createRequestOptions(req);
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/filter-order-lines`, {
       params: options,
-      observe: "response"
+      observe: 'response',
     });
   }
 
   fetchOrderLinesByCommandeId(commandeId: CommandeId): Observable<HttpResponse<IOrderLine[]>> {
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/pageable-order-lines/${commandeId.id}/${commandeId.orderDate}`, {
-      params: { size: "99999", sort: "fournisseurProduit_produit_libelle" },
-      observe: "response"
+      params: { size: '99999', sort: 'fournisseurProduit_produit_libelle' },
+      observe: 'response',
     });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<ICommande[]>(this.resourceUrl + "/commandes-without-order-lines", {
+    return this.http.get<ICommande[]>(this.resourceUrl + '/commandes-without-order-lines', {
       params: options,
-      observe: "response"
+      observe: 'response',
     });
   }
 
   fusionner(ids: CommandeId[]): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/fusionner`, ids, { observe: "response" });
+    return this.http.put(`${this.resourceUrl}/fusionner`, ids, { observe: 'response' });
   }
 
   deleteSelectedCommandes(ids: CommandeId[]): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/delete-commandes`, ids, { observe: "response" });
+    return this.http.put(`${this.resourceUrl}/delete-commandes`, ids, { observe: 'response' });
   }
 
   importerReponseCommande(commandeId: CommandeId, model: string, file: any): Observable<HttpResponse<IResponseCommande>> {
     return this.http.post<IResponseCommande>(
       `${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}/${model}`,
       file,
-      { observe: 'response' }
+      { observe: 'response' },
     );
   }
 
   uploadNewCommande(fournisseurId: number, model: string, file: any): Observable<HttpResponse<ICommandeResponse>> {
     return this.http.post<ICommandeResponse>(`${this.resourceUrl}/upload-new-commande/${fournisseurId}/${model}`, file, {
-      observe: "response"
+      observe: 'response',
     });
   }
 
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put(this.resourceUrl + "/update-order-line-quantity-received", orderLine, {
-      observe: "response"
+    return this.http.put(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
+      observe: 'response',
     });
   }
 
   updateQuantityUG(orderLine: IOrderLine): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + "/update-order-line-quantity-ug", orderLine, { observe: "response" });
+    return this.http.put(this.resourceUrl + '/update-order-line-quantity-ug', orderLine, { observe: 'response' });
   }
 
   updateOrderUnitPriceOnStockEntry(orderLine: IOrderLine): Observable<{}> {
-    return this.http.put<IOrderLine>(this.resourceUrl + "/update-order-line-unit-price", orderLine, { observe: "response" });
+    return this.http.put<IOrderLine>(this.resourceUrl + '/update-order-line-unit-price', orderLine, { observe: 'response' });
   }
 
   test(req: any): Observable<HttpResponse<{}>> {
     const options = createRequestOptions(req);
-    return this.http.get(`${this.resourceUrl}/test-csv`, { params: options, observe: "response" });
+    return this.http.get(`${this.resourceUrl}/test-csv`, { params: options, observe: 'response' });
   }
 
   sauvegarderSaisieEntreeStock(commande: ICommande): Observable<EntityResponseType> {
-    return this.http
-      .put<ICommande>(`${this.resourceUrl}/entree-stock/save`, commande, { observe: "response" })
-      ;
+    return this.http.put<ICommande>(`${this.resourceUrl}/entree-stock/save`, commande, { observe: 'response' });
   }
 
   changeGrossiste(commande: ICommande): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/change-grossiste`, commande, { observe: "response" });
+    return this.http.put(`${this.resourceUrl}/change-grossiste`, commande, { observe: 'response' });
   }
 
   /**
@@ -283,12 +275,14 @@ export class CommandeService {
   checkPriceVariation(commandeId: CommandeId): Observable<HttpResponse<IOrderLine[]>> {
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/entree-stock/check-price-variation`, {
       params: { commandeId: commandeId.id, orderDate: commandeId.orderDate },
-      observe: "response"
+      observe: 'response',
     });
   }
 
   getPutawayPreview(commandeId: CommandeId): Observable<IPutawayPreviewItem[]> {
-    return this.http.get<IPutawayPreviewItem[]>(`${this.resourceUrl}/entree-stock/putaway-preview/${commandeId.id}/${commandeId.orderDate}`);
+    return this.http.get<IPutawayPreviewItem[]>(
+      `${this.resourceUrl}/entree-stock/putaway-preview/${commandeId.id}/${commandeId.orderDate}`,
+    );
   }
 
   getDashboard(): Observable<ICommandeDashboard> {
@@ -296,41 +290,32 @@ export class CommandeService {
   }
 
   getStatsService(fournisseurId: number, periodeJours = 30): Observable<IFournisseurStatsService> {
-    return this.http.get<IFournisseurStatsService>(
-      `${this.resourceUrl}/fournisseurs/${fournisseurId}/stats-service`,
-      { params: { periodeJours: String(periodeJours) } }
-    );
+    return this.http.get<IFournisseurStatsService>(`${this.resourceUrl}/fournisseurs/${fournisseurId}/stats-service`, {
+      params: { periodeJours: String(periodeJours) },
+    });
   }
 
   createReliquat(commandeId: CommandeId): Observable<HttpResponse<ICommandeLiteDTO>> {
-    return this.http.post<ICommandeLiteDTO>(
-      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/reliquat`,
-      null,
-      { observe: "response" }
-    );
+    return this.http.post<ICommandeLiteDTO>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/reliquat`, null, {
+      observe: 'response',
+    });
   }
 
   importSuggestionIntoCommande(commandeId: CommandeId, suggestionId: number): Observable<HttpResponse<{}>> {
-    return this.http.post(
-      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion`,
-      null,
-      { observe: "response", params: { suggestionId } }
-    );
+    return this.http.post(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion`, null, {
+      observe: 'response',
+      params: { suggestionId },
+    });
   }
 
   importSuggestionLinesIntoCommande(commandeId: CommandeId, suggestionId: number, lineIds: number[]): Observable<HttpResponse<{}>> {
-    return this.http.post(
-      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion-lines`,
-      lineIds,
-      { observe: "response", params: { suggestionId } }
-    );
+    return this.http.post(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/import-suggestion-lines`, lineIds, {
+      observe: 'response',
+      params: { suggestionId },
+    });
   }
-
 
   findSaisieEntreeStock(commandeId: CommandeId): Observable<EntityResponseType> {
-    return this.http
-      .get<ICommande>(`${this.resourceUrl}/entree-stock/${commandeId.id}/${commandeId.orderDate}`, { observe: "response" })
-      ;
+    return this.http.get<ICommande>(`${this.resourceUrl}/entree-stock/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
-
 }

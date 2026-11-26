@@ -88,7 +88,9 @@ export class SaisieObjectifsComponent {
   }
 
   protected libellerModification(ligne: LigneObjectifs): string {
-    return ligne.modifieLe ? `Modifié${ligne.modifiePar ? ` par ${ligne.modifiePar}` : ''} le ${formatDateFR(ligne.modifieLe)}` : 'Aucun objectif';
+    return ligne.modifieLe
+      ? `Modifié${ligne.modifiePar ? ` par ${ligne.modifiePar}` : ''} le ${formatDateFR(ligne.modifieLe)}`
+      : 'Aucun objectif';
   }
 
   protected compterDecimales(ligne: LigneObjectifs): number {

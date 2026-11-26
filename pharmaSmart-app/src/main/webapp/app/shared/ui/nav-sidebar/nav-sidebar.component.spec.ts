@@ -14,21 +14,23 @@ import { NavSidebarComponent } from './nav-sidebar.component';
   imports: [NgbNavModule, NavSidebarComponent],
   template: `
     <app-nav-sidebar [nav]="nav" icon="pi pi-book" title="Comptabilité">
-      <div #nav="ngbNav" ngbNav class="nav flex-column nav-pills" orientation="vertical"
-           [activeId]="active()" (activeIdChange)="active.set($event)">
+      <div
+        #nav="ngbNav"
+        ngbNav
+        class="nav flex-column nav-pills"
+        orientation="vertical"
+        [activeId]="active()"
+        (activeIdChange)="active.set($event)"
+      >
         <ng-container ngbNavItem="balance">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <i class="pi pi-calculator"></i><span>Balance caisse</span>
-          </a>
+          <a class="pharma-nav-vertical-link" ngbNavLink> <i class="pi pi-calculator"></i><span>Balance caisse</span> </a>
           <ng-template ngbNavContent>
             <p class="contenu-balance">Contenu balance</p>
           </ng-template>
         </ng-container>
 
         <ng-container ngbNavItem="taxe-report">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <i class="pi pi-file-pdf"></i><span>Rapport TVA</span>
-          </a>
+          <a class="pharma-nav-vertical-link" ngbNavLink> <i class="pi pi-file-pdf"></i><span>Rapport TVA</span> </a>
           <ng-template ngbNavContent>
             <p class="contenu-tva">Contenu TVA</p>
           </ng-template>
@@ -93,8 +95,14 @@ describe('AppNavSidebar — menu vertical d’écran', () => {
       standalone: true,
       imports: [NgbNavModule, NavSidebarComponent],
       template: `
-        <app-nav-sidebar (collapsedChange)="replie.set($event)" [collapsed]="replie()"
-                         [collapsible]="true" [nav]="nav" icon="pi pi-book" title="Comptabilité">
+        <app-nav-sidebar
+          (collapsedChange)="replie.set($event)"
+          [collapsed]="replie()"
+          [collapsible]="true"
+          [nav]="nav"
+          icon="pi pi-book"
+          title="Comptabilité"
+        >
           <div #nav="ngbNav" ngbNav class="nav flex-column nav-pills" orientation="vertical">
             <ng-container ngbNavItem="balance">
               <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -169,9 +177,7 @@ describe('AppNavSidebar — menu vertical d’écran', () => {
       f.detectChanges();
 
       const lien = el.querySelector('.pharma-nav-vertical-link')!;
-      const masquables = Array.from(lien.querySelectorAll('span')).filter(
-        s => !s.className.includes('badge'),
-      );
+      const masquables = Array.from(lien.querySelectorAll('span')).filter(s => !s.className.includes('badge'));
       expect(masquables.length).toBeGreaterThan(0);
       expect(lien.querySelector('i.pi-calculator')).not.toBeNull();
     });

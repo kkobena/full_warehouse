@@ -39,8 +39,28 @@ const COMPARAISON: ComparaisonAnnees = {
   croissanceJusqua: 2025,
   moisMaximum: { annee: 2025, mois: 12, valeur: 2_200_000 },
   synthese: [
-    { annee: 2025, complete: true, caTtc: 2_000_000, margeBrute: null, tauxMarge: null, nbVentes: 900, panierMoyen: 2_222, remises: 10_000, croissanceCa: 4.2 },
-    { annee: 2026, complete: false, caTtc: 1_500_000, margeBrute: null, tauxMarge: null, nbVentes: 700, panierMoyen: 2_142, remises: 9_000, croissanceCa: -3.1 },
+    {
+      annee: 2025,
+      complete: true,
+      caTtc: 2_000_000,
+      margeBrute: null,
+      tauxMarge: null,
+      nbVentes: 900,
+      panierMoyen: 2_222,
+      remises: 10_000,
+      croissanceCa: 4.2,
+    },
+    {
+      annee: 2026,
+      complete: false,
+      caTtc: 1_500_000,
+      margeBrute: null,
+      tauxMarge: null,
+      nbVentes: 700,
+      panierMoyen: 2_142,
+      remises: 9_000,
+      croissanceCa: -3.1,
+    },
   ],
   parFamille: null,
   parNatureVente: null,
@@ -101,7 +121,13 @@ describe('Onglet « Comparer les années »', () => {
 
 describe("Réglage de « Comparer les années » dans l'URL", () => {
   it('aller-retour', () => {
-    const reglage = { indicateur: 'MARGE_BRUTE', annees: 5, mode: 'GLISSANT' as const, parJourOuvre: true, filtre: { axe: 'FAMILLE' as const, cle: '3', libelle: 'Vitamines' } };
+    const reglage = {
+      indicateur: 'MARGE_BRUTE',
+      annees: 5,
+      mode: 'GLISSANT' as const,
+      parJourOuvre: true,
+      filtre: { axe: 'FAMILLE' as const, cle: '3', libelle: 'Vitamines' },
+    };
     expect(lireReglageAnnees(convertToParamMap(versParametresAnnees(reglage)))).toEqual(reglage);
   });
 

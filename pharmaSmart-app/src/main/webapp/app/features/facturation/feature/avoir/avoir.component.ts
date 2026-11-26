@@ -7,28 +7,34 @@ import {
   OnInit,
   signal,
   TemplateRef,
-  ViewChild, input} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {FormsModule} from "@angular/forms";
-import {DecimalPipe} from "@angular/common";
-import {finalize} from "rxjs/operators";
-
-import {NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+  ViewChild,
+  input,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 
 import {
-  DATE_FORMAT_ISO_DATE,
-  NGB_DATE_TO_ISO,
-  TODAY_NGB_DATE
-} from "../../../../shared/util/warehouse-util";
-import {NotificationService} from "../../../../shared/services/notification.service";
-import {TiersPayantService} from "../../../../entities/tiers-payant/tierspayant.service";
-import {ITiersPayant} from "../../../../shared/model";
-import {IAvoir, IFacture} from "../../data-access/models";
-import {AvoirApiService} from "../../data-access/services/avoir-api.service";
-import {FactureApiService} from "../../data-access/services/facture-api.service";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
-import {AvoirFormModalComponent} from "../../ui/avoir-form-modal/avoir-form-modal.component";
-import {TranslateService} from "@ngx-translate/core";
+  NgbDateStruct,
+  NgbDropdown,
+  NgbDropdownItem,
+  NgbDropdownMenu,
+  NgbDropdownToggle,
+  NgbModal,
+  NgbTooltip,
+} from '@ng-bootstrap/ng-bootstrap';
+
+import { DATE_FORMAT_ISO_DATE, NGB_DATE_TO_ISO, TODAY_NGB_DATE } from '../../../../shared/util/warehouse-util';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TiersPayantService } from '../../../../entities/tiers-payant/tierspayant.service';
+import { ITiersPayant } from '../../../../shared/model';
+import { IAvoir, IFacture } from '../../data-access/models';
+import { AvoirApiService } from '../../data-access/services/avoir-api.service';
+import { FactureApiService } from '../../data-access/services/facture-api.service';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
+import { AvoirFormModalComponent } from '../../ui/avoir-form-modal/avoir-form-modal.component';
+import { TranslateService } from '@ngx-translate/core';
 import {
   AppSplitButtonItem,
   BadgeComponent,
@@ -41,15 +47,13 @@ import {
   SelectComponent,
   SelectSearchComponent,
   SplitButtonComponent,
-  ToolbarComponent
-} from "../../../../shared/ui";
-import {
-  PharmaDatePickerComponent
-} from "../../../../shared/date-picker/pharma-date-picker.component";
-import {DeviseDirective} from "../../../../shared/utils/devise";
+  ToolbarComponent,
+} from '../../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
+import { DeviseDirective } from '../../../../shared/utils/devise';
 import { CardComponent } from 'app/shared/ui';
 
-type AvoirMenuAction = "annuler" | "pdf" | "nouvel-avoir";
+type AvoirMenuAction = 'annuler' | 'pdf' | 'nouvel-avoir';
 
 interface IMenuEntry {
   label: string;
@@ -72,8 +76,9 @@ interface IKpiGroup {
 }
 
 @Component({
-  selector: "app-avoir",
-  imports: [CardComponent, 
+  selector: 'app-avoir',
+  imports: [
+    CardComponent,
     FormsModule,
     DecimalPipe,
     BadgeComponent,
@@ -93,11 +98,11 @@ interface IKpiGroup {
     NgbDropdown,
     NgbDropdownToggle,
     NgbDropdownMenu,
-    NgbDropdownItem
+    NgbDropdownItem,
   ],
-  templateUrl: "./avoir.component.html",
+  templateUrl: './avoir.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./avoir.component.scss",
+  styleUrl: './avoir.component.scss',
 })
 export class AvoirComponent implements OnInit {
   /**
@@ -109,21 +114,21 @@ export class AvoirComponent implements OnInit {
    */
   readonly navCode = input<string>('');
 
-  @ViewChild("imputerModal") imputerModalTpl!: TemplateRef<any>;
-  @ViewChild("annulerModal") annulerModalTpl!: TemplateRef<any>;
+  @ViewChild('imputerModal') imputerModalTpl!: TemplateRef<any>;
+  @ViewChild('annulerModal') annulerModalTpl!: TemplateRef<any>;
 
   protected readonly statutOptions: IStatutOption[] = [
-    {label: "Tous", value: ""},
-    {label: "Brouillon", value: "DRAFT"},
-    {label: "Émis", value: "EMIS"},
-    {label: "Imputé", value: "IMPUTE"},
-    {label: "Annulé", value: "ANNULE"},
+    { label: 'Tous', value: '' },
+    { label: 'Brouillon', value: 'DRAFT' },
+    { label: 'Émis', value: 'EMIS' },
+    { label: 'Imputé', value: 'IMPUTE' },
+    { label: 'Annulé', value: 'ANNULE' },
   ];
 
   protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
-  protected selectedStatut = "";
-  protected numAvoirSearch = "";
+  protected selectedStatut = '';
+  protected numAvoirSearch = '';
   protected readonly tiersPayantSuggestions = signal<ITiersPayant[]>([]);
   protected selectedTiersPayants: ITiersPayant[] = [];
 
@@ -137,17 +142,17 @@ export class AvoirComponent implements OnInit {
 
   // Annulation dialog
   protected readonly currentAnnulerAvoir = signal<IAvoir | null>(null);
-  protected readonly motifAnnulation = signal("");
+  protected readonly motifAnnulation = signal('');
 
   protected readonly kpi = computed<Record<string, IKpiGroup>>(() => {
     const groups: Record<string, IKpiGroup> = {
-      DRAFT: {count: 0, total: 0},
-      EMIS: {count: 0, total: 0},
-      IMPUTE: {count: 0, total: 0},
-      ANNULE: {count: 0, total: 0},
+      DRAFT: { count: 0, total: 0 },
+      EMIS: { count: 0, total: 0 },
+      IMPUTE: { count: 0, total: 0 },
+      ANNULE: { count: 0, total: 0 },
     };
     this.avoirs().forEach(a => {
-      const s = a.statut ?? "DRAFT";
+      const s = a.statut ?? 'DRAFT';
       if (groups[s]) {
         groups[s].count++;
         groups[s].total += a.montantAvoir ?? 0;
@@ -183,11 +188,11 @@ export class AvoirComponent implements OnInit {
 
   constructor() {
     const translate = inject(TranslateService);
-    translate.use("fr");
+    translate.use('fr');
 
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
-    this.modelStartDate.set({year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()});
+    this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
   }
 
   ngOnInit(): void {
@@ -198,10 +203,13 @@ export class AvoirComponent implements OnInit {
     this.loading.set(true);
     this.api
       .query(this.buildParams())
-      .pipe(finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: res => this.avoirs.set(res.body ?? []),
-        error: () => this.notificationService.error("Erreur lors du chargement des avoirs"),
+        error: () => this.notificationService.error('Erreur lors du chargement des avoirs'),
       });
   }
 
@@ -217,7 +225,7 @@ export class AvoirComponent implements OnInit {
   openNouvelAvoir(factureId?: number, factureDate?: string): void {
     if (factureId && factureDate) {
       this.factureApiService
-        .find({id: factureId, invoiceDate: factureDate})
+        .find({ id: factureId, invoiceDate: factureDate })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: res => this.ouvrirModalAvoir(res.body ?? undefined),
@@ -230,36 +238,48 @@ export class AvoirComponent implements OnInit {
 
   private ouvrirModalAvoir(prefillFacture?: IFacture): void {
     const ref = this.modalService.open(AvoirFormModalComponent, {
-      size: "lg",
+      size: 'lg',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     ref.componentInstance.prefillFacture = prefillFacture;
     ref.result.then(
       (avoir: IAvoir) => {
         this.avoirs.set([avoir, ...this.avoirs()]);
-        this.notificationService.success("Avoir créé");
+        this.notificationService.success('Avoir créé');
       },
-      () => {
-      },
+      () => {},
     );
   }
 
   protected menuItemsFor(avoir: IAvoir): IMenuEntry[] {
     const items: IMenuEntry[] = [
-      {label: "Télécharger PDF", icon: "pi pi-file-pdf", color: "text-warning", action: "pdf", disabled: this.exportingPdf() === avoir.id},
-      {label: "Créer un avoir sur cette facture", icon: "pi pi-plus", color: "text-secondary", action: "nouvel-avoir"},
+      {
+        label: 'Télécharger PDF',
+        icon: 'pi pi-file-pdf',
+        color: 'text-warning',
+        action: 'pdf',
+        disabled: this.exportingPdf() === avoir.id,
+      },
+      { label: 'Créer un avoir sur cette facture', icon: 'pi pi-plus', color: 'text-secondary', action: 'nouvel-avoir' },
     ];
-    if (avoir.statut === "DRAFT" || avoir.statut === "EMIS") {
-      items.push({label: "Annuler l'avoir", icon: "pi pi-ban", color: "text-danger", action: "annuler", danger: true, separatorBefore: true});
+    if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
+      items.push({
+        label: "Annuler l'avoir",
+        icon: 'pi pi-ban',
+        color: 'text-danger',
+        action: 'annuler',
+        danger: true,
+        separatorBefore: true,
+      });
     }
     return items;
   }
 
   protected onMenuAction(avoir: IAvoir, action: AvoirMenuAction): void {
-    if (action === "pdf") {
+    if (action === 'pdf') {
       this.onExportPdf(avoir);
-    } else if (action === "nouvel-avoir") {
+    } else if (action === 'nouvel-avoir') {
       this.openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate);
     } else {
       this.onOpenAnnuler(avoir);
@@ -270,13 +290,16 @@ export class AvoirComponent implements OnInit {
     if (!avoir.id) {
       return;
     }
-    this.api.emettre(avoir.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: res => {
-        this.replaceAvoir(res.body!);
-        this.notificationService.success("Avoir émis");
-      },
-      error: () => this.notificationService.error("Erreur lors de l'émission"),
-    });
+    this.api
+      .emettre(avoir.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.replaceAvoir(res.body!);
+          this.notificationService.success('Avoir émis');
+        },
+        error: () => this.notificationService.error("Erreur lors de l'émission"),
+      });
   }
 
   onOpenImputer(avoir: IAvoir): void {
@@ -284,33 +307,30 @@ export class AvoirComponent implements OnInit {
     this.selectedTargetFacture.set(null);
     this.factureCibleSuggestions.set([]);
     const ref = this.modalService.open(this.imputerModalTpl, {
-      size: "md",
+      size: 'md',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
-    ref.result.then(() => this.doImputer()).catch(() => {
-    });
+    ref.result.then(() => this.doImputer()).catch(() => {});
   }
 
   onOpenAnnuler(avoir: IAvoir): void {
     this.currentAnnulerAvoir.set(avoir);
-    this.motifAnnulation.set("");
-    const ref = this.modalService.open(this.annulerModalTpl, {size: "sm", centered: true});
-    ref.result.then((motif: string) => this.doAnnuler(avoir, motif)).catch(() => {
-    });
+    this.motifAnnulation.set('');
+    const ref = this.modalService.open(this.annulerModalTpl, { size: 'sm', centered: true });
+    ref.result.then((motif: string) => this.doAnnuler(avoir, motif)).catch(() => {});
   }
 
   searchTiersPayant(query: string): void {
     this.tiersPayantService
-      .query({page: 0, search: query, size: 10})
+      .query({ page: 0, search: query, size: 10 })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.tiersPayantSuggestions.set(res.body ?? [])));
+      .subscribe(res => this.tiersPayantSuggestions.set(res.body ?? []));
   }
 
   searchFactureCible(query: string): void {
     const tp = this.currentImputerAvoir()?.tiersPayantId;
-    const toIso = (d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const toIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const today = new Date();
     const twoYearsAgo = new Date(today.getFullYear() - 2, today.getMonth(), today.getDate());
     this.factureApiService
@@ -318,11 +338,11 @@ export class AvoirComponent implements OnInit {
         search: query,
         startDate: toIso(twoYearsAgo),
         endDate: toIso(today),
-        statuts: ["PARTIALLY_PAID"],
+        statuts: ['PARTIALLY_PAID'],
         tiersPayantIds: tp ? [tp] : [],
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(res => (this.factureCibleSuggestions.set(res.body ?? [])));
+      .subscribe(res => this.factureCibleSuggestions.set(res.body ?? []));
   }
 
   canConfirmImputer(): boolean {
@@ -332,40 +352,44 @@ export class AvoirComponent implements OnInit {
     return (this.currentImputerAvoir().montantAvoir ?? 0) <= (this.selectedTargetFacture().montantRestant ?? 0);
   }
 
-  getStatutSeverity(statut?: string): "secondary" | "info" | "success" | "danger" | "warn" {
+  getStatutSeverity(statut?: string): 'secondary' | 'info' | 'success' | 'danger' | 'warn' {
     switch (statut) {
-      case "DRAFT":
-        return "secondary";
-      case "EMIS":
-        return "info";
-      case "IMPUTE":
-        return "success";
-      case "ANNULE":
-        return "danger";
+      case 'DRAFT':
+        return 'secondary';
+      case 'EMIS':
+        return 'info';
+      case 'IMPUTE':
+        return 'success';
+      case 'ANNULE':
+        return 'danger';
       default:
-        return "secondary";
+        return 'secondary';
     }
   }
 
   getStatutLabel(statut?: string): string {
     switch (statut) {
-      case "DRAFT":
-        return "Brouillon";
-      case "EMIS":
-        return "Émis";
-      case "IMPUTE":
-        return "Imputé";
-      case "ANNULE":
-        return "Annulé";
+      case 'DRAFT':
+        return 'Brouillon';
+      case 'EMIS':
+        return 'Émis';
+      case 'IMPUTE':
+        return 'Imputé';
+      case 'ANNULE':
+        return 'Annulé';
       default:
-        return statut ?? "—";
+        return statut ?? '—';
     }
   }
 
   onExportExcel(): void {
     this.exportingExcel = true;
-    this.api.exportExcel(this.buildParams())
-      .pipe(finalize(() => (this.exportingExcel = false)), takeUntilDestroyed(this.destroyRef))
+    this.api
+      .exportExcel(this.buildParams())
+      .pipe(
+        finalize(() => (this.exportingExcel = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: blob => this.downloadService.downloadExcel(blob, `avoirs_${DATE_FORMAT_ISO_DATE(new Date())}`),
         error: () => this.notificationService.error("Erreur lors de l'export Excel"),
@@ -374,8 +398,12 @@ export class AvoirComponent implements OnInit {
 
   onExportListPdf(): void {
     this.exportingListPdf = true;
-    this.api.exportListPdf(this.buildParams())
-      .pipe(finalize(() => (this.exportingListPdf = false)), takeUntilDestroyed(this.destroyRef))
+    this.api
+      .exportListPdf(this.buildParams())
+      .pipe(
+        finalize(() => (this.exportingListPdf = false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: blob => this.downloadService.downloadPdf(blob, `avoirs_${DATE_FORMAT_ISO_DATE(new Date())}`),
         error: () => this.notificationService.error("Erreur lors de l'export PDF"),
@@ -387,8 +415,12 @@ export class AvoirComponent implements OnInit {
       return;
     }
     this.exportingPdf.set(avoir.id);
-    this.api.exportPdf(avoir.id)
-      .pipe(finalize(() => this.exportingPdf.set(null)), takeUntilDestroyed(this.destroyRef))
+    this.api
+      .exportPdf(avoir.id)
+      .pipe(
+        finalize(() => this.exportingPdf.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: blob => this.downloadService.downloadPdf(blob, `avoir_${avoir.numAvoir ?? avoir.id}`),
         error: () => this.notificationService.error("Erreur lors de l'export PDF"),
@@ -401,12 +433,13 @@ export class AvoirComponent implements OnInit {
     if (!avoir?.id || !facture?.factureItemId) {
       return;
     }
-    this.api.imputer(avoir.id, facture.factureItemId.id, facture.factureItemId.invoiceDate)
+    this.api
+      .imputer(avoir.id, facture.factureItemId.id, facture.factureItemId.invoiceDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.avoirs.set(this.avoirs().map(a => a.id === avoir.id ? {...a, statut: "IMPUTE"} : a));
-          this.notificationService.success("Avoir imputé");
+          this.avoirs.set(this.avoirs().map(a => (a.id === avoir.id ? { ...a, statut: 'IMPUTE' } : a)));
+          this.notificationService.success('Avoir imputé');
         },
         error: () => this.notificationService.error("Erreur lors de l'imputation"),
       });
@@ -416,13 +449,16 @@ export class AvoirComponent implements OnInit {
     if (!avoir.id) {
       return;
     }
-    this.api.annuler(avoir.id, motif).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.avoirs.set(this.avoirs().map(a => a.id === avoir.id ? {...a, statut: "ANNULE"} : a));
-        this.notificationService.success("Avoir annulé");
-      },
-      error: () => this.notificationService.error("Erreur lors de l'annulation"),
-    });
+    this.api
+      .annuler(avoir.id, motif)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.avoirs.set(this.avoirs().map(a => (a.id === avoir.id ? { ...a, statut: 'ANNULE' } : a)));
+          this.notificationService.success('Avoir annulé');
+        },
+        error: () => this.notificationService.error("Erreur lors de l'annulation"),
+      });
   }
 
   private buildParams(): any {

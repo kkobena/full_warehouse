@@ -69,20 +69,19 @@ public class ControleOrdonnanceService {
     private final EntityManager em;
 
     public ControleOrdonnanceService(
-        MoleculesProduitService moleculesProduitService,
-        TraitementsEnCoursService traitementsEnCoursService,
-        InteractionRepository interactionRepository,
-        ContreIndicationRepository contreIndicationRepository,
-        DciClasseRepository dciClasseRepository,
-        ClasseInteractionRepository classeRepository,
-        ReferentielInteractionVersionRepository versionRepository,
-        CustomerRepository customerRepository,
-        CustomerDossierSanteRepository dossierRepository,
-        AlerteSanteDerogationRepository derogationRepository,
-        DerogationAuthorizer derogationAuthorizer,
-        AppConfigurationService appConfigurationService,
-        EntityManager em
-    ) {
+            MoleculesProduitService moleculesProduitService,
+            TraitementsEnCoursService traitementsEnCoursService,
+            InteractionRepository interactionRepository,
+            ContreIndicationRepository contreIndicationRepository,
+            DciClasseRepository dciClasseRepository,
+            ClasseInteractionRepository classeRepository,
+            ReferentielInteractionVersionRepository versionRepository,
+            CustomerRepository customerRepository,
+            CustomerDossierSanteRepository dossierRepository,
+            AlerteSanteDerogationRepository derogationRepository,
+            DerogationAuthorizer derogationAuthorizer,
+            AppConfigurationService appConfigurationService,
+            EntityManager em) {
         this.moleculesProduitService = moleculesProduitService;
         this.traitementsEnCoursService = traitementsEnCoursService;
         this.interactionRepository = interactionRepository;
@@ -100,7 +99,9 @@ public class ControleOrdonnanceService {
 
     @Transactional(readOnly = true)
     public ControleResultatDTO controler(Integer customerId, Collection<Integer> produitIds) {
-        Customer client = customerRepository.findById(customerId).orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
+        Customer client = customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
         Map<Integer, String> panier = moleculesProduitService.libelles(produitIds);
         Map<Integer, List<MoleculeDTO>> moleculesPanier = moleculesProduitService.molecules(panier.keySet());
         List<TraitementEnCoursDTO> enCours = traitementsEnCoursService.enCours(customerId);
@@ -109,10 +110,9 @@ public class ControleOrdonnanceService {
         moleculesPanier.values().forEach(l -> l.forEach(m -> dcis.add(m.refDciId())));
         enCours.forEach(c -> dcis.add(c.molecule().refDciId()));
 
-        Map<Integer, String> sources = versionRepository
-            .findAllByPublieTrueOrderByPublieLeDesc()
-            .stream()
-            .collect(Collectors.toMap(ReferentielInteractionVersion::getId, v -> v.getSource() + " " + v.getVersion()));
+        Map<Integer, String> sources = versionRepository.findAllByPublieTrueOrderByPublieLeDesc().stream()
+                .collect(Collectors.toMap(
+                        ReferentielInteractionVersion::getId, v -> v.getSource() + " " + v.getVersion()));
 
         Map<Integer, Set<Integer>> classesParDci = new HashMap<>();
         Map<Integer, String> classes = new HashMap<>();
@@ -120,42 +120,54 @@ public class ControleOrdonnanceService {
         List<ContreIndication> contreIndications = List.of();
         if (!dcis.isEmpty() && !sources.isEmpty()) {
             for (DciClasse dc : dciClasseRepository.findByRefDciIds(dcis)) {
-                classesParDci.computeIfAbsent(dc.getId().refDciId(), k -> new LinkedHashSet<>()).add(dc.getId().classeId());
+                classesParDci
+                        .computeIfAbsent(dc.getId().refDciId(), k -> new LinkedHashSet<>())
+                        .add(dc.getId().classeId());
             }
             // Seules les classes d'une version publiée comptent, y compris pour les redondances.
             classeRepository
-                .findAllById(classesParDci.values().stream().flatMap(Set::stream).collect(Collectors.toSet()))
-                .stream()
-                .filter((ClasseInteraction c) -> sources.containsKey(c.getVersionId()))
-                .forEach(c -> classes.put(c.getId(), c.getLibelle()));
+                    .findAllById(
+                            classesParDci.values().stream().flatMap(Set::stream).collect(Collectors.toSet()))
+                    .stream()
+                    .filter((ClasseInteraction c) -> sources.containsKey(c.getVersionId()))
+                    .forEach(c -> classes.put(c.getId(), c.getLibelle()));
             classesParDci.values().forEach(ids -> ids.retainAll(classes.keySet()));
             interactions = interactionRepository.findEntre(dcis);
             contreIndications = contreIndicationRepository.findPubliees(dcis);
         }
 
         var dossier = dossierRepository.findById(customerId);
-        Integer age = client.getDatNaiss() == null ? null : Period.between(client.getDatNaiss(), LocalDate.now()).getYears();
+        Integer age = client.getDatNaiss() == null
+                ? null
+                : Period.between(client.getDatNaiss(), LocalDate.now()).getYears();
         ProfilPatientDTO profil = new ProfilPatientDTO(
-            age,
-            client.getSexe(),
-            dossier.map(CustomerDossierSante::isGrossesse).orElse(false),
-            dossier.map(CustomerDossierSante::isAllaitement).orElse(false)
-        );
+                age,
+                client.getSexe(),
+                dossier.map(CustomerDossierSante::isGrossesse).orElse(false),
+                dossier.map(CustomerDossierSante::isAllaitement).orElse(false));
 
-        ControleResultatDTO brut = MoteurControle.evaluer(
-            new EntreeControleDTO(panier, moleculesPanier, enCours, classesParDci, classes, interactions, contreIndications, sources, profil)
-        );
+        ControleResultatDTO brut = MoteurControle.evaluer(new EntreeControleDTO(
+                panier,
+                moleculesPanier,
+                enCours,
+                classesParDci,
+                classes,
+                interactions,
+                contreIndications,
+                sources,
+                profil));
         // Le niveau décide : chaque niveau est paramétré, bloquant (1) ou simple avertissement (0, par défaut).
         Map<NiveauInteraction, Boolean> bloquants = new EnumMap<>(NiveauInteraction.class);
         for (NiveauInteraction niveau : NiveauInteraction.values()) {
             bloquants.put(niveau, appConfigurationService.isControleOrdonnanceBloquant(niveau));
         }
         return new ControleResultatDTO(
-            brut.alertes().stream().map(a -> a.bloquantSi(bloquants.get(a.niveau()))).toList(),
-            brut.nonControles(),
-            brut.referentielPublie(),
-            brut.limite()
-        );
+                brut.alertes().stream()
+                        .map(a -> a.bloquantSi(bloquants.get(a.niveau())))
+                        .toList(),
+                brut.nonControles(),
+                brut.referentielPublie(),
+                brut.limite());
     }
 
     /**
@@ -164,7 +176,8 @@ public class ControleOrdonnanceService {
      * les autres sont un simple acquittement, tracé de la même façon.
      */
     public void prendreEnCompte(Integer customerId, PriseEnCompteControleDTO demande) {
-        List<AlerteControleDTO> alertes = controler(customerId, demande.produitIds()).alertes();
+        List<AlerteControleDTO> alertes =
+                controler(customerId, demande.produitIds()).alertes();
         if (alertes.isEmpty()) {
             throw new GenericError("Aucune alerte à prendre en compte pour ce panier.", "aucuneAlerteControle");
         }
@@ -174,32 +187,29 @@ public class ControleOrdonnanceService {
         }
         AppUser utilisateur = derogationAuthorizer.utilisateurCourant();
         AppUser autorisePar = bloquante
-            ? derogationAuthorizer.autoriser(
-                DossierSanteService.DROIT_DEROGATION,
-                demande.actionAuthorityKey(),
-                "la délivrance malgré une alerte du contrôle d'ordonnance",
-                "alerteControle"
-            )
-            : utilisateur;
+                ? derogationAuthorizer.autoriser(
+                        DossierSanteService.DROIT_DEROGATION,
+                        demande.actionAuthorityKey(),
+                        "la délivrance malgré une alerte du contrôle d'ordonnance",
+                        "alerteControle")
+                : utilisateur;
         String motif = StringUtils.hasText(demande.motif()) ? demande.motif().trim() : "Acquittement";
         Set<Integer> tracesPourProduit = new LinkedHashSet<>();
         for (AlerteControleDTO alerte : alertes) {
             for (Integer produitId : alerte.produitIds()) {
                 if (tracesPourProduit.add(produitId)) {
-                    String texte = alertes
-                        .stream()
-                        .filter(a -> a.produitIds().contains(produitId))
-                        .map(a -> "[" + a.niveau() + "] " + a.message() + (a.source() == null ? "" : " (" + a.source() + ")"))
-                        .collect(Collectors.joining("\n"));
-                    derogationRepository.save(
-                        new AlerteSanteDerogation()
+                    String texte = alertes.stream()
+                            .filter(a -> a.produitIds().contains(produitId))
+                            .map(a -> "[" + a.niveau() + "] " + a.message()
+                                    + (a.source() == null ? "" : " (" + a.source() + ")"))
+                            .collect(Collectors.joining("\n"));
+                    derogationRepository.save(new AlerteSanteDerogation()
                             .setCustomerId(customerId)
                             .setProduit(em.getReference(Produit.class, produitId))
                             .setAlertes(texte)
                             .setMotif(motif)
                             .setUser(utilisateur)
-                            .setAutorisePar(autorisePar)
-                    );
+                            .setAutorisePar(autorisePar));
                 }
             }
         }

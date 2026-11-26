@@ -26,7 +26,8 @@ public class RegleChuteActivite implements RegleAlerte {
     private final SeriesPilotageService seriesPilotageService;
     private final AppConfigurationService appConfigurationService;
 
-    public RegleChuteActivite(SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
+    public RegleChuteActivite(
+            SeriesPilotageService seriesPilotageService, AppConfigurationService appConfigurationService) {
         this.seriesPilotageService = seriesPilotageService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -39,9 +40,10 @@ public class RegleChuteActivite implements RegleAlerte {
     @Override
     public List<AlertePilotageDTO> evaluer(LocalDate aujourdhui) {
         SerieIndicateurDTO ca = seriesPilotageService
-            .calculerSeries(RequetesAlertes.lireDerniersJours(aujourdhui, JOURS, TypeComparaison.MEME_PERIODE_N_1, List.of(IndicateurPilotage.CA_TTC)))
-            .series()
-            .getFirst();
+                .calculerSeries(RequetesAlertes.lireDerniersJours(
+                        aujourdhui, JOURS, TypeComparaison.MEME_PERIODE_N_1, List.of(IndicateurPilotage.CA_TTC)))
+                .series()
+                .getFirst();
         if (ca.valeur() == null || ca.valeurReference() == null || ca.valeurReference() <= 0) {
             return List.of();
         }
@@ -49,14 +51,12 @@ public class RegleChuteActivite implements RegleAlerte {
         if (pourcentage >= appConfigurationService.getAlerteChuteActivitePilotage()) {
             return List.of();
         }
-        return List.of(
-            new AlertePilotageDTO(
+        return List.of(new AlertePilotageDTO(
                 "CHUTE_ACTIVITE",
                 GraviteAlerte.HAUTE,
                 "Chute d'activité",
-                "Le CA des 7 derniers jours atteint " + Math.round(pourcentage) + " % de celui des mêmes jours l'an dernier.",
-                "tableau-de-bord"
-            )
-        );
+                "Le CA des 7 derniers jours atteint " + Math.round(pourcentage)
+                        + " % de celui des mêmes jours l'an dernier.",
+                "tableau-de-bord"));
     }
 }

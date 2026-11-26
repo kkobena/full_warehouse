@@ -4,13 +4,12 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
 import com.kobe.warehouse.service.utils.DateUtil;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class RepartitionStockPdfReportService extends AbstractStatistiqueReportService {
@@ -56,9 +55,9 @@ public class RepartitionStockPdfReportService extends AbstractStatistiqueReportS
         StringBuilder title = new StringBuilder("Historique des Répartitions de Stock");
         if (searchQueryDto.dateDebut() != null && searchQueryDto.dateFin() != null) {
             title.append(" du ")
-                .append(DateUtil.format(searchQueryDto.dateDebut()))
-                .append(" au ")
-                .append(DateUtil.format(searchQueryDto.dateFin()));
+                    .append(DateUtil.format(searchQueryDto.dateDebut()))
+                    .append(" au ")
+                    .append(DateUtil.format(searchQueryDto.dateFin()));
         }
         return title.toString();
     }

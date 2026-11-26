@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, CardComponent, DataTableComponent, SwitchComponent } from "../../../../../shared/ui";
+import { ButtonComponent, CardComponent, DataTableComponent, SwitchComponent } from '../../../../../shared/ui';
 
 import { PlanificationStateService } from '../planification-state.service';
 
@@ -16,4 +16,3 @@ import { PlanificationStateService } from '../planification-state.service';
 export class PlanifTabFneComponent {
   protected readonly state = inject(PlanificationStateService);
 }
-

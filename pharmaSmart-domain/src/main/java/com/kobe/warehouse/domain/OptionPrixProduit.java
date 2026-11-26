@@ -24,12 +24,11 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
-    name = "produit_tiers_payant_prix",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "enabled" }),
-        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "prix_type" }),
-    }
-)
+        name = "produit_tiers_payant_prix",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "enabled"}),
+            @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "prix_type"}),
+        })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class OptionPrixProduit implements Serializable {
 

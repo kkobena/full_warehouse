@@ -34,7 +34,10 @@ describe('Couleurs d\u2019accent du comptoir', () => {
   const contrastes = [
     ...Object.entries(accentsThemes).flatMap(([theme, accent]) =>
       mesurerContrastes(
-        { vente: { comptant: accent, assurance: accent, carnet: accent }, document: { comptant: accent, assurance: accent, carnet: accent } },
+        {
+          vente: { comptant: accent, assurance: accent, carnet: accent },
+          document: { comptant: accent, assurance: accent, carnet: accent },
+        },
         derives,
         accent,
       )

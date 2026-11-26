@@ -8,7 +8,6 @@ import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.report.ClientRetentionKpiDTO;
 import com.kobe.warehouse.service.dto.report.ClientRetentionRowDTO;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -83,7 +82,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             viderLeCache();
 
             // 100 000 pour l'un, 50 000 pour l'autre : 75 000 en moyenne.
-            assertThat(services.clientRetentionReportService.getKpi().caMoyenParClient()).isEqualTo(75_000L);
+            assertThat(services.clientRetentionReportService.getKpi().caMoyenParClient())
+                    .isEqualTo(75_000L);
         }
 
         @Test
@@ -128,8 +128,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             viderLeCache();
 
             assertThat(services.clientRetentionReportService.getClientList(10))
-                .extracting(ClientRetentionRowDTO::nom)
-                .containsExactly("Marie ANCIEN", "Paul MOYEN", "Jean RECENT");
+                    .extracting(ClientRetentionRowDTO::nom)
+                    .containsExactly("Marie ANCIEN", "Paul MOYEN", "Jean RECENT");
         }
 
         @Test
@@ -140,7 +140,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             visite(client, ilYA(100), 20_000);
             viderLeCache();
 
-            ClientRetentionRowDTO ligne = services.clientRetentionReportService.getClientList(10).getFirst();
+            ClientRetentionRowDTO ligne =
+                    services.clientRetentionReportService.getClientList(10).getFirst();
 
             assertThat(ligne.nom()).isEqualTo("Jean KOUASSI");
             assertThat(ligne.premiereVisite()).isEqualTo(ilYA(200));
@@ -160,8 +161,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             viderLeCache();
 
             assertThat(services.clientRetentionReportService.getClientList(10))
-                .extracting(ClientRetentionRowDTO::segment)
-                .containsExactly("PERDU", "RISQUE", "ACTIF");
+                    .extracting(ClientRetentionRowDTO::segment)
+                    .containsExactly("PERDU", "RISQUE", "ACTIF");
         }
 
         @Test
@@ -173,8 +174,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             viderLeCache();
 
             assertThat(services.clientRetentionReportService.getClientList(2))
-                .extracting(ClientRetentionRowDTO::nom)
-                .containsExactly("Marie ANCIEN", "Paul MOYEN");
+                    .extracting(ClientRetentionRowDTO::nom)
+                    .containsExactly("Marie ANCIEN", "Paul MOYEN");
         }
 
         @Test
@@ -197,7 +198,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             venteFermee(ilYA(5), false, CategorieChiffreAffaire.CA);
             viderLeCache();
 
-            assertThat(services.clientRetentionReportService.getKpi().totalClients()).isZero();
+            assertThat(services.clientRetentionReportService.getKpi().totalClients())
+                    .isZero();
             assertThat(services.clientRetentionReportService.getClientList(10)).isEmpty();
         }
 
@@ -223,7 +225,8 @@ class ClientRetentionReportServiceIntegrationTest extends AbstractReportIntegrat
             venteFermee(ilYA(1), false, CategorieChiffreAffaire.CA_DEPOT, client);
             viderLeCache();
 
-            assertThat(services.clientRetentionReportService.getKpi().clientsPerdus()).isEqualTo(1);
+            assertThat(services.clientRetentionReportService.getKpi().clientsPerdus())
+                    .isEqualTo(1);
         }
     }
 

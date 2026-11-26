@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventory;
@@ -80,12 +79,15 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         inventaire.setStatut(InventoryStatut.CLOSED);
         viderLeCache();
 
-        assertTrue(services.inventaireQueryService.getInventoryPage(filtre(inventaire), PREMIERE_PAGE, true).isEmpty());
+        assertTrue(services.inventaireQueryService
+                .getInventoryPage(filtre(inventaire), PREMIERE_PAGE, true)
+                .isEmpty());
         assertEquals(
-            1,
-            services.inventaireQueryService.getInventoryPage(filtre(inventaire), PREMIERE_PAGE, false).getTotalElements(),
-            "la consultation d'un inventaire clos reste possible"
-        );
+                1,
+                services.inventaireQueryService
+                        .getInventoryPage(filtre(inventaire), PREMIERE_PAGE, false)
+                        .getTotalElements(),
+                "la consultation d'un inventaire clos reste possible");
     }
 
     @Test
@@ -98,10 +100,14 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         viderLeCache();
 
         assertEquals(1, page(filtre(inventaire, StoreInventoryLineEnum.GAP)).getTotalElements());
-        assertEquals(1, page(filtre(inventaire, StoreInventoryLineEnum.GAP_NEGATIF)).getTotalElements());
-        assertEquals(1, page(filtre(inventaire, StoreInventoryLineEnum.GAP_POSITIF)).getTotalElements(),
-            "une ligne sans écart est comptée comme positive ou nulle");
-        assertEquals(1, page(filtre(inventaire, StoreInventoryLineEnum.NOT_UPDATED)).getTotalElements());
+        assertEquals(
+                1, page(filtre(inventaire, StoreInventoryLineEnum.GAP_NEGATIF)).getTotalElements());
+        assertEquals(
+                1,
+                page(filtre(inventaire, StoreInventoryLineEnum.GAP_POSITIF)).getTotalElements(),
+                "une ligne sans écart est comptée comme positive ou nulle");
+        assertEquals(
+                1, page(filtre(inventaire, StoreInventoryLineEnum.NOT_UPDATED)).getTotalElements());
         assertEquals(2, page(filtre(inventaire, StoreInventoryLineEnum.UPDATED)).getTotalElements());
         assertEquals(3, page(filtre(inventaire, StoreInventoryLineEnum.NONE)).getTotalElements());
     }
@@ -115,12 +121,18 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         ligne(inventaire, produit("EFFERALGAN 500MG"));
         viderLeCache();
 
-        assertEquals(1, page(new StoreInventoryLineFilterRecord(inventaire.getId(), "DOLIPRANE", null, null, null))
-            .getTotalElements());
-        assertEquals(1, page(new StoreInventoryLineFilterRecord(inventaire.getId(), codeCip(doliprane), null, null, null))
-            .getTotalElements());
-        assertEquals(0, page(new StoreInventoryLineFilterRecord(inventaire.getId(), "INTROUVABLE", null, null, null))
-            .getTotalElements());
+        assertEquals(
+                1,
+                page(new StoreInventoryLineFilterRecord(inventaire.getId(), "DOLIPRANE", null, null, null))
+                        .getTotalElements());
+        assertEquals(
+                1,
+                page(new StoreInventoryLineFilterRecord(inventaire.getId(), codeCip(doliprane), null, null, null))
+                        .getTotalElements());
+        assertEquals(
+                0,
+                page(new StoreInventoryLineFilterRecord(inventaire.getId(), "INTROUVABLE", null, null, null))
+                        .getTotalElements());
     }
 
     /**
@@ -139,8 +151,7 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         ligne(inventaire, produit("EFFERALGAN HOSTILE"));
         viderLeCache();
 
-        var page = page(new StoreInventoryLineFilterRecord(
-            inventaire.getId(), "' OR 1=1 OR ''='", null, null, null));
+        var page = page(new StoreInventoryLineFilterRecord(inventaire.getId(), "' OR 1=1 OR ''='", null, null, null));
 
         assertEquals(0, page.getTotalElements(), "le terme est une donnée, pas du SQL");
     }
@@ -150,7 +161,7 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
     @DisplayName("Une apostrophe dans le terme reste une apostrophe")
     void rechercheAvecApostrophe() {
         StoreInventoryLineFilterRecord filtre = new StoreInventoryLineFilterRecord(
-            inventaire(InventoryCategory.MAGASIN).getId(), "L'OREAL", null, null, null);
+                inventaire(InventoryCategory.MAGASIN).getId(), "L'OREAL", null, null, null);
 
         assertEquals(0, page(filtre).getTotalElements(), "aucun produit ne porte ce libellé");
     }
@@ -166,8 +177,8 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         ligne(inventaire, produit(unique("HORS RAYON")));
         viderLeCache();
 
-        Page<StoreInventoryLineRecord> page = page(
-            new StoreInventoryLineFilterRecord(inventaire.getId(), null, null, antibiotiques.getId().longValue(), null));
+        Page<StoreInventoryLineRecord> page = page(new StoreInventoryLineFilterRecord(
+                inventaire.getId(), null, null, antibiotiques.getId().longValue(), null));
 
         assertEquals(1, page.getTotalElements());
         assertEquals(range.getId().intValue(), page.getContent().getFirst().produitId());
@@ -182,8 +193,8 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         }
         viderLeCache();
 
-        Page<StoreInventoryLineRecord> premiere = services.inventaireQueryService
-            .getInventoryPage(filtre(inventaire), PageRequest.of(0, 2), true);
+        Page<StoreInventoryLineRecord> premiere =
+                services.inventaireQueryService.getInventoryPage(filtre(inventaire), PageRequest.of(0, 2), true);
 
         assertEquals(5, premiere.getTotalElements());
         assertEquals(2, premiere.getContent().size());
@@ -213,8 +224,10 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
 
         Page<StoreInventoryLineRecord> page = page(filtre(inventaire));
 
-        assertEquals(1, page.getTotalElements(),
-            "la jointure sur la vue ABC ne fait pas disparaître les lignes d'un produit jamais vendu");
+        assertEquals(
+                1,
+                page.getTotalElements(),
+                "la jointure sur la vue ABC ne fait pas disparaître les lignes d'un produit jamais vendu");
     }
 
     @Test
@@ -237,9 +250,13 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
 
         assertNotNull(enveloppe);
         assertEquals(1, enveloppe.getInventoryGroups().size());
-        assertEquals(6_000, enveloppe.getInventoryExportSummaries().get("achatAvant").getValue(), "10 × 600");
-        assertEquals(4_800, enveloppe.getInventoryExportSummaries().get("achatApres").getValue(), "8 × 600");
-        assertEquals(-1_200, enveloppe.getInventoryExportSummaries().get("achatEcart").getValue());
+        assertEquals(
+                6_000, enveloppe.getInventoryExportSummaries().get("achatAvant").getValue(), "10 × 600");
+        assertEquals(
+                4_800, enveloppe.getInventoryExportSummaries().get("achatApres").getValue(), "8 × 600");
+        assertEquals(
+                -1_200,
+                enveloppe.getInventoryExportSummaries().get("achatEcart").getValue());
     }
 
     @Test
@@ -254,18 +271,19 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
         viderLeCache();
 
         List<StoreInventoryLotGroupExport> groupes =
-            services.inventaireQueryService.getLotGroupsForExport(inventaire.getId());
+                services.inventaireQueryService.getLotGroupsForExport(inventaire.getId());
 
         assertEquals(2, groupes.size(), "le produit sans lot ne disparaît pas de l'export");
         StoreInventoryLotGroupExport groupeSansLot = groupes.stream()
-            .filter(g -> g.getCodeCip().equals(codeCip(sansLot)))
-            .findFirst()
-            .orElseThrow();
-        assertEquals(7, groupeSansLot.getTotalInit(), "son stock initial vient de la même source que la grille produit");
+                .filter(g -> g.getCodeCip().equals(codeCip(sansLot)))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(
+                7, groupeSansLot.getTotalInit(), "son stock initial vient de la même source que la grille produit");
         StoreInventoryLotGroupExport groupeALots = groupes.stream()
-            .filter(g -> g.getCodeCip().equals(codeCip(aLots)))
-            .findFirst()
-            .orElseThrow();
+                .filter(g -> g.getCodeCip().equals(codeCip(aLots)))
+                .findFirst()
+                .orElseThrow();
         assertEquals(20, groupeALots.getTotalInit(), "le lot porte sa propre quantité initiale, figée à la création");
         assertEquals(18, groupeALots.getTotalOnHand());
     }

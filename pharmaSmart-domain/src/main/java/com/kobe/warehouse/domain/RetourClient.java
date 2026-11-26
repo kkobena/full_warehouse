@@ -91,54 +91,156 @@ public class RetourClient implements Serializable {
     @OneToMany(mappedBy = "retourClient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RetourClientLine> lines = new ArrayList<>();
 
-    public Integer getId() { return id; }
-    public RetourClient setId(Integer id) { this.id = id; return this; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getReference() { return reference; }
-    public RetourClient setReference(String reference) { this.reference = reference; return this; }
+    public RetourClient setId(Integer id) {
+        this.id = id;
+        return this;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public RetourClient setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+    public String getReference() {
+        return reference;
+    }
 
-    public LocalDateTime getValidatedAt() { return validatedAt; }
-    public RetourClient setValidatedAt(LocalDateTime validatedAt) { this.validatedAt = validatedAt; return this; }
+    public RetourClient setReference(String reference) {
+        this.reference = reference;
+        return this;
+    }
 
-    public MotifRetourClient getMotif() { return motif; }
-    public RetourClient setMotif(MotifRetourClient motif) { this.motif = motif; return this; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-    public ModeReglementRetour getModeReglement() { return modeReglement; }
-    public RetourClient setModeReglement(ModeReglementRetour modeReglement) { this.modeReglement = modeReglement; return this; }
+    public RetourClient setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public RetourClient setCommentaire(String commentaire) { this.commentaire = commentaire; return this; }
+    public LocalDateTime getValidatedAt() {
+        return validatedAt;
+    }
 
-    public int getMontantTotal() { return montantTotal; }
-    public RetourClient setMontantTotal(int montantTotal) { this.montantTotal = montantTotal; return this; }
+    public RetourClient setValidatedAt(LocalDateTime validatedAt) {
+        this.validatedAt = validatedAt;
+        return this;
+    }
 
-    public Long getOriginalSaleId() { return originalSaleId; }
-    public RetourClient setOriginalSaleId(Long originalSaleId) { this.originalSaleId = originalSaleId; return this; }
+    public MotifRetourClient getMotif() {
+        return motif;
+    }
 
-    public LocalDate getOriginalSaleDate() { return originalSaleDate; }
-    public RetourClient setOriginalSaleDate(LocalDate originalSaleDate) { this.originalSaleDate = originalSaleDate; return this; }
+    public RetourClient setMotif(MotifRetourClient motif) {
+        this.motif = motif;
+        return this;
+    }
 
-    public String getOriginalSaleRef() { return originalSaleRef; }
-    public RetourClient setOriginalSaleRef(String originalSaleRef) { this.originalSaleRef = originalSaleRef; return this; }
+    public ModeReglementRetour getModeReglement() {
+        return modeReglement;
+    }
 
-    public String getEchangeSaleRef() { return echangeSaleRef; }
-    public RetourClient setEchangeSaleRef(String echangeSaleRef) { this.echangeSaleRef = echangeSaleRef; return this; }
+    public RetourClient setModeReglement(ModeReglementRetour modeReglement) {
+        this.modeReglement = modeReglement;
+        return this;
+    }
 
-    public boolean isAvecEchange() { return avecEchange; }
-    public RetourClient setAvecEchange(boolean avecEchange) { this.avecEchange = avecEchange; return this; }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
-    public Customer getCustomer() { return customer; }
-    public RetourClient setCustomer(Customer customer) { this.customer = customer; return this; }
+    public RetourClient setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+        return this;
+    }
 
-    public AppUser getCreatedBy() { return createdBy; }
-    public RetourClient setCreatedBy(AppUser createdBy) { this.createdBy = createdBy; return this; }
+    public int getMontantTotal() {
+        return montantTotal;
+    }
 
-    public AppUser getValidatedBy() { return validatedBy; }
-    public RetourClient setValidatedBy(AppUser validatedBy) { this.validatedBy = validatedBy; return this; }
+    public RetourClient setMontantTotal(int montantTotal) {
+        this.montantTotal = montantTotal;
+        return this;
+    }
 
-    public List<RetourClientLine> getLines() { return lines; }
-    public RetourClient setLines(List<RetourClientLine> lines) { this.lines = lines; return this; }
+    public Long getOriginalSaleId() {
+        return originalSaleId;
+    }
+
+    public RetourClient setOriginalSaleId(Long originalSaleId) {
+        this.originalSaleId = originalSaleId;
+        return this;
+    }
+
+    public LocalDate getOriginalSaleDate() {
+        return originalSaleDate;
+    }
+
+    public RetourClient setOriginalSaleDate(LocalDate originalSaleDate) {
+        this.originalSaleDate = originalSaleDate;
+        return this;
+    }
+
+    public String getOriginalSaleRef() {
+        return originalSaleRef;
+    }
+
+    public RetourClient setOriginalSaleRef(String originalSaleRef) {
+        this.originalSaleRef = originalSaleRef;
+        return this;
+    }
+
+    public String getEchangeSaleRef() {
+        return echangeSaleRef;
+    }
+
+    public RetourClient setEchangeSaleRef(String echangeSaleRef) {
+        this.echangeSaleRef = echangeSaleRef;
+        return this;
+    }
+
+    public boolean isAvecEchange() {
+        return avecEchange;
+    }
+
+    public RetourClient setAvecEchange(boolean avecEchange) {
+        this.avecEchange = avecEchange;
+        return this;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public RetourClient setCustomer(Customer customer) {
+        this.customer = customer;
+        return this;
+    }
+
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public RetourClient setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
+        return this;
+    }
+
+    public AppUser getValidatedBy() {
+        return validatedBy;
+    }
+
+    public RetourClient setValidatedBy(AppUser validatedBy) {
+        this.validatedBy = validatedBy;
+        return this;
+    }
+
+    public List<RetourClientLine> getLines() {
+        return lines;
+    }
+
+    public RetourClient setLines(List<RetourClientLine> lines) {
+        this.lines = lines;
+        return this;
+    }
 }

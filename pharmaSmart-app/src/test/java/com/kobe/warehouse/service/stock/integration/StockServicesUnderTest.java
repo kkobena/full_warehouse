@@ -1,9 +1,7 @@
 package com.kobe.warehouse.service.stock.integration;
 
-import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
@@ -25,8 +23,8 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ParetoAnalysisRepository;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
-import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.ProduitCodeAliasRepository;
+import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.ReferenceRepository;
@@ -37,10 +35,10 @@ import com.kobe.warehouse.repository.RetourDepotRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SemoisConfigurationRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
-import com.kobe.warehouse.repository.SuggestionLineRepository;
-import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
+import com.kobe.warehouse.repository.SuggestionLineRepository;
+import com.kobe.warehouse.repository.SuggestionRepository;
 import com.kobe.warehouse.repository.VentesMensuellesAgregeesRepository;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.FournisseurProduitService;
@@ -51,55 +49,56 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
+import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import com.kobe.warehouse.service.impl.LotServiceImpl;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
-import com.kobe.warehouse.service.report.excel.CsvExportService;
-import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
-import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
-import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
-import com.kobe.warehouse.service.report.pdf.SuggestionPdfReportService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
+import com.kobe.warehouse.service.report.excel.CsvExportService;
+import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
+import com.kobe.warehouse.service.report.pdf.SuggestionPdfReportService;
 import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.stock.AvoirFournisseurService;
+import com.kobe.warehouse.service.stock.BedService;
+import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
-import com.kobe.warehouse.service.stock.ProductCodeResolverService;
+import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import com.kobe.warehouse.service.stock.GapAnalysisService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import com.kobe.warehouse.service.stock.AvoirFournisseurService;
-import com.kobe.warehouse.service.stock.CommandService;
-import com.kobe.warehouse.service.stock.BedService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.ProduitIndicateursService;
 import com.kobe.warehouse.service.stock.ProduitMergeService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.ReconciliationFournisseurService;
 import com.kobe.warehouse.service.stock.RetourBonService;
-import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.RetourDepotService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.stock.StockProduitService;
-import com.kobe.warehouse.service.stock.impl.DataMatrixParserServiceImpl;
-import com.kobe.warehouse.service.stock.impl.ProductCodeResolverServiceImpl;
-import com.kobe.warehouse.service.stock.impl.GapAnalysisServiceImpl;
-import com.kobe.warehouse.service.stock.impl.LotStockLocationServiceImpl;
+import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.impl.AvoirFournisseurServiceImpl;
 import com.kobe.warehouse.service.stock.impl.BedServiceImpl;
+import com.kobe.warehouse.service.stock.impl.DataMatrixParserServiceImpl;
+import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
+import com.kobe.warehouse.service.stock.impl.GapAnalysisServiceImpl;
+import com.kobe.warehouse.service.stock.impl.LotStockLocationServiceImpl;
+import com.kobe.warehouse.service.stock.impl.ProductCodeResolverServiceImpl;
 import com.kobe.warehouse.service.stock.impl.ProduitIndicateursServiceImpl;
 import com.kobe.warehouse.service.stock.impl.ProduitMergeServiceImpl;
 import com.kobe.warehouse.service.stock.impl.ProduitServiceImpl;
 import com.kobe.warehouse.service.stock.impl.ReconciliationFournisseurServiceImpl;
 import com.kobe.warehouse.service.stock.impl.RetourBonServiceImpl;
-import com.kobe.warehouse.service.stock.impl.SuggestionProduitServiceImpl;
 import com.kobe.warehouse.service.stock.impl.RetourDepotServiceImpl;
-import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import com.kobe.warehouse.service.stock.impl.StockEntryDataServiceImpl;
 import com.kobe.warehouse.service.stock.impl.StockEntryServiceImpl;
+import com.kobe.warehouse.service.stock.impl.SuggestionProduitServiceImpl;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import java.util.Collection;
@@ -149,7 +148,8 @@ final class StockServicesUnderTest {
     final UserService userService = mock(UserService.class);
     final RetourBonPdfReportService retourBonPdfReportService = mock(RetourBonPdfReportService.class);
     final SuggestionPdfReportService suggestionPdfReportService = mock(SuggestionPdfReportService.class);
-    final DeliveryReceiptReportReportService deliveryReceiptReportService = mock(DeliveryReceiptReportReportService.class);
+    final DeliveryReceiptReportReportService deliveryReceiptReportService =
+            mock(DeliveryReceiptReportReportService.class);
     final EtiquetteExportReportServiceImpl etiquetteExportService = mock(EtiquetteExportReportServiceImpl.class);
     final EtiquetteLotExportService etiquetteLotExportService = mock(EtiquetteLotExportService.class);
     final EtatProduitService etatProduitService = mock(EtatProduitService.class);
@@ -228,7 +228,8 @@ final class StockServicesUnderTest {
         this.substitutRepository = IntegrationPostgresDatabase.bean(SubstitutRepository.class);
         this.prixReferenceRepository = IntegrationPostgresDatabase.bean(PrixReferenceRepository.class);
         this.semoisConfigurationRepository = IntegrationPostgresDatabase.bean(SemoisConfigurationRepository.class);
-        this.ventesMensuellesAgregeesRepository = IntegrationPostgresDatabase.bean(VentesMensuellesAgregeesRepository.class);
+        this.ventesMensuellesAgregeesRepository =
+                IntegrationPostgresDatabase.bean(VentesMensuellesAgregeesRepository.class);
         this.salesLineRepository = IntegrationPostgresDatabase.bean(SalesLineRepository.class);
         this.avoirFournisseurRepository = IntegrationPostgresDatabase.bean(AvoirFournisseurRepository.class);
         this.retourBonItemRepository = IntegrationPostgresDatabase.bean(RetourBonItemRepository.class);
@@ -248,57 +249,51 @@ final class StockServicesUnderTest {
         this.referenceService = new ReferenceService(IntegrationPostgresDatabase.bean(ReferenceRepository.class));
         this.dataMatrixParserService = new DataMatrixParserServiceImpl();
         this.productCodeResolverService = new ProductCodeResolverServiceImpl(
-            fournisseurProduitRepository,
-            produitRepository,
-            IntegrationPostgresDatabase.bean(ProduitCodeAliasRepository.class),
-            dataMatrixParserService
-        );
+                fournisseurProduitRepository,
+                produitRepository,
+                IntegrationPostgresDatabase.bean(ProduitCodeAliasRepository.class),
+                dataMatrixParserService);
 
         brancherOrderLineServiceSurSonRepository();
 
         this.lotStockLocationService = new LotStockLocationServiceImpl(lotStockLocationRepository, lotRepository);
 
         this.lotService = new LotServiceImpl(
-            lotRepository,
-            lotStockLocationRepository,
-            appConfigurationService,
-            produitRepository,
-            lotServiceReportService,
-            orderLineService,
-            lotStockLocationService,
-            storageService,
-            retourBonRepository
-        );
+                lotRepository,
+                lotStockLocationRepository,
+                appConfigurationService,
+                produitRepository,
+                lotServiceReportService,
+                orderLineService,
+                lotStockLocationService,
+                storageService,
+                retourBonRepository);
 
         this.stockProduitService = new StockProduitService(
-            stockProduitRepository,
-            produitRepository,
-            storageService,
-            repartitionStockService
-        );
+                stockProduitRepository, produitRepository, storageService, repartitionStockService);
 
         this.reconciliationFournisseurService = new ReconciliationFournisseurServiceImpl(commandeRepository);
 
-        this.gapAnalysisService = new GapAnalysisServiceImpl(inventoryGapAnalysisRepository, storeInventoryLineRepository);
+        this.gapAnalysisService =
+                new GapAnalysisServiceImpl(inventoryGapAnalysisRepository, storeInventoryLineRepository);
 
         this.produitService = new ProduitServiceImpl(
-            produitRepository,
-            customizedProductService,
-            IntegrationPostgresDatabase.bean(RayonRepository.class),
-            objectMapper,
-            storageService,
-            logsService,
-            stockProduitRepository,
-            rayonProduitRepository,
-            suggestionReassortService,
-            substitutRepository,
-            fournisseurProduitRepository,
-            prixRererenceService,
-            dataMatrixParserService,
-            salesLineRepository,
-            orderLineRepository,
-            inventoryTransactionService
-        );
+                produitRepository,
+                customizedProductService,
+                IntegrationPostgresDatabase.bean(RayonRepository.class),
+                objectMapper,
+                storageService,
+                logsService,
+                stockProduitRepository,
+                rayonProduitRepository,
+                suggestionReassortService,
+                substitutRepository,
+                fournisseurProduitRepository,
+                prixRererenceService,
+                dataMatrixParserService,
+                salesLineRepository,
+                orderLineRepository,
+                inventoryTransactionService);
 
         // ProduitServiceImpl reçoit son EntityManager par @PersistenceContext, donc par le conteneur
         // Spring — ici le graphe est monté à la main et le champ resterait nul. La suppression en
@@ -306,134 +301,117 @@ final class StockServicesUnderTest {
         ReflectionTestUtils.setField(produitService, "entityManager", entityManager);
 
         this.produitMergeService = new ProduitMergeServiceImpl(
-            produitRepository,
-            stockProduitRepository,
-            lotRepository,
-            prixReferenceRepository,
-            fournisseurProduitRepository,
-            rayonProduitRepository,
-            salesLineRepository,
-            semoisConfigurationRepository,
-            ventesMensuellesAgregeesRepository,
-            storeInventoryLineRepository,
-            substitutRepository,
-            logsService
-        );
+                produitRepository,
+                stockProduitRepository,
+                lotRepository,
+                prixReferenceRepository,
+                fournisseurProduitRepository,
+                rayonProduitRepository,
+                salesLineRepository,
+                semoisConfigurationRepository,
+                ventesMensuellesAgregeesRepository,
+                storeInventoryLineRepository,
+                substitutRepository,
+                logsService);
         // Meme raison que pour ProduitServiceImpl : la fusion reaffecte une dizaine de tables en
         // JPQL bulk sur ce champ, injecte par @PersistenceContext en production.
         ReflectionTestUtils.setField(produitMergeService, "entityManager", entityManager);
 
         this.avoirFournisseurService = new AvoirFournisseurServiceImpl(
-            avoirFournisseurRepository,
-            retourBonRepository,
-            retourBonItemRepository,
-            userService
-        );
+                avoirFournisseurRepository, retourBonRepository, retourBonItemRepository, userService);
 
         this.retourDepotService = new RetourDepotServiceImpl(
-            retourDepotRepository,
-            retourDepotItemRepository,
-            magasinRepository,
-            produitRepository,
-            userService,
-            stockProduitRepository,
-            inventoryTransactionService
-        );
+                retourDepotRepository,
+                retourDepotItemRepository,
+                magasinRepository,
+                produitRepository,
+                userService,
+                stockProduitRepository,
+                inventoryTransactionService);
 
         this.bedService = new BedServiceImpl(
-            commandeRepository,
-            orderLineRepository,
-            fournisseurProduitRepository,
-            fournisseurRepository,
-            storageService,
-            logsService,
-            produitService,
-            commandeIdGeneratorService,
-            orderLineIdGeneratorService,
-            referenceService,
-            inventoryTransactionService
-        );
+                commandeRepository,
+                orderLineRepository,
+                fournisseurProduitRepository,
+                fournisseurRepository,
+                storageService,
+                logsService,
+                produitService,
+                commandeIdGeneratorService,
+                orderLineIdGeneratorService,
+                referenceService,
+                inventoryTransactionService);
 
-        this.produitIndicateursService = new ProduitIndicateursServiceImpl(
-            paretoAnalysisRepository,
-            ventesMensuellesAgregeesRepository
-        );
+        this.produitIndicateursService =
+                new ProduitIndicateursServiceImpl(paretoAnalysisRepository, ventesMensuellesAgregeesRepository);
         // Les indicateurs lisent deux vues Postgres en SQL natif sur cet EntityManager.
         ReflectionTestUtils.setField(produitIndicateursService, "entityManager", entityManager);
 
         this.retourBonService = new RetourBonServiceImpl(
-            retourBonRepository,
-            retourBonItemRepository,
-            commandeRepository,
-            orderLineRepository,
-            userService,
-            stockProduitRepository,
-            inventoryTransactionService,
-            lotRepository,
-            retourBonPdfReportService,
-            fournisseurProduitRepository,
-            fournisseurRepository,
-            appConfigurationService,
-            avoirFournisseurService
-        );
+                retourBonRepository,
+                retourBonItemRepository,
+                commandeRepository,
+                orderLineRepository,
+                userService,
+                stockProduitRepository,
+                inventoryTransactionService,
+                lotRepository,
+                retourBonPdfReportService,
+                fournisseurProduitRepository,
+                fournisseurRepository,
+                appConfigurationService,
+                avoirFournisseurService);
 
         this.suggestionProduitService = new SuggestionProduitServiceImpl(
-            suggestionRepository,
-            suggestionLineRepository,
-            fournisseurProduitRepository,
-            storageService,
-            referenceService,
-            appConfigurationService,
-            etatProduitService,
-            commandService,
-            csvExportService,
-            entityManager,
-            suggestionPdfReportService,
-            produitRepository,
-            new ColisageServiceImpl()
-        );
+                suggestionRepository,
+                suggestionLineRepository,
+                fournisseurProduitRepository,
+                storageService,
+                referenceService,
+                appConfigurationService,
+                etatProduitService,
+                commandService,
+                csvExportService,
+                entityManager,
+                suggestionPdfReportService,
+                produitRepository,
+                new ColisageServiceImpl());
 
         this.stockEntryDataService = new StockEntryDataServiceImpl(
-            entityManager,
-            commandeRepository,
-            deliveryReceiptReportService,
-            orderLineRepository,
-            etiquetteExportService,
-            etiquetteLotExportService
-        );
+                entityManager,
+                commandeRepository,
+                deliveryReceiptReportService,
+                orderLineRepository,
+                etiquetteExportService,
+                etiquetteLotExportService);
 
         FournisseurProduitService fournisseurProduitService = new FournisseurProduitService(
-            fournisseurProduitRepository,
-            fournisseurRepository,
-            produitService,
-            storageService
-        );
+                fournisseurProduitRepository, fournisseurRepository, produitService, storageService);
 
         this.stockEntryService = new StockEntryServiceImpl(
-            commandeRepository,
-            produitService,
-            referenceService,
-            storageService,
-            fournisseurProduitService,
-            logsService,
-            fournisseurRepository,
-            orderLineService,
-            commandeIdGeneratorService,
-            orderLineIdGeneratorService,
-            importationEchoueService,
-            inventoryTransactionService,
-            lotRepository,
-            lotReceptionRepository,
-            appConfigurationService,
-            priceHistoryRepository,
-            orderLineRepository,
-            lotStockLocationService,
-            suggestionReassortService,
-            ruptureService,
-            dataMatrixParserService,
-            productCodeResolverService,
-            avoirClientDocumentService
-        );
+                commandeRepository,
+                produitService,
+                referenceService,
+                storageService,
+                fournisseurProduitService,
+                logsService,
+                fournisseurRepository,
+                orderLineService,
+                commandeIdGeneratorService,
+                orderLineIdGeneratorService,
+                importationEchoueService,
+                inventoryTransactionService,
+                lotRepository,
+                lotReceptionRepository,
+                appConfigurationService,
+                priceHistoryRepository,
+                orderLineRepository,
+                lotStockLocationService,
+                suggestionReassortService,
+                ruptureService,
+                dataMatrixParserService,
+                productCodeResolverService,
+                avoirClientDocumentService);
     }
 
     /**
@@ -444,21 +422,22 @@ final class StockServicesUnderTest {
     @SuppressWarnings("unchecked")
     private void brancherOrderLineServiceSurSonRepository() {
         lenient()
-            .when(orderLineService.findOneById(any(OrderLineId.class)))
-            .thenAnswer(invocation -> orderLineRepository.findById(invocation.getArgument(0)));
+                .when(orderLineService.findOneById(any(OrderLineId.class)))
+                .thenAnswer(invocation -> orderLineRepository.findById(invocation.getArgument(0)));
         lenient()
-            .when(orderLineService.save(any(OrderLine.class)))
-            .thenAnswer(invocation -> orderLineRepository.save(invocation.getArgument(0)));
+                .when(orderLineService.save(any(OrderLine.class)))
+                .thenAnswer(invocation -> orderLineRepository.save(invocation.getArgument(0)));
         lenient()
-            .when(orderLineService.findAllByOrderLineIdIn(anySet(), any()))
-            .thenAnswer(invocation -> orderLineRepository.findAllByIdInAndOrderDate(invocation.getArgument(0), invocation.getArgument(1)));
+                .when(orderLineService.findAllByOrderLineIdIn(anySet(), any()))
+                .thenAnswer(invocation -> orderLineRepository.findAllByIdInAndOrderDate(
+                        invocation.getArgument(0), invocation.getArgument(1)));
         lenient()
-            .doAnswer(invocation -> orderLineRepository.saveAll((Collection<OrderLine>) invocation.getArgument(0)))
-            .when(orderLineService)
-            .saveAll(any(List.class));
+                .doAnswer(invocation -> orderLineRepository.saveAll((Collection<OrderLine>) invocation.getArgument(0)))
+                .when(orderLineService)
+                .saveAll(any(List.class));
         lenient()
-            .doAnswer(invocation -> orderLineRepository.saveAll((Collection<OrderLine>) invocation.getArgument(0)))
-            .when(orderLineService)
-            .saveAll(any(Set.class));
+                .doAnswer(invocation -> orderLineRepository.saveAll((Collection<OrderLine>) invocation.getArgument(0)))
+                .when(orderLineService)
+                .saveAll(any(Set.class));
     }
 }

@@ -8,9 +8,4 @@ package com.kobe.warehouse.service.dto;
  * @param totalNetAmount   montant total HT net (htAmount, après remises)
  * @param totalTaxAmount   montant total TVA (taxAmount)
  */
-public record DeliveryTotalsDTO(
-    long count,
-    long totalGrossAmount,
-    long totalNetAmount,
-    long totalTaxAmount
-) {}
+public record DeliveryTotalsDTO(long count, long totalGrossAmount, long totalNetAmount, long totalTaxAmount) {}

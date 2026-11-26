@@ -80,28 +80,26 @@ class InventoryCloseServiceImplTest {
     @BeforeEach
     void init() {
         service = new InventoryCloseServiceImpl(
-            storeInventoryLineRepository,
-            storeInventoryRepository,
-            historiqueInventaireService,
-            appConfigurationService,
-            em,
-            eventPublisher
-        );
+                storeInventoryLineRepository,
+                storeInventoryRepository,
+                historiqueInventaireService,
+                appConfigurationService,
+                em,
+                eventPublisher);
         inventaire = inventaire(InventoryStatut.CREATE);
     }
 
     @Test
     @DisplayName("Un inventaire déjà clos n'est pas reclôturé")
     void inventaireDejaClos() {
-        when(storeInventoryRepository.getReferenceById(INVENTAIRE))
-            .thenReturn(inventaire(InventoryStatut.CLOSED));
+        when(storeInventoryRepository.getReferenceById(INVENTAIRE)).thenReturn(inventaire(InventoryStatut.CLOSED));
 
         ItemsCountRecord resultat = service.close(INVENTAIRE);
 
         assertEquals(0, resultat.count());
         verifyNoInteractions(em, eventPublisher, historiqueInventaireService);
         verify(storeInventoryLineRepository, never())
-            .countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(anyLong());
+                .countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(anyLong());
     }
 
     @Test
@@ -109,7 +107,7 @@ class InventoryCloseServiceImplTest {
     void ligneNonComptee() {
         when(storeInventoryRepository.getReferenceById(INVENTAIRE)).thenReturn(inventaire);
         when(storeInventoryLineRepository.countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(INVENTAIRE))
-            .thenReturn(1L);
+                .thenReturn(1L);
 
         assertThrows(InventoryException.class, () -> service.close(INVENTAIRE));
 
@@ -197,7 +195,7 @@ class InventoryCloseServiceImplTest {
         when(storeInventoryRepository.getReferenceById(INVENTAIRE)).thenReturn(inventaire);
         when(storeInventoryRepository.save(inventaire)).thenReturn(inventaire);
         when(storeInventoryLineRepository.countStoreInventoryLineByUpdatedIsFalseAndStoreInventoryId(INVENTAIRE))
-            .thenReturn(0L);
+                .thenReturn(0L);
         when(em.createNativeQuery(anyString(), eq(Tuple.class))).thenReturn(resume);
         when(em.createStoredProcedureQuery("proc_close_inventory_v2")).thenReturn(procedure);
     }

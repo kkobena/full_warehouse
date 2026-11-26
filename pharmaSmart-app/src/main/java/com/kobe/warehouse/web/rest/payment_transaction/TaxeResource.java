@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.payment_transaction;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.TaxeService;
 import com.kobe.warehouse.service.financiel_transaction.dto.ModeChiffreAffaire;
@@ -15,73 +17,96 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
-@RequiresNavAccess({ "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" })
-public class TaxeResource  {
+@RequiresNavAccess({
+    "comptabilite.taxe-report",
+    "mvt-caisse.taxe-report",
+    "mvt-caisse.declaration-tva",
+    "declaration-ca.taxe-report-reel"
+})
+public class TaxeResource {
     private final TaxeService taxeService;
+
     public TaxeResource(TaxeService taxeService) {
         this.taxeService = taxeService;
     }
+
     @GetMapping("/taxe-report")
     public ResponseEntity<TaxeWrapperDTO> getTaxe(
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
-        @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode
-    ) {
-        return ResponseEntity.ok(
-            taxeService.fetchTaxe(new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).setMode(mode).build(), false)
-        );
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+            @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
+            @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode) {
+        return ResponseEntity.ok(taxeService.fetchTaxe(
+                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy)
+                        .setMode(mode)
+                        .build(),
+                false));
     }
 
     @GetMapping("/taxe-report/pdf")
-    @RequiresNavAccess(value = { "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "comptabilite.taxe-report",
+                "mvt-caisse.taxe-report",
+                "mvt-caisse.declaration-tva",
+                "declaration-ca.taxe-report-reel"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getExportTaxes(
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
-        @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode
-    ) {
-        return Utils.printPDF(taxeService.exportToPdf(
-            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).setMode(mode).build()
-        ), nomFichier("rapport_tva", mode, "pdf"));
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+            @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
+            @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode) {
+        return Utils.printPDF(
+                taxeService.exportToPdf(
+                        new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy)
+                                .setMode(mode)
+                                .build()),
+                nomFichier("rapport_tva", mode, "pdf"));
     }
 
     @GetMapping("/taxe-report/declaration/pdf")
-    @RequiresNavAccess(value = { "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {
+                "comptabilite.taxe-report",
+                "mvt-caisse.taxe-report",
+                "mvt-caisse.declaration-tva",
+                "declaration-ca.taxe-report-reel"
+            },
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDeclarationToPdf(
-        @RequestParam(value = "startDate", required = false) LocalDate startDate,
-        @RequestParam(value = "endDate", required = false) LocalDate endDate
-    ) {
-        MvtParam param = new MvtParam().setFromDate(startDate).setToDate(endDate).build();
+            @RequestParam(value = "startDate", required = false) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) LocalDate endDate) {
+        MvtParam param =
+                new MvtParam().setFromDate(startDate).setToDate(endDate).build();
         return Utils.printPDF(taxeService.exportDeclarationToPdf(param), "declaration_tva.pdf");
     }
 
     @GetMapping("/taxe-report/declaration")
     public ResponseEntity<TaxeWrapperDTO> getDeclarationTva(
-        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate,
-        @RequestParam(value = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
-        @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
-        @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
-        @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
-        @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode
-    ) {
-        return ResponseEntity.ok(
-            taxeService.fetchDeclarationTva(
-                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).setMode(mode).build()
-            )
-        );
+            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @RequestParam(value = "categorieChiffreAffaires", required = false)
+                    Set<CategorieChiffreAffaire> categorieChiffreAffaires,
+            @RequestParam(value = "statuts", required = false) Set<SalesStatut> statuts,
+            @RequestParam(value = "typeVentes", required = false) Set<TypeVente> typeVentes,
+            @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy,
+            @RequestParam(value = "mode", required = false) ModeChiffreAffaire mode) {
+        return ResponseEntity.ok(taxeService.fetchDeclarationTva(
+                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy)
+                        .setMode(mode)
+                        .build()));
     }
 
     /**

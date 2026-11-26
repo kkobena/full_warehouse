@@ -21,9 +21,7 @@ export class HasAuthorityService {
     const list = Array.isArray(authorities) ? authorities : [authorities];
 
     // Nouveau : cherche via AbilityService (PR_FORCE_STOCK → pr-force-stock)
-    const viaAbility = list.some(a =>
-      this.abilityService.can('execute', a.toLowerCase().replace(/_/g, '-'))
-    );
+    const viaAbility = list.some(a => this.abilityService.can('execute', a.toLowerCase().replace(/_/g, '-')));
     if (viaAbility) return true;
 
     // Fallback : RBAC existant (pendant la transition)

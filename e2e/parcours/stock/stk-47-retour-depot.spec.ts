@@ -66,7 +66,10 @@ scenario('STK-47', async ({ etape, page }) => {
     await page.getByRole('button', { name: 'Enregistrer' }).click();
     // Le stock a changé de main des deux côtés d'un coup.
     await expect(
-      page.locator('[role="alert"], .toast, ngb-toast').filter({ hasText: /succès/i }).first(),
+      page
+        .locator('[role="alert"], .toast, ngb-toast')
+        .filter({ hasText: /succès/i })
+        .first(),
     ).toBeVisible();
   });
 

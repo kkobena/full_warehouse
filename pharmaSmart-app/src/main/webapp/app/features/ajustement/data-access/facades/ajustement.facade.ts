@@ -20,30 +20,30 @@ export class AjustementFacade {
   readonly store = inject(AjustementStore);
 
   // Expose store signals as read-only
-  readonly history         = this.store.history;
-  readonly totalHistory    = this.store.totalHistory;
-  readonly loadingHistory  = this.store.loadingHistory;
-  readonly currentAjust    = this.store.currentAjust;
-  readonly lines           = this.store.lines;
-  readonly loadingLines    = this.store.loadingLines;
-  readonly direction       = this.store.direction;
+  readonly history = this.store.history;
+  readonly totalHistory = this.store.totalHistory;
+  readonly loadingHistory = this.store.loadingHistory;
+  readonly currentAjust = this.store.currentAjust;
+  readonly lines = this.store.lines;
+  readonly loadingLines = this.store.loadingLines;
+  readonly direction = this.store.direction;
   readonly selectedStorage = this.store.selectedStorage;
-  readonly selectedMotif   = this.store.selectedMotif;
+  readonly selectedMotif = this.store.selectedMotif;
   readonly selectedProduit = this.store.selectedProduit;
-  readonly gestionLot      = this.store.gestionLot;
-  readonly availableLots   = this.store.availableLots;
-  readonly selectedLot     = this.store.selectedLot;
-  readonly loadingLots     = this.store.loadingLots;
-  readonly storages        = this.store.storages;
-  readonly motifs          = this.store.motifs;
-  readonly isSaving        = this.store.isSaving;
-  readonly error           = this.store.error;
-  readonly lastEvent       = this.store.lastEvent;
+  readonly gestionLot = this.store.gestionLot;
+  readonly availableLots = this.store.availableLots;
+  readonly selectedLot = this.store.selectedLot;
+  readonly loadingLots = this.store.loadingLots;
+  readonly storages = this.store.storages;
+  readonly motifs = this.store.motifs;
+  readonly isSaving = this.store.isSaving;
+  readonly error = this.store.error;
+  readonly lastEvent = this.store.lastEvent;
 
   // Computed
-  readonly stockActuel         = this.store.stockActuel;
+  readonly stockActuel = this.store.stockActuel;
   readonly lotSelectionVisible = this.store.lotSelectionVisible;
-  readonly hasLines            = this.store.hasLines;
+  readonly hasLines = this.store.hasLines;
 
   // ── Initialisation ──────────────────────────────────────────────────────
 
@@ -104,10 +104,10 @@ export class AjustementFacade {
   /** signedQty : positif = entrée, négatif = sortie. */
   addLine(signedQty: number): void {
     const produit = this.store.selectedProduit();
-    const motif   = this.store.selectedMotif();
+    const motif = this.store.selectedMotif();
     const storage = this.store.selectedStorage();
-    const lot     = this.store.selectedLot();
-    const ajust   = this.store.currentAjust();
+    const lot = this.store.selectedLot();
+    const ajust = this.store.currentAjust();
 
     if (!produit || !motif || signedQty === 0) return;
 
@@ -147,21 +147,30 @@ export class AjustementFacade {
 
   removeLine(id: number): void {
     this.api.deleteLine(id).subscribe({
-      next: () => { this.reloadLines(); this.store.emitEvent('LINE_REMOVED', { id }); },
+      next: () => {
+        this.reloadLines();
+        this.store.emitEvent('LINE_REMOVED', { id });
+      },
       error: err => this.handleError(err),
     });
   }
 
   removeLines(ids: number[]): void {
     this.api.deleteLines(ids).subscribe({
-      next: () => { this.reloadLines(); this.store.emitEvent('LINE_REMOVED'); },
+      next: () => {
+        this.reloadLines();
+        this.store.emitEvent('LINE_REMOVED');
+      },
       error: err => this.handleError(err),
     });
   }
 
   updateLineQty(line: IAjustement, signedQty: number): void {
     this.api.updateLine({ ...line, qtyMvt: signedQty }).subscribe({
-      next: () => { this.reloadLines(); this.store.emitEvent('LINE_UPDATED'); },
+      next: () => {
+        this.reloadLines();
+        this.store.emitEvent('LINE_UPDATED');
+      },
       error: err => this.handleError(err),
     });
   }
@@ -207,7 +216,10 @@ export class AjustementFacade {
     if (!id) return;
     this.store.setLoadingLines(true);
     this.api.getLines(id).subscribe({
-      next: res => { this.store.setLines(res.body ?? []); this.store.emitEvent('LINES_LOADED'); },
+      next: res => {
+        this.store.setLines(res.body ?? []);
+        this.store.emitEvent('LINES_LOADED');
+      },
       error: err => this.handleError(err),
     });
   }
@@ -251,9 +263,10 @@ export class AjustementFacade {
 
   private handleError(err: unknown): void {
     this.store.setIsSaving(false);
-    const msg = (err as { error?: { detail?: string }; message?: string })?.error?.detail
-      ?? (err as { message?: string })?.message
-      ?? 'Erreur inattendue';
+    const msg =
+      (err as { error?: { detail?: string }; message?: string })?.error?.detail ??
+      (err as { message?: string })?.message ??
+      'Erreur inattendue';
     this.store.setError(msg);
     this.store.emitEvent('ERROR', msg);
   }

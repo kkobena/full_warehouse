@@ -8,10 +8,9 @@ import java.util.List;
  * @param limite            périmètre du contrôle, à afficher tel quel
  */
 public record ControleResultatDTO(
-    List<AlerteControleDTO> alertes,
-    List<ProduitNonControleDTO> nonControles,
-    boolean referentielPublie,
-    String limite
-) {
+        List<AlerteControleDTO> alertes,
+        List<ProduitNonControleDTO> nonControles,
+        boolean referentielPublie,
+        String limite) {
     public static final String LIMITE = "Contrôle établi sur les achats identifiés de ce client.";
 }

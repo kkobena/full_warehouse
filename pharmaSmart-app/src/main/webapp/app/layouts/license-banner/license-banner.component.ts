@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {RouterLink} from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
-import {LicenseService} from 'app/core/license/license.service';
+import { LicenseService } from 'app/core/license/license.service';
 
 @Component({
   selector: 'app-license-banner',
@@ -33,8 +33,7 @@ import {LicenseService} from 'app/core/license/license.service';
             </div>
           }
 
-          <a routerLink="/licence" class="btn btn-sm btn-dark license-banner__action"> Gérer ma
-            licence </a>
+          <a routerLink="/licence" class="btn btn-sm btn-dark license-banner__action"> Gérer ma licence </a>
         </div>
       </div>
     }
@@ -98,9 +97,7 @@ export class LicenseBannerComponent {
     return info?.demo && info.status === 'VALID' ? 'alert alert-info mb-0' : 'alert alert-warning mb-0';
   });
 
-  protected readonly icon = computed(() =>
-    this.licenseService.license()?.readOnly ? 'pi pi-ban' : 'pi pi-exclamation-triangle',
-  );
+  protected readonly icon = computed(() => (this.licenseService.license()?.readOnly ? 'pi pi-ban' : 'pi pi-exclamation-triangle'));
 
   protected readonly title = computed(() => {
     const info = this.licenseService.license();

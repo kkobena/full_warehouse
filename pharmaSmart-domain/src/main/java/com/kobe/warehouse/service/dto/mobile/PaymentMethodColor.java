@@ -8,12 +8,12 @@ import com.kobe.warehouse.domain.enumeration.PaymentGroup;
  * Maps payment codes/groups to display colors.
  */
 public enum PaymentMethodColor {
-    CASH("CASH", "#28A745"),      // Green
-    CB("CB", "#007BFF"),          // Blue
-    MOBILE("MOBILE", "#FFC107"),  // Yellow
+    CASH("CASH", "#28A745"), // Green
+    CB("CB", "#007BFF"), // Blue
+    MOBILE("MOBILE", "#FFC107"), // Yellow
     VIREMENT("VIREMENT", "#17A2B8"), // Cyan
-    CHEQUE("CHEQUE", "#6C757D"),  // Gray
-    CREDIT("CREDIT", "#DC3545"),  // Red
+    CHEQUE("CHEQUE", "#6C757D"), // Gray
+    CREDIT("CREDIT", "#DC3545"), // Red
     CAUTION("CAUTION", "#6F42C1"), // Purple
     DEFAULT("DEFAULT", "#6C757D"); // Gray (fallback)
 

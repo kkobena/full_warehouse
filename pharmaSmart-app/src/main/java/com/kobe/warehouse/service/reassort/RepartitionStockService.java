@@ -20,7 +20,7 @@ public interface RepartitionStockService {
     void process(List<RepartionQueryDto> datas);
 
     Page<RepartitionStockProduitDto> fetchRepartitionStockProduits(
-        RepartionSearchQueryDto searchQueryDto, Pageable pageable);
+            RepartionSearchQueryDto searchQueryDto, Pageable pageable);
 
     /*
     Lors de l'ajout de stock de reserve , on peut transférer transférer du stock du stock de rayon vers le stock de reserve
@@ -46,7 +46,7 @@ public interface RepartitionStockService {
      * @param quantity         quantité à transférer (≤ stock réserve disponible)
      */
     void transfertImpliciteReserveVersRayon(
-        Integer produitId, Integer rayonStorageId, Integer reserveStorageId, int quantity);
+            Integer produitId, Integer rayonStorageId, Integer reserveStorageId, int quantity);
 
     /**
      * Répartition automatique rayon → réserve déclenchée à la réception d'une commande.

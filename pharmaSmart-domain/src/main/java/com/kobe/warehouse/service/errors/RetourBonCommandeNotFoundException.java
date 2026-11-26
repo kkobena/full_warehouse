@@ -14,16 +14,14 @@ public class RetourBonCommandeNotFoundException extends BadRequestAlertException
 
     public RetourBonCommandeNotFoundException() {
         super(
-            "Commande source introuvable pour ce lot. Ce lot n'est pas rattaché à une commande de réception.",
-            "commandeNotFound"
-        );
+                "Commande source introuvable pour ce lot. Ce lot n'est pas rattaché à une commande de réception.",
+                "commandeNotFound");
     }
 
     public RetourBonCommandeNotFoundException(Integer lotId) {
         super(
-            "Commande source introuvable pour le lot #" + lotId + ". Ce lot n'est pas rattaché à une commande de réception.",
-            "commandeNotFound"
-        );
+                "Commande source introuvable pour le lot #" + lotId
+                        + ". Ce lot n'est pas rattaché à une commande de réception.",
+                "commandeNotFound");
     }
 }
-

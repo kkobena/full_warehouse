@@ -10,13 +10,10 @@ import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.StorageDTO;
-import com.kobe.warehouse.service.dto.projection.IdProjection;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +26,7 @@ public class StorageService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public StorageService(
-        StorageRepository storageRepository,
-        UserRepository userRepository,
-        UserService userService
-    ) {
+    public StorageService(StorageRepository storageRepository, UserRepository userRepository, UserService userService) {
         this.storageRepository = storageRepository;
         this.userRepository = userRepository;
         this.userService = userService;
@@ -61,8 +54,6 @@ public class StorageService {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
-
-
     @Cacheable(value = EntityConstant.USER_RESERVE_STORAGE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserReserveStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
@@ -86,7 +77,9 @@ public class StorageService {
     }
 
     public List<StorageDTO> fetchAllByMagasin(Integer magasinId) {
-        return this.storageRepository.findAllByMagasinId(magasinId).stream().map(StorageDTO::new).toList();
+        return this.storageRepository.findAllByMagasinId(magasinId).stream()
+                .map(StorageDTO::new)
+                .toList();
     }
 
     @Cacheable(EntityConstant.USER_STORAGE_CACHE)
@@ -115,6 +108,9 @@ public class StorageService {
     }
 
     public Integer findByMagasinIdAndStorageType(Integer magasinId, StorageType storageType) {
-        return storageRepository.findByMagasinIdAndStorageType(magasinId, storageType).getId().intValue();
+        return storageRepository
+                .findByMagasinIdAndStorageType(magasinId, storageType)
+                .getId()
+                .intValue();
     }
 }

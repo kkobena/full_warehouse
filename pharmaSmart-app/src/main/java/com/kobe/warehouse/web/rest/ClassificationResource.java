@@ -2,13 +2,16 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.security.AuthoritiesConstants;
-import com.kobe.warehouse.service.scheduler.ClassificationCriticiteService;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.ClassificationConfigDTO;
 import com.kobe.warehouse.service.dto.ClassificationLogDTO;
 import com.kobe.warehouse.service.dto.ClassificationScoreDTO;
 import com.kobe.warehouse.service.dto.ReclassificationResultDTO;
+import com.kobe.warehouse.service.scheduler.ClassificationCriticiteService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,10 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.util.List;
-import java.util.Map;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing product criticality classification.
@@ -97,9 +96,7 @@ public class ClassificationResource {
      */
     @PutMapping("/config")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<ClassificationConfigDTO> updateConfig(
-        @Valid @RequestBody ClassificationConfigDTO config
-    ) {
+    public ResponseEntity<ClassificationConfigDTO> updateConfig(@Valid @RequestBody ClassificationConfigDTO config) {
         LOG.info("REST request to update classification config");
 
         // Validate thresholds order
@@ -123,16 +120,16 @@ public class ClassificationResource {
     @PostMapping("/recalculate")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ReclassificationResultDTO> forceReclassification(
-        @RequestParam(required = false, defaultValue = "Reclassification manuelle admin") String reason
-    ) {
+            @RequestParam(required = false, defaultValue = "Reclassification manuelle admin") String reason) {
         LOG.info("REST request to force reclassification: {}", reason);
 
         ReclassificationResultDTO result = classificationService.reclassifierTousProduits(reason);
 
         // Log warning if anomaly detected
         if (result.hasAnomaliePotentielle()) {
-            LOG.warn("Reclassification anomaly detected: {}% changes",
-                String.format("%.1f", result.getPourcentageChangements()));
+            LOG.warn(
+                    "Reclassification anomaly detected: {}% changes",
+                    String.format("%.1f", result.getPourcentageChangements()));
         }
 
         return ResponseEntity.ok(result);
@@ -151,21 +148,19 @@ public class ClassificationResource {
     @PostMapping("/{produitId}/override")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ClassificationScoreDTO> overrideClasse(
-        @PathVariable Integer produitId,
-        @RequestBody OverrideClasseRequest request
-    ) {
-        LOG.info("REST request to override classification for product {}: {} -> {}",
-            produitId, request.ancienneClasse(), request.nouvelleClasse());
+            @PathVariable Integer produitId, @RequestBody OverrideClasseRequest request) {
+        LOG.info(
+                "REST request to override classification for product {}: {} -> {}",
+                produitId,
+                request.ancienneClasse(),
+                request.nouvelleClasse());
 
         if (request.nouvelleClasse() == null) {
             return ResponseEntity.badRequest().build();
         }
 
         classificationService.overrideClasse(
-            produitId,
-            request.nouvelleClasse(),
-            request.raison() != null ? request.raison() : "Override manuel"
-        );
+                produitId, request.nouvelleClasse(), request.raison() != null ? request.raison() : "Override manuel");
 
         ClassificationScoreDTO score = classificationService.calculerScore(produitId);
         return ResponseEntity.ok(score);
@@ -175,10 +170,7 @@ public class ClassificationResource {
      * Request body for override endpoint
      */
     public record OverrideClasseRequest(
-        ClasseCriticite ancienneClasse,
-        ClasseCriticite nouvelleClasse,
-        String raison
-    ) {}
+            ClasseCriticite ancienneClasse, ClasseCriticite nouvelleClasse, String raison) {}
 
     // ==================== Logs ====================
 
@@ -194,10 +186,8 @@ public class ClassificationResource {
 
         Page<ClassificationLogDTO> page = classificationService.getLogs(pageable);
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(),
-            page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -211,17 +201,13 @@ public class ClassificationResource {
      */
     @GetMapping("/logs/{produitId}")
     public ResponseEntity<List<ClassificationLogDTO>> getLogsProduit(
-        @PathVariable Integer produitId,
-        Pageable pageable
-    ) {
+            @PathVariable Integer produitId, Pageable pageable) {
         LOG.debug("REST request to get classification logs for product: {}", produitId);
 
         Page<ClassificationLogDTO> page = classificationService.getLogsProduit(produitId, pageable);
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(),
-            page
-        );
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

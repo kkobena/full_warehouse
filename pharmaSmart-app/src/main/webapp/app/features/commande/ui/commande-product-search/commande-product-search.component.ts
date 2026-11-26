@@ -1,12 +1,24 @@
-import {Component, DestroyRef, ElementRef, inject, input, OnDestroy, OnInit, output, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {catchError, debounceTime, filter, of, Subject, Subscription} from 'rxjs';
-import {ProduitSearch} from '../../../../shared/model';
-import {ProduitService} from '../../../../entities/produit/produit.service';
-import {ScanDetectorService, ScanEvent} from '../../../../shared/scan-detector.service';
-import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH} from '../../../../shared/constants/pagination.constants';
-import {FloatLabelComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { catchError, debounceTime, filter, of, Subject, Subscription } from 'rxjs';
+import { ProduitSearch } from '../../../../shared/model';
+import { ProduitService } from '../../../../entities/produit/produit.service';
+import { ScanDetectorService, ScanEvent } from '../../../../shared/scan-detector.service';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH } from '../../../../shared/constants/pagination.constants';
+import { FloatLabelComponent, SelectSearchComponent } from '../../../../shared/ui';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 /**
@@ -24,8 +36,8 @@ import { DevisePipe } from 'app/shared/utils/devise';
   imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, DevisePipe],
 })
 export class CommandeProductSearchComponent implements OnInit, OnDestroy {
-  private readonly produitboxCmp = viewChild.required('produitbox', {read: SelectSearchComponent});
-  private readonly produitboxEl = viewChild.required('produitbox', {read: ElementRef<HTMLElement>});
+  private readonly produitboxCmp = viewChild.required('produitbox', { read: SelectSearchComponent });
+  private readonly produitboxEl = viewChild.required('produitbox', { read: ElementRef<HTMLElement> });
 
   autofocus = input<boolean>(true);
   pageSize = input<number>(10);
@@ -65,9 +77,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
   private scanSubscription?: Subscription;
 
   constructor() {
-    this.searchTrigger$
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(search => this.loadProduits(search));
+    this.searchTrigger$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(search => this.loadProduits(search));
     this.typeaheadSink$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
@@ -203,8 +213,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
       if (cible.closest('.modal, .modal-content')) {
         return true;
       }
-      const estUnChamp =
-        cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
+      const estUnChamp = cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement || cible.isContentEditable;
       return estUnChamp && cible.id !== 'produitbox';
     };
     this.keydownListener = (event: KeyboardEvent) => {
@@ -272,13 +281,13 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   private searchByBarcode(barcode: string): void {
     this.produitService
-      .search({page: 0, size: 1, search: barcode, storageId: this.storageId()}, this.searchByStorage())
+      .search({ page: 0, size: 1, search: barcode, storageId: this.storageId() }, this.searchByStorage())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError(() => {
           this.isScanning.set(false);
           this.produits.set([]);
-          return of({body: []});
+          return of({ body: [] });
         }),
       )
       .subscribe(res => {
@@ -305,10 +314,10 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
     const inputEl = this.produitboxEl()?.nativeElement.querySelector('input');
     if (inputEl && !inputEl.value?.trim()) return;
     this.produitService
-      .search({page: 0, size: this.pageSize(), search, storageId: this.storageId()}, this.searchByStorage())
+      .search({ page: 0, size: this.pageSize(), search, storageId: this.storageId() }, this.searchByStorage())
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        catchError(() => of({body: []})),
+        catchError(() => of({ body: [] })),
       )
       .subscribe(res => {
         this.produits.set(res.body ?? []);

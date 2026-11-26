@@ -1,26 +1,23 @@
-import {signal, Component, DestroyRef, effect, inject, input, ChangeDetectionStrategy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { finalize } from "rxjs/operators";
-import { HttpHeaders } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { AppTableLazyLoadEvent, DataTableComponent } from "../../../../shared/ui";
-import { NotificationService } from "../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../shared/error.service";
-import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
+import { signal, Component, DestroyRef, effect, inject, input, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { HttpHeaders } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { AppTableLazyLoadEvent, DataTableComponent } from '../../../../shared/ui';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../shared/error.service';
+import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 
-import { DiffereApiService } from "../../data-access/services/differe-api.service";
-import { DiffereStore } from "../../data-access/store/differe.store";
-import { IDiffere, IDiffereSearchParams } from "../../data-access/models";
+import { DiffereApiService } from '../../data-access/services/differe-api.service';
+import { DiffereStore } from '../../data-access/store/differe.store';
+import { IDiffere, IDiffereSearchParams } from '../../data-access/models';
 
 @Component({
-  selector: "app-differe-list",
-  imports: [
-    CommonModule,
-    DataTableComponent
-  ],
-  templateUrl: "./differe-list.component.html",
+  selector: 'app-differe-list',
+  imports: [CommonModule, DataTableComponent],
+  templateUrl: './differe-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ["./differe-list.component.scss"]
+  styleUrls: ['./differe-list.component.scss'],
 })
 export class DiffereListComponent {
   readonly searchParams = input<IDiffereSearchParams | null>(null);
@@ -64,20 +61,20 @@ export class DiffereListComponent {
     this.differeApiService
       .query({ ...params, page: this.page(), size: rows })
       .pipe(
-        finalize(() => (this.loading.set(false))),
-        takeUntilDestroyed(this.destroyRef)
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: res => this.onSuccess(res.body, res.headers),
         error: err => {
           this.store.setLoading(false);
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Chargement différés");
-        }
+          this.notificationService.error(this.errorService.getErrorMessage(err), 'Chargement différés');
+        },
       });
   }
 
   private onSuccess(data: IDiffere[] | null, headers: HttpHeaders): void {
-    this.store.setDifferes(data ?? [], Number(headers.get("X-Total-Count")));
+    this.store.setDifferes(data ?? [], Number(headers.get('X-Total-Count')));
   }
 
   private loadSummary(params: IDiffereSearchParams): void {
@@ -86,7 +83,7 @@ export class DiffereListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.store.setSummary(res.body),
-        error: () => this.store.setSummary(null)
+        error: () => this.store.setSummary(null),
       });
   }
 }

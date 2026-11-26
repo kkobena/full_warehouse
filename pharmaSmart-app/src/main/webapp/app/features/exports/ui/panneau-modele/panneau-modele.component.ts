@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { ButtonComponent, CheckboxComponent, InputComponent, OffcanvasComponent, PillSelectorComponent, SelectComponent } from 'app/shared/ui';
+import {
+  ButtonComponent,
+  CheckboxComponent,
+  InputComponent,
+  OffcanvasComponent,
+  PillSelectorComponent,
+  SelectComponent,
+} from 'app/shared/ui';
 import {
   CodeExport,
   ExportCatalogue,
@@ -18,8 +25,14 @@ import {
 } from '../../models/exports.model';
 import { ReglagesExportComponent } from '../reglages-export/reglages-export.component';
 
-const HEURES = Array.from({ length: 17 }, (_, rang) => rang + 6).map(heure => ({ libelle: `${heure} h`, valeur: `${String(heure).padStart(2, '0')}:00:00` }));
-const JOURS_SEMAINE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map((libelle, rang) => ({ libelle, valeur: rang + 1 }));
+const HEURES = Array.from({ length: 17 }, (_, rang) => rang + 6).map(heure => ({
+  libelle: `${heure} h`,
+  valeur: `${String(heure).padStart(2, '0')}:00:00`,
+}));
+const JOURS_SEMAINE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map((libelle, rang) => ({
+  libelle,
+  valeur: rang + 1,
+}));
 const JOURS_MOIS = Array.from({ length: 28 }, (_, rang) => ({ libelle: `Le ${rang + 1}`, valeur: rang + 1 }));
 
 /**
@@ -31,7 +44,16 @@ const JOURS_MOIS = Array.from({ length: 28 }, (_, rang) => ({ libelle: `Le ${ran
  */
 @Component({
   selector: 'app-panneau-modele',
-  imports: [FormsModule, OffcanvasComponent, InputComponent, SelectComponent, ReglagesExportComponent, PillSelectorComponent, CheckboxComponent, ButtonComponent],
+  imports: [
+    FormsModule,
+    OffcanvasComponent,
+    InputComponent,
+    SelectComponent,
+    ReglagesExportComponent,
+    PillSelectorComponent,
+    CheckboxComponent,
+    ButtonComponent,
+  ],
   templateUrl: './panneau-modele.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

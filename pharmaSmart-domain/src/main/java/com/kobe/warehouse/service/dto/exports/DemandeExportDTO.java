@@ -16,12 +16,11 @@ import java.util.Map;
  *     l'entrée n'annonce pas sont ignorés
  */
 public record DemandeExportDTO(
-    @NotBlank String export,
-    @NotNull FormatExport format,
-    LocalDate du,
-    LocalDate au,
-    Map<FiltreExport, List<String>> filtres
-) {
+        @NotBlank String export,
+        @NotNull FormatExport format,
+        LocalDate du,
+        LocalDate au,
+        Map<FiltreExport, List<String>> filtres) {
     public DemandeExportDTO {
         filtres = filtres == null ? Map.of() : filtres;
     }

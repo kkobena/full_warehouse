@@ -1,75 +1,53 @@
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, Injector, OnInit, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+import { CommonModule, DatePipe } from '@angular/common';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  Injector,
-  OnInit,
-  signal,
-  viewChild
-} from "@angular/core";
-import {takeUntilDestroyed, toObservable} from "@angular/core/rxjs-interop";
-import {HttpHeaders, HttpResponse} from "@angular/common/http";
-import {forkJoin} from "rxjs";
-import {filter} from "rxjs/operators";
-import {FormsModule} from "@angular/forms";
-import {CommonModule, DatePipe} from "@angular/common";
-import type {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
-import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   IconFieldComponent,
   SelectComponent,
-  SortableHeaderDirective
-} from "app/shared/ui";
-import {PharmaDatePickerComponent} from "app/shared/date-picker/pharma-date-picker.component";
-import {NGB_DATE_TO_ISO} from "app/shared/util/warehouse-util";
-import {ListBonsStatutComponent} from "./list-bons-statut.component";
-import {BonAction, ListBonsActionsComponent} from "./list-bons-actions.component";
-import {SpinnerComponent} from "app/shared/spinner/spinner.component";
-import {IDelivery} from "app/shared/model/delevery.model";
-import {ICommande} from "app/shared/model/commande.model";
-import {IFournisseur} from "app/shared/model/fournisseur.model";
-import {IOrderLine} from "app/shared/model/order-line.model";
-import {ITEMS_PER_PAGE} from "app/shared/constants/pagination.constants";
-import {
-  DeliveryService,
-  IDeliveryTotals
-} from "../../../../entities/commande/delevery/delivery.service";
-import {NotificationService} from "app/shared/services/notification.service";
-import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
-import {EtiquetteComponent} from "../delivery/etiquette/etiquette.component";
-import {
-  CommandeReceivedComponent
-} from "../../feature/commande-received/commande-received.component";
-import {
-  ReceptionConcordanceComponent
-} from "../reception-concordance/reception-concordance.component";
-import {CommandCommonService} from "app/entities/commande/command-common.service";
-import {RetourBonService} from "app/entities/commande/retour_fournisseur/retour-bon.service";
-import {RetourCompletModalComponent} from "./retour-complet-modal.component";
-import {RetourWorkspaceComponent} from "../retour-workspace/retour-workspace.component";
-import {
-  ReconciliationWorkspaceComponent
-} from "../reconciliation-workspace/reconciliation-workspace.component";
-import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
-import {
-  NgbConfirmDialogService
-} from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {Params} from "../../../../shared/model/enumerations/params.model";
-import {IConfiguration} from "../../../../shared/model/configuration.model";
-import {ConfigurationService} from "../../../../shared/configuration.service";
-import {
-  FournisseurSelectComponent
-} from "../../../partners/ui/fournisseur-select/fournisseur-select.component";
+  SortableHeaderDirective,
+} from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { ListBonsStatutComponent } from './list-bons-statut.component';
+import { BonAction, ListBonsActionsComponent } from './list-bons-actions.component';
+import { SpinnerComponent } from 'app/shared/spinner/spinner.component';
+import { IDelivery } from 'app/shared/model/delevery.model';
+import { ICommande } from 'app/shared/model/commande.model';
+import { IFournisseur } from 'app/shared/model/fournisseur.model';
+import { IOrderLine } from 'app/shared/model/order-line.model';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { DeliveryService, IDeliveryTotals } from '../../../../entities/commande/delevery/delivery.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { EtiquetteComponent } from '../delivery/etiquette/etiquette.component';
+import { CommandeReceivedComponent } from '../../feature/commande-received/commande-received.component';
+import { ReceptionConcordanceComponent } from '../reception-concordance/reception-concordance.component';
+import { CommandCommonService } from 'app/entities/commande/command-common.service';
+import { RetourBonService } from 'app/entities/commande/retour_fournisseur/retour-bon.service';
+import { RetourCompletModalComponent } from './retour-complet-modal.component';
+import { RetourWorkspaceComponent } from '../retour-workspace/retour-workspace.component';
+import { ReconciliationWorkspaceComponent } from '../reconciliation-workspace/reconciliation-workspace.component';
+import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
+import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { Params } from '../../../../shared/model/enumerations/params.model';
+import { IConfiguration } from '../../../../shared/model/configuration.model';
+import { ConfigurationService } from '../../../../shared/configuration.service';
+import { FournisseurSelectComponent } from '../../../partners/ui/fournisseur-select/fournisseur-select.component';
 import { DevisePipe } from 'app/shared/utils/devise';
 
 @Component({
-  selector: "app-list-bons",
-  templateUrl: "./list-bons.component.html",
-  styleUrls: ["./list-bons.scss"],
+  selector: 'app-list-bons',
+  templateUrl: './list-bons.component.html',
+  styleUrls: ['./list-bons.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -89,8 +67,10 @@ import { DevisePipe } from 'app/shared/utils/devise';
     RetourWorkspaceComponent,
     ReconciliationWorkspaceComponent,
     DatePipe,
-    FournisseurSelectComponent
-    , DevisePipe, CardComponent]
+    FournisseurSelectComponent,
+    DevisePipe,
+    CardComponent,
+  ],
 })
 export class AppListBonsComponent implements OnInit {
   // ── Modes master/detail ────────────────────────────────────────────────────
@@ -102,11 +82,9 @@ export class AppListBonsComponent implements OnInit {
   readonly periodTotals = signal<IDeliveryTotals | null>(null);
   readonly countReceived = signal<number>(0);
   // ── Lignes bon clôturé (panneau consultation) ─────────────────────────────
-  readonly closedOrderLines = computed<IOrderLine[]>(
-    () => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? []
-  );
+  readonly closedOrderLines = computed<IOrderLine[]>(() => (this.selectedClosed()?.orderLines as IOrderLine[] | undefined) ?? []);
   // ── État liste ─────────────────────────────────────────────────────────────
-  protected search = "";
+  protected search = '';
   protected selectFournisseurId: number | null = null;
   protected dtStart: NgbDateStruct | null = null;
   protected dtEnd: NgbDateStruct | null = null;
@@ -118,9 +96,9 @@ export class AppListBonsComponent implements OnInit {
   protected readonly totalItems = signal(0);
   protected showLotBtn = signal(false);
   protected readonly statutOptions = [
-    {label: "Tous les bons", value: null},
-    {label: "En attente de saisie", value: "RECEIVED"},
-    {label: "Clôturé", value: "CLOSED"}
+    { label: 'Tous les bons', value: null },
+    { label: 'En attente de saisie', value: 'RECEIVED' },
+    { label: 'Clôturé', value: 'CLOSED' },
   ];
   private readonly entityService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
@@ -129,7 +107,7 @@ export class AppListBonsComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly retourBonService = inject(RetourBonService);
-  private readonly spinner = viewChild.required<SpinnerComponent>("spinner");
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly downloadDocumentService = inject(BlobDownloadService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly configurationService = inject(ConfigurationService);
@@ -141,7 +119,7 @@ export class AppListBonsComponent implements OnInit {
   // ── Row styling ────────────────────────────────────────────────────────────
   getBlRowClass(d: IDelivery): Record<string, boolean> {
     return {
-      "row-received": d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED"
+      'row-received': d.orderStatus === 'RECEIVED' || (d as any).statut === 'RECEIVED',
     };
   }
 
@@ -149,8 +127,8 @@ export class AppListBonsComponent implements OnInit {
     const costDiff = line.costAmount !== line.orderCostAmount;
     const priceDiff = !costDiff && line.regularUnitPrice !== line.orderUnitPrice;
     return {
-      "pharma-row-danger": costDiff,
-      "pharma-row-warning": priceDiff
+      'pharma-row-danger': costDiff,
+      'pharma-row-warning': priceDiff,
     };
   }
 
@@ -166,27 +144,30 @@ export class AppListBonsComponent implements OnInit {
     this.isLotActif();
     this.onSearch();
 
-    toObservable(this.commandCommonService.pendingOpenDeliveryId, {injector: this.injector})
+    toObservable(this.commandCommonService.pendingOpenDeliveryId, { injector: this.injector })
       .pipe(
         filter(id => id != null),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(pending => {
         this.commandCommonService.pendingOpenDeliveryId.set(null);
         this.spinner().show();
-        this.entityService.find(pending!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: res => {
-            this.spinner().hide();
-            if (res.body) {
-              this.editingReceived.set(res.body as unknown as ICommande);
-              this.loadPage(0);
-            }
-          },
-          error: () => {
-            this.spinner().hide();
-            this.notificationService.error("Erreur lors du chargement du bon de livraison", "Erreur");
-          }
-        });
+        this.entityService
+          .find(pending!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: res => {
+              this.spinner().hide();
+              if (res.body) {
+                this.editingReceived.set(res.body as unknown as ICommande);
+                this.loadPage(0);
+              }
+            },
+            error: () => {
+              this.spinner().hide();
+              this.notificationService.error('Erreur lors du chargement du bon de livraison', 'Erreur');
+            },
+          });
       });
   }
 
@@ -239,8 +220,8 @@ export class AppListBonsComponent implements OnInit {
         },
         error: () => {
           this.spinner().hide();
-          this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        }
+          this.notificationService.error('Erreur lors du chargement du bon', 'Erreur');
+        },
       });
   }
 
@@ -250,28 +231,28 @@ export class AppListBonsComponent implements OnInit {
 
   onBonMenuAction(action: BonAction, delivery: IDelivery): void {
     switch (action) {
-      case "voirDetail":
+      case 'voirDetail':
         this.onRowClick(delivery);
         break;
-      case "receive":
+      case 'receive':
         this.onEditerReceivedDelivery(delivery);
         break;
-      case "cancel":
+      case 'cancel':
         this.onAnnulerBon(delivery);
         break;
-      case "exportPdf":
+      case 'exportPdf':
         this.exportPdf(delivery);
         break;
-      case "printEtiquette":
+      case 'printEtiquette':
         this.printEtiquette(delivery);
         break;
-      case "retourComplet":
+      case 'retourComplet':
         this.onRetourComplet(delivery);
         break;
-      case "retourParLigne":
+      case 'retourParLigne':
         this.onRetourParLigne(delivery);
         break;
-      case "reconcilierFacture":
+      case 'reconcilierFacture':
         this.reconciliationWorkspaceBon.set(delivery);
         break;
     }
@@ -283,11 +264,10 @@ export class AppListBonsComponent implements OnInit {
       EtiquetteComponent,
       {
         entity: delivery,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${(delivery as any).receiptReference} ] `,
       },
-      () => {
-      },
-      "lg"
+      () => {},
+      'lg',
     );
   }
 
@@ -321,14 +301,13 @@ export class AppListBonsComponent implements OnInit {
       next: blob => {
         this.spinner().hide();
         this.downloadDocumentService.downloadPdf(blob, `Bon_Livraison_${(delivery as any).receiptReference}`);
-
       },
-      error: () => this.spinner().hide()
+      error: () => this.spinner().hide(),
     });
   }
 
   protected isReceived(delivery: IDelivery): boolean {
-    return delivery.orderStatus === "RECEIVED" || (delivery as any).statut === "RECEIVED";
+    return delivery.orderStatus === 'RECEIVED' || (delivery as any).statut === 'RECEIVED';
   }
 
   protected onEditerReceivedDelivery(delivery: IDelivery): void {
@@ -345,8 +324,8 @@ export class AppListBonsComponent implements OnInit {
         },
         error: () => {
           this.spinner().hide();
-          this.notificationService.error("Erreur lors du chargement du bon", "Erreur");
-        }
+          this.notificationService.error('Erreur lors du chargement du bon', 'Erreur');
+        },
       });
   }
 
@@ -354,69 +333,70 @@ export class AppListBonsComponent implements OnInit {
     this.confirmDialog.onConfirm(
       () => {
         this.spinner().show();
-        this.entityService.cancelReceived(delivery.commandeId!)
+        this.entityService
+          .cancelReceived(delivery.commandeId!)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
               this.spinner().hide();
-              this.notificationService.success("Bon annulé avec succès");
+              this.notificationService.success('Bon annulé avec succès');
               this.loadPage(this.page());
             },
             error: () => {
               this.spinner().hide();
               this.notificationService.error("Erreur lors de l'annulation du bon");
-            }
+            },
           });
       },
-      "Annulation du bon",
-      `Confirmer l'annulation du bon ${(delivery as any).receiptReference ?? (delivery as any).orderReference ?? ""} ?`
+      'Annulation du bon',
+      `Confirmer l'annulation du bon ${(delivery as any).receiptReference ?? (delivery as any).orderReference ?? ''} ?`,
     );
-
-
   }
 
   protected onRetourComplet(delivery: IDelivery): void {
     const ref = this.modalService.open(RetourCompletModalComponent, {
-      size: "lg",
+      size: 'lg',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     ref.componentInstance.delivery = delivery;
     ref.result.then(
       (result: { motifRetourId: number; commentaire: string }) => {
         const cmdId = delivery.commandeId?.id ?? delivery.id!;
         const cmdDate = delivery.commandeId?.orderDate ?? delivery.orderDate!;
-        this.retourBonService.retourCompletCommande({
-          commandeId: cmdId,
-          commandeOrderDate: cmdDate,
-          motifRetourId: result.motifRetourId,
-          commentaire: result.commentaire
-        }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => {
-            this.notificationService.success("Retour complet créé avec succès");
-            this.loadPage(this.page());
-          },
-          error: () => {
-            this.notificationService.error("Erreur lors de la création du retour complet");
-          }
-        });
+        this.retourBonService
+          .retourCompletCommande({
+            commandeId: cmdId,
+            commandeOrderDate: cmdDate,
+            motifRetourId: result.motifRetourId,
+            commentaire: result.commentaire,
+          })
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.notificationService.success('Retour complet créé avec succès');
+              this.loadPage(this.page());
+            },
+            error: () => {
+              this.notificationService.error('Erreur lors de la création du retour complet');
+            },
+          });
       },
-      () => {
-      }
+      () => {},
     );
   }
 
   // ── Recherche / pagination ─────────────────────────────────────────────────
   private isLotActif(): void {
-    this.configurationService.getParamByKey(Params.APP_GESTION_LOT).pipe(takeUntilDestroyed(this.destroyRef))
+    this.configurationService
+      .getParamByKey(Params.APP_GESTION_LOT)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: HttpResponse<IConfiguration>) => {
           if (res) {
             this.showLotBtn.set(Number(res.body.value) === 1);
-
-
           }
-        }
+        },
       });
   }
 
@@ -424,16 +404,16 @@ export class AppListBonsComponent implements OnInit {
 
   private fetchDeliveries(page: number, size: number): void {
     this.loading.set(true);
-    const query: any = {page, size, search: this.search};
+    const query: any = { page, size, search: this.search };
     if (this.selectedStatut) {
       query.statuts = [this.selectedStatut];
     } else {
-      query.statuts = ["RECEIVED", "CLOSED"];
+      query.statuts = ['RECEIVED', 'CLOSED'];
     }
     if (this.selectFournisseurId) {
       query.fournisseurId = this.selectFournisseurId;
     }
-    const applyDates = this.selectedStatut === "CLOSED";
+    const applyDates = this.selectedStatut === 'CLOSED';
     if (applyDates) {
       if (this.dtStart) {
         query.fromDate = NGB_DATE_TO_ISO(this.dtStart);
@@ -444,23 +424,21 @@ export class AppListBonsComponent implements OnInit {
     }
     forkJoin({
       list: this.entityService.query(query),
-      totals: this.entityService.fetchTotals(query)
+      totals: this.entityService.fetchTotals(query),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({list, totals}) => {
+        next: ({ list, totals }) => {
           this.onSuccess(list.body, list.headers, page);
           this.periodTotals.set(totals.body);
-          this.countReceived.set(
-            (list.body ?? []).filter(d => d.orderStatus === "RECEIVED" || (d as any).statut === "RECEIVED").length
-          );
+          this.countReceived.set((list.body ?? []).filter(d => d.orderStatus === 'RECEIVED' || (d as any).statut === 'RECEIVED').length);
         },
-        error: () => this.loading.set(false)
+        error: () => this.loading.set(false),
       });
   }
 
   private onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
     this.page.set(page);
     this.deliveries.set(data ?? []);
     this.loading.set(false);

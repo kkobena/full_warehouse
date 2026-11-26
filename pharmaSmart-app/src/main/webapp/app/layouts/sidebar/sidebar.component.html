@@ -1,5 +1,4 @@
-<aside [class.collapsed]="isCollapsed()" aria-label="Menu latéral" class="sidebar"
-       role="navigation">
+<aside [class.collapsed]="isCollapsed()" aria-label="Menu latéral" class="sidebar" role="navigation">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     @if (!isCollapsed()) {
@@ -7,8 +6,7 @@
         <span class="logo-text">Pharma Smart</span>
       </a>
     }
-    <button (click)="toggleSidebar()" [attr.aria-label]="'Toggle sidebar'" class="btn btn-link toggle-btn"
-            type="button">
+    <button (click)="toggleSidebar()" [attr.aria-label]="'Toggle sidebar'" class="btn btn-link toggle-btn" type="button">
       <fa-icon [icon]="faBars"></fa-icon>
     </button>
   </div>
@@ -60,8 +58,7 @@
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.label }}</span>
                 @if (item.badge > 0) {
-                  <span
-                    class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
+                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto">
                     {{ item.badge > 99 ? '99+' : item.badge }}
                   </span>
                 }
@@ -115,8 +112,7 @@
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.label }}</span>
                 @if (item.badge > 0) {
-                  <span
-                    class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
+                  <span class="badge rounded-pill bg-{{ item.badgeSeverity ?? 'danger' }} sidebar-badge ms-auto me-1">
                     {{ item.badge > 99 ? '99+' : item.badge }}
                   </span>
                 }
@@ -160,9 +156,12 @@
     <div class="sidebar-footer">
       <!-- Config éditeur (Tauri + ADMIN uniquement) -->
       @if (isTauriAdmin) {
-        <button (click)="openConfigEditor()" class="btn btn-link btn-sm sidebar-config-btn"
-                title="Configuration avancée (DB, JVM, Mail…)"
-                type="button">
+        <button
+          (click)="openConfigEditor()"
+          class="btn btn-link btn-sm sidebar-config-btn"
+          title="Configuration avancée (DB, JVM, Mail…)"
+          type="button"
+        >
           <i class="fa fa-sliders-h me-1"></i>
           @if (!isCollapsed()) {
             <span>Configuration avancée</span>

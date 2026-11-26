@@ -72,11 +72,10 @@ public class RequestOrigineService {
         userAgent = userAgent.toLowerCase();
 
         // Check for Tauri-specific patterns
-        return (
-            userAgent.contains("tauri") ||
-            userAgent.contains("wry") || // Tauri's webview library
-            userAgent.contains("pharma-smart-desktop")
-        ); // Your custom app name
+        return (userAgent.contains("tauri")
+                || userAgent.contains("wry")
+                || // Tauri's webview library
+                userAgent.contains("pharma-smart-desktop")); // Your custom app name
     }
 
     /**
@@ -87,12 +86,12 @@ public class RequestOrigineService {
             return false;
         }
 
-        return (
-            "127.0.0.1".equals(address) ||
-            "0:0:0:0:0:0:0:1".equals(address) || // IPv6 localhost
-            "::1".equals(address) || // IPv6 localhost short form
-            "localhost".equalsIgnoreCase(address)
-        );
+        return ("127.0.0.1".equals(address)
+                || "0:0:0:0:0:0:0:1".equals(address)
+                || // IPv6 localhost
+                "::1".equals(address)
+                || // IPv6 localhost short form
+                "localhost".equalsIgnoreCase(address));
     }
 
     /**

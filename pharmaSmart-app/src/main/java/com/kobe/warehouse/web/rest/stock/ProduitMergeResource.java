@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.produit.merge.ProduitMergePreviewDTO;
 import com.kobe.warehouse.service.dto.produit.merge.ProduitMergeRequestDTO;
 import com.kobe.warehouse.service.dto.produit.merge.ProduitMergeResultDTO;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller pour la fusion de produits en doublon du catalogue.
@@ -40,9 +40,7 @@ public class ProduitMergeResource {
      */
     @PostMapping("/preview")
     public ResponseEntity<ProduitMergePreviewDTO> preview(
-        @RequestParam("targetId") Integer targetId,
-        @RequestBody List<Integer> sourceIds
-    ) {
+            @RequestParam("targetId") Integer targetId, @RequestBody List<Integer> sourceIds) {
         log.debug("REST request to preview produit merge : target={}, sources={}", targetId, sourceIds);
         if (targetId == null || sourceIds == null || sourceIds.isEmpty()) {
             throw new BadRequestAlertException("Cible et sources sont obligatoires", ENTITY_NAME, "mergemissingargs");

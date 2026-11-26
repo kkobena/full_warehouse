@@ -1,8 +1,8 @@
 import { IUser } from '../../../../core/user/user.model';
 import { Customer } from '../../../../shared/model/customer.model';
 import { SaleId } from '../../../../shared/model/sales.model';
-import { Reglement } from "../../../../entities/reglement/model/reglement.model";
-import { IReglement } from "./reglement.model";
+import { Reglement } from '../../../../entities/reglement/model/reglement.model';
+import { IReglement } from './reglement.model';
 
 export interface IFactureId {
   id: number;

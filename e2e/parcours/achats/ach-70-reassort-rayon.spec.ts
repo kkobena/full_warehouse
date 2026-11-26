@@ -35,7 +35,6 @@ scenario('ACH-70', async ({ etape, page }) => {
 
   etape.horsPortee(
     3,
-    'valider déplacerait réellement du stock entre réserve et rayon ; la suggestion est ' +
-      'illustrée, le déplacement ne l’est pas.',
+    'valider déplacerait réellement du stock entre réserve et rayon ; la suggestion est ' + 'illustrée, le déplacement ne l’est pas.',
   );
 });

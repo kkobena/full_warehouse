@@ -11,9 +11,6 @@ import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TvaRepartitionDto;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -22,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Optimized service for calculating third-party payment (Tiers Payant) amounts with VAT repartitions.
@@ -72,18 +71,19 @@ public class TiersPayantCalculationService {
             totalDiscountAmount = totalDiscountAmount.add(saleItem.getDiscountAmount());
 
             // Aggregate amounts per third-party
-            itemShare.getTiersPayants().forEach((clientTiersPayantId, amount) ->
-                tiersPayantAmounts.merge(clientTiersPayantId, amount, BigDecimal::add)
-            );
+            itemShare
+                    .getTiersPayants()
+                    .forEach((clientTiersPayantId, amount) ->
+                            tiersPayantAmounts.merge(clientTiersPayantId, amount, BigDecimal::add));
 
             // Aggregate TVA repartitions per third-party
             itemShare.getTvaRepartitionsByTiersPayant().forEach((clientTiersPayantId, repartitions) -> {
-                Map<Integer, TvaRepartitionDto> tvaMap = tiersPayantTvaRepartitions
-                    .computeIfAbsent(clientTiersPayantId, k -> new HashMap<>());
+                Map<Integer, TvaRepartitionDto> tvaMap =
+                        tiersPayantTvaRepartitions.computeIfAbsent(clientTiersPayantId, k -> new HashMap<>());
 
                 for (TvaRepartitionDto repartition : repartitions) {
                     tvaMap.computeIfAbsent(repartition.getTva(), TvaRepartitionDto::new)
-                        .add(repartition);
+                            .add(repartition);
                 }
             });
 
@@ -108,10 +108,8 @@ public class TiersPayantCalculationService {
 
             if (ceilingResult.wasCapped()) {
                 warnings.append(String.format(
-                    "Le montant remboursé pour le tiers payant %s a été plafonné à %s.%n",
-                    tpInput.getTiersPayantFullName(),
-                    cappedAmount
-                ));
+                        "Le montant remboursé pour le tiers payant %s a été plafonné à %s.%n",
+                        tpInput.getTiersPayantFullName(), cappedAmount));
             }
 
             totalTiersPayantAmount = totalTiersPayantAmount.add(cappedAmount);
@@ -137,11 +135,10 @@ public class TiersPayantCalculationService {
 
         // Calculate patient share (pure calculation, no state modification)
         BigDecimal patientShare = calculatePatientShare(
-            result.getTotalSaleAmount(),
-            totalTiersPayantAmount,
-            result.getDiscountAmount(),
-            input.getNatureVente()
-        );
+                result.getTotalSaleAmount(),
+                totalTiersPayantAmount,
+                result.getDiscountAmount(),
+                input.getNatureVente());
         result.setTotalPatientShare(patientShare);
 
         return result;
@@ -156,10 +153,7 @@ public class TiersPayantCalculationService {
      * @return calculated share with amounts per third-party and TVA repartitions
      */
     private CalculatedShare calculateSaleItem(
-        SaleItemInput saleItem,
-        List<TiersPayantInput> tiersPayantInputs,
-        NatureVente natureVente
-    ) {
+            SaleItemInput saleItem, List<TiersPayantInput> tiersPayantInputs, NatureVente natureVente) {
         // Sort by priority (lower value = higher priority)
         // Create a mutable copy to avoid UnsupportedOperationException on immutable lists
         List<TiersPayantInput> sortedTiersPayants = new ArrayList<>(tiersPayantInputs);
@@ -173,9 +167,9 @@ public class TiersPayantCalculationService {
 
         // Determine reference price (minimum non-percentage option price)
         Optional<BigDecimal> referencePriceOpt = saleItem.getPrixAssurances().stream()
-            .filter(p -> p.getOptionPrixType() != OptionPrixType.POURCENTAGE)
-            .map(p -> new BigDecimal(p.getPrice()))
-            .min(BigDecimal::compareTo);
+                .filter(p -> p.getOptionPrixType() != OptionPrixType.POURCENTAGE)
+                .map(p -> new BigDecimal(p.getPrice()))
+                .min(BigDecimal::compareTo);
 
         boolean hasOptionPrix = !saleItem.getPrixAssurances().isEmpty();
         BigDecimal calculationBaseUni = referencePriceOpt.orElse(itemShare.getPharmacyPrice());
@@ -200,13 +194,13 @@ public class TiersPayantCalculationService {
             // Check for custom rate/price for this third-party
             if (hasOptionPrix) {
                 Optional<TiersPayantPrixInput> customPriceOpt = saleItem.getPrixAssurances().stream()
-                    .filter(p -> p.getCompteTiersPayantId().equals(tiersPayantInput.getClientTiersPayantId()))
-                    .findFirst();
+                        .filter(p -> p.getCompteTiersPayantId().equals(tiersPayantInput.getClientTiersPayantId()))
+                        .findFirst();
 
-                if (customPriceOpt.isPresent() && customPriceOpt.get().getOptionPrixType() != OptionPrixType.REFERENCE) {
+                if (customPriceOpt.isPresent()
+                        && customPriceOpt.get().getOptionPrixType() != OptionPrixType.REFERENCE) {
                     TiersPayantPrixInput customPrice = customPriceOpt.get();
-                    rate = BigDecimal.valueOf(customPrice.getRate())
-                        .divide(ONE_HUNDRED, SCALE_RATE, ROUNDING_MODE);
+                    rate = BigDecimal.valueOf(customPrice.getRate()).divide(ONE_HUNDRED, SCALE_RATE, ROUNDING_MODE);
                     itemShare.getRates().add(new Rate(tiersPayantInput.getClientTiersPayantId(), rate.floatValue()));
                 }
             }
@@ -232,14 +226,12 @@ public class TiersPayantCalculationService {
             itemShare.getTiersPayants().put(tiersPayantInput.getClientTiersPayantId(), actualShare);
 
             // Calculate TVA repartition for this third-party share
-            TvaRepartitionDto tvaRepartition = calculateTvaRepartition(
-                actualShare,
-                saleItem.getTvaRate()
-            );
+            TvaRepartitionDto tvaRepartition = calculateTvaRepartition(actualShare, saleItem.getTvaRate());
 
-            itemShare.getTvaRepartitionsByTiersPayant()
-                .computeIfAbsent(tiersPayantInput.getClientTiersPayantId(), k -> new ArrayList<>())
-                .add(tvaRepartition);
+            itemShare
+                    .getTvaRepartitionsByTiersPayant()
+                    .computeIfAbsent(tiersPayantInput.getClientTiersPayantId(), k -> new ArrayList<>())
+                    .add(tvaRepartition);
         }
 
         itemShare.setTotalReimbursedAmount(totalPartTiersPayant);
@@ -258,10 +250,10 @@ public class TiersPayantCalculationService {
      * grosse — c'est celle où il pèse le moins. L'invariant obtenu : la somme des
      * {@code montantTtc} égale exactement le montant de la ligne.
      */
-    private List<TvaRepartitionDto> normaliserRepartitions(List<TvaRepartitionDto> repartitions, BigDecimal montantLigne) {
-        BigDecimal total = repartitions.stream()
-            .map(TvaRepartitionDto::getMontantTtc)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    private List<TvaRepartitionDto> normaliserRepartitions(
+            List<TvaRepartitionDto> repartitions, BigDecimal montantLigne) {
+        BigDecimal total =
+                repartitions.stream().map(TvaRepartitionDto::getMontantTtc).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         if (repartitions.isEmpty() || total.compareTo(BigDecimal.ZERO) == 0) {
             return repartitions;
@@ -269,9 +261,8 @@ public class TiersPayantCalculationService {
 
         BigDecimal cumul = BigDecimal.ZERO;
         for (TvaRepartitionDto repartition : repartitions) {
-            BigDecimal part = repartition.getMontantTtc()
-                .multiply(montantLigne)
-                .divide(total, SCALE_MONEY, ROUNDING_MODE);
+            BigDecimal part =
+                    repartition.getMontantTtc().multiply(montantLigne).divide(total, SCALE_MONEY, ROUNDING_MODE);
             appliquerMontantTtc(repartition, part);
             cumul = cumul.add(part);
         }
@@ -279,8 +270,8 @@ public class TiersPayantCalculationService {
         BigDecimal residu = montantLigne.subtract(cumul);
         if (residu.compareTo(BigDecimal.ZERO) != 0) {
             TvaRepartitionDto plusGrosse = repartitions.stream()
-                .max(Comparator.comparing(TvaRepartitionDto::getMontantTtc))
-                .orElseThrow();
+                    .max(Comparator.comparing(TvaRepartitionDto::getMontantTtc))
+                    .orElseThrow();
             appliquerMontantTtc(plusGrosse, plusGrosse.getMontantTtc().add(residu));
         }
         return repartitions;
@@ -344,17 +335,10 @@ public class TiersPayantCalculationService {
         BigDecimal originalAmount = rawAmount;
 
         // Apply monthly consumption ceiling
-        BigDecimal afterMonthlyCeiling = applyMonthlyCeiling(
-            rawAmount,
-            tp.getPlafondConso(),
-            tp.getConsoMensuelle()
-        );
+        BigDecimal afterMonthlyCeiling = applyMonthlyCeiling(rawAmount, tp.getPlafondConso(), tp.getConsoMensuelle());
 
         // Apply daily client ceiling
-        BigDecimal finalAmount = applyDailyCeiling(
-            afterMonthlyCeiling,
-            tp.getPlafondJournalierClient()
-        );
+        BigDecimal finalAmount = applyDailyCeiling(afterMonthlyCeiling, tp.getPlafondJournalierClient());
 
         boolean wasCapped = finalAmount.compareTo(originalAmount) != 0;
         return new CeilingApplicationResult(finalAmount, wasCapped);
@@ -414,30 +398,22 @@ public class TiersPayantCalculationService {
      * @return patient's share (never negative)
      */
     private BigDecimal calculatePatientShare(
-        BigDecimal totalSaleAmount,
-        BigDecimal totalTiersPayant,
-        BigDecimal discountAmount,
-        NatureVente nature
-    ) {
+            BigDecimal totalSaleAmount, BigDecimal totalTiersPayant, BigDecimal discountAmount, NatureVente nature) {
         return switch (nature) {
             case ASSURANCE -> {
                 // Patient pays: total - third-party - discount
                 BigDecimal patientPart = totalSaleAmount
-                    .subtract(totalTiersPayant)
-                    .subtract(discountAmount)
-                    .setScale(SCALE_MONEY, ROUNDING_MODE);
+                        .subtract(totalTiersPayant)
+                        .subtract(discountAmount)
+                        .setScale(SCALE_MONEY, ROUNDING_MODE);
                 yield patientPart.max(BigDecimal.ZERO);
             }
             case CARNET -> {
                 // For CARNET: discount applies to third-party amount
                 // Net amount = total - discount
                 // Patient pays: net - third-party
-                BigDecimal netAmount = totalSaleAmount
-                    .subtract(discountAmount)
-                    .setScale(SCALE_MONEY, ROUNDING_MODE);
-                BigDecimal patientPart = netAmount
-                    .subtract(totalTiersPayant)
-                    .setScale(SCALE_MONEY, ROUNDING_MODE);
+                BigDecimal netAmount = totalSaleAmount.subtract(discountAmount).setScale(SCALE_MONEY, ROUNDING_MODE);
+                BigDecimal patientPart = netAmount.subtract(totalTiersPayant).setScale(SCALE_MONEY, ROUNDING_MODE);
                 yield patientPart.max(BigDecimal.ZERO);
             }
             default -> totalSaleAmount.setScale(SCALE_MONEY, ROUNDING_MODE);
@@ -465,10 +441,10 @@ public class TiersPayantCalculationService {
         // Calculate percentage with high precision (SCALE_RATE = 4 decimals)
         // then round to integer with HALF_DOWN
         return actualShare
-            .multiply(ONE_HUNDRED)
-            .divide(totalAmount, SCALE_RATE, RoundingMode.HALF_DOWN)
-            .setScale(SCALE_MONEY, RoundingMode.HALF_DOWN)
-            .intValue();
+                .multiply(ONE_HUNDRED)
+                .divide(totalAmount, SCALE_RATE, RoundingMode.HALF_DOWN)
+                .setScale(SCALE_MONEY, RoundingMode.HALF_DOWN)
+                .intValue();
     }
 
     /**

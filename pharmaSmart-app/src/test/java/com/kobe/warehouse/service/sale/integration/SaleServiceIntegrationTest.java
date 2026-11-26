@@ -25,8 +25,8 @@ import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import jakarta.persistence.OptimisticLockException;
 import java.util.List;
-import org.junit.jupiter.api.DisplayName;
 import org.hibernate.StaleStateException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
@@ -57,10 +57,10 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(SalesStatut.ACTIVE, vente.getStatut());
         assertEquals(1, vente.getSalesLines().size());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()),
-            "la ligne est rattachée à la vente par le couple (sales_id, sales_sale_date)"
-        );
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()),
+                "la ligne est rattachée à la vente par le couple (sales_id, sales_sale_date)");
     }
 
     @Test
@@ -90,10 +90,10 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         viderLeCache();
 
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()),
-            "la contrainte d'unicité (produit_id, sales_id, sale_date) interdit le doublon"
-        );
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()),
+                "la contrainte d'unicité (produit_id, sales_id, sale_date) interdit le doublon");
         CashSale vente = em.find(CashSale.class, cree.getSaleId());
         assertEquals(3, vente.getSalesLines().iterator().next().getQuantityRequested());
         assertEquals(2_400, vente.getSalesAmount(), "3 × 800, recalculé depuis les lignes");
@@ -132,10 +132,10 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertNotNull(vente.getNumberTransaction());
         assertEquals(0, vente.getRestToPay());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM payment_transaction WHERE sale_id = " + cree.getSaleId().getId()),
-            "le règlement espèces est écrit dans la table partitionnée des transactions"
-        );
+                1,
+                compter("SELECT count(*) FROM payment_transaction WHERE sale_id = "
+                        + cree.getSaleId().getId()),
+                "le règlement espèces est écrit dans la table partitionnée des transactions");
     }
 
     @Test
@@ -172,23 +172,21 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertTrue(originale.isCanceled());
         assertEquals("erreur de saisie", originale.getCancelComment());
         assertEquals(
-            1,
-            compter("SELECT count(*) FROM sales WHERE canceled_sale_id = " + cree.getSaleId().getId()),
-            "la copie pointe vers la vente qu'elle annule"
-        );
+                1,
+                compter("SELECT count(*) FROM sales WHERE canceled_sale_id = "
+                        + cree.getSaleId().getId()),
+                "la copie pointe vers la vente qu'elle annule");
         assertEquals(
-            -4_000,
-            compter("SELECT sales_amount FROM sales WHERE canceled_sale_id = " + cree.getSaleId().getId()),
-            "la contrepassation porte le montant en négatif"
-        );
+                -4_000,
+                compter("SELECT sales_amount FROM sales WHERE canceled_sale_id = "
+                        + cree.getSaleId().getId()),
+                "la contrepassation porte le montant en négatif");
         assertEquals(
-            -4_000,
-            compter(
-                "SELECT amount_to_be_taken_into_account FROM sales_line" +
-                " WHERE sales_id = (SELECT id FROM sales WHERE canceled_sale_id = " + cree.getSaleId().getId() + ")"
-            ),
-            "le montant déclarable est négatif lui aussi : c'est ce qui annule le chiffre d'affaires"
-        );
+                -4_000,
+                compter("SELECT amount_to_be_taken_into_account FROM sales_line"
+                        + " WHERE sales_id = (SELECT id FROM sales WHERE canceled_sale_id = "
+                        + cree.getSaleId().getId() + ")"),
+                "le montant déclarable est négatif lui aussi : c'est ce qui annule le chiffre d'affaires");
         assertEquals(25, stockRayon(produit), "le stock revient à son niveau d'avant la vente");
     }
 
@@ -202,10 +200,14 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ajout.setSaleCompositeId(cree.getSaleId());
         SaleLineDTO ligneAjoutee = services.saleService.addOrUpdateSaleLine(ajout);
 
-        services.saleService.deleteSaleLineById(new SaleLineId(ligneAjoutee.getId(), cree.getSaleId().getSaleDate()));
+        services.saleService.deleteSaleLineById(
+                new SaleLineId(ligneAjoutee.getId(), cree.getSaleId().getSaleDate()));
         viderLeCache();
 
-        assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + cree.getSaleId().getId()));
+        assertEquals(
+                1,
+                compter("SELECT count(*) FROM sales_line WHERE sales_id = "
+                        + cree.getSaleId().getId()));
         assertEquals(1_000, em.find(CashSale.class, cree.getSaleId()).getSalesAmount());
     }
 
@@ -241,7 +243,10 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         // Comme en production, la suppression arrive dans une requête distincte : la ligne est
         // déjà en base quand on la retire.
         viderLeCache();
-        SalesLine ligne = em.find(CashSale.class, cree.getSaleId()).getSalesLines().iterator().next();
+        SalesLine ligne = em.find(CashSale.class, cree.getSaleId())
+                .getSalesLines()
+                .iterator()
+                .next();
         services.saleService.deleteSaleLineById(ligne.getId());
 
         CashSaleDTO attente = new CashSaleDTO();
@@ -249,7 +254,10 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.saleService.putCashSaleOnHold(attente);
         viderLeCache();
 
-        assertEquals(0, compter("SELECT count(*) FROM sales WHERE id = " + cree.getSaleId().getId()));
+        assertEquals(
+                0,
+                compter("SELECT count(*) FROM sales WHERE id = "
+                        + cree.getSaleId().getId()));
     }
 
     @Test
@@ -262,7 +270,9 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.saleService.setCustomer(new UpdateSaleInfo(cree.getSaleId(), client.getId()));
         viderLeCache();
 
-        assertEquals(client.getId(), em.find(CashSale.class, cree.getSaleId()).getCustomer().getId());
+        assertEquals(
+                client.getId(),
+                em.find(CashSale.class, cree.getSaleId()).getCustomer().getId());
 
         services.saleService.removeCustomer(cree.getSaleId());
         viderLeCache();
@@ -297,9 +307,9 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertNotNull(chargeeParA);
 
         em.createNativeQuery("UPDATE sales SET version = version + 1 WHERE id = :id AND sale_date = :date")
-            .setParameter("id", cree.getSaleId().getId())
-            .setParameter("date", cree.getSaleId().getSaleDate())
-            .executeUpdate();
+                .setParameter("id", cree.getSaleId().getId())
+                .setParameter("date", cree.getSaleId().getSaleDate())
+                .executeUpdate();
 
         RuntimeException erreur = assertThrows(RuntimeException.class, () -> {
             cloturer(cree.getSaleId(), 2_400);
@@ -334,18 +344,22 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         services.saleService.save(cloture);
         viderLeCache();
 
-        assertEquals(SalesStatut.CLOSED, em.find(CashSale.class, cree.getSaleId()).getStatut());
+        assertEquals(
+                SalesStatut.CLOSED, em.find(CashSale.class, cree.getSaleId()).getStatut());
     }
 
     // ===== outils =====
 
     private long version(SaleId saleId) {
-        return compter("SELECT version FROM sales WHERE id = " + saleId.getId() + " AND sale_date = '" + saleId.getSaleDate() + "'");
+        return compter("SELECT version FROM sales WHERE id = " + saleId.getId() + " AND sale_date = '"
+                + saleId.getSaleDate() + "'");
     }
 
     private static boolean estUnConflitDeVersion(Throwable erreur) {
         for (Throwable t = erreur; t != null; t = t.getCause() == t ? null : t.getCause()) {
-            if (t instanceof OptimisticLockException || t instanceof ObjectOptimisticLockingFailureException || t instanceof StaleStateException) {
+            if (t instanceof OptimisticLockException
+                    || t instanceof ObjectOptimisticLockingFailureException
+                    || t instanceof StaleStateException) {
                 return true;
             }
         }
@@ -353,7 +367,8 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
     }
 
     private int stockRayon(Produit produit) {
-        StockProduit stock = services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
+        StockProduit stock =
+                services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
         return stock.getQtyStock() + stock.getQtyUG();
     }
 
@@ -402,5 +417,4 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         ligne.setRegularUnitPrice(produit.getRegularUnitPrice());
         return ligne;
     }
-
 }

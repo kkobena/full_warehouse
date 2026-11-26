@@ -29,7 +29,10 @@ scenario('CLI-19', async ({ etape, page }) => {
     // Le sélecteur de mode n'a pas d'identifiant : on le désigne par le formulaire qui le
     // porte, seul ng-select de ce panneau.
     await formulaire.locator('ng-select').click();
-    await page.getByRole('option', { name: /Ch[èe]que/i }).first().click();
+    await page
+      .getByRole('option', { name: /Ch[èe]que/i })
+      .first()
+      .click();
     await expect(formulaire).toContainText('Informations bancaires');
   });
 

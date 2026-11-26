@@ -10,11 +10,10 @@ import java.util.List;
 
 /** Saisie manuelle d'une ordonnance. Le client est obligatoire ; le prescripteur facultatif. */
 public record OrdonnanceCreationDTO(
-    @NotNull Integer customerId,
-    Integer prescripteurId,
-    @NotNull LocalDate datePrescription,
-    @Min(0) int renouvellements,
-    LocalDate dateFinValidite,
-    @Size(max = 500) String note,
-    @NotEmpty @Valid List<OrdonnanceLigneCreationDTO> lignes
-) {}
+        @NotNull Integer customerId,
+        Integer prescripteurId,
+        @NotNull LocalDate datePrescription,
+        @Min(0) int renouvellements,
+        LocalDate dateFinValidite,
+        @Size(max = 500) String note,
+        @NotEmpty @Valid List<OrdonnanceLigneCreationDTO> lignes) {}

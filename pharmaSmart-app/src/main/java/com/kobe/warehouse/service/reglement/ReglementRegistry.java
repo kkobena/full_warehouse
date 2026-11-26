@@ -22,12 +22,11 @@ public class ReglementRegistry {
     private final FacturationRepository facturationRepository;
 
     public ReglementRegistry(
-        ReglementGroupeSelectionFactureService reglementGroupeSelectionFactureService,
-        ReglementGroupeFactureService reglementGroupeFactureService,
-        ReglementFactureModeAllService reglementFactureModeAllService,
-        ReglementFactureSelectionneesService reglementFactureSelectionneesService,
-        FacturationRepository facturationRepository
-    ) {
+            ReglementGroupeSelectionFactureService reglementGroupeSelectionFactureService,
+            ReglementGroupeFactureService reglementGroupeFactureService,
+            ReglementFactureModeAllService reglementFactureModeAllService,
+            ReglementFactureSelectionneesService reglementFactureSelectionneesService,
+            FacturationRepository facturationRepository) {
         this.facturationRepository = facturationRepository;
         registerService(ModeEditionReglement.GROUPE_TOTAL, reglementGroupeFactureService);
         registerService(ModeEditionReglement.GROUPE_PARTIEL, reglementGroupeSelectionFactureService);
@@ -51,8 +50,9 @@ public class ReglementRegistry {
         ModeEditionReglement mode = reglementParam.getMode();
         FactureItemId id = reglementParam.getId();
         if (mode == ModeEditionReglement.FACTURE_TOTAL
-            && Objects.nonNull(id)
-            && facturationRepository.existsByIdAndInvoiceDateAndGroupeTiersPayantIsNotNull(id.getId(), id.getInvoiceDate())) {
+                && Objects.nonNull(id)
+                && facturationRepository.existsByIdAndInvoiceDateAndGroupeTiersPayantIsNotNull(
+                        id.getId(), id.getInvoiceDate())) {
             mode = ModeEditionReglement.GROUPE_TOTAL;
         }
         return getService(mode);

@@ -23,28 +23,26 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-    name = "tiers_payant",
-    indexes = {
-        @Index(columnList = "full_name", name = "tiers_payant_full_name_index"),
-        @Index(columnList = "name", name = "tiers_payant_name_index"),
-        @Index(columnList = "statut", name = "tiers_payant_statut_index"),
-        @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
-    },
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}), @UniqueConstraint(columnNames = {"full_name"})}
-)
+        name = "tiers_payant",
+        indexes = {
+            @Index(columnList = "full_name", name = "tiers_payant_full_name_index"),
+            @Index(columnList = "name", name = "tiers_payant_name_index"),
+            @Index(columnList = "statut", name = "tiers_payant_statut_index"),
+            @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
+        },
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}), @UniqueConstraint(columnNames = {"full_name"})})
 public class TiersPayant implements Serializable, HasConsommation {
 
     @Serial
@@ -150,7 +148,7 @@ public class TiersPayant implements Serializable, HasConsommation {
 
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "ncc", length = 100)
-    private String ncc; //Identifiant contribuable
+    private String ncc; // Identifiant contribuable
 
     /** Taux de prise en charge standard de l'organisme, suggéré à la saisie d'un assuré ; nul si l'organisme n'en a pas. */
     @Min(0)
@@ -167,14 +165,14 @@ public class TiersPayant implements Serializable, HasConsommation {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "periodicite_facture_definitive", length = 20)
-    private Periodicite periodiciteFactureDefinitive ;
+    private Periodicite periodiciteFactureDefinitive;
 
     /**
      * Périodicité pour la facturation provisoire automatique (null = non inclus dans la facturation provisoire auto).
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "periodicite_facture_provisoire", length = 20)
-    private Periodicite periodiciteFactureProvisoire ;
+    private Periodicite periodiciteFactureProvisoire;
 
     @ColumnDefault("true")
     @Column(name = "inclure_facturation_auto_definitive", nullable = false)
@@ -184,8 +182,7 @@ public class TiersPayant implements Serializable, HasConsommation {
     @Column(name = "inclure_facturation_auto_provisoire", nullable = false)
     private boolean inclureFacturationAutoProvisoire = true;
 
-    public TiersPayant() {
-    }
+    public TiersPayant() {}
 
     public String getModelFacture() {
         return modelFacture;
@@ -506,5 +503,4 @@ public class TiersPayant implements Serializable, HasConsommation {
     public String getModelFilePath() {
         return Objects.requireNonNullElse(modelFacture, "default");
     }
-
 }

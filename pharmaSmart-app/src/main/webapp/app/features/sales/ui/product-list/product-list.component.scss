@@ -149,7 +149,11 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-table {
   // En-tête du tableau
   thead .pharma-table-head th {
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff),
+      var(--pharma-chrome-tab, #5b89a6)
+    );
     color: $pharma-white;
     font-weight: 600;
     font-size: 13px;
@@ -751,7 +755,6 @@ td.text-right app-editable-cell {
   background: #ffffff;
   border-color: #adb5bd;
 }
-
 
 // ====================================
 // TABLEAU COMPACT

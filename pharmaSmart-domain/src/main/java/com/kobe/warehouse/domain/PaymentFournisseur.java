@@ -11,20 +11,17 @@ import java.io.Serializable;
 /**
  * A PaymentFournisseur.
  */
-
 @Entity
 public class PaymentFournisseur extends PaymentTransaction implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {
-            @JoinColumn(name = "commande_id", referencedColumnName = "id"),
-            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
-        }
-    )
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+    })
     private Commande commande;
 
     public Commande getCommande() {

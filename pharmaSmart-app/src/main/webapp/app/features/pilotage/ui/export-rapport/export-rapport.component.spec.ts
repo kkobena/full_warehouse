@@ -48,7 +48,9 @@ describe('Export PDF du pilotage', () => {
   beforeEach(() => {
     telechargement.downloadFromObservable.mockReset();
     imprimerRapport.mockClear();
-    try { localStorage.clear(); } catch {}
+    try {
+      localStorage.clear();
+    } catch {}
   });
 
   it("n'offre pas le bouton sans droit d'export sur un onglet imprimable", async () => {
@@ -90,7 +92,12 @@ describe('Export PDF du pilotage', () => {
     fixture.detectChanges();
     document.querySelector<HTMLButtonElement>('.modal-footer app-button:last-child button')!.click();
 
-    expect(imprimerRapport).toHaveBeenCalledWith(REQUETE, ['TABLEAU_DE_BORD', 'COMPARER_ANNEES'], REGLAGE_ANNEES_PAR_DEFAUT, REGLAGE_PAR_DEFAUT);
+    expect(imprimerRapport).toHaveBeenCalledWith(
+      REQUETE,
+      ['TABLEAU_DE_BORD', 'COMPARER_ANNEES'],
+      REGLAGE_ANNEES_PAR_DEFAUT,
+      REGLAGE_PAR_DEFAUT,
+    );
   });
 
   it("imprime l'analyse telle que l'écran l'affiche : ventilation et chemin de descente de l'URL", async () => {
@@ -116,7 +123,9 @@ describe('Export PDF du pilotage', () => {
 
   it('restaure la dernière sélection depuis localStorage', async () => {
     droits = ['pilotage.tableau-de-bord', 'pilotage.comparer-annees'];
-    try { localStorage.setItem('pilotage-export-selection', JSON.stringify(['comparer-annees'])); } catch {}
+    try {
+      localStorage.setItem('pilotage-export-selection', JSON.stringify(['comparer-annees']));
+    } catch {}
     const element = await creer('tableau-de-bord');
 
     element.querySelector<HTMLButtonElement>('app-button button')!.click();
@@ -139,6 +148,11 @@ describe('Export PDF du pilotage', () => {
     fixture.detectChanges();
     document.querySelector<HTMLButtonElement>('.modal-footer app-button:last-child button')!.click();
 
-    expect(imprimerRapport).toHaveBeenCalledWith(REQUETE, ['TABLEAU_DE_BORD', 'COMPARER_ANNEES'], REGLAGE_ANNEES_PAR_DEFAUT, REGLAGE_PAR_DEFAUT);
+    expect(imprimerRapport).toHaveBeenCalledWith(
+      REQUETE,
+      ['TABLEAU_DE_BORD', 'COMPARER_ANNEES'],
+      REGLAGE_ANNEES_PAR_DEFAUT,
+      REGLAGE_PAR_DEFAUT,
+    );
   });
 });

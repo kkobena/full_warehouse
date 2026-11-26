@@ -59,11 +59,7 @@ class ProductCodeResolverServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ProductCodeResolverServiceImpl(
-            fournisseurProduitRepository,
-            produitRepository,
-            aliasRepository,
-            dataMatrixParserService
-        );
+                fournisseurProduitRepository, produitRepository, aliasRepository, dataMatrixParserService);
     }
 
     private Produit produit(Integer id, String libelle) {
@@ -90,7 +86,8 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("ordonne du plus sur au plus large : CIP, EAN, GTIN")
         void ordreDesCandidats() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().gtin(GTIN).ean13(EAN).cip13(CIP).build();
+            DataMatrixInfo parsed =
+                    DataMatrixInfo.builder().gtin(GTIN).ean13(EAN).cip13(CIP).build();
 
             assertThat(service.listerCodesCandidats(parsed)).containsExactly(CIP, EAN, GTIN);
         }
@@ -98,7 +95,8 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("un meme code present dans deux champs ne donne qu un candidat")
         void doublonsRetires() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13(CIP).ean13(CIP).build();
+            DataMatrixInfo parsed =
+                    DataMatrixInfo.builder().cip13(CIP).ean13(CIP).build();
 
             assertThat(service.listerCodesCandidats(parsed)).containsExactly(CIP);
         }
@@ -106,7 +104,8 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("les codes vides ou blancs sont ignores")
         void codesVidesIgnores() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13("   ").ean13(EAN).build();
+            DataMatrixInfo parsed =
+                    DataMatrixInfo.builder().cip13("   ").ean13(EAN).build();
 
             assertThat(service.listerCodesCandidats(parsed)).containsExactly(EAN);
         }
@@ -127,7 +126,8 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("retrouve un produit par le CIP de la fiche fournisseur")
         void parCodeCip() {
-            when(fournisseurProduitRepository.findAllByCodeCip(CIP)).thenReturn(List.of(fournisseurProduit(produit(7, "DOLIPRANE"))));
+            when(fournisseurProduitRepository.findAllByCodeCip(CIP))
+                    .thenReturn(List.of(fournisseurProduit(produit(7, "DOLIPRANE"))));
 
             List<ProductResolveResult> resultats = service.resoudreCode(CIP);
 
@@ -141,12 +141,13 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("retrouve un produit par l EAN de la fiche fournisseur")
         void parCodeEan() {
-            when(fournisseurProduitRepository.findAllByCodeEan(EAN)).thenReturn(List.of(fournisseurProduit(produit(8, "EFFERALGAN"))));
+            when(fournisseurProduitRepository.findAllByCodeEan(EAN))
+                    .thenReturn(List.of(fournisseurProduit(produit(8, "EFFERALGAN"))));
 
             assertThat(service.resoudreCode(EAN))
-                .singleElement()
-                .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
-                .containsExactly(8, MatchedBy.CODE_EAN);
+                    .singleElement()
+                    .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
+                    .containsExactly(8, MatchedBy.CODE_EAN);
         }
 
         @Test
@@ -155,9 +156,9 @@ class ProductCodeResolverServiceImplTest {
             when(produitRepository.findAllByCodeEanLaboratoire(EAN)).thenReturn(List.of(produit(9, "ASPEGIC")));
 
             assertThat(service.resoudreCode(EAN))
-                .singleElement()
-                .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
-                .containsExactly(9, MatchedBy.CODE_EAN_LABO);
+                    .singleElement()
+                    .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
+                    .containsExactly(9, MatchedBy.CODE_EAN_LABO);
         }
 
         @Test
@@ -166,9 +167,9 @@ class ProductCodeResolverServiceImplTest {
             when(aliasRepository.findAllByCode(GTIN)).thenReturn(List.of(alias(produit(10, "SMECTA"), GTIN)));
 
             assertThat(service.resoudreCode(GTIN))
-                .singleElement()
-                .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
-                .containsExactly(10, MatchedBy.ALIAS);
+                    .singleElement()
+                    .extracting(ProductResolveResult::produitId, ProductResolveResult::matchedBy)
+                    .containsExactly(10, MatchedBy.ALIAS);
         }
 
         @Test
@@ -179,20 +180,22 @@ class ProductCodeResolverServiceImplTest {
             when(aliasRepository.findAllByCode(CIP)).thenReturn(List.of(alias(produit, CIP)));
 
             assertThat(service.resoudreCode(CIP))
-                .singleElement()
-                .extracting(ProductResolveResult::matchedBy)
-                .isEqualTo(MatchedBy.CODE_CIP);
+                    .singleElement()
+                    .extracting(ProductResolveResult::matchedBy)
+                    .isEqualTo(MatchedBy.CODE_CIP);
         }
 
         @Test
         @DisplayName("un code partage par deux produits les renvoie tous les deux")
         void codePartageParDeuxProduits() {
             when(fournisseurProduitRepository.findAllByCodeEan(EAN))
-                .thenReturn(List.of(fournisseurProduit(produit(12, "BOITE DE 8")), fournisseurProduit(produit(13, "BOITE DE 16"))));
+                    .thenReturn(List.of(
+                            fournisseurProduit(produit(12, "BOITE DE 8")),
+                            fournisseurProduit(produit(13, "BOITE DE 16"))));
 
             assertThat(service.resoudreCode(EAN))
-                .extracting(ProductResolveResult::produitId)
-                .containsExactly(12, 13);
+                    .extracting(ProductResolveResult::produitId)
+                    .containsExactly(12, 13);
         }
 
         @Test
@@ -218,10 +221,15 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("s arrete au premier code candidat qui donne un resultat")
         void arretAuPremierTrouve() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13(CIP).ean13(EAN).build();
-            when(fournisseurProduitRepository.findAllByCodeCip(CIP)).thenReturn(List.of(fournisseurProduit(produit(14, "IMODIUM"))));
+            DataMatrixInfo parsed =
+                    DataMatrixInfo.builder().cip13(CIP).ean13(EAN).build();
+            when(fournisseurProduitRepository.findAllByCodeCip(CIP))
+                    .thenReturn(List.of(fournisseurProduit(produit(14, "IMODIUM"))));
 
-            assertThat(service.resoudre(parsed)).singleElement().extracting(ProductResolveResult::matchedCode).isEqualTo(CIP);
+            assertThat(service.resoudre(parsed))
+                    .singleElement()
+                    .extracting(ProductResolveResult::matchedCode)
+                    .isEqualTo(CIP);
 
             verify(fournisseurProduitRepository, never()).findAllByCodeEan(EAN);
         }
@@ -229,16 +237,23 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("essaie le code suivant quand le premier ne donne rien")
         void replieSurLeCodeSuivant() {
-            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13(CIP).ean13(EAN).build();
-            when(fournisseurProduitRepository.findAllByCodeEan(EAN)).thenReturn(List.of(fournisseurProduit(produit(15, "GAVISCON"))));
+            DataMatrixInfo parsed =
+                    DataMatrixInfo.builder().cip13(CIP).ean13(EAN).build();
+            when(fournisseurProduitRepository.findAllByCodeEan(EAN))
+                    .thenReturn(List.of(fournisseurProduit(produit(15, "GAVISCON"))));
 
-            assertThat(service.resoudre(parsed)).singleElement().extracting(ProductResolveResult::matchedCode).isEqualTo(EAN);
+            assertThat(service.resoudre(parsed))
+                    .singleElement()
+                    .extracting(ProductResolveResult::matchedCode)
+                    .isEqualTo(EAN);
         }
 
         @Test
         @DisplayName("aucun code candidat : aucun resultat")
         void aucunCandidat() {
-            assertThat(service.resoudre(DataMatrixInfo.builder().batchNumber("LOT1").build())).isEmpty();
+            assertThat(service.resoudre(
+                            DataMatrixInfo.builder().batchNumber("LOT1").build()))
+                    .isEmpty();
         }
     }
 
@@ -252,9 +267,10 @@ class ProductCodeResolverServiceImplTest {
             when(aliasRepository.findFirstByProduitIdAndCode(16, GTIN)).thenReturn(Optional.empty());
             when(produitRepository.getReferenceById(16)).thenReturn(produit(16, "DAFALGAN"));
             when(aliasRepository.saveAndFlush(org.mockito.ArgumentMatchers.any(ProduitCodeAlias.class)))
-                .thenAnswer(invocation -> ((ProduitCodeAlias) invocation.getArgument(0)).setId(99));
+                    .thenAnswer(invocation -> ((ProduitCodeAlias) invocation.getArgument(0)).setId(99));
 
-            ProduitCodeAliasDTO alias = service.enregistrerAlias(16, GTIN, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
+            ProduitCodeAliasDTO alias =
+                    service.enregistrerAlias(16, GTIN, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
 
             assertThat(alias.id()).isEqualTo(99);
             assertThat(alias.code()).isEqualTo(GTIN);
@@ -268,7 +284,8 @@ class ProductCodeResolverServiceImplTest {
             ProduitCodeAlias existant = alias(produit(17, "VOGALENE"), GTIN).setId(42);
             when(aliasRepository.findFirstByProduitIdAndCode(17, GTIN)).thenReturn(Optional.of(existant));
 
-            ProduitCodeAliasDTO alias = service.enregistrerAlias(17, GTIN, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
+            ProduitCodeAliasDTO alias =
+                    service.enregistrerAlias(17, GTIN, CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
 
             assertThat(alias.id()).isEqualTo(42);
             verify(aliasRepository, never()).saveAndFlush(org.mockito.ArgumentMatchers.any());
@@ -277,7 +294,8 @@ class ProductCodeResolverServiceImplTest {
         @Test
         @DisplayName("les espaces autour du code sont retires avant memorisation")
         void codeNormalise() {
-            when(aliasRepository.findFirstByProduitIdAndCode(18, GTIN)).thenReturn(Optional.of(alias(produit(18, "X"), GTIN).setId(1)));
+            when(aliasRepository.findFirstByProduitIdAndCode(18, GTIN))
+                    .thenReturn(Optional.of(alias(produit(18, "X"), GTIN).setId(1)));
 
             service.enregistrerAlias(18, "  " + GTIN + "  ", CodeAliasType.GTIN_14, CodeAliasSource.MANUAL);
 
@@ -290,7 +308,7 @@ class ProductCodeResolverServiceImplTest {
     class DeduireType {
 
         @ParameterizedTest(name = "{0} donne le type {1}")
-        @CsvSource({ "GTIN_14, GTIN_14", "EAN_13, EAN_13", "EAN_8, EAN_8", "CIP_13, CIP_13", "CIP_7, CIP_7" })
+        @CsvSource({"GTIN_14, GTIN_14", "EAN_13, EAN_13", "EAN_8, EAN_8", "CIP_13, CIP_13", "CIP_7, CIP_7"})
         void typesConnus(BarcodeType detecte, CodeAliasType attendu) {
             when(dataMatrixParserService.detectBarcodeType(anyString())).thenReturn(detecte);
 
@@ -298,7 +316,7 @@ class ProductCodeResolverServiceImplTest {
         }
 
         @ParameterizedTest(name = "{0} donne CUSTOM")
-        @CsvSource({ "DATAMATRIX", "UNKNOWN" })
+        @CsvSource({"DATAMATRIX", "UNKNOWN"})
         void typesSansCorrespondance(BarcodeType detecte) {
             when(dataMatrixParserService.detectBarcodeType(anyString())).thenReturn(detecte);
 

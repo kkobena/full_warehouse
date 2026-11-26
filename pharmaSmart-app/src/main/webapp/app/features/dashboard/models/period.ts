@@ -50,7 +50,9 @@ export function resolvePeriod(preset: PeriodPreset, today: Date = new Date()): D
 export function parseContextSettings(raw: unknown): DashboardContextSettings {
   const value = raw as Partial<DashboardContextSettings> | null | undefined;
   const period = PERIOD_OPTIONS.some(o => o.value === value?.period) ? value!.period! : DEFAULT_CONTEXT.period;
-  const refreshSeconds = REFRESH_OPTIONS.some(o => o.value === value?.refreshSeconds) ? value!.refreshSeconds! : DEFAULT_CONTEXT.refreshSeconds;
+  const refreshSeconds = REFRESH_OPTIONS.some(o => o.value === value?.refreshSeconds)
+    ? value!.refreshSeconds!
+    : DEFAULT_CONTEXT.refreshSeconds;
   return { period, refreshSeconds };
 }
 
@@ -92,7 +94,5 @@ function cap(s: string): string {
 
 function dayRange(start: Date, end: Date): string {
   const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
-  return sameMonth
-    ? `${start.getDate()}–${fmtDayNum.format(end)}`
-    : `${fmtDayNum.format(start)} – ${fmtDayNum.format(end)}`;
+  return sameMonth ? `${start.getDate()}–${fmtDayNum.format(end)}` : `${fmtDayNum.format(start)} – ${fmtDayNum.format(end)}`;
 }

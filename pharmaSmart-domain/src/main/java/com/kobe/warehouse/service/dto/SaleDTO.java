@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Poste;
@@ -19,8 +19,6 @@ import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,15 +26,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes(
-    {
-        @JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"),
-        @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO"),
-        @JsonSubTypes.Type(value = DepotExtensionSaleDTO.class, name = "DEPOT"),
-    }
-)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"),
+    @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO"),
+    @JsonSubTypes.Type(value = DepotExtensionSaleDTO.class, name = "DEPOT"),
+})
 public class SaleDTO implements Serializable {
 
     protected MagasinDTO magasin;
@@ -104,8 +101,7 @@ public class SaleDTO implements Serializable {
      */
     private Long version;
 
-    public SaleDTO() {
-    }
+    public SaleDTO() {}
 
     public String getPrescripteur() {
         return prescripteur;
@@ -174,12 +170,12 @@ public class SaleDTO implements Serializable {
         if (withSalesLines) {
             buildItemDTOFromSaleLines(sale.getSalesLines());
         }
-       /* this.salesLines = sale
-            .getSalesLines()
-            .stream()
-            .map(SaleLineDTO::new)
-            .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
-            .toList();*/
+        /* this.salesLines = sale
+        .getSalesLines()
+        .stream()
+        .map(SaleLineDTO::new)
+        .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
+        .toList();*/
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
 
         AppUser user = sale.getUser();
@@ -187,8 +183,8 @@ public class SaleDTO implements Serializable {
         this.numberTransaction = sale.getNumberTransaction();
         this.natureVente = sale.getNatureVente();
         this.typePrescription = sale.getTypePrescription();
-        this.seller =  UserDTO.user(sale.getSeller());
-        this.cassier =  UserDTO.user(sale.getCaissier());
+        this.seller = UserDTO.user(sale.getSeller());
+        this.cassier = UserDTO.user(sale.getCaissier());
         this.cassierId = this.cassier.getId();
         this.sellerId = this.seller.getId();
         this.differe = sale.isDiffere();
@@ -211,15 +207,14 @@ public class SaleDTO implements Serializable {
                 this.remise = new RemiseClientDTO((RemiseClient) sale.getRemise());
             }
         }
-
     }
 
     private void buildItemDTOFromSaleLines(Set<SalesLine> salesLines) {
 
         for (SalesLine salesLine : salesLines) {
-           // SaleLineDTO saleLineDTO = new SaleLineDTO(salesLine);
-           // montantTva += Objects.requireNonNullElse(saleLineDTO.getTaxAmount(), 0);
-          //  montantHt += Objects.requireNonNullElse(saleLineDTO.getHtAmount(), 0);
+            // SaleLineDTO saleLineDTO = new SaleLineDTO(salesLine);
+            // montantTva += Objects.requireNonNullElse(saleLineDTO.getTaxAmount(), 0);
+            //  montantHt += Objects.requireNonNullElse(saleLineDTO.getHtAmount(), 0);
             this.salesLines.add(new SaleLineDTO(salesLine));
         }
 
@@ -746,5 +741,4 @@ public class SaleDTO implements Serializable {
         dto.setRestToPay(cashSale.getRestToPay());
         return dto;
     }
-
 }

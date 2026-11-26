@@ -1,25 +1,24 @@
-import { inject, Injectable } from "@angular/core";
-import { HttpClient, HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-import { SERVER_API_URL } from "../../../../app.constants";
-import { FactureId, FneResponse } from "../../../../entities/facturation/facture.model";
+import { SERVER_API_URL } from '../../../../app.constants';
+import { FactureId, FneResponse } from '../../../../entities/facturation/facture.model';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class CertificationApiService {
-  private readonly resourceUrl = SERVER_API_URL + "api/certification-factures";
+  private readonly resourceUrl = SERVER_API_URL + 'api/certification-factures';
   private readonly http = inject(HttpClient);
-
 
   certify(factureId: FactureId): Observable<HttpResponse<FneResponse>> {
     return this.http.get<FneResponse>(`${this.resourceUrl}/certifier/${factureId.id}/${factureId.invoiceDate}`, {
-      observe: "response"
+      observe: 'response',
     });
   }
 
   certifyGroupe(factureId: FactureId): Observable<HttpResponse<void>> {
     return this.http.get<void>(`${this.resourceUrl}/certifier-groupe/${factureId.id}/${factureId.invoiceDate}`, {
-      observe: "response"
+      observe: 'response',
     });
   }
 }

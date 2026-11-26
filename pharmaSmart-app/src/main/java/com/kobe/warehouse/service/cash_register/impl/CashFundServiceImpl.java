@@ -22,7 +22,8 @@ public class CashFundServiceImpl implements CashFundService {
     }
 
     @Override
-    public CashFund allocateCashFund(Integer amount, CashFundType cashFundType, AppUser cashRegisterOwner, AppUser user) {
+    public CashFund allocateCashFund(
+            Integer amount, CashFundType cashFundType, AppUser cashRegisterOwner, AppUser user) {
         CashFund cashFund = createCashFund(amount, cashFundType, cashRegisterOwner, user, CashFundStatut.PENDING);
         return cashFundRepository.save(cashFund);
     }
@@ -33,12 +34,11 @@ public class CashFundServiceImpl implements CashFundService {
     }
 
     private CashFund createCashFund(
-        int amount,
-        CashFundType cashFundType,
-        AppUser cashRegisterOwner,
-        AppUser user,
-        CashFundStatut cashFundStatut
-    ) {
+            int amount,
+            CashFundType cashFundType,
+            AppUser cashRegisterOwner,
+            AppUser user,
+            CashFundStatut cashFundStatut) {
         CashFund cashFund = new CashFund();
         cashFund.setAmount(amount);
         cashFund.setCreated(LocalDateTime.now());

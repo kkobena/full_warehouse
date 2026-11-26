@@ -1,305 +1,303 @@
-import { Routes } from "@angular/router";
-import { AuthGuard } from "../core/auth/auth.guard";
-import { licenseWriteGuard } from "../core/license/license-write.guard";
-import { licenseFeatureGuard } from "../core/license/license-feature.guard";
+import { Routes } from '@angular/router';
+import { AuthGuard } from '../core/auth/auth.guard';
+import { licenseWriteGuard } from '../core/license/license-write.guard';
+import { licenseFeatureGuard } from '../core/license/license-feature.guard';
 
 const routes: Routes = [
-
   // ── Référentiel Produits ───────────────────────────────────────────────────
   {
-    path: "categorie",
-    data: { pageTitle: "warehouseApp.categorie.home.title" },
+    path: 'categorie',
+    data: { pageTitle: 'warehouseApp.categorie.home.title' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./categorie/categorie.route")
+    loadChildren: () => import('./categorie/categorie.route'),
   },
   {
-    path: "rayon",
-    data: { pageTitle: "warehouseApp.rayon.home.title", abilitySubject: "rayon" },
+    path: 'rayon',
+    data: { pageTitle: 'warehouseApp.rayon.home.title', abilitySubject: 'rayon' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/rayon/rayon.routes")
+    loadChildren: () => import('../features/rayon/rayon.routes'),
   },
   {
-    path: "forme-produit",
-    data: { pageTitle: "warehouseApp.formeProduit.home.title", abilitySubject: "forme-produit" },
+    path: 'forme-produit',
+    data: { pageTitle: 'warehouseApp.formeProduit.home.title', abilitySubject: 'forme-produit' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./forme-produit/forme.route")
+    loadChildren: () => import('./forme-produit/forme.route'),
   },
   {
-    path: "famille-produit",
-    data: { pageTitle: "warehouseApp.familleProduit.home.title", abilitySubject: "famille-produit" },
+    path: 'famille-produit',
+    data: { pageTitle: 'warehouseApp.familleProduit.home.title', abilitySubject: 'famille-produit' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./famille-produit/famille-produit.route")
+    loadChildren: () => import('./famille-produit/famille-produit.route'),
   },
   {
-    path: "gamme-produit",
-    data: { pageTitle: "warehouseApp.gammeProduit.home.title", abilitySubject: "gamme-produit" },
+    path: 'gamme-produit',
+    data: { pageTitle: 'warehouseApp.gammeProduit.home.title', abilitySubject: 'gamme-produit' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./gamme-produit/gamme-produit.route")
+    loadChildren: () => import('./gamme-produit/gamme-produit.route'),
   },
   {
     // Substances actives. L'abilitySubject reprend le code du nav_item « dci ».
-    path: "dci",
-    data: { pageTitle: "Dénominations Communes Internationales", abilitySubject: "dci" },
+    path: 'dci',
+    data: { pageTitle: 'Dénominations Communes Internationales', abilitySubject: 'dci' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/dci/dci.routes")
+    loadChildren: () => import('../features/dci/dci.routes'),
   },
   {
-    path: "laboratoire",
-    data: { pageTitle: "warehouseApp.laboratoire.home.title", abilitySubject: "laboratoire" },
+    path: 'laboratoire',
+    data: { pageTitle: 'warehouseApp.laboratoire.home.title', abilitySubject: 'laboratoire' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./laboratoire-produit/laboratoire-produit.route")
+    loadChildren: () => import('./laboratoire-produit/laboratoire-produit.route'),
   },
 
   // ── Référentiel Commercial ─────────────────────────────────────────────────
   {
-    path: "remises",
-    data: { pageTitle: "warehouseApp.remise.home.title", abilitySubject: "remises" },
+    path: 'remises',
+    data: { pageTitle: 'warehouseApp.remise.home.title', abilitySubject: 'remises' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./remise/remise.route")
+    loadChildren: () => import('./remise/remise.route'),
   },
   {
-    path: "tableaux",
-    data: { pageTitle: "warehouseApp.tableaux.home.title", abilitySubject: "tableaux" },
+    path: 'tableaux',
+    data: { pageTitle: 'warehouseApp.tableaux.home.title', abilitySubject: 'tableaux' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./tableau-produit/tableau-produit.route")
+    loadChildren: () => import('./tableau-produit/tableau-produit.route'),
   },
   {
-    path: "tva",
-    data: { pageTitle: "warehouseApp.tva.home.title", abilitySubject: "tva" },
+    path: 'tva',
+    data: { pageTitle: 'warehouseApp.tva.home.title', abilitySubject: 'tva' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./tva/tva.route")
+    loadChildren: () => import('./tva/tva.route'),
   },
   {
-    path: "mode-payments",
-    data: { pageTitle: "Modes de paiement", abilitySubject: "mode-payments" },
+    path: 'mode-payments',
+    data: { pageTitle: 'Modes de paiement', abilitySubject: 'mode-payments' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./mode-payments/mode-payment.route")
+    loadChildren: () => import('./mode-payments/mode-payment.route'),
   },
 
   // ── Référentiel Organisation ───────────────────────────────────────────────
   {
-    path: "motif-ajustement",
-    data: { pageTitle: "warehouseApp.motifAjustement.home.title", abilitySubject: "motif-ajustement" },
+    path: 'motif-ajustement',
+    data: { pageTitle: 'warehouseApp.motifAjustement.home.title', abilitySubject: 'motif-ajustement' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./modif-ajustement/motif-ajustement.route")
+    loadChildren: () => import('./modif-ajustement/motif-ajustement.route'),
   },
   {
-    path: "motif-retour-produit",
-    data: { pageTitle: "Motifs rétours produits", abilitySubject: "motif-retour-produit" },
+    path: 'motif-retour-produit',
+    data: { pageTitle: 'Motifs rétours produits', abilitySubject: 'motif-retour-produit' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./motif-retour-produit/motif-retour-produit.route")
+    loadChildren: () => import('./motif-retour-produit/motif-retour-produit.route'),
   },
   {
-
-    path: "parametre",
-    data: { pageTitle: "Paramètres", abilitySubject: "parametres" },
+    path: 'parametre',
+    data: { pageTitle: 'Paramètres', abilitySubject: 'parametres' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/settings/feature/parametre/app.route")
-  },
-
-  {
-    path: "app-config",
-    data: { pageTitle: "Configuration avancée PharmaSmart" },
-    canActivate: [AuthGuard],
-    loadChildren: () => import("../features/settings/feature/app-config-editor/app-config-editor.route")
+    loadChildren: () => import('../features/settings/feature/parametre/app.route'),
   },
 
   {
-    path: "mise-a-jour",
-    data: { pageTitle: "Mise à jour du poste" },
+    path: 'app-config',
+    data: { pageTitle: 'Configuration avancée PharmaSmart' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/settings/feature/client-update/client-update.route")
+    loadChildren: () => import('../features/settings/feature/app-config-editor/app-config-editor.route'),
+  },
+
+  {
+    path: 'mise-a-jour',
+    data: { pageTitle: 'Mise à jour du poste' },
+    canActivate: [AuthGuard],
+    loadChildren: () => import('../features/settings/feature/client-update/client-update.route'),
   },
 
   // ── Admin — nav_items sous 'administration' ────────────────────────────────
   {
-    path: "magasin",
-    data: { pageTitle: "warehouseApp.magasin.home.title", abilitySubject: "magasin" },
+    path: 'magasin',
+    data: { pageTitle: 'warehouseApp.magasin.home.title', abilitySubject: 'magasin' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/magasin/magasin.routes")
+    loadChildren: () => import('../features/magasin/magasin.routes'),
   },
   {
-    path: "poste",
-    data: { pageTitle: "Gestion des Postes", abilitySubject: "poste" },
+    path: 'poste',
+    data: { pageTitle: 'Gestion des Postes', abilitySubject: 'poste' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/settings/feature/poste/poste.route")
+    loadChildren: () => import('../features/settings/feature/poste/poste.route'),
   },
 
   // ── Compte utilisateur (auth only) ─────────────────────────────────────────
   {
-    path: "my-cash-register",
-    data: { pageTitle: "warehouseApp.userCash.home.title" },
+    path: 'my-cash-register',
+    data: { pageTitle: 'warehouseApp.userCash.home.title' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./cash-register/user-cash-register/user-cash-register.route")
+    loadChildren: () => import('./cash-register/user-cash-register/user-cash-register.route'),
   },
 
   // ── Dashboard personnalisable ──────────────────────────────────────────────
   {
-    path: "dashboard",
-    data: { pageTitle: "Mon tableau de bord", abilitySubject: "dashboard-perso" },
+    path: 'dashboard',
+    data: { pageTitle: 'Mon tableau de bord', abilitySubject: 'dashboard-perso' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/dashboard/dashboard.routes")
+    loadChildren: () => import('../features/dashboard/dashboard.routes'),
   },
 
   // ── Semois (auth only) ─────────────────────────────────────────────────────
   {
-    path: "semois",
-    data: { pageTitle: "SEMOIS - Gestion Stock" },
+    path: 'semois',
+    data: { pageTitle: 'SEMOIS - Gestion Stock' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./semois/semois.route")
+    loadChildren: () => import('./semois/semois.route'),
   },
 
   // ── Business — contrôle ABAC via NavItemRole.canAccess ────────────────────
   {
-    path: "commande",
-    data: { pageTitle: "warehouseApp.commande.home.title", abilitySubject: "commande" },
+    path: 'commande',
+    data: { pageTitle: 'warehouseApp.commande.home.title', abilitySubject: 'commande' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/commande/commande.route")
+    loadChildren: () => import('../features/commande/commande.route'),
   },
   {
-    path: "customer",
-    data: { pageTitle: "warehouseApp.customer.home.title", abilitySubject: "customer" },
+    path: 'customer',
+    data: { pageTitle: 'warehouseApp.customer.home.title', abilitySubject: 'customer' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./customer/customer.route")
+    loadChildren: () => import('./customer/customer.route'),
   },
   {
-    path: "fournisseur",
-    data: { pageTitle: "warehouseApp.fournisseur.home.title", abilitySubject: "fournisseurs" },
+    path: 'fournisseur',
+    data: { pageTitle: 'warehouseApp.fournisseur.home.title', abilitySubject: 'fournisseurs' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/partners/partners.routes").then(m => m.PARTNERS_ROUTES)
+    loadChildren: () => import('../features/partners/partners.routes').then(m => m.PARTNERS_ROUTES),
   },
   {
-    path: "mvt-caisse",
-    data: { pageTitle: "warehouseApp.mvtCaisse.home.title", abilitySubject: "mvt-caisse" },
+    path: 'mvt-caisse',
+    data: { pageTitle: 'warehouseApp.mvtCaisse.home.title', abilitySubject: 'mvt-caisse' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./mvt-caisse/mvt-caisse.route")
+    loadChildren: () => import('./mvt-caisse/mvt-caisse.route'),
   },
   {
-    path: "tiers-payant",
-    data: { pageTitle: "warehouseApp.tiersPayant.home.title", abilitySubject: "tiers-payant" },
+    path: 'tiers-payant',
+    data: { pageTitle: 'warehouseApp.tiersPayant.home.title', abilitySubject: 'tiers-payant' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./tiers-payant/tiers-payant.route")
+    loadChildren: () => import('./tiers-payant/tiers-payant.route'),
   },
   {
-    path: "gestion-peremption",
-    data: { pageTitle: "warehouseApp.gestionPerimes.title", abilitySubject: "peremptions" },
+    path: 'gestion-peremption',
+    data: { pageTitle: 'warehouseApp.gestionPerimes.title', abilitySubject: 'peremptions' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./gestion-peremption/gestion-peremtion.route")
+    loadChildren: () => import('./gestion-peremption/gestion-peremtion.route'),
   },
   {
-    path: "depot",
-    data: { pageTitle: "Dépôts", abilitySubject: "depot" },
+    path: 'depot',
+    data: { pageTitle: 'Dépôts', abilitySubject: 'depot' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./depot/depot.route")
+    loadChildren: () => import('./depot/depot.route'),
   },
 
   // ── Redirections ───────────────────────────────────────────────────────────
   {
-    path: "reglement-facture",
-    redirectTo: "facturation",
-    pathMatch: "prefix"
+    path: 'reglement-facture',
+    redirectTo: 'facturation',
+    pathMatch: 'prefix',
   },
   {
-    path: "gestion-differe",
-    redirectTo: "differes",
-    pathMatch: "prefix"
+    path: 'gestion-differe',
+    redirectTo: 'differes',
+    pathMatch: 'prefix',
   },
 
   // ── Facturation (ABAC) ─────────────────────────────────────────────────────
   {
-    path: "facturation",
-    data: { pageTitle: "Facturation & Règlements", abilitySubject: "factures" },
+    path: 'facturation',
+    data: { pageTitle: 'Facturation & Règlements', abilitySubject: 'factures' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/facturation/facturation.routes")
+    loadChildren: () => import('../features/facturation/facturation.routes'),
   },
   {
-    path: "differes",
-    data: { pageTitle: "Différés" },
+    path: 'differes',
+    data: { pageTitle: 'Différés' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/differes/differes.routes")
+    loadChildren: () => import('../features/differes/differes.routes'),
   },
 
   // ── Features (ABAC) ────────────────────────────────────────────────────────
   {
-    path: "sales-home",
-    data: { pageTitle: "Point de vente" },
+    path: 'sales-home',
+    data: { pageTitle: 'Point de vente' },
     // licenseWriteGuard : ouvrir la caisse pour se voir refuser l'encaissement au dernier clic
     // serait la pire des expériences. À poser progressivement sur les autres écrans de saisie.
     canActivate: [AuthGuard, licenseWriteGuard],
-    loadChildren: () => import("../features/sales/sales.routes").then(m => m.SALES_ROUTES)
+    loadChildren: () => import('../features/sales/sales.routes').then(m => m.SALES_ROUTES),
   },
   {
-    path: "inventaire",
-    data: { pageTitle: "Inventaires", abilitySubject: "inventaire" },
+    path: 'inventaire',
+    data: { pageTitle: 'Inventaires', abilitySubject: 'inventaire' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/inventory/inventory.routes").then(m => m.INVENTORY_ROUTES)
+    loadChildren: () => import('../features/inventory/inventory.routes').then(m => m.INVENTORY_ROUTES),
   },
   {
-    path: "produits",
-    data: { pageTitle: "Catalogue produits", abilitySubject: "catalogue" },
+    path: 'produits',
+    data: { pageTitle: 'Catalogue produits', abilitySubject: 'catalogue' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/products/products.routes").then(m => m.PRODUCTS_ROUTES)
+    loadChildren: () => import('../features/products/products.routes').then(m => m.PRODUCTS_ROUTES),
   },
   {
-    path: "features-ajustement",
-    data: { pageTitle: "Ajustements de stock", abilitySubject: "ajustements" },
+    path: 'features-ajustement',
+    data: { pageTitle: 'Ajustements de stock', abilitySubject: 'ajustements' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/ajustement/ajustement.routes").then(m => m.AJUSTEMENT_ROUTES)
+    loadChildren: () => import('../features/ajustement/ajustement.routes').then(m => m.AJUSTEMENT_ROUTES),
   },
 
   // ── Rapports (ABAC par sous-route dans reports.route.ts) ──────────────────
   {
-    path: "reports",
-    data: { pageTitle: "Rapports" },
+    path: 'reports',
+    data: { pageTitle: 'Rapports' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./reports/reports.route")
+    loadChildren: () => import('./reports/reports.route'),
   },
 
   // ── Finances (ABAC) ───────────────────────────────────────────────────────
   {
-    path: "finances",
-    data: { pageTitle: "Finances", abilitySubject: "finances" },
+    path: 'finances',
+    data: { pageTitle: 'Finances', abilitySubject: 'finances' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/finances/finances.routes")
+    loadChildren: () => import('../features/finances/finances.routes'),
   },
 
   // ── Pilotage de l'officine (ABAC) ─────────────────────────────────────────
   {
-    path: "pilotage",
-    data: { pageTitle: "Pilotage de l'officine", abilitySubject: "pilotage" },
+    path: 'pilotage',
+    data: { pageTitle: "Pilotage de l'officine", abilitySubject: 'pilotage' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/pilotage/pilotage.routes")
+    loadChildren: () => import('../features/pilotage/pilotage.routes'),
   },
 
   // ── Exports de données (ABAC) ─────────────────────────────────────────────
   {
-    path: "exports",
-    data: { pageTitle: "Exports de données", abilitySubject: "exports" },
+    path: 'exports',
+    data: { pageTitle: 'Exports de données', abilitySubject: 'exports' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/exports/exports.routes")
+    loadChildren: () => import('../features/exports/exports.routes'),
   },
 
   // ── Comptabilité (ABAC) ───────────────────────────────────────────────────
   {
-    path: "comptabilite",
-    data: { pageTitle: "Comptabilité", abilitySubject: "comptabilite" },
+    path: 'comptabilite',
+    data: { pageTitle: 'Comptabilité', abilitySubject: 'comptabilite' },
     canActivate: [AuthGuard],
-    loadChildren: () => import("../features/comptabilite/comptabilite.routes")
+    loadChildren: () => import('../features/comptabilite/comptabilite.routes'),
   },
 
   // ── Retraitement du CA (ABAC) ──────────────────────────────────────────────
   {
-    path: "declaration-ca",
+    path: 'declaration-ca',
     // Une seule des quatre options suffit à ouvrir le module : chaque onglet reste filtré par son
     // propre required_feature. Sans cette garde, une URL collée menait à un écran sans onglet.
     data: {
-      pageTitle: "Retraitement du CA",
-      abilitySubject: "declaration-ca",
-      features: ["EXCLUSION_RAYON", "EXCLUSION_TP", "EXCLUSION_UG", "CALLEBASSE"]
+      pageTitle: 'Retraitement du CA',
+      abilitySubject: 'declaration-ca',
+      features: ['EXCLUSION_RAYON', 'EXCLUSION_TP', 'EXCLUSION_UG', 'CALLEBASSE'],
     },
     canActivate: [AuthGuard, licenseFeatureGuard],
-    loadChildren: () => import("../features/declaration-ca/declaration-ca.routes")
-  }
+    loadChildren: () => import('../features/declaration-ca/declaration-ca.routes'),
+  },
 ];
 
 export default routes;

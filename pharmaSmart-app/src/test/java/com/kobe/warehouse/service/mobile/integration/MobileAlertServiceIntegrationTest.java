@@ -50,7 +50,8 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
         void jeuComplet() {
             jeuDAlertes();
 
-            assertThat(service.getAlertsCount(null)).isEqualTo(service.getAlerts(null).size());
+            assertThat(service.getAlertsCount(null))
+                    .isEqualTo(service.getAlerts(null).size());
         }
 
         @Test
@@ -60,8 +61,8 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             for (AlertType type : List.of(AlertType.STOCK_RUPTURE, AlertType.EXPIRY, AlertType.INVOICE_OVERDUE)) {
                 assertThat(service.getAlertsCount(List.of(type.getCode())))
-                    .as("nature %s", type.getCode())
-                    .isEqualTo(service.getAlerts(List.of(type.getCode())).size());
+                        .as("nature %s", type.getCode())
+                        .isEqualTo(service.getAlerts(List.of(type.getCode())).size());
             }
         }
 
@@ -84,14 +85,16 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
         @Test
         @DisplayName("la facture d'un tiers payant isolé est comptée et listée")
         void impayeSansGroupe() {
-            FactureTiersPayant facture = factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
+            FactureTiersPayant facture =
+                    factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             List<String> impayes = List.of(AlertType.INVOICE_OVERDUE.getCode());
             assertThat(service.getAlerts(impayes))
-                .extracting(MobileAlertDetailDTO::relatedEntityId)
-                .contains(facture.getId().getId());
-            assertThat(service.getAlertsCount(impayes)).isEqualTo(service.getAlerts(impayes).size());
+                    .extracting(MobileAlertDetailDTO::relatedEntityId)
+                    .contains(facture.getId().getId());
+            assertThat(service.getAlertsCount(impayes))
+                    .isEqualTo(service.getAlerts(impayes).size());
         }
     }
 
@@ -140,8 +143,11 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
             jeuDAlertes();
 
             assertThat(service.getAlertsSummary())
-                .extracting(com.kobe.warehouse.service.dto.mobile.MobileDashboardDTO.MobileAlertDTO::type)
-                .contains(AlertType.STOCK_RUPTURE.getCode(), AlertType.EXPIRY.getCode(), AlertType.INVOICE_OVERDUE.getCode());
+                    .extracting(com.kobe.warehouse.service.dto.mobile.MobileDashboardDTO.MobileAlertDTO::type)
+                    .contains(
+                            AlertType.STOCK_RUPTURE.getCode(),
+                            AlertType.EXPIRY.getCode(),
+                            AlertType.INVOICE_OVERDUE.getCode());
         }
 
         /**
@@ -153,12 +159,10 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
         void nombresDuBandeau() {
             jeuDAlertes();
 
-            int totalDuBandeau = service
-                .getAlertsSummary()
-                .stream()
-                .filter(a -> !AlertType.CASH_DISCREPANCY.getCode().equals(a.type()))
-                .mapToInt(com.kobe.warehouse.service.dto.mobile.MobileDashboardDTO.MobileAlertDTO::count)
-                .sum();
+            int totalDuBandeau = service.getAlertsSummary().stream()
+                    .filter(a -> !AlertType.CASH_DISCREPANCY.getCode().equals(a.type()))
+                    .mapToInt(com.kobe.warehouse.service.dto.mobile.MobileDashboardDTO.MobileAlertDTO::count)
+                    .sum();
 
             assertThat(totalDuBandeau).isEqualTo(service.getAlerts(null).size());
         }
@@ -176,7 +180,8 @@ class MobileAlertServiceIntegrationTest extends AbstractMobileIntegrationTest {
         lot(aPerimer, LocalDate.now().plusDays(6), 10);
         lot(aPerimer, LocalDate.now().plusDays(22), 10);
 
-        factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 100_000, InvoiceStatut.PARTIALLY_PAID);
+        factureAgee(
+                tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 100_000, InvoiceStatut.PARTIALLY_PAID);
         factureAgee(tiersPayant("MUGEF isolé", null), 200, 300_000, 0, InvoiceStatut.NOT_PAID);
         em.flush();
     }

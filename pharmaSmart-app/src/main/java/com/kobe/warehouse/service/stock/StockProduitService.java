@@ -10,15 +10,14 @@ import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.stock.dto.StockProduitSearchDTO;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for managing StockProduit entities
@@ -34,12 +33,11 @@ public class StockProduitService {
     private final StorageService storageService;
     private final RepartitionStockService repartitionStockService;
 
-
     public StockProduitService(
-        StockProduitRepository stockProduitRepository,
-        ProduitRepository produitRepository,
-        StorageService storageService, RepartitionStockService repartitionStockService
-    ) {
+            StockProduitRepository stockProduitRepository,
+            ProduitRepository produitRepository,
+            StorageService storageService,
+            RepartitionStockService repartitionStockService) {
         this.stockProduitRepository = stockProduitRepository;
         this.produitRepository = produitRepository;
         this.storageService = storageService;
@@ -54,8 +52,8 @@ public class StockProduitService {
         LOG.debug("Creating new StockProduit: {}", dto);
 
         Produit produit = produitRepository
-            .findById(dto.getProduitId())
-            .orElseThrow(() -> new EntityNotFoundException("Produit not found with id: " + dto.getProduitId()));
+                .findById(dto.getProduitId())
+                .orElseThrow(() -> new EntityNotFoundException("Produit not found with id: " + dto.getProduitId()));
 
         // Find or create SAFETY_STOCK storage for this product
         Storage storageReserve = storageService.getDefaultConnectedUserReserveStorage();
@@ -77,7 +75,6 @@ public class StockProduitService {
             repartitionStockService.transferStockBetweenStorages(stockProduit);
         }
 
-
         return new StockProduitDTO(stockProduit);
     }
 
@@ -88,8 +85,8 @@ public class StockProduitService {
         LOG.debug("Updating StockProduit: {}", dto);
 
         StockProduit stockProduit = stockProduitRepository
-            .findById(dto.getId())
-            .orElseThrow(() -> new EntityNotFoundException("StockProduit not found with id: " + dto.getId()));
+                .findById(dto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("StockProduit not found with id: " + dto.getId()));
 
         // Only update the editable fields
         if (dto.getSeuilMini() != null) {
@@ -116,8 +113,8 @@ public class StockProduitService {
     public StockProduitDTO getStockProduit(Integer id) {
         LOG.debug("Getting StockProduit with id: {}", id);
         StockProduit stockProduit = stockProduitRepository
-            .findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("StockProduit not found with id: " + id));
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("StockProduit not found with id: " + id));
         return new StockProduitDTO(stockProduit);
     }
 
@@ -125,15 +122,10 @@ public class StockProduitService {
     public List<StockProduitSearchDTO> searchStockProduitsForRepartition(Integer storageId, String searchTerm) {
         Integer magasinId = storageService.getUser().getMagasin().getId();
 
-        List<StockProduit> stockProduits = stockProduitRepository.searchStockProduitsForRepartition(
-            storageId,
-            magasinId,
-            searchTerm
-        );
+        List<StockProduit> stockProduits =
+                stockProduitRepository.searchStockProduitsForRepartition(storageId, magasinId, searchTerm);
 
-        return stockProduits.stream()
-            .map(this::mapToSearchDTO)
-            .collect(Collectors.toList());
+        return stockProduits.stream().map(this::mapToSearchDTO).collect(Collectors.toList());
     }
 
     private StockProduitSearchDTO mapToSearchDTO(StockProduit stockProduit) {
@@ -147,7 +139,8 @@ public class StockProduitService {
         if (storage != null) {
             dto.setStorageId(storage.getId());
             dto.setStorageName(storage.getName());
-            dto.setStorageType(storage.getStorageType() != null ? storage.getStorageType().name() : null);
+            dto.setStorageType(
+                    storage.getStorageType() != null ? storage.getStorageType().name() : null);
         }
 
         // Product information
@@ -164,8 +157,8 @@ public class StockProduitService {
             // Map all stocks for this product
             if (produit.getStockProduits() != null) {
                 List<StockProduitDTO> allStocks = produit.getStockProduits().stream()
-                    .map(this::fromStockProduit)
-                    .collect(Collectors.toList());
+                        .map(this::fromStockProduit)
+                        .collect(Collectors.toList());
                 dto.setAllStocks(allStocks);
             } else {
                 dto.setAllStocks(new ArrayList<>());
@@ -175,24 +168,26 @@ public class StockProduitService {
         return dto;
     }
 
-
     public StockProduitDTO fromStockProduit(StockProduit s) {
         Storage r = s.getStorage();
         Produit p = s.getProduit();
 
         return new StockProduitDTO()
-            .setId(s.getId())
-            .setQtyStock(s.getQtyStock())
-            .setQtyVirtual(s.getQtyVirtual())
-            .setQtyUG(s.getQtyUG())
-            .setStorageId(r != null ? r.getId() : null)
-            .setStorageName(r != null ? r.getName() : null)
-            .setStorageType(r != null && r.getStorageType() != null ? r.getStorageType().getValue() : null)
-            .setType(r != null ? r.getStorageType() : null)
-            .setProduitId(p != null ? p.getId() : null)
-            .setCreatedAt(p != null ? p.getCreatedAt() : null)
-            .setUpdatedAt(p != null ? p.getUpdatedAt() : null)
-            .setProduitLibelle(p != null ? p.getLibelle() : null)
-            .setTotalStockQuantity(s.getTotalStockQuantity());
+                .setId(s.getId())
+                .setQtyStock(s.getQtyStock())
+                .setQtyVirtual(s.getQtyVirtual())
+                .setQtyUG(s.getQtyUG())
+                .setStorageId(r != null ? r.getId() : null)
+                .setStorageName(r != null ? r.getName() : null)
+                .setStorageType(
+                        r != null && r.getStorageType() != null
+                                ? r.getStorageType().getValue()
+                                : null)
+                .setType(r != null ? r.getStorageType() : null)
+                .setProduitId(p != null ? p.getId() : null)
+                .setCreatedAt(p != null ? p.getCreatedAt() : null)
+                .setUpdatedAt(p != null ? p.getUpdatedAt() : null)
+                .setProduitLibelle(p != null ? p.getLibelle() : null)
+                .setTotalStockQuantity(s.getTotalStockQuantity());
     }
 }

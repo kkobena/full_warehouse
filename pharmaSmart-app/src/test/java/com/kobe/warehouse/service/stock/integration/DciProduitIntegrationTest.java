@@ -33,17 +33,17 @@ class DciProduitIntegrationTest extends AbstractStockIntegrationTest {
 
     @BeforeEach
     void services() {
-        dciService = new DciServiceImpl(IntegrationPostgresDatabase.bean(DciRepository.class), services.produitRepository, event -> {});
+        dciService = new DciServiceImpl(
+                IntegrationPostgresDatabase.bean(DciRepository.class), services.produitRepository, event -> {});
         catalogue = new CustomizedProductRepository(
-            services.stockProduitRepository,
-            services.produitRepository,
-            services.storageService,
-            mock(EtatProduitService.class),
-            IntegrationPostgresDatabase.bean(SalesLineRepository.class),
-            IntegrationPostgresDatabase.bean(OrderLineRepository.class),
-            em,
-            IntegrationPostgresDatabase.bean(MagasinRepository.class)
-        );
+                services.stockProduitRepository,
+                services.produitRepository,
+                services.storageService,
+                mock(EtatProduitService.class),
+                IntegrationPostgresDatabase.bean(SalesLineRepository.class),
+                IntegrationPostgresDatabase.bean(OrderLineRepository.class),
+                em,
+                IntegrationPostgresDatabase.bean(MagasinRepository.class));
     }
 
     @Test
@@ -61,8 +61,15 @@ class DciProduitIntegrationTest extends AbstractStockIntegrationTest {
         association.remplacerDcis(List.of(dci("PARACETAMOL"), codeine));
         em.flush();
 
-        assertEquals(1, services.produitRepository.countByDciId(codeine.getId()), "portée en second rang, elle compte quand même");
-        assertEquals(List.of(association.getId()), services.produitRepository.findAllByDciIdForDetail(codeine.getId()).stream().map(Produit::getId).toList());
+        assertEquals(
+                1,
+                services.produitRepository.countByDciId(codeine.getId()),
+                "portée en second rang, elle compte quand même");
+        assertEquals(
+                List.of(association.getId()),
+                services.produitRepository.findAllByDciIdForDetail(codeine.getId()).stream()
+                        .map(Produit::getId)
+                        .toList());
         assertThrows(GenericError.class, () -> dciService.delete(codeine.getId()));
     }
 
@@ -95,8 +102,12 @@ class DciProduitIntegrationTest extends AbstractStockIntegrationTest {
         em.flush();
         viderLeCache();
 
-        List<Integer> parFiltre = catalogue.lite(new ProduitCriteria().setDciId(seconde.getId())).stream().map(ProduitDTO::getId).toList();
-        List<Integer> parTexte = catalogue.lite(new ProduitCriteria().setSearch(premiere.getLibelle())).stream().map(ProduitDTO::getId).toList();
+        List<Integer> parFiltre = catalogue.lite(new ProduitCriteria().setDciId(seconde.getId())).stream()
+                .map(ProduitDTO::getId)
+                .toList();
+        List<Integer> parTexte = catalogue.lite(new ProduitCriteria().setSearch(premiere.getLibelle())).stream()
+                .map(ProduitDTO::getId)
+                .toList();
 
         assertEquals(List.of(association.getId()), parFiltre);
         assertEquals(List.of(association.getId()), parTexte, "une seule ligne malgré les deux molécules jointes");
@@ -118,8 +129,9 @@ class DciProduitIntegrationTest extends AbstractStockIntegrationTest {
     }
 
     private List<Integer> molecules(Produit produit) {
-        return em.createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
-            .setParameter("id", produit.getId())
-            .getResultList();
+        return em.createNativeQuery(
+                        "SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+                .setParameter("id", produit.getId())
+                .getResultList();
     }
 }

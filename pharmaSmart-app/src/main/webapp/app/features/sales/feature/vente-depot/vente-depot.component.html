@@ -15,11 +15,9 @@
 </app-offcanvas>
 
 <div appHauteurEcranVente class="pharma-sales-layout" data-comptoir-mode="depot">
-
   <!-- HEADER TOOLBAR -->
   <div class="pharma-sales-header">
     <div class="header-left">
-
       <app-button
         (clicked)="previousState()"
         [rounded]="true"
@@ -44,7 +42,8 @@
         </label>
         <app-select-search
           (ngModelChange)="userSeller.set($event)"
-          (selectionChange)="onSelectUser()" [items]="userVendeurService.vendeurs()"
+          (selectionChange)="onSelectUser()"
+          [items]="userVendeurService.vendeurs()"
           [ngModel]="userSeller()"
           [searchable]="false"
           [style]="{ 'min-width': '200px' }"
@@ -63,7 +62,8 @@
         </label>
         <app-select-search
           (ngModelChange)="selectedDepot.set($event)"
-          (selectionChange)="onSelectDepot()" [items]="facade.depots()"
+          (selectionChange)="onSelectDepot()"
+          [items]="facade.depots()"
           [ngModel]="selectedDepot()"
           [optionTemplate]="depotItem"
           [searchable]="false"
@@ -84,7 +84,6 @@
           </div>
         </ng-template>
       </div>
-
     </div>
     @let selected = facade.selectedDepot();
     @if (selected) {
@@ -95,8 +94,7 @@
               <i class="pi pi-user"></i>
               <div class="info-content">
                 <span class="info-label">Responsable</span>
-                <span
-                  class="info-value">{{ selected.managerFirstName }} {{ selected.managerLastName }}</span>
+                <span class="info-value">{{ selected.managerFirstName }} {{ selected.managerLastName }}</span>
               </div>
             </div>
             @if (selected.phone) {
@@ -117,7 +115,6 @@
   <!-- CONTENU PRINCIPAL -->
   <div class="pharma-sales-body">
     <div class="sales-workspace">
-
       <!-- RECHERCHE PRODUIT -->
       <app-product-search-section
         #produitbox
@@ -196,12 +193,15 @@
           }
         </div>
       }
-
     </div>
   </div>
 </div>
 
-
-<ngx-spinner [fullScreen]="true" bdColor="rgba(255,255,255,0.5)"
-             color="#009688" name="sale-spinner"
-             size="medium" type="timer"></ngx-spinner>
+<ngx-spinner
+  [fullScreen]="true"
+  bdColor="rgba(255,255,255,0.5)"
+  color="#009688"
+  name="sale-spinner"
+  size="medium"
+  type="timer"
+></ngx-spinner>

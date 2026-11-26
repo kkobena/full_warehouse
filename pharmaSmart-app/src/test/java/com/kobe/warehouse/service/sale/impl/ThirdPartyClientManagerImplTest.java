@@ -12,8 +12,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -47,14 +47,29 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ThirdPartyClientManagerImplTest {
 
-    @Mock private ThirdPartySaleLineService lineService;
-    @Mock private ClientTiersPayantRepository clientRepository;
-    @Mock private TiersPayantRepository tiersPayantRepository;
-    @Mock private ThirdPartySaleRepository saleRepository;
-    @Mock private ConsommationService consommationService;
-    @Mock private StorageService storageService;
-    @Mock private AssuranceItemIdGeneratorService idGeneratorService;
-    @Mock private ThirdPartyCalculationManager calculationManager;
+    @Mock
+    private ThirdPartySaleLineService lineService;
+
+    @Mock
+    private ClientTiersPayantRepository clientRepository;
+
+    @Mock
+    private TiersPayantRepository tiersPayantRepository;
+
+    @Mock
+    private ThirdPartySaleRepository saleRepository;
+
+    @Mock
+    private ConsommationService consommationService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private AssuranceItemIdGeneratorService idGeneratorService;
+
+    @Mock
+    private ThirdPartyCalculationManager calculationManager;
 
     private ThirdPartyClientManagerImpl manager;
     private ThirdPartySales sale;
@@ -64,9 +79,15 @@ class ThirdPartyClientManagerImplTest {
 
     @BeforeEach
     void setUp() {
-        manager = new ThirdPartyClientManagerImpl(lineService, clientRepository,
-            tiersPayantRepository, saleRepository, consommationService, storageService,
-            idGeneratorService, calculationManager);
+        manager = new ThirdPartyClientManagerImpl(
+                lineService,
+                clientRepository,
+                tiersPayantRepository,
+                saleRepository,
+                consommationService,
+                storageService,
+                idGeneratorService,
+                calculationManager);
         saleId = new SaleId(10L, LocalDate.of(2026, 8, 20));
         sale = new ThirdPartySales();
         sale.setId(saleId.getId());
@@ -107,11 +128,11 @@ class ThirdPartyClientManagerImplTest {
     void saveTiersPayantLines_CreeLesLignesEtLanceLeCalcul() {
         ThirdPartySaleDTO dto = dtoTiersPayant("BON-1", 75);
         when(clientRepository.findAllByIdIn(Set.of(20))).thenReturn(List.of(client));
-        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON-1", 20, SalesStatut.CLOSED)).thenReturn(0L);
+        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId("BON-1", 20, SalesStatut.CLOSED))
+                .thenReturn(0L);
         when(lineService.createThirdPartySaleLine("BON-1", client, 0)).thenReturn(line);
         when(calculationManager.upddateThirdPartySaleAmounts(eq(sale), eq(true), anyList()))
-            .thenReturn("alerte");
+                .thenReturn("alerte");
 
         assertEquals("alerte", manager.saveTiersPayantLines(dto, sale));
         assertTrue(sale.getThirdPartySaleLines().contains(line));
@@ -122,10 +143,9 @@ class ThirdPartyClientManagerImplTest {
     void saveTiersPayantLines_NumeroBonDejaUtilise_Refuse() {
         ThirdPartySaleDTO dto = dtoTiersPayant("BON-1", 80);
         when(clientRepository.findAllByIdIn(Set.of(20))).thenReturn(List.of(client));
-        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON-1", 20, SalesStatut.CLOSED)).thenReturn(1L);
-        assertThrows(NumBonAlreadyUseException.class,
-            () -> manager.saveTiersPayantLines(dto, sale));
+        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId("BON-1", 20, SalesStatut.CLOSED))
+                .thenReturn(1L);
+        assertThrows(NumBonAlreadyUseException.class, () -> manager.saveTiersPayantLines(dto, sale));
         verify(calculationManager, never()).upddateThirdPartySaleAmounts(any(), eq(true), anyList());
     }
 
@@ -142,10 +162,11 @@ class ThirdPartyClientManagerImplTest {
     @Test
     void checkIfNumBonIsAlReadyUse_GereVideCreationEtEdition() {
         assertTrue(!manager.checkIfNumBonIsAlReadyUse("", 20, null));
-        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON", 20, SalesStatut.CLOSED)).thenReturn(1L);
+        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId("BON", 20, SalesStatut.CLOSED))
+                .thenReturn(1L);
         when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
-            "BON", 10L, 20, SalesStatut.CLOSED)).thenReturn(0L);
+                        "BON", 10L, 20, SalesStatut.CLOSED))
+                .thenReturn(0L);
         assertTrue(manager.checkIfNumBonIsAlReadyUse("BON", 20, null));
         assertTrue(!manager.checkIfNumBonIsAlReadyUse("BON", 20, 10L));
     }
@@ -162,8 +183,7 @@ class ThirdPartyClientManagerImplTest {
         assertTrue(sale.getThirdPartySaleLines().contains(line));
         verify(lineService).save(line);
 
-        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId))
-            .thenReturn(Optional.of(line));
+        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId)).thenReturn(Optional.of(line));
         assertEquals("ok", manager.removeThirdPartySaleLineToSales(20, saleId));
         assertNull(line.getSale());
         verify(lineService).delete(line);
@@ -171,14 +191,14 @@ class ThirdPartyClientManagerImplTest {
 
     @Test
     void addThirdPartySaleLine_RefuseNumeroBonDejaUtilise() {
-        ClientTiersPayantDTO dto = dtoTiersPayant("BON-DUP", 70).getTiersPayants().getFirst();
+        ClientTiersPayantDTO dto =
+                dtoTiersPayant("BON-DUP", 70).getTiersPayants().getFirst();
         when(clientRepository.getReferenceById(20)).thenReturn(client);
         when(saleRepository.findOneById(10L)).thenReturn(sale);
-        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
-            "BON-DUP", 20, SalesStatut.CLOSED)).thenReturn(1L);
+        when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantId("BON-DUP", 20, SalesStatut.CLOSED))
+                .thenReturn(1L);
 
-        assertThrows(NumBonAlreadyUseException.class,
-            () -> manager.addThirdPartySaleLineToSales(dto, saleId));
+        assertThrows(NumBonAlreadyUseException.class, () -> manager.addThirdPartySaleLineToSales(dto, saleId));
         verify(lineService, never()).createThirdPartySaleLine(any(), any(), any(Integer.class));
     }
 
@@ -193,21 +213,20 @@ class ThirdPartyClientManagerImplTest {
 
         assertSame(user, client.getTiersPayant().getUser());
         verify(consommationService).updateConsommation(eq(client), eq(800), eq(line.getUpdated()), any());
-        verify(consommationService).updateConsommation(eq(client.getTiersPayant()), eq(800), eq(line.getUpdated()), any());
+        verify(consommationService)
+                .updateConsommation(eq(client.getTiersPayant()), eq(800), eq(line.getUpdated()), any());
     }
 
     @Test
     void removeThirdPartySaleLine_Absente_NeRecalculePas() {
-        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId))
-            .thenReturn(Optional.empty());
+        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId)).thenReturn(Optional.empty());
         assertNull(manager.removeThirdPartySaleLineToSales(20, saleId));
         verify(calculationManager, never()).reComputeAndApplyAmounts(any(), any(), eq(true));
     }
 
     @Test
     void updateTiersPayantTaux_PresentEtAbsent() {
-        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId))
-            .thenReturn(Optional.of(line));
+        when(lineService.findFirstByClientTiersPayantIdAndSaleId(20, saleId)).thenReturn(Optional.of(line));
         when(calculationManager.reComputeAndApplyAmounts(sale, null, true)).thenReturn("warning");
 
         var result = manager.updateTiersPayantTaux(20, saleId, 65);
@@ -219,8 +238,7 @@ class ThirdPartyClientManagerImplTest {
         verify(clientRepository).save(client);
         verify(lineService).save(line);
 
-        when(lineService.findFirstByClientTiersPayantIdAndSaleId(99, saleId))
-            .thenReturn(Optional.empty());
+        when(lineService.findFirstByClientTiersPayantIdAndSaleId(99, saleId)).thenReturn(Optional.empty());
         assertNull(manager.updateTiersPayantTaux(99, saleId, 50).sale());
     }
 
@@ -263,7 +281,8 @@ class ThirdPartyClientManagerImplTest {
         replacement.setId(21);
         when(clientRepository.getReferenceById(21)).thenReturn(replacement);
         when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
-            "NOUVEAU", 10L, 21, SalesStatut.CLOSED)).thenReturn(0L);
+                        "NOUVEAU", 10L, 21, SalesStatut.CLOSED))
+                .thenReturn(0L);
 
         manager.updateThirdPartySaleLine("NOUVEAU", line, 21, 900);
 
@@ -276,10 +295,10 @@ class ThirdPartyClientManagerImplTest {
     @Test
     void updateThirdPartySaleLine_RefuseNumeroBonDuplique() {
         when(lineService.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
-            "DUP", 10L, 20, SalesStatut.CLOSED)).thenReturn(1L);
+                        "DUP", 10L, 20, SalesStatut.CLOSED))
+                .thenReturn(1L);
 
-        assertThrows(NumBonAlreadyUseException.class,
-            () -> manager.updateThirdPartySaleLine("DUP", line, 20, null));
+        assertThrows(NumBonAlreadyUseException.class, () -> manager.updateThirdPartySaleLine("DUP", line, 20, null));
         verify(lineService, never()).save(line);
     }
 
@@ -305,7 +324,7 @@ class ThirdPartyClientManagerImplTest {
         ThirdPartySaleLine secondaryLine = new ThirdPartySaleLine();
         when(lineService.createThirdPartySaleLine(null, secondary, 0)).thenReturn(secondaryLine);
         when(calculationManager.reComputeAndApplyAmounts(eq(sale), anyList(), eq(true)))
-            .thenReturn(null);
+                .thenReturn(null);
 
         assertNull(manager.saveTiersPayantLinesOnChangeCustomer(sale));
         assertTrue(sale.getThirdPartySaleLines().contains(line));
@@ -322,5 +341,3 @@ class ThirdPartyClientManagerImplTest {
         return dto;
     }
 }
-
-

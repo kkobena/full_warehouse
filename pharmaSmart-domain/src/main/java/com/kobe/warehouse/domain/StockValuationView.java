@@ -5,12 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
-import org.hibernate.annotations.Immutable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import org.hibernate.annotations.Immutable;
 
 /**
  * Entité en lecture seule mappée sur la vue matérialisée mv_stock_valuation.
@@ -19,7 +17,7 @@ import java.math.BigDecimal;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Immutable // Hibernate: empêche INSERT/UPDATE/DELETE
-public abstract  class StockValuationView implements Serializable {
+public abstract class StockValuationView implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,6 +34,7 @@ public abstract  class StockValuationView implements Serializable {
 
     @Column(name = "categorie")
     private String categorie;
+
     @Column(name = "categorie_id")
     private Integer categorieId;
 

@@ -1,77 +1,79 @@
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8"
+  icon="pi pi-wallet"
+  menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
+  title="Finances"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
+    <!-- 1. Dashboard financier global -->
+    @if (showDashboard()) {
+      <ng-container ngbNavItem="dashboard">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="finances.dashboard" fallbackIcon="pi pi-home" fallbackLabel="Dashboard Financier" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-finances-dashboard (navigateToTab)="onNavigateToTab($event)" />
+        </ng-template>
+      </ng-container>
+    }
 
-  <app-nav-sidebar (collapsedChange)="menuReplie.set($event)" [collapsed]="menuReplie()"
-                   [collapsible]="true" [nav]="nav" contentColumnClass="col-xl-10 col-lg-10 col-md-9 col-sm-8"
-                   icon="pi pi-wallet" menuColumnClass="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4"
-                   title="Finances">
-    <div #nav="ngbNav" (activeIdChange)="active.set($event)" [activeId]="active()"
-         class="nav flex-column nav-pills" ngbNav orientation="vertical">
+    <!-- 2. Comptes fournisseurs AP -->
+    @if (showComptesFournisseurs()) {
+      <ng-container ngbNavItem="comptes-fournisseurs">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="finances.comptes-fournisseurs" fallbackIcon="pi pi-truck" fallbackLabel="Comptes fournisseurs" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-comptes-fournisseurs navCode="finances.comptes-fournisseurs" />
+        </ng-template>
+      </ng-container>
+    }
 
-      <!-- 1. Dashboard financier global -->
-      @if (showDashboard()) {
-        <ng-container ngbNavItem="dashboard">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="finances.dashboard"
-                                  fallbackIcon="pi pi-home"
-                                  fallbackLabel="Dashboard Financier" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-finances-dashboard (navigateToTab)="onNavigateToTab($event)" />
-          </ng-template>
-        </ng-container>
-      }
+    <!-- 3. Déclaration TVA -->
+    @if (showDeclarationTva()) {
+      <ng-container ngbNavItem="declaration-tva">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="finances.declaration-tva" fallbackIcon="pi pi-percentage" fallbackLabel="Déclaration TVA" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-declaration-tva navCode="finances.declaration-tva" />
+        </ng-template>
+      </ng-container>
+    }
 
-      <!-- 2. Comptes fournisseurs AP -->
-      @if (showComptesFournisseurs()) {
-        <ng-container ngbNavItem="comptes-fournisseurs">       <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="finances.comptes-fournisseurs"
-                                  fallbackIcon="pi pi-truck"
-                                  fallbackLabel="Comptes fournisseurs" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-comptes-fournisseurs navCode="finances.comptes-fournisseurs" />
-          </ng-template>
-        </ng-container>
-      }
+    <!-- 4. Remises & RFA -->
+    @if (showRemisesRfa()) {
+      <ng-container ngbNavItem="remises-rfa">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="finances.remises-rfa" fallbackIcon="pi pi-tag" fallbackLabel="Remises &amp; RFA" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-remises-rfa navCode="finances.remises-rfa" />
+        </ng-template>
+      </ng-container>
+    }
 
-      <!-- 3. Déclaration TVA -->
-      @if (showDeclarationTva()) {
-        <ng-container ngbNavItem="declaration-tva">       <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="finances.declaration-tva"
-                                  fallbackIcon="pi pi-percentage"
-                                  fallbackLabel="Déclaration TVA" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-declaration-tva navCode="finances.declaration-tva" />
-          </ng-template>
-        </ng-container>
-      }
-
-      <!-- 4. Remises & RFA -->
-      @if (showRemisesRfa()) {
-        <ng-container ngbNavItem="remises-rfa">       <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="finances.remises-rfa"
-                                  fallbackIcon="pi pi-tag"
-                                  fallbackLabel="Remises &amp; RFA" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-remises-rfa navCode="finances.remises-rfa" />
-          </ng-template>
-        </ng-container>
-      }
-
-      <!-- 5. Export expert-comptable -->
-      @if (showExport()) {
-        <ng-container ngbNavItem="export">
-          <a class="pharma-nav-vertical-link" ngbNavLink>
-            <app-nav-section-link code="finances.export"
-                                  fallbackIcon="pi pi-download"
-                                  fallbackLabel="Export comptable" />
-          </a>
-          <ng-template ngbNavContent>
-            <app-export-comptable />
-          </ng-template>
-        </ng-container>
-      }
-
-    </div>
-  </app-nav-sidebar>
+    <!-- 5. Export expert-comptable -->
+    @if (showExport()) {
+      <ng-container ngbNavItem="export">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="finances.export" fallbackIcon="pi pi-download" fallbackLabel="Export comptable" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-export-comptable />
+        </ng-template>
+      </ng-container>
+    }
+  </div>
+</app-nav-sidebar>

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.declaration_ca;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -70,17 +70,14 @@ class DeclarationCaServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new DeclarationCaServiceImpl(
-            licenseService,
-            appConfigurationService,
-            rayonProduitRepository,
-            storageService
-        );
+                licenseService, appConfigurationService, rayonProduitRepository, storageService);
         Storage storage = new Storage();
         storage.setId(STORAGE_ID);
         when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(storage);
         when(licenseService.hasFeature(any(Feature.class))).thenReturn(true);
         when(appConfigurationService.excludeFreeUnit()).thenReturn(true);
-        when(rayonProduitRepository.findByProduitIdAndStorageId(anyInt(), anyInt())).thenReturn(Optional.empty());
+        when(rayonProduitRepository.findByProduitIdAndStorageId(anyInt(), anyInt()))
+                .thenReturn(Optional.empty());
     }
 
     @Test
@@ -126,8 +123,9 @@ class DeclarationCaServiceImplTest {
     void rayonExclu() {
         CashSale vente = vente(ligne(1_000));
         SalesLine ligne = premiereLigne(vente);
-        when(rayonProduitRepository.findByProduitIdAndStorageId(ligne.getProduit().getId(), STORAGE_ID))
-            .thenReturn(Optional.of(rayonProduit(true)));
+        when(rayonProduitRepository.findByProduitIdAndStorageId(
+                        ligne.getProduit().getId(), STORAGE_ID))
+                .thenReturn(Optional.of(rayonProduit(true)));
         vente.setPayments(reglements(reglement("CASH", 1_000)));
 
         service.appliquerExclusions(vente);
@@ -175,8 +173,9 @@ class DeclarationCaServiceImplTest {
     void rayonExcluPrimeSurLesUg() {
         CashSale vente = vente(ligneAvecUg(1_000, 200));
         SalesLine ligne = premiereLigne(vente);
-        when(rayonProduitRepository.findByProduitIdAndStorageId(ligne.getProduit().getId(), STORAGE_ID))
-            .thenReturn(Optional.of(rayonProduit(true)));
+        when(rayonProduitRepository.findByProduitIdAndStorageId(
+                        ligne.getProduit().getId(), STORAGE_ID))
+                .thenReturn(Optional.of(rayonProduit(true)));
         vente.setPayments(reglements(reglement("CASH", 1_000)));
 
         service.appliquerExclusions(vente);
@@ -218,7 +217,9 @@ class DeclarationCaServiceImplTest {
         service.appliquerExclusions(vente);
 
         assertEquals(0, vente.getAmountToBeTakenIntoAccount());
-        assertEquals(ExclusionMotif.TIERS_PAYANT, vente.getSalesLines().iterator().next().getExclusionMotif());
+        assertEquals(
+                ExclusionMotif.TIERS_PAYANT,
+                vente.getSalesLines().iterator().next().getExclusionMotif());
         assertEquals(0, declarePourMode(vente, "CASH"));
     }
 
@@ -324,12 +325,10 @@ class DeclarationCaServiceImplTest {
     }
 
     private int declarePourMode(Sales vente, String code) {
-        return vente
-            .getPayments()
-            .stream()
-            .filter(paiement -> code.equals(paiement.getPaymentMode().getCode()))
-            .findFirst()
-            .map(paiement -> paiement.getAmountToBeTakenIntoAccount())
-            .orElseThrow(() -> new AssertionError("aucun règlement " + code));
+        return vente.getPayments().stream()
+                .filter(paiement -> code.equals(paiement.getPaymentMode().getCode()))
+                .findFirst()
+                .map(paiement -> paiement.getAmountToBeTakenIntoAccount())
+                .orElseThrow(() -> new AssertionError("aucun règlement " + code));
     }
 }

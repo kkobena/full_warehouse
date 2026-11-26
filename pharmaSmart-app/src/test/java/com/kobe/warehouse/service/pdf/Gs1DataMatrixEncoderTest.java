@@ -39,34 +39,40 @@ class Gs1DataMatrixEncoderTest {
         @Test
         @DisplayName("sans lot, ne porte que le code et la peremption")
         void sansLot() {
-            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", null, PEREMPTION)).isEqualTo("dm:240A-7788{GS}17261231");
+            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", null, PEREMPTION))
+                    .isEqualTo("dm:240A-7788{GS}17261231");
         }
 
         @Test
         @DisplayName("sans peremption, ne porte que le code et le lot")
         void sansPeremption() {
-            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", null)).isEqualTo("dm:240A-7788{GS}10LOT9");
+            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", null))
+                    .isEqualTo("dm:240A-7788{GS}10LOT9");
         }
 
         @Test
         @DisplayName("sans lot ni peremption, aucune trame : le Code 39 du code suffit")
         void sansRienAPorter() {
-            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", null, null)).isNull();
-            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", "  ", null)).isNull();
+            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", null, null))
+                    .isNull();
+            assertThat(Gs1DataMatrixEncoder.construireEntree("A-7788", "  ", null))
+                    .isNull();
         }
 
         @Test
         @DisplayName("sans code du catalogue, aucune trame")
         void sansCode() {
-            assertThat(Gs1DataMatrixEncoder.construireEntree(null, "LOT9", PEREMPTION)).isNull();
-            assertThat(Gs1DataMatrixEncoder.construireEntree("", "LOT9", PEREMPTION)).isNull();
+            assertThat(Gs1DataMatrixEncoder.construireEntree(null, "LOT9", PEREMPTION))
+                    .isNull();
+            assertThat(Gs1DataMatrixEncoder.construireEntree("", "LOT9", PEREMPTION))
+                    .isNull();
         }
 
         @Test
         @DisplayName("les espaces autour des valeurs sont retires")
         void valeursRognees() {
             assertThat(Gs1DataMatrixEncoder.construireEntree(" A-7788 ", " LOT9 ", PEREMPTION))
-                .isEqualTo("dm:240A-7788{GS}10LOT9{GS}17261231");
+                    .isEqualTo("dm:240A-7788{GS}10LOT9{GS}17261231");
         }
     }
 
@@ -77,7 +83,8 @@ class Gs1DataMatrixEncoderTest {
         @Test
         @DisplayName("produit un symbole carre")
         void symboleCarre() {
-            BufferedImage image = Gs1DataMatrixEncoder.encoder(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", PEREMPTION));
+            BufferedImage image =
+                    Gs1DataMatrixEncoder.encoder(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", PEREMPTION));
 
             assertThat(image.getWidth()).isPositive();
             assertThat(image.getWidth()).isEqualTo(image.getHeight());
@@ -88,7 +95,9 @@ class Gs1DataMatrixEncoderTest {
         void relectureParLApplication() {
             String entree = Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", PEREMPTION);
 
-            DataMatrixInfo info = new DataMatrixParserServiceImpl().parse(decoder(Gs1DataMatrixEncoder.encoder(entree))).orElseThrow();
+            DataMatrixInfo info = new DataMatrixParserServiceImpl()
+                    .parse(decoder(Gs1DataMatrixEncoder.encoder(entree)))
+                    .orElseThrow();
 
             assertThat(info.getProductCode()).isEqualTo("A-7788");
             assertThat(info.batchNumber()).isEqualTo("LOT9");
@@ -107,7 +116,9 @@ class Gs1DataMatrixEncoderTest {
         void relectureDuJeuDeDemonstration() {
             String entree = Gs1DataMatrixEncoder.construireEntree("3794609", "L26050002", LocalDate.of(2027, 5, 30));
 
-            DataMatrixInfo info = new DataMatrixParserServiceImpl().parse(decoder(Gs1DataMatrixEncoder.encoder(entree))).orElseThrow();
+            DataMatrixInfo info = new DataMatrixParserServiceImpl()
+                    .parse(decoder(Gs1DataMatrixEncoder.encoder(entree)))
+                    .orElseThrow();
 
             assertThat(info.getProductCode()).isEqualTo("3794609");
             assertThat(info.batchNumber()).isEqualTo("L26050002");
@@ -120,7 +131,9 @@ class Gs1DataMatrixEncoderTest {
         void relectureDunCodeNumerique() {
             String entree = Gs1DataMatrixEncoder.construireEntree("1234567", "L1", PEREMPTION);
 
-            DataMatrixInfo info = new DataMatrixParserServiceImpl().parse(decoder(Gs1DataMatrixEncoder.encoder(entree))).orElseThrow();
+            DataMatrixInfo info = new DataMatrixParserServiceImpl()
+                    .parse(decoder(Gs1DataMatrixEncoder.encoder(entree)))
+                    .orElseThrow();
 
             assertThat(info.getProductCode()).isEqualTo("1234567");
             assertThat(info.batchNumber()).isEqualTo("L1");
@@ -136,8 +149,7 @@ class Gs1DataMatrixEncoderTest {
         @DisplayName("le symbole ne porte qu un seul FNC1 de tete")
         void unSeulFnc1DeTete() {
             String trame = decoder(
-                Gs1DataMatrixEncoder.encoder(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", PEREMPTION))
-            );
+                    Gs1DataMatrixEncoder.encoder(Gs1DataMatrixEncoder.construireEntree("A-7788", "LOT9", PEREMPTION)));
 
             assertThat(trame).startsWith("240A-7788");
             assertThat(trame.chars().takeWhile(c -> c == 0x1D).count()).isEqualTo(1);

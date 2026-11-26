@@ -24,8 +24,7 @@ scenario('ACH-83', async ({ etape, page }) => {
 
   etape.horsPortee(
     1,
-    'choisir un produit aux paramètres vides suppose de sonder la base : le manuel montre le ' +
-      'résultat du calcul, pas sa sélection.',
+    'choisir un produit aux paramètres vides suppose de sonder la base : le manuel montre le ' + 'résultat du calcul, pas sa sélection.',
   );
 
   await etape(2, async () => {

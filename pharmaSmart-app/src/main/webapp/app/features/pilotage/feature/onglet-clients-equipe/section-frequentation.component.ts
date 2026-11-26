@@ -8,7 +8,14 @@ import { CarteChaleurComponent } from '../../ui/carte-chaleur/carte-chaleur.comp
 import { CourbeIndicateurComponent } from '../../ui/courbe-indicateur/courbe-indicateur.component';
 import { REGLAGE_PAR_DEFAUT } from '../onglet-analyser/reglage-analyse';
 
-const HEURES_PAR_JOUR: ReglageAnalyse = { ...REGLAGE_PAR_DEFAUT, indicateurs: ['NB_VENTES'], axe: 'HEURE', axe2: 'JOUR_SEMAINE', top: 0, affichage: 'CROISE' };
+const HEURES_PAR_JOUR: ReglageAnalyse = {
+  ...REGLAGE_PAR_DEFAUT,
+  indicateurs: ['NB_VENTES'],
+  axe: 'HEURE',
+  axe2: 'JOUR_SEMAINE',
+  top: 0,
+  affichage: 'CROISE',
+};
 const CRENEAUX = 3;
 
 /** Fréquentation : ventes par heure et jour de la semaine (l'analyse heure × jour), les créneaux les plus chargés, les ventes par jour. */
@@ -24,7 +31,10 @@ export class SectionFrequentationComponent {
 
   private readonly api = inject(PilotageApiService);
 
-  protected readonly chaleur = rxResource({ params: () => this.requete(), stream: ({ params }) => this.api.analyser(params, HEURES_PAR_JOUR) });
+  protected readonly chaleur = rxResource({
+    params: () => this.requete(),
+    stream: ({ params }) => this.api.analyser(params, HEURES_PAR_JOUR),
+  });
   protected readonly parJour = rxResource({
     params: () => ({ ...this.requete(), granularite: 'JOUR' as const }),
     stream: ({ params }) => this.api.lireSeries(params, ['NB_VENTES']),
@@ -40,7 +50,10 @@ export class SectionFrequentationComponent {
       return '';
     }
     const cases = croise.lignes.flatMap(ligne =>
-      ligne.cellules.map((cellule, rang) => ({ libelle: `${croise.colonnes[rang].libelle.toLowerCase()} ${ligne.libelle}`, valeur: cellule.valeur ?? 0 })),
+      ligne.cellules.map((cellule, rang) => ({
+        libelle: `${croise.colonnes[rang].libelle.toLowerCase()} ${ligne.libelle}`,
+        valeur: cellule.valeur ?? 0,
+      })),
     );
     const plusCharges = cases
       .filter(creneau => creneau.valeur > 0)

@@ -53,7 +53,8 @@ class PorteeMagasinTest {
 
         @BeforeEach
         void sansDroit() {
-            when(navAccessService.isAllowed(any(Collection.class), any(NavAction.class))).thenReturn(false);
+            when(navAccessService.isAllowed(any(Collection.class), any(NavAction.class)))
+                    .thenReturn(false);
         }
 
         @Test
@@ -85,7 +86,8 @@ class PorteeMagasinTest {
 
         @BeforeEach
         void avecDroit() {
-            when(navAccessService.isAllowed(any(Collection.class), any(NavAction.class))).thenReturn(true);
+            when(navAccessService.isAllowed(any(Collection.class), any(NavAction.class)))
+                    .thenReturn(true);
         }
 
         @Test
@@ -93,7 +95,7 @@ class PorteeMagasinTest {
         void porteeElargie() {
             posterUtilisateurDans(magasin(1, TypeMagasin.OFFICINE));
             when(magasinRepository.findAllByParentId(1))
-                .thenReturn(List.of(magasin(5, TypeMagasin.DEPOT), magasin(7, TypeMagasin.UNITE_GESTION)));
+                    .thenReturn(List.of(magasin(5, TypeMagasin.DEPOT), magasin(7, TypeMagasin.UNITE_GESTION)));
 
             assertThat(service.resoudreLaPorteeDeSupervision()).containsExactlyInAnyOrder(1, 5, 7);
             assertThat(service.superviseDAutresMagasins()).isTrue();

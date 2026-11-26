@@ -40,17 +40,16 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(
-    name = "commande",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"receipt_reference", "fournisseur_id", "order_date",
-            "order_status"})},
-    indexes = {
-        @Index(columnList = "order_status", name = "order_status_index"),
-        @Index(columnList = "order_date", name = "cmd_order_date_index"),
-        @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
-        @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
-    }
-)
+        name = "commande",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"receipt_reference", "fournisseur_id", "order_date", "order_status"})
+        },
+        indexes = {
+            @Index(columnList = "order_status", name = "order_status_index"),
+            @Index(columnList = "order_date", name = "cmd_order_date_index"),
+            @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
+            @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
+        })
 @IdClass(CommandeId.class)
 public class Commande implements Persistable<CommandeId>, Serializable, Cloneable {
 
@@ -76,16 +75,15 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "discount_amount", columnDefinition = "int default '0'")
     private int discountAmount;
 
-
     @Column(name = "order_amount")
-    private Integer orderAmount; //montant vente de la commande en cours de traitement
+    private Integer orderAmount; // montant vente de la commande en cours de traitement
 
     @Column(name = "final_amount")
     private Integer finalAmount;
 
     @NotNull
     @Column(name = "gross_amount", nullable = false)
-    private Integer grossAmount; //montant achat de la commande
+    private Integer grossAmount; // montant achat de la commande
 
     @Column(name = "ht_amount")
     private int htAmount = 0;
@@ -106,7 +104,9 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Column(name = "order_status", length = 12, nullable = false)
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
-    @OneToMany(mappedBy = "commande", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "commande",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<OrderLine> orderLines = new ArrayList<>();
 
     @NotNull
@@ -204,8 +204,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
             return 0L;
         }
         LocalDate livraisonAttendue = dateEnvoi.toLocalDate().plusDays(delaiLivraisonJours);
-        return livraisonAttendue.isBefore(aujourdhui) ? ChronoUnit.DAYS.between(livraisonAttendue,
-            aujourdhui) : 0L;
+        return livraisonAttendue.isBefore(aujourdhui) ? ChronoUnit.DAYS.between(livraisonAttendue, aujourdhui) : 0L;
     }
 
     public LocalDateTime getDateEnvoi() {
@@ -541,34 +540,34 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Override
     public String toString() {
         return "Commande{"
-            + "id="
-            + getId()
-            + ", orderRefernce='"
-            + getOrderReference()
-            + "'"
-            + ", receiptDate='"
-            + getReceiptDate()
-            + "'"
-            + ", discountAmount="
-            + getDiscountAmount()
-            + ", orderAmount="
-            + getOrderAmount()
-            + ", grossAmount="
-            + getGrossAmount()
-            + ", netAmount="
-            + getHtAmount()
-            + ", taxAmount="
-            + getTaxAmount()
-            + ", createdAt='"
-            + getCreatedAt()
-            + "'"
-            + ", updatedAt='"
-            + getUpdatedAt()
-            + "'"
-            + ", orderStatus='"
-            + getOrderStatus()
-            + "'"
-            + "}";
+                + "id="
+                + getId()
+                + ", orderRefernce='"
+                + getOrderReference()
+                + "'"
+                + ", receiptDate='"
+                + getReceiptDate()
+                + "'"
+                + ", discountAmount="
+                + getDiscountAmount()
+                + ", orderAmount="
+                + getOrderAmount()
+                + ", grossAmount="
+                + getGrossAmount()
+                + ", netAmount="
+                + getHtAmount()
+                + ", taxAmount="
+                + getTaxAmount()
+                + ", createdAt='"
+                + getCreatedAt()
+                + "'"
+                + ", updatedAt='"
+                + getUpdatedAt()
+                + "'"
+                + ", orderStatus='"
+                + getOrderStatus()
+                + "'"
+                + "}";
     }
 
     @Override

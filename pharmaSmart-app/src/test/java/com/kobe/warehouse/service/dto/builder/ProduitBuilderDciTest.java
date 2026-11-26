@@ -54,7 +54,9 @@ class ProduitBuilderDciTest {
             produit.remplacerDcis(List.of(dci(2, "B"), dci(3, "C")));
 
             assertThat(ids(produit)).containsExactly(2, 3);
-            assertThat(produit.getProduitDcis().getFirst()).as("même instance : pas de suppression-recréation").isSameAs(lienB);
+            assertThat(produit.getProduitDcis().getFirst())
+                    .as("même instance : pas de suppression-recréation")
+                    .isSameAs(lienB);
             assertThat(lienB.getRang()).isEqualTo(1);
         }
 

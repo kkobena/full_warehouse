@@ -10,4 +10,5 @@ import java.util.List;
  * @param contribution part de l'écart total sur le premier indicateur, s'il est additif (%)
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record ElementAnalyseDTO(String cle, String libelle, List<CelluleAnalyseDTO> cellules, Double part, Double contribution) {}
+public record ElementAnalyseDTO(
+        String cle, String libelle, List<CelluleAnalyseDTO> cellules, Double part, Double contribution) {}

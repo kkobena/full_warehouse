@@ -22,11 +22,8 @@ public class AjustementReportReportService extends CommonReportService {
     private Ajust ajust;
     private String templateFile;
 
-    public AjustementReportReportService(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public AjustementReportReportService(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }
@@ -67,7 +64,10 @@ public class AjustementReportReportService extends CommonReportService {
         Magasin magasin = storageService.getUser().getMagasin();
         List<Ajustement> items = this.ajust.getAjustements();
         int itemSize = items.size();
-        items.sort(Comparator.comparing(el -> el.getStockProduit().getProduit().getFournisseurProduitPrincipal().getCodeCip()));
+        items.sort(Comparator.comparing(el -> el.getStockProduit()
+                .getProduit()
+                .getFournisseurProduitPrincipal()
+                .getCodeCip()));
         templateFile = Constant.AJUSTEMENT_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.ENTITY, this.ajust);

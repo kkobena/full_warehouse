@@ -49,7 +49,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 40, LocalDate.now());
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.qtySoldLast12Months()).isEqualTo(40);
             assertThat(resultat.stockQuantity()).isEqualTo(10);
@@ -68,7 +69,11 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 48, LocalDate.now());
             viderLeCache();
 
-            assertThat(services.stockRotationReportService.getAllStockRotation().getFirst().avgDaysInStock()).isEqualTo(90);
+            assertThat(services.stockRotationReportService
+                            .getAllStockRotation()
+                            .getFirst()
+                            .avgDaysInStock())
+                    .isEqualTo(90);
         }
 
         /**
@@ -81,7 +86,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             produitEnStock("DORMANT", 50);
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.qtySoldLast12Months()).isZero();
             assertThat(resultat.avgDaysInStock()).isEqualTo(999);
@@ -96,7 +102,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 100, LocalDate.now());
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.stockQuantity()).isZero();
             assertThat(resultat.rotationRateAnnual()).isEqualByComparingTo("0.00");
@@ -114,7 +121,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 10, LocalDate.now());
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.stockQuantity()).isZero();
             assertThat(resultat.stockValue()).isZero();
@@ -126,7 +134,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             produitEnStock("DOLIPRANE", 10); // prix de vente 10 000 → prix d'achat 6 000
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.unitCost()).isEqualTo(6_000);
             assertThat(resultat.stockValue()).isEqualTo(60_000L);
@@ -141,7 +150,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 7, LocalDate.now().minusDays(60));
             viderLeCache();
 
-            StockRotationDTO resultat = services.stockRotationReportService.getAllStockRotation().getFirst();
+            StockRotationDTO resultat =
+                    services.stockRotationReportService.getAllStockRotation().getFirst();
 
             assertThat(resultat.qtySoldLast30Days()).isEqualTo(3);
             assertThat(resultat.nbSalesLast30Days()).isEqualTo(1);
@@ -165,7 +175,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             stock(detail, 10);
             viderLeCache();
 
-            assertThat(services.stockRotationReportService.getAllStockRotation()).isEmpty();
+            assertThat(services.stockRotationReportService.getAllStockRotation())
+                    .isEmpty();
         }
 
         @Test
@@ -175,7 +186,11 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 40, LocalDate.now(), true, CategorieChiffreAffaire.CA);
             viderLeCache();
 
-            assertThat(services.stockRotationReportService.getAllStockRotation().getFirst().qtySoldLast12Months()).isZero();
+            assertThat(services.stockRotationReportService
+                            .getAllStockRotation()
+                            .getFirst()
+                            .qtySoldLast12Months())
+                    .isZero();
         }
 
         @Test
@@ -185,21 +200,28 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             vendu(produit, 40, LocalDate.now().minusMonths(13));
             viderLeCache();
 
-            assertThat(services.stockRotationReportService.getAllStockRotation().getFirst().qtySoldLast12Months()).isZero();
+            assertThat(services.stockRotationReportService
+                            .getAllStockRotation()
+                            .getFirst()
+                            .qtySoldLast12Months())
+                    .isZero();
         }
 
         @Test
         @DisplayName("base vierge : aucune ligne et des compteurs à zéro")
         void baseVierge() {
-            assertThat(services.stockRotationReportService.getAllStockRotation()).isEmpty();
-            assertThat(services.stockRotationReportService.getStockRotationCount()).isZero();
+            assertThat(services.stockRotationReportService.getAllStockRotation())
+                    .isEmpty();
+            assertThat(services.stockRotationReportService.getStockRotationCount())
+                    .isZero();
 
-            Map<CategorieABC, Long> compteurs = services.stockRotationReportService.getStockRotationCountByABCClassification();
+            Map<CategorieABC, Long> compteurs =
+                    services.stockRotationReportService.getStockRotationCountByABCClassification();
 
             assertThat(compteurs)
-                .containsEntry(CategorieABC.A, 0L)
-                .containsEntry(CategorieABC.B, 0L)
-                .containsEntry(CategorieABC.C, 0L);
+                    .containsEntry(CategorieABC.A, 0L)
+                    .containsEntry(CategorieABC.B, 0L)
+                    .containsEntry(CategorieABC.C, 0L);
         }
     }
 
@@ -217,8 +239,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             viderLeCache();
 
             assertThat(services.stockRotationReportService.getAllStockRotation())
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("RAPIDE", "LENT");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("RAPIDE", "LENT");
         }
 
         /**
@@ -237,14 +259,14 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             viderLeCache();
 
             assertThat(services.stockRotationReportService.getStockRotationByABCClassification(CategorieABC.A))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactlyInAnyOrder("VITAL", "FORTE");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactlyInAnyOrder("VITAL", "FORTE");
             assertThat(services.stockRotationReportService.getStockRotationByABCClassification(CategorieABC.B))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("MOYENNE");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("MOYENNE");
             assertThat(services.stockRotationReportService.getStockRotationByABCClassification(CategorieABC.C))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactlyInAnyOrder("FAIBLE", "OBSOLETE");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactlyInAnyOrder("FAIBLE", "OBSOLETE");
         }
 
         @Test
@@ -255,8 +277,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             viderLeCache();
 
             assertThat(services.stockRotationReportService.getAllStockRotation())
-                .extracting(StockRotationDTO::libelle, StockRotationDTO::categorieABC)
-                .containsExactlyInAnyOrder(tuple("VITAL", CategorieABC.A), tuple("OBSOLETE", CategorieABC.C));
+                    .extracting(StockRotationDTO::libelle, StockRotationDTO::categorieABC)
+                    .containsExactlyInAnyOrder(tuple("VITAL", CategorieABC.A), tuple("OBSOLETE", CategorieABC.C));
         }
 
         @Test
@@ -267,13 +289,15 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             classe(produitEnStock("OBSOLETE", 10), ClasseCriticite.D);
             viderLeCache();
 
-            Map<CategorieABC, Long> compteurs = services.stockRotationReportService.getStockRotationCountByABCClassification();
+            Map<CategorieABC, Long> compteurs =
+                    services.stockRotationReportService.getStockRotationCountByABCClassification();
 
             assertThat(compteurs)
-                .containsEntry(CategorieABC.A, 2L)
-                .containsEntry(CategorieABC.B, 0L)
-                .containsEntry(CategorieABC.C, 1L);
-            assertThat(services.stockRotationReportService.getStockRotationCountByABC(CategorieABC.A)).isEqualTo(2);
+                    .containsEntry(CategorieABC.A, 2L)
+                    .containsEntry(CategorieABC.B, 0L)
+                    .containsEntry(CategorieABC.C, 1L);
+            assertThat(services.stockRotationReportService.getStockRotationCountByABC(CategorieABC.A))
+                    .isEqualTo(2);
         }
 
         /** Le dormant se repère sur la valeur immobilisée, pas sur la rotation : c'est l'argent qui dort. */
@@ -286,8 +310,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             viderLeCache();
 
             assertThat(services.stockRotationReportService.getSlowMovingProducts())
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("GROS DORMANT", "PETIT DORMANT");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("GROS DORMANT", "PETIT DORMANT");
         }
 
         @Test
@@ -296,10 +320,12 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             produitEnStock("DOLIPRANE", 10);
             viderLeCache();
 
-            assertThat(services.stockRotationReportService.getStockRotationByCategory(premiereFamille().getLibelle()))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("DOLIPRANE");
-            assertThat(services.stockRotationReportService.getStockRotationByCategory("FAMILLE INEXISTANTE")).isEmpty();
+            assertThat(services.stockRotationReportService.getStockRotationByCategory(
+                            premiereFamille().getLibelle()))
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("DOLIPRANE");
+            assertThat(services.stockRotationReportService.getStockRotationByCategory("FAMILLE INEXISTANTE"))
+                    .isEmpty();
         }
 
         @Test
@@ -311,12 +337,13 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             viderLeCache();
 
             assertThat(services.stockRotationReportService.getStockRotationPaginated(0, 2))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("RAPIDE", "MOYEN");
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("RAPIDE", "MOYEN");
             assertThat(services.stockRotationReportService.getStockRotationPaginated(1, 2))
-                .extracting(StockRotationDTO::libelle)
-                .containsExactly("LENT");
-            assertThat(services.stockRotationReportService.getStockRotationCount()).isEqualTo(3);
+                    .extracting(StockRotationDTO::libelle)
+                    .containsExactly("LENT");
+            assertThat(services.stockRotationReportService.getStockRotationCount())
+                    .isEqualTo(3);
         }
 
         @Test
@@ -327,7 +354,8 @@ class StockRotationReportServiceIntegrationTest extends AbstractReportIntegratio
             classe(produitEnStock("OBSOLETE", 10), ClasseCriticite.D);
             viderLeCache();
 
-            List<StockRotationDTO> page = services.stockRotationReportService.getStockRotationByABCPaginated(CategorieABC.A, 0, 1);
+            List<StockRotationDTO> page =
+                    services.stockRotationReportService.getStockRotationByABCPaginated(CategorieABC.A, 0, 1);
 
             assertThat(page).hasSize(1);
             assertThat(page.getFirst().categorieABC()).isEqualTo(CategorieABC.A);

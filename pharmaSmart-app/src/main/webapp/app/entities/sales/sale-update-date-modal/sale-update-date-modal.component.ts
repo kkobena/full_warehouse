@@ -1,24 +1,24 @@
-import { Component, inject, ChangeDetectionStrategy, signal } from "@angular/core";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { NgbActiveModal, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
-import { ISales } from "app/shared/model/sales.model";
-import { SalesService } from "../sales.service";
-import { Observable } from "rxjs";
-import { HttpResponse } from "@angular/common/http";
-import { finalize } from "rxjs/operators";
-import dayjs from "dayjs/esm";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { NGB_DATE_TO_ISO } from "../../../shared/util/warehouse-util";
-import { BadgeComponent, ButtonComponent, CardComponent } from "../../../shared/ui";
-import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+import { ISales } from 'app/shared/model/sales.model';
+import { SalesService } from '../sales.service';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
+import dayjs from 'dayjs/esm';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
+import { BadgeComponent, ButtonComponent, CardComponent } from '../../../shared/ui';
+import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: "app-sale-update-date-modal",
-  templateUrl: "./sale-update-date-modal.component.html",
-  styleUrls: ["./sale-update-date-modal.component.scss"],
+  selector: 'app-sale-update-date-modal',
+  templateUrl: './sale-update-date-modal.component.html',
+  styleUrls: ['./sale-update-date-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, ButtonComponent, BadgeComponent, CardComponent, PharmaDatePickerComponent]
+  imports: [ReactiveFormsModule, ButtonComponent, BadgeComponent, CardComponent, PharmaDatePickerComponent],
 })
 export class SaleUpdateDateModalComponent {
   sale: ISales | null = null;
@@ -29,8 +29,8 @@ export class SaleUpdateDateModalComponent {
   protected editForm = this.fb.group({
     updatedAt: new FormControl<NgbDateStruct | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
   private readonly salesService = inject(SalesService);
   private readonly notificationService = inject(NotificationService);
@@ -41,16 +41,16 @@ export class SaleUpdateDateModalComponent {
 
   protected save(): void {
     this.isSaving.set(true);
-    const formDate = this.editForm.get("updatedAt")?.value;
+    const formDate = this.editForm.get('updatedAt')?.value;
     const isoDate = NGB_DATE_TO_ISO(formDate);
     const updatedSale = { ...this.sale, updatedAt: isoDate ? dayjs(isoDate).toISOString() : undefined };
     this.subscribeToSaveResponse(this.salesService.updateDate(updatedSale as ISales));
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.pipe(finalize(() => (this.isSaving.set(false)))).subscribe({
+    result.pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -59,6 +59,6 @@ export class SaleUpdateDateModalComponent {
   }
 
   protected onSaveError(): void {
-    this.notificationService.error("Erreur", "La mise à jour de la date a échoué.");
+    this.notificationService.error('Erreur', 'La mise à jour de la date a échoué.');
   }
 }

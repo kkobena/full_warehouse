@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
-import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -38,6 +37,7 @@ import com.kobe.warehouse.service.fne.model.DetailProduitFacture;
 import com.kobe.warehouse.service.fne.model.InfoTiersPayant;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDate;
@@ -51,14 +51,13 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
-import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -78,15 +77,13 @@ public class EditionDataServiceImpl implements EditionDataService {
     private final ReportExcelExportService reportExcelExportService;
     private final AppConfigurationService appConfigurationService;
 
-
     public EditionDataServiceImpl(
-        FacturationRepository facturationRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        FacturationPdfExportService facturationPdfExportService,
-        GroupeFacturePdfExportService groupeFacturePdfExportService,
-        ReportExcelExportService reportExcelExportService,
-        AppConfigurationService appConfigurationService
-    ) {
+            FacturationRepository facturationRepository,
+            ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+            FacturationPdfExportService facturationPdfExportService,
+            GroupeFacturePdfExportService groupeFacturePdfExportService,
+            ReportExcelExportService reportExcelExportService,
+            AppConfigurationService appConfigurationService) {
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationPdfExportService = facturationPdfExportService;
@@ -104,28 +101,28 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams,
-        Pageable pageable) {
-        return this.thirdPartySaleLineRepository.findAll(
-            buildFetchSpecification(editionSearchParams),
-            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                Sort.by(Sort.Direction.ASC, "sale.updatedAt"))
-        ).map(this::fromThirdPartySaleLine);
+    public Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams, Pageable pageable) {
+        return this.thirdPartySaleLineRepository
+                .findAll(
+                        buildFetchSpecification(editionSearchParams),
+                        PageRequest.of(
+                                pageable.getPageNumber(),
+                                pageable.getPageSize(),
+                                Sort.by(Sort.Direction.ASC, "sale.updatedAt")))
+                .map(this::fromThirdPartySaleLine);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<TiersPayantDossierFactureDto> getEditionData(
-        EditionSearchParams editionSearchParams, Pageable pageable) {
+            EditionSearchParams editionSearchParams, Pageable pageable) {
         try {
             if (editionSearchParams.modeEdition() == ModeEditionEnum.GROUP) {
                 return this.thirdPartySaleLineRepository.fetchGroup(
-                    EditionDataSpecification.aThirdPartySaleLine(editionSearchParams),
-                    pageable
-                );
+                        EditionDataSpecification.aThirdPartySaleLine(editionSearchParams), pageable);
             }
             return this.thirdPartySaleLineRepository.fetch(
-                EditionDataSpecification.aThirdPartySaleLine(editionSearchParams), pageable);
+                    EditionDataSpecification.aThirdPartySaleLine(editionSearchParams), pageable);
         } catch (Exception e) {
             log.error("Error", e);
             return Page.empty();
@@ -133,11 +130,10 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Page<FactureDto> getInvoicies(InvoiceSearchParams invoiceSearchParams,
-        Pageable pageable) {
+    public Page<FactureDto> getInvoicies(InvoiceSearchParams invoiceSearchParams, Pageable pageable) {
         try {
             return this.facturationRepository.fetchInvoices(
-                facturationRepository.aFacture(invoiceSearchParams), pageable);
+                    facturationRepository.aFacture(invoiceSearchParams), pageable);
         } catch (Exception e) {
             log.error("Error", e);
             return Page.empty();
@@ -145,11 +141,10 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Page<FactureDto> getGroupInvoicies(InvoiceSearchParams invoiceSearchParams,
-        Pageable pageable) {
+    public Page<FactureDto> getGroupInvoicies(InvoiceSearchParams invoiceSearchParams, Pageable pageable) {
         try {
             return this.facturationRepository.fetchGroupedInvoices(
-                facturationRepository.aGroupedFacture(invoiceSearchParams), pageable);
+                    facturationRepository.aGroupedFacture(invoiceSearchParams), pageable);
         } catch (Exception e) {
             log.error("Error", e);
             return Page.empty();
@@ -172,8 +167,9 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     private void supprimerFacture(FactureItemId id) {
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(id)
-            .orElseThrow(() -> new GenericError("Cette facture a déjà été annulée", "factureDejaAnnulee"));
+        FactureTiersPayant factureTiersPayant = this.facturationRepository
+                .findById(id)
+                .orElseThrow(() -> new GenericError("Cette facture a déjà été annulée", "factureDejaAnnulee"));
         refuserSiReglee(factureTiersPayant);
         resetThirdPartySaleLines(factureTiersPayant);
         rendreConsommation(factureTiersPayant);
@@ -195,12 +191,12 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     private static void refuserSiReglee(FactureTiersPayant facture) {
         boolean reglee = facture.getMontantRegle() > 0
-            || facture.getFactureTiersPayants().stream().anyMatch(fille -> fille.getMontantRegle() > 0);
+                || facture.getFactureTiersPayants().stream().anyMatch(fille -> fille.getMontantRegle() > 0);
         if (reglee) {
             throw new GenericError(
-                "La facture " + facture.getNumFacture() + " a des règlements : annulez-les avant d'annuler la facture",
-                "factureReglee"
-            );
+                    "La facture " + facture.getNumFacture()
+                            + " a des règlements : annulez-les avant d'annuler la facture",
+                    "factureReglee");
         }
     }
 
@@ -217,12 +213,12 @@ public class EditionDataServiceImpl implements EditionDataService {
     @Transactional(readOnly = true)
     public Optional<FactureDtoWrapper> getFacture(FactureItemId id) {
         FactureTiersPayant facture = facturationRepository
-            .findOneWithDetails(id.getId(), id.getInvoiceDate())
-            .orElseThrow(() -> new GenericError("Facture non trouvée"));
-        facture
-            .getFactureTiersPayants()
-            .forEach(fille -> facturationRepository.findOneWithDetails(Objects.requireNonNull(fille.getId()).getId(),
-                fille.getId().getInvoiceDate()));
+                .findOneWithDetails(id.getId(), id.getInvoiceDate())
+                .orElseThrow(() -> new GenericError("Facture non trouvée"));
+        facture.getFactureTiersPayants()
+                .forEach(fille -> facturationRepository.findOneWithDetails(
+                        Objects.requireNonNull(fille.getId()).getId(),
+                        fille.getId().getInvoiceDate()));
         return Optional.of(buildFactureDtoWrapper(facture));
     }
 
@@ -238,17 +234,19 @@ public class EditionDataServiceImpl implements EditionDataService {
         this.facturationRepository.verrouillerAvecFilles(ids);
         Set<FactureItemId> annulees = new HashSet<>();
         ids.stream()
-            .sorted(Comparator.comparing(FactureItemId::getInvoiceDate).thenComparing(FactureItemId::getId))
-            .forEach(id -> {
-                if (annulees.contains(id)) {
-                    return; // fille d'un groupe du lot, déjà annulée avec lui
-                }
-                FactureTiersPayant facture = this.facturationRepository.findById(id)
-                    .orElseThrow(() -> new GenericError("Une ou plusieurs factures ont déjà été annulées", "factureDejaAnnulee"));
-                facture.getFactureTiersPayants().forEach(fille -> annulees.add(fille.getId()));
-                supprimerFacture(id);
-                annulees.add(id);
-            });
+                .sorted(Comparator.comparing(FactureItemId::getInvoiceDate).thenComparing(FactureItemId::getId))
+                .forEach(id -> {
+                    if (annulees.contains(id)) {
+                        return; // fille d'un groupe du lot, déjà annulée avec lui
+                    }
+                    FactureTiersPayant facture = this.facturationRepository
+                            .findById(id)
+                            .orElseThrow(() -> new GenericError(
+                                    "Une ou plusieurs factures ont déjà été annulées", "factureDejaAnnulee"));
+                    facture.getFactureTiersPayants().forEach(fille -> annulees.add(fille.getId()));
+                    supprimerFacture(id);
+                    annulees.add(id);
+                });
     }
 
     @Override
@@ -263,32 +261,27 @@ public class EditionDataServiceImpl implements EditionDataService {
         var generatedDate = LocalDate.parse(yyyymm + "01", DateTimeFormatter.ofPattern("yyyyMMdd"));
         if (isGroup) {
             return this.facturationRepository.findAllByGenerationCodeAndGroupeFactureTiersPayantIsNull(
-                generationCode,
-                generatedDate,
-                Sort.by(Direction.DESC, "created")
-                    .and(Sort.by(Direction.ASC, "groupeTiersPayant.name"))
-            );
+                    generationCode,
+                    generatedDate,
+                    Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "groupeTiersPayant.name")));
         }
         return this.facturationRepository.findAll(
-            generationCode,
-            generatedDate,
-            Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "tiersPayant.fullName"))
-        );
+                generationCode,
+                generatedDate,
+                Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "tiersPayant.fullName")));
     }
 
     @Override
     public byte[] printToPdf(FactureEditionResponse factureEditionResponse) {
         if (factureEditionResponse.isGroup()) {
             return groupeFacturePdfExportService.exportToPdf(
-                getFactureTiersPayant(factureEditionResponse.generationCode(), true)
-                    .stream()
-                    .map(this::buildGroupeFactureDtoFromEntity)
-                    .toList()
-            );
+                    getFactureTiersPayant(factureEditionResponse.generationCode(), true).stream()
+                            .map(this::buildGroupeFactureDtoFromEntity)
+                            .toList());
         }
 
         return this.facturationPdfExportService.exportToPdf(
-            getFactureTiersPayant(factureEditionResponse.generationCode(), false));
+                getFactureTiersPayant(factureEditionResponse.generationCode(), false));
     }
 
     @Override
@@ -297,114 +290,134 @@ public class EditionDataServiceImpl implements EditionDataService {
         if (Objects.nonNull(factureTiersPayant.getTiersPayant())) {
             return this.facturationPdfExportService.exportToPdf(factureTiersPayant);
         }
-        return this.groupeFacturePdfExportService.exportToPdf(
-            buildGroupeFactureDtoFromEntity(factureTiersPayant));
+        return this.groupeFacturePdfExportService.exportToPdf(buildGroupeFactureDtoFromEntity(factureTiersPayant));
     }
 
     @Override
-    public Page<FacturationGroupeDossier> findGroupeFactureReglementData(FactureItemId id,
-        Pageable pageable) {
-        return this.facturationRepository.findGroupeFactureById(id.getId(), id.getInvoiceDate(),
-            pageable);
+    public Page<FacturationGroupeDossier> findGroupeFactureReglementData(FactureItemId id, Pageable pageable) {
+        return this.facturationRepository.findGroupeFactureById(id.getId(), id.getInvoiceDate(), pageable);
     }
 
     @Override
     public Page<FacturationDossier> findFactureReglementData(FactureItemId id, Pageable pageable) {
-        return this.facturationRepository.findFacturationDossierByFactureId(id.getId(),
-            id.getInvoiceDate(), pageable);
+        return this.facturationRepository.findFacturationDossierByFactureId(id.getId(), id.getInvoiceDate(), pageable);
     }
 
     @Override
     public DossierFactureProjection findDossierFacture(FactureItemId id, boolean isGroup) {
         if (isGroup) {
-            return this.facturationRepository.findGroupDossierFacture(id.getId(),
-                id.getInvoiceDate());
+            return this.facturationRepository.findGroupDossierFacture(id.getId(), id.getInvoiceDate());
         }
         return this.facturationRepository.findSingleDossierFacture(id.getId(), id.getInvoiceDate());
     }
 
     @Override
-    public List<DetailProduitFacture> getDetailProduitFacture(FactureItemId factureItemId,
-        Integer tiersPayantId) {
-        return facturationRepository.getDetailProduitFacture(factureItemId.getId(),
-            factureItemId.getInvoiceDate(), tiersPayantId);
+    public List<DetailProduitFacture> getDetailProduitFacture(FactureItemId factureItemId, Integer tiersPayantId) {
+        return facturationRepository.getDetailProduitFacture(
+                factureItemId.getId(), factureItemId.getInvoiceDate(), tiersPayantId);
     }
 
     @Override
     public InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId) {
-        return facturationRepository.getInfoTiersPayantByFactureId(factureItemId.getId(),
-            factureItemId.getInvoiceDate());
+        return facturationRepository.getInfoTiersPayantByFactureId(
+                factureItemId.getId(), factureItemId.getInvoiceDate());
     }
-
 
     @Override
     @Transactional(readOnly = true)
-    public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId,
-        Integer groupeId, TypeFacture typeFacture, Boolean factureProvisoire) {
+    public FacturationKpiDto getKpi(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Integer organismeId,
+            Integer groupeId,
+            TypeFacture typeFacture,
+            Boolean factureProvisoire) {
         FacturationKpiRow row = facturationRepository
-            .getKpiData(fromDate, toDate, organismeId, groupeId, typeFacture, factureProvisoire,
-                appConfigurationService.getDelaiReglement())
-            .orElse(FacturationKpiRow.empty());
+                .getKpiData(
+                        fromDate,
+                        toDate,
+                        organismeId,
+                        groupeId,
+                        typeFacture,
+                        factureProvisoire,
+                        appConfigurationService.getDelaiReglement())
+                .orElse(FacturationKpiRow.empty());
         long totalRestant = row.totalFacture() - row.totalRegle();
-        double taux =
-            row.totalFacture() > 0 ? (double) row.totalRegle() / row.totalFacture() * 100 : 0.0;
+        double taux = row.totalFacture() > 0 ? (double) row.totalRegle() / row.totalFacture() * 100 : 0.0;
         return new FacturationKpiDto(
-            row.totalFacture(),
-            row.totalRegle(),
-            totalRestant,
-            taux,
-            row.countFactures(),
-            row.countImpayees(),
-            row.countEnRetard()
-        );
+                row.totalFacture(),
+                row.totalRegle(),
+                totalRestant,
+                taux,
+                row.countFactures(),
+                row.countImpayees(),
+                row.countEnRetard());
     }
 
     @Override
     @Transactional(readOnly = true)
     public byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup) {
         String[] headers = {
-            "N° Facture", "Tiers-Payant", "Début période", "Fin période",
-            "Montant (FCFA)", "Réglé (FCFA)", "Restant (FCFA)",
-            "Statut", "Date facture", "Délai (j)", "Date échéance", "En retard"
+            "N° Facture",
+            "Tiers-Payant",
+            "Début période",
+            "Fin période",
+            "Montant (FCFA)",
+            "Réglé (FCFA)",
+            "Restant (FCFA)",
+            "Statut",
+            "Date facture",
+            "Délai (j)",
+            "Date échéance",
+            "En retard"
         };
         String title = isGroup ? "Factures groupées" : "Factures tiers-payant";
         List<FactureDto> data;
         if (isGroup) {
-            data = facturationRepository.fetchGroupedInvoices(
-                facturationRepository.aGroupedFacture(params), Pageable.unpaged()).getContent();
+            data = facturationRepository
+                    .fetchGroupedInvoices(facturationRepository.aGroupedFacture(params), Pageable.unpaged())
+                    .getContent();
         } else {
-            data = facturationRepository.fetchInvoices(facturationRepository.aFacture(params),
-                Pageable.unpaged()).getContent();
+            data = facturationRepository
+                    .fetchInvoices(facturationRepository.aFacture(params), Pageable.unpaged())
+                    .getContent();
         }
         try {
             return reportExcelExportService.createExcelReport(title, headers, data, (row, f) -> {
                 int col = 0;
+                row.createCell(col++).setCellValue(f.getNumFacture() != null ? f.getNumFacture() : "");
+                row.createCell(col++).setCellValue(f.getTiersPayantName() != null ? f.getTiersPayantName() : "");
                 row.createCell(col++)
-                    .setCellValue(f.getNumFacture() != null ? f.getNumFacture() : "");
+                        .setCellValue(
+                                f.getDebutPeriode() != null
+                                        ? f.getDebutPeriode().format(DATE_FMT)
+                                        : "");
                 row.createCell(col++)
-                    .setCellValue(f.getTiersPayantName() != null ? f.getTiersPayantName() : "");
-                row.createCell(col++).setCellValue(
-                    f.getDebutPeriode() != null ? f.getDebutPeriode().format(DATE_FMT) : "");
-                row.createCell(col++).setCellValue(
-                    f.getFinPeriode() != null ? f.getFinPeriode().format(DATE_FMT) : "");
-                row.createCell(col++)
-                    .setCellValue(f.getMontantNet() != null ? f.getMontantNet() : 0);
-                row.createCell(col++)
-                    .setCellValue(f.getMontantRegle() != null ? f.getMontantRegle() : 0);
-                int restant = (f.getMontantNet() != null ? f.getMontantNet() : 0) - (
-                    f.getMontantRegle() != null ? f.getMontantRegle() : 0);
+                        .setCellValue(
+                                f.getFinPeriode() != null ? f.getFinPeriode().format(DATE_FMT) : "");
+                row.createCell(col++).setCellValue(f.getMontantNet() != null ? f.getMontantNet() : 0);
+                row.createCell(col++).setCellValue(f.getMontantRegle() != null ? f.getMontantRegle() : 0);
+                int restant = (f.getMontantNet() != null ? f.getMontantNet() : 0)
+                        - (f.getMontantRegle() != null ? f.getMontantRegle() : 0);
                 row.createCell(col++).setCellValue(restant);
                 row.createCell(col++)
-                    .setCellValue(f.getStatut() != null ? f.getStatut().name() : "");
-                row.createCell(col++).setCellValue(f.getCreated() != null ? f.getCreated()
-                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "");
-                row.createCell(col++).setCellValue(
-                    f.getDelaiReglement() != null ? f.getDelaiReglement()
-                        : appConfigurationService.getDelaiReglement());
-                row.createCell(col++).setCellValue(
-                    f.getDateEcheance() != null ? f.getDateEcheance().format(DATE_FMT) : "");
-                row.createCell(col)
-                    .setCellValue(Boolean.TRUE.equals(f.getEnRetard()) ? "Oui" : "Non");
+                        .setCellValue(f.getStatut() != null ? f.getStatut().name() : "");
+                row.createCell(col++)
+                        .setCellValue(
+                                f.getCreated() != null
+                                        ? f.getCreated().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                                        : "");
+                row.createCell(col++)
+                        .setCellValue(
+                                f.getDelaiReglement() != null
+                                        ? f.getDelaiReglement()
+                                        : appConfigurationService.getDelaiReglement());
+                row.createCell(col++)
+                        .setCellValue(
+                                f.getDateEcheance() != null
+                                        ? f.getDateEcheance().format(DATE_FMT)
+                                        : "");
+                row.createCell(col).setCellValue(Boolean.TRUE.equals(f.getEnRetard()) ? "Oui" : "Non");
             });
         } catch (Exception e) {
             log.error("Erreur lors de la génération Excel factures", e);
@@ -412,42 +425,35 @@ public class EditionDataServiceImpl implements EditionDataService {
         }
     }
 
-    private Specification<ThirdPartySaleLine> buildFetchSpecification(
-        EditionSearchParams editionSearchParams) {
-        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = thirdPartySaleLineRepository.canceledCriteria();
+    private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
+        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification =
+                thirdPartySaleLineRepository.canceledCriteria();
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
-        );
-        thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(),
-                editionSearchParams.endDate())
-        );
+                thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED)));
+        thirdPartySaleLineSpecification =
+                thirdPartySaleLineSpecification.and(thirdPartySaleLineRepository.periodeCriteria(
+                        editionSearchParams.startDate(), editionSearchParams.endDate()));
         if (editionSearchParams.factureProvisoire()) {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.factureProvisoireCriteria()
-            );
+            thirdPartySaleLineSpecification =
+                    thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.factureProvisoireCriteria());
         } else {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.notBilledCriteria());
+            thirdPartySaleLineSpecification =
+                    thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.notBilledCriteria());
         }
 
         if (!CollectionUtils.isEmpty(editionSearchParams.groupIds())) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds())
-            );
+                    this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.groupIds()));
         }
 
         if (!CollectionUtils.isEmpty(editionSearchParams.tiersPayantIds())) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.tiersPayantIdsCriteria(
-                    editionSearchParams.tiersPayantIds())
-            );
+                    this.thirdPartySaleLineRepository.tiersPayantIdsCriteria(editionSearchParams.tiersPayantIds()));
         }
         if (!CollectionUtils.isEmpty(editionSearchParams.categorieTiersPayants())) {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(
-                    editionSearchParams.categorieTiersPayants())
-            );
+            thirdPartySaleLineSpecification =
+                    thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.categorieTiersPayantCriteria(
+                            editionSearchParams.categorieTiersPayants()));
         }
         return thirdPartySaleLineSpecification;
     }
@@ -456,13 +462,13 @@ public class EditionDataServiceImpl implements EditionDataService {
         ThirdPartySales sales = thirdPartySaleLine.getSale();
         AssuredCustomer assuredCustomer = (AssuredCustomer) sales.getCustomer();
         return new DossierFactureDto()
-            .setId(Objects.requireNonNull(thirdPartySaleLine.getId()).getId())
-            .setAssuranceSaleId(thirdPartySaleLine.getId())
-            .setNumBon(thirdPartySaleLine.getNumBon())
-            .setCreatedAt(sales.getUpdatedAt())
-            .setMontantBon(thirdPartySaleLine.getMontant())
-            .setMontantVente(sales.getMontantVenteRembourse())
-            .setAssuredCustomer(fromAssuredCustomer(assuredCustomer));
+                .setId(Objects.requireNonNull(thirdPartySaleLine.getId()).getId())
+                .setAssuranceSaleId(thirdPartySaleLine.getId())
+                .setNumBon(thirdPartySaleLine.getNumBon())
+                .setCreatedAt(sales.getUpdatedAt())
+                .setMontantBon(thirdPartySaleLine.getMontant())
+                .setMontantVente(sales.getMontantVenteRembourse())
+                .setAssuredCustomer(fromAssuredCustomer(assuredCustomer));
     }
 
     private AssuredCustomerDTO fromAssuredCustomer(AssuredCustomer assuredCustomer) {
@@ -473,8 +479,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         return assuredCustomerDTO;
     }
 
-    private GroupeFactureDto buildGroupeFactureDtoFromEntity(
-        FactureTiersPayant factureTiersPayant) {
+    private GroupeFactureDto buildGroupeFactureDtoFromEntity(FactureTiersPayant factureTiersPayant) {
         GroupeTiersPayant groupeTiersPayant = factureTiersPayant.getGroupeTiersPayant();
         GroupeFactureDto groupeFactureDto = new GroupeFactureDto();
         groupeFactureDto.setFactureItemId(factureTiersPayant.getId());
@@ -485,32 +490,33 @@ public class EditionDataServiceImpl implements EditionDataService {
         groupeFactureDto.setCreated(factureTiersPayant.getCreated());
         List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
         groupeFactureDto.setFacturesTiersPayants(factureTiersPayants);
-        List<FactureDto> factures = factureTiersPayants
-            .stream()
-            .sorted(Comparator.comparing(f -> Objects.requireNonNull(f.getId()).getId()))
-            .map(fact -> {
-                FactureDto factureDto = new FactureDto();
-                factureDto.setFactureItemId(fact.getId());
-                TiersPayant tiersPayant = fact.getTiersPayant();
-                factureDto.setFactureId(fact.getId().getId());
-                factureDto.setTiersPayantName(tiersPayant.getFullName());
-                List<ThirdPartySaleLine> thirdPartySaleLines = fact.getFacturesDetails();
-                int montant = thirdPartySaleLines.stream().mapToInt(ThirdPartySaleLine::getMontant)
-                    .sum();
-                factureDto.setMontant(montant);
-                int count = thirdPartySaleLines.size();
-                factureDto.setItemsCount((long) count);
-                factureDto.setNumFacture(fact.getDisplayNumFacture());
-                groupeFactureDto.setInvoiceTotalAmount(
-                    groupeFactureDto.getInvoiceTotalAmount() + montant);
-                groupeFactureDto.setItemsBonCount(groupeFactureDto.getItemsBonCount() + count);
+        List<FactureDto> factures = factureTiersPayants.stream()
+                .sorted(Comparator.comparing(
+                        f -> Objects.requireNonNull(f.getId()).getId()))
+                .map(fact -> {
+                    FactureDto factureDto = new FactureDto();
+                    factureDto.setFactureItemId(fact.getId());
+                    TiersPayant tiersPayant = fact.getTiersPayant();
+                    factureDto.setFactureId(fact.getId().getId());
+                    factureDto.setTiersPayantName(tiersPayant.getFullName());
+                    List<ThirdPartySaleLine> thirdPartySaleLines = fact.getFacturesDetails();
+                    int montant = thirdPartySaleLines.stream()
+                            .mapToInt(ThirdPartySaleLine::getMontant)
+                            .sum();
+                    factureDto.setMontant(montant);
+                    int count = thirdPartySaleLines.size();
+                    factureDto.setItemsCount((long) count);
+                    factureDto.setNumFacture(fact.getDisplayNumFacture());
+                    groupeFactureDto.setInvoiceTotalAmount(groupeFactureDto.getInvoiceTotalAmount() + montant);
+                    groupeFactureDto.setItemsBonCount(groupeFactureDto.getItemsBonCount() + count);
 
-                return factureDto;
-            })
-            .toList();
+                    return factureDto;
+                })
+                .toList();
         groupeFactureDto.getFactures().addAll(factures);
         groupeFactureDto.setInvoiceTotalAmountLetters(
-            NumberUtil.getNumberToWords(groupeFactureDto.getInvoiceTotalAmount()).toUpperCase());
+                NumberUtil.getNumberToWords(groupeFactureDto.getInvoiceTotalAmount())
+                        .toUpperCase());
         return groupeFactureDto;
     }
 
@@ -567,7 +573,8 @@ public class EditionDataServiceImpl implements EditionDataService {
         FactureDto factureDto = new FactureDto();
         factureDto.setFactureItemId(factureTiersPayant.getId());
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
-        factureDto.setFactureId(Objects.requireNonNull(factureTiersPayant.getId()).getId());
+        factureDto.setFactureId(
+                Objects.requireNonNull(factureTiersPayant.getId()).getId());
         factureDto.setTiersPayantName(tiersPayant.getFullName());
         factureDto.setNumFacture(factureTiersPayant.getDisplayNumFacture());
         factureDto.setDebutPeriode(factureTiersPayant.getDebutPeriode());
@@ -585,8 +592,8 @@ public class EditionDataServiceImpl implements EditionDataService {
             //                isCarnet = true;
             //            }
             montantVente += sales.getMontantVenteRembourse();
-            factureDto.setMontant(Objects.requireNonNullElse(factureDto.getMontant(), 0)
-                + thirdPartySaleLine.getMontant());
+            factureDto.setMontant(
+                    Objects.requireNonNullElse(factureDto.getMontant(), 0) + thirdPartySaleLine.getMontant());
             remiseVente += Objects.requireNonNullElse(sales.getDiscountAmount(), 0);
             montantPaye += Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0);
             factureDto.getItems().add(buildFromThirdPartySaleLine(thirdPartySaleLine, sales));
@@ -599,15 +606,14 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureDto.setItemMontantRegle(montantPaye);
         factureDto.setMontantNet(factureDto.getMontant() - factureDto.getRemiseForfetaire());
         factureDto.setMontantRestant(
-            factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getMontantRegle(), 0));
+                factureDto.getMontant() - Objects.requireNonNullElse(factureDto.getMontantRegle(), 0));
         factureDto.setMontantVente(montantVente);
         factureDto.setMontantAttendu(factureDto.getMontantNet());
         factureDto.setReglements(buildReglements(factureTiersPayant.getInvoicePayments()));
         return factureDto;
     }
 
-    private FactureItemDto buildFromThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
-        ThirdPartySales sales) {
+    private FactureItemDto buildFromThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine, ThirdPartySales sales) {
         FactureItemDto factureItemDto = new FactureItemDto();
         factureItemDto.setMontantClient(sales.getPartAssureRembourse());
         factureItemDto.setTaux(thirdPartySaleLine.getTaux());
@@ -617,16 +623,14 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureItemDto.setComppsiteSaleId(sales.getId());
         factureItemDto.setStatut(thirdPartySaleLine.getStatut());
         factureItemDto.setMontantVente(sales.getMontantVenteRembourse());
-        factureItemDto.setMontantRegle(
-            Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));
+        factureItemDto.setMontantRegle(Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));
         factureItemDto.setMontant(thirdPartySaleLine.getMontant());
         factureItemDto.setNumBon(thirdPartySaleLine.getNumBon());
         factureItemDto.setMontantRemise(Objects.requireNonNullElse(sales.getDiscountAmount(), 0));
         factureItemDto.setCreated(thirdPartySaleLine.getCreated());
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
         AssuredCustomer customer = clientTiersPayant.getAssuredCustomer();
-        AssuredCustomerDTO assuredCustomerDTO = buildCustomerInfos(customer,
-            clientTiersPayant.getNum());
+        AssuredCustomerDTO assuredCustomerDTO = buildCustomerInfos(customer, clientTiersPayant.getNum());
         factureItemDto.setCustomer(assuredCustomerDTO);
         factureItemDto.setAyantsDroit(buildCustomerInfos(sales.getAyantDroit(), null));
         factureItemDto.setMatricule(clientTiersPayant.getNum());
@@ -666,13 +670,12 @@ public class EditionDataServiceImpl implements EditionDataService {
         Banque banque = p.getBanque();
         String banqueNom = banque != null ? banque.getNom() : null;
         return new ReglementDto(
-            Objects.requireNonNull(p.getId()).getId(),
-            p.getTransactionDate(),
-            p.getPaidAmount(),
-            p.getTransactionNumber(),
-            paymentMode,
-            banqueNom,
-            p.getCommentaire()
-        );
+                Objects.requireNonNull(p.getId()).getId(),
+                p.getTransactionDate(),
+                p.getPaidAmount(),
+                p.getTransactionNumber(),
+                paymentMode,
+                banqueNom,
+                p.getCommentaire());
     }
 }

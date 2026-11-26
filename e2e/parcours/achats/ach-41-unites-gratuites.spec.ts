@@ -34,8 +34,7 @@ scenario('ACH-41', async ({ etape, page }) => {
     // contient bien le « 1 » qu'on vient d'y taper ne disait rien de leur comptabilisation.
     const stockApres = page.locator('.rh-seq__row--result .rh-seq__row-value');
     await expect(stockApres).toBeVisible();
-    const lireStockApres = async () =>
-      Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
+    const lireStockApres = async () => Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
 
     // Le champ « Reçu » arrive pré-rempli de la quantité commandée : on part donc d'une valeur
     // qu'on pose soi-même, puis on n'ajoute qu'une gratuite. L'écart mesuré est alors celui de

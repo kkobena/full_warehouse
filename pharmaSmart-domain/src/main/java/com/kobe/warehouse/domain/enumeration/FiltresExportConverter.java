@@ -31,7 +31,9 @@ public class FiltresExportConverter implements AttributeConverter<Map<FiltreExpo
             if (!colonne.isEmpty()) {
                 colonne.append(ENTRE_FILTRES);
             }
-            colonne.append(filtre.getKey().name()).append(AFFECTATION).append(String.join(ENTRE_VALEURS, filtre.getValue()));
+            colonne.append(filtre.getKey().name())
+                    .append(AFFECTATION)
+                    .append(String.join(ENTRE_VALEURS, filtre.getValue()));
         }
         return colonne.isEmpty() ? null : colonne.toString();
     }
@@ -48,9 +50,8 @@ public class FiltresExportConverter implements AttributeConverter<Map<FiltreExpo
                 continue;
             }
             filtres.put(
-                FiltreExport.valueOf(entree.substring(0, affectation)),
-                Arrays.asList(entree.substring(affectation + 1).split(ENTRE_VALEURS))
-            );
+                    FiltreExport.valueOf(entree.substring(0, affectation)),
+                    Arrays.asList(entree.substring(affectation + 1).split(ENTRE_VALEURS)));
         }
         return filtres;
     }

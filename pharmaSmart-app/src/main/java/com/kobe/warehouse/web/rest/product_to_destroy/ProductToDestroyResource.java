@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.product_to_destroy;
 
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
@@ -26,21 +28,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/product-to-destroy")
-@RequiresNavAccess({ "peremptions.lot-a-detruire", "peremptions" })
+@RequiresNavAccess({"peremptions.lot-a-detruire", "peremptions"})
 public class ProductToDestroyResource {
 
     private final ProductsToDestroyService productsToDestroyService;
     private final ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService;
 
     public ProductToDestroyResource(
-        ProductsToDestroyService productsToDestroyService,
-        ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService
-    ) {
+            ProductsToDestroyService productsToDestroyService,
+            ProductToDestroyExcelCsvReportService productToDestroyExcelCsvReportService) {
         this.productsToDestroyService = productsToDestroyService;
         this.productToDestroyExcelCsvReportService = productToDestroyExcelCsvReportService;
     }
@@ -52,52 +51,60 @@ public class ProductToDestroyResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductToDestroyDTO>> fetchAll(ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
+    public ResponseEntity<List<ProductToDestroyDTO>> fetchAll(
+            ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
         Page<ProductToDestroyDTO> page = productsToDestroyService.findAll(productToDestroyFilter, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping(value = "/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToExcel(ProductToDestroyFilter productToDestroyFilter) {
         try {
             byte[] excelData = productToDestroyExcelCsvReportService.exportToExcel(productToDestroyFilter);
             String filename = buildFilename("produits_a_detruire", ".xlsx");
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excelData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excelData);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping(value = "/export/csv", produces = "text/csv")
-    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToCsv(ProductToDestroyFilter productToDestroyFilter) {
         try {
             byte[] csvData = productToDestroyExcelCsvReportService.exportToCsv(productToDestroyFilter);
             String filename = buildFilename("produits_a_detruire", ".csv");
-            return ResponseEntity
-                .ok()
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-                .body(csvData);
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                    .body(csvData);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     private String buildFilename(String baseName, String extension) {
-        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) + extension;
+        return baseName + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss"))
+                + extension;
     }
 
     @GetMapping("/editing")
-    public ResponseEntity<List<ProductToDestroyDTO>> fetchForEdit(ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
+    public ResponseEntity<List<ProductToDestroyDTO>> fetchForEdit(
+            ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
         Page<ProductToDestroyDTO> page = productsToDestroyService.findEditing(productToDestroyFilter, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -125,21 +132,27 @@ public class ProductToDestroyResource {
     }
 
     @PostMapping("/modify-product")
-    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EDIT)
+    @RequiresNavAccess(
+            value = {"peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EDIT)
     public ResponseEntity<Void> modifyProductQuantity(@Valid @RequestBody ProductToDestroyPayload payload) {
         productsToDestroyService.modifyProductQuantity(payload);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/delete")
-    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.DELETE)
+    @RequiresNavAccess(
+            value = {"peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.DELETE)
     public ResponseEntity<Void> deleteAll(@RequestBody Keys keys) {
         productsToDestroyService.remove(keys);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/pdf")
-    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
+    @RequiresNavAccess(
+            value = {"peremptions.lot-a-detruire", "peremptions"},
+            action = NavAction.EXPORT)
     public ResponseEntity<byte[]> generatePdf(ProductToDestroyFilter productToDestroyFilter) {
         return productsToDestroyService.generatePdf(productToDestroyFilter);
     }

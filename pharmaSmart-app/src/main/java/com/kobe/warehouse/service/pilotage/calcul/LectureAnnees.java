@@ -13,37 +13,45 @@ import java.util.stream.IntStream;
 
 /** Valeurs de l'indicateur lues sur le calendrier, rapportées aux jours ouvrés si demandé. */
 public record LectureAnnees(
-    IndicateurPilotage indicateur,
-    ModeAnnees mode,
-    boolean parJourOuvre,
-    CalendrierMensuel calendrier,
-    int anneeEnCours,
-    MesuresPilotage anneePrecedenteADate,
-    int moisEnCours,
-    MesuresPilotage moisPrecedentADate
-) {
+        IndicateurPilotage indicateur,
+        ModeAnnees mode,
+        boolean parJourOuvre,
+        CalendrierMensuel calendrier,
+        int anneeEnCours,
+        MesuresPilotage anneePrecedenteADate,
+        int moisEnCours,
+        MesuresPilotage moisPrecedentADate) {
     private static final double CENT = 100.0;
     private static final int MOIS_PAR_AN = 12;
     private static final int MOIS_PAR_TRIMESTRE = 3;
 
     public AnneeCompareeDTO comparer(int annee) {
         List<CelluleAnalyseDTO> mois = IntStream.rangeClosed(1, MOIS_PAR_AN)
-            .mapToObj(numero ->
-                calendrier.existe(annee, numero)
-                    ? Variations.cellule(indicateur, valeur(calendrier.lireFenetre(annee, numero, mode)), valeur(lireFenetreDeReference(annee, numero)))
-                    : Variations.cellule(indicateur, null, null)
-            )
-            .toList();
+                .mapToObj(numero -> calendrier.existe(annee, numero)
+                        ? Variations.cellule(
+                                indicateur,
+                                valeur(calendrier.lireFenetre(annee, numero, mode)),
+                                valeur(lireFenetreDeReference(annee, numero)))
+                        : Variations.cellule(indicateur, null, null))
+                .toList();
         List<CelluleAnalyseDTO> trimestres = IntStream.rangeClosed(1, MOIS_PAR_AN / MOIS_PAR_TRIMESTRE)
-            .mapToObj(trimestre -> {
-                int premier = (trimestre - 1) * MOIS_PAR_TRIMESTRE + 1;
-                int dernier = premier + MOIS_PAR_TRIMESTRE - 1;
-                return calendrier.existe(annee, premier)
-                    ? Variations.cellule(indicateur, valeur(calendrier.lireMois(annee, premier, dernier)), valeur(lireTrimestreDeReference(annee, premier, dernier)))
-                    : Variations.cellule(indicateur, null, null);
-            })
-            .toList();
-        return new AnneeCompareeDTO(annee, annee < anneeEnCours, mois, trimestres, Variations.cellule(indicateur, valeur(total(annee)), valeur(totalDeReference(annee))));
+                .mapToObj(trimestre -> {
+                    int premier = (trimestre - 1) * MOIS_PAR_TRIMESTRE + 1;
+                    int dernier = premier + MOIS_PAR_TRIMESTRE - 1;
+                    return calendrier.existe(annee, premier)
+                            ? Variations.cellule(
+                                    indicateur,
+                                    valeur(calendrier.lireMois(annee, premier, dernier)),
+                                    valeur(lireTrimestreDeReference(annee, premier, dernier)))
+                            : Variations.cellule(indicateur, null, null);
+                })
+                .toList();
+        return new AnneeCompareeDTO(
+                annee,
+                annee < anneeEnCours,
+                mois,
+                trimestres,
+                Variations.cellule(indicateur, valeur(total(annee)), valeur(totalDeReference(annee))));
     }
 
     /** La fenêtre N-1 ; celle qui finit au mois en cours s'arrête au même jour (le mois N-1 entier remplacé par sa part à date). */
@@ -60,7 +68,9 @@ public record LectureAnnees(
         if (annee != anneeEnCours || moisEnCours < premier || moisEnCours > dernier) {
             return calendrier.lireMois(annee - 1, premier, dernier);
         }
-        MesuresPilotage moisClos = moisEnCours > premier ? calendrier.lireMois(annee - 1, premier, moisEnCours - 1) : MesuresPilotage.AUCUNE;
+        MesuresPilotage moisClos = moisEnCours > premier
+                ? calendrier.lireMois(annee - 1, premier, moisEnCours - 1)
+                : MesuresPilotage.AUCUNE;
         return moisClos.plus(moisPrecedentADate);
     }
 
@@ -77,15 +87,12 @@ public record LectureAnnees(
             return List.of();
         }
         return IntStream.rangeClosed(1, MOIS_PAR_AN)
-            .mapToObj(numero ->
-                totaux
-                    .entrySet()
-                    .stream()
-                    .mapToDouble(total -> brut(calendrier.lireMois(total.getKey(), numero, numero)) * CENT / total.getValue())
-                    .average()
-                    .orElse(0)
-            )
-            .toList();
+                .mapToObj(numero -> totaux.entrySet().stream()
+                        .mapToDouble(total ->
+                                brut(calendrier.lireMois(total.getKey(), numero, numero)) * CENT / total.getValue())
+                        .average()
+                        .orElse(0))
+                .toList();
     }
 
     public MoisRecordDTO trouverMoisMaximum(List<Integer> annees) {
@@ -106,16 +113,15 @@ public record LectureAnnees(
         Double ca = CalculateurIndicateurs.calculer(IndicateurPilotage.CA_TTC, mesures);
         Double caReference = CalculateurIndicateurs.calculer(IndicateurPilotage.CA_TTC, totalDeReference(annee));
         return new SyntheseAnneeDTO(
-            annee,
-            annee < anneeEnCours,
-            ca,
-            voitLaMarge ? CalculateurIndicateurs.calculer(IndicateurPilotage.MARGE_BRUTE, mesures) : null,
-            voitLaMarge ? CalculateurIndicateurs.calculer(IndicateurPilotage.TAUX_MARGE, mesures) : null,
-            mesures.nbVentes() == 0 ? null : (double) mesures.nbVentes(),
-            CalculateurIndicateurs.calculer(IndicateurPilotage.PANIER_MOYEN, mesures),
-            CalculateurIndicateurs.calculer(IndicateurPilotage.REMISES, mesures),
-            Variations.ecartPct(IndicateurPilotage.CA_TTC, ca, caReference)
-        );
+                annee,
+                annee < anneeEnCours,
+                ca,
+                voitLaMarge ? CalculateurIndicateurs.calculer(IndicateurPilotage.MARGE_BRUTE, mesures) : null,
+                voitLaMarge ? CalculateurIndicateurs.calculer(IndicateurPilotage.TAUX_MARGE, mesures) : null,
+                mesures.nbVentes() == 0 ? null : (double) mesures.nbVentes(),
+                CalculateurIndicateurs.calculer(IndicateurPilotage.PANIER_MOYEN, mesures),
+                CalculateurIndicateurs.calculer(IndicateurPilotage.REMISES, mesures),
+                Variations.ecartPct(IndicateurPilotage.CA_TTC, ca, caReference));
     }
 
     public MesuresPilotage total(int annee) {

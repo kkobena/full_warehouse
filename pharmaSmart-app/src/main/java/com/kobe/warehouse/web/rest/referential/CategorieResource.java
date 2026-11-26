@@ -2,6 +2,8 @@ package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.Categorie;
 import com.kobe.warehouse.repository.CategorieRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -31,8 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Categorie}.
@@ -40,7 +40,7 @@ import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 @RestController
 @RequestMapping("/api/categories")
 @Transactional
-@RequiresNavAccess({ "catalogue", "famille-produit" })
+@RequiresNavAccess({"catalogue", "famille-produit"})
 public class CategorieResource {
 
     private static final String ENTITY_NAME = "categorie";
@@ -63,15 +63,17 @@ public class CategorieResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
-    public ResponseEntity<Categorie> createCategorie(@Valid @RequestBody Categorie categorie) throws URISyntaxException {
+    public ResponseEntity<Categorie> createCategorie(@Valid @RequestBody Categorie categorie)
+            throws URISyntaxException {
         log.debug("REST request to save Categorie : {}", categorie);
         if (categorie.getId() != null) {
             throw new BadRequestAlertException("A new categorie cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Categorie result = categorieRepository.save(categorie);
         return ResponseEntity.created(new URI("/api/categories/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -85,9 +87,7 @@ public class CategorieResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Categorie> updateCategorie(
-        @PathVariable(value = "id", required = false) final Integer id,
-        @Valid @RequestBody Categorie categorie
-    ) {
+            @PathVariable(value = "id", required = false) final Integer id, @Valid @RequestBody Categorie categorie) {
         log.debug("REST request to update Categorie : {}, {}", id, categorie);
         if (categorie.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -102,8 +102,9 @@ public class CategorieResource {
 
         Categorie result = categorieRepository.save(categorie);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, categorie.getId().toString()))
-            .body(result);
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, categorie.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -117,11 +118,11 @@ public class CategorieResource {
      * status {@code 404 (Not Found)} if the categorie is not found, or with status
      * {@code 500 (Internal Server Error)} if the categorie couldn't be updated.
      */
-    @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PatchMapping(
+            value = "/{id}",
+            consumes = {"application/json", "application/merge-patch+json"})
     public ResponseEntity<Categorie> partialUpdateCategorie(
-        @PathVariable(value = "id", required = false) final Integer id,
-        @NotNull @RequestBody Categorie categorie
-    ) {
+            @PathVariable(value = "id", required = false) final Integer id, @NotNull @RequestBody Categorie categorie) {
         log.debug("REST request to partial update Categorie partially : {}, {}", id, categorie);
         if (categorie.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -135,20 +136,20 @@ public class CategorieResource {
         }
 
         Optional<Categorie> result = categorieRepository
-            .findById(categorie.getId())
-            .map(existingCategorie -> {
-                if (categorie.getLibelle() != null) {
-                    existingCategorie.setLibelle(categorie.getLibelle());
-                }
+                .findById(categorie.getId())
+                .map(existingCategorie -> {
+                    if (categorie.getLibelle() != null) {
+                        existingCategorie.setLibelle(categorie.getLibelle());
+                    }
 
-                return existingCategorie;
-            })
-            .map(categorieRepository::save);
+                    return existingCategorie;
+                })
+                .map(categorieRepository::save);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, categorie.getId().toString())
-        );
+                result,
+                HeaderUtil.createEntityUpdateAlert(
+                        applicationName, true, ENTITY_NAME, categorie.getId().toString()));
     }
 
     /**
@@ -160,10 +161,12 @@ public class CategorieResource {
      */
     @GetMapping("")
     @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
-    public ResponseEntity<List<Categorie>> getAllCategories(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<Categorie>> getAllCategories(
+            @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Categories");
         Page<Categorie> page = categorieRepository.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -193,7 +196,7 @@ public class CategorieResource {
         log.debug("REST request to delete Categorie : {}", id);
         categorieRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

@@ -823,7 +823,6 @@ li .icon-holder .icon i {
           marging: 0;
         }
       }
-
     }
   }
 }
@@ -860,7 +859,6 @@ li .icon-holder .icon i {
           marging: 0;
         }
       }
-
     }
   }
 }
@@ -953,7 +951,6 @@ li .icon-holder .icon i {
       padding-left: 0.2rem;
       padding-right: 0.1rem;
     }
-
   }
 }
 
@@ -1315,7 +1312,6 @@ jhi-recapitualtif-caisse {
   color: #495057;
 }
 
-
 .expanded-content {
   background-color: #f8f9fa;
 }
@@ -1372,11 +1368,10 @@ table tfoot tr td {
   z-index: 1052;
 }
 
-
 // Jetons de la barre de navigation : voir `_pharma-chrome-themes.scss`.
 
 .pharma-smart-content {
-  border-radius: 8px
+  border-radius: 8px;
 }
 
 // Sur le fond de la page, la barre d'onglets se confondrait avec le thème : elle prend la même

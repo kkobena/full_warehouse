@@ -1,34 +1,26 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from "@angular/core";
-import { ICustomer, ISales } from "../../../shared/model";
-import { CustomerService } from "../../customer/customer.service";
-import { FormsModule } from "@angular/forms";
-import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
-import { CurrentSaleService } from "../service/current-sale.service";
-import { NgbActiveModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { Subject } from "rxjs";
-import { debounceTime, distinctUntilChanged, takeUntil } from "rxjs/operators";
-import { CommonModule } from "@angular/common";
-import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableComponent, IconFieldComponent } from "../../../shared/ui";
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ICustomer, ISales } from '../../../shared/model';
+import { CustomerService } from '../../customer/customer.service';
+import { FormsModule } from '@angular/forms';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { CurrentSaleService } from '../service/current-sale.service';
+import { NgbActiveModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { AppTableLazyLoadEvent, ButtonComponent, CardComponent, DataTableComponent, IconFieldComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-assured-customer-list",
-  templateUrl: "./assured-customer-list.component.html",
-  styleUrls: ["./assured-customer-list.component.scss"],
+  selector: 'app-assured-customer-list',
+  templateUrl: './assured-customer-list.component.html',
+  styleUrls: ['./assured-customer-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonComponent,
-    DataTableComponent,
-    IconFieldComponent,
-    CardComponent,
-    NgbTooltip
-  ]
+  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent, CardComponent, NgbTooltip],
 })
 export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   protected readonly customers = signal<ICustomer[]>([]);
-  searchString?: string | null = "";
+  searchString?: string | null = '';
   headerLibelle: string;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected readonly page = signal<number | undefined>(undefined);
@@ -55,13 +47,13 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   }
 
   protected onSearchInput(): void {
-    this.searchSubject$.next(this.searchString || "");
+    this.searchSubject$.next(this.searchString || '');
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       this.cancel();
-    } else if (event.key === "Enter" && this.selectedCustomer()) {
+    } else if (event.key === 'Enter' && this.selectedCustomer()) {
       this.onSelect(this.selectedCustomer());
     }
   }
@@ -89,11 +81,11 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         search: this.searchString,
-        typeTiersPayant: this.currentSaleService.typeVo()
+        typeTiersPayant: this.currentSaleService.typeVo(),
       })
       .subscribe({
         next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -106,17 +98,17 @@ export class AssuredCustomerListComponent implements OnInit, OnDestroy {
           page: this.page(),
           size: event.rows,
           search: this.searchString,
-          typeTiersPayant: this.currentSaleService.typeVo()
+          typeTiersPayant: this.currentSaleService.typeVo(),
         })
         .subscribe({
           next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page()),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
 
   private onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count")));
+    this.totalItems.set(Number(headers.get('X-Total-Count')));
 
     this.page.set(page);
     this.customers.set(data || []);

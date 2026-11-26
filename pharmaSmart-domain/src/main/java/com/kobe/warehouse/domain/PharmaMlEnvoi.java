@@ -31,7 +31,7 @@ public class PharmaMlEnvoi implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumns({
-        @JoinColumn(name = "commande_id",   referencedColumnName = "id"),
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
         @JoinColumn(name = "commande_date", referencedColumnName = "order_date"),
     })
     private Commande commande;
@@ -74,40 +74,110 @@ public class PharmaMlEnvoi implements Serializable {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Integer getId() { return id; }
+    public Integer getId() {
+        return id;
+    }
 
-    public Commande getCommande() { return commande; }
-    public PharmaMlEnvoi setCommande(Commande commande) { this.commande = commande; return this; }
+    public Commande getCommande() {
+        return commande;
+    }
 
-    public Fournisseur getFournisseur() { return fournisseur; }
-    public PharmaMlEnvoi setFournisseur(Fournisseur fournisseur) { this.fournisseur = fournisseur; return this; }
+    public PharmaMlEnvoi setCommande(Commande commande) {
+        this.commande = commande;
+        return this;
+    }
 
-    public PharmaMlStatut getStatut() { return statut; }
-    public PharmaMlEnvoi setStatut(PharmaMlStatut statut) { this.statut = statut; return this; }
+    public Fournisseur getFournisseur() {
+        return fournisseur;
+    }
 
-    public String getRefMessage() { return refMessage; }
-    public PharmaMlEnvoi setRefMessage(String refMessage) { this.refMessage = refMessage; return this; }
+    public PharmaMlEnvoi setFournisseur(Fournisseur fournisseur) {
+        this.fournisseur = fournisseur;
+        return this;
+    }
 
-    public int getTentatives() { return tentatives; }
-    public PharmaMlEnvoi setTentatives(int tentatives) { this.tentatives = tentatives; return this; }
+    public PharmaMlStatut getStatut() {
+        return statut;
+    }
 
-    public LocalDateTime getDerniereTentative() { return derniereTentative; }
-    public PharmaMlEnvoi setDerniereTentative(LocalDateTime derniereTentative) { this.derniereTentative = derniereTentative; return this; }
+    public PharmaMlEnvoi setStatut(PharmaMlStatut statut) {
+        this.statut = statut;
+        return this;
+    }
 
-    public String getXmlRequetePath() { return xmlRequetePath; }
-    public PharmaMlEnvoi setXmlRequetePath(String xmlRequetePath) { this.xmlRequetePath = xmlRequetePath; return this; }
+    public String getRefMessage() {
+        return refMessage;
+    }
 
-    public String getXmlReponsePath() { return xmlReponsePath; }
-    public PharmaMlEnvoi setXmlReponsePath(String xmlReponsePath) { this.xmlReponsePath = xmlReponsePath; return this; }
+    public PharmaMlEnvoi setRefMessage(String refMessage) {
+        this.refMessage = refMessage;
+        return this;
+    }
 
-    public Integer getTotalLignes() { return totalLignes; }
-    public PharmaMlEnvoi setTotalLignes(Integer totalLignes) { this.totalLignes = totalLignes; return this; }
+    public int getTentatives() {
+        return tentatives;
+    }
 
-    public Integer getLignesAcceptees() { return lignesAcceptees; }
-    public PharmaMlEnvoi setLignesAcceptees(Integer lignesAcceptees) { this.lignesAcceptees = lignesAcceptees; return this; }
+    public PharmaMlEnvoi setTentatives(int tentatives) {
+        this.tentatives = tentatives;
+        return this;
+    }
 
-    public Integer getLignesRupture() { return lignesRupture; }
-    public PharmaMlEnvoi setLignesRupture(Integer lignesRupture) { this.lignesRupture = lignesRupture; return this; }
+    public LocalDateTime getDerniereTentative() {
+        return derniereTentative;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public PharmaMlEnvoi setDerniereTentative(LocalDateTime derniereTentative) {
+        this.derniereTentative = derniereTentative;
+        return this;
+    }
+
+    public String getXmlRequetePath() {
+        return xmlRequetePath;
+    }
+
+    public PharmaMlEnvoi setXmlRequetePath(String xmlRequetePath) {
+        this.xmlRequetePath = xmlRequetePath;
+        return this;
+    }
+
+    public String getXmlReponsePath() {
+        return xmlReponsePath;
+    }
+
+    public PharmaMlEnvoi setXmlReponsePath(String xmlReponsePath) {
+        this.xmlReponsePath = xmlReponsePath;
+        return this;
+    }
+
+    public Integer getTotalLignes() {
+        return totalLignes;
+    }
+
+    public PharmaMlEnvoi setTotalLignes(Integer totalLignes) {
+        this.totalLignes = totalLignes;
+        return this;
+    }
+
+    public Integer getLignesAcceptees() {
+        return lignesAcceptees;
+    }
+
+    public PharmaMlEnvoi setLignesAcceptees(Integer lignesAcceptees) {
+        this.lignesAcceptees = lignesAcceptees;
+        return this;
+    }
+
+    public Integer getLignesRupture() {
+        return lignesRupture;
+    }
+
+    public PharmaMlEnvoi setLignesRupture(Integer lignesRupture) {
+        this.lignesRupture = lignesRupture;
+        return this;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

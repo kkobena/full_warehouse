@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.ap;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
@@ -10,7 +11,6 @@ import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServ
 import com.kobe.warehouse.service.financiel_transaction.TaxeService;
 import com.kobe.warehouse.service.financiel_transaction.TvaReportReportService;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
-import com.kobe.warehouse.service.declaration_ca.ModeChiffreAffaireResolver;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
@@ -58,13 +58,12 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     private EntityManager em;
 
     public ExportComptableServiceImpl(
-        TaxeService taxeService,
-        CommandeRepository commandeRepository,
-        FinancialTransactionService transactionService,
-        CsvExportService csvExportService,
-        TvaReportReportService tvaReportService,
-        ModeChiffreAffaireResolver modeResolver
-    ) {
+            TaxeService taxeService,
+            CommandeRepository commandeRepository,
+            FinancialTransactionService transactionService,
+            CsvExportService csvExportService,
+            TvaReportReportService tvaReportService,
+            ModeChiffreAffaireResolver modeResolver) {
         this.modeResolver = modeResolver;
         this.taxeService = taxeService;
         this.commandeRepository = commandeRepository;
@@ -75,16 +74,16 @@ public class ExportComptableServiceImpl implements ExportComptableService {
 
     @Override
     public byte[] export(
-        LocalDate startDate,
-        LocalDate endDate,
-        String format,
-        boolean ventes,
-        boolean achats,
-        boolean mvtCaisse,
-        boolean tiersPayant,
-        boolean differes,
-        boolean tva
-    ) throws IOException {
+            LocalDate startDate,
+            LocalDate endDate,
+            String format,
+            boolean ventes,
+            boolean achats,
+            boolean mvtCaisse,
+            boolean tiersPayant,
+            boolean differes,
+            boolean tva)
+            throws IOException {
         return switch (format) {
             case "excel" -> buildExcel(startDate, endDate, ventes, achats, mvtCaisse, tiersPayant, differes, tva);
             case "csv" -> buildCsv(startDate, endDate, ventes, achats, mvtCaisse, tiersPayant, differes, tva);
@@ -98,23 +97,24 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     private byte[] buildPdf(LocalDate startDate, LocalDate endDate) {
         MvtParam param = buildParam(startDate, endDate);
 
-        return tvaReportService.exportToPdfBytes(taxeService.fetchDeclarationTva(param), new ReportPeriode(startDate, endDate), false);
+        return tvaReportService.exportToPdfBytes(
+                taxeService.fetchDeclarationTva(param), new ReportPeriode(startDate, endDate), false);
     }
 
     // ─── EXCEL ──────────────────────────────────────────────────────────────────
 
     private byte[] buildExcel(
-        LocalDate start,
-        LocalDate end,
-        boolean ventes,
-        boolean achats,
-        boolean mvtCaisse,
-        boolean tiersPayant,
-        boolean differes,
-        boolean tva
-    ) throws IOException {
+            LocalDate start,
+            LocalDate end,
+            boolean ventes,
+            boolean achats,
+            boolean mvtCaisse,
+            boolean tiersPayant,
+            boolean differes,
+            boolean tva)
+            throws IOException {
         try (SXSSFWorkbook wb = new SXSSFWorkbook(ROW_WINDOW);
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             MvtParam param = buildParam(start, end);
 
@@ -124,14 +124,16 @@ public class ExportComptableServiceImpl implements ExportComptableService {
             }
             if (achats) {
                 List<GroupeFournisseurAchat> data = commandeRepository
-                    .fetchAchats(start, end, OrderStatut.CLOSED, Pageable.unpaged())
-                    .getContent();
+                        .fetchAchats(start, end, OrderStatut.CLOSED, Pageable.unpaged())
+                        .getContent();
                 addAchatsSheet(wb, data, start, end);
             }
             if (mvtCaisse) {
                 List<MvtCaisseDTO> data = transactionService
-                    .findAll(new TransactionFilterDTO(start, end, null, null, null, null, null, null, null, null), Pageable.unpaged())
-                    .getContent();
+                        .findAll(
+                                new TransactionFilterDTO(start, end, null, null, null, null, null, null, null, null),
+                                Pageable.unpaged())
+                        .getContent();
                 addMvtCaisseSheet(wb, data, start, end);
             }
             if (tiersPayant) {
@@ -155,7 +157,14 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addVentesSheet(SXSSFWorkbook wb, TaxeWrapperDTO data, LocalDate from, LocalDate to) {
-        String[] headers = { "Taux TVA (%)", "CA HT (FCFA)", "TVA collectée (FCFA)", "CA TTC (FCFA)", "Montant net (FCFA)", "Remises (FCFA)" };
+        String[] headers = {
+            "Taux TVA (%)",
+            "CA HT (FCFA)",
+            "TVA collectée (FCFA)",
+            "CA TTC (FCFA)",
+            "Montant net (FCFA)",
+            "Remises (FCFA)"
+        };
         SXSSFSheet sheet = createSheet(wb, "Ventes");
         int row = writeHeader(sheet, wb, "Ventes — " + period(from, to), headers);
 
@@ -179,7 +188,7 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addAchatsSheet(SXSSFWorkbook wb, List<GroupeFournisseurAchat> data, LocalDate from, LocalDate to) {
-        String[] headers = { "Groupe fournisseur", "Montant HT (FCFA)", "TVA (FCFA)", "Montant TTC (FCFA)" };
+        String[] headers = {"Groupe fournisseur", "Montant HT (FCFA)", "TVA (FCFA)", "Montant TTC (FCFA)"};
         SXSSFSheet sheet = createSheet(wb, "Achats");
         int row = writeHeader(sheet, wb, "Achats — " + period(from, to), headers);
 
@@ -206,16 +215,22 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addMvtCaisseSheet(SXSSFWorkbook wb, List<MvtCaisseDTO> data, LocalDate from, LocalDate to) {
-        String[] headers = { "Date", "Type", "N° Bon", "Mode paiement", "Montant (FCFA)" };
+        String[] headers = {"Date", "Type", "N° Bon", "Mode paiement", "Montant (FCFA)"};
         SXSSFSheet sheet = createSheet(wb, "Mvt caisse");
         int row = writeHeader(sheet, wb, "Mouvements de caisse — " + period(from, to), headers);
 
         long sumMontant = 0;
         for (MvtCaisseDTO m : data) {
             Row r = sheet.createRow(row++);
-            r.createCell(0).setCellValue(m.getTransactionDate() != null ? m.getTransactionDate() : m.getDate() != null ? m.getDate() : "");
+            r.createCell(0)
+                    .setCellValue(
+                            m.getTransactionDate() != null
+                                    ? m.getTransactionDate()
+                                    : m.getDate() != null ? m.getDate() : "");
             r.createCell(1).setCellValue(m.getTransactionType() != null ? m.getTransactionType() : "");
-            r.createCell(2).setCellValue(m.getNumBon() != null ? m.getNumBon() : m.getReference() != null ? m.getReference() : "");
+            r.createCell(2)
+                    .setCellValue(
+                            m.getNumBon() != null ? m.getNumBon() : m.getReference() != null ? m.getReference() : "");
             r.createCell(3).setCellValue(m.getPaymentModeLibelle() != null ? m.getPaymentModeLibelle() : "");
             r.createCell(4).setCellValue(m.getMontant());
             sumMontant += m.getMontant();
@@ -227,7 +242,7 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addTiersPayantSheet(SXSSFWorkbook wb, List<Object[]> data, LocalDate from, LocalDate to) {
-        String[] headers = { "Tiers payant", "Montant dû (FCFA)", "Montant réglé (FCFA)", "Solde (FCFA)" };
+        String[] headers = {"Tiers payant", "Montant dû (FCFA)", "Montant réglé (FCFA)", "Solde (FCFA)"};
         SXSSFSheet sheet = createSheet(wb, "Tiers payant");
         int row = writeHeader(sheet, wb, "Tiers payant — " + period(from, to), headers);
 
@@ -255,7 +270,7 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addDifferesSheet(SXSSFWorkbook wb, List<Object[]> data, LocalDate from, LocalDate to) {
-        String[] headers = { "Tiers payant", "Montant total (FCFA)", "Réglé (FCFA)", "Solde en attente (FCFA)" };
+        String[] headers = {"Tiers payant", "Montant total (FCFA)", "Réglé (FCFA)", "Solde en attente (FCFA)"};
         SXSSFSheet sheet = createSheet(wb, "Différés");
         int row = writeHeader(sheet, wb, "Créances différées (toutes périodes)", headers);
 
@@ -283,7 +298,9 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private void addTvaSheet(SXSSFWorkbook wb, TaxeWrapperDTO data, LocalDate from, LocalDate to) {
-        String[] headers = { "Taux TVA (%)", "Base HT ventes", "TVA collectée", "Base HT achats", "TVA déductible", "TVA nette" };
+        String[] headers = {
+            "Taux TVA (%)", "Base HT ventes", "TVA collectée", "Base HT achats", "TVA déductible", "TVA nette"
+        };
         SXSSFSheet sheet = createSheet(wb, "TVA");
         int row = writeHeader(sheet, wb, "Déclaration TVA — " + period(from, to), headers);
 
@@ -320,15 +337,15 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     // ─── CSV ────────────────────────────────────────────────────────────────────
 
     private byte[] buildCsv(
-        LocalDate start,
-        LocalDate end,
-        boolean ventes,
-        boolean achats,
-        boolean mvtCaisse,
-        boolean tiersPayant,
-        boolean differes,
-        boolean tva
-    ) throws IOException {
+            LocalDate start,
+            LocalDate end,
+            boolean ventes,
+            boolean achats,
+            boolean mvtCaisse,
+            boolean tiersPayant,
+            boolean differes,
+            boolean tva)
+            throws IOException {
         MvtParam param = buildParam(start, end);
         List<byte[]> sections = new ArrayList<>();
 
@@ -338,14 +355,16 @@ public class ExportComptableServiceImpl implements ExportComptableService {
         }
         if (achats) {
             List<GroupeFournisseurAchat> data = commandeRepository
-                .fetchAchats(start, end, OrderStatut.CLOSED, Pageable.unpaged())
-                .getContent();
+                    .fetchAchats(start, end, OrderStatut.CLOSED, Pageable.unpaged())
+                    .getContent();
             sections.add(buildAchatsCsv(data, start, end));
         }
         if (mvtCaisse) {
             List<MvtCaisseDTO> data = transactionService
-                .findAll(new TransactionFilterDTO(start, end, null, null, null, null, null, null, null, null), Pageable.unpaged())
-                .getContent();
+                    .findAll(
+                            new TransactionFilterDTO(start, end, null, null, null, null, null, null, null, null),
+                            Pageable.unpaged())
+                    .getContent();
             sections.add(buildMvtCaisseCsv(data, start, end));
         }
         if (tiersPayant) {
@@ -369,9 +388,9 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private byte[] buildVentesCsv(TaxeWrapperDTO data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Taux TVA (%)", "CA HT", "TVA collectée", "CA TTC", "Montant net", "Remises" };
+        String[] headers = {"Taux TVA (%)", "CA HT", "TVA collectée", "CA TTC", "Montant net", "Remises"};
         List<TaxeDTO> lines = data.getTaxes();
-        return csvExportService.createCsvReport("Ventes — " + period(from, to), headers, lines, t -> new String[]{
+        return csvExportService.createCsvReport("Ventes — " + period(from, to), headers, lines, t -> new String[] {
             t.getCodeTva() != null ? t.getCodeTva() + "%" : "",
             String.valueOf(orZero(t.getMontantHt())),
             String.valueOf(orZero(t.getMontantTaxe())),
@@ -382,8 +401,8 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private byte[] buildAchatsCsv(List<GroupeFournisseurAchat> data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Groupe fournisseur", "Montant HT", "TVA", "Montant TTC" };
-        return csvExportService.createCsvReport("Achats — " + period(from, to), headers, data, a -> new String[]{
+        String[] headers = {"Groupe fournisseur", "Montant HT", "TVA", "Montant TTC"};
+        return csvExportService.createCsvReport("Achats — " + period(from, to), headers, data, a -> new String[] {
             a.getLibelle() != null ? a.getLibelle() : "(sans groupe)",
             String.valueOf(toLong(a.getMontantHt())),
             String.valueOf(toLong(a.getMontantTva())),
@@ -392,19 +411,20 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private byte[] buildMvtCaisseCsv(List<MvtCaisseDTO> data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Date", "Type", "N° Bon", "Mode paiement", "Montant" };
-        return csvExportService.createCsvReport("Mouvements de caisse — " + period(from, to), headers, data, m -> new String[]{
-            m.getTransactionDate() != null ? m.getTransactionDate() : m.getDate() != null ? m.getDate() : "",
-            m.getTransactionType() != null ? m.getTransactionType() : "",
-            m.getNumBon() != null ? m.getNumBon() : m.getReference() != null ? m.getReference() : "",
-            m.getPaymentModeLibelle() != null ? m.getPaymentModeLibelle() : "",
-            String.valueOf(m.getMontant())
-        });
+        String[] headers = {"Date", "Type", "N° Bon", "Mode paiement", "Montant"};
+        return csvExportService.createCsvReport(
+                "Mouvements de caisse — " + period(from, to), headers, data, m -> new String[] {
+                    m.getTransactionDate() != null ? m.getTransactionDate() : m.getDate() != null ? m.getDate() : "",
+                    m.getTransactionType() != null ? m.getTransactionType() : "",
+                    m.getNumBon() != null ? m.getNumBon() : m.getReference() != null ? m.getReference() : "",
+                    m.getPaymentModeLibelle() != null ? m.getPaymentModeLibelle() : "",
+                    String.valueOf(m.getMontant())
+                });
     }
 
     private byte[] buildTiersPayantCsv(List<Object[]> data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Tiers payant", "Montant dû", "Montant réglé", "Solde" };
-        return csvExportService.createCsvReport("Tiers payant — " + period(from, to), headers, data, r -> new String[]{
+        String[] headers = {"Tiers payant", "Montant dû", "Montant réglé", "Solde"};
+        return csvExportService.createCsvReport("Tiers payant — " + period(from, to), headers, data, r -> new String[] {
             r[0] != null ? r[0].toString() : "",
             String.valueOf(toLong(r[1])),
             String.valueOf(toLong(r[2])),
@@ -413,11 +433,11 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private byte[] buildDifferesCsv(List<Object[]> data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Tiers payant", "Montant total", "Réglé", "Solde en attente" };
+        String[] headers = {"Tiers payant", "Montant total", "Réglé", "Solde en attente"};
         return csvExportService.createCsvReport("Créances différées", headers, data, r -> {
             long total = toLong(r[1]);
             long regle = toLong(r[2]);
-            return new String[]{
+            return new String[] {
                 r[0] != null ? r[0].toString() : "",
                 String.valueOf(total),
                 String.valueOf(regle),
@@ -427,14 +447,16 @@ public class ExportComptableServiceImpl implements ExportComptableService {
     }
 
     private byte[] buildTvaCsv(TaxeWrapperDTO data, LocalDate from, LocalDate to) throws IOException {
-        String[] headers = { "Taux TVA (%)", "Base HT ventes", "TVA collectée", "Base HT achats", "TVA déductible", "TVA nette" };
+        String[] headers = {
+            "Taux TVA (%)", "Base HT ventes", "TVA collectée", "Base HT achats", "TVA déductible", "TVA nette"
+        };
         List<TaxeDTO> lines = data.getTaxes();
         return csvExportService.createCsvReport("Déclaration TVA — " + period(from, to), headers, lines, t -> {
             long achatHt = orZero(t.getMontantAchat());
             int taux = t.getCodeTva() != null ? t.getCodeTva() : 0;
             long tvaDeductible = Math.round(achatHt * taux / 100.0);
             long tvaCollectee = orZero(t.getMontantTaxe());
-            return new String[]{
+            return new String[] {
                 taux + "%",
                 String.valueOf(orZero(t.getMontantHt())),
                 String.valueOf(tvaCollectee),
@@ -449,36 +471,32 @@ public class ExportComptableServiceImpl implements ExportComptableService {
 
     @SuppressWarnings("unchecked")
     private List<Object[]> fetchTiersPayantRows(LocalDate start, LocalDate end) {
-        return em.createQuery(
-            "SELECT tp.name, SUM(tpsl.montant), SUM(COALESCE(tpsl.montantRegle, 0)) " +
-            "FROM ThirdPartySaleLine tpsl " +
-            "JOIN tpsl.clientTiersPayant ctp " +
-            "JOIN ctp.tiersPayant tp " +
-            "WHERE tpsl.saleDate BETWEEN :start AND :end " +
-            "AND tpsl.statut != :deleted " +
-            "GROUP BY tp.name " +
-            "ORDER BY SUM(tpsl.montant) DESC"
-        )
-        .setParameter("start", start)
-        .setParameter("end", end)
-        .setParameter("deleted", ThirdPartySaleStatut.DELETE)
-        .getResultList();
+        return em.createQuery("SELECT tp.name, SUM(tpsl.montant), SUM(COALESCE(tpsl.montantRegle, 0)) "
+                        + "FROM ThirdPartySaleLine tpsl "
+                        + "JOIN tpsl.clientTiersPayant ctp "
+                        + "JOIN ctp.tiersPayant tp "
+                        + "WHERE tpsl.saleDate BETWEEN :start AND :end "
+                        + "AND tpsl.statut != :deleted "
+                        + "GROUP BY tp.name "
+                        + "ORDER BY SUM(tpsl.montant) DESC")
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .setParameter("deleted", ThirdPartySaleStatut.DELETE)
+                .getResultList();
     }
 
     @SuppressWarnings("unchecked")
     private List<Object[]> fetchDifferesRows() {
         // Returns: [name, SUM(montant), SUM(montantRegle)] — solde computed in caller
-        return em.createQuery(
-            "SELECT tp.name, SUM(tpsl.montant), SUM(COALESCE(tpsl.montantRegle, 0)) " +
-            "FROM ThirdPartySaleLine tpsl " +
-            "JOIN tpsl.clientTiersPayant ctp " +
-            "JOIN ctp.tiersPayant tp " +
-            "WHERE tpsl.statut NOT IN :paidStatuts " +
-            "GROUP BY tp.name " +
-            "ORDER BY SUM(tpsl.montant) DESC"
-        )
-        .setParameter("paidStatuts", Set.of(ThirdPartySaleStatut.PAID, ThirdPartySaleStatut.DELETE))
-        .getResultList();
+        return em.createQuery("SELECT tp.name, SUM(tpsl.montant), SUM(COALESCE(tpsl.montantRegle, 0)) "
+                        + "FROM ThirdPartySaleLine tpsl "
+                        + "JOIN tpsl.clientTiersPayant ctp "
+                        + "JOIN ctp.tiersPayant tp "
+                        + "WHERE tpsl.statut NOT IN :paidStatuts "
+                        + "GROUP BY tp.name "
+                        + "ORDER BY SUM(tpsl.montant) DESC")
+                .setParameter("paidStatuts", Set.of(ThirdPartySaleStatut.PAID, ThirdPartySaleStatut.DELETE))
+                .getResultList();
     }
 
     // ─── Helpers Excel ──────────────────────────────────────────────────────────
@@ -556,7 +574,11 @@ public class ExportComptableServiceImpl implements ExportComptableService {
      * laisser jouer ici enverrait au comptable un chiffre différent de celui de ses écrans.
      */
     private MvtParam buildParam(LocalDate start, LocalDate end) {
-        return new MvtParam().setFromDate(start).setToDate(end).setMode(modeResolver.modeComptabilite()).build();
+        return new MvtParam()
+                .setFromDate(start)
+                .setToDate(end)
+                .setMode(modeResolver.modeComptabilite())
+                .build();
     }
 
     private String period(LocalDate from, LocalDate to) {

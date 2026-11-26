@@ -145,8 +145,8 @@ class MobileAlertServiceTest {
             when(alertRepository.getOverdueInvoicesCount(90)).thenReturn(1);
 
             assertThat(service.getAlertsSummary())
-                .extracting(MobileAlertDTO::type)
-                .containsExactly("STOCK_RUPTURE", "EXPIRY", "CASH_DISCREPANCY", "INVOICE_OVERDUE");
+                    .extracting(MobileAlertDTO::type)
+                    .containsExactly("STOCK_RUPTURE", "EXPIRY", "CASH_DISCREPANCY", "INVOICE_OVERDUE");
         }
     }
 
@@ -190,21 +190,19 @@ class MobileAlertServiceTest {
         @Test
         @DisplayName("une péremption à moins d'une semaine devient critique")
         void peremptionImminente() {
-            when(alertRepository.getExpiryAlerts(30)).thenReturn(
-                List.of(peremption(1L, 1L, "A", 7), peremption(2L, 2L, "B", 8))
-            );
+            when(alertRepository.getExpiryAlerts(30))
+                    .thenReturn(List.of(peremption(1L, 1L, "A", 7), peremption(2L, 2L, "B", 8)));
 
             assertThat(service.getAlerts(null))
-                .extracting(MobileAlertDetailDTO::severity)
-                .containsExactly(AlertSeverity.CRITICAL.getCode(), AlertSeverity.WARNING.getCode());
+                    .extracting(MobileAlertDetailDTO::severity)
+                    .containsExactly(AlertSeverity.CRITICAL.getCode(), AlertSeverity.WARNING.getCode());
         }
 
         @Test
         @DisplayName("un impayé annonce le reste dû et propose d'appeler le payeur")
         void impayeDetaille() {
-            when(alertRepository.getOverdueInvoiceAlerts(90)).thenReturn(
-                List.of(impaye(77L, "CNAM", "0102030405", 500_000L, 200_000L, 120))
-            );
+            when(alertRepository.getOverdueInvoiceAlerts(90))
+                    .thenReturn(List.of(impaye(77L, "CNAM", "0102030405", 500_000L, 200_000L, 120)));
 
             MobileAlertDetailDTO alerte = service.getAlerts(null).getFirst();
 
@@ -219,9 +217,8 @@ class MobileAlertServiceTest {
         @Test
         @DisplayName("un payeur sans téléphone laisse l'action sans numéro")
         void impayeSansTelephone() {
-            when(alertRepository.getOverdueInvoiceAlerts(90)).thenReturn(
-                List.of(impaye(77L, "CNAM", null, 500_000L, 0L, 100))
-            );
+            when(alertRepository.getOverdueInvoiceAlerts(90))
+                    .thenReturn(List.of(impaye(77L, "CNAM", null, 500_000L, 0L, 100)));
 
             assertThat(service.getAlerts(null).getFirst().actionData()).containsEntry("phone", "");
         }
@@ -229,13 +226,12 @@ class MobileAlertServiceTest {
         @Test
         @DisplayName("un impayé de plus de six mois devient critique")
         void impayeTresAncien() {
-            when(alertRepository.getOverdueInvoiceAlerts(90)).thenReturn(
-                List.of(impaye(1L, "A", null, 1L, 0L, 181), impaye(2L, "B", null, 1L, 0L, 180))
-            );
+            when(alertRepository.getOverdueInvoiceAlerts(90))
+                    .thenReturn(List.of(impaye(1L, "A", null, 1L, 0L, 181), impaye(2L, "B", null, 1L, 0L, 180)));
 
             assertThat(service.getAlerts(null))
-                .extracting(MobileAlertDetailDTO::severity)
-                .containsExactly(AlertSeverity.CRITICAL.getCode(), AlertSeverity.WARNING.getCode());
+                    .extracting(MobileAlertDetailDTO::severity)
+                    .containsExactly(AlertSeverity.CRITICAL.getCode(), AlertSeverity.WARNING.getCode());
         }
     }
 
@@ -289,7 +285,8 @@ class MobileAlertServiceTest {
             when(alertRepository.getOverdueInvoicesCount(90)).thenReturn(2);
 
             assertThat(service.getAlertsCount(null)).isEqualTo(10);
-            assertThat(service.getAlertsCount(List.of(AlertType.STOCK_RUPTURE.getCode()))).isEqualTo(5);
+            assertThat(service.getAlertsCount(List.of(AlertType.STOCK_RUPTURE.getCode())))
+                    .isEqualTo(5);
             assertThat(service.getAlertsCount(List.of("TYPE_DISPARU"))).isZero();
         }
     }
@@ -302,28 +299,31 @@ class MobileAlertServiceTest {
 
         @BeforeEach
         void septRuptures() {
-            when(alertRepository.getStockRuptureAlerts()).thenReturn(
-                List.of(
-                    rupture(1L, "P1"), rupture(2L, "P2"), rupture(3L, "P3"), rupture(4L, "P4"),
-                    rupture(5L, "P5"), rupture(6L, "P6"), rupture(7L, "P7")
-                )
-            );
+            when(alertRepository.getStockRuptureAlerts())
+                    .thenReturn(List.of(
+                            rupture(1L, "P1"),
+                            rupture(2L, "P2"),
+                            rupture(3L, "P3"),
+                            rupture(4L, "P4"),
+                            rupture(5L, "P5"),
+                            rupture(6L, "P6"),
+                            rupture(7L, "P7")));
         }
 
         @Test
         @DisplayName("la première page rend le début de la liste")
         void premierePage() {
             assertThat(service.getAlerts(null, 0, 3))
-                .extracting(MobileAlertDetailDTO::relatedEntityName)
-                .containsExactly("P1", "P2", "P3");
+                    .extracting(MobileAlertDetailDTO::relatedEntityName)
+                    .containsExactly("P1", "P2", "P3");
         }
 
         @Test
         @DisplayName("la dernière page rend ce qui reste, sans le compléter")
         void dernierePage() {
             assertThat(service.getAlerts(null, 2, 3))
-                .extracting(MobileAlertDetailDTO::relatedEntityName)
-                .containsExactly("P7");
+                    .extracting(MobileAlertDetailDTO::relatedEntityName)
+                    .containsExactly("P7");
         }
 
         /** Le téléphone peut redemander une page au-delà de la fin : elle doit être vide, pas fatale. */
@@ -348,32 +348,23 @@ class MobileAlertServiceTest {
 
     private static ExpiryAlertProjection peremption(long lotId, long produitId, String libelle, int joursRestants) {
         return new ExpiryAlertProjection(
-            lotId,
-            produitId,
-            libelle,
-            "LOT" + lotId,
-            LocalDate.now().plusDays(joursRestants),
-            10,
-            joursRestants
-        );
+                lotId, produitId, libelle, "LOT" + lotId, LocalDate.now().plusDays(joursRestants), 10, joursRestants);
     }
 
     private static OverdueInvoiceProjection impaye(
-        long factureId,
-        String payeur,
-        String telephone,
-        long montantFacture,
-        long montantRegle,
-        int joursDeRetard
-    ) {
+            long factureId,
+            String payeur,
+            String telephone,
+            long montantFacture,
+            long montantRegle,
+            int joursDeRetard) {
         return new OverdueInvoiceProjection(
-            factureId,
-            LocalDate.now().minusDays(joursDeRetard),
-            payeur,
-            telephone,
-            montantFacture,
-            montantRegle,
-            joursDeRetard
-        );
+                factureId,
+                LocalDate.now().minusDays(joursDeRetard),
+                payeur,
+                telephone,
+                montantFacture,
+                montantRegle,
+                joursDeRetard);
     }
 }

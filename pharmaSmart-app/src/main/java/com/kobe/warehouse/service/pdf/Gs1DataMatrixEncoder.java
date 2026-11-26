@@ -24,10 +24,12 @@ public final class Gs1DataMatrixEncoder {
 
     /** Séparateur de groupe en notation textuelle : un 0x1D nu serait illégal dans le gabarit XML. */
     private static final String GS_TEXTUEL = "{GS}";
+
     private static final String GS = "\u001D";
 
     /** Identification additionnelle du fabricant : le seul AI qui accepte un code non numérique. */
     private static final String AI_IDENTIFIANT_ADDITIONNEL = "240";
+
     private static final String AI_LOT = "10";
     private static final String AI_PEREMPTION = "17";
 
@@ -56,8 +58,8 @@ public final class Gs1DataMatrixEncoder {
             return null;
         }
         StringBuilder contenu = new StringBuilder(PREFIXE_DATA_MATRIX)
-            .append(AI_IDENTIFIANT_ADDITIONNEL)
-            .append(code.trim());
+                .append(AI_IDENTIFIANT_ADDITIONNEL)
+                .append(code.trim());
         if (StringUtils.hasText(numLot)) {
             contenu.append(GS_TEXTUEL).append(AI_LOT).append(numLot.trim());
         }
@@ -71,7 +73,7 @@ public final class Gs1DataMatrixEncoder {
     public static BufferedImage encoder(String entree) {
         String contenu = entree.substring(PREFIXE_DATA_MATRIX.length()).replace(GS_TEXTUEL, GS);
         BitMatrix matrice = new DataMatrixWriter()
-            .encode(contenu, BarcodeFormat.DATA_MATRIX, TAILLE_SYMBOLE, TAILLE_SYMBOLE, construireHints());
+                .encode(contenu, BarcodeFormat.DATA_MATRIX, TAILLE_SYMBOLE, TAILLE_SYMBOLE, construireHints());
         return MatrixToImageWriter.toBufferedImage(matrice);
     }
 

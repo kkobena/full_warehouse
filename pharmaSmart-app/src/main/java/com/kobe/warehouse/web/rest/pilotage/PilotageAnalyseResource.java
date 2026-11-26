@@ -39,11 +39,10 @@ public class PilotageAnalyseResource {
     private final ExportPilotageService exportPilotageService;
 
     public PilotageAnalyseResource(
-        AnalysePilotageService analysePilotageService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        VuesPilotageService vuesPilotageService,
-        ExportPilotageService exportPilotageService
-    ) {
+            AnalysePilotageService analysePilotageService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            VuesPilotageService vuesPilotageService,
+            ExportPilotageService exportPilotageService) {
         this.analysePilotageService = analysePilotageService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.vuesPilotageService = vuesPilotageService;
@@ -63,7 +62,9 @@ public class PilotageAnalyseResource {
     @GetMapping("/analyse/export")
     @RequiresNavAccess(value = "pilotage.analyser", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exporterAnalyse(RequetePilotageDTO requete, RequeteAnalyseDTO analyse) {
-        return Utils.exportCsv(exportPilotageService.exporterAnalyse(requete, analyse), "pilotage-analyse-" + requete.du() + "-" + requete.au());
+        return Utils.exportCsv(
+                exportPilotageService.exporterAnalyse(requete, analyse),
+                "pilotage-analyse-" + requete.du() + "-" + requete.au());
     }
 
     @GetMapping("/analyse/explication")

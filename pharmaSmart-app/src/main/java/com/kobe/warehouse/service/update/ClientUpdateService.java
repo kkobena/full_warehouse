@@ -67,8 +67,8 @@ public class ClientUpdateService {
         }
         String programData = System.getenv("PROGRAMDATA");
         Path base = (programData == null || programData.isBlank())
-            ? Paths.get(System.getProperty("java.io.tmpdir"))
-            : Paths.get(programData);
+                ? Paths.get(System.getProperty("java.io.tmpdir"))
+                : Paths.get(programData);
         return base.resolve("PharmaSmart").resolve("updates").toAbsolutePath().normalize();
     }
 
@@ -82,12 +82,11 @@ public class ClientUpdateService {
             return Optional.empty();
         }
         try (Stream<Path> files = Files.list(updatesDirectory)) {
-            List<ClientUpdateArtifact> candidates = files
-                .filter(Files::isRegularFile)
-                .map(this::toArtifact)
-                .flatMap(Optional::stream)
-                .sorted(Comparator.comparing(ClientUpdateArtifact::version))
-                .toList();
+            List<ClientUpdateArtifact> candidates = files.filter(Files::isRegularFile)
+                    .map(this::toArtifact)
+                    .flatMap(Optional::stream)
+                    .sorted(Comparator.comparing(ClientUpdateArtifact::version))
+                    .toList();
 
             return candidates.isEmpty() ? Optional.empty() : Optional.of(candidates.get(candidates.size() - 1));
         } catch (IOException e) {
@@ -112,12 +111,11 @@ public class ClientUpdateService {
             return Optional.empty();
         }
         try (Stream<Path> files = Files.list(updatesDirectory)) {
-            return files
-                .filter(Files::isRegularFile)
-                .filter(path -> path.getFileName().toString().equals(fileName))
-                .map(this::toArtifact)
-                .flatMap(Optional::stream)
-                .findFirst();
+            return files.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().equals(fileName))
+                    .map(this::toArtifact)
+                    .flatMap(Optional::stream)
+                    .findFirst();
         } catch (IOException e) {
             LOG.warn("Lecture du catalogue {} impossible : {}", updatesDirectory, e.getMessage());
             return Optional.empty();

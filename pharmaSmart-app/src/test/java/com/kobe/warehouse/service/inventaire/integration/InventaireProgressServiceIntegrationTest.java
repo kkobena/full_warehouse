@@ -81,8 +81,14 @@ class InventaireProgressServiceIntegrationTest extends AbstractInventaireIntegra
         ligne(second, produitEnStock(unique("CHEZ LE SECOND"), 10));
         viderLeCache();
 
-        assertEquals(1, services.inventaireProgressService.getProgress(premier.getId()).totalLines());
-        assertEquals(100, services.inventaireProgressService.getProgress(premier.getId()).progressPercent());
-        assertEquals(0, services.inventaireProgressService.getProgress(second.getId()).progressPercent());
+        assertEquals(
+                1,
+                services.inventaireProgressService.getProgress(premier.getId()).totalLines());
+        assertEquals(
+                100,
+                services.inventaireProgressService.getProgress(premier.getId()).progressPercent());
+        assertEquals(
+                0,
+                services.inventaireProgressService.getProgress(second.getId()).progressPercent());
     }
 }

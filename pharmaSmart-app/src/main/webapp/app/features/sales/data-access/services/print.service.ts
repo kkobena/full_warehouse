@@ -1,11 +1,11 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {NotificationService} from '../../../../shared/services/notification.service';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
-import {SaleId} from '../../../../shared/model/sales.model';
-import {SalesApiService} from './sales-api.service';
-import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { NotificationService } from '../../../../shared/services/notification.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { SaleId } from '../../../../shared/model/sales.model';
+import { SalesApiService } from './sales-api.service';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
 
 /**
  * PrintService
@@ -23,7 +23,7 @@ import {handleBlobForTauri} from '../../../../shared/util/tauri-util';
  * this.printService.printInvoice(saleId).subscribe();
  * this.printService.printReceipt(saleId).subscribe();
  */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class PrintService {
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);

@@ -87,7 +87,9 @@ export class ExportRapportComponent {
       const actif = this.ongletActif();
       this.selection.set(new Set(actif && exportables.includes(actif) ? [actif] : exportables));
     }
-    this.fenetre().open().catch((): void => undefined);
+    this.fenetre()
+      .open()
+      .catch((): void => undefined);
   }
 
   protected basculer(id: string, coche: boolean): void {

@@ -20,7 +20,10 @@ scenario('CLI-09', async ({ etape, page }) => {
     await page.goto('/customer');
     await expect(lignes.first()).toBeVisible();
     await lignes.first().locator('app-button[ngbtooltip="Voir la fiche"] button').first().click();
-    await page.getByRole('tab', { name: /Avoirs/ }).first().click();
+    await page
+      .getByRole('tab', { name: /Avoirs/ })
+      .first()
+      .click();
   });
 
   await etape(2, async () => {

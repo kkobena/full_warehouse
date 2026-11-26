@@ -21,22 +21,17 @@ public class ProductToDestroyReportServiceImpl extends CommonReportService imple
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public ProductToDestroyReportServiceImpl(
-        SpringTemplateEngine templateEngine,
-        StorageService storageService
-    ) {
-        super( storageService);
+    public ProductToDestroyReportServiceImpl(SpringTemplateEngine templateEngine, StorageService storageService) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
     @Override
     public ResponseEntity<byte[]> generatePdf(
-        List<ProductToDestroyDTO> productToDestroys,
-        ProductToDestroySumDTO sum,
-        LocalDate from,
-        LocalDate to
-    ) {
-        setTitle("Liste des produits à détruire du ", buildPeriode(from, Objects.requireNonNullElse(to, LocalDate.now())));
+            List<ProductToDestroyDTO> productToDestroys, ProductToDestroySumDTO sum, LocalDate from, LocalDate to) {
+        setTitle(
+                "Liste des produits à détruire du ",
+                buildPeriode(from, Objects.requireNonNullElse(to, LocalDate.now())));
         this.getParameters().put(Constant.ITEMS, productToDestroys);
         this.getParameters().put(Constant.REPORT_SUMMARY, sum);
         getCommonParameters();

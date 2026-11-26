@@ -2,8 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { expectErrorStatuses } from 'app/core/interceptor/expected-error-statuses';
-import { IPoste } from "../../../../shared/model/poste.model";
-
+import { IPoste } from '../../../../shared/model/poste.model';
 
 type EntityResponseType = HttpResponse<IPoste>;
 type EntityArrayResponseType = HttpResponse<IPoste[]>;
@@ -12,7 +11,7 @@ type EntityArrayResponseType = HttpResponse<IPoste[]>;
   providedIn: 'root',
 })
 export class PosteService {
-  private readonly  http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   private readonly resourceUrl = SERVER_API_URL + 'api/postes';
 

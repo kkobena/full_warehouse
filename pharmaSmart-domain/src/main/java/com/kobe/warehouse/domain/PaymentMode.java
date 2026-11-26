@@ -153,15 +153,15 @@ public class PaymentMode implements Serializable {
     @Override
     public String toString() {
         return "PaymentMode{"
-            + ", libelle='"
-            + getLibelle()
-            + "'"
-            + ", code='"
-            + getCode()
-            + "'"
-            + ", group='"
-            + getGroup()
-            + "'"
-            + "}";
+                + ", libelle='"
+                + getLibelle()
+                + "'"
+                + ", code='"
+                + getCode()
+                + "'"
+                + ", group='"
+                + getGroup()
+                + "'"
+                + "}";
     }
 }

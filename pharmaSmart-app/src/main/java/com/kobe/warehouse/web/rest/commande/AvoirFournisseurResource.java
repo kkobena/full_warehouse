@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.AvoirEncoursFournisseurDTO;
 import com.kobe.warehouse.service.dto.AvoirFournisseurCommand;
 import com.kobe.warehouse.service.dto.AvoirFournisseurDTO;
@@ -8,6 +9,9 @@ import com.kobe.warehouse.service.dto.AvoirFromBonLignesCommand;
 import com.kobe.warehouse.service.stock.AvoirFournisseurService;
 import com.kobe.warehouse.service.stock.RetourBonService;
 import com.kobe.warehouse.web.util.PaginationUtil;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,20 +27,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-
 @RestController
 @RequestMapping("/api/avoirs-fournisseur")
-@RequiresNavAccess({ "commande.retour-fournisseur.avoirs", "commande.retour-fournisseur", "commande" })
+@RequiresNavAccess({"commande.retour-fournisseur.avoirs", "commande.retour-fournisseur", "commande"})
 public class AvoirFournisseurResource {
 
     private final AvoirFournisseurService avoirFournisseurService;
     private final RetourBonService retourBonService;
 
-    public AvoirFournisseurResource(AvoirFournisseurService avoirFournisseurService, RetourBonService retourBonService) {
+    public AvoirFournisseurResource(
+            AvoirFournisseurService avoirFournisseurService, RetourBonService retourBonService) {
         this.avoirFournisseurService = avoirFournisseurService;
         this.retourBonService = retourBonService;
     }
@@ -58,24 +58,23 @@ public class AvoirFournisseurResource {
 
     @PostMapping("/{id}/annuler")
     public ResponseEntity<AvoirFournisseurDTO> annuler(
-        @PathVariable Integer id,
-        @RequestBody(required = false) Map<String, String> body
-    ) {
+            @PathVariable Integer id, @RequestBody(required = false) Map<String, String> body) {
         String motif = body != null ? body.get("motif") : null;
         return ResponseEntity.ok(avoirFournisseurService.annuler(id, motif));
     }
 
     @GetMapping
     public ResponseEntity<List<AvoirFournisseurDTO>> getAll(
-        @RequestParam(required = false) AvoirFournisseurStatut statut,
-        @RequestParam(required = false) String reference,
-        @RequestParam(required = false) Integer fournisseurId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
-        Pageable pageable
-    ) {
-        Page<AvoirFournisseurDTO> page = avoirFournisseurService.findAll(reference, statut, fournisseurId, dtStart, dtEnd, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(required = false) AvoirFournisseurStatut statut,
+            @RequestParam(required = false) String reference,
+            @RequestParam(required = false) Integer fournisseurId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtStart,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dtEnd,
+            Pageable pageable) {
+        Page<AvoirFournisseurDTO> page =
+                avoirFournisseurService.findAll(reference, statut, fournisseurId, dtStart, dtEnd, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -91,9 +90,7 @@ public class AvoirFournisseurResource {
 
     @PatchMapping("/{id}/statut")
     public ResponseEntity<AvoirFournisseurDTO> updateStatut(
-        @PathVariable Integer id,
-        @RequestParam AvoirFournisseurStatut statut
-    ) {
+            @PathVariable Integer id, @RequestParam AvoirFournisseurStatut statut) {
         return ResponseEntity.ok(avoirFournisseurService.updateStatut(id, statut));
     }
 }

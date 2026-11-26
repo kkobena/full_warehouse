@@ -4,13 +4,12 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class SupplierPerformancePdfReportService extends AbstractStatistiqueReportService {
@@ -19,12 +18,14 @@ public class SupplierPerformancePdfReportService extends AbstractStatistiqueRepo
 
     private final SupplierPerformanceReportService supplierPerformanceReportService;
 
-    public SupplierPerformancePdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, SupplierPerformanceReportService supplierPerformanceReportService) {
+    public SupplierPerformancePdfReportService(
+            StorageService storageService,
+            SpringTemplateEngine templateEngine,
+            SupplierPerformanceReportService supplierPerformanceReportService) {
         super(storageService);
         this.templateEngine = templateEngine;
         this.supplierPerformanceReportService = supplierPerformanceReportService;
     }
-
 
     @Override
     protected String getTemplateAsHtml() {
@@ -47,7 +48,6 @@ public class SupplierPerformancePdfReportService extends AbstractStatistiqueRepo
         return "rapport_performance_fournisseur";
     }
 
-
     public byte[] export() {
         List<SupplierPerformanceDTO> suppliers = supplierPerformanceReportService.getAllSupplierPerformance();
         SupplierPerformanceSummaryDTO summary = supplierPerformanceReportService.getSupplierPerformanceSummary();
@@ -55,7 +55,6 @@ public class SupplierPerformancePdfReportService extends AbstractStatistiqueRepo
         this.getParameters().put("summary", summary);
         this.getParameters().put("reportTitle", "Rapport de Performance Fournisseurs");
         this.getParameters().put("page_count", "1/1");
-
 
         super.getCommonParameters();
         return super.exportReportToPdf();

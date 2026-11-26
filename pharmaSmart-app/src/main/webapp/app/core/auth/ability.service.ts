@@ -59,4 +59,3 @@ export class AbilityService {
     return nodes.flatMap(n => [n, ...this.flatten(n.children ?? [])]);
   }
 }
-

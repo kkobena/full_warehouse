@@ -1,30 +1,16 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  signal,
-  untracked
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {HttpErrorResponse} from '@angular/common/http';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {NgbDateStruct, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
-import {
-  ButtonComponent,
-  DataTableComponent,
-  DetailGridComponent,
-  DetailSectionComponent
-} from 'app/shared/ui';
-import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
-import {ErrorService} from 'app/shared/error.service';
-import {NotificationService} from 'app/shared/services/notification.service';
-import {NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
-import {IProduitDelivre} from '../customer-fiche.model';
-import {CustomerService} from '../customer.service';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { NgbDateStruct, NgbPagination } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from 'app/shared/ui';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
+import { ErrorService } from 'app/shared/error.service';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { IProduitDelivre } from '../customer-fiche.model';
+import { CustomerService } from '../customer.service';
 
 /** Onglet « Produits délivrés » de la fiche client : « le même que la dernière fois ». */
 @Component({
@@ -37,7 +23,16 @@ import {CustomerService} from '../customer.service';
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, NgbPagination, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, PharmaDatePickerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbPagination,
+    ButtonComponent,
+    DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
+    PharmaDatePickerComponent,
+  ],
 })
 export class CustomerProduitsTabComponent {
   readonly customerId = input.required<number>();
@@ -99,4 +94,3 @@ export class CustomerProduitsTabComponent {
     return err => this.notificationService.error(this.errorService.getErrorMessage(err, action));
   }
 }
-

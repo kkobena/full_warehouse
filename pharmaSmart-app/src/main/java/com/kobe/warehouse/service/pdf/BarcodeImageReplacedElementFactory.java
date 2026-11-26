@@ -28,7 +28,8 @@ public class BarcodeImageReplacedElementFactory implements ReplacedElementFactor
     }
 
     @Override
-    public ReplacedElement createReplacedElement(LayoutContext c, BlockBox box, UserAgentCallback uac, int cssWidth, int cssHeight) {
+    public ReplacedElement createReplacedElement(
+            LayoutContext c, BlockBox box, UserAgentCallback uac, int cssWidth, int cssHeight) {
         Element e = box.getElement();
         if (e == null) {
             return null;

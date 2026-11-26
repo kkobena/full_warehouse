@@ -1,10 +1,8 @@
-import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../../shared/ui';
-import {ICustomer} from '../../../../shared/model';
-import {
-  CustomerSearchTableComponent
-} from '../customer-search-table/customer-search-table.component';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../../../shared/ui';
+import { ICustomer } from '../../../../shared/model';
+import { CustomerSearchTableComponent } from '../customer-search-table/customer-search-table.component';
 
 /**
  * Modal de sélection de client pour les ventes différées
@@ -21,13 +19,11 @@ import {
     </div>
 
     <div class="modal-body">
-      <app-customer-search-table [(customers)]="customers"
-                                 (customerSelected)="selectCustomer($event)" />
+      <app-customer-search-table [(customers)]="customers" (customerSelected)="selectCustomer($event)" />
     </div>
 
     <div class="modal-footer">
-      <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
-                severity="secondary" type="button" />
+      <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

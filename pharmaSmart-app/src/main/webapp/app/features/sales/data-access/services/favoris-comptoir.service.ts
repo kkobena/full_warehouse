@@ -45,7 +45,8 @@ export class FavorisComptoirService {
         );
       },
       // Le message du serveur dit pourquoi (grille pleine, produit introuvable) ; ErrorService n'est pas injecté ici : il exige la traduction.
-      error: err => this.notificationService.error(err?.error?.message || err?.error?.detail || 'Favori non modifié.', 'Favoris du comptoir'),
+      error: err =>
+        this.notificationService.error(err?.error?.message || err?.error?.detail || 'Favori non modifié.', 'Favoris du comptoir'),
     });
   }
 }

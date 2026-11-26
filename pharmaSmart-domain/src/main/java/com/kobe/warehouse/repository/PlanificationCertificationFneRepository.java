@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PlanificationCertificationFneRepository
-    extends JpaRepository<PlanificationCertificationFne, Integer> {
+public interface PlanificationCertificationFneRepository extends JpaRepository<PlanificationCertificationFne, Integer> {
 
     /** Planification active dont prochaineExecution est échue (ou null → jamais exécutée). */
     List<PlanificationCertificationFne> findByActifTrueAndProchaineExecutionBefore(LocalDateTime now);

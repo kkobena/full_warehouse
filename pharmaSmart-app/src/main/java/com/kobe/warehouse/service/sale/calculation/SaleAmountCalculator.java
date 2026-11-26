@@ -96,8 +96,7 @@ public class SaleAmountCalculator {
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        c.setCostAmount(
-            c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
+        c.setCostAmount(c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
     }
 
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
@@ -146,21 +145,17 @@ public class SaleAmountCalculator {
     }
 
     private void computeRemiseProduit(Sales sales) {
-        sales
-            .getSalesLines()
-            .forEach(salesLine -> {
-                saleLineServiceFor(sales).processProductDiscount(salesLine);
-                this.processDiscountCommonAmounts(sales);
-            });
+        sales.getSalesLines().forEach(salesLine -> {
+            saleLineServiceFor(sales).processProductDiscount(salesLine);
+            this.processDiscountCommonAmounts(sales);
+        });
     }
 
     private void computeRemisableAmount(RemiseClient remiseClient, Sales sales) {
-        int totalAmount = sales
-            .getSalesLines()
-            .stream()
-            .filter(e -> e.getProduit().getCodeRemise() != CodeRemise.NONE)
-            .mapToInt(SalesLine::getSalesAmount)
-            .sum();
+        int totalAmount = sales.getSalesLines().stream()
+                .filter(e -> e.getProduit().getCodeRemise() != CodeRemise.NONE)
+                .mapToInt(SalesLine::getSalesAmount)
+                .sum();
         if (totalAmount == 0) {
             return;
         }

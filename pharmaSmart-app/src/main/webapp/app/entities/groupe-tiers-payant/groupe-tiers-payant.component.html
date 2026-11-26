@@ -1,44 +1,44 @@
-
 <div class="pharma-smart-content p-2">
   <app-toolbar [code]="navCode()" icon="pi pi-building" title="Menu groupe de tiers payant">
-
     <ng-container ngProjectAs="[toolbarFilters]">
-        <div class="pharma-toolbar-filters">
-          <div class="pharma-search-input">
-            <app-icon-field [overlay]="true" icon="pi pi-search">
-              <input
-                (keyup.enter)="onSearch()"
-                (ngModelChange)="search.set($event)"
-                [ngModel]="search()"
-                placeholder="Taper pour rechercher"
-                type="text" class="form-control" />
-            </app-icon-field>
-          </div>
+      <div class="pharma-toolbar-filters">
+        <div class="pharma-search-input">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input
+              (keyup.enter)="onSearch()"
+              (ngModelChange)="search.set($event)"
+              [ngModel]="search()"
+              placeholder="Taper pour rechercher"
+              type="text"
+              class="form-control"
+            />
+          </app-icon-field>
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
 
-<ng-container ngProjectAs="[toolbarActions]">
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button
-              (clicked)="showFileDialog()"
-              icon="pi pi-upload"
-              label="Importer"
-              [raised]="true"
-              severity="secondary"
-              type="button"
-            ></app-button>
-            <app-button
-              (clicked)="addGroupeTiersPayant()"
-              icon="pi pi-check"
-              label="Nouveau"
-              [raised]="true"
-              severity="primary"
-              type="button"
-            ></app-button>
-          </div>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          <app-button
+            (clicked)="showFileDialog()"
+            icon="pi pi-upload"
+            label="Importer"
+            [raised]="true"
+            severity="secondary"
+            type="button"
+          ></app-button>
+          <app-button
+            (clicked)="addGroupeTiersPayant()"
+            icon="pi pi-check"
+            label="Nouveau"
+            [raised]="true"
+            severity="primary"
+            type="button"
+          ></app-button>
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
   </app-toolbar>
 
   <app-card>

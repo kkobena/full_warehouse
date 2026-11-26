@@ -10,10 +10,7 @@ export class DataGridCellDirective<T> {
   readonly columnId = input.required<string>({ alias: 'appDataGridCell' });
   readonly template = inject<TemplateRef<AppDataGridCellTemplateContext<T>>>(TemplateRef);
 
-  static ngTemplateContextGuard<T>(
-    _directive: DataGridCellDirective<T>,
-    _context: unknown,
-  ): _context is AppDataGridCellTemplateContext<T> {
+  static ngTemplateContextGuard<T>(_directive: DataGridCellDirective<T>, _context: unknown): _context is AppDataGridCellTemplateContext<T> {
     return true;
   }
 }

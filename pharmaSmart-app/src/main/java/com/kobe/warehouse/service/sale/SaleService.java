@@ -19,7 +19,6 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,7 +26,7 @@ public interface SaleService {
     CashSaleDTO createCashSale(CashSaleDTO dto) throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
-        throws StockException, DeconditionnementStockOut;
+            throws StockException, DeconditionnementStockOut;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO);
 
@@ -36,7 +35,7 @@ public interface SaleService {
     SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto);
 
     FinalyseSaleDTO save(CashSaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException;
+            throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException;
 
     /*
     Sauvegarder l etat de la vente
@@ -54,15 +53,14 @@ public interface SaleService {
     SalePayment buildPaymentFromDTO(PaymentDTO dto, Sales sales);
 
     /*
-  Gestin d'ouverture de caisse
-   */
+    Gestin d'ouverture de caisse
+     */
 
     void setCustomer(UpdateSaleInfo updateSaleInfo);
 
     void removeCustomer(SaleId saleId);
 
-    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO)
-        throws PrivilegeException;
+    void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
     void processDiscount(UpdateSaleInfo updateSaleInfo);
 

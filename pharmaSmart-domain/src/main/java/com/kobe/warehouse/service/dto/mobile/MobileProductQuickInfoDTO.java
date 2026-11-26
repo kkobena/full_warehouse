@@ -8,52 +8,64 @@ import java.util.List;
  * Contains all essential information for a product modal.
  */
 public record MobileProductQuickInfoDTO(
-    Long id,
-    String name,
-    String codeCip,
-    String codeEan,
+        Long id,
+        String name,
+        String codeCip,
+        String codeEan,
 
-    // Stock info
-    StockInfo stock,
+        // Stock info
+        StockInfo stock,
 
-    // Price info
-    PriceInfo price,
+        // Price info
+        PriceInfo price,
 
-    // Lot/expiry info
-    List<LotInfo> lots,
+        // Lot/expiry info
+        List<LotInfo> lots,
 
-    // Recent sales stats
-    SalesStats salesStats,
+        // Recent sales stats
+        SalesStats salesStats,
 
-    // Supplier info
-    String supplierName,
-    Long supplierId,
+        // Supplier info
+        String supplierName,
+        Long supplierId,
 
-    // Family/category
-    String familyName,
-    Long familyId
-) {
+        // Family/category
+        String familyName,
+        Long familyId) {
     /**
      * Stock information with total and per-storage breakdown.
      */
     public record StockInfo(
-        int totalQuantity,      // Total stock (qty_stock + qty_ug) across all storages
-        int totalQtyStock,      // Total qty_stock only
-        int totalQtyUg,         // Total qty_ug only
-        int minThreshold,
-        int maxThreshold,
-        String status,          // OK, LOW, RUPTURE
-        String statusColor,     // green, orange, red
-        int daysOfStock,        // Estimated days before rupture
-        List<StorageStock> storageStocks  // Stock by storage
-    ) {
+            int totalQuantity, // Total stock (qty_stock + qty_ug) across all storages
+            int totalQtyStock, // Total qty_stock only
+            int totalQtyUg, // Total qty_ug only
+            int minThreshold,
+            int maxThreshold,
+            String status, // OK, LOW, RUPTURE
+            String statusColor, // green, orange, red
+            int daysOfStock, // Estimated days before rupture
+            List<StorageStock> storageStocks // Stock by storage
+            ) {
         /**
          * Constructor for backward compatibility.
          */
-        public StockInfo(int currentQuantity, int minThreshold, int maxThreshold,
-                         String status, String statusColor, int daysOfStock) {
-            this(currentQuantity, currentQuantity, 0, minThreshold, maxThreshold,
-                 status, statusColor, daysOfStock, List.of());
+        public StockInfo(
+                int currentQuantity,
+                int minThreshold,
+                int maxThreshold,
+                String status,
+                String statusColor,
+                int daysOfStock) {
+            this(
+                    currentQuantity,
+                    currentQuantity,
+                    0,
+                    minThreshold,
+                    maxThreshold,
+                    status,
+                    statusColor,
+                    daysOfStock,
+                    List.of());
         }
     }
 
@@ -61,48 +73,42 @@ public record MobileProductQuickInfoDTO(
      * Stock per storage.
      */
     public record StorageStock(
-        Long storageId,
-        String storageName,
-        String storageType,     // PRINCIPAL, RESERVE, etc.
-        int qtyStock,
-        int qtyUg,
-        int totalQuantity       // qtyStock + qtyUg
-    ) {}
+            Long storageId,
+            String storageName,
+            String storageType, // PRINCIPAL, RESERVE, etc.
+            int qtyStock,
+            int qtyUg,
+            int totalQuantity // qtyStock + qtyUg
+            ) {}
 
     /**
      * Price information.
      */
-    public record PriceInfo(
-        int purchasePrice,
-        int sellingPrice,
-        double marginPercent,
-        int vatRate
-    ) {}
+    public record PriceInfo(int purchasePrice, int sellingPrice, double marginPercent, int vatRate) {}
 
     /**
      * Lot/batch information.
      */
     public record LotInfo(
-        Long id,
-        String lotNumber,
-        LocalDate expiryDate,
-        int quantity,
-        int daysUntilExpiry,
-        String expiryStatus   // OK, WARNING, CRITICAL
-    ) {}
+            Long id,
+            String lotNumber,
+            LocalDate expiryDate,
+            int quantity,
+            int daysUntilExpiry,
+            String expiryStatus // OK, WARNING, CRITICAL
+            ) {}
 
     /**
      * Sales statistics.
      */
     public record SalesStats(
-        int todayQuantity,
-        long todayAmount,
-        int weekQuantity,
-        long weekAmount,
-        int monthQuantity,
-        long monthAmount,
-        double averageDailyQuantity
-    ) {}
+            int todayQuantity,
+            long todayAmount,
+            int weekQuantity,
+            long weekAmount,
+            int monthQuantity,
+            long monthAmount,
+            double averageDailyQuantity) {}
 
     /**
      * Builder for creating product quick info.
@@ -187,9 +193,18 @@ public record MobileProductQuickInfoDTO(
 
         public MobileProductQuickInfoDTO build() {
             return new MobileProductQuickInfoDTO(
-                id, name, codeCip, codeEan, stock, price, lots, salesStats,
-                supplierName, supplierId, familyName, familyId
-            );
+                    id,
+                    name,
+                    codeCip,
+                    codeEan,
+                    stock,
+                    price,
+                    lots,
+                    salesStats,
+                    supplierName,
+                    supplierId,
+                    familyName,
+                    familyId);
         }
     }
 }

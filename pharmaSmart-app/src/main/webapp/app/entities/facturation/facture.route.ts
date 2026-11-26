@@ -27,7 +27,6 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
 };
 
 const factureRoute: Routes = [
-
   {
     path: ':id/:invoiceDate/group-view',
     loadComponent: () => import('./groupe-facture-detail/groupe-facture-detail.component').then(m => m.GroupeFactureDetailComponent),

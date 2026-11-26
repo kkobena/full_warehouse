@@ -29,7 +29,9 @@ import { ButtonComponent, SelectComponent } from 'app/shared/ui';
         [ngModel]="role()"
         (ngModelChange)="role.set($event)"
       />
-      <div class="form-text">Chaque tuile reste soumise aux droits de celui qui la regarde : un widget non autorisé s'affiche verrouillé.</div>
+      <div class="form-text">
+        Chaque tuile reste soumise aux droits de celui qui la regarde : un widget non autorisé s'affiche verrouillé.
+      </div>
     </div>
     <div class="modal-footer">
       <app-button label="Annuler" severity="secondary" [text]="true" (clicked)="activeModal.dismiss()" />

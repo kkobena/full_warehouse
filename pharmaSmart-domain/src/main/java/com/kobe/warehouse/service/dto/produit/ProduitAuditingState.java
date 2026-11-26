@@ -26,7 +26,8 @@ public class ProduitAuditingState {
 
     public ProduitAuditingState() {}
 
-    public ProduitAuditingState(MouvementProduit mouvementProduitType, LocalDate mvtDate, int initStock, int quantity, int afterStock) {
+    public ProduitAuditingState(
+            MouvementProduit mouvementProduitType, LocalDate mvtDate, int initStock, int quantity, int afterStock) {
         this.mvtDate = mvtDate;
         this.initStock = initStock;
         this.saleQuantity = mouvementProduitType == MouvementProduit.SALE ? quantity : 0;

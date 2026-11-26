@@ -44,7 +44,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
     protected static final Font PLAIN_FONT = new Font("Arial, sans-serif", Font.PLAIN, DEFAULT_FONT_SIZE);
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJava2DReceiptPrinterService.class);
-    //38 *21,2
+    // 38 *21,2
     protected final AppConfigurationService appConfigurationService;
 
     protected Magasin magasin;
@@ -92,21 +92,22 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * Initialize printer (ESC @)
      */
     protected void escPosInitialize(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
+        out.write(new byte[] {0x1B, 0x40}); // ESC @
     }
 
     /**
      * Set text alignment (ESC a n)
      */
-    protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x61, (byte) alignment.code }); // ESC a n
+    protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment)
+            throws java.io.IOException {
+        out.write(new byte[] {0x1B, 0x61, (byte) alignment.code}); // ESC a n
     }
 
     /**
      * Set bold mode (ESC E n)
      */
     protected void escPosSetBold(java.io.ByteArrayOutputStream out, boolean enable) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x45, (byte) (enable ? 1 : 0) }); // ESC E n
+        out.write(new byte[] {0x1B, 0x45, (byte) (enable ? 1 : 0)}); // ESC E n
     }
 
     /**
@@ -115,16 +116,17 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @param width  1-8 (normal to 8x width)
      * @param height 1-8 (normal to 8x height)
      */
-    protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height) throws java.io.IOException {
+    protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height)
+            throws java.io.IOException {
         int size = ((width - 1) << 4) | (height - 1);
-        out.write(new byte[] { 0x1D, 0x21, (byte) size }); // GS ! n
+        out.write(new byte[] {0x1D, 0x21, (byte) size}); // GS ! n
     }
 
     /**
      * Feed n lines (ESC d n)
      */
     protected void escPosFeedLines(java.io.ByteArrayOutputStream out, int lines) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x64, (byte) lines }); // ESC d n
+        out.write(new byte[] {0x1B, 0x64, (byte) lines}); // ESC d n
     }
 
     /**
@@ -133,8 +135,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
      *
      * @param codeTable the code table number (16 = CP1252 for Western Europe, 0 = CP437)
      */
-    protected void escPosSetCharacterCodeTable(java.io.ByteArrayOutputStream out, int codeTable) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x74, (byte) codeTable }); // ESC t n
+    protected void escPosSetCharacterCodeTable(java.io.ByteArrayOutputStream out, int codeTable)
+            throws java.io.IOException {
+        out.write(new byte[] {0x1B, 0x74, (byte) codeTable}); // ESC t n
     }
 
     /**
@@ -162,7 +165,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * Partial cut - leaves small connection for easy tearing
      */
     protected void escPosCutPaper(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[] { 0x1D, 0x56, 0x41, 0x00 }); // GS V A 0 - Partial cut
+        out.write(new byte[] {0x1D, 0x56, 0x41, 0x00}); // GS V A 0 - Partial cut
     }
 
     /**
@@ -171,7 +174,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @param mode 0=off, 1=1-dot thick, 2=2-dot thick
      */
     protected void escPosSetUnderline(java.io.ByteArrayOutputStream out, int mode) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x2D, (byte) mode }); // ESC - n
+        out.write(new byte[] {0x1B, 0x2D, (byte) mode}); // ESC - n
     }
 
     /**
@@ -180,7 +183,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @param spacing line spacing in dots (default is usually 30)
      */
     protected void escPosSetLineSpacing(java.io.ByteArrayOutputStream out, int spacing) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x33, (byte) spacing }); // ESC 3 n
+        out.write(new byte[] {0x1B, 0x33, (byte) spacing}); // ESC 3 n
     }
 
     /**
@@ -247,7 +250,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
         escPosFeedLines(out, 1);
 
         // Welcome message (if any)
-        if (printHeaderWelcomeMessage() && (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty())) {
+        if (printHeaderWelcomeMessage()
+                && (magasin.getWelcomeMessage() != null
+                        && !magasin.getWelcomeMessage().isEmpty())) {
             escPosPrintLine(out, magasin.getWelcomeMessage());
             escPosFeedLines(out, 1);
         }
@@ -265,11 +270,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
      */
     protected void printEscPosFooter(java.io.ByteArrayOutputStream out) throws java.io.IOException {
         printEscPosFooter(
-            out,
-            LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-            " " +
-            LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-        );
+                out,
+                LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " "
+                        + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 
     /**
@@ -291,7 +294,8 @@ public abstract class AbstractJava2DReceiptPrinterService {
         escPosFeedLines(out, 1);
 
         // Thank you message (centered)
-        if (printFooterNote() && (magasin.getNote() != null && !magasin.getNote().isEmpty())) {
+        if (printFooterNote()
+                && (magasin.getNote() != null && !magasin.getNote().isEmpty())) {
             escPosSetAlignment(out, EscPosAlignment.CENTER);
             escPosPrintLine(out, magasin.getNote());
             escPosSetAlignment(out, EscPosAlignment.LEFT);
@@ -387,9 +391,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
             int bytesWritten = serialPort.writeBytes(escPosData, escPosData.length);
 
             if (bytesWritten != escPosData.length) {
-                throw new IOException(
-                    String.format("Failed to write all bytes to serial port. Written: %d, Expected: %d", bytesWritten, escPosData.length)
-                );
+                throw new IOException(String.format(
+                        "Failed to write all bytes to serial port. Written: %d, Expected: %d",
+                        bytesWritten, escPosData.length));
             }
 
             LOG.info("ESC/POS receipt printed successfully to serial port: {} at {} baud", portName, baudRate);
@@ -411,7 +415,8 @@ public abstract class AbstractJava2DReceiptPrinterService {
         byte[] escPosData = generateEscPosReceipt(isEdit);
 
         // Connect to network printer and send data
-        try (Socket socket = new Socket(ipAddress, port); OutputStream out = socket.getOutputStream()) {
+        try (Socket socket = new Socket(ipAddress, port);
+                OutputStream out = socket.getOutputStream()) {
             out.write(escPosData);
             out.flush();
 
@@ -458,7 +463,8 @@ public abstract class AbstractJava2DReceiptPrinterService {
         switch (config.getPrintMethod()) {
             case JAVA_PRINT_SERVICE -> printEscPosDirect(config.getPrinterName(), config.isEdit());
             case SERIAL_PORT -> printEscPosToSerialPort(config.getSerialPort(), config.getBaudRate(), config.isEdit());
-            case NETWORK_SOCKET -> printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
+            case NETWORK_SOCKET ->
+                printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
             default -> throw new IllegalArgumentException("Unsupported print method: " + config.getPrintMethod());
         }
     }

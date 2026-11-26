@@ -15,7 +15,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
-@Table(name = "motif_ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle" }) })
+@Table(
+        name = "motif_ajustement",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MotifAjustement implements Serializable {
 

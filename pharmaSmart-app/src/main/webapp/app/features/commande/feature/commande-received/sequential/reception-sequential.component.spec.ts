@@ -1,14 +1,14 @@
-import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { of, throwError } from "rxjs";
-import { ReceptionSequentialComponent } from "./reception-sequential.component";
-import { IOrderLine } from "../../../../../shared/model/order-line.model";
-import { IReceptionScanResult } from "../../../../../shared/model/reception-scan-result.model";
-import { ProductsApiService } from "../../../../products/data-access/services/products-api.service";
-import { CommandeService } from "../../../../../entities/commande/commande.service";
-import { NotificationService } from "../../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../../shared/error.service";
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { ReceptionSequentialComponent } from './reception-sequential.component';
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
+import { IReceptionScanResult } from '../../../../../shared/model/reception-scan-result.model';
+import { ProductsApiService } from '../../../../products/data-access/services/products-api.service';
+import { CommandeService } from '../../../../../entities/commande/commande.service';
+import { NotificationService } from '../../../../../shared/services/notification.service';
+import { ErrorService } from '../../../../../shared/error.service';
 
 /**
  * En saisie séquentielle l'opérateur est déjà positionné sur une ligne : un code inconnu se
@@ -16,7 +16,7 @@ import { ErrorService } from "../../../../../shared/error.service";
  * une ligne au code provisoire voit son code remplacé, une ligne déjà codée ne doit garder son
  * CIP intact et ne recevoir qu'un code alternatif.
  */
-describe("ReceptionSequentialComponent — code inconnu", () => {
+describe('ReceptionSequentialComponent — code inconnu', () => {
   let fixture: ComponentFixture<ReceptionSequentialComponent>;
   let composant: ReceptionSequentialComponent;
   let productsApi: { createCodeAlias: jest.Mock };
@@ -25,8 +25,8 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
   const ligneCodee: IOrderLine = {
     id: 1,
     produitId: 11,
-    produitLibelle: "DOLIPRANE 500",
-    produitCip: "CIP-1",
+    produitLibelle: 'DOLIPRANE 500',
+    produitCip: 'CIP-1',
     quantityRequested: 10,
     quantityReceived: 0,
     provisionalCode: false,
@@ -34,14 +34,14 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
 
   const ligneProvisoire: IOrderLine = { ...ligneCodee, id: 2, produitId: 12, provisionalCode: true };
 
-  const scanInconnu = (code = "07353163006031"): IReceptionScanResult =>
+  const scanInconnu = (code = '07353163006031'): IReceptionScanResult =>
     ({
       found: false,
       scannedCode: code,
       dataMatrixHint: {
-        scannedCode: "7353163006031",
-        numLot: "ABC101",
-        expiryDate: "2027-01-31",
+        scannedCode: '7353163006031',
+        numLot: 'ABC101',
+        expiryDate: '2027-01-31',
         serialNumber: null,
         qty: 1,
         proposition: false,
@@ -67,8 +67,8 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
 
     fixture = TestBed.createComponent(ReceptionSequentialComponent);
     composant = fixture.componentInstance;
-    fixture.componentRef.setInput("orderLines", lignes);
-    fixture.componentRef.setInput("lastScanResult", null);
+    fixture.componentRef.setInput('orderLines', lignes);
+    fixture.componentRef.setInput('lastScanResult', null);
     fixture.detectChanges();
   };
 
@@ -77,12 +77,12 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it("mémorise un code alternatif sur une ligne déjà codée, sans toucher son CIP", async () => {
+  it('mémorise un code alternatif sur une ligne déjà codée, sans toucher son CIP', async () => {
     await monter([ligneCodee]);
     const rejoue = jest.fn();
     composant.rejouerScan.subscribe(rejoue);
 
-    fixture.componentRef.setInput("lastScanResult", scanInconnu());
+    fixture.componentRef.setInput('lastScanResult', scanInconnu());
     fixture.detectChanges();
 
     expect(interne().scanInconnu()).not.toBeNull();
@@ -90,17 +90,17 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
 
     interne().onAssocierCodeALaLigneCourante();
 
-    expect(productsApi.createCodeAlias).toHaveBeenCalledWith(11, "7353163006031");
-    expect(rejoue).toHaveBeenCalledWith("07353163006031");
+    expect(productsApi.createCodeAlias).toHaveBeenCalledWith(11, '7353163006031');
+    expect(rejoue).toHaveBeenCalledWith('07353163006031');
     expect(interne().scanInconnu()).toBeNull();
   });
 
-  it("sur une ligne au code provisoire, remplace le CIP et ne crée aucun alias", async () => {
+  it('sur une ligne au code provisoire, remplace le CIP et ne crée aucun alias', async () => {
     await monter([ligneProvisoire]);
     const rejoue = jest.fn();
     composant.rejouerScan.subscribe(rejoue);
 
-    fixture.componentRef.setInput("lastScanResult", scanInconnu("CODE-GROSSISTE"));
+    fixture.componentRef.setInput('lastScanResult', scanInconnu('CODE-GROSSISTE'));
     fixture.detectChanges();
 
     // Même bandeau, même touche : seule l'écriture change.
@@ -111,14 +111,14 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
 
     expect(commandeService.updateCip).toHaveBeenCalled();
     expect(productsApi.createCodeAlias).not.toHaveBeenCalled();
-    expect(rejoue).toHaveBeenCalledWith("CODE-GROSSISTE");
+    expect(rejoue).toHaveBeenCalledWith('CODE-GROSSISTE');
     expect(interne().scanInconnu()).toBeNull();
   });
 
-  it("ne réagit pas à un scan reconnu", async () => {
+  it('ne réagit pas à un scan reconnu', async () => {
     await monter([ligneCodee]);
 
-    fixture.componentRef.setInput("lastScanResult", { found: true, scannedCode: "x" } as IReceptionScanResult);
+    fixture.componentRef.setInput('lastScanResult', { found: true, scannedCode: 'x' } as IReceptionScanResult);
     fixture.detectChanges();
 
     expect(interne().scanInconnu()).toBeNull();
@@ -129,24 +129,22 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
     const demande = jest.fn();
     composant.autreLigneDemandee.subscribe(demande);
 
-    fixture.componentRef.setInput("lastScanResult", scanInconnu());
+    fixture.componentRef.setInput('lastScanResult', scanInconnu());
     fixture.detectChanges();
     interne().onDemanderAutreLigne();
 
-    expect(demande).toHaveBeenCalledWith(
-      expect.objectContaining({ code: "7353163006031" }),
-    );
+    expect(demande).toHaveBeenCalledWith(expect.objectContaining({ code: '7353163006031' }));
     expect(interne().scanInconnu()).toBeNull();
     expect(productsApi.createCodeAlias).not.toHaveBeenCalled();
   });
 
-  it("garde le bandeau si la mémorisation échoue, pour ne pas perdre le scan", async () => {
+  it('garde le bandeau si la mémorisation échoue, pour ne pas perdre le scan', async () => {
     await monter([ligneCodee]);
-    productsApi.createCodeAlias.mockReturnValue(throwError(() => new Error("boom")));
+    productsApi.createCodeAlias.mockReturnValue(throwError(() => new Error('boom')));
     const rejoue = jest.fn();
     composant.rejouerScan.subscribe(rejoue);
 
-    fixture.componentRef.setInput("lastScanResult", scanInconnu());
+    fixture.componentRef.setInput('lastScanResult', scanInconnu());
     fixture.detectChanges();
     interne().onAssocierCodeALaLigneCourante();
 
@@ -154,44 +152,44 @@ describe("ReceptionSequentialComponent — code inconnu", () => {
     expect(rejoue).not.toHaveBeenCalled();
   });
 
-  describe("clavier", () => {
-    it("Entrée associe le code à la ligne courante", async () => {
+  describe('clavier', () => {
+    it('Entrée associe le code à la ligne courante', async () => {
       await monter([ligneCodee]);
-      fixture.componentRef.setInput("lastScanResult", scanInconnu());
+      fixture.componentRef.setInput('lastScanResult', scanInconnu());
       fixture.detectChanges();
 
-      composant.onKeydown(new KeyboardEvent("keydown", { key: "Enter" }));
+      composant.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
 
-      expect(productsApi.createCodeAlias).toHaveBeenCalledWith(11, "7353163006031");
+      expect(productsApi.createCodeAlias).toHaveBeenCalledWith(11, '7353163006031');
     });
 
-    it("A demande une autre ligne", async () => {
+    it('A demande une autre ligne', async () => {
       await monter([ligneCodee]);
       const demande = jest.fn();
       composant.autreLigneDemandee.subscribe(demande);
-      fixture.componentRef.setInput("lastScanResult", scanInconnu());
+      fixture.componentRef.setInput('lastScanResult', scanInconnu());
       fixture.detectChanges();
 
-      composant.onKeydown(new KeyboardEvent("keydown", { key: "a" }));
+      composant.onKeydown(new KeyboardEvent('keydown', { key: 'a' }));
 
       expect(demande).toHaveBeenCalled();
     });
 
-    it("Échap ignore le code sans rien écrire", async () => {
+    it('Échap ignore le code sans rien écrire', async () => {
       await monter([ligneCodee]);
-      fixture.componentRef.setInput("lastScanResult", scanInconnu());
+      fixture.componentRef.setInput('lastScanResult', scanInconnu());
       fixture.detectChanges();
 
-      composant.onKeydown(new KeyboardEvent("keydown", { key: "Escape" }));
+      composant.onKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
 
       expect(interne().scanInconnu()).toBeNull();
       expect(productsApi.createCodeAlias).not.toHaveBeenCalled();
     });
 
-    it("sans code inconnu en attente, Entrée ne déclenche aucune association", async () => {
+    it('sans code inconnu en attente, Entrée ne déclenche aucune association', async () => {
       await monter([ligneCodee]);
 
-      composant.onKeydown(new KeyboardEvent("keydown", { key: "Enter" }));
+      composant.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
 
       expect(productsApi.createCodeAlias).not.toHaveBeenCalled();
     });

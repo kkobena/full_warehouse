@@ -9,9 +9,18 @@
   &__filters {
     ::ng-deep {
       // Selects fournisseur / classe / urgence : largeur fixe
-      p-select:nth-child(1) .p-select { width: 160px !important; min-width: 160px !important; }
-      p-select:nth-child(2) .p-select { width: 140px !important; min-width: 140px !important; }
-      p-select:nth-child(3) .p-select { width: 150px !important; min-width: 150px !important; }
+      p-select:nth-child(1) .p-select {
+        width: 160px !important;
+        min-width: 160px !important;
+      }
+      p-select:nth-child(2) .p-select {
+        width: 140px !important;
+        min-width: 140px !important;
+      }
+      p-select:nth-child(3) .p-select {
+        width: 150px !important;
+        min-width: 150px !important;
+      }
     }
 
     // Input recherche : prend l'espace restant mais pas moins de 140px
@@ -75,7 +84,6 @@
 // désormais globalisés dans content/scss/table-common-global.scss (section « LIGNES
 // D'ALERTE — TABLEAUX NATIFS »), chargée une seule fois pour tous les tableaux natifs
 // `app-data-table`. Ne pas les redéfinir ici — cf. docs/PLAN-MIGRATION-SASS-USE.md §10.6.
-
 
 /* Dette client sous le stock physique : elle explique l'écart entre
    « objectif moins stock » et la quantité réellement proposée. */

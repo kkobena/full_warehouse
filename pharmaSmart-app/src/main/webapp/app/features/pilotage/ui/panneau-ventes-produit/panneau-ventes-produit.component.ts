@@ -39,11 +39,20 @@ const VENTES_MAX = 100;
         @if (tronque()) {
           <p class="panneau-ventes-note" role="status">
             <i aria-hidden="true" class="pi pi-info-circle"></i>
-            Seules les {{ ventesMax }} ventes les plus récentes sont listées et résumées ; l'historique complet est dans la fiche du produit.
+            Seules les {{ ventesMax }} ventes les plus récentes sont listées et résumées ; l'historique complet est dans la fiche du
+            produit.
           </p>
         }
 
-        <app-data-table [scrollable]="true" scrollHeight="calc(100vh - 16rem)" [loading]="ventes.isLoading()" [stripedRows]="true" [value]="ventes.value() ?? []" emptyMessage="Aucune vente sur la période" size="small">
+        <app-data-table
+          [scrollable]="true"
+          scrollHeight="calc(100vh - 16rem)"
+          [loading]="ventes.isLoading()"
+          [stripedRows]="true"
+          [value]="ventes.value() ?? []"
+          emptyMessage="Aucune vente sur la période"
+          size="small"
+        >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th scope="col">Date</th>

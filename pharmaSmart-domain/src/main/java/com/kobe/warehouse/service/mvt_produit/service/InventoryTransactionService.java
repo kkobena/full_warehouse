@@ -26,12 +26,7 @@ public interface InventoryTransactionService {
     Optional<InventoryTransaction> findById(Long id);
 
     Page<InventoryTransactionDTO> getAllInventoryTransactions(
-        Pageable pageable,
-        Integer produitId,
-        String startDate,
-        String endDate,
-        Integer type
-    );
+            Pageable pageable, Integer produitId, String startDate, String endDate, Integer type);
 
     LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Integer produitId);
 
@@ -40,7 +35,9 @@ public interface InventoryTransactionService {
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(@Valid ProduitAuditingParam produitAuditingParam);
 
     void saveAll(List<OrderLine> entities);
-    void saveVenteDepotExtensionInventoryTransactions(Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords);
+
+    void saveVenteDepotExtensionInventoryTransactions(
+            Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords);
 
     /**
      * Trace le débit du dépôt lors d'un retour vers l'officine.

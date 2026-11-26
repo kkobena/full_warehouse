@@ -10,4 +10,8 @@ import java.util.List;
  * @param projection {@code null} hors de l'année en cours
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public record SuiviIndicateurDTO(IndicateurPilotageDTO indicateur, List<SuiviMoisDTO> mois, SuiviMoisDTO cumul, ProjectionObjectifDTO projection) {}
+public record SuiviIndicateurDTO(
+        IndicateurPilotageDTO indicateur,
+        List<SuiviMoisDTO> mois,
+        SuiviMoisDTO cumul,
+        ProjectionObjectifDTO projection) {}

@@ -1,9 +1,9 @@
-import {Injectable, signal} from '@angular/core';
-import {Subject} from 'rxjs';
-import {ProduitSearch} from 'app/shared/model';
+import { Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { ProduitSearch } from 'app/shared/model';
 
 /** Panneau fiche client de la vente : ouvert depuis la carte client ou Alt+V, lu par l'écran de vente actif. */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class FicheClientPanelService {
   readonly visible = signal(false);
   readonly customerId = signal<number | null>(null);

@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.dci.dto;
 
-import com.kobe.warehouse.domain.enumeration.StatutDci;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kobe.warehouse.domain.Dci;
+import com.kobe.warehouse.domain.enumeration.StatutDci;
 
 public class DciDTO {
 
@@ -13,8 +12,7 @@ public class DciDTO {
     private StatutDci statut;
 
     @JsonCreator
-    public DciDTO() {
-    }
+    public DciDTO() {}
 
     public DciDTO(Dci dci) {
         this.id = dci.getId();

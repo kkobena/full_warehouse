@@ -1,15 +1,14 @@
 package com.kobe.warehouse.service.dto;
 
 public record CompteFournisseurAPDTO(
-    Integer fournisseurId,
-    String fournisseurName,
-    String fournisseurCode,
-    String phone,
-    String mobile,
-    long totalCommande,
-    long totalRegle,
-    long solde,
-    long nbCommandesEnAttente,
-    String prochaineEcheance,
-    String statut
-) {}
+        Integer fournisseurId,
+        String fournisseurName,
+        String fournisseurCode,
+        String phone,
+        String mobile,
+        long totalCommande,
+        long totalRegle,
+        long solde,
+        long nbCommandesEnAttente,
+        String prochaineEcheance,
+        String statut) {}

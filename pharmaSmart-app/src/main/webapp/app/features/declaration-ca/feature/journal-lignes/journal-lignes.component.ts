@@ -109,7 +109,6 @@ export class JournalLignesComponent implements OnInit {
         },
       });
   }
-
 }
 
 function aujourdHui(): NgbDateStruct {

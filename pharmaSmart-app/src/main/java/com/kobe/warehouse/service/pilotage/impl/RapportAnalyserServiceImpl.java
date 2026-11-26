@@ -39,12 +39,14 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
     private static final int SERIES_MAX_COURBE = 8;
     /** Au-delà, les barres dépasseraient la page ; le détail, lui, reprend tous les éléments. */
     private static final int BARRES_MAX = 25;
+
     private static final String CENT_POUR_CENT = "100,0 %";
 
     private final AnalysePilotageService analysePilotageService;
     private final GraphiquePilotageService graphiquePilotageService;
 
-    public RapportAnalyserServiceImpl(AnalysePilotageService analysePilotageService, GraphiquePilotageService graphiquePilotageService) {
+    public RapportAnalyserServiceImpl(
+            AnalysePilotageService analysePilotageService, GraphiquePilotageService graphiquePilotageService) {
         this.analysePilotageService = analysePilotageService;
         this.graphiquePilotageService = graphiquePilotageService;
     }
@@ -57,42 +59,46 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         String axe = analyse.axe().libelle().toLowerCase();
         AffichageAnalyse affichage = reglage.affichage();
         return new AnalyserRapportDTO(
-            decrireReglage(analyse, reglage.analyse()),
-            libellerChemin(reglage.libellesChemin()),
-            libellerIgnores(analyse),
-            switch (affichage) {
-                case BARRES -> premier.libelle() + " par " + axe + (analyse.elements().size() > BARRES_MAX ? " (les " + BARRES_MAX + " premiers)" : "");
-                case COURBE -> premier.libelle() + " — " + HorizonCourbe.libellerHorizon(requete.granularite());
-                case CROISE -> premier.libelle() + " : tableau croisé";
-                case TABLEAU -> null;
-            },
-            switch (affichage) {
-                case BARRES -> dessinerClassement(analyse);
-                case COURBE -> dessinerCourbes(requete, reglage);
-                case CROISE, TABLEAU -> null;
-            },
-            affichage == AffichageAnalyse.CROISE ? lireCroise(analyse) : null,
-            "Détail par " + axe,
-            construireDetail(analyse)
-        );
+                decrireReglage(analyse, reglage.analyse()),
+                libellerChemin(reglage.libellesChemin()),
+                libellerIgnores(analyse),
+                switch (affichage) {
+                    case BARRES ->
+                        premier.libelle() + " par " + axe
+                                + (analyse.elements().size() > BARRES_MAX ? " (les " + BARRES_MAX + " premiers)" : "");
+                    case COURBE -> premier.libelle() + " — " + HorizonCourbe.libellerHorizon(requete.granularite());
+                    case CROISE -> premier.libelle() + " : tableau croisé";
+                    case TABLEAU -> null;
+                },
+                switch (affichage) {
+                    case BARRES -> dessinerClassement(analyse);
+                    case COURBE -> dessinerCourbes(requete, reglage);
+                    case CROISE, TABLEAU -> null;
+                },
+                affichage == AffichageAnalyse.CROISE ? lireCroise(analyse) : null,
+                "Détail par " + axe,
+                construireDetail(analyse));
     }
 
     /** « CA TTC, Marge brute par famille, puis par laboratoire ; 20 premiers éléments, triés par valeur. » */
     private static String decrireReglage(AnalysePilotageDTO analyse, RequeteAnalyseDTO reglage) {
-        StringBuilder texte = new StringBuilder(String.join(", ", analyse.indicateurs().stream().map(IndicateurPilotageDTO::libelle).toList()))
-            .append(" par ")
-            .append(analyse.axe().libelle().toLowerCase());
+        StringBuilder texte = new StringBuilder(String.join(
+                        ", ",
+                        analyse.indicateurs().stream()
+                                .map(IndicateurPilotageDTO::libelle)
+                                .toList()))
+                .append(" par ")
+                .append(analyse.axe().libelle().toLowerCase());
         if (analyse.axe2() != null) {
             texte.append(", puis par ").append(analyse.axe2().libelle().toLowerCase());
         }
         texte.append(reglage.top() > 0 ? " ; " + reglage.top() + " premiers éléments" : " ; tous les éléments");
         texte.append(
-            switch (reglage.tri()) {
-                case VALEUR -> ", triés par valeur.";
-                case ECART_HAUSSE -> ", plus fortes hausses d'abord.";
-                case ECART_BAISSE -> ", plus fortes baisses d'abord.";
-            }
-        );
+                switch (reglage.tri()) {
+                    case VALEUR -> ", triés par valeur.";
+                    case ECART_HAUSSE -> ", plus fortes hausses d'abord.";
+                    case ECART_BAISSE -> ", plus fortes baisses d'abord.";
+                });
         return texte.toString();
     }
 
@@ -108,8 +114,11 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         if (analyse.indicateursIgnores().isEmpty()) {
             return null;
         }
-        List<String> libelles = analyse.indicateursIgnores().stream().map(IndicateurPilotageDTO::libelle).toList();
-        return "Non ventilable par " + analyse.axe().libelle().toLowerCase() + " : " + String.join(", ", libelles) + ".";
+        List<String> libelles = analyse.indicateursIgnores().stream()
+                .map(IndicateurPilotageDTO::libelle)
+                .toList();
+        return "Non ventilable par " + analyse.axe().libelle().toLowerCase() + " : " + String.join(", ", libelles)
+                + ".";
     }
 
     /** La période en plein, la référence pâlie à côté ; sur le premier indicateur, comme l'écran. */
@@ -117,7 +126,8 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         if (analyse.elements().isEmpty()) {
             return null;
         }
-        List<ElementAnalyseDTO> elements = analyse.elements().subList(0, Math.min(BARRES_MAX, analyse.elements().size()));
+        List<ElementAnalyseDTO> elements = analyse.elements()
+                .subList(0, Math.min(BARRES_MAX, analyse.elements().size()));
         List<String> libelles = new ArrayList<>(elements.size());
         List<Double> periode = new ArrayList<>(elements.size());
         List<Double> reference = new ArrayList<>(elements.size());
@@ -128,11 +138,14 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         }
         PeriodeDTO comparee = analyse.comparaison().reference();
         List<SerieGraphiqueDTO> series = new ArrayList<>(2);
-        series.add(new SerieGraphiqueDTO("Période : " + libellerPeriode(analyse.comparaison().periode()), periode, StyleSerie.REALISE));
+        series.add(new SerieGraphiqueDTO(
+                "Période : " + libellerPeriode(analyse.comparaison().periode()), periode, StyleSerie.REALISE));
         if (comparee != null) {
-            series.add(new SerieGraphiqueDTO("Comparée à : " + libellerPeriode(comparee), reference, StyleSerie.FANTOME));
+            series.add(
+                    new SerieGraphiqueDTO("Comparée à : " + libellerPeriode(comparee), reference, StyleSerie.FANTOME));
         }
-        return graphiquePilotageService.dessinerClassement(libelles, series, analyse.indicateurs().getFirst().unite());
+        return graphiquePilotageService.dessinerClassement(
+                libelles, series, analyse.indicateurs().getFirst().unite());
     }
 
     /**
@@ -143,10 +156,11 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         RequeteAnalyseDTO demande = reglage.analyse();
         int top = demande.top() > 0 ? Math.min(demande.top(), SERIES_MAX_COURBE) : SERIES_MAX_COURBE;
         AxeAnalyse axe2 = demande.axe() == AxeAnalyse.PERIODE ? null : AxeAnalyse.PERIODE;
-        RequeteAnalyseDTO dansLeTemps = new RequeteAnalyseDTO(demande.axe(), axe2, top, demande.tri(), demande.filtre());
-        RequetePilotageDTO historique = HorizonCourbe.elargirAuxTreizeTranches(requete, reglage.indicateurs().getFirst()).lireAvecIndicateurs(
-            reglage.indicateurs()
-        );
+        RequeteAnalyseDTO dansLeTemps =
+                new RequeteAnalyseDTO(demande.axe(), axe2, top, demande.tri(), demande.filtre());
+        RequetePilotageDTO historique = HorizonCourbe.elargirAuxTreizeTranches(
+                        requete, reglage.indicateurs().getFirst())
+                .lireAvecIndicateurs(reglage.indicateurs());
         AnalysePilotageDTO evolution = analysePilotageService.analyser(historique, dansLeTemps);
         CroiseAnalyseDTO croise = evolution.croise();
         if (croise == null || croise.lignes().isEmpty()) {
@@ -154,11 +168,15 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         }
         List<SerieGraphiqueDTO> series = new ArrayList<>(croise.lignes().size());
         for (LigneCroiseeDTO ligne : croise.lignes()) {
-            List<Double> valeurs = ligne.cellules().stream().map(cellule -> cellule == null ? null : cellule.valeur()).toList();
+            List<Double> valeurs = ligne.cellules().stream()
+                    .map(cellule -> cellule == null ? null : cellule.valeur())
+                    .toList();
             series.add(new SerieGraphiqueDTO(ligne.libelle(), valeurs, StyleSerie.PALETTE));
         }
-        List<String> tranches = croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList();
-        return graphiquePilotageService.dessinerCourbes(tranches, series, evolution.indicateurs().getFirst().unite(), FormatGraphe.LARGE);
+        List<String> tranches =
+                croise.colonnes().stream().map(MembreAnalyseDTO::libelle).toList();
+        return graphiquePilotageService.dessinerCourbes(
+                tranches, series, evolution.indicateurs().getFirst().unite(), FormatGraphe.LARGE);
     }
 
     /** Vide sans second axe : le gabarit invite alors à en choisir un, comme l'écran. */
@@ -168,7 +186,8 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         }
         String entete = analyse.axe().libelle() + " / " + analyse.axe2().libelle();
         boolean avecReference = analyse.comparaison().reference() != null;
-        return TableauxRapport.lireCroise(entete, analyse.croise(), analyse.indicateurs().getFirst(), avecReference);
+        return TableauxRapport.lireCroise(
+                entete, analyse.croise(), analyse.indicateurs().getFirst(), avecReference);
     }
 
     /** Pendant d'{@code app-tableau-analyse} : éléments, « autres », puis le total ; part et contribution sur le premier indicateur. */
@@ -179,7 +198,9 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
             avecPart |= element.part() != null;
             avecContribution |= element.contribution() != null;
         }
-        List<String> colonnes = new ArrayList<>(analyse.indicateurs().stream().map(IndicateurPilotageDTO::libelle).toList());
+        List<String> colonnes = new ArrayList<>(analyse.indicateurs().stream()
+                .map(IndicateurPilotageDTO::libelle)
+                .toList());
         if (avecPart) {
             colonnes.add("Part");
         }
@@ -193,7 +214,8 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         if (analyse.autres() != null) {
             lignes.add(lireElement(analyse, analyse.autres(), avecPart, avecContribution));
         }
-        List<CelluleRapportDTO> totaux = new ArrayList<>(TableauxRapport.lireCellules(analyse.total(), analyse.indicateurs()));
+        List<CelluleRapportDTO> totaux =
+                new ArrayList<>(TableauxRapport.lireCellules(analyse.total(), analyse.indicateurs()));
         if (avecPart) {
             totaux.add(new CelluleRapportDTO(CENT_POUR_CENT, null));
         }
@@ -204,8 +226,10 @@ public class RapportAnalyserServiceImpl implements RapportAnalyserService {
         return new TableauRapportDTO(analyse.axe().libelle(), colonnes, lignes);
     }
 
-    private static LigneRapportDTO lireElement(AnalysePilotageDTO analyse, ElementAnalyseDTO element, boolean avecPart, boolean avecContribution) {
-        List<CelluleRapportDTO> cellules = new ArrayList<>(TableauxRapport.lireCellules(element.cellules(), analyse.indicateurs()));
+    private static LigneRapportDTO lireElement(
+            AnalysePilotageDTO analyse, ElementAnalyseDTO element, boolean avecPart, boolean avecContribution) {
+        List<CelluleRapportDTO> cellules =
+                new ArrayList<>(TableauxRapport.lireCellules(element.cellules(), analyse.indicateurs()));
         if (avecPart) {
             cellules.add(TableauxRapport.lireValeur(element.part(), UniteIndicateur.POURCENTAGE));
         }

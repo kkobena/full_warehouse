@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -41,10 +40,7 @@ class SaleInvoiceReportServiceTest {
 
     private final AppConfigurationService appConfigurationService = mock(AppConfigurationService.class);
 
-    private final SaleInvoiceReportService service = new SaleInvoiceReportService(
-        templateEngine,
-        storageService
-    );
+    private final SaleInvoiceReportService service = new SaleInvoiceReportService(templateEngine, storageService);
 
     private Magasin magasin;
 
@@ -77,7 +73,9 @@ class SaleInvoiceReportServiceTest {
 
         service.printInvoice(vente);
 
-        assertThat(service.getParameters()).containsEntry(Constant.SALE, vente).containsEntry(Constant.MAGASIN, magasin);
+        assertThat(service.getParameters())
+                .containsEntry(Constant.SALE, vente)
+                .containsEntry(Constant.MAGASIN, magasin);
     }
 
     @Test
@@ -93,7 +91,9 @@ class SaleInvoiceReportServiceTest {
     void piedDePage() throws MalformedURLException {
         service.printInvoice(new SaleDTO());
 
-        assertThat((String) service.getParameters().get(Constant.FOOTER)).contains("RC-001").contains("0102030405");
+        assertThat((String) service.getParameters().get(Constant.FOOTER))
+                .contains("RC-001")
+                .contains("0102030405");
     }
 
     /** La devise vient de la configuration de l'officine, jamais d'une constante du code. */

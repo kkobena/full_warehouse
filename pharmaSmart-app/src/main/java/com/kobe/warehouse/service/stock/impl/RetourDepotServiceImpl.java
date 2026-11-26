@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
@@ -49,14 +49,13 @@ public class RetourDepotServiceImpl implements RetourDepotService {
     private final InventoryTransactionService inventoryTransactionService;
 
     public RetourDepotServiceImpl(
-        RetourDepotRepository retourDepotRepository,
-        RetourDepotItemRepository retourDepotItemRepository,
-        MagasinRepository magasinRepository,
-        ProduitRepository produitRepository,
-        UserService userService,
-        StockProduitRepository stockProduitRepository,
-        InventoryTransactionService inventoryTransactionService
-    ) {
+            RetourDepotRepository retourDepotRepository,
+            RetourDepotItemRepository retourDepotItemRepository,
+            MagasinRepository magasinRepository,
+            ProduitRepository produitRepository,
+            UserService userService,
+            StockProduitRepository stockProduitRepository,
+            InventoryTransactionService inventoryTransactionService) {
         this.retourDepotRepository = retourDepotRepository;
         this.retourDepotItemRepository = retourDepotItemRepository;
         this.magasinRepository = magasinRepository;
@@ -76,14 +75,19 @@ public class RetourDepotServiceImpl implements RetourDepotService {
         retourDepot.setUser(currentUser);
 
         // Find Depot (Magasin)
-        Magasin depot = magasinRepository.findById(retourDepotDTO.getDepotId()).orElseThrow(() -> new GenericError("Dépôt non trouvé"));
+        Magasin depot = magasinRepository
+                .findById(retourDepotDTO.getDepotId())
+                .orElseThrow(() -> new GenericError("Dépôt non trouvé"));
         retourDepot.setDepot(depot);
 
         retourDepot = retourDepotRepository.save(retourDepot);
 
-        if (retourDepotDTO.getRetourDepotItems() != null && !retourDepotDTO.getRetourDepotItems().isEmpty()) {
+        if (retourDepotDTO.getRetourDepotItems() != null
+                && !retourDepotDTO.getRetourDepotItems().isEmpty()) {
             RetourDepot finalRetourDepot = retourDepot;
-            retourDepotDTO.getRetourDepotItems().forEach(itemDTO -> createRetourDepotItem(itemDTO, finalRetourDepot, depot.getId()));
+            retourDepotDTO
+                    .getRetourDepotItems()
+                    .forEach(itemDTO -> createRetourDepotItem(itemDTO, finalRetourDepot, depot.getId()));
         }
 
         return toDTO(retourDepot);
@@ -91,13 +95,14 @@ public class RetourDepotServiceImpl implements RetourDepotService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RetourDepotDTO> findAllByDateRange(Integer depotId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable) {
+    public Page<RetourDepotDTO> findAllByDateRange(
+            Integer depotId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable) {
         log.debug("Request to get all RetourDepots by date range : {} - {}", dtStart, dtEnd);
         LocalDateTime start = dtStart.atStartOfDay();
         LocalDateTime end = dtEnd.atTime(23, 59, 59);
         return retourDepotRepository
-            .findAll(retourDepotRepository.filterByDateRangeAndDepot(depotId, start, end), pageable)
-            .map(this::toDTO);
+                .findAll(retourDepotRepository.filterByDateRangeAndDepot(depotId, start, end), pageable)
+                .map(this::toDTO);
     }
 
     @Override
@@ -109,28 +114,25 @@ public class RetourDepotServiceImpl implements RetourDepotService {
 
     private void createRetourDepotItem(RetourDepotItemDTO itemDTO, RetourDepot retourDepot, Integer depotId) {
         // Find the product
-        Produit produit = produitRepository.findById(itemDTO.getProduitId()).orElseThrow(() -> new GenericError("Produit non trouvé"));
+        Produit produit = produitRepository
+                .findById(itemDTO.getProduitId())
+                .orElseThrow(() -> new GenericError("Produit non trouvé"));
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         // Get stock for the depot
-        List<StockProduit> stockProduits = stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
-            depotId,
-            itemDTO.getProduitId()
-        );
+        List<StockProduit> stockProduits =
+                stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(depotId, itemDTO.getProduitId());
 
-        StockProduit stockProduit = stockProduits
-            .stream()
-            .filter(st -> st.getStorage().getStorageType() == StorageType.PRINCIPAL)
-            .findFirst()
-            .orElse(stockProduits.isEmpty() ? null : stockProduits.getFirst());
+        StockProduit stockProduit = stockProduits.stream()
+                .filter(st -> st.getStorage().getStorageType() == StorageType.PRINCIPAL)
+                .findFirst()
+                .orElse(stockProduits.isEmpty() ? null : stockProduits.getFirst());
 
         if (stockProduit == null) {
             throw new GenericError("Stock non trouvé pour le produit: " + itemDTO.getProduitCip());
         }
         Magasin officine = retourDepot.getUser().getMagasin();
         List<StockProduit> officineStocks = stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
-            officine.getId(),
-            itemDTO.getProduitId()
-        );
+                officine.getId(), itemDTO.getProduitId());
         int officineInitStock = 0;
         StockProduit officineStock = null;
         for (StockProduit sp : officineStocks) {
@@ -181,7 +183,9 @@ public class RetourDepotServiceImpl implements RetourDepotService {
         dto.setDepotName(depot.getFullName());
 
         if (retourDepot.getRetourDepotItems() != null) {
-            List<RetourDepotItemDTO> itemDTOs = retourDepot.getRetourDepotItems().stream().map(this::toItemDTO).toList();
+            List<RetourDepotItemDTO> itemDTOs = retourDepot.getRetourDepotItems().stream()
+                    .map(this::toItemDTO)
+                    .toList();
             dto.setRetourDepotItems(itemDTOs);
         }
 

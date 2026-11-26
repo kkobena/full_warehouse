@@ -1,48 +1,45 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { finalize } from "rxjs/operators";
-import { HttpResponse } from "@angular/common/http";
-import { NgbDateStruct, NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { BedService } from "../data-access/bed.service";
-import { IBed, IBedSummary, MotifBed, MOTIFS_BED } from "../data-access/bed.model";
-import { NotificationService } from "app/shared/services/notification.service";
-import { NgbConfirmDialogService } from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import { BedDetailComponent } from "../bed-detail/bed-detail.component";
-import { BedValidateModalComponent, BedValidateResult } from "../ui/bed-header-form/bed-validate-modal.component";
-import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
-import { NGB_DATE_TO_ISO } from "app/shared/util/warehouse-util";
-import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
+import { NgbDateStruct, NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { BedService } from '../data-access/bed.service';
+import { IBed, IBedSummary, MotifBed, MOTIFS_BED } from '../data-access/bed.model';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { BedDetailComponent } from '../bed-detail/bed-detail.component';
+import { BedValidateModalComponent, BedValidateResult } from '../ui/bed-header-form/bed-validate-modal.component';
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
+import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
+import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import {
   AppSplitButtonItem,
   AppSubtab,
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   HintComponent,
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
-  SubtabBarComponent
-} from "app/shared/ui";
-import {
-  ImportProduitModalComponent
-} from "../../../../../entities/produit/import-produit-modal/import-produit-modal.component";
-import { IResponseDto } from "../../../../../shared/util/response-dto";
-import { showCommonModal } from "../../../../../entities/sales/selling-home/sale-helper";
-import {
-  ImportProduitReponseModalComponent
-} from "../../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
+  SubtabBarComponent,
+} from 'app/shared/ui';
+import { ImportProduitModalComponent } from '../../../../../entities/produit/import-produit-modal/import-produit-modal.component';
+import { IResponseDto } from '../../../../../shared/util/response-dto';
+import { showCommonModal } from '../../../../../entities/sales/selling-home/sale-helper';
+import { ImportProduitReponseModalComponent } from '../../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { DevisePipe } from 'app/shared/utils/devise';
 
-export type BedTab = "BROUILLON" | "HISTORIQUE";
+export type BedTab = 'BROUILLON' | 'HISTORIQUE';
 
 @Component({
-  selector: "app-bed-home",
-  templateUrl: "./bed-home.component.html",
-  styleUrls: ["./bed-home.component.scss"],
+  selector: 'app-bed-home',
+  templateUrl: './bed-home.component.html',
+  styleUrls: ['./bed-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SubtabBarComponent,
@@ -59,14 +56,14 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
     SplitButtonComponent,
     SelectComponent,
     DevisePipe,
-    CardComponent
-  ]
+    CardComponent,
+  ],
 })
 export class BedHomeComponent implements OnInit {
   readonly beds = signal<IBedSummary[]>([]);
   readonly loading = signal(false);
   readonly totalRecords = signal(0);
-  readonly activeTab = signal<BedTab>("BROUILLON");
+  readonly activeTab = signal<BedTab>('BROUILLON');
   readonly editingBed = signal<IBed | null>(null);
   readonly countBrouillon = signal<number>(0);
 
@@ -82,7 +79,7 @@ export class BedHomeComponent implements OnInit {
     { id: 'HISTORIQUE', label: 'Historique', icon: 'pi pi-history', tooltip: 'BED validés — stock crédité' },
   ]);
 
-  protected readonly search = signal("");
+  protected readonly search = signal('');
   protected readonly filterMotif = signal<MotifBed | null>(null);
   protected readonly dtStart = signal<NgbDateStruct | null>(null);
   protected readonly dtEnd = signal<NgbDateStruct | null>(null);
@@ -98,8 +95,8 @@ export class BedHomeComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly destroyRef = inject(DestroyRef);
   protected importMenuItems: AppSplitButtonItem[] = [
-    { label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT") },
-    { label: "Basculement prestige", icon: "pi pi-file", command: () => this.onImport("BASCULEMENT_PRESTIGE") }
+    { label: 'Basculement', icon: 'pi pi-filter', command: () => this.onImport('BASCULEMENT') },
+    { label: 'Basculement prestige', icon: 'pi pi-file', command: () => this.onImport('BASCULEMENT_PRESTIGE') },
   ];
 
   ngOnInit(): void {
@@ -110,7 +107,7 @@ export class BedHomeComponent implements OnInit {
   protected setTab(tab: BedTab): void {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
-    this.search.set("");
+    this.search.set('');
     this.filterMotif.set(null);
     this.dtStart.set(null);
     this.dtEnd.set(null);
@@ -120,12 +117,12 @@ export class BedHomeComponent implements OnInit {
   }
 
   protected loadBadges(): void {
-    this.bedService.findAll({ orderStatus: "REQUESTED", page: 0, size: 1 })
+    this.bedService
+      .findAll({ orderStatus: 'REQUESTED', page: 0, size: 1 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: res => this.countBrouillon.set(Number(res.headers.get("X-Total-Count")) || 0),
-        error() {
-        }
+        next: res => this.countBrouillon.set(Number(res.headers.get('X-Total-Count')) || 0),
+        error() {},
       });
   }
 
@@ -141,7 +138,7 @@ export class BedHomeComponent implements OnInit {
 
   protected loadAll(): void {
     this.loading.set(true);
-    const orderStatus = this.activeTab() === "BROUILLON" ? "REQUESTED" : "CLOSED";
+    const orderStatus = this.activeTab() === 'BROUILLON' ? 'REQUESTED' : 'CLOSED';
     this.bedService
       .findAll({
         search: this.search() || undefined,
@@ -150,18 +147,18 @@ export class BedHomeComponent implements OnInit {
         fromDate: this.dtStart() ? NGB_DATE_TO_ISO(this.dtStart())! : undefined,
         toDate: this.dtEnd() ? NGB_DATE_TO_ISO(this.dtEnd())! : undefined,
         page: this.page(),
-        size: this.itemsPerPage
+        size: this.itemsPerPage,
       })
       .pipe(
         finalize(() => this.loading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (res: HttpResponse<IBedSummary[]>) => {
           this.beds.set(res.body ?? []);
-          this.totalRecords.set(Number(res.headers.get("X-Total-Count") ?? 0));
+          this.totalRecords.set(Number(res.headers.get('X-Total-Count') ?? 0));
         },
-        error: () => this.notificationService.error("Erreur lors du chargement des BED", "Erreur")
+        error: () => this.notificationService.error('Erreur lors du chargement des BED', 'Erreur'),
       });
   }
 
@@ -172,7 +169,7 @@ export class BedHomeComponent implements OnInit {
   protected onEditer(summary: IBedSummary): void {
     this.bedService.findById(summary.id!, summary.orderDate!).subscribe({
       next: bed => this.editingBed.set(bed),
-      error: () => this.notificationService.error("Erreur lors du chargement du BED", "Erreur")
+      error: () => this.notificationService.error('Erreur lors du chargement du BED', 'Erreur'),
     });
   }
 
@@ -190,21 +187,21 @@ export class BedHomeComponent implements OnInit {
           .subscribe({
             next: () => {
               this.loadAll();
-              this.notificationService.success("BED supprimé", "Succès");
+              this.notificationService.success('BED supprimé', 'Succès');
             },
-            error: () => this.notificationService.error("Erreur lors de la suppression", "Erreur")
+            error: () => this.notificationService.error('Erreur lors de la suppression', 'Erreur'),
           });
       },
-      "Supprimer le BED",
-      `Supprimer définitivement ${summary.receiptReference} ?`
+      'Supprimer le BED',
+      `Supprimer définitivement ${summary.receiptReference} ?`,
     );
   }
 
   protected onValiderDepuisListe(summary: IBedSummary): void {
     const modalRef = this.modalService.open(BedValidateModalComponent, {
       centered: true,
-      size: "lg",
-      backdrop: "static"
+      size: 'lg',
+      backdrop: 'static',
     });
     const instance = modalRef.componentInstance as BedValidateModalComponent;
     instance.bed = { receiptReference: summary.receiptReference, motifBed: summary.motifBed } as any;
@@ -216,36 +213,34 @@ export class BedHomeComponent implements OnInit {
             orderDate: summary.orderDate!,
             motif: result.motif,
             fournisseurId: result.fournisseurId,
-            commentaire: result.commentaire
+            commentaire: result.commentaire,
           })
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: () => {
               this.loadAll();
-              this.notificationService.success(`BED ${summary.receiptReference} validé`, "Succès");
+              this.notificationService.success(`BED ${summary.receiptReference} validé`, 'Succès');
             },
-            error: () => this.notificationService.error("Erreur lors de la validation", "Erreur")
+            error: () => this.notificationService.error('Erreur lors de la validation', 'Erreur'),
           });
       },
-      () => {
-      }
+      () => {},
     );
   }
 
-
   protected getStatutLabel(statut: string | undefined): string {
-    return statut === "CLOSED" ? "Validé" : statut === "REQUESTED" ? "En cours" : (statut ?? "");
+    return statut === 'CLOSED' ? 'Validé' : statut === 'REQUESTED' ? 'En cours' : (statut ?? '');
   }
 
-  protected getStatutSeverity(statut: string | undefined): "success" | "warn" | "secondary" {
-    return statut === "CLOSED" ? "success" : statut === "REQUESTED" ? "warn" : "secondary";
+  protected getStatutSeverity(statut: string | undefined): 'success' | 'warn' | 'secondary' {
+    return statut === 'CLOSED' ? 'success' : statut === 'REQUESTED' ? 'warn' : 'secondary';
   }
 
   private onImport(type: string): void {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
-      backdrop: "static",
-      size: "lg",
-      centered: true
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
     });
     modalRef.componentInstance.type = type;
     modalRef.closed.subscribe(reason => {
@@ -257,8 +252,6 @@ export class BedHomeComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {
-    }, "lg");
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
-
 }

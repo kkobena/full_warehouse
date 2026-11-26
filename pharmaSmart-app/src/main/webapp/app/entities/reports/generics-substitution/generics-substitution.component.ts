@@ -1,4 +1,15 @@
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy, input} from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+  ChangeDetectionStrategy,
+  input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -17,7 +28,16 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-generics-substitution',
-  imports: [DeviseDirective, CommonModule, FormsModule, PharmaDatePickerComponent, ButtonComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
+  imports: [
+    DeviseDirective,
+    CommonModule,
+    FormsModule,
+    PharmaDatePickerComponent,
+    ButtonComponent,
+    ToolbarComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+  ],
   templateUrl: './generics-substitution.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./generics-substitution.component.scss'],
@@ -33,20 +53,20 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
 
   @ViewChild('doughnutCanvas') doughnutCanvas?: ElementRef<HTMLCanvasElement>;
 
-  protected readonly stats     = signal<IGenericsSubstitution | null>(null);
+  protected readonly stats = signal<IGenericsSubstitution | null>(null);
   protected readonly isLoading = signal(false);
 
   protected fromDate = signal<Date | null>(new Date(new Date().getFullYear(), 0, 1));
-  protected toDate   = signal<Date | null>(new Date());
+  protected toDate = signal<Date | null>(new Date());
 
   // `computed`, pas un appel direct à `dateToStruct()` dans le template : voir
   // date-range-filter (supprimé) pour l'explication de la boucle silencieuse évitée.
   protected readonly fromStruct = computed(() => this.dateToStruct(this.fromDate()));
-  protected readonly toStruct   = computed(() => this.dateToStruct(this.toDate()));
+  protected readonly toStruct = computed(() => this.dateToStruct(this.toDate()));
 
   protected readonly formatCurrency = formatCurrency;
-  protected readonly formatDecimal  = formatDecimal;
-  protected readonly formatNumber   = formatNumber;
+  protected readonly formatDecimal = formatDecimal;
+  protected readonly formatNumber = formatNumber;
 
   protected readonly tauxGeneriques = computed(() => {
     const s = this.stats();
@@ -67,7 +87,7 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
   });
 
   private doughnutChart?: Chart;
-  private readonly svc    = inject(DashboardCAService);
+  private readonly svc = inject(DashboardCAService);
   private readonly colors = inject(ChartColorsUtilsService);
 
   ngOnInit(): void {
@@ -80,7 +100,7 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
 
   protected load(): void {
     const startDate = DATE_FORMAT_ISO_DATE(this.fromDate()) ?? undefined;
-    const endDate   = DATE_FORMAT_ISO_DATE(this.toDate())   ?? undefined;
+    const endDate = DATE_FORMAT_ISO_DATE(this.toDate()) ?? undefined;
     if (!startDate || !endDate) return;
 
     this.isLoading.set(true);
@@ -104,21 +124,23 @@ export default class GenericsSubstitutionComponent implements OnInit, OnDestroy 
     if (!ctx) return;
 
     const caGeneriques = data.caGeneriques ?? 0;
-    const caPrinceps   = data.caPrincepsAvecGenerique ?? 0;
-    const caOther      = Math.max(0, (data.caTotal ?? 0) - caGeneriques - caPrinceps);
+    const caPrinceps = data.caPrincepsAvecGenerique ?? 0;
+    const caOther = Math.max(0, (data.caTotal ?? 0) - caGeneriques - caPrinceps);
 
-    const palette      = this.colors.colors();
+    const palette = this.colors.colors();
     const hoverPalette = this.colors.hoverColors();
 
     this.doughnutChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['Génériques', 'Princeps substituables', 'Autres'],
-        datasets: [{
-          data: [caGeneriques, caPrinceps, caOther],
-          backgroundColor:      palette,
-          hoverBackgroundColor: hoverPalette,
-        }],
+        datasets: [
+          {
+            data: [caGeneriques, caPrinceps, caOther],
+            backgroundColor: palette,
+            hoverBackgroundColor: hoverPalette,
+          },
+        ],
       },
       options: {
         responsive: true,

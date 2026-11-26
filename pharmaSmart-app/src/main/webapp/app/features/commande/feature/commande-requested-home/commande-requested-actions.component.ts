@@ -1,13 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
-import {
-  NgbDropdown,
-  NgbDropdownItem,
-  NgbDropdownMenu,
-  NgbDropdownToggle,
-  NgbTooltip,
-} from '@ng-bootstrap/ng-bootstrap';
-import {ICommande} from 'app/shared/model/commande.model';
-
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ICommande } from 'app/shared/model/commande.model';
 
 export type CommandeRequestedAction =
   | 'editer'
@@ -74,8 +67,8 @@ export class CommandeRequestedActionsComponent {
   private readonly menuItems: MenuEntry[] = [
     // « Éditer » ouvre la commande, en lecture seule si elle est partie : on consulte un bon
     // transmis aussi souvent qu'on le modifie.
-    {label: 'Éditer', icon: 'pi pi-pencil', action: 'editer'},
-    {label: 'Réceptionner', icon: 'pi pi-inbox', action: 'receptionner'},
+    { label: 'Éditer', icon: 'pi pi-pencil', action: 'editer' },
+    { label: 'Réceptionner', icon: 'pi pi-inbox', action: 'receptionner' },
 
     {
       label: 'Envoyer via PharmaML',
@@ -91,8 +84,8 @@ export class CommandeRequestedActionsComponent {
       action: 'comparerGrossistes',
       hidden: c => !!c.hasBeenSubmittedToPharmaML,
     },
-    {label: 'Export CSV', icon: 'pi pi-file-excel', action: 'exportCsv', separatorBefore: true},
-    {label: 'Imprimer PDF', icon: 'pi pi-print', action: 'exportPdf'},
+    { label: 'Export CSV', icon: 'pi pi-file-excel', action: 'exportCsv', separatorBefore: true },
+    { label: 'Imprimer PDF', icon: 'pi pi-print', action: 'exportPdf' },
 
     // Hors EDI, c'est le seul geste qui date l'envoi. Sans lui, la commande reste un brouillon
     // aux yeux du réassort, du délai fournisseur et de l'alerte de retard.
@@ -121,7 +114,5 @@ export class CommandeRequestedActionsComponent {
     },
   ];
 
-  protected readonly visibleItems = computed(() =>
-    this.menuItems.filter(item => !item.hidden?.(this.commande())),
-  );
+  protected readonly visibleItems = computed(() => this.menuItems.filter(item => !item.hidden?.(this.commande())));
 }

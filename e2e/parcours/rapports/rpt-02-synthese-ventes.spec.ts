@@ -24,9 +24,7 @@ scenario('RPT-02', async ({ etape, page }) => {
     // n'a pas cette colonne. Elle apparaît DEUX fois depuis que l'écran ventile les types de
     // vente au-dessus du tableau — une fois dans la carte de répartition, une fois dans la
     // synthèse quotidienne. On désigne donc celle du tableau, qui est le sujet du scénario.
-    await expect(
-      page.locator('app-data-table').getByRole('columnheader', { name: 'Panier moyen' }),
-    ).toBeVisible();
+    await expect(page.locator('app-data-table').getByRole('columnheader', { name: 'Panier moyen' })).toBeVisible();
   });
 
   await etape(2, async () => {

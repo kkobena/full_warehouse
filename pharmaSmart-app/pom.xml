@@ -187,6 +187,22 @@
             <id>generate cahier-recette json</id>
             <phase>generate-resources</phase>
           </execution>
+          <!-- Formatage Prettier du front, avant son build (generate-resources) -->
+          <execution>
+            <configuration>
+              <arguments>
+                <argument>run</argument>
+                <argument>prettier:format</argument>
+              </arguments>
+              <executable>${npm.executable}</executable>
+              <skip>${skip.prettier}</skip>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <id>prettier format</id>
+            <phase>process-sources</phase>
+          </execution>
         </executions>
         <groupId>org.codehaus.mojo</groupId>
         <version>${exec-maven-plugin.version}</version>

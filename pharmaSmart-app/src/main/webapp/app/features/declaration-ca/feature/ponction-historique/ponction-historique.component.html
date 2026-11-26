@@ -22,19 +22,10 @@
 
   <ng-container ngProjectAs="[toolbarActions]">
     <div class="py-1">
-      <app-button
-        (clicked)="charger()"
-        [disabled]="chargement()"
-        [raised]="true"
-        icon="pi pi-refresh"
-        label="Actualiser"
-        severity="info"
-      />
+      <app-button (clicked)="charger()" [disabled]="chargement()" [raised]="true" icon="pi pi-refresh" label="Actualiser" severity="info" />
     </div>
-
   </ng-container>
 </app-toolbar>
-
 
 <!-- ── Cumuls de la période : montants sur les seules ponctions validées ─────── -->
 <app-kpi-strip [loading]="chargement()" [skeletonCount]="5" stripClass="mb-2">
@@ -48,9 +39,10 @@
     valueClass="text-primary"
   >
     <ng-container ngProjectAs="[kpiSub]">
-      {{ resume().nombreValidees | number }} validée(s)@if (resume().nombreAnnulees > 0) {
-      · {{ resume().nombreAnnulees | number }} annulée(s)
-    }
+      {{ resume().nombreValidees | number }} validée(s)
+      @if (resume().nombreAnnulees > 0) {
+        · {{ resume().nombreAnnulees | number }} annulée(s)
+      }
     </ng-container>
   </app-kpi-item>
 
@@ -85,9 +77,7 @@
     suffix="F"
     valueClass="text-danger"
   >
-    <ng-container ngProjectAs="[kpiSub]">
-      sur {{ resume().nombreVentes | number }} vente(s)
-    </ng-container>
+    <ng-container ngProjectAs="[kpiSub]"> sur {{ resume().nombreVentes | number }} vente(s) </ng-container>
   </app-kpi-item>
 
   <app-kpi-item
@@ -103,7 +93,6 @@
     <ng-container ngProjectAs="[kpiSub]">du CA après exclusions</ng-container>
   </app-kpi-item>
 </app-kpi-strip>
-
 
 <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
 <app-hint [visible]="!panelOpen()" storageKey="ponction-historique">
@@ -139,12 +128,10 @@
       </ng-template>
 
       <ng-template #body let-ponction>
-
         <tr [appSelectableRow]="ponction">
           <td>{{ ponction.dateDebut | date: 'dd/MM/yyyy' }} → {{ ponction.dateFin | date: 'dd/MM/yyyy' }}</td>
           <td class="small text-muted">
-            {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} ·
-            plafond
+            {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} · plafond
             {{ ponction.plafondParVente }} %
           </td>
           <td class="text-end">{{ ponction.caReel | number: '1.0-0' }}</td>
@@ -187,23 +174,15 @@
 
   @if (panelOpen()) {
     <div class="detail-column">
-      <app-card [withHeader]="true" class="d-block" header="Détail de la ponction"
-                icon="pi pi-list">
+      <app-card [withHeader]="true" class="d-block" header="Détail de la ponction" icon="pi pi-list">
         <div cardActions>
-          <app-button
-            (clicked)="fermerDetail()"
-            [iconOnly]="true"
-            [text]="true"
-            icon="pi pi-times"
-            label="Fermer"
-            severity="secondary"
-          />
+          <app-button (clicked)="fermerDetail()" [iconOnly]="true" [text]="true" icon="pi pi-times" label="Fermer" severity="secondary" />
         </div>
 
         <p class="text-muted small">
           {{ selection()!.dateDebut | date: 'dd/MM/yyyy' }} → {{ selection()!.dateFin | date: 'dd/MM/yyyy' }} ·
-          {{ selection()!.nombreVentes | number }} vente(s) ·
-          {{ selection()!.montantPonctionne | number: '1.0-0' }} <span appDevise></span> retirés
+          {{ selection()!.nombreVentes | number }} vente(s) · {{ selection()!.montantPonctionne | number: '1.0-0' }}
+          <span appDevise></span> retirés
         </p>
 
         @if (selection()!.commentaire) {

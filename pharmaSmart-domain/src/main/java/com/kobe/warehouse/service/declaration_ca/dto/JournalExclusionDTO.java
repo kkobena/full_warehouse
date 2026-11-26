@@ -16,8 +16,4 @@ import java.util.List;
  *     bien sur la totalité de la période
  */
 public record JournalExclusionDTO(
-    JournalKpiDTO kpi,
-    List<JournalVenteDTO> ventes,
-    List<JournalLigneDTO> lignes,
-    boolean tronque
-) {}
+        JournalKpiDTO kpi, List<JournalVenteDTO> ventes, List<JournalLigneDTO> lignes, boolean tronque) {}

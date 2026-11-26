@@ -7,7 +7,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -19,9 +18,10 @@ public class SalePayment extends PaymentTransaction implements Serializable, Clo
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns(
-        {@JoinColumn(name = "sale_id", referencedColumnName = "id"), @JoinColumn(name = "sale_date", referencedColumnName = "sale_date")}
-    )
+    @JoinColumns({
+        @JoinColumn(name = "sale_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sale_date", referencedColumnName = "sale_date")
+    })
     private Sales sale;
 
     @NotNull

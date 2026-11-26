@@ -1,6 +1,6 @@
-import {TestBed} from '@angular/core/testing';
-import {InventoryStore} from './inventory.store';
-import {IInventoryLine} from '../../models';
+import { TestBed } from '@angular/core/testing';
+import { InventoryStore } from './inventory.store';
+import { IInventoryLine } from '../../models';
 
 describe('InventoryStore', () => {
   let store: InstanceType<typeof InventoryStore>;
@@ -15,7 +15,7 @@ describe('InventoryStore', () => {
   });
 
   beforeEach(() => {
-    TestBed.configureTestingModule({providers: [InventoryStore]});
+    TestBed.configureTestingModule({ providers: [InventoryStore] });
     store = TestBed.inject(InventoryStore);
   });
 
@@ -30,7 +30,7 @@ describe('InventoryStore', () => {
     it('remplace une ligne par sa version sauvegardée sans toucher aux autres', () => {
       store.setLines([line(1), line(2)], 2);
 
-      store.updateLine(line(2, {quantityOnHand: 7, updated: true}));
+      store.updateLine(line(2, { quantityOnHand: 7, updated: true }));
 
       expect(store.lines()[0].quantityOnHand).toBe(10);
       expect(store.lines()[1].quantityOnHand).toBe(7);
@@ -96,8 +96,8 @@ describe('InventoryStore', () => {
       expect(second?.seq).toBeGreaterThan(first!.seq);
     });
 
-    it('transporte la charge utile de l\'évènement', () => {
-      store.emitEvent('BATCH_SAVED', {saved: 3, failed: 0, failedIds: [], conflictedIds: [7]});
+    it("transporte la charge utile de l'évènement", () => {
+      store.emitEvent('BATCH_SAVED', { saved: 3, failed: 0, failedIds: [], conflictedIds: [7] });
 
       expect(store.lastEvent()?.payload.conflictedIds).toEqual([7]);
     });

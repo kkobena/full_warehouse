@@ -1,11 +1,10 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.enumeration.ContrainteColisage;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.enumeration.ContrainteColisage;
 import com.kobe.warehouse.service.ColisageService;
 import com.kobe.warehouse.service.dto.AjustementColisage;
-
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +38,14 @@ public class ColisageServiceImpl implements ColisageService {
         int colis = lireColis(fournisseurProduit);
         int minimum = lireMinimum(fournisseurProduit);
         return new AjustementColisage(
-            fournisseurProduit.getProduit() != null ? fournisseurProduit.getProduit().getLibelle() : null,
-            demandee,
-            retenue,
-            colis,
-            minimum,
-            determinerContrainte(colis, minimum, retenue)
-        );
+                fournisseurProduit.getProduit() != null
+                        ? fournisseurProduit.getProduit().getLibelle()
+                        : null,
+                demandee,
+                retenue,
+                colis,
+                minimum,
+                determinerContrainte(colis, minimum, retenue));
     }
 
     /**

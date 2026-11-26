@@ -1,6 +1,9 @@
 package com.kobe.warehouse.web.rest.referential.remise;
 
 import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseDTO;
@@ -10,6 +13,9 @@ import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.remise.RemiseService;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,13 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
-import com.kobe.warehouse.security.navaccess.NavAction;
-import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link PaymentMode}.
@@ -85,8 +84,7 @@ public class RemiseResource {
     @GetMapping("/remises")
     @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<List<RemiseDTO>> getAll(
-        @RequestParam(required = false, name = "typeRemise", defaultValue = "ALL") TypeRemise typeRemise
-    ) {
+            @RequestParam(required = false, name = "typeRemise", defaultValue = "ALL") TypeRemise typeRemise) {
         return ResponseEntity.ok().body(this.remiseService.findAll(typeRemise));
     }
 
@@ -109,7 +107,9 @@ public class RemiseResource {
     }
 
     @PostMapping("/remises/associer")
-    @RequiresNavAccess(value = { "remises", "catalogue" }, action = NavAction.CREATE)
+    @RequiresNavAccess(
+            value = {"remises", "catalogue"},
+            action = NavAction.CREATE)
     public ResponseEntity<Void> assosier(@Valid @RequestBody RemiseProduitsDTO remiseProduits) {
         this.remiseService.assosier(remiseProduits);
         return ResponseEntity.ok().build();

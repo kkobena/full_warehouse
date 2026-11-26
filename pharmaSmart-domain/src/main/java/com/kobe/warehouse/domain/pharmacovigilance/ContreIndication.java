@@ -53,15 +53,14 @@ public class ContreIndication implements Serializable {
     protected ContreIndication() {}
 
     public ContreIndication(
-        Integer versionId,
-        Integer refDciId,
-        CritereContreIndication critere,
-        BigDecimal valeurNum,
-        String valeurTexte,
-        NiveauInteraction niveau,
-        String motif,
-        String conduite
-    ) {
+            Integer versionId,
+            Integer refDciId,
+            CritereContreIndication critere,
+            BigDecimal valeurNum,
+            String valeurTexte,
+            NiveauInteraction niveau,
+            String motif,
+            String conduite) {
         this.versionId = versionId;
         this.refDciId = refDciId;
         this.critere = critere;

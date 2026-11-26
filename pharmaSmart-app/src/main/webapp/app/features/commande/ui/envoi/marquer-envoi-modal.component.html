@@ -23,25 +23,10 @@
   </div>
 
   <label class="form-label">Canal d'envoi <span class="required">*</span></label>
-  <app-pill-selector
-    (selectionChange)="canal.set($any($event))"
-    [items]="canaux"
-    [ngModel]="canal()"
-    ariaLabel="Canal d'envoi"
-  />
+  <app-pill-selector (selectionChange)="canal.set($any($event))" [items]="canaux" [ngModel]="canal()" ariaLabel="Canal d'envoi" />
 </div>
 
 <div class="modal-footer">
-  <app-button
-    (clicked)="modal.dismiss()"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-  />
-  <app-button
-    (clicked)="modal.close(canal())"
-    icon="pi pi-send"
-    label="Marquer comme envoyée"
-    severity="primary"
-  />
+  <app-button (clicked)="modal.dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" />
+  <app-button (clicked)="modal.close(canal())" icon="pi pi-send" label="Marquer comme envoyée" severity="primary" />
 </div>

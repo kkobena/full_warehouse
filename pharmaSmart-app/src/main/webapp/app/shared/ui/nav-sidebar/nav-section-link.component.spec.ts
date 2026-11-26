@@ -12,8 +12,7 @@ import { NavSectionLinkComponent } from './nav-section-link.component';
   imports: [NavSectionLinkComponent],
   template: `
     <a class="pharma-nav-vertical-link">
-      <app-nav-section-link code="comptabilite.balance"
-                            fallbackIcon="pi pi-calculator" fallbackLabel="Balance caisse" />
+      <app-nav-section-link code="comptabilite.balance" fallbackIcon="pi pi-calculator" fallbackLabel="Balance caisse" />
     </a>
   `,
 })
@@ -22,7 +21,11 @@ class HoteTest {}
 function arbre(libelle: string, icon: string): INavNode[] {
   return [
     {
-      id: 1, code: 'comptabilite', libelle: 'Comptabilité', targetType: 'ROUTE', ordre: 10,
+      id: 1,
+      code: 'comptabilite',
+      libelle: 'Comptabilité',
+      targetType: 'ROUTE',
+      ordre: 10,
       children: [{ id: 2, code: 'comptabilite.balance', libelle, icon, targetType: 'SECTION', ordre: 10 }],
     },
   ];

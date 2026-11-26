@@ -44,7 +44,10 @@ scenario('ADM-14', async ({ etape, page }) => {
   });
 
   await etape(3, async () => {
-    await modale.getByRole('button', { name: /Enregistrer|Valider/ }).first().click();
+    await modale
+      .getByRole('button', { name: /Enregistrer|Valider/ })
+      .first()
+      .click();
     await expect(modale).toBeHidden();
     // La nouvelle valeur s'affiche dans la liste : les écrans de retour la reliront telle
     // quelle, sans redémarrage.
@@ -59,6 +62,9 @@ scenario('ADM-14', async ({ etape, page }) => {
   await valeurInitiale.press('Control+a');
   await valeurInitiale.press('Delete');
   await valeurInitiale.pressSequentially('30', { delay: 40 });
-  await modale.getByRole('button', { name: /Enregistrer|Valider/ }).first().click();
+  await modale
+    .getByRole('button', { name: /Enregistrer|Valider/ })
+    .first()
+    .click();
   await expect(modale).toBeHidden();
 });

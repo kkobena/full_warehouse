@@ -13,7 +13,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import {ActiveElement, Chart, ChartType, Plugin, registerables} from 'chart.js';
+import { ActiveElement, Chart, ChartType, Plugin, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -38,8 +38,7 @@ export interface ChartSelectEvent {
   selector: 'app-chart',
   template: `
     <div class="app-chart" [style.width]="containerWidth()" [style.height]="containerHeight()">
-      <canvas #canvas role="img" [attr.aria-label]="ariaLabel()"
-              (click)="onCanvasClick($event)"></canvas>
+      <canvas #canvas role="img" [attr.aria-label]="ariaLabel()" (click)="onCanvasClick($event)"></canvas>
     </div>
   `,
   styles: `
@@ -113,10 +112,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
     if (!this.chart) {
       return;
     }
-    const elements = this.chart.getElementsAtEventForMode(event, 'nearest', {intersect: true}, false);
+    const elements = this.chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
     if (elements.length) {
-      const dataset = this.chart.getElementsAtEventForMode(event, 'dataset', {intersect: true}, false);
-      this.dataSelect.emit({originalEvent: event, element: elements[0], dataset});
+      const dataset = this.chart.getElementsAtEventForMode(event, 'dataset', { intersect: true }, false);
+      this.dataSelect.emit({ originalEvent: event, element: elements[0], dataset });
     }
   }
 

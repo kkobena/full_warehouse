@@ -11,7 +11,6 @@
       </div>
     } @else {
       @if (items.length > 0) {
-
         <h6>Lignes confirmées ({{ items.length }})</h6>
         <app-data-table [value]="items" class="p-datatable-sm mb-3">
           <ng-template #header>
@@ -40,7 +39,7 @@
 
       @if (extraItems.length > 0) {
         <h6 class="text-warning">Ruptures / Non disponibles ({{ extraItems.length }})</h6>
-        <app-data-table [value]="extraItems" class="p-datatable-sm ">
+        <app-data-table [value]="extraItems" class="p-datatable-sm">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th>CIP</th>
@@ -67,11 +66,9 @@
       }
     }
   </app-card>
-
 </div>
 
 <div class="modal-footer">
   <app-button (clicked)="dismiss()" label="Fermer" severity="secondary" />
-  <app-button severity="info" (clicked)="loadRetour()" [loading]="loading()" icon="pi pi-refresh"
-              label="Actualiser" />
+  <app-button severity="info" (clicked)="loadRetour()" [loading]="loading()" icon="pi pi-refresh" label="Actualiser" />
 </div>

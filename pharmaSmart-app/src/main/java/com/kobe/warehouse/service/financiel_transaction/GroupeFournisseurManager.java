@@ -21,11 +21,10 @@ public class GroupeFournisseurManager {
     }
 
     public List<GroupeFournisseurDTO> getDisplayedSupplierGroups() {
-        List<GroupeFournisseurDTO> allGroups = fournisseurRepository.findByParentIsNullOrderByOdreAsc()
-            .stream()
-            .map(GroupeFournisseurDTO::new)
-            .sorted(Comparator.comparing(GroupeFournisseurDTO::getOdre))
-            .toList();
+        List<GroupeFournisseurDTO> allGroups = fournisseurRepository.findByParentIsNullOrderByOdreAsc().stream()
+                .map(GroupeFournisseurDTO::new)
+                .sorted(Comparator.comparing(GroupeFournisseurDTO::getOdre))
+                .toList();
 
         if (allGroups.size() > MAX_DISPLAYED_GROUPS) {
             return buildTopGroupsWithOthers(allGroups);
@@ -34,19 +33,18 @@ public class GroupeFournisseurManager {
     }
 
     public Set<Integer> getDisplayedGroupIds() {
-        return getDisplayedSupplierGroups()
-            .stream()
-            .map(GroupeFournisseurDTO::getId)
-            .filter(id -> id != GROUP_OTHER_ID)
-            .collect(Collectors.toSet());
+        return getDisplayedSupplierGroups().stream()
+                .map(GroupeFournisseurDTO::getId)
+                .filter(id -> id != GROUP_OTHER_ID)
+                .collect(Collectors.toSet());
     }
 
     private List<GroupeFournisseurDTO> buildTopGroupsWithOthers(List<GroupeFournisseurDTO> allGroups) {
         List<GroupeFournisseurDTO> displayedGroups = new ArrayList<>(allGroups.subList(0, MAX_DISPLAYED_GROUPS));
         displayedGroups.add(new GroupeFournisseurDTO()
-            .setId(GROUP_OTHER_ID)
-            .setLibelle(GROUP_OTHER_LABEL)
-            .setOdre(GROUP_OTHER_ORDER));
+                .setId(GROUP_OTHER_ID)
+                .setLibelle(GROUP_OTHER_LABEL)
+                .setOdre(GROUP_OTHER_ORDER));
         displayedGroups.sort(Comparator.comparing(GroupeFournisseurDTO::getOdre));
         return displayedGroups;
     }

@@ -27,16 +27,14 @@ public class RetourAvoirDashboardService {
     private final AvoirClientRepository avoirClientRepository;
 
     public RetourAvoirDashboardService(
-        RetourClientRepository retourClientRepository,
-        AvoirClientRepository avoirClientRepository
-    ) {
+            RetourClientRepository retourClientRepository, AvoirClientRepository avoirClientRepository) {
         this.retourClientRepository = retourClientRepository;
         this.avoirClientRepository = avoirClientRepository;
     }
 
     /** Un agregat sans GROUP BY rend toujours une ligne ; la liste vide reste possible par prudence. */
     private static Object[] premiereLigne(List<Object[]> lignes) {
-        return lignes.isEmpty() ? new Object[] { null, null } : lignes.getFirst();
+        return lignes.isEmpty() ? new Object[] {null, null} : lignes.getFirst();
     }
 
     public RetourAvoirStatsDTO getStats(YearMonth mois) {
@@ -50,25 +48,23 @@ public class RetourAvoirDashboardService {
         int montantRetours = globaux[1] != null ? ((Number) globaux[1]).intValue() : 0;
 
         List<MotifStatDTO> statsMotifs = retourClientRepository.statsParMotif(debut, fin).stream()
-            .map(row -> new MotifStatDTO((MotifRetourClient) row[0], ((Number) row[1]).longValue()))
-            .toList();
+                .map(row -> new MotifStatDTO((MotifRetourClient) row[0], ((Number) row[1]).longValue()))
+                .toList();
 
-        List<ProduitAlerteDTO> produitsAlerte = retourClientRepository
-            .produitsEnAlerte(debut, fin, SEUIL_RETOURS_PRODUIT).stream()
-            .map(row -> new ProduitAlerteDTO(
-                ((Number) row[0]).intValue(),
-                (String) row[1],
-                (String) row[2],
-                ((Number) row[3]).longValue()))
-            .toList();
+        List<ProduitAlerteDTO> produitsAlerte =
+                retourClientRepository.produitsEnAlerte(debut, fin, SEUIL_RETOURS_PRODUIT).stream()
+                        .map(row -> new ProduitAlerteDTO(
+                                ((Number) row[0]).intValue(),
+                                (String) row[1],
+                                (String) row[2],
+                                ((Number) row[3]).longValue()))
+                        .toList();
 
-        List<ClientAlerteDTO> clientsAlerte = retourClientRepository
-            .clientsEnAlerte(debut, fin, SEUIL_RETOURS_CLIENT).stream()
-            .map(row -> new ClientAlerteDTO(
-                ((Number) row[0]).intValue(),
-                row[1] + " " + row[2],
-                ((Number) row[3]).longValue()))
-            .toList();
+        List<ClientAlerteDTO> clientsAlerte =
+                retourClientRepository.clientsEnAlerte(debut, fin, SEUIL_RETOURS_CLIENT).stream()
+                        .map(row -> new ClientAlerteDTO(
+                                ((Number) row[0]).intValue(), row[1] + " " + row[2], ((Number) row[3]).longValue()))
+                        .toList();
 
         // ── Avoirs ─────────────────────────────────────────────────────────────
         Object[] avoirsStats = premiereLigne(avoirClientRepository.statsAvoirsOuverts());
@@ -79,14 +75,13 @@ public class RetourAvoirDashboardService {
         int nbProchesExpiration = (int) avoirClientRepository.countAvoirsProchesExpiration(seuilExpiration);
 
         return new RetourAvoirStatsDTO(
-            nbRetours,
-            montantRetours,
-            statsMotifs,
-            produitsAlerte,
-            clientsAlerte,
-            nbAvoirsOuverts,
-            montantAvoirsOuverts,
-            nbProchesExpiration
-        );
+                nbRetours,
+                montantRetours,
+                statsMotifs,
+                produitsAlerte,
+                clientsAlerte,
+                nbAvoirsOuverts,
+                montantAvoirsOuverts,
+                nbProchesExpiration);
     }
 }

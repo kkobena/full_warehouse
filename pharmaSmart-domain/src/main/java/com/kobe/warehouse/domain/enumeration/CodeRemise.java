@@ -38,7 +38,8 @@ public enum CodeRemise {
 
     public static CodeRemise fromGrille(CodeGrilleRemise codeGrilleRemise) {
         for (CodeRemise codeRemise : values()) {
-            if (codeRemise.getCodeVno().equals(codeGrilleRemise) || codeRemise.getCodeVo().equals(codeGrilleRemise)) {
+            if (codeRemise.getCodeVno().equals(codeGrilleRemise)
+                    || codeRemise.getCodeVo().equals(codeGrilleRemise)) {
                 return codeRemise;
             }
         }
@@ -46,11 +47,19 @@ public enum CodeRemise {
     }
 
     public static CodeRemiseDTO toDTO(CodeRemise codeRemise) {
-        return new CodeRemiseDTO(codeRemise.getValue(), codeRemise.getCodeVno().getValue(), codeRemise.getCodeVo().getValue(), null);
+        return new CodeRemiseDTO(
+                codeRemise.getValue(),
+                codeRemise.getCodeVno().getValue(),
+                codeRemise.getCodeVo().getValue(),
+                null);
     }
 
     public static CodeRemiseDTO toDTO(CodeRemise codeRemise, RemiseDTO remise) {
-        return new CodeRemiseDTO(codeRemise.getValue(), codeRemise.getCodeVno().getValue(), codeRemise.getCodeVo().getValue(), remise);
+        return new CodeRemiseDTO(
+                codeRemise.getValue(),
+                codeRemise.getCodeVno().getValue(),
+                codeRemise.getCodeVo().getValue(),
+                remise);
     }
 
     public static List<CodeRemiseDTO> toListDTO() {

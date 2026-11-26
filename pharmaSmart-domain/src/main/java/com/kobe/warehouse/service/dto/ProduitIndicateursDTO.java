@@ -10,28 +10,27 @@ import java.math.BigDecimal;
  * en un seul objet léger, chargé à la sélection d'un produit (lazy load).
  */
 public record ProduitIndicateursDTO(
-    Integer produitId,
+        Integer produitId,
 
-    // Classification
-    ClasseCriticite classeCriticite,
-    boolean estMedicamentEssentiel,
-    boolean estProduitGarde,
+        // Classification
+        ClasseCriticite classeCriticite,
+        boolean estMedicamentEssentiel,
+        boolean estProduitGarde,
 
-    // Rotation (depuis v_stock_rotation)
-    BigDecimal cmm,
-    BigDecimal rotationAnnuelleQte,
-    Integer couvertureStockJours,
+        // Rotation (depuis v_stock_rotation)
+        BigDecimal cmm,
+        BigDecimal rotationAnnuelleQte,
+        Integer couvertureStockJours,
 
-    // Chiffre d'affaires (depuis v_stock_rotation)
-    Integer ca30Jours,
-    Integer ca12Mois,
-    Integer qteVendue12Mois,
+        // Chiffre d'affaires (depuis v_stock_rotation)
+        Integer ca30Jours,
+        Integer ca12Mois,
+        Integer qteVendue12Mois,
 
-    // Marge (calculée : (PV - PA) / PV * 100)
-    BigDecimal tauxMarge,
+        // Marge (calculée : (PV - PA) / PV * 100)
+        BigDecimal tauxMarge,
 
-    // Pareto (depuis v_abc_pareto_analysis)
-    Integer rang,
-    BigDecimal caCumulePct,
-    Integer frequenceMois
-) {}
+        // Pareto (depuis v_abc_pareto_analysis)
+        Integer rang,
+        BigDecimal caCumulePct,
+        Integer frequenceMois) {}

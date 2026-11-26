@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.CommandeId;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class DeliveryReceiptLiteDTO {
 
@@ -21,7 +20,7 @@ public class DeliveryReceiptLiteDTO {
 
     private LocalDate receiptDate;
     private String orderReference;
-    private Integer finalAmount; //montant vente
+    private Integer finalAmount; // montant vente
 
     /**
      * Mode MANUAL uniquement : {@code true} si le pharmacien a confirmé le transfert

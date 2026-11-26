@@ -29,18 +29,48 @@ export class SectionClientsComponent {
       return [];
     }
     const tuiles: TuileCellule[] = [
-      { libelle: 'Clients actifs', definition: 'Clients identifiés ayant acheté sur la période.', unite: 'NOMBRE', sens: 'HAUSSE', cellule: clients.actifs },
+      {
+        libelle: 'Clients actifs',
+        definition: 'Clients identifiés ayant acheté sur la période.',
+        unite: 'NOMBRE',
+        sens: 'HAUSSE',
+        cellule: clients.actifs,
+      },
       { libelle: 'Nouveaux', definition: 'Première vente sur la période.', unite: 'NOMBRE', sens: 'HAUSSE', cellule: clients.nouveaux },
     ];
     if (clients.revenus !== null && clients.perdus !== null) {
       tuiles.push(
-        { libelle: 'Revenus', definition: 'Absents de la référence, mais clients avant elle.', unite: 'NOMBRE', sens: 'HAUSSE', cellule: celluleSeule(clients.revenus) },
-        { libelle: 'Perdus', definition: 'Actifs sur la référence, plus sur la période.', unite: 'NOMBRE', sens: 'BAISSE', cellule: celluleSeule(clients.perdus) },
+        {
+          libelle: 'Revenus',
+          definition: 'Absents de la référence, mais clients avant elle.',
+          unite: 'NOMBRE',
+          sens: 'HAUSSE',
+          cellule: celluleSeule(clients.revenus),
+        },
+        {
+          libelle: 'Perdus',
+          definition: 'Actifs sur la référence, plus sur la période.',
+          unite: 'NOMBRE',
+          sens: 'BAISSE',
+          cellule: celluleSeule(clients.perdus),
+        },
       );
     }
     tuiles.push(
-      { libelle: 'CA avec un client identifié', definition: 'Part du CA réalisée avec un client identifié.', unite: 'POURCENTAGE', sens: 'HAUSSE', cellule: clients.partCaIdentifie },
-      { libelle: 'CA moyen par client', definition: 'CA avec un client identifié / clients actifs.', unite: 'MONTANT', sens: 'HAUSSE', cellule: clients.caMoyenParClient },
+      {
+        libelle: 'CA avec un client identifié',
+        definition: 'Part du CA réalisée avec un client identifié.',
+        unite: 'POURCENTAGE',
+        sens: 'HAUSSE',
+        cellule: clients.partCaIdentifie,
+      },
+      {
+        libelle: 'CA moyen par client',
+        definition: 'CA avec un client identifié / clients actifs.',
+        unite: 'MONTANT',
+        sens: 'HAUSSE',
+        cellule: clients.caMoyenParClient,
+      },
     );
     return tuiles;
   });

@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.activity_summary;
 
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.*;
-import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -13,9 +12,11 @@ public interface ActivitySummaryService {
 
     List<Recette> findRecettes(LocalDate fromDate, LocalDate toDate);
 
-    Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
+    Page<AchatTiersPayant> fetchAchatTiersPayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
-    Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
+    Page<ReglementTiersPayants> findReglementTierspayant(
+            LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
     Page<GroupeFournisseurAchat> fetchAchats(LocalDate fromDate, LocalDate toDate, Pageable pageable);
 

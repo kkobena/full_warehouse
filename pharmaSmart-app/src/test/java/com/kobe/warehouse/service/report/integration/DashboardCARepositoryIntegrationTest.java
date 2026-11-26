@@ -6,10 +6,10 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
-import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.repository.DashboardCARepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -85,7 +85,9 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
 
             List<Object[]> jours = repository.findDailySummary(avantHier(), LocalDate.now());
 
-            assertThat(jours).extracting(row -> row[0].toString()).isSortedAccordingTo(java.util.Comparator.reverseOrder());
+            assertThat(jours)
+                    .extracting(row -> row[0].toString())
+                    .isSortedAccordingTo(java.util.Comparator.reverseOrder());
         }
 
         @Test
@@ -141,11 +143,10 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             rafraichirLesVues();
 
             List<Object[]> journees = repository.findDailySummary(avantHier(), LocalDate.now());
-            BigDecimal moyenneDesJournees = journees
-                .stream()
-                .map(journee -> (BigDecimal) journee[4])
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(journees.size()), 2, RoundingMode.HALF_UP);
+            BigDecimal moyenneDesJournees = journees.stream()
+                    .map(journee -> (BigDecimal) journee[4])
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .divide(BigDecimal.valueOf(journees.size()), 2, RoundingMode.HALF_UP);
 
             Object[] agregat = repository.getPeriodAggregation(avantHier(), LocalDate.now());
 
@@ -167,22 +168,23 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             rafraichirLesVues();
 
             List<Object[]> journees = repository.findDailySummary(hier(), LocalDate.now());
-            long caNet = journees.stream().mapToLong(journee -> toLong(journee[3])).sum();
-            long cout = journees.stream().mapToLong(journee -> toLong(journee[5])).sum();
-            long margeSurLeBrut = journees.stream().mapToLong(journee -> toLong(journee[6])).sum();
+            long caNet =
+                    journees.stream().mapToLong(journee -> toLong(journee[3])).sum();
+            long cout =
+                    journees.stream().mapToLong(journee -> toLong(journee[5])).sum();
+            long margeSurLeBrut =
+                    journees.stream().mapToLong(journee -> toLong(journee[6])).sum();
 
             Object[] agregat = repository.getPeriodAggregation(hier(), LocalDate.now());
 
-            BigDecimal attendu = BigDecimal
-                .valueOf(caNet - cout)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
+            BigDecimal attendu = BigDecimal.valueOf(caNet - cout)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
             assertThat((BigDecimal) agregat[3]).isEqualByComparingTo(attendu);
 
-            BigDecimal ancienneFormule = BigDecimal
-                .valueOf(margeSurLeBrut)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
+            BigDecimal ancienneFormule = BigDecimal.valueOf(margeSurLeBrut)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
             assertThat((BigDecimal) agregat[3]).isLessThan(ancienneFormule);
         }
 
@@ -205,7 +207,8 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
         void repartitionParMode() {
             rafraichirLesVues();
 
-            assertThat(repository.findPaymentMethodDistribution(avantHier(), LocalDate.now())).isNotNull();
+            assertThat(repository.findPaymentMethodDistribution(avantHier(), LocalDate.now()))
+                    .isNotNull();
         }
 
         @Test
@@ -218,7 +221,7 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             String famille = produit.getFamille().getLibelle();
 
             assertThat(repository.findProductFamilyDistribution(hier(), LocalDate.now()))
-                .anyMatch(row -> famille.equals(row[1]));
+                    .anyMatch(row -> famille.equals(row[1]));
         }
 
         @Test
@@ -229,8 +232,8 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             rafraichirLesVues();
 
             assertThat(repository.findBasketEvolutionMonthly())
-                .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
-                .isSorted();
+                    .extracting(row -> toLong(row[0]) * 100 + toLong(row[1]))
+                    .isSorted();
         }
     }
 
@@ -265,11 +268,9 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             vendu(produit, 7, hier());
             em.flush();
 
-            List<Object[]> lignes = repository
-                .findTopProducts(hier(), LocalDate.now(), 100)
-                .stream()
-                .filter(row -> toLong(row[1]) == produit.getId())
-                .toList();
+            List<Object[]> lignes = repository.findTopProducts(hier(), LocalDate.now(), 100).stream()
+                    .filter(row -> toLong(row[1]) == produit.getId())
+                    .toList();
 
             assertThat(lignes).hasSize(1);
             assertThat(toLong(lignes.getFirst()[4])).isEqualTo(2L);
@@ -295,16 +296,14 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             em.flush();
 
             assertThat(repository.findTopProducts(hier(), LocalDate.now(), 100))
-                .noneMatch(row -> toLong(row[1]) == produit.getId());
+                    .noneMatch(row -> toLong(row[1]) == produit.getId());
         }
 
         private Object[] produitDuPalmares(Produit produit) {
-            return repository
-                .findTopProducts(hier(), LocalDate.now(), 100)
-                .stream()
-                .filter(row -> toLong(row[1]) == produit.getId())
-                .findFirst()
-                .orElseThrow();
+            return repository.findTopProducts(hier(), LocalDate.now(), 100).stream()
+                    .filter(row -> toLong(row[1]) == produit.getId())
+                    .findFirst()
+                    .orElseThrow();
         }
     }
 
@@ -331,7 +330,8 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
         @Test
         @DisplayName("les produits les plus remisés s'interrogent sans erreur")
         void produitsLesPlusRemises() {
-            assertThat(repository.findRemisesTopProducts(hier(), LocalDate.now(), 5)).isNotNull();
+            assertThat(repository.findRemisesTopProducts(hier(), LocalDate.now(), 5))
+                    .isNotNull();
         }
     }
 
@@ -349,7 +349,7 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             em.flush();
 
             assertThat(repository.findSalesByStaff(hier(), LocalDate.now()))
-                .anyMatch(row -> toLong(row[0]) == utilisateur.getId());
+                    .anyMatch(row -> toLong(row[0]) == utilisateur.getId());
         }
 
         @Test
@@ -389,12 +389,11 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             long avant = repository.getCreanceTiersPayant();
 
             facture(
-                tiersPayant("CNAM", groupeTiersPayant("GROUPE-CNAM")),
-                hier(),
-                5_000_000,
-                2_000_000,
-                com.kobe.warehouse.domain.enumeration.InvoiceStatut.PARTIALLY_PAID
-            );
+                    tiersPayant("CNAM", groupeTiersPayant("GROUPE-CNAM")),
+                    hier(),
+                    5_000_000,
+                    2_000_000,
+                    com.kobe.warehouse.domain.enumeration.InvoiceStatut.PARTIALLY_PAID);
             em.flush();
 
             assertThat(repository.getCreanceTiersPayant() - avant).isEqualTo(3_000_000L);
@@ -464,7 +463,8 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
         void venteADifferePasComptee() {
             long avant = repository.getNbFacturesImpayees();
 
-            Sales vente = vendu(produitAnalysable("DOLIPRANE DIFFERE", 1_000), 10, jourDeLAnnee(60)).getSales();
+            Sales vente = vendu(produitAnalysable("DOLIPRANE DIFFERE", 1_000), 10, jourDeLAnnee(60))
+                    .getSales();
             vente.setPaymentStatus(PaymentStatus.IMPAYE);
             em.flush();
 
@@ -482,11 +482,7 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
     }
 
     private Object[] jourDe(LocalDate jour) {
-        return repository
-            .findDailySummary(jour, jour)
-            .stream()
-            .findFirst()
-            .orElseThrow();
+        return repository.findDailySummary(jour, jour).stream().findFirst().orElseThrow();
     }
 
     private Commande commandeCloturee(int montant) {

@@ -36,7 +36,8 @@ public class CatalogueExportsServiceImpl implements CatalogueExportsService {
     private final NavAccessService navAccessService;
     private final OptionsFiltreExportRepository optionsFiltreExportRepository;
 
-    public CatalogueExportsServiceImpl(NavAccessService navAccessService, OptionsFiltreExportRepository optionsFiltreExportRepository) {
+    public CatalogueExportsServiceImpl(
+            NavAccessService navAccessService, OptionsFiltreExportRepository optionsFiltreExportRepository) {
         this.navAccessService = navAccessService;
         this.optionsFiltreExportRepository = optionsFiltreExportRepository;
     }
@@ -53,18 +54,18 @@ public class CatalogueExportsServiceImpl implements CatalogueExportsService {
         return new CatalogueExportsDTO(exports);
     }
 
-    private ExportCatalogueDTO decrire(SujetExport sujet, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
+    private ExportCatalogueDTO decrire(
+            SujetExport sujet, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
         return new ExportCatalogueDTO(
-            sujet.name(),
-            sujet.getLibelleRubrique(),
-            sujet.getLibelle(),
-            sujet.getDescription(),
-            sujet.isPeriodique(),
-            sujet.estProgrammable(),
-            sujet.getFormats(),
-            lireColonnes(sujet),
-            lireFiltres(sujet, referentiels)
-        );
+                sujet.name(),
+                sujet.getLibelleRubrique(),
+                sujet.getLibelle(),
+                sujet.getDescription(),
+                sujet.isPeriodique(),
+                sujet.estProgrammable(),
+                sujet.getFormats(),
+                lireColonnes(sujet),
+                lireFiltres(sujet, referentiels));
     }
 
     /** Une édition est déjà mise en forme par son service : elle n'annonce pas de colonnes. */
@@ -79,17 +80,18 @@ public class CatalogueExportsServiceImpl implements CatalogueExportsService {
         return colonnes;
     }
 
-    private List<FiltreCatalogueDTO> lireFiltres(SujetExport sujet, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
+    private List<FiltreCatalogueDTO> lireFiltres(
+            SujetExport sujet, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
         List<FiltreCatalogueDTO> filtres = new ArrayList<>();
         for (FiltreExport filtre : sujet.getFiltres()) {
-            filtres.add(
-                new FiltreCatalogueDTO(filtre, filtre.getLibelle(), filtre.estMultiple(), lireOptions(filtre.getSource(), referentiels))
-            );
+            filtres.add(new FiltreCatalogueDTO(
+                    filtre, filtre.getLibelle(), filtre.estMultiple(), lireOptions(filtre.getSource(), referentiels)));
         }
         return filtres;
     }
 
-    private List<OptionFiltreDTO> lireOptions(SourceOptionsExport source, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
+    private List<OptionFiltreDTO> lireOptions(
+            SourceOptionsExport source, Map<SourceOptionsExport, List<OptionFiltreDTO>> referentiels) {
         if (!source.estReferentiel()) {
             return source.getOptions();
         }

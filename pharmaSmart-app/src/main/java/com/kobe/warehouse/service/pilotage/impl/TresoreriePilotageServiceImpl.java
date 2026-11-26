@@ -35,14 +35,12 @@ import com.kobe.warehouse.service.pilotage.calcul.Variations;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -62,8 +60,10 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
 
     private static final int CLIENTS_MAX = 20;
     private static final double CENT = 100.0;
-    private static final List<InvoiceStatut> NON_SOLDEES = List.of(InvoiceStatut.NOT_PAID, InvoiceStatut.PARTIALLY_PAID);
-    private static final List<ModeClotureAvoir> REMBOURSEMENTS = List.of(ModeClotureAvoir.REMBOURSEMENT_ESPECES, ModeClotureAvoir.REMBOURSEMENT_CB);
+    private static final List<InvoiceStatut> NON_SOLDEES =
+            List.of(InvoiceStatut.NOT_PAID, InvoiceStatut.PARTIALLY_PAID);
+    private static final List<ModeClotureAvoir> REMBOURSEMENTS =
+            List.of(ModeClotureAvoir.REMBOURSEMENT_ESPECES, ModeClotureAvoir.REMBOURSEMENT_CB);
 
     private final PeriodeComparaisonService periodeComparaisonService;
     private final DictionnaireIndicateursService dictionnaireIndicateursService;
@@ -71,11 +71,10 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
     private final AppConfigurationService appConfigurationService;
 
     public TresoreriePilotageServiceImpl(
-        PeriodeComparaisonService periodeComparaisonService,
-        DictionnaireIndicateursService dictionnaireIndicateursService,
-        PilotageTresorerieRepository pilotageTresorerieRepository,
-        AppConfigurationService appConfigurationService
-    ) {
+            PeriodeComparaisonService periodeComparaisonService,
+            DictionnaireIndicateursService dictionnaireIndicateursService,
+            PilotageTresorerieRepository pilotageTresorerieRepository,
+            AppConfigurationService appConfigurationService) {
         this.periodeComparaisonService = periodeComparaisonService;
         this.dictionnaireIndicateursService = dictionnaireIndicateursService;
         this.pilotageTresorerieRepository = pilotageTresorerieRepository;
@@ -96,15 +95,18 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
 
         Map<String, ModeEncaissement> modes = new LinkedHashMap<>();
         long total = 0;
-        for (EncaissementModeJourDTO jour : pilotageTresorerieRepository.sommerEncaissementsParJourEtMode(periode.du(), periode.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)) {
-            modes.computeIfAbsent(jour.mode(), cle -> new ModeEncaissement(jour.libelle(), tranches.size())).ajouter(rangs.floorEntry(jour.jour()).getValue(), jour.montant());
+        for (EncaissementModeJourDTO jour : pilotageTresorerieRepository.sommerEncaissementsParJourEtMode(
+                periode.du(), periode.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)) {
+            modes.computeIfAbsent(jour.mode(), cle -> new ModeEncaissement(jour.libelle(), tranches.size()))
+                    .ajouter(rangs.floorEntry(jour.jour()).getValue(), jour.montant());
             total += jour.montant();
         }
         Map<String, Long> reference = new HashMap<>();
         long totalReference = 0;
         if (comparaison.reference() != null) {
             PeriodeDTO lue = comparaison.reference();
-            for (EncaissementModeJourDTO jour : pilotageTresorerieRepository.sommerEncaissementsParJourEtMode(lue.du(), lue.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)) {
+            for (EncaissementModeJourDTO jour : pilotageTresorerieRepository.sommerEncaissementsParJourEtMode(
+                    lue.du(), lue.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)) {
                 reference.merge(jour.mode(), jour.montant(), Long::sum);
                 totalReference += jour.montant();
             }
@@ -112,25 +114,34 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
 
         boolean avecReference = comparaison.reference() != null;
         long totalPeriode = total;
-        List<Map.Entry<String, ModeEncaissement>> ordonnes = modes.entrySet().stream().sorted(Comparator.comparingLong((Map.Entry<String, ModeEncaissement> mode) -> mode.getValue().total()).reversed()).toList();
+        List<Map.Entry<String, ModeEncaissement>> ordonnes = modes.entrySet().stream()
+                .sorted(Comparator.comparingLong((Map.Entry<String, ModeEncaissement> mode) ->
+                                mode.getValue().total())
+                        .reversed())
+                .toList();
         return new EncaissementsTresorerieDTO(
-            comparaison,
-            Variations.cellule(UniteIndicateur.MONTANT, (double) total, avecReference ? (double) totalReference : null),
-            ordonnes
-                .stream()
-                .map(mode ->
-                    new ModeEncaissementDTO(
-                        mode.getKey(),
-                        mode.getValue().libelle(),
-                        Variations.cellule(UniteIndicateur.MONTANT, (double) mode.getValue().total(), avecReference ? (double) reference.getOrDefault(mode.getKey(), 0L) : null),
-                        Variations.part((double) mode.getValue().total(), (double) totalPeriode)
-                    )
-                )
-                .toList(),
-            libelles,
-            ordonnes.stream().map(mode -> new SerieModeDTO(mode.getValue().libelle(), Arrays.stream(mode.getValue().parTranche()).boxed().toList())).toList(),
-            voitLEquipe() ? listerCaissiers(periode) : null
-        );
+                comparaison,
+                Variations.cellule(
+                        UniteIndicateur.MONTANT, (double) total, avecReference ? (double) totalReference : null),
+                ordonnes.stream()
+                        .map(mode -> new ModeEncaissementDTO(
+                                mode.getKey(),
+                                mode.getValue().libelle(),
+                                Variations.cellule(
+                                        UniteIndicateur.MONTANT,
+                                        (double) mode.getValue().total(),
+                                        avecReference ? (double) reference.getOrDefault(mode.getKey(), 0L) : null),
+                                Variations.part((double) mode.getValue().total(), (double) totalPeriode)))
+                        .toList(),
+                libelles,
+                ordonnes.stream()
+                        .map(mode -> new SerieModeDTO(
+                                mode.getValue().libelle(),
+                                Arrays.stream(mode.getValue().parTranche())
+                                        .boxed()
+                                        .toList()))
+                        .toList(),
+                voitLEquipe() ? listerCaissiers(periode) : null);
     }
 
     @Override
@@ -139,7 +150,8 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
         Map<String, FactureOrganismeDTO> facturation = new LinkedHashMap<>();
         long facture = 0;
         long regle = 0;
-        for (FactureOrganismeDTO organisme : pilotageTresorerieRepository.sommerFacturationParOrganisme(comparaison.periode().du(), comparaison.periode().au())) {
+        for (FactureOrganismeDTO organisme : pilotageTresorerieRepository.sommerFacturationParOrganisme(
+                comparaison.periode().du(), comparaison.periode().au())) {
             facturation.put(organisme.cle(), organisme);
             facture += organisme.facture();
             regle += organisme.regle();
@@ -149,7 +161,8 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
         if (comparaison.reference() != null) {
             factureReference = 0L;
             regleReference = 0L;
-            for (FactureOrganismeDTO organisme : pilotageTresorerieRepository.sommerFacturationParOrganisme(comparaison.reference().du(), comparaison.reference().au())) {
+            for (FactureOrganismeDTO organisme : pilotageTresorerieRepository.sommerFacturationParOrganisme(
+                    comparaison.reference().du(), comparaison.reference().au())) {
                 factureReference += organisme.facture();
                 regleReference += organisme.regle();
             }
@@ -160,25 +173,29 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
             observes.put(delai.cle(), delai);
         }
         CreancesTiersPayant creances = CreancesTiersPayant.ranger(
-            pilotageTresorerieRepository.listerFacturesNonSoldees(NON_SOLDEES),
-            observes,
-            appConfigurationService.getDelaiReglement(),
-            aujourdhui
-        );
+                pilotageTresorerieRepository.listerFacturesNonSoldees(NON_SOLDEES),
+                observes,
+                appConfigurationService.getDelaiReglement(),
+                aujourdhui);
         List<OrganismeTresorerieDTO> organismes = creances.lister(facturation);
         return new TiersPayantTresorerieDTO(
-            comparaison,
-            Variations.cellule(UniteIndicateur.MONTANT, (double) facture, factureReference == null ? null : (double) factureReference),
-            Variations.cellule(UniteIndicateur.MONTANT, (double) regle, regleReference == null ? null : (double) regleReference),
-            creances.encours(),
-            creances.dso(),
-            organismes,
-            creances.vieillissement(),
-            creances.echeancier(aujourdhui),
-            concentration(organismes, 3, creances.encours()),
-            concentration(organismes, 5, creances.encours()),
-            OrganismeCreances.SEUIL_HISTORIQUE
-        );
+                comparaison,
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) facture,
+                        factureReference == null ? null : (double) factureReference),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) regle,
+                        regleReference == null ? null : (double) regleReference),
+                creances.encours(),
+                creances.dso(),
+                organismes,
+                creances.vieillissement(),
+                creances.echeancier(aujourdhui),
+                concentration(organismes, 3, creances.encours()),
+                concentration(organismes, 5, creances.encours()),
+                OrganismeCreances.SEUIL_HISTORIQUE);
     }
 
     @Override
@@ -186,56 +203,58 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
         ComparaisonPeriodesDTO comparaison = periodeComparaisonService.comparer(requete, aujourdhui);
         var officine = CategorieChiffreAffaire.officine();
         DifferesAgeDTO ages = pilotageTresorerieRepository.sommerDifferesParAge(
-            aujourdhui.minusDays(30),
-            aujourdhui.minusDays(60),
-            aujourdhui.minusDays(90),
-            SalesStatut.CLOSED,
-            officine
-        );
+                aujourdhui.minusDays(30),
+                aujourdhui.minusDays(60),
+                aujourdhui.minusDays(90),
+                SalesStatut.CLOSED,
+                officine);
         List<TrancheMontantDTO> vieillissement = List.of(
-            new TrancheMontantDTO("0 à 30 jours", ages.moins30()),
-            new TrancheMontantDTO("31 à 60 jours", ages.de31a60()),
-            new TrancheMontantDTO("61 à 90 jours", ages.de61a90()),
-            new TrancheMontantDTO("Plus de 90 jours", ages.plus90())
-        );
+                new TrancheMontantDTO("0 à 30 jours", ages.moins30()),
+                new TrancheMontantDTO("31 à 60 jours", ages.de31a60()),
+                new TrancheMontantDTO("61 à 90 jours", ages.de61a90()),
+                new TrancheMontantDTO("Plus de 90 jours", ages.plus90()));
         boolean avecReference = comparaison.reference() != null;
         return new DifferesTresorerieDTO(
-            ages.moins30() + ages.de31a60() + ages.de61a90() + ages.plus90(),
-            vieillissement,
-            pilotageTresorerieRepository.sommerDifferesParClient(SalesStatut.CLOSED, officine, PageRequest.of(0, CLIENTS_MAX)),
-            Variations.cellule(
-                UniteIndicateur.MONTANT,
-                (double) avoirs(comparaison.periode(), false),
-                avecReference ? (double) avoirs(comparaison.reference(), false) : null
-            ),
-            Variations.cellule(
-                UniteIndicateur.MONTANT,
-                (double) avoirs(comparaison.periode(), true),
-                avecReference ? (double) avoirs(comparaison.reference(), true) : null
-            )
-        );
+                ages.moins30() + ages.de31a60() + ages.de61a90() + ages.plus90(),
+                vieillissement,
+                pilotageTresorerieRepository.sommerDifferesParClient(
+                        SalesStatut.CLOSED, officine, PageRequest.of(0, CLIENTS_MAX)),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) avoirs(comparaison.periode(), false),
+                        avecReference ? (double) avoirs(comparaison.reference(), false) : null),
+                Variations.cellule(
+                        UniteIndicateur.MONTANT,
+                        (double) avoirs(comparaison.periode(), true),
+                        avecReference ? (double) avoirs(comparaison.reference(), true) : null));
     }
 
     private long avoirs(PeriodeDTO periode, boolean rembourses) {
         LocalDateTime debut = periode.du().atStartOfDay();
         LocalDateTime fin = periode.au().plusDays(1).atStartOfDay();
         ComptageDTO avoirs = rembourses
-            ? pilotageTresorerieRepository.sommerAvoirsRembourses(debut, fin, REMBOURSEMENTS)
-            : pilotageTresorerieRepository.sommerAvoirsEmis(debut, fin);
+                ? pilotageTresorerieRepository.sommerAvoirsRembourses(debut, fin, REMBOURSEMENTS)
+                : pilotageTresorerieRepository.sommerAvoirsEmis(debut, fin);
         return avoirs.montant();
     }
 
     private List<CaissierEncaissementDTO> listerCaissiers(PeriodeDTO periode) {
         Map<String, Long> sessions = new HashMap<>();
-        for (ComptageDTO caissier : pilotageTresorerieRepository.compterSessionsParCaissier(periode.du().atStartOfDay(), periode.au().plusDays(1).atStartOfDay())) {
+        for (ComptageDTO caissier : pilotageTresorerieRepository.compterSessionsParCaissier(
+                periode.du().atStartOfDay(), periode.au().plusDays(1).atStartOfDay())) {
             sessions.put(caissier.cle(), caissier.nombre());
         }
         return pilotageTresorerieRepository
-            .sommerEncaissementsParCaissier(periode.du(), periode.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)
-            .stream()
-            .sorted(Comparator.comparingLong(ComptageDTO::montant).reversed())
-            .map(caissier -> new CaissierEncaissementDTO(caissier.cle(), caissier.libelle(), caissier.montant(), caissier.nombre(), sessions.getOrDefault(caissier.cle(), 0L)))
-            .toList();
+                .sommerEncaissementsParCaissier(periode.du(), periode.au(), LecteurMesuresPilotage.TYPES_ENCAISSEMENT)
+                .stream()
+                .sorted(Comparator.comparingLong(ComptageDTO::montant).reversed())
+                .map(caissier -> new CaissierEncaissementDTO(
+                        caissier.cle(),
+                        caissier.libelle(),
+                        caissier.montant(),
+                        caissier.nombre(),
+                        sessions.getOrDefault(caissier.cle(), 0L)))
+                .toList();
     }
 
     private boolean voitLEquipe() {
@@ -250,5 +269,4 @@ public class TresoreriePilotageServiceImpl implements TresoreriePilotageService 
         }
         return encours == 0 ? null : premiers * CENT / encours;
     }
-
 }

@@ -17,15 +17,14 @@ package com.kobe.warehouse.service.stock.dto;
  * </ul>
  */
 public record LotPerimeValeurSum(
-    long valeurAchat,
-    long valeurVente,
-    int quantite,
-    long count,
-    /** Nombre de lots dont la péremption tombe dans les 30 prochains jours. */
-    long prochainesPerimes,
-    /** Nombre de bons de retour fournisseur non clôturés. */
-    long retoursFourn
-) {
+        long valeurAchat,
+        long valeurVente,
+        int quantite,
+        long count,
+        /** Nombre de lots dont la péremption tombe dans les 30 prochains jours. */
+        long prochainesPerimes,
+        /** Nombre de bons de retour fournisseur non clôturés. */
+        long retoursFourn) {
     /** Reprend les agrégats de lots en y ajoutant le compte des retours en cours. */
     public LotPerimeValeurSum avecRetours(long retours) {
         return new LotPerimeValeurSum(valeurAchat, valeurVente, quantite, count, prochainesPerimes, retours);

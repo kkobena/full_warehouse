@@ -22,4 +22,3 @@ export class HasAbilityPipe implements PipeTransform {
     return this.abilityService.can(action, subject);
   }
 }
-

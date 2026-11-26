@@ -1,71 +1,44 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal
-} from "@angular/core";
-import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
-import {CommonModule} from "@angular/common";
-import {
-  VenteByTypeRecord,
-  VenteModePaimentRecord,
-  VenteRecord,
-  VenteRecordWrapper
-} from "../../shared/model/vente-record.model";
-import {ProductStatParetoRecord, ProductStatRecord} from "../../shared/model/produit-record.model";
-import {AchatRecord} from "../../shared/model/achat-record.model";
-import {CaPeriodeFilter} from "../../shared/model/enumerations/ca-periode-filter.model";
-import {TOPS} from "../../shared/constants/pagination.constants";
-import {DashboardService} from "../dashboard.service";
-import {ProduitStatService} from "../../entities/produit/stat/produit-stat.service";
-import {TypeCa} from "../../shared/model/enumerations/type-ca.model";
-import {OrderBy} from "../../shared/model/enumerations/type-vente.model";
-import {forkJoin, interval} from "rxjs";
-import {FormsModule} from "@angular/forms";
-import {TiersPayantService} from "../../entities/tiers-payant/tierspayant.service";
-import {TiersPayantAchat} from "../../entities/tiers-payant/model/tiers-payant-achat.model";
-import {ChartComponent} from 'app/shared/chart/chart.component';
-import {CardComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent} from 'app/shared/ui';
-import {
-  backgroundColor,
-  hoverBackgroundColor,
-  surfaceBorder,
-  textColor,
-  textColorSecondary
-} from "../../shared/chart-color-helper";
-import {ToggleStateService} from "./toggle-state.service";
-import {Router, RouterModule} from "@angular/router";
-import {AlertBadgeService} from "../../shared/services/alert-badge.service";
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
+import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
+import { ProductStatParetoRecord, ProductStatRecord } from '../../shared/model/produit-record.model';
+import { AchatRecord } from '../../shared/model/achat-record.model';
+import { CaPeriodeFilter } from '../../shared/model/enumerations/ca-periode-filter.model';
+import { TOPS } from '../../shared/constants/pagination.constants';
+import { DashboardService } from '../dashboard.service';
+import { ProduitStatService } from '../../entities/produit/stat/produit-stat.service';
+import { TypeCa } from '../../shared/model/enumerations/type-ca.model';
+import { OrderBy } from '../../shared/model/enumerations/type-vente.model';
+import { forkJoin, interval } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { TiersPayantService } from '../../entities/tiers-payant/tierspayant.service';
+import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant-achat.model';
+import { ChartComponent } from 'app/shared/chart/chart.component';
+import { CardComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from 'app/shared/ui';
+import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
+import { ToggleStateService } from './toggle-state.service';
+import { Router, RouterModule } from '@angular/router';
+import { AlertBadgeService } from '../../shared/services/alert-badge.service';
 // Report services
-import {MargeReportService} from "../../entities/reports/services/marge-report.service";
-import {
-  StockValuationReportService
-} from "../../entities/reports/services/stock-valuation-report.service";
-import {
-  TiersPayantReportService
-} from "../../entities/reports/services/tiers-payant-report.service";
-import {
-  SupplierPerformanceReportService
-} from "../../entities/reports/services/supplier-performance-report.service";
+import { MargeReportService } from '../../entities/reports/services/marge-report.service';
+import { StockValuationReportService } from '../../entities/reports/services/stock-valuation-report.service';
+import { TiersPayantReportService } from '../../entities/reports/services/tiers-payant-report.service';
+import { SupplierPerformanceReportService } from '../../entities/reports/services/supplier-performance-report.service';
 // Report models
 import {
   IMargeSummary,
   IStockValuationSummary,
   ISupplierPerformanceSummary,
   ISupplierPurchase,
-  ITiersPayantCreancesSummary
-} from "../../shared/model/report";
+  ITiersPayantCreancesSummary,
+} from '../../shared/model/report';
 // Différés & Facturation
-import {DiffereApiService} from "../../features/differes/data-access/services/differe-api.service";
-import {IDiffereSummary} from "../../features/differes/data-access/models";
-import {
-  FactureApiService
-} from "../../features/facturation/data-access/services/facture-api.service";
-import {IFacturationKpi} from "../../features/facturation/data-access/models";
-import dayjs from "dayjs";
+import { DiffereApiService } from '../../features/differes/data-access/services/differe-api.service';
+import { IDiffereSummary } from '../../features/differes/data-access/models';
+import { FactureApiService } from '../../features/facturation/data-access/services/facture-api.service';
+import { IFacturationKpi } from '../../features/facturation/data-access/models';
+import dayjs from 'dayjs';
 import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 
 interface TopSelection {
@@ -80,45 +53,48 @@ interface PeriodOption {
 }
 
 @Component({
-  selector: "app-home-base",
-  imports: [CardComponent, KpiItemComponent, KpiStripComponent, PillSelectorComponent, 
+  selector: 'app-home-base',
+  imports: [
+    CardComponent,
+    KpiItemComponent,
+    KpiStripComponent,
+    PillSelectorComponent,
     CommonModule,
     FormsModule,
     RouterModule,
     DataTableComponent,
     ChartComponent,
-    SelectComponent
+    SelectComponent,
   ],
-  templateUrl: "./home-base.component.html",
+  templateUrl: './home-base.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./home-base.component.scss"
+  styleUrl: './home-base.component.scss',
 })
 export class HomeBaseComponent implements OnInit {
-
   protected readonly tops: TopSelection[] = TOPS;
 
   // Alert counters — via AlertBadgeService (signaux)
   protected readonly alertBadgeService = inject(AlertBadgeService);
 
   protected readonly periodeOptions: PeriodOption[] = [
-    {label: "Auj.", value: CaPeriodeFilter.daily, icon: "pi pi-sun"},
-    {label: "Semaine", value: CaPeriodeFilter.weekly, icon: "pi pi-calendar"},
-    {label: "Mois", value: CaPeriodeFilter.monthly, icon: "pi pi-calendar-plus"},
-    {label: "Semestre", value: CaPeriodeFilter.halfyearly, icon: "pi pi-chart-bar"},
-    {label: "Année", value: CaPeriodeFilter.yearly, icon: "pi pi-chart-line"}
+    { label: 'Auj.', value: CaPeriodeFilter.daily, icon: 'pi pi-sun' },
+    { label: 'Semaine', value: CaPeriodeFilter.weekly, icon: 'pi pi-calendar' },
+    { label: 'Mois', value: CaPeriodeFilter.monthly, icon: 'pi pi-calendar-plus' },
+    { label: 'Semestre', value: CaPeriodeFilter.halfyearly, icon: 'pi pi-chart-bar' },
+    { label: 'Année', value: CaPeriodeFilter.yearly, icon: 'pi pi-chart-line' },
   ];
   protected readonly graphOptions = [
-    { label: "Vue Tabulaire", value: false, icon: "pi pi-table" },
-    { label: "Vue Graphique", value: true, icon: "pi pi-chart-bar" },
+    { label: 'Vue Tabulaire', value: false, icon: 'pi pi-table' },
+    { label: 'Vue Graphique', value: true, icon: 'pi pi-chart-bar' },
   ];
   protected activePeriode = signal<CaPeriodeFilter>(CaPeriodeFilter.daily);
   protected isLoading = signal(false);
   protected lastUpdate = signal<Date | null>(null);
   protected readonly paretoOptions = [
-    { label: "Quantité", value: "qty", icon: "pi pi-sort-amount-down" },
-    { label: "Montant", value: "amt", icon: "pi pi-dollar" },
+    { label: 'Quantité', value: 'qty', icon: 'pi pi-sort-amount-down' },
+    { label: 'Montant', value: 'amt', icon: 'pi pi-dollar' },
   ];
-  protected activePareto: "qty" | "amt" = "qty";
+  protected activePareto: 'qty' | 'amt' = 'qty';
   /** Date du jour, pour dater les encours que le sélecteur de période ne déplace pas. */
   protected readonly aujourdhui = new Date();
   // ─── State ──────────────────────────────────────────────────────
@@ -247,7 +223,7 @@ export class HomeBaseComponent implements OnInit {
     return {
       marge,
       cout: vente.costAmount ?? 0,
-      taux: net > 0 ? (marge * 100) / net : 0
+      taux: net > 0 ? (marge * 100) / net : 0,
     };
   });
 
@@ -286,38 +262,38 @@ export class HomeBaseComponent implements OnInit {
     const sources = {
       ca: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: this.activePeriode()
+        dashboardPeriode: this.activePeriode(),
       }),
-      caAchat: this.dashboardService.fetchCaAchat({dashboardPeriode: this.activePeriode()}),
-      caTypeVente: this.dashboardService.fetchCaByTypeVente({dashboardPeriode: this.activePeriode()}),
-      byModePaiment: this.dashboardService.getCaByModePaiment({dashboardPeriode: this.activePeriode()}),
+      caAchat: this.dashboardService.fetchCaAchat({ dashboardPeriode: this.activePeriode() }),
+      caTypeVente: this.dashboardService.fetchCaByTypeVente({ dashboardPeriode: this.activePeriode() }),
+      byModePaiment: this.dashboardService.getCaByModePaiment({ dashboardPeriode: this.activePeriode() }),
       produitCa: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.activePeriode(),
         order: OrderBy.QUANTITY_SOLD,
-        size: this.TOP_MAX_QUANTITY()?.value
+        size: this.TOP_MAX_QUANTITY()?.value,
       }),
       produitAmount: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.activePeriode(),
         order: OrderBy.AMOUNT,
-        size: this.TOP_MAX_AMOUNT()?.value
+        size: this.TOP_MAX_AMOUNT()?.value,
       }),
       twentyEighty: this.produitStatService.fetch20x80({
         dashboardPeriode: this.activePeriode(),
-        order: OrderBy.QUANTITY_SOLD
+        order: OrderBy.QUANTITY_SOLD,
       }),
       twentyEightyMontant: this.produitStatService.fetch20x80({
         dashboardPeriode: this.activePeriode(),
-        order: OrderBy.AMOUNT
+        order: OrderBy.AMOUNT,
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.activePeriode(),
-        limit: this.TOP_MAX_TP()?.value
+        limit: this.TOP_MAX_TP()?.value,
       }),
       // Même fenêtre, reculée d'une période : alimente caEvolutionPct
       caPrecedent: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
         dashboardPeriode: this.activePeriode(),
-        ...this.bornesPeriodePrecedente()
+        ...this.bornesPeriodePrecedente(),
       }),
       // Hors période, étiqueté comme tel à l'écran
       marge12Mois: this.margeReportService.getMargeSummary(),
@@ -328,7 +304,7 @@ export class HomeBaseComponent implements OnInit {
       supplierSummary: this.supplierService.getSupplierPerformanceSummary(),
       // P2 — Différés & Facturation
       differeSummary: this.differeApiService.getDiffereSummary({}),
-      facturationKpi: this.factureApiService.getKpi(this.bornesPeriodeCourante())
+      facturationKpi: this.factureApiService.getKpi(this.bornesPeriodeCourante()),
     };
 
     forkJoin(sources).subscribe({
@@ -361,7 +337,7 @@ export class HomeBaseComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -371,7 +347,7 @@ export class HomeBaseComponent implements OnInit {
       .fetchPoduitCa({
         dashboardPeriode: this.activePeriode(),
         order: OrderBy.QUANTITY_SOLD,
-        size: top.value
+        size: top.value,
       })
       .subscribe(res => {
         this.onFetchPoduitCaSuccess(res.body);
@@ -385,7 +361,7 @@ export class HomeBaseComponent implements OnInit {
       .fetchPoduitCa({
         dashboardPeriode: this.activePeriode(),
         order: OrderBy.AMOUNT,
-        size: top.value
+        size: top.value,
       })
       .subscribe(res => {
         this.onFetchPoduitAmountSuccess(res.body);
@@ -395,12 +371,10 @@ export class HomeBaseComponent implements OnInit {
 
   protected onTopTiersPayantChange(top: TopSelection): void {
     this.TOP_MAX_TP.set(top);
-    this.tiersPayantService
-      .fetchAchatTiersPayant({dashboardPeriode: this.activePeriode(), limit: top.value})
-      .subscribe(res => {
-        this.onFetchTiersPayantSuccess(res.body);
-        this.buildTiersPayantChart();
-      });
+    this.tiersPayantService.fetchAchatTiersPayant({ dashboardPeriode: this.activePeriode(), limit: top.value }).subscribe(res => {
+      this.onFetchTiersPayantSuccess(res.body);
+      this.buildTiersPayantChart();
+    });
   }
 
   protected onTopFournisseurChange(top: TopSelection): void {
@@ -414,38 +388,40 @@ export class HomeBaseComponent implements OnInit {
   protected buildFournisseurChart(): void {
     const items = this.topFournisseurs();
     this.fournisseurChartData.set({
-      labels: items.map(f => f.fournisseurName?.slice(0, 18) ?? ""),
-      datasets: [{
-        data: items.map(f => f.montantAchat ?? 0),
-        backgroundColor: ["#008cba", "#5bc0de", "#43ac6a", "#e99002", "#f04124"],
-        borderWidth: 2
-      }]
+      labels: items.map(f => f.fournisseurName?.slice(0, 18) ?? ''),
+      datasets: [
+        {
+          data: items.map(f => f.montantAchat ?? 0),
+          backgroundColor: ['#008cba', '#5bc0de', '#43ac6a', '#e99002', '#f04124'],
+          borderWidth: 2,
+        },
+      ],
     });
     this.fournisseurChartOptions.set({
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {legend: {position: "right", labels: {boxWidth: 12, font: {size: 10}}}}
+      plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } },
     });
   }
 
   protected voirPeremptions(): void {
-    this.router.navigate(["/gestion-peremption"]);
+    this.router.navigate(['/gestion-peremption']);
   }
 
   protected voirRuptures(): void {
-    this.router.navigate(["/produits"], {queryParams: {rupture: true}});
+    this.router.navigate(['/produits'], { queryParams: { rupture: true } });
   }
 
   protected voirUrgents(): void {
-    this.router.navigate(["/commande"], {queryParams: {tab: "SUGGESTIONS"}});
+    this.router.navigate(['/commande'], { queryParams: { tab: 'SUGGESTIONS' } });
   }
 
   protected voirAjustements(): void {
-    this.router.navigate(["/features-ajustement"]);
+    this.router.navigate(['/features-ajustement']);
   }
 
   protected voirModifPrix(): void {
-    this.router.navigate(["/produit"], {queryParams: {prixModif: true}});
+    this.router.navigate(['/produit'], { queryParams: { prixModif: true } });
   }
 
   /**
@@ -453,16 +429,14 @@ export class HomeBaseComponent implements OnInit {
    * recouvrement, qui n'accepte que des dates, retombait sinon sur le mois calendaire.
    */
   private chargerTopFournisseurs(limit: number) {
-    const {fromDate, toDate} = this.bornesPeriodeCourante();
+    const { fromDate, toDate } = this.bornesPeriodeCourante();
     return this.supplierService.getTopSuppliersByPeriode(fromDate, toDate, limit);
   }
 
   private bornesPeriodeCourante(): { fromDate: string; toDate: string } {
     const today = dayjs();
-    const debut = this.activePeriode() === CaPeriodeFilter.daily
-      ? today
-      : this.reculeDUnePeriode(today);
-    return {fromDate: debut.format("YYYY-MM-DD"), toDate: today.format("YYYY-MM-DD")};
+    const debut = this.activePeriode() === CaPeriodeFilter.daily ? today : this.reculeDUnePeriode(today);
+    return { fromDate: debut.format('YYYY-MM-DD'), toDate: today.format('YYYY-MM-DD') };
   }
 
   /**
@@ -470,22 +444,22 @@ export class HomeBaseComponent implements OnInit {
    * moins la période : reculer la seule borne de départ suffit à décrire la fenêtre d'avant.
    */
   private bornesPeriodePrecedente(): { fromDate: string; toDate: string } {
-    const debut = this.reculeDUnePeriode(dayjs()).format("YYYY-MM-DD");
-    return {fromDate: debut, toDate: debut};
+    const debut = this.reculeDUnePeriode(dayjs()).format('YYYY-MM-DD');
+    return { fromDate: debut, toDate: debut };
   }
 
   private reculeDUnePeriode(ref: dayjs.Dayjs): dayjs.Dayjs {
     switch (this.activePeriode()) {
       case CaPeriodeFilter.daily:
-        return ref.subtract(1, "day");
+        return ref.subtract(1, 'day');
       case CaPeriodeFilter.weekly:
-        return ref.subtract(1, "week");
+        return ref.subtract(1, 'week');
       case CaPeriodeFilter.monthly:
-        return ref.subtract(1, "month");
+        return ref.subtract(1, 'month');
       case CaPeriodeFilter.halfyearly:
-        return ref.subtract(6, "month");
+        return ref.subtract(6, 'month');
       case CaPeriodeFilter.yearly:
-        return ref.subtract(1, "year");
+        return ref.subtract(1, 'year');
     }
   }
 
@@ -508,9 +482,9 @@ export class HomeBaseComponent implements OnInit {
     // Les trois types que l'officine pratique. Le tiers payant était déjà rapporté par le
     // serveur mais n'aboutissait nulle part à l'écran : le bandeau n'annonçait que le
     // comptant, en le nommant « ventes », ce qui laissait croire que c'était tout.
-    this.vno.set(venteByTypeRecords.find(e => e.typeVente === "CashSale")?.venteRecord ?? null);
-    this.assurance.set(venteByTypeRecords.find(e => e.typeVente === "ThirdPartySales")?.venteRecord ?? null);
-    this.venteDepot.set(venteByTypeRecords.find(e => e.typeVente === "VenteDepot")?.venteRecord ?? null);
+    this.vno.set(venteByTypeRecords.find(e => e.typeVente === 'CashSale')?.venteRecord ?? null);
+    this.assurance.set(venteByTypeRecords.find(e => e.typeVente === 'ThirdPartySales')?.venteRecord ?? null);
+    this.venteDepot.set(venteByTypeRecords.find(e => e.typeVente === 'VenteDepot')?.venteRecord ?? null);
   }
 
   private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
@@ -584,12 +558,14 @@ export class HomeBaseComponent implements OnInit {
   private buildQuantityChart(): void {
     this.quantityChartData.set({
       labels: this.rowQuantity().map(p => p.libelle.slice(0, 20)),
-      datasets: [{
-        type: "bar",
-        label: "Quantité vendue",
-        backgroundColor: this.documentStyle.getPropertyValue("--p-primary-200"),
-        data: this.rowQuantity().map(p => p.quantitySold)
-      }]
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Quantité vendue',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'),
+          data: this.rowQuantity().map(p => p.quantitySold),
+        },
+      ],
     });
     this.quantityChartOptions.set(this.getCommonChartOptions());
   }
@@ -597,12 +573,14 @@ export class HomeBaseComponent implements OnInit {
   private buildAmountChart(): void {
     this.amountChartData.set({
       labels: this.rowAmount().map(p => p.libelle.slice(0, 20)),
-      datasets: [{
-        type: "bar",
-        label: "Montant HT",
-        backgroundColor: this.documentStyle.getPropertyValue("--p-blue-200"),
-        data: this.rowAmount().map(p => p.montantHt)
-      }]
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Montant HT',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
+          data: this.rowAmount().map(p => p.montantHt),
+        },
+      ],
     });
     this.amountChartOptions.set(this.getCommonChartOptions());
   }
@@ -615,39 +593,39 @@ export class HomeBaseComponent implements OnInit {
       labels: this.row20x80().map(p => p.libelle.slice(0, 20)),
       datasets: [
         {
-          type: "line",
-          label: "% Quantité cumulé",
-          borderColor: this.documentStyle.getPropertyValue("--p-cyan-300"),
+          type: 'line',
+          label: '% Quantité cumulé',
+          borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
           tension: 0.4,
-          data: this.row20x80().map(p => p.pourcentage)
+          data: this.row20x80().map(p => p.pourcentage),
         },
         {
-          type: "bar",
-          label: "Quantité",
-          backgroundColor: this.documentStyle.getPropertyValue("--p-orange-300"),
-          data: this.row20x80().map(p => p.total)
-        }
-      ]
+          type: 'bar',
+          label: 'Quantité',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
+          data: this.row20x80().map(p => p.total),
+        },
+      ],
     });
 
     this.twentyEightyMontantChartData.set({
       labels: this.row20x80Montant().map(p => p.libelle.slice(0, 20)),
       datasets: [
         {
-          type: "line",
-          label: "% Montant cumulé",
-          borderColor: "rgba(234,88,12,1)",
-          backgroundColor: "rgba(234,88,12,0.08)",
+          type: 'line',
+          label: '% Montant cumulé',
+          borderColor: 'rgba(234,88,12,1)',
+          backgroundColor: 'rgba(234,88,12,0.08)',
           tension: 0.4,
-          data: this.row20x80Montant().map(p => p.pourcentage)
+          data: this.row20x80Montant().map(p => p.pourcentage),
         },
         {
-          type: "bar",
-          label: "Montant",
-          backgroundColor: "rgba(234,88,12,0.7)",
-          data: this.row20x80Montant().map(p => p.total)
-        }
-      ]
+          type: 'bar',
+          label: 'Montant',
+          backgroundColor: 'rgba(234,88,12,0.7)',
+          data: this.row20x80Montant().map(p => p.total),
+        },
+      ],
     });
     this.twentyEightyChartOptions.set(this.getCommonChartOptions());
   }
@@ -655,11 +633,13 @@ export class HomeBaseComponent implements OnInit {
   private buildModePaimentChart(): void {
     this.modePaimentChartData.set({
       labels: this.venteModePaiments().map(p => p.libelle),
-      datasets: [{
-        data: this.venteModePaiments().map(p => p.paidAmount),
-        backgroundColor: backgroundColor(this.documentStyle),
-        hoverBackgroundColor: hoverBackgroundColor(this.documentStyle)
-      }]
+      datasets: [
+        {
+          data: this.venteModePaiments().map(p => p.paidAmount),
+          backgroundColor: backgroundColor(this.documentStyle),
+          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle),
+        },
+      ],
     });
     this.modePaimentChartOptions.set(this.getCommonPieChartOptions());
   }
@@ -669,11 +649,13 @@ export class HomeBaseComponent implements OnInit {
     const hovers = hoverBackgroundColor(this.documentStyle);
     this.tiersPayantChartData.set({
       labels: this.tiersPayantAchat().map(p => p.tiersPayantName),
-      datasets: [{
-        data: this.tiersPayantAchat().map(p => p.montantTtc),
-        backgroundColor: bgs.reverse(),
-        hoverBackgroundColor: hovers.reverse()
-      }]
+      datasets: [
+        {
+          data: this.tiersPayantAchat().map(p => p.montantTtc),
+          backgroundColor: bgs.reverse(),
+          hoverBackgroundColor: hovers.reverse(),
+        },
+      ],
     });
     this.tiersPayantChartOptions.set(this.getCommonPieChartOptions());
   }
@@ -682,11 +664,11 @@ export class HomeBaseComponent implements OnInit {
     return {
       maintainAspectRatio: false,
       aspectRatio: 0.8,
-      plugins: {legend: {labels: {color: this.textColor}}},
+      plugins: { legend: { labels: { color: this.textColor } } },
       scales: {
-        y: {ticks: {color: this.textColorSecondary}, grid: {color: this.surfaceBorder}},
-        x: {ticks: {color: this.textColorSecondary}, grid: {color: this.surfaceBorder}}
-      }
+        y: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
+        x: { ticks: { color: this.textColorSecondary }, grid: { color: this.surfaceBorder } },
+      },
     };
   }
 
@@ -694,10 +676,10 @@ export class HomeBaseComponent implements OnInit {
     return {
       plugins: {
         legend: {
-          position: "bottom",
-          labels: {color: this.textColor, usePointStyle: true}
-        }
-      }
+          position: 'bottom',
+          labels: { color: this.textColor, usePointStyle: true },
+        },
+      },
     };
   }
 }

@@ -1,23 +1,23 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import { HttpResponse } from "@angular/common/http";
-import { CommonModule } from "@angular/common";
-import { Router } from "@angular/router";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { QuantiteProdutSaisieComponent } from "app/shared/quantite-produt-saisie/quantite-produt-saisie.component";
-import { RetourDepot } from "app/shared/model/retour-depot.model";
-import { IRetourDepotItem, RetourDepotItem } from "app/shared/model/retour-depot-item.model";
-import { RetourDepotService } from "../retour-depot.service";
-import { debounceTime, Subject, Subscription } from "rxjs";
-import { finalize } from "rxjs/operators";
-import { IMagasin, IProduit } from "../../../shared/model";
-import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
-import { StockDepotService } from "../stock-depot/stock-depot.service";
-import { NotificationService } from "../../../shared/services/notification.service";
-import { ButtonComponent, DataTableComponent, EditableCellComponent, SelectComponent, SelectSearchComponent } from "../../../shared/ui";
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { RetourDepot } from 'app/shared/model/retour-depot.model';
+import { IRetourDepotItem, RetourDepotItem } from 'app/shared/model/retour-depot-item.model';
+import { RetourDepotService } from '../retour-depot.service';
+import { debounceTime, Subject, Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { IMagasin, IProduit } from '../../../shared/model';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
+import { StockDepotService } from '../stock-depot/stock-depot.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, DataTableComponent, EditableCellComponent, SelectComponent, SelectSearchComponent } from '../../../shared/ui';
 
 @Component({
-  selector: "app-depot-returns",
+  selector: 'app-depot-returns',
   imports: [
     CommonModule,
     FormsModule,
@@ -27,11 +27,11 @@ import { ButtonComponent, DataTableComponent, EditableCellComponent, SelectCompo
     SelectComponent,
     SelectSearchComponent,
     QuantiteProdutSaisieComponent,
-    NgbTooltip
+    NgbTooltip,
   ],
-  templateUrl: "./depot-returns.component.html",
+  templateUrl: './depot-returns.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: "./depot-returns.component.scss"
+  styleUrl: './depot-returns.component.scss',
 })
 export class DepotReturnsComponent implements OnInit, OnDestroy {
   private readonly retourDepotService = inject(RetourDepotService);
@@ -39,9 +39,9 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   private readonly magasinService = inject(MagasinService);
   private readonly router = inject(Router);
   private readonly notificationService = inject(NotificationService);
-  @ViewChild("productAutoComplete", { read: ElementRef }) productAutoComplete: ElementRef<HTMLElement> | undefined;
-  @ViewChild("depotSelect") depotSelect: SelectComponent | undefined;
-  @ViewChild("quantiteBox") quantiteBox: QuantiteProdutSaisieComponent | undefined;
+  @ViewChild('productAutoComplete', { read: ElementRef }) productAutoComplete: ElementRef<HTMLElement> | undefined;
+  @ViewChild('depotSelect') depotSelect: SelectComponent | undefined;
+  @ViewChild('quantiteBox') quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
   protected depots = signal<IMagasin[]>([]);
   protected products = signal<IProduit[]>([]);
@@ -72,8 +72,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
         this.depots.set(res.body || []);
       },
       error: () => {
-        this.notificationService.error("Erreur lors du chargement des dépôts");
-      }
+        this.notificationService.error('Erreur lors du chargement des dépôts');
+      },
     });
   }
 
@@ -95,8 +95,8 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
         this.filteredProducts.set(res.body || []);
       },
       error: () => {
-        this.notificationService.error("Erreur lors du chargement des produits");
-      }
+        this.notificationService.error('Erreur lors du chargement des produits');
+      },
     });
   }
 
@@ -134,12 +134,12 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     const quantity = this.returnQuantity();
 
     if (!product) {
-      this.notificationService.warning("Veuillez sélectionner un produit");
+      this.notificationService.warning('Veuillez sélectionner un produit');
       return;
     }
 
     if (quantity < 1) {
-      this.notificationService.warning("La quantité doit être supérieure à 0");
+      this.notificationService.warning('La quantité doit être supérieure à 0');
       return;
     }
 
@@ -151,7 +151,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
     this.createReturnItem(product, quantity);
     this.resetSelection();
-    this.notificationService.success("Ligne ajoutée aux retours");
+    this.notificationService.success('Ligne ajoutée aux retours');
 
     this.focusProductInput();
   }
@@ -226,7 +226,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
   protected save(): void {
     if (!this.canSave()) {
-      this.notificationService.error("Veuillez remplir tous les champs requis");
+      this.notificationService.error('Veuillez remplir tous les champs requis');
       return;
     }
 
@@ -242,21 +242,20 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: () => {
-          this.notificationService.success("Retour dépôt créé avec succès");
+          this.notificationService.success('Retour dépôt créé avec succès');
           this.reset();
           setTimeout(() => {
             this.navigateToList();
           }, 1500);
         },
         error: () => {
-          this.notificationService.error("Erreur lors de la création du retour dépôt");
-
-        }
+          this.notificationService.error('Erreur lors de la création du retour dépôt');
+        },
       });
   }
 
   protected navigateToList(): void {
-    this.router.navigate(["/depot"]);
+    this.router.navigate(['/depot']);
   }
 
   protected reset(): void {

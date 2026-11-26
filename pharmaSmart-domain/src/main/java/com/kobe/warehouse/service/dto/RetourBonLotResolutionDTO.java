@@ -39,7 +39,8 @@ public class RetourBonLotResolutionDTO {
     public RetourBonLotResolutionDTO() {}
 
     /** Constructeur — commande trouvée */
-    public static RetourBonLotResolutionDTO commandeTrouvee(Integer commandeId, LocalDate commandeOrderDate, String reference) {
+    public static RetourBonLotResolutionDTO commandeTrouvee(
+            Integer commandeId, LocalDate commandeOrderDate, String reference) {
         RetourBonLotResolutionDTO dto = new RetourBonLotResolutionDTO();
         dto.statut = ResolutionStatut.COMMANDE_TROUVEE;
         dto.commandeId = commandeId;
@@ -49,7 +50,8 @@ public class RetourBonLotResolutionDTO {
     }
 
     /** Constructeur — hors commande, un seul fournisseur */
-    public static RetourBonLotResolutionDTO horsCommandeUnFournisseur(Integer fournisseurId, String fournisseurLibelle) {
+    public static RetourBonLotResolutionDTO horsCommandeUnFournisseur(
+            Integer fournisseurId, String fournisseurLibelle) {
         RetourBonLotResolutionDTO dto = new RetourBonLotResolutionDTO();
         dto.statut = ResolutionStatut.HORS_COMMANDE_UN_FOURN;
         dto.fournisseurId = fournisseurId;
@@ -72,12 +74,31 @@ public class RetourBonLotResolutionDTO {
         return dto;
     }
 
-    public ResolutionStatut getStatut() { return statut; }
-    public Integer getCommandeId() { return commandeId; }
-    public LocalDate getCommandeOrderDate() { return commandeOrderDate; }
-    public String getCommandeReference() { return commandeReference; }
-    public Integer getFournisseurId() { return fournisseurId; }
-    public String getFournisseurLibelle() { return fournisseurLibelle; }
-    public List<FournisseurSimple> getFournisseurs() { return fournisseurs; }
-}
+    public ResolutionStatut getStatut() {
+        return statut;
+    }
 
+    public Integer getCommandeId() {
+        return commandeId;
+    }
+
+    public LocalDate getCommandeOrderDate() {
+        return commandeOrderDate;
+    }
+
+    public String getCommandeReference() {
+        return commandeReference;
+    }
+
+    public Integer getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public String getFournisseurLibelle() {
+        return fournisseurLibelle;
+    }
+
+    public List<FournisseurSimple> getFournisseurs() {
+        return fournisseurs;
+    }
+}

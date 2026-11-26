@@ -75,7 +75,8 @@ class EtiquetteUsageServiceImplTest {
         when(storageService.getUser()).thenReturn(user);
         when(storageService.getConnectedUserMagasin()).thenReturn(magasin);
 
-        service = new EtiquetteUsageServiceImpl(moteur, storageService, ordonnanceRepository, new ZplEtiquetteServiceImpl());
+        service = new EtiquetteUsageServiceImpl(
+                moteur, storageService, ordonnanceRepository, new ZplEtiquetteServiceImpl());
     }
 
     private static Produit produit() {
@@ -92,11 +93,11 @@ class EtiquetteUsageServiceImplTest {
 
     private static OrdonnanceLigne ligne(int id, String posologie, Integer dureeJours) {
         OrdonnanceLigne ligne = new OrdonnanceLigne()
-            .setRang(id)
-            .setProduit(produit())
-            .setPosologie(posologie)
-            .setDureeJours(dureeJours)
-            .setQuantitePrescrite(1);
+                .setRang(id)
+                .setProduit(produit())
+                .setPosologie(posologie)
+                .setDureeJours(dureeJours)
+                .setQuantitePrescrite(1);
         ReflectionTestUtils.setField(ligne, "id", id);
         return ligne;
     }
@@ -106,9 +107,10 @@ class EtiquetteUsageServiceImplTest {
         customer.setFirstName("Awa");
         customer.setLastName("KOUASSI");
         Ordonnance ordonnance = new Ordonnance()
-            .setCustomer(customer)
-            .setPrescripteur(new Prescripteur().setNom("TRAORE").setPrenom("Issa").setSpecialite("cardiologue"))
-            .setDatePrescription(PRESCRIPTION);
+                .setCustomer(customer)
+                .setPrescripteur(
+                        new Prescripteur().setNom("TRAORE").setPrenom("Issa").setSpecialite("cardiologue"))
+                .setDatePrescription(PRESCRIPTION);
         for (OrdonnanceLigne ligne : lignes) {
             ordonnance.ajouterLigne(ligne);
         }
@@ -133,15 +135,14 @@ class EtiquetteUsageServiceImplTest {
 
     private static EtiquettePreparationDTO preparation() {
         return new EtiquettePreparationDTO(
-            "Pommade salicylée 5 %",
-            "Acide salicylique 5 g, vaseline qsp 100 g",
-            "KOUASSI Awa",
-            "Dr TRAORE Issa",
-            "Appliquer matin et soir",
-            LocalDate.of(2026, 10, 16),
-            LocalDate.of(2027, 1, 16),
-            "À usage externe"
-        );
+                "Pommade salicylée 5 %",
+                "Acide salicylique 5 g, vaseline qsp 100 g",
+                "KOUASSI Awa",
+                "Dr TRAORE Issa",
+                "Appliquer matin et soir",
+                LocalDate.of(2026, 10, 16),
+                LocalDate.of(2027, 1, 16),
+                "À usage externe");
     }
 
     @Nested
@@ -177,7 +178,8 @@ class EtiquetteUsageServiceImplTest {
         @Test
         @DisplayName("porte le prix et le code, jamais de lot")
         void contenu() {
-            String zpl = service.genererZplReglette(produit(), 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = service.genererZplReglette(
+                    produit(), 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("1 500 CFA");
             assertThat(zpl).contains("3794609");
@@ -194,7 +196,8 @@ class EtiquetteUsageServiceImplTest {
         void contenuDeLOrdonnance() {
             ordonnance(ligne(1, "1 comprimé matin et soir", 7));
 
-            String zpl = service.genererZplPosologie(7, null, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl =
+                    service.genererZplPosologie(7, null, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             // Rien n'est ressaisi : tout vient de l'ordonnance déjà enregistrée.
             assertThat(zpl).contains("Awa KOUASSI");
@@ -239,7 +242,8 @@ class EtiquetteUsageServiceImplTest {
         void uneSeuleLigne() {
             ordonnance(ligne(1, "1 comprimé matin", 7), ligne(2, "1 sachet le soir", 5));
 
-            String zpl = service.genererZplPosologie(7, 2, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl =
+                    service.genererZplPosologie(7, 2, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("1 sachet le soir");
             assertThat(zpl).doesNotContain("1 comprimé matin");
@@ -251,8 +255,8 @@ class EtiquetteUsageServiceImplTest {
             when(ordonnanceRepository.findById(404)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.imprimerPosologie(404, null, 1, 1, FormatEtiquette.ROULEAU_58X40))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("404");
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("404");
         }
 
         @Test
@@ -260,7 +264,8 @@ class EtiquetteUsageServiceImplTest {
         void sansDuree() {
             ordonnance(ligne(1, "1 comprimé au besoin", null));
 
-            String zpl = service.genererZplPosologie(7, null, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl =
+                    service.genererZplPosologie(7, null, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).doesNotContain("Pendant");
         }
@@ -274,11 +279,7 @@ class EtiquetteUsageServiceImplTest {
         @DisplayName("porte la composition, les dates et la mention")
         void contenu() {
             String zpl = service.genererZplPreparation(
-                preparation(),
-                1,
-                FormatEtiquette.ROULEAU_58X40,
-                ResolutionEtiquette.DPI_203
-            );
+                    preparation(), 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
             assertThat(zpl).contains("Acide salicylique 5 g, vaseline qsp 100 g");
             assertThat(zpl).contains("Préparé le 16/10/2026");
@@ -290,19 +291,14 @@ class EtiquetteUsageServiceImplTest {
         @DisplayName("sans date de preparation, c est celle du jour")
         void dateDuJour() {
             EtiquettePreparationDTO saisie = new EtiquettePreparationDTO(
-                "Solution",
-                "Eau purifiée qsp 100 ml",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
+                    "Solution", "Eau purifiée qsp 100 ml", null, null, null, null, null, null);
 
-            String zpl = service.genererZplPreparation(saisie, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+            String zpl = service.genererZplPreparation(
+                    saisie, 1, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
 
-            assertThat(zpl).contains("Préparé le " + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            assertThat(zpl)
+                    .contains("Préparé le "
+                            + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             // Pas de péremption saisie : l'étiquette n'en invente pas.
             assertThat(zpl).doesNotContain("À utiliser avant");
         }

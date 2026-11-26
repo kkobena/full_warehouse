@@ -8,6 +8,14 @@ import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +28,6 @@ import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 @Component
 public abstract class CommonReportService {
 
@@ -36,8 +35,7 @@ public abstract class CommonReportService {
     private final StorageService storageService;
     private AppConfigurationService appConfigurationService;
 
-    protected CommonReportService(
-        StorageService storageService) {
+    protected CommonReportService(StorageService storageService) {
         this.storageService = storageService;
     }
 
@@ -119,8 +117,7 @@ public abstract class CommonReportService {
     protected Context getContext() {
         Locale locale = Locale.forLanguageTag("fr");
         Context context = new Context(locale);
-        context.setVariable("devise",
-            appConfigurationService != null ? appConfigurationService.getDevise() : "FCFA");
+        context.setVariable("devise", appConfigurationService != null ? appConfigurationService.getDevise() : "FCFA");
         return context;
     }
 
@@ -128,12 +125,10 @@ public abstract class CommonReportService {
         StringBuilder builder = new StringBuilder();
         builder.append(title).append(" ");
         if (reportPeriode.from() != null) {
-            builder.append("du ")
-                .append(reportPeriode.from().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            builder.append("du ").append(reportPeriode.from().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
         if (reportPeriode.to() != null) {
-            builder.append(" au ")
-                .append(reportPeriode.to().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            builder.append(" au ").append(reportPeriode.to().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
         return builder.toString();
     }
@@ -174,16 +169,14 @@ public abstract class CommonReportService {
 
     protected ResponseEntity<byte[]> genererPdf() {
         return ResponseEntity.ok()
-            .header(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=" +
-                    this.getGenerateFileName() +
-                    "_" +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) +
-                    ".pdf"
-            )
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(printByteArray());
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + this.getGenerateFileName()
+                                + "_"
+                                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss"))
+                                + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(printByteArray());
     }
 
     protected void buildTitle(String title, Pair periode) {
@@ -199,8 +192,8 @@ public abstract class CommonReportService {
     }
 
     protected String buildPeriode(@NotNull Pair periode) {
-        return DateUtil.format((LocalDateTime) periode.key()) + " au " + DateUtil.format(
-            (LocalDateTime) periode.value());
+        return DateUtil.format((LocalDateTime) periode.key()) + " au "
+                + DateUtil.format((LocalDateTime) periode.value());
     }
 
     protected String buildPeriode(@NotNull LocalDate from, @NotNull LocalDate to) {
@@ -251,8 +244,7 @@ public abstract class CommonReportService {
                 getParameters().put(getItemsParameterName(), list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
-                renderer.setDocumentFromString(
-                    DemoWatermark.apply(this.getTemplateAsHtml(context)));
+                renderer.setDocumentFromString(DemoWatermark.apply(this.getTemplateAsHtml(context)));
                 renderer.layout();
                 renderer.writeNextDocument();
                 firstPageRowCount += maxiRowCount;

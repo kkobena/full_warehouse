@@ -37,9 +37,7 @@ public class ExclusionResource {
     private final AppConfigurationService appConfigurationService;
 
     public ExclusionResource(
-        ExclusionReferentielService exclusionReferentielService,
-        AppConfigurationService appConfigurationService
-    ) {
+            ExclusionReferentielService exclusionReferentielService, AppConfigurationService appConfigurationService) {
         this.exclusionReferentielService = exclusionReferentielService;
         this.appConfigurationService = appConfigurationService;
     }
@@ -47,14 +45,12 @@ public class ExclusionResource {
     @GetMapping("/rayons")
     @RequiresFeature(Feature.EXCLUSION_RAYON)
     public ResponseEntity<List<ExclusionItemDTO>> listerRayons(
-        @RequestParam(value = "exclus", required = false) Boolean exclus,
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
-    ) {
-        Page<ExclusionItemDTO> page = exclusionReferentielService.listerRayons(exclus, search,
-            pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(value = "exclus", required = false) Boolean exclus,
+            @RequestParam(value = "search", required = false) String search,
+            Pageable pageable) {
+        Page<ExclusionItemDTO> page = exclusionReferentielService.listerRayons(exclus, search, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -68,47 +64,40 @@ public class ExclusionResource {
      */
     @PutMapping("/rayons/exclusion")
     @RequiresFeature(Feature.EXCLUSION_RAYON)
-    public ResponseEntity<Map<String, Integer>> majExclusionRayons(
-        @Valid @RequestBody ExclusionRequestDTO requete) {
-        int modifies = exclusionReferentielService.majExclusionRayons(requete.ids(),
-            requete.exclure());
+    public ResponseEntity<Map<String, Integer>> majExclusionRayons(@Valid @RequestBody ExclusionRequestDTO requete) {
+        int modifies = exclusionReferentielService.majExclusionRayons(requete.ids(), requete.exclure());
         return ResponseEntity.ok(Map.of("modifies", modifies));
     }
 
     @GetMapping("/tiers-payants")
     @RequiresFeature(Feature.EXCLUSION_TP)
     public ResponseEntity<List<ExclusionItemDTO>> listerTiersPayants(
-        @RequestParam(value = "exclus", required = false) Boolean exclus,
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
-    ) {
-        Page<ExclusionItemDTO> page = exclusionReferentielService.listerTiersPayants(exclus, search,
-            pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            @RequestParam(value = "exclus", required = false) Boolean exclus,
+            @RequestParam(value = "search", required = false) String search,
+            Pageable pageable) {
+        Page<ExclusionItemDTO> page = exclusionReferentielService.listerTiersPayants(exclus, search, pageable);
+        HttpHeaders headers =
+                PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @PutMapping("/tiers-payants/exclusion")
     @RequiresFeature(Feature.EXCLUSION_TP)
     public ResponseEntity<Map<String, Integer>> majExclusionTiersPayants(
-        @Valid @RequestBody ExclusionRequestDTO requete) {
-        int modifies = exclusionReferentielService.majExclusionTiersPayants(requete.ids(),
-            requete.exclure());
+            @Valid @RequestBody ExclusionRequestDTO requete) {
+        int modifies = exclusionReferentielService.majExclusionTiersPayants(requete.ids(), requete.exclure());
         return ResponseEntity.ok(Map.of("modifies", modifies));
     }
 
     @GetMapping("/parametres")
     @RequiresFeature(Feature.EXCLUSION_UG)
     public ResponseEntity<Map<String, Boolean>> lireParametres() {
-        return ResponseEntity.ok(
-            Map.of("excludeFreeUnit", appConfigurationService.excludeFreeUnit()));
+        return ResponseEntity.ok(Map.of("excludeFreeUnit", appConfigurationService.excludeFreeUnit()));
     }
 
     @PutMapping("/parametres")
     @RequiresFeature(Feature.EXCLUSION_UG)
-    public ResponseEntity<Map<String, Boolean>> majParametres(
-        @RequestBody Map<String, Boolean> parametres) {
+    public ResponseEntity<Map<String, Boolean>> majParametres(@RequestBody Map<String, Boolean> parametres) {
         boolean exclure = Boolean.TRUE.equals(parametres.get("excludeFreeUnit"));
         appConfigurationService.setExcludeFreeUnit(exclure);
         return ResponseEntity.ok(Map.of("excludeFreeUnit", exclure));

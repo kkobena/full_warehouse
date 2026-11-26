@@ -30,7 +30,12 @@ export class LicenseService {
 
   /** Modules exigeant une souscription explicite — déduits du catalogue, jamais recopiés. */
   private readonly optionalCodes = computed(
-    () => new Set(this._features().filter(feature => feature.optional).map(feature => feature.code)),
+    () =>
+      new Set(
+        this._features()
+          .filter(feature => feature.optional)
+          .map(feature => feature.code),
+      ),
   );
 
   readonly license = this._license.asReadonly();
@@ -142,9 +147,7 @@ export class LicenseService {
    * ne renseigne aucun contact, auquel cas la section correspondante ne s'affiche simplement pas.
    */
   publisher(): Observable<PublisherContacts | null> {
-    return this.http
-      .get<PublisherContacts>(this.config.getEndpointFor('api/license/publisher'))
-      .pipe(catchError(() => of(null)));
+    return this.http.get<PublisherContacts>(this.config.getEndpointFor('api/license/publisher')).pipe(catchError(() => of(null)));
   }
 
   /** Empreinte du poste, à transmettre à l'éditeur s'il demande une licence liée au matériel. */
@@ -158,9 +161,7 @@ export class LicenseService {
   activate(file: File): Observable<LicenseInfo> {
     const form = new FormData();
     form.append('file', file);
-    return this.http
-      .post<LicenseInfo>(this.config.getEndpointFor('api/license'), form)
-      .pipe(tap(info => this._license.set(info)));
+    return this.http.post<LicenseInfo>(this.config.getEndpointFor('api/license'), form).pipe(tap(info => this._license.set(info)));
   }
 
   audit(size = 50): Observable<LicenseAuditEntry[]> {

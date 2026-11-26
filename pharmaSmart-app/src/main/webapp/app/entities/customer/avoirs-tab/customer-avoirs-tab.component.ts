@@ -48,8 +48,8 @@ export class CustomerAvoirsTabComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: avoirs => this.avoirs.set(avoirs),
-        error: (err: HttpErrorResponse) => this.notificationService.error(this.errorService.getErrorMessage(err, "Les avoirs n'ont pas pu être chargés")),
+        error: (err: HttpErrorResponse) =>
+          this.notificationService.error(this.errorService.getErrorMessage(err, "Les avoirs n'ont pas pu être chargés")),
       });
   }
 }
-

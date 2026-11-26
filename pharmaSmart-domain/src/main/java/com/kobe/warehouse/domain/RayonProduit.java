@@ -16,7 +16,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
-@Table(name = "rayon_produit", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "rayon_id" }) })
+@Table(
+        name = "rayon_produit",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "rayon_id"})})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RayonProduit implements Serializable {
 

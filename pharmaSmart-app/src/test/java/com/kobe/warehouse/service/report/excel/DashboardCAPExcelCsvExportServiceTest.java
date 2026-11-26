@@ -43,10 +43,7 @@ class DashboardCAPExcelCsvExportServiceTest {
     private final DashboardCAService dashboardCAService = mock(DashboardCAService.class);
 
     private final DashboardCAPExcelCsvExportService service = new DashboardCAPExcelCsvExportService(
-        new ReportExcelExportService(),
-        new CsvExportService(),
-        dashboardCAService
-    );
+            new ReportExcelExportService(), new CsvExportService(), dashboardCAService);
 
     // Les quatre fichiers sont produits une seule fois : le jeu d'essai est fixe, et
     // l'auto-dimensionnement des colonnes de POI charge les métriques de police à chaque classeur —
@@ -78,8 +75,7 @@ class DashboardCAPExcelCsvExportServiceTest {
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, dans le même ordre")
         void memesColonnes() throws Exception {
-            assertThat(entetesDuClasseur(journalierExcel))
-                .isEqualTo(entetesDuCsv(journalierCsv));
+            assertThat(entetesDuClasseur(journalierExcel)).isEqualTo(entetesDuCsv(journalierCsv));
         }
 
         /**
@@ -116,7 +112,7 @@ class DashboardCAPExcelCsvExportServiceTest {
         @DisplayName("le titre porte la période analysée")
         void titreAvecPeriode() throws Exception {
             assertThat(premiereLigneDuCsv(journalierCsv))
-                .isEqualTo("Chiffre d'Affaires Journalier 01-01-2026 au 31-03-2026");
+                    .isEqualTo("Chiffre d'Affaires Journalier 01-01-2026 au 31-03-2026");
         }
 
         @Test
@@ -135,8 +131,7 @@ class DashboardCAPExcelCsvExportServiceTest {
         @Test
         @DisplayName("Excel et CSV portent les mêmes colonnes, dans le même ordre")
         void memesColonnes() throws Exception {
-            assertThat(entetesDuClasseur(palmaresExcel))
-                .isEqualTo(entetesDuCsv(palmaresCsv));
+            assertThat(entetesDuClasseur(palmaresExcel)).isEqualTo(entetesDuCsv(palmaresCsv));
         }
 
         @Test
@@ -181,8 +176,8 @@ class DashboardCAPExcelCsvExportServiceTest {
         try (XSSFWorkbook workbook = new XSSFWorkbook(new ByteArrayInputStream(classeur))) {
             Sheet feuille = workbook.getSheetAt(0);
             return java.util.stream.StreamSupport.stream(feuille.getRow(3).spliterator(), false)
-                .map(cellule -> cellule.getStringCellValue())
-                .toList();
+                    .map(cellule -> cellule.getStringCellValue())
+                    .toList();
         }
     }
 
@@ -215,12 +210,21 @@ class DashboardCAPExcelCsvExportServiceTest {
 
     private static DailyCADTO journee() {
         return new DailyCADTO(
-            LocalDate.of(2026, 1, 15), 42, 1_000_000L, 950_000L, BigDecimal.valueOf(23809), 600_000L, 400_000L,
-            BigDecimal.valueOf(40), 38, 900_000L, 100_000L
-        );
+                LocalDate.of(2026, 1, 15),
+                42,
+                1_000_000L,
+                950_000L,
+                BigDecimal.valueOf(23809),
+                600_000L,
+                400_000L,
+                BigDecimal.valueOf(40),
+                38,
+                900_000L,
+                100_000L);
     }
 
     private static TopProductDTO produit() {
-        return new TopProductDTO(LocalDate.of(2026, 1, 1), 1, "DOLIPRANE", "CIP1", 12L, 340, 3_400_000, BigDecimal.valueOf(10000));
+        return new TopProductDTO(
+                LocalDate.of(2026, 1, 1), 1, "DOLIPRANE", "CIP1", 12L, 340, 3_400_000, BigDecimal.valueOf(10000));
     }
 }

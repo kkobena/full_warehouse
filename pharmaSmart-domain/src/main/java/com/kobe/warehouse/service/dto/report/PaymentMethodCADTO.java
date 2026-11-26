@@ -7,10 +7,9 @@ import java.time.LocalDate;
  * DTO for CA by payment method
  */
 public record PaymentMethodCADTO(
-    LocalDate paymentDate,
-    String paymentMethod,
-    String paymentCode,
-    Integer nbPayments,
-    Long montantTotal,
-    BigDecimal montantMoyen
-) {}
+        LocalDate paymentDate,
+        String paymentMethod,
+        String paymentCode,
+        Integer nbPayments,
+        Long montantTotal,
+        BigDecimal montantMoyen) {}

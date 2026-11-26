@@ -47,8 +47,8 @@ public class StockSnapshotServiceImpl implements StockSnapshotService {
     @Override
     public void createDailySnapshot(Integer magasinId) {
         int rows = em.createNativeQuery(SQL_DAILY_SNAPSHOT)
-            .setParameter("magasinId", magasinId)
-            .executeUpdate();
+                .setParameter("magasinId", magasinId)
+                .executeUpdate();
         LOG.debug("Snapshot quotidien magasin={} : {} lignes insérées", magasinId, rows);
     }
 

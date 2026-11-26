@@ -6,12 +6,7 @@ import { ButtonComponent, InputNumberComponent, SelectComponent } from '../../..
 import { RouterLink } from '@angular/router';
 
 import { LotPerimes } from '../model/lot-perimes';
-import {
-  FournisseurSimple,
-  ResolutionStatut,
-  RetourBonLotResolution,
-  RetourFournisseurRequest,
-} from '../model/retour-fournisseur-request';
+import { FournisseurSimple, ResolutionStatut, RetourBonLotResolution, RetourFournisseurRequest } from '../model/retour-fournisseur-request';
 import { IMotifRetourProduit } from '../../../shared/model/motif-retour-produit.model';
 import { ModifRetourProduitService } from '../../motif-retour-produit/motif-retour-produit.service';
 import { RetourBonService } from '../../commande/retour_fournisseur/retour-bon.service';
@@ -22,7 +17,8 @@ import { NGB_DATE_TO_ISO } from '../../../shared/util/warehouse-util';
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-retour-fournisseur-perime-dialog',
-  imports: [DeviseDirective, 
+  imports: [
+    DeviseDirective,
     CommonModule,
     ReactiveFormsModule,
     ButtonComponent,
@@ -37,7 +33,6 @@ import { DeviseDirective } from 'app/shared/utils/devise';
   styleUrls: ['./retour-lot-pereme.scss'],
 })
 export class RetourFournisseurPerimeDialogComponent implements OnInit {
-
   @Input() lot!: LotPerimes;
 
   protected readonly activeModal = inject(NgbActiveModal);
@@ -94,7 +89,10 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
   }
 
   protected save(): void {
-    if (!this.canSave()) { this.form.markAllAsTouched(); return; }
+    if (!this.canSave()) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     const request: RetourFournisseurRequest = {
       lotId: this.lot.id,
@@ -108,17 +106,23 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
     } else if (this.commandeNotFound() && this.form.get('commandeRef')?.value) {
       request.commandeId = parseInt(this.form.get('commandeRef')!.value, 10);
       const dateVal: NgbDateStruct | null = this.form.get('commandeDate')?.value;
-      if (dateVal) { request.commandeOrderDate = NGB_DATE_TO_ISO(dateVal); }
+      if (dateVal) {
+        request.commandeOrderDate = NGB_DATE_TO_ISO(dateVal);
+      }
     }
 
     this.isSaving.set(true);
     this.retourBonService.createFromExpiredLot(request).subscribe({
-      next: () => { this.isSaving.set(false); this.activeModal.close({ success: true }); },
+      next: () => {
+        this.isSaving.set(false);
+        this.activeModal.close({ success: true });
+      },
       error: (err: any) => {
         this.isSaving.set(false);
         const errorKey = err?.error?.errorKey;
         if (errorKey === 'commandeNotFound') {
-          this.commandeNotFound.set(true); this.resolutionStatut.set(null);
+          this.commandeNotFound.set(true);
+          this.resolutionStatut.set(null);
           this.notificationService.warning('Aucune commande source trouvée. Saisissez la référence manuellement.', 'Commande introuvable');
         } else if (errorKey === 'multipleFournisseurs') {
           this.fournisseurs.set(err?.error?.payload ?? []);
@@ -134,9 +138,14 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
     });
   }
 
-  protected cancel(): void { this.activeModal.dismiss(); }
+  protected cancel(): void {
+    this.activeModal.dismiss();
+  }
 
-  protected switchToCommandeManuelle(): void { this.commandeNotFound.set(true); this.resolutionStatut.set(null); }
+  protected switchToCommandeManuelle(): void {
+    this.commandeNotFound.set(true);
+    this.resolutionStatut.set(null);
+  }
 
   private loadMotifs(): void {
     this.motifService.query({ page: 0, size: 999 }).subscribe(res => this.motifs.set(res.body ?? []));
@@ -152,7 +161,10 @@ export class RetourFournisseurPerimeDialogComponent implements OnInit {
         else if (dto.statut === 'HORS_COMMANDE_MULTI') this.fournisseurs.set(dto.fournisseurs ?? []);
         this.isResolving.set(false);
       },
-      error: () => { this.resolutionStatut.set(null); this.isResolving.set(false); },
+      error: () => {
+        this.resolutionStatut.set(null);
+        this.isResolving.set(false);
+      },
     });
   }
 }

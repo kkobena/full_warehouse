@@ -133,7 +133,12 @@
                   [attr.aria-label]="isExpanded(row) ? 'Masquer le détail' : 'Afficher le détail'"
                   (click)="$event.stopPropagation(); toggleDetail(row)"
                 >
-                  <i aria-hidden="true" class="pi" [class.pi-chevron-down]="isExpanded(row)" [class.pi-chevron-right]="!isExpanded(row)"></i>
+                  <i
+                    aria-hidden="true"
+                    class="pi"
+                    [class.pi-chevron-down]="isExpanded(row)"
+                    [class.pi-chevron-right]="!isExpanded(row)"
+                  ></i>
                 </button>
               }
             </td>
@@ -207,12 +212,7 @@
 
         @if (isExpanded(row) && detailTemplate()) {
           <tr class="app-data-grid__detail-row" role="row">
-            <td
-              role="gridcell"
-              class="app-data-grid__detail-cell"
-              [attr.colspan]="renderedColumnCount()"
-              [id]="detailPanelId(row)"
-            >
+            <td role="gridcell" class="app-data-grid__detail-cell" [attr.colspan]="renderedColumnCount()" [id]="detailPanelId(row)">
               @let detail = detailContext(row, rowIndex);
               <ng-container [ngTemplateOutlet]="detailTemplate()!" [ngTemplateOutletContext]="detailTemplateContext(detail)" />
             </td>

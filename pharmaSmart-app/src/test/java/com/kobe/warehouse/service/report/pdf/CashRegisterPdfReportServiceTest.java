@@ -35,10 +35,9 @@ class CashRegisterPdfReportServiceTest {
     void setUp() {
         cashRegisterReportService = mock(CashRegisterReportService.class);
         service = new CashRegisterPdfReportService(
-            PdfReportTestSupport.storageService(),
-            PdfReportTestSupport.moteurDeGabarits(),
-            cashRegisterReportService
-        );
+                PdfReportTestSupport.storageService(),
+                PdfReportTestSupport.moteurDeGabarits(),
+                cashRegisterReportService);
     }
 
     @Test
@@ -115,20 +114,19 @@ class CashRegisterPdfReportServiceTest {
 
     private static DailyCashRegisterReportDTO caisse(Integer totalVentes, Integer ecart, boolean fermee) {
         return new DailyCashRegisterReportDTO(
-            1,
-            "Caisse 1",
-            LocalDate.of(2026, 3, 31),
-            null,
-            null,
-            0,
-            0,
-            0,
-            ecart,
-            totalVentes,
-            0,
-            List.of(),
-            "System System",
-            fermee
-        );
+                1,
+                "Caisse 1",
+                LocalDate.of(2026, 3, 31),
+                null,
+                null,
+                0,
+                0,
+                0,
+                ecart,
+                totalVentes,
+                0,
+                List.of(),
+                "System System",
+                fermee);
     }
 }

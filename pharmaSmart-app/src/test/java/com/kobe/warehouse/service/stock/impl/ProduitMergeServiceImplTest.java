@@ -12,8 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.OptionPrixProduit;
@@ -21,8 +21,8 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
@@ -71,37 +71,52 @@ class ProduitMergeServiceImplTest {
 
     @Mock
     private ProduitRepository produitRepository;
+
     @Mock
     private StockProduitRepository stockProduitRepository;
+
     @Mock
     private LotRepository lotRepository;
+
     @Mock
     private PrixReferenceRepository prixReferenceRepository;
+
     @Mock
     private FournisseurProduitRepository fournisseurProduitRepository;
+
     @Mock
     private RayonProduitRepository rayonProduitRepository;
+
     @Mock
     private SalesLineRepository salesLineRepository;
+
     @Mock
     private SemoisConfigurationRepository semoisConfigurationRepository;
+
     @Mock
     private VentesMensuellesAgregeesRepository ventesMensuellesAgregeesRepository;
+
     @Mock
     private StoreInventoryLineRepository storeInventoryLineRepository;
+
     @Mock
     private SubstitutRepository substitutRepository;
+
     @Mock
     private LogsService logsService;
 
     @Mock
     private EntityManager entityManager;
+
     @Mock
     private Query query;
+
     @Mock
     private Session session;
+
     @Mock
     private SessionFactory sessionFactory;
+
     @Mock
     private Cache cache;
 
@@ -110,22 +125,22 @@ class ProduitMergeServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ProduitMergeServiceImpl(
-            produitRepository,
-            stockProduitRepository,
-            lotRepository,
-            prixReferenceRepository,
-            fournisseurProduitRepository,
-            rayonProduitRepository,
-            salesLineRepository,
-            semoisConfigurationRepository,
-            ventesMensuellesAgregeesRepository,
-            storeInventoryLineRepository,
-            substitutRepository,
-            logsService
-        );
+                produitRepository,
+                stockProduitRepository,
+                lotRepository,
+                prixReferenceRepository,
+                fournisseurProduitRepository,
+                rayonProduitRepository,
+                salesLineRepository,
+                semoisConfigurationRepository,
+                ventesMensuellesAgregeesRepository,
+                storeInventoryLineRepository,
+                substitutRepository,
+                logsService);
         ReflectionTestUtils.setField(service, "entityManager", entityManager);
 
-        // JPQL bulk (Ajustement/OrderLine repoint, entités simples) : chaîne createQuery -> setParameter -> executeUpdate
+        // JPQL bulk (Ajustement/OrderLine repoint, entités simples) : chaîne createQuery -> setParameter ->
+        // executeUpdate
         lenient().when(entityManager.createQuery(anyString())).thenReturn(query);
         lenient().when(query.setParameter(anyString(), any())).thenReturn(query);
         lenient().when(query.executeUpdate()).thenReturn(0);
@@ -167,7 +182,8 @@ class ProduitMergeServiceImplTest {
         return repo;
     }
 
-    private org.springframework.data.repository.CrudRepository<SalesLine, com.kobe.warehouse.domain.SaleLineId> asCrud(SalesLineRepository repo) {
+    private org.springframework.data.repository.CrudRepository<SalesLine, com.kobe.warehouse.domain.SaleLineId> asCrud(
+            SalesLineRepository repo) {
         return repo;
     }
 
@@ -201,9 +217,10 @@ class ProduitMergeServiceImplTest {
 
         when(stockProduitRepository.findAllByProduitId(source.getId())).thenReturn(List.of(sourceStock));
         when(stockProduitRepository.findStockProduitByStorageIdAndProduitId(storage.getId(), target.getId()))
-            .thenReturn(Optional.of(targetStock));
+                .thenReturn(Optional.of(targetStock));
 
-        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of()));
+        ProduitMergeResultDTO result =
+                service.merge(new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of()));
 
         // Ni la cible ni le doublon ne sont modifiés : aucune fusion de quantité, aucune
         // suppression, aucun repoint de l'historique d'Ajustement (qui fausserait sa lecture).
@@ -242,7 +259,7 @@ class ProduitMergeServiceImplTest {
 
         when(stockProduitRepository.findAllByProduitId(source.getId())).thenReturn(List.of(sourceStock));
         when(stockProduitRepository.findStockProduitByStorageIdAndProduitId(storageB.getId(), target.getId()))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         service.merge(new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of()));
 
@@ -259,19 +276,28 @@ class ProduitMergeServiceImplTest {
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
 
-        Lot sourceLot = new Lot().setId(300).setNumLot("L1").setQuantity(5).setCurrentQuantity(5).setFreeQty(2);
+        Lot sourceLot = new Lot()
+                .setId(300)
+                .setNumLot("L1")
+                .setQuantity(5)
+                .setCurrentQuantity(5)
+                .setFreeQty(2);
         sourceLot.setProduit(source);
-        Lot targetLot = new Lot().setId(400).setNumLot("L1").setQuantity(3).setCurrentQuantity(3).setFreeQty(1);
+        Lot targetLot = new Lot()
+                .setId(400)
+                .setNumLot("L1")
+                .setQuantity(3)
+                .setCurrentQuantity(3)
+                .setFreeQty(1);
         targetLot.setProduit(target);
 
         when(lotRepository.findByProduitId(source.getId())).thenReturn(List.of(sourceLot));
         when(lotRepository.findByProduitId(target.getId())).thenReturn(List.of(targetLot));
 
         ProduitMergeRequestDTO request = new ProduitMergeRequestDTO(
-            target.getId(),
-            List.of(source.getId()),
-            List.of(new LotResolutionDTO(sourceLot.getId(), LotConflictAction.MERGE))
-        );
+                target.getId(),
+                List.of(source.getId()),
+                List.of(new LotResolutionDTO(sourceLot.getId(), LotConflictAction.MERGE)));
 
         service.merge(request);
 
@@ -292,19 +318,28 @@ class ProduitMergeServiceImplTest {
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
 
-        Lot sourceLot = new Lot().setId(301).setNumLot("L2").setQuantity(5).setCurrentQuantity(5).setFreeQty(2);
+        Lot sourceLot = new Lot()
+                .setId(301)
+                .setNumLot("L2")
+                .setQuantity(5)
+                .setCurrentQuantity(5)
+                .setFreeQty(2);
         sourceLot.setProduit(source);
-        Lot targetLot = new Lot().setId(401).setNumLot("L2").setQuantity(3).setCurrentQuantity(3).setFreeQty(1);
+        Lot targetLot = new Lot()
+                .setId(401)
+                .setNumLot("L2")
+                .setQuantity(3)
+                .setCurrentQuantity(3)
+                .setFreeQty(1);
         targetLot.setProduit(target);
 
         when(lotRepository.findByProduitId(source.getId())).thenReturn(List.of(sourceLot));
         when(lotRepository.findByProduitId(target.getId())).thenReturn(List.of(targetLot));
 
         ProduitMergeRequestDTO request = new ProduitMergeRequestDTO(
-            target.getId(),
-            List.of(source.getId()),
-            List.of(new LotResolutionDTO(sourceLot.getId(), LotConflictAction.DELETE))
-        );
+                target.getId(),
+                List.of(source.getId()),
+                List.of(new LotResolutionDTO(sourceLot.getId(), LotConflictAction.DELETE)));
 
         service.merge(request);
 
@@ -320,9 +355,19 @@ class ProduitMergeServiceImplTest {
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
 
-        Lot sourceLot = new Lot().setId(302).setNumLot("L3").setQuantity(5).setCurrentQuantity(5).setFreeQty(2);
+        Lot sourceLot = new Lot()
+                .setId(302)
+                .setNumLot("L3")
+                .setQuantity(5)
+                .setCurrentQuantity(5)
+                .setFreeQty(2);
         sourceLot.setProduit(source);
-        Lot targetLot = new Lot().setId(402).setNumLot("L3").setQuantity(3).setCurrentQuantity(3).setFreeQty(1);
+        Lot targetLot = new Lot()
+                .setId(402)
+                .setNumLot("L3")
+                .setQuantity(3)
+                .setCurrentQuantity(3)
+                .setFreeQty(1);
         targetLot.setProduit(target);
 
         when(lotRepository.findByProduitId(source.getId())).thenReturn(List.of(sourceLot));
@@ -333,7 +378,13 @@ class ProduitMergeServiceImplTest {
         BadRequestAlertException ex = assertThrows(BadRequestAlertException.class, () -> service.merge(request));
         assertTrue(ex.getMessage().contains("L3"));
 
-        verifyNoInteractions(stockProduitRepository, prixReferenceRepository, fournisseurProduitRepository, salesLineRepository, rayonProduitRepository, substitutRepository);
+        verifyNoInteractions(
+                stockProduitRepository,
+                prixReferenceRepository,
+                fournisseurProduitRepository,
+                salesLineRepository,
+                rayonProduitRepository,
+                substitutRepository);
         verify(lotRepository, never()).save(any());
         verify(asCrud(lotRepository), never()).delete(any());
         verify(produitRepository, never()).save(any());
@@ -349,9 +400,11 @@ class ProduitMergeServiceImplTest {
 
         TiersPayant tiersPayant = new TiersPayant().setId(50);
 
-        OptionPrixProduit sourceOption = new OptionPrixProduit().setId(500).setTiersPayant(tiersPayant).setType(OptionPrixType.REFERENCE);
+        OptionPrixProduit sourceOption =
+                new OptionPrixProduit().setId(500).setTiersPayant(tiersPayant).setType(OptionPrixType.REFERENCE);
         sourceOption.setProduit(source);
-        OptionPrixProduit targetOption = new OptionPrixProduit().setId(600).setTiersPayant(tiersPayant).setType(OptionPrixType.REFERENCE);
+        OptionPrixProduit targetOption =
+                new OptionPrixProduit().setId(600).setTiersPayant(tiersPayant).setType(OptionPrixType.REFERENCE);
         targetOption.setProduit(target);
 
         when(prixReferenceRepository.findAllByProduitId(source.getId())).thenReturn(List.of(sourceOption));
@@ -406,7 +459,8 @@ class ProduitMergeServiceImplTest {
         targetLine.setLots(new ArrayList<>(List.of(new LotSold(2, "L2", 3, saleDate))));
 
         when(salesLineRepository.findAllByProduitId(source.getId())).thenReturn(List.of(sourceLine));
-        when(salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(9L, target.getId(), saleDate)).thenReturn(Optional.of(targetLine));
+        when(salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(9L, target.getId(), saleDate))
+                .thenReturn(Optional.of(targetLine));
 
         service.merge(new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of()));
 
@@ -486,7 +540,13 @@ class ProduitMergeServiceImplTest {
         BadRequestAlertException ex = assertThrows(BadRequestAlertException.class, () -> service.merge(request));
         assertTrue(ex.getMessage().contains("Source"));
 
-        verifyNoInteractions(stockProduitRepository, prixReferenceRepository, fournisseurProduitRepository, salesLineRepository, rayonProduitRepository, substitutRepository);
+        verifyNoInteractions(
+                stockProduitRepository,
+                prixReferenceRepository,
+                fournisseurProduitRepository,
+                salesLineRepository,
+                rayonProduitRepository,
+                substitutRepository);
         verify(produitRepository, never()).save(any());
     }
 
@@ -502,7 +562,13 @@ class ProduitMergeServiceImplTest {
         ProduitMergeRequestDTO request = new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of());
 
         assertThrows(BadRequestAlertException.class, () -> service.merge(request));
-        verifyNoInteractions(stockProduitRepository, prixReferenceRepository, fournisseurProduitRepository, salesLineRepository, rayonProduitRepository, substitutRepository);
+        verifyNoInteractions(
+                stockProduitRepository,
+                prixReferenceRepository,
+                fournisseurProduitRepository,
+                salesLineRepository,
+                rayonProduitRepository,
+                substitutRepository);
         verify(produitRepository, never()).save(any());
     }
 
@@ -535,9 +601,8 @@ class ProduitMergeServiceImplTest {
         when(produitRepository.findAllByParentId(target.getId())).thenReturn(List.of(targetChild));
         when(salesLineRepository.findAllByProduitId(sourceChild.getId())).thenReturn(List.of());
 
-        ProduitMergeResultDTO result = service.merge(
-            new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of())
-        );
+        ProduitMergeResultDTO result =
+                service.merge(new ProduitMergeRequestDTO(target.getId(), List.of(source.getId()), List.of()));
 
         // Ventes fusionnées (ici aucune ligne, mais l'appel a bien eu lieu sur le couple détail).
         verify(salesLineRepository).findAllByProduitId(sourceChild.getId());
@@ -553,7 +618,9 @@ class ProduitMergeServiceImplTest {
     private void stubSimpleEntityCount(long count) {
         @SuppressWarnings("unchecked")
         jakarta.persistence.TypedQuery<Long> typed = mock(jakarta.persistence.TypedQuery.class);
-        lenient().when(entityManager.createQuery(anyString(), org.mockito.ArgumentMatchers.eq(Long.class))).thenReturn(typed);
+        lenient()
+                .when(entityManager.createQuery(anyString(), org.mockito.ArgumentMatchers.eq(Long.class)))
+                .thenReturn(typed);
         lenient().when(typed.setParameter(anyString(), any())).thenReturn(typed);
         lenient().when(typed.getSingleResult()).thenReturn(count);
     }
@@ -750,18 +817,23 @@ class ProduitMergeServiceImplTest {
 
     @Test
     void should_rejectMerge_whenTargetIdIsNull() {
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(null, List.of(2), List.of())));
+        assertThrows(
+                BadRequestAlertException.class,
+                () -> service.merge(new ProduitMergeRequestDTO(null, List.of(2), List.of())));
         verifyNoInteractions(produitRepository);
     }
 
     @Test
     void should_rejectMerge_whenSourceIdsAreNull() {
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, null, List.of())));
+        assertThrows(
+                BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, null, List.of())));
     }
 
     @Test
     void should_rejectMerge_whenSourceIdsAreEmpty() {
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(), List.of())));
+        assertThrows(
+                BadRequestAlertException.class,
+                () -> service.merge(new ProduitMergeRequestDTO(1, List.of(), List.of())));
     }
 
     @Test
@@ -769,14 +841,18 @@ class ProduitMergeServiceImplTest {
         Produit target = produit(1, "Target");
         when(produitRepository.findById(1)).thenReturn(Optional.of(target));
 
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(1), List.of())));
+        assertThrows(
+                BadRequestAlertException.class,
+                () -> service.merge(new ProduitMergeRequestDTO(1, List.of(1), List.of())));
     }
 
     @Test
     void should_rejectMerge_whenTargetDoesNotExist() {
         when(produitRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
+        assertThrows(
+                BadRequestAlertException.class,
+                () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
     }
 
     @Test
@@ -784,7 +860,9 @@ class ProduitMergeServiceImplTest {
         when(produitRepository.findById(1)).thenReturn(Optional.of(produit(1, "Target")));
         when(produitRepository.findById(2)).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
+        assertThrows(
+                BadRequestAlertException.class,
+                () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
     }
 
     @Test
@@ -818,7 +896,8 @@ class ProduitMergeServiceImplTest {
         targetStock.setQtyVirtual(1);
         targetStock.setQtyUG(0);
         when(stockProduitRepository.findAllByProduitId(2)).thenReturn(List.of(sourceStock));
-        when(stockProduitRepository.findStockProduitByStorageIdAndProduitId(10, 1)).thenReturn(Optional.of(targetStock));
+        when(stockProduitRepository.findStockProduitByStorageIdAndProduitId(10, 1))
+                .thenReturn(Optional.of(targetStock));
 
         service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -932,7 +1011,7 @@ class ProduitMergeServiceImplTest {
         line.setSaleDate(LocalDate.of(2026, 4, 18));
         when(salesLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
         when(salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(500L, 1, LocalDate.of(2026, 4, 18)))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1173,7 +1252,7 @@ class ProduitMergeServiceImplTest {
         com.kobe.warehouse.domain.SemoisConfiguration para = configuration(31, 7);
         when(semoisConfigurationRepository.findAllByProduitId(2)).thenReturn(List.of(officine, para));
         when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 1))
-            .thenReturn(Optional.of(configuration(32, 1)));
+                .thenReturn(Optional.of(configuration(32, 1)));
         when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 7)).thenReturn(Optional.empty());
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
@@ -1201,8 +1280,10 @@ class ProduitMergeServiceImplTest {
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
         com.kobe.warehouse.domain.VentesMensuellesAgregees row = vma("2026-03", 10, 1000, 5);
-        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(row));
-        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.empty());
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2)))
+                .thenReturn(List.of(row));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03"))
+                .thenReturn(Optional.empty());
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1222,8 +1303,10 @@ class ProduitMergeServiceImplTest {
         com.kobe.warehouse.domain.VentesMensuellesAgregees targetRow = vma("2026-03", 4, 400, 2);
         targetRow.setIsFrozen(Boolean.FALSE);
         targetRow.setEstRuptureFournisseur(Boolean.TRUE);
-        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(sourceRow));
-        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.of(targetRow));
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2)))
+                .thenReturn(List.of(sourceRow));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03"))
+                .thenReturn(Optional.of(targetRow));
 
         service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1248,8 +1331,10 @@ class ProduitMergeServiceImplTest {
         com.kobe.warehouse.domain.VentesMensuellesAgregees targetRow = vma("2026-03", 1, 100, 1);
         targetRow.setIsFrozen(Boolean.FALSE);
         targetRow.setEstRuptureFournisseur(Boolean.FALSE);
-        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(sourceRow));
-        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.of(targetRow));
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2)))
+                .thenReturn(List.of(sourceRow));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03"))
+                .thenReturn(Optional.of(targetRow));
 
         service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1279,7 +1364,8 @@ class ProduitMergeServiceImplTest {
         storage.setId(10);
         com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, storage);
         when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
-        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10)).thenReturn(false);
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10))
+                .thenReturn(false);
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1298,7 +1384,8 @@ class ProduitMergeServiceImplTest {
         storage.setId(10);
         com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, storage);
         when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
-        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10)).thenReturn(true);
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10))
+                .thenReturn(true);
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1314,7 +1401,8 @@ class ProduitMergeServiceImplTest {
 
         com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, null);
         when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
-        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, null)).thenReturn(false);
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, null))
+                .thenReturn(false);
 
         service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 

@@ -30,7 +30,10 @@
     .back-button {
       color: #4b5563;
       transition: all 0.2s ease;
-      &:hover { color: var(--pharma-chrome-tab, #5b89a6); background-color: var(--pharma-chrome-tab-tint, #e8f4f8); }
+      &:hover {
+        color: var(--pharma-chrome-tab, #5b89a6);
+        background-color: var(--pharma-chrome-tab-tint, #e8f4f8);
+      }
     }
 
     .page-title {
@@ -64,8 +67,14 @@
     gap: 0.75rem;
     align-items: flex-start;
     padding: 0.75rem;
-    .header-left, .header-actions { width: 100%; }
-    .header-actions { flex-wrap: wrap; gap: 0.5rem; }
+    .header-left,
+    .header-actions {
+      width: 100%;
+    }
+    .header-actions {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
   }
 }
 
@@ -83,7 +92,9 @@
       min-width: 180px;
       ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
-      ::ng-deep .p-autocomplete-input { width: 100%; }
+      ::ng-deep .p-autocomplete-input {
+        width: 100%;
+      }
     }
 
     .orderline-search-input {
@@ -91,7 +102,9 @@
       min-width: 220px;
       ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
-      ::ng-deep .p-autocomplete-input { width: 100%; }
+      ::ng-deep .p-autocomplete-input {
+        width: 100%;
+      }
     }
 
     .motif-select-input {
@@ -108,17 +121,31 @@
   .order-meta .meta-item.quantity-display {
     background: rgba(92, 184, 92, 0.1);
     border-color: rgba(92, 184, 92, 0.3);
-    i, strong { color: #5cb85c; }
-    strong { font-size: 0.875rem; }
+    i,
+    strong {
+      color: #5cb85c;
+    }
+    strong {
+      font-size: 0.875rem;
+    }
   }
 }
 
 // Responsive supplémentaire
 @media (max-width: 1400px) {
   .order-search-section .search-controls {
-    .order-search-input, .motif-select-input { flex: 1; min-width: 160px; }
-    .orderline-search-input               { flex: 1.5; min-width: 200px; }
-    .quantity-input-wrapper               { flex: 0 0 150px; }
+    .order-search-input,
+    .motif-select-input {
+      flex: 1;
+      min-width: 160px;
+    }
+    .orderline-search-input {
+      flex: 1.5;
+      min-width: 200px;
+    }
+    .quantity-input-wrapper {
+      flex: 0 0 150px;
+    }
   }
 }
 
@@ -126,8 +153,14 @@
   .order-search-section .search-controls {
     .order-search-input,
     .orderline-search-input,
-    .motif-select-input { flex: 1 1 calc(50% - 0.1875rem); min-width: 180px; }
-    .quantity-input-wrapper { flex: 1 1 calc(50% - 0.1875rem); min-width: 150px; }
+    .motif-select-input {
+      flex: 1 1 calc(50% - 0.1875rem);
+      min-width: 180px;
+    }
+    .quantity-input-wrapper {
+      flex: 1 1 calc(50% - 0.1875rem);
+      min-width: 150px;
+    }
   }
 }
 
@@ -142,22 +175,34 @@
 
 .mode-toggle-btn {
   transition: all 0.2s ease;
-  &:hover { transform: translateY(-1px); }
+  &:hover {
+    transform: translateY(-1px);
+  }
 }
 
-.pharma-price { font-weight: 500; }
-.text-end     { text-align: right; }
-.text-center  { text-align: center; }
+.pharma-price {
+  font-weight: 500;
+}
+.text-end {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
 
 // Badge numéro de lot
 .pharma-code {
-  i.pi-tag { font-size: 0.875rem; }
+  i.pi-tag {
+    font-size: 0.875rem;
+  }
 }
 
 // Mise en évidence des lignes avec lot
 tr {
   transition: background-color 0.2s ease;
-  &:has(.pi-tag) { background-color: rgba(91, 137, 166, 0.02); }
+  &:has(.pi-tag) {
+    background-color: rgba(91, 137, 166, 0.02);
+  }
 }
 
 // ─── Bandeau avertissement délai retour ───────────────────────────────────────

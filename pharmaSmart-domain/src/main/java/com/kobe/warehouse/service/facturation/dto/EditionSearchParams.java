@@ -6,15 +6,14 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public record EditionSearchParams(
-    ModeEditionSort sort,
-    ModeEditionEnum modeEdition,
-    LocalDate startDate,
-    LocalDate endDate,
-    Set<Integer> groupIds,
-    Set<Integer> tiersPayantIds,
-    Set<Long> ids,
-    boolean all,
-    Set<TiersPayantCategorie> categorieTiersPayants,
-    boolean factureProvisoire,
-    OrigineGeneration origineGeneration
-) {}
+        ModeEditionSort sort,
+        ModeEditionEnum modeEdition,
+        LocalDate startDate,
+        LocalDate endDate,
+        Set<Integer> groupIds,
+        Set<Integer> tiersPayantIds,
+        Set<Long> ids,
+        boolean all,
+        Set<TiersPayantCategorie> categorieTiersPayants,
+        boolean factureProvisoire,
+        OrigineGeneration origineGeneration) {}

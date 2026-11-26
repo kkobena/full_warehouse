@@ -10,14 +10,11 @@
   <div class="modal-body">
     <div class="rc-info-banner">
       <i class="pi pi-info-circle"></i>
-      <span>
-       Cette action créditera le stock et est <strong>irréversible</strong>.
-    </span>
+      <span> Cette action créditera le stock et est <strong>irréversible</strong>. </span>
     </div>
 
     <app-card [variant]="'form'">
       <div class="form-grid-compact">
-
         <!-- Motif -->
         <div class="form-field form-field-full">
           <label>Motif <span class="required">*</span></label>
@@ -54,25 +51,12 @@
             rows="2"
           ></textarea>
         </div>
-
       </div>
     </app-card>
   </div>
 
   <div class="modal-footer">
-    <app-button
-      (clicked)="activeModal.dismiss()"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    />
-    <app-button
-      [disabled]="!formMotif()"
-      icon="pi pi-check"
-      label="Valider"
-      severity="primary"
-      type="submit"
-    />
+    <app-button (clicked)="activeModal.dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <app-button [disabled]="!formMotif()" icon="pi pi-check" label="Valider" severity="primary" type="submit" />
   </div>
 </form>

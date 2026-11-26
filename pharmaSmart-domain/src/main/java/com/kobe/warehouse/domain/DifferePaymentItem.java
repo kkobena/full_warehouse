@@ -18,7 +18,6 @@ import java.util.Objects;
 /**
  * A DifferePaymentItem.
  */
-
 @Entity
 @Table(name = "differe_payment_item")
 public class DifferePaymentItem implements Serializable {
@@ -44,12 +43,10 @@ public class DifferePaymentItem implements Serializable {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    @JoinColumns(
-        {
-            @JoinColumn(name = "differe_payment_id", referencedColumnName = "id"),
-            @JoinColumn(name = "differe_payment_transaction_date", referencedColumnName = "transaction_date"),
-        }
-    )
+    @JoinColumns({
+        @JoinColumn(name = "differe_payment_id", referencedColumnName = "id"),
+        @JoinColumn(name = "differe_payment_transaction_date", referencedColumnName = "transaction_date"),
+    })
     private DifferePayment differePayment;
 
     public Integer getId() {

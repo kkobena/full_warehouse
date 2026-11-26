@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,8 +26,8 @@ import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
-import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculatedShare;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculationInput;
@@ -52,16 +52,22 @@ class ThirdPartyCalculationManagerImplTest {
 
     @Mock
     private TiersPayantCalculationService calculationService;
+
     @Mock
     private ThirdPartySaleLineService thirdPartySaleLineService;
+
     @Mock
     private SalesLineService salesLineService;
+
     @Mock
     private SaleLineServiceFactory saleLineServiceFactory;
+
     @Mock
     private ThirdPartySaleRepository thirdPartySaleRepository;
+
     @Mock
     private PrixRererenceService prixRererenceService;
+
     @Mock
     private SaleAmountCalculator saleAmountCalculator;
 
@@ -72,15 +78,14 @@ class ThirdPartyCalculationManagerImplTest {
 
     @BeforeEach
     void setUp() {
-        when(saleLineServiceFactory.getService(TypeVente.ThirdPartySales))
-            .thenReturn(salesLineService);
+        when(saleLineServiceFactory.getService(TypeVente.ThirdPartySales)).thenReturn(salesLineService);
         manager = new ThirdPartyCalculationManagerImpl(
-            calculationService,
-            thirdPartySaleLineService,
-            saleLineServiceFactory,
-            thirdPartySaleRepository,
-            prixRererenceService,
-            saleAmountCalculator);
+                calculationService,
+                thirdPartySaleLineService,
+                saleLineServiceFactory,
+                thirdPartySaleRepository,
+                prixRererenceService,
+                saleAmountCalculator);
 
         TiersPayant tiersPayant = new TiersPayant();
         tiersPayant.setId(30);
@@ -122,8 +127,9 @@ class ThirdPartyCalculationManagerImplTest {
         salesLine.setSales(sale);
         thirdPartySaleLine.setSale(sale);
 
-        lenient().when(prixRererenceService.findByProduitIdAndTiersPayantIds(eq(40), anySet()))
-            .thenReturn(List.of());
+        lenient()
+                .when(prixRererenceService.findByProduitIdAndTiersPayantIds(eq(40), anySet()))
+                .thenReturn(List.of());
     }
 
     @Test
@@ -240,7 +246,7 @@ class ThirdPartyCalculationManagerImplTest {
         reference.setRate(0.9f);
         reference.setType(OptionPrixType.REFERENCE);
         when(prixRererenceService.findByProduitIdAndTiersPayantIds(eq(40), anySet()))
-            .thenReturn(List.of(reference));
+                .thenReturn(List.of(reference));
         when(calculationService.calculate(any(CalculationInput.class))).thenReturn(null);
 
         manager.reComputeAndApplyAmounts(sale, null, false);
@@ -251,7 +257,8 @@ class ThirdPartyCalculationManagerImplTest {
         assertEquals(new BigDecimal("20000"), tiersPayantInput.getPlafondConso());
         assertEquals(new BigDecimal("1500"), tiersPayantInput.getConsoMensuelle());
         assertEquals(new BigDecimal("5000"), tiersPayantInput.getPlafondJournalierClient());
-        var insurancePrice = captor.getValue().getSaleItems().getFirst().getPrixAssurances().getFirst();
+        var insurancePrice =
+                captor.getValue().getSaleItems().getFirst().getPrixAssurances().getFirst();
         assertEquals(20, insurancePrice.getCompteTiersPayantId());
         assertEquals(450, insurancePrice.getPrice());
         assertEquals(0.9f, insurancePrice.getRate());
@@ -270,4 +277,3 @@ class ThirdPartyCalculationManagerImplTest {
         assertTrue(captor.getValue().getTiersPayants().isEmpty());
     }
 }
-

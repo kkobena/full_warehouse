@@ -84,14 +84,13 @@ class RetourDepotServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new RetourDepotServiceImpl(
-            retourDepotRepository,
-            retourDepotItemRepository,
-            magasinRepository,
-            produitRepository,
-            userService,
-            stockProduitRepository,
-            inventoryTransactionService
-        );
+                retourDepotRepository,
+                retourDepotItemRepository,
+                magasinRepository,
+                produitRepository,
+                userService,
+                stockProduitRepository,
+                inventoryTransactionService);
         depot = magasin(DEPOT_ID, "DEPOT CENTRAL");
         officine = magasin(OFFICINE_ID, "OFFICINE PRINCIPALE");
         currentUser = new AppUser();
@@ -133,17 +132,24 @@ class RetourDepotServiceImplTest {
     }
 
     private static RetourDepotItemDTO itemDTO(int qtyMvt) {
-        return new RetourDepotItemDTO().setProduitId(PRODUIT_ID).setProduitCip("1234567").setQtyMvt(qtyMvt).setRegularUnitPrice(999);
+        return new RetourDepotItemDTO()
+                .setProduitId(PRODUIT_ID)
+                .setProduitCip("1234567")
+                .setQtyMvt(qtyMvt)
+                .setRegularUnitPrice(999);
     }
 
     private RetourDepotDTO commande(RetourDepotItemDTO... items) {
-        return new RetourDepotDTO().setDepotId(DEPOT_ID).setRetourDepotItems(items.length == 0 ? List.of() : List.of(items));
+        return new RetourDepotDTO()
+                .setDepotId(DEPOT_ID)
+                .setRetourDepotItems(items.length == 0 ? List.of() : List.of(items));
     }
 
     private void stubCreationContext() {
         when(userService.getUser()).thenReturn(currentUser);
         when(magasinRepository.findById(DEPOT_ID)).thenReturn(Optional.of(depot));
-        when(retourDepotRepository.save(any(RetourDepot.class))).thenAnswer(inv -> ((RetourDepot) inv.getArgument(0)).setId(3));
+        when(retourDepotRepository.save(any(RetourDepot.class)))
+                .thenAnswer(inv -> ((RetourDepot) inv.getArgument(0)).setId(3));
     }
 
     @Nested
@@ -158,8 +164,8 @@ class RetourDepotServiceImplTest {
             RetourDepotDTO dto = commande();
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Dépôt non trouvé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Dépôt non trouvé");
 
             verify(retourDepotRepository, never()).save(any());
         }
@@ -212,8 +218,8 @@ class RetourDepotServiceImplTest {
             RetourDepotDTO dto = commande(itemDTO(5));
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Produit non trouvé");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Produit non trouvé");
         }
 
         @Test
@@ -221,12 +227,13 @@ class RetourDepotServiceImplTest {
         void stockDepotAbsent() {
             stubCreationContext();
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
-            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID)).thenReturn(List.of());
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
+                    .thenReturn(List.of());
             RetourDepotDTO dto = commande(itemDTO(5));
 
             assertThatThrownBy(() -> service.create(dto))
-                .isInstanceOf(GenericError.class)
-                .hasMessageContaining("Stock non trouvé pour le produit: 1234567");
+                    .isInstanceOf(GenericError.class)
+                    .hasMessageContaining("Stock non trouvé pour le produit: 1234567");
         }
 
         @Test
@@ -237,9 +244,9 @@ class RetourDepotServiceImplTest {
             StockProduit officineStock = stock(StorageType.PRINCIPAL, 20);
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(depotStock));
+                    .thenReturn(List.of(depotStock));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(officineStock));
+                    .thenReturn(List.of(officineStock));
 
             service.create(commande(itemDTO(7)));
 
@@ -255,9 +262,9 @@ class RetourDepotServiceImplTest {
             stubCreationContext();
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(7)));
 
@@ -278,9 +285,9 @@ class RetourDepotServiceImplTest {
             stubCreationContext();
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(7)));
 
@@ -297,9 +304,9 @@ class RetourDepotServiceImplTest {
             stubCreationContext();
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(7)));
 
@@ -317,9 +324,9 @@ class RetourDepotServiceImplTest {
             StockProduit principal = stock(StorageType.PRINCIPAL, 100);
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(secondaire, principal));
+                    .thenReturn(List.of(secondaire, principal));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(7)));
 
@@ -334,9 +341,9 @@ class RetourDepotServiceImplTest {
             StockProduit premier = stock(StorageType.SAFETY_STOCK, 40);
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(premier));
+                    .thenReturn(List.of(premier));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(7)));
 
@@ -351,9 +358,9 @@ class RetourDepotServiceImplTest {
             StockProduit officineSecondaire = stock(StorageType.SAFETY_STOCK, 5);
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(officinePrincipal, officineSecondaire));
+                    .thenReturn(List.of(officinePrincipal, officineSecondaire));
 
             service.create(commande(itemDTO(7)));
 
@@ -371,9 +378,9 @@ class RetourDepotServiceImplTest {
             stubCreationContext();
             when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
             when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
-                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+                    .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
 
             service.create(commande(itemDTO(3), itemDTO(4)));
 
@@ -392,31 +399,35 @@ class RetourDepotServiceImplTest {
             LocalDate from = LocalDate.of(2026, 4, 1);
             LocalDate to = LocalDate.of(2026, 4, 30);
             Specification<RetourDepot> spec = (root, query, cb) -> null;
-            when(retourDepotRepository.filterByDateRangeAndDepot(any(), any(), any())).thenReturn(spec);
-            when(retourDepotRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+            when(retourDepotRepository.filterByDateRangeAndDepot(any(), any(), any()))
+                    .thenReturn(spec);
+            when(retourDepotRepository.findAll(any(Specification.class), any(Pageable.class)))
+                    .thenReturn(Page.empty());
 
             service.findAllByDateRange(DEPOT_ID, from, to, PageRequest.of(0, 10));
 
-            verify(retourDepotRepository).filterByDateRangeAndDepot(DEPOT_ID, from.atStartOfDay(), to.atTime(23, 59, 59));
+            verify(retourDepotRepository)
+                    .filterByDateRangeAndDepot(DEPOT_ID, from.atStartOfDay(), to.atTime(23, 59, 59));
         }
 
         @Test
         @DisplayName("mappe chaque retour de la page")
         @SuppressWarnings("unchecked")
         void mappeLaPage() {
-            RetourDepot retour = new RetourDepot().setId(3).setDateMtv(LocalDateTime.now()).setUser(currentUser).setDepot(depot);
+            RetourDepot retour = new RetourDepot()
+                    .setId(3)
+                    .setDateMtv(LocalDateTime.now())
+                    .setUser(currentUser)
+                    .setDepot(depot);
             retour.setRetourDepotItems(new ArrayList<>());
             Specification<RetourDepot> spec = (root, query, cb) -> null;
-            when(retourDepotRepository.filterByDateRangeAndDepot(any(), any(), any())).thenReturn(spec);
+            when(retourDepotRepository.filterByDateRangeAndDepot(any(), any(), any()))
+                    .thenReturn(spec);
             when(retourDepotRepository.findAll(any(Specification.class), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(retour)));
+                    .thenReturn(new PageImpl<>(List.of(retour)));
 
             Page<RetourDepotDTO> page = service.findAllByDateRange(
-                DEPOT_ID,
-                LocalDate.of(2026, 4, 1),
-                LocalDate.of(2026, 4, 30),
-                PageRequest.of(0, 10)
-            );
+                    DEPOT_ID, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), PageRequest.of(0, 10));
 
             assertThat(page).hasSize(1);
             assertThat(page.getContent().getFirst().getId()).isEqualTo(3);
@@ -446,7 +457,11 @@ class RetourDepotServiceImplTest {
             item.setInitStock(100);
             item.setAfterStock(93);
             item.setProduit(produit(1200, 800, "1234567"));
-            RetourDepot retour = new RetourDepot().setId(3).setDateMtv(LocalDateTime.now()).setUser(currentUser).setDepot(depot);
+            RetourDepot retour = new RetourDepot()
+                    .setId(3)
+                    .setDateMtv(LocalDateTime.now())
+                    .setUser(currentUser)
+                    .setDepot(depot);
             retour.setRetourDepotItems(List.of(item));
             when(retourDepotRepository.findOneWithItems(3)).thenReturn(Optional.of(retour));
 
@@ -467,7 +482,11 @@ class RetourDepotServiceImplTest {
         @Test
         @DisplayName("tolere un retour sans collection de lignes")
         void sansCollectionDeLignes() {
-            RetourDepot retour = new RetourDepot().setId(3).setDateMtv(LocalDateTime.now()).setUser(currentUser).setDepot(depot);
+            RetourDepot retour = new RetourDepot()
+                    .setId(3)
+                    .setDateMtv(LocalDateTime.now())
+                    .setUser(currentUser)
+                    .setDepot(depot);
             retour.setRetourDepotItems(null);
             when(retourDepotRepository.findOneWithItems(3)).thenReturn(Optional.of(retour));
 

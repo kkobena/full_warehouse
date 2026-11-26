@@ -11,9 +11,4 @@ import java.time.LocalDateTime;
  * @param montantAchats    leur montant total
  */
 public record CustomerSyntheseDTO(
-    Integer customerId,
-    long encours,
-    LocalDateTime derniereVisite,
-    long nombreAchats,
-    long montantAchats
-) {}
+        Integer customerId, long encours, LocalDateTime derniereVisite, long nombreAchats, long montantAchats) {}

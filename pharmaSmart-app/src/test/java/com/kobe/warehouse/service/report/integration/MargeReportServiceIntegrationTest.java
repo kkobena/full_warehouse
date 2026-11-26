@@ -179,10 +179,7 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             rafraichir(VUE);
 
             Page<MargeDTO> page = services.margeReportService.getMarges(
-                null,
-                null,
-                PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "tauxMargePct"))
-            );
+                    null, null, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "tauxMargePct")));
 
             assertThat(page.getContent()).extracting(MargeDTO::libelle).containsExactly("PETITE MARGE", "GROSSE MARGE");
         }
@@ -202,24 +199,27 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
 
             String colonneMalveillante = "colonne'; DROP TABLE produit; --";
 
-            assertThat(
-                services.margeReportService
-                    .getMarges(null, null, PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, colonneMalveillante)))
-                    .getContent()
-            )
-                .extracting(MargeDTO::libelle)
-                .containsExactly("GROSSE MARGE", "PETITE MARGE");
+            assertThat(services.margeReportService
+                            .getMarges(
+                                    null,
+                                    null,
+                                    PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, colonneMalveillante)))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("GROSSE MARGE", "PETITE MARGE");
 
-            assertThat(
-                services.margeReportService
-                    .getMarges(null, null, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, colonneMalveillante)))
-                    .getContent()
-            )
-                .extracting(MargeDTO::libelle)
-                .containsExactly("PETITE MARGE", "GROSSE MARGE");
+            assertThat(services.margeReportService
+                            .getMarges(
+                                    null, null, PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, colonneMalveillante)))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("PETITE MARGE", "GROSSE MARGE");
 
             // La table est intacte : la chaîne reçue n'a jamais atteint le moteur.
-            assertThat(((Number) em.createNativeQuery("SELECT COUNT(*) FROM produit").getSingleResult()).longValue()).isEqualTo(2L);
+            assertThat(((Number) em.createNativeQuery("SELECT COUNT(*) FROM produit")
+                                    .getSingleResult())
+                            .longValue())
+                    .isEqualTo(2L);
         }
 
         @Test
@@ -234,9 +234,11 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
 
             assertThat(page.getContent()).extracting(MargeDTO::libelle).containsExactly("A", "B");
             assertThat(page.getTotalElements()).isEqualTo(3);
-            assertThat(services.margeReportService.getMarges(null, null, PageRequest.of(1, 2)).getContent())
-                .extracting(MargeDTO::libelle)
-                .containsExactly("C");
+            assertThat(services.margeReportService
+                            .getMarges(null, null, PageRequest.of(1, 2))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("C");
         }
 
         @Test
@@ -247,14 +249,18 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("EFFERALGAN", 10_000, 6_000, 10);
             rafraichir(VUE);
 
-            assertThat(services.margeReportService.getMarges(null, "doliprane", PageRequest.of(0, 10)).getContent())
-                .extracting(MargeDTO::libelle)
-                .containsExactly("DOLIPRANE 1000");
+            assertThat(services.margeReportService
+                            .getMarges(null, "doliprane", PageRequest.of(0, 10))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("DOLIPRANE 1000");
 
             String codeCip = doliprane.getFournisseurProduitPrincipal().getCodeCip();
-            assertThat(services.margeReportService.getMarges(null, codeCip, PageRequest.of(0, 10)).getContent())
-                .extracting(MargeDTO::libelle)
-                .containsExactly("DOLIPRANE 1000");
+            assertThat(services.margeReportService
+                            .getMarges(null, codeCip, PageRequest.of(0, 10))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("DOLIPRANE 1000");
         }
 
         @Test
@@ -263,9 +269,14 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("DOLIPRANE", 10_000, 6_000, 10);
             rafraichir(VUE);
 
-            assertThat(services.margeReportService.getMarges(premiereFamille().getId(), null, PageRequest.of(0, 10)).getContent())
-                .hasSize(1);
-            assertThat(services.margeReportService.getMarges(999_999, null, PageRequest.of(0, 10)).getContent()).isEmpty();
+            assertThat(services.margeReportService
+                            .getMarges(premiereFamille().getId(), null, PageRequest.of(0, 10))
+                            .getContent())
+                    .hasSize(1);
+            assertThat(services.margeReportService
+                            .getMarges(999_999, null, PageRequest.of(0, 10))
+                            .getContent())
+                    .isEmpty();
         }
 
         @Test
@@ -296,9 +307,11 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("CRITIQUE", 10_000, 9_800, 10); // 2 %
             rafraichir(VUE);
 
-            assertThat(services.margeReportService.getProduitsMargeInsuffisante(10, PageRequest.of(0, 10)).getContent())
-                .extracting(MargeDTO::libelle)
-                .containsExactly("CRITIQUE", "JUSTE");
+            assertThat(services.margeReportService
+                            .getProduitsMargeInsuffisante(10, PageRequest.of(0, 10))
+                            .getContent())
+                    .extracting(MargeDTO::libelle)
+                    .containsExactly("CRITIQUE", "JUSTE");
         }
 
         @Test
@@ -307,7 +320,10 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("CONFORTABLE", 10_000, 5_000, 10);
             rafraichir(VUE);
 
-            assertThat(services.margeReportService.getProduitsMargeInsuffisante(10, PageRequest.of(0, 10)).getContent()).isEmpty();
+            assertThat(services.margeReportService
+                            .getProduitsMargeInsuffisante(10, PageRequest.of(0, 10))
+                            .getContent())
+                    .isEmpty();
         }
 
         @Test
@@ -374,8 +390,14 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("DOLIPRANE", 10_000, 6_000, 10);
             rafraichir(VUE);
 
-            assertThat(services.margeReportService.getMargeSummary(premiereFamille().getId(), 10, 20).totalProduits()).isEqualTo(1);
-            assertThat(services.margeReportService.getMargeSummary(999_999, 10, 20).totalProduits()).isZero();
+            assertThat(services.margeReportService
+                            .getMargeSummary(premiereFamille().getId(), 10, 20)
+                            .totalProduits())
+                    .isEqualTo(1);
+            assertThat(services.margeReportService
+                            .getMargeSummary(999_999, 10, 20)
+                            .totalProduits())
+                    .isZero();
         }
     }
 
@@ -397,7 +419,8 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             venduAvecMarge("EFFERALGAN", 10_000, 4_000, 10);
             rafraichir(VUE);
 
-            when(services.profitabilityPdfReportService.export(any(), anyList())).thenReturn(new byte[] { 1, 2, 3 });
+            when(services.profitabilityPdfReportService.export(any(), anyList()))
+                    .thenReturn(new byte[] {1, 2, 3});
 
             byte[] pdf = services.margeReportService.export(null, "DOLIPRANE");
 
@@ -421,7 +444,8 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
             }
             rafraichir(VUE);
 
-            when(services.profitabilityPdfReportService.export(any(), anyList())).thenReturn(new byte[] { 1 });
+            when(services.profitabilityPdfReportService.export(any(), anyList()))
+                    .thenReturn(new byte[] {1});
 
             services.margeReportService.export(null, null);
 
@@ -436,7 +460,9 @@ class MargeReportServiceIntegrationTest extends AbstractReportIntegrationTest {
     // ===== fabriques locales =====
 
     private List<MargeDTO> marges() {
-        return services.margeReportService.getMarges(null, null, PageRequest.of(0, 50)).getContent();
+        return services.margeReportService
+                .getMarges(null, null, PageRequest.of(0, 50))
+                .getContent();
     }
 
     private Produit produitReference(String libelle, int prixVente, int coutAchat) {

@@ -8,47 +8,46 @@ import java.util.List;
  * Provides a comprehensive view of sales vs purchases for a given period.
  */
 public record MobilePharmacistDashboardDTO(
-    // Period
-    LocalDate fromDate,
-    LocalDate toDate,
-    String periodLabel,
+        // Period
+        LocalDate fromDate,
+        LocalDate toDate,
+        String periodLabel,
 
-    // Sales (Ventes)
-    long montantVenteComptant,
-    long montantVenteCredit,
-    long montantVenteRemise,
-    long montantVenteNet,
-    long montantVenteTtc,
-    long montantVenteHt,
-    long montantVenteTaxe,
-    int transactionsCount,
+        // Sales (Ventes)
+        long montantVenteComptant,
+        long montantVenteCredit,
+        long montantVenteRemise,
+        long montantVenteNet,
+        long montantVenteTtc,
+        long montantVenteHt,
+        long montantVenteTaxe,
+        int transactionsCount,
 
-    // Purchases (Achats)
-    long montantAchatNet,
-    long montantAchatTtc,
-    long montantAchatHt,
-    long montantAchatTaxe,
-    long montantAchatRemise,
-    long montantAvoirFournisseur,
+        // Purchases (Achats)
+        long montantAchatNet,
+        long montantAchatTtc,
+        long montantAchatHt,
+        long montantAchatTaxe,
+        long montantAchatRemise,
+        long montantAvoirFournisseur,
 
-    // Ratios
-    double ratioVenteAchat,
-    double ratioAchatVente,
+        // Ratios
+        double ratioVenteAchat,
+        double ratioAchatVente,
 
-    // Calculated margin
-    long marge,
-    double margePercent,
+        // Calculated margin
+        long marge,
+        double margePercent,
 
-    // Variations vs previous period
-    Double ventesVariation,
-    Double achatsVariation,
+        // Variations vs previous period
+        Double ventesVariation,
+        Double achatsVariation,
 
-    // Top suppliers (top 10)
-    List<FournisseurAchatMobileDTO> topFournisseurs,
+        // Top suppliers (top 10)
+        List<FournisseurAchatMobileDTO> topFournisseurs,
 
-    // Chart data for sales vs purchases
-    List<ChartDataPointDTO> chartVentesAchats
-) {
+        // Chart data for sales vs purchases
+        List<ChartDataPointDTO> chartVentesAchats) {
     /**
      * Creates a builder for constructing the DTO.
      */
@@ -210,32 +209,31 @@ public record MobilePharmacistDashboardDTO(
 
         public MobilePharmacistDashboardDTO build() {
             return new MobilePharmacistDashboardDTO(
-                fromDate,
-                toDate,
-                periodLabel,
-                montantVenteComptant,
-                montantVenteCredit,
-                montantVenteRemise,
-                montantVenteNet,
-                montantVenteTtc,
-                montantVenteHt,
-                montantVenteTaxe,
-                transactionsCount,
-                montantAchatNet,
-                montantAchatTtc,
-                montantAchatHt,
-                montantAchatTaxe,
-                montantAchatRemise,
-                montantAvoirFournisseur,
-                ratioVenteAchat,
-                ratioAchatVente,
-                marge,
-                margePercent,
-                ventesVariation,
-                achatsVariation,
-                topFournisseurs,
-                chartVentesAchats
-            );
+                    fromDate,
+                    toDate,
+                    periodLabel,
+                    montantVenteComptant,
+                    montantVenteCredit,
+                    montantVenteRemise,
+                    montantVenteNet,
+                    montantVenteTtc,
+                    montantVenteHt,
+                    montantVenteTaxe,
+                    transactionsCount,
+                    montantAchatNet,
+                    montantAchatTtc,
+                    montantAchatHt,
+                    montantAchatTaxe,
+                    montantAchatRemise,
+                    montantAvoirFournisseur,
+                    ratioVenteAchat,
+                    ratioAchatVente,
+                    marge,
+                    margePercent,
+                    ventesVariation,
+                    achatsVariation,
+                    topFournisseurs,
+                    chartVentesAchats);
         }
     }
 }

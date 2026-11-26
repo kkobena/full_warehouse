@@ -1,9 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {Router, RouterModule} from "@angular/router";
-import {FormsModule} from "@angular/forms";
-import {HttpHeaders} from "@angular/common/http";
-import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { HttpHeaders } from '@angular/common/http';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -13,78 +13,46 @@ import {
   SelectComponent,
   SelectSearchComponent,
   SplitButtonComponent,
-  ToolbarComponent, CardComponent } from "app/shared/ui";
-import {AbilityService} from "app/core/auth/ability.service";
-import {IProduit} from "app/shared/model/produit.model";
-import {IFamilleProduit} from "app/shared/model/famille-produit.model";
-import {IRayon} from "app/shared/model/rayon.model";
-import {FamilleProduitService} from "app/entities/famille-produit/famille-produit.service";
-import {RayonService} from "app/entities/rayon/rayon.service";
-import {
-  NgbConfirmDialogService
-} from "app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {ProductsApiService} from "../../data-access/services/products-api.service";
-import {
-  ProduitListComponent,
-  ProduitMenuAction
-} from "../../ui/produit-list/produit-list.component";
-import {
-  ProduitDetailPanelComponent
-} from "../../ui/produit-detail-panel/produit-detail-panel.component";
-import {
-  ImportProduitModalComponent
-} from "../../../../entities/produit/import-produit-modal/import-produit-modal.component";
-import {IResponseDto} from "../../../../shared/util/response-dto";
-import {showCommonModal} from "../../../../entities/sales/selling-home/sale-helper";
-import {
-  ImportProduitReponseModalComponent
-} from "../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component";
-import {
-  CommandeRapideModalComponent
-} from "../../ui/commande-rapide-modal/commande-rapide-modal.component";
-import {
-  ProduitGeneriquesModalComponent
-} from "../../ui/generiques-modal/produit-generiques-modal.component";
-import {
-  ProduitEtiquetteModalComponent
-} from "../../ui/etiquette-modal/produit-etiquette-modal.component";
-import {
-  ProduitDetailFormModalComponent
-} from "../../ui/detail-form-modal/produit-detail-form-modal.component";
-import {
-  ProduitDeconditionModalComponent
-} from "../../ui/decondition-modal/produit-decondition-modal.component";
-import {NotificationService} from "app/shared/services/notification.service";
-import {ProduitsFavorisApiService} from "../../data-access/services/produits-favoris-api.service";
-import {FavorisComptoirModalComponent} from "../../ui/favoris-comptoir-modal/favoris-comptoir-modal.component";
-import {ErrorService} from "app/shared/error.service";
-import {
-  ListPrixReferenceComponent
-} from "../../ui/prix-reference/list-prix-reference/list-prix-reference.component";
-import {
-  LotSaisieProduitModalComponent
-} from "../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component";
-import {
-  RayonAssignFormComponent,
-  RayonAssignResult
-} from "../../../rayon/ui/rayon-assign-form/rayon-assign-form.component";
-import {
-  RayonProduitApiService
-} from "../../../rayon/data-access/services/rayon-produit-api.service";
-import {
-  ProduitMergeModalComponent
-} from "../../ui/produit-merge-modal/produit-merge-modal.component";
-import {IProduitMergeResult} from "../../models/produit-merge.model";
-import {IDci} from "../../../dci/models/dci.model";
-import {DciService} from "../../../../entities/dci/dci.service";
-import {
-  DciAssignationModalComponent
-} from "../../ui/dci-assignation-modal/dci-assignation-modal.component";
+  ToolbarComponent,
+  CardComponent,
+} from 'app/shared/ui';
+import { AbilityService } from 'app/core/auth/ability.service';
+import { IProduit } from 'app/shared/model/produit.model';
+import { IFamilleProduit } from 'app/shared/model/famille-produit.model';
+import { IRayon } from 'app/shared/model/rayon.model';
+import { FamilleProduitService } from 'app/entities/famille-produit/famille-produit.service';
+import { RayonService } from 'app/entities/rayon/rayon.service';
+import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { ProductsApiService } from '../../data-access/services/products-api.service';
+import { ProduitListComponent, ProduitMenuAction } from '../../ui/produit-list/produit-list.component';
+import { ProduitDetailPanelComponent } from '../../ui/produit-detail-panel/produit-detail-panel.component';
+import { ImportProduitModalComponent } from '../../../../entities/produit/import-produit-modal/import-produit-modal.component';
+import { IResponseDto } from '../../../../shared/util/response-dto';
+import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
+import { ImportProduitReponseModalComponent } from '../../../../entities/produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
+import { CommandeRapideModalComponent } from '../../ui/commande-rapide-modal/commande-rapide-modal.component';
+import { ProduitGeneriquesModalComponent } from '../../ui/generiques-modal/produit-generiques-modal.component';
+import { ProduitEtiquetteModalComponent } from '../../ui/etiquette-modal/produit-etiquette-modal.component';
+import { ProduitDetailFormModalComponent } from '../../ui/detail-form-modal/produit-detail-form-modal.component';
+import { ProduitDeconditionModalComponent } from '../../ui/decondition-modal/produit-decondition-modal.component';
+import { NotificationService } from 'app/shared/services/notification.service';
+import { ProduitsFavorisApiService } from '../../data-access/services/produits-favoris-api.service';
+import { FavorisComptoirModalComponent } from '../../ui/favoris-comptoir-modal/favoris-comptoir-modal.component';
+import { ErrorService } from 'app/shared/error.service';
+import { ListPrixReferenceComponent } from '../../ui/prix-reference/list-prix-reference/list-prix-reference.component';
+import { LotSaisieProduitModalComponent } from '../../ui/lot-saisie-produit-modal/lot-saisie-produit-modal.component';
+import { RayonAssignFormComponent, RayonAssignResult } from '../../../rayon/ui/rayon-assign-form/rayon-assign-form.component';
+import { RayonProduitApiService } from '../../../rayon/data-access/services/rayon-produit-api.service';
+import { ProduitMergeModalComponent } from '../../ui/produit-merge-modal/produit-merge-modal.component';
+import { IProduitMergeResult } from '../../models/produit-merge.model';
+import { IDci } from '../../../dci/models/dci.model';
+import { DciService } from '../../../../entities/dci/dci.service';
+import { DciAssignationModalComponent } from '../../ui/dci-assignation-modal/dci-assignation-modal.component';
 
 @Component({
-  selector: "app-produit-home",
-  templateUrl: "./produit-home.component.html",
-  styleUrls: ["./produit-home.component.scss"],
+  selector: 'app-produit-home',
+  templateUrl: './produit-home.component.html',
+  styleUrls: ['./produit-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CardComponent,
@@ -100,11 +68,10 @@ import {
     IconFieldComponent,
     NgbTooltip,
     ProduitListComponent,
-    ProduitDetailPanelComponent
-  ]
+    ProduitDetailPanelComponent,
+  ],
 })
 export class ProduitHomeComponent implements OnInit {
-
   protected produits = signal<IProduit[]>([]);
   protected totalItems = signal(0);
   protected loading = signal(false);
@@ -117,15 +84,15 @@ export class ProduitHomeComponent implements OnInit {
   protected familles = signal<IFamilleProduit[]>([]);
   protected rayons = signal<IRayon[]>([]);
   protected filterOptions: { label: string; value: string }[] = [
-    {label: "Produits actifs", value: "ENABLE"},
-    {label: "Produits désactivés", value: "DISABLE"},
-    {label: "Déconditionnables", value: "DECONDITIONNABLE"},
-    {label: "Déconditionnés", value: "DECONDITIONNE"},
-    {label: "Tous", value: "ALL"}
+    { label: 'Produits actifs', value: 'ENABLE' },
+    { label: 'Produits désactivés', value: 'DISABLE' },
+    { label: 'Déconditionnables', value: 'DECONDITIONNABLE' },
+    { label: 'Déconditionnés', value: 'DECONDITIONNE' },
+    { label: 'Tous', value: 'ALL' },
   ];
 
-  protected readonly search = signal("");
-  protected readonly selectedFilter = signal("ENABLE");
+  protected readonly search = signal('');
+  protected readonly selectedFilter = signal('ENABLE');
   protected selectedFamilleId: number | null = null;
   protected selectedRayonId: number | null = null;
   /** Substance active retenue au filtre — objet et non identifiant : le champ affiche son libellé. */
@@ -133,20 +100,20 @@ export class ProduitHomeComponent implements OnInit {
   protected readonly dcis = signal<IDci[]>([]);
   protected readonly page = signal(0);
   protected readonly rows = signal(15);
-  protected readonly sortField = signal("libelle");
+  protected readonly sortField = signal('libelle');
   protected readonly sortOrder = signal(1);
   protected importMenuItems: AppSplitButtonItem[] = [
     {
-      label: "Nouvelle installation",
-      icon: "pi pi-file-excel",
-      command: () => this.onImport("NOUVELLE_INSTALLATION")
+      label: 'Nouvelle installation',
+      icon: 'pi pi-file-excel',
+      command: () => this.onImport('NOUVELLE_INSTALLATION'),
     },
-    {label: "Basculement", icon: "pi pi-filter", command: () => this.onImport("BASCULEMENT")},
+    { label: 'Basculement', icon: 'pi pi-filter', command: () => this.onImport('BASCULEMENT') },
     {
-      label: "Basculement prestige",
-      icon: "pi pi-file",
-      command: () => this.onImport("BASCULEMENT_PRESTIGE")
-    }
+      label: 'Basculement prestige',
+      icon: 'pi pi-file',
+      command: () => this.onImport('BASCULEMENT_PRESTIGE'),
+    },
   ];
   /** ID du produit à mettre en évidence après création/modification */
   private pendingHighlightId: number | null = null;
@@ -160,10 +127,10 @@ export class ProduitHomeComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
   private readonly ability = inject(AbilityService);
-  protected readonly canCreate = this.ability.canSignal("create", "catalogue");
-  protected readonly canEdit = this.ability.canSignal("edit", "catalogue");
-  protected readonly canDelete = this.ability.canSignal("delete", "catalogue");
-  protected readonly canMergeProduits = this.ability.canSignal("execute", "pr-fusion-produit");
+  protected readonly canCreate = this.ability.canSignal('create', 'catalogue');
+  protected readonly canEdit = this.ability.canSignal('edit', 'catalogue');
+  protected readonly canDelete = this.ability.canSignal('delete', 'catalogue');
+  protected readonly canMergeProduits = this.ability.canSignal('execute', 'pr-fusion-produit');
   private readonly rayonProduitApi = inject(RayonProduitApiService);
   private readonly favorisApi = inject(ProduitsFavorisApiService);
   /** Identifiants des produits épinglés à la grille du comptoir (menu d'une ligne : ajouter ou retirer). */
@@ -179,7 +146,7 @@ export class ProduitHomeComponent implements OnInit {
       this.pendingHighlightId = navState.highlightId;
       // Forcer la recherche sur le codeCip unique → produit toujours en page 0
       this.search.set(navState.highlightCip);
-      this.selectedFilter.set("ALL"); // Inclure produits actifs et inactifs
+      this.selectedFilter.set('ALL'); // Inclure produits actifs et inactifs
     }
 
     this.loadPage();
@@ -217,11 +184,11 @@ export class ProduitHomeComponent implements OnInit {
     if (!this.assertModifiable(produit)) {
       return;
     }
-    if (produit.typeProduit === "DETAIL") {
+    if (produit.typeProduit === 'DETAIL') {
       const ref = this.modalService.open(ProduitDetailFormModalComponent, {
-        size: "lg",
+        size: 'lg',
         centered: true,
-        backdrop: "static"
+        backdrop: 'static',
       });
 
       const decon = ref.componentInstance as ProduitDetailFormModalComponent;
@@ -229,21 +196,20 @@ export class ProduitHomeComponent implements OnInit {
       decon.produit = produit.parent;
       ref.closed.subscribe(() => this.refreshProduit(produit.id!));
     } else {
-      this.router.navigate(["/produits", produit.id, "edit"]);
+      this.router.navigate(['/produits', produit.id, 'edit']);
     }
-
   }
 
   protected onDeleteRequested(produit: IProduit): void {
     this.confirmDialog.onConfirm(
       () => this.deleteProduit(produit),
-      "Suppression",
-      `Voulez-vous supprimer le produit "${produit.libelle}" ?`
+      'Suppression',
+      `Voulez-vous supprimer le produit "${produit.libelle}" ?`,
     );
   }
 
   protected onNewProduit(): void {
-    this.router.navigate(["/produits/new"]);
+    this.router.navigate(['/produits/new']);
   }
 
   protected onSelectionChanged(produits: IProduit[]): void {
@@ -254,20 +220,16 @@ export class ProduitHomeComponent implements OnInit {
     const list = this.selectedProduits();
     const count = list.length;
     this.confirmDialog.onConfirm(
-      () => this.executeBulk(list, "DISABLE"),
-      "Mettre en veille",
-      `Mettre en veille ${count} produit(s) sélectionné(s) ?`
+      () => this.executeBulk(list, 'DISABLE'),
+      'Mettre en veille',
+      `Mettre en veille ${count} produit(s) sélectionné(s) ?`,
     );
   }
 
   protected onBulkEnable(): void {
     const list = this.selectedProduits();
     const count = list.length;
-    this.confirmDialog.onConfirm(
-      () => this.executeBulk(list, "ENABLE"),
-      "Réactiver",
-      `Réactiver ${count} produit(s) sélectionné(s) ?`
-    );
+    this.confirmDialog.onConfirm(() => this.executeBulk(list, 'ENABLE'), 'Réactiver', `Réactiver ${count} produit(s) sélectionné(s) ?`);
   }
 
   protected onClearSelection(): void {
@@ -283,60 +245,56 @@ export class ProduitHomeComponent implements OnInit {
     const count = list.length;
     this.confirmDialog.onConfirm(
       () => this.openMergeModal(list),
-      "Fusionner les produits",
-      `Fusionner ${count} produit(s) sélectionné(s) ? Cette action est irréversible : les produits en doublon seront archivés au profit du produit cible choisi.`
+      'Fusionner les produits',
+      `Fusionner ${count} produit(s) sélectionné(s) ? Cette action est irréversible : les produits en doublon seront archivés au profit du produit cible choisi.`,
     );
   }
 
   protected onMenuAction(event: { action: ProduitMenuAction; produit: IProduit }): void {
-    const {action, produit} = event;
+    const { action, produit } = event;
     switch (action) {
-      case "view":
+      case 'view':
         this.selectedProduit.set(produit);
         break;
-      case "commander":
+      case 'commander':
         this.openCommandeRapide(produit);
         break;
-      case "generiques":
+      case 'generiques':
         this.openGeneriques(produit);
         break;
-      case "print-label":
+      case 'print-label':
         this.openEtiquette(produit);
         break;
-      case "add-detail":
+      case 'add-detail':
         this.openDetailForm(produit);
         break;
-      case "decondition":
+      case 'decondition':
         this.openDecondition(produit);
         break;
-      case "suspend":
+      case 'suspend':
         this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, "DISABLE"),
-          "Mettre en veille",
-          `Mettre en veille "${produit.libelle}" ? Le produit sera masqué des ventes et des commandes.`
+          () => this.changeStatus(produit, 'DISABLE'),
+          'Mettre en veille',
+          `Mettre en veille "${produit.libelle}" ? Le produit sera masqué des ventes et des commandes.`,
         );
         break;
-      case "activate":
+      case 'activate':
+        this.confirmDialog.onConfirm(() => this.changeStatus(produit, 'ENABLE'), 'Réactiver', `Réactiver "${produit.libelle}" ?`);
+        break;
+      case 'archive':
         this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, "ENABLE"),
-          "Réactiver",
-          `Réactiver "${produit.libelle}" ?`
+          () => this.changeStatus(produit, 'DISABLE'),
+          'Archiver',
+          `Archiver "${produit.libelle}" ? Cette action désactivera le produit.`,
         );
         break;
-      case "archive":
-        this.confirmDialog.onConfirm(
-          () => this.changeStatus(produit, "DISABLE"),
-          "Archiver",
-          `Archiver "${produit.libelle}" ? Cette action désactivera le produit.`
-        );
-        break;
-      case "prix-reference":
+      case 'prix-reference':
         this.openPrixReference(produit);
         break;
-      case "saisir-lots":
+      case 'saisir-lots':
         this.openSaisirLot(produit);
         break;
-      case "clone-rayon":
+      case 'clone-rayon':
         this.openClonerRayon(produit);
         break;
     }
@@ -355,23 +313,20 @@ export class ProduitHomeComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(DciAssignationModalComponent, {
-      size: "lg",
+      size: 'lg',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     (ref.componentInstance as DciAssignationModalComponent).produits = list;
     ref.closed.subscribe((resultat: { dci: { libelle?: string }; nombre: number }) => {
-      this.notificationService.success(
-        `${resultat.nombre} produit(s) rattaché(s) à « ${resultat.dci.libelle} ».`,
-        "DCI affectée"
-      );
+      this.notificationService.success(`${resultat.nombre} produit(s) rattaché(s) à « ${resultat.dci.libelle} ».`, 'DCI affectée');
       this.onClearSelection();
       this.loadPage();
     });
   }
 
   protected chercherDci(terme: string): void {
-    this.dciService.queryUnpaged({search: terme}).subscribe({
+    this.dciService.queryUnpaged({ search: terme }).subscribe({
       next: res => this.dcis.set((res.body ?? []) as IDci[]),
     });
   }
@@ -383,20 +338,17 @@ export class ProduitHomeComponent implements OnInit {
 
   private openMergeModal(list: IProduit[]): void {
     const ref = this.modalService.open(ProduitMergeModalComponent, {
-      size: "xl",
+      size: 'xl',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     (ref.componentInstance as ProduitMergeModalComponent).produits = list;
     ref.closed.subscribe((result: IProduitMergeResult) => {
-      this.notificationService.success(
-        `${result.mergedSourceIds?.length ?? 0} produit(s) fusionné(s) avec succès.`,
-        "Fusion terminée"
-      );
+      this.notificationService.success(`${result.mergedSourceIds?.length ?? 0} produit(s) fusionné(s) avec succès.`, 'Fusion terminée');
       if (result.stockConflicts?.length) {
         this.notificationService.warning(
           `Ajustement de stock manuel nécessaire sur ${result.stockConflicts.length} emplacement(s) : la quantité des produits fusionnés n'a pas été reportée automatiquement.`,
-          "Action requise"
+          'Action requise',
         );
       }
       this.onClearSelection();
@@ -412,7 +364,7 @@ export class ProduitHomeComponent implements OnInit {
    * appel échouait — sans le moindre message, l'utilisateur croyait le traitement en cours.
    * Les échecs sont désormais dits, et nommés.
    */
-  private executeBulk(list: IProduit[], status: "ENABLE" | "DISABLE"): void {
+  private executeBulk(list: IProduit[], status: 'ENABLE' | 'DISABLE'): void {
     let repondus = 0;
     const echecs: string[] = [];
     const termine = (): void => {
@@ -423,8 +375,8 @@ export class ProduitHomeComponent implements OnInit {
       this.clearSelectionTrigger.update(v => v + 1);
       if (echecs.length) {
         this.notificationService.error(
-          `${echecs.length} produit(s) n'ont pas changé d'état : ${echecs.join(", ")}.`,
-          "Traitement incomplet"
+          `${echecs.length} produit(s) n'ont pas changé d'état : ${echecs.join(', ')}.`,
+          'Traitement incomplet',
         );
       }
     };
@@ -433,16 +385,14 @@ export class ProduitHomeComponent implements OnInit {
       this.api.patchStatus(produit.id!, status).subscribe({
         next: () => {
           repondus++;
-          this.produits.update(all =>
-            all.map(p => p.id === produit.id ? {...p, status} : p)
-          );
+          this.produits.update(all => all.map(p => (p.id === produit.id ? { ...p, status } : p)));
           termine();
         },
         error() {
           repondus++;
           echecs.push(produit.libelle ?? `#${produit.id}`);
           termine();
-        }
+        },
       });
     }
   }
@@ -453,11 +403,8 @@ export class ProduitHomeComponent implements OnInit {
    * suppression restent possibles.
    */
   private assertModifiable(produit: IProduit): boolean {
-    if (produit.status === "DISABLE") {
-      this.notificationService.warning(
-        `"${produit.libelle}" est désactivé : réactivez-le avant de le modifier.`,
-        "Produit désactivé"
-      );
+    if (produit.status === 'DISABLE') {
+      this.notificationService.warning(`"${produit.libelle}" est désactivé : réactivez-le avant de le modifier.`, 'Produit désactivé');
       return false;
     }
     return true;
@@ -468,14 +415,12 @@ export class ProduitHomeComponent implements OnInit {
       return;
     }
     this.api.getById(produit.id!).subscribe(full => {
-      const occupiedStorageIds = (full.rayonProduits ?? [])
-        .map(rp => rp.storageId)
-        .filter((id): id is number => id != null);
+      const occupiedStorageIds = (full.rayonProduits ?? []).map(rp => rp.storageId).filter((id): id is number => id != null);
 
       const ref = this.modalService.open(RayonAssignFormComponent, {
         size: 'lg',
         centered: true,
-        backdrop: 'static'
+        backdrop: 'static',
       });
       const inst = ref.componentInstance as RayonAssignFormComponent;
       inst.produit = full;
@@ -484,28 +429,28 @@ export class ProduitHomeComponent implements OnInit {
       inst.occupiedRealStorageIds = occupiedStorageIds;
 
       ref.closed.subscribe((result: RayonAssignResult) => {
-        this.rayonProduitApi.assign({
-          produitId: result.produitId,
-          rayonId: result.rayonId
-        }).subscribe({
-          next: () => this.notificationService.success('Affecté au nouveau stockage'),
-          error: () => this.notificationService.error('Erreur lors de l\'affectation'),
-        });
+        this.rayonProduitApi
+          .assign({
+            produitId: result.produitId,
+            rayonId: result.rayonId,
+          })
+          .subscribe({
+            next: () => this.notificationService.success('Affecté au nouveau stockage'),
+            error: () => this.notificationService.error("Erreur lors de l'affectation"),
+          });
       });
     });
   }
 
-  private changeStatus(produit: IProduit, status: "ENABLE" | "DISABLE"): void {
+  private changeStatus(produit: IProduit, status: 'ENABLE' | 'DISABLE'): void {
     this.api.patchStatus(produit.id!, status).subscribe({
       next: () => {
         // Mise à jour locale immédiate sans rechargement complet
-        this.produits.update(list =>
-          list.map(p => p.id === produit.id ? {...p, status} : p)
-        );
+        this.produits.update(list => list.map(p => (p.id === produit.id ? { ...p, status } : p)));
         if (this.selectedProduit()?.id === produit.id) {
-          this.selectedProduit.update(p => p ? {...p, status} : null);
+          this.selectedProduit.update(p => (p ? { ...p, status } : null));
         }
-      }
+      },
     });
   }
 
@@ -526,17 +471,17 @@ export class ProduitHomeComponent implements OnInit {
     const req: any = {
       page: this.page(),
       size: this.rows(),
-      search: this.search() || "",
-      sort: [`${this.sortField()},${this.sortOrder() === 1 ? "asc" : "desc"}`]
+      search: this.search() || '',
+      sort: [`${this.sortField()},${this.sortOrder() === 1 ? 'asc' : 'desc'}`],
     };
 
-    if (this.selectedFilter() === "DECONDITIONNABLE") {
+    if (this.selectedFilter() === 'DECONDITIONNABLE') {
       req.deconditionnable = true;
-      req.status = "ENABLE";
-    } else if (this.selectedFilter() === "DECONDITIONNE") {
+      req.status = 'ENABLE';
+    } else if (this.selectedFilter() === 'DECONDITIONNE') {
       req.deconditionne = true;
-      req.status = "ENABLE";
-    } else if (this.selectedFilter() !== "ALL") {
+      req.status = 'ENABLE';
+    } else if (this.selectedFilter() !== 'ALL') {
       req.status = this.selectedFilter();
     }
 
@@ -551,7 +496,7 @@ export class ProduitHomeComponent implements OnInit {
     }
 
     this.api.query(req).subscribe({
-      next: (res) => {
+      next: res => {
         // Une reponse depassee ne doit rien afficher : elle decrit une autre demande.
         if (numeroDuChargement !== this.dernierChargement) {
           return;
@@ -562,12 +507,12 @@ export class ProduitHomeComponent implements OnInit {
         if (numeroDuChargement === this.dernierChargement) {
           this.loading.set(false);
         }
-      }
+      },
     });
   }
 
   private onSuccess(data: IProduit[], headers: HttpHeaders): void {
-    this.totalItems.set(Number(headers.get("X-Total-Count") ?? 0));
+    this.totalItems.set(Number(headers.get('X-Total-Count') ?? 0));
     this.produits.set(data);
     this.loading.set(false);
     this.selectedProduits.set([]);
@@ -586,39 +531,42 @@ export class ProduitHomeComponent implements OnInit {
   private deleteProduit(produit: IProduit): void {
     this.api.delete(produit.id!).subscribe({
       next: () => {
-        this.notificationService.success(`"${produit.libelle}" a été supprimé.`, "Suppression");
+        this.notificationService.success(`"${produit.libelle}" a été supprimé.`, 'Suppression');
         if (this.selectedProduit()?.id === produit.id) {
           this.selectedProduit.set(null);
         }
         this.loadPage();
       },
       error: err => {
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur");
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Erreur');
       },
     });
   }
 
   private loadReferentiels(): void {
-    this.familleService.query({search: ""}).subscribe({
-      next: res => this.familles.set(res.body ?? [])
+    this.familleService.query({ search: '' }).subscribe({
+      next: res => this.familles.set(res.body ?? []),
     });
-    this.rayonService.query({search: "", page: 0, size: 9999}).subscribe({
-      next: res => this.rayons.set(res.body ?? [])
+    this.rayonService.query({ search: '', page: 0, size: 9999 }).subscribe({
+      next: res => this.rayons.set(res.body ?? []),
     });
   }
 
   private openGeneriques(produit: IProduit): void {
     const ref = this.modalService.open(ProduitGeneriquesModalComponent, {
-      size: "lg",
-      centered: true
+      size: 'lg',
+      centered: true,
     });
     ref.componentInstance.produit = produit;
   }
 
   /** Gestion de la grille du comptoir ; à la fermeture, on relit les épingles pour que le menu des lignes soit juste. */
   protected openFavoris(): void {
-    const ref = this.modalService.open(FavorisComptoirModalComponent, {size: "xl", centered: true, scrollable: true});
-    ref.result.then(() => this.loadFavoris(), () => this.loadFavoris());
+    const ref = this.modalService.open(FavorisComptoirModalComponent, { size: 'xl', centered: true, scrollable: true });
+    ref.result.then(
+      () => this.loadFavoris(),
+      () => this.loadFavoris(),
+    );
   }
 
   private loadFavoris(): void {
@@ -644,7 +592,7 @@ export class ProduitHomeComponent implements OnInit {
     appel.subscribe({
       error: err => {
         this.favorisIds.set(this.avecFavori(id, !favori));
-        this.notificationService.error(this.errorService.getErrorMessage(err), "Favoris du comptoir");
+        this.notificationService.error(this.errorService.getErrorMessage(err), 'Favoris du comptoir');
       },
     });
   }
@@ -661,16 +609,16 @@ export class ProduitHomeComponent implements OnInit {
 
   private openEtiquette(produit: IProduit): void {
     const ref = this.modalService.open(ProduitEtiquetteModalComponent, {
-      size: "lg",
-      centered: true
+      size: 'lg',
+      centered: true,
     });
     ref.componentInstance.produit = produit;
   }
 
   private openCommandeRapide(produit: IProduit): void {
     const ref = this.modalService.open(CommandeRapideModalComponent, {
-      size: "lg",
-      centered: true
+      size: 'lg',
+      centered: true,
     });
     ref.componentInstance.produit = produit;
   }
@@ -681,9 +629,9 @@ export class ProduitHomeComponent implements OnInit {
     }
     this.api.getById(produit.id!).subscribe(full => {
       const ref = this.modalService.open(ProduitDetailFormModalComponent, {
-        size: "lg",
+        size: 'lg',
         centered: true,
-        backdrop: "static"
+        backdrop: 'static',
       });
       const inst = ref.componentInstance as ProduitDetailFormModalComponent;
       inst.produit = full;
@@ -699,9 +647,9 @@ export class ProduitHomeComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(ListPrixReferenceComponent, {
-      size: "xl",
+      size: 'xl',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     const inst = ref.componentInstance as ListPrixReferenceComponent;
     inst.produit = produit;
@@ -713,13 +661,13 @@ export class ProduitHomeComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(LotSaisieProduitModalComponent, {
-      size: "xl",
+      size: 'xl',
       centered: true,
-      backdrop: "static"
+      backdrop: 'static',
     });
     (ref.componentInstance as LotSaisieProduitModalComponent).produit = produit;
     ref.closed.subscribe(reason => {
-      if (reason === "saved") {
+      if (reason === 'saved') {
         this.refreshProduit(produit.id!);
       }
     });
@@ -731,16 +679,13 @@ export class ProduitHomeComponent implements OnInit {
     }
     this.api.getById(produit.id!).subscribe(full => {
       if (!full.produits?.length) {
-        this.notificationService.warning(
-          "Le produit n'a pas de détail configuré. Configurez-le d'abord.",
-          "Déconditionnement impossible"
-        );
+        this.notificationService.warning("Le produit n'a pas de détail configuré. Configurez-le d'abord.", 'Déconditionnement impossible');
         return;
       }
       const ref = this.modalService.open(ProduitDeconditionModalComponent, {
-        size: "lg",
+        size: 'lg',
         centered: true,
-        backdrop: "static"
+        backdrop: 'static',
       });
       (ref.componentInstance as ProduitDeconditionModalComponent).produit = full;
       ref.closed.subscribe(() => this.refreshProduit(produit.id!));
@@ -754,19 +699,19 @@ export class ProduitHomeComponent implements OnInit {
   private refreshProduit(id: number): void {
     this.api.getById(id).subscribe(fresh => {
       // Mise à jour en place dans la liste
-      this.produits.update(list => list.map(p => p.id === id ? {...fresh} : p));
+      this.produits.update(list => list.map(p => (p.id === id ? { ...fresh } : p)));
       // Mise à jour du produit sélectionné (même id → le panel ne réinitialise pas l'onglet actif)
       if (this.selectedProduit()?.id === id) {
-        this.selectedProduit.set({...fresh});
+        this.selectedProduit.set({ ...fresh });
       }
     });
   }
 
   private onImport(type: string): void {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
-      backdrop: "static",
-      size: "lg",
-      centered: true
+      backdrop: 'static',
+      size: 'lg',
+      centered: true,
     });
     modalRef.componentInstance.type = type;
     modalRef.closed.subscribe(reason => {
@@ -778,8 +723,6 @@ export class ProduitHomeComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, {responsedto}, () => {
-    }, "lg");
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
-
 }

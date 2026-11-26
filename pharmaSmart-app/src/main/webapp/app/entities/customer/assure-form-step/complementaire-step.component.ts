@@ -1,41 +1,23 @@
-import {ChangeDetectionStrategy, Component, ElementRef, inject, model, OnDestroy, signal } from '@angular/core';
-import {FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {HttpResponse} from '@angular/common/http';
-import {IClientTiersPayant, ICustomer, ITiersPayant} from '../../../shared/model';
-import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
-import {AssureFormStepService} from './assure-form-step.service';
-import {CustomerService} from '../customer.service';
-import {ErrorService} from '../../../shared/error.service';
-import {
-  FormTiersPayantComponent
-} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import {showCommonModal} from '../../sales/selling-home/sale-helper';
-import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {
-  NgbConfirmDialogService
-} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
-import {NotificationService} from "../../../shared/services/notification.service";
-import {
-  ButtonComponent,
-  CardComponent,
-  KeyFilterDirective,
-  SelectComponent,
-  SelectSearchComponent
-} from '../../../shared/ui';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, model, OnDestroy, signal } from '@angular/core';
+import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { HttpResponse } from '@angular/common/http';
+import { IClientTiersPayant, ICustomer, ITiersPayant } from '../../../shared/model';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { AssureFormStepService } from './assure-form-step.service';
+import { CustomerService } from '../customer.service';
+import { ErrorService } from '../../../shared/error.service';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { NgbConfirmDialogService } from '../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SelectSearchComponent } from '../../../shared/ui';
 
 @Component({
   selector: 'jhi-complementaire-step',
-  imports: [
-    ReactiveFormsModule,
-    ButtonComponent,
-    CardComponent,
-    KeyFilterDirective,
-    SelectComponent,
-    SelectSearchComponent,
-    NgbTooltip
-  ],
+  imports: [ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective, SelectComponent, SelectSearchComponent, NgbTooltip],
   templateUrl: './complementaire-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-form-step.component.scss'],
@@ -49,9 +31,9 @@ export class ComplementaireStepComponent implements OnDestroy {
   protected readonly validSize = signal(true);
   protected fb = inject(UntypedFormBuilder);
   protected catgories = [
-    {label: 'RC1', value: 1},
-    {label: 'RC2', value: 2},
-    {label: 'RC3', value: 3},
+    { label: 'RC1', value: 1 },
+    { label: 'RC2', value: 2 },
+    { label: 'RC3', value: 3 },
   ];
   /**
    * Même puits que dans `assure-step.component.ts`, et pour la même raison : sans un sujet
@@ -144,7 +126,7 @@ export class ComplementaireStepComponent implements OnDestroy {
   private suggererTaux(tiersPayant: ITiersPayant, index: number): void {
     const taux = tiersPayant.tauxCouvertureDefaut;
     const champ = this.convertFormAsFormArray().at(index)?.get('taux');
-    const suggeres = {...this.tauxSuggeres()};
+    const suggeres = { ...this.tauxSuggeres() };
     if (taux != null && champ && (champ.value === null || champ.value === '')) {
       champ.patchValue(taux);
       suggeres[index] = taux;
@@ -167,7 +149,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants().push(resp);
-          this.convertFormAsFormArray().at(index).patchValue({tiersPayant: resp});
+          this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: resp });
           this.addToAlreadyAdded(resp);
           this.focaliserNumero(index);
         }
@@ -195,7 +177,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
         this.tiersPayants.set(res.body.filter(tp => !alreadyAddedIds.includes(tp.id)));
         if (this.tiersPayants().length === 0) {
-          this.tiersPayants().push({id: null, fullName: 'Ajouter un nouveau tiers-payant'});
+          this.tiersPayants().push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
         }
       });
   }
@@ -267,10 +249,7 @@ export class ComplementaireStepComponent implements OnDestroy {
 
   confirmRemove(index: number): void {
     if (this.tiersPayant != null) {
-
-      this.confirmDialog.onConfirm(() => this.removeTiersPayant(index),
-        ' Suppression', 'Voulez-vous vraiment ce complémentaire ?'
-      )
+      this.confirmDialog.onConfirm(() => this.removeTiersPayant(index), ' Suppression', 'Voulez-vous vraiment ce complémentaire ?');
     } else {
       this.removeTiersPayant(index);
     }
@@ -279,7 +258,7 @@ export class ComplementaireStepComponent implements OnDestroy {
   private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
     const current = this.tiersPayantAlreadyAdded();
     if (!current.some(tp => (tp.tiersPayantId ?? tp.tiersPayant?.id) === tiersPayant.id)) {
-      this.tiersPayantAlreadyAdded.set([...current, {tiersPayantId: tiersPayant.id, tiersPayant}]);
+      this.tiersPayantAlreadyAdded.set([...current, { tiersPayantId: tiersPayant.id, tiersPayant }]);
     }
   }
 

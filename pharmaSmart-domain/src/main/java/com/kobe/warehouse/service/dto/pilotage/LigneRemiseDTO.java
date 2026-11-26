@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto.pilotage;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Remises d'un élément (mode d'octroi, tranche, vendeur). Les taux varient en points.
  *
@@ -9,12 +10,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record LigneRemiseDTO(
-    String cle,
-    String libelle,
-    CelluleAnalyseDTO nbVentes,
-    CelluleAnalyseDTO caTtc,
-    CelluleAnalyseDTO remises,
-    CelluleAnalyseDTO tauxRemise,
-    CelluleAnalyseDTO tauxMarge,
-    boolean alerte
-) {}
+        String cle,
+        String libelle,
+        CelluleAnalyseDTO nbVentes,
+        CelluleAnalyseDTO caTtc,
+        CelluleAnalyseDTO remises,
+        CelluleAnalyseDTO tauxRemise,
+        CelluleAnalyseDTO tauxMarge,
+        boolean alerte) {}

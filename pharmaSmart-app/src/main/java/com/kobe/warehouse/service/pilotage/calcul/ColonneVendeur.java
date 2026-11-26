@@ -7,4 +7,8 @@ import com.kobe.warehouse.service.dto.pilotage.LigneVendeurDTO;
 import java.util.function.Function;
 
 /** Colonne du tableau des vendeurs : libellé, unité, sens favorable et la mesure lue sur la ligne. */
-public record ColonneVendeur(String libelle, UniteIndicateur unite, SensFavorable sens, Function<LigneVendeurDTO, CelluleAnalyseDTO> lecture) {}
+public record ColonneVendeur(
+        String libelle,
+        UniteIndicateur unite,
+        SensFavorable sens,
+        Function<LigneVendeurDTO, CelluleAnalyseDTO> lecture) {}

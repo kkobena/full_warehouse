@@ -1,15 +1,15 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent } from "../../shared/ui";
-import { IMotifRetourProduit, MotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
-import { ModifRetourProduitService } from "./motif-retour-produit.service";
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonComponent } from '../../shared/ui';
+import { IMotifRetourProduit, MotifRetourProduit } from 'app/shared/model/motif-retour-produit.model';
+import { ModifRetourProduitService } from './motif-retour-produit.service';
 
 @Component({
-  selector: "app-motif-retour-produit-form-modal",
+  selector: 'app-motif-retour-produit-form-modal',
   imports: [CommonModule, FormsModule, ButtonComponent, ReactiveFormsModule],
-  styleUrl: "./form-motif-retour-fourn.scss",
+  styleUrl: './form-motif-retour-fourn.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="modal-header">
@@ -50,8 +50,7 @@ import { ModifRetourProduitService } from "./motif-retour-produit.service";
     </div>
 
     <div class="modal-footer">
-      <app-button (clicked)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler"
-                  severity="secondary" />
+      <app-button (clicked)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler" severity="secondary" />
       <app-button
         (clicked)="save()"
         type="submit"
@@ -62,7 +61,7 @@ import { ModifRetourProduitService } from "./motif-retour-produit.service";
         severity="primary"
       />
     </div>
-  `
+  `,
 })
 export class MotifRetourProduitFormModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
@@ -72,7 +71,7 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
   protected motif = signal<IMotifRetourProduit>(new MotifRetourProduit());
   protected isEditing = signal<boolean>(false);
   protected isSaving = signal<boolean>(false);
-  protected errorMessage = signal<string>("");
+  protected errorMessage = signal<string>('');
 
   ngOnInit(): void {
     if (this.motifToEdit) {
@@ -84,13 +83,13 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
   protected save(): void {
     const motifData = this.motif();
 
-    if (!motifData.libelle || motifData.libelle.trim() === "") {
-      this.errorMessage.set("Le libellé est obligatoire");
+    if (!motifData.libelle || motifData.libelle.trim() === '') {
+      this.errorMessage.set('Le libellé est obligatoire');
       return;
     }
 
     this.isSaving.set(true);
-    this.errorMessage.set("");
+    this.errorMessage.set('');
 
     const request = this.isEditing() ? this.motifRetourService.update(motifData) : this.motifRetourService.create(motifData);
 
@@ -101,7 +100,7 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
       error: () => {
         this.errorMessage.set("Erreur lors de l'enregistrement du motif de retour");
         this.isSaving.set(false);
-      }
+      },
     });
   }
 

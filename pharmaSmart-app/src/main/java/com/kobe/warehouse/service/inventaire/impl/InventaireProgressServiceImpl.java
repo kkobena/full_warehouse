@@ -16,8 +16,7 @@ public class InventaireProgressServiceImpl implements InventaireProgressService 
      * <p>Aucune détection de mode n'est nécessaire : sur un inventaire sans lot, la première
      * branche de l'union est vide et le résultat redevient exactement le comptage par ligne.
      */
-    private static final String PROGRESS_SQL =
-        """
+    private static final String PROGRESS_SQL = """
             SELECT COUNT(*)                            AS total,
                    COUNT(*) FILTER (WHERE t.updated)   AS updated,
                    COUNT(*) FILTER (WHERE t.gap <> 0)  AS with_gap
@@ -46,8 +45,8 @@ public class InventaireProgressServiceImpl implements InventaireProgressService 
     @Override
     public InventoryProgressRecord getProgress(Long inventoryId) {
         Tuple row = (Tuple) em.createNativeQuery(PROGRESS_SQL, Tuple.class)
-            .setParameter(1, inventoryId)
-            .getSingleResult();
+                .setParameter(1, inventoryId)
+                .getSingleResult();
 
         long total = toLong(row, "total");
         long updated = toLong(row, "updated");

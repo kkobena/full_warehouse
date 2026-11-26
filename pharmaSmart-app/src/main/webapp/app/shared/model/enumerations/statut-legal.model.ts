@@ -13,4 +13,3 @@ export const STATUT_LEGAL_OPTIONS = [
   { value: StatutLegal.STUPEFIANTS, label: 'Stupéfiants', description: 'Ordonnance sécurisée, retour interdit' },
   { value: StatutLegal.PSO, label: 'PSO', description: 'Prescription sécurisée obligatoire' },
 ];
-

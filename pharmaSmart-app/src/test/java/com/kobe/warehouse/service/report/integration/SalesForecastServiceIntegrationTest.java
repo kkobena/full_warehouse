@@ -57,7 +57,9 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
 
             List<SalesForecastDTO> prevision = services.salesForecastService.getForecast(3, "LINEAR_REGRESSION");
 
-            assertThat(prevision).extracting(SalesForecastDTO::forecastedCA).containsExactly(700_000L, 800_000L, 900_000L);
+            assertThat(prevision)
+                    .extracting(SalesForecastDTO::forecastedCA)
+                    .containsExactly(700_000L, 800_000L, 900_000L);
         }
 
         @Test
@@ -72,9 +74,12 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             List<SalesForecastDTO> prevision = services.salesForecastService.getForecast(2, "LINEAR_REGRESSION");
 
             assertThat(prevision)
-                .extracting(SalesForecastDTO::forecastPeriod)
-                .containsExactly(dernierMoisConnu.plusMonths(1).toString(), dernierMoisConnu.plusMonths(2).toString());
-            assertThat(prevision.getFirst().forecastDate()).isEqualTo(dernierMoisConnu.plusMonths(1).atDay(1));
+                    .extracting(SalesForecastDTO::forecastPeriod)
+                    .containsExactly(
+                            dernierMoisConnu.plusMonths(1).toString(),
+                            dernierMoisConnu.plusMonths(2).toString());
+            assertThat(prevision.getFirst().forecastDate())
+                    .isEqualTo(dernierMoisConnu.plusMonths(1).atDay(1));
         }
 
         /** L'intervalle encadre la prévision ; il ne descend jamais sous zéro, un CA négatif n'ayant pas de sens. */
@@ -86,7 +91,9 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             }
             viderLeCache();
 
-            SalesForecastDTO premier = services.salesForecastService.getForecast(1, "LINEAR_REGRESSION").getFirst();
+            SalesForecastDTO premier = services.salesForecastService
+                    .getForecast(1, "LINEAR_REGRESSION")
+                    .getFirst();
 
             assertThat(premier.lowerBound()).isLessThanOrEqualTo(premier.forecastedCA());
             assertThat(premier.upperBound()).isGreaterThanOrEqualTo(premier.forecastedCA());
@@ -106,8 +113,11 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             }
             viderLeCache();
 
-            assertThat(services.salesForecastService.getForecast(1, "LINEAR_REGRESSION").getFirst().confidenceLevel())
-                .isEqualByComparingTo("60");
+            assertThat(services.salesForecastService
+                            .getForecast(1, "LINEAR_REGRESSION")
+                            .getFirst()
+                            .confidenceLevel())
+                    .isEqualByComparingTo("60");
         }
 
         /** Au-delà de six mois d'horizon, la confiance se dégrade de cinq points par mois supplémentaire. */
@@ -133,7 +143,8 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             caDuMois(moisPasse(1), 100_000);
             viderLeCache();
 
-            assertThat(services.salesForecastService.getForecast(3, "LINEAR_REGRESSION")).isEmpty();
+            assertThat(services.salesForecastService.getForecast(3, "LINEAR_REGRESSION"))
+                    .isEmpty();
         }
 
         @Test
@@ -145,8 +156,8 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             viderLeCache();
 
             assertThat(services.salesForecastService.getForecast(2, "LINEAR_REGRESSION"))
-                .extracting(SalesForecastDTO::forecastMethod)
-                .containsOnly("LINEAR_REGRESSION");
+                    .extracting(SalesForecastDTO::forecastMethod)
+                    .containsOnly("LINEAR_REGRESSION");
         }
 
         /** Une méthode inconnue ne doit pas faire échouer l'écran : elle retombe sur la régression. */
@@ -159,8 +170,8 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             viderLeCache();
 
             assertThat(services.salesForecastService.getForecast(1, "METHODE_INEXISTANTE"))
-                .extracting(SalesForecastDTO::forecastMethod)
-                .containsExactly("LINEAR_REGRESSION");
+                    .extracting(SalesForecastDTO::forecastMethod)
+                    .containsExactly("LINEAR_REGRESSION");
         }
     }
 
@@ -184,7 +195,9 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
 
             List<SalesForecastDTO> prevision = services.salesForecastService.getForecast(3, "MOVING_AVERAGE");
 
-            assertThat(prevision).extracting(SalesForecastDTO::forecastedCA).containsExactly(100_000L, 100_000L, 100_000L);
+            assertThat(prevision)
+                    .extracting(SalesForecastDTO::forecastedCA)
+                    .containsExactly(100_000L, 100_000L, 100_000L);
             assertThat(prevision).extracting(SalesForecastDTO::forecastMethod).containsOnly("MOVING_AVERAGE");
         }
 
@@ -196,7 +209,9 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             }
             viderLeCache();
 
-            SalesForecastDTO premier = services.salesForecastService.getForecast(1, "MOVING_AVERAGE").getFirst();
+            SalesForecastDTO premier = services.salesForecastService
+                    .getForecast(1, "MOVING_AVERAGE")
+                    .getFirst();
 
             assertThat(premier.lowerBound()).isEqualTo(90_000L);
             assertThat(premier.upperBound()).isEqualTo(110_000L);
@@ -216,7 +231,8 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
 
             // Le mois prévu est celui qui suit le dernier connu — soit le même mois calendaire
             // que le plus ancien de l'historique, douze mois plus tôt.
-            SalesForecastDTO premier = services.salesForecastService.getForecast(1, "SEASONAL").getFirst();
+            SalesForecastDTO premier =
+                    services.salesForecastService.getForecast(1, "SEASONAL").getFirst();
 
             assertThat(premier.forecastedCA()).isEqualTo(900_000L);
             assertThat(premier.forecastMethod()).isEqualTo("SEASONAL");
@@ -242,12 +258,15 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
         @Test
         @DisplayName("sans aucun historique, les trois méthodes rendent une prévision vide")
         void sansHistoriqueAucuneMethodeNEchoue() {
-            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "LINEAR_REGRESSION")).isEmpty())
-                .doesNotThrowAnyException();
-            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "MOVING_AVERAGE")).isEmpty())
-                .doesNotThrowAnyException();
-            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "SEASONAL")).isEmpty())
-                .doesNotThrowAnyException();
+            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "LINEAR_REGRESSION"))
+                            .isEmpty())
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "MOVING_AVERAGE"))
+                            .isEmpty())
+                    .doesNotThrowAnyException();
+            assertThatCode(() -> assertThat(services.salesForecastService.getForecast(3, "SEASONAL"))
+                            .isEmpty())
+                    .doesNotThrowAnyException();
         }
     }
 
@@ -283,18 +302,21 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             caDuMois(moisPasse(1), 100_000);
             caDuMois(moisPasse(2), 100_000);
             viderLeCache();
-            assertThat(services.salesForecastService.getForecastSummary().dataQuality()).isEqualTo("INSUFFICIENT");
+            assertThat(services.salesForecastService.getForecastSummary().dataQuality())
+                    .isEqualTo("INSUFFICIENT");
 
             caDuMois(moisPasse(3), 100_000);
             caDuMois(moisPasse(4), 100_000);
             viderLeCache();
-            assertThat(services.salesForecastService.getForecastSummary().dataQuality()).isEqualTo("LOW");
+            assertThat(services.salesForecastService.getForecastSummary().dataQuality())
+                    .isEqualTo("LOW");
 
             for (int i = 5; i <= 12; i++) {
                 caDuMois(moisPasse(i), 100_000);
             }
             viderLeCache();
-            assertThat(services.salesForecastService.getForecastSummary().dataQuality()).isEqualTo("MEDIUM");
+            assertThat(services.salesForecastService.getForecastSummary().dataQuality())
+                    .isEqualTo("MEDIUM");
         }
 
         /**
@@ -393,14 +415,15 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             viderLeCache();
 
             List<SalesForecastDTO> combine = services.salesForecastService.getHistoricalVsForecast(
-                moisPasse(3).atDay(1),
-                moisPasse(1).atEndOfMonth(),
-                2
-            );
+                    moisPasse(3).atDay(1), moisPasse(1).atEndOfMonth(), 2);
 
             assertThat(combine).hasSize(5); // 3 mois d'historique + 2 de prévision
-            assertThat(combine.subList(0, 3)).extracting(SalesForecastDTO::forecastMethod).containsOnly("HISTORICAL");
-            assertThat(combine.subList(3, 5)).extracting(SalesForecastDTO::forecastMethod).containsOnly("LINEAR_REGRESSION");
+            assertThat(combine.subList(0, 3))
+                    .extracting(SalesForecastDTO::forecastMethod)
+                    .containsOnly("HISTORICAL");
+            assertThat(combine.subList(3, 5))
+                    .extracting(SalesForecastDTO::forecastMethod)
+                    .containsOnly("LINEAR_REGRESSION");
         }
 
         /** Un point historique n'est pas une prédiction : sa valeur réelle et sa valeur « prévue » coïncident. */
@@ -412,8 +435,8 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             viderLeCache();
 
             SalesForecastDTO point = services.salesForecastService
-                .getHistoricalVsForecast(moisPasse(2).atDay(1), moisPasse(2).atEndOfMonth(), 1)
-                .getFirst();
+                    .getHistoricalVsForecast(moisPasse(2).atDay(1), moisPasse(2).atEndOfMonth(), 1)
+                    .getFirst();
 
             assertThat(point.forecastedCA()).isEqualTo(250_000L);
             assertThat(point.actualCA()).isEqualTo(250_000L);
@@ -428,10 +451,7 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             viderLeCache();
 
             List<SalesForecastDTO> combine = services.salesForecastService.getHistoricalVsForecast(
-                moisPasse(10).atDay(1),
-                moisPasse(9).atEndOfMonth(),
-                1
-            );
+                    moisPasse(10).atDay(1), moisPasse(9).atEndOfMonth(), 1);
 
             assertThat(combine).hasSize(1);
             assertThat(combine.getFirst().forecastMethod()).isEqualTo("LINEAR_REGRESSION");
@@ -452,8 +472,11 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             venteMontant(moisPasse(1).atDay(15), 900_000, true, CategorieChiffreAffaire.CA);
             viderLeCache();
 
-            assertThat(services.salesForecastService.getForecast(1, "MOVING_AVERAGE").getFirst().forecastedCA())
-                .isEqualTo(100_000L);
+            assertThat(services.salesForecastService
+                            .getForecast(1, "MOVING_AVERAGE")
+                            .getFirst()
+                            .forecastedCA())
+                    .isEqualTo(100_000L);
         }
 
         @Test
@@ -464,8 +487,11 @@ class SalesForecastServiceIntegrationTest extends AbstractReportIntegrationTest 
             venteMontant(moisPasse(1).atDay(15), 900_000, false, CategorieChiffreAffaire.CA_DEPOT);
             viderLeCache();
 
-            assertThat(services.salesForecastService.getForecast(1, "MOVING_AVERAGE").getFirst().forecastedCA())
-                .isEqualTo(100_000L);
+            assertThat(services.salesForecastService
+                            .getForecast(1, "MOVING_AVERAGE")
+                            .getFirst()
+                            .forecastedCA())
+                    .isEqualTo(100_000L);
         }
     }
 

@@ -23,7 +23,10 @@ async function mesurer(page: Page, theme: string): Promise<{ cible: string; rati
   const resultat = await new AxeBuilder({ page }).include('.offcanvas.show').withRules(['color-contrast']).analyze();
   elementsVerifies += resultat.passes.reduce((n, r) => n + r.nodes.length, 0) + resultat.violations.reduce((n, r) => n + r.nodes.length, 0);
   return resultat.violations.flatMap(v =>
-    v.nodes.map(n => ({ cible: n.target.join(' '), ratio: ((n.any[0]?.data ?? {}) as { contrastRatio?: number }).contrastRatio?.toFixed(2) ?? '?' })),
+    v.nodes.map(n => ({
+      cible: n.target.join(' '),
+      ratio: ((n.any[0]?.data ?? {}) as { contrastRatio?: number }).contrastRatio?.toFixed(2) ?? '?',
+    })),
   );
 }
 
@@ -31,7 +34,7 @@ test.afterAll(() => {
   rejouer('scripts/essai-ordonnance/nettoyer.sql');
 });
 
-test('thèmes de couleur : le panneau ordonnance n\'introduit aucun défaut de contraste', async ({ page }) => {
+test("thèmes de couleur : le panneau ordonnance n'introduit aucun défaut de contraste", async ({ page }) => {
   test.setTimeout(300_000);
   rejouer('scripts/essai-ordonnance/nettoyer.sql');
 

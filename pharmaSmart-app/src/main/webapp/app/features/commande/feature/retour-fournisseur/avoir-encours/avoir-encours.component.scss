@@ -41,7 +41,9 @@
     color: var(--pharma-chrome-brand, #008cba);
   }
 
-  span:not(.ae-total-badge) { flex: 1; }
+  span:not(.ae-total-badge) {
+    flex: 1;
+  }
 }
 
 .ae-detail-filters {
@@ -62,7 +64,9 @@
   background: var(--pharma-chrome-tab-tint, #e8f4f8) !important;
   box-shadow: inset 3px 0 0 #5bc0de;
 
-  &:hover { background: #d6edf5 !important; }
+  &:hover {
+    background: #d6edf5 !important;
+  }
 }
 
 // ─── État vide (panneau droit sans sélection) ─────────────────────────────────
@@ -75,8 +79,13 @@
   height: 200px;
   color: #adb5bd;
 
-  i { font-size: 36px; }
-  p { font-size: 14px; margin: 0; }
+  i {
+    font-size: 36px;
+  }
+  p {
+    font-size: 14px;
+    margin: 0;
+  }
 }
 
 // ─── KPI compact overrides ─────────────────────────────────────────────────────
@@ -104,7 +113,9 @@
   background: rgba(255, 255, 255, 0.7);
   flex-shrink: 0;
 
-  i { font-size: 1.1rem; }
+  i {
+    font-size: 1.1rem;
+  }
 }
 
 .kpi-value-sm {

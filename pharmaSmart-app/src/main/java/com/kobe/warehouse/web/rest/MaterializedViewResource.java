@@ -1,15 +1,13 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.security.AuthoritiesConstants;
-import com.kobe.warehouse.service.scheduler.MaterializedViewRefreshService;
 import com.kobe.warehouse.service.dto.MaterializedViewRefreshDTO;
 import com.kobe.warehouse.service.dto.TierRefreshResultDTO;
+import com.kobe.warehouse.service.scheduler.MaterializedViewRefreshService;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -131,25 +129,24 @@ public class MaterializedViewResource {
         Map<String, List<String>> viewsByTier = refreshService.getViewsByTier();
 
         Map<String, Object> response = Map.of(
-            "TIER1", Map.of(
-                "views", viewsByTier.get("TIER1"),
-                "schedule", "Every 15 minutes (8am-8pm)",
-                "cron", "0 */15 8-20 * * *",
-                "priority", "HIGH"
-            ),
-            "TIER2", Map.of(
-                "views", viewsByTier.get("TIER2"),
-                "schedule", "Every hour",
-                "cron", "0 0 * * * *",
-                "priority", "MEDIUM"
-            ),
-            "TIER3", Map.of(
-                "views", viewsByTier.get("TIER3"),
-                "schedule", "Every 6 hours (2am, 8am, 2pm, 8pm)",
-                "cron", "0 0 2,8,14,20 * * *",
-                "priority", "LOW"
-            )
-        );
+                "TIER1",
+                        Map.of(
+                                "views", viewsByTier.get("TIER1"),
+                                "schedule", "Every 15 minutes (8am-8pm)",
+                                "cron", "0 */15 8-20 * * *",
+                                "priority", "HIGH"),
+                "TIER2",
+                        Map.of(
+                                "views", viewsByTier.get("TIER2"),
+                                "schedule", "Every hour",
+                                "cron", "0 0 * * * *",
+                                "priority", "MEDIUM"),
+                "TIER3",
+                        Map.of(
+                                "views", viewsByTier.get("TIER3"),
+                                "schedule", "Every 6 hours (2am, 8am, 2pm, 8pm)",
+                                "cron", "0 0 2,8,14,20 * * *",
+                                "priority", "LOW"));
 
         return ResponseEntity.ok(response);
     }
@@ -165,14 +162,13 @@ public class MaterializedViewResource {
         Map<String, List<String>> viewsByTier = refreshService.getViewsByTier();
 
         Map<String, Object> info = Map.of(
-            "totalManagedViews", refreshService.getAllManagedViews().size(),
-            "tier1Count", viewsByTier.get("TIER1").size(),
-            "tier2Count", viewsByTier.get("TIER2").size(),
-            "tier3Count", viewsByTier.get("TIER3").size(),
-            "refreshMethod", "CONCURRENT (non-blocking)",
-            "schedulingEnabled", true,
-            "description", "Automated materialized view refresh system with 3-tier priority scheduling"
-        );
+                "totalManagedViews", refreshService.getAllManagedViews().size(),
+                "tier1Count", viewsByTier.get("TIER1").size(),
+                "tier2Count", viewsByTier.get("TIER2").size(),
+                "tier3Count", viewsByTier.get("TIER3").size(),
+                "refreshMethod", "CONCURRENT (non-blocking)",
+                "schedulingEnabled", true,
+                "description", "Automated materialized view refresh system with 3-tier priority scheduling");
 
         return ResponseEntity.ok(info);
     }

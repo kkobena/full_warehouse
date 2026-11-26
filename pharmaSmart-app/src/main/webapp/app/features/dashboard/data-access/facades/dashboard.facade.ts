@@ -94,7 +94,9 @@ export class DashboardFacade {
       this.store.markDirty();
       this.store.setEditMode(true);
       if (items.length < template.items.length) {
-        this.notification.info(`${template.items.length - items.length} widget(s) du modèle ne vous sont pas autorisés et ont été retirés.`);
+        this.notification.info(
+          `${template.items.length - items.length} widget(s) du modèle ne vous sont pas autorisés et ont été retirés.`,
+        );
       }
     });
   }

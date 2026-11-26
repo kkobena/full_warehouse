@@ -87,7 +87,8 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             List<StockAlertDTO> alertes = alertes();
 
             assertThat(alertes).extracting(StockAlertDTO::alertType).containsExactly(StockAlertType.PEREMPTION);
-            assertThat(alertes.getFirst().expiryDate()).isEqualTo(LocalDate.now().plusMonths(1));
+            assertThat(alertes.getFirst().expiryDate())
+                    .isEqualTo(LocalDate.now().plusMonths(1));
         }
 
         /** Entre deux lots, c'est le plus proche qui commande l'alerte — c'est lui qu'on doit écouler. */
@@ -99,7 +100,8 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             lot(produit, LocalDate.now().plusMonths(1), 30);
             rafraichir(VUE);
 
-            assertThat(alertes().getFirst().expiryDate()).isEqualTo(LocalDate.now().plusMonths(1));
+            assertThat(alertes().getFirst().expiryDate())
+                    .isEqualTo(LocalDate.now().plusMonths(1));
         }
 
         @Test
@@ -148,9 +150,9 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             Map<StockAlertType, Long> compteurs = services.stockAlertReportService.getStockAlertsCount();
 
             assertThat(compteurs)
-                .containsEntry(StockAlertType.RUPTURE, 0L)
-                .containsEntry(StockAlertType.ALERTE, 0L)
-                .containsEntry(StockAlertType.PEREMPTION, 0L);
+                    .containsEntry(StockAlertType.RUPTURE, 0L)
+                    .containsEntry(StockAlertType.ALERTE, 0L)
+                    .containsEntry(StockAlertType.PEREMPTION, 0L);
         }
 
         @Test
@@ -177,9 +179,7 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             rafraichir(VUE);
 
             Page<StockAlertDTO> ruptures = services.stockAlertReportService.getStockAlerts(
-                List.of(StockAlertType.RUPTURE),
-                Pageable.unpaged()
-            );
+                    List.of(StockAlertType.RUPTURE), Pageable.unpaged());
 
             assertThat(ruptures.getContent()).extracting(StockAlertDTO::libelle).containsExactly("EN RUPTURE");
         }
@@ -191,7 +191,10 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             produitAvecStock("SOUS SEUIL", 10, 3);
             rafraichir(VUE);
 
-            assertThat(services.stockAlertReportService.getStockAlerts(List.of(), Pageable.unpaged()).getContent()).hasSize(2);
+            assertThat(services.stockAlertReportService
+                            .getStockAlerts(List.of(), Pageable.unpaged())
+                            .getContent())
+                    .hasSize(2);
         }
 
         @Test
@@ -219,16 +222,18 @@ class StockAlertReportServiceIntegrationTest extends AbstractReportIntegrationTe
             Map<StockAlertType, Long> compteurs = services.stockAlertReportService.getStockAlertsCount();
 
             assertThat(compteurs)
-                .containsEntry(StockAlertType.RUPTURE, 2L)
-                .containsEntry(StockAlertType.ALERTE, 1L)
-                .containsEntry(StockAlertType.PEREMPTION, 0L);
+                    .containsEntry(StockAlertType.RUPTURE, 2L)
+                    .containsEntry(StockAlertType.ALERTE, 1L)
+                    .containsEntry(StockAlertType.PEREMPTION, 0L);
         }
     }
 
     // ===== fabriques locales =====
 
     private List<StockAlertDTO> alertes() {
-        return services.stockAlertReportService.getStockAlerts(null, Pageable.unpaged()).getContent();
+        return services.stockAlertReportService
+                .getStockAlerts(null, Pageable.unpaged())
+                .getContent();
     }
 
     /**

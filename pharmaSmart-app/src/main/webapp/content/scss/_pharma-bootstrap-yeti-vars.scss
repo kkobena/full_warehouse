@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // Variables héritées du thème Bootswatch **yeti** 5.3.8, figées dans le projet.
 //
 // Pourquoi ce fichier existe
@@ -117,8 +119,9 @@ $navbar-dark-color: rgba($white, 0.7) !default;
 $navbar-dark-hover-color: $white !default;
 
 // ── Pagination ───────────────────────────────────────────────────────────────
-$pagination-color: $gray-600 !default;
-$pagination-active-border-color: darken($primary, 5%) !default;
+// Gris 700 : le gris 600 (#888) des numéros de page ne faisait que 3,5:1 sur blanc (4,5:1 exigés pour du texte).
+$pagination-color: $gray-700 !default;
+$pagination-active-border-color: color.adjust($primary, $lightness: -5%) !default;
 $pagination-disabled-bg: transparent !default;
 $pagination-disabled-color: $gray-400 !default;
 

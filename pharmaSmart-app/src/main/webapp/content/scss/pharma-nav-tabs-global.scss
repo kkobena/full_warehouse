@@ -2,7 +2,7 @@
 // STYLES GLOBAUX PARTAGÉS — .pharma-nav-tabs-container
 // ====================================
 
-@import 'app/shared/scss/pharma-nav-tabs';
+@use 'app/shared/scss/pharma-nav-tabs' as *;
 
 .pharma-nav-tabs-container {
   margin-bottom: 1rem;

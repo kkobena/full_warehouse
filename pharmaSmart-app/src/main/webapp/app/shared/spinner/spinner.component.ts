@@ -8,7 +8,6 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     <ngx-spinner [fullScreen]="fullScreen()" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: './spinner.component.scss',
 })
 export class SpinnerComponent {
   private readonly spinner = inject(NgxSpinnerService);

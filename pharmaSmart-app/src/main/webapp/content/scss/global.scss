@@ -5,7 +5,7 @@
 
 /* ==============================================================
 Bootstrap tweaks
-===============================================================*/
+=============================================================== */
 
 body,
 h1,
@@ -215,10 +215,6 @@ ui bootstrap tweaks
 
 .ribbon {
   left: -3.5em;
-  -moz-transform: rotate(-45deg);
-  -ms-transform: rotate(-45deg);
-  -o-transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
   transform: rotate(-45deg);
 }
 
@@ -284,57 +280,19 @@ ui bootstrap tweaks
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  // Bordure de champ du thème : le noir à 25 % de Bootstrap ne faisait que 1,8:1 sur blanc (3:1 exigés).
+  border: 1px solid var(--pharma-field-border);
   appearance: none;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  //color-adjust: exact;
-}
-
-@media (min-width: 576px) {
-  .st-editTable {
-    height: 250px;
-  }
-}
-
-// Medium devices (tablets, 768px and up)
-@media (min-width: 768px) {
-  .st-editTable {
-    height: 300px;
-  }
-}
-
-// Large devices (desktops, 992px and up)
-@media (min-width: 992px) {
-  .st-editTable {
-    height: 300px;
-  }
+  // color-adjust: exact;
 }
 
 // X-Large devices (large desktops, 1200px and up)
 @media (min-width: 1200px) {
-  .st-editTable {
-    height: 350px;
-  }
   .sale-toolbar .toobar-input-search {
     width: 170px;
   }
-}
-
-// XX-Large devices (larger desktops, 1400px and up)
-@media (min-width: 1500px) {
-  .st-editTable {
-    height: 440px;
-  }
-
-  /*  .sale-toolbar .toobar-input-search {
-    width: 180px;
-  }
-  .sale-toolbar .p-calendar, .sale-toolbar .p-calendar .p-inputtext {
-    width: 115px;
-  }*/
 }
 
 @media (min-width: 1700px) {
@@ -347,19 +305,15 @@ ui bootstrap tweaks
   color: red;
 }
 
-.ngCombo {
-  padding: 0 !important;
-}
-
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+  appearance: none;
   // margin: 0;
 }
 
 /* Firefox */
 input[type='number'] {
-  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .sale-p-inputtext {
@@ -379,7 +333,7 @@ input[type='number'] {
 }
 
 .sale-list-group-item {
-  padding: 0.1rem 0.1rem;
+  padding: 0.1rem;
 }
 
 .avoir {
@@ -414,16 +368,7 @@ input[type='number'] {
 }
 
 .sale-card .form-group {
-  /* margin-bottom: 0;*/
-}
-
-.tiersPayant div {
-  padding-right: 2px;
-  /*padding-left: 4px;*/
-}
-
-.tiersPayant input {
-  width: 150px !important;
+  /* margin-bottom: 0; */
 }
 
 body {
@@ -602,13 +547,12 @@ li .icon-holder .icon i {
   color: #34a835;
 }
 
-//content/images/selected.png
+// content/images/selected.png
 .cash {
   height: 60px;
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/cash180x60x5.png') no-repeat center center;
 }
 
@@ -623,7 +567,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/cb180x80.png') no-repeat center center;
 }
 
@@ -632,7 +575,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/wave.png') no-repeat center center;
 }
 
@@ -641,7 +583,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/om180x60.png') no-repeat center center;
 }
 
@@ -650,7 +591,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/moov180x60.png') no-repeat center center;
 }
 
@@ -659,7 +599,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/mtn180x60.png') no-repeat center center;
 }
 
@@ -668,7 +607,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/cheque.png') no-repeat center center;
 }
 
@@ -677,7 +615,6 @@ li .icon-holder .icon i {
   width: 180px;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
   background: url('../images/virement.png') no-repeat center center;
 }
 
@@ -764,7 +701,7 @@ li .icon-holder .icon i {
 
 .inventory {
   .ag-theme-alpine {
-    /* --ag-borders: none;*/
+    /* --ag-borders: none; */
 
     .ag-cell {
       border-left: solid 0.3px rgb(150, 150, 200);
@@ -820,7 +757,6 @@ li .icon-holder .icon i {
 
         .row {
           padding: 0;
-          marging: 0;
         }
       }
     }
@@ -856,7 +792,6 @@ li .icon-holder .icon i {
 
         .row {
           padding: 0;
-          marging: 0;
         }
       }
     }
@@ -1021,13 +956,13 @@ li .icon-holder .icon i {
 }
 
 .sale-tab-container {
-  /*background-color: #eff3f8;*/
+  /* background-color: #eff3f8; */
   padding: 0;
   margin: 0.3rem 0;
 }
 
 .sale-body {
-  /*background-color: #eff3f8;*/
+  /* background-color: #eff3f8; */
 }
 
 .inline-flex {
@@ -1125,7 +1060,7 @@ li .icon-holder .icon i {
 }
 
 .facture-modal-dialog {
-  //min-height: 500px;
+  // min-height: 500px;
   max-width: 90%;
   width: 90%;
 
@@ -1138,9 +1073,6 @@ li .icon-holder .icon i {
 
     tr {
       cursor: pointer;
-    }
-
-    .row {
     }
   }
 }
@@ -1191,10 +1123,10 @@ li .icon-holder .icon i {
 }
 
 .sale-montant-block {
-  /*background-color: #eff3f8;*/
+  /* background-color: #eff3f8; */
 
   .list-group-item {
-    padding: 0.25rem 0.25rem;
+    padding: 0.25rem;
   }
 }
 
@@ -1219,10 +1151,10 @@ li .icon-holder .icon i {
  */
 .activity-summary {
   .row {
-    padding: 0.1rem 0.1rem;
+    padding: 0.1rem;
 
     .col {
-      padding: 0.2rem 0.2rem;
+      padding: 0.2rem;
 
       .card {
         padding: 0;
@@ -1258,7 +1190,7 @@ li .icon-holder .icon i {
 
 .edit-table {
   td {
-    padding: 0.2rem 0.2rem !important;
+    padding: 0.2rem !important;
   }
 }
 
@@ -1292,7 +1224,7 @@ jhi-recapitualtif-caisse {
 
 .main {
   background-color: transparent;
-  //background-color: rgba(179, 241, 237, 0.25);
+  // background-color: rgba(179, 241, 237, 0.25);
   padding: 0 !important;
 
   .card-body {
@@ -1387,5 +1319,5 @@ app-nav-tabs .pharma-nav-tabs {
 // défile mais le corps de la modale : l'arrêt y est en haut du conteneur. Tout autre conteneur qui
 // défile pour son propre compte se traite de la même façon, en redéfinissant cette variable.
 .modal-content {
-  --pharma-haut-collant: 0px;
+  --pharma-haut-collant: 0;
 }

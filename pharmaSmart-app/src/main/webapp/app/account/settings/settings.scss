@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ============================================
 // VARIABLES
 // ============================================
@@ -63,7 +65,7 @@ $border-radius-lg: 12px;
     background: linear-gradient(
       135deg,
       var(--pharma-chrome-tab, #{$pharma-primary}) 0%,
-      var(--pharma-chrome-tab-dark, #{var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 10%)})}) 100%
+      var(--pharma-chrome-tab-dark, #{var(--pharma-chrome-tab-dark, #{color.adjust($pharma-primary, $lightness: -10%)})}) 100%
     );
   }
 }
@@ -81,7 +83,7 @@ $border-radius-lg: 12px;
 }
 
 .pharma-card-subtitle {
-  margin: 0.25rem 0 0 0;
+  margin: 0.25rem 0 0;
   font-size: 0.875rem;
   color: $gray-600;
   font-weight: 400;
@@ -108,13 +110,13 @@ $border-radius-lg: 12px;
 // SUCCESS BANNER
 // ============================================
 .pharma-success-banner {
-  background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
+  background: linear-gradient(135deg, $pharma-success-light 0%, color.adjust($pharma-success-light, $lightness: 3%) 100%);
   border-left: 4px solid $pharma-success;
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: darken($pharma-success, 20%);
+  color: color.adjust($pharma-success, $lightness: -20%);
   font-weight: 500;
   animation: slideDown 0.3s ease;
 
@@ -164,7 +166,8 @@ $border-radius-lg: 12px;
 .pharma-input-modern {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid $gray-200;
+  // Bordure de champ du thème : le gris 200 ne faisait que 1,2:1 sur blanc (3:1 exigés).
+  border: 2px solid var(--pharma-field-border);
   border-radius: $border-radius;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -263,7 +266,7 @@ $border-radius-lg: 12px;
     input,
     select {
       &:valid:not(:placeholder-shown) {
-        border-color: lighten($pharma-success, 20%);
+        border-color: color.adjust($pharma-success, $lightness: 20%);
       }
     }
   }

@@ -1,9 +1,10 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
-@import 'app/features/commande/commande-shared';
-@import 'app/shared/scss/grid-caption';
-
 // ── HOST — remplit le view-panel parent ───────────────────────────────────────
+
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/features/commande/commande-shared';
+@use 'app/shared/scss/grid-caption' as *;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -35,12 +36,7 @@
     cursor: pointer;
   }
 
-  // Ligne active (fournisseur ouvert en détail)
-  ::ng-deep tr.row-active {
-    background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) !important;
-    box-shadow: inset 3px 0 0 var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
-    font-weight: 600;
-  }
+  // La ligne active (fournisseur ouvert en détail) porte la classe globale `ligne-selected`.
 
   // Ligne avec urgents (et non active)
   ::ng-deep tr.row-urgent {

@@ -1,6 +1,7 @@
-@import 'app/shared/scss/surface';
-
 // Base 300 px mais élastique : trois cartes sur un panneau large, une seule sur un écran étroit.
+
+@use 'app/shared/scss/surface' as *;
+
 :host {
   @include pharma-surface(raised);
   display: block;

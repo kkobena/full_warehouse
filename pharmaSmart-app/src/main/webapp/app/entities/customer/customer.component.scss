@@ -1,7 +1,7 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/bulk-action-bar';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/split-panel';
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/bulk-action-bar' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/split-panel' as *;
 
 .active {
   background-color: #e3f2fd !important;
@@ -28,19 +28,13 @@
   min-width: 90px !important;
 }
 
-// Liste à gauche, fiche du client à droite (même disposition que le catalogue produits).
-.customer-home-layout {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 60px);
-  overflow: hidden;
-}
-
 .split-container {
   margin-top: 0.5rem;
 }
 
+/*
 // Ligne cochée (sélection multiple)
 :host ::ng-deep tr.row-checked td {
   background-color: #eff6ff !important;
 }
+*/

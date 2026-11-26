@@ -1,6 +1,7 @@
-@import 'app/shared/scss/pharma-toolbar';
-
 // Le composant occupe tout l'espace donné par produit-col (flex column)
+
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -224,6 +225,8 @@
     font-weight: 700;
     color: #fff;
 
+    // Suffixe = classe ABC du produit, telle que la renvoie l'API (majuscule).
+    /* stylelint-disable selector-class-pattern */
     &.ag-classe-A {
       background: #198754;
     }
@@ -233,6 +236,7 @@
     &.ag-classe-C {
       background: #6c757d;
     }
+    /* stylelint-enable selector-class-pattern */
   }
 
   .ag-source-badge {

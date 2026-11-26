@@ -3,13 +3,13 @@
 // Utilise les styles communs + insurance-data-bar patterns
 // ============================================
 
-@import '../../../../shared/scss/pharma-nav';
-@import '../../shared/styles/sales-common';
-
 // ============================================
 // DEVIS CUSTOMER SECTION
 // Style harmonisé avec insurance-data-bar
 // ============================================
+
+@use '../../../../shared/scss/pharma-nav' as *;
+@use '../../shared/styles/sales-common' as *;
 
 .devis-customer-section {
   background: $gray-50;
@@ -22,8 +22,7 @@
 
 .customer-search-wrapper {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-flow: row wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
@@ -51,9 +50,9 @@
     .search-input {
       width: 100%;
       font-size: 0.8125rem !important;
-      padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
+      padding: 0.5rem 2.25rem !important;
       border-radius: $pharma-radius !important;
-      border: 2px solid $gray-300 !important;
+      border: 2px solid var(--pharma-field-border) !important;
       transition: all 0.2s ease !important;
 
       &:enabled:focus,
@@ -161,7 +160,7 @@
 // ============================================
 
 .empty-cart-state .empty-cart-icon {
-  background: linear-gradient(135deg, rgba(0, 150, 136, 0.1) 0%, rgba(0, 150, 136, 0.05) 100%);
+  background: var(--pharma-surface);
   box-shadow: 0 4px 12px rgba(0, 150, 136, 0.15);
 
   i {

@@ -1,4 +1,4 @@
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/table-common' as *;
 
 .reglement-workspace {
   display: flex;

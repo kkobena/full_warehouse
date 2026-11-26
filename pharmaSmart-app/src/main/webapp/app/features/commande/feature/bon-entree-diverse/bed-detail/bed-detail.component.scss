@@ -1,24 +1,16 @@
-@import 'app/shared/scss/pharma-toolbar';
-
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 // ── PANEL HEADER ─────────────────────────────────────────────────────────────
 
 .panel-header {
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   align-items: center;
   padding: 0.3rem 1rem;
   background: $gray-50;
   border-bottom: 1px solid $gray-200;
   gap: 0.5rem;
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
 .detail-title {
@@ -90,6 +82,7 @@
   .low-stock {
     color: $pharma-danger;
     font-weight: 700;
+
     i {
       color: $pharma-danger;
     }
@@ -171,6 +164,7 @@
   .ag-row {
     font-size: 0.82rem;
   }
+
   .ag-header-cell-label {
     font-size: 0.8rem;
     font-weight: 700;

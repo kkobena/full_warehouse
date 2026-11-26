@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { AppTableLazyLoadEvent, DataTableComponent } from '../../../../shared/ui';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent } from '../../../../shared/ui';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
@@ -14,7 +15,7 @@ import { IDiffere, IDiffereSearchParams } from '../../data-access/models';
 
 @Component({
   selector: 'app-differe-list',
-  imports: [CommonModule, DataTableComponent],
+  imports: [CommonModule, ButtonComponent, DataTableComponent, NgbTooltip],
   templateUrl: './differe-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./differe-list.component.scss'],
@@ -41,6 +42,12 @@ export class DiffereListComponent {
         this.loadSummary(params);
       }
     });
+  }
+
+  /** Même effet que le clic sur la ligne ; la propagation est arrêtée pour ne pas sélectionner deux fois. */
+  protected voirDetail(differe: IDiffere, evenement: MouseEvent): void {
+    evenement.stopPropagation();
+    this.onRowSelect(differe);
   }
 
   onRowSelect(differe: IDiffere): void {

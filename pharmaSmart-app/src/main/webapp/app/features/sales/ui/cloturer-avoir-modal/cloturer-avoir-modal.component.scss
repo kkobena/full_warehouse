@@ -1,5 +1,5 @@
 @use '../../../../shared/scss/modal-theme' as *;
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/table-common' as *;
 
 :host {
   @include modal-theme;
@@ -137,7 +137,7 @@
 .cloture-textarea {
   resize: vertical;
   font-size: 0.875rem;
-  border-color: var(--p-content-border-color, #e5e7eb);
+  border-color: var(--pharma-field-border);
 
   &:focus {
     border-color: var(--p-primary-color);

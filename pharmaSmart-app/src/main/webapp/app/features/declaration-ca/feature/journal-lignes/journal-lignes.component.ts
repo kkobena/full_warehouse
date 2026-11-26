@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 import { ButtonComponent } from 'app/shared/ui/button/button.component';
+import { CardComponent } from 'app/shared/ui/card/card.component';
 import { DataTableComponent } from 'app/shared/ui/data-table/data-table.component';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { IconFieldComponent } from 'app/shared/ui/icon-field/icon-field.component';
@@ -34,6 +35,7 @@ export type TypeJournalLignes = 'unites-gratuites' | 'rayons';
     CommonModule,
     FormsModule,
     ButtonComponent,
+    CardComponent,
     DataTableComponent,
     HintComponent,
     IconFieldComponent,

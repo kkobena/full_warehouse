@@ -158,7 +158,7 @@
         </ng-template>
 
         <ng-template #body let-r>
-          <tr>
+          <tr (click)="onView(r)" class="clickable-row">
             <td></td>
             <td>
               <span class="pharma-code">{{ r.codeFacture }}</span>
@@ -177,7 +177,8 @@
             </td>
             <td class="text-center small text-muted">{{ r.created }}</td>
             <td class="small">{{ r.user }}</td>
-            <td class="text-center">
+            <!-- Les actions et la case à cocher ne doivent pas ouvrir le détail comme le clic sur la ligne. -->
+            <td (click)="$event.stopPropagation()" class="text-center">
               <div class="btn-group" role="group">
                 <app-button
                   (clicked)="onView(r)"
@@ -211,7 +212,7 @@
                 />
               </div>
             </td>
-            <td class="text-center">
+            <td (click)="$event.stopPropagation()" class="text-center">
               <app-row-checkbox [row]="r" />
             </td>
           </tr>

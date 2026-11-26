@@ -40,7 +40,7 @@
       </tr>
     </ng-template>
     <ng-template #body let-line>
-      <tr [class.rw-row-selected]="line.selected">
+      <tr [class.ligne-selected]="line.selected">
         <td class="text-center">
           <input [(ngModel)]="line.selected" class="form-check-input" type="checkbox" />
         </td>

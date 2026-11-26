@@ -1,10 +1,15 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
-@import 'app/features/commande/commande-shared';
-@import 'app/shared/scss/grid-caption';
-
 // ── OVERRIDE view-panel pour ce contexte ───────────────────────────────────────
+
+@use 'app/shared/scss/pharma-nav' as nav;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/features/commande/commande-shared' with (
+  $cs-radius: 8px,
+  $cs-danger: #dc3545,
+  $cs-info: #17a2b8
+);
+@use 'app/shared/scss/grid-caption' as *;
+
 .view-panel {
   height: calc(100vh - 195px);
   margin: 0;
@@ -174,7 +179,7 @@
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid $pharma-border;
+  border-right: 1px solid nav.$pharma-border;
   overflow-y: auto;
   scrollbar-width: thin;
   background: $pharma-white;
@@ -202,7 +207,7 @@
 
 .lb-meta-card {
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid $pharma-border;
+  border-bottom: 1px solid nav.$pharma-border;
   background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
   display: flex;
   flex-direction: column;

@@ -1,12 +1,13 @@
-@import '../../shared/styles/comptoir-style';
-
 /* ============================================
    CARD MODES DE PAIEMENT - Couleurs douces
    ============================================ */
+
+@use '../../shared/styles/comptoir-style' as *;
+
 .p-card .p-card-title .card-title {
   color: #ffffff;
   padding: 0.5rem;
-  margin: -1.25rem -1.25rem 1.25rem -1.25rem;
+  margin: -1.25rem -1.25rem 1.25rem;
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
 }
@@ -61,7 +62,7 @@
 }
 
 .payment-modes-body {
-  padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+  padding: 0.5rem 0.5rem 0.25rem;
 }
 
 /* Ensure full width for the row */
@@ -136,7 +137,7 @@
 
 .ws-mode-reglement .input-group-text {
   background: #f5f7fa;
-  border-color: #dfe3e8;
+  border-color: var(--pharma-field-border);
   flex-shrink: 0;
   flex-grow: 0;
   height: 50px;
@@ -230,7 +231,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   padding: 0.5rem 0.75rem;
-  border-color: #dfe3e8;
+  border-color: var(--pharma-field-border);
   border-radius: 0;
   height: 50px;
   width: 100%;

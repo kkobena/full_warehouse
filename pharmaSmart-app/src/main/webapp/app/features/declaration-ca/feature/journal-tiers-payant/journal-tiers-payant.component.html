@@ -126,48 +126,50 @@
 <!-- ── Maître / détail ─────────────────────────────────────────────────────── -->
 <div [class.panel-open]="panelOpen()" class="split-container">
   <div class="list-column">
-    <app-data-table
-      (selectionChange)="onSelection($any($event))"
-      [loading]="chargement()"
-      [paginator]="true"
-      [rowsPerPageOptions]="[25, 50, 100]"
-      [rows]="25"
-      [selection]="selection()"
-      [stripedRows]="true"
-      [value]="ventes()"
-      dataKey="saleId"
-      emptyMessage="Aucune vente tiers-payant exclue sur cette période"
-      selectionMode="single"
-      size="small"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th style="width: 7rem">Date</th>
-          <th style="width: 9rem">Transaction</th>
-          <th>Tiers-payant</th>
-          <th>Client</th>
-          <th class="text-end" style="width: 5rem">Lignes</th>
-          <th class="text-end" style="width: 8rem">Valeur TTC</th>
-          <th class="text-end" style="width: 8rem">Marge</th>
-        </tr>
-      </ng-template>
+    <app-card class="d-block">
+      <app-data-table
+        (selectionChange)="onSelection($any($event))"
+        [loading]="chargement()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[25, 50, 100]"
+        [rows]="25"
+        [selection]="selection()"
+        [stripedRows]="true"
+        [value]="ventes()"
+        dataKey="saleId"
+        emptyMessage="Aucune vente tiers-payant exclue sur cette période"
+        selectionMode="single"
+        size="small"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 7rem">Date</th>
+            <th style="width: 9rem">Transaction</th>
+            <th>Tiers-payant</th>
+            <th>Client</th>
+            <th class="text-end" style="width: 5rem">Lignes</th>
+            <th class="text-end" style="width: 8rem">Valeur TTC</th>
+            <th class="text-end" style="width: 8rem">Marge</th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-vente>
-        <!-- `appSelectableRow` : le gabarit fournit son propre <tr>, la table ne l'enveloppe
-             pas — sans la directive, la ligne n'écoute aucun clic. -->
-        <tr [appSelectableRow]="vente">
-          <td>{{ vente.saleDate | date: 'dd/MM/yyyy' }}</td>
-          <td class="small">{{ vente.numeroTransaction }}</td>
-          <td class="small">{{ vente.tiersPayants }}</td>
-          <td class="small text-muted">{{ vente.client }}</td>
-          <td class="text-end">{{ vente.nombreLignes | number }}</td>
-          <td class="text-end fw-semibold">{{ vente.valeurTtc | number: '1.0-0' }}</td>
-          <td [class.text-danger]="vente.marge < 0" [class.text-success]="vente.marge > 0" class="text-end">
-            {{ vente.marge | number: '1.0-0' }}
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+        <ng-template #body let-vente>
+          <!-- `appSelectableRow` : le gabarit fournit son propre <tr>, la table ne l'enveloppe
+               pas — sans la directive, la ligne n'écoute aucun clic. -->
+          <tr [appSelectableRow]="vente">
+            <td>{{ vente.saleDate | date: 'dd/MM/yyyy' }}</td>
+            <td class="small">{{ vente.numeroTransaction }}</td>
+            <td class="small">{{ vente.tiersPayants }}</td>
+            <td class="small text-muted">{{ vente.client }}</td>
+            <td class="text-end">{{ vente.nombreLignes | number }}</td>
+            <td class="text-end fw-semibold">{{ vente.valeurTtc | number: '1.0-0' }}</td>
+            <td [class.text-danger]="vente.marge < 0" [class.text-success]="vente.marge > 0" class="text-end">
+              {{ vente.marge | number: '1.0-0' }}
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
   </div>
 
   @if (panelOpen()) {

@@ -1,5 +1,5 @@
 @use '../../../../shared/scss/modal-theme' as *;
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/table-common' as *;
 
 :host {
   @include modal-theme;
@@ -172,6 +172,8 @@
     background: #fce7f3;
     color: #9d174d;
   }
+  // Suffixe = valeur de `statutLegal` en minuscules (`LISTE_I` → `statut-liste_i`).
+  /* stylelint-disable selector-class-pattern */
   &.statut-liste_i {
     background: #fef3c7;
     color: #92400e;
@@ -184,6 +186,7 @@
     background: #f0fdf4;
     color: #166534;
   }
+  /* stylelint-enable selector-class-pattern */
 }
 
 .echange-mode-badge {

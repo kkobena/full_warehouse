@@ -2,8 +2,16 @@
 // COMMANDE FEATURE — styles partagés
 // Importé par : suggestion-fournisseur-list, commande-requested-home,
 //               suggestion-home
-// Prérequis : @import 'app/shared/scss/pharma-nav' avant ce fichier
+// Chargé par `@use` sans espace de noms : ne fournit que des règles CSS.
 // ══════════════════════════════════════════════════════════════════════════════
+
+@use 'app/shared/scss/pharma-nav' as *;
+
+// Valeurs de `pharma-nav`. Les écrans qui chargent `pharma-toolbar` avant ce fichier recevaient, avec `@import`,
+// celles de la barre d'outils (rayon 8px, rouge #dc3545, cyan #17a2b8) : ils les repassent par `with (…)`.
+$cs-radius: 4px !default;
+$cs-danger: #d9534f !default;
+$cs-info: #5bc0de !default;
 
 // ─── VIEW PANEL (liste + détail) ─────────────────────────────────────────────
 
@@ -12,7 +20,7 @@
   flex-direction: column;
   height: calc(100vh - 160px);
   border: 1px solid $gray-200;
-  border-radius: $pharma-radius;
+  border-radius: $cs-radius;
   overflow: hidden;
   margin: 0.75rem 0 1rem;
   background: $pharma-white;
@@ -65,7 +73,7 @@
 .view-panel__urgent {
   font-size: 0.78rem;
   font-weight: 700;
-  color: $pharma-danger;
+  color: $cs-danger;
 }
 
 // ─── BULK TOOLBAR — style footer modal ────────────────────────────────────────
@@ -120,15 +128,15 @@
   }
 
   &--info {
-    background: $pharma-info;
+    background: $cs-info;
     color: #fff;
-    border-color: $pharma-info;
+    border-color: $cs-info;
   }
 
   &--danger {
-    background: $pharma-danger;
+    background: $cs-danger;
     color: #fff;
-    border-color: $pharma-danger;
+    border-color: $cs-danger;
   }
 }
 

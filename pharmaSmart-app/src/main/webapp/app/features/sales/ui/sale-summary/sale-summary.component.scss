@@ -1,4 +1,5 @@
-@import '../../shared/styles/comptoir-style';
+@use 'sass:color';
+@use '../../shared/styles/comptoir-style' as *;
 
 // ============================================
 // SALE SUMMARY COMPONENT STYLES
@@ -111,7 +112,7 @@ $border-radius-sm: 6px;
   background: linear-gradient(
     135deg,
     var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 0%,
-    var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)}) 100%
+    var(--pharma-chrome-tab-tint, #{color.adjust($pharma-primary-light, $lightness: 3%)}) 100%
   );
   border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   border-width: 2px;
@@ -142,11 +143,11 @@ $border-radius-sm: 6px;
 // ============================================
 
 .amount-discount {
-  background: linear-gradient(135deg, $pharma-warning-light 0%, lighten($pharma-warning-light, 3%) 100%);
+  background: linear-gradient(135deg, $pharma-warning-light 0%, color.adjust($pharma-warning-light, $lightness: 3%) 100%);
   border-color: $pharma-warning;
 
   .amount-label {
-    color: darken($pharma-warning, 15%);
+    color: color.adjust($pharma-warning, $lightness: -15%);
 
     &::before {
       background: $pharma-warning;
@@ -154,12 +155,12 @@ $border-radius-sm: 6px;
   }
 
   .amount-value {
-    color: darken($pharma-warning, 20%);
+    color: color.adjust($pharma-warning, $lightness: -20%);
     font-size: 0.875rem;
   }
 
   &:hover {
-    border-color: darken($pharma-warning, 10%);
+    border-color: color.adjust($pharma-warning, $lightness: -10%);
   }
 }
 
@@ -245,12 +246,12 @@ $border-radius-sm: 6px;
 // ============================================
 
 .amount-change {
-  background: linear-gradient(135deg, $pharma-info-light 0%, lighten($pharma-info-light, 3%) 100%);
+  background: linear-gradient(135deg, $pharma-info-light 0%, color.adjust($pharma-info-light, $lightness: 3%) 100%);
   border-color: $pharma-info;
   border-width: 2px;
 
   .amount-label {
-    color: darken($pharma-info, 10%);
+    color: color.adjust($pharma-info, $lightness: -10%);
     font-weight: 600;
 
     &::before {
@@ -259,12 +260,12 @@ $border-radius-sm: 6px;
   }
 
   .amount-value {
-    color: darken($pharma-info, 15%);
+    color: color.adjust($pharma-info, $lightness: -15%);
     font-size: 1rem;
   }
 
   &:hover {
-    border-color: darken($pharma-info, 10%);
+    border-color: color.adjust($pharma-info, $lightness: -10%);
     box-shadow: $shadow-md;
   }
 }
@@ -387,7 +388,7 @@ $border-radius-sm: 6px;
   .amount-row {
     box-shadow: none;
     border: 1px solid $gray-300;
-    page-break-inside: avoid;
+    break-inside: avoid;
 
     &:hover {
       transform: none;
@@ -504,7 +505,7 @@ $border-radius-sm: 6px;
     transition: all 0.2s ease;
 
     &:hover {
-      background: darken($pharma-danger, 10%);
+      background: color.adjust($pharma-danger, $lightness: -10%);
       transform: translateY(-50%) scale(1.1);
     }
 

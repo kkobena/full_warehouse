@@ -40,7 +40,7 @@
         </tr>
       </ng-template>
       <ng-template #body let-row>
-        <tr [class.rdr-row--selected]="row.qtyRetour > 0">
+        <tr [class.ligne-selected]="row.qtyRetour > 0">
           <td>
             <span class="pharma-code">{{ row.orderLine.produitCip }}</span>
           </td>

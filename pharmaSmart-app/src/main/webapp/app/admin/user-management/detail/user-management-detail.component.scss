@@ -1,4 +1,4 @@
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 .user-detail-content {
   display: grid;

@@ -2,7 +2,7 @@
 // STYLES GLOBAUX PARTAGÉS — .su-action-bar
 // ====================================
 
-@import 'app/shared/scss/action-bar';
+@use 'app/shared/scss/action-bar' as *;
 
 .su-action-bar {
   display: flex;

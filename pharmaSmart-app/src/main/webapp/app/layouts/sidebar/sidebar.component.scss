@@ -62,7 +62,6 @@
         font-weight: 700;
         color: var(--pharma-nav-accent);
         background: linear-gradient(90deg, var(--nav-hue-emerald), var(--nav-hue-blue), var(--nav-hue-violet));
-        -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
         white-space: nowrap;
@@ -127,8 +126,7 @@
   // Navigation
   .sidebar-nav {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     padding: 0.5rem 0;
 
     &::-webkit-scrollbar {

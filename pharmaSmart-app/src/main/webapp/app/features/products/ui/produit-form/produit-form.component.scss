@@ -1,11 +1,12 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/form-styles';
-@import 'app/shared/scss/pharma-nav';
-
 // ========================================================================
 // Container principal
 // ========================================================================
+
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/form-styles' as *;
+@use 'app/shared/scss/pharma-nav' as *;
+
 .produit-form-container {
   margin: 0 auto;
 
@@ -70,6 +71,12 @@
     padding: 0.5rem 0.75rem;
     min-height: 160px;
   }
+}
+
+// Un panneau qui contient une carte de formulaire la laisse se détacher sur le fond de page du thème : en blanc, il
+// formait un aplat blanc autour d'une carte blanche.
+.tab-panel:has(> app-card) {
+  background: transparent;
 }
 
 // Cadre "produit non encore enregistré"
@@ -137,7 +144,8 @@
     font-weight: 400;
     padding: 0.1rem 0.4rem;
     border-radius: 999px;
-    background: var(--bs-border-color);
+    // Pastille claire : sur `--bs-border-color`, le texte secondaire n'atteignait que 4,4:1 (4,5:1 exigés).
+    background: var(--bs-tertiary-bg);
     color: var(--bs-secondary-color);
     margin-left: auto;
   }

@@ -1,8 +1,9 @@
+@use 'sass:color';
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 // ====================================
 // STYLES GLOBAUX PARTAGÉS — pharma-toolbar
 // ====================================
-
-@import 'app/shared/scss/pharma-toolbar';
 
 // ====================================
 // MAIN TOOLBAR CONTAINER
@@ -14,7 +15,7 @@
   // conteneur est assez haut pour qu'elle coulisse. Sous `app-toolbar`, où le collant est déjà posé
   // sur l'élément hôte, elle est inerte — le conteneur épouse la hauteur de la barre.
   position: sticky;
-  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0px));
+  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0));
   z-index: 5;
 
   background: $pharma-white;
@@ -499,23 +500,23 @@
   }
 
   &.pharma-badge-success {
-    background: lighten($pharma-success, 50%);
-    color: darken($pharma-success, 10%);
+    background: color.adjust($pharma-success, $lightness: 50%);
+    color: color.adjust($pharma-success, $lightness: -10%);
   }
 
   &.pharma-badge-warning {
-    background: lighten($pharma-warning, 40%);
-    color: darken($pharma-warning, 30%);
+    background: color.adjust($pharma-warning, $lightness: 40%);
+    color: color.adjust($pharma-warning, $lightness: -30%);
   }
 
   &.pharma-badge-danger {
-    background: lighten($pharma-danger, 40%);
-    color: darken($pharma-danger, 10%);
+    background: color.adjust($pharma-danger, $lightness: 40%);
+    color: color.adjust($pharma-danger, $lightness: -10%);
   }
 
   &.pharma-badge-info {
-    background: lighten($pharma-info, 50%);
-    color: darken($pharma-info, 15%);
+    background: color.adjust($pharma-info, $lightness: 50%);
+    color: color.adjust($pharma-info, $lightness: -15%);
   }
 }
 
@@ -752,9 +753,6 @@
           margin: 0;
         }
       }
-
-      &.pharma-info-badge-rayon {
-      }
     }
 
     // Scope input sizing to compact toolbar only
@@ -832,9 +830,8 @@
 
 @media (max-width: 1200px) {
   .pharma-toolbar-content {
-    flex-direction: column;
+    flex-flow: column wrap;
     align-items: stretch;
-    flex-wrap: wrap;
 
     .p-toolbar-group-start,
     .p-toolbar-group-end {

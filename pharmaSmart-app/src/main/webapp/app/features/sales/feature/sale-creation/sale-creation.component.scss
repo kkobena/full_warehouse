@@ -3,12 +3,13 @@
 // Les styles communs sont dans ../../shared/styles/sales-common
 // ============================================
 
-@import '../../../../shared/scss/pharma-nav';
-@import '../../shared/styles/sales-common';
-
 // Thème vert pour COMPTANT
+
+@use '../../../../shared/scss/pharma-nav' as *;
+@use '../../shared/styles/sales-common' as *;
+
 .empty-cart-state .empty-cart-icon {
-  background: linear-gradient(135deg, rgba(92, 184, 92, 0.1) 0%, rgba(92, 184, 92, 0.05) 100%);
+  background: var(--pharma-surface);
   box-shadow: 0 4px 12px rgba(92, 184, 92, 0.15);
 
   i {
@@ -19,12 +20,14 @@
 // Section payment inline (toujours visible avec la vente)
 .payment-section {
   /* margin-top: 1rem;
-  padding-top: 1rem;*/
+  padding-top: 1rem; */
   border-top: 2px solid #e0e0e0;
   // Collée au bas de la zone qui défile : le règlement reste à l'écran même avec un long panier. C'est la rangée qui se
   // colle, pas `app-payment-mode` : sa colonne a exactement sa hauteur et ne lui laisse aucune marge pour se déplacer.
   position: sticky;
   bottom: 0;
   z-index: 3;
-  background: var(--pharma-surface, #fff);
+  // Opaque pour masquer le panier qui défile dessous, mais du fond de page : en blanc, la rangée formait une bande
+  // claire à droite de la carte de règlement.
+  background: var(--pharma-app-bg);
 }

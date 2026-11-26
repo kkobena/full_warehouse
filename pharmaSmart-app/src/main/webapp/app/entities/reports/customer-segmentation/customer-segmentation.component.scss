@@ -1,9 +1,11 @@
 // Customer Segmentation Component Styles
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/dashboard-common';
 
 // RFM Score styling
+
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/dashboard-common' as *;
+
 .rfm-score {
   display: inline-flex;
   align-items: center;
@@ -127,6 +129,6 @@ tr.inactive-row {
   }
 
   .rfm-explanation {
-    page-break-before: always;
+    break-before: page;
   }
 }

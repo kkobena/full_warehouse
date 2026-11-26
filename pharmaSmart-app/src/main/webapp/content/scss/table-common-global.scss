@@ -3,7 +3,7 @@
 // ====================================
 
 @use 'sass:color';
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/table-common' as *;
 
 // ====================================
 // WRAPPER TABLEAU
@@ -302,9 +302,10 @@ table {
 .pharma-code {
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  color: var(--pharma-chrome-tab, #{$pharma-primary});
+  // `--pharma-code-ink` : voir `_pharma-chrome-themes.scss` (plus foncé que l'accent dans « Actuel »).
+  color: var(--pharma-code-ink, var(--pharma-chrome-tab, #{$pharma-primary}));
   font-size: 13px;
-  /*  padding: 8px 8px !important;*/
+  /*  padding: 8px 8px !important; */
   background: var(--pharma-code-bg, #e3f2fd);
   border-radius: 3px;
   display: inline-block;
@@ -338,7 +339,8 @@ table {
 // Total
 .pharma-total {
   font-weight: 700;
-  color: $pharma-success;
+  // Vert 700 de la charte : le vert succès (#5cb85c) ne faisait que 2,5:1 sur blanc (4,5:1 exigés pour du texte).
+  color: #15803d;
   font-size: 15px;
   text-align: right !important;
 }
@@ -682,7 +684,7 @@ table {
 
     .p-datatable-tbody {
       tr {
-        page-break-inside: avoid;
+        break-inside: avoid;
       }
     }
   }

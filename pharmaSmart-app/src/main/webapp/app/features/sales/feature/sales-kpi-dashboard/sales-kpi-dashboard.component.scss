@@ -1,4 +1,4 @@
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 .kpi-grid {
   display: grid;

@@ -1,11 +1,11 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/search-section';
-
 // ============================================
 // HEADER TOOLBAR (Sticky)
 // ============================================
+
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/search-section' as *;
 
 .pharma-sales-header {
   position: relative;
@@ -90,7 +90,6 @@
     .order-search-input {
       flex: 1;
       min-width: 180px;
-      ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
       ::ng-deep .p-autocomplete-input {
         width: 100%;
@@ -100,7 +99,6 @@
     .orderline-search-input {
       flex: 2;
       min-width: 220px;
-      ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
       ::ng-deep .p-autocomplete-input {
         width: 100%;

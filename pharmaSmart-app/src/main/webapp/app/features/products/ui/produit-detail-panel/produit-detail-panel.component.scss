@@ -1,5 +1,5 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as tc;
 
 .detail-panel {
   display: flex;
@@ -76,7 +76,7 @@
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 500;
-  margin: 0 1rem 0;
+  margin: 0 1rem;
 
   i {
     font-size: 0.85rem;

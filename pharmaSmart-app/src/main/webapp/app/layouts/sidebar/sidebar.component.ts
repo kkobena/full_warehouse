@@ -10,6 +10,7 @@ import { faBars, faChevronRight, faUserCircle } from '@fortawesome/free-solid-sv
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { NavFlyoutComponent } from '../shared/nav-flyout/nav-flyout.component';
+import { menusActifs } from '../shared/nav-active';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
 import { Authority } from '../../config/authority.constants';
 import { LayoutService } from '../../core/config/layout.service';
@@ -57,6 +58,8 @@ export default class SidebarComponent implements OnInit {
   protected readonly isMobileSignal = signal(window.innerWidth <= 768);
   protected layoutService = inject(LayoutService);
   protected readonly alertBadgeService = inject(AlertBadgeService);
+  /** Menus de premier niveau contenant la page courante (voir `nav-active.ts`). */
+  protected readonly menusActifs = menusActifs(inject(Router), this.navItems);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);

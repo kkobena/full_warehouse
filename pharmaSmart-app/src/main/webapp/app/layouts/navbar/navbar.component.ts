@@ -10,6 +10,7 @@ import { faChevronDown, faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { NgbCollapse, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { NavFlyoutComponent } from '../shared/nav-flyout/nav-flyout.component';
+import { menusActifs } from '../shared/nav-active';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
 import { Authority } from '../../config/authority.constants';
 import { NavigationService } from '../../core/config/navigation.service';
@@ -67,6 +68,8 @@ export default class NavbarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
   protected readonly navItems = signal<NavItem[]>([]);
   protected readonly alertBadgeService = inject(AlertBadgeService);
+  /** Menus de premier niveau contenant la page courante (voir `nav-active.ts`). */
+  protected readonly menusActifs = menusActifs(inject(Router), this.navItems);
   private hoverOpenTimer?: number;
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);

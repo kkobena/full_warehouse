@@ -2,10 +2,7 @@
 :host {
   display: block;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   // Dégradé du thème de couleur du poste (`_pharma-chrome-themes.scss`) ; « Actuel » : le bleu d'origine.
   background: linear-gradient(135deg, var(--pharma-chrome-login-a, #008cba) 0%, var(--pharma-chrome-login-b, #5bc0de) 100%) !important;
   z-index: 1000;
@@ -105,7 +102,6 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
         var(--pharma-chrome-login-fg, #fff) 0%,
         color-mix(in srgb, var(--pharma-chrome-login-fg, #fff) 80%, transparent) 100%
       );
-      -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }

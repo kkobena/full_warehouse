@@ -4,8 +4,7 @@
 
 .modal-body {
   max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   padding: 1rem;
 
   // Remove extra padding from stepper panels
@@ -167,7 +166,7 @@
       margin-bottom: 0.25rem;
 
       .required {
-        color: var(--p-red-500);
+        color: var(--p-red-700);
         font-weight: 700;
         margin-left: 0.125rem;
       }
@@ -175,7 +174,7 @@
 
     // Error message styling
     .p-error {
-      color: var(--p-red-500);
+      color: var(--p-red-700);
       font-size: 0.8rem;
       margin-top: 0.125rem;
     }
@@ -504,8 +503,15 @@ label {
   margin-bottom: 0.25rem;
 
   .required {
-    color: var(--p-red-500);
+    color: var(--p-red-700);
     font-weight: 700;
     margin-left: 0.125rem;
   }
+}
+
+// Texte d'erreur des formulaires : le rouge 500 (#ef4444) et le `.text-danger` global (#f04124) tombent sous 4,5:1, à
+// 3:1 sur le fond teinté des cartes de modale et à 3,8:1 sur blanc. Le rouge 700 tient 4,5:1 partout.
+.card-form .text-danger,
+.modal-body .form-text.text-danger {
+  color: var(--p-red-700) !important;
 }

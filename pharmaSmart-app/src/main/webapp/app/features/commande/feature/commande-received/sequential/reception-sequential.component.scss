@@ -1,7 +1,7 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/features/commande/commande-shared';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/pharma-nav' as nav;
+@use 'app/features/commande/commande-shared';
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as tc;
 
 :host {
   display: flex;
@@ -29,7 +29,7 @@
   max-width: 38rem;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid $pharma-border;
+  border-right: 1px solid nav.$pharma-border;
   background: $pharma-white;
   overflow: hidden;
 }
@@ -200,7 +200,7 @@
 .rh-seq__nav-lib {
   font-size: 0.8rem;
   font-weight: 600;
-  color: $gray-800;
+  color: nav.$gray-800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -284,12 +284,12 @@
   align-items: center;
 
   ::ng-deep .p-button {
-    //flex: 1;
-    //justify-content: center;
-    //height: 2.4rem;
-    //font-size: 0.82rem;
-    //font-weight: 700;
-    //border-radius: 8px;
+    // flex: 1;
+    // justify-content: center;
+    // height: 2.4rem;
+    // font-size: 0.82rem;
+    // font-weight: 700;
+    // border-radius: 8px;
 
     &:disabled {
       opacity: 0.35;
@@ -609,11 +609,11 @@
   padding: 0 !important;
   outline: none !important;
   box-shadow: none !important;
-  -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
+    appearance: none;
   }
 
   &--secondary {
@@ -1035,7 +1035,7 @@
 .rh-seq__all-done-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: $gray-800;
+  color: nav.$gray-800;
   margin: 0;
 }
 .rh-seq__all-done-hint {

@@ -1,6 +1,7 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/pharma-nav';
+@use 'sass:color';
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/shared/scss/pharma-toolbar' as tb;
+@use 'app/shared/scss/pharma-nav' as *;
 
 // Import pharma-sales-header styles
 $pharma-white: #ffffff;
@@ -115,7 +116,7 @@ $border-radius-lg: 12px;
 
   .search-section-header {
     padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, $pharma-accent 0%, darken($pharma-accent, 10%) 100%);
+    background: linear-gradient(135deg, $pharma-accent 0%, color.adjust($pharma-accent, $lightness: -10%) 100%);
     color: $pharma-white;
     display: flex;
     align-items: center;
@@ -151,7 +152,6 @@ $border-radius-lg: 12px;
       flex: 2;
       min-width: 220px;
 
-      ::ng-deep p-autoComplete,
       ::ng-deep .p-autocomplete,
       ::ng-deep .p-autocomplete-input {
         width: 100%;

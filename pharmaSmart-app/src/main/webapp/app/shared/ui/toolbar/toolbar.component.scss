@@ -1,14 +1,6 @@
-// Habillage partagé avec les écrans non migrés, qui importent le même partial.
+// Les règles de la barre sont globales (`content/scss/pharma-toolbar-global.scss`) : elles atteignent le contenu
+// projeté par l'appelant sans `::ng-deep`.
 //
-// ⚠ L'import entier est enveloppé dans `:host ::ng-deep`, et ce n'est pas une commodité.
-// Le partial style sept classes que l'**appelant** pose sur du contenu projeté —
-// `.pharma-filter-group`, `.pharma-button-group`, `.pharma-search-input`,
-// `.pharma-compact-search`, `.pharma-action-primary`, `.pharma-action-secondary`,
-// `.pharma-toolbar-icon-btn`. Ce contenu porte l'encapsulation du composant appelant :
-// sans `::ng-deep`, ces règles ne l'atteindraient pas et la barre perdrait la moitié de
-// sa mise en forme.
-//
-// La portée reste bornée par `:host` : aucune fuite hors de la barre d'outils.
 // La barre reste visible pendant que la page défile : elle nomme l'écran et porte ses filtres et
 // ses actions, qu'on ne veut pas aller rechercher en haut d'une longue liste.
 //
@@ -23,10 +15,11 @@
 //
 // Sur un écran dont la barre est dans un conteneur en `overflow: hidden` à hauteur fixe (pilotage,
 // catalogue produits, inventaire…), rien ne défile sous elle : la règle est inerte.
+
 :host {
   display: block;
   position: sticky;
-  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0px));
+  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0));
 
   // Au-dessus des en-têtes de tableaux collants (z-index 2), sous la barre de navigation (1020)
   // et les panneaux superposés (1052).
@@ -36,8 +29,4 @@
 /** Échappatoire d'écran : `<app-toolbar class="toolbar-statique">` rend la barre au fil du contenu. */
 :host(.toolbar-statique) {
   position: static;
-}
-
-:host ::ng-deep {
-  @import '../../scss/pharma-toolbar';
 }

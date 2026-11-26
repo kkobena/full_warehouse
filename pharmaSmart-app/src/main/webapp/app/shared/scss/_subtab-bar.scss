@@ -6,7 +6,7 @@
 // ayant besoin d'une navigation en onglets légère au sein d'un même écran.
 //
 // USAGE :
-//   @import 'app/shared/scss/subtab-bar';   ← dans votre component.scss
+//   @use 'app/shared/scss/subtab-bar' as *;   ← dans votre component.scss
 //
 // HTML minimal :
 //   <div class="pharma-toolbar su-parent-toolbar">

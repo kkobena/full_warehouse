@@ -1,9 +1,10 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
-@import 'app/features/commande/commande-shared';
-@import 'app/shared/scss/grid-caption';
-
 // ── OVERRIDE view-panel (même chrome que list-bons) ───────────────────────────
+
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/features/commande/commande-shared';
+@use 'app/shared/scss/grid-caption' as *;
+
 .view-panel {
   height: calc(100vh - 195px);
   margin: 0;

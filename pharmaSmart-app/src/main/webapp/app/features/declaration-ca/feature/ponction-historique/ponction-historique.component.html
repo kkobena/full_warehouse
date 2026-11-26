@@ -102,74 +102,76 @@
 <!-- Split panel : la liste à gauche, le détail de la ponction sélectionnée à droite -->
 <div [class.panel-open]="panelOpen()" class="split-container">
   <div class="list-column">
-    <app-data-table
-      (selectionChange)="onSelection($any($event))"
-      [loading]="chargement()"
-      [selection]="selection()"
-      [stripedRows]="true"
-      [value]="ponctions()"
-      dataKey="id"
-      emptyMessage="Aucune ponction sur la période"
-      selectionMode="single"
-      size="small"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Période</th>
-          <th>Saisie</th>
-          <th class="text-end">CA réel</th>
-          <th class="text-end">CA déclaré</th>
-          <th class="text-end">Ponctionné</th>
-          <th class="text-end">Taux effectif</th>
-          <th style="width: 8rem">Statut</th>
-          <th>Auteur</th>
-          <th style="width: 14rem"></th>
-        </tr>
-      </ng-template>
+    <app-card class="d-block">
+      <app-data-table
+        (selectionChange)="onSelection($any($event))"
+        [loading]="chargement()"
+        [selection]="selection()"
+        [stripedRows]="true"
+        [value]="ponctions()"
+        dataKey="id"
+        emptyMessage="Aucune ponction sur la période"
+        selectionMode="single"
+        size="small"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Période</th>
+            <th>Saisie</th>
+            <th class="text-end">CA réel</th>
+            <th class="text-end">CA déclaré</th>
+            <th class="text-end">Ponctionné</th>
+            <th class="text-end">Taux effectif</th>
+            <th style="width: 8rem">Statut</th>
+            <th>Auteur</th>
+            <th style="width: 14rem"></th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-ponction>
-        <tr [appSelectableRow]="ponction">
-          <td>{{ ponction.dateDebut | date: 'dd/MM/yyyy' }} → {{ ponction.dateFin | date: 'dd/MM/yyyy' }}</td>
-          <td class="small text-muted">
-            {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} · plafond
-            {{ ponction.plafondParVente }} %
-          </td>
-          <td class="text-end">{{ ponction.caReel | number: '1.0-0' }}</td>
-          <td class="text-end">{{ ponction.caDeclare | number: '1.0-0' }}</td>
-          <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number: '1.0-0' }}</td>
-          <td class="text-end">{{ tauxEffectif(ponction) }}</td>
-          <td>
-            <app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" />
-          </td>
-          <td class="small text-muted">{{ ponction.auteur }}</td>
-          <td class="text-end">
-            <div class="btn-group">
-              <app-button
-                (clicked)="imprimer(ponction, $event)"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-file-pdf"
-                ngbTooltip="Justificatif PDF"
-                severity="info"
-                size="small"
-              />
-              @if (annulable(ponction.statut)) {
+        <ng-template #body let-ponction>
+          <tr [appSelectableRow]="ponction">
+            <td>{{ ponction.dateDebut | date: 'dd/MM/yyyy' }} → {{ ponction.dateFin | date: 'dd/MM/yyyy' }}</td>
+            <td class="small text-muted">
+              {{ ponction.valeurSaisie }} {{ ponction.modeCalcul === 'POURCENTAGE' ? '%' : ('' | devise) }} · plafond
+              {{ ponction.plafondParVente }} %
+            </td>
+            <td class="text-end">{{ ponction.caReel | number: '1.0-0' }}</td>
+            <td class="text-end">{{ ponction.caDeclare | number: '1.0-0' }}</td>
+            <td class="text-end fw-semibold">{{ ponction.montantPonctionne | number: '1.0-0' }}</td>
+            <td class="text-end">{{ tauxEffectif(ponction) }}</td>
+            <td>
+              <app-badge [label]="ponction.statut" [severity]="severite(ponction.statut)" />
+            </td>
+            <td class="small text-muted">{{ ponction.auteur }}</td>
+            <td class="text-end">
+              <div class="btn-group">
                 <app-button
-                  (clicked)="demanderAnnulation(ponction, $event)"
-                  [disabled]="chargement()"
+                  (clicked)="imprimer(ponction, $event)"
                   [rounded]="true"
                   [text]="true"
-                  icon="pi pi-undo"
-                  ngbTooltip="Annuler la ponction"
-                  severity="danger"
+                  icon="pi pi-file-pdf"
+                  ngbTooltip="Justificatif PDF"
+                  severity="info"
                   size="small"
                 />
-              }
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+                @if (annulable(ponction.statut)) {
+                  <app-button
+                    (clicked)="demanderAnnulation(ponction, $event)"
+                    [disabled]="chargement()"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-undo"
+                    ngbTooltip="Annuler la ponction"
+                    severity="danger"
+                    size="small"
+                  />
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
   </div>
 
   @if (panelOpen()) {

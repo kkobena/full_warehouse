@@ -1,12 +1,11 @@
 @use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/form-styles' as *;
 /**
  * Poste Form Component Styles
  *
  * This component uses centralized form styles from shared/scss/form-styles.scss
  * See FORMS_README.md for documentation on the form pattern.
  */
-
-@import 'app/shared/scss/form-styles';
 
 :host {
   @include modal-theme;

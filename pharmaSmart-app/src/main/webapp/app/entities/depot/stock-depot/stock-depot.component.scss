@@ -1,5 +1,6 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 $pharma-primary: #5b89a6;
 $border-radius: $pharma-radius;
 .pharma-select-modern {

@@ -9,7 +9,6 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-produit-historique-tab',
   templateUrl: './produit-historique-tab.component.html',
-  styleUrls: ['./produit-historique-tab.scss'],
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

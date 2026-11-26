@@ -52,14 +52,16 @@
         </tr>
       </ng-template>
       <ng-template #body let-row>
-        <tr [class.ae-row-selected]="selectedFournisseurId() === row.fournisseurId">
+        <tr (click)="selectFournisseur(row)" [class.ligne-selected]="selectedFournisseurId() === row.fournisseurId" class="clickable-row">
           <td class="pharma-product-name">{{ row.fournisseurLibelle }}</td>
           <td class="text-right pharma-price">{{ row.montantEncours | number: '1.0-0' }}</td>
-          <td>
+          <!-- Même effet que le clic sur la ligne : la propagation est arrêtée pour ne pas charger le détail deux fois. -->
+          <td (click)="$event.stopPropagation()">
             <app-button
-              icon="pi pi-list"
+              icon="pi pi-eye"
               size="small"
               severity="info"
+              [rounded]="true"
               [text]="true"
               ariaLabel="Voir les avoirs"
               ngbTooltip="Voir les avoirs"

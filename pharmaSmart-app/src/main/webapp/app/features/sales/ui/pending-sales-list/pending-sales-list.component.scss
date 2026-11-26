@@ -1,5 +1,6 @@
-@import '../../shared/styles/comptoir-style';
-@import 'app/shared/scss/table-common';
+@use '../../shared/styles/comptoir-style' as *;
+@use 'app/shared/scss/table-common' as *;
+
 .pending-sales-container {
   height: 100%;
   display: flex;

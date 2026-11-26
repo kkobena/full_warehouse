@@ -1,6 +1,7 @@
-@import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/subtab-bar';
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/subtab-bar' as *;
+
 .p-floatlabel {
   min-width: 90px !important;
 }

@@ -53,7 +53,7 @@
   font-size: 0.95rem;
   line-height: 1.5;
   white-space: pre-line; /* affiche les \n dans les messages d'erreur Java */
-  word-break: break-word;
+  overflow-wrap: anywhere;
   max-height: 6rem;
   overflow-y: auto;
 }

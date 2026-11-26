@@ -2,7 +2,7 @@
 // STYLES GLOBAUX PARTAGÉS — .data-card
 // ====================================
 
-@import 'app/shared/scss/data-card';
+@use 'app/shared/scss/data-card' as *;
 
 .data-card {
   border: none;

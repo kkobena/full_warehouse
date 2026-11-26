@@ -1,3 +1,6 @@
+@use 'sass:list';
+@use 'sass:map';
+
 // ====================================
 // PHARMA SMART - THÈMES
 // ====================================
@@ -19,7 +22,7 @@ $pharma-themes: (
     border: #e2e8f0,
     text: #334155,
     text-muted: #5b6778,
-    field-border: #7c8ba1,
+    field-border: #64748b,
     accent: #047857,
     kpi-bg: (
       #e0edfa,
@@ -46,7 +49,7 @@ $pharma-themes: (
     border: #d5e3e5,
     text: #334155,
     text-muted: #5b6778,
-    field-border: #7c8ba1,
+    field-border: #64748b,
     accent: #0f766e,
     kpi-bg: (
       #e0edfa,
@@ -73,7 +76,7 @@ $pharma-themes: (
     border: #e2e8f0,
     text: #334155,
     text-muted: #5b6778,
-    field-border: #7c8ba1,
+    field-border: #64748b,
     accent: #047857,
     kpi-bg: (
       #e0edfa,
@@ -96,29 +99,29 @@ $pharma-themes: (
 );
 
 @mixin pharma-theme-tokens($t) {
-  $accent: map-get($t, accent);
+  $accent: map.get($t, accent);
 
-  --pharma-app-bg: #{map-get($t, app-bg)};
-  --pharma-surface: #{map-get($t, surface)};
-  --pharma-surface-alt: #{map-get($t, surface-alt)};
-  --pharma-border: #{map-get($t, border)};
-  --pharma-text: #{map-get($t, text)};
-  --pharma-text-muted: #{map-get($t, text-muted)};
-  --pharma-field-border: #{map-get($t, field-border)};
+  --pharma-app-bg: #{map.get($t, app-bg)};
+  --pharma-surface: #{map.get($t, surface)};
+  --pharma-surface-alt: #{map.get($t, surface-alt)};
+  --pharma-border: #{map.get($t, border)};
+  --pharma-text: #{map.get($t, text)};
+  --pharma-text-muted: #{map.get($t, text-muted)};
+  --pharma-field-border: #{map.get($t, field-border)};
   --pharma-accent: #{$accent};
-  --pharma-kpi-bg-start: #{nth(map-get($t, kpi-bg), 1)};
-  --pharma-kpi-bg-end: #{nth(map-get($t, kpi-bg), 2)};
-  --pharma-kpi-border: #{map-get($t, kpi-border)};
-  --pharma-detail-bg: #{map-get($t, detail-bg)};
-  --pharma-detail-border: #{map-get($t, detail-border)};
+  --pharma-kpi-bg-start: #{list.nth(map.get($t, kpi-bg), 1)};
+  --pharma-kpi-bg-end: #{list.nth(map.get($t, kpi-bg), 2)};
+  --pharma-kpi-border: #{map.get($t, kpi-border)};
+  --pharma-detail-bg: #{map.get($t, detail-bg)};
+  --pharma-detail-border: #{map.get($t, detail-border)};
 
   // Bootstrap (lu à l'affichage) — `.text-muted` suit `--bs-secondary-color`.
-  --bs-body-bg: #{map-get($t, surface)};
-  --bs-body-bg-rgb: #{to-rgb(map-get($t, surface))};
-  --bs-body-color: #{map-get($t, text)};
-  --bs-body-color-rgb: #{to-rgb(map-get($t, text))};
-  --bs-secondary-color: #{map-get($t, text-muted)};
-  --bs-border-color: #{map-get($t, border)};
+  --bs-body-bg: #{map.get($t, surface)};
+  --bs-body-bg-rgb: #{to-rgb(map.get($t, surface))};
+  --bs-body-color: #{map.get($t, text)};
+  --bs-body-color-rgb: #{to-rgb(map.get($t, text))};
+  --bs-secondary-color: #{map.get($t, text-muted)};
+  --bs-border-color: #{map.get($t, border)};
   --bs-primary: #{$accent};
   --bs-primary-rgb: #{to-rgb($accent)};
   --bs-link-color: #{$accent};
@@ -127,17 +130,17 @@ $pharma-themes: (
   --bs-link-hover-color-rgb: #{to-rgb(shade-color($accent, 20%))};
 
   // Tokens hérités d'Aura (~380 références `--p-*`).
-  --p-text-color: #{map-get($t, text)};
-  --p-text-muted-color: #{map-get($t, text-muted)};
-  --p-form-field-border-color: #{map-get($t, field-border)};
-  @each $step, $color in map-get($t, accent-scale) {
+  --p-text-color: #{map.get($t, text)};
+  --p-text-muted-color: #{map.get($t, text-muted)};
+  --p-form-field-border-color: #{map.get($t, field-border)};
+  @each $step, $color in map.get($t, accent-scale) {
     --p-primary-#{$step}: #{$color};
   }
   --p-primary-color: #{$accent};
 
   // Séries des graphiques à plusieurs courbes : la première suit l'accent du thème ; toutes tiennent 4,5:1 sur les fonds
   // clairs (WCAG 1.4.11 en exige 3:1 pour un trait). Les teintes 400 de `--p-*` restent pour les aplats.
-  --pharma-chart-serie-1: #{map-get(map-get($t, accent-scale), 700)};
+  --pharma-chart-serie-1: #{map.get($t, accent-scale, 700)};
   --pharma-chart-serie-2: #c2410c;
   --pharma-chart-serie-3: #a21caf;
   --pharma-chart-serie-4: #1d4ed8;
@@ -191,15 +194,15 @@ $pharma-themes: (
 }
 
 :root:not([data-theme]) {
-  @include pharma-theme-tokens(map-get($pharma-themes, $pharma-default-theme));
+  @include pharma-theme-tokens(map.get($pharma-themes, $pharma-default-theme));
 }
 
 @each $name, $t in $pharma-themes {
   :root[data-theme='#{$name}'] {
     @include pharma-theme-tokens($t);
 
-    @if map-get($t, accent) != $primary {
-      @include pharma-theme-accent-components(map-get($t, accent));
+    @if map.get($t, accent) != $primary {
+      @include pharma-theme-accent-components(map.get($t, accent));
     }
   }
 }

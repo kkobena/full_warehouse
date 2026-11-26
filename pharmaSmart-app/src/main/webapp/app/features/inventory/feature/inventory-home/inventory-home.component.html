@@ -94,253 +94,257 @@
 
 <!-- ── Template : inventaires EN COURS ───────────────────────────────────────── -->
 <ng-template #enCoursTable>
-  <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 6%">#</th>
-        <th style="width: 16%">Type</th>
-        <th style="width: 22%">Description</th>
-        <th style="width: 15%">Emplacement</th>
-        <th style="width: 11%">Statut</th>
-        <th style="width: 15%">Date création</th>
-        <th class="text-center" style="width: 15%">Actions</th>
-      </tr>
-    </ng-template>
+  <app-card>
+    <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 6%">#</th>
+          <th style="width: 16%">Type</th>
+          <th style="width: 22%">Description</th>
+          <th style="width: 15%">Emplacement</th>
+          <th style="width: 11%">Statut</th>
+          <th style="width: 15%">Date création</th>
+          <th class="text-center" style="width: 15%">Actions</th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-inv>
-      <tr (click)="openEditor(inv)" style="cursor: pointer">
-        <td class="text-muted small">{{ inv.id }}</td>
-        <td>
-          <span class="pharma-badge pharma-badge-info">
-            {{ getCategoryLabel(inv.inventoryCategory?.name) }}
-          </span>
-        </td>
-        <td>{{ inv.description ?? '-' }}</td>
-        <td class="small">{{ inv.storage?.name ?? '-' }}</td>
-        <td>
-          <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
-            {{ getStatutLabel(inv.statut) }}
-          </span>
-        </td>
-        <td class="small text-muted">{{ inv.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-        <td (click)="$event.stopPropagation()" class="text-center">
-          <div class="btn-group">
-            <app-button
-              (clicked)="openEditor(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-pencil"
-              ariaLabel="Ouvrir"
-              ngbTooltip="Ouvrir"
-              severity="primary"
-              size="small"
-            />
-            <app-button
-              (clicked)="exportEnCoursPdf(inv)"
-              [loading]="isExporting(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-file-pdf"
-              ariaLabel="Exporter PDF"
-              ngbTooltip="Exporter PDF"
-              severity="secondary"
-              size="small"
-            />
-            <app-button
-              (clicked)="closeInventory(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-lock"
-              ariaLabel="Clôturer"
-              ngbTooltip="Clôturer"
-              severity="warn"
-              size="small"
-            />
-            <app-button
-              (clicked)="deleteInventory(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              ariaLabel="Supprimer"
-              ngbTooltip="Supprimer"
-              severity="danger"
-              size="small"
-            />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+      <ng-template #body let-inv>
+        <tr (click)="openEditor(inv)" style="cursor: pointer">
+          <td class="text-muted small">{{ inv.id }}</td>
+          <td>
+            <span class="pharma-badge pharma-badge-info">
+              {{ getCategoryLabel(inv.inventoryCategory?.name) }}
+            </span>
+          </td>
+          <td>{{ inv.description ?? '-' }}</td>
+          <td class="small">{{ inv.storage?.name ?? '-' }}</td>
+          <td>
+            <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
+              {{ getStatutLabel(inv.statut) }}
+            </span>
+          </td>
+          <td class="small text-muted">{{ inv.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td (click)="$event.stopPropagation()" class="text-center">
+            <div class="btn-group">
+              <app-button
+                (clicked)="openEditor(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-pencil"
+                ariaLabel="Ouvrir"
+                ngbTooltip="Ouvrir"
+                severity="primary"
+                size="small"
+              />
+              <app-button
+                (clicked)="exportEnCoursPdf(inv)"
+                [loading]="isExporting(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-file-pdf"
+                ariaLabel="Exporter PDF"
+                ngbTooltip="Exporter PDF"
+                severity="secondary"
+                size="small"
+              />
+              <app-button
+                (clicked)="closeInventory(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-lock"
+                ariaLabel="Clôturer"
+                ngbTooltip="Clôturer"
+                severity="warn"
+                size="small"
+              />
+              <app-button
+                (clicked)="deleteInventory(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                ariaLabel="Supprimer"
+                ngbTooltip="Supprimer"
+                severity="danger"
+                size="small"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="7">
-          <div class="pharma-empty-content">
-            <i class="pi pi-inbox"></i>
-            <p>Aucun inventaire en cours</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucun inventaire en cours</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
 
-  <div class="table-footer-info px-2">
-    <small class="text-muted">Total : {{ store.totalInventories() }} inventaire(s)</small>
-  </div>
+    <div class="table-footer-info px-2">
+      <small class="text-muted">Total : {{ store.totalInventories() }} inventaire(s)</small>
+    </div>
+  </app-card>
 </ng-template>
 
 <!-- ── Template : inventaires CLÔTURÉS (avec expansion) ──────────────────────── -->
 <ng-template #cloturesTable>
-  <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 4%"></th>
-        <th style="width: 6%">#</th>
-        <th style="width: 15%">Type</th>
-        <th style="width: 20%">Description</th>
-        <th style="width: 15%">Emplacement</th>
-        <th style="width: 10%">Statut</th>
-        <th style="width: 15%">Date clôture</th>
-        <th class="text-center" style="width: 15%">Actions</th>
-      </tr>
-    </ng-template>
+  <app-card>
+    <app-data-table [loading]="store.loadingList()" [value]="store.inventories()" class="p-datatable-sm" dataKey="id">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 4%"></th>
+          <th style="width: 6%">#</th>
+          <th style="width: 15%">Type</th>
+          <th style="width: 20%">Description</th>
+          <th style="width: 15%">Emplacement</th>
+          <th style="width: 10%">Statut</th>
+          <th style="width: 15%">Date clôture</th>
+          <th class="text-center" style="width: 15%">Actions</th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-expanded="expanded" let-inv>
-      <tr>
-        <td>
-          <app-button
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [ariaLabel]="expanded ? 'Replier le détail' : 'Déplier le détail'"
-            [appRowToggler]="inv"
-            [rounded]="true"
-            [text]="true"
-            size="small"
-            type="button"
-          />
-        </td>
-        <td class="text-muted small">{{ inv.id }}</td>
-        <td>
-          <span class="pharma-badge pharma-badge-info">
-            {{ getCategoryLabel(inv.inventoryCategory?.name) }}
-          </span>
-        </td>
-        <td>{{ inv.description ?? '-' }}</td>
-        <td class="small">{{ inv.storage?.name ?? '-' }}</td>
-        <td>
-          <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
-            {{ getStatutLabel(inv.statut) }}
-          </span>
-        </td>
-        <td class="small text-muted">{{ inv.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-        <td (click)="$event.stopPropagation()" class="text-center">
-          <div class="btn-group">
+      <ng-template #body let-expanded="expanded" let-inv>
+        <tr>
+          <td>
             <app-button
-              (clicked)="openReadOnly(inv)"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [ariaLabel]="expanded ? 'Replier le détail' : 'Déplier le détail'"
+              [appRowToggler]="inv"
               [rounded]="true"
               [text]="true"
-              icon="pi pi-eye"
-              ariaLabel="Consulter"
-              ngbTooltip="Consulter"
-              severity="secondary"
               size="small"
+              type="button"
             />
-            <app-button
-              (clicked)="openGapAnalysisFor(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-chart-bar"
-              ariaLabel="Analyser les écarts"
-              ngbTooltip="Analyser les écarts"
-              severity="danger"
-              size="small"
-            />
-            <app-button
-              (clicked)="exportPdf(inv)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-file-pdf"
-              ariaLabel="Exporter PDF"
-              ngbTooltip="Exporter PDF"
-              severity="secondary"
-              size="small"
-            />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+          </td>
+          <td class="text-muted small">{{ inv.id }}</td>
+          <td>
+            <span class="pharma-badge pharma-badge-info">
+              {{ getCategoryLabel(inv.inventoryCategory?.name) }}
+            </span>
+          </td>
+          <td>{{ inv.description ?? '-' }}</td>
+          <td class="small">{{ inv.storage?.name ?? '-' }}</td>
+          <td>
+            <span class="pharma-badge {{ getStatutBadgeClass(inv.statut) }}">
+              {{ getStatutLabel(inv.statut) }}
+            </span>
+          </td>
+          <td class="small text-muted">{{ inv.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td (click)="$event.stopPropagation()" class="text-center">
+            <div class="btn-group">
+              <app-button
+                (clicked)="openReadOnly(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-eye"
+                ariaLabel="Consulter"
+                ngbTooltip="Consulter"
+                severity="secondary"
+                size="small"
+              />
+              <app-button
+                (clicked)="openGapAnalysisFor(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-chart-bar"
+                ariaLabel="Analyser les écarts"
+                ngbTooltip="Analyser les écarts"
+                severity="danger"
+                size="small"
+              />
+              <app-button
+                (clicked)="exportPdf(inv)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-file-pdf"
+                ariaLabel="Exporter PDF"
+                ngbTooltip="Exporter PDF"
+                severity="secondary"
+                size="small"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #expandedrow let-inv>
-      <tr class="pharma-expanded-row">
-        <td colspan="8">
-          <div class="expanded-row-container">
-            <div class="inv-synthese-grid">
-              <!-- Colonne gauche : Démarque / écarts -->
-              <div class="activity-card activity-card-primary">
-                <div class="activity-card-header">
-                  <div class="activity-card-icon activity-card-icon-small">
-                    <i class="pi pi-chart-bar"></i>
+      <ng-template #expandedrow let-inv>
+        <tr class="pharma-expanded-row">
+          <td colspan="8">
+            <div class="expanded-row-container">
+              <div class="inv-synthese-grid">
+                <!-- Colonne gauche : Démarque / écarts -->
+                <div class="activity-card activity-card-primary">
+                  <div class="activity-card-header">
+                    <div class="activity-card-icon activity-card-icon-small">
+                      <i class="pi pi-chart-bar"></i>
+                    </div>
+                    <div class="activity-card-header-content">
+                      <h3 class="activity-card-title">Démarque inconnue</h3>
+                      <span class="activity-card-subtitle">Analyse des écarts d'inventaire</span>
+                    </div>
                   </div>
-                  <div class="activity-card-header-content">
-                    <h3 class="activity-card-title">Démarque inconnue</h3>
-                    <span class="activity-card-subtitle">Analyse des écarts d'inventaire</span>
+                  <div class="activity-card-body">
+                    <app-gap-summary [inventoryId]="inv.id" />
+                  </div>
+                  <div class="activity-card-footer">
+                    <app-button
+                      (clicked)="openGapAnalysisFor(inv)"
+                      [raised]="true"
+                      icon="pi pi-chart-bar"
+                      label="Analyser les écarts"
+                      severity="danger"
+                      size="small"
+                    />
+                    <app-button
+                      (clicked)="openReadOnly(inv)"
+                      [raised]="true"
+                      icon="pi pi-eye"
+                      label="Consulter"
+                      severity="secondary"
+                      size="small"
+                    />
                   </div>
                 </div>
-                <div class="activity-card-body">
-                  <app-gap-summary [inventoryId]="inv.id" />
-                </div>
-                <div class="activity-card-footer">
-                  <app-button
-                    (clicked)="openGapAnalysisFor(inv)"
-                    [raised]="true"
-                    icon="pi pi-chart-bar"
-                    label="Analyser les écarts"
-                    severity="danger"
-                    size="small"
-                  />
-                  <app-button
-                    (clicked)="openReadOnly(inv)"
-                    [raised]="true"
-                    icon="pi pi-eye"
-                    label="Consulter"
-                    severity="secondary"
-                    size="small"
-                  />
-                </div>
-              </div>
 
-              <!-- Colonne droite : Valorisation ventilée -->
-              <div class="activity-card activity-card-primary">
-                <div class="activity-card-header">
-                  <div class="activity-card-icon activity-card-icon-small">
-                    <i class="pi pi-calculator"></i>
+                <!-- Colonne droite : Valorisation ventilée -->
+                <div class="activity-card activity-card-primary">
+                  <div class="activity-card-header">
+                    <div class="activity-card-icon activity-card-icon-small">
+                      <i class="pi pi-calculator"></i>
+                    </div>
+                    <div class="activity-card-header-content">
+                      <h3 class="activity-card-title">Valorisation ventilée</h3>
+                      <span class="activity-card-subtitle">Avant / après / écart par groupe</span>
+                    </div>
                   </div>
-                  <div class="activity-card-header-content">
-                    <h3 class="activity-card-title">Valorisation ventilée</h3>
-                    <span class="activity-card-subtitle">Avant / après / écart par groupe</span>
+                  <div class="activity-card-body">
+                    <app-inventory-valuation [inventoryId]="inv.id" />
                   </div>
-                </div>
-                <div class="activity-card-body">
-                  <app-inventory-valuation [inventoryId]="inv.id" />
                 </div>
               </div>
             </div>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="8">
-          <div class="pharma-empty-content">
-            <i class="pi pi-lock"></i>
-            <p>Aucun inventaire clôturé</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8">
+            <div class="pharma-empty-content">
+              <i class="pi pi-lock"></i>
+              <p>Aucun inventaire clôturé</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
 
-  <div class="table-footer-info px-2">
-    <small class="text-muted">Total : {{ store.totalInventories() }} inventaire(s)</small>
-  </div>
+    <div class="table-footer-info px-2">
+      <small class="text-muted">Total : {{ store.totalInventories() }} inventaire(s)</small>
+    </div>
+  </app-card>
 </ng-template>

@@ -1,4 +1,4 @@
-@import 'app/shared/scss/dashboard-common';
+@use 'app/shared/scss/dashboard-common' as *;
 
 .finances-dashboard {
   animation: fadeIn 0.3s ease-out;

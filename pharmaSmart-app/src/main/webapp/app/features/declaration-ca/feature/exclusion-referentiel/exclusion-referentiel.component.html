@@ -46,47 +46,49 @@
   </div>
 }
 
-<app-data-table
-  (onLazyLoad)="lazyLoading($event)"
-  [first]="first()"
-  [lazy]="true"
-  [loading]="chargement()"
-  [paginator]="true"
-  [rows]="rows()"
-  [rowsPerPageOptions]="[20, 50, 100]"
-  [showCurrentPageReport]="true"
-  [stripedRows]="true"
-  [totalRecords]="totalItems()"
-  [value]="items()"
-  dataKey="id"
-  emptyMessage="Aucun élément ne correspond"
-  size="small"
->
-  <ng-template #header>
-    <tr class="pharma-table-head">
-      <th style="width: 3rem">
-        <app-checkbox (ngModelChange)="basculerToutSelectionner()" [disabled]="items().length === 0" [ngModel]="toutSelectionne()" />
-      </th>
-      <th>Libellé</th>
-      <th style="width: 10rem">Code</th>
-      <th style="width: 8rem">État</th>
-    </tr>
-  </ng-template>
+<app-card>
+  <app-data-table
+    (onLazyLoad)="lazyLoading($event)"
+    [first]="first()"
+    [lazy]="true"
+    [loading]="chargement()"
+    [paginator]="true"
+    [rows]="rows()"
+    [rowsPerPageOptions]="[20, 50, 100]"
+    [showCurrentPageReport]="true"
+    [stripedRows]="true"
+    [totalRecords]="totalItems()"
+    [value]="items()"
+    dataKey="id"
+    emptyMessage="Aucun élément ne correspond"
+    size="small"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 3rem">
+          <app-checkbox (ngModelChange)="basculerToutSelectionner()" [disabled]="items().length === 0" [ngModel]="toutSelectionne()" />
+        </th>
+        <th>Libellé</th>
+        <th style="width: 10rem">Code</th>
+        <th style="width: 8rem">État</th>
+      </tr>
+    </ng-template>
 
-  <ng-template #body let-item>
-    <tr>
-      <td>
-        <app-checkbox (ngModelChange)="basculerSelection(item.id)" [ngModel]="estSelectionne(item.id)" />
-      </td>
-      <td>{{ item.libelle }}</td>
-      <td class="text-muted small">{{ item.code || '—' }}</td>
-      <td>
-        @if (item.exclu) {
-          <app-badge label="Exclu" severity="warn" />
-        } @else {
-          <app-badge label="Non exclus" severity="success" />
-        }
-      </td>
-    </tr>
-  </ng-template>
-</app-data-table>
+    <ng-template #body let-item>
+      <tr>
+        <td>
+          <app-checkbox (ngModelChange)="basculerSelection(item.id)" [ngModel]="estSelectionne(item.id)" />
+        </td>
+        <td>{{ item.libelle }}</td>
+        <td class="text-muted small">{{ item.code || '—' }}</td>
+        <td>
+          @if (item.exclu) {
+            <app-badge label="Exclu" severity="warn" />
+          } @else {
+            <app-badge label="Non exclus" severity="success" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+</app-card>

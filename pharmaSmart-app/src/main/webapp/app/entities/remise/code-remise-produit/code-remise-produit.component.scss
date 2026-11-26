@@ -1,9 +1,8 @@
 // Le patron maître / détail est partagé : le redéfinir ici le ferait diverger des autres
 // écrans qui l'emploient (DCI, rapprochement, différés…).
 @use 'app/shared/scss/split-panel' as *;
-
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 .pharma-code {
   font-family: var(--bs-font-monospace, monospace);

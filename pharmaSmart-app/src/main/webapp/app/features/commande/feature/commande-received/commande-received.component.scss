@@ -1,11 +1,11 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/features/commande/commande-shared';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/grid-caption';
-
 // ── HOST (flex item dans .lb-detail-body) ──────────────────────────────────
 // Sans :host, le host-element reste à height:auto → chaîne flex brisée → grille à 0px
+
+@use 'app/shared/scss/pharma-nav' as nav;
+@use 'app/features/commande/commande-shared';
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/shared/scss/grid-caption' as *;
 
 :host {
   display: flex;
@@ -322,7 +322,7 @@
     font-weight: 600;
     color: $gray-900;
     text-align: right;
-    word-break: break-word;
+    overflow-wrap: anywhere;
 
     &.amount {
       color: var(--pharma-chrome-tab-dark, #{$pharma-primary});

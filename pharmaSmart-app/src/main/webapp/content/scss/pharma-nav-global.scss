@@ -1,7 +1,8 @@
+@use 'sass:list';
+@use 'app/shared/scss/pharma-nav' as *;
+
 // ====================================
 // STYLES GLOBAUX PARTAGÉS — pharma-nav (pills, sidebar)
-
-@import 'app/shared/scss/pharma-nav';
 
 // ====================================
 // NAVIGATION PILLS - PHARMA NAV LINK (Basic)
@@ -81,7 +82,7 @@
       // Une teinte par lien, attribuée par position : deux voisins ne se ressemblent jamais.
       $section-hues: emerald, blue, amber, violet, rose, teal, orange, indigo, lime, fuchsia, cyan, pink;
       @each $hue in $section-hues {
-        > :nth-child(#{length($section-hues)}n + #{index($section-hues, $hue)}) {
+        > :nth-child(#{list.length($section-hues)}n + #{list.index($section-hues, $hue)}) {
           --section-hue: var(--icon-#{$hue});
         }
       }
@@ -261,8 +262,7 @@
 
     .pharma-nav-sidebar-content {
       .nav {
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
       }
     }
   }

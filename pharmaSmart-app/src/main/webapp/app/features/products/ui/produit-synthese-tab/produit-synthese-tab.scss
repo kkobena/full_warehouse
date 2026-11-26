@@ -1,6 +1,7 @@
-@import 'app/shared/scss/table-common';
-
 // Les alertes de péremption ne se réduisent pas à une colonne au milieu des cartes.
+
+@use 'app/shared/scss/table-common' as *;
+
 .peremption-alert {
   flex: 1 1 100%;
 }

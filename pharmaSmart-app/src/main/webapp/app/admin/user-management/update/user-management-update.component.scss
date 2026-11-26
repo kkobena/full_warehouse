@@ -5,8 +5,8 @@
  * See FORMS_README.md for detailed documentation.
  */
 
-@import '../../../shared/scss/pharma-toolbar';
-@import '../../../shared/scss/form-styles';
+@use '../../../shared/scss/pharma-toolbar' as *;
+@use '../../../shared/scss/form-styles' as *;
 
 :host {
   display: block;

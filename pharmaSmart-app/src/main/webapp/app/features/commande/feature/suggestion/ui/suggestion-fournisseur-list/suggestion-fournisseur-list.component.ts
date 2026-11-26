@@ -65,7 +65,7 @@ export class SuggestionFournisseurListComponent {
   getRowClass(f: FournisseurSuggestionSummary): Record<string, boolean> {
     const isActive = this.selected()?.suggestionId === f.suggestionId;
     return {
-      'row-active': isActive,
+      'ligne-selected': isActive,
       'row-urgent': f.nbUrgents > 0 && !isActive,
     };
   }

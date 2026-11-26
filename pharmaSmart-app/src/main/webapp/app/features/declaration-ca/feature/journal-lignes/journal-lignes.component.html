@@ -133,54 +133,56 @@
   Les indicateurs portent sur la totalité de la période, même lorsque le tableau n'en affiche qu'une partie.
 </app-hint>
 <!-- ── Détail ──────────────────────────────────────────────────────────────── -->
-<app-data-table
-  [loading]="chargement()"
-  [paginator]="true"
-  [rowsPerPageOptions]="[25, 50, 100]"
-  [rows]="25"
-  [showCurrentPageReport]="true"
-  [stripedRows]="true"
-  [value]="lignes()"
-  emptyMessage="Aucune ligne écartée sur cette période"
-  size="small"
->
-  <ng-template #header>
-    <tr class="pharma-table-head">
-      <th style="width: 7rem">Date</th>
-      <th style="width: 9rem">Transaction</th>
-      <th style="width: 8rem">Code</th>
-      <th>Produit</th>
-      @if (!estUg()) {
-        <th style="width: 12rem">Rayon</th>
-      }
-      <th class="text-end" style="width: 6rem">Quantité</th>
-      @if (estUg()) {
-        <th class="text-end" style="width: 5rem">Dont UG</th>
-      }
-      <th class="text-end" style="width: 8rem">Valeur TTC</th>
-      <th class="text-end" style="width: 8rem">Retiré du CA</th>
-      <th class="text-end" style="width: 8rem">Marge</th>
-    </tr>
-  </ng-template>
+<app-card>
+  <app-data-table
+    [loading]="chargement()"
+    [paginator]="true"
+    [rowsPerPageOptions]="[25, 50, 100]"
+    [rows]="25"
+    [showCurrentPageReport]="true"
+    [stripedRows]="true"
+    [value]="lignes()"
+    emptyMessage="Aucune ligne écartée sur cette période"
+    size="small"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 7rem">Date</th>
+        <th style="width: 9rem">Transaction</th>
+        <th style="width: 8rem">Code</th>
+        <th>Produit</th>
+        @if (!estUg()) {
+          <th style="width: 12rem">Rayon</th>
+        }
+        <th class="text-end" style="width: 6rem">Quantité</th>
+        @if (estUg()) {
+          <th class="text-end" style="width: 5rem">Dont UG</th>
+        }
+        <th class="text-end" style="width: 8rem">Valeur TTC</th>
+        <th class="text-end" style="width: 8rem">Retiré du CA</th>
+        <th class="text-end" style="width: 8rem">Marge</th>
+      </tr>
+    </ng-template>
 
-  <ng-template #body let-ligne>
-    <tr>
-      <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
-      <td class="small">{{ ligne.numeroTransaction }}</td>
-      <td class="small text-muted">{{ ligne.codeProduit }}</td>
-      <td>{{ ligne.libelleProduit }}</td>
-      @if (!estUg()) {
-        <td class="small text-muted">{{ ligne.rayon }}</td>
-      }
-      <td class="text-end">{{ ligne.quantite | number }}</td>
-      @if (estUg()) {
-        <td class="text-end fw-semibold">{{ ligne.quantiteUg | number }}</td>
-      }
-      <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
-      <td class="text-end text-danger">{{ ligne.montantExclu | number: '1.0-0' }}</td>
-      <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0" class="text-end">
-        {{ ligne.marge | number: '1.0-0' }}
-      </td>
-    </tr>
-  </ng-template>
-</app-data-table>
+    <ng-template #body let-ligne>
+      <tr>
+        <td>{{ ligne.saleDate | date: 'dd/MM/yyyy' }}</td>
+        <td class="small">{{ ligne.numeroTransaction }}</td>
+        <td class="small text-muted">{{ ligne.codeProduit }}</td>
+        <td>{{ ligne.libelleProduit }}</td>
+        @if (!estUg()) {
+          <td class="small text-muted">{{ ligne.rayon }}</td>
+        }
+        <td class="text-end">{{ ligne.quantite | number }}</td>
+        @if (estUg()) {
+          <td class="text-end fw-semibold">{{ ligne.quantiteUg | number }}</td>
+        }
+        <td class="text-end">{{ ligne.valeurTtc | number: '1.0-0' }}</td>
+        <td class="text-end text-danger">{{ ligne.montantExclu | number: '1.0-0' }}</td>
+        <td [class.text-danger]="ligne.marge < 0" [class.text-success]="ligne.marge > 0" class="text-end">
+          {{ ligne.marge | number: '1.0-0' }}
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+</app-card>

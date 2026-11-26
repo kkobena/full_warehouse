@@ -72,7 +72,6 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
       font-weight: 700;
       margin-bottom: 0.5rem;
       background: linear-gradient(135deg, $white 0%, rgba(255, 255, 255, 0.8) 100%);
-      -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
@@ -258,7 +257,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
   color: #991b1b;
   font-size: 0.875rem;
   line-height: 1.5;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 
   i {
     margin-right: 0.5rem;

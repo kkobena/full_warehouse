@@ -1,9 +1,10 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-
 // ====================================
 // VARIABLES (From dashboard-common)
 // ====================================
+
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 $primary-blue: var(--pharma-chrome-brand, #008cba);
 $primary-light: #5bc0de;
 $success-green: #43ac6a;
@@ -230,7 +231,7 @@ $gray-border: #e2e8f0;
   font-size: 1rem;
   font-weight: 700;
   color: $text-primary;
-  margin: 0 0 0.2rem 0;
+  margin: 0 0 0.2rem;
   line-height: 1.3;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -450,7 +451,6 @@ $gray-border: #e2e8f0;
     border: 1px solid #ddd;
     box-shadow: none;
     break-inside: avoid;
-    page-break-inside: avoid;
 
     &:hover {
       transform: none;

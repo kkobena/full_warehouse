@@ -9,6 +9,7 @@ import { ButtonComponent } from 'app/shared/ui/button/button.component';
 import { BadgeComponent } from 'app/shared/ui/badge/badge.component';
 import { ToolbarComponent } from 'app/shared/ui/toolbar/toolbar.component';
 import { CheckboxComponent } from 'app/shared/ui/checkbox/checkbox.component';
+import { CardComponent } from 'app/shared/ui/card/card.component';
 import { DataTableComponent } from 'app/shared/ui/data-table/data-table.component';
 import { AppTableLazyLoadEvent } from 'app/shared/ui/data-table/table.types';
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
@@ -38,6 +39,7 @@ type Filtre = 'tous' | 'exclus' | 'non-exclus';
     ButtonComponent,
     BadgeComponent,
     CheckboxComponent,
+    CardComponent,
     DataTableComponent,
     HintComponent,
     PillSelectorComponent,

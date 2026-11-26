@@ -1,6 +1,7 @@
-@import 'app/shared/scss/pharma-toolbar';
-
 // La barre reste en place (hauteur de page posée par appDashboardViewport) ; seule la grille défile.
+
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 app-toolbar {
   flex-shrink: 0;
 }

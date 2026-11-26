@@ -1,9 +1,11 @@
-@import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
 // `app-kpi-strip` porte desormais ses propres styles : l'import partage
 // n'a plus d'objet ici.
 // Aging bucket cards
+
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 .aging-label {
   font-size: 0.75rem;
   font-weight: 600;

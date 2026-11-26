@@ -1,4 +1,5 @@
-// Prérequis : @import 'app/shared/scss/pharma-nav' ou pharma-toolbar avant ce fichier
+// Jetons de `pharma-toolbar` (gris, primaire, blanc : mêmes valeurs que dans `pharma-nav`).
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 // ── SECTION ───────────────────────────────────────────────────────────────────
 

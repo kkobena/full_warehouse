@@ -1,6 +1,7 @@
 @use 'app/shared/scss/pharma-nav' as *;
 @use 'app/shared/scss/table-common' as tc;
 @use 'app/shared/scss/pharma-toolbar' as tb;
+@use 'sass:color';
 // ── Variables locales ─────────────────────────────────────────────────────────
 $group-color: #1e40af;
 $group-bg: #dbeafe;
@@ -302,7 +303,7 @@ $section-border: #a78bfa;
 
 // ── Ligne GROUP ───────────────────────────────────────────────────────────────
 :host ::ng-deep .row-group {
-  background: linear-gradient(to right, darken($group-bg, 2%), lighten($group-bg, 4%)) !important;
+  background: linear-gradient(to right, color.adjust($group-bg, $lightness: -2%), color.adjust($group-bg, $lightness: 4%)) !important;
 
   td {
     border-top: 2px solid $group-border !important;

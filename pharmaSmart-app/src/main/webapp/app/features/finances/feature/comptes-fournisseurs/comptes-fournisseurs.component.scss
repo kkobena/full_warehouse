@@ -1,15 +1,8 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/split-panel';
-
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/pharma-toolbar' as tb;
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/shared/scss/split-panel' as *;
 
 // ── Split container ────────────────────────────────────────────────────────
 
@@ -111,5 +104,3 @@
   font-weight: 600;
   color: var(--pharma-chrome-brand-ink, #008cba);
 }
-
-// ── Responsive : cf. split-panel (partagé) pour l'empilement sous 992px ────

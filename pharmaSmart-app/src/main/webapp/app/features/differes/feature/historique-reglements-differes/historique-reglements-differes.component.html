@@ -73,6 +73,7 @@
           <th class="text-end">Total encaissé</th>
           <th class="text-end">Solde restant</th>
           <th class="text-end">Nb règlements</th>
+          <th class="text-center" style="width: 4rem">Actions</th>
         </tr>
       </ng-template>
 
@@ -98,12 +99,23 @@
             <span [class.pharma-total]="(r.solde ?? 0) > 0">{{ r.solde | number }}</span>
           </td>
           <td class="text-end">{{ r.items?.length ?? 0 }}</td>
+          <td class="text-center">
+            <app-button
+              [appRowToggler]="r"
+              [ngbTooltip]="expanded ? 'Masquer le détail' : 'Voir le détail'"
+              [rounded]="true"
+              [text]="true"
+              [icon]="expanded ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              severity="info"
+              size="small"
+            />
+          </td>
         </tr>
       </ng-template>
 
       <ng-template #expandedrow let-r>
         <tr>
-          <td class="p-0" colspan="5">
+          <td class="p-0" colspan="6">
             <div class="px-4 py-2 bg-light">
               <app-data-table [size]="'small'" [stripedRows]="true" [value]="r.items ?? []" class="pharma-table-nested">
                 <ng-template #header>
@@ -156,7 +168,7 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5">
+          <td colspan="6">
             <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le client</div>
           </td>
         </tr>
@@ -167,7 +179,7 @@
           <tr class="pharma-table-footer">
             <td class="fw-semibold" colspan="2"><i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)</td>
             <td class="text-end fw-bold text-success">{{ s.paidAmount | number }} <span appDevise></span></td>
-            <td colspan="2"></td>
+            <td colspan="3"></td>
           </tr>
         }
       </ng-template>

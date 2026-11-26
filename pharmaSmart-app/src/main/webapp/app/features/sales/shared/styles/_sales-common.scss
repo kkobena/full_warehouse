@@ -4,17 +4,21 @@
 // À importer dans chaque composant de vente
 // ============================================
 
-@import 'comptoir-style';
-
 // ============================================
 // WORKSPACE CONTAINER
 // ============================================
+
+// Les écrans de vente appellent directement les mixins `comptoir-*` : on les leur transmet.
+@forward 'comptoir-style';
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'comptoir-style' as *;
+@use 'app/shared/scss/search-section' as *;
 
 .sales-workspace {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: $gray-50;
+  background: var(--pharma-app-bg);
   overflow: hidden;
   padding: 0 0.75rem;
 }
@@ -23,18 +27,13 @@
 // CARDS - Distinction visuelle sections
 // ============================================
 
-@import 'app/shared/scss/search-section';
-
 .product-search-section {
-  /* @include search-section(#00a86b);*/
+  /* @include search-section(#00a86b); */
   // vert pharma vente
   @include search-section(#2e7d97);
-  /*  margin-bottom: 0.75rem;*/
-  margin-left: 0;
-  margin-right: 0;
+  /*  margin-bottom: 0.75rem; */
+  margin: 0.5rem 0;
   // Espacement resserré (12 → 8 px) : avec 5 lignes au panier, le règlement sortait de l'écran sur un 24 pouces.
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
 
   .search-section-header {
     padding-block: 0.375rem;
@@ -141,7 +140,7 @@
   box-shadow: $pharma-shadow;
   border: 1px solid $pharma-border;
   padding: 1rem;
-  /*margin-bottom: 0.75rem;*/
+  /* margin-bottom: 0.75rem; */
 }
 
 .actions-card {
@@ -228,7 +227,7 @@
   }
 
   h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     font-size: 1.5rem;
     font-weight: 600;
     color: $gray-900;
@@ -325,7 +324,7 @@
   }
 
   .empty-cart-state .empty-cart-icon {
-    background: var(--comptoir-accent-tint);
+    background: var(--pharma-surface);
     box-shadow: none;
 
     i {

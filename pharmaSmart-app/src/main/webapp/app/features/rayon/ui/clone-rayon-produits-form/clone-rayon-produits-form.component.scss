@@ -63,9 +63,11 @@
   border: 1px solid var(--p-content-border-color, #e5e7eb);
   transition: border-color 0.12s;
 
-  &.crpf-row-selected {
-    border-color: var(--p-primary-color, #3b82f6);
-    background: var(--p-primary-50, #eff6ff);
+  // Une carte, pas une ligne de tableau : la règle globale `tr.ligne-selected` ne l'atteint pas, mais les
+  // couleurs sont les mêmes jetons du thème.
+  &.ligne-selected {
+    border-color: var(--pharma-row-selected-accent);
+    background: var(--pharma-row-selected-bg);
   }
 }
 

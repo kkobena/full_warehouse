@@ -48,7 +48,7 @@ $border-radius-sm: 6px;
   background: $white;
   padding: 0.1rem 0.875rem;
   border-radius: $border-radius;
-  border: 1px solid $gray-200;
+  border: 1px solid var(--pharma-field-border);
   transition: all 0.2s ease;
 
   &:hover {

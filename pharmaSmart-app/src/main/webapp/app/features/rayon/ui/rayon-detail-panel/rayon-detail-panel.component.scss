@@ -1,6 +1,6 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/shared/scss/pharma-toolbar' as tb;
 
 :host {
   display: flex;

@@ -1,8 +1,9 @@
-@import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-toolbar';
-
 // Color classes for the stacked bars matching chart colors
+
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
+
 .concentration-bar-0 {
   background-color: rgb(54, 162, 235);
 }
@@ -22,6 +23,5 @@
 
 .scrollable-card-body {
   max-height: 420px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
 }

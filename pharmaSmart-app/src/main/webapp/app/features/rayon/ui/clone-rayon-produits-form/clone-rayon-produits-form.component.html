@@ -25,7 +25,7 @@
     <p class="crpf-hint">Sélectionnez le rayon cible dans chaque stockage souhaité.</p>
     <div class="crpf-rows">
       @for (row of availableRows; track row.storage.id) {
-        <div class="crpf-row" [class.crpf-row-selected]="row.selectedRayon != null">
+        <div class="crpf-row" [class.ligne-selected]="row.selectedRayon != null">
           <div class="crpf-storage-label">
             <i class="pi pi-warehouse"></i>
             <span>{{ row.storage.name }}</span>

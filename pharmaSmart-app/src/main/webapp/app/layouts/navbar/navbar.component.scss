@@ -46,8 +46,13 @@
     background-color: color-mix(in srgb, var(--nav-hue, var(--pharma-chrome-on)) 16%, transparent);
   }
 
+  // Menu de la page courante — entrée simple, ou menu parent dont un sous-menu est la page
+  // (`menusActifs`, voir layouts/shared/nav-active.ts) : fond teinté de sa couleur, trait dessous, gras.
   .nav-item.active > .nav-link {
-    box-shadow: inset 0 -2px 0 var(--nav-hue, var(--pharma-nav-active));
+    background-color: color-mix(in srgb, var(--nav-hue, var(--pharma-chrome-on)) 18%, transparent);
+    box-shadow: inset 0 -3px 0 var(--nav-hue, var(--pharma-nav-active));
+    color: var(--pharma-chrome-navlink-strong);
+    font-weight: 600;
   }
 
   // CSS variables Bootstrap 5 — style barre d'application desktop

@@ -1,8 +1,9 @@
-@import '../../../../shared/scss/pharma-nav';
-
 // ====================================
 // ITEM ROW dans le dropdown
 // ====================================
+
+@use '../../../../shared/scss/pharma-nav' as *;
+
 .product-item-row {
   display: flex;
   align-items: center;

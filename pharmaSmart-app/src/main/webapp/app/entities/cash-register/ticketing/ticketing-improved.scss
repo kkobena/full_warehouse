@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ============================================
 // VARIABLES
 // ============================================
@@ -90,7 +92,7 @@ $other: #6b7280;
   }
 
   .pharma-card-subtitle {
-    margin: 0.25rem 0 0 0;
+    margin: 0.25rem 0 0;
     font-size: 0.875rem;
     color: $gray-600;
     font-weight: 400;
@@ -237,7 +239,7 @@ $other: #6b7280;
   }
 
   &.pharma-other-row {
-    background: var(--pharma-chrome-tab-tint, #{var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)})});
+    background: var(--pharma-chrome-tab-tint, #{var(--pharma-chrome-tab-tint, #{color.adjust($pharma-primary-light, $lightness: 3%)})});
 
     &:hover {
       background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
@@ -267,27 +269,27 @@ $other: #6b7280;
   }
 
   &.pharma-bill-10000 {
-    background: linear-gradient(135deg, $bill-10000, darken($bill-10000, 10%));
+    background: linear-gradient(135deg, $bill-10000, color.adjust($bill-10000, $lightness: -10%));
   }
 
   &.pharma-bill-5000 {
-    background: linear-gradient(135deg, $bill-5000, darken($bill-5000, 10%));
+    background: linear-gradient(135deg, $bill-5000, color.adjust($bill-5000, $lightness: -10%));
   }
 
   &.pharma-bill-2000 {
-    background: linear-gradient(135deg, $bill-2000, darken($bill-2000, 10%));
+    background: linear-gradient(135deg, $bill-2000, color.adjust($bill-2000, $lightness: -10%));
   }
 
   &.pharma-bill-1000 {
-    background: linear-gradient(135deg, $bill-1000, darken($bill-1000, 10%));
+    background: linear-gradient(135deg, $bill-1000, color.adjust($bill-1000, $lightness: -10%));
   }
 
   &.pharma-coin-500 {
-    background: linear-gradient(135deg, $coin-500, darken($coin-500, 10%));
+    background: linear-gradient(135deg, $coin-500, color.adjust($coin-500, $lightness: -10%));
   }
 
   &.pharma-other {
-    background: linear-gradient(135deg, $other, darken($other, 10%));
+    background: linear-gradient(135deg, $other, color.adjust($other, $lightness: -10%));
   }
 }
 
@@ -357,7 +359,7 @@ $other: #6b7280;
   transition: color 0.2s ease;
 
   .pharma-ticketing-row:hover & {
-    color: darken($pharma-success, 10%);
+    color: color.adjust($pharma-success, $lightness: -10%);
   }
 }
 
@@ -369,7 +371,7 @@ $other: #6b7280;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
+  background: linear-gradient(135deg, $pharma-success-light 0%, color.adjust($pharma-success-light, $lightness: 3%) 100%);
   border-top: 3px solid $pharma-success;
   margin: 0;
 }

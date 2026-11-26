@@ -1,5 +1,5 @@
 @use 'app/shared/scss/table-common' as *;
-@import 'app/shared/scss/dashboard-common';
+@use 'app/shared/scss/dashboard-common' as *;
 
 .pharmaml-card {
   .card-header {

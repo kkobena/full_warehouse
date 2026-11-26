@@ -1,3 +1,14 @@
+@use 'sass:color';
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:math';
+
+// Triplet « r, g, b » des variables `--bs-*-rgb`, arrondi à l'entier comme le faisaient `red()`, `green()` et `blue()`.
+@function canaux-rgb($couleur) {
+  @return math.round(color.channel($couleur, 'red', $space: rgb)), math.round(color.channel($couleur, 'green', $space: rgb)),
+    math.round(color.channel($couleur, 'blue', $space: rgb));
+}
+
 // ====================================
 // PHARMA SMART - COULEUR DE L'APPLICATION (« chrome »)
 // ====================================
@@ -115,6 +126,9 @@
   --pharma-chrome-pill-active-shadow: 0 2px 8px rgba(0, 140, 186, 0.25);
   --pharma-chrome-tab: #5b89a6;
   --pharma-chrome-tab-dark: #4a7189;
+  // Texte des codes (`.pharma-code` : n° de facture, réf. de bon…) : le bleu foncé, #5b89a6 ne faisant que 3,3:1 sur
+  // leur fond bleu clair (4,5:1 exigés). Les autres couleurs le ramènent à leur `--pharma-chrome-tab`.
+  --pharma-code-ink: #4a7189;
   --pharma-chrome-tab-tint: #e8f4f8;
   --pharma-chrome-table-a: #527b95;
   --pharma-chrome-table-b: #4d748d;
@@ -201,7 +215,8 @@ $chrome-kpi-tint-end: 4%;
 
 // Teintes de navigation pensées pour la barre sombre (niveau 300) : sur barre claire, on prend le niveau 600 assombri.
 $nav-hue-keep: 78%;
-$nav-hues: emerald, blue, amber, violet, rose, teal, orange, indigo, lime, fuchsia, cyan, pink;
+// Chaînes, pas mots-clés : `blue`, `orange`, `cyan`… seraient lus comme des couleurs dans `--nav-hue-#{$hue}`.
+$nav-hues: 'emerald', 'blue', 'amber', 'violet', 'rose', 'teal', 'orange', 'indigo', 'lime', 'fuchsia', 'cyan', 'pink';
 
 // Identifiants : l'origine de la teinte (accent de la vente comptant, de l'assurance, des préventes).
 $pharma-chrome-themes: (
@@ -300,6 +315,7 @@ $pharma-chrome-themes: (
     --pharma-row-selected-accent: var(--pharma-chrome-seed);
     --pharma-row-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);
     --pharma-code-bg: color-mix(in srgb, var(--pharma-chrome-seed) 10%, #fff);
+    --pharma-code-ink: var(--pharma-chrome-tab);
     --pharma-badge-primary-bg: color-mix(in srgb, var(--pharma-chrome-seed) 14%, #fff);
     --pharma-badge-primary-fg: var(--pharma-chrome-ink);
     --pharma-badge-primary-border: color-mix(in srgb, var(--pharma-chrome-seed) 30%, #fff);
@@ -345,7 +361,7 @@ $pharma-chrome-themes: (
 
     // En-têtes des sous-tableaux (cyan, ou bleu acier pour `.bg-primary`) : l'en-tête clair du thème. `.bg-info` et `.bg-success` gardent leur gravité.
     .pharma-sub-table-container .pharma-sub-table-header,
-    .pharma-sub-table-card .card-header:not(.bg-info):not(.bg-success) {
+    .pharma-sub-table-card .card-header:not(.bg-info, .bg-success) {
       background: linear-gradient(135deg, var(--pharma-chrome-head-a) 0%, var(--pharma-chrome-head-b) 100%) !important;
       color: var(--pharma-chrome-head-fg);
       box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
@@ -394,25 +410,25 @@ $pharma-chrome-themes: (
 // seul tombe sous 4,5:1 sur le fond de page teinté (3,84:1 relevé par axe sur `.text-primary`).
 // Le vert « succès » de la charte n'est pas touché : à regarder pour le thème vert, où primaire et succès se ressemblent.
 @each $name, $accent in $pharma-chrome-themes {
-  $ink: mix($accent, #000, $chrome-head-ink);
-  $dark: mix($accent, #000, $chrome-btn-hover);
-  $darker: mix($accent, #000, $chrome-btn-active);
+  $ink: color.mix($accent, #000, $chrome-head-ink);
+  $dark: color.mix($accent, #000, $chrome-btn-hover);
+  $darker: color.mix($accent, #000, $chrome-btn-active);
 
   :root[data-chrome='#{$name}'] {
     --pharma-accent: #{$accent};
     --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.25)};
     --bs-primary: #{$accent};
-    --bs-primary-rgb: #{red($ink)}, #{green($ink)}, #{blue($ink)};
+    --bs-primary-rgb: #{canaux-rgb($ink)};
     --bs-link-color: #{$ink};
-    --bs-link-color-rgb: #{red($ink)}, #{green($ink)}, #{blue($ink)};
+    --bs-link-color-rgb: #{canaux-rgb($ink)};
     --bs-link-hover-color: #{$darker};
-    --bs-link-hover-color-rgb: #{red($darker)}, #{green($darker)}, #{blue($darker)};
+    --bs-link-hover-color-rgb: #{canaux-rgb($darker)};
     --p-primary-color: #{$accent};
-    --p-primary-50: #{mix($accent, #fff, 8%)};
-    --p-primary-100: #{mix($accent, #fff, 16%)};
-    --p-primary-200: #{mix($accent, #fff, 30%)};
-    --p-primary-400: #{mix($accent, #fff, 60%)};
-    --p-primary-500: #{mix($accent, #fff, 80%)};
+    --p-primary-50: #{color.mix($accent, #fff, 8%)};
+    --p-primary-100: #{color.mix($accent, #fff, 16%)};
+    --p-primary-200: #{color.mix($accent, #fff, 30%)};
+    --p-primary-400: #{color.mix($accent, #fff, 60%)};
+    --p-primary-500: #{color.mix($accent, #fff, 80%)};
     --p-primary-600: #{$accent};
     --p-primary-700: #{$ink};
     --p-primary-800: #{$darker};
@@ -424,7 +440,7 @@ $pharma-chrome-themes: (
       --bs-btn-hover-color: #fff;
       --bs-btn-hover-bg: #{$dark};
       --bs-btn-hover-border-color: #{$dark};
-      --bs-btn-focus-shadow-rgb: #{red($accent)}, #{green($accent)}, #{blue($accent)};
+      --bs-btn-focus-shadow-rgb: #{canaux-rgb($accent)};
       --bs-btn-active-color: #fff;
       --bs-btn-active-bg: #{$darker};
       --bs-btn-active-border-color: #{$darker};
@@ -439,7 +455,7 @@ $pharma-chrome-themes: (
       --bs-btn-hover-color: #fff;
       --bs-btn-hover-bg: #{$accent};
       --bs-btn-hover-border-color: #{$accent};
-      --bs-btn-focus-shadow-rgb: #{red($accent)}, #{green($accent)}, #{blue($accent)};
+      --bs-btn-focus-shadow-rgb: #{canaux-rgb($accent)};
       --bs-btn-active-color: #fff;
       --bs-btn-active-bg: #{$darker};
       --bs-btn-active-border-color: #{$darker};
@@ -534,12 +550,18 @@ $pharma-chrome-buttons: (
 @each $name, $accent in $pharma-chrome-themes {
   :root[data-chrome='#{$name}'] {
     @each $sev in secondary, success, info, warning, danger, help, contrast {
-      $bg: map-get($pharma-chrome-buttons, '#{$name}-#{$sev}');
-      $clair: index($chrome-sem-clairs, $sev) != null;
-      $texte: if($clair, $chrome-btn-ink, #fff);
-      $survol: if($clair, mix($bg, #000, $chrome-sem-hover-clair), mix($bg, #000, $chrome-sem-hover));
-      $actif: if($clair, mix($bg, #000, $chrome-sem-active-clair), mix($bg, #000, $chrome-sem-active));
-      $contour: if($clair, mix($bg, #000, $chrome-sem-outline-clair), mix($bg, #000, $chrome-sem-outline));
+      $bg: map.get($pharma-chrome-buttons, '#{$name}-#{$sev}');
+      $clair: list.index($chrome-sem-clairs, $sev) != null;
+      $texte: #fff;
+      $survol: color.mix($bg, #000, $chrome-sem-hover);
+      $actif: color.mix($bg, #000, $chrome-sem-active);
+      $contour: color.mix($bg, #000, $chrome-sem-outline);
+      @if $clair {
+        $texte: $chrome-btn-ink;
+        $survol: color.mix($bg, #000, $chrome-sem-hover-clair);
+        $actif: color.mix($bg, #000, $chrome-sem-active-clair);
+        $contour: color.mix($bg, #000, $chrome-sem-outline-clair);
+      }
 
       .btn-#{$sev} {
         --bs-btn-color: #{$texte};
@@ -548,7 +570,7 @@ $pharma-chrome-buttons: (
         --bs-btn-hover-color: #{$texte};
         --bs-btn-hover-bg: #{$survol};
         --bs-btn-hover-border-color: #{$survol};
-        --bs-btn-focus-shadow-rgb: #{red($bg)}, #{green($bg)}, #{blue($bg)};
+        --bs-btn-focus-shadow-rgb: #{canaux-rgb($bg)};
         --bs-btn-active-color: #{$texte};
         --bs-btn-active-bg: #{$actif};
         --bs-btn-active-border-color: #{$actif};
@@ -563,7 +585,7 @@ $pharma-chrome-buttons: (
         --bs-btn-hover-color: #{$texte};
         --bs-btn-hover-bg: #{$bg};
         --bs-btn-hover-border-color: #{$bg};
-        --bs-btn-focus-shadow-rgb: #{red($bg)}, #{green($bg)}, #{blue($bg)};
+        --bs-btn-focus-shadow-rgb: #{canaux-rgb($bg)};
         --bs-btn-active-color: #{$texte};
         --bs-btn-active-bg: #{$actif};
         --bs-btn-active-border-color: #{$actif};
@@ -579,10 +601,10 @@ $pharma-chrome-buttons: (
 @each $name, $accent in $pharma-chrome-themes {
   :root[data-chrome='#{$name}'] {
     --pharma-chrome-badge-primary: var(--pharma-chrome-tab-dark);
-    --pharma-chrome-badge-success: #{map-get($pharma-chrome-buttons, '#{$name}-success')};
-    --pharma-chrome-badge-warn: #{map-get($pharma-chrome-buttons, '#{$name}-warning')};
+    --pharma-chrome-badge-success: #{map.get($pharma-chrome-buttons, '#{$name}-success')};
+    --pharma-chrome-badge-warn: #{map.get($pharma-chrome-buttons, '#{$name}-warning')};
     --pharma-chrome-badge-warn-fg: #{$chrome-btn-ink};
-    --pharma-chrome-badge-danger: #{map-get($pharma-chrome-buttons, '#{$name}-danger')};
-    --pharma-chrome-badge-info: #{map-get($pharma-chrome-buttons, '#{$name}-info')};
+    --pharma-chrome-badge-danger: #{map.get($pharma-chrome-buttons, '#{$name}-danger')};
+    --pharma-chrome-badge-info: #{map.get($pharma-chrome-buttons, '#{$name}-info')};
   }
 }

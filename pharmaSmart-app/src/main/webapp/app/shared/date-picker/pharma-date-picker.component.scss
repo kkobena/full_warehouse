@@ -4,7 +4,9 @@ $pharma-primary: var(--pharma-chrome-dlg-accent);
 $pharma-primary-light: var(--pharma-chrome-dlg-icon-bg);
 $pharma-primary-hover: var(--pharma-chrome-dlg-accent-hover);
 $pharma-bg-header: linear-gradient(135deg, var(--pharma-chrome-dlg-a) 0%, var(--pharma-chrome-dlg-b) 100%);
-$pharma-border: var(--pharma-chrome-dlg-line);
+// Bordure du champ et de son bouton : celle des champs du thème. Le filet des dialogues (`--pharma-chrome-dlg-line`)
+// ne faisait que 2,4:1 sur blanc, sous les 3:1 exigés pour un contrôle.
+$pharma-field-border: var(--pharma-field-border);
 $pharma-text-title: var(--pharma-chrome-dlg-title);
 $pharma-text-body: #374151;
 $pharma-footer-bg: #f9fafb;
@@ -39,7 +41,7 @@ $pharma-footer-border: #e5e7eb;
 .pharma-dp-input {
   font-size: 0.82rem;
   color: $pharma-text-title;
-  border-color: $pharma-border;
+  border-color: $pharma-field-border;
   background-color: #fff;
   transition:
     border-color 0.15s ease-in-out,
@@ -58,7 +60,7 @@ $pharma-footer-border: #e5e7eb;
 }
 
 .pharma-dp-btn {
-  border-color: $pharma-border;
+  border-color: $pharma-field-border;
   background: $pharma-bg-header;
   color: $pharma-primary;
   padding: 0 0.55rem;

@@ -1,5 +1,6 @@
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/form-styles';
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/form-styles' as *;
+
 .depot-form-container {
   margin: 0 auto;
 
@@ -74,14 +75,14 @@
         margin-bottom: 0.25rem;
 
         .required {
-          color: var(--p-red-500);
+          color: var(--p-red-700);
           font-weight: 700;
           margin-left: 0.125rem;
         }
       }
 
       .p-error {
-        color: var(--p-red-500);
+        color: var(--p-red-700);
         font-size: 0.8rem;
         margin-top: 0.125rem;
       }

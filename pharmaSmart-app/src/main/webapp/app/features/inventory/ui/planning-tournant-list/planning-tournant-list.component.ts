@@ -8,13 +8,23 @@ import { IPlanningInventaireTournant, ITournantDashboard, paretoLabel } from '..
 import { PlanningTournantApiService } from '../../data-access/services/planning-tournant-api.service';
 import { PlanningTournantModalComponent } from '../planning-tournant-modal/planning-tournant-modal.component';
 import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { BadgeComponent, ButtonComponent, DataTableComponent } from '../../../../shared/ui';
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from '../../../../shared/ui';
 
 import { KpiStripComponent } from 'app/shared/ui/kpi-strip/kpi-strip.component';
 import { KpiItemComponent } from 'app/shared/ui/kpi-strip/kpi-item.component';
 @Component({
   selector: 'app-planning-tournant-list',
-  imports: [CommonModule, KpiStripComponent, KpiItemComponent, ButtonComponent, BadgeComponent, DataTableComponent, NgbTooltip, DatePipe],
+  imports: [
+    CommonModule,
+    CardComponent,
+    KpiStripComponent,
+    KpiItemComponent,
+    ButtonComponent,
+    BadgeComponent,
+    DataTableComponent,
+    NgbTooltip,
+    DatePipe,
+  ],
   templateUrl: './planning-tournant-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planning-tournant-list.component.scss',

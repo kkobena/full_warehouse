@@ -1,8 +1,8 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
-@import 'app/features/commande/commande-shared';
-
 // ── Layout ────────────────────────────────────────────────────────────────────
+
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as tc;
+@use 'app/features/commande/commande-shared';
 
 .rw-wrapper {
   display: flex;

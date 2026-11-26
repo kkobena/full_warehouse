@@ -1,4 +1,5 @@
-@import 'app/shared/scss/table-common';
+@use 'sass:color';
+@use 'app/shared/scss/table-common' as *;
 
 // Carte, en-tête, élévation et liseré : `app-detail-section`. Ne restent ici que la jauge,
 // les lots et ce qui n'existe que sur cet onglet.
@@ -110,7 +111,7 @@ $pharma-dark: #374151;
   margin-top: 0.5rem;
   font-size: 0.7rem;
   font-weight: 600;
-  color: darken($pharma-danger, 10%);
+  color: color.adjust($pharma-danger, $lightness: -10%);
   background: $pharma-danger-bg;
   border: 1px solid $pharma-danger-bd;
   border-radius: 4px;

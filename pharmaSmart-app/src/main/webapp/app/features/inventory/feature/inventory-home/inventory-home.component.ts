@@ -17,7 +17,7 @@ import { GapSummaryComponent } from '../../ui/gap-summary/gap-summary.component'
 import { InventoryValuationComponent } from '../../ui/inventory-valuation/inventory-valuation.component';
 import { InventoryExportModalComponent } from '../../ui/inventory-export-modal/inventory-export-modal.component';
 import { AbilityService } from 'app/core/auth/ability.service';
-import { ButtonComponent, DataTableComponent, RowTogglerDirective, ToolbarComponent } from '../../../../shared/ui';
+import { ButtonComponent, CardComponent, DataTableComponent, RowTogglerDirective, ToolbarComponent } from '../../../../shared/ui';
 import { InventoryApiService } from '../../data-access/services/inventory-api.service';
 import { ConfigurationService } from '../../../../shared/configuration.service';
 import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
@@ -38,6 +38,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
     NgbNavLink,
     NgbNavContent,
     NgbTooltip,
+    CardComponent,
     DataTableComponent,
     RowTogglerDirective,
     PlanningTournantListComponent,

@@ -6,7 +6,7 @@
 // été déplacé vers pharmaSmart-app/src/main/webapp/content/scss/action-bar-global.scss,
 // chargée une seule fois via angular.json (architect.build.options.styles).
 //
-// Ce fichier ne contient donc plus que les variables : il reste `@import`-able
+// Ce fichier ne contient donc plus que les variables : il reste chargeable par `@use`
 // partout sans émettre de CSS, donc sans duplication. Ne pas réintroduire de
 // sélecteur CSS ici : ajouter la règle dans action-bar-global.scss à la place.
 $gray-50: #f9fafb !default;

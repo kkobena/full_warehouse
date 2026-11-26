@@ -1,4 +1,4 @@
-@import 'app/shared/scss/pharma-toolbar';
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 .model-options {
   display: flex;

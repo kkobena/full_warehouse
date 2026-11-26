@@ -74,157 +74,159 @@
   </app-toolbar>
 
   <!-- ── Table historique ─────────────────────────────────────────────────── -->
-  <app-data-table
-    [loading]="facade.loadingHistory()"
-    [value]="facade.history()"
-    [lazy]="true"
-    [paginator]="true"
-    [totalRecords]="facade.totalHistory()"
-    [rows]="itemsPerPage"
-    [(first)]="first"
-    [showCurrentPageReport]="true"
-    (onLazyLoad)="onLazyLoad($event)"
-    dataKey="id"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 3%"></th>
-        <th style="width: 4%">#</th>
-        <th style="width: 13%">Date</th>
-        <th style="width: 11%">Opérateur</th>
-        <th style="width: 9%">Sens</th>
-        <th class="text-right" style="width: 7%">Entrées</th>
-        <th class="text-right" style="width: 7%">Sorties</th>
-        <th style="width: 26%">Commentaire</th>
-        <th class="text-center" style="width: 16%">Actions</th>
-      </tr>
-    </ng-template>
+  <app-card>
+    <app-data-table
+      [loading]="facade.loadingHistory()"
+      [value]="facade.history()"
+      [lazy]="true"
+      [paginator]="true"
+      [totalRecords]="facade.totalHistory()"
+      [rows]="itemsPerPage"
+      [(first)]="first"
+      [showCurrentPageReport]="true"
+      (onLazyLoad)="onLazyLoad($event)"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 3%"></th>
+          <th style="width: 4%">#</th>
+          <th style="width: 13%">Date</th>
+          <th style="width: 11%">Opérateur</th>
+          <th style="width: 9%">Sens</th>
+          <th class="text-right" style="width: 7%">Entrées</th>
+          <th class="text-right" style="width: 7%">Sorties</th>
+          <th style="width: 26%">Commentaire</th>
+          <th class="text-center" style="width: 16%">Actions</th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-ajust let-expanded="expanded" let-rowIndex="rowIndex">
-      <tr class="pharma-row-hover">
-        <td>
-          <app-button
-            [appRowToggler]="ajust"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [rounded]="true"
-            [text]="true"
-            ngbTooltip="Détail des lignes"
-            size="small"
-            type="button"
-          />
-        </td>
-        <td>
-          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-        </td>
-        <td class="text-muted small">
-          {{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}
-        </td>
-        <td>
-          <span class="pharma-entity-name">{{ ajust.userFullName ?? '-' }}</span>
-        </td>
-        <td>
-          <div class="d-flex flex-column gap-1">
-            @if (hasEntrees(ajust.ajustements ?? [])) {
-              <app-badge icon="pi pi-arrow-up" label="Entrée" severity="success" />
-            }
-            @if (hasSorties(ajust.ajustements ?? [])) {
-              <app-badge icon="pi pi-arrow-down" label="Sortie" severity="danger" />
-            }
-          </div>
-        </td>
-        <td class="text-right">
-          @if (hasEntrees(ajust.ajustements ?? [])) {
-            <span class="ajust-count-in">{{ nbEntrees(ajust.ajustements ?? []) }}</span>
-          }
-        </td>
-        <td class="text-right">
-          @if (hasSorties(ajust.ajustements ?? [])) {
-            <span class="ajust-count-out">{{ nbSorties(ajust.ajustements ?? []) }}</span>
-          }
-        </td>
-        <td>
-          <span class="text-muted small text-truncate d-block" style="max-width: 22rem">
-            {{ ajust.commentaire ?? '–' }}
-          </span>
-        </td>
-        <td class="text-center">
-          <div class="btn-group">
+      <ng-template #body let-ajust let-expanded="expanded" let-rowIndex="rowIndex">
+        <tr class="pharma-row-hover">
+          <td>
             <app-button
-              (clicked)="exportPdf(ajust)"
+              [appRowToggler]="ajust"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
               [rounded]="true"
               [text]="true"
-              icon="pi pi-file-pdf"
-              ngbTooltip="Exporter PDF"
-              severity="secondary"
+              ngbTooltip="Détail des lignes"
               size="small"
+              type="button"
             />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #expandedrow let-ajust>
-      <tr class="pharma-expanded-row">
-        <td colspan="9">
-          <div class="app-table__expanded-content">
-            <app-card header="Détail des lignes" icon="pi pi-list">
-              @if ((ajust.ajustements ?? []).length) {
-                <table class="table table-sm ajust-detail-table mb-0">
-                  <thead>
-                    <tr class="pharma-table-head">
-                      <th>Code CIP</th>
-                      <th>Produit</th>
-                      <th class="text-right">Qté</th>
-                      <th class="text-right">Stock avant</th>
-                      <th class="text-right">Stock après</th>
-                      <th>Motif</th>
-                      <th>Commentaire</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (detail of ajust.ajustements; track detail.id) {
-                      <tr>
-                        <td>
-                          <span class="pharma-code">{{ detail.codeCip ?? '–' }}</span>
-                        </td>
-                        <td>{{ detail.produitLibelle ?? '–' }}</td>
-                        <td class="text-right">
-                          <span [class.ajust-qty-in]="(detail.qtyMvt ?? 0) >= 0" [class.ajust-qty-out]="(detail.qtyMvt ?? 0) < 0">
-                            {{ (detail.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ detail.qtyMvt | number }}
-                          </span>
-                        </td>
-                        <td class="text-right">{{ detail.stockBefore | number }}</td>
-                        <td class="text-right">{{ detail.stockAfter | number }}</td>
-                        <td>{{ detail.motifAjustementLibelle ?? '–' }}</td>
-                        <td class="text-muted small">{{ detail.commentaire ?? '–' }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              } @else {
-                <div class="text-muted small text-center py-2">Aucune ligne pour cet ajustement</div>
+          </td>
+          <td>
+            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+          </td>
+          <td class="text-muted small">
+            {{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ ajust.userFullName ?? '-' }}</span>
+          </td>
+          <td>
+            <div class="d-flex flex-column gap-1">
+              @if (hasEntrees(ajust.ajustements ?? [])) {
+                <app-badge icon="pi pi-arrow-up" label="Entrée" severity="success" />
               }
-            </app-card>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+              @if (hasSorties(ajust.ajustements ?? [])) {
+                <app-badge icon="pi pi-arrow-down" label="Sortie" severity="danger" />
+              }
+            </div>
+          </td>
+          <td class="text-right">
+            @if (hasEntrees(ajust.ajustements ?? [])) {
+              <span class="ajust-count-in">{{ nbEntrees(ajust.ajustements ?? []) }}</span>
+            }
+          </td>
+          <td class="text-right">
+            @if (hasSorties(ajust.ajustements ?? [])) {
+              <span class="ajust-count-out">{{ nbSorties(ajust.ajustements ?? []) }}</span>
+            }
+          </td>
+          <td>
+            <span class="text-muted small text-truncate d-block" style="max-width: 22rem">
+              {{ ajust.commentaire ?? '–' }}
+            </span>
+          </td>
+          <td class="text-center">
+            <div class="btn-group">
+              <app-button
+                (clicked)="exportPdf(ajust)"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-file-pdf"
+                ngbTooltip="Exporter PDF"
+                severity="secondary"
+                size="small"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="9">
-          <div class="pharma-empty-content">
-            <i class="pi pi-inbox"></i>
-            <p>Aucun ajustement pour cette période</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+      <ng-template #expandedrow let-ajust>
+        <tr class="pharma-expanded-row">
+          <td colspan="9">
+            <div class="app-table__expanded-content">
+              <app-card header="Détail des lignes" icon="pi pi-list">
+                @if ((ajust.ajustements ?? []).length) {
+                  <table class="table table-sm ajust-detail-table mb-0">
+                    <thead>
+                      <tr class="pharma-table-head">
+                        <th>Code CIP</th>
+                        <th>Produit</th>
+                        <th class="text-right">Qté</th>
+                        <th class="text-right">Stock avant</th>
+                        <th class="text-right">Stock après</th>
+                        <th>Motif</th>
+                        <th>Commentaire</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (detail of ajust.ajustements; track detail.id) {
+                        <tr>
+                          <td>
+                            <span class="pharma-code">{{ detail.codeCip ?? '–' }}</span>
+                          </td>
+                          <td>{{ detail.produitLibelle ?? '–' }}</td>
+                          <td class="text-right">
+                            <span [class.ajust-qty-in]="(detail.qtyMvt ?? 0) >= 0" [class.ajust-qty-out]="(detail.qtyMvt ?? 0) < 0">
+                              {{ (detail.qtyMvt ?? 0) >= 0 ? '+' : '' }}{{ detail.qtyMvt | number }}
+                            </span>
+                          </td>
+                          <td class="text-right">{{ detail.stockBefore | number }}</td>
+                          <td class="text-right">{{ detail.stockAfter | number }}</td>
+                          <td>{{ detail.motifAjustementLibelle ?? '–' }}</td>
+                          <td class="text-muted small">{{ detail.commentaire ?? '–' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                } @else {
+                  <div class="text-muted small text-center py-2">Aucune ligne pour cet ajustement</div>
+                }
+              </app-card>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #footer>
-      <tr>
-        <td class="text-muted small" colspan="9">Total : {{ facade.totalHistory() }} ajustement(s)</td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="9">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucun ajustement pour cette période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #footer>
+        <tr>
+          <td class="text-muted small" colspan="9">Total : {{ facade.totalHistory() }} ajustement(s)</td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>

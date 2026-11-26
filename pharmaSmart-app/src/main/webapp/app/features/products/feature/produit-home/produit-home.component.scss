@@ -1,7 +1,7 @@
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/bulk-action-bar';
-@import 'app/shared/scss/split-panel';
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/bulk-action-bar' as *;
+@use 'app/shared/scss/split-panel' as *;
 
 .produit-home-layout {
   display: flex;
@@ -110,6 +110,8 @@
   line-height: 1.4;
 }
 
+// Suffixe = valeur de `classeCriticite` en minuscules (`A_PLUS` → `classe-a_plus`).
+/* stylelint-disable-next-line selector-class-pattern */
 :host ::ng-deep .classe-a_plus {
   background: #dcfce7;
   color: #166534;
@@ -160,8 +162,3 @@
   color: #6b21a8;
   border: 1px solid #e9d5ff;
 }
-
-/* Ligne sélectionnée dans la liste */
-// La ligne sélectionnée est stylée globalement : `.ligne-selected`, dans
-// content/scss/table-common-global.scss. Le `::ng-deep` qui traînait ici visait une classe
-// que le gabarit ne pose plus.

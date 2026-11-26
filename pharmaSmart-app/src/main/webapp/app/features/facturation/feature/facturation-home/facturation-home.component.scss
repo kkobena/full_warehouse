@@ -1,22 +1,7 @@
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/bulk-action-bar' as bulk;
 @use 'app/shared/scss/split-panel';
+
 .p-floatlabel {
   min-width: 90px !important;
-}
-
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.facturation-home {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  padding: 0.5rem;
-  gap: 0.5rem;
 }

@@ -1,16 +1,2 @@
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/split-panel';
-
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-// Le contenu du panneau détail a son propre layout flex interne (onglets + corps).
-.detail-column {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}

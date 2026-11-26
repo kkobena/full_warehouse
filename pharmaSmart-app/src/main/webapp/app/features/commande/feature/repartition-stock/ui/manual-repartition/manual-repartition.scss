@@ -1,8 +1,8 @@
-@import 'app/shared/scss/pharma-toolbar';
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/search-section';
-
 // ── Section de saisie (mixin partagé) ─────────────────────────────────────────
+
+@use 'app/shared/scss/pharma-toolbar' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/search-section' as *;
 
 .product-search-section {
   @include search-section(#2e7d97);

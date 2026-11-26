@@ -1,8 +1,8 @@
-@import '../../shared/styles/comptoir-style';
-
 // ============================================
 // SALE ACTIONS - Boutons d'action
 // ============================================
+
+@use '../../shared/styles/comptoir-style' as *;
 
 .sale-actions-container {
   display: flex;

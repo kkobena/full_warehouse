@@ -44,10 +44,11 @@
               (click)="onMenuItemClick()"
               [class.collapsed-item]="isCollapsed()"
               [ngbTooltip]="isCollapsed() ? item.label : null"
+              [attr.aria-current]="menusActifs().has(item.id) ? 'page' : null"
+              [class.active]="menusActifs().has(item.id)"
               [routerLink]="item.routerLink"
               class="nav-link"
               placement="right"
-              routerLinkActive="active"
             >
               <span class="nav-icon">
                 <fa-icon [icon]="item.faIcon"></fa-icon>
@@ -94,6 +95,7 @@
               (mouseleave)="onTriggerLeave()"
               [attr.aria-expanded]="openMenuId() === item.id"
               [attr.data-flyout-trigger]="item.id"
+              [class.active]="menusActifs().has(item.id)"
               [class.collapsed-item]="isCollapsed()"
               [class.expanded]="openMenuId() === item.id"
               [ngbTooltip]="isCollapsed() ? item.label : null"

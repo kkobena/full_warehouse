@@ -1,6 +1,6 @@
-@import 'app/shared/scss/table-common';
-@import 'app/shared/scss/pharma-nav-tabs';
-@import 'app/shared/scss/split-panel';
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/pharma-nav-tabs' as *;
+@use 'app/shared/scss/split-panel' as *;
 
 .master {
   height: 100%;

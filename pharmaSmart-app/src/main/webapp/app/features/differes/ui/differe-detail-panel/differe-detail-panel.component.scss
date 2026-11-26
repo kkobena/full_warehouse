@@ -1,5 +1,5 @@
-@import 'app/shared/scss/pharma-nav';
-@import 'app/shared/scss/table-common';
+@use 'app/shared/scss/pharma-nav' as *;
+@use 'app/shared/scss/table-common' as tc;
 
 .detail-panel {
   display: flex;

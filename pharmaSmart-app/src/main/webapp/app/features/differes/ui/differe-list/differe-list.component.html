@@ -20,6 +20,7 @@
       <th class="text-end">Payé</th>
       <th class="text-end">Restant</th>
       <th class="text-end">Articles</th>
+      <th class="text-center" style="width: 4rem">Actions</th>
     </tr>
   </ng-template>
 
@@ -42,12 +43,23 @@
         <span [class.pharma-total]="(differe.rest ?? 0) > 0">{{ differe.rest | number }}</span>
       </td>
       <td class="text-end">{{ differe.differeItems?.length | number }}</td>
+      <td class="text-center">
+        <app-button
+          (clicked)="voirDetail(differe, $event)"
+          [rounded]="true"
+          [text]="true"
+          icon="pi pi-eye"
+          ngbTooltip="Voir le détail"
+          severity="info"
+          size="small"
+        />
+      </td>
     </tr>
   </ng-template>
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="5">
+      <td colspan="6">
         <div class="alert alert-warning m-2">Aucun différé trouvé — affinez la recherche</div>
       </td>
     </tr>

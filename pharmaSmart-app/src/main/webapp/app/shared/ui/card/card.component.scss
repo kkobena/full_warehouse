@@ -2,7 +2,8 @@
 // partial). Le markup de la carte est rendu par le composant lui-même, les styles
 // s'appliquent donc malgré l'encapsulation ; seul le contenu projeté y échappe, et il
 // n'est pas ciblé ici.
-@import '../../scss/data-card';
+
+@use '../../scss/data-card' as *;
 
 :host {
   display: block;
@@ -26,10 +27,9 @@
 // d'`app-card` et cessaient donc de s'appliquer dès que le markup passait dans un
 // composant. Le Design System les porte désormais lui-même.
 .card-form {
-  // surface-100 (#f1f5f9) et non surface-50 (#f8fafc) : à 98 % de blanc, la teinte de
-  // surface-50 ne se distinguait pas du fond de la modale et la carte paraissait absente.
-  // Doit rester aligné sur la règle `.card` de `_modal-theme.scss`.
-  background-color: var(--p-surface-100);
+  // Sur une page, le fond est déjà la teinte du thème (`--pharma-app-bg`) : la carte se détache en surface blanche,
+  // comme les autres cartes des écrans. Dans une modale (fond blanc), c'est l'inverse : voir la règle suivante.
+  background-color: var(--pharma-surface);
   border: 1px solid var(--p-content-border-color);
   border-radius: var(--bs-border-radius);
 
@@ -53,4 +53,10 @@
     background-color: transparent;
     padding: 0.5rem;
   }
+}
+
+// Dans une modale, le corps est blanc : la carte prend la teinte du thème pour regrouper les champs.
+// Doit rester aligné sur la règle `.card` de `_modal-theme.scss`.
+:host-context(.modal) .card-form {
+  background-color: var(--pharma-app-bg);
 }

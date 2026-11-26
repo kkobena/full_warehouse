@@ -1,5 +1,5 @@
-@import 'app/shared/scss/dashboard-common';
-@import 'app/shared/scss/_pharma-toolbar';
+@use 'app/shared/scss/dashboard-common' as *;
+@use 'app/shared/scss/pharma-toolbar' as *;
 
 .tva-summary-card {
   border: 1px solid #e2e8f0;
